@@ -165,7 +165,7 @@ public class Conversion {
         //  so it is safe to store the context as an attribute for later use in update
         //  to do things right the context should have been created in the constructor,
         //  together with the empty network
-        this.context = createContext(network, reportNode);
+        Context context = createContext(network, reportNode);
 
         assignNetworkProperties(context);
         addMetadataModels(network, context);
@@ -303,11 +303,11 @@ public class Conversion {
         }
         this.cgmes.invalidateCaches();
         this.cgmes.setQueryCatalog("-update");
-        Context context = createUpdateContext(network, reportNode);
+        Context updateContext = createUpdateContext(network, reportNode);
 
         // add processes to create new equipment using update data (ssh and sv data)
 
-        update(network, context, reportNode);
+        update(network, updateContext, reportNode);
     }
 
     private static boolean sshIncludedInCgmesModel(CgmesModel cgmes) {
@@ -317,11 +317,11 @@ public class Conversion {
     public void update(Network network, ReportNode reportNode) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(reportNode);
-        Context context = createUpdateContext(network, reportNode);
-        update(network, context, reportNode);
+        Context updateContext = createUpdateContext(network, reportNode);
+        update(network, updateContext, reportNode);
     }
 
-    private void update(Network network, Context context, ReportNode reportNode) {
+    private void update(Network network, Context updateContext, ReportNode reportNode) {
         // FIXME(Luma) Inspect the contents of the loaded data
         if (LOG.isDebugEnabled()) {
             PropertyBags nts = cgmes.numObjectsByType();
@@ -330,7 +330,7 @@ public class Conversion {
             nts.forEach(nt -> LOG.debug(cgmes.allObjectsOfType(nt.getLocal("Type")).tabulateLocals()));
         }
 
-        updateLoads(network, cgmes, context);
+        updateLoads(network, cgmes, updateContext);
         network.runValidationChecks(false, reportNode);
         network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
@@ -1223,7 +1223,6 @@ public class Conversion {
     private final List<CgmesImportPostProcessor> postProcessors;
     private final List<CgmesImportPreProcessor> preProcessors;
     private final NetworkFactory networkFactory;
-    private Context context;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
 

@@ -269,6 +269,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         }
     }
 
+    @Override
     public void invalidateCaches() {
         cachedGroupedTransformerEnds = null;
         powerTransformerRatioTapChanger = null;
