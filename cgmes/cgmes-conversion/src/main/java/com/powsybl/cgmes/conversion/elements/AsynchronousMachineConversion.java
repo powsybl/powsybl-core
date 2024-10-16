@@ -14,7 +14,14 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import java.util.List;
+import java.util.Objects;
+
+import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
+import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.NAN;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -23,6 +30,12 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
 
     public AsynchronousMachineConversion(PropertyBag asm, Context context) {
         super(CgmesNames.ASYNCHRONOUS_MACHINE, asm, context);
+        this.load = null;
+    }
+
+    public AsynchronousMachineConversion(PropertyBag es, PropertyBag cgmesTerminal, Load load, Context context) {
+        super(CgmesNames.ASYNCHRONOUS_MACHINE, es, cgmesTerminal, context);
+        this.load = load;
     }
 
     @Override
@@ -31,21 +44,33 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
         // We make no difference based on the type (motor/generator)
         LoadType loadType = id.contains("fict") ? LoadType.FICTITIOUS : LoadType.UNDEFINED;
         LoadAdder adder = voltageLevel().newLoad()
-                .setP0(p0())
-                .setQ0(q0())
                 .setLoadType(loadType);
         identify(adder);
-        connect(adder);
+        connection(adder);
         Load load = adder.add();
         addAliasesAndProperties(load);
-        convertedTerminals(load.getTerminal());
+        mappingTerminals(load.getTerminal());
 
         addSpecificProperties(load);
+    }
+
+    @Override
+    public void update(Network network) {
+        Objects.requireNonNull(load);
+        updateTerminals(context, load.getTerminal());
+        load.setP0(updatedP0().orElse(defaultP(Double.NaN, load.getP0(), gettDefaultValue(context))))
+                .setQ0(qupdatedQ0().orElse(defaultQ(Double.NaN, load.getQ0(), gettDefaultValue(context))));
     }
 
     private static void addSpecificProperties(Load load) {
         load.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ASYNCHRONOUS_MACHINE);
     }
+
+    private static Conversion.Config.DefaultValue gettDefaultValue(Context context) {
+        return selectDefaultValue(List.of(PREVIOUS, ZERO, NAN), context);
+    }
+
+    private final Load load;
 }
 
 

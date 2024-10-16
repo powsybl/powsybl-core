@@ -37,6 +37,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
+import static com.powsybl.cgmes.conversion.Update.updateLoads;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -158,7 +159,14 @@ public class Conversion {
 
         // Create base network with metadata information
         Network network = createNetwork();
-        Context context = createContext(network, reportNode);
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+
+        // FIXME(Luma) we are not reusing conversion objects,
+        //  so it is safe to store the context as an attribute for later use in update
+        //  to do things right the context should have been created in the constructor,
+        //  together with the empty network
+        this.context = createContext(network, reportNode);
+
         assignNetworkProperties(context);
         addMetadataModels(network, context);
         addCimCharacteristics(network);
@@ -276,7 +284,48 @@ public class Conversion {
         }
 
         CgmesReports.importedCgmesNetworkReport(reportNode, network.getId());
+
+        // FIXME(Luma) in the first step, the Conversion object has used only info from EQ,
+        //  we call the update method on the same conversion object,
+        //  that has the context created during the convert (first) step
+        //  and all the data already loaded in the triplestore,
+        //  we only need to switch to a different set of queries
+        updateAfterConvert(network, context, reportNode);
+
         return network;
+    }
+
+    private void updateAfterConvert(Network network, Context convertContext, ReportNode reportNode) {
+        // FIXME(Luma) Before switching to update we must invalidate all caches of the cgmes model
+        //  and change the query catalog to "update" mode
+
+        this.cgmes.invalidateCaches();
+        this.cgmes.setQueryCatalog("-update");
+        Context context = createUpdateContext(network, reportNode);
+
+        // add processes to create new equipment using update data (ssh and sv data)
+
+        update(network, context);
+    }
+
+    public void update(Network network, ReportNode reportNode) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(reportNode);
+        Context context = createUpdateContext(network, reportNode);
+        update(network, context);
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+    }
+
+    private void update(Network network, Context context) {
+        // FIXME(Luma) Inspect the contents of the loaded data
+        if (LOG.isDebugEnabled()) {
+            PropertyBags nts = cgmes.numObjectsByType();
+            LOG.debug("CGMES objects read for the update:");
+            nts.forEach(nt -> LOG.debug(String.format("  %5d %s", nt.asInt("numObjects"), nt.getLocal("Type"))));
+            nts.forEach(nt -> LOG.debug(cgmes.allObjectsOfType(nt.getLocal("Type")).tabulateLocals()));
+        }
+
+        updateLoads(network, cgmes, context);
     }
 
     /**
@@ -477,6 +526,12 @@ public class Conversion {
         context.loadRatioTapChangerTables();
         context.loadPhaseTapChangerTables();
         context.loadReactiveCapabilityCurveData();
+        return context;
+    }
+
+    private Context createUpdateContext(Network network, ReportNode reportNode) {
+        Context context = new Context(cgmes, config, network, reportNode);
+        context.loadCgmesTerminals();
         return context;
     }
 
@@ -913,6 +968,13 @@ public class Conversion {
             SV
         }
 
+        public enum DefaultValue {
+            EQ,
+            ZERO,
+            NAN,
+            PREVIOUS
+        }
+
         public List<String> substationIdsExcludedFromMapping() {
             return Collections.emptyList();
         }
@@ -1107,6 +1169,14 @@ public class Conversion {
             return disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected;
         }
 
+        public boolean updateTerminalConnectionInNodeBreakerVoltageLevel() {
+            return updateTerminalConnectionInNodeBreakerVoltageLevel;
+        }
+
+        public List<DefaultValue> updateDefaultValuesPriority() {
+            return updateDefaultValuesPriority;
+        }
+
         private boolean convertBoundary = false;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
@@ -1135,6 +1205,10 @@ public class Conversion {
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
 
         private double missingPermanentLimitPercentage = 100;
+
+        private final boolean updateTerminalConnectionInNodeBreakerVoltageLevel = false;
+
+        private final List<DefaultValue> updateDefaultValuesPriority = List.of(DefaultValue.NAN, DefaultValue.EQ);
     }
 
     private final CgmesModel cgmes;
@@ -1142,6 +1216,7 @@ public class Conversion {
     private final List<CgmesImportPostProcessor> postProcessors;
     private final List<CgmesImportPreProcessor> preProcessors;
     private final NetworkFactory networkFactory;
+    private Context context;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
 

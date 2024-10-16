@@ -217,6 +217,9 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkP0(Validable validable, double p0, ValidationLevel validationLevel, ReportNode reportNode) {
+        if (validationLevel.equals(ValidationLevel.EQUIPMENT)) {
+            return ValidationLevel.EQUIPMENT;
+        }
         return checkP0(validable, p0, checkValidationLevel(validationLevel), reportNode);
     }
 
@@ -229,6 +232,9 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkQ0(Validable validable, double q0, ValidationLevel validationLevel, ReportNode reportNode) {
+        if (validationLevel.equals(ValidationLevel.EQUIPMENT)) {
+            return ValidationLevel.EQUIPMENT;
+        }
         return checkQ0(validable, q0, validationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS, reportNode);
     }
 

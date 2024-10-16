@@ -1,0 +1,69 @@
+#
+# Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: graph
+SELECT DISTINCT  ?graph
+ WHERE
+{ GRAPH ?graph
+       { ?s  ?p  ?o }
+}
+
+# query: version
+SELECT ?version
+{ GRAPH ?graph {
+    ?versionId cim:IEC61970CIMVersion.version ?version
+}}
+
+# query: numObjectsByType
+# Only types in a namespace given as parameter
+SELECT ?Type (COUNT (DISTINCT ?object) AS ?numObjects)
+{ GRAPH ?graph {
+    ?object a ?Type .
+    FILTER (STRSTARTS(STR(?Type), "{0}"))
+}}
+GROUP BY ?Type
+
+# query: allObjectsOfType
+SELECT * 
+{ GRAPH ?graph {
+    ?object a cim:{0} ;
+        ?attribute ?value .
+}}
+
+# query: terminals
+# we cannot access the 'inService' Status
+SELECT *
+{
+    ?Terminal
+        a cim:Terminal ;
+        cim:Terminal.connected ?connected
+    OPTIONAL {
+        ?SvPowerFlow a cim:SvPowerFlow ;
+            cim:SvPowerFlow.Terminal ?Terminal ;
+            cim:SvPowerFlow.p ?p ;
+            cim:SvPowerFlow.q ?q .
+    }
+}
+
+# query: topologicalNodes
+SELECT *
+{
+    ?TopologicalNode a cim:TopologicalNode .
+    OPTIONAL {
+        ?SvVoltage a cim:SvVoltage ;
+            cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+            cim:SvVoltage.v ?v ;
+            cim:SvVoltage.angle ?angle
+    }
+    OPTIONAL {
+        SELECT ?ConnectivityNode
+        WHERE {
+            ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode
+        }
+        LIMIT 1
+    }
+}
