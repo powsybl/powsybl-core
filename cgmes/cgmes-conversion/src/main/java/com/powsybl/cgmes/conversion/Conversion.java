@@ -298,7 +298,9 @@ public class Conversion {
     private void updateAfterConvert(Network network, Context convertContext, ReportNode reportNode) {
         // FIXME(Luma) Before switching to update we must invalidate all caches of the cgmes model
         //  and change the query catalog to "update" mode
-
+        if (!sshIncludedInCgmesModel(this.cgmes)) {
+            return;
+        }
         this.cgmes.invalidateCaches();
         this.cgmes.setQueryCatalog("-update");
         Context context = createUpdateContext(network, reportNode);
@@ -306,6 +308,10 @@ public class Conversion {
         // add processes to create new equipment using update data (ssh and sv data)
 
         update(network, context, reportNode);
+    }
+
+    private static boolean sshIncludedInCgmesModel(CgmesModel cgmes) {
+        return cgmes.version().contains("CIM14") || cgmes.fullModels().stream().anyMatch(fullModel -> fullModel.getId("profileList").contains("SteadyStateHypothesis"));
     }
 
     public void update(Network network, ReportNode reportNode) {
@@ -1209,7 +1215,7 @@ public class Conversion {
 
         private final boolean updateTerminalConnectionInNodeBreakerVoltageLevel = false;
 
-        private final List<DefaultValue> updateDefaultValuesPriority = List.of(DefaultValue.NAN, DefaultValue.EQ);
+        private final List<DefaultValue> updateDefaultValuesPriority = List.of(DefaultValue.EQ, DefaultValue.NAN);
     }
 
     private final CgmesModel cgmes;
