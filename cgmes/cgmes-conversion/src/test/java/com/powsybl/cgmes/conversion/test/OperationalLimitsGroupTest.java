@@ -18,7 +18,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.getUniqueMatches;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -32,10 +32,12 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     private static final Pattern ACTIVE_POWER_LIMIT = Pattern.compile("<cim:ActivePowerLimit rdf:ID=\"(.*?)\">");
     private static final Pattern CURRENT_LIMIT = Pattern.compile("<cim:CurrentLimit rdf:ID=\"(.*?)\">");
 
+    private static final String DIR = "/issues/operational-limits/";
+
     @Test
     void importMultipleLimitsGroupsOnSameLineEndTest() {
         // Retrieve line
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
         Line line = network.getLine("Line");
 
         // There is 1 set on side 1, 2 sets on side 2
@@ -56,7 +58,7 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     @Test
     void exportSelectedLimitsGroupTest() throws IOException {
         // Import and export CGMES limits
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
 
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, false);
@@ -86,7 +88,7 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     @Test
     void exportAllLimitsGroupTest() throws IOException {
         // Import and export CGMES limits
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
 
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, true);
