@@ -18,7 +18,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.getUniqueMatches;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -32,10 +32,12 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     private static final Pattern ACTIVE_POWER_LIMIT = Pattern.compile("<cim:ActivePowerLimit rdf:ID=\"(.*?)\">");
     private static final Pattern CURRENT_LIMIT = Pattern.compile("<cim:CurrentLimit rdf:ID=\"(.*?)\">");
 
+    private static final String DIR = "/issues/operational-limits/";
+
     @Test
     void importMultipleLimitsGroupsOnSameLineEndTest() {
         // Retrieve line
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
         Line line = network.getLine("Line");
 
         // There is 1 set on side 1, 2 sets on side 2
@@ -56,7 +58,7 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     @Test
     void exportSelectedLimitsGroupTest() throws IOException {
         // Import and export CGMES limits
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
 
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, false);
@@ -86,7 +88,7 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     @Test
     void exportAllLimitsGroupTest() throws IOException {
         // Import and export CGMES limits
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
 
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, true);
@@ -99,6 +101,34 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
         assertEquals(3, getUniqueMatches(exportAllLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
         assertEquals(3, getUniqueMatches(exportAllLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
         assertEquals(9, getUniqueMatches(exportAllLimitsGroupXml, CURRENT_LIMIT).size());
+    }
+
+    @Test
+    void limitSetsAssociatedToEquipmentsTest() {
+        // CGMES network:
+        //   An OperationalLimitSet with a CurrentLimit associated to a boundary ACLineSegment (Dangling Line in IIDM).
+        //   An OperationalLimitSet with a CurrentLimit associated to a normal ACLineSegment.
+        //   An OperationalLimitSet with a CurrentLimit associated to a 2-windings PowerTransformer.
+        //   An OperationalLimitSet with a CurrentLimit associated to a Switch.
+        Network network = readCgmesResources(DIR, "limitsets_associated_to_equipments_EQ.xml",
+                "limitsets_associated_to_equipments_EQBD.xml", "limitsets_associated_to_equipments_TPBD.xml");
+
+        // OperationalLimitSet on dangling line is imported on its single extremity.
+        assertNotNull(network.getDanglingLine("DL"));
+        assertTrue(network.getDanglingLine("DL").getCurrentLimits().isPresent());
+
+        // OperationalLimitSet on ACLineSegment is imported on its two extremities.
+        assertNotNull(network.getLine("ACL"));
+        assertTrue(network.getLine("ACL").getCurrentLimits1().isPresent());
+        assertTrue(network.getLine("ACL").getCurrentLimits2().isPresent());
+
+        // OperationalLimitSet on PowerTransformer is discarded.
+        assertNotNull(network.getTwoWindingsTransformer("PT"));
+        assertFalse(network.getTwoWindingsTransformer("PT").getCurrentLimits1().isPresent());
+        assertFalse(network.getTwoWindingsTransformer("PT").getCurrentLimits2().isPresent());
+
+        // There can't be any limit associated to switches in IIDM, but check anyway that the switch has been imported.
+        assertNotNull(network.getSwitch("SW"));
     }
 
 }
