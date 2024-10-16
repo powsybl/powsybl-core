@@ -305,18 +305,17 @@ public class Conversion {
 
         // add processes to create new equipment using update data (ssh and sv data)
 
-        update(network, context);
+        update(network, context, reportNode);
     }
 
     public void update(Network network, ReportNode reportNode) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(reportNode);
         Context context = createUpdateContext(network, reportNode);
-        update(network, context);
-        network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        update(network, context, reportNode);
     }
 
-    private void update(Network network, Context context) {
+    private void update(Network network, Context context, ReportNode reportNode) {
         // FIXME(Luma) Inspect the contents of the loaded data
         if (LOG.isDebugEnabled()) {
             PropertyBags nts = cgmes.numObjectsByType();
@@ -326,6 +325,8 @@ public class Conversion {
         }
 
         updateLoads(network, cgmes, context);
+        network.runValidationChecks(false, reportNode);
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
 
     /**
