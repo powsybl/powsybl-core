@@ -28,6 +28,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -93,5 +95,22 @@ public final class ConversionUtil {
     public static Network readCgmesResources(Properties properties, String dir, String... files) {
         ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(dir, files));
         return Network.read(ds, properties);
+    }
+
+    public static String getFirstMatch(String text, Pattern pattern) {
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
+    public static Set<String> getUniqueMatches(String text, Pattern pattern) {
+        Set<String> matches = new HashSet<>();
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            matches.add(matcher.group(1));
+        }
+        return matches;
     }
 }
