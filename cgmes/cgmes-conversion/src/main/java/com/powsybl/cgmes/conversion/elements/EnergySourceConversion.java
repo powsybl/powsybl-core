@@ -41,15 +41,15 @@ public class EnergySourceConversion extends AbstractConductingEquipmentConversio
                 .setLoadType(loadType);
         identify(adder);
         connection(adder);
-        Load load = adder.add();
-        addAliasesAndProperties(load);
-        mappingTerminals(load.getTerminal());
+        Load newLoad = adder.add();
+        addAliasesAndProperties(newLoad);
+        mappingTerminals(newLoad.getTerminal());
 
-        addSpecificProperties(load);
+        addSpecificProperties(newLoad);
     }
 
-    private static void addSpecificProperties(Load load) {
-        load.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ENERGY_SOURCE);
+    private static void addSpecificProperties(Load newLoad) {
+        newLoad.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ENERGY_SOURCE);
     }
 
     @Override

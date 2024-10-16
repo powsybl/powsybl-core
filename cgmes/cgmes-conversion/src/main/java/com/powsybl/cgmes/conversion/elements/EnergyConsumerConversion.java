@@ -63,13 +63,13 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         mappingTerminals(load.getTerminal());
         setLoadDetail(loadKind, load, pFixed, qFixed);
 
-        addSpecificProperties(load, loadKind, pFixed, qFixed);
+        addSpecificProperties(load, pFixed, qFixed);
     }
 
-    private static void addSpecificProperties(Load load, String loadKind, double pFixed, double qFixed) {
-        load.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, loadKind);
-        load.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + P_FIXED, String.valueOf(pFixed));
-        load.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + Q_FIXED, String.valueOf(qFixed));
+    private void addSpecificProperties(Load newLoad, double pFixed, double qFixed) {
+        newLoad.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, loadKind);
+        newLoad.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + P_FIXED, String.valueOf(pFixed));
+        newLoad.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + Q_FIXED, String.valueOf(qFixed));
     }
 
     private void model(LoadAdder adder) {
@@ -160,27 +160,27 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
                 .setQ0(qupdatedQ0().orElse(defaultQ(qFixed, load.getQ0(), getDefaultValue(context))));
 
         String loadKind = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
-        updateLoadDetail(loadKind, load, pFixed, qFixed);
+        updateLoadDetail(loadKind, pFixed, qFixed);
     }
 
     private static Conversion.Config.DefaultValue getDefaultValue(Context context) {
         return selectDefaultValue(List.of(EQ, PREVIOUS, ZERO, NAN), context);
     }
 
-    private static void updateLoadDetail(String type, Load updatedLoad, double pFixed, double qFixed) {
+    private void updateLoadDetail(String type, double pFixed, double qFixed) {
         if (type == null) {
             return;
         }
-        LoadDetail loadDetail = updatedLoad.getExtension(LoadDetail.class);
+        LoadDetail loadDetail = load.getExtension(LoadDetail.class);
         if (loadDetail == null) {
             return;
         }
         if (type.equals("ConformLoad")) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
-            loadDetail.setVariableActivePower(Double.isFinite(updatedLoad.getP0()) ? (float) updatedLoad.getP0() : (float) pFixed)
-                    .setVariableReactivePower(Double.isFinite(updatedLoad.getQ0()) ? (float) updatedLoad.getQ0() : (float) qFixed);
+            loadDetail.setVariableActivePower(Double.isFinite(load.getP0()) ? (float) load.getP0() : (float) pFixed)
+                    .setVariableReactivePower(Double.isFinite(load.getQ0()) ? (float) load.getQ0() : (float) qFixed);
         } else if (type.equals("NonConformLoad")) { // does not participate in scaling
-            loadDetail.setFixedActivePower(Double.isFinite(updatedLoad.getP0()) ? (float) updatedLoad.getP0() : (float) pFixed)
-                    .setFixedReactivePower(Double.isFinite(updatedLoad.getQ0()) ? (float) updatedLoad.getQ0() : (float) qFixed);
+            loadDetail.setFixedActivePower(Double.isFinite(load.getP0()) ? (float) load.getP0() : (float) pFixed)
+                    .setFixedReactivePower(Double.isFinite(load.getQ0()) ? (float) load.getQ0() : (float) qFixed);
         }
     }
 

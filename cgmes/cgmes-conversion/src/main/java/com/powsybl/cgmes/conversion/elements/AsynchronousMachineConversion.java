@@ -47,11 +47,11 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
                 .setLoadType(loadType);
         identify(adder);
         connection(adder);
-        Load load = adder.add();
-        addAliasesAndProperties(load);
-        mappingTerminals(load.getTerminal());
+        Load newLoad = adder.add();
+        addAliasesAndProperties(newLoad);
+        mappingTerminals(newLoad.getTerminal());
 
-        addSpecificProperties(load);
+        addSpecificProperties(newLoad);
     }
 
     @Override
@@ -62,8 +62,8 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
                 .setQ0(qupdatedQ0().orElse(defaultQ(Double.NaN, load.getQ0(), gettDefaultValue(context))));
     }
 
-    private static void addSpecificProperties(Load load) {
-        load.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ASYNCHRONOUS_MACHINE);
+    private static void addSpecificProperties(Load newLoad) {
+        newLoad.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ASYNCHRONOUS_MACHINE);
     }
 
     private static Conversion.Config.DefaultValue gettDefaultValue(Context context) {

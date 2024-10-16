@@ -1177,7 +1177,7 @@ public class Conversion {
         }
 
         public boolean updateTerminalConnectionInNodeBreakerVoltageLevel() {
-            return updateTerminalConnectionInNodeBreakerVoltageLevel;
+            return UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL;
         }
 
         public List<DefaultValue> updateDefaultValuesPriority() {
@@ -1213,7 +1213,7 @@ public class Conversion {
 
         private double missingPermanentLimitPercentage = 100;
 
-        private final boolean updateTerminalConnectionInNodeBreakerVoltageLevel = false;
+        private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
 
         private final List<DefaultValue> updateDefaultValuesPriority = List.of(DefaultValue.EQ, DefaultValue.NAN);
     }
