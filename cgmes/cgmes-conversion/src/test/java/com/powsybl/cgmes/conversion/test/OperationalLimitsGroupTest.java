@@ -18,7 +18,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.getUniqueMatches;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -32,10 +32,12 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     private static final Pattern ACTIVE_POWER_LIMIT = Pattern.compile("<cim:ActivePowerLimit rdf:ID=\"(.*?)\">");
     private static final Pattern CURRENT_LIMIT = Pattern.compile("<cim:CurrentLimit rdf:ID=\"(.*?)\">");
 
+    private static final String DIR = "/issues/operational-limits/";
+
     @Test
     void importMultipleLimitsGroupsOnSameLineEndTest() {
         // Retrieve line
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
         Line line = network.getLine("Line");
 
         // There is 1 set on side 1, 2 sets on side 2
@@ -56,13 +58,11 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     @Test
     void exportSelectedLimitsGroupTest() throws IOException {
         // Import and export CGMES limits
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
 
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, false);
-        exportParams.put(CgmesExport.PROFILES, List.of("EQ"));
-        network.write("CGMES", exportParams, tmpDir.resolve("ExportSelectedLimitsGroup.xml"));
-        String exportSelectedLimitsGroupXml = Files.readString(tmpDir.resolve("ExportSelectedLimitsGroup_EQ.xml"));
+        String exportSelectedLimitsGroupXml = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
 
         // There is 1 set on side 1 which is selected, and there are 2 sets on side 2 but none of them is selected
         assertEquals(1, getUniqueMatches(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
@@ -86,13 +86,8 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     @Test
     void exportAllLimitsGroupTest() throws IOException {
         // Import and export CGMES limits
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
-
-        Properties exportParams = new Properties();
-        exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, true);
-        exportParams.put(CgmesExport.PROFILES, List.of("EQ"));
-        network.write("CGMES", exportParams, tmpDir.resolve("ExportAllLimitsGroup.xml"));
-        String exportAllLimitsGroupXml = Files.readString(tmpDir.resolve("ExportAllLimitsGroup_EQ.xml"));
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
+        String exportAllLimitsGroupXml = writeCgmesProfile(network, "EQ", tmpDir);
 
         // All 3 OperationalLimitsGroup are exported, even though only 2 are selected
         assertEquals(3, getUniqueMatches(exportAllLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
