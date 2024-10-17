@@ -13,6 +13,8 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
@@ -25,8 +27,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -83,5 +86,31 @@ public final class ConversionUtil {
             throw new RuntimeException(e);
         }
         return false;
+    }
+
+    public static Network readCgmesResources(String dir, String... files) {
+        return readCgmesResources(new Properties(), dir, files);
+    }
+
+    public static Network readCgmesResources(Properties properties, String dir, String... files) {
+        ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(dir, files));
+        return Network.read(ds, properties);
+    }
+
+    public static String getFirstMatch(String text, Pattern pattern) {
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
+    public static Set<String> getUniqueMatches(String text, Pattern pattern) {
+        Set<String> matches = new HashSet<>();
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            matches.add(matcher.group(1));
+        }
+        return matches;
     }
 }
