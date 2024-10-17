@@ -580,3 +580,8 @@ Optional property to define if subnetworks must be added to the network when imp
 **iidm.import.cgmes.cgm-with-subnetworks-defined-by**  
 If `iidm.import.cgmes.cgm-with-subnetworks` is set to `true`, use this property to specify how the set of input files should be split by IGM: based on their filenames (use the value `FILENAME`) or by its modeling authority, read from the header (use the value `MODELING_AUTHORITY`).
 Its default value is `MODELING_AUTHORITY`.
+
+**iidm.import.cgmes.create-fictitious-voltage-level-for-every-node**  
+Optional property that defines the fictitious voltage levels created by line container. If it is set to `true`, a fictitious voltage level is created for each connectivity node inside the line container.
+If it is set to `false`, only one fictitious voltage level is created for each line container. 
+`true` by default.

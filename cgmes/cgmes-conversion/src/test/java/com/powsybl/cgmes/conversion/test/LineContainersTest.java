@@ -8,10 +8,14 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,7 +30,7 @@ class LineContainersTest {
         // This unit test reproduces a configuration observed in public data from a European TSO (NG)
         // where three ACLSs lie on a common connectivity node inside a cim:Line container
         // Two of the ACLSs have an association with the cim:Line container
-        // The other does not any equipment container
+        // The other does not have any equipment container
 
         // A fictitious voltage level is created to hold the connectivity node inside the cim:Line container,
         // All three ACLSs must be imported
@@ -53,5 +57,37 @@ class LineContainersTest {
         assertEquals(3, tbus.getConnectedTerminalCount());
         assertEquals(List.of("ACLS1-without-Line-Container", "ACLS2", "ACLS3"),
                 tbus.getConnectedTerminalStream().map(Terminal::getConnectable).map(Connectable::getId).sorted().toList());
+    }
+
+    @Test
+    void testLineContainerWithSwitchConnectedToVoltageLevel() {
+        // This unit test reproduces a configuration observed in public data from a European TSO (NG)
+        // where a disconnector has one terminal inside a cim:Line container and the other inside a cim:VoltageLevel.
+        // First a fictitious voltage level is created to hold the connectivity node inside the cim:Line container
+        // (an alias is created for this fictitious voltage level).
+        // The fictitious voltage level is later merged with the voltage level of the other end of the switch.
+        // We test the two alternatives for creating the fictitious voltage levels from cim:Lines.
+
+        ResourceDataSource ds = new ResourceDataSource("line_container_switch",
+                new ResourceSet("/issues", "line_container_switch_EQ.xml"));
+        Properties importParams = new Properties();
+        Network network;
+        Switch s;
+
+        importParams.put(CgmesImport.CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE, "false");
+        network = Network.read(ds, importParams);
+        assertNotNull(network);
+        s = network.getSwitch("SwitchBetweenVoltageLevel1AndLineContainer");
+        assertNotNull(s);
+        assertEquals("VoltageLevel1", s.getVoltageLevel().getId());
+        assertEquals(s.getVoltageLevel(), network.getIdentifiable("LineContainer_VL"));
+
+        importParams.put(CgmesImport.CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE, "true");
+        network = Network.read(ds, importParams);
+        assertNotNull(network);
+        s = network.getSwitch("SwitchBetweenVoltageLevel1AndLineContainer");
+        assertNotNull(s);
+        assertEquals("VoltageLevel1", s.getVoltageLevel().getId());
+        assertEquals(s.getVoltageLevel(), network.getIdentifiable("NodeInsideLineContainer_VL"));
     }
 }

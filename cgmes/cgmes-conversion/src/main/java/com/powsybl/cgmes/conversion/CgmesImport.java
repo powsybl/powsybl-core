@@ -512,6 +512,12 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
+                                defaultValueConfig))
+                .setCreateFictitiousVoltageLevelsForEveryNode(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER,
                                 defaultValueConfig));
 
         String namingStrategy = Parameter.readString(getFormat(), p, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
@@ -587,6 +593,7 @@ public class CgmesImport implements Importer {
     public static final String MISSING_PERMANENT_LIMIT_PERCENTAGE = "iidm.import.cgmes.missing-permanent-limit-percentage";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS = "iidm.import.cgmes.cgm-with-subnetworks";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY = "iidm.import.cgmes.cgm-with-subnetworks-defined-by";
+    public static final String CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE = "iidm.import.cgmes.create-fictitious-voltage-level-for-every-node";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -700,6 +707,13 @@ public class CgmesImport implements Importer {
             "Percentage applied to lowest TATL limit to use as PATL when PATL is missing",
             100.);
 
+    private static final Parameter CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER = new Parameter(
+            CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE,
+            ParameterType.BOOLEAN,
+            "Create fictitious voltage level for every node",
+            Boolean.TRUE)
+            .addAdditionalNames("createFictitiousVoltageLevelForEveryNode");
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             CONVERT_BOUNDARY_PARAMETER,
             CONVERT_SV_INJECTIONS_PARAMETER,
@@ -719,7 +733,8 @@ public class CgmesImport implements Importer {
             DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
             IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER,
             IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER,
-            MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER);
+            MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
+            CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter preProcessorsParameter;
