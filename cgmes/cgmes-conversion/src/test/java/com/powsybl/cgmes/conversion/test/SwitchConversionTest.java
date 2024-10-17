@@ -8,16 +8,12 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.Properties;
 import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
@@ -47,7 +43,7 @@ class SwitchConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void switchKindTest() {
+    void switchKindTest() throws IOException {
         // CGMES network:
         //   A LoadBreakSwitch, a generic Switch, and a Disconnector without name.
         // IIDM network:
@@ -55,13 +51,20 @@ class SwitchConversionTest extends AbstractSerDeTest {
         Network network = readCgmesResources(DIR, "switch_kind.xml");
         assertNotNull(network);
 
-        // Check that the switch kind has been preserved.
+        // Disconnector has been imported even though it has no name. Method getNameOrId() returns its id.
+        assertNotNull(network.getSwitch("DIS"));
+        assertEquals("DIS", network.getSwitch("DIS").getNameOrId());
+
+        // The switch kind has been preserved if supported, or replaced by breaker otherwise.
+        assertEquals(SwitchKind.DISCONNECTOR, network.getSwitch("DIS").getKind());
         assertEquals(SwitchKind.LOAD_BREAK_SWITCH, network.getSwitch("LBS").getKind());
         assertEquals(SwitchKind.BREAKER, network.getSwitch("SW").getKind());
-        assertEquals(SwitchKind.DISCONNECTOR, network.getSwitch("DIS").getKind());
+        assertEquals("Switch", network.getSwitch("SW").getProperty("CGMES.switchType"));
 
-        // Disconnector has no name, so getNameOrId() returns its id
-        assertEquals("DIS", network.getSwitch("DIS").getNameOrId());
+        // The original switch kind is restored in CGMES export.
+        String eqExport = writeCgmesProfile(network, "EQ", tmpDir);
+        Pattern switchPattern = Pattern.compile("<cim:Switch rdf:ID=\"_(.*?)\">");
+        assertEquals("SW", getFirstMatch(eqExport, switchPattern));
     }
 
     @Test
