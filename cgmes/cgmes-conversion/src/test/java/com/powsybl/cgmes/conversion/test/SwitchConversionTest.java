@@ -100,4 +100,43 @@ class SwitchConversionTest extends AbstractSerDeTest {
         assertNull(getFirstMatch(eqExport, switchPattern));
         assertEquals("true", getFirstMatch(sshExport, terminalPattern));
     }
+
+    @Test
+    void retainedSwitchTest() throws IOException {
+        // IIDM network:
+        //   Two BusbarSections first on different topological nodes, then on the same topological node.
+        //   A retained Switch coupling the two bars.
+        // CGMES export:
+        //   A retained switch cannot have both its terminals associated to the same topological node.
+        Network network = Network.create("retained-switch-between-two-bars", "manual");
+        Substation st = network.newSubstation().setId("ST").add();
+        VoltageLevel vl = st.newVoltageLevel().setId("VL").setNominalV(110).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        VoltageLevel.BusBreakerView bbv = vl.getBusBreakerView();
+        VoltageLevel.NodeBreakerView nbv = vl.getNodeBreakerView();
+        nbv.newBusbarSection().setId("BBS_1").setNode(1).add();
+        nbv.newBusbarSection().setId("BBS_2").setNode(2).add();
+        nbv.newBreaker().setId("COUPLER").setNode1(1).setNode2(2).setRetained(true).add();
+        nbv.newDisconnector().setId("DIS_1").setNode1(1).setNode2(3).add();
+        nbv.newDisconnector().setId("DIS_2").setNode1(2).setNode2(3).add();
+        nbv.newBreaker().setId("BK").setNode1(3).setNode2(4).add();
+        vl.newLoad().setId("LD").setNode(4).setP0(1).setQ0(0).add();
+
+        // Open one disconnector so that the 2 ends of the retained switch are on different buses/topological nodes.
+        nbv.getSwitch("DIS_1").setOpen(true);
+        assertNotEquals(bbv.getBus1("COUPLER"), bbv.getBus2("COUPLER"));
+
+        // In that case, the retained switch can be exported as retained.
+        String eqExport = writeCgmesProfile(network, "EQ", tmpDir);
+        Pattern couplerRetainedPattern = Pattern.compile("<cim:Breaker rdf:ID=\"_COUPLER\">.*?" +
+                "<cim:Switch.retained>(.*?)</cim:Switch.retained>", Pattern.DOTALL);
+        assertEquals("true", getFirstMatch(eqExport, couplerRetainedPattern));
+
+        // Now close the disconnector so that the 2 ends of the retained switch are on the same bus/topological node.
+        nbv.getSwitch("DIS_1").setOpen(false);
+        assertEquals(bbv.getBus1("COUPLER"), bbv.getBus2("COUPLER"));
+
+        // The retained switch can't be exported as retained.
+        eqExport = writeCgmesProfile(network, "EQ", tmpDir);
+        assertEquals("false", getFirstMatch(eqExport, couplerRetainedPattern));
+    }
 }
