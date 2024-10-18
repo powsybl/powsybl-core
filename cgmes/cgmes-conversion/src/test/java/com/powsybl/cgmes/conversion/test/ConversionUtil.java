@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -95,6 +96,16 @@ public final class ConversionUtil {
     public static Network readCgmesResources(Properties properties, String dir, String... files) {
         ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(dir, files));
         return Network.read(ds, properties);
+    }
+
+    public static String writeCgmesProfile(Network network, String profile, Path outDir) throws IOException {
+        return writeCgmesProfile(network, profile, outDir, new Properties());
+    }
+
+    public static String writeCgmesProfile(Network network, String profile, Path outDir, Properties properties) throws IOException {
+        properties.put(CgmesExport.PROFILES, List.of(profile));
+        network.write("CGMES", properties, outDir.resolve("CgmesExport"));
+        return Files.readString(outDir.resolve("CgmesExport_" + profile + ".xml"));
     }
 
     public static String getFirstMatch(String text, Pattern pattern) {
