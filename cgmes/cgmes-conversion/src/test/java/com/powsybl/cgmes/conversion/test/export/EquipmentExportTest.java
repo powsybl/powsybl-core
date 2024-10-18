@@ -1831,4 +1831,129 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
         return network;
     }
+
+    private static Network allGeneratingUnitTypesNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("network", "test");
+        Substation substation1 = network.newSubstation()
+                .setId("substation1")
+                .setCountry(Country.FR)
+                .setTso("TSO1")
+                .setGeographicalTags("region1")
+                .add();
+        VoltageLevel voltageLevel1 = substation1.newVoltageLevel()
+                .setId("voltageLevel1")
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        VoltageLevel.NodeBreakerView topology1 = voltageLevel1.getNodeBreakerView();
+        topology1.newBusbarSection()
+                .setId("voltageLevel1BusbarSection1")
+                .setNode(0)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("other")
+                .setNode(1)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("nuclear")
+                .setNode(2)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.NUCLEAR)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("thermal")
+                .setNode(3)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.THERMAL)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("hydro")
+                .setNode(4)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.HYDRO)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("solar")
+                .setNode(5)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.SOLAR)
+                .add();
+        Generator windOnshore = voltageLevel1.newGenerator()
+                .setId("wind_onshore")
+                .setNode(6)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.WIND)
+                .add();
+        Generator windOffshore = voltageLevel1.newGenerator()
+                .setId("wind_offshore")
+                .setNode(7)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.WIND)
+                .add();
+        topology1.newInternalConnection().setNode1(0).setNode2(1).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(2).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(3).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(4).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(5).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(6).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(7).add();
+        windOnshore.setProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "onshore");
+        windOffshore.setProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "offshore");
+        return network;
+    }
+
+    @Test
+    void generatingUnitTypesTest() throws IOException {
+        Network network = allGeneratingUnitTypesNetwork();
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "generatingUnitTypes";
+        new CgmesExport().export(network, new Properties(), new DirectoryDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), new DirectoryDataSource(Path.of("d:/tmp"), baseName));
+
+        // re-import
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+
+        // check the generating unit types
+        assertEquals(EnergySource.OTHER, actual.getGenerator("other").getEnergySource());
+        assertEquals(EnergySource.THERMAL, actual.getGenerator("thermal").getEnergySource());
+        assertEquals(EnergySource.HYDRO, actual.getGenerator("hydro").getEnergySource());
+        assertEquals(EnergySource.NUCLEAR, actual.getGenerator("nuclear").getEnergySource());
+        assertEquals(EnergySource.WIND, actual.getGenerator("wind_offshore").getEnergySource());
+        assertEquals("offshore", actual.getGenerator("wind_offshore").getProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE));
+        assertEquals(EnergySource.WIND, actual.getGenerator("wind_onshore").getEnergySource());
+        assertEquals("onshore", actual.getGenerator("wind_onshore").getProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE));
+        assertEquals(EnergySource.SOLAR, actual.getGenerator("solar").getEnergySource());
+    }
 }
