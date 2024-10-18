@@ -16,9 +16,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.getUniqueMatches;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -65,10 +65,10 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
         String exportSelectedLimitsGroupXml = Files.readString(tmpDir.resolve("ExportSelectedLimitsGroup_EQ.xml"));
 
         // There is 1 set on side 1 which is selected, and there are 2 sets on side 2 but none of them is selected
-        assertEquals(1, getOccurrences(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
-        assertEquals(3, getOccurrences(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
-        assertEquals(0, getOccurrences(exportSelectedLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
-        assertEquals(3, getOccurrences(exportSelectedLimitsGroupXml, CURRENT_LIMIT).size());
+        assertEquals(1, getUniqueMatches(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
+        assertEquals(3, getUniqueMatches(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
+        assertEquals(0, getUniqueMatches(exportSelectedLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
+        assertEquals(3, getUniqueMatches(exportSelectedLimitsGroupXml, CURRENT_LIMIT).size());
 
         // Manually select one of the limits group on side 2 and export again
         Line line = network.getLine("Line");
@@ -77,10 +77,10 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
         exportSelectedLimitsGroupXml = Files.readString(tmpDir.resolve("ExportSelectedLimitsGroup_EQ.xml"));
 
         // That makes 1 set selected on each side = 2 in total
-        assertEquals(2, getOccurrences(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
-        assertEquals(3, getOccurrences(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
-        assertEquals(0, getOccurrences(exportSelectedLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
-        assertEquals(6, getOccurrences(exportSelectedLimitsGroupXml, CURRENT_LIMIT).size());
+        assertEquals(2, getUniqueMatches(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
+        assertEquals(3, getUniqueMatches(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
+        assertEquals(0, getUniqueMatches(exportSelectedLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
+        assertEquals(6, getUniqueMatches(exportSelectedLimitsGroupXml, CURRENT_LIMIT).size());
     }
 
     @Test
@@ -95,19 +95,10 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
         String exportAllLimitsGroupXml = Files.readString(tmpDir.resolve("ExportAllLimitsGroup_EQ.xml"));
 
         // All 3 OperationalLimitsGroup are exported, even though only 2 are selected
-        assertEquals(3, getOccurrences(exportAllLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
-        assertEquals(3, getOccurrences(exportAllLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
-        assertEquals(3, getOccurrences(exportAllLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
-        assertEquals(9, getOccurrences(exportAllLimitsGroupXml, CURRENT_LIMIT).size());
-    }
-
-    private Set<String> getOccurrences(String xml, Pattern pattern) {
-        Set<String> matches = new HashSet<>();
-        Matcher matcher = pattern.matcher(xml);
-        while (matcher.find()) {
-            matches.add(matcher.group(1));
-        }
-        return matches;
+        assertEquals(3, getUniqueMatches(exportAllLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
+        assertEquals(3, getUniqueMatches(exportAllLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
+        assertEquals(3, getUniqueMatches(exportAllLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
+        assertEquals(9, getUniqueMatches(exportAllLimitsGroupXml, CURRENT_LIMIT).size());
     }
 
 }

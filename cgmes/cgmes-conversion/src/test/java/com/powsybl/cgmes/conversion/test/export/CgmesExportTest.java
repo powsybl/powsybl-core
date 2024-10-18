@@ -446,15 +446,17 @@ class CgmesExportTest {
 
     @Test
     void testLineContainersNotInBoundaries() throws IOException {
-        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerCimLine().dataSource();
-        Network network = Network.read(CgmesConformity1ModifiedCatalog.miniNodeBreakerCimLine().dataSource(), importParams);
+        ReadOnlyDataSource ds = new ResourceDataSource("Node of T-junction in line container",
+                new ResourceSet("/issues/node-containers/", "line_with_t-junction.xml"));
+        Network network = Network.read(ds, importParams);
 
         String exportFolder = "/test-line-containers-not-in-boundaries";
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             // Export to CGMES and add boundary EQ for reimport
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
             String baseName = "testLineContainersNotInBoundaries";
-            ReadOnlyDataSource exportedCgmes = exportAndAddBoundaries(network, tmpDir, baseName, ds);
+            network.write("CGMES", null, tmpDir.resolve(baseName));
+            ReadOnlyDataSource exportedCgmes = new GenericReadOnlyDataSource(tmpDir, baseName);
 
             // Check that the exported CGMES model contains a fictitious substation
             CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, TripleStoreFactory.defaultImplementation());
