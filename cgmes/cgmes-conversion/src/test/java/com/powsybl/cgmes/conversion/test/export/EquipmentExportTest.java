@@ -1940,7 +1940,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Files.createDirectories(outputPath);
         String baseName = "generatingUnitTypes";
         new CgmesExport().export(network, new Properties(), new DirectoryDataSource(outputPath, baseName));
-        new CgmesExport().export(network, new Properties(), new DirectoryDataSource(Path.of("d:/tmp"), baseName));
 
         // re-import
         Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
