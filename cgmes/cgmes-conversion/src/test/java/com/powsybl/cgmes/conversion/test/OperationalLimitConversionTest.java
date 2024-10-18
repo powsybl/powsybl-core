@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
 
-class OperationalLimitsGroupTest extends AbstractSerDeTest {
+class OperationalLimitConversionTest extends AbstractSerDeTest {
 
     private static final Pattern OPERATIONAL_LIMIT_SET = Pattern.compile("<cim:OperationalLimitSet rdf:ID=\"(.*?)\">");
     private static final Pattern OPERATIONAL_LIMIT_TYPE = Pattern.compile("<cim:OperationalLimitType rdf:ID=\"(.*?)\">");
