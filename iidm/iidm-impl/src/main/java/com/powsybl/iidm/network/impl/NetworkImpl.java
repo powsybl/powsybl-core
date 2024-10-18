@@ -1246,14 +1246,14 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
                 .withUntypedValue("networkId", id)
                 .add();
         validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),
-                true, throwsException, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
+                true, throwsException ? ValidationUtil.LogLevel.THROW_EXCEPTION : ValidationUtil.LogLevel.LOG_ERROR, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
         return validationLevel;
     }
 
     @Override
     public ValidationLevel getValidationLevel() {
         if (validationLevel == null) {
-            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, minValidationLevel, ReportNode.NO_OP);
+            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, ValidationUtil.LogLevel.NONE, minValidationLevel, ReportNode.NO_OP);
         }
         return validationLevel;
     }
@@ -1262,7 +1262,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     public Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
         Objects.requireNonNull(validationLevel);
         if (this.validationLevel == null) {
-            this.validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, this.validationLevel, ReportNode.NO_OP);
+            this.validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, ValidationUtil.LogLevel.NONE, minValidationLevel, ReportNode.NO_OP);
         }
         if (this.validationLevel.compareTo(validationLevel) < 0) {
             throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + validationLevel);
