@@ -977,8 +977,8 @@ public class Conversion {
 
         public enum DefaultValue {
             EQ,
-            ZERO,
-            NAN,
+            DEFAULT,
+            EMPTY,
             PREVIOUS
         }
 
@@ -1215,7 +1215,7 @@ public class Conversion {
 
         private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
 
-        private final List<DefaultValue> updateDefaultValuesPriority = List.of(DefaultValue.EQ, DefaultValue.NAN);
+        private final List<DefaultValue> updateDefaultValuesPriority = List.of(DefaultValue.EQ, DefaultValue.EMPTY);
     }
 
     private final CgmesModel cgmes;

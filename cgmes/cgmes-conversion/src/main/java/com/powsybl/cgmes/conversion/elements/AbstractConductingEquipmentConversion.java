@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
-import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.NAN;
+import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.EMPTY;
 import static com.powsybl.cgmes.conversion.Update.isConvertSeparatedFromUpdate;
 
 /**
@@ -804,15 +804,15 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected static Conversion.Config.DefaultValue selectDefaultValue(List<Conversion.Config.DefaultValue> validDefaultValues, Context context) {
-        return context.config().updateDefaultValuesPriority().stream().filter(validDefaultValues::contains).findFirst().orElse(NAN);
+        return context.config().updateDefaultValuesPriority().stream().filter(validDefaultValues::contains).findFirst().orElse(EMPTY);
     }
 
     protected static double defaultP(double eqP, double previousP, Conversion.Config.DefaultValue defaultValue) {
         return switch (defaultValue) {
             case EQ -> eqP;
             case PREVIOUS -> previousP;
-            case ZERO -> 0.0;
-            case NAN -> Double.NaN;
+            case DEFAULT -> 0.0;
+            case EMPTY -> Double.NaN;
         };
     }
 
@@ -820,8 +820,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return switch (defaultValue) {
             case EQ -> eqQ;
             case PREVIOUS -> previousQ;
-            case ZERO -> 0.0;
-            case NAN -> Double.NaN;
+            case DEFAULT -> 0.0;
+            case EMPTY -> Double.NaN;
         };
     }
 

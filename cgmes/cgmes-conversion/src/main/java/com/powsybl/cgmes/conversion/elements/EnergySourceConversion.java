@@ -61,7 +61,7 @@ public class EnergySourceConversion extends AbstractConductingEquipmentConversio
     }
 
     private static Conversion.Config.DefaultValue getDefaultValue(Context context) {
-        return selectDefaultValue(List.of(PREVIOUS, ZERO, NAN), context);
+        return selectDefaultValue(List.of(PREVIOUS, DEFAULT, EMPTY), context);
     }
 
     private final Load load;

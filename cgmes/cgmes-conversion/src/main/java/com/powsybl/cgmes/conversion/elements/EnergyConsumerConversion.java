@@ -163,7 +163,7 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     }
 
     private static Conversion.Config.DefaultValue getDefaultValue(Context context) {
-        return selectDefaultValue(List.of(EQ, PREVIOUS, ZERO, NAN), context);
+        return selectDefaultValue(List.of(EQ, PREVIOUS, DEFAULT, EMPTY), context);
     }
 
     private void updateLoadDetail(String type, double pFixed, double qFixed) {

@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
-import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.NAN;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -67,7 +66,7 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
     }
 
     private static Conversion.Config.DefaultValue gettDefaultValue(Context context) {
-        return selectDefaultValue(List.of(PREVIOUS, ZERO, NAN), context);
+        return selectDefaultValue(List.of(PREVIOUS, DEFAULT, EMPTY), context);
     }
 
     private final Load load;
