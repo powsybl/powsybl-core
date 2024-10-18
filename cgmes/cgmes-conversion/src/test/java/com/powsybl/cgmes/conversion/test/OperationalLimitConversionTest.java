@@ -18,24 +18,26 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.getUniqueMatches;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
 
-class OperationalLimitsGroupTest extends AbstractSerDeTest {
+class OperationalLimitConversionTest extends AbstractSerDeTest {
 
     private static final Pattern OPERATIONAL_LIMIT_SET = Pattern.compile("<cim:OperationalLimitSet rdf:ID=\"(.*?)\">");
     private static final Pattern OPERATIONAL_LIMIT_TYPE = Pattern.compile("<cim:OperationalLimitType rdf:ID=\"(.*?)\">");
     private static final Pattern ACTIVE_POWER_LIMIT = Pattern.compile("<cim:ActivePowerLimit rdf:ID=\"(.*?)\">");
     private static final Pattern CURRENT_LIMIT = Pattern.compile("<cim:CurrentLimit rdf:ID=\"(.*?)\">");
 
+    private static final String DIR = "/issues/operational-limits/";
+
     @Test
     void importMultipleLimitsGroupsOnSameLineEndTest() {
         // Retrieve line
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
         Line line = network.getLine("Line");
 
         // There is 1 set on side 1, 2 sets on side 2
@@ -56,13 +58,11 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     @Test
     void exportSelectedLimitsGroupTest() throws IOException {
         // Import and export CGMES limits
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
 
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, false);
-        exportParams.put(CgmesExport.PROFILES, List.of("EQ"));
-        network.write("CGMES", exportParams, tmpDir.resolve("ExportSelectedLimitsGroup.xml"));
-        String exportSelectedLimitsGroupXml = Files.readString(tmpDir.resolve("ExportSelectedLimitsGroup_EQ.xml"));
+        String exportSelectedLimitsGroupXml = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
 
         // There is 1 set on side 1 which is selected, and there are 2 sets on side 2 but none of them is selected
         assertEquals(1, getUniqueMatches(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
@@ -86,19 +86,42 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     @Test
     void exportAllLimitsGroupTest() throws IOException {
         // Import and export CGMES limits
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
-
-        Properties exportParams = new Properties();
-        exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, true);
-        exportParams.put(CgmesExport.PROFILES, List.of("EQ"));
-        network.write("CGMES", exportParams, tmpDir.resolve("ExportAllLimitsGroup.xml"));
-        String exportAllLimitsGroupXml = Files.readString(tmpDir.resolve("ExportAllLimitsGroup_EQ.xml"));
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
+        String exportAllLimitsGroupXml = writeCgmesProfile(network, "EQ", tmpDir);
 
         // All 3 OperationalLimitsGroup are exported, even though only 2 are selected
         assertEquals(3, getUniqueMatches(exportAllLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
         assertEquals(3, getUniqueMatches(exportAllLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
         assertEquals(3, getUniqueMatches(exportAllLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
         assertEquals(9, getUniqueMatches(exportAllLimitsGroupXml, CURRENT_LIMIT).size());
+    }
+
+    @Test
+    void limitSetsAssociatedToEquipmentsTest() {
+        // CGMES network:
+        //   An OperationalLimitSet with a CurrentLimit associated to a boundary ACLineSegment (Dangling Line in IIDM).
+        //   An OperationalLimitSet with a CurrentLimit associated to a normal ACLineSegment.
+        //   An OperationalLimitSet with a CurrentLimit associated to a 2-windings PowerTransformer.
+        //   An OperationalLimitSet with a CurrentLimit associated to a Switch.
+        Network network = readCgmesResources(DIR, "limitsets_associated_to_equipments_EQ.xml",
+                "limitsets_associated_to_equipments_EQBD.xml", "limitsets_associated_to_equipments_TPBD.xml");
+
+        // OperationalLimitSet on dangling line is imported on its single extremity.
+        assertNotNull(network.getDanglingLine("DL"));
+        assertTrue(network.getDanglingLine("DL").getCurrentLimits().isPresent());
+
+        // OperationalLimitSet on ACLineSegment is imported on its two extremities.
+        assertNotNull(network.getLine("ACL"));
+        assertTrue(network.getLine("ACL").getCurrentLimits1().isPresent());
+        assertTrue(network.getLine("ACL").getCurrentLimits2().isPresent());
+
+        // OperationalLimitSet on PowerTransformer is discarded.
+        assertNotNull(network.getTwoWindingsTransformer("PT"));
+        assertFalse(network.getTwoWindingsTransformer("PT").getCurrentLimits1().isPresent());
+        assertFalse(network.getTwoWindingsTransformer("PT").getCurrentLimits2().isPresent());
+
+        // There can't be any limit associated to switches in IIDM, but check anyway that the switch has been imported.
+        assertNotNull(network.getSwitch("SW"));
     }
 
 }
