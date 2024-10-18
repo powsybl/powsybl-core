@@ -637,7 +637,7 @@ public class CgmesExport implements Exporter {
             EXPORT_ALL_LIMITS_GROUP,
             ParameterType.BOOLEAN,
             "True to export all OperationalLimitsGroup, False to export only the selected group",
-            CgmesExportContext.EXPORT_LOAD_FLOW_STATUS_DEFAULT_VALUE);
+            CgmesExportContext.EXPORT_ALL_LIMITS_GROUP_DEFAULT_VALUE);
     private static final Parameter MAX_P_MISMATCH_CONVERGED_PARAMETER = new Parameter(
             MAX_P_MISMATCH_CONVERGED,
             ParameterType.DOUBLE,
