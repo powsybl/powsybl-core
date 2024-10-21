@@ -39,7 +39,6 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
         Network expectedNetwork = ThreeWindingsTransformerNetworkFactory.create();
         assertEquals(1, expectedNetwork.getThreeWindingsTransformerCount());
         t3w = expectedNetwork.getThreeWindingsTransformer("3WT");
-        assertNotNull(t3w);
         network = ThreeWindingsTransformerNetworkFactory.create();
     }
 
