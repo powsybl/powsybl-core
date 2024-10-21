@@ -1262,7 +1262,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     public Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
         Objects.requireNonNull(validationLevel);
         if (this.validationLevel == null) {
-            this.validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, this.validationLevel, ReportNode.NO_OP);
+            ValidationLevel previous = this.minValidationLevel;
+            this.validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, previous, ReportNode.NO_OP);
         }
         if (this.validationLevel.compareTo(validationLevel) < 0) {
             throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + validationLevel);
