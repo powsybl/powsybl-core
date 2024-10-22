@@ -691,4 +691,18 @@ class ProportionalScalableTest {
         assertEquals(50.0, network.getDanglingLine("dl1").getP0(), 1e-5);
         reset();
     }
+
+    @Test
+    void testEpsilonIssue() {
+        Load load1 = network.getLoad("l1");
+        Load load2 = network.getLoad("l2");
+        load1.setP0(99.99999);
+        load2.setP0(0.00001);
+        ProportionalScalable proportionalScalable = Scalable.proportional(List.of(load1, load2), PROPORTIONAL_TO_P0);
+        double volumeAsked = -100. - 0.01;
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+                true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        double variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
+        assertEquals(-100., variationDone, 1e-5);
+    }
 }

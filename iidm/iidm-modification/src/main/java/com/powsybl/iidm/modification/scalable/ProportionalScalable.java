@@ -258,7 +258,16 @@ public class ProportionalScalable extends AbstractCompoundScalable {
             double iterationPercentage = scalablePercentage.getIterationPercentage();
             double askedOnScalable = iterationPercentage / 100 * asked;
             double doneOnScalable = s.scale(n, askedOnScalable, parameters);
-            if (Math.abs(doneOnScalable - askedOnScalable) > EPSILON) {
+
+            // check if scalable reached limit
+            double scalableMin = s.minimumValue(n, parameters.getScalingConvention());
+            double scalableMax = s.maximumValue(n, parameters.getScalingConvention());
+            double scalableP = s.getSteadyStatePower(n, asked, parameters.getScalingConvention());
+            boolean saturated = asked > 0 ?
+                    Math.abs(scalableMax - scalableP) < EPSILON / 100 :
+                    Math.abs(scalableMin - scalableP) < EPSILON / 100;
+            // TODO / WIP, the second condition is still needed for ProportionalScalableTest.testDisableInjections, maybe could do better upfront
+            if (saturated || Math.abs(doneOnScalable - askedOnScalable) > EPSILON) {
                 scalablePercentage.setIterationPercentage(0);
             }
             done += doneOnScalable;
