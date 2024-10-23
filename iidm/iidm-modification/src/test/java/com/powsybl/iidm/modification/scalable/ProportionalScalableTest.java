@@ -707,4 +707,27 @@ class ProportionalScalableTest {
         assertEquals(0.0, load1.getP0()); // a perfect 0.
         assertEquals(0.0, load2.getP0()); // a perfect 0.
     }
+
+    @Test
+    void testSmallPercentageOnDiscardedScalable() {
+        Load load1 = network.getLoad("l1");
+        Load load2 = network.getLoad("l2");
+        Load load3 = network.getLoad("l3");
+        load1.setP0(100.);
+        load2.setP0(100.);
+        load3.setP0(100.);
+        Scalable scalable1 = Scalable.onLoad(load1.getId());
+        Scalable scalable2 = Scalable.onLoad(load2.getId());
+        Scalable scalable3 = Scalable.onLoad(load3.getId());
+        ProportionalScalable proportionalScalable = Scalable.proportional(List.of(100 - 2e-5, 1e-5, 1e-5), List.of(scalable1, scalable2, scalable3));
+        double volumeAsked = -100.015; //most should be done by load1 and a very small bit by load2 and by load3
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, false, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        scalingParametersProportional.setIgnoredInjectionIds(Set.of("l2", "l3"));
+        double variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
+        assertEquals(-100., variationDone, 1e-5);
+        assertEquals(0.0, load1.getP0()); // a perfect 0.
+        assertEquals(100.0, load2.getP0()); // load 2 should not move
+        assertEquals(100.0, load2.getP0()); // load 3 should not move
+    }
 }
