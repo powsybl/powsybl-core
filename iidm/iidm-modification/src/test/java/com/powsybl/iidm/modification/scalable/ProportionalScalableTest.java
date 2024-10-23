@@ -752,4 +752,26 @@ class ProportionalScalableTest {
         assertEquals(50.5, load2.getP0());
         assertEquals(50.5, load3.getP0());
     }
+
+    @Test
+    void testSmallPercentageReNormalized2() {
+        Load load1 = network.getLoad("l1");
+        Load load2 = network.getLoad("l2");
+        Load load3 = network.getLoad("l3");
+        load1.setP0(0.);
+        load2.setP0(100.);
+        load3.setP0(100.);
+        Scalable scalable1 = Scalable.onLoad(load1.getId(), 99., Double.MAX_VALUE);
+        Scalable scalable2 = Scalable.onLoad(load2.getId());
+        Scalable scalable3 = Scalable.onLoad(load3.getId());
+        ProportionalScalable proportionalScalable = Scalable.proportional(List.of(100 - 2e-5, 1e-5, 1e-5), List.of(scalable1, scalable2, scalable3));
+        double volumeAsked = -100;
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, false, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        double variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
+        assertEquals(-100., variationDone, 1e-5);
+        assertEquals(0.0, load1.getP0());
+        assertEquals(50., load2.getP0());
+        assertEquals(50., load3.getP0());
+    }
 }
