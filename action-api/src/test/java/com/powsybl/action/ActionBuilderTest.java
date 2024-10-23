@@ -10,6 +10,8 @@ package com.powsybl.action;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
@@ -19,14 +21,24 @@ class ActionBuilderTest {
     void shuntCompensatorPositionActionBuilderTest() {
         ShuntCompensatorPositionActionBuilder shuntCompensatorPositionActionBuilder1 = new ShuntCompensatorPositionActionBuilder()
             .withId("actionId").withShuntCompensatorId("shuntCompensatorId");
-        String message1 = Assertions.assertThrows(IllegalArgumentException.class, shuntCompensatorPositionActionBuilder1::build)
+        String message1 = assertThrows(IllegalArgumentException.class, shuntCompensatorPositionActionBuilder1::build)
             .getMessage();
         Assertions.assertEquals("sectionCount is undefined", message1);
 
         ShuntCompensatorPositionActionBuilder shuntCompensatorPositionActionBuilder2 = new ShuntCompensatorPositionActionBuilder()
             .withId("actionId").withShuntCompensatorId("shuntCompensatorId").withSectionCount(-1);
-        String message2 = Assertions.assertThrows(IllegalArgumentException.class, shuntCompensatorPositionActionBuilder2::build)
+        String message2 = assertThrows(IllegalArgumentException.class, shuntCompensatorPositionActionBuilder2::build)
             .getMessage();
         Assertions.assertEquals("sectionCount should be positive for a shunt compensator", message2);
+    }
+
+    @Test
+    void pctLoadActionBuilderShouldCheckPctNotAbove100() {
+        PctLoadActionBuilder actionBuilder = new PctLoadActionBuilder()
+                .withId("actionId")
+                .withLoadId("myLoad")
+                .withQStrategy(PctLoadAction.QModificationStrategy.CONSTANT_Q)
+                .withPctPChange(-101);
+        assertThrows(IllegalArgumentException.class, actionBuilder::build);
     }
 }
