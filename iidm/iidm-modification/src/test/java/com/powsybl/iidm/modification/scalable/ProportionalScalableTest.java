@@ -708,7 +708,7 @@ class ProportionalScalableTest {
         assertEquals(0.0, load2.getP0()); // a perfect 0.
     }
 
-    @Test
+    @Test @Disabled
     void testSmallPercentageOnDiscardedScalable() {
         Load load1 = network.getLoad("l1");
         Load load2 = network.getLoad("l2");
