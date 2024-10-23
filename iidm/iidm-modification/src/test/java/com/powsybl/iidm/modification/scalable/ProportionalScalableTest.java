@@ -693,16 +693,18 @@ class ProportionalScalableTest {
     }
 
     @Test
-    void testEpsilonIssue() {
+    void testSmallPercentageAndAskingEpsilonMoreThanAvailable() {
         Load load1 = network.getLoad("l1");
         Load load2 = network.getLoad("l2");
-        load1.setP0(99.99999);
-        load2.setP0(0.00001);
+        load1.setP0(100. - 1e-5);
+        load2.setP0(1e-5);
         ProportionalScalable proportionalScalable = Scalable.proportional(List.of(load1, load2), PROPORTIONAL_TO_P0);
-        double volumeAsked = -100. - 0.01;
+        double volumeAsked = -100. - 0.01; // only -100 can be achieved due to load scalable 0 MW min limit
         ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
-                true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+                true, false, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
         double variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
         assertEquals(-100., variationDone, 1e-5);
+        assertEquals(0.0, load1.getP0()); // a perfect 0.
+        assertEquals(0.0, load2.getP0()); // a perfect 0.
     }
 }
