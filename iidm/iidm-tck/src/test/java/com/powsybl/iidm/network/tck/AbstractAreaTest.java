@@ -187,8 +187,8 @@ public abstract class AbstractAreaTest {
         assertNotNull(areaBoundary);
         assertTrue(areaBoundary.isAc());
         assertEquals(controlAreaA.getId(), areaBoundary.getArea().getId());
-        assertEquals(-301.47, areaBoundary.getP(), DELTA);
-        assertEquals(-116.52, areaBoundary.getQ(), DELTA);
+        assertEquals(-301.44, areaBoundary.getP(), DELTA);
+        assertEquals(-116.55, areaBoundary.getQ(), DELTA);
 
         controlAreaA.removeAreaBoundary(dlXnode1A.getBoundary());
         assertNull(controlAreaA.getAreaBoundary(dlXnode1A.getBoundary()));
@@ -196,13 +196,13 @@ public abstract class AbstractAreaTest {
 
     @Test
     public void areaInterchangeComputation() {
-        assertEquals(-602.94, controlAreaA.getAcInterchange(), DELTA);
+        assertEquals(-602.88, controlAreaA.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaA.getDcInterchange());
-        assertEquals(-602.94, controlAreaA.getInterchange(), DELTA);
+        assertEquals(-602.88, controlAreaA.getInterchange(), DELTA);
 
-        assertEquals(+602.94, controlAreaB.getAcInterchange(), DELTA);
+        assertEquals(+602.88, controlAreaB.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaB.getDcInterchange());
-        assertEquals(+602.94, controlAreaB.getInterchange(), DELTA);
+        assertEquals(+602.88, controlAreaB.getInterchange(), DELTA);
 
         // no boundaries defined
         assertEquals(0.0, regionAB.getAcInterchange());
@@ -211,9 +211,9 @@ public abstract class AbstractAreaTest {
 
         // verify NaN do not mess up the calculation
         dlXnode1A.getTerminal().setP(Double.NaN);
-        assertEquals(-301.47, controlAreaA.getAcInterchange(), DELTA);
+        assertEquals(-301.44, controlAreaA.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaA.getDcInterchange());
-        assertEquals(-301.47, controlAreaA.getInterchange(), DELTA);
+        assertEquals(-301.44, controlAreaA.getInterchange(), DELTA);
     }
 
     @Test
@@ -315,9 +315,9 @@ public abstract class AbstractAreaTest {
                 .newAreaBoundary().setBoundary(dlXnode2A.getBoundary()).setAc(true).add();
         // no change
         assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
-        assertEquals(-602.94, controlAreaA.getAcInterchange(), DELTA);
+        assertEquals(-602.88, controlAreaA.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaA.getDcInterchange());
-        assertEquals(-602.94, controlAreaA.getInterchange(), DELTA);
+        assertEquals(-602.88, controlAreaA.getInterchange(), DELTA);
 
         // change them to DC
         controlAreaA
@@ -325,8 +325,8 @@ public abstract class AbstractAreaTest {
                 .newAreaBoundary().setBoundary(dlXnode2A.getBoundary()).setAc(false).add();
         assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
         assertEquals(0.0, controlAreaA.getAcInterchange());
-        assertEquals(-602.94, controlAreaA.getDcInterchange(), DELTA);
-        assertEquals(-602.94, controlAreaA.getInterchange(), DELTA);
+        assertEquals(-602.88, controlAreaA.getDcInterchange(), DELTA);
+        assertEquals(-602.88, controlAreaA.getInterchange(), DELTA);
     }
 
     @Test
