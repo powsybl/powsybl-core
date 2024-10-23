@@ -243,9 +243,11 @@ public class ProportionalScalable extends AbstractCompoundScalable {
 
     private double iterativeScale(Network n, double asked, ScalingParameters parameters) {
         double done = 0;
-        while (Math.abs(asked - done) > EPSILON && notSaturated()) {
+        double doneChange = Double.MAX_VALUE;
+        while ((Math.abs(asked - done) > EPSILON && notSaturated()) && (Math.abs(doneChange) > EPSILON)) {
             checkIterationPercentages();
-            done += scaleIteration(n, asked - done, parameters);
+            doneChange = scaleIteration(n, asked - done, parameters);
+            done += doneChange;
             updateIterationPercentages();
         }
         return done;
@@ -270,7 +272,9 @@ public class ProportionalScalable extends AbstractCompoundScalable {
             boolean saturated = asked > 0 ?
                     Math.abs(scalableMax - scalableP) < EPSILON / 100 :
                     Math.abs(scalableMin - scalableP) < EPSILON / 100;
-            if (saturated || Math.abs(doneOnScalable - askedOnScalable) > EPSILON) {
+            if (doneOnScalable == 0 || saturated) {
+                // If didn't move now (tested by a perfect zero equality), it won't move in subsequent iterations for sure.
+                // If reached saturation, can exclude right now to avoid earlier another iteration.
                 scalablePercentage.setIterationPercentage(0);
             }
             done += doneOnScalable;
