@@ -8,12 +8,9 @@
 package com.powsybl.ucte.converter;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
@@ -103,6 +100,7 @@ class UcteExporterTest extends AbstractSerDeTest {
         assertNotEquals("UCTE to IIDM converter", exporter.getComment());
         assertEquals(2, exporter.getParameters().size());
     }
+
 
     @Test
     void testCouplerToXnodeImport() throws IOException {

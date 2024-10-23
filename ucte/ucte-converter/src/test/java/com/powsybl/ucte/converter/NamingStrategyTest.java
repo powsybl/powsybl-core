@@ -28,6 +28,14 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 class NamingStrategyTest {
 
     @Test
+    void initTest() {
+        ResourceDataSource dataSource = new ResourceDataSource("network", new ResourceSet("/", "network.xiidm"));
+        Network n1 = Network.read(dataSource);
+        NamingStrategy s = new DefaultNamingStrategy();
+        s.init(n1);
+    }
+
+    @Test
     void testUcteCode() {
         NamingStrategy strategy = new DefaultNamingStrategy();
 
