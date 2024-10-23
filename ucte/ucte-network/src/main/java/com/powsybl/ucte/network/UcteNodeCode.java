@@ -116,6 +116,22 @@ public class UcteNodeCode implements Comparable<UcteNodeCode> {
         return Optional.ofNullable(ucteNodeCode);
     }
 
+    public static Optional<UcteNodeCode> convertToUcteNodeId(char countryCode, char voltageLevelCode, String id){
+        // Initialize StringBuilder with fixed capacity of 8 for UCTE format
+        StringBuilder nameBuilder = new StringBuilder(8);
+        // get ucte country code with the country name
+        nameBuilder.append(countryCode);
+        // Format bus ID to fill chars[1-5]
+        String fomatedId = id.length() >= 5
+                ? id.substring(0, 5)
+                : String.format("%-5s", id).replace(' ', '_');
+        nameBuilder.append(fomatedId);
+        // Add voltage level code (char[6]) and trailing underscore (char[7])
+        nameBuilder.append(voltageLevelCode).append('_');
+
+        return parseUcteNodeCode(nameBuilder.toString());
+    }
+
     public static boolean isUcteNodeId(String id) {
         return id != null &&
                 id.length() == 8 &&
