@@ -687,4 +687,20 @@ public abstract class AbstractNetworkTest {
         assertTrue(Double.isNaN(currentLimits.getPermanentLimit()));
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
     }
+
+    @Test
+    void testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork() {
+        Network network = Network.create("test", "iidm");
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        VoltageLevel vl = network.newSubstation().setId("s1").add()
+                .newVoltageLevel().setId("vl1").setNominalV(100).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        Load l1 = vl.newLoad().setId("l1").setNode(0).add();
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+
+        l1.setP0(10.0);
+        l1.setQ0(1.0);
+
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+    }
 }
