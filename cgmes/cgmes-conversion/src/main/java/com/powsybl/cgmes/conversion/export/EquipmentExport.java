@@ -448,13 +448,14 @@ public final class EquipmentExport {
         if (generatingUnit != null && !generatingUnitsWritten.contains(generatingUnit)) {
 
             String hydroPowerPlantId = generatingUnitWriteHydroPowerPlantAndFossilFuel(i, cimNamespace, energySource, generatingUnit, writer, context);
+            String windGenUnitType = i.getProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "onshore");  // considered onshore if property missing
 
             // We have not preserved the names of generating units
             // We name generating units based on the first machine found
             String generatingUnitName = "GU_" + i.getNameOrId();
             GeneratingUnitEq.write(generatingUnit, generatingUnitName, energySource, minP, maxP, targetP, cimNamespace, writeInitialP,
                     i.getTerminal().getVoltageLevel().getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null),
-                    hydroPowerPlantId, writer, context);
+                    hydroPowerPlantId, windGenUnitType, writer, context);
             generatingUnitsWritten.add(generatingUnit);
         }
     }
