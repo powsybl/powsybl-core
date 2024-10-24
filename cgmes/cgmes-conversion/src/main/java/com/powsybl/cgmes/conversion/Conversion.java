@@ -232,11 +232,8 @@ public class Conversion {
 
         if (config.importControlAreas()) {
             context.pushReportNode(CgmesReports.convertingElementTypeReport(reportNode, CgmesNames.CONTROL_AREA));
-            network.newExtension(CgmesControlAreasAdder.class).add();
-            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-            cgmes.controlAreas().forEach(ca -> createControlArea(cgmesControlAreas, ca));
-            cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf));
-            cgmesControlAreas.cleanIfEmpty();
+            cgmes.controlAreas().forEach(ca -> createControlArea(context, ca));
+            cgmes.tieFlows().forEach(tf -> addTieFlow(context, tf));
             context.popReportNode();
         }
 
@@ -401,31 +398,46 @@ public class Conversion {
         network.getTieLines().forEach(tieLine -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()));
     }
 
-    private static void createControlArea(CgmesControlAreas cgmesControlAreas, PropertyBag ca) {
-        String controlAreaId = ca.getId("ControlArea");
-        cgmesControlAreas.newCgmesControlArea()
+    private static void createControlArea(Context context, PropertyBag ca) {
+        String controlAreaId = ca.getId(CgmesNames.CONTROL_AREA);
+        String type = ca.getLocal("controlAreaType");
+        Area area = context.network().newArea()
+                .setAreaType(type) // Copy the type defined by CGMES
                 .setId(controlAreaId)
                 .setName(ca.getLocal("name"))
-                .setEnergyIdentificationCodeEic(ca.getLocal("energyIdentCodeEic"))
-                .setNetInterchange(ca.asDouble("netInterchange", Double.NaN))
-                .setPTolerance(ca.asDouble("pTolerance", Double.NaN))
+                .setInterchangeTarget(ca.asDouble("netInterchange", Double.NaN))
                 .add();
+        String pTolerance = "0";
+        if (ca.containsKey(CgmesNames.P_TOLERANCE)) {
+            pTolerance = ca.get(CgmesNames.P_TOLERANCE);
+        }
+        area.setProperty(CgmesNames.P_TOLERANCE, pTolerance);
+        if (ca.containsKey(CgmesNames.ENERGY_IDENT_CODE_EIC)) {
+            area.addAlias(ca.get(CgmesNames.ENERGY_IDENT_CODE_EIC), CgmesNames.ENERGY_IDENT_CODE_EIC);
+        }
     }
 
-    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
-        String controlAreaId = tf.getId("ControlArea");
-        CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
-        if (cgmesControlArea == null) {
+    private static void addTieFlow(Context context, PropertyBag tf) {
+        String controlAreaId = tf.getId(CgmesNames.CONTROL_AREA);
+        Area area = context.network().getArea(controlAreaId);
+        if (area == null) {
             context.ignored("Tie Flow", String.format("Tie Flow %s refers to a non-existing control area", tf.getId("TieFlow")));
             return;
         }
         String terminalId = tf.getId("terminal");
         Boundary boundary = context.terminalMapping().findBoundary(terminalId, context.cgmes());
         if (boundary != null) {
-            cgmesControlArea.add(boundary);
+            area.newAreaBoundary()
+                    .setAc(true)
+                    .setBoundary(boundary)
+                    .add();
             return;
         }
-        RegulatingTerminalMapper.mapForTieFlow(terminalId, context).ifPresent(cgmesControlArea::add);
+        RegulatingTerminalMapper.mapForTieFlow(terminalId, context)
+                .ifPresent(t -> area.newAreaBoundary()
+                        .setAc(true)
+                        .setTerminal(t)
+                        .add());
     }
 
     private void convert(PropertyBags elements, String elementType, Context context) {

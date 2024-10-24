@@ -530,20 +530,27 @@ public class CgmesExportContext {
     }
 
     private void addIidmMappingsControlArea(Network network) {
-        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-        if (cgmesControlAreas == null) {
-            network.newExtension(CgmesControlAreasAdder.class).add();
-            cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-            String cgmesControlAreaId = namingStrategy.getCgmesId(refTyped(network), CONTROL_AREA);
-            cgmesControlAreas.newCgmesControlArea()
-                    .setId(cgmesControlAreaId)
+        // If no control area exists, create one for the whole network, containing the dangling lines as boundaries,
+        // but only if the network does not contain subnetworks
+        long numControlAreas = network.getAreaStream().filter(a -> a.getAreaType().equals("ControlAreaTypeKind.Interchange")).count();
+        long numSubnetworks = network.getSubnetworks().size();
+        if (numControlAreas == 0 && numSubnetworks == 0) {
+            String controlAreaId = namingStrategy.getCgmesId(refTyped(network), CONTROL_AREA);
+            Area area = network.newArea()
+                    .setAreaType("ControlAreaTypeKind.Interchange")
+                    .setId(controlAreaId)
                     .setName("Network")
-                    .setEnergyIdentificationCodeEic("Network--1")
                     .add();
-            CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(cgmesControlAreaId);
-            for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
-                cgmesControlArea.add(danglingLine.getTerminal());
+            if (referenceDataProvider != null && referenceDataProvider.getSourcingActor().containsKey(CgmesNames.ENERGY_IDENT_CODE_EIC)) {
+                area.addAlias(referenceDataProvider.getSourcingActor().get(CgmesNames.ENERGY_IDENT_CODE_EIC), CgmesNames.ENERGY_IDENT_CODE_EIC);
             }
+            double currentInterchange = 0;
+            for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+                // Our exchange should be referred the boundary
+                area.newAreaBoundary().setAc(true).setBoundary(danglingLine.getBoundary()).add();
+                currentInterchange += danglingLine.getBoundary().getP();
+            }
+            area.setInterchangeTarget(currentInterchange);
         }
     }
 

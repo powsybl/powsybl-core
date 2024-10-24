@@ -145,6 +145,9 @@ public final class CgmesNames {
     public static final String ACTIVE_POWER_LIMIT = "ActivePowerLimit";
     public static final String APPARENT_POWER_LIMIT = "ApparentPowerLimit";
 
+    public static final String ENERGY_IDENT_CODE_EIC = "energyIdentCodeEic";
+    public static final String P_TOLERANCE = "pTolerance";
+
     private CgmesNames() {
     }
 }
