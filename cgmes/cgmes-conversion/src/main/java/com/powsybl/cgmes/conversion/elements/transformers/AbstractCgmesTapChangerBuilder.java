@@ -9,8 +9,6 @@
 package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.elements.AbstractObjectConversion;
-import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -47,27 +45,13 @@ abstract class AbstractCgmesTapChangerBuilder {
         return new CgmesPhaseTapChangerBuilder(phaseTapChanger, xtx, context);
     }
 
-    protected int initialTapPosition(int defaultStep) {
-        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
-            case SSH:
-                return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP, defaultStep)));
-            case SV:
-                return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.SV_TAP_STEP, p.asDouble(CgmesNames.STEP, defaultStep)));
-            default:
-                throw new CgmesModelException("Unexpected profile used for initial values: " + context.config().getProfileForInitialValuesShuntSectionsTapPositions());
-        }
-    }
-
     protected TapChanger build() {
         lowStep = p.asInt(CgmesNames.LOW_STEP);
         highStep = p.asInt(CgmesNames.HIGH_STEP);
         addSteps();
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
         int normalStep = p.asInt(CgmesNames.NORMAL_STEP, neutralStep);
-        int position = initialTapPosition(normalStep);
-        if (position > highStep || position < lowStep) {
-            position = neutralStep;
-        }
+        int position = adjustTapPosition(lowStep, highStep, neutralStep, normalStep);
         tapChanger.setLowTapPosition(lowStep).setTapPosition(position);
 
         boolean ltcFlag = p.asBoolean(CgmesNames.LTC_FLAG, false);
@@ -75,6 +59,10 @@ abstract class AbstractCgmesTapChangerBuilder {
 
         addRegulationData();
         return tapChanger;
+    }
+
+    protected static int adjustTapPosition(int lowStep, int highStep, int neutralStep, int position) {
+        return position > highStep || position < lowStep ? neutralStep : position;
     }
 
     protected boolean isTableValid(String tableId, PropertyBags table) {

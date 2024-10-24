@@ -76,12 +76,11 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
 
     private Switch convertToSwitch() {
         boolean normalOpen = p.asBoolean("normalOpen", false);
-        boolean open = p.asBoolean("open", normalOpen);
         Switch s;
         if (context.nodeBreaker()) {
             VoltageLevel.NodeBreakerView.SwitchAdder adder = voltageLevel().getNodeBreakerView().newSwitch().setKind(kind());
             identify(adder);
-            connect(adder, open);
+            connect(adder, normalOpen);
             boolean retained = p.asBoolean("retained", false);
             adder.setRetained(retained);
             s = adder.add();
@@ -91,12 +90,13 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         } else {
             VoltageLevel.BusBreakerView.SwitchAdder adder = voltageLevel().getBusBreakerView().newSwitch();
             identify(adder);
-            connect(adder, open);
+            connect(adder, normalOpen);
             s = adder.add();
             // Always preserve the original type, because all switches at bus/breaker view will be of kind "breaker"
             addTypeAsProperty(s);
         }
         addAliasesAndProperties(s);
+        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalOpen", String.valueOf(normalOpen));
         return s;
     }
 
@@ -133,6 +133,19 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
 
     private void warnDanglingLineCreated() {
         fixed("Dangling line with low impedance", "Connected to a boundary node");
+    }
+
+    @Override
+    public void update(Network network) {
+        // super.update(network); // TODO JAM delete
+        // Switches imported as danglingLines are not updated
+        Switch sw = network.getSwitch(id);
+        if (sw == null) {
+            return;
+        }
+        boolean normalOpen = Boolean.parseBoolean(sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalOpen"));
+        boolean open = p.asBoolean("open", normalOpen);
+        sw.setOpen(open);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);

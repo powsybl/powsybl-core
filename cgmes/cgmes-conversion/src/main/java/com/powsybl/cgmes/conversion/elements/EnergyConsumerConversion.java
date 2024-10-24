@@ -10,6 +10,8 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
@@ -38,9 +40,11 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         } else {
             loadType = LoadType.UNDEFINED;
         }
+        double pFixed = p.asDouble("pFixed", 0.0);
+        double qFixed = p.asDouble("qFixed", 0.0);
         LoadAdder adder = voltageLevel().newLoad()
-                .setP0(p0())
-                .setQ0(q0())
+                .setP0(pFixed)
+                .setQ0(qFixed)
                 .setLoadType(loadType);
         identify(adder);
         connect(adder);
@@ -50,11 +54,28 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         convertedTerminals(load.getTerminal());
         setLoadDetail(loadKind, load);
 
-        addSpecificProperties(load, loadKind);
+        addSpecificProperties(load, loadKind, pFixed, qFixed);
     }
 
-    private static void addSpecificProperties(Load load, String loadKind) {
+    @Override
+    public void update(Network network) {
+        Load load = network.getLoad(id);
+        if (load == null) {
+            return;
+        }
+        updateTerminalData(load);
+        double pFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "pFixed"));
+        double qFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "qFixed"));
+        load.setP0(p0(pFixed)).setQ0(q0(qFixed));
+
+        String loadKind = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        updateLoadDetail(loadKind, load);
+    }
+
+    private static void addSpecificProperties(Load load, String loadKind, double pFixed, double qFixed) {
         load.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, loadKind);
+        load.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "pFixed", String.valueOf(pFixed));
+        load.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "qFixed", String.valueOf(qFixed));
     }
 
     private void model(LoadAdder adder) {
@@ -134,14 +155,29 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         // else: EnergyConsumer - undefined
     }
 
-    @Override
-    protected double p0() {
-        return powerFlow().defined() ? powerFlow().p() : p.asDouble("pFixed", 0.0);
+    private static void updateLoadDetail(String type, Load load) {
+        if (type == null) {
+            return;
+        }
+        LoadDetail loadDetail = load.getExtension(LoadDetail.class);
+        if (loadDetail == null) {
+            return;
+        }
+        if (type.equals("ConformLoad")) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
+            loadDetail.setVariableActivePower((float) load.getP0())
+                            .setVariableReactivePower((float) load.getQ0());
+        } else if (type.equals("NonConformLoad")) { // does not participate in scaling
+            loadDetail.setFixedActivePower((float) load.getP0())
+                            .setFixedReactivePower((float) load.getQ0());
+        }
     }
 
-    @Override
-    protected double q0() {
-        return powerFlow().defined() ? powerFlow().q() : p.asDouble("qFixed", 0.0);
+    private double p0(double pFixed) {
+        return powerFlow().defined() ? powerFlow().p() : pFixed;
+    }
+
+    private double q0(double qFixed) {
+        return powerFlow().defined() ? powerFlow().q() : qFixed;
     }
 
     private final String loadKind;

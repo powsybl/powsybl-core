@@ -170,10 +170,28 @@ public class CgmesImport implements Importer {
         return importData1(ds, networkFactory, p, reportNode);
     }
 
+    public void update(Network network, ReadOnlyDataSource ds, Properties p, ReportNode reportNode) {
+        TripleStoreOptions tripleStoreOptions = new TripleStoreOptions();
+        tripleStoreOptions.setQueryCatalog("-update");
+        ReadOnlyDataSource alternativeDataSourceForBoundary = null;
+        CgmesModel cgmes = CgmesModelFactory.create(
+                ds,
+                alternativeDataSourceForBoundary,
+                TripleStoreFactory.DEFAULT_IMPLEMENTATION,
+                reportNode,
+                tripleStoreOptions);
+        Conversion conversion = new Conversion(cgmes, config(p));
+        conversion.update(network, reportNode);
+    }
+
     private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode reportNode) {
         CgmesModel cgmes = readCgmes(ds, p, reportNode);
         ReportNode conversionReportNode = reportNode.newReportNode().withMessageTemplate("CGMESConversion", "Importing CGMES file(s)").add();
-        return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
+
+        Conversion conversion = new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory);
+        Network network = conversion.convert(conversionReportNode);
+
+        return network;
     }
 
     static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
