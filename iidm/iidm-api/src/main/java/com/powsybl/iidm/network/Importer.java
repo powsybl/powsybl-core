@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  *
  * <p><code>Importer</code> lookup is based on the <code>ServiceLoader</code>
  * architecture so do not forget to create a
- * <code>META-INF/services/com.powsybl.iidm.importData.Importer</code> file
+ * <code>META-INF/services/com.powsybl.iidm.network.Importer</code> file
  * with the fully qualified name of your <code>Importer</code> implementation.
  *
  * @see java.util.ServiceLoader
