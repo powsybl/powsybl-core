@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -46,6 +47,10 @@ public abstract class AbstractObjectConversion {
     public abstract boolean valid();
 
     public abstract void convert();
+
+    public void update(Network network) {
+        throw new ConversionException("Missing implementation: update for " + type);
+    }
 
     public abstract String what();
 

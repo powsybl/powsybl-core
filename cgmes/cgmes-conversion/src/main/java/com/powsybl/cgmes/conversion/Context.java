@@ -64,6 +64,7 @@ public class Context {
         reactiveCapabilityCurveData = new HashMap<>();
         powerTransformerRatioTapChangers = new HashMap<>();
         powerTransformerPhaseTapChangers = new HashMap<>();
+        cgmesTerminals = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -98,6 +99,11 @@ public class Context {
             t.setP(f.p());
             t.setQ(f.q());
         }
+    }
+
+    public void mappingTerminal(String terminalId, Terminal t, int n) {
+        // Record the mapping between CGMES and IIDM terminals
+        terminalMapping().add(terminalId, t, n);
     }
 
     private boolean setPQAllowed(Terminal t) {
@@ -203,6 +209,18 @@ public class Context {
 
     public PropertyBags phaseTapChangerTable(String tableId) {
         return phaseTapChangerTables.get(tableId);
+    }
+
+    public void loadCgmesTerminals() {
+        cgmes.terminals().forEach(p -> {
+            String id = p.getId(CgmesNames.TERMINAL);
+            cgmesTerminals.put(id, p);
+        });
+
+    }
+
+    public PropertyBag cgmesTerminal(String id) {
+        return cgmesTerminals.get(id);
     }
 
     // Handling issues found during conversion
@@ -318,6 +336,7 @@ public class Context {
     private final Map<String, PropertyBags> reactiveCapabilityCurveData;
     private final Map<String, PropertyBag> powerTransformerRatioTapChangers;
     private final Map<String, PropertyBag> powerTransformerPhaseTapChangers;
+    private final Map<String, PropertyBag> cgmesTerminals;
 
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }

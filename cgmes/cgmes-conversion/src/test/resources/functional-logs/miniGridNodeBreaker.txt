@@ -40,3 +40,4 @@
          Node 49831d24-33e9-4233-8424-3f88186a924e has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0.
       Applying postprocessors.
       CGMES network urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66 is imported.
+      Running validation checks on IIDM network urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66
