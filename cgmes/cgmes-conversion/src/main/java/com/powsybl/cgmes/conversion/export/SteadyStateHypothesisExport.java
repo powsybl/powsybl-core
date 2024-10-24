@@ -859,8 +859,7 @@ public final class SteadyStateHypothesisExport {
         if (controlArea.hasProperty("pTolerance")) {
             pTolerance = Double.parseDouble(controlArea.getProperty("pTolerance"));
         } else {
-            // FIXME(Luma) check if QoCDC says something about this tolerance
-            pTolerance = 0.1 * netInterchange;
+            pTolerance = Math.abs(0.01 * netInterchange);
         }
         writer.writeStartElement(cimNamespace, "ControlArea.pTolerance");
         writer.writeCharacters(CgmesExportUtil.format(pTolerance));
