@@ -532,7 +532,6 @@ public class CgmesExportContext {
     private void addIidmMappingsControlArea(Network network) {
         // If no control area exists, create one for the whole network, containing the dangling lines as boundaries,
         // but only if the network does not contain subnetworks
-        // FIXME(LUMA) check the use of the literal for CGMES "ControlAreaTypeKind.Interchange" and "energyIdentificationCodeEic"
         long numControlAreas = network.getAreaStream().filter(a -> a.getAreaType().equals("ControlAreaTypeKind.Interchange")).count();
         long numSubnetworks = network.getSubnetworks().size();
         if (numControlAreas == 0 && numSubnetworks == 0) {
@@ -542,11 +541,16 @@ public class CgmesExportContext {
                     .setId(controlAreaId)
                     .setName("Network")
                     .add();
-            // FIXME(Luma) unknown EIC, there is no good default value for it
+            if (referenceDataProvider != null && referenceDataProvider.getSourcingActor().containsKey(CgmesNames.ENERGY_IDENT_CODE_EIC)) {
+                area.addAlias(referenceDataProvider.getSourcingActor().get(CgmesNames.ENERGY_IDENT_CODE_EIC), CgmesNames.ENERGY_IDENT_CODE_EIC);
+            }
+            double currentInterchange = 0;
             for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
                 // Our exchange should be referred the boundary
                 area.newAreaBoundary().setAc(true).setBoundary(danglingLine.getBoundary()).add();
+                currentInterchange += danglingLine.getBoundary().getP();
             }
+            area.setInterchangeTarget(currentInterchange);
         }
     }
 

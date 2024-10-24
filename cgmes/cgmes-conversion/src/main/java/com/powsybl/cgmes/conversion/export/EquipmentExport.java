@@ -1377,8 +1377,8 @@ public final class EquipmentExport {
         // Original control area identifiers may not respect mRID rules, so we pass it through naming strategy
         // to obtain always valid mRID identifiers
         String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(controlArea.getId());
-        String energyIdentificationCodeEIC = controlArea.getProperty("energyIdentificationCodeEIC");
-        ControlAreaEq.write(controlAreaCgmesId, controlArea.getNameOrId(), energyIdentificationCodeEIC, energyAreaId, cimNamespace, euNamespace, writer, context);
+        String energyIdentCodeEic = controlArea.getAliasFromType(CgmesNames.ENERGY_IDENT_CODE_EIC).orElse("");
+        ControlAreaEq.write(controlAreaCgmesId, controlArea.getNameOrId(), energyIdentCodeEic, energyAreaId, cimNamespace, euNamespace, writer, context);
         for (AreaBoundary areaBoundary : controlArea.getAreaBoundaries()) {
             areaBoundary.getTerminal().ifPresent(terminal -> {
                 Connectable<?> c = terminal.getConnectable();
