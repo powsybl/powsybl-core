@@ -1,5 +1,5 @@
 # import-export-parameters-default-value
-The `import-export-parameters-default-value` module is an optional module used to configure the network importer and exporters.
+The `import-export-parameters-default-value` module is an optional module used to configure the network importers and exporters.
 
 The parameters are different from a format importer/exporter to another, please refer to the documentation of
 each [supported format](../../grid_exchange_formats/index.md) to learn more about their specific configuration.
