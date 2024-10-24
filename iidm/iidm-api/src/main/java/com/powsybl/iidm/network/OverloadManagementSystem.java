@@ -7,7 +7,10 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.extensions.Extendable;
+
 import java.util.List;
+import java.util.Optional;
 
 /**
  * An overload management system.
@@ -16,7 +19,16 @@ import java.util.List;
  */
 public interface OverloadManagementSystem extends AutomationSystem<OverloadManagementSystem> {
 
-    interface Tripping {
+    default Optional<Tripping> getTripping(String trippingKey) {
+        return this.getTrippings()
+                .stream()
+                .filter(tripping -> tripping.getKey().equals(trippingKey))
+                .findFirst();
+    }
+
+    interface Tripping extends Extendable<Tripping> {
+        OverloadManagementSystem getOverloadManagementSystem();
+
         enum Type {
             BRANCH_TRIPPING,
             THREE_WINDINGS_TRANSFORMER_TRIPPING,
