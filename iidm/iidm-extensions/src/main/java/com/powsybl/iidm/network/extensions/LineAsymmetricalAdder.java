@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.Line;
  * @author Jean-Baptiste Heyberger {@literal <jbheyberger at gmail.com>}
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface LineFortescueAdder extends ExtensionAdder<Line, LineFortescue> {
+public interface LineAsymmetricalAdder extends ExtensionAdder<Line, LineAsymmetrical> {
 
-    LineFortescueAdder withRz(double rz);
+    LineAsymmetricalAdder withOpenPhaseA(boolean openPhaseA);
 
-    LineFortescueAdder withXz(double xz);
+    LineAsymmetricalAdder withOpenPhaseB(boolean openPhaseB);
+
+    LineAsymmetricalAdder withOpenPhaseC(boolean openPhaseC);
 }
