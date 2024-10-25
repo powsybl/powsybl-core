@@ -175,6 +175,15 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void lostTwoWindingsTransformerOperationalLimitsGroups(ReportNode reportNode, String limits, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("lostTwoWindingsTransformerOperationalLimitsGroups", "OperationalLimitsGroups [${limits}] of twoWindingsTransformer ${twoWindingsTransformerId} will be lost")
+                .withUntypedValue("limits", limits)
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     public static void voltageLevelRemovedReport(ReportNode reportNode, String vlId) {
         reportNode.newReportNode()
                 .withMessageTemplate("voltageLevelRemoved", "Voltage level ${vlId} removed")
@@ -660,54 +669,54 @@ public final class ModificationReports {
 
     public static void scalingReport(ReportNode reportNode, String type, DistributionMode mode, ScalingType scalingType, double asked, double done) {
         reportNode.newReportNode()
-            .withMessageTemplate("scalingApplied", "Successfully scaled on ${identifiableType} using mode ${mode} and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
-            .withUntypedValue(IDENTIFIABLE_TYPE, type)
-            .withUntypedValue("mode", mode.name())
-            .withUntypedValue("type", scalingType.name())
-            .withUntypedValue("asked", asked)
-            .withUntypedValue("done", done)
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate("scalingApplied", "Successfully scaled on ${identifiableType} using mode ${mode} and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
+                .withUntypedValue(IDENTIFIABLE_TYPE, type)
+                .withUntypedValue("mode", mode.name())
+                .withUntypedValue("type", scalingType.name())
+                .withUntypedValue("asked", asked)
+                .withUntypedValue("done", done)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
     }
 
     public static void scalingReport(ReportNode reportNode, String type, ScalingType scalingType, double asked, double done) {
         reportNode.newReportNode()
-            .withMessageTemplate("scalingApplied", "Successfully scaled on ${identifiableType} using mode STACKING and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
-            .withUntypedValue(IDENTIFIABLE_TYPE, type)
-            .withUntypedValue("type", scalingType.name())
-            .withUntypedValue("asked", asked)
-            .withUntypedValue("done", done)
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate("scalingApplied", "Successfully scaled on ${identifiableType} using mode STACKING and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
+                .withUntypedValue(IDENTIFIABLE_TYPE, type)
+                .withUntypedValue("type", scalingType.name())
+                .withUntypedValue("asked", asked)
+                .withUntypedValue("done", done)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
     }
 
     public static void connectableConnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean connectionSuccessful, ThreeSides side) {
         String defaultMessage = connectionSuccessful ?
-            "Connectable ${identifiable} has been connected" :
-            "Connectable ${identifiable} has NOT been connected";
+                "Connectable ${identifiable} has been connected" :
+                "Connectable ${identifiable} has NOT been connected";
         defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = connectionSuccessful ? "connectableConnected" : "connectableNotConnected";
         key += side == null ? "" : "Side" + side.getNum();
         reportNode.newReportNode()
-            .withMessageTemplate(key, defaultMessage)
-            .withUntypedValue("identifiable", identifiable.getId())
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate(key, defaultMessage)
+                .withUntypedValue("identifiable", identifiable.getId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
     }
 
     public static void identifiableDisconnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
         String defaultMessage = disconnectionSuccessful ?
-            "Identifiable ${identifiable} has been disconnected" :
-            "Identifiable ${identifiable} has NOT been disconnected";
+                "Identifiable ${identifiable} has been disconnected" :
+                "Identifiable ${identifiable} has NOT been disconnected";
         defaultMessage += isPlanned ? " (planned disconnection)" : " (unplanned disconnection)";
         defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = isPlanned ? "planned" : "unplanned";
         key += disconnectionSuccessful ? "IdentifiableDisconnected" : "IdentifiableNotDisconnected";
         key += side == null ? "" : "Side" + side.getNum();
         reportNode.newReportNode()
-            .withMessageTemplate(key, defaultMessage)
-            .withUntypedValue("identifiable", identifiable.getId())
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate(key, defaultMessage)
+                .withUntypedValue("identifiable", identifiable.getId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
     }
 }

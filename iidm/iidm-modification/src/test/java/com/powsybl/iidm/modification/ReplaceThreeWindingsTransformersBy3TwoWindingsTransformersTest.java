@@ -204,7 +204,7 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
     }
 
     @Test
-    void testReportNode() throws IOException {
+    void reportNodeTest() throws IOException {
         network.getThreeWindingsTransformer(t3w.getId()).setProperty("t3w property1", "t3w-value1");
         network.getThreeWindingsTransformer(t3w.getId()).setProperty("t3w property2", "t3w-value2");
         network.getThreeWindingsTransformer(t3w.getId()).addAlias("t3w-alias1");
@@ -229,7 +229,7 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
     }
 
     @Test
-    void testReportNodeExtensions() throws IOException {
+    void reportNodeExtensionsTest() throws IOException {
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
         lostThreeWindingsTransformerExtensions(reportNode, "unknownExtension1, unknownExtension2", t3w.getId());
 
@@ -295,7 +295,7 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
     }
 
     @Test
-    void testApplyChecks() {
+    void applyChecksTest() {
         network.getThreeWindingsTransformer(t3w.getId()).setProperty("unknown property", "unknown value");
         ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
         assertThrows(PowsyblException.class, () -> replace.apply(network, true, ReportNode.NO_OP),
@@ -305,13 +305,13 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
     }
 
     @Test
-    void testGetName() {
+    void getNameTest() {
         AbstractNetworkModification networkModification = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
         assertEquals("ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers", networkModification.getName());
     }
 
     @Test
-    void testHasImpact() {
+    void hasImpactTest() {
         ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers modification = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
     }

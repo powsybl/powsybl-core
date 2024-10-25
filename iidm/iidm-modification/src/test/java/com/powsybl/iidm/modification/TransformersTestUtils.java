@@ -76,9 +76,16 @@ final class TransformersTestUtils {
                 .add();
     }
 
-    static void addLoadingLimits(TwoWindingsTransformer t2w) {
+    static void addLoadingLimitsEnd1(TwoWindingsTransformer t2w) {
         OperationalLimitsGroup summer = t2w.newOperationalLimitsGroup1("OperationalLimitsGroup-summer");
         OperationalLimitsGroup winter = t2w.newOperationalLimitsGroup1("OperationalLimitsGroup-winter");
+        addSummerLoadingLimits(summer);
+        addWinterLoadingLimits(winter);
+    }
+
+    static void addLoadingLimitsEnd2(TwoWindingsTransformer t2w) {
+        OperationalLimitsGroup summer = t2w.newOperationalLimitsGroup2("OperationalLimitsGroup-summer-end2");
+        OperationalLimitsGroup winter = t2w.newOperationalLimitsGroup2("OperationalLimitsGroup-winter-end2");
         addSummerLoadingLimits(summer);
         addWinterLoadingLimits(winter);
     }
@@ -238,21 +245,21 @@ final class TransformersTestUtils {
             strings.add(operationalLimitGroup.getId());
             operationalLimitGroup.getActivePowerLimits().ifPresent(activePowerLimits -> {
                 strings.add(activePowerLimits.getLimitType().name());
-                addLegFortescue(activePowerLimits, strings);
+                addLegLimits(activePowerLimits, strings);
             });
             operationalLimitGroup.getApparentPowerLimits().ifPresent(apparentPowerLimits -> {
                 strings.add(apparentPowerLimits.getLimitType().name());
-                addLegFortescue(apparentPowerLimits, strings);
+                addLegLimits(apparentPowerLimits, strings);
             });
             operationalLimitGroup.getCurrentLimits().ifPresent(currentLimits -> {
                 strings.add(currentLimits.getLimitType().name());
-                addLegFortescue(currentLimits, strings);
+                addLegLimits(currentLimits, strings);
             });
         });
         return String.join(",", strings);
     }
 
-    private static void addLegFortescue(LoadingLimits loadingLimits, List<String> strings) {
+    private static void addLegLimits(LoadingLimits loadingLimits, List<String> strings) {
         strings.add(String.valueOf(loadingLimits.getPermanentLimit()));
         loadingLimits.getTemporaryLimits().forEach(temporaryLimit -> {
             strings.add(temporaryLimit.getName());

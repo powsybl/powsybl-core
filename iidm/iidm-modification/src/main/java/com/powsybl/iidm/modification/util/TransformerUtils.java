@@ -169,14 +169,13 @@ public final class TransformerUtils {
         loadingLimitsAdder.add();
     }
 
-    public static void copyTerminalActiveAndReactivePower(Terminal sourceTerminal, Terminal destinationTerminal) {
+    public static void copyTerminalActiveAndReactivePower(Terminal destinationTerminal, Terminal sourceTerminal) {
         destinationTerminal.setP(sourceTerminal.getP());
         destinationTerminal.setQ(sourceTerminal.getQ());
     }
 
-    public static void copyAndAddFortescue(ThreeWindingsTransformerFortescue.LegFortescue legFortescue, TwoWindingsTransformerFortescueAdder t2wFortescueAdder) {
+    public static void copyAndAddFortescue(TwoWindingsTransformerFortescueAdder t2wFortescueAdder, ThreeWindingsTransformerFortescue.LegFortescue legFortescue) {
         t2wFortescueAdder.withConnectionType1(legFortescue.getConnectionType())
-                .withConnectionType2(legFortescue.getConnectionType())
                 .withFreeFluxes(legFortescue.isFreeFluxes())
                 .withGroundingR1(legFortescue.getGroundingR())
                 .withGroundingX1(legFortescue.getGroundingX())
@@ -188,14 +187,14 @@ public final class TransformerUtils {
         t2wFortescueAdder.add();
     }
 
-    public static void copyAndAddFortescue(TwoWindingsTransformerFortescue t2w1Fortescue, boolean isWellOrientedT2w1, TwoWindingsTransformerFortescue t2w2Fortescue, boolean isWellOrientedT2w2, TwoWindingsTransformerFortescue t2w3Fortescue, boolean isWellOrientedT2w3, ThreeWindingsTransformerFortescueAdder t3wFortescue) {
-        copyFortescueLeg(t2w1Fortescue, isWellOrientedT2w1, t3wFortescue.leg1());
-        copyFortescueLeg(t2w2Fortescue, isWellOrientedT2w2, t3wFortescue.leg2());
-        copyFortescueLeg(t2w3Fortescue, isWellOrientedT2w3, t3wFortescue.leg3());
+    public static void copyAndAddFortescue(ThreeWindingsTransformerFortescueAdder t3wFortescue, TwoWindingsTransformerFortescue t2w1Fortescue, boolean isWellOrientedT2w1, TwoWindingsTransformerFortescue t2w2Fortescue, boolean isWellOrientedT2w2, TwoWindingsTransformerFortescue t2w3Fortescue, boolean isWellOrientedT2w3) {
+        copyFortescueLeg(t3wFortescue.leg1(), t2w1Fortescue, isWellOrientedT2w1);
+        copyFortescueLeg(t3wFortescue.leg2(), t2w2Fortescue, isWellOrientedT2w2);
+        copyFortescueLeg(t3wFortescue.leg3(), t2w3Fortescue, isWellOrientedT2w3);
         t3wFortescue.add();
     }
 
-    private static void copyFortescueLeg(TwoWindingsTransformerFortescue t2wFortescue, boolean isWellOrientedT2w, ThreeWindingsTransformerFortescueAdder.LegFortescueAdder legFortescueAdder) {
+    private static void copyFortescueLeg(ThreeWindingsTransformerFortescueAdder.LegFortescueAdder legFortescueAdder, TwoWindingsTransformerFortescue t2wFortescue, boolean isWellOrientedT2w) {
         if (t2wFortescue != null) {
             legFortescueAdder.withConnectionType(isWellOrientedT2w ? t2wFortescue.getConnectionType1() : t2wFortescue.getConnectionType2())
                     .withFreeFluxes(t2wFortescue.isFreeFluxes())
@@ -206,12 +205,12 @@ public final class TransformerUtils {
         }
     }
 
-    public static void copyAndAddPhaseAngleClock(int phaseAngleClock, TwoWindingsTransformerPhaseAngleClockAdder phaseAngleClockAdder) {
+    public static void copyAndAddPhaseAngleClock(TwoWindingsTransformerPhaseAngleClockAdder phaseAngleClockAdder, int phaseAngleClock) {
         phaseAngleClockAdder.withPhaseAngleClock(phaseAngleClock);
         phaseAngleClockAdder.add();
     }
 
-    public static void copyAndAddPhaseAngleClock(TwoWindingsTransformerPhaseAngleClock t2w2PhaseAngleClock, TwoWindingsTransformerPhaseAngleClock t2w3PhaseAngleClock, ThreeWindingsTransformerPhaseAngleClockAdder phaseAngleClockAdder) {
+    public static void copyAndAddPhaseAngleClock(ThreeWindingsTransformerPhaseAngleClockAdder phaseAngleClockAdder, TwoWindingsTransformerPhaseAngleClock t2w2PhaseAngleClock, TwoWindingsTransformerPhaseAngleClock t2w3PhaseAngleClock) {
         if (t2w2PhaseAngleClock != null) {
             phaseAngleClockAdder.withPhaseAngleClockLeg2(t2w2PhaseAngleClock.getPhaseAngleClock());
         }
@@ -221,13 +220,13 @@ public final class TransformerUtils {
         phaseAngleClockAdder.add();
     }
 
-    public static void copyAndAddToBeEstimated(boolean shouldEstimateRatioTapChanger, boolean shouldEstimatePhaseTapChanger, TwoWindingsTransformerToBeEstimatedAdder toBeEstimatedAdder) {
+    public static void copyAndAddToBeEstimated(TwoWindingsTransformerToBeEstimatedAdder toBeEstimatedAdder, boolean shouldEstimateRatioTapChanger, boolean shouldEstimatePhaseTapChanger) {
         toBeEstimatedAdder.withRatioTapChangerStatus(shouldEstimateRatioTapChanger)
                 .withPhaseTapChangerStatus(shouldEstimatePhaseTapChanger);
         toBeEstimatedAdder.add();
     }
 
-    public static void copyAndAddToBeEstimated(TwoWindingsTransformerToBeEstimated t2w1ToBeEstimated, TwoWindingsTransformerToBeEstimated t2w2ToBeEstimated, TwoWindingsTransformerToBeEstimated t2w3ToBeEstimated, ThreeWindingsTransformerToBeEstimatedAdder toBeEstimatedAdder) {
+    public static void copyAndAddToBeEstimated(ThreeWindingsTransformerToBeEstimatedAdder toBeEstimatedAdder, TwoWindingsTransformerToBeEstimated t2w1ToBeEstimated, TwoWindingsTransformerToBeEstimated t2w2ToBeEstimated, TwoWindingsTransformerToBeEstimated t2w3ToBeEstimated) {
         if (t2w1ToBeEstimated != null) {
             toBeEstimatedAdder.withRatioTapChanger1Status(t2w1ToBeEstimated.shouldEstimateRatioTapChanger())
                     .withPhaseTapChanger1Status(t2w1ToBeEstimated.shouldEstimatePhaseTapChanger());

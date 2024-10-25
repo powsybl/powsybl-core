@@ -100,9 +100,9 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         replace.apply(network);
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("3WT-Leg1-3WT-Leg2-3WT-Leg3");
 
-        assertNotNull(t2w1.getPhaseTapChanger());
-        assertNull(t2w2.getPhaseTapChanger());
-        assertNull(t2w3.getPhaseTapChanger());
+        assertNotNull(t3w.getLeg1().getPhaseTapChanger());
+        assertNull(t3w.getLeg2().getPhaseTapChanger());
+        assertNull(t3w.getLeg3().getPhaseTapChanger());
 
         assertTrue(comparePhaseTapChanger(t2w1.getPhaseTapChanger(), t3w.getLeg1().getPhaseTapChanger()));
     }
@@ -126,30 +126,30 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     }
 
     private void modifyNetworkForLoadingLimitsTest() {
-        addLoadingLimits(t2w1);
-        addLoadingLimits(t2w2);
-        addLoadingLimits(t2w3);
-        addLoadingLimits(network.getTwoWindingsTransformer(t2w1.getId()));
-        addLoadingLimits(network.getTwoWindingsTransformer(t2w2.getId()));
-        addLoadingLimits(network.getTwoWindingsTransformer(t2w3.getId()));
+        addLoadingLimitsEnd1(t2w1);
+        addLoadingLimitsEnd1(t2w2);
+        addLoadingLimitsEnd1(t2w3);
+        addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w1.getId()));
+        addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w2.getId()));
+        addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w3.getId()));
     }
 
     @Test
     void replacePropertiesT2w1Test() {
-        assertTrue(replaceProertiesTwoWindingsTransformer(t2w1));
+        assertTrue(replacePropertiesTwoWindingsTransformer(t2w1));
     }
 
     @Test
     void replacePropertiesT2w2Test() {
-        assertTrue(replaceProertiesTwoWindingsTransformer(t2w2));
+        assertTrue(replacePropertiesTwoWindingsTransformer(t2w2));
     }
 
     @Test
     void replacePropertiesT2w3Test() {
-        assertTrue(replaceProertiesTwoWindingsTransformer(t2w3));
+        assertTrue(replacePropertiesTwoWindingsTransformer(t2w3));
     }
 
-    private boolean replaceProertiesTwoWindingsTransformer(TwoWindingsTransformer t2w) {
+    private boolean replacePropertiesTwoWindingsTransformer(TwoWindingsTransformer t2w) {
         modifyNetworkForPropertiesTest(t2w);
         network.getTwoWindingsTransformer(t2w.getId()).setProperty("CGMES.OperationalLimitSet_" + "OperationalLimitsGroup-summer", "summer");
         network.getTwoWindingsTransformer(t2w.getId()).setProperty("CGMES.OperationalLimitSet_" + "OperationalLimitsGroup-winter", "winter");
@@ -163,8 +163,8 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     }
 
     private void modifyNetworkForPropertiesTest(TwoWindingsTransformer t2w) {
-        addLoadingLimits(t2w);
-        addLoadingLimits(network.getTwoWindingsTransformer(t2w.getId()));
+        addLoadingLimitsEnd1(t2w);
+        addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w.getId()));
     }
 
     @Test
@@ -219,7 +219,7 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     }
 
     @Test
-    void testReportNode() throws IOException {
+    void reportNodeTest() throws IOException {
         network.getTwoWindingsTransformer(t2w1.getId()).setProperty("t2w1 property1", "t2w1-value1");
         network.getTwoWindingsTransformer(t2w2.getId()).setProperty("t2w2 property1", "t2w2-value1");
         network.getTwoWindingsTransformer(t2w2.getId()).setProperty("t2w2 property2", "t2w2-value2");
@@ -228,6 +228,9 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         network.getTwoWindingsTransformer(t2w1.getId()).addAlias("t2w1-alias2");
         network.getTwoWindingsTransformer(t2w2.getId()).addAlias("t2w2-alias1");
         network.getTwoWindingsTransformer(t2w3.getId()).addAlias("t2w3-alias1");
+        network.getTwoWindingsTransformer(t2w1.getId()).addAlias("t2w1-alias2");
+        addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w1.getId()));
+        addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w2.getId()));
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
         Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
         replace.apply(network, reportNode);
@@ -247,12 +250,14 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
                       Alias [t2w1-alias2,t2w1-alias1] of twoWindingsTransformer 3WT-Leg1 will be lost
                       Alias [t2w2-alias1] of twoWindingsTransformer 3WT-Leg2 will be lost
                       Alias [t2w3-alias1] of twoWindingsTransformer 3WT-Leg3 will be lost
+                      OperationalLimitsGroups [OperationalLimitsGroup-summer-end2,OperationalLimitsGroup-winter-end2] of twoWindingsTransformer 3WT-Leg1 will be lost
+                      OperationalLimitsGroups [OperationalLimitsGroup-summer-end2,OperationalLimitsGroup-winter-end2] of twoWindingsTransformer 3WT-Leg2 will be lost
                       ThreeWindingsTransformer 3WT-Leg1-3WT-Leg2-3WT-Leg3 created
                 """, TestUtil.normalizeLineSeparator(sw1.toString()));
     }
 
     @Test
-    void testReportNodeExtensions() throws IOException {
+    void reportNodeExtensionsTest() throws IOException {
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
         lostTwoWindingsTransformerExtensions(reportNode, "unknownExtension1, unknownExtension2", t2w1.getId());
 
@@ -397,7 +402,7 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     }
 
     @Test
-    void testApplyChecks1() {
+    void applyChecks1Test() {
         network.getTwoWindingsTransformer(t2w1.getId()).setProperty("unknown property", "unknown value");
         Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
         assertThrows(PowsyblException.class, () -> replace.apply(network, true, ReportNode.NO_OP),
@@ -407,7 +412,7 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     }
 
     @Test
-    void testApplyChecks2() {
+    void applyChecks2Test() {
         network.getTwoWindingsTransformer(t2w2.getId()).setProperty("unknown property", "unknown value");
         Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
         assertThrows(PowsyblException.class, () -> replace.apply(network, true, ReportNode.NO_OP),
@@ -417,7 +422,7 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     }
 
     @Test
-    void testApplyChecks3() {
+    void applyChecks3Test() {
         network.getTwoWindingsTransformer(t2w3.getId()).setProperty("unknown property", "unknown value");
         Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
         assertThrows(PowsyblException.class, () -> replace.apply(network, true, ReportNode.NO_OP),
@@ -427,13 +432,13 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     }
 
     @Test
-    void testGetName() {
+    void getNameTest() {
         AbstractNetworkModification networkModification = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
         assertEquals("Replace3TwoWindingsTransformersByThreeWindingsTransformers", networkModification.getName());
     }
 
     @Test
-    void testHasImpact() {
+    void hasImpactTest() {
         ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers modification = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
     }
