@@ -447,7 +447,8 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     private static void createReportNode(ReportNode reportNode, String t2w1Id, String t2w2Id, String t2w3Id, String starVoltageId,
                                          List<PropertyR> lostProperties, List<ExtensionR> lostExtensions, List<AliasR> lostAliases,
                                          List<LimitsR> lostLimits, String t3wId) {
-        ReportNode reportNodeReplacement = reportNode.newReportNode().withMessageTemplate("replaced-3t2w-by-t3w", "Replaced 3 TwoWindingsTransformers by ThreeWindingsTransformer").add();
+
+        ReportNode reportNodeReplacement = replace3TwoWindingsTransformersByThreeWindingsTransformersReport(reportNode);
 
         removedTwoWindingsTransformerReport(reportNodeReplacement, t2w1Id);
         removedTwoWindingsTransformerReport(reportNodeReplacement, t2w2Id);

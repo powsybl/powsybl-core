@@ -719,4 +719,12 @@ public final class ModificationReports {
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
+
+    public static ReportNode replaceThreeWindingsTransformersBy3TwoWindingsTransformersReport(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("replaced-t3w-by-3t2w", "Replaced ThreeWindingsTransformer by 3 TwoWindingsTransformers").add();
+    }
+
+    public static ReportNode replace3TwoWindingsTransformersByThreeWindingsTransformersReport(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("replaced-3t2w-by-t3w", "Replaced 3 TwoWindingsTransformers by ThreeWindingsTransformer").add();
+    }
 }
