@@ -1316,6 +1316,14 @@ class EquipmentExportTest extends AbstractSerDeTest {
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
 
+            // Generator with remote voltage regulation exported in local regulation mode
+            Properties exportInLocalRegulationModeParams = new Properties();
+            exportInLocalRegulationModeParams.put(CgmesExport.PROFILES, "EQ");
+            exportInLocalRegulationModeParams.put(CgmesExport.EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE, true);
+            network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
+            eq = getEQ(network, baseName, tmpDir, exportInLocalRegulationModeParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+
             // Generator with local reactive
             network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
             eq = getEQ(network, baseName, tmpDir, exportParams);
