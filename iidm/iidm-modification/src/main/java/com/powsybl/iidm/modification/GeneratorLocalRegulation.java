@@ -18,6 +18,10 @@ import org.slf4j.LoggerFactory;
 import static com.powsybl.iidm.modification.util.ModificationReports.generatorLocalRegulationReport;
 
 /**
+ * <p>Network modification to force generator to regulate locally instead of remotely.</p>
+ * <p>Generator's RegulatingTerminal is set to the generator's own Terminal.</p>
+ * <p>TargetV engineering unit value is adapted but keeps the same per unit value.</p>
+ *
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
 public class GeneratorLocalRegulation extends AbstractNetworkModification {
