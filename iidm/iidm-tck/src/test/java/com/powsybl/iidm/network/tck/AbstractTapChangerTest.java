@@ -125,6 +125,9 @@ public abstract class AbstractTapChangerTest {
         phaseTapChanger.setLowTapPosition(lowTapPosition);
         assertEquals(lowTapPosition, phaseTapChanger.getLowTapPosition());
         assertEquals(2, phaseTapChanger.getNeutralPosition().orElseThrow(IllegalStateException::new));
+        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
+        phaseTapChanger.setRegulating(true);
+        phaseTapChanger.setRegulating(true);
 
         try {
             phaseTapChanger.setTapPosition(5);
