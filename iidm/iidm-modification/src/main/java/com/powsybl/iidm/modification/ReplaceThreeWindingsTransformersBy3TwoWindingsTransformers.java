@@ -38,7 +38,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         RegulatedTerminalControllers regulatedTerminalControllers = new RegulatedTerminalControllers(network);
-        network.getThreeWindingsTransformerStream()
+        network.getThreeWindingsTransformerStream().toList() // toList is required to create a temporary list since the threeWindingsTransformer is removed during the replacement
                 .forEach(t3w -> replaceThreeWindingsTransformerBy3TwoWindingsTransformer(t3w, regulatedTerminalControllers, throwException, reportNode));
     }
 

@@ -425,7 +425,8 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
 
     private static void remove(TwoR twoR) {
         VoltageLevel voltageLevel = twoR.starBus.getVoltageLevel();
-        twoR.starBus.getConnectedTerminalStream().toList().forEach(terminal -> terminal.getConnectable().remove());
+        twoR.starBus.getConnectedTerminalStream().toList() // toList is required to create a temporary list since the threeWindingsTransformer is removed during the replacement
+                .forEach(terminal -> terminal.getConnectable().remove());
         voltageLevel.remove();
     }
 
