@@ -3,6 +3,7 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,34 +14,58 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GeneratorLocalRegulationTest {
 
-    @Test
-    void localRegulationTest() throws IOException {
-        Network network = createTestNetwork();
-        assertNotNull(network);
-        Generator g = network.getGenerator("GEN");
-        assertNotNull(g);
+    Network network;
 
-        // Before applying the network modification, the generator regulates remotely at 1.05 pu (420 kV)
-        assertNotEquals(g.getRegulatingTerminal(), g.getTerminal());
-        assertEquals(420.0, g.getTargetV());
+    @BeforeEach
+    void setUp() {
+        network = createTestNetwork();
+    }
+
+    @Test
+    void setLocalRegulationTest() throws IOException {
+        assertNotNull(network);
+        Generator gen1 = network.getGenerator("GEN1");
+        Generator gen2 = network.getGenerator("GEN2");
+
+        // Before applying the network modification,
+        // gen1 regulates remotely at 1.05 pu (420 kV) and gen2 regulates locally at 1.05 pu (21 kV).
+        assertNotEquals(gen1.getRegulatingTerminal(), gen1.getTerminal());
+        assertEquals(420.0, gen1.getTargetV());
+        assertEquals(gen2.getRegulatingTerminal(), gen2.getTerminal());
+        assertEquals(21.0, gen2.getTargetV());
 
         ReportNode reportNode = ReportNode.newRootReportNode()
                 .withMessageTemplate("rootReportNode", "Generator local regulation").build();
-        GeneratorLocalRegulation generatorLocalRegulation = new GeneratorLocalRegulation();
-        generatorLocalRegulation.apply(network, reportNode);
+        new GeneratorLocalRegulation("GEN1").apply(network, reportNode);
+        new GeneratorLocalRegulation("GEN2").apply(network, reportNode);
 
-        // After applying the network modification, the generator regulates locally at 1.05 pu (21 kV)
-        assertNotNull(g);
-        assertEquals(g.getRegulatingTerminal(), g.getTerminal());
-        assertEquals(21.0, g.getTargetV());
+        // After applying the network modification, both generators regulate locally at 1.05 pu (21 kV).
+        assertEquals(gen1.getRegulatingTerminal(), gen1.getTerminal());
+        assertEquals(21.0, gen1.getTargetV());
+        assertEquals(gen2.getRegulatingTerminal(), gen2.getTerminal());
+        assertEquals(21.0, gen2.getTargetV());
 
-        // Report node has been updated with the change
+        // Report node has been updated with the change for gen1 (no impact for gen2).
         StringWriter sw = new StringWriter();
         reportNode.print(sw);
         assertEquals("""
                    + Generator local regulation
-                      Changed regulation for generator GEN to local instead of remote
+                      Changed regulation for generator GEN1 to local instead of remote
                      """, TestUtil.normalizeLineSeparator(sw.toString()));
+    }
+
+    @Test
+    void hasImpactTest() {
+        GeneratorLocalRegulation modification;
+
+        modification = new GeneratorLocalRegulation("WRONG_ID");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));
+
+        modification = new GeneratorLocalRegulation("GEN1");
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
+
+        modification = new GeneratorLocalRegulation("GEN2");
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
     }
 
     private Network createTestNetwork() {
@@ -67,15 +92,26 @@ class GeneratorLocalRegulationTest {
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         vl20.newGenerator()
-                .setId("GEN")
+                .setId("GEN1")
                 .setNode(3)
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setMinP(100)
                 .setMaxP(200)
                 .setTargetP(200)
-                .setTargetV(420)
                 .setVoltageRegulatorOn(true)
+                .setTargetV(420)
                 .setRegulatingTerminal(network.getBusbarSection("BBS").getTerminal())
+                .add();
+        vl20.newGenerator()
+                .setId("GEN2")
+                .setNode(4)
+                .setEnergySource(EnergySource.NUCLEAR)
+                .setMinP(100)
+                .setMaxP(200)
+                .setTargetP(200)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(21)
+                // No regulatingTerminal set == use its own terminal for regulation
                 .add();
 
         st.newTwoWindingsTransformer()
@@ -96,6 +132,7 @@ class GeneratorLocalRegulationTest {
 
         vl400.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(1);
         vl20.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(3);
+        vl20.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(4);
 
         return network;
     }

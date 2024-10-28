@@ -15,10 +15,12 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 import static com.powsybl.iidm.modification.util.ModificationReports.generatorLocalRegulationReport;
 
 /**
- * <p>Network modification to force generator to regulate locally instead of remotely.</p>
+ * <p>Network modification to set a generator regulation to local instead of remote.</p>
  * <p>Generator's RegulatingTerminal is set to the generator's own Terminal.</p>
  * <p>TargetV engineering unit value is adapted but keeps the same per unit value.</p>
  *
@@ -26,7 +28,12 @@ import static com.powsybl.iidm.modification.util.ModificationReports.generatorLo
  */
 public class GeneratorLocalRegulation extends AbstractNetworkModification {
 
+    private final String generatorId;
     private static final Logger LOG = LoggerFactory.getLogger(GeneratorLocalRegulation.class);
+
+    public GeneratorLocalRegulation(String generatorId) {
+        this.generatorId = Objects.requireNonNull(generatorId);
+    }
 
     @Override
     public String getName() {
@@ -35,24 +42,46 @@ public class GeneratorLocalRegulation extends AbstractNetworkModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
-        network.getGeneratorStream().forEach(g -> forceLocalRegulation(g, reportNode));
+        Generator generator = network.getGenerator(generatorId);
+        if (generator != null
+                && generator.getTerminal() != null
+                && generator.getRegulatingTerminal() != null
+                && generator.getTerminal() != generator.getRegulatingTerminal()) {
+            setLocalRegulation(generator, reportNode);
+        }
     }
 
-    private void forceLocalRegulation(Generator g, ReportNode reportNode) {
-        if (g.getRegulatingTerminal() != g.getTerminal()) {
-            // Calculate the (new) local targetV which should be the same value in per unit as the (old) remote targetV
-            double remoteTargetV = g.getTargetV();
-            double remoteNominalV = g.getRegulatingTerminal().getVoltageLevel().getNominalV();
-            double localNominalV = g.getTerminal().getVoltageLevel().getNominalV();
-            double localTargetV = localNominalV * remoteTargetV / remoteNominalV;
+    /**
+     * Change the regulatingTerminal and the targetV of a generator to make it regulate locally.
+     * @param generator The Generator that should regulate locally.
+     * @param reportNode The ReportNode for functional logs.
+     */
+    private void setLocalRegulation(Generator generator, ReportNode reportNode) {
+        // Calculate the (new) local targetV which should be the same value in per unit as the (old) remote targetV
+        double remoteTargetV = generator.getTargetV();
+        double remoteNominalV = generator.getRegulatingTerminal().getVoltageLevel().getNominalV();
+        double localNominalV = generator.getTerminal().getVoltageLevel().getNominalV();
+        double localTargetV = localNominalV * remoteTargetV / remoteNominalV;
 
-            // Change the regulation (local instead of remote)
-            g.setRegulatingTerminal(g.getTerminal());
-            g.setTargetV(localTargetV);
+        // Change the regulation (local instead of remote)
+        generator.setRegulatingTerminal(generator.getTerminal());
+        generator.setTargetV(localTargetV);
 
-            // Notify the change
-            LOG.info("Changed regulation for generator: {} to local instead of remote", g.getId());
-            generatorLocalRegulationReport(reportNode, g.getId());
+        // Notify the change
+        LOG.info("Changed regulation for generator: {} to local instead of remote", generator.getId());
+        generatorLocalRegulationReport(reportNode, generator.getId());
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        Generator generator = network.getGenerator(generatorId);
+        if (generator == null || generator.getTerminal() == null || generator.getRegulatingTerminal() == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (generator.getTerminal() == generator.getRegulatingTerminal()) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+        } else {
+            impact = DEFAULT_IMPACT;
         }
+        return impact;
     }
 }
