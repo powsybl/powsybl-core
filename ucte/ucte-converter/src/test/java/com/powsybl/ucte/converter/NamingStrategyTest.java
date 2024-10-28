@@ -29,7 +29,7 @@ class NamingStrategyTest {
 
     @Test
     void initTest() {
-        ResourceDataSource dataSource = new ResourceDataSource("network2", new ResourceSet("/", "network2.xml"));
+        ResourceDataSource dataSource = new ResourceDataSource("network3", new ResourceSet("/", "network3.xiidm"));
         Network n1 = Network.read(dataSource);
         NamingStrategy s = new DefaultNamingStrategy();
         s.init(n1);

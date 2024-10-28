@@ -163,9 +163,19 @@ public class DefaultNamingStrategy implements NamingStrategy {
         return 'X';
     }
 
+
+
     public static char getVoltageLevelCode(double voltage) {
+        //If voltage level neither than min UCTEVoltageLevel
+        if((int)voltage < UcteVoltageLevelCode.VL_27.getVoltageLevel()){
+            return '7';
+        }
+        //If voltage level gather than min UCTEVoltageLevel
+        if((int)voltage > UcteVoltageLevelCode.VL_750.getVoltageLevel()){
+            return '0';
+        }
         for (UcteVoltageLevelCode code : UcteVoltageLevelCode.values()) {
-            if (code.getVoltageLevel() == (int) voltage) {
+            if ((int) voltage >= code.getVoltageLevel()-10 && (int) voltage <= code.getVoltageLevel()+10) {
                 return (char) ('0' + code.ordinal());
             }
         }
