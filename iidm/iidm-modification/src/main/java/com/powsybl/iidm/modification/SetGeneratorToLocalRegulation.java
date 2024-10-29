@@ -21,23 +21,25 @@ import static com.powsybl.iidm.modification.util.ModificationReports.generatorLo
 
 /**
  * <p>Network modification to set a generator regulation to local instead of remote.</p>
- * <p>Generator's RegulatingTerminal is set to the generator's own Terminal.</p>
- * <p>TargetV engineering unit value is adapted but keeps the same per unit value.</p>
+ * <ul>
+ *     <li>Generator's RegulatingTerminal is set to the generator's own Terminal.</li>
+ *     <li>TargetV engineering unit value is adapted but the per unit value remains the same.</li>
+ * </ul>
  *
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
-public class GeneratorLocalRegulation extends AbstractNetworkModification {
+public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
 
     private final String generatorId;
-    private static final Logger LOG = LoggerFactory.getLogger(GeneratorLocalRegulation.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SetGeneratorToLocalRegulation.class);
 
-    public GeneratorLocalRegulation(String generatorId) {
+    public SetGeneratorToLocalRegulation(String generatorId) {
         this.generatorId = Objects.requireNonNull(generatorId);
     }
 
     @Override
     public String getName() {
-        return "GeneratorLocalRegulation";
+        return "SetGeneratorToLocalRegulation";
     }
 
     @Override

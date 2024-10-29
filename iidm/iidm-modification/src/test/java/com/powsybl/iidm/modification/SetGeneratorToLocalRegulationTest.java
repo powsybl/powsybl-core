@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class GeneratorLocalRegulationTest {
+class SetGeneratorToLocalRegulationTest {
 
     Network network;
 
@@ -35,9 +35,9 @@ class GeneratorLocalRegulationTest {
         assertEquals(21.0, gen2.getTargetV());
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("rootReportNode", "Generator local regulation").build();
-        new GeneratorLocalRegulation("GEN1").apply(network, reportNode);
-        new GeneratorLocalRegulation("GEN2").apply(network, reportNode);
+                .withMessageTemplate("rootReportNode", "Set generators to local regulation").build();
+        new SetGeneratorToLocalRegulation("GEN1").apply(network, reportNode);
+        new SetGeneratorToLocalRegulation("GEN2").apply(network, reportNode);
 
         // After applying the network modification, both generators regulate locally at 1.05 pu (21 kV).
         assertEquals(gen1.getRegulatingTerminal(), gen1.getTerminal());
@@ -49,23 +49,29 @@ class GeneratorLocalRegulationTest {
         StringWriter sw = new StringWriter();
         reportNode.print(sw);
         assertEquals("""
-                   + Generator local regulation
+                   + Set generators to local regulation
                       Changed regulation for generator GEN1 to local instead of remote
                      """, TestUtil.normalizeLineSeparator(sw.toString()));
     }
 
     @Test
     void hasImpactTest() {
-        GeneratorLocalRegulation modification;
+        SetGeneratorToLocalRegulation modification;
 
-        modification = new GeneratorLocalRegulation("WRONG_ID");
+        modification = new SetGeneratorToLocalRegulation("WRONG_ID");
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));
 
-        modification = new GeneratorLocalRegulation("GEN1");
+        modification = new SetGeneratorToLocalRegulation("GEN1");
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
 
-        modification = new GeneratorLocalRegulation("GEN2");
+        modification = new SetGeneratorToLocalRegulation("GEN2");
         assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
+    }
+
+    @Test
+    void getNameTest() {
+        SetGeneratorToLocalRegulation modification = new SetGeneratorToLocalRegulation("GEN1");
+        assertEquals("SetGeneratorToLocalRegulation", modification.getName());
     }
 
     private Network createTestNetwork() {
