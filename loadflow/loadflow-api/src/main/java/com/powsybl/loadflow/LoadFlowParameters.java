@@ -129,6 +129,10 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         Objects.requireNonNull(parameters);
         Objects.requireNonNull(platformConfig);
 
+        // Only the parameters present in platformConfig will be updated and no default value will be set for the absent parameters
+        // (unlike what is done for the other parameters classes).
+        // This is needed for the LoadFlowDefaultParametersLoader mechanism to work (else the default values defined
+        // by the loader will be overwritten by the hardcoded ones).
         platformConfig.getOptionalModuleConfig("load-flow-default-parameters")
                 .ifPresent(config -> {
                     config.getOptionalEnumProperty("voltageInitMode", VoltageInitMode.class).ifPresent(parameters::setVoltageInitMode);
