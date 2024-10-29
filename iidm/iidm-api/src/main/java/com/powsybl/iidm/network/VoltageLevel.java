@@ -472,7 +472,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         SwitchAdder newSwitch();
 
         /**
-         * Get a builder to create a new switch.
+         * Get a builder to create a new internal connection.
          */
         InternalConnectionAdder newInternalConnection();
 
