@@ -8,6 +8,7 @@
 
 package com.powsybl.ucte.converter;
 
+
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
@@ -16,6 +17,7 @@ import com.powsybl.ucte.network.UcteElementId;
 import com.powsybl.ucte.network.UcteNodeCode;
 import com.powsybl.ucte.network.UcteVoltageLevelCode;
 import org.junit.jupiter.api.Test;
+
 
 import java.util.Properties;
 
@@ -32,7 +34,8 @@ class NamingStrategyTest {
         ResourceDataSource dataSource = new ResourceDataSource("network3", new ResourceSet("/", "network3.xiidm"));
         Network n1 = Network.read(dataSource);
         NamingStrategy s = new DefaultNamingStrategy();
-        s.init(n1);
+        s.networkInitialisation(n1);
+
     }
 
     @Test
