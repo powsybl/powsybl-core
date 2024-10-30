@@ -45,7 +45,7 @@ class PercentChangeLoadModificationTest {
     }
 
     @Test
-    void shoulIncreaseQ0() {
+    void shouldIncreaseQ0() {
         Network network = EurostagTutorialExample1Factory.create();
         Load load = network.getLoad("LOAD");
         assertEquals(200.0, load.getQ0());
