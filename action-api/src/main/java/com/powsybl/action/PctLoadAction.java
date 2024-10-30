@@ -15,7 +15,7 @@ import java.util.Objects;
 /**
  * An action to:
  * <ul>
- *     <li>change the P0 of a load, by specifying a percentage that should be removed or added.</li>
+ *     <li>change the P0 of a load, by specifying its percentage change (which could be positive or negative).</li>
  *     <li>describe the impact of this change on the Q0 of a load, by specifying the qStrategy.</li>
  * </ul>
  * <p>
