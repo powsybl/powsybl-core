@@ -13,8 +13,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
 
 import java.util.Objects;
 
@@ -23,7 +21,7 @@ import java.util.Objects;
  *
  * @author Benoît Chiquet {@literal <benoit.chiquet at rte-france.com>}
  */
-public class PercentChangeLoadModification extends AbstractNetworkModification implements Validable {
+public class PercentChangeLoadModification extends AbstractNetworkModification {
 
     private String loadId;
     private double q0PercentChange;
@@ -70,7 +68,6 @@ public class PercentChangeLoadModification extends AbstractNetworkModification i
         return impact;
     }
 
-    @Override
     public String getMessageHeader() {
         return getName();
     }

@@ -10,7 +10,6 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
@@ -57,8 +56,8 @@ class PercentChangeLoadModificationTest {
 
     @Test
     void shouldThrowWhenLoadDecreasesTooMuch() {
-        assertThrows(ValidationException.class, () -> new PercentChangeLoadModification("LOAD", -101, 0));
-        assertThrows(ValidationException.class, () -> new PercentChangeLoadModification("LOAD", 0, -101));
+        assertThrows(PowsyblException.class, () -> new PercentChangeLoadModification("LOAD", -101, 0));
+        assertThrows(PowsyblException.class, () -> new PercentChangeLoadModification("LOAD", 0, -101));
     }
 
     @Test
