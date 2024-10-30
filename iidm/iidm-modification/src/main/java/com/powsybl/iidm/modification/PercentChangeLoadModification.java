@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.Objects;
 
 /**
- * {@link NetworkModification} for a load where load change depends on existing load.
+ * {@link NetworkModification} changing the active and reactive powers of a load by defining percentage changes (which could be positive or negative).
  *
  * @author Benoît Chiquet {@literal <benoit.chiquet at rte-france.com>}
  */
