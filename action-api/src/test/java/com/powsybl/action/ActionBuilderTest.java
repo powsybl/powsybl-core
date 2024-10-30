@@ -34,7 +34,7 @@ class ActionBuilderTest {
 
     @Test
     void pctLoadActionBuilderShouldCheckPctNotAbove100() {
-        PctLoadActionBuilder actionBuilder = new PctLoadActionBuilder()
+        PercentChangeLoadActionBuilder actionBuilder = new PercentChangeLoadActionBuilder()
                 .withId("actionId")
                 .withLoadId("myLoad")
                 .withQStrategy(PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q)

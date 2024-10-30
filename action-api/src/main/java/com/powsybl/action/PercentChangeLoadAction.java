@@ -8,7 +8,7 @@
 package com.powsybl.action;
 
 import com.powsybl.iidm.modification.NetworkModification;
-import com.powsybl.iidm.modification.PctLoadModification;
+import com.powsybl.iidm.modification.PercentChangeLoadModification;
 
 import java.util.Objects;
 
@@ -72,7 +72,7 @@ public class PercentChangeLoadAction extends AbstractAction {
             case CONSTANT_Q -> 0d;
             case CONSTANT_PQ_RATIO -> p0PercentChange;
         };
-        return new PctLoadModification(loadId, p0PercentChange, pctQChange);
+        return new PercentChangeLoadModification(loadId, p0PercentChange, pctQChange);
     }
 
     @Override

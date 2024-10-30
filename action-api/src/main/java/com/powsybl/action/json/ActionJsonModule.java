@@ -53,7 +53,7 @@ public class ActionJsonModule extends SimpleModule {
         registerActionBuilderType(RatioTapChangerRegulationAction.class, RatioTapChangerRegulationActionBuilder.class, RatioTapChangerRegulationAction.NAME,
                 new RatioTapChangerRegulationActionSerializer(), new RatioTapChangerRegulationActionBuilderBuilderDeserializer());
         registerActionBuilderType(LoadAction.class, LoadActionBuilder.class, LoadAction.NAME, new LoadActionSerializer(), new LoadActionBuilderBuilderDeserializer());
-        registerActionBuilderType(PercentChangeLoadAction.class, PctLoadActionBuilder.class, PercentChangeLoadAction.NAME, new PctLoadActionSerializer(), new PctLoadActionBuilderDeserializer());
+        registerActionBuilderType(PercentChangeLoadAction.class, PercentChangeLoadActionBuilder.class, PercentChangeLoadAction.NAME, new PercentChangeLoadActionSerializer(), new PercentChangeLoadActionBuilderDeserializer());
         registerActionBuilderType(DanglingLineAction.class, DanglingLineActionBuilder.class, DanglingLineAction.NAME, new DanglingLineActionSerializer(), new DanglingLineActionBuilderBuilderDeserializer());
         registerActionBuilderType(HvdcAction.class, HvdcActionBuilder.class, HvdcAction.NAME, new HvdcActionSerializer(), new HvdcActionBuilderDeserializer());
         registerActionBuilderType(GeneratorAction.class, GeneratorActionBuilder.class, GeneratorAction.NAME,

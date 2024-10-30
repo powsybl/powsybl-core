@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.action.HvdcAction;
 import com.powsybl.action.PercentChangeLoadAction;
-import com.powsybl.action.PctLoadActionBuilder;
+import com.powsybl.action.PercentChangeLoadActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
@@ -21,14 +21,14 @@ import java.io.IOException;
 /**
  * @author Benoît Chiquet {@literal <benoit.chiquet@rte-france.com>}
  */
-public class PctLoadActionBuilderDeserializer extends StdDeserializer<PctLoadActionBuilder> {
-    public PctLoadActionBuilderDeserializer() {
-        super(PctLoadActionBuilder.class);
+public class PercentChangeLoadActionBuilderDeserializer extends StdDeserializer<PercentChangeLoadActionBuilder> {
+    public PercentChangeLoadActionBuilderDeserializer() {
+        super(PercentChangeLoadActionBuilder.class);
     }
 
     @Override
-    public PctLoadActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        PctLoadActionBuilder builder = new PctLoadActionBuilder();
+    public PercentChangeLoadActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        PercentChangeLoadActionBuilder builder = new PercentChangeLoadActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":

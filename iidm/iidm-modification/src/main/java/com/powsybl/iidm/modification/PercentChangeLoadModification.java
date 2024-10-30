@@ -23,13 +23,13 @@ import java.util.Objects;
  *
  * @author Benoît Chiquet {@literal <benoit.chiquet at rte-france.com>}
  */
-public class PctLoadModification extends AbstractNetworkModification implements Validable {
+public class PercentChangeLoadModification extends AbstractNetworkModification implements Validable {
 
     private String loadId;
     private double pctQChange;
     private double p0PercentChange;
 
-    public PctLoadModification(String loadId, double p0PercentChange, double pctQChange) {
+    public PercentChangeLoadModification(String loadId, double p0PercentChange, double pctQChange) {
         this.loadId = Objects.requireNonNull(loadId);
         if (p0PercentChange < -100 || pctQChange < -100) {
             throw new ValidationException(this, ": Can't decrease load by more than 100% on " + loadId);

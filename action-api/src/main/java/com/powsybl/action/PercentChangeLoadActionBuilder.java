@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Benoît Chiquet {@literal <benoit.chiquet@rte-france.com>}
  */
-public class PctLoadActionBuilder implements ActionBuilder<PctLoadActionBuilder> {
+public class PercentChangeLoadActionBuilder implements ActionBuilder<PercentChangeLoadActionBuilder> {
     private String id;
     private String loadId;
     private double p0PercentChange;
@@ -26,7 +26,7 @@ public class PctLoadActionBuilder implements ActionBuilder<PctLoadActionBuilder>
     }
 
     @Override
-    public PctLoadActionBuilder withId(String id) {
+    public PercentChangeLoadActionBuilder withId(String id) {
         this.id = id;
         return this;
     }
@@ -37,12 +37,12 @@ public class PctLoadActionBuilder implements ActionBuilder<PctLoadActionBuilder>
     }
 
     @Override
-    public PctLoadActionBuilder withNetworkElementId(String elementId) {
+    public PercentChangeLoadActionBuilder withNetworkElementId(String elementId) {
         this.loadId = elementId;
         return this;
     }
 
-    public PctLoadActionBuilder withLoadId(String loadId) {
+    public PercentChangeLoadActionBuilder withLoadId(String loadId) {
         return this.withNetworkElementId(loadId);
     }
 
@@ -54,12 +54,12 @@ public class PctLoadActionBuilder implements ActionBuilder<PctLoadActionBuilder>
         return new PercentChangeLoadAction(Objects.requireNonNull(id), Objects.requireNonNull(loadId), p0PercentChange, Objects.requireNonNull(strategy));
     }
 
-    public PctLoadActionBuilder withPctPChange(double p0PercentChange) {
+    public PercentChangeLoadActionBuilder withPctPChange(double p0PercentChange) {
         this.p0PercentChange = p0PercentChange;
         return this;
     }
 
-    public PctLoadActionBuilder withQStrategy(QModificationStrategy strategy) {
+    public PercentChangeLoadActionBuilder withQStrategy(QModificationStrategy strategy) {
         this.strategy = strategy;
         return this;
     }

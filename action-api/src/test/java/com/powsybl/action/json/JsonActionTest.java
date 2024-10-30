@@ -36,7 +36,7 @@ public class JsonActionTest extends AbstractSerDeTest {
         actions.add(new GeneratorActionBuilder().withId("id11").withGeneratorId("generatorId2").withVoltageRegulatorOn(false).withTargetQ(400.0).build());
         actions.add(new LoadActionBuilder().withId("id12").withLoadId("loadId1").withRelativeValue(false).withActivePowerValue(50.0).build());
         actions.add(new LoadActionBuilder().withId("id13").withLoadId("loadId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
-        actions.add(new PctLoadActionBuilder().withId("id26").withLoadId("loadId1").withPctPChange(5.0).withQStrategy(CONSTANT_Q).build());
+        actions.add(new PercentChangeLoadActionBuilder().withId("id26").withLoadId("loadId1").withPctPChange(5.0).withQStrategy(CONSTANT_Q).build());
         actions.add(new DanglingLineActionBuilder().withId("id17").withDanglingLineId("dlId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
         actions.add(new RatioTapChangerTapPositionAction("id14", "transformerId4", false, 2, ThreeSides.THREE));
         actions.add(new RatioTapChangerTapPositionAction("id15", "transformerId5", true, 1));

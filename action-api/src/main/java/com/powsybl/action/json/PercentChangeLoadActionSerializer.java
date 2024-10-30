@@ -17,9 +17,9 @@ import java.io.IOException;
 /**
  * @author Benoît Chiquet {@literal <benoit.chiquet@rte-france.com>}
  */
-public class PctLoadActionSerializer extends StdSerializer<PercentChangeLoadAction> {
+public class PercentChangeLoadActionSerializer extends StdSerializer<PercentChangeLoadAction> {
 
-    public PctLoadActionSerializer() {
+    public PercentChangeLoadActionSerializer() {
         super(PercentChangeLoadAction.class);
     }
 
