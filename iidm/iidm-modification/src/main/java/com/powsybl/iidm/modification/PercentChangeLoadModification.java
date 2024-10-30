@@ -26,16 +26,16 @@ import java.util.Objects;
 public class PercentChangeLoadModification extends AbstractNetworkModification implements Validable {
 
     private String loadId;
-    private double pctQChange;
+    private double q0PercentChange;
     private double p0PercentChange;
 
-    public PercentChangeLoadModification(String loadId, double p0PercentChange, double pctQChange) {
+    public PercentChangeLoadModification(String loadId, double p0PercentChange, double q0PercentChange) {
         this.loadId = Objects.requireNonNull(loadId);
-        if (p0PercentChange < -100 || pctQChange < -100) {
+        if (p0PercentChange < -100 || q0PercentChange < -100) {
             throw new ValidationException(this, ": Can't decrease load by more than 100% on " + loadId);
         }
         this.p0PercentChange = p0PercentChange;
-        this.pctQChange = pctQChange;
+        this.q0PercentChange = q0PercentChange;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class PercentChangeLoadModification extends AbstractNetworkModification i
         double p0 = load.getP0();
         load.setP0(p0 + (p0 * p0PercentChange / 100));
         double q0 = load.getQ0();
-        load.setQ0(q0 + (q0 * pctQChange / 100));
+        load.setQ0(q0 + (q0 * q0PercentChange / 100));
     }
 
     @Override
@@ -61,7 +61,7 @@ public class PercentChangeLoadModification extends AbstractNetworkModification i
         Load load = network.getLoad(loadId);
         if (load == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (p0PercentChange == 0 && pctQChange == 0) {
+        } else if (p0PercentChange == 0 && q0PercentChange == 0) {
             impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
         return impact;

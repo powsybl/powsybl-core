@@ -68,11 +68,11 @@ public class PercentChangeLoadAction extends AbstractAction {
 
     @Override
     public NetworkModification toModification() {
-        double pctQChange = switch (qStrategy) {
+        double q0PercentChange = switch (qStrategy) {
             case CONSTANT_Q -> 0d;
             case CONSTANT_PQ_RATIO -> p0PercentChange;
         };
-        return new PercentChangeLoadModification(loadId, p0PercentChange, pctQChange);
+        return new PercentChangeLoadModification(loadId, p0PercentChange, q0PercentChange);
     }
 
     @Override
