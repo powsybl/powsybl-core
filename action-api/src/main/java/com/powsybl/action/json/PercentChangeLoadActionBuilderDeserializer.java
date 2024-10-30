@@ -46,8 +46,8 @@ public class PercentChangeLoadActionBuilderDeserializer extends StdDeserializer<
                     jsonParser.nextToken();
                     builder.withPercentP0Change(jsonParser.getValueAsDouble());
                     return true;
-                case "qStrategy":
-                    builder.withQStrategy(PercentChangeLoadAction.QModificationStrategy.valueOf(jsonParser.nextTextValue()));
+                case "qModificationStrategy":
+                    builder.withQModificationStrategy(PercentChangeLoadAction.QModificationStrategy.valueOf(jsonParser.nextTextValue()));
                     return true;
                 default:
                     return false;

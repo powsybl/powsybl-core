@@ -37,7 +37,7 @@ class ActionBuilderTest {
         PercentChangeLoadActionBuilder actionBuilder = new PercentChangeLoadActionBuilder()
                 .withId("actionId")
                 .withLoadId("myLoad")
-                .withQStrategy(PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q)
+                .withQModificationStrategy(PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q)
                 .withPercentP0Change(-101);
         assertThrows(IllegalArgumentException.class, actionBuilder::build);
     }

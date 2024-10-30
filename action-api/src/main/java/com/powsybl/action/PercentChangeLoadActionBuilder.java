@@ -18,7 +18,7 @@ public class PercentChangeLoadActionBuilder implements ActionBuilder<PercentChan
     private String id;
     private String loadId;
     private double p0PercentChange;
-    private QModificationStrategy strategy;
+    private QModificationStrategy qModificationStrategy;
 
     @Override
     public String getType() {
@@ -51,7 +51,7 @@ public class PercentChangeLoadActionBuilder implements ActionBuilder<PercentChan
         if (p0PercentChange < -100) {
             throw new IllegalArgumentException("The load can't be reduced by more than 100%.");
         }
-        return new PercentChangeLoadAction(Objects.requireNonNull(id), Objects.requireNonNull(loadId), p0PercentChange, Objects.requireNonNull(strategy));
+        return new PercentChangeLoadAction(Objects.requireNonNull(id), Objects.requireNonNull(loadId), p0PercentChange, Objects.requireNonNull(qModificationStrategy));
     }
 
     public PercentChangeLoadActionBuilder withPercentP0Change(double p0PercentChange) {
@@ -59,8 +59,8 @@ public class PercentChangeLoadActionBuilder implements ActionBuilder<PercentChan
         return this;
     }
 
-    public PercentChangeLoadActionBuilder withQStrategy(QModificationStrategy strategy) {
-        this.strategy = strategy;
+    public PercentChangeLoadActionBuilder withQModificationStrategy(QModificationStrategy strategy) {
+        this.qModificationStrategy = strategy;
         return this;
     }
 }
