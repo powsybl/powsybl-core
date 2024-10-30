@@ -30,9 +30,9 @@ class PercentChangeLoadModificationTest {
         Network network = EurostagTutorialExample1Factory.create();
         Load load = network.getLoad("LOAD");
         assertEquals(600.0, load.getP0());
-        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", 3.5, 0);
+        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", 3.51, 0);
         modification.apply(network);
-        assertEquals(621.0, load.getP0());
+        assertEquals(621.06, load.getP0());
     }
 
     @Test
