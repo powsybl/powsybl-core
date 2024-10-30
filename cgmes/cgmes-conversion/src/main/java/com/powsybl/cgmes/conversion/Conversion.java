@@ -165,7 +165,7 @@ public class Conversion {
 
         // Build mappings
         context.pushReportNode(CgmesReports.buildingMappingsReport(reportNode));
-        context.substationIdMapping().build();
+        context.nodeContainerMapping().build();
         BaseVoltageMappingAdder bvAdder = network.newExtension(BaseVoltageMappingAdder.class);
         cgmes.baseVoltages().forEach(bv -> bvAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
         bvAdder.add();
@@ -612,10 +612,10 @@ public class Conversion {
     // Fictitious voltageLevels for Line and Substation(when it includes nodes) containers
     private void createFictitiousVoltageLevelsForLineContainers(Context context) {
 
-        context.substationIdMapping().getFictitiousVoltageLevelsForLineContainersToBeCreated().forEach(fictitiousVoltageLevelId -> {
-            String containerId = context.substationIdMapping().getContainerId(fictitiousVoltageLevelId).orElseThrow();
-            String containerName = context.substationIdMapping().getContainerName(fictitiousVoltageLevelId).orElseThrow();
-            String referenceVoltageLevelId = context.substationIdMapping().getReferenceVoltageLevelId(fictitiousVoltageLevelId).orElseThrow();
+        context.nodeContainerMapping().getFictitiousVoltageLevelsForLineContainersToBeCreated().forEach(fictitiousVoltageLevelId -> {
+            String containerId = context.nodeContainerMapping().getContainerId(fictitiousVoltageLevelId).orElseThrow();
+            String containerName = context.nodeContainerMapping().getContainerName(fictitiousVoltageLevelId).orElseThrow();
+            String referenceVoltageLevelId = context.nodeContainerMapping().getReferenceVoltageLevelId(fictitiousVoltageLevelId).orElseThrow();
 
             if (context.network().getVoltageLevel(fictitiousVoltageLevelId) == null) {
                 VoltageLevel referenceVoltageLevel = context.network().getVoltageLevel(referenceVoltageLevelId);

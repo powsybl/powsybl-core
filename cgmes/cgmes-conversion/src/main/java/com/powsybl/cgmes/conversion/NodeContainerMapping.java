@@ -78,9 +78,9 @@ import java.util.stream.Collectors;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 
-public class SubstationIdMapping {
+public class NodeContainerMapping {
 
-    public SubstationIdMapping(Context context) {
+    public NodeContainerMapping(Context context) {
         this.context = context;
         this.substationMapping = new HashMap<>();
         this.voltageLevelMapping = new HashMap<>();
@@ -465,7 +465,7 @@ public class SubstationIdMapping {
     private final Map<String, ContainerR> fictitiousVoltageLevels;
     private final Map<String, String> referenceVoltageLevels;
 
-    private static final Logger LOG = LoggerFactory.getLogger(SubstationIdMapping.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NodeContainerMapping.class);
 
     private record ContainerR(String containerId, Set<String> nodeIdSet) {
     }
