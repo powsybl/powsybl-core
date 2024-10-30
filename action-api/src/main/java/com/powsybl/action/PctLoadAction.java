@@ -20,7 +20,8 @@ import java.util.Objects;
  * </ul>
  * <p>
  * This action is useful to specify changes that should be applied on a load when the value of the load is not known.
- *
+ * </p>
+  *
  * @author Benoît Chiquet {@literal <benoit.chiquet@rte-france.com>}
  */
 public class PctLoadAction extends AbstractAction {
