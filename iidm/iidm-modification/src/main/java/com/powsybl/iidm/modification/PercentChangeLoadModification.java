@@ -31,8 +31,11 @@ public class PercentChangeLoadModification extends AbstractNetworkModification i
 
     public PercentChangeLoadModification(String loadId, double p0PercentChange, double q0PercentChange) {
         this.loadId = Objects.requireNonNull(loadId);
-        if (p0PercentChange < -100 || q0PercentChange < -100) {
-            throw new ValidationException(this, ": Can't decrease load by more than 100% on " + loadId);
+        if (p0PercentChange < -100) {
+            throw new PowsyblException("The active power of " + loadId + " cannot decrease by more than 100% (current value: " + p0PercentChange + ")");
+        }
+        if (q0PercentChange < -100) {
+            throw new PowsyblException("The reactive power of " + loadId + " cannot decrease by more than 100% (current value: " + q0PercentChange + ")");
         }
         this.p0PercentChange = p0PercentChange;
         this.q0PercentChange = q0PercentChange;
