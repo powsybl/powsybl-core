@@ -86,7 +86,7 @@
     "id" : "id26",
     "loadId" : "loadId1",
     "p0PercentChange" : 5.0,
-    "qStrategy" : "CONSTANT_Q"
+    "qModificationStrategy" : "CONSTANT_Q"
   }, {
     "type" : "DANGLING_LINE",
     "id" : "id17",

@@ -16,7 +16,7 @@ import java.util.Objects;
  * An action to:
  * <ul>
  *     <li>change the P0 of a load, by specifying its percentage change (which could be positive or negative).</li>
- *     <li>describe the impact of this change on the Q0 of a load, by specifying the qStrategy.</li>
+ *     <li>describe the impact of this change on the Q0 of a load, by specifying the qModificationStrategy.</li>
  * </ul>
  * <p>
  * This action is useful to specify changes that should be applied on a load when its actual active power is unknown.
@@ -29,19 +29,19 @@ public class PercentChangeLoadAction extends AbstractAction {
     public static final String NAME = "PCT_LOAD_CHANGE";
     private String loadId;
     private Double p0PercentChange;
-    private QModificationStrategy qStrategy;
+    private QModificationStrategy qModificationStrategy;
 
     /**
      * @param id         the id of the action.
      * @param loadId     the id of the load on which the action would be applied.
      * @param p0PercentChange the percentage that will be added to P0. Negative values describe load reduction.
-     * @param qStrategy  the way this change impacts Q0.
+     * @param qModificationStrategy  the way this change impacts Q0.
      */
-    PercentChangeLoadAction(String id, String loadId, Double p0PercentChange, QModificationStrategy qStrategy) {
+    PercentChangeLoadAction(String id, String loadId, Double p0PercentChange, QModificationStrategy qModificationStrategy) {
         super(id);
         this.loadId = loadId;
         this.p0PercentChange = p0PercentChange;
-        this.qStrategy = qStrategy;
+        this.qModificationStrategy = qModificationStrategy;
     }
 
     public enum QModificationStrategy {
@@ -63,12 +63,12 @@ public class PercentChangeLoadAction extends AbstractAction {
     }
 
     public QModificationStrategy getQStrategy() {
-        return this.qStrategy;
+        return this.qModificationStrategy;
     }
 
     @Override
     public NetworkModification toModification() {
-        double q0PercentChange = switch (qStrategy) {
+        double q0PercentChange = switch (qModificationStrategy) {
             case CONSTANT_Q -> 0d;
             case CONSTANT_PQ_RATIO -> p0PercentChange;
         };
@@ -87,11 +87,11 @@ public class PercentChangeLoadAction extends AbstractAction {
             return false;
         }
         PercentChangeLoadAction that = (PercentChangeLoadAction) o;
-        return Objects.equals(loadId, that.loadId) && Objects.equals(p0PercentChange, that.p0PercentChange) && qStrategy == that.qStrategy;
+        return Objects.equals(loadId, that.loadId) && Objects.equals(p0PercentChange, that.p0PercentChange) && qModificationStrategy == that.qModificationStrategy;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), loadId, p0PercentChange, qStrategy);
+        return Objects.hash(super.hashCode(), loadId, p0PercentChange, qModificationStrategy);
     }
 }
