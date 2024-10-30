@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.action.HvdcAction;
-import com.powsybl.action.PctLoadAction;
+import com.powsybl.action.PercentChangeLoadAction;
 import com.powsybl.action.PctLoadActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
 
@@ -32,7 +32,7 @@ public class PctLoadActionBuilderDeserializer extends StdDeserializer<PctLoadAct
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
-                    if (!PctLoadAction.NAME.equals(jsonParser.nextTextValue())) {
+                    if (!PercentChangeLoadAction.NAME.equals(jsonParser.nextTextValue())) {
                         throw JsonMappingException.from(jsonParser, "Expected type " + HvdcAction.NAME);
                     }
                     return true;
@@ -47,7 +47,7 @@ public class PctLoadActionBuilderDeserializer extends StdDeserializer<PctLoadAct
                     builder.withPctPChange(jsonParser.getValueAsDouble());
                     return true;
                 case "qStrategy":
-                    builder.withQStrategy(PctLoadAction.QModificationStrategy.valueOf(jsonParser.nextTextValue()));
+                    builder.withQStrategy(PercentChangeLoadAction.QModificationStrategy.valueOf(jsonParser.nextTextValue()));
                     return true;
                 default:
                     return false;

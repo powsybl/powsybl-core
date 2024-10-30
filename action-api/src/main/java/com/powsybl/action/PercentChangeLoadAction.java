@@ -24,7 +24,7 @@ import java.util.Objects;
   *
  * @author Benoît Chiquet {@literal <benoit.chiquet@rte-france.com>}
  */
-public class PctLoadAction extends AbstractAction {
+public class PercentChangeLoadAction extends AbstractAction {
 
     public static final String NAME = "PCT_LOAD_CHANGE";
     private String loadId;
@@ -37,7 +37,7 @@ public class PctLoadAction extends AbstractAction {
      * @param pctPChange the percentage that will be added to P0. Negative values describe load reduction.
      * @param qStrategy  the way this change impacts Q0.
      */
-    PctLoadAction(String id, String loadId, Double pctPChange, QModificationStrategy qStrategy) {
+    PercentChangeLoadAction(String id, String loadId, Double pctPChange, QModificationStrategy qStrategy) {
         super(id);
         this.loadId = loadId;
         this.pctPChange = pctPChange;
@@ -86,7 +86,7 @@ public class PctLoadAction extends AbstractAction {
         if (!super.equals(o)) {
             return false;
         }
-        PctLoadAction that = (PctLoadAction) o;
+        PercentChangeLoadAction that = (PercentChangeLoadAction) o;
         return Objects.equals(loadId, that.loadId) && Objects.equals(pctPChange, that.pctPChange) && qStrategy == that.qStrategy;
     }
 

@@ -17,8 +17,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.powsybl.action.PctLoadAction.QModificationStrategy.CONSTANT_PQ_RATIO;
-import static com.powsybl.action.PctLoadAction.QModificationStrategy.CONSTANT_Q;
+import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_PQ_RATIO;
+import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -174,11 +174,11 @@ class EqualsActionTest {
 
     @Test
     void pctLoadAction() {
-        PctLoadAction action1 = new PctLoadAction("id", "load", -2d, CONSTANT_Q);
-        PctLoadAction action2 = new PctLoadAction("id", "load", -2d, CONSTANT_Q);
-        PctLoadAction action3 = new PctLoadAction("id", "load", -2d, CONSTANT_PQ_RATIO);
-        PctLoadAction action4 = new PctLoadAction("id", "load", -3d, CONSTANT_Q);
-        PctLoadAction action5 = new PctLoadAction("id2", "load", -2d, CONSTANT_Q);
+        PercentChangeLoadAction action1 = new PercentChangeLoadAction("id", "load", -2d, CONSTANT_Q);
+        PercentChangeLoadAction action2 = new PercentChangeLoadAction("id", "load", -2d, CONSTANT_Q);
+        PercentChangeLoadAction action3 = new PercentChangeLoadAction("id", "load", -2d, CONSTANT_PQ_RATIO);
+        PercentChangeLoadAction action4 = new PercentChangeLoadAction("id", "load", -3d, CONSTANT_Q);
+        PercentChangeLoadAction action5 = new PercentChangeLoadAction("id2", "load", -2d, CONSTANT_Q);
         assertEquals(action1, action2);
         assertNotEquals(action1, action3);
         assertNotEquals(action1, action4);

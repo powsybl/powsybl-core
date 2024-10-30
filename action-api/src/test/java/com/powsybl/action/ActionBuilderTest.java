@@ -37,7 +37,7 @@ class ActionBuilderTest {
         PctLoadActionBuilder actionBuilder = new PctLoadActionBuilder()
                 .withId("actionId")
                 .withLoadId("myLoad")
-                .withQStrategy(PctLoadAction.QModificationStrategy.CONSTANT_Q)
+                .withQStrategy(PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q)
                 .withPctPChange(-101);
         assertThrows(IllegalArgumentException.class, actionBuilder::build);
     }

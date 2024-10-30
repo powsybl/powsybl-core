@@ -7,7 +7,7 @@
  */
 package com.powsybl.action;
 
-import com.powsybl.action.PctLoadAction.QModificationStrategy;
+import com.powsybl.action.PercentChangeLoadAction.QModificationStrategy;
 
 import java.util.Objects;
 
@@ -22,7 +22,7 @@ public class PctLoadActionBuilder implements ActionBuilder<PctLoadActionBuilder>
 
     @Override
     public String getType() {
-        return PctLoadAction.NAME;
+        return PercentChangeLoadAction.NAME;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class PctLoadActionBuilder implements ActionBuilder<PctLoadActionBuilder>
         if (pctPChange < -100) {
             throw new IllegalArgumentException("The load can't be reduced by more than 100%.");
         }
-        return new PctLoadAction(Objects.requireNonNull(id), Objects.requireNonNull(loadId), pctPChange, Objects.requireNonNull(strategy));
+        return new PercentChangeLoadAction(Objects.requireNonNull(id), Objects.requireNonNull(loadId), pctPChange, Objects.requireNonNull(strategy));
     }
 
     public PctLoadActionBuilder withPctPChange(double pctPChange) {

@@ -21,8 +21,8 @@ import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.action.PctLoadAction.QModificationStrategy.CONSTANT_PQ_RATIO;
-import static com.powsybl.action.PctLoadAction.QModificationStrategy.CONSTANT_Q;
+import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_PQ_RATIO;
+import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -145,7 +145,7 @@ class ApplyActionToNetworkTest {
         Load load = network.getLoad("LOAD");
         assertEquals(600.0, load.getP0());
         assertEquals(200.0, load.getQ0());
-        PctLoadAction action = new PctLoadAction("id", "LOAD", -10d, CONSTANT_Q);
+        PercentChangeLoadAction action = new PercentChangeLoadAction("id", "LOAD", -10d, CONSTANT_Q);
         action.toModification().apply(network);
         assertEquals(540.0, load.getP0());
         assertEquals(200.0, load.getQ0());
@@ -157,7 +157,7 @@ class ApplyActionToNetworkTest {
         Load load = network.getLoad("LOAD");
         assertEquals(600.0, load.getP0());
         assertEquals(200.0, load.getQ0());
-        PctLoadAction action = new PctLoadAction("id", "LOAD", -10d, CONSTANT_PQ_RATIO);
+        PercentChangeLoadAction action = new PercentChangeLoadAction("id", "LOAD", -10d, CONSTANT_PQ_RATIO);
         action.toModification().apply(network);
         assertEquals(540.0, load.getP0());
         assertEquals(180.0, load.getQ0());

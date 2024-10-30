@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.io.*;
 import java.util.*;
 
-import static com.powsybl.action.PctLoadAction.QModificationStrategy.CONSTANT_Q;
+import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
 import static org.junit.jupiter.api.Assertions.*;
 

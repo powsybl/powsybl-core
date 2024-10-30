@@ -10,21 +10,21 @@ package com.powsybl.action.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.action.PctLoadAction;
+import com.powsybl.action.PercentChangeLoadAction;
 
 import java.io.IOException;
 
 /**
  * @author Benoît Chiquet {@literal <benoit.chiquet@rte-france.com>}
  */
-public class PctLoadActionSerializer extends StdSerializer<PctLoadAction> {
+public class PctLoadActionSerializer extends StdSerializer<PercentChangeLoadAction> {
 
     public PctLoadActionSerializer() {
-        super(PctLoadAction.class);
+        super(PercentChangeLoadAction.class);
     }
 
     @Override
-    public void serialize(PctLoadAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(PercentChangeLoadAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
