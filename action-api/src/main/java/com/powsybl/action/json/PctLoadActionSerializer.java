@@ -29,7 +29,7 @@ public class PctLoadActionSerializer extends StdSerializer<PercentChangeLoadActi
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
         jsonGenerator.writeStringField("loadId", action.getLoadId());
-        jsonGenerator.writeNumberField("pctPChange", action.getPctPChange());
+        jsonGenerator.writeNumberField("p0PercentChange", action.getPctP0Change());
         jsonGenerator.writeStringField("qStrategy", action.getQStrategy().toString());
         jsonGenerator.writeEndObject();
     }

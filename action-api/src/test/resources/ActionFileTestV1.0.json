@@ -85,7 +85,7 @@
     "type" : "PCT_LOAD_CHANGE",
     "id" : "id26",
     "loadId" : "loadId1",
-    "pctPChange" : 5.0,
+    "p0PercentChange" : 5.0,
     "qStrategy" : "CONSTANT_Q"
   }, {
     "type" : "DANGLING_LINE",

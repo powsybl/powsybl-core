@@ -42,7 +42,7 @@ public class PctLoadActionBuilderDeserializer extends StdDeserializer<PctLoadAct
                 case "loadId":
                     builder.withLoadId(jsonParser.nextTextValue());
                     return true;
-                case "pctPChange":
+                case "p0PercentChange":
                     jsonParser.nextToken();
                     builder.withPctPChange(jsonParser.getValueAsDouble());
                     return true;

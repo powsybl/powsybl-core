@@ -17,7 +17,7 @@ import java.util.Objects;
 public class PctLoadActionBuilder implements ActionBuilder<PctLoadActionBuilder> {
     private String id;
     private String loadId;
-    private double pctPChange;
+    private double p0PercentChange;
     private QModificationStrategy strategy;
 
     @Override
@@ -48,14 +48,14 @@ public class PctLoadActionBuilder implements ActionBuilder<PctLoadActionBuilder>
 
     @Override
     public Action build() {
-        if (pctPChange < -100) {
+        if (p0PercentChange < -100) {
             throw new IllegalArgumentException("The load can't be reduced by more than 100%.");
         }
-        return new PercentChangeLoadAction(Objects.requireNonNull(id), Objects.requireNonNull(loadId), pctPChange, Objects.requireNonNull(strategy));
+        return new PercentChangeLoadAction(Objects.requireNonNull(id), Objects.requireNonNull(loadId), p0PercentChange, Objects.requireNonNull(strategy));
     }
 
-    public PctLoadActionBuilder withPctPChange(double pctPChange) {
-        this.pctPChange = pctPChange;
+    public PctLoadActionBuilder withPctPChange(double p0PercentChange) {
+        this.p0PercentChange = p0PercentChange;
         return this;
     }
 

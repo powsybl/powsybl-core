@@ -28,19 +28,19 @@ public class PercentChangeLoadAction extends AbstractAction {
 
     public static final String NAME = "PCT_LOAD_CHANGE";
     private String loadId;
-    private Double pctPChange;
+    private Double p0PercentChange;
     private QModificationStrategy qStrategy;
 
     /**
      * @param id         the id of the action.
      * @param loadId     the id of the load on which the action would be applied.
-     * @param pctPChange the percentage that will be added to P0. Negative values describe load reduction.
+     * @param p0PercentChange the percentage that will be added to P0. Negative values describe load reduction.
      * @param qStrategy  the way this change impacts Q0.
      */
-    PercentChangeLoadAction(String id, String loadId, Double pctPChange, QModificationStrategy qStrategy) {
+    PercentChangeLoadAction(String id, String loadId, Double p0PercentChange, QModificationStrategy qStrategy) {
         super(id);
         this.loadId = loadId;
-        this.pctPChange = pctPChange;
+        this.p0PercentChange = p0PercentChange;
         this.qStrategy = qStrategy;
     }
 
@@ -54,8 +54,8 @@ public class PercentChangeLoadAction extends AbstractAction {
         return NAME;
     }
 
-    public Double getPctPChange() {
-        return this.pctPChange;
+    public Double getPctP0Change() {
+        return this.p0PercentChange;
     }
 
     public String getLoadId() {
@@ -70,9 +70,9 @@ public class PercentChangeLoadAction extends AbstractAction {
     public NetworkModification toModification() {
         double pctQChange = switch (qStrategy) {
             case CONSTANT_Q -> 0d;
-            case CONSTANT_PQ_RATIO -> pctPChange;
+            case CONSTANT_PQ_RATIO -> p0PercentChange;
         };
-        return new PctLoadModification(loadId, pctPChange, pctQChange);
+        return new PctLoadModification(loadId, p0PercentChange, pctQChange);
     }
 
     @Override
@@ -87,11 +87,11 @@ public class PercentChangeLoadAction extends AbstractAction {
             return false;
         }
         PercentChangeLoadAction that = (PercentChangeLoadAction) o;
-        return Objects.equals(loadId, that.loadId) && Objects.equals(pctPChange, that.pctPChange) && qStrategy == that.qStrategy;
+        return Objects.equals(loadId, that.loadId) && Objects.equals(p0PercentChange, that.p0PercentChange) && qStrategy == that.qStrategy;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), loadId, pctPChange, qStrategy);
+        return Objects.hash(super.hashCode(), loadId, p0PercentChange, qStrategy);
     }
 }

@@ -27,14 +27,14 @@ public class PctLoadModification extends AbstractNetworkModification implements 
 
     private String loadId;
     private double pctQChange;
-    private double pctPChange;
+    private double p0PercentChange;
 
-    public PctLoadModification(String loadId, double pctPChange, double pctQChange) {
+    public PctLoadModification(String loadId, double p0PercentChange, double pctQChange) {
         this.loadId = Objects.requireNonNull(loadId);
-        if (pctPChange < -100 || pctQChange < -100) {
+        if (p0PercentChange < -100 || pctQChange < -100) {
             throw new ValidationException(this, ": Can't decrease load by more than 100% on " + loadId);
         }
-        this.pctPChange = pctPChange;
+        this.p0PercentChange = p0PercentChange;
         this.pctQChange = pctQChange;
     }
 
@@ -50,7 +50,7 @@ public class PctLoadModification extends AbstractNetworkModification implements 
             throw new PowsyblException(getMessageHeader() + ": Tried to apply modification on " + loadId + " but no load was found");
         }
         double p0 = load.getP0();
-        load.setP0(p0 + (p0 * pctPChange / 100));
+        load.setP0(p0 + (p0 * p0PercentChange / 100));
         double q0 = load.getQ0();
         load.setQ0(q0 + (q0 * pctQChange / 100));
     }
@@ -61,7 +61,7 @@ public class PctLoadModification extends AbstractNetworkModification implements 
         Load load = network.getLoad(loadId);
         if (load == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (pctPChange == 0 && pctQChange == 0) {
+        } else if (p0PercentChange == 0 && pctQChange == 0) {
             impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
         return impact;
