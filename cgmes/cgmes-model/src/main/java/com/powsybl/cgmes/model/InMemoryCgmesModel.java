@@ -614,6 +614,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public Optional<String> node(CgmesTerminal t, boolean nodeBreaker) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<CgmesContainer> nodeContainer(String nodeId) {
+        return Optional.empty();
+    }
+
+    @Override
     public CgmesContainer container(String containerId) {
         return null;
     }
