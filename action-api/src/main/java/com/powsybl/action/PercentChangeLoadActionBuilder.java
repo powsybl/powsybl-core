@@ -54,7 +54,7 @@ public class PercentChangeLoadActionBuilder implements ActionBuilder<PercentChan
         return new PercentChangeLoadAction(Objects.requireNonNull(id), Objects.requireNonNull(loadId), p0PercentChange, Objects.requireNonNull(strategy));
     }
 
-    public PercentChangeLoadActionBuilder withPctPChange(double p0PercentChange) {
+    public PercentChangeLoadActionBuilder withPercentP0Change(double p0PercentChange) {
         this.p0PercentChange = p0PercentChange;
         return this;
     }
