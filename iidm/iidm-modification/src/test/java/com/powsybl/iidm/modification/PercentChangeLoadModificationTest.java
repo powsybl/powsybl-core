@@ -13,9 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.iidm.modification.AbstractNetworkModification.DEFAULT_IMPACT;
-import static com.powsybl.iidm.modification.NetworkModificationImpact.CANNOT_BE_APPLIED;
-import static com.powsybl.iidm.modification.NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+import static com.powsybl.iidm.modification.NetworkModificationImpact.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -71,8 +69,8 @@ class PercentChangeLoadModificationTest {
     void impactOnNetwork() {
         Network network = EurostagTutorialExample1Factory.create();
         assertEquals(NO_IMPACT_ON_NETWORK, new PercentChangeLoadModification("LOAD", 0, 0).hasImpactOnNetwork(network));
-        assertEquals(DEFAULT_IMPACT, new PercentChangeLoadModification("LOAD", 3, 0).hasImpactOnNetwork(network));
-        assertEquals(DEFAULT_IMPACT, new PercentChangeLoadModification("LOAD", 0, 3).hasImpactOnNetwork(network));
+        assertEquals(HAS_IMPACT_ON_NETWORK, new PercentChangeLoadModification("LOAD", 3, 0).hasImpactOnNetwork(network));
+        assertEquals(HAS_IMPACT_ON_NETWORK, new PercentChangeLoadModification("LOAD", 0, 3).hasImpactOnNetwork(network));
         assertEquals(CANNOT_BE_APPLIED, new PercentChangeLoadModification("LoadNotFound", 3, 2).hasImpactOnNetwork(network));
     }
 
