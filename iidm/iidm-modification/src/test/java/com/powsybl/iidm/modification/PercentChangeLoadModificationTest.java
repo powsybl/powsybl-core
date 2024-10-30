@@ -53,6 +53,16 @@ class PercentChangeLoadModificationTest {
     }
 
     @Test
+    void shouldDecreaseQ0() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Load load = network.getLoad("LOAD");
+        assertEquals(200.0, load.getQ0());
+        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", 0, -2.5);
+        modification.apply(network);
+        assertEquals(195.0, load.getQ0());
+    }
+
+    @Test
     void shouldThrowWhenLoadDecreasesTooMuch() {
         assertThrows(PowsyblException.class, () -> new PercentChangeLoadModification("LOAD", -101, 0));
         assertThrows(PowsyblException.class, () -> new PercentChangeLoadModification("LOAD", 0, -101));
