@@ -145,7 +145,8 @@ class ApplyActionToNetworkTest {
         Load load = network.getLoad("LOAD");
         assertEquals(600.0, load.getP0());
         assertEquals(200.0, load.getQ0());
-        PercentChangeLoadAction action = new PercentChangeLoadAction("id", "LOAD", -10d, CONSTANT_Q);
+        PercentChangeLoadAction action = (PercentChangeLoadAction) new PercentChangeLoadActionBuilder()
+                .withId("id").withLoadId("LOAD").withPercentP0Change(-10d).withQModificationStrategy(CONSTANT_Q).build();
         action.toModification().apply(network);
         assertEquals(540.0, load.getP0());
         assertEquals(200.0, load.getQ0());
@@ -157,7 +158,8 @@ class ApplyActionToNetworkTest {
         Load load = network.getLoad("LOAD");
         assertEquals(600.0, load.getP0());
         assertEquals(200.0, load.getQ0());
-        PercentChangeLoadAction action = new PercentChangeLoadAction("id", "LOAD", -10d, CONSTANT_PQ_RATIO);
+        PercentChangeLoadAction action = (PercentChangeLoadAction) new PercentChangeLoadActionBuilder()
+                .withId("id").withLoadId("LOAD").withPercentP0Change(-10d).withQModificationStrategy(CONSTANT_PQ_RATIO).build();
         action.toModification().apply(network);
         assertEquals(540.0, load.getP0());
         assertEquals(180.0, load.getQ0());
