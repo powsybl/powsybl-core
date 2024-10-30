@@ -19,7 +19,7 @@ import java.util.Objects;
  *     <li>describe the impact of this change on the Q0 of a load, by specifying the qStrategy.</li>
  * </ul>
  * <p>
- * This action is useful to specify changes that should be applied on a load when the value of the load is not known.
+ * This action is useful to specify changes that should be applied on a load when its actual active power is unknown.
  * </p>
   *
  * @author Benoît Chiquet {@literal <benoit.chiquet@rte-france.com>}
