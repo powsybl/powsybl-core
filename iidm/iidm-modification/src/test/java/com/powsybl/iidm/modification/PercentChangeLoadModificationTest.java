@@ -72,7 +72,7 @@ class PercentChangeLoadModificationTest {
     void shouldThrowWhenLoadNotFound() {
         Network network = EurostagTutorialExample1Factory.create();
         PercentChangeLoadModification modification = new PercentChangeLoadModification("LoadNotFound", 2.5, 2.5);
-        assertThrows(PowsyblException.class, () -> modification.apply(network));
+        assertThrows(PowsyblException.class, () -> modification.apply(network, true, null));
     }
 
     @Test

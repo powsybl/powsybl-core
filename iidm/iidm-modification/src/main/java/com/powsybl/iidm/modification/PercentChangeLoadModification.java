@@ -48,12 +48,13 @@ public class PercentChangeLoadModification extends AbstractNetworkModification {
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         Load load = network.getLoad(loadId);
         if (load == null) {
-            throw new PowsyblException(getMessageHeader() + ": Tried to apply modification on " + loadId + " but no load was found");
+            logOrThrow(throwException, "Load '" + loadId + "' not found");
+        } else {
+            double p0 = load.getP0();
+            load.setP0(p0 + (p0 * p0PercentChange / 100));
+            double q0 = load.getQ0();
+            load.setQ0(q0 + (q0 * q0PercentChange / 100));
         }
-        double p0 = load.getP0();
-        load.setP0(p0 + (p0 * p0PercentChange / 100));
-        double q0 = load.getQ0();
-        load.setQ0(q0 + (q0 * q0PercentChange / 100));
     }
 
     @Override
