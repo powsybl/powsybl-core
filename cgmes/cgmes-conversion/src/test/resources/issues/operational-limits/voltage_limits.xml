@@ -101,9 +101,9 @@
     <cim:IdentifiedObject.name>Limit type high</cim:IdentifiedObject.name>
     <entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.highVoltage" />
 </cim:OperationalLimitType>
-    <cim:OperationalLimitType rdf:ID="_OLT_L">
+<cim:OperationalLimitType rdf:ID="_OLT_L">
     <cim:IdentifiedObject.name>Limit type low</cim:IdentifiedObject.name>
-<entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.lowVoltage" />
+    <entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.lowVoltage" />
 </cim:OperationalLimitType>
 <cim:BaseVoltage rdf:ID="_BV">
     <cim:IdentifiedObject.name>400 kV</cim:IdentifiedObject.name>
