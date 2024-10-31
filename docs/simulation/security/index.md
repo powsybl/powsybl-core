@@ -39,7 +39,7 @@ Remedial actions are actions that are applied when limit violations occur. Suppo
 - Open or close a switch
 - Open or close a terminal
 - Change the tap of a tap changer (phase or ratio)
-- Change the active and/or reactive power of a load
+- Change the active and/or reactive power of a load (by setting the values, or defining changes in value or percentage)
 - Change the section of a shunt compensator
 - Change the regulation status of a tap changer
 - Change `targetP`, `targetQ`, regulation status and `targetV` of a generator
