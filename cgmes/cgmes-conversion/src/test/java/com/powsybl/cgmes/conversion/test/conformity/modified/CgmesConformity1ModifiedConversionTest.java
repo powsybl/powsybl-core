@@ -476,27 +476,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void microBELimits() {
-        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBELimits().dataSource(),
-                NetworkFactory.findDefault(), importParams);
-        VoltageLevel vl = network.getVoltageLevel("469df5f7-058f-4451-a998-57a48e8a56fe");
-        assertEquals(401.2, vl.getHighVoltageLimit(), 0.0);
-        assertEquals(350.7, vl.getLowVoltageLimit(), 0.0);
-        VoltageLevel vl1 = network.getVoltageLevel("d0486169-2205-40b2-895e-b672ecb9e5fc");
-        assertEquals(247.5, vl1.getHighVoltageLimit(), 0.0);
-        assertEquals(202.5, vl1.getLowVoltageLimit(), 0.0);
-        ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("84ed55f4-61f5-4d9d-8755-bba7b877a246");
-        assertTrue(twt3.getLeg1().getApparentPowerLimits().isEmpty());
-        assertTrue(twt3.getLeg2().getApparentPowerLimits().isEmpty());
-        assertTrue(twt3.getLeg3().getApparentPowerLimits().isEmpty());
-        TwoWindingsTransformer twt2 = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
-        ApparentPowerLimits apparentPowerLimits = twt2.getApparentPowerLimits1().orElse(null);
-        assertNotNull(apparentPowerLimits);
-        assertEquals(22863.1, apparentPowerLimits.getPermanentLimit(), 0.0);
-        assertTrue(apparentPowerLimits.getTemporaryLimits().isEmpty());
-    }
-
-    @Test
     void microBEFixedMinPMaxP() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseBEFixedMinPMaxP().dataSource(),
                 NetworkFactory.findDefault(), importParams);

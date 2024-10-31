@@ -1,0 +1,112 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:ModelID">
+    <md:Model.scenarioTime>2021-12-07T19:43:00Z</md:Model.scenarioTime>
+    <md:Model.created>2021-12-07T12:00:00Z</md:Model.created>
+    <md:Model.description>Voltage limits</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:GeographicalRegion rdf:ID="_GR">
+    <cim:IdentifiedObject.name>Geographical region</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:SubGeographicalRegion rdf:ID="_SGR">
+    <cim:IdentifiedObject.name>Subgeographical region</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_GR"/>
+</cim:SubGeographicalRegion>
+<cim:Substation rdf:ID="_ST_1">
+    <cim:IdentifiedObject.name>Substation 1</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SGR"/>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_VL_1">
+    <cim:IdentifiedObject.name>Voltage level 1</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.highVoltageLimit>420.0</cim:VoltageLevel.highVoltageLimit>
+    <cim:VoltageLevel.lowVoltageLimit>380.0</cim:VoltageLevel.lowVoltageLimit>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_1"/>
+</cim:VoltageLevel>
+<cim:BusbarSection rdf:ID="_BBS_1">
+    <cim:IdentifiedObject.name>Busbar section 1</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VL_1"/>
+</cim:BusbarSection>
+<cim:Terminal rdf:ID="_T_BBS_1">
+    <cim:IdentifiedObject.name>Terminal Busbar section 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_BBS_1"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+</cim:Terminal>
+<cim:ConnectivityNode rdf:ID="_CN_1">
+    <cim:IdentifiedObject.name>Node 1</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1"/>
+</cim:ConnectivityNode>
+<cim:OperationalLimitSet rdf:ID="_OLS_1">
+    <cim:IdentifiedObject.name>Limit set 1</cim:IdentifiedObject.name>
+    <cim:OperationalLimitSet.Equipment rdf:resource="#_BBS_1" />
+</cim:OperationalLimitSet>
+<cim:VoltageLimit rdf:ID="_VL_H_1">
+    <cim:IdentifiedObject.name>Voltage limit high 1</cim:IdentifiedObject.name>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_1"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OLT_H"/>
+    <cim:VoltageLimit.value>410.0</cim:VoltageLimit.value>
+</cim:VoltageLimit>
+<cim:VoltageLimit rdf:ID="_VL_L_1">
+    <cim:IdentifiedObject.name>Voltage limit low 1</cim:IdentifiedObject.name>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_1"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OLT_L"/>
+    <cim:VoltageLimit.value>390.0</cim:VoltageLimit.value>
+</cim:VoltageLimit>
+<cim:Substation rdf:ID="_ST_2">
+    <cim:IdentifiedObject.name>Substation 2</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SGR"/>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_VL_2">
+    <cim:IdentifiedObject.name>Voltage level 2</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.highVoltageLimit>420.0</cim:VoltageLevel.highVoltageLimit>
+    <cim:VoltageLevel.lowVoltageLimit>380.0</cim:VoltageLevel.lowVoltageLimit>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_2"/>
+</cim:VoltageLevel>
+<cim:BusbarSection rdf:ID="_BBS_2">
+    <cim:IdentifiedObject.name>Busbar section 2</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VL_2"/>
+</cim:BusbarSection>
+<cim:Terminal rdf:ID="_T_BBS_2">
+    <cim:IdentifiedObject.name>Terminal Busbar section 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_BBS_2"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2"/>
+</cim:Terminal>
+<cim:ConnectivityNode rdf:ID="_CN_2">
+    <cim:IdentifiedObject.name>Node 2</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2"/>
+</cim:ConnectivityNode>
+<cim:OperationalLimitSet rdf:ID="_OLS_2">
+    <cim:IdentifiedObject.name>Limit set 2</cim:IdentifiedObject.name>
+    <cim:OperationalLimitSet.Equipment rdf:resource="#_BBS_2" />
+</cim:OperationalLimitSet>
+<cim:VoltageLimit rdf:ID="_VL_H_2">
+    <cim:IdentifiedObject.name>Voltage limit high 2</cim:IdentifiedObject.name>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_2"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OLT_H"/>
+    <cim:VoltageLimit.value>430.0</cim:VoltageLimit.value>
+</cim:VoltageLimit>
+<cim:VoltageLimit rdf:ID="_VL_L_2">
+    <cim:IdentifiedObject.name>Voltage limit low 2</cim:IdentifiedObject.name>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_2"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OLT_L"/>
+    <cim:VoltageLimit.value>370.0</cim:VoltageLimit.value>
+</cim:VoltageLimit>
+<cim:OperationalLimitType rdf:ID="_OLT_H">
+    <cim:IdentifiedObject.name>Limit type high</cim:IdentifiedObject.name>
+    <entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.highVoltage" />
+</cim:OperationalLimitType>
+    <cim:OperationalLimitType rdf:ID="_OLT_L">
+    <cim:IdentifiedObject.name>Limit type low</cim:IdentifiedObject.name>
+<entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.lowVoltage" />
+</cim:OperationalLimitType>
+<cim:BaseVoltage rdf:ID="_BV">
+    <cim:IdentifiedObject.name>400 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>400</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+</rdf:RDF>
