@@ -10,7 +10,9 @@ going_further.md
 
 Powsybl features are strongly based on an internal grid model initially developed under the iTesla project, a research project funded by the [European Union 7th Framework programme](https://cordis.europa.eu/project/id/283012) (FP7). The grid model is known as `iidm` (iTesla Internal Data Model). One of the iTesla outputs was a toolbox designed to support the decision-making process of power system operation from two-days ahead to real time. The `iidm` grid model was at the center of the toolbox.
 
-To build an electrical network model, the substations must be defined first. The equipment of a substation (busbar sections, switches, buses, loads, generators, shunt compensators, static VAR compensators, HVDC converters stations, etc.) is grouped in voltage levels. Transformers present in a substation connect its different voltage levels. Transmission lines (AC and DC) connect the substations.
+The equipment of a substation (busbar sections, switches, buses, loads, generators, shunt compensators, static VAR compensators, HVDC converters stations, etc.) is grouped in voltage levels. Transformers present in a substation connect its different voltage levels. Transmission lines (AC and DC) connect the substations.
+
+To build an electrical network model, the common way is to define the substations first, then to define their voltage levels. But for some specific cases, it is also possible to create voltage levels without a substation.
 
 The grid model allows a full representation of the substation connectivity where all the switching devices and busbar sections are defined, this topology is called node/breaker view. Automated topology calculation allows for the calculation of the network bus/breaker view as well as the network bus view.
 
