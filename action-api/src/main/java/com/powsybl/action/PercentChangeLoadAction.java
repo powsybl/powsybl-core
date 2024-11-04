@@ -54,7 +54,7 @@ public class PercentChangeLoadAction extends AbstractAction {
         return NAME;
     }
 
-    public Double getPctP0Change() {
+    public Double getP0PercentChange() {
         return this.p0PercentChange;
     }
 
@@ -62,7 +62,7 @@ public class PercentChangeLoadAction extends AbstractAction {
         return this.loadId;
     }
 
-    public QModificationStrategy getQStrategy() {
+    public QModificationStrategy getQModificationStrategy() {
         return this.qModificationStrategy;
     }
 

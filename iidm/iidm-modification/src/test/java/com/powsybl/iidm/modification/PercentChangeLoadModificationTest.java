@@ -29,7 +29,7 @@ class PercentChangeLoadModificationTest {
         assertEquals(600.0, load.getP0());
         PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", 3.51, 0);
         modification.apply(network);
-        assertEquals(621.06, load.getP0());
+        assertEquals(621.06, load.getP0(), 0.001);
     }
 
     @Test

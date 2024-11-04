@@ -29,8 +29,8 @@ public class PercentChangeLoadActionSerializer extends StdSerializer<PercentChan
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
         jsonGenerator.writeStringField("loadId", action.getLoadId());
-        jsonGenerator.writeNumberField("p0PercentChange", action.getPctP0Change());
-        jsonGenerator.writeStringField("qModificationStrategy", action.getQStrategy().toString());
+        jsonGenerator.writeNumberField("p0PercentChange", action.getP0PercentChange());
+        jsonGenerator.writeStringField("qModificationStrategy", action.getQModificationStrategy().toString());
         jsonGenerator.writeEndObject();
     }
 }
