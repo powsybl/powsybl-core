@@ -535,23 +535,46 @@ public class CgmesExportContext {
         long numControlAreas = network.getAreaStream().filter(a -> a.getAreaType().equals("ControlAreaTypeKind.Interchange")).count();
         long numSubnetworks = network.getSubnetworks().size();
         if (numControlAreas == 0 && numSubnetworks == 0) {
-            String controlAreaId = namingStrategy.getCgmesId(refTyped(network), CONTROL_AREA);
-            Area area = network.newArea()
-                    .setAreaType("ControlAreaTypeKind.Interchange")
-                    .setId(controlAreaId)
-                    .setName("Network")
-                    .add();
-            if (referenceDataProvider != null && referenceDataProvider.getSourcingActor().containsKey(CgmesNames.ENERGY_IDENT_CODE_EIC)) {
-                area.addAlias(referenceDataProvider.getSourcingActor().get(CgmesNames.ENERGY_IDENT_CODE_EIC), CgmesNames.ENERGY_IDENT_CODE_EIC);
-            }
-            double currentInterchange = 0;
-            for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
-                // Our exchange should be referred the boundary
-                area.newAreaBoundary().setAc(true).setBoundary(danglingLine.getBoundary()).add();
-                currentInterchange += danglingLine.getBoundary().getP();
-            }
-            area.setInterchangeTarget(currentInterchange);
+            createDefaultControlArea(network);
         }
+    }
+
+    private void createDefaultControlArea(Network network) {
+        String controlAreaId = namingStrategy.getCgmesId(refTyped(network), CONTROL_AREA);
+        Area area = network.newArea()
+                .setAreaType("ControlAreaTypeKind.Interchange")
+                .setId(controlAreaId)
+                .setName("Network")
+                .add();
+        if (referenceDataProvider != null && referenceDataProvider.getSourcingActor().containsKey(CgmesNames.ENERGY_IDENT_CODE_EIC)) {
+            area.addAlias(referenceDataProvider.getSourcingActor().get(CgmesNames.ENERGY_IDENT_CODE_EIC), CgmesNames.ENERGY_IDENT_CODE_EIC);
+        }
+        double currentInterchange = 0;
+        Set<String> boundaryDcNodes = getBoundaryDcNodes();
+        for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+            // Our exchange should be referred the boundary
+            area.newAreaBoundary()
+                    .setAc(isAcBoundary(danglingLine, boundaryDcNodes))
+                    .setBoundary(danglingLine.getBoundary())
+                    .add();
+            currentInterchange += danglingLine.getBoundary().getP();
+        }
+        area.setInterchangeTarget(currentInterchange);
+    }
+
+    private Set<String> getBoundaryDcNodes() {
+        return referenceDataProvider.getBoundaryNodes().stream()
+                .filter(node -> node.containsKey("topologicalNodeDescription") && node.get("topologicalNodeDescription").startsWith("HVDC"))
+                .map(node -> node.getId(CgmesNames.TOPOLOGICAL_NODE))
+                .collect(Collectors.toSet());
+    }
+
+    private boolean isAcBoundary(DanglingLine danglingLine, Set<String> boundaryDcNodes) {
+        String dlBoundaryNode = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        if (dlBoundaryNode != null) {
+            return !boundaryDcNodes.contains(dlBoundaryNode);
+        }
+        return true;
     }
 
     public int getCimVersion() {

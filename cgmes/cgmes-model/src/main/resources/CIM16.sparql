@@ -137,7 +137,8 @@ GRAPH ?graphBDEQ {
 }
 GRAPH ?grapBDTP {
     ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
-    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName
+    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName .
+    OPTIONAL { ?TopologicalNode cim:IdentifiedObject.description ?topologicalNodeDescription }
 }
 }
 
