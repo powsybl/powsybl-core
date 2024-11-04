@@ -35,6 +35,7 @@ public class ItoolsPackagerMojoTest extends AbstractMojoTestCase {
     ItoolsPackagerMojo mojo;
     PlexusConfiguration configuration;
 
+    @Override
     protected void setUp()
             throws Exception {
         // required
@@ -46,6 +47,7 @@ public class ItoolsPackagerMojoTest extends AbstractMojoTestCase {
         configuration = new DefaultPlexusConfiguration("configuration");
     }
 
+    @Override
     protected void tearDown()
             throws Exception {
         // required
