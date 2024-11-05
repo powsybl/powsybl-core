@@ -100,7 +100,8 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
             }
 
             SwitchImpl aSwitch = new SwitchImpl(voltageLevel, id, getName(), isFictitious(), SwitchKind.BREAKER, open, true);
-            addSwitch(aSwitch, busId1, busId2);
+            getNetwork().getIndex().checkAndAdd(aSwitch);
+            addSwitchToTopology(aSwitch, busId1, busId2);
             getNetwork().getListeners().notifyCreation(aSwitch);
             return aSwitch;
         }
@@ -796,10 +797,9 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
         removedBusesIds.forEach(id -> network.getListeners().notifyAfterRemoval(id));
     }
 
-    private void addSwitch(SwitchImpl aSwitch, String busId1, String busId2) {
+    void addSwitchToTopology(SwitchImpl aSwitch, String busId1, String busId2) {
         int v1 = getVertex(busId1, true);
         int v2 = getVertex(busId2, true);
-        getNetwork().getIndex().checkAndAdd(aSwitch);
         int e = graph.addEdge(v1, v2, aSwitch);
         switches.put(aSwitch.getId(), e);
     }

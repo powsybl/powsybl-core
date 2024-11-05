@@ -178,7 +178,21 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         attachTerminal(oldTerminal, oldTopologyPoint, (VoltageLevelExt) bus.getVoltageLevel(), terminalExt);
     }
 
-    private void attachTerminal(TerminalExt oldTerminal, TopologyPoint oldTopologyPoint, VoltageLevelExt voltageLevel, TerminalExt terminalExt) {
+    void replaceTerminal(TerminalExt oldTerminal, TopologyPoint oldTopologyPoint, TerminalExt newTerminalExt, boolean notify) {
+        Objects.requireNonNull(oldTerminal);
+        Objects.requireNonNull(newTerminalExt);
+        int iSide = terminals.indexOf(oldTerminal);
+        if (iSide == -1) {
+            throw new PowsyblException("Terminal to replace not found");
+        }
+        terminals.set(iSide, newTerminalExt);
+
+        if (notify) {
+            notifyUpdate("terminal" + (iSide + 1), oldTopologyPoint, newTerminalExt.getTopologyPoint());
+        }
+    }
+
+    void attachTerminal(TerminalExt oldTerminal, TopologyPoint oldTopologyPoint, VoltageLevelExt voltageLevel, TerminalExt terminalExt) {
         // first, attach new terminal to connectable and to voltage level of destination, to ensure that the new terminal is valid
         terminalExt.setConnectable(this);
         voltageLevel.getTopologyModel().attach(terminalExt, false);
@@ -187,10 +201,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         oldTerminal.getVoltageLevel().getTopologyModel().detach(oldTerminal);
 
         // replace the old terminal by the new terminal in the connectable
-        int iSide = terminals.indexOf(oldTerminal);
-        terminals.set(iSide, terminalExt);
-
-        notifyUpdate("terminal" + (iSide + 1), oldTopologyPoint, terminalExt.getTopologyPoint());
+        replaceTerminal(oldTerminal, oldTopologyPoint, terminalExt, true);
     }
 
     @Override
