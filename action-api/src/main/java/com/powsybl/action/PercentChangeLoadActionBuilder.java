@@ -49,7 +49,7 @@ public class PercentChangeLoadActionBuilder implements ActionBuilder<PercentChan
     @Override
     public Action build() {
         if (p0PercentChange < -100) {
-            throw new IllegalArgumentException("The load can't be reduced by more than 100%.");
+            throw new IllegalArgumentException("The active power can't be reduced by more than 100%.");
         }
         return new PercentChangeLoadAction(Objects.requireNonNull(id), Objects.requireNonNull(loadId), p0PercentChange, Objects.requireNonNull(qModificationStrategy));
     }
