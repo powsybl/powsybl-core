@@ -10,17 +10,20 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.Conversion.*;
 import com.powsybl.cgmes.conversion.PhaseAngleClock;
 import com.powsybl.cgmes.model.GridModelReference;
+import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import org.junit.jupiter.api.Test;
@@ -31,8 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -41,6 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TransformerConversionTest {
 
     private static final String EQUALS_LINE = "======================";
+    private static final String DIR = "/issues/transformers/";
 
     @Test
     void microGridBaseCaseBExfmr2ShuntDefault() {
@@ -334,55 +337,47 @@ class TransformerConversionTest {
     }
 
     @Test
-    void miniBusBranchPhaseAngleClock() {
-        Conversion.Config config = new Conversion.Config();
-        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new PhaseAngleClock());
+    void phaseAngleClockTest() {
+        // A 2w- and a 3w-transformer with non-null phase angle clock value on respectively 2nd and 3rd winding
+        Network n = networkModelWithPhaseAngleClock(phaseAngleClock("phaseAngleClock_EQ.xml"));
 
-        Network n = networkModel(CgmesConformity1Catalog.miniBusBranch(), config, postProcessors);
+        // Phase angle clock values have been correctly read
+        assertEquals(5, n.getTwoWindingsTransformer("T2W").getExtension(TwoWindingsTransformerPhaseAngleClock.class).getPhaseAngleClock());
+        assertEquals(0, n.getThreeWindingsTransformer("T3W").getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg2());
+        assertEquals(5, n.getThreeWindingsTransformer("T3W").getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg3());
 
-        boolean ok = t2xCompareFlow(n, "f1e72854-ec35-46e9-b614-27db354e8dbb", -318.691633, 1424.484145, 436.204160, 1393.367311);
-        assertTrue(ok);
-        ok = t3xCompareFlow(n, "5d38b7ed-73fd-405a-9cdb-78425e003773", -7.505045, -1.896561, -288.380946, 1216.566903, 351.090362, 1199.878285);
-        assertTrue(ok);
+        // Power flows are calculated from SV voltages
+        assertTrue(t2xCompareFlow(n, "T2W", -318.691633, 1424.484145, 436.204160, 1393.367311));
+        assertTrue(t3xCompareFlow(n, "T3W", -7.505045, -1.896561, -288.380946, 1216.566903, 351.090362, 1199.878285));
     }
 
     @Test
-    void miniBusBranchPhaseAngleClockZero() {
-        Conversion.Config config = new Conversion.Config();
-        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new PhaseAngleClock());
+    void phaseAngleClockAllZeroTest() {
+        // A 2w- and a 3w-transformer with all phase angle clock equal to 0
+        Network n = networkModelWithPhaseAngleClock(phaseAngleClock("phaseAngleClock_EQ_AllZero.xml"));
 
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchPhaseAngleClockZero(), config, postProcessors);
+        // No phase angle clock extension has been created since all values are equal to 0
+        assertNull(n.getTwoWindingsTransformer("T2W").getExtension(TwoWindingsTransformerPhaseAngleClock.class));
+        assertNull(n.getThreeWindingsTransformer("T3W").getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
 
-        boolean ok = t2xCompareFlow(n, "f1e72854-ec35-46e9-b614-27db354e8dbb", -0.087780, -0.178561, 0.087782, 0.178613);
-        assertTrue(ok);
-        ok = t3xCompareFlow(n, "5d38b7ed-73fd-405a-9cdb-78425e003773", -0.000001, -0.000022, 0.000002, 0.000068, -0.000001, -0.000045);
-        assertTrue(ok);
+        // Power flows differ from the ones in phaseAngleClockTest()
+        assertTrue(t2xCompareFlow(n, "T2W", -0.087780, -0.178561, 0.087782, 0.178613));
+        assertTrue(t3xCompareFlow(n, "T3W", -0.000001, -0.000022, 0.000002, 0.000068, -0.000001, -0.000045));
     }
 
     @Test
-    void miniBusBranchT2xPhaseAngleClock1NonZero() {
-        Conversion.Config config = new Conversion.Config();
-        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new PhaseAngleClock());
+    void phaseAngleClockAllNonZeroTest() {
+        // A 2w- and a 3w-transformer with non-null phase angle clock value on all windings
+        Network n = networkModelWithPhaseAngleClock(phaseAngleClock("phaseAngleClock_EQ_AllNonZero.xml"));
 
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchT2xPhaseAngleClock1NonZero(), config, postProcessors);
+        // Non-null phase angle clock values on 1st winding are discarded, the other ones are correctly read
+        assertEquals(5, n.getTwoWindingsTransformer("T2W").getExtension(TwoWindingsTransformerPhaseAngleClock.class).getPhaseAngleClock());
+        assertEquals(3, n.getThreeWindingsTransformer("T3W").getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg2());
+        assertEquals(5, n.getThreeWindingsTransformer("T3W").getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg3());
 
-        boolean ok = t2xCompareFlow(n, "f1e72854-ec35-46e9-b614-27db354e8dbb", -318.691633, 1424.484145, 436.204160, 1393.367311);
-        assertTrue(ok);
-    }
-
-    @Test
-    void miniBusBranchT3xAllPhaseAngleClockNonZero() {
-        Conversion.Config config = new Conversion.Config();
-        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new PhaseAngleClock());
-
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchT3xAllPhaseAngleClockNonZero(), config, postProcessors);
-
-        boolean ok = t3xCompareFlow(n, "5d38b7ed-73fd-405a-9cdb-78425e003773", -1494.636083, 1530.638656, 981.686099, 1826.870720, 562.199867, 309.289551);
-        assertTrue(ok);
+        // Power flows differ from the ones in phaseAngleClockTest() when the pac values differ (3w-transformer)
+        assertTrue(t2xCompareFlow(n, "T2W", -318.691633, 1424.484145, 436.204160, 1393.367311));
+        assertTrue(t3xCompareFlow(n, "T3W", -1494.636083, 1530.638656, 981.686099, 1826.870720, 562.199867, 309.289551));
     }
 
     @Test
@@ -441,6 +436,13 @@ class TransformerConversionTest {
         return ok;
     }
 
+    private Network networkModelWithPhaseAngleClock(GridModelReference gridModelReference) {
+        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
+        postProcessors.add(new PhaseAngleClock());
+
+        return networkModel(gridModelReference, new Conversion.Config(), postProcessors);
+    }
+
     private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
         return networkModel(testGridModel, config, Collections.emptyList());
     }
@@ -455,6 +457,17 @@ class TransformerConversionTest {
         ConversionTester.computeMissingFlows(n, lfParameters);
 
         return n;
+    }
+
+    private GridModelReferenceResources phaseAngleClock(String phaseAngleClockEQ) {
+        return new GridModelReferenceResources(
+                "PhaseAngleClock",
+                null,
+                new ResourceSet(DIR,
+                        phaseAngleClockEQ,
+                        "phaseAngleClock_SSH.xml",
+                        "phaseAngleClock_TP.xml",
+                        "phaseAngleClock_SV.xml"));
     }
 
     private static ValidationConfig loadFlowValidationConfig(double threshold) {

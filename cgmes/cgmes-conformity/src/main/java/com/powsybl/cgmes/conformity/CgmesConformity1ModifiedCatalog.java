@@ -839,51 +839,6 @@ public final class CgmesConformity1ModifiedCatalog {
                         MINI_GRID_TP));
     }
 
-    public static GridModelReferenceResources miniBusBranchPhaseAngleClockZero() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/BusBranch/BaseCase_v3_phaseAngleClockZero/";
-        return new GridModelReferenceResources(
-                "MiniGrid-BusBranch-PhaseAngleClockZero",
-                null,
-                new ResourceSet(base,
-                        MINI_GRID_EQ),
-                new ResourceSet(MINI_GRID_BUS_BRANCH_BASE,
-                        MINI_GRID_SSH,
-                        MINI_GRID_TP,
-                        MINI_GRID_DL,
-                        MINI_GRID_SV));
-    }
-
-    public static GridModelReferenceResources miniBusBranchT2xPhaseAngleClock1NonZero() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/BusBranch/BaseCase_v3_T2xPhaseAngleClock1NonZero/";
-        return new GridModelReferenceResources(
-                "MiniGrid-BusBranch-T2xPhaseAngleClock1NonZero",
-                null,
-                new ResourceSet(base,
-                        MINI_GRID_EQ),
-                new ResourceSet(MINI_GRID_BUS_BRANCH_BASE,
-                        MINI_GRID_SSH,
-                        MINI_GRID_TP,
-                        MINI_GRID_DL,
-                        MINI_GRID_SV));
-    }
-
-    public static GridModelReferenceResources miniBusBranchT3xAllPhaseAngleClockNonZero() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/BusBranch/BaseCase_v3_T3xAllPhaseAngleClockNonZero/";
-        return new GridModelReferenceResources(
-                "MiniGrid-BusBranch-T3xAllPhaseAngleClockNonZero",
-                null,
-                new ResourceSet(base,
-                        MINI_GRID_EQ),
-                new ResourceSet(MINI_GRID_BUS_BRANCH_BASE,
-                        MINI_GRID_SSH,
-                        MINI_GRID_TP,
-                        MINI_GRID_DL,
-                        MINI_GRID_SV));
-    }
-
     public static GridModelReference miniBusBranchExternalInjectionControl() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MiniGrid/BusBranch/BaseCase_v3_external_injection_control/";
