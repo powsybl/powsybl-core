@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.collect.FluentIterable;
+import com.google.common.primitives.Ints;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
@@ -81,6 +83,38 @@ abstract class AbstractTopologyModel implements TopologyModel {
     public abstract Iterable<Terminal> getTerminals();
 
     public abstract Stream<Terminal> getTerminalStream();
+
+    public <T extends Connectable> Iterable<T> getConnectables(Class<T> clazz) {
+        Iterable<Terminal> terminals = getTerminals();
+        return FluentIterable.from(terminals)
+                .transform(Terminal::getConnectable)
+                .filter(clazz)
+                .toSet();
+    }
+
+    public <T extends Connectable> Stream<T> getConnectableStream(Class<T> clazz) {
+        return getTerminalStream()
+                .map(Terminal::getConnectable)
+                .filter(clazz::isInstance)
+                .map(clazz::cast)
+                .distinct();
+    }
+
+    public <T extends Connectable> int getConnectableCount(Class<T> clazz) {
+        return Ints.checkedCast(getConnectableStream(clazz).count());
+    }
+
+    public Iterable<Connectable> getConnectables() {
+        return FluentIterable.from(getTerminals())
+                .transform(Terminal::getConnectable)
+                .toSet();
+    }
+
+    public Stream<Connectable> getConnectableStream() {
+        return getTerminalStream()
+                .map(Terminal::getConnectable)
+                .distinct();
+    }
 
     public abstract VoltageLevelExt.NodeBreakerViewExt getNodeBreakerView();
 

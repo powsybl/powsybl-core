@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
@@ -30,7 +29,7 @@ import java.util.stream.Stream;
 class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements VoltageLevelExt {
 
     private final Ref<NetworkImpl> networkRef;
-    private Ref<SubnetworkImpl> subnetworkRef;
+    private final Ref<SubnetworkImpl> subnetworkRef;
 
     private final SubstationImpl substation;
 
@@ -267,39 +266,27 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
 
     @Override
     public <T extends Connectable> Iterable<T> getConnectables(Class<T> clazz) {
-        Iterable<Terminal> terminals = topologyModel.getTerminals();
-        return FluentIterable.from(terminals)
-                .transform(Terminal::getConnectable)
-                .filter(clazz)
-                .toSet();
+        return topologyModel.getConnectables(clazz);
     }
 
     @Override
     public <T extends Connectable> Stream<T> getConnectableStream(Class<T> clazz) {
-        return topologyModel.getTerminalStream()
-                .map(Terminal::getConnectable)
-                .filter(clazz::isInstance)
-                .map(clazz::cast)
-                .distinct();
+        return topologyModel.getConnectableStream(clazz);
     }
 
     @Override
     public <T extends Connectable> int getConnectableCount(Class<T> clazz) {
-        return Ints.checkedCast(getConnectableStream(clazz).count());
+        return topologyModel.getConnectableCount(clazz);
     }
 
     @Override
     public Iterable<Connectable> getConnectables() {
-        return FluentIterable.from(topologyModel.getTerminals())
-                .transform(Terminal::getConnectable)
-                .toSet();
+        return topologyModel.getConnectables();
     }
 
     @Override
     public Stream<Connectable> getConnectableStream() {
-        return topologyModel.getTerminalStream()
-                .map(Terminal::getConnectable)
-                .distinct();
+        return topologyModel.getConnectableStream();
     }
 
     @Override

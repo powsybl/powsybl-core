@@ -887,17 +887,17 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
         @Override
         public Iterable<BusbarSection> getBusbarSections() {
-            return voltageLevel.getConnectables(BusbarSection.class);
+            return getConnectables(BusbarSection.class);
         }
 
         @Override
         public Stream<BusbarSection> getBusbarSectionStream() {
-            return voltageLevel.getConnectableStream(BusbarSection.class);
+            return getConnectableStream(BusbarSection.class);
         }
 
         @Override
         public int getBusbarSectionCount() {
-            return voltageLevel.getConnectableCount(BusbarSection.class);
+            return getConnectableCount(BusbarSection.class);
         }
 
         @Override
