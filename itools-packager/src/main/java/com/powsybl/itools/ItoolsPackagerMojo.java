@@ -112,6 +112,7 @@ public class ItoolsPackagerMojo extends AbstractMojo {
         try (TarArchiveOutputStream zos =
                 new TarArchiveOutputStream(new GzipCompressorOutputStream(Files.newOutputStream(zipFilePath)))) {
             zos.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX); // allow long file paths
+            zos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX); // allow large numbers (for instance a big GID)
             Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
