@@ -256,9 +256,23 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         for (ScalablePercentage scalablePercentage : scalablePercentageList) {
             Scalable s = scalablePercentage.getScalable();
             double iterationPercentage = scalablePercentage.getIterationPercentage();
+            if (iterationPercentage == 0.0) {
+                // no need to go further
+                continue;
+            }
             double askedOnScalable = iterationPercentage / 100 * asked;
             double doneOnScalable = s.scale(n, askedOnScalable, parameters);
-            if (Math.abs(doneOnScalable - askedOnScalable) > EPSILON) {
+
+            // check if scalable reached limit
+            double scalableMin = s.minimumValue(n, parameters.getScalingConvention());
+            double scalableMax = s.maximumValue(n, parameters.getScalingConvention());
+            double scalableP = s.getSteadyStatePower(n, asked, parameters.getScalingConvention());
+            boolean saturated = asked > 0 ?
+                    Math.abs(scalableMax - scalableP) < EPSILON / 100 :
+                    Math.abs(scalableMin - scalableP) < EPSILON / 100;
+            if (doneOnScalable == 0 || saturated) {
+                // If didn't move now (tested by a perfect zero equality), it won't move in subsequent iterations for sure.
+                // If reached saturation, can exclude right now to avoid earlier another iteration.
                 scalablePercentage.setIterationPercentage(0);
             }
             done += doneOnScalable;

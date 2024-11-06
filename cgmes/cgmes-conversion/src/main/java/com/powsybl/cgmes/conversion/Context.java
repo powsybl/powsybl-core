@@ -52,7 +52,7 @@ public class Context {
 
         namingStrategy = config.getNamingStrategy();
         cgmesBoundary = new CgmesBoundary(cgmes);
-        substationIdMapping = new SubstationIdMapping(this);
+        nodeContainerMapping = new NodeContainerMapping(this);
         terminalMapping = new TerminalMapping();
         dcMapping = new DcMapping(this);
         loadingLimitsMapping = new LoadingLimitsMapping(this);
@@ -116,8 +116,8 @@ public class Context {
         return nodeMapping;
     }
 
-    public SubstationIdMapping substationIdMapping() {
-        return substationIdMapping;
+    public NodeContainerMapping nodeContainerMapping() {
+        return nodeContainerMapping;
     }
 
     public CgmesBoundary boundary() {
@@ -347,7 +347,7 @@ public class Context {
 
     private final boolean nodeBreaker;
     private final NamingStrategy namingStrategy;
-    private final SubstationIdMapping substationIdMapping;
+    private final NodeContainerMapping nodeContainerMapping;
     private final CgmesBoundary cgmesBoundary;
     private final TerminalMapping terminalMapping;
     private final NodeMapping nodeMapping;
