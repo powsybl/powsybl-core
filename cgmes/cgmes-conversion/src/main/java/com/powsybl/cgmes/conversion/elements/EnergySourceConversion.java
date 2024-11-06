@@ -57,7 +57,7 @@ public class EnergySourceConversion extends AbstractConductingEquipmentConversio
         Objects.requireNonNull(load);
         updateTerminals(context, load.getTerminal());
         load.setP0(updatedP0().orElse(defaultP(Double.NaN, load.getP0(), getDefaultValue(context))))
-                .setQ0(qupdatedQ0().orElse(defaultQ(Double.NaN, load.getQ0(), getDefaultValue(context))));
+                .setQ0(updatedQ0().orElse(defaultQ(Double.NaN, load.getQ0(), getDefaultValue(context))));
     }
 
     private static Conversion.Config.DefaultValue getDefaultValue(Context context) {

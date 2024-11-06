@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
-import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.EMPTY;
 import static com.powsybl.cgmes.conversion.Update.isConvertSeparatedFromUpdate;
 
 /**
@@ -835,7 +834,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return updatedPowerFlow().defined() ? OptionalDouble.of(updatedPowerFlow().p()) : OptionalDouble.empty();
     }
 
-    protected OptionalDouble qupdatedQ0() {
+    protected OptionalDouble updatedQ0() {
         return updatedPowerFlow().defined() ? OptionalDouble.of(updatedPowerFlow().q()) : OptionalDouble.empty();
     }
 
