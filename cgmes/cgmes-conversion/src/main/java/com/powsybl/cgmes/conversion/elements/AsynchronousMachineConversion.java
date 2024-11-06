@@ -58,7 +58,7 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
         Objects.requireNonNull(load);
         updateTerminals(context, load.getTerminal());
         load.setP0(updatedP0().orElse(defaultP(Double.NaN, load.getP0(), gettDefaultValue(context))))
-                .setQ0(qupdatedQ0().orElse(defaultQ(Double.NaN, load.getQ0(), gettDefaultValue(context))));
+                .setQ0(updatedQ0().orElse(defaultQ(Double.NaN, load.getQ0(), gettDefaultValue(context))));
     }
 
     private static void addSpecificProperties(Load newLoad) {

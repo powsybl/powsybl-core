@@ -799,7 +799,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return updatedPowerFlow().defined() ? OptionalDouble.of(updatedPowerFlow().p()) : OptionalDouble.empty();
     }
 
-    protected OptionalDouble qupdatedQ0() {
+    protected OptionalDouble updatedQ0() {
         return updatedPowerFlow().defined() ? OptionalDouble.of(updatedPowerFlow().q()) : OptionalDouble.empty();
     }
 
