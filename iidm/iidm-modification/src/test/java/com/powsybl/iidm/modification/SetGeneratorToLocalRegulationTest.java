@@ -29,9 +29,9 @@ class SetGeneratorToLocalRegulationTest {
 
         // Before applying the network modification,
         // gen1 regulates remotely at 1.05 pu (420 kV) and gen2 regulates locally at 1.05 pu (21 kV).
-        assertNotEquals(gen1.getRegulatingTerminal(), gen1.getTerminal());
+        assertNotEquals(gen1.getId(), gen1.getRegulatingTerminal().getConnectable().getId());
         assertEquals(420.0, gen1.getTargetV());
-        assertEquals(gen2.getRegulatingTerminal(), gen2.getTerminal());
+        assertEquals(gen2.getId(), gen2.getRegulatingTerminal().getConnectable().getId());
         assertEquals(21.0, gen2.getTargetV());
 
         ReportNode reportNode = ReportNode.newRootReportNode()
@@ -40,9 +40,9 @@ class SetGeneratorToLocalRegulationTest {
         new SetGeneratorToLocalRegulation("GEN2").apply(network, reportNode);
 
         // After applying the network modification, both generators regulate locally at 1.05 pu (21 kV).
-        assertEquals(gen1.getRegulatingTerminal(), gen1.getTerminal());
+        assertEquals(gen1.getId(), gen1.getRegulatingTerminal().getConnectable().getId());
         assertEquals(21.0, gen1.getTargetV());
-        assertEquals(gen2.getRegulatingTerminal(), gen2.getTerminal());
+        assertEquals(gen2.getId(), gen2.getRegulatingTerminal().getConnectable().getId());
         assertEquals(21.0, gen2.getTargetV());
 
         // Report node has been updated with the change for gen1 (no impact for gen2).

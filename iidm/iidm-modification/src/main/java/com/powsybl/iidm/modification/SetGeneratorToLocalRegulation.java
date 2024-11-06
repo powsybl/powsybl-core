@@ -45,10 +45,7 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         Generator generator = network.getGenerator(generatorId);
-        if (generator != null
-                && generator.getTerminal() != null
-                && generator.getRegulatingTerminal() != null
-                && generator.getTerminal() != generator.getRegulatingTerminal()) {
+        if (generator != null && !generator.getId().equals(generator.getRegulatingTerminal().getConnectable().getId())) {
             setLocalRegulation(generator, reportNode);
         }
     }
@@ -77,9 +74,9 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
         Generator generator = network.getGenerator(generatorId);
-        if (generator == null || generator.getTerminal() == null || generator.getRegulatingTerminal() == null) {
+        if (generator == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (generator.getTerminal() == generator.getRegulatingTerminal()) {
+        } else if (generator.getId().equals(generator.getRegulatingTerminal().getConnectable().getId())) {
             impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         } else {
             impact = DEFAULT_IMPACT;
