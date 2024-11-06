@@ -9,15 +9,14 @@ package com.powsybl.cgmes.completion;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.Importers;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +50,8 @@ class CgmesCompletionTest {
 
     @Test
     void miniGridNodeBreakerMissingVoltageLevel() throws IOException {
-        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.miniGridNodeBreakerMissingVoltageLevel().dataSource();
+        ReadOnlyDataSource dataSource = new ResourceDataSource("CGMES file",
+                new ResourceSet("/", "missing_voltagelevel.xml"));
         Properties importParams = new Properties();
         importParams.put(CgmesImport.PRE_PROCESSORS, "createMissingContainers");
 
@@ -71,10 +71,12 @@ class CgmesCompletionTest {
         }
         assertNotNull(network);
 
-        // Check that a specific terminal has a voltage level, navigating the switches
-        String terminalId = "4915762d-133e-4209-8545-2822d095d7cd";
-        Switch sw = network.getSwitch(terminalId);
-        if (sw == null || sw.getVoltageLevel().getId() == null) {
+        // Check that a specific terminal has a voltage level, by using the alias to get the busBarSection
+        String terminalId = "T_BBS";
+        Connectable<?> connectable = network.getConnectable(terminalId);
+        BusbarSection busBarSection = (BusbarSection) connectable;
+        String voltageLevelId = busBarSection.getTerminal().getVoltageLevel().getId();
+        if (voltageLevelId == null || voltageLevelId.isEmpty()) {
             fail("Missing voltage level for terminal " + terminalId);
         }
     }
