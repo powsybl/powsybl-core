@@ -334,6 +334,8 @@ public class Conversion {
         updateLoads(network, cgmes, updateContext);
         updateTwoAndThreeWindingsTransformers(network, updateContext);
 
+        completeVoltagesAndAnglesAfterUpdate(network);
+
         network.runValidationChecks(false, reportNode);
         network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
@@ -450,14 +452,17 @@ public class Conversion {
 
     private static void completeVoltagesAndAngles(Network network) {
 
-        // Voltage and angle in starBus as properties
-        network.getThreeWindingsTransformers()
-            .forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);
-
         // Voltage and angle in boundary buses
         network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
             .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
         network.getTieLines().forEach(tieLine -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()));
+    }
+
+    private static void completeVoltagesAndAnglesAfterUpdate(Network network) {
+
+        // Voltage and angle in starBus as properties
+        network.getThreeWindingsTransformers()
+                .forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);
     }
 
     private static void createControlArea(CgmesControlAreas cgmesControlAreas, PropertyBag ca) {
