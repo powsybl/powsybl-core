@@ -382,7 +382,14 @@ public final class EquipmentExport {
             String cgmesOriginalClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
             RemoteReactivePowerControl rrpc = generator.getExtension(RemoteReactivePowerControl.class);
             String mode = CgmesExportUtil.getGeneratorRegulatingControlMode(generator, rrpc);
-            Terminal regulatingTerminal = mode.equals(RegulatingControlEq.REGULATING_CONTROL_VOLTAGE) ? generator.getRegulatingTerminal() : rrpc.getRegulatingTerminal();
+            Terminal regulatingTerminal;
+            if (mode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
+                regulatingTerminal = rrpc.getRegulatingTerminal();
+            } else if (context.isExportGeneratorsInLocalRegulationMode()) {
+                regulatingTerminal = generator.getTerminal();
+            } else {
+                regulatingTerminal = generator.getRegulatingTerminal();
+            }
             String regulatingControlId;
             switch (cgmesOriginalClass) {
                 case CgmesNames.EQUIVALENT_INJECTION:
@@ -394,22 +401,14 @@ public final class EquipmentExport {
                             cimNamespace, writer, context);
                     break;
                 case CgmesNames.EXTERNAL_NETWORK_INJECTION:
-                    if (context.isExportGeneratorsInLocalRegulationMode()) {
-                        regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(generator, exportedTerminalId(mapTerminal2Id, generator.getTerminal()), regulatingControlsWritten, mode, cimNamespace, writer, context);
-                    } else {
-                        regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(generator, exportedTerminalId(mapTerminal2Id, regulatingTerminal), regulatingControlsWritten, mode, cimNamespace, writer, context);
-                    }
+                    regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(generator, exportedTerminalId(mapTerminal2Id, regulatingTerminal), regulatingControlsWritten, mode, cimNamespace, writer, context);
                     ExternalNetworkInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
                             context.getNamingStrategy().getCgmesId(generator.getTerminal().getVoltageLevel()),
                             obtainGeneratorGovernorScd(generator), generator.getMaxP(), obtainMaxQ(generator), generator.getMinP(), obtainMinQ(generator),
                             regulatingControlId, cimNamespace, writer, context);
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
-                    if (context.isExportGeneratorsInLocalRegulationMode()) {
-                        regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(generator, exportedTerminalId(mapTerminal2Id, generator.getTerminal()), regulatingControlsWritten, mode, cimNamespace, writer, context);
-                    } else {
-                        regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(generator, exportedTerminalId(mapTerminal2Id, regulatingTerminal), regulatingControlsWritten, mode, cimNamespace, writer, context);
-                    }
+                    regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(generator, exportedTerminalId(mapTerminal2Id, regulatingTerminal), regulatingControlsWritten, mode, cimNamespace, writer, context);
                     writeSynchronousMachine(generator, cimNamespace, writeInitialP,
                             generator.getMinP(), generator.getMaxP(), generator.getTargetP(), generator.getRatedS(), generator.getEnergySource(),
                             regulatingControlId, writer, context, generatingUnitsWritten);
