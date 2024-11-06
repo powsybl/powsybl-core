@@ -65,6 +65,8 @@ public class Context {
         powerTransformerRatioTapChangers = new HashMap<>();
         powerTransformerPhaseTapChangers = new HashMap<>();
         cgmesTerminals = new HashMap<>();
+        regulatingControls = new HashMap<>();
+        operationalLimits = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -223,6 +225,28 @@ public class Context {
         return cgmesTerminals.get(id);
     }
 
+    public void loadRegulatingControls() {
+        cgmes.regulatingControls().forEach(p -> {
+            String id = p.getId(CgmesNames.REGULATING_CONTROL);
+            regulatingControls.put(id, p);
+        });
+    }
+
+    public PropertyBag regulatingControl(String id) {
+        return regulatingControls.get(id);
+    }
+
+    public void loadOperationalLimits() {
+        cgmes.operationalLimits().forEach(op -> {
+            String id = op.getId(CgmesNames.OPERATIONAL_LIMIT);
+            operationalLimits.put(id, op);
+        });
+    }
+
+    public PropertyBag operationalLimit(String id) {
+        return operationalLimits.get(id);
+    }
+
     // Handling issues found during conversion
 
     public ReportNode getReportNode() {
@@ -337,6 +361,8 @@ public class Context {
     private final Map<String, PropertyBag> powerTransformerRatioTapChangers;
     private final Map<String, PropertyBag> powerTransformerPhaseTapChangers;
     private final Map<String, PropertyBag> cgmesTerminals;
+    private final Map<String, PropertyBag> regulatingControls;
+    private final Map<String, PropertyBag> operationalLimits;
 
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }

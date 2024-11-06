@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 import static com.powsybl.cgmes.conversion.Update.updateLoads;
+import static com.powsybl.cgmes.conversion.Update.updateTwoAndThreeWindingsTransformers;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -331,6 +332,8 @@ public class Conversion {
         }
 
         updateLoads(network, cgmes, updateContext);
+        updateTwoAndThreeWindingsTransformers(network, updateContext);
+
         network.runValidationChecks(false, reportNode);
         network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
@@ -539,6 +542,10 @@ public class Conversion {
     private Context createUpdateContext(Network network, ReportNode reportNode) {
         Context context = new Context(cgmes, config, network, reportNode);
         context.loadCgmesTerminals();
+        context.loadRatioTapChangers();
+        context.loadPhaseTapChangers();
+        context.loadRegulatingControls();
+        context.loadOperationalLimits();
         return context;
     }
 

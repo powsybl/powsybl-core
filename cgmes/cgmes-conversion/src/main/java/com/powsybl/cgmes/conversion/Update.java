@@ -10,19 +10,15 @@ package com.powsybl.cgmes.conversion;
 import com.powsybl.cgmes.conversion.elements.AsynchronousMachineConversion;
 import com.powsybl.cgmes.conversion.elements.EnergyConsumerConversion;
 import com.powsybl.cgmes.conversion.elements.EnergySourceConversion;
+import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -40,16 +36,19 @@ public final class Update {
                 || p.propertyNames().contains("NonConformLoad")
                 || p.propertyNames().contains("ConformLoad")
                 || p.propertyNames().contains("StationSupply")
-                || p.propertyNames().contains("AsynchronousMachine");
+                || p.propertyNames().contains("TwoWindingsTransformer");
     }
 
     static void updateLoads(Network network, CgmesModel cgmes, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.LOAD.name()));
+
         Map<String, PropertyBag> identifiablePropertyBag = new HashMap<>();
         addPropertyBags(network, cgmes.energyConsumers(), CgmesNames.ENERGY_CONSUMER, identifiablePropertyBag);
         addPropertyBags(network, cgmes.energySources(), CgmesNames.ENERGY_SOURCE, identifiablePropertyBag);
         addPropertyBags(network, cgmes.asynchronousMachines(), CgmesNames.ASYNCHRONOUS_MACHINE, identifiablePropertyBag);
 
         network.getLoads().forEach(load -> updateLoad(network, load, getPropertyBag(load.getId(), identifiablePropertyBag), context));
+        context.popReportNode();
     }
 
     private static void updateLoad(Network network, Load load, PropertyBag propertyBag, Context context) {
@@ -67,6 +66,26 @@ public final class Update {
                         throw new ConversionException("Unexpected originalClass " + originalClass + " for Load: " + load.getId());
             }
         }
+    }
+
+    static void updateTwoAndThreeWindingsTransformers(Network network, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.TWO_WINDINGS_TRANSFORMER.name()));
+        network.getTwoWindingsTransformers().forEach(t2w -> updateTwoWindingsTransformer(network, t2w, namedPropertyBag("TwoWindingsTransformer", t2w.getId()), context));
+        context.popReportNode();
+
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.THREE_WINDINGS_TRANSFORMER.name()));
+        network.getThreeWindingsTransformers().forEach(t3w -> updateThreeWindingsTransformer(network, t3w, namedPropertyBag("ThreeWindingsTransformer", t3w.getId()), context));
+        context.popReportNode();
+    }
+
+    private static void updateTwoWindingsTransformer(Network network, TwoWindingsTransformer t2w, PropertyBag propertyBag, Context context) {
+        PropertyBags cgmesTerminals = getPropertyBagsOfCgmesTerminals(t2w, context);
+        new TwoWindingsTransformerConversion(propertyBag, cgmesTerminals, t2w, context).update(network);
+    }
+
+    private static void updateThreeWindingsTransformer(Network network, ThreeWindingsTransformer t3w, PropertyBag propertyBag, Context context) {
+        PropertyBags cgmesTerminals = getPropertyBagsOfCgmesTerminals(t3w, context);
+        new ThreeWindingsTransformerConversion(propertyBag, cgmesTerminals, t3w, context).update(network);
     }
 
     private static void addPropertyBags(Network network, PropertyBags propertyBags, String idTag, Map<String, PropertyBag> identifiablePropertyBag) {
@@ -92,11 +111,28 @@ public final class Update {
         }
     }
 
+    private static PropertyBags getPropertyBagsOfCgmesTerminals(Connectable<?> connectable, Context context) {
+        PropertyBags propertyBags = new PropertyBags();
+        connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1)
+                .ifPresent(cgmesTerminalId -> propertyBags.add(getPropertyBagOfCgmesTerminal(cgmesTerminalId, context)));
+        connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2)
+                .ifPresent(cgmesTerminalId -> propertyBags.add(getPropertyBagOfCgmesTerminal(cgmesTerminalId, context)));
+        connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL3)
+                .ifPresent(cgmesTerminalId -> propertyBags.add(getPropertyBagOfCgmesTerminal(cgmesTerminalId, context)));
+        return propertyBags;
+    }
+
     private static PropertyBag getPropertyBagOfCgmesTerminal(String cgmesTerminalId, Context context) {
         return context.cgmesTerminal(cgmesTerminalId) != null ? context.cgmesTerminal(cgmesTerminalId) : emptyPropertyBag();
     }
 
     private static PropertyBag emptyPropertyBag() {
         return new PropertyBag(Collections.emptyList(), false);
+    }
+
+    private static PropertyBag namedPropertyBag(String propertyName, String id) {
+        PropertyBag propertyBag = new PropertyBag(Collections.emptyList(), false);
+        propertyBag.put(propertyName, id);
+        return propertyBag;
     }
 }

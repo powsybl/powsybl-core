@@ -528,7 +528,11 @@ public final class SteadyStateHypothesisExport {
         }
         for (int k = 1; k < rcs.size(); k++) {
             RegulatingControlView current = rcs.get(k);
-            if (combined.targetDeadband == 0 && current.targetDeadband > 0) {
+            if (Double.isNaN(combined.targetDeadband) && !Double.isNaN(current.targetDeadband) && current.targetDeadband >= 0) {
+                combined.targetDeadband = current.targetDeadband;
+            } else if (combined.targetDeadband == 0 && !Double.isNaN(current.targetDeadband) && current.targetDeadband > 0) {
+                combined.targetDeadband = current.targetDeadband;
+            } else if (combined.targetDeadband > 0 && !Double.isNaN(current.targetDeadband) && current.targetDeadband > 0 && current.targetDeadband < combined.targetDeadband) {
                 combined.targetDeadband = current.targetDeadband;
             }
             if (!combined.discrete && current.discrete) {
@@ -549,9 +553,11 @@ public final class SteadyStateHypothesisExport {
         writer.writeStartElement(cimNamespace, "RegulatingControl.enabled");
         writer.writeCharacters(Boolean.toString(rc.controlEnabled));
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, "RegulatingControl.targetDeadband");
-        writer.writeCharacters(CgmesExportUtil.format(rc.targetDeadband));
-        writer.writeEndElement();
+        if (CgmesExportUtil.targetDeadbandIsDefined(rc.targetDeadband)) {
+            writer.writeStartElement(cimNamespace, "RegulatingControl.targetDeadband");
+            writer.writeCharacters(CgmesExportUtil.format(rc.targetDeadband));
+            writer.writeEndElement();
+        }
         writer.writeStartElement(cimNamespace, "RegulatingControl.targetValue");
         writer.writeCharacters(CgmesExportUtil.format(rc.targetValue));
         writer.writeEndElement();

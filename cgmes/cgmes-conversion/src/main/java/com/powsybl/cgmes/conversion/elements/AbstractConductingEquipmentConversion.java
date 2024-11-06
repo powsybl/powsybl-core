@@ -49,7 +49,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             numTerminals = 1;
             terminals = new TerminalData[]{null, null, null};
             terminals[0] = new TerminalData(CgmesNames.TERMINAL, p, context);
-            steadyStatePowerFlow = null;
+            steadyStatePowerFlow = PowerFlow.UNDEFINED;
             updatedTerminals = null;
         } else {
             numTerminals = 1;
@@ -87,6 +87,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         super(type, ps, context);
         // Information about each terminal is in each separate property bags
         // It is assumed the property bags are already sorted
+        // Same code for property bags where convert has been separated from update
         this.numTerminals = ps.size();
         terminals = new TerminalData[]{null, null, null};
         if (numTerminals > 3) {
@@ -111,6 +112,21 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = new PowerFlow(p, "p", "q");
         updatedTerminals = new UpdatedTerminalData[]{null, null, null};
         updatedTerminals[0] = new UpdatedTerminalData(cgmesTerminal);
+    }
+
+    protected AbstractConductingEquipmentConversion(
+            String type,
+            PropertyBag p,
+            PropertyBags cgmesTerminals,
+            Context context) {
+        super(type, p, context);
+        numTerminals = cgmesTerminals.size();
+        terminals = null;
+        steadyStatePowerFlow = PowerFlow.UNDEFINED;
+        updatedTerminals = new UpdatedTerminalData[]{null, null, null};
+        for (int i = 0; i < cgmesTerminals.size(); i++) {
+            updatedTerminals[i] = new UpdatedTerminalData(cgmesTerminals.get(i));
+        }
     }
 
     public String findPairingKey(String boundaryNode) {
@@ -689,6 +705,26 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
+    public void connection(BranchAdder<?, ?> adder) {
+        if (context.nodeBreaker()) {
+            adder
+                    .setVoltageLevel1(iidmVoltageLevelId(1))
+                    .setVoltageLevel2(iidmVoltageLevelId(2))
+                    .setNode1(iidmNode(1))
+                    .setNode2(iidmNode(2));
+        } else {
+            String busId1 = busId(1);
+            String busId2 = busId(2);
+            adder
+                    .setVoltageLevel1(iidmVoltageLevelId(1))
+                    .setVoltageLevel2(iidmVoltageLevelId(2))
+                    .setBus1(null)
+                    .setBus2(null)
+                    .setConnectableBus1(busId1)
+                    .setConnectableBus2(busId2);
+        }
+    }
+
     public static void connect(Context context, InjectionAdder<?, ?> adder, String busId, boolean connected, int node) {
         if (context.nodeBreaker()) {
             adder.setNode(node);
@@ -763,7 +799,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             .setOpen(open || !terminalConnected(1) || !terminalConnected(2));
     }
 
-    public void connect(LegAdder adder, int terminal) {
+    public void connection(LegAdder adder, int terminal) {
         if (context.nodeBreaker()) {
             adder
                 .setVoltageLevel(iidmVoltageLevelId(terminal))
@@ -771,7 +807,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         } else {
             adder
                 .setVoltageLevel(iidmVoltageLevelId(terminal))
-                .setBus(terminalConnected(terminal) ? busId(terminal) : null)
+                .setBus(null)
                 .setConnectableBus(busId(terminal));
         }
     }
@@ -801,10 +837,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     protected OptionalDouble qupdatedQ0() {
         return updatedPowerFlow().defined() ? OptionalDouble.of(updatedPowerFlow().q()) : OptionalDouble.empty();
-    }
-
-    protected static Conversion.Config.DefaultValue selectDefaultValue(List<Conversion.Config.DefaultValue> validDefaultValues, Context context) {
-        return context.config().updateDefaultValuesPriority().stream().filter(validDefaultValues::contains).findFirst().orElse(EMPTY);
     }
 
     protected static double defaultP(double eqP, double previousP, Conversion.Config.DefaultValue defaultValue) {

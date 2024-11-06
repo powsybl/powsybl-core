@@ -9,9 +9,14 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.List;
+
+import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.EMPTY;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -91,6 +96,10 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         } else {
             return String.format("%s at %s %s", what, type, id);
         }
+    }
+
+    protected static Conversion.Config.DefaultValue selectDefaultValue(List<Conversion.Config.DefaultValue> validDefaultValues, Context context) {
+        return context.config().updateDefaultValuesPriority().stream().filter(validDefaultValues::contains).findFirst().orElse(EMPTY);
     }
 
     protected final String id;

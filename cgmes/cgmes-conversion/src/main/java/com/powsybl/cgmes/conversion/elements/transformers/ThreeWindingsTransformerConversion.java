@@ -12,13 +12,17 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
+import com.powsybl.cgmes.conversion.elements.OperationalLimitConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.util.TwtData;
+import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.Objects;
 
 /**
  * ThreeWindingsTransformer Cgmes Conversion
@@ -57,8 +61,16 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class ThreeWindingsTransformerConversion extends AbstractTransformerConversion {
 
+    private final ThreeWindingsTransformer t3w;
+
     public ThreeWindingsTransformerConversion(PropertyBags ends, Context context) {
         super(CgmesNames.POWER_TRANSFORMER, ends, context);
+        this.t3w = null;
+    }
+
+    public ThreeWindingsTransformerConversion(PropertyBag t3wEmptyBag, PropertyBags cgmesTerminals, ThreeWindingsTransformer t3w, Context context) {
+        super(CgmesNames.POWER_TRANSFORMER, t3wEmptyBag, cgmesTerminals, context);
+        this.t3w = t3w;
     }
 
     @Override
@@ -99,22 +111,22 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
 
         LegAdder l1adder = txadder.newLeg1();
         setToIidmWindingAdder(convertedT3xModel.winding1, l1adder);
-        connect(l1adder, 1);
+        connection(l1adder, 1);
         l1adder.add();
 
         LegAdder l2adder = txadder.newLeg2();
         setToIidmWindingAdder(convertedT3xModel.winding2, l2adder);
-        connect(l2adder, 2);
+        connection(l2adder, 2);
         l2adder.add();
 
         LegAdder l3adder = txadder.newLeg3();
         setToIidmWindingAdder(convertedT3xModel.winding3, l3adder);
-        connect(l3adder, 3);
+        connection(l3adder, 3);
         l3adder.add();
 
         ThreeWindingsTransformer tx = txadder.add();
         addAliasesAndProperties(tx);
-        convertedTerminals(
+        mappingTerminals(
             tx.getLeg1().getTerminal(),
             tx.getLeg2().getTerminal(),
             tx.getLeg3().getTerminal());
@@ -156,7 +168,9 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         }
 
         RatioTapChangerAdder rtca = newRatioTapChanger(convertedT3xModel, tx, convertedWinding.end1.terminal);
-        setToIidmRatioTapChanger(rtc, rtca);
+        if (rtca != null) {
+            setToIidmRatioTapChanger(rtc, rtca);
+        }
     }
 
     private static void setToIidmPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedT3xModel.ConvertedWinding convertedWinding, ThreeWindingsTransformer tx, Context context) {
@@ -166,7 +180,9 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         }
 
         PhaseTapChangerAdder ptca = newPhaseTapChanger(convertedT3xModel, tx, convertedWinding.end1.terminal);
-        setToIidmPhaseTapChanger(ptc, ptca, context);
+        if (ptca != null) {
+            setToIidmPhaseTapChanger(ptc, ptca, context);
+        }
     }
 
     private static RatioTapChangerAdder newRatioTapChanger(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx,
@@ -202,5 +218,30 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         CgmesRegulatingControlPhase rcPtc3 = setContextRegulatingDataPhase(convertedT3xModel.winding3.end1.phaseTapChanger);
 
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc1, rcPtc1, rcRtc2, rcPtc2, rcRtc3, rcPtc3);
+    }
+
+    @Override
+    public void update(Network network) {
+        Objects.requireNonNull(t3w);
+        updateTerminals(context, t3w.getLeg1().getTerminal(), t3w.getLeg2().getTerminal(), t3w.getLeg3().getTerminal());
+
+        boolean isAllowedToRegulatePtc1 = true;
+        t3w.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, "1", context, isAllowedToRegulatePtc1));
+        boolean isAllowedToRegulateRtc1 = checkOnlyOneEnabled(isAllowedToRegulatePtc1, t3w.getLeg1().getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
+        t3w.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, "1", context, isAllowedToRegulateRtc1));
+
+        boolean isAllowedToRegulatePtc2 = checkOnlyOneEnabled(isAllowedToRegulateRtc1, t3w.getLeg1().getOptionalRatioTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
+        t3w.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, "2", context, isAllowedToRegulatePtc2));
+        boolean isAllowedToRegulateRtc2 = checkOnlyOneEnabled(isAllowedToRegulatePtc2, t3w.getLeg2().getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
+        t3w.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, "2", context, isAllowedToRegulateRtc2));
+
+        boolean isAllowedToRegulatePtc3 = checkOnlyOneEnabled(isAllowedToRegulateRtc2, t3w.getLeg2().getOptionalRatioTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
+        t3w.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, "3", context, isAllowedToRegulatePtc3));
+        boolean isAllowedToRegulateRtc3 = checkOnlyOneEnabled(isAllowedToRegulatePtc3, t3w.getLeg3().getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
+        t3w.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, "3", context, isAllowedToRegulateRtc3));
+
+        t3w.getLeg1().getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, "1", t3w, context));
+        t3w.getLeg2().getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, "2", t3w, context));
+        t3w.getLeg3().getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, "3", t3w, context));
     }
 }
