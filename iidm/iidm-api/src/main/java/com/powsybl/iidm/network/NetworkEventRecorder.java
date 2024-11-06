@@ -8,10 +8,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.events.CreationNetworkEvent;
-import com.powsybl.iidm.network.events.NetworkEvent;
-import com.powsybl.iidm.network.events.RemovalNetworkEvent;
-import com.powsybl.iidm.network.events.UpdateNetworkEvent;
+import com.powsybl.iidm.network.events.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,45 +55,51 @@ public class NetworkEventRecorder implements NetworkListener {
 
     @Override
     public void onExtensionCreation(Extension<?> extension) {
-
+        events.add(new ExtensionCreationNetworkEvent(((Identifiable<?>) extension.getExtendable()).getId(), extension.getName()));
     }
 
     @Override
     public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
-
+        events.add(new ExtensionRemovalNetworkEvent(identifiable.getId(), extensionName, true));
     }
 
     @Override
     public void onExtensionBeforeRemoval(Extension<?> extension) {
-
+        events.add(new ExtensionRemovalNetworkEvent(((Identifiable<?>) extension.getExtendable()).getId(), extension.getName(), false));
     }
 
     @Override
-    public void onExtensionUpdate(Extension<?> extendable, String attribute, Object oldValue, Object newValue) {
-
+    public void onExtensionUpdate(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
+        events.add(new ExtensionUpdateNetworkEvent(((Identifiable<?>) extension.getExtendable()).getId(), extension.getName(), attribute, oldValue, newValue));
     }
 
     @Override
     public void onElementAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
+        events.add(new PropertyUpdateNetworkEvent(identifiable.getId(), attribute, PropertyUpdateNetworkEvent.PropertyUpdateType.ADDED, null, newValue));
     }
 
     @Override
     public void onElementReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+        events.add(new PropertyUpdateNetworkEvent(identifiable.getId(), attribute, PropertyUpdateNetworkEvent.PropertyUpdateType.REPLACED, oldValue, newValue));
     }
 
     @Override
     public void onElementRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
+        events.add(new PropertyUpdateNetworkEvent(identifiable.getId(), attribute, PropertyUpdateNetworkEvent.PropertyUpdateType.REMOVED, oldValue, null));
     }
 
     @Override
     public void onVariantCreated(String sourceVariantId, String targetVariantId) {
+        events.add(new VariantNetworkEvent(sourceVariantId, targetVariantId, VariantNetworkEvent.VariantEventType.CREATED));
     }
 
     @Override
     public void onVariantOverwritten(String sourceVariantId, String targetVariantId) {
+        events.add(new VariantNetworkEvent(sourceVariantId, targetVariantId, VariantNetworkEvent.VariantEventType.OVERWRITTEN));
     }
 
     @Override
     public void onVariantRemoved(String variantId) {
+        events.add(new VariantNetworkEvent(variantId, null, VariantNetworkEvent.VariantEventType.REMOVED));
     }
 }

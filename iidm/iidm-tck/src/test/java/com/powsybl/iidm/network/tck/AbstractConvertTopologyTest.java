@@ -121,7 +121,7 @@ public abstract class AbstractConvertTopologyTest {
                              new RemovalNetworkEvent("S1VL2_LCC1_BREAKER", true),
                              new RemovalNetworkEvent("S1VL2_BBS1_COUPLER_DISCONNECTOR", true),
                              new RemovalNetworkEvent("S1VL2_BBS2_COUPLER_DISCONNECTOR", true),
-                             new UpdateNetworkEvent("S1VL2", "topologyKind", null, "NODE_BREAKER", "BUS_BREAKER")),
+                             new UpdateNetworkEvent("S1VL2", "topologyKind", null, TopologyKind.NODE_BREAKER, TopologyKind.BUS_BREAKER)),
                 eventRecorder.getEvents());
     }
 

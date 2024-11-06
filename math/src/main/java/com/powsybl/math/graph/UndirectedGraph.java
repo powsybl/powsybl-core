@@ -106,7 +106,7 @@ public interface UndirectedGraph<V, E> {
     int addEdge(int v1, int v2, E obj);
 
     /**
-     * Create an edge between the two specified vertices and notify the {@link UndirectedGraphListener}s.
+     * Create an edge between the two specified vertices and could notify the {@link UndirectedGraphListener}s.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if one of the vertices doesn't exist.
      *
      * @param v1 the first end of the edge.
@@ -127,7 +127,7 @@ public interface UndirectedGraph<V, E> {
     E removeEdge(int e);
 
     /**
-     * Remove the specified edge and notify the {@link UndirectedGraphListener}s.
+     * Remove the specified edge and could notify the {@link UndirectedGraphListener}s.
      * This method thows a {@link com.powsybl.commons.PowsyblException} if the edge doesn't exist.
      *
      * @param e the edge index to remove.
@@ -142,7 +142,7 @@ public interface UndirectedGraph<V, E> {
     void removeAllEdges();
 
     /**
-     * Remove all the edges and notify the {@link UndirectedGraphListener}s.
+     * Remove all the edges and could notify the {@link UndirectedGraphListener}s.
      *
      * @param notify notify the {@link UndirectedGraphListener}s if true.
      */
@@ -202,7 +202,7 @@ public interface UndirectedGraph<V, E> {
     V getVertexObject(int v);
 
     /**
-     * Set the value attached to the specified vertex.
+     * Set the value attached to the specified vertex and notify the {@link UndirectedGraphListener}s.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
      *
      * @param v the vertex index.
@@ -211,7 +211,7 @@ public interface UndirectedGraph<V, E> {
     void setVertexObject(int v, V obj);
 
     /**
-     * Set the value attached to the specified vertex.
+     * Set the value attached to the specified vertex and could notify the {@link UndirectedGraphListener}s.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
      *
      * @param v the vertex index.
@@ -275,13 +275,13 @@ public interface UndirectedGraph<V, E> {
     int getEdgeVertex2(int e);
 
     /**
-     * Remove all the vertices of this graph.
+     * Remove all the vertices of this graph and notify the {@link UndirectedGraphListener}s.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if edges exist.
      */
     void removeAllVertices();
 
     /**
-     * Remove all the vertices of this graph.
+     * Remove all the vertices of this graph and could notify the {@link UndirectedGraphListener}s.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if edges exist.
      *
      * @param notify notify the {@link UndirectedGraphListener}s if true.
@@ -403,12 +403,14 @@ public interface UndirectedGraph<V, E> {
     void print(PrintStream out, Function<V, String> vertexToString, Function<E, String> edgeToString);
 
     /**
-     * Remove from the vertices which are not connected to any edge, and which have no associated object.
+     * Remove from the vertices which are not connected to any edge, and which have no associated object
+     * and notify the {@link UndirectedGraphListener}s.
      */
     void removeIsolatedVertices();
 
     /**
-     * Remove from the vertices which are not connected to any edge, and which have no associated object.
+     * Remove from the vertices which are not connected to any edge, and which have no associated object
+     * and could notify the {@link UndirectedGraphListener}s.
      *
      * @param notify notify the {@link UndirectedGraphListener}s if true.
      */

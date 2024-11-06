@@ -7,22 +7,19 @@
  */
 package com.powsybl.iidm.network.events;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface NetworkEvent {
-    enum Type {
-        CREATION,
-        REMOVAL,
-        UPDATE,
-        PROPERTY_UPDATE,
-        EXTENSION_CREATION,
-        EXTENSION_REMOVAL,
-        EXTENSION_UPDATE,
-        VARIANT,
+public record ExtensionRemovalNetworkEvent(String id, String extensionName, boolean after) implements NetworkEvent {
+    public ExtensionRemovalNetworkEvent {
+        Objects.requireNonNull(id);
+        Objects.requireNonNull(extensionName);
     }
 
-    Type getType();
+    @Override
+    public Type getType() {
+        return Type.EXTENSION_REMOVAL;
+    }
 }
-
-

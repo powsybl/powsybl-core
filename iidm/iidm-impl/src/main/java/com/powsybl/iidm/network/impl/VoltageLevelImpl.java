@@ -694,7 +694,7 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
                 TopologyKind oldTopologyKind = topologyModel.getTopologyKind();
                 topologyModel = newTopologyModel;
 
-                notifyUpdate("topologyKind", oldTopologyKind.name(), newTopologyKind.name());
+                notifyUpdate("topologyKind", oldTopologyKind, newTopologyKind);
             }
         }
     }
