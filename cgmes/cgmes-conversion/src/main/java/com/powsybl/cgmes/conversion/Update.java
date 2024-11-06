@@ -12,10 +12,7 @@ import com.powsybl.cgmes.conversion.elements.EnergyConsumerConversion;
 import com.powsybl.cgmes.conversion.elements.EnergySourceConversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -44,12 +41,15 @@ public final class Update {
     }
 
     static void updateLoads(Network network, CgmesModel cgmes, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.LOAD.name()));
+
         Map<String, PropertyBag> identifiablePropertyBag = new HashMap<>();
         addPropertyBags(network, cgmes.energyConsumers(), CgmesNames.ENERGY_CONSUMER, identifiablePropertyBag);
         addPropertyBags(network, cgmes.energySources(), CgmesNames.ENERGY_SOURCE, identifiablePropertyBag);
         addPropertyBags(network, cgmes.asynchronousMachines(), CgmesNames.ASYNCHRONOUS_MACHINE, identifiablePropertyBag);
 
         network.getLoads().forEach(load -> updateLoad(network, load, getPropertyBag(load.getId(), identifiablePropertyBag), context));
+        context.popReportNode();
     }
 
     private static void updateLoad(Network network, Load load, PropertyBag propertyBag, Context context) {
