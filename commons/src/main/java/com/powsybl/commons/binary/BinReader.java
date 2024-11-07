@@ -76,8 +76,8 @@ public class BinReader implements TreeDataReader {
             }
             byte[] stringBytes = dis.readNBytes(stringNbBytes);
             if (stringBytes.length != stringNbBytes) {
-                throw new PowsyblException("Cannot read the full string, bytes missing: " + (stringNbBytes - stringBytes.length)
-                        + " (this may happen when the attribute wasn't written in the first place, causing string length to be an aberrant number)");
+                // this may happen when the attribute wasn't written in the first place, causing string length to be an aberrant number
+                throw new PowsyblException("Cannot read the full string, bytes missing: " + (stringNbBytes - stringBytes.length));
             }
             return new String(stringBytes, StandardCharsets.UTF_8);
         } catch (IOException e) {
