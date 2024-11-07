@@ -13,7 +13,6 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
-import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
@@ -44,11 +43,11 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class BusBreakerVoltageLevel extends AbstractVoltageLevel {
+class BusBreakerTopologyModel extends AbstractTopologyModel {
 
     private static final boolean DRAW_SWITCH_ID = true;
 
-    private final class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements BusBreakerView.SwitchAdder {
+    private final class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements VoltageLevel.BusBreakerView.SwitchAdder {
 
         private String busId1;
 
@@ -61,7 +60,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         protected NetworkImpl getNetwork() {
-            return BusBreakerVoltageLevel.this.getNetwork();
+            return BusBreakerTopologyModel.this.getNetwork();
         }
 
         @Override
@@ -70,19 +69,19 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public BusBreakerView.SwitchAdder setBus1(String bus1) {
+        public VoltageLevel.BusBreakerView.SwitchAdder setBus1(String bus1) {
             this.busId1 = bus1;
             return this;
         }
 
         @Override
-        public BusBreakerView.SwitchAdder setBus2(String bus2) {
+        public VoltageLevel.BusBreakerView.SwitchAdder setBus2(String bus2) {
             this.busId2 = bus2;
             return this;
         }
 
         @Override
-        public BusBreakerView.SwitchAdder setOpen(boolean open) {
+        public VoltageLevel.BusBreakerView.SwitchAdder setOpen(boolean open) {
             this.open = open;
             return this;
         }
@@ -100,7 +99,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                 throw new ValidationException(this, "same bus at both ends");
             }
 
-            SwitchImpl aSwitch = new SwitchImpl(BusBreakerVoltageLevel.this, id, getName(), isFictitious(), SwitchKind.BREAKER, open, true);
+            SwitchImpl aSwitch = new SwitchImpl(voltageLevel, id, getName(), isFictitious(), SwitchKind.BREAKER, open, true);
             addSwitch(aSwitch, busId1, busId2);
             getNetwork().getListeners().notifyCreation(aSwitch);
             return aSwitch;
@@ -122,7 +121,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         if (throwException && v == null) {
             throw new PowsyblException("Bus " + busId
                     + " not found in voltage level "
-                    + BusBreakerVoltageLevel.this.id);
+                    + voltageLevel.getId());
         }
         return v;
     }
@@ -145,7 +144,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         if (throwException && e == null) {
             throw new PowsyblException("Switch " + switchId
                     + " not found in voltage level"
-                    + BusBreakerVoltageLevel.this.id);
+                    + voltageLevel.getId());
         }
         return e;
     }
@@ -215,9 +214,9 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         private MergedBus createMergedBus(int busNum, Set<ConfiguredBus> busSet) {
             String suffix = "_" + busNum;
-            String mergedBusId = Identifiables.getUniqueId(BusBreakerVoltageLevel.this.id + suffix, getNetwork().getIndex()::contains);
-            String mergedBusName = BusBreakerVoltageLevel.this.name != null ? BusBreakerVoltageLevel.this.name + suffix : null;
-            return new MergedBus(mergedBusId, mergedBusName, BusBreakerVoltageLevel.this.fictitious, busSet);
+            String mergedBusId = Identifiables.getUniqueId(voltageLevel.getId() + suffix, getNetwork().getIndex()::contains);
+            String mergedBusName = voltageLevel.getOptionalName().map(name -> name + suffix).orElse(null);
+            return new MergedBus(mergedBusId, mergedBusName, voltageLevel.isFictitious(), busSet);
         }
 
         private void updateCache() {
@@ -278,7 +277,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             if (throwException && bus == null) {
                 throw new PowsyblException("Bus " + mergedBusId
                         + " not found in voltage level "
-                        + BusBreakerVoltageLevel.this.id);
+                        + voltageLevel.getId());
             }
             return bus;
         }
@@ -309,11 +308,10 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     protected final VariantArray<VariantImpl> variants;
 
-    BusBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> ref,
-                           Ref<SubnetworkImpl> subnetworkRef, double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        super(id, name, fictitious, substation, ref, subnetworkRef, nominalV, lowVoltageLimit, highVoltageLimit);
+    BusBreakerTopologyModel(VoltageLevelExt voltageLevel) {
+        super(voltageLevel);
         // the ref object of the variant array is the same as the current object
-        variants = new VariantArray<>(ref, VariantImpl::new);
+        variants = new VariantArray<>(voltageLevel.getNetworkRef(), VariantImpl::new);
         // invalidate topology and connected components
         graph.addListener(new UndirectedGraphListener<>() {
             @Override
@@ -388,14 +386,14 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         return new PowsyblException("Not supported in a bus breaker topology");
     }
 
-    private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
+    private final VoltageLevelExt.NodeBreakerViewExt nodeBreakerView = new VoltageLevelExt.NodeBreakerViewExt() {
         @Override
         public double getFictitiousP0(int node) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
         @Override
-        public NodeBreakerView setFictitiousP0(int node, double p0) {
+        public VoltageLevel.NodeBreakerView setFictitiousP0(int node, double p0) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -405,7 +403,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public NodeBreakerView setFictitiousQ0(int node, double q0) {
+        public VoltageLevel.NodeBreakerView setFictitiousQ0(int node, double q0) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -576,11 +574,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     };
 
     @Override
-    public NodeBreakerViewExt getNodeBreakerView() {
+    public VoltageLevelExt.NodeBreakerViewExt getNodeBreakerView() {
         return nodeBreakerView;
     }
 
-    private final BusBreakerViewExt busBreakerView = new BusBreakerViewExt() {
+    private final VoltageLevelExt.BusBreakerViewExt busBreakerView = new VoltageLevelExt.BusBreakerViewExt() {
 
         @Override
         public Iterable<Bus> getBuses() {
@@ -599,22 +597,22 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public ConfiguredBus getBus(String id) {
-            return BusBreakerVoltageLevel.this.getBus(id, false);
+            return BusBreakerTopologyModel.this.getBus(id, false);
         }
 
         @Override
         public BusAdder newBus() {
-            return new BusAdderImpl(BusBreakerVoltageLevel.this);
+            return new BusAdderImpl(voltageLevel);
         }
 
         @Override
         public void removeBus(String busId) {
-            BusBreakerVoltageLevel.this.removeBus(busId);
+            BusBreakerTopologyModel.this.removeBus(busId);
         }
 
         @Override
         public void removeAllBuses() {
-            BusBreakerVoltageLevel.this.removeAllBuses();
+            BusBreakerTopologyModel.this.removeAllBuses();
         }
 
         @Override
@@ -634,12 +632,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public void removeSwitch(String switchId) {
-            BusBreakerVoltageLevel.this.removeSwitch(switchId);
+            BusBreakerTopologyModel.this.removeSwitch(switchId);
         }
 
         @Override
         public void removeAllSwitches() {
-            BusBreakerVoltageLevel.this.removeAllSwitches();
+            BusBreakerTopologyModel.this.removeAllSwitches();
         }
 
         @Override
@@ -671,11 +669,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public SwitchImpl getSwitch(String switchId) {
-            return BusBreakerVoltageLevel.this.getSwitch(switchId, false);
+            return BusBreakerTopologyModel.this.getSwitch(switchId, false);
         }
 
         @Override
-        public BusBreakerView.SwitchAdder newSwitch() {
+        public VoltageLevel.BusBreakerView.SwitchAdder newSwitch() {
             return new SwitchAdderImpl();
         }
 
@@ -690,11 +688,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     };
 
     @Override
-    public BusBreakerViewExt getBusBreakerView() {
+    public VoltageLevelExt.BusBreakerViewExt getBusBreakerView() {
         return busBreakerView;
     }
 
-    private final BusViewExt busView = new BusViewExt() {
+    private final VoltageLevelExt.BusViewExt busView = new VoltageLevelExt.BusViewExt() {
 
         @Override
         public Iterable<Bus> getBuses() {
@@ -719,7 +717,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     };
 
     @Override
-    public BusViewExt getBusView() {
+    public VoltageLevelExt.BusViewExt getBusView() {
         return busView;
     }
 
@@ -748,7 +746,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     private void removeBus(String busId) {
         ConfiguredBus bus = getBus(busId, true);
         if (bus.getTerminalCount() > 0) {
-            throw new ValidationException(this, "Cannot remove bus "
+            throw new ValidationException(voltageLevel, "Cannot remove bus "
                     + bus.getId() + " because of connectable equipments");
         }
         // TODO improve check efficency
@@ -777,11 +775,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private void removeAllBuses() {
         if (graph.getEdgeCount() > 0) {
-            throw new ValidationException(this, "Cannot remove all buses because there is still some switches");
+            throw new ValidationException(voltageLevel, "Cannot remove all buses because there is still some switches");
         }
         for (ConfiguredBus bus : graph.getVerticesObj()) {
             if (bus.getTerminalCount() > 0) {
-                throw new ValidationException(this, "Cannot remove bus "
+                throw new ValidationException(voltageLevel, "Cannot remove bus "
                         + bus.getId() + " because of connected equipments");
             }
         }
@@ -811,7 +809,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         Integer e = switches.get(switchId);
         if (e == null) {
             throw new PowsyblException("Switch '" + switchId
-                    + "' not found in voltage level '" + id + "'");
+                    + "' not found in voltage level '" + voltageLevel.getId() + "'");
         }
         NetworkImpl network = getNetwork();
         SwitchImpl aSwitch = graph.getEdgeObject(e);
@@ -845,7 +843,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     private void checkTerminal(TerminalExt terminal) {
         if (!(terminal instanceof BusTerminal)) {
             throw new ValidationException(terminal.getConnectable(),
-                    "voltage level " + BusBreakerVoltageLevel.this.id + " has a bus/breaker topology"
+                    "voltage level " + voltageLevel.getId() + " has a bus/breaker topology"
                             + ", a bus connection should be specified instead of a node connection");
         }
 
@@ -863,7 +861,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             return;
         }
         // create the link terminal -> voltage level
-        terminal.setVoltageLevel(this);
+        terminal.setVoltageLevel(voltageLevel);
 
         // create the link bus -> terminal
         String connectableBusId = ((BusTerminal) terminal).getConnectableBusId();
@@ -899,8 +897,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         terminal.setVoltageLevel(null);
     }
 
-    @Override
-    public boolean connect(TerminalExt terminal) {
+    boolean connect(TerminalExt terminal) {
         if (!(terminal instanceof BusTerminal)) {
             throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
         }
@@ -923,8 +920,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         return connect(terminal);
     }
 
-    @Override
-    public boolean disconnect(TerminalExt terminal) {
+    boolean disconnect(TerminalExt terminal) {
         if (!(terminal instanceof BusTerminal)) {
             throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
         }
@@ -1021,25 +1017,21 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         variants.push(number, () -> variants.copy(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        super.reduceVariantArraySize(number);
         variants.pop(number);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        super.deleteVariantArrayElement(index);
         variants.delete(index);
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
-        super.allocateVariantArrayElement(indexes, sourceIndex);
         variants.allocate(indexes, () -> variants.copy(sourceIndex));
     }
 
@@ -1057,7 +1049,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public void printTopology(PrintStream out, ShortIdDictionary dict) {
         out.println("-------------------------------------------------------------");
-        out.println("Topology of " + BusBreakerVoltageLevel.this.id);
+        out.println("Topology of " + voltageLevel.getId());
 
         Function<ConfiguredBus, String> vertexToString = bus -> {
             StringBuilder builder = new StringBuilder();
