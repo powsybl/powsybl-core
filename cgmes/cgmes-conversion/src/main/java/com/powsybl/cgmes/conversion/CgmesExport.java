@@ -643,7 +643,7 @@ public class CgmesExport implements Exporter {
     private static final Parameter EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE_PARAMETER = new Parameter(
             EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE,
             ParameterType.BOOLEAN,
-            "True to export generator in local regulation mode, False to keep their regulation mode unchanged.",
+            "True to export voltage regulating generators in local regulation mode, False to keep their regulation mode unchanged.",
             CgmesExportContext.EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE_DEFAULT_VALUE);
     private static final Parameter MAX_P_MISMATCH_CONVERGED_PARAMETER = new Parameter(
             MAX_P_MISMATCH_CONVERGED,
