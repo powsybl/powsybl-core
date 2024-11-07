@@ -173,6 +173,14 @@ class UndirectedGraphImplTest {
     }
 
     @Test
+    void testVertexNotFoundWhenAddingEdge() {
+        graph.addVertex();
+        graph.addVertex();
+        var e = assertThrows(PowsyblException.class, () -> graph.addEdge(0, 2, null));
+        assertEquals("Vertex 2 not found", e.getMessage());
+    }
+
+    @Test
     void testRemoveEdge() {
         graph.addVertex();
         graph.addVertex();
@@ -225,6 +233,12 @@ class UndirectedGraphImplTest {
         graph.addEdge(0, 1, null);
         graph.addEdge(1, 2, null);
         assertArrayEquals(new int[]{0, 1}, graph.getEdges());
+    }
+
+    @Test
+    void testEdgeNotFound() {
+        var e = assertThrows(PowsyblException.class, () -> graph.getEdgeObject(0));
+        assertEquals("Edge 0 not found", e.getMessage());
     }
 
     @Test
