@@ -417,8 +417,17 @@ class UndirectedGraphImplTest {
         UndirectedGraphListener<Vertex, Object> listener = Mockito.mock(UndirectedGraphListener.class);
         graph.addListener(listener);
         Mockito.verify(listener, Mockito.never()).vertexAdded(Mockito.anyInt());
-        graph.addVertex(false);
+        int v1 = graph.addVertex(false);
+        int v2 = graph.addVertex(false);
         Mockito.verify(listener, Mockito.never()).vertexAdded(Mockito.anyInt());
+        int e = graph.addEdge(v1, v2, "test", false);
+        Mockito.verify(listener, Mockito.never()).edgeAdded(Mockito.anyInt(), Mockito.any());
+        graph.removeEdge(e, false);
+        Mockito.verify(listener, Mockito.never()).edgeRemoved(Mockito.anyInt(), Mockito.any());
+        graph.removeVertex(v1, false);
+        Mockito.verify(listener, Mockito.never()).vertexRemoved(Mockito.anyInt(), Mockito.any());
+        graph.removeAllVertices(false);
+        Mockito.verify(listener, Mockito.never()).allVerticesRemoved();
     }
 
     @Test
