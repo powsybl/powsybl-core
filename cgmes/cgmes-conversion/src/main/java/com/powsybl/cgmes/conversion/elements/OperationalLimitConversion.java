@@ -181,42 +181,52 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
      */
     private void checkAndCreateLimitsAdder(int terminalNumber, String limitSetId, String limitSetName, Identifiable<?> identifiable) {
         if (identifiable instanceof Line) {
-            Branch<?> b = (Branch<?>) identifiable;
-            if (terminalNumber == -1) {
-                // Limits applied to the whole equipment == to both sides
-                createLimitsAdder(1, limitSubclassType, limitSetId, limitSetName, b);
-                createLimitsAdder(2, limitSubclassType, limitSetId, limitSetName, b);
-            } else if (terminalNumber == 1 || terminalNumber == 2) {
-                createLimitsAdder(terminalNumber, limitSubclassType, limitSetId, limitSetName, b);
-            } else {
-                notAssigned(b);
-            }
+            checkAndCreateLimitsAdderBranch((Branch<?>) identifiable, terminalNumber, limitSetId, limitSetName);
         } else if (identifiable instanceof TwoWindingsTransformer) {
-            Branch<?> b = (Branch<?>) identifiable;
-            if (terminalNumber == 1 || terminalNumber == 2) {
-                createLimitsAdder(terminalNumber, limitSubclassType, limitSetId, limitSetName, b);
-            } else {
-                if (terminalNumber == -1) {
-                    context.ignored(limitSubclassType, "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
-                }
-                notAssigned(b);
-            }
+            checkAndCreateLimitsAdderTwoWindingsTransformers((Branch<?>) identifiable, terminalNumber, limitSetId, limitSetName);
         } else if (identifiable instanceof DanglingLine dl) {
             createLimitsAdder(limitSubclassType, limitSetId, limitSetName, dl);
-        } else if (identifiable instanceof ThreeWindingsTransformer twt) {
-            if (terminalNumber == 1 || terminalNumber == 2 || terminalNumber == 3) {
-                createLimitsAdder(terminalNumber, limitSubclassType, limitSetId, limitSetName, twt);
-            } else {
-                if (terminalNumber == -1) {
-                    context.ignored(limitSubclassType, "Defined for Equipment ThreeWindingsTransformer. Should be defined for one Terminal of Three");
-                }
-                notAssigned(twt);
-            }
+        } else if (identifiable instanceof ThreeWindingsTransformer t3w) {
+            checkAndCreateLimitsAdderThreeWindingsTransformers(t3w, terminalNumber, limitSetId, limitSetName);
         } else if (identifiable instanceof Switch) {
             Switch aswitch = context.network().getSwitch(equipmentId);
             notAssigned(aswitch);
         } else {
             notAssigned(identifiable);
+        }
+    }
+
+    private void checkAndCreateLimitsAdderBranch(Branch<?> b, int terminalNumber, String limitSetId, String limitSetName) {
+        if (terminalNumber == -1) {
+            // Limits applied to the whole equipment == to both sides
+            createLimitsAdder(1, limitSubclassType, limitSetId, limitSetName, b);
+            createLimitsAdder(2, limitSubclassType, limitSetId, limitSetName, b);
+        } else if (terminalNumber == 1 || terminalNumber == 2) {
+            createLimitsAdder(terminalNumber, limitSubclassType, limitSetId, limitSetName, b);
+        } else {
+            notAssigned(b);
+        }
+    }
+
+    private void checkAndCreateLimitsAdderTwoWindingsTransformers(Branch<?> b, int terminalNumber, String limitSetId, String limitSetName) {
+        if (terminalNumber == 1 || terminalNumber == 2) {
+            createLimitsAdder(terminalNumber, limitSubclassType, limitSetId, limitSetName, b);
+        } else {
+            if (terminalNumber == -1) {
+                context.ignored(limitSubclassType, "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
+            }
+            notAssigned(b);
+        }
+    }
+
+    private void checkAndCreateLimitsAdderThreeWindingsTransformers(ThreeWindingsTransformer t3w, int terminalNumber, String limitSetId, String limitSetName) {
+        if (terminalNumber == 1 || terminalNumber == 2 || terminalNumber == 3) {
+            createLimitsAdder(terminalNumber, limitSubclassType, limitSetId, limitSetName, t3w);
+        } else {
+            if (terminalNumber == -1) {
+                context.ignored(limitSubclassType, "Defined for Equipment ThreeWindingsTransformer. Should be defined for one Terminal of Three");
+            }
+            notAssigned(t3w);
         }
     }
 
@@ -371,23 +381,28 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (direction == null || direction.endsWith("high") || direction.endsWith("absoluteValue")) {
             String operationalLimitId = p.getId(CgmesNames.OPERATIONAL_LIMIT);
             String name = Optional.ofNullable(p.getId("shortName")).orElse(p.getId("name"));
-            if (loadingLimitsAdder != null) {
-                addTatlAndTemporaryProperties(name, value, acceptableDuration, loadingLimitsAdder, operationalLimitId, "");
-            } else {
-                if (loadingLimitsAdder1 != null) {
-                    addTatlAndTemporaryProperties(name, value, acceptableDuration, loadingLimitsAdder1, operationalLimitId, "1");
-                }
-                if (loadingLimitsAdder2 != null) {
-                    addTatlAndTemporaryProperties(name, value, acceptableDuration, loadingLimitsAdder2, operationalLimitId, "2");
-                }
-                if (loadingLimitsAdder3 != null) {
-                    addTatlAndTemporaryProperties(name, value, acceptableDuration, loadingLimitsAdder3, operationalLimitId, "3");
-                }
-            }
+
+            addTemporayLoadingLimits(name, value, acceptableDuration, operationalLimitId);
         } else if (direction.endsWith("low")) {
             context.invalid(TEMPORARY_LIMIT, () -> String.format("TATL %s is a low limit", id));
         } else {
             context.invalid(TEMPORARY_LIMIT, () -> String.format("TATL %s does not have a valid direction", id));
+        }
+    }
+
+    private void addTemporayLoadingLimits(String name, double value, int acceptableDuration, String operationalLimitId) {
+        if (loadingLimitsAdder != null) {
+            addTatlAndTemporaryProperties(name, value, acceptableDuration, loadingLimitsAdder, operationalLimitId, "");
+        } else {
+            if (loadingLimitsAdder1 != null) {
+                addTatlAndTemporaryProperties(name, value, acceptableDuration, loadingLimitsAdder1, operationalLimitId, "1");
+            }
+            if (loadingLimitsAdder2 != null) {
+                addTatlAndTemporaryProperties(name, value, acceptableDuration, loadingLimitsAdder2, operationalLimitId, "2");
+            }
+            if (loadingLimitsAdder3 != null) {
+                addTatlAndTemporaryProperties(name, value, acceptableDuration, loadingLimitsAdder3, operationalLimitId, "3");
+            }
         }
     }
 
