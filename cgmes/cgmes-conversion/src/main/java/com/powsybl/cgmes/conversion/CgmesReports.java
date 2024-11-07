@@ -102,7 +102,7 @@ public final class CgmesReports {
         reportNode.newReportNode()
                 .withMessageTemplate("badTargetValueRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target value: ${targetValue}.")
                 .withUntypedValue("equipmentId", eqId)
-                .withUntypedValue("targetValue", targetValue)
+                .withTypedValue("targetValue", targetValue, TypedValue.VOLTAGE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -111,7 +111,7 @@ public final class CgmesReports {
         reportNode.newReportNode()
                 .withMessageTemplate("badTargetDeadbandRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}.")
                 .withUntypedValue("equipmentId", eqId)
-                .withUntypedValue("targetDeadband", targetDeadband)
+                .withTypedValue("targetDeadband", targetDeadband, TypedValue.VOLTAGE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
