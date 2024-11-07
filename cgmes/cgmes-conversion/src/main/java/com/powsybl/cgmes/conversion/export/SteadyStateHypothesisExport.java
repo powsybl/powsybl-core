@@ -528,12 +528,14 @@ public final class SteadyStateHypothesisExport {
         }
         for (int k = 1; k < rcs.size(); k++) {
             RegulatingControlView current = rcs.get(k);
-            if (Double.isNaN(combined.targetDeadband) && !Double.isNaN(current.targetDeadband) && current.targetDeadband >= 0) {
-                combined.targetDeadband = current.targetDeadband;
-            } else if (combined.targetDeadband == 0 && !Double.isNaN(current.targetDeadband) && current.targetDeadband > 0) {
-                combined.targetDeadband = current.targetDeadband;
-            } else if (combined.targetDeadband > 0 && !Double.isNaN(current.targetDeadband) && current.targetDeadband > 0 && current.targetDeadband < combined.targetDeadband) {
-                combined.targetDeadband = current.targetDeadband;
+            if (!Double.isNaN(current.targetDeadband) && current.targetDeadband >= 0) {
+                if (Double.isNaN(combined.targetDeadband) || combined.targetDeadband < 0) {
+                    combined.targetDeadband = current.targetDeadband;
+                } else if (current.targetDeadband > 0 && combined.targetDeadband == 0) {
+                    combined.targetDeadband = current.targetDeadband;
+                } else if (current.targetDeadband > 0 && current.targetDeadband < combined.targetDeadband) {
+                    combined.targetDeadband = current.targetDeadband;
+                }
             }
             if (!combined.discrete && current.discrete) {
                 combined.discrete = true;
