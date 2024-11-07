@@ -372,20 +372,16 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             String operationalLimitId = p.getId(CgmesNames.OPERATIONAL_LIMIT);
             String name = Optional.ofNullable(p.getId("shortName")).orElse(p.getId("name"));
             if (loadingLimitsAdder != null) {
-                boolean added = addTatl(name, value, acceptableDuration, loadingLimitsAdder);
-                addTemporaryOperationalLimitPropertiesIfLimitHasBeenConsidered(added, operationalLimitId, "", acceptableDuration, value);
+                addTatlAndTemporaryProperties(name, value, acceptableDuration, loadingLimitsAdder, operationalLimitId, "");
             } else {
                 if (loadingLimitsAdder1 != null) {
-                    boolean added = addTatl(name, value, acceptableDuration, loadingLimitsAdder1);
-                    addTemporaryOperationalLimitPropertiesIfLimitHasBeenConsidered(added, operationalLimitId, "1", acceptableDuration, value);
+                    addTatlAndTemporaryProperties(name, value, acceptableDuration, loadingLimitsAdder1, operationalLimitId, "1");
                 }
                 if (loadingLimitsAdder2 != null) {
-                    boolean added = addTatl(name, value, acceptableDuration, loadingLimitsAdder2);
-                    addTemporaryOperationalLimitPropertiesIfLimitHasBeenConsidered(added, operationalLimitId, "2", acceptableDuration, value);
+                    addTatlAndTemporaryProperties(name, value, acceptableDuration, loadingLimitsAdder2, operationalLimitId, "2");
                 }
                 if (loadingLimitsAdder3 != null) {
-                    boolean added = addTatl(name, value, acceptableDuration, loadingLimitsAdder3);
-                    addTemporaryOperationalLimitPropertiesIfLimitHasBeenConsidered(added, operationalLimitId, "3", acceptableDuration, value);
+                    addTatlAndTemporaryProperties(name, value, acceptableDuration, loadingLimitsAdder3, operationalLimitId, "3");
                 }
             }
         } else if (direction.endsWith("low")) {
@@ -393,6 +389,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         } else {
             context.invalid(TEMPORARY_LIMIT, () -> String.format("TATL %s does not have a valid direction", id));
         }
+    }
+
+    private void addTatlAndTemporaryProperties(String name, double value, int acceptableDuration, LoadingLimitsAdder<?, ?> loadingLimitsAdder, String operationalLimitId, String end) {
+        boolean added = addTatl(name, value, acceptableDuration, loadingLimitsAdder);
+        addTemporaryOperationalLimitPropertiesIfLimitHasBeenConsidered(added, operationalLimitId, end, acceptableDuration, value);
     }
 
     private void addTemporaryOperationalLimitPropertiesIfLimitHasBeenConsidered(boolean included, String operationalLimitId, String end, int duration, double value) {
