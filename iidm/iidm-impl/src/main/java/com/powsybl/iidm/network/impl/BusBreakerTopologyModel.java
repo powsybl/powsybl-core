@@ -361,6 +361,7 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
         });
     }
 
+    @Override
     public void invalidateCache(boolean exceptBusBreakerView) {
         calculatedBusTopology.invalidateCache();
         getNetwork().getBusView().invalidateCache();

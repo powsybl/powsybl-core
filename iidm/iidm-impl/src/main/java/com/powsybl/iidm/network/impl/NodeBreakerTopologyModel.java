@@ -14,6 +14,7 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnectionAdder;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
@@ -84,7 +85,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     private final VariantArray<VariantImpl> variants;
 
-    private final class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements VoltageLevel.NodeBreakerView.SwitchAdder {
+    private final class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements SwitchAdder {
 
         private Integer node1;
 
@@ -176,7 +177,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     }
 
-    private final class InternalConnectionAdderImpl implements VoltageLevel.NodeBreakerView.InternalConnectionAdder {
+    private final class InternalConnectionAdderImpl implements InternalConnectionAdder {
 
         private Integer node1;
 
@@ -186,13 +187,13 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         }
 
         @Override
-        public VoltageLevel.NodeBreakerView.InternalConnectionAdder setNode1(int node1) {
+        public InternalConnectionAdder setNode1(int node1) {
             this.node1 = node1;
             return this;
         }
 
         @Override
-        public VoltageLevel.NodeBreakerView.InternalConnectionAdder setNode2(int node2) {
+        public InternalConnectionAdder setNode2(int node2) {
             this.node2 = node2;
             return this;
         }
@@ -577,6 +578,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         });
     }
 
+    @Override
     public void invalidateCache(boolean exceptBusBreakerView) {
         if (!exceptBusBreakerView) {
             variants.get().calculatedBusBreakerTopology.invalidateCache();
