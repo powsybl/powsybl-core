@@ -98,11 +98,20 @@ public final class CgmesReports {
                 .add();
     }
 
+    public static void badTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
+        reportNode.newReportNode()
+                .withMessageTemplate("badTargetValueRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target value: ${targetValue}.")
+                .withUntypedValue("equipmentId", eqId)
+                .withUntypedValue("targetValue", targetValue)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     public static void badTargetDeadbandRegulatingControlReport(ReportNode reportNode, String eqId, double targetDeadband) {
         reportNode.newReportNode()
                 .withMessageTemplate("badTargetDeadbandRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}.")
                 .withUntypedValue("equipmentId", eqId)
-                .withTypedValue("targetDeadband", targetDeadband, TypedValue.VOLTAGE)
+                .withUntypedValue("targetDeadband", targetDeadband)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }

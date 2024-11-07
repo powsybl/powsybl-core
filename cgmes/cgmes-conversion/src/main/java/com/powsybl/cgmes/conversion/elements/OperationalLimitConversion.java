@@ -47,7 +47,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         terminalId = l.getId("Terminal");
         equipmentId = l.getId("Equipment");
 
-        this.limitSubclass = fixCim14LimitSubclass(limitSubclass);
+        this.limitSubclassType = fixCim14LimitSubclass(limitSubclass);
 
         Terminal terminal = null;
         if (isLoadingLimits()) {
@@ -56,12 +56,12 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             }
             if (terminal != null) {
                 checkAndCreateLimitsAdder(context.terminalMapping().number(terminalId), limitSetId, limitSetName, terminal.getConnectable());
-                this.identifiable = terminal.getConnectable();
+                this.loadingLimitsIdentifiable = terminal.getConnectable();
             } else if (equipmentId != null) {
                 // The equipment may be a Branch, a Dangling line, a Switch ...
                 Identifiable<?> identifiable = context.network().getIdentifiable(equipmentId);
                 checkAndCreateLimitsAdder(-1, limitSetId, limitSetName, identifiable);
-                this.identifiable = identifiable;
+                this.loadingLimitsIdentifiable = identifiable;
             }
         } else if (isVoltageLimits()) {
             if (terminalId != null) {
@@ -79,15 +79,15 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private boolean isLoadingLimits() {
-        Objects.requireNonNull(limitSubclass);
-        return limitSubclass.equals(CgmesNames.ACTIVE_POWER_LIMIT)
-                || limitSubclass.equals(CgmesNames.APPARENT_POWER_LIMIT)
-                || limitSubclass.equals(CgmesNames.CURRENT_LIMIT);
+        Objects.requireNonNull(limitSubclassType);
+        return limitSubclassType.equals(CgmesNames.ACTIVE_POWER_LIMIT)
+                || limitSubclassType.equals(CgmesNames.APPARENT_POWER_LIMIT)
+                || limitSubclassType.equals(CgmesNames.CURRENT_LIMIT);
     }
 
     private boolean isVoltageLimits() {
-        Objects.requireNonNull(limitSubclass);
-        return limitSubclass.equals("VoltageLimit");
+        Objects.requireNonNull(limitSubclassType);
+        return limitSubclassType.equals("VoltageLimit");
     }
 
     private void setVoltageLevelForVoltageLimit(Terminal terminal) {
@@ -107,22 +107,22 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     /**
      * Create the LoadingLimitsAdder for the given branch + side and the given limit set + subclass.
      * @param terminalNumber The side of the branch to which the OperationalLimit applies.
-     * @param limitSubClass The subclass of the OperationalLimit.
+     * @param limitSubclass The subclass of the OperationalLimit.
      * @param limitSetId The id of the set containing the OperationalLimit.
      * @param limitSetName The name of the set containing the OperationalLimit.
      * @param b The branch to which the OperationalLimit applies.
      */
-    private void createLimitsAdder(int terminalNumber, String limitSubClass, String limitSetId, String limitSetName, Branch<?> b) {
+    private void createLimitsAdder(int terminalNumber, String limitSubclass, String limitSetId, String limitSetName, Branch<?> b) {
         if (terminalNumber == 1) {
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup1(limitSetId).orElseGet(() -> {
                 b.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
                 return b.newOperationalLimitsGroup1(limitSetId); });
-            loadingLimitsAdder1 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
+            loadingLimitsAdder1 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass);
         } else if (terminalNumber == 2) {
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup2(limitSetId).orElseGet(() -> {
                 b.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
                 return b.newOperationalLimitsGroup2(limitSetId); });
-            loadingLimitsAdder2 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
+            loadingLimitsAdder2 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass);
         } else {
             throw new IllegalArgumentException();
         }
@@ -130,42 +130,42 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     /**
      * Create the LoadingLimitsAdder for the given dangling line and the given limit set + subclass.
-     * @param limitSubClass The subclass of the OperationalLimit.
+     * @param limitSubclass The subclass of the OperationalLimit.
      * @param limitSetId The set containing the OperationalLimit.
      * @param limitSetName The name of the set containing the OperationalLimit.
      * @param dl The branch to which the OperationalLimit applies.
      */
-    private void createLimitsAdder(String limitSubClass, String limitSetId, String limitSetName, DanglingLine dl) {
+    private void createLimitsAdder(String limitSubclass, String limitSetId, String limitSetName, DanglingLine dl) {
         OperationalLimitsGroup limitsGroup = dl.getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
             dl.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
             return dl.newOperationalLimitsGroup(limitSetId); });
-        loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
+        loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass);
     }
 
     /**
      * Create the LoadingLimitsAdder for the given 3w-transformer + side and the given limit set + subclass.
      * @param terminalNumber The side of the transformer to which the OperationalLimit applies.
-     * @param limitSubClass The subclass of the OperationalLimit.
+     * @param limitSubclass The subclass of the OperationalLimit.
      * @param limitSetId The set containing the OperationalLimit.
      * @param limitSetName The name of the set containing the OperationalLimit.
      * @param twt The 3w-transformer to which the OperationalLimit applies.
      */
-    private void createLimitsAdder(int terminalNumber, String limitSubClass, String limitSetId, String limitSetName, ThreeWindingsTransformer twt) {
+    private void createLimitsAdder(int terminalNumber, String limitSubclass, String limitSetId, String limitSetName, ThreeWindingsTransformer twt) {
         if (terminalNumber == 1) {
             OperationalLimitsGroup limitsGroup = twt.getLeg1().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
                 twt.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
                 return twt.getLeg1().newOperationalLimitsGroup(limitSetId); });
-            loadingLimitsAdder1 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
+            loadingLimitsAdder1 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass);
         } else if (terminalNumber == 2) {
             OperationalLimitsGroup limitsGroup = twt.getLeg2().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
                 twt.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
                 return twt.getLeg2().newOperationalLimitsGroup(limitSetId); });
-            loadingLimitsAdder2 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
+            loadingLimitsAdder2 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass);
         } else if (terminalNumber == 3) {
             OperationalLimitsGroup limitsGroup = twt.getLeg3().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
                 twt.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
                 return twt.getLeg3().newOperationalLimitsGroup(limitSetId); });
-            loadingLimitsAdder3 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
+            loadingLimitsAdder3 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass);
         } else {
             throw new IllegalArgumentException();
         }
@@ -184,31 +184,31 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             Branch<?> b = (Branch<?>) identifiable;
             if (terminalNumber == -1) {
                 // Limits applied to the whole equipment == to both sides
-                createLimitsAdder(1, limitSubclass, limitSetId, limitSetName, b);
-                createLimitsAdder(2, limitSubclass, limitSetId, limitSetName, b);
+                createLimitsAdder(1, limitSubclassType, limitSetId, limitSetName, b);
+                createLimitsAdder(2, limitSubclassType, limitSetId, limitSetName, b);
             } else if (terminalNumber == 1 || terminalNumber == 2) {
-                createLimitsAdder(terminalNumber, limitSubclass, limitSetId, limitSetName, b);
+                createLimitsAdder(terminalNumber, limitSubclassType, limitSetId, limitSetName, b);
             } else {
                 notAssigned(b);
             }
         } else if (identifiable instanceof TwoWindingsTransformer) {
             Branch<?> b = (Branch<?>) identifiable;
             if (terminalNumber == 1 || terminalNumber == 2) {
-                createLimitsAdder(terminalNumber, limitSubclass, limitSetId, limitSetName, b);
+                createLimitsAdder(terminalNumber, limitSubclassType, limitSetId, limitSetName, b);
             } else {
                 if (terminalNumber == -1) {
-                    context.ignored(limitSubclass, "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
+                    context.ignored(limitSubclassType, "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
                 }
                 notAssigned(b);
             }
         } else if (identifiable instanceof DanglingLine dl) {
-            createLimitsAdder(limitSubclass, limitSetId, limitSetName, dl);
+            createLimitsAdder(limitSubclassType, limitSetId, limitSetName, dl);
         } else if (identifiable instanceof ThreeWindingsTransformer twt) {
             if (terminalNumber == 1 || terminalNumber == 2 || terminalNumber == 3) {
-                createLimitsAdder(terminalNumber, limitSubclass, limitSetId, limitSetName, twt);
+                createLimitsAdder(terminalNumber, limitSubclassType, limitSetId, limitSetName, twt);
             } else {
                 if (terminalNumber == -1) {
-                    context.ignored(limitSubclass, "Defined for Equipment ThreeWindingsTransformer. Should be defined for one Terminal of Three");
+                    context.ignored(limitSubclassType, "Defined for Equipment ThreeWindingsTransformer. Should be defined for one Terminal of Three");
                 }
                 notAssigned(twt);
             }
@@ -402,10 +402,10 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void addTemporaryOperationalLimitProperties(String operationalLimitId, String end, int duration, double value) {
-        Objects.requireNonNull(limitSubclass);
-        Objects.requireNonNull(identifiable);
-        identifiable.setProperty(getPropertyName(end, limitSubclass, duration), operationalLimitId);
-        identifiable.setProperty(getPropertyName(operationalLimitId), String.valueOf(value));
+        Objects.requireNonNull(limitSubclassType);
+        Objects.requireNonNull(loadingLimitsIdentifiable);
+        loadingLimitsIdentifiable.setProperty(getPropertyName(end, limitSubclassType, duration), operationalLimitId);
+        loadingLimitsIdentifiable.setProperty(getPropertyName(operationalLimitId), String.valueOf(value));
     }
 
     private void addPermanentOperationalLimitPropertiesIfLimitHasBeenConsidered(boolean included, String operationalLimitId, String end, double value) {
@@ -415,10 +415,10 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void addPermanentOperationalLimitProperties(String operationalLimitId, String end, double value) {
-        Objects.requireNonNull(limitSubclass);
-        Objects.requireNonNull(identifiable);
-        identifiable.setProperty(getPropertyName(end, limitSubclass), operationalLimitId);
-        identifiable.setProperty(getPropertyName(operationalLimitId), String.valueOf(value));
+        Objects.requireNonNull(limitSubclassType);
+        Objects.requireNonNull(loadingLimitsIdentifiable);
+        loadingLimitsIdentifiable.setProperty(getPropertyName(end, limitSubclassType), operationalLimitId);
+        loadingLimitsIdentifiable.setProperty(getPropertyName(operationalLimitId), String.valueOf(value));
     }
 
     private void notAssigned() {
@@ -457,22 +457,22 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         operationalLimitsGroup.getCurrentLimits().ifPresent(currentLimits -> updateLoadingLimits(currentLimits, end, CgmesNames.CURRENT_LIMIT, identifiable, context));
     }
 
-    private static void updateLoadingLimits(LoadingLimits loadingLimits, String end, String limitSubClass, Identifiable<?> identifiable, Context context) {
-        loadingLimits.setPermanentLimit(getValue(end, limitSubClass, identifiable, loadingLimits.getPermanentLimit(), context));
+    private static void updateLoadingLimits(LoadingLimits loadingLimits, String end, String limitSubclass, Identifiable<?> identifiable, Context context) {
+        loadingLimits.setPermanentLimit(getValue(end, limitSubclass, identifiable, loadingLimits.getPermanentLimit(), context));
         loadingLimits.getTemporaryLimits().forEach(temporaryLimit -> {
             int duration = temporaryLimit.getAcceptableDuration();
-            loadingLimits.setTemporaryLimitValue(duration, getValue(end, limitSubClass, duration, identifiable, temporaryLimit.getValue(), context));
+            loadingLimits.setTemporaryLimitValue(duration, getValue(end, limitSubclass, duration, identifiable, temporaryLimit.getValue(), context));
         });
     }
 
-    private static double getValue(String end, String limitSubClass, Identifiable<?> identifiable, double previousValue, Context context) {
-        String operationalLimitId = getOperationalLimitId(getPropertyName(end, limitSubClass), identifiable);
+    private static double getValue(String end, String limitSubclass, Identifiable<?> identifiable, double previousValue, Context context) {
+        String operationalLimitId = getOperationalLimitId(getPropertyName(end, limitSubclass), identifiable);
         return updatedValue(operationalLimitId, context)
                 .orElse(defaultValue(getNormalValue(getPropertyName(operationalLimitId), identifiable), previousValue, getDefaultValue(context)));
     }
 
-    private static double getValue(String end, String limitSubClass, int duration, Identifiable<?> identifiable, double previousValue, Context context) {
-        String operationalLimitId = getOperationalLimitId(getPropertyName(end, limitSubClass, duration), identifiable);
+    private static double getValue(String end, String limitSubclass, int duration, Identifiable<?> identifiable, double previousValue, Context context) {
+        String operationalLimitId = getOperationalLimitId(getPropertyName(end, limitSubclass, duration), identifiable);
         return updatedValue(operationalLimitId, context)
                 .orElse(defaultValue(getNormalValue(getPropertyName(operationalLimitId), identifiable), previousValue, getDefaultValue(context)));
     }
@@ -493,12 +493,12 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return Double.parseDouble(identifiable.getProperty(propertyName));
     }
 
-    private static String getPropertyName(String end, String limitSubClass) {
-        return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT + "_" + end + "_" + limitSubClass + "_" + "patl";
+    private static String getPropertyName(String end, String limitSubclass) {
+        return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT + "_" + end + "_" + limitSubclass + "_" + "patl";
     }
 
-    private static String getPropertyName(String end, String limitSubClass, int duration) {
-        return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT + "_" + end + "_" + limitSubClass + "_" + "tatl" + "_" + duration;
+    private static String getPropertyName(String end, String limitSubclass, int duration) {
+        return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT + "_" + end + "_" + limitSubclass + "_" + "tatl" + "_" + duration;
     }
 
     private static String getPropertyName(String operationalLimitId) {
@@ -518,8 +518,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private final String terminalId;
     private final String equipmentId;
-    private final String limitSubclass;
-    private Identifiable<?> identifiable;
+    private final String limitSubclassType;
+    private Identifiable<?> loadingLimitsIdentifiable;
 
     private LoadingLimitsAdder<?, ?> loadingLimitsAdder;
     private LoadingLimitsAdder<?, ?> loadingLimitsAdder1;
