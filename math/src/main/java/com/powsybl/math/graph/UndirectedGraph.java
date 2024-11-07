@@ -47,26 +47,20 @@ public interface UndirectedGraph<V, E> {
     /**
      * If the specified vertex does not exist or is null, create it and notify the {@link UndirectedGraphListener}
      */
-    default void addVertexIfNotPresent(int v) {
-        throw new UnsupportedOperationException();
-    }
+    void addVertexIfNotPresent(int v);
 
     /**
      * If the specified vertex does not exist or is null, create it and notify the {@link UndirectedGraphListener}
      *
      * @param notify notify the {@link UndirectedGraphListener}s if true.
      */
-    default void addVertexIfNotPresent(int v, boolean notify) {
-        throw new UnsupportedOperationException();
-    }
+    void addVertexIfNotPresent(int v, boolean notify);
 
     /**
      * Check if a specified vertex exists.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex index is invalid (negative).
      */
-    default boolean vertexExists(int v) {
-        throw new UnsupportedOperationException();
-    }
+    boolean vertexExists(int v);
 
     /**
      * Remove the specified vertex and notify the {@link UndirectedGraphListener}s.
