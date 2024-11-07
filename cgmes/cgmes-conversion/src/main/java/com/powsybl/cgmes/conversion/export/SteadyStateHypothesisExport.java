@@ -528,14 +528,8 @@ public final class SteadyStateHypothesisExport {
         }
         for (int k = 1; k < rcs.size(); k++) {
             RegulatingControlView current = rcs.get(k);
-            if (current.targetDeadband == 0) {
-                if (Double.isNaN(combined.targetDeadband) || combined.targetDeadband < 0) {
-                    combined.targetDeadband = current.targetDeadband;
-                }
-            } else if (current.targetDeadband > 0) {
-                if (combined.targetDeadband == 0 || current.targetDeadband < combined.targetDeadband) {
-                    combined.targetDeadband = current.targetDeadband;
-                }
+            if (combinedTargetDeadbandMustBeUpdated(current.targetDeadband, combined.targetDeadband)) {
+                combined.targetDeadband = current.targetDeadband;
             }
             if (!combined.discrete && current.discrete) {
                 combined.discrete = true;
@@ -545,6 +539,11 @@ public final class SteadyStateHypothesisExport {
             }
         }
         return combined;
+    }
+
+    private static boolean combinedTargetDeadbandMustBeUpdated(double currentTargetDeadband, double combinedTargetDeadband) {
+        return currentTargetDeadband == 0 && (Double.isNaN(combinedTargetDeadband) || combinedTargetDeadband < 0)
+                || currentTargetDeadband > 0 && (combinedTargetDeadband == 0 || currentTargetDeadband < combinedTargetDeadband);
     }
 
     private static void writeRegulatingControl(RegulatingControlView rc, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
