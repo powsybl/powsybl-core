@@ -53,6 +53,7 @@ public interface UndirectedGraph<V, E> {
 
     /**
      * If the specified vertex does not exist or is null, create it and notify the {@link UndirectedGraphListener}
+     *
      * @param notify notify the {@link UndirectedGraphListener}s if true.
      */
     default void addVertexIfNotPresent(int v, boolean notify) {
