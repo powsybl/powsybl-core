@@ -399,6 +399,15 @@ class UndirectedGraphImplTest {
     }
 
     @Test
+    void testAddListenerButDisableNotification() {
+        UndirectedGraphListener<Vertex, Object> listener = Mockito.mock(UndirectedGraphListener.class);
+        graph.addListener(listener);
+        Mockito.verify(listener, Mockito.never()).vertexAdded(Mockito.anyInt());
+        graph.addVertex(false);
+        Mockito.verify(listener, Mockito.never()).vertexAdded(Mockito.anyInt());
+    }
+
+    @Test
     void testRemoveListener() {
         UndirectedGraphListener<Vertex, Object> listener1 = Mockito.mock(UndirectedGraphListener.class);
         UndirectedGraphListener<Vertex, Object> listener2 = Mockito.mock(UndirectedGraphListener.class);
