@@ -58,7 +58,7 @@ public abstract class AbstractSubstationTest {
 
         // Create mocked network listeners
         NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onPropertyAdded(any(), anyString(), any());
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), anyString(), anyString(), any(), any());
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
         // Test without listeners registered
         substation.addGeographicalTag("no listeners");
