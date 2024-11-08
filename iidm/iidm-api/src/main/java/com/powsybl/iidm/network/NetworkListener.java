@@ -20,8 +20,6 @@ public interface NetworkListener {
 
     void afterRemoval(String id);
 
-    void onUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue);
-
     void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue);
 
     void onExtensionCreation(Extension<?> extension);
@@ -32,27 +30,15 @@ public interface NetworkListener {
 
     void onExtensionUpdate(Extension<?> extendable, String attribute, String variantId, Object oldValue, Object newValue);
 
-    default void onElementAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
-        // empty default implementation
-    }
+    void onPropertyAdded(Identifiable<?> identifiable, String attribute, Object newValue);
 
-    default void onElementReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
-        // empty default implementation
-    }
+    void onPropertyReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue);
 
-    default void onElementRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
-        // empty default implementation
-    }
+    void onPropertyRemoved(Identifiable<?> identifiable, String attribute, Object oldValue);
 
-    default void onVariantCreated(String sourceVariantId, String targetVariantId) {
-        // empty default implementation
-    }
+    void onVariantCreated(String sourceVariantId, String targetVariantId);
 
-    default void onVariantOverwritten(String sourceVariantId, String targetVariantId) {
-        // empty default implementation
-    }
+    void onVariantOverwritten(String sourceVariantId, String targetVariantId);
 
-    default void onVariantRemoved(String variantId) {
-        // empty default implementation
-    }
+    void onVariantRemoved(String variantId);
 }

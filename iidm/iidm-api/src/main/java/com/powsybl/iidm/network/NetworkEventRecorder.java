@@ -44,11 +44,6 @@ public class NetworkEventRecorder implements NetworkListener {
     }
 
     @Override
-    public void onUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
-        events.add(new UpdateNetworkEvent(identifiable.getId(), attribute, null, oldValue, newValue));
-    }
-
-    @Override
     public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         events.add(new UpdateNetworkEvent(identifiable.getId(), attribute, variantId, oldValue, newValue));
     }
@@ -74,17 +69,17 @@ public class NetworkEventRecorder implements NetworkListener {
     }
 
     @Override
-    public void onElementAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
+    public void onPropertyAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
         events.add(new PropertyUpdateNetworkEvent(identifiable.getId(), attribute, PropertyUpdateNetworkEvent.PropertyUpdateType.ADDED, null, newValue));
     }
 
     @Override
-    public void onElementReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+    public void onPropertyReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
         events.add(new PropertyUpdateNetworkEvent(identifiable.getId(), attribute, PropertyUpdateNetworkEvent.PropertyUpdateType.REPLACED, oldValue, newValue));
     }
 
     @Override
-    public void onElementRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
+    public void onPropertyRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
         events.add(new PropertyUpdateNetworkEvent(identifiable.getId(), attribute, PropertyUpdateNetworkEvent.PropertyUpdateType.REMOVED, oldValue, null));
     }
 

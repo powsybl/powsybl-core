@@ -329,9 +329,8 @@ public abstract class AbstractLineTest {
     public void testChangesNotification() {
         // Changes listener
         NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), anyString(), any(), any());
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), any(), anyString(), any(),
-                any());
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), anyString(), anyString(), any(), any());
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), any(), anyString(), any(), any());
 
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
         // Add observer changes to current network
@@ -369,12 +368,12 @@ public abstract class AbstractLineTest {
 
         // Change values that not depend on the variant
         acLine.setR(1.5);
-        verify(mockedListener, times(1)).onUpdate(acLine, "r", 1.0, 1.5);
+        verify(mockedListener, times(1)).onUpdate(acLine, "r", null, 1.0, 1.5);
 
         // Simulate exception for onUpdate calls
         doThrow(new PowsyblException())
                 .when(mockedListener)
-                .onUpdate(any(Line.class), anyString(), anyDouble(), anyDouble());
+                .onUpdate(any(Line.class), anyString(), anyString(), anyDouble(), anyDouble());
         // Change P1 value
         try {
             acLine.getTerminal1().setP(1.1);
