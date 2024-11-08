@@ -44,7 +44,7 @@ public class DefaultNetworkListener implements NetworkListener {
     }
 
     @Override
-    public void onExtensionUpdate(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
+    public void onExtensionUpdate(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
         // empty default implementation
     }
 

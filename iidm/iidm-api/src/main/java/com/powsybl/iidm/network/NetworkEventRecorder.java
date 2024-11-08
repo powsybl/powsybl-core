@@ -69,8 +69,8 @@ public class NetworkEventRecorder implements NetworkListener {
     }
 
     @Override
-    public void onExtensionUpdate(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
-        events.add(new ExtensionUpdateNetworkEvent(((Identifiable<?>) extension.getExtendable()).getId(), extension.getName(), attribute, oldValue, newValue));
+    public void onExtensionUpdate(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
+        events.add(new ExtensionUpdateNetworkEvent(((Identifiable<?>) extension.getExtendable()).getId(), extension.getName(), attribute, variantId, oldValue, newValue));
     }
 
     @Override

@@ -109,16 +109,16 @@ public class NetworkListenerList {
         }
     }
 
-    public void notifyExtensionUpdate(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
+    public void notifyExtensionUpdate(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
-            notifyExtensionUpdateListeners(extension, attribute, oldValue, newValue);
+            notifyExtensionUpdateListeners(extension, attribute, variantId, oldValue, newValue);
         }
     }
 
-    private void notifyExtensionUpdateListeners(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
+    private void notifyExtensionUpdateListeners(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
         for (NetworkListener listener : listeners) {
             try {
-                listener.onExtensionUpdate(extension, attribute, oldValue, newValue);
+                listener.onExtensionUpdate(extension, attribute, variantId, oldValue, newValue);
             } catch (Exception t) {
                 LOGGER.error(t.toString(), t);
             }

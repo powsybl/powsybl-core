@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public record ExtensionUpdateNetworkEvent(String id, String extensionName, String attribute, Object oldValue, Object newValue) implements NetworkEvent {
+public record ExtensionUpdateNetworkEvent(String id, String extensionName, String attribute, String variantId, Object oldValue, Object newValue) implements NetworkEvent {
     public ExtensionUpdateNetworkEvent {
         Objects.requireNonNull(id);
         Objects.requireNonNull(extensionName);

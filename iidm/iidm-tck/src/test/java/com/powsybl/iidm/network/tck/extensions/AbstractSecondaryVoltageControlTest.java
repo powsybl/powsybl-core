@@ -75,7 +75,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
         boolean[] updated = new boolean[1];
         network.addListener(new DefaultNetworkListener() {
             @Override
-            public void onExtensionUpdate(Extension<?> extendable, String attribute, Object oldValue, Object newValue) {
+            public void onExtensionUpdate(Extension<?> extendable, String attribute, String variant, Object oldValue, Object newValue) {
                 assertInstanceOf(SecondaryVoltageControl.class, extendable);
                 assertEquals("pilotPointTargetV", attribute);
                 assertEquals(new PilotPoint.TargetVoltageEvent("z1", 15d), oldValue);
@@ -94,7 +94,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
         boolean[] updated = new boolean[1];
         network.addListener(new DefaultNetworkListener() {
             @Override
-            public void onExtensionUpdate(Extension<?> extendable, String attribute, Object oldValue, Object newValue) {
+            public void onExtensionUpdate(Extension<?> extendable, String attribute, String variantId, Object oldValue, Object newValue) {
                 assertInstanceOf(SecondaryVoltageControl.class, extendable);
                 assertEquals("controlUnitParticipate", attribute);
                 assertEquals(new ControlUnit.ParticipateEvent("z1", "GEN", false), oldValue);
