@@ -330,7 +330,6 @@ public abstract class AbstractLineTest {
         // Changes listener
         NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
         doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), anyString(), anyString(), any(), any());
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), any(), anyString(), any(), any());
 
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
         // Add observer changes to current network
