@@ -24,5 +24,3 @@ public interface NetworkEvent {
 
     Type getType();
 }
-
-
