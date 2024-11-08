@@ -7,10 +7,11 @@
  */
 package com.powsybl.iidm.network.tck.extensions;
 
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.DefaultNetworkListener;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkEventRecorder;
+import com.powsybl.iidm.network.events.ExtensionCreationNetworkEvent;
+import com.powsybl.iidm.network.events.ExtensionRemovalNetworkEvent;
+import com.powsybl.iidm.network.events.ExtensionUpdateNetworkEvent;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,80 +73,38 @@ public abstract class AbstractSecondaryVoltageControlTest {
 
     @Test
     public void pilotPointTargetVoltageNotificationTest() {
-        boolean[] updated = new boolean[1];
-        network.addListener(new DefaultNetworkListener() {
-            @Override
-            public void onExtensionUpdate(Extension<?> extendable, String attribute, String variant, Object oldValue, Object newValue) {
-                assertInstanceOf(SecondaryVoltageControl.class, extendable);
-                assertEquals("pilotPointTargetV", attribute);
-                assertEquals(new PilotPoint.TargetVoltageEvent("z1", 15d), oldValue);
-                assertEquals(new PilotPoint.TargetVoltageEvent("z1", 16d), newValue);
-                updated[0] = true;
-            }
-        });
+        NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
+        network.addListener(eventRecorder);
         ControlZone controlZone = control.getControlZones().get(0);
-        assertFalse(updated[0]);
         controlZone.getPilotPoint().setTargetV(16);
-        assertTrue(updated[0]);
+        assertEquals(List.of(new ExtensionUpdateNetworkEvent("sim1", "secondaryVoltageControl", "pilotPointTargetV", null,
+                new PilotPoint.TargetVoltageEvent("z1", 15d), new PilotPoint.TargetVoltageEvent("z1", 16d))),
+                eventRecorder.getEvents());
     }
 
     @Test
     public void controlUnitParticipateNotificationTest() {
-        boolean[] updated = new boolean[1];
-        network.addListener(new DefaultNetworkListener() {
-            @Override
-            public void onExtensionUpdate(Extension<?> extendable, String attribute, String variantId, Object oldValue, Object newValue) {
-                assertInstanceOf(SecondaryVoltageControl.class, extendable);
-                assertEquals("controlUnitParticipate", attribute);
-                assertEquals(new ControlUnit.ParticipateEvent("z1", "GEN", false), oldValue);
-                assertEquals(new ControlUnit.ParticipateEvent("z1", "GEN", true), newValue);
-                updated[0] = true;
-            }
-        });
+        NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
+        network.addListener(eventRecorder);
         ControlZone controlZone = control.getControlZones().get(0);
         ControlUnit controlUnit = controlZone.getControlUnits().get(0);
-        assertFalse(updated[0]);
         controlUnit.setParticipate(true);
-        assertTrue(updated[0]);
+        assertEquals(List.of(new ExtensionUpdateNetworkEvent("sim1", "secondaryVoltageControl", "controlUnitParticipate", null,
+                        new ControlUnit.ParticipateEvent("z1", "GEN", false), new ControlUnit.ParticipateEvent("z1", "GEN", true))),
+                eventRecorder.getEvents());
     }
 
     @Test
     public void extensionRemovalAndCreationNotificationTest() {
-        boolean[] removedBefore = new boolean[1];
-        boolean[] removedAfter = new boolean[1];
-        boolean[] created = new boolean[1];
-        network.addListener(new DefaultNetworkListener() {
-            @Override
-            public void onExtensionCreation(Extension<?> extension) {
-                assertInstanceOf(SecondaryVoltageControl.class, extension);
-                SecondaryVoltageControl svc = (SecondaryVoltageControl) extension;
-                assertEquals(1, svc.getControlZones().size());
-                assertEquals("z2", svc.getControlZones().get(0).getName());
-                created[0] = true;
-            }
+        NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
+        network.addListener(eventRecorder);
 
-            @Override
-            public void onExtensionBeforeRemoval(Extension<?> extension) {
-                assertInstanceOf(SecondaryVoltageControl.class, extension);
-                removedBefore[0] = true;
-            }
-
-            @Override
-            public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
-                assertInstanceOf(Network.class, identifiable);
-                assertEquals("sim1", identifiable.getId());
-                assertEquals("secondaryVoltageControl", extensionName);
-                removedAfter[0] = true;
-            }
-        });
-
-        assertFalse(created[0]);
-        assertFalse(removedBefore[0]);
-        assertFalse(removedAfter[0]);
         network.removeExtension(SecondaryVoltageControl.class);
-        assertFalse(created[0]);
-        assertTrue(removedBefore[0]);
-        assertTrue(removedAfter[0]);
+        assertEquals(List.of(new ExtensionRemovalNetworkEvent("sim1", "secondaryVoltageControl", false),
+                             new ExtensionRemovalNetworkEvent("sim1", "secondaryVoltageControl", true)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
         control = network.newExtension(SecondaryVoltageControlAdder.class)
                 .newControlZone()
                     .withName("z2")
@@ -158,6 +117,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
                     .add()
                 .add()
             .add();
-        assertTrue(created[0]);
+        assertEquals(List.of(new ExtensionCreationNetworkEvent("sim1", "secondaryVoltageControl")),
+                eventRecorder.getEvents());
     }
 }
