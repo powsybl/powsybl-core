@@ -12,15 +12,22 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public record ExtensionUpdateNetworkEvent(String id, String extensionName, String attribute, String variantId, Object oldValue, Object newValue) implements NetworkEvent {
-    public ExtensionUpdateNetworkEvent {
+public record PropertiesUpdateNetworkEvent(String id, String key, PropertyUpdateType updateType, Object oldValue, Object newValue) implements NetworkEvent {
+
+    public enum PropertyUpdateType {
+        ADDED,
+        REMOVED,
+        REPLACED;
+    }
+
+    public PropertiesUpdateNetworkEvent {
         Objects.requireNonNull(id);
-        Objects.requireNonNull(extensionName);
-        Objects.requireNonNull(attribute);
+        Objects.requireNonNull(key);
+        Objects.requireNonNull(updateType);
     }
 
     @Override
     public Type getType() {
-        return Type.EXTENSION_UPDATE;
+        return Type.PROPERTIES_UPDATE;
     }
 }

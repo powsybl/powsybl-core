@@ -37,7 +37,7 @@ public interface UndirectedGraph<V, E> {
     int addVertex();
 
     /**
-     * Create a new vertex and could notify the {@link UndirectedGraphListener}s.
+     * Create a new vertex and notify the {@link UndirectedGraphListener}s.
      *
      * @param notify notify the {@link UndirectedGraphListener}s if true.
      * @return the index of the new vertex.
@@ -47,25 +47,20 @@ public interface UndirectedGraph<V, E> {
     /**
      * If the specified vertex does not exist or is null, create it and notify the {@link UndirectedGraphListener}
      */
-    default void addVertexIfNotPresent(int v) {
-        throw new UnsupportedOperationException();
-    }
+    void addVertexIfNotPresent(int v);
 
     /**
      * If the specified vertex does not exist or is null, create it and notify the {@link UndirectedGraphListener}
+     *
      * @param notify notify the {@link UndirectedGraphListener}s if true.
      */
-    default void addVertexIfNotPresent(int v, boolean notify) {
-        throw new UnsupportedOperationException();
-    }
+    void addVertexIfNotPresent(int v, boolean notify);
 
     /**
      * Check if a specified vertex exists.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex index is invalid (negative).
      */
-    default boolean vertexExists(int v) {
-        throw new UnsupportedOperationException();
-    }
+    boolean vertexExists(int v);
 
     /**
      * Remove the specified vertex and notify the {@link UndirectedGraphListener}s.
@@ -77,7 +72,7 @@ public interface UndirectedGraph<V, E> {
     V removeVertex(int v);
 
     /**
-     * Remove the specified vertex and could notify the {@link UndirectedGraphListener}s.
+     * Remove the specified vertex and notify the {@link UndirectedGraphListener}s.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist or if an edge is connected to this vertex.
      *
      * @param v the vertex index to remove.
@@ -106,7 +101,7 @@ public interface UndirectedGraph<V, E> {
     int addEdge(int v1, int v2, E obj);
 
     /**
-     * Create an edge between the two specified vertices and could notify the {@link UndirectedGraphListener}s.
+     * Create an edge between the two specified vertices and notify the {@link UndirectedGraphListener}s.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if one of the vertices doesn't exist.
      *
      * @param v1 the first end of the edge.
@@ -127,7 +122,7 @@ public interface UndirectedGraph<V, E> {
     E removeEdge(int e);
 
     /**
-     * Remove the specified edge and could notify the {@link UndirectedGraphListener}s.
+     * Remove the specified edge and notify the {@link UndirectedGraphListener}s.
      * This method thows a {@link com.powsybl.commons.PowsyblException} if the edge doesn't exist.
      *
      * @param e the edge index to remove.
@@ -142,7 +137,7 @@ public interface UndirectedGraph<V, E> {
     void removeAllEdges();
 
     /**
-     * Remove all the edges and could notify the {@link UndirectedGraphListener}s.
+     * Remove all the edges and notify the {@link UndirectedGraphListener}s.
      *
      * @param notify notify the {@link UndirectedGraphListener}s if true.
      */
@@ -211,7 +206,7 @@ public interface UndirectedGraph<V, E> {
     void setVertexObject(int v, V obj);
 
     /**
-     * Set the value attached to the specified vertex and could notify the {@link UndirectedGraphListener}s.
+     * Set the value attached to the specified vertex and notify the {@link UndirectedGraphListener}s.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
      *
      * @param v the vertex index.
@@ -281,7 +276,7 @@ public interface UndirectedGraph<V, E> {
     void removeAllVertices();
 
     /**
-     * Remove all the vertices of this graph and could notify the {@link UndirectedGraphListener}s.
+     * Remove all the vertices of this graph and notify the {@link UndirectedGraphListener}s.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if edges exist.
      *
      * @param notify notify the {@link UndirectedGraphListener}s if true.
@@ -410,7 +405,7 @@ public interface UndirectedGraph<V, E> {
 
     /**
      * Remove from the vertices which are not connected to any edge, and which have no associated object
-     * and could notify the {@link UndirectedGraphListener}s.
+     * and notify the {@link UndirectedGraphListener}s.
      *
      * @param notify notify the {@link UndirectedGraphListener}s if true.
      */

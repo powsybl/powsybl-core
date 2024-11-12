@@ -5,22 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.events;
+package com.powsybl.iidm.network.impl.tck;
+
+import com.powsybl.iidm.network.tck.AbstractNetworkEventTest;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface NetworkEvent {
-    enum Type {
-        CREATION,
-        REMOVAL,
-        UPDATE,
-        PROPERTIES_UPDATE,
-        EXTENSION_CREATION,
-        EXTENSION_REMOVAL,
-        EXTENSION_UPDATE,
-        VARIANT,
-    }
-
-    Type getType();
+public class NetworkEventTest extends AbstractNetworkEventTest {
 }

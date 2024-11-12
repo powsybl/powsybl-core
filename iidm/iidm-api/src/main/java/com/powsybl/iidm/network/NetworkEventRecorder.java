@@ -69,23 +69,23 @@ public class NetworkEventRecorder implements NetworkListener {
     }
 
     @Override
-    public void onExtensionUpdate(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
-        events.add(new ExtensionUpdateNetworkEvent(((Identifiable<?>) extension.getExtendable()).getId(), extension.getName(), attribute, oldValue, newValue));
+    public void onExtensionUpdate(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
+        events.add(new ExtensionUpdateNetworkEvent(((Identifiable<?>) extension.getExtendable()).getId(), extension.getName(), attribute, variantId, oldValue, newValue));
     }
 
     @Override
-    public void onElementAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
-        events.add(new PropertyUpdateNetworkEvent(identifiable.getId(), attribute, PropertyUpdateNetworkEvent.PropertyUpdateType.ADDED, null, newValue));
+    public void onPropertyAdded(Identifiable<?> identifiable, String key, Object newValue) {
+        events.add(new PropertiesUpdateNetworkEvent(identifiable.getId(), key, PropertiesUpdateNetworkEvent.PropertyUpdateType.ADDED, null, newValue));
     }
 
     @Override
-    public void onElementReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
-        events.add(new PropertyUpdateNetworkEvent(identifiable.getId(), attribute, PropertyUpdateNetworkEvent.PropertyUpdateType.REPLACED, oldValue, newValue));
+    public void onPropertyReplaced(Identifiable<?> identifiable, String key, Object oldValue, Object newValue) {
+        events.add(new PropertiesUpdateNetworkEvent(identifiable.getId(), key, PropertiesUpdateNetworkEvent.PropertyUpdateType.REPLACED, oldValue, newValue));
     }
 
     @Override
-    public void onElementRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
-        events.add(new PropertyUpdateNetworkEvent(identifiable.getId(), attribute, PropertyUpdateNetworkEvent.PropertyUpdateType.REMOVED, oldValue, null));
+    public void onPropertyRemoved(Identifiable<?> identifiable, String key, Object oldValue) {
+        events.add(new PropertiesUpdateNetworkEvent(identifiable.getId(), key, PropertiesUpdateNetworkEvent.PropertyUpdateType.REMOVED, oldValue, null));
     }
 
     @Override
