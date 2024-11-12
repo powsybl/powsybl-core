@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public record PropertyUpdateNetworkEvent(String id, String attribute, PropertyUpdateType updateType, Object oldValue, Object newValue) implements NetworkEvent {
+public record PropertiesUpdateNetworkEvent(String id, String key, PropertyUpdateType updateType, Object oldValue, Object newValue) implements NetworkEvent {
 
     public enum PropertyUpdateType {
         ADDED,
@@ -20,14 +20,14 @@ public record PropertyUpdateNetworkEvent(String id, String attribute, PropertyUp
         REPLACED;
     }
 
-    public PropertyUpdateNetworkEvent {
+    public PropertiesUpdateNetworkEvent {
         Objects.requireNonNull(id);
-        Objects.requireNonNull(attribute);
+        Objects.requireNonNull(key);
         Objects.requireNonNull(updateType);
     }
 
     @Override
     public Type getType() {
-        return Type.PROPERTY_UPDATE;
+        return Type.PROPERTIES_UPDATE;
     }
 }

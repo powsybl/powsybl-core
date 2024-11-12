@@ -30,11 +30,11 @@ public interface NetworkListener {
 
     void onExtensionUpdate(Extension<?> extendable, String attribute, String variantId, Object oldValue, Object newValue);
 
-    void onPropertyAdded(Identifiable<?> identifiable, String attribute, Object newValue);
+    void onPropertyAdded(Identifiable<?> identifiable, String key, Object newValue);
 
-    void onPropertyReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue);
+    void onPropertyReplaced(Identifiable<?> identifiable, String key, Object oldValue, Object newValue);
 
-    void onPropertyRemoved(Identifiable<?> identifiable, String attribute, Object oldValue);
+    void onPropertyRemoved(Identifiable<?> identifiable, String key, Object oldValue);
 
     void onVariantCreated(String sourceVariantId, String targetVariantId);
 

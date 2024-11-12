@@ -15,7 +15,7 @@ public interface NetworkEvent {
         CREATION,
         REMOVAL,
         UPDATE,
-        PROPERTY_UPDATE,
+        PROPERTIES_UPDATE,
         EXTENSION_CREATION,
         EXTENSION_REMOVAL,
         EXTENSION_UPDATE,

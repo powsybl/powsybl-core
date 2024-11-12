@@ -74,17 +74,17 @@ public abstract class AbstractNetworkEventTest {
 
         eventRecorder.reset();
         gen.setProperty("p1", "v1");
-        assertEquals(List.of(new PropertyUpdateNetworkEvent("GEN", "properties[p1]", PropertyUpdateNetworkEvent.PropertyUpdateType.ADDED, null, "v1")),
+        assertEquals(List.of(new PropertiesUpdateNetworkEvent("GEN", "properties[p1]", PropertiesUpdateNetworkEvent.PropertyUpdateType.ADDED, null, "v1")),
                 eventRecorder.getEvents());
 
         eventRecorder.reset();
         gen.setProperty("p1", "v2");
-        assertEquals(List.of(new PropertyUpdateNetworkEvent("GEN", "properties[p1]", PropertyUpdateNetworkEvent.PropertyUpdateType.REPLACED, "v1", "v2")),
+        assertEquals(List.of(new PropertiesUpdateNetworkEvent("GEN", "properties[p1]", PropertiesUpdateNetworkEvent.PropertyUpdateType.REPLACED, "v1", "v2")),
                 eventRecorder.getEvents());
 
         eventRecorder.reset();
         gen.removeProperty("p1");
-        assertEquals(List.of(new PropertyUpdateNetworkEvent("GEN", "properties[p1]", PropertyUpdateNetworkEvent.PropertyUpdateType.REMOVED, "v2", null)),
+        assertEquals(List.of(new PropertiesUpdateNetworkEvent("GEN", "properties[p1]", PropertiesUpdateNetworkEvent.PropertyUpdateType.REMOVED, "v2", null)),
                 eventRecorder.getEvents());
 
         eventRecorder.reset();
