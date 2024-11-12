@@ -25,9 +25,12 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
+import java.time.OffsetDateTime;
+import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -51,6 +54,9 @@ public class ItoolsPackagerMojo extends AbstractMojo {
     @Parameter(defaultValue = "config")
     private String configName;
 
+    @Parameter(defaultValue = "${project.build.outputTimestamp}")
+    private String outputTimestamp;
+
     public static class CopyTo {
 
         private File[] files;
@@ -73,7 +79,8 @@ public class ItoolsPackagerMojo extends AbstractMojo {
     @Parameter
     private CopyTo copyToEtc;
 
-    private static void zip(Path dir, Path baseDir, Path zipFilePath) throws IOException {
+    private static void zip(Path dir, Path baseDir, Path zipFilePath, FileTime reproducibleFileTime)
+            throws IOException {
         try (ZipArchiveOutputStream zos = new ZipArchiveOutputStream(Files.newOutputStream(zipFilePath))) {
             Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
                 @Override
@@ -84,6 +91,9 @@ public class ItoolsPackagerMojo extends AbstractMojo {
                     } else {
                         entry.setUnixMode(0100660);
                     }
+                    if (reproducibleFileTime != null) {
+                        entry.setTime(reproducibleFileTime);
+                    }
                     zos.putArchiveEntry(entry);
                     Files.copy(file, zos);
                     zos.closeArchiveEntry();
@@ -92,7 +102,11 @@ public class ItoolsPackagerMojo extends AbstractMojo {
 
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    zos.putArchiveEntry(new ZipArchiveEntry(baseDir.relativize(dir).toString() + "/"));
+                    ZipArchiveEntry entry = new ZipArchiveEntry(baseDir.relativize(dir).toString() + "/");
+                    if (reproducibleFileTime != null) {
+                        entry.setTime(reproducibleFileTime);
+                    }
+                    zos.putArchiveEntry(entry);
                     zos.closeArchiveEntry();
                     return FileVisitResult.CONTINUE;
                 }
@@ -181,9 +195,30 @@ public class ItoolsPackagerMojo extends AbstractMojo {
 
             getLog().info("Zip package");
             String archiveNameNotNull = archiveName != null ? archiveName : packageNameNotNull;
-            zip(packageDir, targetDir, targetDir.resolve(archiveNameNotNull + ".zip"));
+            // non null if reproducible build
+            FileTime reproducibleFileTime = parseOutputTimestamp();
+            zip(packageDir, targetDir, targetDir.resolve(archiveNameNotNull + ".zip"), reproducibleFileTime);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
+
+    //lifted from spring-boot-maven-plugin RepackageMojo.java (apache license)
+    private FileTime parseOutputTimestamp() {
+        // Maven ignores a single-character timestamp as it is "useful to override a full
+        // value during pom inheritance"
+        if (this.outputTimestamp == null || this.outputTimestamp.length() < 2) {
+            return null;
+        }
+        return FileTime.from(getOutputTimestampEpochSeconds(), TimeUnit.SECONDS);
+    }
+
+    private long getOutputTimestampEpochSeconds() {
+        try {
+            return Long.parseLong(this.outputTimestamp);
+        } catch (NumberFormatException ex) {
+            return OffsetDateTime.parse(this.outputTimestamp).toInstant().getEpochSecond();
+        }
+    }
+
 }
