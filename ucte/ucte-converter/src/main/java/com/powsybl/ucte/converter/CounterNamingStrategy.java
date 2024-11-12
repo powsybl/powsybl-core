@@ -30,7 +30,6 @@ public class CounterNamingStrategy implements NamingStrategy {
     private final Map<String, UcteNodeCode> ucteNodeIds = new HashMap<>();
     private final Map<String, UcteElementId> ucteElementIds = new HashMap<>();
     private int namingCounter;
-    private int nodeCounter;
 
     @Override
     public String getName() {
@@ -77,15 +76,16 @@ public class CounterNamingStrategy implements NamingStrategy {
     private void convertVoltageLevelElementsIdToUcte(VoltageLevel voltageLevel) {
         System.out.println(voltageLevel.getId());
         namingCounter++;
-        nodeCounter=0;
+        int nodeCounter=0;
 
-        voltageLevel.getBusBreakerView().getBusStream().forEach(bus -> {
-            UcteNodeCode ucteId = generateUcteNodeId(bus.getId(), voltageLevel);
-            if (ucteId != null) {
-                bus.setName(ucteId.toString());
-                logConversion("BUS", bus);
-            }
-        });
+       for(Bus bus : voltageLevel.getBusBreakerView().getBuses()){
+           nodeCounter++;
+           UcteNodeCode ucteId = generateUcteNodeId(bus.getId(), voltageLevel,nodeCounter);
+           if (ucteId != null) {
+               bus.setName(ucteId.toString());
+               logConversion("BUS", bus);
+           }
+       }
 
     }
 
@@ -131,12 +131,11 @@ public class CounterNamingStrategy implements NamingStrategy {
      * @param voltageLevel voltage level containing the element
      * @return generated UcteNodeCode, or null if nodeId already exists in ucteNodeIds
      */
-    private UcteNodeCode generateUcteNodeId(String nodeId, VoltageLevel voltageLevel) {
+    private UcteNodeCode generateUcteNodeId(String nodeId, VoltageLevel voltageLevel,int nodeCounter) {
 
         if (ucteNodeIds.containsKey(nodeId)) {
             return null;
         }
-        nodeCounter++;
         StringBuilder newNodeCode = new StringBuilder(8);
         String newNodeId = String.format("%05d",namingCounter);
         char countryCode = getCountryCode(voltageLevel);
@@ -183,6 +182,7 @@ public class CounterNamingStrategy implements NamingStrategy {
         char orderCode = branch instanceof TwoWindingsTransformer ?
                 '1' :
                 branch.getId().charAt(branch.getId().length() - 1);
+
 
         return new UcteElementId(node1, node2, orderCode);
     }
