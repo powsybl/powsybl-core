@@ -47,28 +47,33 @@ public class NodeMapping {
     }
 
     public int iidmNodeForTerminal(CgmesTerminal t, boolean isSwitchEnd, VoltageLevel vl, boolean equipmentIsConnected) {
-        int iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
-        // Add internal connection from terminal to connectivity node
-        int iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
+        boolean connected = t.connected() && equipmentIsConnected;
 
-        // For node-breaker models we create an internal connection between
-        // the terminal and its connectivity node
-        // Because there are some node-breaker models that,
-        // in addition to the information of opened switches also set
-        // the terminal.connected property to false,
-        // we have decided to create fictitious switches to precisely
+        // Because there are some node-breaker models that, in addition to the information of opened switches also set
+        // the terminal.connected property to false, we have decided to create fictitious switches to precisely
         // map this situation to IIDM.
         // This behavior can be disabled through configuration.
 
-        boolean connected = t.connected() && equipmentIsConnected;
-
         if (connected || !createFictitiousSwitch(context.config().getCreateFictitiousSwitchesForDisconnectedTerminalsMode(), isSwitchEnd)) {
-            // TODO(Luma): do not add an internal connection if is has already been added?
-            vl.getNodeBreakerView().newInternalConnection()
-                    .setNode1(iidmNodeForConductingEquipment)
-                    .setNode2(iidmNodeForConnectivityNode)
-                    .add();
+            if (context.terminalMapping().getConnectivityNodesCount(t.connectivityNode()) > 1) {
+                // Add internal connection from terminal to connectivity node as iidm can only handle one terminal per node
+                int iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
+                int iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
+
+                // For node-breaker models we create an internal connection between the terminal and its connectivity node
+                vl.getNodeBreakerView().newInternalConnection()
+                        .setNode1(iidmNodeForConductingEquipment)
+                        .setNode2(iidmNodeForConnectivityNode)
+                        .add();
+
+                return iidmNodeForConductingEquipment;
+            } else {
+                return cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
+            }
         } else {
+            int iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
+            int iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
+
             // Only add fictitious switches for disconnected terminals if not already added
             // Use the id and name of terminal
             String switchId = t.id() + "_SW_fict";
@@ -85,9 +90,9 @@ public class NodeMapping {
                         .add();
                 sw.setProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
             }
-        }
 
-        return iidmNodeForConductingEquipment;
+            return iidmNodeForConductingEquipment;
+        }
     }
 
     private static boolean createFictitiousSwitch(CgmesImport.FictitiousSwitchesCreationMode mode, boolean isSwitchEnd) {
