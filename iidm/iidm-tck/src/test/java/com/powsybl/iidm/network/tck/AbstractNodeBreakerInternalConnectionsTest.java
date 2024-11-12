@@ -12,8 +12,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.List;
 
 import static com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,47 +34,26 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
 
         assertEquals(10, vl.getNodeBreakerView().getInternalConnectionCount());
         List<InternalConnection> internalConnections = vl.getNodeBreakerView().getInternalConnectionStream().toList();
-        int[] expecteds1 = new int[]{7, 6, 4, 5, 9, 8, 1, 3, 2, 2};
-        int[] expecteds2 = new int[]{0, 3, 3, 2, 2, 1, 10, 11, 12, 13};
-        assertEquals(expecteds1.length, expecteds2.length);
-        for (int i = 0; i < expecteds1.length; i++) {
-            assertEquals(expecteds1[i], internalConnections.get(i).getNode1());
-            assertEquals(expecteds2[i], internalConnections.get(i).getNode2());
+        int[][] expectedIcNodes = new int[][]{{7, 0}, {6, 3}, {4, 3}, {5, 2}, {9, 2}, {8, 1}, {1, 10}, {3, 11}, {2, 12}, {2, 13}};
+        for (int i = 0; i < 10; i++) {
+            assertEquals(expectedIcNodes[i][0], internalConnections.get(i).getNode1());
+            assertEquals(expectedIcNodes[i][1], internalConnections.get(i).getNode2());
         }
 
-        Iterator<Integer> nodeIterator7 = vl.getNodeBreakerView().getNodesInternalConnectedTo(7).iterator();
-        assertEquals(0, (int) nodeIterator7.next());
-        assertFalse(nodeIterator7.hasNext());
+        assertEquals(List.of(0), vl.getNodeBreakerView().getNodesInternalConnectedTo(7));
+        assertEquals(List.of(5, 9, 12, 13), vl.getNodeBreakerView().getNodesInternalConnectedTo(2));
+        assertEquals(List.of(6, 4, 11), vl.getNodeBreakerView().getNodeInternalConnectedToStream(3).boxed().toList());
 
-        Iterator<Integer> nodeIterator2 = vl.getNodeBreakerView().getNodesInternalConnectedTo(2).iterator();
-        assertEquals(5, (int) nodeIterator2.next());
-        assertEquals(9, (int) nodeIterator2.next());
-        assertEquals(12, (int) nodeIterator2.next());
-        assertEquals(13, (int) nodeIterator2.next());
-        assertFalse(nodeIterator2.hasNext());
+        assertEquals(new InternalConnections().add(0, 7), findFirstInternalConnections(vl));
 
-        List<Integer> nodesInternallyConnectedTo3 = vl.getNodeBreakerView().getNodeInternalConnectedToStream(3).boxed().toList();
-        assertEquals(Arrays.asList(6, 4, 11), nodesInternallyConnectedTo3);
+        // Find the internal connections encountered before encountering a terminal, starting from every node
+        // Only internal connections connecting two nodes having both a terminal are expected to be missing
+        InternalConnections icConnectedToAtMostOneTerminal = findInternalConnectionsTraverseStoppingAtTerminals(vl);
+        InternalConnections expected = new InternalConnections();
+        expected.add(7, 0).add(6, 3).add(4, 3).add(5, 2).add(9, 2).add(8, 1);
+        assertEquals(expected, icConnectedToAtMostOneTerminal);
 
-        // Find the first internal connection encountered
-        InternalConnections firstInternalConnectionFound = findFirstInternalConnections(vl);
-        assertEquals(new InternalConnections().add(0, 7), firstInternalConnectionFound);
-
-        // Find the internal connections not connected to 2 and 3 with the help of a traverser
-        InternalConnections someInternalConnections = findSomeInternalConnections(vl);
-
-        // Following internal connections are expected to be missing
-        InternalConnections expectedMissing = new InternalConnections().add(6, 3).add(9, 2).add(4, 3);
-
-        // Compute all missing connections
-        Set<String> actualMissing = all.stream()
-                .filter(c -> !someInternalConnections.contains(c))
-                .collect(Collectors.toSet());
-        assertEquals(expectedMissing, actualMissing);
-
-        InternalConnections actual = findInternalConnections(vl);
-        InternalConnections expected = all;
-        assertEquals(expected, actual);
+        assertEquals(all, findInternalConnections(vl));
 
     }
 
@@ -247,12 +226,12 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         }
     }
 
-    private InternalConnections findSomeInternalConnections(VoltageLevel vl) {
+    private InternalConnections findInternalConnectionsTraverseStoppingAtTerminals(VoltageLevel vl) {
         InternalConnections cs = new InternalConnections();
 
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
         topo.traverse(topo.getNodes(), (n1, sw, n2) -> {
-            if (n2 != 3 && n2 != 2) {
+            if (topo.getTerminal(n2) == null) {
                 if (sw == null) {
                     cs.add(n1, n2);
                 }
