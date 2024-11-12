@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.TopologyPoint;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -62,4 +63,6 @@ interface TerminalExt extends Terminal, MultiVariantObject {
     void setAsRegulatingPoint(RegulatingPoint rp);
 
     void removeRegulatingPoint(RegulatingPoint rp);
+
+    List<RegulatingPoint> getRegulatingPoints();
 }

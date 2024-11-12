@@ -33,7 +33,7 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected VoltageLevelExt voltageLevel;
 
-    protected final List<RegulatingPoint> regulated = new ArrayList<>();
+    protected final List<RegulatingPoint> regulatingPoints = new ArrayList<>();
 
     // attributes depending on the variant
 
@@ -96,8 +96,8 @@ abstract class AbstractTerminal implements TerminalExt {
 
     @Override
     public void removeAsRegulationPoint() {
-        regulated.forEach(RegulatingPoint::removeRegulatingTerminal);
-        regulated.clear();
+        regulatingPoints.forEach(RegulatingPoint::removeRegulatingTerminal);
+        regulatingPoints.clear();
     }
 
     @Override
@@ -251,11 +251,16 @@ abstract class AbstractTerminal implements TerminalExt {
 
     @Override
     public void setAsRegulatingPoint(RegulatingPoint rp) {
-        regulated.add(rp);
+        regulatingPoints.add(rp);
     }
 
     @Override
     public void removeRegulatingPoint(RegulatingPoint rp) {
-        regulated.remove(rp);
+        regulatingPoints.remove(rp);
+    }
+
+    @Override
+    public List<RegulatingPoint> getRegulatingPoints() {
+        return regulatingPoints;
     }
 }

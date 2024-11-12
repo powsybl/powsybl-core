@@ -682,6 +682,11 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
 
                         // replace the old terminal by the new terminal in the connectable
                         connectable.replaceTerminal(oldTerminalExt, oldTopologyPoint, newTerminalExt, false);
+
+                        // also update regulating points terminal
+                        for (RegulatingPoint regulatingPoint : new ArrayList<>(oldTerminalExt.getRegulatingPoints())) {
+                            regulatingPoint.setRegulatingTerminal(newTerminalExt);
+                        }
                     } else {
                         // here keep the removal notification
                         oldTerminalExt.getConnectable().remove();

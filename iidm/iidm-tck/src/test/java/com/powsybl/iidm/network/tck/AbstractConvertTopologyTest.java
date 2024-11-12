@@ -42,11 +42,13 @@ public abstract class AbstractConvertTopologyTest {
 
     @Test
     void testNodeBreakerToBusBreaker() {
+        var gh1 = network.getGenerator("GH1");
         var busesNbModel = vl.getBusBreakerView().getBusStream().toList();
         assertEquals(2, busesNbModel.size());
         assertEquals(List.of("S1VL2_0", "S1VL2_1"), busesNbModel.stream().map(Identifiable::getId).toList());
         assertEquals(List.of("S1VL2_BBS1", "TWT", "GH1", "GH2", "GH3", "SHUNT"), busesNbModel.get(0).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
         assertEquals(List.of("S1VL2_BBS2", "VSC1", "LD2", "LD3", "LD4", "LCC1"), busesNbModel.get(1).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
+        assertEquals("S1VL2_0", gh1.getRegulatingTerminal().getBusBreakerView().getBus().getId());
         vl.convertToTopology(TopologyKind.BUS_BREAKER);
 
         var busesBbModel = vl.getBusBreakerView().getBusStream().toList();
@@ -123,6 +125,9 @@ public abstract class AbstractConvertTopologyTest {
                              new RemovalNetworkEvent("S1VL2_BBS2_COUPLER_DISCONNECTOR", true),
                              new UpdateNetworkEvent("S1VL2", "topologyKind", null, TopologyKind.NODE_BREAKER, TopologyKind.BUS_BREAKER)),
                 eventRecorder.getEvents());
+
+        // check regulating terminal has been correctly updated
+        assertEquals("S1VL2_0", gh1.getRegulatingTerminal().getBusBreakerView().getBus().getId());
     }
 
     @Test
