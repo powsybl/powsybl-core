@@ -44,11 +44,6 @@ public class NetworkEventRecorder implements NetworkListener {
     }
 
     @Override
-    public void onUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
-        events.add(new UpdateNetworkEvent(identifiable.getId(), attribute, null, oldValue, newValue));
-    }
-
-    @Override
     public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         events.add(new UpdateNetworkEvent(identifiable.getId(), attribute, variantId, oldValue, newValue));
     }

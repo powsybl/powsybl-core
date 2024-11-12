@@ -578,6 +578,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         });
     }
 
+    @Override
     public void invalidateCache(boolean exceptBusBreakerView) {
         if (!exceptBusBreakerView) {
             variants.get().calculatedBusBreakerTopology.invalidateCache();

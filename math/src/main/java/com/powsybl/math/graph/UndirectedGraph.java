@@ -286,7 +286,7 @@ public interface UndirectedGraph<V, E> {
     /**
      * Return an {@link Iterable} to iterate over the values attached to the edges.
      *
-     * @return an {@link Iterable} to iterate aover the values attached to the edges.
+     * @return an {@link Iterable} to iterate over the values attached to the edges.
      */
     Iterable<E> getEdgesObject();
 
