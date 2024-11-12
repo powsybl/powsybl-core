@@ -116,7 +116,6 @@ public class UcteNodeCode implements Comparable<UcteNodeCode> {
         return Optional.ofNullable(ucteNodeCode);
     }
 
-
     public static boolean isUcteNodeId(String id) {
         return id != null &&
                 id.length() == 8 &&
