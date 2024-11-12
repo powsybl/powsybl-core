@@ -48,7 +48,6 @@ public abstract class AbstractNetworkEventTest {
         eventRecorder.reset();
         load2.remove();
         assertEquals(List.of(new RemovalNetworkEvent("LOAD2", false),
-                             new UpdateNetworkEvent("LOAD2", "connectableBusId", "InitialState", "NLOAD", null), // FIXME should not be here
                              new RemovalNetworkEvent("LOAD2", true)),
                 eventRecorder.getEvents());
 

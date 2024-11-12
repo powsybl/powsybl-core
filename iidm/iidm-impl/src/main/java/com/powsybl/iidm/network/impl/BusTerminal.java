@@ -141,9 +141,7 @@ class BusTerminal extends AbstractTerminal {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
         int variantIndex = getVariantManagerHolder().getVariantIndex();
-        String oldValue = this.connectableBusId.set(variantIndex, connectableBusId);
-        String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
-        getConnectable().notifyUpdate("connectableBusId", variantId, oldValue, connectableBusId);
+        this.connectableBusId.set(variantIndex, connectableBusId);
     }
 
     String getConnectableBusId() {
