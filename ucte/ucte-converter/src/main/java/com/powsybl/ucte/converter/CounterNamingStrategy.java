@@ -15,9 +15,8 @@ import com.powsybl.ucte.network.UcteElementId;
 import com.powsybl.ucte.network.UcteNodeCode;
 import com.powsybl.ucte.network.UcteVoltageLevelCode;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+
 
 /**
  * A {@link NamingStrategy} implementation that ensures the conformity of IDs with the UCTE-DEF format
@@ -122,13 +121,14 @@ public class CounterNamingStrategy implements NamingStrategy {
      *   <li>Checking for existing node ID to avoid duplicates</li>
      *   <li>Extracting country code from the voltage level</li>
      *   <li>Determining voltage level code based on nominal voltage</li>
-     *   <li>Creating a new node ID using the first alphanumeric character of voltage level ID and counter</li>
+     *   <li>Creating a new node ID using namingCounter</li>
      * </ol>
      *
      * The generated UCTE node code follows the format: [CountryCode][NodeId][VoltageLevelCode]
      *
      * @param nodeId original identifier of the network element
      * @param voltageLevel voltage level containing the element
+     * @param nodeCounter code counter
      * @return generated UcteNodeCode, or null if nodeId already exists in ucteNodeIds
      */
     private UcteNodeCode generateUcteNodeId(String nodeId, VoltageLevel voltageLevel,int nodeCounter) {
@@ -171,6 +171,10 @@ public class CounterNamingStrategy implements NamingStrategy {
      */
     private UcteElementId generateUcteElementId(Branch<?> branch) {
 
+        int i=0;
+        List<Character> ORDER_CODES = Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
+                'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', '-', '.', ' ');
+
         String branchId = branch.getId();
         if (ucteElementIds.containsKey(branchId)) {
             return null;
@@ -178,12 +182,19 @@ public class CounterNamingStrategy implements NamingStrategy {
 
         UcteNodeCode node1 = ucteNodeIds.get(branch.getTerminal1().getBusBreakerView().getBus().getId());
         UcteNodeCode node2 = ucteNodeIds.get(branch.getTerminal2().getBusBreakerView().getBus().getId());
+        char orderCode = ORDER_CODES.get(0);
 
-        char orderCode = branch instanceof TwoWindingsTransformer ?
-                '1' :
-                branch.getId().charAt(branch.getId().length() - 1);
+        UcteElementId ucteElementId = new UcteElementId(node1, node2, orderCode);
 
+        while(ucteElementIds.containsValue(ucteElementId)) {
+            i++;
+            if(i < ORDER_CODES.size()) {
+                orderCode = ORDER_CODES.get(i);
+            }
+            ucteElementId = new UcteElementId(node1, node2, orderCode);
+        }
 
+        ucteElementIds.put(branchId, ucteElementId);
         return new UcteElementId(node1, node2, orderCode);
     }
 

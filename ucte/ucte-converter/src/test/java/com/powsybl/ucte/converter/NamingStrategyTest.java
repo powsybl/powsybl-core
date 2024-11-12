@@ -32,7 +32,7 @@ class NamingStrategyTest {
     @Test
     void initTest() {
         // Chargement du réseau original
-        ResourceDataSource dataSource = new ResourceDataSource("network3", new ResourceSet("/", "network3.xiidm"));
+        ResourceDataSource dataSource = new ResourceDataSource("network2", new ResourceSet("/", "network2.xiidm"));
         Network n1 = Network.read(dataSource);
         NamingStrategy s = new CounterNamingStrategy();
         s.convertNetworkToUcte(n1);
