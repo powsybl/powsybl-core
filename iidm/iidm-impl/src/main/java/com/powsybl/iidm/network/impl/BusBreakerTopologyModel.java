@@ -889,7 +889,7 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
         getNetwork().getVariantManager().forEachVariant(() -> {
             connectableBus.removeTerminal((BusTerminal) terminal);
-            ((BusTerminal) terminal).setConnectableBusId(null);
+            ((BusTerminal) terminal).unsetConnectableBusId();
 
             invalidateCache();
         });
