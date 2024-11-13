@@ -189,5 +189,10 @@
     "elementId" : "transformerId25",
     "side" : "THREE",
     "open" : true
+  }, {
+    "type" : "AREA_INTERCHANGE_TARGET_UPDATE_ACTION",
+    "id" : "id99",
+    "areaId" : "AreaA",
+    "target" : 101.0
   } ]
 }
