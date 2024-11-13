@@ -841,6 +841,24 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return updatedPowerFlow().defined() ? OptionalDouble.of(updatedPowerFlow().q()) : OptionalDouble.empty();
     }
 
+    protected static int defaultValue(int eq, int previous, int defaultValue, int emptyValue, Conversion.Config.DefaultValue defaultValueSelector) {
+        return switch (defaultValueSelector) {
+            case EQ -> eq;
+            case PREVIOUS -> previous;
+            case DEFAULT -> defaultValue;
+            case EMPTY -> emptyValue;
+        };
+    }
+
+    protected static boolean defaultValue(boolean eq, boolean previous, boolean defaultValue, boolean emptyValue, Conversion.Config.DefaultValue defaultValueSelector) {
+        return switch (defaultValueSelector) {
+            case EQ -> eq;
+            case PREVIOUS -> previous;
+            case DEFAULT -> defaultValue;
+            case EMPTY -> emptyValue;
+        };
+    }
+
     protected static double defaultValue(double eq, double previous, double defaultValue, double emptyValue, Conversion.Config.DefaultValue defaultValueSelector) {
         return switch (defaultValueSelector) {
             case EQ -> eq;

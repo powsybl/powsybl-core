@@ -71,7 +71,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
     public TwoWindingsTransformerConversion(PropertyBag t2wEmptyBag, PropertyBags cgmesTerminals, TwoWindingsTransformer t2w, Context context) {
         super(CgmesNames.POWER_TRANSFORMER, t2wEmptyBag, cgmesTerminals, context);
-        this.t2w = t2w;
+        this.t2w = Objects.requireNonNull(t2w);
     }
 
     @Override
@@ -254,7 +254,6 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
     @Override
     public void update() {
-        Objects.requireNonNull(t2w);
         updateTerminals(context, t2w.getTerminal1(), t2w.getTerminal2());
 
         boolean isAllowedToRegulatePtc = true;

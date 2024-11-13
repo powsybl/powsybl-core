@@ -19,7 +19,6 @@ import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -272,11 +271,15 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     }
 
     private static <C extends Connectable<C>> int findDefaultTapPosition(Connectable<C> tw, com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, String tapChangerId, Context context) {
-        return switch (getDefaultValueTypeForTapPosition(context)) {
-            case EQ -> getNormalStep(tw, tapChangerId);
-            case PREVIOUS -> tapChanger.getTapPosition();
-            case DEFAULT, EMPTY -> tapChanger.getNeutralPosition().orElse(getNormalStep(tw, tapChangerId));
-        };
+        return defaultValue(getNormalStep(tw, tapChangerId),
+                tapChanger.getTapPosition(),
+                tapChanger.getNeutralPosition().orElse(getNormalStep(tw, tapChangerId)),
+                tapChanger.getNeutralPosition().orElse(getNormalStep(tw, tapChangerId)),
+                getDefaultValueSelectorForTapPosition(context));
+    }
+
+    private static Conversion.Config.DefaultValue getDefaultValueSelectorForTapPosition(Context context) {
+        return getDefaultValueSelector(List.of(EQ, PREVIOUS, DEFAULT), context);
     }
 
     private static boolean isValidTapPosition(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, int tapPosition) {
@@ -335,16 +338,12 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
     }
 
-    private static Conversion.Config.DefaultValue getDefaultValueTypeForTapPosition(Context context) {
-        return getDefaultValueSelector(List.of(EQ, PREVIOUS, DEFAULT, EMPTY), context);
-    }
-
     private static double findTargetV(PropertyBag regulatingControl) {
         return regulatingControl.asDouble("targetValue");
     }
 
     private static double findDefaultTargetV(com.powsybl.iidm.network.RatioTapChanger ratioTapChanger, Context context) {
-        return findDefaultTarget(ratioTapChanger.getTargetV(), Double.NaN, Double.NaN, context);
+        return defaultValue(Double.NaN, ratioTapChanger.getTargetV(), Double.NaN, Double.NaN, getDefaultValueSelector(context));
     }
 
     private static boolean isValidTargetV(double targetV) {
@@ -356,7 +355,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     }
 
     private static double findDefaultTargetValue(com.powsybl.iidm.network.PhaseTapChanger phaseTapChanger, Context context) {
-        return findDefaultTarget(phaseTapChanger.getRegulationValue(), Double.NaN, Double.NaN, context);
+        return defaultValue(Double.NaN, phaseTapChanger.getRegulationValue(), Double.NaN, Double.NaN, getDefaultValueSelector(context));
     }
 
     private static boolean isValidTargetValue(double targetValue) {
@@ -369,7 +368,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     }
 
     private static double findDefaultTargetDeadband(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, Context context) {
-        return findDefaultTarget(tapChanger.getTargetDeadband(), 0.0, 0.0, context);
+        return defaultValue(Double.NaN, tapChanger.getTargetDeadband(), 0.0, 0.0, getDefaultValueSelector(context));
     }
 
     private static boolean isValidTargetDeadband(double targetDeadband) {
@@ -381,27 +380,10 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     }
 
     private static boolean findDefaultRegulatingOn(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, Context context) {
-        return findDefaultRegulatingOn(tapChanger.isRegulating(), context);
+        return defaultValue(false, tapChanger.isRegulating(), false, false, getDefaultValueSelector(context));
     }
 
-    private static double findDefaultTarget(double previousTarget, double defaultTarget, double emptyValue, Context context) {
-        return switch (getDefaultValue(context)) {
-            case EQ -> throw new PowsyblException("unexpected default type: " + getDefaultValue(context).name());
-            case PREVIOUS -> previousTarget;
-            case DEFAULT -> defaultTarget;
-            case EMPTY -> emptyValue;
-        };
-    }
-
-    private static boolean findDefaultRegulatingOn(boolean previousRegulatingOn, Context context) {
-        return switch (getDefaultValue(context)) {
-            case EQ -> throw new PowsyblException("unexpected default type: " + getDefaultValue(context).name());
-            case PREVIOUS -> previousRegulatingOn;
-            case DEFAULT, EMPTY -> false;
-        };
-    }
-
-    private static Conversion.Config.DefaultValue getDefaultValue(Context context) {
+    private static Conversion.Config.DefaultValue getDefaultValueSelector(Context context) {
         return getDefaultValueSelector(List.of(PREVIOUS, DEFAULT, EMPTY), context);
     }
 

@@ -70,7 +70,7 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
 
     public ThreeWindingsTransformerConversion(PropertyBag t3wEmptyBag, PropertyBags cgmesTerminals, ThreeWindingsTransformer t3w, Context context) {
         super(CgmesNames.POWER_TRANSFORMER, t3wEmptyBag, cgmesTerminals, context);
-        this.t3w = t3w;
+        this.t3w = Objects.requireNonNull(t3w);
     }
 
     @Override
@@ -222,7 +222,6 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
 
     @Override
     public void update() {
-        Objects.requireNonNull(t3w);
         updateTerminals(context, t3w.getLeg1().getTerminal(), t3w.getLeg2().getTerminal(), t3w.getLeg3().getTerminal());
 
         boolean isAllowedToRegulatePtc1 = true;

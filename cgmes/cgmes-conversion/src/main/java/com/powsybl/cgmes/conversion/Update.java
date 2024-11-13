@@ -79,14 +79,14 @@ public final class Update {
         context.popReportNode();
     }
 
-    private static void updateTwoWindingsTransformer(TwoWindingsTransformer t2w, PropertyBag propertyBag, Context context) {
+    private static void updateTwoWindingsTransformer(TwoWindingsTransformer t2w, PropertyBag cgmesData, Context context) {
         PropertyBags cgmesTerminals = getPropertyBagsOfCgmesTerminals(t2w, context);
-        new TwoWindingsTransformerConversion(propertyBag, cgmesTerminals, t2w, context).update();
+        new TwoWindingsTransformerConversion(cgmesData, cgmesTerminals, t2w, context).update();
     }
 
-    private static void updateThreeWindingsTransformer(ThreeWindingsTransformer t3w, PropertyBag propertyBag, Context context) {
+    private static void updateThreeWindingsTransformer(ThreeWindingsTransformer t3w, PropertyBag cgmesData, Context context) {
         PropertyBags cgmesTerminals = getPropertyBagsOfCgmesTerminals(t3w, context);
-        new ThreeWindingsTransformerConversion(propertyBag, cgmesTerminals, t3w, context).update();
+        new ThreeWindingsTransformerConversion(cgmesData, cgmesTerminals, t3w, context).update();
     }
 
     private static void addPropertyBags(PropertyBags propertyBags, String idTag, Map<String, PropertyBag> identifiablePropertyBag) {
