@@ -14,9 +14,15 @@ import com.powsybl.iidm.network.OverloadManagementSystem;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class OverloadManagementSystemMockExt extends AbstractExtension<OverloadManagementSystem> {
+    private final String foo;
 
-    public OverloadManagementSystemMockExt(OverloadManagementSystem overloadManagementSystem) {
+    public OverloadManagementSystemMockExt(OverloadManagementSystem overloadManagementSystem, String foo) {
         super(overloadManagementSystem);
+        this.foo = foo;
+    }
+
+    public String getFoo() {
+        return foo;
     }
 
     @Override

@@ -224,7 +224,7 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
                     .add()
                 .add();
 
-        oms1.addExtension(OverloadManagementSystemMockExt.class, new OverloadManagementSystemMockExt(oms1));
+        oms1.addExtension(OverloadManagementSystemMockExt.class, new OverloadManagementSystemMockExt(oms1, "bar"));
 
         // Create an overload management system monitoring "LINE_1" with a tripping on "LINE_2".
         // Note that this test is very important since the OMS uses identifiers of elements which are not

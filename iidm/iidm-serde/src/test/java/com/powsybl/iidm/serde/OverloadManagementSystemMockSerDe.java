@@ -21,18 +21,21 @@ import com.powsybl.iidm.network.OverloadManagementSystem;
 public class OverloadManagementSystemMockSerDe extends AbstractExtensionSerDe<OverloadManagementSystem, OverloadManagementSystemMockExt> {
 
     public OverloadManagementSystemMockSerDe() {
-        super("overloadManagementSystemMock", "network", OverloadManagementSystemMockExt.class, "overloadManagementSystemMock.xsd",
+        super("overloadManagementSystemMock", "network", OverloadManagementSystemMockExt.class,
+                "overloadManagementSystemMock.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/overloadmanagementsystem_mock/1_0", "omsmock");
     }
 
     @Override
     public void write(OverloadManagementSystemMockExt omsFoo, SerializerContext context) {
-        // Nothing inside
+        context.getWriter().writeStringAttribute("foo", omsFoo.getFoo());
     }
 
     @Override
-    public OverloadManagementSystemMockExt read(OverloadManagementSystem overloadManagementSystem, DeserializerContext context) {
+    public OverloadManagementSystemMockExt read(OverloadManagementSystem extendable, DeserializerContext context) {
+        String foo = context.getReader().readStringAttribute("foo");
         context.getReader().readEndNode();
-        return new OverloadManagementSystemMockExt(overloadManagementSystem);
+        return new OverloadManagementSystemMockExt(extendable, foo);
     }
+
 }
