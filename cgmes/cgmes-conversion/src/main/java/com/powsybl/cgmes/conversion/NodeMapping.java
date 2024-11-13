@@ -69,20 +69,25 @@ public class NodeMapping {
         List<CgmesTerminal> connectivityNodeTerminals = context.terminalMapping().getConnectivityNodeTerminals(t.connectivityNode());
         if (connectivityNodeTerminals.size() == 2) {
             // Add one internal connection between the two terminals as iidm can only handle one terminal per node.
-            // We only create internal connection if the other side hasn't yet.
+            // We only create an internal connection
+            // - at busbarSection side if there's only one busbarSection terminal
+            // - at first terminal encountered otherwise
             CgmesTerminal otherTerminal = t == connectivityNodeTerminals.get(0) ? connectivityNodeTerminals.get(1) : connectivityNodeTerminals.get(0);
-            if (!cgmes2iidm.containsKey(otherTerminal.id())) {
-                int iidmNodeForOtherConductingEquipment = newNode(vl);
-                iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
+            boolean terminalBbs = isBusbarSectionTerminal(t);
+            boolean otherTerminalBbs = isBusbarSectionTerminal(otherTerminal);
+            boolean firstTerminalAtConnectivityNode = !cgmes2iidm.containsKey(otherTerminal.id());
+            iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
+            if (firstTerminalAtConnectivityNode && terminalBbs && otherTerminalBbs
+                    || firstTerminalAtConnectivityNode && !otherTerminalBbs
+                    || terminalBbs && !otherTerminalBbs) {
                 iidmNodeForConductingEquipment = iidmNodeForConnectivityNode; // connectivity node and terminal share the same iidm node
                 cgmes2iidm.put(t.id(), iidmNodeForConductingEquipment);
-                cgmes2iidm.put(otherTerminal.id(), iidmNodeForOtherConductingEquipment);
-                vl.getNodeBreakerView().newInternalConnection()
-                        .setNode1(iidmNodeForConnectivityNode)
-                        .setNode2(iidmNodeForOtherConductingEquipment)
-                        .add();
             } else {
                 iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
+                vl.getNodeBreakerView().newInternalConnection()
+                        .setNode1(iidmNodeForConnectivityNode)
+                        .setNode2(iidmNodeForConductingEquipment)
+                        .add();
             }
         } else if (connectivityNodeTerminals.size() > 2) {
             // We need the connectivity node as connecting point between terminals
