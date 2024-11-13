@@ -173,6 +173,14 @@ class UndirectedGraphImplTest {
     }
 
     @Test
+    void testVertexNotFoundWhenAddingEdge() {
+        graph.addVertex();
+        graph.addVertex();
+        var e = assertThrows(PowsyblException.class, () -> graph.addEdge(0, 2, null));
+        assertEquals("Vertex 2 not found", e.getMessage());
+    }
+
+    @Test
     void testRemoveEdge() {
         graph.addVertex();
         graph.addVertex();
@@ -225,6 +233,12 @@ class UndirectedGraphImplTest {
         graph.addEdge(0, 1, null);
         graph.addEdge(1, 2, null);
         assertArrayEquals(new int[]{0, 1}, graph.getEdges());
+    }
+
+    @Test
+    void testEdgeNotFound() {
+        var e = assertThrows(PowsyblException.class, () -> graph.getEdgeObject(0));
+        assertEquals("Edge 0 not found", e.getMessage());
     }
 
     @Test
@@ -396,6 +410,24 @@ class UndirectedGraphImplTest {
         graph.addVertex();
         Mockito.verify(listener1, Mockito.atLeastOnce()).vertexAdded(Mockito.anyInt());
         Mockito.verify(listener2, Mockito.atLeastOnce()).vertexAdded(Mockito.anyInt());
+    }
+
+    @Test
+    void testAddListenerButDisableNotification() {
+        UndirectedGraphListener<Vertex, Object> listener = Mockito.mock(UndirectedGraphListener.class);
+        graph.addListener(listener);
+        Mockito.verify(listener, Mockito.never()).vertexAdded(Mockito.anyInt());
+        int v1 = graph.addVertex(false);
+        int v2 = graph.addVertex(false);
+        Mockito.verify(listener, Mockito.never()).vertexAdded(Mockito.anyInt());
+        int e = graph.addEdge(v1, v2, "test", false);
+        Mockito.verify(listener, Mockito.never()).edgeAdded(Mockito.anyInt(), Mockito.any());
+        graph.removeEdge(e, false);
+        Mockito.verify(listener, Mockito.never()).edgeRemoved(Mockito.anyInt(), Mockito.any());
+        graph.removeVertex(v1, false);
+        Mockito.verify(listener, Mockito.never()).vertexRemoved(Mockito.anyInt(), Mockito.any());
+        graph.removeAllVertices(false);
+        Mockito.verify(listener, Mockito.never()).allVerticesRemoved();
     }
 
     @Test

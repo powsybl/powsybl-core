@@ -26,7 +26,7 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
     public VoltageLevelConversion(PropertyBag vl, Context context) {
         super(CgmesNames.VOLTAGE_LEVEL, vl, context);
         cgmesSubstationId = p.getId("Substation");
-        iidmSubstationId = context.substationIdMapping().substationIidm(cgmesSubstationId);
+        iidmSubstationId = context.nodeContainerMapping().substationIidm(cgmesSubstationId);
         substation = context.network().getSubstation(iidmSubstationId);
     }
 
@@ -45,7 +45,7 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
                     iidmSubstationId));
             return false;
         }
-        return !context.substationIdMapping().voltageLevelIsMapped(id);
+        return !context.nodeContainerMapping().voltageLevelIsMapped(id);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
             throw new CgmesModelException(String.format("nominalVoltage not found for %s", bv));
         }
 
-        String iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(id);
+        String iidmVoltageLevelId = context.nodeContainerMapping().voltageLevelIidm(id);
         VoltageLevel voltageLevel = context.network().getVoltageLevel(iidmVoltageLevelId);
         if (voltageLevel == null) {
             VoltageLevelAdder adder = substation.newVoltageLevel()
@@ -81,7 +81,7 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
 
     private void addAliases(VoltageLevel vl) {
         int index = 0;
-        for (String mergedVl : context.substationIdMapping().mergedVoltageLevels(vl.getId())) {
+        for (String mergedVl : context.nodeContainerMapping().mergedVoltageLevels(vl.getId())) {
             index++;
             vl.addAlias(mergedVl, "MergedVoltageLevel" + index, context.config().isEnsureIdAliasUnicity());
         }
