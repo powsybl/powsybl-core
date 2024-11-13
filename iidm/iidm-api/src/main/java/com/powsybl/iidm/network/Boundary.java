@@ -33,7 +33,7 @@ public interface Boundary {
     double getQ();
 
     /**
-     * Get the current in A at the fictitious terminal going from the boundary fictitious bus to the network.
+     * Get the current in A at the fictitious boundary terminal.
      */
     double getI();
 
