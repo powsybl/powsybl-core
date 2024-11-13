@@ -27,6 +27,6 @@ public class OverloadManagementSystemMockExt extends AbstractExtension<OverloadM
 
     @Override
     public String getName() {
-        return "overloadManagementSystemMock";
+        return "omsMock";
     }
 }

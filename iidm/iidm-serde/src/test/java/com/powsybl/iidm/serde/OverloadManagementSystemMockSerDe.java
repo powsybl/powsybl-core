@@ -25,7 +25,7 @@ public class OverloadManagementSystemMockSerDe extends AbstractExtensionSerDe<Ov
     implements PostponableCreationExtensionSerDe<OverloadManagementSystem, OverloadManagementSystemMockExt> {
 
     public OverloadManagementSystemMockSerDe() {
-        super("overloadManagementSystemMock", "network", OverloadManagementSystemMockExt.class,
+        super("omsMock", "network", OverloadManagementSystemMockExt.class,
                 "overloadManagementSystemMock.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/overloadmanagementsystem_mock/1_0", "omsmock");
     }

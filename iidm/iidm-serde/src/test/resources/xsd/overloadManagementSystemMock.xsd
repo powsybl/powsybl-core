@@ -12,7 +12,7 @@
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="http://www.powsybl.org/schema/iidm/ext/overloadmanagementsystem_mock/1_0"
            elementFormDefault="qualified">
-    <xs:element name="overloadManagementSystemMock">
+    <xs:element name="omsMock">
         <xs:complexType>
             <xs:attribute name="foo" use="required" type="xs:string"/>
         </xs:complexType>
