@@ -44,39 +44,33 @@ public final class Update {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.LOAD.name()));
 
         Map<String, PropertyBag> identifiablePropertyBag = new HashMap<>();
-        addPropertyBags(network, cgmes.energyConsumers(), CgmesNames.ENERGY_CONSUMER, identifiablePropertyBag);
-        addPropertyBags(network, cgmes.energySources(), CgmesNames.ENERGY_SOURCE, identifiablePropertyBag);
-        addPropertyBags(network, cgmes.asynchronousMachines(), CgmesNames.ASYNCHRONOUS_MACHINE, identifiablePropertyBag);
+        addPropertyBags(cgmes.energyConsumers(), CgmesNames.ENERGY_CONSUMER, identifiablePropertyBag);
+        addPropertyBags(cgmes.energySources(), CgmesNames.ENERGY_SOURCE, identifiablePropertyBag);
+        addPropertyBags(cgmes.asynchronousMachines(), CgmesNames.ASYNCHRONOUS_MACHINE, identifiablePropertyBag);
 
-        network.getLoads().forEach(load -> updateLoad(network, load, getPropertyBag(load.getId(), identifiablePropertyBag), context));
+        network.getLoads().forEach(load -> updateLoad(load, getPropertyBag(load.getId(), identifiablePropertyBag), context));
         context.popReportNode();
     }
 
-    private static void updateLoad(Network network, Load load, PropertyBag propertyBag, Context context) {
+    private static void updateLoad(Load load, PropertyBag cgmesData, Context context) {
         if (!load.isFictitious()) { // Loads from SvInjections are fictitious
             String originalClass = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
             PropertyBag cgmesTerminal = getPropertyBagOfCgmesTerminal(load, context);
 
             switch (originalClass) {
-                case CgmesNames.ENERGY_SOURCE -> new EnergySourceConversion(propertyBag, cgmesTerminal, load, context).update(network);
+                case CgmesNames.ENERGY_SOURCE -> new EnergySourceConversion(cgmesData, cgmesTerminal, load, context).update();
                 case CgmesNames.ASYNCHRONOUS_MACHINE ->
-                        new AsynchronousMachineConversion(propertyBag, cgmesTerminal, load, context).update(network);
+                        new AsynchronousMachineConversion(cgmesData, cgmesTerminal, load, context).update();
                 case CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY, CgmesNames.ENERGY_CONSUMER ->
-                        new EnergyConsumerConversion(propertyBag, cgmesTerminal, load, context).update(network);
+                        new EnergyConsumerConversion(cgmesData, cgmesTerminal, load, context).update();
                 default ->
                         throw new ConversionException("Unexpected originalClass " + originalClass + " for Load: " + load.getId());
             }
         }
     }
 
-    private static void addPropertyBags(Network network, PropertyBags propertyBags, String idTag, Map<String, PropertyBag> identifiablePropertyBag) {
-        propertyBags.forEach(propertyBag -> {
-            String propertyBagId = propertyBag.getId(idTag);
-            Identifiable<?> identifiable = network.getIdentifiable(propertyBagId);
-            if (identifiable != null) {
-                identifiablePropertyBag.put(identifiable.getId(), propertyBag);
-            }
-        });
+    private static void addPropertyBags(PropertyBags propertyBags, String idTag, Map<String, PropertyBag> identifiablePropertyBag) {
+        propertyBags.forEach(propertyBag -> identifiablePropertyBag.put(propertyBag.getId(idTag), propertyBag));
     }
 
     private static PropertyBag getPropertyBag(String identifiableId, Map<String, PropertyBag> identifiablePropertyBag) {

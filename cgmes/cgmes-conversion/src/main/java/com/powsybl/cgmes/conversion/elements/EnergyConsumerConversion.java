@@ -56,11 +56,11 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         LoadAdder adder = voltageLevel().newLoad()
                 .setLoadType(loadType);
         identify(adder);
-        connection(adder);
+        connectWithOnlyEq(adder);
         model(adder);
         Load newLoad = adder.add();
         addAliasesAndProperties(newLoad);
-        mappingTerminals(newLoad.getTerminal());
+        convertedTerminalsWithOnlyEq(newLoad.getTerminal());
         setLoadDetail(loadKind, newLoad, pFixed, qFixed);
 
         addSpecificProperties(newLoad, pFixed, qFixed);
@@ -150,20 +150,20 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     }
 
     @Override
-    public void update(Network network) {
+    public void update() {
         Objects.requireNonNull(load);
         updateTerminals(context, load.getTerminal());
 
         double pFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + P_FIXED));
         double qFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + Q_FIXED));
-        load.setP0(updatedP0().orElse(defaultP(pFixed, load.getP0(), getDefaultValue(context))))
-                .setQ0(updatedQ0().orElse(defaultQ(qFixed, load.getQ0(), getDefaultValue(context))));
+        load.setP0(updatedP0().orElse(defaultValue(pFixed, load.getP0(), 0.0, Double.NaN, getDefaultValueSelector(context))))
+                .setQ0(updatedQ0().orElse(defaultValue(qFixed, load.getQ0(), 0.0, Double.NaN, getDefaultValueSelector(context))));
 
         updateLoadDetail(load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS), pFixed, qFixed);
     }
 
-    private static Conversion.Config.DefaultValue getDefaultValue(Context context) {
-        return selectDefaultValue(List.of(EQ, PREVIOUS, DEFAULT, EMPTY), context);
+    private static Conversion.Config.DefaultValue getDefaultValueSelector(Context context) {
+        return getDefaultValueSelector(List.of(EQ, PREVIOUS, DEFAULT, EMPTY), context);
     }
 
     private void updateLoadDetail(String type, double pFixed, double qFixed) {

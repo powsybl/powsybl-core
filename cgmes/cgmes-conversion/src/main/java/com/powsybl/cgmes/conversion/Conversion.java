@@ -290,12 +290,12 @@ public class Conversion {
         //  that has the context created during the convert (first) step
         //  and all the data already loaded in the triplestore,
         //  we only need to switch to a different set of queries
-        updateAfterConvert(network, context, reportNode);
+        updateWithAllInputs(network, context, reportNode);
 
         return network;
     }
 
-    private void updateAfterConvert(Network network, Context convertContext, ReportNode reportNode) {
+    private void updateWithAllInputs(Network network, Context convertContext, ReportNode reportNode) {
         // FIXME(Luma) Before switching to update we must invalidate all caches of the cgmes model
         //  and change the query catalog to "update" mode
         if (!sshIncludedInCgmesModel(this.cgmes)) {

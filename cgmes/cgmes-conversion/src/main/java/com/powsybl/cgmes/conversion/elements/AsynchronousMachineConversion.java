@@ -14,7 +14,6 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.List;
@@ -45,28 +44,28 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
         LoadAdder adder = voltageLevel().newLoad()
                 .setLoadType(loadType);
         identify(adder);
-        connection(adder);
+        connectWithOnlyEq(adder);
         Load newLoad = adder.add();
         addAliasesAndProperties(newLoad);
-        mappingTerminals(newLoad.getTerminal());
+        convertedTerminalsWithOnlyEq(newLoad.getTerminal());
 
         addSpecificProperties(newLoad);
     }
 
     @Override
-    public void update(Network network) {
+    public void update() {
         Objects.requireNonNull(load);
         updateTerminals(context, load.getTerminal());
-        load.setP0(updatedP0().orElse(defaultP(Double.NaN, load.getP0(), gettDefaultValue(context))))
-                .setQ0(updatedQ0().orElse(defaultQ(Double.NaN, load.getQ0(), gettDefaultValue(context))));
+        load.setP0(updatedP0().orElse(defaultValue(Double.NaN, load.getP0(), 0.0, Double.NaN, gettDefaultValueSelector(context))))
+                .setQ0(updatedQ0().orElse(defaultValue(Double.NaN, load.getQ0(), 0.0, Double.NaN, gettDefaultValueSelector(context))));
     }
 
     private static void addSpecificProperties(Load newLoad) {
         newLoad.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ASYNCHRONOUS_MACHINE);
     }
 
-    private static Conversion.Config.DefaultValue gettDefaultValue(Context context) {
-        return selectDefaultValue(List.of(PREVIOUS, DEFAULT, EMPTY), context);
+    private static Conversion.Config.DefaultValue gettDefaultValueSelector(Context context) {
+        return getDefaultValueSelector(List.of(PREVIOUS, DEFAULT, EMPTY), context);
     }
 
     private final Load load;
