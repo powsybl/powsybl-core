@@ -103,7 +103,7 @@ public class Context {
         }
     }
 
-    public void mappingTerminal(String terminalId, Terminal t, int n) {
+    public void convertedTerminalWithOnlyEq(String terminalId, Terminal t, int n) {
         // Record the mapping between CGMES and IIDM terminals
         terminalMapping().add(terminalId, t, n);
     }

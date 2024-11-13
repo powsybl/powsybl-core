@@ -111,22 +111,22 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
 
         LegAdder l1adder = txadder.newLeg1();
         setToIidmWindingAdder(convertedT3xModel.winding1, l1adder);
-        connection(l1adder, 1);
+        connectWithOnlyEq(l1adder, 1);
         l1adder.add();
 
         LegAdder l2adder = txadder.newLeg2();
         setToIidmWindingAdder(convertedT3xModel.winding2, l2adder);
-        connection(l2adder, 2);
+        connectWithOnlyEq(l2adder, 2);
         l2adder.add();
 
         LegAdder l3adder = txadder.newLeg3();
         setToIidmWindingAdder(convertedT3xModel.winding3, l3adder);
-        connection(l3adder, 3);
+        connectWithOnlyEq(l3adder, 3);
         l3adder.add();
 
         ThreeWindingsTransformer tx = txadder.add();
         addAliasesAndProperties(tx);
-        mappingTerminals(
+        convertedTerminalsWithOnlyEq(
             tx.getLeg1().getTerminal(),
             tx.getLeg2().getTerminal(),
             tx.getLeg3().getTerminal());
@@ -221,7 +221,7 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
     }
 
     @Override
-    public void update(Network network) {
+    public void update() {
         Objects.requireNonNull(t3w);
         updateTerminals(context, t3w.getLeg1().getTerminal(), t3w.getLeg2().getTerminal(), t3w.getLeg3().getTerminal());
 

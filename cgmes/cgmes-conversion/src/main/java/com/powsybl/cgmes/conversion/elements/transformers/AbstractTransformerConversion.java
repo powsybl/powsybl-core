@@ -336,7 +336,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     }
 
     private static Conversion.Config.DefaultValue getDefaultValueTypeForTapPosition(Context context) {
-        return selectDefaultValue(List.of(EQ, PREVIOUS, DEFAULT, EMPTY), context);
+        return getDefaultValueSelector(List.of(EQ, PREVIOUS, DEFAULT, EMPTY), context);
     }
 
     private static double findTargetV(PropertyBag regulatingControl) {
@@ -402,7 +402,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     }
 
     private static Conversion.Config.DefaultValue getDefaultValue(Context context) {
-        return selectDefaultValue(List.of(PREVIOUS, DEFAULT, EMPTY), context);
+        return getDefaultValueSelector(List.of(PREVIOUS, DEFAULT, EMPTY), context);
     }
 
     static boolean checkOnlyOneEnabled(boolean isAllowedToRegulate, boolean previousTapChangerIsRegulatingOn) {

@@ -98,7 +98,7 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         }
     }
 
-    protected static Conversion.Config.DefaultValue selectDefaultValue(List<Conversion.Config.DefaultValue> validDefaultValues, Context context) {
+    protected static Conversion.Config.DefaultValue getDefaultValueSelector(List<Conversion.Config.DefaultValue> validDefaultValues, Context context) {
         return context.config().updateDefaultValuesPriority().stream().filter(validDefaultValues::contains).findFirst().orElse(EMPTY);
     }
 

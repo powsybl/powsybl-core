@@ -30,7 +30,7 @@ public class EnergySourceConversion extends AbstractConductingEquipmentConversio
 
     public EnergySourceConversion(PropertyBag es, PropertyBag cgmesTerminal, Load load, Context context) {
         super(CgmesNames.ENERGY_SOURCE, es, cgmesTerminal, context);
-        this.load = load;
+        this.load = Objects.requireNonNull(load);
     }
 
     @Override
@@ -40,10 +40,10 @@ public class EnergySourceConversion extends AbstractConductingEquipmentConversio
         LoadAdder adder = voltageLevel().newLoad()
                 .setLoadType(loadType);
         identify(adder);
-        connection(adder);
+        connectWithOnlyEq(adder);
         Load newLoad = adder.add();
         addAliasesAndProperties(newLoad);
-        mappingTerminals(newLoad.getTerminal());
+        convertedTerminalsWithOnlyEq(newLoad.getTerminal());
 
         addSpecificProperties(newLoad);
     }
@@ -53,15 +53,14 @@ public class EnergySourceConversion extends AbstractConductingEquipmentConversio
     }
 
     @Override
-    public void update(Network network) {
-        Objects.requireNonNull(load);
+    public void update() {
         updateTerminals(context, load.getTerminal());
-        load.setP0(updatedP0().orElse(defaultP(Double.NaN, load.getP0(), getDefaultValue(context))))
-                .setQ0(updatedQ0().orElse(defaultQ(Double.NaN, load.getQ0(), getDefaultValue(context))));
+        load.setP0(updatedP0().orElse(defaultValue(Double.NaN, load.getP0(), 0.0, Double.NaN, getDefaultValueSelector(context))))
+                .setQ0(updatedQ0().orElse(defaultValue(Double.NaN, load.getQ0(), 0.0, Double.NaN, getDefaultValueSelector(context))));
     }
 
-    private static Conversion.Config.DefaultValue getDefaultValue(Context context) {
-        return selectDefaultValue(List.of(PREVIOUS, DEFAULT, EMPTY), context);
+    private static Conversion.Config.DefaultValue getDefaultValueSelector(Context context) {
+        return getDefaultValueSelector(List.of(PREVIOUS, DEFAULT, EMPTY), context);
     }
 
     private final Load load;

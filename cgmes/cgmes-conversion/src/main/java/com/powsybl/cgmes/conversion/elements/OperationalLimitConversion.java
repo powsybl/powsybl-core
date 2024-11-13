@@ -529,7 +529,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private static Conversion.Config.DefaultValue getDefaultValue(Context context) {
-        return selectDefaultValue(List.of(EQ, PREVIOUS), context);
+        return getDefaultValueSelector(List.of(EQ, PREVIOUS), context);
     }
 
     private final String terminalId;

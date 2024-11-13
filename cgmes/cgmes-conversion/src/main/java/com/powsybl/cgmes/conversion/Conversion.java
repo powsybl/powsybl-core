@@ -262,7 +262,7 @@ public class Conversion {
         // Set voltages and angles
         context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(reportNode));
         voltageAngles(nodes, context);
-        completeVoltagesAndAngles(network);
+        completeVoltagesAndAnglesLegacy(network);
         context.popReportNode();
 
         // Save/store data for debug or external validation
@@ -291,12 +291,12 @@ public class Conversion {
         //  that has the context created during the convert (first) step
         //  and all the data already loaded in the triplestore,
         //  we only need to switch to a different set of queries
-        updateAfterConvert(network, context, reportNode);
+        updateWithAllInputs(network, context, reportNode);
 
         return network;
     }
 
-    private void updateAfterConvert(Network network, Context convertContext, ReportNode reportNode) {
+    private void updateWithAllInputs(Network network, Context convertContext, ReportNode reportNode) {
         // FIXME(Luma) Before switching to update we must invalidate all caches of the cgmes model
         //  and change the query catalog to "update" mode
         if (!sshIncludedInCgmesModel(this.cgmes)) {
@@ -334,7 +334,7 @@ public class Conversion {
         updateLoads(network, cgmes, updateContext);
         updateTwoAndThreeWindingsTransformers(network, updateContext);
 
-        completeVoltagesAndAnglesAfterUpdate(network);
+        completeVoltagesAndAngles(network);
 
         network.runValidationChecks(false, reportNode);
         network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
@@ -450,7 +450,7 @@ public class Conversion {
         return graph.contains("EQ") && graph.contains("BD") ? Source.BOUNDARY : Source.IGM;
     }
 
-    private static void completeVoltagesAndAngles(Network network) {
+    private static void completeVoltagesAndAnglesLegacy(Network network) {
 
         // Voltage and angle in boundary buses
         network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
@@ -458,7 +458,7 @@ public class Conversion {
         network.getTieLines().forEach(tieLine -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()));
     }
 
-    private static void completeVoltagesAndAnglesAfterUpdate(Network network) {
+    private static void completeVoltagesAndAngles(Network network) {
 
         // Voltage and angle in starBus as properties
         network.getThreeWindingsTransformers()

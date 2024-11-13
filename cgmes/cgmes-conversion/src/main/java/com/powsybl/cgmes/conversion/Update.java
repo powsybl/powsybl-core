@@ -36,32 +36,33 @@ public final class Update {
                 || p.propertyNames().contains("NonConformLoad")
                 || p.propertyNames().contains("ConformLoad")
                 || p.propertyNames().contains("StationSupply")
-                || p.propertyNames().contains("TwoWindingsTransformer");
+                || p.propertyNames().contains("TwoWindingsTransformer")
+                || p.propertyNames().contains("ThreeWindingsTransformer");
     }
 
     static void updateLoads(Network network, CgmesModel cgmes, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.LOAD.name()));
 
         Map<String, PropertyBag> identifiablePropertyBag = new HashMap<>();
-        addPropertyBags(network, cgmes.energyConsumers(), CgmesNames.ENERGY_CONSUMER, identifiablePropertyBag);
-        addPropertyBags(network, cgmes.energySources(), CgmesNames.ENERGY_SOURCE, identifiablePropertyBag);
-        addPropertyBags(network, cgmes.asynchronousMachines(), CgmesNames.ASYNCHRONOUS_MACHINE, identifiablePropertyBag);
+        addPropertyBags(cgmes.energyConsumers(), CgmesNames.ENERGY_CONSUMER, identifiablePropertyBag);
+        addPropertyBags(cgmes.energySources(), CgmesNames.ENERGY_SOURCE, identifiablePropertyBag);
+        addPropertyBags(cgmes.asynchronousMachines(), CgmesNames.ASYNCHRONOUS_MACHINE, identifiablePropertyBag);
 
-        network.getLoads().forEach(load -> updateLoad(network, load, getPropertyBag(load.getId(), identifiablePropertyBag), context));
+        network.getLoads().forEach(load -> updateLoad(load, getPropertyBag(load.getId(), identifiablePropertyBag), context));
         context.popReportNode();
     }
 
-    private static void updateLoad(Network network, Load load, PropertyBag propertyBag, Context context) {
+    private static void updateLoad(Load load, PropertyBag cgmesData, Context context) {
         if (!load.isFictitious()) { // Loads from SvInjections are fictitious
             String originalClass = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
             PropertyBag cgmesTerminal = getPropertyBagOfCgmesTerminal(load, context);
 
             switch (originalClass) {
-                case CgmesNames.ENERGY_SOURCE -> new EnergySourceConversion(propertyBag, cgmesTerminal, load, context).update(network);
+                case CgmesNames.ENERGY_SOURCE -> new EnergySourceConversion(cgmesData, cgmesTerminal, load, context).update();
                 case CgmesNames.ASYNCHRONOUS_MACHINE ->
-                        new AsynchronousMachineConversion(propertyBag, cgmesTerminal, load, context).update(network);
+                        new AsynchronousMachineConversion(cgmesData, cgmesTerminal, load, context).update();
                 case CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY, CgmesNames.ENERGY_CONSUMER ->
-                        new EnergyConsumerConversion(propertyBag, cgmesTerminal, load, context).update(network);
+                        new EnergyConsumerConversion(cgmesData, cgmesTerminal, load, context).update();
                 default ->
                         throw new ConversionException("Unexpected originalClass " + originalClass + " for Load: " + load.getId());
             }
@@ -70,32 +71,26 @@ public final class Update {
 
     static void updateTwoAndThreeWindingsTransformers(Network network, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.TWO_WINDINGS_TRANSFORMER.name()));
-        network.getTwoWindingsTransformers().forEach(t2w -> updateTwoWindingsTransformer(network, t2w, namedPropertyBag("TwoWindingsTransformer", t2w.getId()), context));
+        network.getTwoWindingsTransformers().forEach(t2w -> updateTwoWindingsTransformer(t2w, namedPropertyBag("TwoWindingsTransformer", t2w.getId()), context));
         context.popReportNode();
 
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.THREE_WINDINGS_TRANSFORMER.name()));
-        network.getThreeWindingsTransformers().forEach(t3w -> updateThreeWindingsTransformer(network, t3w, namedPropertyBag("ThreeWindingsTransformer", t3w.getId()), context));
+        network.getThreeWindingsTransformers().forEach(t3w -> updateThreeWindingsTransformer(t3w, namedPropertyBag("ThreeWindingsTransformer", t3w.getId()), context));
         context.popReportNode();
     }
 
-    private static void updateTwoWindingsTransformer(Network network, TwoWindingsTransformer t2w, PropertyBag propertyBag, Context context) {
+    private static void updateTwoWindingsTransformer(TwoWindingsTransformer t2w, PropertyBag propertyBag, Context context) {
         PropertyBags cgmesTerminals = getPropertyBagsOfCgmesTerminals(t2w, context);
-        new TwoWindingsTransformerConversion(propertyBag, cgmesTerminals, t2w, context).update(network);
+        new TwoWindingsTransformerConversion(propertyBag, cgmesTerminals, t2w, context).update();
     }
 
-    private static void updateThreeWindingsTransformer(Network network, ThreeWindingsTransformer t3w, PropertyBag propertyBag, Context context) {
+    private static void updateThreeWindingsTransformer(ThreeWindingsTransformer t3w, PropertyBag propertyBag, Context context) {
         PropertyBags cgmesTerminals = getPropertyBagsOfCgmesTerminals(t3w, context);
-        new ThreeWindingsTransformerConversion(propertyBag, cgmesTerminals, t3w, context).update(network);
+        new ThreeWindingsTransformerConversion(propertyBag, cgmesTerminals, t3w, context).update();
     }
 
-    private static void addPropertyBags(Network network, PropertyBags propertyBags, String idTag, Map<String, PropertyBag> identifiablePropertyBag) {
-        propertyBags.forEach(propertyBag -> {
-            String propertyBagId = propertyBag.getId(idTag);
-            Identifiable<?> identifiable = network.getIdentifiable(propertyBagId);
-            if (identifiable != null) {
-                identifiablePropertyBag.put(identifiable.getId(), propertyBag);
-            }
-        });
+    private static void addPropertyBags(PropertyBags propertyBags, String idTag, Map<String, PropertyBag> identifiablePropertyBag) {
+        propertyBags.forEach(propertyBag -> identifiablePropertyBag.put(propertyBag.getId(idTag), propertyBag));
     }
 
     private static PropertyBag getPropertyBag(String identifiableId, Map<String, PropertyBag> identifiablePropertyBag) {

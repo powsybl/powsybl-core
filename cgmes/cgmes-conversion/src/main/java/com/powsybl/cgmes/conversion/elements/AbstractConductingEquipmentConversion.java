@@ -549,7 +549,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     protected void convertedTerminals(Terminal... ts) {
         if (ts.length != numTerminals) {
-            throw new IllegalStateException();
+            throw new IllegalArgumentException();
         }
         for (int k = 0; k < ts.length; k++) {
             int n = k + 1;
@@ -558,20 +558,20 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    protected void mappingTerminals(Terminal... ts) {
+    protected void convertedTerminalsWithOnlyEq(Terminal... ts) {
         if (ts.length != numTerminals) {
-            throw new IllegalStateException();
+            throw new IllegalArgumentException();
         }
         for (int k = 0; k < ts.length; k++) {
             int n = k + 1;
             Terminal t = ts[k];
-            context.mappingTerminal(terminalId(n), t, n);
+            context.convertedTerminalWithOnlyEq(terminalId(n), t, n);
         }
     }
 
     protected void updateTerminals(Context context, Terminal... ts) {
         if (ts.length != numTerminals) {
-            throw new IllegalStateException();
+            throw new IllegalArgumentException();
         }
         for (int k = 0; k < ts.length; k++) {
             updateTerminal(updatedTerminals[k].cgmesTerminal, ts[k], context);
@@ -671,7 +671,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connection(InjectionAdder<?, ?> adder) {
+    public void connectWithOnlyEq(InjectionAdder<?, ?> adder) {
         if (context.nodeBreaker()) {
             adder.setNode(iidmNode());
         } else {
@@ -707,7 +707,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connection(BranchAdder<?, ?> adder) {
+    public void connectWithOnlyEq(BranchAdder<?, ?> adder) {
         if (context.nodeBreaker()) {
             adder
                     .setVoltageLevel1(iidmVoltageLevelId(1))
@@ -801,7 +801,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             .setOpen(open || !terminalConnected(1) || !terminalConnected(2));
     }
 
-    public void connection(LegAdder adder, int terminal) {
+    public void connectWithOnlyEq(LegAdder adder, int terminal) {
         if (context.nodeBreaker()) {
             adder
                 .setVoltageLevel(iidmVoltageLevelId(terminal))
@@ -841,21 +841,12 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return updatedPowerFlow().defined() ? OptionalDouble.of(updatedPowerFlow().q()) : OptionalDouble.empty();
     }
 
-    protected static double defaultP(double eqP, double previousP, Conversion.Config.DefaultValue defaultValue) {
-        return switch (defaultValue) {
-            case EQ -> eqP;
-            case PREVIOUS -> previousP;
-            case DEFAULT -> 0.0;
-            case EMPTY -> Double.NaN;
-        };
-    }
-
-    protected static double defaultQ(double eqQ, double previousQ, Conversion.Config.DefaultValue defaultValue) {
-        return switch (defaultValue) {
-            case EQ -> eqQ;
-            case PREVIOUS -> previousQ;
-            case DEFAULT -> 0.0;
-            case EMPTY -> Double.NaN;
+    protected static double defaultValue(double eq, double previous, double defaultValue, double emptyValue, Conversion.Config.DefaultValue defaultValueSelector) {
+        return switch (defaultValueSelector) {
+            case EQ -> eq;
+            case PREVIOUS -> previous;
+            case DEFAULT -> defaultValue;
+            case EMPTY -> emptyValue;
         };
     }
 

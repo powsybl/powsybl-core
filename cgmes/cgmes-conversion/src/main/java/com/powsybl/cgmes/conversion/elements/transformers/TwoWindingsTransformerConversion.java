@@ -152,10 +152,10 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
             adder.setRatedS(convertedT2xModel.ratedS);
         }
         identify(adder);
-        connection(adder);
+        connectWithOnlyEq(adder);
         TwoWindingsTransformer tx = adder.add();
         addAliasesAndProperties(tx);
-        mappingTerminals(tx.getTerminal1(), tx.getTerminal2());
+        convertedTerminalsWithOnlyEq(tx.getTerminal1(), tx.getTerminal2());
 
         setToIidmRatioTapChanger(convertedT2xModel, tx);
         setToIidmPhaseTapChanger(convertedT2xModel, tx, context);
@@ -253,7 +253,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
     }
 
     @Override
-    public void update(Network network) {
+    public void update() {
         Objects.requireNonNull(t2w);
         updateTerminals(context, t2w.getTerminal1(), t2w.getTerminal2());
 
