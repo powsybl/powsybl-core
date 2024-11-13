@@ -198,7 +198,7 @@ public final class NetworkSerDe {
     private static void writeExtensions(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
         for (Identifiable<?> identifiable : IidmSerDeUtil.sorted(n.getIdentifiables(), context.getOptions())) {
-            if (!context.isExportedEquipment(identifiable) || !isElementWrittenInsideNetwork(identifiable, n, context)) {
+            if (ignoreEquipmentAtExport(identifiable, context) || !isElementWrittenInsideNetwork(identifiable, n, context)) {
                 continue;
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
@@ -215,6 +215,11 @@ public final class NetworkSerDe {
             }
         }
         context.getWriter().writeEndNodes();
+    }
+
+    private static boolean ignoreEquipmentAtExport(Identifiable<?> identifiable, NetworkSerializerContext context) {
+        return !context.isExportedEquipment(identifiable)
+                || identifiable instanceof OverloadManagementSystem && !context.getOptions().isWithAutomationSystems();
     }
 
     private static boolean canTheExtensionBeWritten(ExtensionSerDe extensionSerDe, IidmVersion version, ExportOptions options) {
@@ -816,7 +821,7 @@ public final class NetworkSerDe {
             // extensions root elements are nested directly in 'extension' element, so there is no need
             // to check for an extension to exist if depth is greater than zero. Furthermore, in case of
             // missing extension serializer, we must not check for an extension in sub elements.
-            if (context.getOptions().withExtension(extensionName)) {
+            if (context.getOptions().withExtension(extensionName) && !context.isIgnoredEquipment(id)) {
                 ExtensionSerDe<?, ?> extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
                 if (extensionXmlSerializer != null) {
                     if (extensionXmlSerializer instanceof PostponableCreationExtensionSerDe<? extends Extendable<?>, ? extends Extension <?>> postponableCreationExtensionSerDe) {

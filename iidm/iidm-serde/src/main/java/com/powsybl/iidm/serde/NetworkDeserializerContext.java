@@ -34,6 +34,8 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
 
     private ValidationLevel networkValidationLevel;
 
+    private Set<String> ignoredEquipments = new HashSet<>();
+
     public NetworkDeserializerContext(Anonymizer anonymizer, TreeDataReader reader) {
         this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_VERSION, Collections.emptyMap());
     }
@@ -79,5 +81,13 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
 
     public ValidationLevel getNetworkValidationLevel() {
         return this.networkValidationLevel;
+    }
+
+    public void addIgnoredEquipment(String equipment) {
+        ignoredEquipments.add(equipment);
+    }
+
+    public boolean isIgnoredEquipment(String equipment) {
+        return ignoredEquipments.contains(equipment);
     }
 }

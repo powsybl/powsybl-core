@@ -193,5 +193,6 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
         String id = readIdentifierAttributes(null, context);
         readRootElementAttributes(null, s, toApply, context);
         readSubElements(id, null, toApply, context);
+        context.addIgnoredEquipment(id);
     }
 }
