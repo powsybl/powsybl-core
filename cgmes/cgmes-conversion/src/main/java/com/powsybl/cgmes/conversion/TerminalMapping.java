@@ -32,7 +32,7 @@ public class TerminalMapping {
     // (only mapped when the terminal is connected to a branch)
     private final Map<String, Integer> terminalNumbers = new HashMap<>();
     private final Map<String, List<String>> topologicalNodesMapping = new HashMap<>();
-    private final Map<String, List<String>> connectivityNodesCounting = new HashMap<>();
+    private final Map<String, List<CgmesTerminal>> connectivityNodeTerminalsMapping = new HashMap<>();
     private final Map<String, String> cgmesTerminalsMapping = new HashMap<>();
 
     public void add(String cgmesTerminal, Terminal iidmTerminal, int terminalNumber) {
@@ -152,7 +152,7 @@ public class TerminalMapping {
         }
         String connectivityNode = t.connectivityNode();
         if (connectivityNode != null) {
-            connectivityNodesCounting.computeIfAbsent(connectivityNode, k -> new ArrayList<>(1)).add(t.id());
+            connectivityNodeTerminalsMapping.computeIfAbsent(connectivityNode, k -> new ArrayList<>(1)).add(t);
         }
     }
 
@@ -184,7 +184,7 @@ public class TerminalMapping {
         return topologicalNodesMapping.containsKey(topologicalNode) ? topologicalNodesMapping.get(topologicalNode).get(0) : null;
     }
 
-    public List<String> getConnectivityNodeTerminals(String id) {
-        return connectivityNodesCounting.getOrDefault(id, List.of());
+    public List<CgmesTerminal> getConnectivityNodeTerminals(String id) {
+        return connectivityNodeTerminalsMapping.getOrDefault(id, List.of());
     }
 }
