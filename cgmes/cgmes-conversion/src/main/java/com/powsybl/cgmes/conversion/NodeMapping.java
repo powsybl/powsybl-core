@@ -55,72 +55,82 @@ public class NodeMapping {
         // map this situation to IIDM.
         // This behavior can be disabled through configuration.
 
+        if (!connected && createFictitiousSwitch(context.config().getCreateFictitiousSwitchesForDisconnectedTerminalsMode(), isSwitchEnd)) {
+            return createFictitiousSwitch(t, vl);
+        } else {
+            // Create internal connection but only if too many terminals on connectivity node
+            return createInternalConnectionIfNeeded(t, vl);
+        }
+    }
+
+    private int createInternalConnectionIfNeeded(CgmesTerminal t, VoltageLevel vl) {
         int iidmNodeForConductingEquipment;
         int iidmNodeForConnectivityNode;
-        if (connected || !createFictitiousSwitch(context.config().getCreateFictitiousSwitchesForDisconnectedTerminalsMode(), isSwitchEnd)) {
-            List<CgmesTerminal> connectivityNodeTerminals = context.terminalMapping().getConnectivityNodeTerminals(t.connectivityNode());
-            if (connectivityNodeTerminals.size() == 2) {
-                // Add one internal connection between the two terminals as iidm can only handle one terminal per node.
-                // We only create internal connection if the other side hasn't yet.
-                CgmesTerminal otherTerminal = t == connectivityNodeTerminals.get(0) ? connectivityNodeTerminals.get(1) : connectivityNodeTerminals.get(0);
-                if (!cgmes2iidm.containsKey(otherTerminal.id())) {
-                    int iidmNodeForOtherConductingEquipment = newNode(vl);
-                    iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
-                    iidmNodeForConductingEquipment = iidmNodeForConnectivityNode; // connectivity node and terminal share the same iidm node
-                    cgmes2iidm.put(t.id(), iidmNodeForConductingEquipment);
-                    cgmes2iidm.put(otherTerminal.id(), iidmNodeForOtherConductingEquipment);
-                    vl.getNodeBreakerView().newInternalConnection()
-                            .setNode1(iidmNodeForConnectivityNode)
-                            .setNode2(iidmNodeForOtherConductingEquipment)
-                            .add();
-                } else {
-                    iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
-                }
-            } else if (connectivityNodeTerminals.size() > 2) {
-                // We need the connectivity node as connecting point between terminals
+        List<CgmesTerminal> connectivityNodeTerminals = context.terminalMapping().getConnectivityNodeTerminals(t.connectivityNode());
+        if (connectivityNodeTerminals.size() == 2) {
+            // Add one internal connection between the two terminals as iidm can only handle one terminal per node.
+            // We only create internal connection if the other side hasn't yet.
+            CgmesTerminal otherTerminal = t == connectivityNodeTerminals.get(0) ? connectivityNodeTerminals.get(1) : connectivityNodeTerminals.get(0);
+            if (!cgmes2iidm.containsKey(otherTerminal.id())) {
+                int iidmNodeForOtherConductingEquipment = newNode(vl);
                 iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
-                if (isBusbarSectionTerminal(t) && isFirstBbsAtConnectivityNode(t, connectivityNodeTerminals)) {
-                    // If there's one busbar, it is placed at the connectivity node: in iidm we want the busbar (and not
-                    // the connectivity point!) to be where all feeders connect.
-                    // If there are several busbars, this is only done for the first one encountered, the other ones
-                    // will be connected to the first one with internal connections.
-                    iidmNodeForConductingEquipment = iidmNodeForConnectivityNode; // current terminal is placed at the connectivityNode
-                    cgmes2iidm.put(t.id(), iidmNodeForConductingEquipment);
-                } else {
-                    // Add internal connection from terminal to connectivity node as iidm can only handle one terminal per node
-                    // For node-breaker models we create an internal connection between the terminal and its connectivity node
-                    iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
-                    vl.getNodeBreakerView().newInternalConnection()
-                            .setNode1(iidmNodeForConductingEquipment)
-                            .setNode2(iidmNodeForConnectivityNode)
-                            .add();
-                }
-            } else {
-                // only one terminal: connectivity node and terminal share the same iidm node
-                iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
-                iidmNodeForConductingEquipment = iidmNodeForConnectivityNode;
+                iidmNodeForConductingEquipment = iidmNodeForConnectivityNode; // connectivity node and terminal share the same iidm node
                 cgmes2iidm.put(t.id(), iidmNodeForConductingEquipment);
+                cgmes2iidm.put(otherTerminal.id(), iidmNodeForOtherConductingEquipment);
+                vl.getNodeBreakerView().newInternalConnection()
+                        .setNode1(iidmNodeForConnectivityNode)
+                        .setNode2(iidmNodeForOtherConductingEquipment)
+                        .add();
+            } else {
+                iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
             }
-        } else {
-            iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
+        } else if (connectivityNodeTerminals.size() > 2) {
+            // We need the connectivity node as connecting point between terminals
             iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
-
-            // Only add fictitious switches for disconnected terminals if not already added
-            // Use the id and name of terminal
-            String switchId = t.id() + "_SW_fict";
-            if (vl.getNetwork().getSwitch(switchId) == null) {
-                Switch sw = vl.getNodeBreakerView().newSwitch()
-                        .setFictitious(true)
-                        .setId(switchId)
-                        .setName(t.name())
+            if (isBusbarSectionTerminal(t) && isFirstBbsAtConnectivityNode(t, connectivityNodeTerminals)) {
+                // If there's one busbar, it is placed at the connectivity node: in iidm we want the busbar (and not
+                // the connectivity point!) to be where all feeders connect.
+                // If there are several busbars, this is only done for the first one encountered, the other ones
+                // will be connected to the first one with internal connections.
+                iidmNodeForConductingEquipment = iidmNodeForConnectivityNode; // current terminal is placed at the connectivityNode
+                cgmes2iidm.put(t.id(), iidmNodeForConductingEquipment);
+            } else {
+                // Add internal connection from terminal to connectivity node as iidm can only handle one terminal per node
+                // For node-breaker models we create an internal connection between the terminal and its connectivity node
+                iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
+                vl.getNodeBreakerView().newInternalConnection()
                         .setNode1(iidmNodeForConductingEquipment)
                         .setNode2(iidmNodeForConnectivityNode)
-                        .setOpen(true)
-                        .setKind(SwitchKind.BREAKER)
-                        .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                         .add();
-                sw.setProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
             }
+        } else {
+            // only one terminal: connectivity node and terminal share the same iidm node
+            iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
+            iidmNodeForConductingEquipment = iidmNodeForConnectivityNode;
+            cgmes2iidm.put(t.id(), iidmNodeForConductingEquipment);
+        }
+        return iidmNodeForConductingEquipment;
+    }
+
+    private int createFictitiousSwitch(CgmesTerminal t, VoltageLevel vl) {
+        int iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
+        int iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
+
+        // Only add fictitious switches for disconnected terminals if not already added
+        // Use the id and name of terminal
+        String switchId = t.id() + "_SW_fict";
+        if (vl.getNetwork().getSwitch(switchId) == null) {
+            Switch sw = vl.getNodeBreakerView().newSwitch()
+                    .setFictitious(true)
+                    .setId(switchId)
+                    .setName(t.name())
+                    .setNode1(iidmNodeForConductingEquipment)
+                    .setNode2(iidmNodeForConnectivityNode)
+                    .setOpen(true)
+                    .setKind(SwitchKind.BREAKER)
+                    .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                    .add();
+            sw.setProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
         }
         return iidmNodeForConductingEquipment;
     }
