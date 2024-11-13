@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.Conversion.*;
@@ -167,133 +166,105 @@ class TransformerConversionTest {
         assertTrue(t2xCompareFlow(n, "PST", 927.034612, -339.274880, -911.542354, 422.345850));
     }
 
-    /**
-     * Default test for:
-     * <ul>
-     *     <li>microGridBaseCaseBExfmr3Shunt</ul>
-     *     <li>microGridBaseCaseBExfmr3RatioPhase</ul>
-     *     <li>microGridBaseCaseBExfmr3Ratio0</ul>
-     * </ul>
-     */
     @Test
-    void microGridBaseCaseDefault() {
-        Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
-    }
-
-    @Test
-    void microGridBaseCaseBExfmr3ShuntNetworkSide() {
+    void t3wShuntNetworkSideTest() {
+        // Shunt admittances to ground at the network side (end1 of the leg)
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3ShuntStarBusSide() {
+    void t3wShuntStarBusSideTest() {
+        // Shunt admittances to ground at the start bus side (end2 of the leg)
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.STAR_BUS_SIDE);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3ShuntSplit() {
+    void t3wShuntSplitTest() {
+        // Split shunt admittances to ground between two ends of the leg
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.SPLIT);
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.SPLIT);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.231950, 2.876479, -216.194348, -85.558437, 117.981856, 92.439531);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", 99.231950, 2.876479, -216.194348, -85.558437, 117.981856, 92.439531));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3RatioPhaseNetworkSide() {
+    void t3wRatioPhaseNetworkSideTest() {
+        // All tapChangers (ratioTapChanger and phaseTapChanger) at the network side
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3RatioPhaseStarBusSide() {
+    void t3wRatioPhaseStarBusSideTest() {
+        // All tapChangers (ratioTapChanger and phaseTapChanger) at the star bus side
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative.STAR_BUS_SIDE);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0StarBusSide() {
+    void t3wRatio0StarBusSideTest() {
+        // Structural ratio at the star bus side of all legs and RatedU0 = RatedU1
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0NetworkSide() {
+    void t3wRatio0NetworkSideTest() {
+        // Structural ratio at the network side of all legs. RatedU0 = 1 kv
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.NETWORK_SIDE);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", -0.000166, -0.000842, -0.006802, -0.004135, 0.006989, 0.005353);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", -0.000166, -0.000842, -0.006802, -0.004135, 0.006989, 0.005353));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0End1() {
+    void t3wRatio0End1Test() {
+        // Structural ratio at the network side of legs 2 and 3. RatedU0 = RatedU1
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END1);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", -26.608872, -134.702971, -1088.277421, -661.570093, 1118.294368, 856.437794);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", -26.608872, -134.702971, -1088.277421, -661.570093, 1118.294368, 856.437794));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0End2() {
+    void t3wRatio0End2Test() {
+        // Structural ratio at the network side of legs 1 and 3. RatedU0 = RatedU2
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END2);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", -8.049184, -40.747649, -329.203920, -200.124953, 338.284046, 259.072433);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", -8.049184, -40.747649, -329.203920, -200.124953, 338.284046, 259.072433));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0End3() {
+    void t3wRatio0End3Test() {
+        // Structural ratio at the network side of legs 1 and 2. RatedU0 = RatedU2
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END3);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", -0.073341, -0.371275, -2.999565, -1.823453, 3.082299, 2.360557);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", -0.073341, -0.371275, -2.999565, -1.823453, 3.082299, 2.360557));
     }
 
     @Test
@@ -428,6 +399,17 @@ class TransformerConversionTest {
                         "twoWindingsTransformers_SSH.xml",
                         "twoWindingsTransformers_SV.xml",
                         "twoWindingsTransformers_TP.xml"));
+    }
+
+    private GridModelReferenceResources threeWindingsTransformer() {
+        return new GridModelReferenceResources(
+                "ThreeWindingsTransformer",
+                null,
+                new ResourceSet(DIR,
+                        "threeWindingsTransformer_EQ.xml",
+                        "threeWindingsTransformer_SSH.xml",
+                        "threeWindingsTransformer_SV.xml",
+                        "threeWindingsTransformer_TP.xml"));
     }
 
     private GridModelReferenceResources phaseAngleClock(String phaseAngleClockEQ) {
