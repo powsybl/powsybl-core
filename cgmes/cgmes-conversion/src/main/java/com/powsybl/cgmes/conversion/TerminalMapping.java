@@ -32,7 +32,7 @@ public class TerminalMapping {
     // (only mapped when the terminal is connected to a branch)
     private final Map<String, Integer> terminalNumbers = new HashMap<>();
     private final Map<String, List<String>> topologicalNodesMapping = new HashMap<>();
-    private final Map<String, Integer> connectivityNodesCounting = new HashMap<>();
+    private final Map<String, List<String>> connectivityNodesCounting = new HashMap<>();
     private final Map<String, String> cgmesTerminalsMapping = new HashMap<>();
 
     public void add(String cgmesTerminal, Terminal iidmTerminal, int terminalNumber) {
@@ -146,13 +146,13 @@ public class TerminalMapping {
         }
     }
 
-    public void countConnectivityNodeCgmesTerminals(CgmesTerminal t) {
+    public void buildConnectivityNodeCgmesTerminalsMapping(CgmesTerminal t) {
         if (CgmesNames.SWITCH_TYPES.contains(t.conductingEquipmentType())) {
             return; // switches do not have terminals in iidm, so we should not count them
         }
         String connectivityNode = t.connectivityNode();
         if (connectivityNode != null) {
-            connectivityNodesCounting.merge(connectivityNode, 1, Integer::sum);
+            connectivityNodesCounting.computeIfAbsent(connectivityNode, k -> new ArrayList<>(1)).add(t.id());
         }
     }
 
@@ -184,7 +184,7 @@ public class TerminalMapping {
         return topologicalNodesMapping.containsKey(topologicalNode) ? topologicalNodesMapping.get(topologicalNode).get(0) : null;
     }
 
-    public int getConnectivityNodesCount(String id) {
-        return connectivityNodesCounting.getOrDefault(id, 0);
+    public List<String> getConnectivityNodeTerminals(String id) {
+        return connectivityNodesCounting.getOrDefault(id, List.of());
     }
 }
