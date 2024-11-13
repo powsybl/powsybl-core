@@ -29,12 +29,13 @@ public class CounterNamingStrategy implements NamingStrategy {
     private final Map<String, UcteNodeCode> ucteNodeIds = new HashMap<>();
     private final Map<String, UcteElementId> ucteElementIds = new HashMap<>();
     private int namingCounter;
+    private final List<Character> oderCode = Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
+            'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', '-', '.', ' ');
 
     @Override
     public String getName() {
         return "Counter";
     }
-
 
 /**
  * Converts all network elements to UCTE format using a sequential naming scheme.
@@ -51,66 +52,35 @@ public class CounterNamingStrategy implements NamingStrategy {
  */
     @Override
     public void initialiseNetwork(Network network) {
-        //count for naming each element
         namingCounter = 0;
-        // Convert voltage level elements
-        network.getVoltageLevelStream().sorted(Comparator.comparing(VoltageLevel::getId)).forEach(voltageLevel ->
-                convertVoltageLevelElementsIdToUcte(voltageLevel));
-        // Convert network elements
-        convertNetworkElementsIdToUcte(network);
-    }
+        network.getSubstations().forEach(substation -> substation.getVoltageLevels().forEach(voltageLevel -> {
 
-    /**
-     * Converts all voltageLevel elements to UCTE format using a sequential naming scheme.
-     * The conversion process follows these steps:
-     * <ol>
-     *   <li>Convert all elements within each voltage level (buses, generators, loads, shunts)</li>
-     * </ol>
-     *
-     * Each element receives a unique sequential identifier during the conversion process.
-     *
-     * @param voltageLevel the voltageLevel to convert
-     */
-    private void convertVoltageLevelElementsIdToUcte(VoltageLevel voltageLevel) {
-        System.out.println(voltageLevel.getId());
-        int nodeCounter = 0;
-
-        for (Bus bus : voltageLevel.getBusBreakerView().getBuses()) {
-            nodeCounter++;
-            UcteNodeCode ucteId = generateUcteNodeId(bus.getId(), voltageLevel, nodeCounter);
-            if (ucteId != null) {
-                bus.setName(ucteId.toString());
+            System.out.println(voltageLevel.getId());
+            voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
+                generateUcteNodeId(bus.getId(), voltageLevel);
                 logConversion("BUS", bus);
-            }
-        }
-        for (Switch s : voltageLevel.getBusBreakerView().getSwitches()) {
-            nodeCounter++;
-            UcteNodeCode ucteId = generateUcteNodeId(s.getId(), voltageLevel, nodeCounter);
-            if (ucteId != null) {
-                s.setName(ucteId.toString());
-                logConversion("SWITCH", s);
-            }
-        }
+            });
+            voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> {
+                if (sw.getKind().equals(SwitchKind.BREAKER)) {
+                    generateUcteElementId(sw);
+                } else {
+                    generateUcteNodeId(sw.getId(), voltageLevel);
+                }
+                logConversion("SW", sw);
+            });
+        }));
 
-    }
-
-    /**
-     * Converts all network-level elements to UCTE format using a sequential naming scheme.
-     * The conversion process follows these steps:
-     * <ol>
-     *   <li>Convert network-level elements (lines, transformers)</li>
-     * </ol>
-     *
-     * Each element receives a unique sequential identifier during the conversion process.
-     *
-     * @param network the network to convert
-     */
-    private void convertNetworkElementsIdToUcte(Network network) {
         network.getBranchStream().forEach(branch -> {
-            UcteElementId ucteId = generateUcteElementId(branch);
-            branch.setName(ucteId.toString());
+            generateUcteElementId(branch);
             logConversion(branch.getType().name(), branch);
         });
+
+        network.getDanglingLineStream().forEach(d -> {
+            generateUcteNodeId(d);
+            generateUcteElementId(d);
+            logConversion(d.getType().name(), d);
+        });
+
     }
 
     private void logConversion(String elementType, Identifiable element) {
@@ -137,61 +107,92 @@ public class CounterNamingStrategy implements NamingStrategy {
      *
      * @param nodeId original identifier of the network element
      * @param voltageLevel voltage level containing the element
-     * @param nodeCounter code counter
      * @return generated UcteNodeCode, or null if nodeId already exists in ucteNodeIds
      */
-    private UcteNodeCode generateUcteNodeId(String nodeId, VoltageLevel voltageLevel, int nodeCounter) {
+    private UcteNodeCode generateUcteNodeId(String nodeId, VoltageLevel voltageLevel) {
 
         if (ucteNodeIds.containsKey(nodeId)) {
-            return null;
+            return ucteNodeIds.get(nodeId);
         }
+        if (namingCounter > 9999) {
+            namingCounter = 0;
+        }
+
         StringBuilder newNodeCode = new StringBuilder(8);
         String newNodeId = String.format("%05d", ++namingCounter);
         char countryCode = getCountryCode(voltageLevel);
         char voltageLevelCode = getUcteVoltageLevelCode(voltageLevel.getNominalV());
+        char orderCode = oderCode.get(0);
+        int i = 0;
 
         newNodeCode
                 .append(countryCode)
                 .append(newNodeId)
                 .append(voltageLevelCode)
-                .append(nodeCounter);
-
-        UcteNodeCode nodeCode = UcteNodeCode.parseUcteNodeCode(newNodeCode.toString()).get();
-        ucteNodeIds.put(nodeId, nodeCode);
-        return nodeCode;
-    }
-
-    /**
-     * Generates a UCTE element identifier for a network branch element (line or transformer).
-     * The element ID is composed of two node codes and an order code.
-     *
-     * <p>The generated ID follows UCTE format specifications:
-     * [Node1Code][Node2Code][OrderCode]
-     * where:
-     * <ul>
-     *   <li>Node1Code: UCTE code of the first terminal</li>
-     *   <li>Node2Code: UCTE code of the second terminal</li>
-     *   <li>OrderCode: Single character identifier</li>
-     * </ul>
-     *
-     * @param branch the element instance of branch
-     * @return the generated UCTE element identifier
-     */
-    private UcteElementId generateUcteElementId(Branch<?> branch) {
-
-        int i = 0;
-        List<Character> oderCode = Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
-                'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', '-', '.', ' ');
-
-        String branchId = branch.getId();
-        if (ucteElementIds.containsKey(branchId)) {
-            return null;
+                .append(orderCode);
+        while (ucteNodeIds.containsKey(newNodeId)) {
+            i++;
+            orderCode = oderCode.get(i);
+            newNodeCode.replace(7, 7, String.valueOf(orderCode));
         }
 
-        UcteNodeCode node1 = ucteNodeIds.get(branch.getTerminal1().getBusBreakerView().getBus().getId());
-        UcteNodeCode node2 = ucteNodeIds.get(branch.getTerminal2().getBusBreakerView().getBus().getId());
-        char orderCode = oderCode.get(0);
+        Optional<UcteNodeCode> nodeCode = UcteNodeCode.parseUcteNodeCode(newNodeCode.toString());
+        if (!nodeCode.isPresent()) {
+            System.out.println("le code en erreur est : " + newNodeCode);
+            throw new IllegalArgumentException("Invalid node code: " + newNodeCode);
+        }
+        ucteNodeIds.put(nodeId, nodeCode.get());
+        return nodeCode.get();
+    }
 
+    private UcteNodeCode generateUcteNodeId(DanglingLine danglingLine) {
+
+        String nodeId = danglingLine.getPairingKey();
+
+        if (ucteNodeIds.containsKey(nodeId)) {
+            return ucteNodeIds.get(nodeId);
+        }
+
+        if (namingCounter > 9999) {
+            namingCounter = 0;
+        }
+
+        StringBuilder newNodeCode = new StringBuilder(8);
+        String newNodeId = String.format("%05d", ++namingCounter);
+        char voltageLevelCode = getUcteVoltageLevelCode(danglingLine.getTerminal().getVoltageLevel().getNominalV());
+
+        newNodeCode
+                .append('X')
+                .append(newNodeId)
+                .append(voltageLevelCode)
+                .append('0');
+
+        int i = 0;
+        while (ucteNodeIds.containsKey(newNodeId)) {
+            i++;
+            if (i >= oderCode.size()) {
+                throw new UcteException("Too many nodes with same prefix");
+            }
+            newNodeCode.setCharAt(7, oderCode.get(i));
+        }
+
+        Optional<UcteNodeCode> nodeCode = UcteNodeCode.parseUcteNodeCode(newNodeCode.toString());
+        if (!nodeCode.isPresent()) {
+            throw new IllegalArgumentException("Invalid node code: " + newNodeCode);
+        }
+
+        ucteNodeIds.put(nodeId, nodeCode.get());
+        return nodeCode.get();
+    }
+
+    private UcteElementId generateUcteElementId(String id, UcteNodeCode node1, UcteNodeCode node2) {
+
+        if (ucteElementIds.containsKey(id)) {
+            return ucteElementIds.get(id);
+        }
+        int i = 0;
+
+        char orderCode = oderCode.get(0);
         UcteElementId ucteElementId = new UcteElementId(node1, node2, orderCode);
 
         while (ucteElementIds.containsValue(ucteElementId)) {
@@ -202,23 +203,59 @@ public class CounterNamingStrategy implements NamingStrategy {
             ucteElementId = new UcteElementId(node1, node2, orderCode);
         }
 
-        ucteElementIds.put(branchId, ucteElementId);
+        ucteElementIds.put(id, ucteElementId);
         return ucteElementId;
     }
 
-    /**
-     * Extracts and converts a country code to UCTE format for a given voltage level.
-     *
-     * <p>The country code is determined through the following process:
-     * <ol>
-     *   <li>Attempts to get the country from the voltage level's substation</li>
-     *   <li>Maps the country name to its corresponding UCTE code</li>
-     *   <li>Returns 'X' as fallback if no valid mapping is found</li>
-     * </ol>
-     *
-     * @param voltageLevel the voltage level from which to extract the country code
-     * @return the UCTE country code character, or 'X' if no valid country is found)
-     */
+    private UcteElementId generateUcteElementId(Branch<?> branch) {
+        if (ucteElementIds.containsKey(branch.getId())) {
+            return ucteElementIds.get(branch.getId());
+        }
+        UcteNodeCode node1 = this.ucteNodeIds.get(branch.getTerminal1().getBusBreakerView().getBus().getId());
+        UcteNodeCode node2 = this.ucteNodeIds.get(branch.getTerminal2().getBusBreakerView().getBus().getId());
+
+        return generateUcteElementId(branch.getId(), node1, node2);
+    }
+
+    private UcteElementId generateUcteElementId(DanglingLine danglingLine) {
+        if (ucteElementIds.containsKey(danglingLine.getId())) {
+            return ucteElementIds.get(danglingLine.getId());
+        }
+
+        for (Terminal t : danglingLine.getTerminals()) {
+            System.out.println(t.getBusBreakerView().getBus().getId());
+            System.out.println(danglingLine.getPairingKey());
+        }
+        UcteNodeCode node1 = this.ucteNodeIds.get(danglingLine.getTerminal().getBusBreakerView().getBus().getId());
+        UcteNodeCode node2 = this.ucteNodeIds.get(danglingLine.getPairingKey());
+
+        return generateUcteElementId(danglingLine.getId(), node1, node2);
+    }
+
+    private UcteElementId generateUcteElementId(Switch sw) {
+
+        if (ucteElementIds.containsKey(sw.getId())) {
+            return ucteElementIds.get(sw.getId());
+        }
+
+        UcteNodeCode node1 = generateUcteNodeId(sw.getId(), sw.getVoltageLevel());
+        UcteNodeCode node2 = generateUcteNodeId(sw.getId(), sw.getVoltageLevel());
+        return generateUcteElementId(sw.getId(), node1, node2);
+    }
+
+        /**
+         * Extracts and converts a country code to UCTE format for a given voltage level.
+         *
+         * <p>The country code is determined through the following process:
+         * <ol>
+         *   <li>Attempts to get the country from the voltage level's substation</li>
+         *   <li>Maps the country name to its corresponding UCTE code</li>
+         *   <li>Returns 'X' as fallback if no valid mapping is found</li>
+         * </ol>
+         *
+         * @param voltageLevel the voltage level from which to extract the country code
+         * @return the UCTE country code character, or 'X' if no valid country is found)
+         */
     private static char getCountryCode(VoltageLevel voltageLevel) {
 
         String country = voltageLevel.getSubstation()
