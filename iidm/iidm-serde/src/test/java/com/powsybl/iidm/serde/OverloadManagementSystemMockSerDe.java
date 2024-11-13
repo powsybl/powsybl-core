@@ -10,15 +10,19 @@ package com.powsybl.iidm.serde;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
+import com.powsybl.commons.extensions.PostponableCreationExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.OverloadManagementSystem;
+
+import java.util.function.Function;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
-public class OverloadManagementSystemMockSerDe extends AbstractExtensionSerDe<OverloadManagementSystem, OverloadManagementSystemMockExt> {
+public class OverloadManagementSystemMockSerDe extends AbstractExtensionSerDe<OverloadManagementSystem, OverloadManagementSystemMockExt>
+    implements PostponableCreationExtensionSerDe<OverloadManagementSystem, OverloadManagementSystemMockExt> {
 
     public OverloadManagementSystemMockSerDe() {
         super("overloadManagementSystemMock", "network", OverloadManagementSystemMockExt.class,
@@ -32,10 +36,16 @@ public class OverloadManagementSystemMockSerDe extends AbstractExtensionSerDe<Ov
     }
 
     @Override
-    public OverloadManagementSystemMockExt read(OverloadManagementSystem extendable, DeserializerContext context) {
+    public Function<OverloadManagementSystem, OverloadManagementSystemMockExt> extensionCreator(DeserializerContext context) {
+        // Read the elements
         String foo = context.getReader().readStringAttribute("foo");
         context.getReader().readEndNode();
-        return new OverloadManagementSystemMockExt(extendable, foo);
-    }
 
+        // Return the function creating the adder
+        return oms -> {
+            OverloadManagementSystemMockExt extension = new OverloadManagementSystemMockExt(oms, foo);
+            oms.addExtension(getExtensionClass(), extension);
+            return extension;
+        };
+    }
 }
