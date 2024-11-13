@@ -8,7 +8,6 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.Conversion.*;
@@ -33,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -312,20 +312,16 @@ class TransformerConversionTest {
     }
 
     @Test
-    void microGridBaseCaseBEPhaseTapChangerXMin() {
-        Network n = networkModel(Cgmes3ModifiedCatalog.microGridBaseCasePhaseTapChangerXMin(), new Conversion.Config());
+    void phaseTapChangerXMinTest() {
+        // 3 PhaseTapChangers: linear, symmetrical, asymmetrical all with the same issue: xMin = 0 (incorrect)
+        Network network = readCgmesResources(DIR, "phaseTapChanger_xMin.xml");
 
-        TwoWindingsTransformer twt1 = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
-        TwoWindingsTransformer twt2 = n.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
-
-        assertEquals(1.10949, obtainXcurrentStep(twt1), 0.00001);
-        assertEquals(2.796323, obtainXcurrentStep(twt2), 0.00001);
-    }
-
-    private static double obtainXcurrentStep(TwoWindingsTransformer twt) {
-        double xtx = twt.getX();
-        double ptcStepX = twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getX()).orElse(0d);
-        return xtx * (1 + ptcStepX / 100);
+        // If PhaseTapChangerLinear.xMin that represents the total reactance at the neutral step is inconsistent (<= 0),
+        // then PowerTransformerEnd.x should be used instead for the tap steps reactance deviation calculation.
+        // In that case, there is 0% reactance deviation at neutral step.
+        assertEquals(0, network.getTwoWindingsTransformer("LINEAR").getPhaseTapChanger().getCurrentStep().getX());
+        assertEquals(0, network.getTwoWindingsTransformer("SYMMETRICAL").getPhaseTapChanger().getCurrentStep().getX());
+        assertEquals(0, network.getTwoWindingsTransformer("ASYMMETRICAL").getPhaseTapChanger().getCurrentStep().getX());
     }
 
     private boolean t2xCompareFlow(Network n, String id, double p1, double q1, double p2, double q2) {
