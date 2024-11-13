@@ -34,7 +34,7 @@ public class DefaultNamingStrategy implements NamingStrategy {
     }
 
     @Override
-    public void convertNetworkToUcte(Network network) {
+    public void initialiseNetwork(Network network) {
 
     }
 

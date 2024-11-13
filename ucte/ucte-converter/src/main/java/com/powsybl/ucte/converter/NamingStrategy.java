@@ -19,7 +19,7 @@ public interface NamingStrategy {
 
     String getName();
 
-    void convertNetworkToUcte(Network network);
+    void initialiseNetwork(Network network);
 
     UcteNodeCode getUcteNodeCode(String id);
 

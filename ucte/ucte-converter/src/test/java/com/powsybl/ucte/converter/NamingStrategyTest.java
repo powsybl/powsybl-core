@@ -8,7 +8,9 @@
 
 package com.powsybl.ucte.converter;
 
-
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
@@ -18,7 +20,7 @@ import com.powsybl.ucte.network.UcteNodeCode;
 import com.powsybl.ucte.network.UcteVoltageLevelCode;
 import org.junit.jupiter.api.Test;
 
-
+import java.nio.file.Path;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,13 +32,15 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 class NamingStrategyTest {
 
     @Test
-    void initTest() {
-        // Chargement du réseau original
-        ResourceDataSource dataSource = new ResourceDataSource("network2", new ResourceSet("/", "network2.xiidm"));
+    void ConvertStartegyTest(){
+        ResourceDataSource dataSource = new ResourceDataSource("network3", new ResourceSet("/", "network3.xiidm"));
         Network n1 = Network.read(dataSource);
-        NamingStrategy s = new CounterNamingStrategy();
-        s.convertNetworkToUcte(n1);
-
+        UcteExporter exporter = new UcteExporter();
+        Properties props = new Properties();
+        props.put(UcteExporter.NAMING_STRATEGY,"Counter");
+        //NamingStrategy s = new CounterNamingStrategy();
+        //s.initialiseNetwork(n1);
+        //exporter.export(n1,props, new DirectoryDataSource(Path.of("./"),"test"));
 
     }
 

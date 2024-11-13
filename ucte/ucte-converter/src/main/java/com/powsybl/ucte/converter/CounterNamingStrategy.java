@@ -32,7 +32,7 @@ public class CounterNamingStrategy implements NamingStrategy {
 
     @Override
     public String getName() {
-        return "CounterNamingStrategy";
+        return "Counter";
     }
 
 
@@ -50,7 +50,7 @@ public class CounterNamingStrategy implements NamingStrategy {
  * @param network the network to convert
  */
     @Override
-    public void convertNetworkToUcte(Network network) {
+    public void initialiseNetwork(Network network) {
         //count for naming each element
         namingCounter = 0;
         // Convert voltage level elements
@@ -59,7 +59,6 @@ public class CounterNamingStrategy implements NamingStrategy {
         // Convert network elements
         convertNetworkElementsIdToUcte(network);
     }
-
 
     /**
      * Converts all voltageLevel elements to UCTE format using a sequential naming scheme.
@@ -74,17 +73,24 @@ public class CounterNamingStrategy implements NamingStrategy {
      */
     private void convertVoltageLevelElementsIdToUcte(VoltageLevel voltageLevel) {
         System.out.println(voltageLevel.getId());
-        namingCounter++;
-        int nodeCounter=0;
+        int nodeCounter = 0;
 
-       for(Bus bus : voltageLevel.getBusBreakerView().getBuses()){
-           nodeCounter++;
-           UcteNodeCode ucteId = generateUcteNodeId(bus.getId(), voltageLevel,nodeCounter);
-           if (ucteId != null) {
-               bus.setName(ucteId.toString());
-               logConversion("BUS", bus);
-           }
-       }
+        for (Bus bus : voltageLevel.getBusBreakerView().getBuses()) {
+            nodeCounter++;
+            UcteNodeCode ucteId = generateUcteNodeId(bus.getId(), voltageLevel, nodeCounter);
+            if (ucteId != null) {
+                bus.setName(ucteId.toString());
+                logConversion("BUS", bus);
+            }
+        }
+        for (Switch s : voltageLevel.getBusBreakerView().getSwitches()) {
+            nodeCounter++;
+            UcteNodeCode ucteId = generateUcteNodeId(s.getId(), voltageLevel, nodeCounter);
+            if (ucteId != null) {
+                s.setName(ucteId.toString());
+                logConversion("SWITCH", s);
+            }
+        }
 
     }
 
@@ -108,10 +114,13 @@ public class CounterNamingStrategy implements NamingStrategy {
     }
 
     private void logConversion(String elementType, Identifiable element) {
-        System.out.println(String.format("%s : %s--> %s",
+        System.out.println(String.format("%s : %s--> %s %s",
                 elementType,
                 element.getId(),
-                element.getNameOrId()));
+                ucteNodeIds.get(element.getId()),
+                ucteElementIds.get(element.getId())
+        ));
+
     }
 
     /**
@@ -131,13 +140,13 @@ public class CounterNamingStrategy implements NamingStrategy {
      * @param nodeCounter code counter
      * @return generated UcteNodeCode, or null if nodeId already exists in ucteNodeIds
      */
-    private UcteNodeCode generateUcteNodeId(String nodeId, VoltageLevel voltageLevel,int nodeCounter) {
+    private UcteNodeCode generateUcteNodeId(String nodeId, VoltageLevel voltageLevel, int nodeCounter) {
 
         if (ucteNodeIds.containsKey(nodeId)) {
             return null;
         }
         StringBuilder newNodeCode = new StringBuilder(8);
-        String newNodeId = String.format("%05d",namingCounter);
+        String newNodeId = String.format("%05d", ++namingCounter);
         char countryCode = getCountryCode(voltageLevel);
         char voltageLevelCode = getUcteVoltageLevelCode(voltageLevel.getNominalV());
 
@@ -147,11 +156,10 @@ public class CounterNamingStrategy implements NamingStrategy {
                 .append(voltageLevelCode)
                 .append(nodeCounter);
 
-        UcteNodeCode nodeCode = getUcteNodeCode(newNodeCode.toString());
+        UcteNodeCode nodeCode = UcteNodeCode.parseUcteNodeCode(newNodeCode.toString()).get();
         ucteNodeIds.put(nodeId, nodeCode);
         return nodeCode;
     }
-
 
     /**
      * Generates a UCTE element identifier for a network branch element (line or transformer).
@@ -171,8 +179,8 @@ public class CounterNamingStrategy implements NamingStrategy {
      */
     private UcteElementId generateUcteElementId(Branch<?> branch) {
 
-        int i=0;
-        List<Character> ORDER_CODES = Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
+        int i = 0;
+        List<Character> oderCode = Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
                 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', '-', '.', ' ');
 
         String branchId = branch.getId();
@@ -182,20 +190,20 @@ public class CounterNamingStrategy implements NamingStrategy {
 
         UcteNodeCode node1 = ucteNodeIds.get(branch.getTerminal1().getBusBreakerView().getBus().getId());
         UcteNodeCode node2 = ucteNodeIds.get(branch.getTerminal2().getBusBreakerView().getBus().getId());
-        char orderCode = ORDER_CODES.get(0);
+        char orderCode = oderCode.get(0);
 
         UcteElementId ucteElementId = new UcteElementId(node1, node2, orderCode);
 
-        while(ucteElementIds.containsValue(ucteElementId)) {
+        while (ucteElementIds.containsValue(ucteElementId)) {
             i++;
-            if(i < ORDER_CODES.size()) {
-                orderCode = ORDER_CODES.get(i);
+            if (i < oderCode.size()) {
+                orderCode = oderCode.get(i);
             }
             ucteElementId = new UcteElementId(node1, node2, orderCode);
         }
 
         ucteElementIds.put(branchId, ucteElementId);
-        return new UcteElementId(node1, node2, orderCode);
+        return ucteElementId;
     }
 
     /**
@@ -214,7 +222,7 @@ public class CounterNamingStrategy implements NamingStrategy {
     private static char getCountryCode(VoltageLevel voltageLevel) {
 
         String country = voltageLevel.getSubstation()
-                .map(s->s.getCountry()
+                .map(s -> s.getCountry()
                         .map(Country::getName)
                         .orElse("XX"))
                 .orElse("XX");
@@ -265,7 +273,15 @@ public class CounterNamingStrategy implements NamingStrategy {
 
     @Override
     public UcteNodeCode getUcteNodeCode(String id) {
-        return ucteNodeIds.computeIfAbsent(id, k -> UcteNodeCode.parseUcteNodeCode(k).orElseThrow(() -> new UcteException("Invalid UCTE node identifier: " + k)));
+        if (id == null) {
+            return null;
+        }
+
+        UcteNodeCode code = ucteNodeIds.get(id);
+        if (code == null) {
+            throw new UcteException("No UCTE code found for id: " + id);
+        }
+        return code;
     }
 
     @Override
@@ -280,7 +296,11 @@ public class CounterNamingStrategy implements NamingStrategy {
 
     @Override
     public UcteElementId getUcteElementId(String id) {
-        return ucteElementIds.computeIfAbsent(id, k -> UcteElementId.parseUcteElementId(k).orElseThrow(() -> new UcteException("Invalid UCTE node identifier: " + k)));
+        UcteElementId elementId = ucteElementIds.get(id);
+        if (elementId == null) {
+            throw new UcteException("No UCTE element id found for: " + id);
+        }
+        return elementId;
     }
 
     @Override
@@ -297,6 +317,5 @@ public class CounterNamingStrategy implements NamingStrategy {
     public UcteElementId getUcteElementId(DanglingLine danglingLine) {
         return getUcteElementId(danglingLine.getId());
     }
-
 
 }

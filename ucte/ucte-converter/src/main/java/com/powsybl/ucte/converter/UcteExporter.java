@@ -140,10 +140,12 @@ public class UcteExporter implements Exporter {
             network.getHvdcLineCount() > 0 ||
             network.getThreeWindingsTransformerCount() > 0) {
 
-            throw new UcteException("This network contains unsupported equipments");
+            //throw new UcteException("This network contains unsupported equipments");
         }
 
         UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation);
+
+        namingStrategy.initialiseNetwork(network);
 
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
         ucteNetwork.setVersion(UcteFormatVersion.SECOND);
