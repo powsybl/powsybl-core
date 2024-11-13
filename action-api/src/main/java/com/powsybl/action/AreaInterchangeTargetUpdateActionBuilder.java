@@ -42,7 +42,7 @@ public class AreaInterchangeTargetUpdateActionBuilder implements ActionBuilder<A
     @Override
     public AreaInterchangeTargetUpdateAction build() {
         if (this.target == null) {
-            throw new IllegalArgumentException("For a area interchange target update action, a target must be provided");
+            throw new IllegalArgumentException("For an area interchange target update action, a target must be provided");
         }
         return new AreaInterchangeTargetUpdateAction(id, areaId, target);
     }
