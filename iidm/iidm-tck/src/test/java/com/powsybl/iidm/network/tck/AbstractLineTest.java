@@ -27,7 +27,7 @@ import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_I
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public abstract class AbstractLineTest {
+public abstract class AbstractLineTest extends AbstractIdenticalLinesTest {
 
     private static final String INVALID = "invalid";
 
@@ -179,6 +179,43 @@ public abstract class AbstractLineTest {
 
         assertSame(voltageLevelA, acLine.getTerminal1().getVoltageLevel());
         assertSame(voltageLevelB, acLine.getTerminal2().getVoltageLevel());
+    }
+
+    @Test
+    public void testLineCopier() {
+        // First limit normally created
+        LineAdder acLineAdder1 = network.newLine()
+                .setId("line1")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG1(3.0)
+                .setG2(3.5)
+                .setB1(4.0)
+                .setB2(4.5)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB");
+        acLineAdder1.add();
+        Line acLine1 = network.getLine("line1");
+
+        // Second limit created by copy
+        LineAdder acLineAdder2 = network.newLine(acLine1);
+        acLineAdder2
+                .setId("line2")
+                .setName(LINE_NAME)
+                .setBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB");
+        acLineAdder2.add();
+        Line acLine2 = network.getLine("line2");
+
+        assertNotNull(acLine2);
+        assertTrue(areLinesIdentical(acLine1, acLine2));
     }
 
     @Test

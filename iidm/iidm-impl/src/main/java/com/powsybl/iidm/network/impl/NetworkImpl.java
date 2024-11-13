@@ -359,7 +359,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public LineAdderImpl newLine() {
-        return newLine(null);
+        return newLine((String) null);
     }
 
     LineAdderImpl newLine(String subnetwork) {
