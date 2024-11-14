@@ -26,7 +26,7 @@ public class AreaInterchangeTargetUpdateAction extends AbstractAction {
     public AreaInterchangeTargetUpdateAction(String id, String areaId, double interchangeTarget) {
         super(id);
         this.areaId = Objects.requireNonNull(areaId);
-        this.interchangeTarget = interchangeTarget ;
+        this.interchangeTarget = interchangeTarget;
     }
 
     public double getInterchangeTarget() {
@@ -54,7 +54,7 @@ public class AreaInterchangeTargetUpdateAction extends AbstractAction {
             return false;
         }
         AreaInterchangeTargetUpdateAction that = (AreaInterchangeTargetUpdateAction) o;
-        return interchangeTarget  == that.interchangeTarget  && Objects.equals(areaId, that.areaId);
+        return interchangeTarget == that.interchangeTarget && Objects.equals(areaId, that.areaId);
     }
 
     @Override
