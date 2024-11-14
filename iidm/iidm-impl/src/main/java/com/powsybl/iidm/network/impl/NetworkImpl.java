@@ -336,20 +336,17 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
-        return Iterables.concat(index.getAll(BusBreakerVoltageLevel.class),
-                index.getAll(NodeBreakerVoltageLevel.class));
+        return Collections.unmodifiableCollection(index.getAll(VoltageLevelImpl.class));
     }
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return Stream.concat(index.getAll(BusBreakerVoltageLevel.class).stream(),
-                index.getAll(NodeBreakerVoltageLevel.class).stream());
+        return index.getAll(VoltageLevelImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getVoltageLevelCount() {
-        return index.getAll(BusBreakerVoltageLevel.class).size()
-                + index.getAll(NodeBreakerVoltageLevel.class).size();
+        return index.getAll(VoltageLevelImpl.class).size();
     }
 
     @Override
@@ -1259,15 +1256,13 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
-    public Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
-        Objects.requireNonNull(validationLevel);
-        if (this.validationLevel == null) {
-            this.validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, this.validationLevel, ReportNode.NO_OP);
+    public Network setMinimumAcceptableValidationLevel(ValidationLevel minLevel) {
+        Objects.requireNonNull(minLevel);
+        ValidationLevel currentLevel = getValidationLevel();
+        if (currentLevel.compareTo(minLevel) < 0) {
+            throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + minLevel);
         }
-        if (this.validationLevel.compareTo(validationLevel) < 0) {
-            throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + validationLevel);
-        }
-        this.minValidationLevel = validationLevel;
+        this.minValidationLevel = minLevel;
         return this;
     }
 
