@@ -30,6 +30,7 @@ public class AreaInterchangeTargetModification extends AbstractNetworkModificati
         this.areaId = Objects.requireNonNull(areadId);
         this.interchangeTarget = interchangeTarget;
     }
+
     @Override
     public String getName() {
         return "AreaInterchangeModification";
@@ -53,7 +54,7 @@ public class AreaInterchangeTargetModification extends AbstractNetworkModificati
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else {
             if (area.getInterchangeTarget().isPresent() && Math.abs(interchangeTarget - area.getInterchangeTarget().getAsDouble()) < EPSILON
-              || area.getInterchangeTarget().isEmpty() && Double.isNaN(interchangeTarget)) {
+                || area.getInterchangeTarget().isEmpty() && Double.isNaN(interchangeTarget)) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         }
