@@ -19,10 +19,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.util.TwtData;
-import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-
-import java.util.Objects;
 
 /**
  * ThreeWindingsTransformer Cgmes Conversion
@@ -61,16 +58,8 @@ import java.util.Objects;
  */
 public class ThreeWindingsTransformerConversion extends AbstractTransformerConversion {
 
-    private final ThreeWindingsTransformer t3w;
-
     public ThreeWindingsTransformerConversion(PropertyBags ends, Context context) {
         super(CgmesNames.POWER_TRANSFORMER, ends, context);
-        this.t3w = null;
-    }
-
-    public ThreeWindingsTransformerConversion(PropertyBag t3wEmptyBag, PropertyBags cgmesTerminals, ThreeWindingsTransformer t3w, Context context) {
-        super(CgmesNames.POWER_TRANSFORMER, t3wEmptyBag, cgmesTerminals, context);
-        this.t3w = Objects.requireNonNull(t3w);
     }
 
     @Override
@@ -220,9 +209,8 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc1, rcPtc1, rcRtc2, rcPtc2, rcRtc3, rcPtc3);
     }
 
-    @Override
-    public void update() {
-        updateTerminals(context, t3w.getLeg1().getTerminal(), t3w.getLeg2().getTerminal(), t3w.getLeg3().getTerminal());
+    public static void update(ThreeWindingsTransformer t3w, Context context) {
+        updateTerminals(t3w, context, t3w.getLeg1().getTerminal(), t3w.getLeg2().getTerminal(), t3w.getLeg3().getTerminal());
 
         boolean isAllowedToRegulatePtc1 = true;
         t3w.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, "1", context, isAllowedToRegulatePtc1));

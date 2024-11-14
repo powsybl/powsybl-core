@@ -41,10 +41,6 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         super(type, ends, context);
     }
 
-    AbstractTransformerConversion(String type, PropertyBag transformerPropertyBag, PropertyBags cgmesTerminals, Context context) {
-        super(type, transformerPropertyBag, cgmesTerminals, context);
-    }
-
     protected static void setToIidmRatioTapChanger(TapChanger rtc, RatioTapChangerAdder rtca) {
         boolean isLtcFlag = rtc.isLtcFlag();
         int lowStep = rtc.getLowTapPosition();

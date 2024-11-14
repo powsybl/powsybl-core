@@ -18,10 +18,8 @@ import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.Cgme
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -61,17 +59,10 @@ import java.util.Optional;
  */
 public class TwoWindingsTransformerConversion extends AbstractTransformerConversion implements EquipmentAtBoundaryConversion {
 
-    private final TwoWindingsTransformer t2w;
     private DanglingLine danglingLine;
 
     public TwoWindingsTransformerConversion(PropertyBags ends, Context context) {
         super(CgmesNames.POWER_TRANSFORMER, ends, context);
-        this.t2w = null;
-    }
-
-    public TwoWindingsTransformerConversion(PropertyBag t2wEmptyBag, PropertyBags cgmesTerminals, TwoWindingsTransformer t2w, Context context) {
-        super(CgmesNames.POWER_TRANSFORMER, t2wEmptyBag, cgmesTerminals, context);
-        this.t2w = Objects.requireNonNull(t2w);
     }
 
     @Override
@@ -252,9 +243,8 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         return getValue(convertedT2xModel.end1.b, getStepB1(convertedT2xModel.end1.ratioTapChanger), getStepB1(convertedT2xModel.end1.phaseTapChanger));
     }
 
-    @Override
-    public void update() {
-        updateTerminals(context, t2w.getTerminal1(), t2w.getTerminal2());
+    public static void update(TwoWindingsTransformer t2w, Context context) {
+        updateTerminals(t2w, context, t2w.getTerminal1(), t2w.getTerminal2());
 
         boolean isAllowedToRegulatePtc = true;
         t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t2w, ptc, "", context, isAllowedToRegulatePtc));

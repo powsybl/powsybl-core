@@ -30,39 +30,26 @@ public final class Update {
     private Update() {
     }
 
-    public static boolean isConvertSeparatedFromUpdate(PropertyBag p) {
-        return p.propertyNames().contains("EnergyConsumer")
-                || p.propertyNames().contains("ConformLoad")
-                || p.propertyNames().contains("NonConformLoad")
-                || p.propertyNames().contains("ConformLoad")
-                || p.propertyNames().contains("StationSupply")
-                || p.propertyNames().contains("TwoWindingsTransformer")
-                || p.propertyNames().contains("ThreeWindingsTransformer");
-    }
-
     static void updateLoads(Network network, CgmesModel cgmes, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.LOAD.name()));
 
-        Map<String, PropertyBag> identifiablePropertyBag = new HashMap<>();
-        addPropertyBags(cgmes.energyConsumers(), CgmesNames.ENERGY_CONSUMER, identifiablePropertyBag);
-        addPropertyBags(cgmes.energySources(), CgmesNames.ENERGY_SOURCE, identifiablePropertyBag);
-        addPropertyBags(cgmes.asynchronousMachines(), CgmesNames.ASYNCHRONOUS_MACHINE, identifiablePropertyBag);
+        Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
+        addPropertyBags(cgmes.energyConsumers(), CgmesNames.ENERGY_CONSUMER, equipmentIdPropertyBag);
+        addPropertyBags(cgmes.energySources(), CgmesNames.ENERGY_SOURCE, equipmentIdPropertyBag);
+        addPropertyBags(cgmes.asynchronousMachines(), CgmesNames.ASYNCHRONOUS_MACHINE, equipmentIdPropertyBag);
 
-        network.getLoads().forEach(load -> updateLoad(load, getPropertyBag(load.getId(), identifiablePropertyBag), context));
+        network.getLoads().forEach(load -> updateLoad(load, getPropertyBag(load.getId(), equipmentIdPropertyBag), context));
         context.popReportNode();
     }
 
     private static void updateLoad(Load load, PropertyBag cgmesData, Context context) {
         if (!load.isFictitious()) { // Loads from SvInjections are fictitious
             String originalClass = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
-            PropertyBag cgmesTerminal = getPropertyBagOfCgmesTerminal(load, context);
 
             switch (originalClass) {
-                case CgmesNames.ENERGY_SOURCE -> new EnergySourceConversion(cgmesData, cgmesTerminal, load, context).update();
-                case CgmesNames.ASYNCHRONOUS_MACHINE ->
-                        new AsynchronousMachineConversion(cgmesData, cgmesTerminal, load, context).update();
-                case CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY, CgmesNames.ENERGY_CONSUMER ->
-                        new EnergyConsumerConversion(cgmesData, cgmesTerminal, load, context).update();
+                case CgmesNames.ENERGY_SOURCE -> EnergySourceConversion.update(cgmesData, load, context);
+                case CgmesNames.ASYNCHRONOUS_MACHINE -> AsynchronousMachineConversion.update(cgmesData, load, context);
+                case CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY, CgmesNames.ENERGY_CONSUMER -> EnergyConsumerConversion.update(cgmesData, load, context);
                 default ->
                         throw new ConversionException("Unexpected originalClass " + originalClass + " for Load: " + load.getId());
             }
@@ -71,30 +58,20 @@ public final class Update {
 
     static void updateTwoAndThreeWindingsTransformers(Network network, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.TWO_WINDINGS_TRANSFORMER.name()));
-        network.getTwoWindingsTransformers().forEach(t2w -> updateTwoWindingsTransformer(t2w, namedPropertyBag("TwoWindingsTransformer", t2w.getId()), context));
+        network.getTwoWindingsTransformers().forEach(t2w -> TwoWindingsTransformerConversion.update(t2w, context));
         context.popReportNode();
 
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.THREE_WINDINGS_TRANSFORMER.name()));
-        network.getThreeWindingsTransformers().forEach(t3w -> updateThreeWindingsTransformer(t3w, namedPropertyBag("ThreeWindingsTransformer", t3w.getId()), context));
+        network.getThreeWindingsTransformers().forEach(t3w -> ThreeWindingsTransformerConversion.update(t3w, context));
         context.popReportNode();
     }
 
-    private static void updateTwoWindingsTransformer(TwoWindingsTransformer t2w, PropertyBag cgmesData, Context context) {
-        PropertyBags cgmesTerminals = getPropertyBagsOfCgmesTerminals(t2w, context);
-        new TwoWindingsTransformerConversion(cgmesData, cgmesTerminals, t2w, context).update();
+    private static void addPropertyBags(PropertyBags propertyBags, String idTag, Map<String, PropertyBag> equipmentIdPropertyBag) {
+        propertyBags.forEach(propertyBag -> equipmentIdPropertyBag.put(propertyBag.getId(idTag), propertyBag));
     }
 
-    private static void updateThreeWindingsTransformer(ThreeWindingsTransformer t3w, PropertyBag cgmesData, Context context) {
-        PropertyBags cgmesTerminals = getPropertyBagsOfCgmesTerminals(t3w, context);
-        new ThreeWindingsTransformerConversion(cgmesData, cgmesTerminals, t3w, context).update();
-    }
-
-    private static void addPropertyBags(PropertyBags propertyBags, String idTag, Map<String, PropertyBag> identifiablePropertyBag) {
-        propertyBags.forEach(propertyBag -> identifiablePropertyBag.put(propertyBag.getId(idTag), propertyBag));
-    }
-
-    private static PropertyBag getPropertyBag(String identifiableId, Map<String, PropertyBag> identifiablePropertyBag) {
-        return identifiablePropertyBag.containsKey(identifiableId) ? identifiablePropertyBag.get(identifiableId) : emptyPropertyBag();
+    private static PropertyBag getPropertyBag(String identifiableId, Map<String, PropertyBag> equipmentIdPropertyBag) {
+        return equipmentIdPropertyBag.containsKey(identifiableId) ? equipmentIdPropertyBag.get(identifiableId) : emptyPropertyBag();
     }
 
     private static PropertyBag getPropertyBagOfCgmesTerminal(Connectable<?> connectable, Context context) {
@@ -123,11 +100,5 @@ public final class Update {
 
     private static PropertyBag emptyPropertyBag() {
         return new PropertyBag(Collections.emptyList(), false);
-    }
-
-    private static PropertyBag namedPropertyBag(String propertyName, String id) {
-        PropertyBag propertyBag = new PropertyBag(Collections.emptyList(), false);
-        propertyBag.put(propertyName, id);
-        return propertyBag;
     }
 }

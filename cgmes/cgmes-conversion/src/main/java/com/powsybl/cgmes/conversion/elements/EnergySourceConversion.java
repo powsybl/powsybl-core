@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.List;
-import java.util.Objects;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
 
@@ -25,12 +24,6 @@ import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
 public class EnergySourceConversion extends AbstractConductingEquipmentConversion {
     public EnergySourceConversion(PropertyBag es, Context context) {
         super(CgmesNames.ENERGY_SOURCE, es, context);
-        this.load = null;
-    }
-
-    public EnergySourceConversion(PropertyBag es, PropertyBag cgmesTerminal, Load load, Context context) {
-        super(CgmesNames.ENERGY_SOURCE, es, cgmesTerminal, context);
-        this.load = Objects.requireNonNull(load);
     }
 
     @Override
@@ -52,16 +45,14 @@ public class EnergySourceConversion extends AbstractConductingEquipmentConversio
         newLoad.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ENERGY_SOURCE);
     }
 
-    @Override
-    public void update() {
-        updateTerminals(context, load.getTerminal());
-        load.setP0(updatedP0().orElse(defaultValue(Double.NaN, load.getP0(), 0.0, Double.NaN, getDefaultValueSelector(context))))
-                .setQ0(updatedQ0().orElse(defaultValue(Double.NaN, load.getQ0(), 0.0, Double.NaN, getDefaultValueSelector(context))));
+    public static void update(PropertyBag cgmesData, Load load, Context context) {
+        updateTerminals(load, context, load.getTerminal());
+
+        load.setP0(updatedP0(load, cgmesData, context).orElse(defaultValue(Double.NaN, load.getP0(), 0.0, Double.NaN, getDefaultValueSelector(context))));
+        load.setQ0(updatedQ0(load, cgmesData, context).orElse(defaultValue(Double.NaN, load.getQ0(), 0.0, Double.NaN, getDefaultValueSelector(context))));
     }
 
     private static Conversion.Config.DefaultValue getDefaultValueSelector(Context context) {
         return getDefaultValueSelector(List.of(PREVIOUS, DEFAULT, EMPTY), context);
     }
-
-    private final Load load;
 }

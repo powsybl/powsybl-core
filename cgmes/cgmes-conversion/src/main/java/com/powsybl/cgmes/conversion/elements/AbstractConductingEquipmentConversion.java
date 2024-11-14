@@ -21,11 +21,10 @@ import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
-
-import static com.powsybl.cgmes.conversion.Update.isConvertSeparatedFromUpdate;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -41,19 +40,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             PropertyBag p,
             Context context) {
         super(type, p, context);
-        if (isConvertSeparatedFromUpdate(p)) {
-            numTerminals = 1;
-            terminals = new TerminalData[]{null, null, null};
-            terminals[0] = new TerminalData(CgmesNames.TERMINAL, p, context);
-            steadyStatePowerFlow = PowerFlow.UNDEFINED;
-            updatedTerminals = null;
-        } else {
-            numTerminals = 1;
-            terminals = new TerminalData[]{null, null, null};
-            terminals[0] = new TerminalData(CgmesNames.TERMINAL, p, context);
-            steadyStatePowerFlow = new PowerFlow(p, "p", "q");
-            updatedTerminals = null;
-        }
+        numTerminals = 1;
+        terminals = new TerminalData[]{null, null, null};
+        terminals[0] = new TerminalData(CgmesNames.TERMINAL, p, context);
+        steadyStatePowerFlow = new PowerFlow(p, "p", "q");
+
     }
 
     protected AbstractConductingEquipmentConversion(
@@ -73,7 +64,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             terminals[k0] = new TerminalData(CgmesNames.TERMINAL + k, p, context);
         }
         steadyStatePowerFlow = PowerFlow.UNDEFINED;
-        updatedTerminals = null;
     }
 
     protected AbstractConductingEquipmentConversion(
@@ -94,35 +84,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             terminals[k0] = new TerminalData(CgmesNames.TERMINAL, ps.get(k0), context);
         }
         steadyStatePowerFlow = PowerFlow.UNDEFINED;
-        updatedTerminals = null;
-    }
-
-    protected AbstractConductingEquipmentConversion(
-            String type,
-            PropertyBag p,
-            PropertyBag cgmesTerminal,
-            Context context) {
-        super(type, p, context);
-        numTerminals = 1;
-        terminals = null;
-        steadyStatePowerFlow = new PowerFlow(p, "p", "q");
-        updatedTerminals = new UpdatedTerminalData[]{null, null, null};
-        updatedTerminals[0] = new UpdatedTerminalData(cgmesTerminal);
-    }
-
-    protected AbstractConductingEquipmentConversion(
-            String type,
-            PropertyBag p,
-            PropertyBags cgmesTerminals,
-            Context context) {
-        super(type, p, context);
-        numTerminals = cgmesTerminals.size();
-        terminals = null;
-        steadyStatePowerFlow = PowerFlow.UNDEFINED;
-        updatedTerminals = new UpdatedTerminalData[]{null, null, null};
-        for (int i = 0; i < cgmesTerminals.size(); i++) {
-            updatedTerminals[i] = new UpdatedTerminalData(cgmesTerminals.get(i));
-        }
     }
 
     public String findPairingKey(String boundaryNode) {
@@ -495,19 +456,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminals[0].t.flow();
     }
 
-    private PowerFlow updatedStateVariablesPowerFlow() {
-        return new PowerFlow(updatedTerminals[0].cgmesTerminal, "p", "q");
-    }
-
     public PowerFlow stateVariablesPowerFlow(int n) {
         return terminals[n - 1].t.flow();
     }
 
     private PowerFlow steadyStateHypothesisPowerFlow() {
-        return steadyStatePowerFlow;
-    }
-
-    private PowerFlow updatedSteadyStateHypothesisPowerFlow() {
         return steadyStatePowerFlow;
     }
 
@@ -517,16 +470,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
         if (stateVariablesPowerFlow().defined()) {
             return stateVariablesPowerFlow();
-        }
-        return PowerFlow.UNDEFINED;
-    }
-
-    PowerFlow updatedPowerFlow() {
-        if (updatedSteadyStateHypothesisPowerFlow().defined()) {
-            return updatedSteadyStateHypothesisPowerFlow();
-        }
-        if (updatedStateVariablesPowerFlow().defined()) {
-            return updatedStateVariablesPowerFlow();
         }
         return PowerFlow.UNDEFINED;
     }
@@ -569,12 +512,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    protected void updateTerminals(Context context, Terminal... ts) {
-        if (ts.length != numTerminals) {
-            throw new IllegalArgumentException();
-        }
+    protected static void updateTerminals(Connectable<?> connectable, Context context, Terminal... ts) {
+        PropertyBags cgmesTerminals = getPropertyBagsOfTerminals(connectable, context, ts.length);
         for (int k = 0; k < ts.length; k++) {
-            updateTerminal(updatedTerminals[k].cgmesTerminal, ts[k], context);
+            updateTerminal(cgmesTerminals.get(k), ts[k], context);
         }
     }
 
@@ -608,6 +549,33 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     private static boolean setPQAllowed(Terminal t) {
         return t.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION;
+    }
+
+    private static PropertyBag getPropertyBagsOfTerminal(Connectable<?> connectable, Context context) {
+        return getPropertyBagsOfTerminals(connectable, context, 1).get(0);
+    }
+
+    private static PropertyBags getPropertyBagsOfTerminals(Connectable<?> connectable, Context context, int numTerminals) {
+        PropertyBags propertyBags = new PropertyBags();
+        getTerminalTags(numTerminals).forEach(terminalTag -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + terminalTag)
+                .ifPresent(cgmesTerminalId -> propertyBags.add(getPropertyBagOfTerminal(cgmesTerminalId, context))));
+        return propertyBags;
+    }
+
+    private static List<String> getTerminalTags(int numTerminals) {
+        return switch (numTerminals) {
+            case 1 -> List.of(CgmesNames.TERMINAL1);
+            case 2 -> List.of(CgmesNames.TERMINAL1, CgmesNames.TERMINAL2);
+            case 3 -> List.of(CgmesNames.TERMINAL1, CgmesNames.TERMINAL2, CgmesNames.TERMINAL3);
+            default -> throw new PowsyblException("unexpected number of terminals " + numTerminals);
+        };
+    }
+
+    // If the propertyBag is not received, an empty one is returned.
+    private static PropertyBag getPropertyBagOfTerminal(String cgmesTerminalId, Context context) {
+        return context.cgmesTerminal(cgmesTerminalId) != null
+                ? context.cgmesTerminal(cgmesTerminalId)
+                : new PropertyBag(Collections.emptyList(), false);
     }
 
     private final int numTerminals;
@@ -654,14 +622,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    static class UpdatedTerminalData {
-        private final PropertyBag cgmesTerminal;
-
-        UpdatedTerminalData(PropertyBag cgmesTerminal) {
-            this.cgmesTerminal = cgmesTerminal;
-        }
-    }
-        // Connections
+    // Connect
 
     public void connect(InjectionAdder<?, ?> adder) {
         if (context.nodeBreaker()) {
@@ -833,12 +794,26 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return powerFlow().defined() ? powerFlow().q() : 0.0;
     }
 
-    protected OptionalDouble updatedP0() {
-        return updatedPowerFlow().defined() ? OptionalDouble.of(updatedPowerFlow().p()) : OptionalDouble.empty();
+    protected static OptionalDouble updatedP0(Connectable<?> connectable, PropertyBag cgmesData, Context context) {
+        PowerFlow powerFlow = getPowerFlow(cgmesData, getPropertyBagsOfTerminal(connectable, context));
+        return powerFlow.defined() ? OptionalDouble.of(powerFlow.p()) : OptionalDouble.empty();
     }
 
-    protected OptionalDouble updatedQ0() {
-        return updatedPowerFlow().defined() ? OptionalDouble.of(updatedPowerFlow().q()) : OptionalDouble.empty();
+    protected static OptionalDouble updatedQ0(Connectable<?> connectable, PropertyBag cgmesData, Context context) {
+        PowerFlow powerFlow = getPowerFlow(cgmesData, getPropertyBagsOfTerminal(connectable, context));
+        return powerFlow.defined() ? OptionalDouble.of(powerFlow.q()) : OptionalDouble.empty();
+    }
+
+    private static PowerFlow getPowerFlow(PropertyBag cgmesData, PropertyBag cgmesTerminal) {
+        PowerFlow steadyStateHypothesisPowerFlow = new PowerFlow(cgmesData, "p", "q");
+        if (steadyStateHypothesisPowerFlow.defined()) {
+            return steadyStateHypothesisPowerFlow;
+        }
+        PowerFlow stateVariablesPowerFlow = new PowerFlow(cgmesTerminal, "p", "q");
+        if (stateVariablesPowerFlow.defined()) {
+            return stateVariablesPowerFlow;
+        }
+        return PowerFlow.UNDEFINED;
     }
 
     protected static int defaultValue(int eq, int previous, int defaultValue, int emptyValue, Conversion.Config.DefaultValue defaultValueSelector) {
@@ -870,5 +845,4 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     private final TerminalData[] terminals;
     private final PowerFlow steadyStatePowerFlow;
-    private final UpdatedTerminalData[] updatedTerminals;
 }
