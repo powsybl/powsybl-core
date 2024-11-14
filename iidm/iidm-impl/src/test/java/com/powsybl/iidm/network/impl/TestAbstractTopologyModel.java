@@ -22,12 +22,12 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Lucas Leblow {@literal <lucasleblow@mailbox.org>}
  */
-class TestAbstractVoltageLevel {
+class TestAbstractTopologyModel {
 
     @Test
     void testLoadNodeIndexLimit() throws IOException {
-        assertEquals(1000, AbstractVoltageLevel.NODE_INDEX_LIMIT);
-        assertEquals(1000, AbstractVoltageLevel.loadNodeIndexLimit(PlatformConfig.defaultConfig()));
+        assertEquals(1000, AbstractTopologyModel.NODE_INDEX_LIMIT);
+        assertEquals(1000, AbstractTopologyModel.loadNodeIndexLimit(PlatformConfig.defaultConfig()));
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
 
@@ -35,7 +35,7 @@ class TestAbstractVoltageLevel {
             MapModuleConfig moduleConfig = platformConfig.createModuleConfig("iidm");
             moduleConfig.setStringProperty("node-index-limit", "5");
 
-            assertEquals(5, AbstractVoltageLevel.loadNodeIndexLimit(platformConfig));
+            assertEquals(5, AbstractTopologyModel.loadNodeIndexLimit(platformConfig));
         }
     }
 }
