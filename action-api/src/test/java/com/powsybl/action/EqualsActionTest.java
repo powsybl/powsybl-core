@@ -546,4 +546,34 @@ class EqualsActionTest {
                 .testEquals();
     }
 
+    @Test
+    void interchangeTargetAction() {
+        AreaInterchangeTargetUpdateAction action1 = new AreaInterchangeTargetUpdateActionBuilder().withId("id")
+            .withAreaId("area1")
+            .withTarget(1.0)
+            .build();
+        AreaInterchangeTargetUpdateAction action2 = new AreaInterchangeTargetUpdateActionBuilder().withId("id")
+            .withAreaId("area1")
+            .withTarget(1.0)
+            .build();
+        AreaInterchangeTargetUpdateAction action3 = new AreaInterchangeTargetUpdateActionBuilder().withId("id2")
+            .withAreaId("area1")
+            .withTarget(1.0)
+            .build();
+        AreaInterchangeTargetUpdateAction action4 = new AreaInterchangeTargetUpdateActionBuilder().withId("id")
+            .withAreaId("area2")
+            .withTarget(1.0)
+            .build();
+        AreaInterchangeTargetUpdateAction action5 = new AreaInterchangeTargetUpdateActionBuilder().withId("id")
+            .withAreaId("area1")
+            .withTarget(2.0)
+            .build();
+        new EqualsTester()
+            .addEqualityGroup(action1, action2)
+            .addEqualityGroup(action3)
+            .addEqualityGroup(action4)
+            .addEqualityGroup(action5)
+            .testEquals();
+    }
+
 }
