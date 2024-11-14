@@ -46,7 +46,7 @@ public class AreaInterchangeTargetUpdateActionBuilder implements ActionBuilder<A
     }
 
     public AreaInterchangeTargetUpdateActionBuilder withAreaId(String areaId) {
-        this.areaId = areaId;
+        this.withNetworkElementId(areaId);
         return this;
     }
 
