@@ -8,9 +8,9 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Area;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -22,6 +22,10 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -79,6 +83,26 @@ class TieFlowConversionTest {
         assertEquals(5, controlArea.getAreaBoundaryStream().filter(b -> b.getTerminal().isPresent()).count());
         assertEquals(0, controlArea.getAreaBoundaryStream().filter(b -> b.getBoundary().isPresent()).count());
         assertTrue(containsTerminal(controlArea, "17086487-56ba-4979-b8de-064025a6b4da", IdentifiableType.DANGLING_LINE));
+    }
+
+    @Test
+    void testHvdcTieFlow() {
+        Network n = Network.read(new ResourceDataSource("HvdcTieFlow",
+                new ResourceSet("/", "HvdcTieFlow_EQ.xml", "HvdcTieFlow_EQBD.xml", "HvdcTieFlow_TPBD.xml")));
+        assertNotNull(n);
+        // The first and only boundary inside the control area must be boundary and HVDC
+        assertTrue(n.getArea("Control_Area").getAreaBoundaries().iterator().next().getBoundary().isPresent());
+        assertFalse(n.getArea("Control_Area").getAreaBoundaries().iterator().next().isAc());
+
+        Properties importConvertingBoundary = new Properties();
+        importConvertingBoundary.put(CgmesImport.CONVERT_BOUNDARY, "true");
+        Network n2 = Network.read(new ResourceDataSource("TieFlows",
+                new ResourceSet("/", "HvdcTieFlow_EQ.xml", "HvdcTieFlow_EQBD.xml", "HvdcTieFlow_TPBD.xml")),
+                importConvertingBoundary);
+        assertNotNull(n2);
+        // The first and only boundary inside the control area must be a terminal and HVDC
+        assertTrue(n2.getArea("Control_Area").getAreaBoundaries().iterator().next().getTerminal().isPresent());
+        assertFalse(n2.getArea("Control_Area").getAreaBoundaries().iterator().next().isAc());
     }
 
     private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {

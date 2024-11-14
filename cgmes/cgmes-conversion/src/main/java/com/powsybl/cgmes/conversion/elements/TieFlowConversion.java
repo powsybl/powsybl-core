@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.RegulatingTerminalMapper;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -37,18 +38,26 @@ public class TieFlowConversion extends AbstractIdentifiedObjectConversion {
             return;
         }
         String terminalId = p.getId("terminal");
+        boolean isAc = isConsideredAcTieFlow(terminalId);
         Boundary boundary = context.terminalMapping().findBoundary(terminalId, context.cgmes());
         if (boundary != null) {
             area.newAreaBoundary()
-                    .setAc(true)
+                    .setAc(isAc)
                     .setBoundary(boundary)
                     .add();
             return;
         }
         RegulatingTerminalMapper.mapForTieFlow(terminalId, context)
                 .ifPresent(t -> area.newAreaBoundary()
-                        .setAc(true)
+                        .setAc(isAc)
                         .setTerminal(t)
                         .add());
+    }
+
+    private boolean isConsideredAcTieFlow(String terminalId) {
+        CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId);
+        String node = cgmesTerminal.topologicalNode() == null ? cgmesTerminal.connectivityNode() : cgmesTerminal.topologicalNode();
+        boolean isDc = context.boundary().isHvdc(node);
+        return !isDc;
     }
 }
