@@ -7,6 +7,9 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.AreaInterchangeTargetModification;
+import com.powsybl.iidm.modification.NetworkModification;
+
 import java.util.Objects;
 
 /**
@@ -60,5 +63,10 @@ public class AreaInterchangeTargetUpdateAction extends AbstractAction {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), interchangeTarget, areaId);
+    }
+
+    @Override
+    public NetworkModification toModification() {
+        return new AreaInterchangeTargetModification(areaId, interchangeTarget);
     }
 }
