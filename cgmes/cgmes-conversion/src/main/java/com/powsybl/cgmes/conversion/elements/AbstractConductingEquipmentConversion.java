@@ -73,7 +73,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         super(type, ps, context);
         // Information about each terminal is in each separate property bags
         // It is assumed the property bags are already sorted
-        // Same code for property bags where convert has been separated from update
         this.numTerminals = ps.size();
         terminals = new TerminalData[]{null, null, null};
         if (numTerminals > 3) {
