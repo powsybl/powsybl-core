@@ -74,30 +74,6 @@ public final class Update {
         return equipmentIdPropertyBag.containsKey(identifiableId) ? equipmentIdPropertyBag.get(identifiableId) : emptyPropertyBag();
     }
 
-    private static PropertyBag getPropertyBagOfCgmesTerminal(Connectable<?> connectable, Context context) {
-        Optional<String> cgmesTerminalId = connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
-        if (cgmesTerminalId.isPresent()) {
-            return getPropertyBagOfCgmesTerminal(cgmesTerminalId.get(), context);
-        } else {
-            return emptyPropertyBag();
-        }
-    }
-
-    private static PropertyBags getPropertyBagsOfCgmesTerminals(Connectable<?> connectable, Context context) {
-        PropertyBags propertyBags = new PropertyBags();
-        connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1)
-                .ifPresent(cgmesTerminalId -> propertyBags.add(getPropertyBagOfCgmesTerminal(cgmesTerminalId, context)));
-        connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2)
-                .ifPresent(cgmesTerminalId -> propertyBags.add(getPropertyBagOfCgmesTerminal(cgmesTerminalId, context)));
-        connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL3)
-                .ifPresent(cgmesTerminalId -> propertyBags.add(getPropertyBagOfCgmesTerminal(cgmesTerminalId, context)));
-        return propertyBags;
-    }
-
-    private static PropertyBag getPropertyBagOfCgmesTerminal(String cgmesTerminalId, Context context) {
-        return context.cgmesTerminal(cgmesTerminalId) != null ? context.cgmesTerminal(cgmesTerminalId) : emptyPropertyBag();
-    }
-
     private static PropertyBag emptyPropertyBag() {
         return new PropertyBag(Collections.emptyList(), false);
     }
