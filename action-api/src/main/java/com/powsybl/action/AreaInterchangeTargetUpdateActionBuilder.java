@@ -1,5 +1,15 @@
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.action;
 
+/**
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
+ */
 public class AreaInterchangeTargetUpdateActionBuilder implements ActionBuilder<AreaInterchangeTargetUpdateActionBuilder> {
 
     private String id;
@@ -26,10 +36,11 @@ public class AreaInterchangeTargetUpdateActionBuilder implements ActionBuilder<A
 
     @Override
     public AreaInterchangeTargetUpdateActionBuilder withNetworkElementId(String elementId) {
+        this.areaId = elementId;
         return this;
     }
 
-    public AreaInterchangeTargetUpdateActionBuilder withTarget(Double target) {
+    public AreaInterchangeTargetUpdateActionBuilder withTarget(double target) {
         this.target = target;
         return this;
     }
