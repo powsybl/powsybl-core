@@ -247,12 +247,12 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         updateTerminals(t2w, context, t2w.getTerminal1(), t2w.getTerminal2());
 
         boolean isAllowedToRegulatePtc = true;
-        t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t2w, ptc, "", context, isAllowedToRegulatePtc));
+        t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t2w, ptc, context, isAllowedToRegulatePtc));
 
         boolean isAllowedToRegulateRtc = checkOnlyOneEnabled(isAllowedToRegulatePtc, t2w.getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
-        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t2w, rtc, "", context, isAllowedToRegulateRtc));
+        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t2w, rtc, context, isAllowedToRegulateRtc));
 
-        t2w.getOperationalLimitsGroups1().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, "1", t2w, context));
-        t2w.getOperationalLimitsGroups2().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, "2", t2w, context));
+        t2w.getOperationalLimitsGroups1().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(t2w, operationalLimitsGroup, TwoSides.ONE, context));
+        t2w.getOperationalLimitsGroups2().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(t2w, operationalLimitsGroup, TwoSides.TWO, context));
     }
 }

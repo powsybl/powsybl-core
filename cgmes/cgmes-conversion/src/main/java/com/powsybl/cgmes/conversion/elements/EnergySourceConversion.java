@@ -11,6 +11,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -45,11 +46,12 @@ public class EnergySourceConversion extends AbstractConductingEquipmentConversio
         newLoad.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ENERGY_SOURCE);
     }
 
-    public static void update(PropertyBag cgmesData, Load load, Context context) {
+    public static void update(Load load, PropertyBag cgmesData, Context context) {
         updateTerminals(load, context, load.getTerminal());
 
-        load.setP0(updatedP0(load, cgmesData, context).orElse(defaultValue(Double.NaN, load.getP0(), 0.0, Double.NaN, getDefaultValueSelector(context))));
-        load.setQ0(updatedQ0(load, cgmesData, context).orElse(defaultValue(Double.NaN, load.getQ0(), 0.0, Double.NaN, getDefaultValueSelector(context))));
+        PowerFlow updatedPowerFlow = updatedPowerFlow(load, cgmesData, context);
+        load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : defaultValue(Double.NaN, load.getP0(), 0.0, Double.NaN, getDefaultValueSelector(context)));
+        load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : defaultValue(Double.NaN, load.getQ0(), 0.0, Double.NaN, getDefaultValueSelector(context)));
     }
 
     private static Conversion.Config.DefaultValue getDefaultValueSelector(Context context) {

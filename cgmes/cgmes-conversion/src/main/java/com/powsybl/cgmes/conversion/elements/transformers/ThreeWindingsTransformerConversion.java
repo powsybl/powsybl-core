@@ -213,22 +213,22 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         updateTerminals(t3w, context, t3w.getLeg1().getTerminal(), t3w.getLeg2().getTerminal(), t3w.getLeg3().getTerminal());
 
         boolean isAllowedToRegulatePtc1 = true;
-        t3w.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, "1", context, isAllowedToRegulatePtc1));
+        t3w.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, ThreeSides.ONE, context, isAllowedToRegulatePtc1));
         boolean isAllowedToRegulateRtc1 = checkOnlyOneEnabled(isAllowedToRegulatePtc1, t3w.getLeg1().getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
-        t3w.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, "1", context, isAllowedToRegulateRtc1));
+        t3w.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, ThreeSides.ONE, context, isAllowedToRegulateRtc1));
 
         boolean isAllowedToRegulatePtc2 = checkOnlyOneEnabled(isAllowedToRegulateRtc1, t3w.getLeg1().getOptionalRatioTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
-        t3w.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, "2", context, isAllowedToRegulatePtc2));
+        t3w.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, ThreeSides.TWO, context, isAllowedToRegulatePtc2));
         boolean isAllowedToRegulateRtc2 = checkOnlyOneEnabled(isAllowedToRegulatePtc2, t3w.getLeg2().getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
-        t3w.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, "2", context, isAllowedToRegulateRtc2));
+        t3w.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, ThreeSides.TWO, context, isAllowedToRegulateRtc2));
 
         boolean isAllowedToRegulatePtc3 = checkOnlyOneEnabled(isAllowedToRegulateRtc2, t3w.getLeg2().getOptionalRatioTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
-        t3w.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, "3", context, isAllowedToRegulatePtc3));
+        t3w.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, ThreeSides.THREE, context, isAllowedToRegulatePtc3));
         boolean isAllowedToRegulateRtc3 = checkOnlyOneEnabled(isAllowedToRegulatePtc3, t3w.getLeg3().getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
-        t3w.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, "3", context, isAllowedToRegulateRtc3));
+        t3w.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, ThreeSides.THREE, context, isAllowedToRegulateRtc3));
 
-        t3w.getLeg1().getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, "1", t3w, context));
-        t3w.getLeg2().getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, "2", t3w, context));
-        t3w.getLeg3().getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, "3", t3w, context));
+        t3w.getLeg1().getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(t3w, operationalLimitsGroup, ThreeSides.ONE, context));
+        t3w.getLeg2().getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(t3w, operationalLimitsGroup, ThreeSides.TWO, context));
+        t3w.getLeg3().getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(t3w, operationalLimitsGroup, ThreeSides.THREE, context));
     }
 }

@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 import static com.powsybl.cgmes.conversion.Update.updateLoads;
-import static com.powsybl.cgmes.conversion.Update.updateTwoAndThreeWindingsTransformers;
+import static com.powsybl.cgmes.conversion.Update.updateTransformers;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -332,7 +332,7 @@ public class Conversion {
         }
 
         updateLoads(network, cgmes, updateContext);
-        updateTwoAndThreeWindingsTransformers(network, updateContext);
+        updateTransformers(network, updateContext);
 
         completeVoltagesAndAngles(network);
 
