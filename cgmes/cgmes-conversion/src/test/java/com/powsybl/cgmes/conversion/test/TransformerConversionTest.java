@@ -8,6 +8,7 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.Conversion.*;
@@ -16,10 +17,7 @@ import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -31,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
@@ -322,6 +321,19 @@ class TransformerConversionTest {
         assertEquals(0, network.getTwoWindingsTransformer("LINEAR").getPhaseTapChanger().getCurrentStep().getX());
         assertEquals(0, network.getTwoWindingsTransformer("SYMMETRICAL").getPhaseTapChanger().getCurrentStep().getX());
         assertEquals(0, network.getTwoWindingsTransformer("ASYMMETRICAL").getPhaseTapChanger().getCurrentStep().getX());
+    }
+
+    @Test
+    void invalidEquipmentContainerTest() {
+        // A 2-w transformer unconnected on end 2 side. This results in a fictitious substation created for end 2
+        // and thus the 2 windings are in different substations, which is not allowed in IIDM.
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.CONVERT_BOUNDARY, true);
+        PowsyblException e = assertThrows(PowsyblException.class,
+                () -> readCgmesResources(importParams, DIR, "invalidEquipmentContainer_EQ.xml",
+                "invalidEquipmentContainer_EQBD.xml", "invalidEquipmentContainer_TPBD.xml"));
+        assertEquals("2 windings transformer 'T2W': the 2 windings of the transformer shall belong to the substation 'ST' ('ST', 'CN_BOUNDARY_S')",
+                e.getMessage());
     }
 
     private boolean t2xCompareFlow(Network n, String id, double p1, double q1, double p2, double q2) {

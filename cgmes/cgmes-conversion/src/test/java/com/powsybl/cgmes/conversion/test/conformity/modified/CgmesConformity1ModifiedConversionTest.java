@@ -19,7 +19,6 @@ import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.*;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
@@ -792,25 +791,6 @@ class CgmesConformity1ModifiedConversionTest {
         assertTrue(tx1s.getCurrentLimits2().isEmpty());
         assertNotNull(sw0);
         assertNotNull(sw1);
-    }
-
-    @Test
-    void miniNodeBreakerInvalidT2w() {
-        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        platformConfig.createModuleConfig("import-export-parameters-default-value")
-                .setStringProperty("iidm.import.cgmes.convert-boundary", "true");
-
-        Network network = new CgmesImport(platformConfig).importData(CgmesConformity1Catalog.miniNodeBreaker().dataSource(),
-                NetworkFactory.findDefault(), importParams);
-        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
-        assertNotNull(transformer);
-
-        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerInvalidT2w().dataSource();
-        CgmesImport importer = new CgmesImport(platformConfig);
-        NetworkFactory networkFactory = NetworkFactory.findDefault();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> importer.importData(ds, networkFactory, importParams));
-        assertEquals("2 windings transformer 'ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51': the 2 windings of the transformer shall belong to the substation '183d126d-2522-4ff2-a8cd-c5016cf09c1b_S' ('183d126d-2522-4ff2-a8cd-c5016cf09c1b_S', 'd6056127-34f1-43a9-b029-23fddb913bd5')",
-            e.getMessage());
     }
 
     @Test
