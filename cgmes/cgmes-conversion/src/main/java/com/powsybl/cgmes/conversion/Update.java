@@ -45,9 +45,10 @@ public final class Update {
             String originalClass = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
 
             switch (originalClass) {
-                case CgmesNames.ENERGY_SOURCE -> EnergySourceConversion.update(cgmesData, load, context);
-                case CgmesNames.ASYNCHRONOUS_MACHINE -> AsynchronousMachineConversion.update(cgmesData, load, context);
-                case CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY, CgmesNames.ENERGY_CONSUMER -> EnergyConsumerConversion.update(cgmesData, load, context);
+                case CgmesNames.ENERGY_SOURCE -> EnergySourceConversion.update(load, cgmesData, context);
+                case CgmesNames.ASYNCHRONOUS_MACHINE -> AsynchronousMachineConversion.update(load, cgmesData, context);
+                case CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY, CgmesNames.ENERGY_CONSUMER ->
+                        EnergyConsumerConversion.update(load, cgmesData, context);
                 default ->
                         throw new ConversionException("Unexpected originalClass " + originalClass + " for Load: " + load.getId());
             }

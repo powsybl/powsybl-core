@@ -11,6 +11,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.LoadDetailAdder;
@@ -141,14 +142,15 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         // else: EnergyConsumer - undefined
     }
 
-    public static void update(PropertyBag cgmesData, Load load, Context context) {
+    public static void update(Load load, PropertyBag cgmesData, Context context) {
         updateTerminals(load, context, load.getTerminal());
 
         double pFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + P_FIXED));
         double qFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + Q_FIXED));
 
-        load.setP0(updatedP0(load, cgmesData, context).orElse(defaultValue(pFixed, load.getP0(), 0.0, Double.NaN, getDefaultValueSelector(context))));
-        load.setQ0(updatedQ0(load, cgmesData, context).orElse(defaultValue(qFixed, load.getQ0(), 0.0, Double.NaN, getDefaultValueSelector(context))));
+        PowerFlow updatedPowerFlow = updatedPowerFlow(load, cgmesData, context);
+        load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : defaultValue(pFixed, load.getP0(), 0.0, Double.NaN, getDefaultValueSelector(context)));
+        load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : defaultValue(qFixed, load.getQ0(), 0.0, Double.NaN, getDefaultValueSelector(context)));
 
         updateLoadDetail(load, load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS), pFixed, qFixed);
     }

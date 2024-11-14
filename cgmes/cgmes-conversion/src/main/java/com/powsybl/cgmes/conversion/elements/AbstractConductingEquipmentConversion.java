@@ -24,8 +24,6 @@ import com.powsybl.triplestore.api.PropertyBags;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalDouble;
-
 import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.EMPTY;
 
 /**
@@ -514,7 +512,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected static void updateTerminals(Connectable<?> connectable, Context context, Terminal... ts) {
-        PropertyBags cgmesTerminals = getPropertyBagsOfTerminals(connectable, context, ts.length);
+        PropertyBags cgmesTerminals = getCgmesTerminals(connectable, context, ts.length);
         for (int k = 0; k < ts.length; k++) {
             updateTerminal(cgmesTerminals.get(k), ts[k], context);
         }
@@ -552,14 +550,14 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return t.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION;
     }
 
-    private static PropertyBag getPropertyBagsOfTerminal(Connectable<?> connectable, Context context) {
-        return getPropertyBagsOfTerminals(connectable, context, 1).get(0);
+    private static PropertyBag getCgmesTerminal(Connectable<?> connectable, Context context) {
+        return getCgmesTerminals(connectable, context, 1).get(0);
     }
 
-    private static PropertyBags getPropertyBagsOfTerminals(Connectable<?> connectable, Context context, int numTerminals) {
+    private static PropertyBags getCgmesTerminals(Connectable<?> connectable, Context context, int numTerminals) {
         PropertyBags propertyBags = new PropertyBags();
         getTerminalTags(numTerminals).forEach(terminalTag -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + terminalTag)
-                .ifPresent(cgmesTerminalId -> propertyBags.add(getPropertyBagOfTerminal(cgmesTerminalId, context))));
+                .ifPresent(cgmesTerminalId -> propertyBags.add(getCgmesTerminal(cgmesTerminalId, context))));
         return propertyBags;
     }
 
@@ -573,7 +571,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     // If the propertyBag is not received, an empty one is returned.
-    private static PropertyBag getPropertyBagOfTerminal(String cgmesTerminalId, Context context) {
+    private static PropertyBag getCgmesTerminal(String cgmesTerminalId, Context context) {
         return context.cgmesTerminal(cgmesTerminalId) != null
                 ? context.cgmesTerminal(cgmesTerminalId)
                 : new PropertyBag(Collections.emptyList(), false);
@@ -775,17 +773,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return powerFlow().defined() ? powerFlow().q() : 0.0;
     }
 
-    protected static OptionalDouble updatedP0(Connectable<?> connectable, PropertyBag cgmesData, Context context) {
-        PowerFlow powerFlow = getPowerFlow(cgmesData, getPropertyBagsOfTerminal(connectable, context));
-        return powerFlow.defined() ? OptionalDouble.of(powerFlow.p()) : OptionalDouble.empty();
-    }
+    protected static PowerFlow updatedPowerFlow(Connectable<?> connectable, PropertyBag cgmesData, Context context) {
+        PropertyBag cgmesTerminal = getCgmesTerminal(connectable, context);
 
-    protected static OptionalDouble updatedQ0(Connectable<?> connectable, PropertyBag cgmesData, Context context) {
-        PowerFlow powerFlow = getPowerFlow(cgmesData, getPropertyBagsOfTerminal(connectable, context));
-        return powerFlow.defined() ? OptionalDouble.of(powerFlow.q()) : OptionalDouble.empty();
-    }
-
-    private static PowerFlow getPowerFlow(PropertyBag cgmesData, PropertyBag cgmesTerminal) {
         PowerFlow steadyStateHypothesisPowerFlow = new PowerFlow(cgmesData, "p", "q");
         if (steadyStateHypothesisPowerFlow.defined()) {
             return steadyStateHypothesisPowerFlow;
