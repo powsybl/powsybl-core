@@ -194,5 +194,10 @@
     "id" : "id99",
     "areaId" : "AreaA",
     "target" : 101.0
+  }, {
+    "type" : "AREA_INTERCHANGE_TARGET_UPDATE_ACTION",
+    "id" : "idDisabledTarget",
+    "areaId" : "AreaA",
+    "target" : NaN
   } ]
 }
