@@ -199,6 +199,7 @@ public abstract class AbstractLineTest extends AbstractIdenticalLinesTest {
                 .setBus2("busB")
                 .setConnectableBus1("busA")
                 .setConnectableBus2("busB");
+
         acLineAdder1.add();
         Line acLine1 = network.getLine("line1");
 

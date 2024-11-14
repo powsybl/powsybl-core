@@ -765,16 +765,7 @@ public interface Network extends Container<Network> {
      * Get a builder to create a new AC line by copying an existing one.
      * @return a builder to create a new line
      */
-    default LineAdder newLine(Line line) {
-        return newLine().setR(line.getR())
-                .setX(line.getX())
-                .setG1(line.getG1())
-                .setG2(line.getG2())
-                .setB1(line.getB1())
-                .setB2(line.getB2())
-                .setVoltageLevel1(line.getTerminal1().getVoltageLevel().getId())
-                .setVoltageLevel2(line.getTerminal2().getVoltageLevel().getId());
-    }
+    LineAdder newLine(Line line);
 
     /**
      * Get all AC lines.
