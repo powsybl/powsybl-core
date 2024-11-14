@@ -180,7 +180,6 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     void replaceTerminal(TerminalExt oldTerminal, TopologyPoint oldTopologyPoint, TerminalExt newTerminalExt, boolean notify) {
         Objects.requireNonNull(oldTerminal);
-        Objects.requireNonNull(newTerminalExt);
         int iSide = terminals.indexOf(oldTerminal);
         if (iSide == -1) {
             throw new PowsyblException("Terminal to replace not found");

@@ -649,11 +649,9 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
                 // terminal from old mode to new one, it will modify the old topology model
                 List<Triple<TerminalExt, Bus, Boolean>> oldTopologyModelInfos = new ArrayList<>();
                 for (Terminal oldTerminal : topologyModel.getTerminals()) {
-                    if (oldTerminal.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION) {
-                        Bus connectableBus = oldTerminal.getBusBreakerView().getConnectableBus();
-                        boolean connected = oldTerminal.isConnected();
-                        oldTopologyModelInfos.add(Triple.of((TerminalExt) oldTerminal, connectableBus, connected));
-                    }
+                    Bus connectableBus = oldTerminal.getBusBreakerView().getConnectableBus();
+                    boolean connected = oldTerminal.isConnected();
+                    oldTopologyModelInfos.add(Triple.of((TerminalExt) oldTerminal, connectableBus, connected));
                 }
 
                 for (var triple : oldTopologyModelInfos) {
@@ -667,14 +665,19 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
                         AbstractConnectable<?> connectable = oldTerminalExt.getConnectable();
 
                         // create the new terminal with new type
-                        TerminalExt newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide())
-                                .setBus(connected ? connectableBus.getId() : null)
-                                .setConnectableBus(connectableBus.getId())
-                                .build();
+                        TerminalExt newTerminalExt = null;
+                        if (oldTerminalExt.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION) {
+                            newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide())
+                                    .setBus(connected ? connectableBus.getId() : null)
+                                    .setConnectableBus(connectableBus.getId())
+                                    .build();
+                        }
 
                         // first attach new terminal to connectable and to new topology model
-                        newTerminalExt.setConnectable(connectable);
-                        newTopologyModel.attach(newTerminalExt, false);
+                        if (newTerminalExt != null) {
+                            newTerminalExt.setConnectable(connectable);
+                            newTopologyModel.attach(newTerminalExt, false);
+                        }
 
                         // then we can detach the old terminal
                         TopologyPoint oldTopologyPoint = oldTerminalExt.getTopologyPoint();
