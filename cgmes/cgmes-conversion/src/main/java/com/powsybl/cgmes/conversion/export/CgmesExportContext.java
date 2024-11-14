@@ -534,7 +534,7 @@ public class CgmesExportContext {
         // If no control area exists, create one for the whole network, containing the dangling lines as boundaries,
         // but only if the network does not contain subnetworks
         long numControlAreas = network.getAreaStream().filter(a -> a.getAreaType().equals("ControlAreaTypeKind.Interchange")).count();
-        long numSubnetworks = network.getSubnetworks().size();
+        int numSubnetworks = network.getSubnetworks().size();
         if (numControlAreas == 0 && numSubnetworks == 0) {
             createDefaultControlArea(network);
         }
