@@ -19,6 +19,7 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.triplestore.api.PropertyBags;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.net.URLEncoder;
@@ -563,10 +564,18 @@ public class CgmesExportContext {
     }
 
     private Set<String> getBoundaryDcNodes() {
-        return referenceDataProvider.getBoundaryNodes().stream()
-                .filter(node -> node.containsKey("topologicalNodeDescription") && node.get("topologicalNodeDescription").startsWith("HVDC"))
-                .map(node -> node.getId(CgmesNames.TOPOLOGICAL_NODE))
-                .collect(Collectors.toSet());
+        if (referenceDataProvider == null) {
+            return Collections.emptySet();
+        }
+        PropertyBags boundaryNodes = referenceDataProvider.getBoundaryNodes();
+        if (boundaryNodes == null) {
+            return Collections.emptySet();
+        } else {
+            return boundaryNodes.stream()
+                    .filter(node -> node.containsKey("topologicalNodeDescription") && node.get("topologicalNodeDescription").startsWith("HVDC"))
+                    .map(node -> node.getId(CgmesNames.TOPOLOGICAL_NODE))
+                    .collect(Collectors.toSet());
+        }
     }
 
     private boolean isAcBoundary(DanglingLine danglingLine, Set<String> boundaryDcNodes) {
