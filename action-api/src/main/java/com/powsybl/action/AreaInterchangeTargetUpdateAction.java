@@ -23,7 +23,7 @@ public class AreaInterchangeTargetUpdateAction extends AbstractAction {
     private final String areaId;
     private final double interchangeTarget;
 
-    public AreaInterchangeTargetUpdateAction(String id, String areaId, double interchangeTarget ) {
+    public AreaInterchangeTargetUpdateAction(String id, String areaId, double interchangeTarget) {
         super(id);
         this.areaId = Objects.requireNonNull(areaId);
         this.interchangeTarget = interchangeTarget ;
