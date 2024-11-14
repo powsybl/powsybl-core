@@ -16,7 +16,7 @@ public class AreaInterchangeTargetUpdateActionBuilder implements ActionBuilder<A
 
     private String areaId;
 
-    private Double target = null;
+    private Double target = Double.NaN;
 
     @Override
     public String getType() {
@@ -52,9 +52,6 @@ public class AreaInterchangeTargetUpdateActionBuilder implements ActionBuilder<A
 
     @Override
     public AreaInterchangeTargetUpdateAction build() {
-        if (this.target == null) {
-            throw new IllegalArgumentException("For an area interchange target update action, a target must be provided");
-        }
         return new AreaInterchangeTargetUpdateAction(id, areaId, target);
     }
 }

@@ -29,7 +29,9 @@ public class AreaInterchangeTargetUpdateActionSerializer extends StdSerializer<A
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
         jsonGenerator.writeStringField("areaId", action.getAreaId());
-        jsonGenerator.writeNumberField("target", action.getInterchangeTarget());
+        if (!Double.isNaN(action.getInterchangeTarget())) {
+            jsonGenerator.writeNumberField("interchangeTarget", action.getInterchangeTarget());
+        }
         jsonGenerator.writeEndObject();
     }
 }

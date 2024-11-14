@@ -42,7 +42,7 @@ public class AreaInterchangeTargetUpdateActionDeserializer extends StdDeserializ
                 case "areaId":
                     builder.withAreaId(jsonParser.nextTextValue());
                     return true;
-                case "target":
+                case "interchangeTarget":
                     jsonParser.nextToken();
                     builder.withTarget(jsonParser.getValueAsDouble());
                     return true;
