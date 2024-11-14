@@ -29,8 +29,8 @@ public class AreaInterchangeTargetUpdateAction extends AbstractAction {
         this.interchangeTarget = interchangeTarget ;
     }
 
-    public double getInterchangeTarget () {
-        return interchangeTarget ;
+    public double getInterchangeTarget() {
+        return interchangeTarget;
     }
 
     public String getAreaId() {
