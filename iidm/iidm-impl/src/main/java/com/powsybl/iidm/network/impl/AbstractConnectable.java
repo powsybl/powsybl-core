@@ -186,7 +186,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
         terminals.set(iSide, newTerminalExt);
 
-        if (notify) {
+        if (newTerminalExt != null && notify) {
             notifyUpdate("terminal" + (iSide + 1), oldTopologyPoint, newTerminalExt.getTopologyPoint());
         }
     }
