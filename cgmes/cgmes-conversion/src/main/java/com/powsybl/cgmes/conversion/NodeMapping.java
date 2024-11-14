@@ -64,6 +64,9 @@ public class NodeMapping {
     }
 
     private int createInternalConnectionIfNeeded(CgmesTerminal t, VoltageLevel vl) {
+        if (context.config().createBusbarSectionForEveryConnectivityNode()) {
+            return createInternalConnection(t, vl);
+        }
         int iidmNodeForConductingEquipment;
         int iidmNodeForConnectivityNode;
         List<CgmesTerminal> connectivityNodeTerminals = context.terminalMapping().getConnectivityNodeTerminals(t.connectivityNode());
@@ -114,6 +117,16 @@ public class NodeMapping {
             iidmNodeForConductingEquipment = iidmNodeForConnectivityNode;
             cgmes2iidm.put(t.id(), iidmNodeForConductingEquipment);
         }
+        return iidmNodeForConductingEquipment;
+    }
+
+    private int createInternalConnection(CgmesTerminal t, VoltageLevel vl) {
+        int iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
+        int iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
+        vl.getNodeBreakerView().newInternalConnection()
+                .setNode1(iidmNodeForConnectivityNode)
+                .setNode2(iidmNodeForConductingEquipment)
+                .add();
         return iidmNodeForConductingEquipment;
     }
 
