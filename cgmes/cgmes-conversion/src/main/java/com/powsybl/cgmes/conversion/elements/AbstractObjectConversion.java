@@ -47,10 +47,6 @@ public abstract class AbstractObjectConversion {
 
     public abstract void convert();
 
-    public void update() {
-        throw new ConversionException("Missing implementation: update for " + type);
-    }
-
     public abstract String what();
 
     protected abstract String complete(String what);

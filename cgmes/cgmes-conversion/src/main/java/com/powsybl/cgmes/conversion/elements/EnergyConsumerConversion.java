@@ -17,7 +17,6 @@ import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.List;
-import java.util.Objects;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
 
@@ -32,13 +31,6 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     public EnergyConsumerConversion(PropertyBag ec, Context context) {
         super(CgmesNames.ENERGY_CONSUMER, ec, context);
         loadKind = ec.getLocal("type");
-        this.load = null;
-    }
-
-    public EnergyConsumerConversion(PropertyBag es, PropertyBag cgmesTerminal, Load load, Context context) {
-        super(CgmesNames.ENERGY_CONSUMER, es, cgmesTerminal, context);
-        this.loadKind = null;
-        this.load = load;
     }
 
     @Override
@@ -149,24 +141,23 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         // else: EnergyConsumer - undefined
     }
 
-    @Override
-    public void update() {
-        Objects.requireNonNull(load);
-        updateTerminals(context, load.getTerminal());
+    public static void update(PropertyBag cgmesData, Load load, Context context) {
+        updateTerminals(load, context, load.getTerminal());
 
         double pFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + P_FIXED));
         double qFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + Q_FIXED));
-        load.setP0(updatedP0().orElse(defaultValue(pFixed, load.getP0(), 0.0, Double.NaN, getDefaultValueSelector(context))))
-                .setQ0(updatedQ0().orElse(defaultValue(qFixed, load.getQ0(), 0.0, Double.NaN, getDefaultValueSelector(context))));
 
-        updateLoadDetail(load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS), pFixed, qFixed);
+        load.setP0(updatedP0(load, cgmesData, context).orElse(defaultValue(pFixed, load.getP0(), 0.0, Double.NaN, getDefaultValueSelector(context))));
+        load.setQ0(updatedQ0(load, cgmesData, context).orElse(defaultValue(qFixed, load.getQ0(), 0.0, Double.NaN, getDefaultValueSelector(context))));
+
+        updateLoadDetail(load, load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS), pFixed, qFixed);
     }
 
     private static Conversion.Config.DefaultValue getDefaultValueSelector(Context context) {
         return getDefaultValueSelector(List.of(EQ, PREVIOUS, DEFAULT, EMPTY), context);
     }
 
-    private void updateLoadDetail(String type, double pFixed, double qFixed) {
+    private static void updateLoadDetail(Load load, String type, double pFixed, double qFixed) {
         if (type == null) {
             return;
         }
@@ -184,5 +175,4 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     }
 
     private final String loadKind;
-    private final Load load;
 }
