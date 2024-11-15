@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -49,12 +50,16 @@ class ContingencyElementTypesTest {
         fileSystem.close();
     }
 
-    private void test(Network network, String contingencyId, String equipmentId, Class<? extends ContingencyElement> contingencyElementClass) throws IOException {
-        Files.writeString(dslFile, String.format("""
-                        contingency('%s') {
-                            equipments '%s'
-                        }""", contingencyId, equipmentId),
-                StandardCharsets.UTF_8);
+    private void test(Network network, String contingencyId, String equipmentId, Class<? extends ContingencyElement> contingencyElementClass) {
+        try {
+            Files.writeString(dslFile, String.format("""
+                            contingency('%s') {
+                                equipments '%s'
+                            }""", contingencyId, equipmentId),
+                    StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
         List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
                 .getContingencies(network);
         assertEquals(1, contingencies.size());
@@ -68,49 +73,49 @@ class ContingencyElementTypesTest {
     }
 
     @Test
-    void generatorTest() throws IOException {
+    void generatorTest() {
         Network network = EurostagTutorialExample1Factory.create();
         test(network, "GEN_CONTINGENCY", "GEN", GeneratorContingency.class);
     }
 
     @Test
-    void loadTest() throws IOException {
+    void loadTest() {
         Network network = EurostagTutorialExample1Factory.create();
         test(network, "LOAD_CONTINGENCY", "LOAD", LoadContingency.class);
     }
 
     @Test
-    void twoWindingsTransformerTest() throws IOException {
+    void twoWindingsTransformerTest() {
         Network network = EurostagTutorialExample1Factory.create();
         test(network, "2WT_CONTINGENCY", "NGEN_NHV1", TwoWindingsTransformerContingency.class);
     }
 
     @Test
-    void threeWindingsTransformerTest() throws IOException {
+    void threeWindingsTransformerTest() {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
         test(network, "3WT_CONTINGENCY", "3WT", ThreeWindingsTransformerContingency.class);
     }
 
     @Test
-    void lineTest() throws IOException {
+    void lineTest() {
         Network network = EurostagTutorialExample1Factory.create();
         test(network, "LINE_CONTINGENCY", "NHV1_NHV2_1", LineContingency.class);
     }
 
     @Test
-    void tieLineTest() throws IOException {
+    void tieLineTest() {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         test(network, "TIELINE_CONTINGENCY", "NHV1_NHV2_1", TieLineContingency.class);
     }
 
     @Test
-    void danglingLineTest() throws IOException {
+    void danglingLineTest() {
         Network network = DanglingLineNetworkFactory.create();
         test(network, "DL_CONTINGENCY", "DL", DanglingLineContingency.class);
     }
 
     @Test
-    void shuntCompensatorTest() throws IOException {
+    void shuntCompensatorTest() {
         Network network = EurostagTutorialExample1Factory.create();
         network.getVoltageLevel("VLLOAD")
                 .newShuntCompensator()
@@ -127,37 +132,37 @@ class ContingencyElementTypesTest {
     }
 
     @Test
-    void busTest() throws IOException {
+    void busTest() {
         Network network = EurostagTutorialExample1Factory.create();
         test(network, "BUS_CONTINGENCY", "NLOAD", BusContingency.class);
     }
 
     @Test
-    void busbarSectionTest() throws IOException {
+    void busbarSectionTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         test(network, "BBS_CONTINGENCY", "S1VL1_BBS", BusbarSectionContingency.class);
     }
 
     @Test
-    void svcTest() throws IOException {
+    void svcTest() {
         Network network = SvcTestCaseFactory.create();
         test(network, "SVC_CONTINGENCY", "SVC2", StaticVarCompensatorContingency.class);
     }
 
     @Test
-    void switchTest() throws IOException {
+    void switchTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         test(network, "SWITCH_CONTINGENCY", "S1VL1_LD1_BREAKER", SwitchContingency.class);
     }
 
     @Test
-    void hvdcTest() throws IOException {
+    void hvdcTest() {
         Network network = HvdcTestNetwork.createLcc();
         test(network, "HVDC_LINE_CONTINGENCY", "L", HvdcLineContingency.class);
     }
 
     @Test
-    void batteryTest() throws IOException {
+    void batteryTest() {
         Network network = BatteryNetworkFactory.create();
         test(network, "BAT_CONTINGENCY", "BAT", BatteryContingency.class);
     }
