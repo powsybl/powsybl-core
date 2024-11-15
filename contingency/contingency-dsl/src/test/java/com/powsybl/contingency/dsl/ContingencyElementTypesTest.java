@@ -49,7 +49,7 @@ class ContingencyElementTypesTest {
         fileSystem.close();
     }
 
-    private void test(Network network, String contingencyId, String equipmentId, Class<?> contingencyElementClass) throws IOException {
+    private void test(Network network, String contingencyId, String equipmentId, Class<? extends ContingencyElement> contingencyElementClass) throws IOException {
         Files.writeString(dslFile, String.format("""
                         contingency('%s') {
                             equipments '%s'
