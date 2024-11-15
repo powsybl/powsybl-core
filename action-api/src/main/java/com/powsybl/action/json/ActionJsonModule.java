@@ -63,7 +63,7 @@ public class ActionJsonModule extends SimpleModule {
         registerActionBuilderType(StaticVarCompensatorAction.class, StaticVarCompensatorActionBuilder.class,
             StaticVarCompensatorAction.NAME, new StaticVarCompensatorActionSerializer(),
             new StaticVarCompensatorActionBuilderDeserializer());
-        registerActionBuilderType(AreaInterchangeTargetUpdateAction.class, AreaInterchangeTargetUpdateActionBuilder.class, AreaInterchangeTargetUpdateAction.NAME,
-            new AreaInterchangeTargetUpdateActionSerializer(), new AreaInterchangeTargetUpdateActionDeserializer());
+        registerActionBuilderType(AreaInterchangeTargetAction.class, AreaInterchangeTargetActionBuilder.class, AreaInterchangeTargetAction.NAME,
+            new AreaInterchangeTargetActionSerializer(), new AreaInterchangeTargetActionDeserializer());
     }
 }

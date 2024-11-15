@@ -548,33 +548,33 @@ class EqualsActionTest {
 
     @Test
     void interchangeTargetAction() {
-        AreaInterchangeTargetUpdateAction action1 = new AreaInterchangeTargetUpdateActionBuilder().withId("id")
+        AreaInterchangeTargetAction action1 = new AreaInterchangeTargetActionBuilder().withId("id")
             .withAreaId("area1")
             .withTarget(1.0)
             .build();
-        AreaInterchangeTargetUpdateAction action2 = new AreaInterchangeTargetUpdateActionBuilder().withId("id")
+        AreaInterchangeTargetAction action2 = new AreaInterchangeTargetActionBuilder().withId("id")
             .withAreaId("area1")
             .withTarget(1.0)
             .build();
-        AreaInterchangeTargetUpdateAction action3 = new AreaInterchangeTargetUpdateActionBuilder().withId("id2")
+        AreaInterchangeTargetAction action3 = new AreaInterchangeTargetActionBuilder().withId("id2")
             .withAreaId("area1")
             .withTarget(1.0)
             .build();
-        AreaInterchangeTargetUpdateAction action4 = new AreaInterchangeTargetUpdateActionBuilder().withId("id")
+        AreaInterchangeTargetAction action4 = new AreaInterchangeTargetActionBuilder().withId("id")
             .withAreaId("area2")
             .withTarget(1.0)
             .build();
-        AreaInterchangeTargetUpdateAction action5 = new AreaInterchangeTargetUpdateActionBuilder().withId("id")
+        AreaInterchangeTargetAction action5 = new AreaInterchangeTargetActionBuilder().withId("id")
             .withAreaId("area1")
             .withTarget(2.0)
             .build();
 
-        AreaInterchangeTargetUpdateAction action6 = new AreaInterchangeTargetUpdateActionBuilder().withId("id")
+        AreaInterchangeTargetAction action6 = new AreaInterchangeTargetActionBuilder().withId("id")
             .withAreaId("area1")
             .withTarget(Double.NaN)
             .build();
 
-        AreaInterchangeTargetUpdateAction action7 = new AreaInterchangeTargetUpdateActionBuilder().withId("id")
+        AreaInterchangeTargetAction action7 = new AreaInterchangeTargetActionBuilder().withId("id")
             .withAreaId("area1")
             .withTarget(Double.NaN)
             .build();

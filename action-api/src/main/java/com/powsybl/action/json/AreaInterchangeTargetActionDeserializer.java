@@ -11,8 +11,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.action.AreaInterchangeTargetUpdateAction;
-import com.powsybl.action.AreaInterchangeTargetUpdateActionBuilder;
+import com.powsybl.action.AreaInterchangeTargetAction;
+import com.powsybl.action.AreaInterchangeTargetActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
@@ -20,20 +20,20 @@ import java.io.IOException;
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class AreaInterchangeTargetUpdateActionDeserializer extends StdDeserializer<AreaInterchangeTargetUpdateActionBuilder> {
+public class AreaInterchangeTargetActionDeserializer extends StdDeserializer<AreaInterchangeTargetActionBuilder> {
 
-    protected AreaInterchangeTargetUpdateActionDeserializer() {
-        super(AreaInterchangeTargetUpdateActionBuilder.class);
+    protected AreaInterchangeTargetActionDeserializer() {
+        super(AreaInterchangeTargetActionBuilder.class);
     }
 
     @Override
-    public AreaInterchangeTargetUpdateActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        AreaInterchangeTargetUpdateActionBuilder builder = new AreaInterchangeTargetUpdateActionBuilder();
+    public AreaInterchangeTargetActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        AreaInterchangeTargetActionBuilder builder = new AreaInterchangeTargetActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
-                    if (!AreaInterchangeTargetUpdateAction.NAME.equals(jsonParser.nextTextValue())) {
-                        throw JsonMappingException.from(jsonParser, "Expected type " + AreaInterchangeTargetUpdateAction.NAME);
+                    if (!AreaInterchangeTargetAction.NAME.equals(jsonParser.nextTextValue())) {
+                        throw JsonMappingException.from(jsonParser, "Expected type " + AreaInterchangeTargetAction.NAME);
                     }
                     return true;
                 case "id":

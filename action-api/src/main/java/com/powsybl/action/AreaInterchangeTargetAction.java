@@ -19,14 +19,14 @@ import java.util.Objects;
  *  </ul>
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class AreaInterchangeTargetUpdateAction extends AbstractAction {
+public class AreaInterchangeTargetAction extends AbstractAction {
 
-    public static final String NAME = "AREA_INTERCHANGE_TARGET_UPDATE_ACTION";
+    public static final String NAME = "AREA_INTERCHANGE_TARGET_ACTION";
 
     private final String areaId;
     private final double interchangeTarget;
 
-    public AreaInterchangeTargetUpdateAction(String id, String areaId, double interchangeTarget) {
+    public AreaInterchangeTargetAction(String id, String areaId, double interchangeTarget) {
         super(id);
         this.areaId = Objects.requireNonNull(areaId);
         this.interchangeTarget = interchangeTarget;
@@ -56,7 +56,7 @@ public class AreaInterchangeTargetUpdateAction extends AbstractAction {
         if (!super.equals(o)) {
             return false;
         }
-        AreaInterchangeTargetUpdateAction that = (AreaInterchangeTargetUpdateAction) o;
+        AreaInterchangeTargetAction that = (AreaInterchangeTargetAction) o;
         return Objects.equals(areaId, that.areaId) && (interchangeTarget == that.interchangeTarget || (Double.isNaN(interchangeTarget) && Double.isNaN(that.interchangeTarget)));
     }
 

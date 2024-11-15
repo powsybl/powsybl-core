@@ -10,7 +10,7 @@ package com.powsybl.action;
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class AreaInterchangeTargetUpdateActionBuilder implements ActionBuilder<AreaInterchangeTargetUpdateActionBuilder> {
+public class AreaInterchangeTargetActionBuilder implements ActionBuilder<AreaInterchangeTargetActionBuilder> {
 
     private String id;
 
@@ -20,11 +20,11 @@ public class AreaInterchangeTargetUpdateActionBuilder implements ActionBuilder<A
 
     @Override
     public String getType() {
-        return AreaInterchangeTargetUpdateAction.NAME;
+        return AreaInterchangeTargetAction.NAME;
     }
 
     @Override
-    public AreaInterchangeTargetUpdateActionBuilder withId(String id) {
+    public AreaInterchangeTargetActionBuilder withId(String id) {
         this.id = id;
         return this;
     }
@@ -35,23 +35,23 @@ public class AreaInterchangeTargetUpdateActionBuilder implements ActionBuilder<A
     }
 
     @Override
-    public AreaInterchangeTargetUpdateActionBuilder withNetworkElementId(String elementId) {
+    public AreaInterchangeTargetActionBuilder withNetworkElementId(String elementId) {
         this.areaId = elementId;
         return this;
     }
 
-    public AreaInterchangeTargetUpdateActionBuilder withTarget(double target) {
+    public AreaInterchangeTargetActionBuilder withTarget(double target) {
         this.target = target;
         return this;
     }
 
-    public AreaInterchangeTargetUpdateActionBuilder withAreaId(String areaId) {
+    public AreaInterchangeTargetActionBuilder withAreaId(String areaId) {
         this.withNetworkElementId(areaId);
         return this;
     }
 
     @Override
-    public AreaInterchangeTargetUpdateAction build() {
-        return new AreaInterchangeTargetUpdateAction(id, areaId, target);
+    public AreaInterchangeTargetAction build() {
+        return new AreaInterchangeTargetAction(id, areaId, target);
     }
 }
