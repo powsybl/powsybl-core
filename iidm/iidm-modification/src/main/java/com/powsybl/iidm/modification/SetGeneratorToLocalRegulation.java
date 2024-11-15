@@ -45,7 +45,9 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         Generator generator = network.getGenerator(generatorId);
-        if (generator != null && !generator.getId().equals(generator.getRegulatingTerminal().getConnectable().getId())) {
+        if (generator == null) {
+            logOrThrow(throwException, "Generator '" + generatorId + "' not found");
+        } else if (!generator.getId().equals(generator.getRegulatingTerminal().getConnectable().getId())) {
             setLocalRegulation(generator, reportNode);
         }
     }

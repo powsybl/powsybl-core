@@ -1,5 +1,6 @@
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
@@ -38,6 +39,9 @@ class SetGeneratorToLocalRegulationTest {
                 .withMessageTemplate("rootReportNode", "Set generators to local regulation").build();
         new SetGeneratorToLocalRegulation("GEN1").apply(network, reportNode);
         new SetGeneratorToLocalRegulation("GEN2").apply(network, reportNode);
+        SetGeneratorToLocalRegulation modification = new SetGeneratorToLocalRegulation("WRONG_ID");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
+        assertEquals("Generator 'WRONG_ID' not found", e.getMessage());
 
         // After applying the network modification, both generators regulate locally at 1.05 pu (21 kV).
         assertEquals(gen1.getId(), gen1.getRegulatingTerminal().getConnectable().getId());
