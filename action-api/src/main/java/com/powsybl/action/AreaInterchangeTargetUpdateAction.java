@@ -57,7 +57,7 @@ public class AreaInterchangeTargetUpdateAction extends AbstractAction {
             return false;
         }
         AreaInterchangeTargetUpdateAction that = (AreaInterchangeTargetUpdateAction) o;
-        return interchangeTarget == that.interchangeTarget && Objects.equals(areaId, that.areaId);
+        return Objects.equals(areaId, that.areaId) && (interchangeTarget == that.interchangeTarget || (Double.isNaN(interchangeTarget) && Double.isNaN(that.interchangeTarget)));
     }
 
     @Override

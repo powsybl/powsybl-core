@@ -34,7 +34,7 @@ class AreaInterchangeModificationTest {
     }
 
     @Test
-    void testBatteryModification() {
+    void testModification() {
         AreaInterchangeTargetModification modification = new AreaInterchangeTargetModification(area.getId(), -750);
         assertTrue(area.getInterchangeTarget().isPresent());
         assertEquals(-602.6, area.getInterchangeTarget().getAsDouble());
@@ -51,7 +51,7 @@ class AreaInterchangeModificationTest {
     }
 
     @Test
-    void testBatteryModificationGetters() {
+    void testModificationGetters() {
         AreaInterchangeTargetModification modification = new AreaInterchangeTargetModification(area.getId(), 1.0);
         assertEquals(area.getId(), modification.getAreaId());
         assertEquals(1.0, modification.getInterchangeTarget());

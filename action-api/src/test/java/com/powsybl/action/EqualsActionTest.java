@@ -568,11 +568,23 @@ class EqualsActionTest {
             .withAreaId("area1")
             .withTarget(2.0)
             .build();
+
+        AreaInterchangeTargetUpdateAction action6 = new AreaInterchangeTargetUpdateActionBuilder().withId("id")
+            .withAreaId("area1")
+            .withTarget(Double.NaN)
+            .build();
+
+        AreaInterchangeTargetUpdateAction action7 = new AreaInterchangeTargetUpdateActionBuilder().withId("id")
+            .withAreaId("area1")
+            .withTarget(Double.NaN)
+            .build();
+
         new EqualsTester()
             .addEqualityGroup(action1, action2)
             .addEqualityGroup(action3)
             .addEqualityGroup(action4)
             .addEqualityGroup(action5)
+            .addEqualityGroup(action6, action7)
             .testEquals();
     }
 
