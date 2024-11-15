@@ -45,7 +45,7 @@ public final class GeneratingUnitEq {
         }
         if (energySource == EnergySource.WIND) {
             writer.writeEmptyElement(cimNamespace, "WindGeneratingUnit.windGenUnitType");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", cimNamespace, "WindGenUnitKind." + windGenUnitType));
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s%s", cimNamespace, "WindGenUnitKind.", windGenUnitType));
         }
         if (hydroPowerPlantId != null) {
             CgmesExportUtil.writeReference("HydroGeneratingUnit.HydroPowerPlant", hydroPowerPlantId, cimNamespace, writer, context);
