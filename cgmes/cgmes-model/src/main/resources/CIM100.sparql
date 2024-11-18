@@ -63,7 +63,7 @@ WHERE {
         cim:SynchronousMachineKind.motor
         cim:SynchronousMachineKind.generatorOrMotor
         cim:SynchronousMachineKind.motorOrCondenser
-        cim:SynchronousMachineKind.generatorOrMotorOrCondenser
+        cim:SynchronousMachineKind.generatorOrCondenserOrMotor
     }
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
