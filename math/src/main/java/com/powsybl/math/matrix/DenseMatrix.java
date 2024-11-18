@@ -61,6 +61,16 @@ public class DenseMatrix extends AbstractMatrix {
         }
     }
 
+    public static final class EmptyDenseMatrix {
+        private static final DenseMatrix INSTANCE = new DenseMatrix(0, 0);
+
+        private EmptyDenseMatrix() { }
+
+        public static DenseMatrix getInstance() {
+            return INSTANCE;
+        }
+    }
+
     private final int rowCount;
 
     private final int columnCount;
@@ -359,6 +369,56 @@ public class DenseMatrix extends AbstractMatrix {
             }
         }
         return new DenseMatrix(transposedRowCount, transposedColumnCount, () -> transposedBuffer);
+    }
+
+    /**
+     * Copy all the values that are in an originalMatrix and paste it in the current DenseMatrix (without allocating new memory spaces)
+     * The dimensions of both matrices must be the same
+     */
+    public void copyValuesFrom(DenseMatrix originalMatrix) {
+        if (originalMatrix.getRowCount() == getRowCount() && originalMatrix.getColumnCount() == getColumnCount()) {
+            for (int columnIndex = 0; columnIndex < originalMatrix.getColumnCount(); columnIndex++) {
+                for (int rowIndex = 0; rowIndex < originalMatrix.getRowCount(); rowIndex++) {
+                    set(rowIndex, columnIndex, originalMatrix.get(rowIndex, columnIndex));
+                }
+            }
+        } else {
+            throw new MatrixException("Incompatible matrix dimensions when copying values. Received (" + originalMatrix.getRowCount() + ", " + originalMatrix.getColumnCount() + ") but expected (" + getRowCount() + ", " + getColumnCount() + ")");
+        }
+    }
+
+    public void resetRow(int row) {
+        if (row >= 0 && row < getRowCount()) {
+            for (int j = 0; j < getColumnCount(); j++) {
+                set(row, j, 0);
+            }
+        } else {
+            throw new IllegalArgumentException("Row value out of bounds. Expected in range [0," + (getRowCount() - 1) + "] but received " + row);
+        }
+    }
+
+    public void resetColumn(int column) {
+        if (column >= 0 && column < getColumnCount()) {
+            for (int i = 0; i < getRowCount(); i++) {
+                set(i, column, 0);
+            }
+        } else {
+            throw new IllegalArgumentException("Column value out of bounds. Expected in range [0," + (getColumnCount() - 1) + "] but received " + column);
+        }
+    }
+
+    public void removeSmallValues(double epsilonValue) {
+        if (epsilonValue >= 0) {
+            for (int i = 0; i < getRowCount(); i++) {
+                for (int j = 0; j < getColumnCount(); j++) {
+                    if (Math.abs(get(i, j)) < epsilonValue) {
+                        set(i, j, 0.);
+                    }
+                }
+            }
+        } else {
+            throw new IllegalArgumentException("Argument epsilonValue should be positive but received " + epsilonValue);
+        }
     }
 
     @Override
