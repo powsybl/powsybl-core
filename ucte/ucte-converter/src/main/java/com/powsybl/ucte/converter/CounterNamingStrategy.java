@@ -65,12 +65,8 @@ public class CounterNamingStrategy implements NamingStrategy {
                 LOGGER.info("BUS " + bus.getId() + " : " + ucteNodeIds.get(bus.getId()));
             });
             voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> {
-                if (sw.getKind().equals(SwitchKind.BREAKER)) {
-                    generateUcteElementId(sw);
-                } else {
-                    generateUcteNodeId(sw.getId(), voltageLevel);
-                }
-                LOGGER.info("SWITCH : " + sw.getId() + " : " + ucteNodeIds.get(sw.getId()));
+                generateUcteElementId(sw);
+                LOGGER.info("SWITCH : " + sw.getId() + " : " + ucteElementIds.get(sw.getId()));
             });
         }));
 
@@ -80,7 +76,6 @@ public class CounterNamingStrategy implements NamingStrategy {
         });
 
         network.getDanglingLineStream().forEach(d -> {
-            generateUcteNodeId(d);
             generateUcteElementId(d);
             LOGGER.info("DanglingLine " + d.getId() + " : " + ucteElementIds.get(d.getId()));
         });
@@ -142,46 +137,6 @@ public class CounterNamingStrategy implements NamingStrategy {
         return nodeCode.get();
     }
 
-    private UcteNodeCode generateUcteNodeId(DanglingLine danglingLine) {
-
-        String nodeId = danglingLine.getPairingKey();
-
-        if (ucteNodeIds.containsKey(nodeId)) {
-            return ucteNodeIds.get(nodeId);
-        }
-
-        if (namingCounter > 9999) {
-            namingCounter = 0;
-        }
-
-        StringBuilder newNodeCode = new StringBuilder(8);
-        String newNodeId = String.format("%05d", ++namingCounter);
-        char voltageLevelCode = getUcteVoltageLevelCode(danglingLine.getTerminal().getVoltageLevel().getNominalV());
-
-        newNodeCode
-                .append('X')
-                .append(newNodeId)
-                .append(voltageLevelCode)
-                .append('0');
-
-        int i = 0;
-        while (ucteNodeIds.containsKey(newNodeId)) {
-            i++;
-            if (i >= ORDER_CODES.size()) {
-                throw new UcteException("Too many nodes with same prefix");
-            }
-            newNodeCode.setCharAt(7, ORDER_CODES.get(i));
-        }
-
-        Optional<UcteNodeCode> nodeCode = UcteNodeCode.parseUcteNodeCode(newNodeCode.toString());
-        if (!nodeCode.isPresent()) {
-            throw new IllegalArgumentException("Invalid node code: " + newNodeCode);
-        }
-
-        ucteNodeIds.put(nodeId, nodeCode.get());
-        return nodeCode.get();
-    }
-
     private UcteElementId generateUcteElementId(String id, UcteNodeCode node1, UcteNodeCode node2) {
 
         if (ucteElementIds.containsKey(id)) {
@@ -219,8 +174,10 @@ public class CounterNamingStrategy implements NamingStrategy {
             return ucteElementIds.get(danglingLine.getId());
         }
 
-        UcteNodeCode node1 = this.ucteNodeIds.get(danglingLine.getTerminal().getBusBreakerView().getBus().getId());
-        UcteNodeCode node2 = this.ucteNodeIds.get(danglingLine.getPairingKey());
+        generateUcteNodeId(danglingLine.getPairingKey(), danglingLine.getTerminal().getVoltageLevel());
+        generateUcteNodeId(danglingLine.getTerminal().getBusBreakerView().getBus().getId(), danglingLine.getTerminal().getVoltageLevel());
+        UcteNodeCode node1 = this.ucteNodeIds.get(danglingLine.getPairingKey());
+        UcteNodeCode node2 = this.ucteNodeIds.get(danglingLine.getTerminal().getBusBreakerView().getBus().getId());
 
         return generateUcteElementId(danglingLine.getId(), node1, node2);
     }
@@ -231,9 +188,12 @@ public class CounterNamingStrategy implements NamingStrategy {
             return ucteElementIds.get(sw.getId());
         }
 
-        UcteNodeCode node1 = generateUcteNodeId(sw.getId(), sw.getVoltageLevel());
-        UcteNodeCode node2 = generateUcteNodeId(sw.getId(), sw.getVoltageLevel());
-        return generateUcteElementId(sw.getId(), node1, node2);
+        Bus bus1 = sw.getVoltageLevel().getBusBreakerView().getBus1(sw.getId());
+        Bus bus2 = sw.getVoltageLevel().getBusBreakerView().getBus2(sw.getId());
+        UcteNodeCode u1 = generateUcteNodeId(bus1.getId(), bus1.getVoltageLevel());
+        UcteNodeCode u2 = generateUcteNodeId(bus2.getId(), bus2.getVoltageLevel());
+
+        return generateUcteElementId(sw.getId(), u1, u2);
     }
 
     /**
