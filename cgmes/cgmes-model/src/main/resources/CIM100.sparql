@@ -57,7 +57,14 @@ WHERE {
         cim:RotatingMachine.GeneratingUnit ?GeneratingUnit .
     # Some test cases of condensers have a (wrong) association with a generating unit,
     # So we explicitly check for the type of the synchronous machine
-    FILTER (!REGEX(STR(?type), "Kind.condenser"))
+    VALUES ?type {
+        cim:SynchronousMachineKind.generator
+        cim:SynchronousMachineKind.generatorOrCondenser
+        cim:SynchronousMachineKind.motor
+        cim:SynchronousMachineKind.generatorOrMotor
+        cim:SynchronousMachineKind.motorOrCondenser
+        cim:SynchronousMachineKind.generatorOrMotorOrCondenser
+    }
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
        }
