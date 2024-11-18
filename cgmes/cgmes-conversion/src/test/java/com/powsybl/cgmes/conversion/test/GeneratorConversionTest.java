@@ -8,11 +8,10 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -22,7 +21,7 @@ class GeneratorConversionTest {
 
     @Test
     void generatingUnitTypes() {
-        Network network = Network.read(new ResourceDataSource("GeneratingUnitTypes", new ResourceSet("/", "GeneratingUnitTypes.xml")));
+        Network network = readCgmesResources("/", "GeneratingUnitTypes.xml");
         assertEquals(EnergySource.OTHER, network.getGenerator("gu_sm").getEnergySource());
         assertEquals(EnergySource.THERMAL, network.getGenerator("tgu_sm").getEnergySource());
         assertEquals(EnergySource.HYDRO, network.getGenerator("hgu_sm").getEnergySource());

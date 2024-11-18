@@ -58,6 +58,8 @@ import java.util.regex.Pattern;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.writeCgmesProfile;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.getFirstMatch;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -1938,21 +1940,23 @@ class EquipmentExportTest extends AbstractSerDeTest {
         // Export as cgmes
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
-        String baseName = "generatingUnitTypes";
-        new CgmesExport().export(network, new Properties(), new DirectoryDataSource(outputPath, baseName));
+        writeCgmesProfile(network, "EQ", outputPath);
+        String eqXml = Files.readString(outputPath.resolve("CgmesExport_EQ.xml"));
 
-        // re-import
-        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        assertTrue(eqXml.contains("<cim:GeneratingUnit rdf:ID=\"_other_GU\">"));
+        assertTrue(eqXml.contains("<cim:NuclearGeneratingUnit rdf:ID=\"_nuclear_NGU\">"));
+        assertTrue(eqXml.contains("<cim:ThermalGeneratingUnit rdf:ID=\"_thermal_TGU\">"));
+        assertTrue(eqXml.contains("<cim:HydroGeneratingUnit rdf:ID=\"_hydro_HGU\">"));
+        assertTrue(eqXml.contains("<cim:SolarGeneratingUnit rdf:ID=\"_solar_SGU\">"));
+        assertTrue(eqXml.contains("<cim:WindGeneratingUnit rdf:ID=\"_wind_onshore_WGU\">"));
+        assertTrue(eqXml.contains("<cim:WindGeneratingUnit rdf:ID=\"_wind_offshore_WGU\">"));
 
-        // check the generating unit types
-        assertEquals(EnergySource.OTHER, actual.getGenerator("other").getEnergySource());
-        assertEquals(EnergySource.THERMAL, actual.getGenerator("thermal").getEnergySource());
-        assertEquals(EnergySource.HYDRO, actual.getGenerator("hydro").getEnergySource());
-        assertEquals(EnergySource.NUCLEAR, actual.getGenerator("nuclear").getEnergySource());
-        assertEquals(EnergySource.WIND, actual.getGenerator("wind_offshore").getEnergySource());
-        assertEquals("offshore", actual.getGenerator("wind_offshore").getProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE));
-        assertEquals(EnergySource.WIND, actual.getGenerator("wind_onshore").getEnergySource());
-        assertEquals("onshore", actual.getGenerator("wind_onshore").getProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE));
-        assertEquals(EnergySource.SOLAR, actual.getGenerator("solar").getEnergySource());
+        String sPattern = "<cim:WindGeneratingUnit rdf:ID=\"${rdfId}\">.*?" +
+                "<cim:WindGeneratingUnit.windGenUnitType rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#WindGenUnitKind.(.*?)\"/>";
+
+        Pattern onshorePattern = Pattern.compile(sPattern.replace("${rdfId}", "_wind_onshore_WGU"), Pattern.DOTALL);
+        assertEquals("onshore", getFirstMatch(eqXml, onshorePattern));
+        Pattern offshorePattern = Pattern.compile(sPattern.replace("${rdfId}", "_wind_offshore_WGU"), Pattern.DOTALL);
+        assertEquals("offshore", getFirstMatch(eqXml, offshorePattern));
     }
 }
