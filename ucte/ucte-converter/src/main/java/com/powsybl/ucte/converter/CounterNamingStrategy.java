@@ -59,7 +59,6 @@ public class CounterNamingStrategy implements NamingStrategy {
         network.getSubstations().forEach(substation -> substation.getVoltageLevels().forEach(voltageLevel -> {
 
             LOGGER.info("VOLTAGE LEVEL : " + voltageLevel.getId());
-
             voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
                 generateUcteNodeId(bus.getId(), voltageLevel);
                 LOGGER.info("BUS " + bus.getId() + " : " + ucteNodeIds.get(bus.getId()));
@@ -107,12 +106,9 @@ public class CounterNamingStrategy implements NamingStrategy {
         if (ucteNodeIds.containsKey(nodeId)) {
             return ucteNodeIds.get(nodeId);
         }
-        if (namingCounter > 99999) {
-            namingCounter = 0;
-        }
 
         StringBuilder newNodeCode = new StringBuilder(8);
-        String newNodeId = String.format("%05d", ++namingCounter);
+        String newNodeId = generateIDFromCounter();
         char countryCode = getCountryCode(voltageLevel);
         char voltageLevelCode = getUcteVoltageLevelCode(voltageLevel.getNominalV());
         char orderCode = ORDER_CODES.get(0);
@@ -223,6 +219,16 @@ public class CounterNamingStrategy implements NamingStrategy {
             }
         }
         return 'X';
+    }
+
+    private String generateIDFromCounter() {
+        namingCounter++;
+        if (namingCounter > 99999) {
+            int baseNumber = (namingCounter - 100000) % 10000;
+            char letter = (char) ('A' + ((namingCounter - 100000) / 10000));
+            return String.format("%04d%c", baseNumber, letter);
+        }
+        return String.format("%05d", namingCounter);
     }
 
     /**
