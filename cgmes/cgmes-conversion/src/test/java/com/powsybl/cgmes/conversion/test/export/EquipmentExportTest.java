@@ -1938,10 +1938,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Network network = allGeneratingUnitTypesNetwork();
 
         // Export as cgmes
-        Path outputPath = tmpDir.resolve("temp.cgmesExport");
-        Files.createDirectories(outputPath);
-        writeCgmesProfile(network, "EQ", outputPath);
-        String eqXml = Files.readString(outputPath.resolve("CgmesExport_EQ.xml"));
+        String eqXml = writeCgmesProfile(network, "EQ", tmpDir);
 
         assertTrue(eqXml.contains("<cim:GeneratingUnit rdf:ID=\"_other_GU\">"));
         assertTrue(eqXml.contains("<cim:NuclearGeneratingUnit rdf:ID=\"_nuclear_NGU\">"));
