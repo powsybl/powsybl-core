@@ -113,7 +113,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     }
 
     private static void createTopologyInsideStarVoltageLevel(ThreeWindingsTransformer t3w, VoltageLevel starVoltageLevel) {
-        if (starVoltageLevel.getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
+        if (starVoltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
             starVoltageLevel.getBusBreakerView().newBus()
                     .setId(t3w.getId() + "-Star-Bus")
                     .setName(t3w.getNameOrId() + "-Star-Bus")
