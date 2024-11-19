@@ -52,11 +52,9 @@ public class AreaInterchangeTargetModification extends AbstractNetworkModificati
         Area area = network.getArea(areaId);
         if (area == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else {
-            if (area.getInterchangeTarget().isPresent() && Math.abs(interchangeTarget - area.getInterchangeTarget().getAsDouble()) < EPSILON
-                || area.getInterchangeTarget().isEmpty() && Double.isNaN(interchangeTarget)) {
+        } else if (area.getInterchangeTarget().isPresent() && Math.abs(interchangeTarget - area.getInterchangeTarget().getAsDouble())
+            < EPSILON || area.getInterchangeTarget().isEmpty() && Double.isNaN(interchangeTarget)) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
-            }
         }
         return impact;
     }

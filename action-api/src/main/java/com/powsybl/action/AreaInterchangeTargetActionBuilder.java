@@ -16,7 +16,7 @@ public class AreaInterchangeTargetActionBuilder implements ActionBuilder<AreaInt
 
     private String areaId;
 
-    private Double target = Double.NaN;
+    private double target = Double.NaN;
 
     @Override
     public String getType() {

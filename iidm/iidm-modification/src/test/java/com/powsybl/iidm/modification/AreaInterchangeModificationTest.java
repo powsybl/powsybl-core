@@ -65,11 +65,17 @@ class AreaInterchangeModificationTest {
         AreaInterchangeTargetModification modification2 = new AreaInterchangeTargetModification(area.getId(), 1.0);
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
 
+        AreaInterchangeTargetModification modification3 = new AreaInterchangeTargetModification(area.getId(), Double.NaN);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+
         AreaInterchangeTargetModification modification4 = new AreaInterchangeTargetModification(area.getId(), -602.6);
         assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
 
         area.setInterchangeTarget(Double.NaN);
         AreaInterchangeTargetModification modification5 = new AreaInterchangeTargetModification(area.getId(), Double.NaN);
         assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification5.hasImpactOnNetwork(network));
+
+        AreaInterchangeTargetModification modification6 = new AreaInterchangeTargetModification(area.getId(), 1.0);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification6.hasImpactOnNetwork(network));
     }
 }
