@@ -29,6 +29,8 @@ public class DenseMatrix extends AbstractMatrix {
 
     public static final int MAX_ELEMENT_COUNT = Integer.MAX_VALUE / Double.BYTES;
 
+    public static final DenseMatrix EMPTY = new DenseMatrix(0, 0);
+
     /**
      * Dense element implementation.
      * An element in a dense matrix is defined by its row index and column index.
@@ -58,16 +60,6 @@ public class DenseMatrix extends AbstractMatrix {
         @Override
         public void add(double value) {
             DenseMatrix.this.add(i, j, value);
-        }
-    }
-
-    public static final class EmptyDenseMatrix {
-        private static final DenseMatrix INSTANCE = new DenseMatrix(0, 0);
-
-        private EmptyDenseMatrix() { }
-
-        public static DenseMatrix getInstance() {
-            return INSTANCE;
         }
     }
 
