@@ -171,7 +171,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     }
 
     private static ConnectivityR getConnectivityLegAfterCreatingInternalConnection(ThreeWindingsTransformer.Leg leg) {
-        if (leg.getTerminal().getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+        if (leg.getTerminal().getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             int newNode = leg.getTerminal().getVoltageLevel().getNodeBreakerView().getMaximumNodeIndex() + 1;
             leg.getTerminal().getVoltageLevel().getNodeBreakerView()
                     .newInternalConnection()
