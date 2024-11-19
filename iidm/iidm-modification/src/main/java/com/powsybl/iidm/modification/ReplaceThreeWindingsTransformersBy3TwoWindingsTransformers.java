@@ -184,7 +184,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     }
 
     private static ConnectivityR getConnectivityStar(int node, VoltageLevel startVoltageLevel) {
-        if (startVoltageLevel.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+        if (startVoltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             return new ConnectivityR(node, null, null);
         } else {
             Bus bus = startVoltageLevel.getBusBreakerView().getBuses().iterator().next();
