@@ -229,9 +229,9 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
 
     private static boolean copyProperty(String propertyName, String property, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3, VoltageLevel starVoltageLevel) {
         boolean copied = true;
-        if (propertyName.equals("v")) {
+        if ("v".equals(propertyName)) {
             starVoltageLevel.getBusView().getBuses().iterator().next().setV(Double.parseDouble(property));
-        } else if (propertyName.equals("angle")) {
+        } else if ("angle".equals(propertyName)) {
             starVoltageLevel.getBusView().getBuses().iterator().next().setAngle(Double.parseDouble(property));
         } else if (propertyName.startsWith("CGMES.OperationalLimitSet_")) {
             if (t2wLeg1.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.contains(operationalLimitsGroup.getId()))) {
