@@ -215,7 +215,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
 
     // is well oriented when the star side is at end2
     private static boolean isWellOriented(Bus starBus, TwoWindingsTransformer t2w) {
-        return starBus.equals(t2w.getTerminal2().getBusView().getBus());
+        return starBus.getId().equals(t2w.getTerminal2().getBusView().getBus().getId());
     }
 
     private static VoltageLevel findVoltageLevel(TwoWindingsTransformer t2w, boolean isWellOriented) {
