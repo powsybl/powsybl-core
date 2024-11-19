@@ -9,13 +9,12 @@
 package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.network.UcteCountryCode;
 import com.powsybl.ucte.network.UcteElementId;
 import com.powsybl.ucte.network.UcteNodeCode;
 import com.powsybl.ucte.network.UcteVoltageLevelCode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -31,9 +30,8 @@ public class CounterNamingStrategy implements NamingStrategy {
     private final Map<String, UcteNodeCode> ucteNodeIds = new HashMap<>();
     private final Map<String, UcteElementId> ucteElementIds = new HashMap<>();
     private int namingCounter;
-    private static final List<Character> ORDER_CODES = Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
+    private static final List<Character> ORDER_CODES = Arrays.asList('1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
             'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', '-', '.', ' ');
-    private static final Logger LOGGER = LoggerFactory.getLogger(CounterNamingStrategy.class);
 
     @Override
     public String getName() {
@@ -58,25 +56,20 @@ public class CounterNamingStrategy implements NamingStrategy {
         namingCounter = 0;
         network.getSubstations().forEach(substation -> substation.getVoltageLevels().forEach(voltageLevel -> {
 
-            LOGGER.info("VOLTAGE LEVEL : " + voltageLevel.getId());
             voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
                 generateUcteNodeId(bus.getId(), voltageLevel);
-                LOGGER.info("BUS " + bus.getId() + " : " + ucteNodeIds.get(bus.getId()));
             });
             voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> {
                 generateUcteElementId(sw);
-                LOGGER.info("SWITCH : " + sw.getId() + " : " + ucteElementIds.get(sw.getId()));
             });
         }));
 
         network.getBranchStream().forEach(branch -> {
             generateUcteElementId(branch);
-            LOGGER.info(branch.getType() + " " + branch.getId() + " : " + ucteElementIds.get(branch.getId()));
         });
 
         network.getDanglingLineStream().forEach(d -> {
             generateUcteElementId(d);
-            LOGGER.info("DanglingLine " + d.getId() + " : " + ucteElementIds.get(d.getId()));
         });
     }
 
@@ -99,9 +92,13 @@ public class CounterNamingStrategy implements NamingStrategy {
     private UcteNodeCode generateUcteNodeId(String nodeId, VoltageLevel voltageLevel) {
 
         if (UcteNodeCode.isUcteNodeId(nodeId)) {
-            UcteNodeCode ucteNodeCode = UcteNodeCode.parseUcteNodeCode(nodeId).get();
-            ucteNodeIds.put(nodeId, ucteNodeCode);
-            return ucteNodeCode;
+            Optional<UcteNodeCode> ucteNodeCode = UcteNodeCode.parseUcteNodeCode(nodeId);
+            if (ucteNodeCode.isPresent()) {
+                ucteNodeIds.put(nodeId, ucteNodeCode.get());
+                return ucteNodeCode.get();
+            } else {
+                throw new UcteException("Invalid ucte node code: " + nodeId);
+            }
         }
         if (ucteNodeIds.containsKey(nodeId)) {
             return ucteNodeIds.get(nodeId);
@@ -109,7 +106,7 @@ public class CounterNamingStrategy implements NamingStrategy {
 
         StringBuilder newNodeCode = new StringBuilder(8);
         String newNodeId = generateIDFromCounter();
-        char countryCode = getCountryCode(voltageLevel);
+        char countryCode = getCountryCode(voltageLevel).getUcteCode();
         char voltageLevelCode = getUcteVoltageLevelCode(voltageLevel.getNominalV());
         char orderCode = ORDER_CODES.get(0);
         int i = 0;
@@ -119,7 +116,8 @@ public class CounterNamingStrategy implements NamingStrategy {
                 .append(newNodeId)
                 .append(voltageLevelCode)
                 .append(orderCode);
-        while (ucteNodeIds.containsValue(newNodeCode)) {
+
+        while (ucteNodeIds.containsValue(newNodeCode.toString())) {
             i++;
             orderCode = ORDER_CODES.get(i);
             newNodeCode.replace(7, 7, String.valueOf(orderCode));
@@ -192,33 +190,18 @@ public class CounterNamingStrategy implements NamingStrategy {
         return generateUcteElementId(sw.getId(), u1, u2);
     }
 
-    /**
-     * Extracts and converts a country code to UCTE format for a given voltage level.
-     *
-     * <p>The country code is determined through the following process:
-     * <ol>
-     *   <li>Attempts to get the country from the voltage level's substation</li>
-     *   <li>Maps the country name to its corresponding UCTE code</li>
-     *   <li>Returns 'X' as fallback if no valid mapping is found</li>
-     * </ol>
-     *
-     * @param voltageLevel the voltage level from which to extract the country code
-     * @return the UCTE country code character, or 'X' if no valid country is found)
-     * */
-    private static char getCountryCode(VoltageLevel voltageLevel) {
+    private UcteCountryCode getCountryCode(VoltageLevel voltageLevel) {
 
-        String country = voltageLevel.getSubstation()
-                .map(s -> s.getCountry()
-                        .map(Country::getName)
-                        .orElse("XX"))
-                .orElse("XX");
-
-        for (UcteCountryCode countryCode : UcteCountryCode.values()) {
-            if (country.equalsIgnoreCase(countryCode.getPrettyName())) {
-                return countryCode.getUcteCode();
-            }
+        UcteCountryCode ucteCountryCode;
+        Country country = voltageLevel.getSubstation().get().getCountry().orElseThrow(() -> new com.powsybl.ucte.network.UcteException("No country for this substation"));
+        try {
+            ucteCountryCode = UcteCountryCode.valueOf(country.name());
+        } catch (IllegalArgumentException iae) {
+            throw new UcteException("No UCTE country code for " + country.getName());
         }
-        return 'X';
+
+        return ucteCountryCode;
+
     }
 
     private String generateIDFromCounter() {
@@ -270,7 +253,7 @@ public class CounterNamingStrategy implements NamingStrategy {
     @Override
     public UcteNodeCode getUcteNodeCode(String id) {
         if (id == null) {
-            return null;
+            throw new PowsyblException("ID is null" + id);
         }
 
         UcteNodeCode code = ucteNodeIds.get(id);
