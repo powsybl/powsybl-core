@@ -240,7 +240,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
 
     private static void connectAfterCreatingInternalConnection(ThreeWindingsTransformerAdder.LegAdder legAdder, TwoWindingsTransformer t2w, boolean isWellOriented) {
         Terminal terminal = getTerminal1(t2w, isWellOriented);
-        if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+        if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             int newNode = terminal.getVoltageLevel().getNodeBreakerView().getMaximumNodeIndex() + 1;
             terminal.getVoltageLevel().getNodeBreakerView()
                     .newInternalConnection()
