@@ -100,9 +100,9 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
             logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3w.getId() + "' without substation");
             return null;
         }
-        TopologyKind topologykind = t3w.getLeg1().getTerminal().getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)
-                && t3w.getLeg2().getTerminal().getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)
-                && t3w.getLeg3().getTerminal().getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)
+        TopologyKind topologykind = t3w.getLeg1().getTerminal().getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER
+                && t3w.getLeg2().getTerminal().getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER
+                && t3w.getLeg3().getTerminal().getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER
                 ? TopologyKind.BUS_BREAKER : TopologyKind.NODE_BREAKER;
         return substation.get().newVoltageLevel()
                 .setId(t3w.getId() + "-Star-VL")
