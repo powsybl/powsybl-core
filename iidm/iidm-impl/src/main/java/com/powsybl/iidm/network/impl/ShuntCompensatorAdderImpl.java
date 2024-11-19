@@ -225,7 +225,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                 voltageRegulatorOn, targetV, targetDeadband);
 
         shunt.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(shunt);
         network.getListeners().notifyCreation(shunt);
         return shunt;
