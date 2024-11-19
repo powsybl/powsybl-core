@@ -55,7 +55,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         });
         return twoWindingTransformersByBus.keySet().stream()
                 .filter(bus -> isStarBus(bus, twoWindingTransformersByBus.get(bus)))
-                .sorted(Comparator.comparing(Identifiable::getId)).toList().stream()
+                .sorted(Comparator.comparing(Identifiable::getId))
                 .map(bus -> buildTwoR(bus, twoWindingTransformersByBus.get(bus))).toList();
     }
 
