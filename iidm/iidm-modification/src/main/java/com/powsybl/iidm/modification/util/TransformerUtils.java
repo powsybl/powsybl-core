@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.util;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import org.apache.commons.math3.complex.Complex;
 
 /**
@@ -152,21 +153,9 @@ public final class TransformerUtils {
     }
 
     public static void copyOperationalLimitsGroup(OperationalLimitsGroup destination, OperationalLimitsGroup source) {
-        source.getActivePowerLimits().ifPresent(activePowerLimits -> copyAndAddLoadingLimits(destination.newActivePowerLimits(), activePowerLimits));
-        source.getApparentPowerLimits().ifPresent(apparentPowerLimits -> copyAndAddLoadingLimits(destination.newApparentPowerLimits(), apparentPowerLimits));
-        source.getCurrentLimits().ifPresent(currentLimits -> copyAndAddLoadingLimits(destination.newCurrentLimits(), currentLimits));
-    }
-
-    private static void copyAndAddLoadingLimits(LoadingLimitsAdder<?, ?> loadingLimitsAdder, LoadingLimits loadingLimits) {
-        loadingLimitsAdder.setPermanentLimit(loadingLimits.getPermanentLimit());
-        loadingLimits.getTemporaryLimits().forEach(temporaryLimit ->
-                loadingLimitsAdder.beginTemporaryLimit()
-                        .setName(temporaryLimit.getName())
-                        .setValue(temporaryLimit.getValue())
-                        .setAcceptableDuration(temporaryLimit.getAcceptableDuration())
-                        .setFictitious(temporaryLimit.isFictitious())
-                        .endTemporaryLimit());
-        loadingLimitsAdder.add();
+        source.getActivePowerLimits().ifPresent(activePowerLimits -> LoadingLimitsUtil.initializeFromLoadingLimits(destination.newActivePowerLimits(), activePowerLimits).add());
+        source.getApparentPowerLimits().ifPresent(apparentPowerLimits -> LoadingLimitsUtil.initializeFromLoadingLimits(destination.newApparentPowerLimits(), apparentPowerLimits).add());
+        source.getCurrentLimits().ifPresent(currentLimits -> LoadingLimitsUtil.initializeFromLoadingLimits(destination.newCurrentLimits(), currentLimits).add());
     }
 
     public static void copyTerminalActiveAndReactivePower(Terminal destinationTerminal, Terminal sourceTerminal) {

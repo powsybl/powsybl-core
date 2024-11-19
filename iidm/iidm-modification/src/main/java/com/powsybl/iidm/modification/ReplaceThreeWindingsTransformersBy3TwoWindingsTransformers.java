@@ -57,11 +57,10 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         regulatedTerminalControllers.replaceRegulatedTerminal(t3w.getLeg2().getTerminal(), t2wLeg2.getTerminal1());
         regulatedTerminalControllers.replaceRegulatedTerminal(t3w.getLeg3().getTerminal(), t2wLeg3.getTerminal1());
 
-        // t2wLeg1, t2wLeg, and t2wLeg3 are not considered in regulatedTerminalControllers (created in the model later)
-        Map<Terminal, Terminal> regulatedTerminalMapping = getRegulatedTerminalMapping(t3w, t2wLeg1, t2wLeg2, t2wLeg3);
-        replaceRegulatedTerminal(t2wLeg1, regulatedTerminalMapping);
-        replaceRegulatedTerminal(t2wLeg2, regulatedTerminalMapping);
-        replaceRegulatedTerminal(t2wLeg3, regulatedTerminalMapping);
+        // t2wLeg1, t2wLeg, and t2wLeg3 are not considered in regulatedTerminalControllers (created later in the model)
+        replaceRegulatedTerminal(t2wLeg1, t3w, t2wLeg1, t2wLeg2, t2wLeg3);
+        replaceRegulatedTerminal(t2wLeg2, t3w, t2wLeg1, t2wLeg2, t2wLeg3);
+        replaceRegulatedTerminal(t2wLeg3, t3w, t2wLeg1, t2wLeg2, t2wLeg3);
 
         copyTerminalActiveAndReactivePower(t2wLeg1.getTerminal1(), t3w.getLeg1().getTerminal());
         copyTerminalActiveAndReactivePower(t2wLeg2.getTerminal1(), t3w.getLeg2().getTerminal());
@@ -80,13 +79,13 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
 
         // warnings
         if (!lostProperties.isEmpty()) {
-            lostProperties.forEach(propertyName -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' unexpected property '" + propertyName + "'"));
+            lostProperties.forEach(propertyName -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' property '" + propertyName + "' was not transferred."));
         }
         if (!lostExtensions.isEmpty()) {
-            lostExtensions.forEach(extensionName -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' unexpected extension '" + extensionName + '"'));
+            lostExtensions.forEach(extensionName -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' extension '" + extensionName + "' was not transferred."));
         }
         if (!lostAliases.isEmpty()) {
-            lostAliases.forEach(aliasR -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' unexpected alias '" + aliasR.alias + "' '" + aliasR.aliasType + "'"));
+            lostAliases.forEach(aliasR -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' alias '" + aliasR.alias + "' '" + aliasR.aliasType + "' was not transferred."));
         }
 
         // report
@@ -195,25 +194,21 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     private record ConnectivityR(Integer node, Bus bus, Bus connectableBus) {
     }
 
-    private static Map<Terminal, Terminal> getRegulatedTerminalMapping(ThreeWindingsTransformer t3w, TwoWindingsTransformer t2w1, TwoWindingsTransformer t2w2, TwoWindingsTransformer t2w3) {
-        Map<Terminal, Terminal> regulatedTerminalMapping = new HashMap<>();
-        regulatedTerminalMapping.put(t3w.getLeg1().getTerminal(), t2w1.getTerminal1());
-        regulatedTerminalMapping.put(t3w.getLeg2().getTerminal(), t2w2.getTerminal1());
-        regulatedTerminalMapping.put(t3w.getLeg3().getTerminal(), t2w3.getTerminal1());
-        return regulatedTerminalMapping;
+    private static void replaceRegulatedTerminal(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w, TwoWindingsTransformer t2w1, TwoWindingsTransformer t2w2, TwoWindingsTransformer t2w3) {
+        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> findNewRegulatedTerminal(rtc.getRegulationTerminal(), t3w, t2w1, t2w2, t2w3).ifPresent(rtc::setRegulationTerminal));
+        t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> findNewRegulatedTerminal(ptc.getRegulationTerminal(), t3w, t2w1, t2w2, t2w3).ifPresent(ptc::setRegulationTerminal));
     }
 
-    private static void replaceRegulatedTerminal(TwoWindingsTransformer t2w, Map<Terminal, Terminal> regulatedTerminalMapping) {
-        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> {
-            if (regulatedTerminalMapping.containsKey(rtc.getRegulationTerminal())) {
-                rtc.setRegulationTerminal(regulatedTerminalMapping.get(rtc.getRegulationTerminal()));
-            }
-        });
-        t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> {
-            if (regulatedTerminalMapping.containsKey(ptc.getRegulationTerminal())) {
-                ptc.setRegulationTerminal(regulatedTerminalMapping.get(ptc.getRegulationTerminal()));
-            }
-        });
+    private static Optional<Terminal> findNewRegulatedTerminal(Terminal regulatedTerminal, ThreeWindingsTransformer t3w, TwoWindingsTransformer t2w1, TwoWindingsTransformer t2w2, TwoWindingsTransformer t2w3) {
+        if (regulatedTerminal != null && regulatedTerminal.getConnectable().getId().equals(t3w.getId())) {
+            return switch (regulatedTerminal.getSide()) {
+                case ONE -> Optional.of(t2w1.getTerminal1());
+                case TWO -> Optional.of(t2w2.getTerminal1());
+                case THREE -> Optional.of(t2w3.getTerminal1());
+            };
+        } else {
+            return Optional.empty();
+        }
     }
 
     private static List<String> copyProperties(ThreeWindingsTransformer t3w, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3, VoltageLevel starVoltageLevel) {
@@ -249,6 +244,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         return copied;
     }
 
+    // TODO For now, only a few extensions are supported. But a wider mechanism should be developed to support custom extensions.
     private static List<String> copyExtensions(ThreeWindingsTransformer t3w, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3) {
         List<String> lostExtensions = new ArrayList<>();
         t3w.getExtensions().stream().map(Extension::getName).forEach(extensionName -> {
