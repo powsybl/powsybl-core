@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
@@ -13,6 +20,9 @@ import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
+ */
 class SetGeneratorToLocalRegulationTest {
 
     Network network;
@@ -79,9 +89,9 @@ class SetGeneratorToLocalRegulationTest {
     }
 
     private Network createTestNetwork() {
-        Network network = Network.create("test_network", "test");
-        network.setCaseDate(ZonedDateTime.parse("2021-12-07T18:45:00.000+02:00"));
-        Substation st = network.newSubstation()
+        Network n = Network.create("test_network", "test");
+        n.setCaseDate(ZonedDateTime.parse("2021-12-07T18:45:00.000+02:00"));
+        Substation st = n.newSubstation()
                 .setId("ST")
                 .setCountry(Country.FR)
                 .add();
@@ -110,7 +120,7 @@ class SetGeneratorToLocalRegulationTest {
                 .setTargetP(200)
                 .setVoltageRegulatorOn(true)
                 .setTargetV(420)
-                .setRegulatingTerminal(network.getBusbarSection("BBS").getTerminal())
+                .setRegulatingTerminal(n.getBusbarSection("BBS").getTerminal())
                 .add();
         vl20.newGenerator()
                 .setId("GEN2")
@@ -144,6 +154,6 @@ class SetGeneratorToLocalRegulationTest {
         vl20.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(3);
         vl20.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(4);
 
-        return network;
+        return n;
     }
 }
