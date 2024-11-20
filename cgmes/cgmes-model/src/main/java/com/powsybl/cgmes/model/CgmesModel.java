@@ -109,7 +109,19 @@ public interface CgmesModel {
 
     PropertyBags equivalentShunts();
 
-    PropertyBags nonlinearShuntCompensatorPoints(String id);
+    PropertyBags shuntCompensatorPoints();
+
+    // Non-linear shunt compensator points grouped by shunt compensator
+    Map<String, PropertyBags> groupedShuntCompensatorPoints();
+
+    /**
+     * @deprecated
+     * Use {@link #groupedShuntCompensatorPoints()} or {@link #shuntCompensatorPoints()} instead.
+     */
+    @Deprecated(since = "6.6.0", forRemoval = true)
+    default PropertyBags nonlinearShuntCompensatorPoints(String id) {
+        return groupedShuntCompensatorPoints().getOrDefault(id, new PropertyBags());
+    }
 
     PropertyBags staticVarCompensators();
 
