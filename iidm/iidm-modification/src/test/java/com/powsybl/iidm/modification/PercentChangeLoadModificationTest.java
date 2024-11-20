@@ -87,7 +87,7 @@ class PercentChangeLoadModificationTest {
     @Test
     void pctLoadModificationName() {
         PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", 3.5, 0);
-        assertEquals("pctLoadModification", modification.getName());
+        assertEquals("PercentChangeLoadModification", modification.getName());
     }
 
 }

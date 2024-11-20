@@ -41,7 +41,7 @@ public class PercentChangeLoadModification extends AbstractNetworkModification {
 
     @Override
     public String getName() {
-        return "pctLoadModification";
+        return "PercentChangeLoadModification";
     }
 
     @Override
