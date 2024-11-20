@@ -62,6 +62,7 @@ import static com.powsybl.iidm.modification.util.TransformerUtils.copyAndAddPhas
 public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends AbstractNetworkModification {
 
     private static final String THREE_WINDINGS_TRANSFORMER = "ThreeWindingsTransformer";
+    private static final String WAS_NOT_TRANSFERRED = "was not transferred.";
 
     @Override
     public String getName() {
@@ -113,13 +114,13 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
 
         // warnings
         if (!lostProperties.isEmpty()) {
-            lostProperties.forEach(propertyName -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' property '" + propertyName + "' was not transferred."));
+            lostProperties.forEach(propertyName -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' property '" + propertyName + "' " + WAS_NOT_TRANSFERRED));
         }
         if (!lostExtensions.isEmpty()) {
-            lostExtensions.forEach(extensionName -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' extension '" + extensionName + "' was not transferred."));
+            lostExtensions.forEach(extensionName -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' extension '" + extensionName + "' " + WAS_NOT_TRANSFERRED));
         }
         if (!lostAliases.isEmpty()) {
-            lostAliases.forEach(aliasR -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' alias '" + aliasR.alias + "' '" + aliasR.aliasType + "' was not transferred."));
+            lostAliases.forEach(aliasR -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' alias '" + aliasR.alias + "' '" + aliasR.aliasType + "' " + WAS_NOT_TRANSFERRED));
         }
 
         // report

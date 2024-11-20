@@ -64,6 +64,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
 
     private static final String TWO_WINDINGS_TRANSFORMER = "TwoWindingsTransformer";
     private static final String WITH_FICTITIOUS_TERMINAL_USED_AS_REGULATED_TERMINAL = "with star terminal used as regulated terminal";
+    private static final String WAS_NOT_TRANSFERRED = "was not transferred.";
 
     @Override
     public String getName() {
@@ -177,13 +178,13 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
 
         // warnings
         if (!lostProperties.isEmpty()) {
-            lostProperties.forEach(propertyR -> logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + propertyR.t2wId + "' property '" + propertyR.propertyName + "' was not transferred."));
+            lostProperties.forEach(propertyR -> logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + propertyR.t2wId + "' property '" + propertyR.propertyName + "' " + WAS_NOT_TRANSFERRED));
         }
         if (!lostExtensions.isEmpty()) {
-            lostExtensions.forEach(extensionR -> logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + extensionR.t2wId + "' extension '" + extensionR.extensionName + "' was not transferred."));
+            lostExtensions.forEach(extensionR -> logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + extensionR.t2wId + "' extension '" + extensionR.extensionName + "' " + WAS_NOT_TRANSFERRED));
         }
         if (!lostAliases.isEmpty()) {
-            lostAliases.forEach(aliasR -> logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + aliasR.t2wId + "' alias '" + aliasR.alias + "' '" + aliasR.aliasType + "' was not transferred."));
+            lostAliases.forEach(aliasR -> logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + aliasR.t2wId + "' alias '" + aliasR.alias + "' '" + aliasR.aliasType + "' " + WAS_NOT_TRANSFERRED));
         }
         if (!lostLimits.isEmpty()) {
             lostLimits.forEach(limitsR -> logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + limitsR.t2wId + "' operationalLimitsGroup '" + limitsR.operationalLimitsGroupName + "' is lost"));
