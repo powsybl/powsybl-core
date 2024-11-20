@@ -63,6 +63,12 @@ class PercentChangeLoadModificationTest {
     }
 
     @Test
+    void shouldCreatePercentChangeLoadModificationAtLimit() {
+        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", -100, -100);
+        assertEquals("PercentChangeLoadModification", modification.getName());
+    }
+
+    @Test
     void shouldThrowWhenLoadDecreasesTooMuch() {
         assertThrows(PowsyblException.class, () -> new PercentChangeLoadModification("LOAD", -101, 0));
         assertThrows(PowsyblException.class, () -> new PercentChangeLoadModification("LOAD", 0, -101));
