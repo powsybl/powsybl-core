@@ -228,6 +228,7 @@ class ExtendedAmplExporterTest extends AbstractSerDeTest {
                 .setTargetV(152.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
+                .setCondenser(true)
                 .add();
 
         exporter.export(network, properties, dataSource);

@@ -43,6 +43,7 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
     private static final int TAP_CHANGER_G_COLUMN_INDEX = 6;
     private static final int TAP_CHANGER_B_COLUMN_INDEX = 7;
     private static final int GENERATOR_V_REGUL_BUS_COLUMN_INDEX = 14;
+    private static final int GENERATOR_IS_CONDENSER_COLUMN_INDEX = 16;
     private static final int STATIC_VAR_COMPENSATOR_V_REGUL_BUS_COLUMN_INDEX = 8;
 
     private int otherScNum = Integer.MAX_VALUE;
@@ -81,6 +82,8 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
         List<Column> generatorsColumns = new ArrayList<>(super.getGeneratorsColumns());
         // add column for voltage regulated bus
         generatorsColumns.add(GENERATOR_V_REGUL_BUS_COLUMN_INDEX, new Column(V_REGUL_BUS));
+        // add column to indicate if generator is a condenser
+        generatorsColumns.add(GENERATOR_IS_CONDENSER_COLUMN_INDEX, new Column(CONDENSER));
         return generatorsColumns;
     }
 
@@ -256,6 +259,7 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
         int regulatingBusNum = gen.isVoltageRegulatorOn() && gen.getRegulatingTerminal().isConnected() ?
             getMapper().getInt(AmplSubset.BUS, gen.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
         formatterHelper.addCell(regulatingBusNum, GENERATOR_V_REGUL_BUS_COLUMN_INDEX);
+        formatterHelper.addCell(gen.isCondenser(), GENERATOR_IS_CONDENSER_COLUMN_INDEX);
     }
 
     @Override
