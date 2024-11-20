@@ -25,3 +25,4 @@ For the moment, the only available implementation is provided by powsybl-dynawo,
 - Security analysis [Action DSL](../security/action-dsl.md).
 - Security analysis [Contingency DSL](../security/action-dsl.md).
 - [Run a dynamic security analysis through an iTools command](../../user/itools/dynamic-security-analysis.md): Learn how to perform a security analysis from the command line. 
+- [List dynamic simulation models with an iTools command](../../user/itools/list-dynamic-simulation-models.md): Learn how to load a list of all dynamic simulation models from the command line.

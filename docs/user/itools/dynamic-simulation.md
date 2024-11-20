@@ -64,11 +64,10 @@ This option defines the path where to export the [results](#results) of the simu
 This option defines the path of the [parameters](#parameters) file of the simulation. If this option is not used, the simulation is run with the default parameters. 
 
 ## Simulators
-
 The available power flow simulators implementations are described [here](../../simulation/dynamic/index.md#implementations).
 
 ## Parameters
-The available parameters are described [here](../../simulation/dynamic/parameters.md).
+The available parameters are described [here](../../simulation/dynamic/configuration.md).
 
 ## Results
 The expected results are described in the [time domain documentation](../../simulation/dynamic/index.md#outputs)
@@ -98,3 +97,4 @@ dynamic simulation results:
 ```
 
 ## See also
+- [List dynamic simulation models with an iTools command](../../user/itools/list-dynamic-simulation-models.md): Learn how to load a list of all dynamic simulation models from the command line.
