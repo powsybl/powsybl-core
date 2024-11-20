@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.action.HvdcAction;
 import com.powsybl.action.PercentChangeLoadAction;
 import com.powsybl.action.PercentChangeLoadActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
@@ -33,7 +32,7 @@ public class PercentChangeLoadActionBuilderDeserializer extends StdDeserializer<
             switch (name) {
                 case "type":
                     if (!PercentChangeLoadAction.NAME.equals(jsonParser.nextTextValue())) {
-                        throw JsonMappingException.from(jsonParser, "Expected type " + HvdcAction.NAME);
+                        throw JsonMappingException.from(jsonParser, "Expected type " + PercentChangeLoadAction.NAME);
                     }
                     return true;
                 case "id":
