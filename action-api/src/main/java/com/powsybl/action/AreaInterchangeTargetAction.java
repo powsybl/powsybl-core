@@ -15,7 +15,7 @@ import java.util.Objects;
 /**
  *  An action to:
  *  <ul>
- *      <li>Change the interchange target of an Area by specifying a new interchange target in MW.</li>
+ *      <li>Change the interchange target of an area by specifying a new interchange target in MW.</li>
  *  </ul>
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
