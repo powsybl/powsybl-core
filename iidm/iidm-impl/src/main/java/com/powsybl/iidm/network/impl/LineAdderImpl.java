@@ -19,7 +19,6 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
     private final NetworkImpl network;
     private final String subnetwork;
     private final Line copiedLine;
-    
 
     private double r = Double.NaN;
 
@@ -44,8 +43,6 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         this.subnetwork = subnetwork;
         this.copiedLine = copiedLine;
     }
-
-
 
     @Override
     protected NetworkImpl getNetwork() {

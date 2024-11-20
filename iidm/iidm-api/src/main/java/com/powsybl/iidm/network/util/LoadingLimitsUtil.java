@@ -9,10 +9,8 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.sun.source.tree.UsesTree;
 
 import java.util.Comparator;
-import java.util.Optional;
 
 import static java.lang.Integer.MAX_VALUE;
 

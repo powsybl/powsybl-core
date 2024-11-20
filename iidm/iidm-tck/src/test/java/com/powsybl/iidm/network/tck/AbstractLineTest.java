@@ -208,7 +208,6 @@ public abstract class AbstractLineTest extends AbstractIdenticalLinesTest {
         assertTrue(optionalLimits1.isPresent());
         CurrentLimits limits1 = optionalLimits1.get();
 
-
         // Second limit created by copy
         LineAdder acLineAdder2 = network.newLine(acLine1);
         acLineAdder2
