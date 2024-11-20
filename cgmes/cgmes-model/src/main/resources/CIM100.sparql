@@ -57,7 +57,14 @@ WHERE {
         cim:RotatingMachine.GeneratingUnit ?GeneratingUnit .
     # Some test cases of condensers have a (wrong) association with a generating unit,
     # So we explicitly check for the type of the synchronous machine
-    FILTER (!REGEX(STR(?type), "Kind.condenser"))
+    VALUES ?type {
+        cim:SynchronousMachineKind.generator
+        cim:SynchronousMachineKind.generatorOrCondenser
+        cim:SynchronousMachineKind.motor
+        cim:SynchronousMachineKind.generatorOrMotor
+        cim:SynchronousMachineKind.motorOrCondenser
+        cim:SynchronousMachineKind.generatorOrCondenserOrMotor
+    }
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
        }
@@ -70,6 +77,9 @@ WHERE {
         OPTIONAL {
             ?HydroPowerPlant cim:HydroPowerPlant.hydroPlantStorageType ?hydroPlantStorageType
         }
+    }
+    OPTIONAL {
+        ?GeneratingUnit cim:WindGeneratingUnit.windGenUnitType ?windGenUnitType
     }
     OPTIONAL {
             SELECT ?GeneratingUnit (group_concat(?fossilFuelType;separator=";") as ?fossilFuelTypeList)
@@ -114,6 +124,7 @@ WHERE {
     OPTIONAL { ?OperationalLimit cim:CurrentLimit.normalValue ?normalValue }
     OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.normalValue ?normalValue }
     OPTIONAL { ?OperationalLimit cim:VoltageLimit.normalValue ?normalValue }
+    OPTIONAL { ?OperationalLimitSet cim:IdentifiedObject.name ?OperationalLimitSetName }
     # operational limit sets can be attached to terminals or equipments
     OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal }
     OPTIONAL { GRAPH ?graph2 {

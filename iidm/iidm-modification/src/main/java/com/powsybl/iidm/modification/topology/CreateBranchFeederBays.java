@@ -49,6 +49,11 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     }
 
     @Override
+    public String getName() {
+        return "CreateBranchFeederBays";
+    }
+
+    @Override
     protected String getBusOrBusbarSectionId(int side) {
         if (side == 1) {
             return busOrBbsId1;

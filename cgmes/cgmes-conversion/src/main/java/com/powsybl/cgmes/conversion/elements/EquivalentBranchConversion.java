@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
@@ -26,7 +27,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
     private DanglingLine danglingLine;
 
     public EquivalentBranchConversion(PropertyBag b, Context context) {
-        super("EquivalentBranch", b, context);
+        super(CgmesNames.EQUIVALENT_BRANCH, b, context);
     }
 
     @Override

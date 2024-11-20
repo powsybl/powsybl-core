@@ -34,6 +34,11 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
     private static final Logger LOG = LoggerFactory.getLogger(ReplaceTieLinesByLines.class);
 
     @Override
+    public String getName() {
+        return "ReplaceTieLinesByLines";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         for (TieLine tl : network.getTieLineStream().toList()) {
             DanglingLine dl1 = tl.getDanglingLine1();

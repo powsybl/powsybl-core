@@ -130,6 +130,12 @@ public interface CgmesModel {
         return new PropertyBags();
     }
 
+    default PropertyBags synchronousMachinesAll() {
+        PropertyBags p = new PropertyBags(synchronousMachinesGenerators());
+        p.addAll(synchronousMachinesCondensers());
+        return p;
+    }
+
     PropertyBags equivalentInjections();
 
     PropertyBags externalNetworkInjections();
@@ -227,6 +233,10 @@ public interface CgmesModel {
      * @param nodeBreaker to determine the terminal container, use node-breaker connectivity information first
      */
     String voltageLevel(CgmesTerminal t, boolean nodeBreaker);
+
+    Optional<String> node(CgmesTerminal t, boolean nodeBreaker);
+
+    Optional<CgmesContainer> nodeContainer(String nodeId);
 
     CgmesContainer container(String containerId);
 

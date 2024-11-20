@@ -83,6 +83,8 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
         String nameOrKey = tripping.getNameOrKey();
         if (nameOrKey != null && !nameOrKey.equals(tripping.getKey())) {
             context.getWriter().writeStringAttribute("name", nameOrKey);
+        } else {
+            context.getWriter().writeStringAttribute("name", null);
         }
         context.getWriter().writeDoubleAttribute("currentLimit", tripping.getCurrentLimit());
         context.getWriter().writeBooleanAttribute("openAction", tripping.isOpenAction());

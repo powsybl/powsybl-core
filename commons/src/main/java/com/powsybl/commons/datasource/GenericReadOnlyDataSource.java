@@ -21,15 +21,16 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
 
     private final ReadOnlyDataSource[] dataSources;
 
-    public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension, DataSourceObserver observer) {
+    public GenericReadOnlyDataSource(Path directoryOrFile, String baseName, String dataExtension, boolean allFiles, DataSourceObserver observer) {
         dataSources = new DataSource[] {
-            new DirectoryDataSource(directory, baseName, dataExtension, observer),
-            new ZstdDirectoryDataSource(directory, baseName, dataExtension, observer),
-            new ZipArchiveDataSource(directory),
-            new ZipArchiveDataSource(directory, baseName, dataExtension, observer),
-            new XZDirectoryDataSource(directory, baseName, dataExtension, observer),
-            new GzDirectoryDataSource(directory, baseName, dataExtension, observer),
-            new Bzip2DirectoryDataSource(directory, baseName, dataExtension, observer)
+            new DirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer),
+            new ZstdDirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer),
+            new ZipArchiveDataSource(directoryOrFile, observer),
+            new ZipArchiveDataSource(directoryOrFile, baseName, dataExtension, observer),
+            new TarArchiveDataSource(directoryOrFile, observer),
+            new XZDirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer),
+            new GzDirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer),
+            new Bzip2DirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer)
         };
     }
 
@@ -45,7 +46,11 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension) {
-        this(directory, baseName, dataExtension, null);
+        this(directory, baseName, dataExtension, false);
+    }
+
+    public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension, boolean allFiles) {
+        this(directory, baseName, dataExtension, allFiles, null);
     }
 
     @Override

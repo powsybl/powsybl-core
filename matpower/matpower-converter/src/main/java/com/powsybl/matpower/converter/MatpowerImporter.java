@@ -12,6 +12,7 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -533,6 +534,11 @@ public class MatpowerImporter implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return Collections.singletonList(MatpowerConstants.EXT);
+    }
+
+    @Override
     public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
         Objects.requireNonNull(fromDataSource);
         Objects.requireNonNull(toDataSource);
@@ -548,7 +554,7 @@ public class MatpowerImporter implements Importer {
 
     @Override
     public List<Parameter> getParameters() {
-        return Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER);
+        return ConfiguredParameter.load(Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER), getFormat(), ParameterDefaultValueConfig.INSTANCE);
     }
 
     @Override
