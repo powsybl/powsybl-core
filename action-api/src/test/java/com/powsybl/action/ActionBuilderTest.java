@@ -39,6 +39,8 @@ class ActionBuilderTest {
                 .withLoadId("myLoad")
                 .withQModificationStrategy(PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q)
                 .withP0PercentChange(-101);
-        assertThrows(IllegalArgumentException.class, actionBuilder::build);
+        String message = assertThrows(IllegalArgumentException.class, actionBuilder::build)
+                .getMessage();
+        Assertions.assertEquals("The active power can't be reduced by more than 100%.", message);
     }
 }
