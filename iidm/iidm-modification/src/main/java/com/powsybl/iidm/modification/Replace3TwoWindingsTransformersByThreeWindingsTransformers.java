@@ -21,13 +21,49 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.modification.util.TransformerUtils.*;
 
 /**
+ * <p>This network modification is used to replace all 3 twoWindingsTransformers by threeWindingsTransformers.</p>
+ * <ul>
+ *     <li>BusbarSections and the three TwoWindingsTransformers are the only connectable equipment allowed in the voltageLevel associated with the star bus.</li>
+ *     <li>The three TwoWindingsTransformers must be connected to the star bus.</li>
+ *     <li>The star terminals of the twoWindingsTransformers must not be regulated terminals for any controller.</li>
+ *     <li>Each twoWindingsTransformer is well oriented if the star bus is located at the end 2.</li>
+ *     <li>A new ThreeWindingsTransformer is created for replacing the three TwoWindingsTransformers.</li>
+ *     <li>The following attributes are copied from each twoWindingsTransformer to the new associated leg:</li>
+ *     <ul>
+ *         <li>Electrical characteristics, ratioTapChangers, and phaseTapChangers. Adjustments are required if the twoWindingsTransformer is not well oriented.</li>
+ *         <li>Only the Operational Loading Limits  defined at the non-star end are copied to the leg.</li>
+ *         <li>Active and reactive power at the non-star terminal are copied to the leg terminal.</li>
+ *     </ul>
+ *     <li>Aliases:</li>
+ *     <ul>
+ *         <li>Aliases for known CGMES identifiers (terminal, transformer end, ratio, and phase tap changer) are copied to the threeWindingsTransformer after adjusting the aliasType.</li>
+ *         <li>Aliases that are not mapped are recorded in the functional log.</li>
+ *     </ul>
+ *     <li>Properties:</li>
+ *     <ul>
+ *         <li>Voltage and angle of the star bus are added as properties of the threeWindingsTransformer.</li>
+ *         <li>Only the names of the transferred operational limits are copied as properties of the threeWindingsTransformer.</li>
+ *         <li>Properties that are not mapped are recorded in the functional log.</li>
+ *     </ul>
+ *     <li>Extensions:</li>
+ *     <ul>
+ *         <li>Only IIDM extensions are copied: TransformerFortescueData, PhaseAngleClock, and TransformerToBeEstimated.</li>
+ *         <li>CGMES extensions can not be copied, as they cause circular dependencies.</li>
+ *         <li>Extensions that are not copied are recorded in the functional log.</li>
+ *     </ul>
+ *     <li>All the controllers using any of the twoWindingsTransformer terminals as regulated terminal are updated.</li>
+ *     <li>New and removed equipment is also recorded in the functional log.</li>
+ *     <li>Internal connections are created to manage the replacement.</li>
+ *</ul>
+ *
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
+
 public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends AbstractNetworkModification {
 
     private static final String TWO_WINDINGS_TRANSFORMER = "TwoWindingsTransformer";
-    private static final String WITH_FICTITIOUS_TERMINAL_USED_AS_REGULATED_TERMINAL = "with fictitious terminal used as regulated terminal";
+    private static final String WITH_FICTITIOUS_TERMINAL_USED_AS_REGULATED_TERMINAL = "with star terminal used as regulated terminal";
 
     @Override
     public String getName() {
@@ -64,13 +100,13 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     }
 
     private static TwoR buildTwoR(Bus starBus, List<TwoWindingsTransformer> starBusT2ws) {
-        List<TwoWindingsTransformer> sortedT2ws = starBusT2ws.stream()
+        List<TwoWindingsTransformer> sortedStarBusT2ws = starBusT2ws.stream()
                 .sorted(Comparator.comparingDouble((TwoWindingsTransformer t2w) -> getNominalV(starBus, t2w))
                         .reversed()
                         .thenComparing(Identifiable::getId))
                 .toList();
 
-        return new TwoR(starBus, sortedT2ws.get(0), sortedT2ws.get(1), sortedT2ws.get(2));
+        return new TwoR(starBus, sortedStarBusT2ws.get(0), sortedStarBusT2ws.get(1), sortedStarBusT2ws.get(2));
     }
 
     private static double getNominalV(Bus bus, TwoWindingsTransformer t2w) {
@@ -91,7 +127,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         if (substation == null) {
             return;
         }
-        if (anyTwoWindingsTransformerRegulatedOnFictitiousSide(twoR, regulatedTerminalControllers, throwException)) {
+        if (anyTwoWindingsTransformerStarTerminalDefinedAsRegulatedTerminal(twoR, regulatedTerminalControllers, throwException)) {
             return;
         }
         double ratedU0 = twoR.starBus.getVoltageLevel().getNominalV();
@@ -109,10 +145,10 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         addLeg(t3wAdder.newLeg3(), twoR.t2w3, isWellOrientedT2w3, ratedU0);
         ThreeWindingsTransformer t3w = t3wAdder.add();
 
-        // t3w is not considered in regulatedTerminalControllers (created in the model later)
-        setLegData(t3w.getLeg1(), twoR.t2w1, isWellOrientedT2w1, regulatedTerminalControllers, t3w, twoR);
-        setLegData(t3w.getLeg2(), twoR.t2w2, isWellOrientedT2w2, regulatedTerminalControllers, t3w, twoR);
-        setLegData(t3w.getLeg3(), twoR.t2w3, isWellOrientedT2w3, regulatedTerminalControllers, t3w, twoR);
+        // t3w is not considered in regulatedTerminalControllers (created later in the model)
+        setLegData(t3w.getLeg1(), twoR.t2w1, isWellOrientedT2w1, regulatedTerminalControllers, twoR);
+        setLegData(t3w.getLeg2(), twoR.t2w2, isWellOrientedT2w2, regulatedTerminalControllers, twoR);
+        setLegData(t3w.getLeg3(), twoR.t2w3, isWellOrientedT2w3, regulatedTerminalControllers, twoR);
 
         copyStarBusVoltageAndAngle(twoR.starBus, t3w);
         List<PropertyR> lostProperties = new ArrayList<>();
@@ -168,7 +204,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         legAdder.add();
     }
 
-    private static void setLegData(ThreeWindingsTransformer.Leg leg, TwoWindingsTransformer t2w, boolean isWellOriented, RegulatedTerminalControllers regulatedTerminalControllers, ThreeWindingsTransformer t3w, TwoR twoR) {
+    private static void setLegData(ThreeWindingsTransformer.Leg leg, TwoWindingsTransformer t2w, boolean isWellOriented, RegulatedTerminalControllers regulatedTerminalControllers, TwoR twoR) {
         t2w.getOptionalRatioTapChanger().ifPresent(rtc -> copyOrMoveRatioTapChanger(leg.newRatioTapChanger(), rtc, isWellOriented));
         t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> copyOrMovePhaseTapChanger(leg.newPhaseTapChanger(), ptc, isWellOriented));
 
@@ -176,7 +212,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
                 .forEach(operationalLimitGroup -> copyOperationalLimitsGroup(leg.newOperationalLimitsGroup(operationalLimitGroup.getId()), operationalLimitGroup));
 
         regulatedTerminalControllers.replaceRegulatedTerminal(getTerminal1(t2w, isWellOriented), leg.getTerminal());
-        replaceRegulatedTerminal(leg, t3w, twoR);
+        replaceRegulatedTerminal(leg, leg.getTransformer(), twoR);
 
         copyTerminalActiveAndReactivePower(leg.getTerminal(), getTerminal1(t2w, isWellOriented));
     }
@@ -191,7 +227,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         }
     }
 
-    private boolean anyTwoWindingsTransformerRegulatedOnFictitiousSide(TwoR twoR, RegulatedTerminalControllers regulatedTerminalControllers, boolean throwException) {
+    private boolean anyTwoWindingsTransformerStarTerminalDefinedAsRegulatedTerminal(TwoR twoR, RegulatedTerminalControllers regulatedTerminalControllers, boolean throwException) {
         if (regulatedTerminalControllers.usedAsRegulatedTerminal(getTerminal2(twoR.t2w1, isWellOriented(twoR.starBus, twoR.t2w1)))) {
             logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + twoR.t2w1.getId() + "' " + WITH_FICTITIOUS_TERMINAL_USED_AS_REGULATED_TERMINAL);
             return true;
@@ -333,11 +369,11 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     private static boolean copyProperty(String propertyName, String property, ThreeWindingsTransformer t3w) {
         boolean copied = true;
         if (propertyName.startsWith("CGMES.OperationalLimitSet_")) {
-            if (t3w.getLeg1().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.contains(operationalLimitsGroup.getId()))) {
+            if (t3w.getLeg1().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.endsWith(operationalLimitsGroup.getId()))) {
                 t3w.setProperty(propertyName, property);
-            } else if (t3w.getLeg2().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.contains(operationalLimitsGroup.getId()))) {
+            } else if (t3w.getLeg2().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.endsWith(operationalLimitsGroup.getId()))) {
                 t3w.setProperty(propertyName, property);
-            } else if (t3w.getLeg3().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.contains(operationalLimitsGroup.getId()))) {
+            } else if (t3w.getLeg3().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.endsWith(operationalLimitsGroup.getId()))) {
                 t3w.setProperty(propertyName, property);
             } else {
                 copied = false;

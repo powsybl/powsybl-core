@@ -23,6 +23,39 @@ import static com.powsybl.iidm.modification.util.TransformerUtils.*;
 import static com.powsybl.iidm.modification.util.TransformerUtils.copyAndAddPhaseAngleClock;
 
 /**
+ * <p>This network modification is used to replace all threeWindingsTransformers by 3 twoWindingsTransformers.</p>
+ * <p>For each threeWindingsTransformer:</p>
+ * <ul>
+ *     <li>A new voltage level is created for the star node with nominal voltage of ratedU0.</li>
+ *     <li>Three new TwoWindingsTransformers are created, one for each leg of the removed ThreeWindingsTransformer.</li>
+ *     <li>The following attributes are copied from each leg to the new associated twoWindingsTransformer:</li>
+ *     <ul>
+ *         <li>Electrical characteristics, ratioTapChangers, and phaseTapChangers. No adjustments are required.</li>
+ *         <li>Operational Loading Limits are copied to the non-star end of the twoWindingsTransformers.</li>
+ *         <li>Active and reactive power at the terminal are copied to the non-star terminal of the twoWindingsTransformer.</li>
+ *     </ul>
+ *     <li>Aliases:</li>
+ *     <ul>
+ *         <li>Aliases for known CGMES identifiers (terminal, transformer end, ratio, and phase tap changer) are copied to the right twoWindingsTransformer after adjusting the aliasType.</li>
+ *         <li>Aliases that are not mapped are recorded in the functional log.</li>
+ *     </ul>
+ *     <li>Properties:</li>
+ *     <ul>
+ *         <li>Star bus voltage and angle are set to the bus created for the star node.</li>
+ *         <li>The names of the operationalLimitsSet are copied to the right twoWindingsTransformer.</li>
+ *         <li>Properties that are not mapped are recorded in the functional log.</li>
+ *     </ul>
+ *     <li>Extensions:</li>
+ *     <ul>
+ *         <li>Only IIDM extensions are copied: TransformerFortescueData, PhaseAngleClock, and TransformerToBeEstimated.</li>
+ *         <li>CGMES extensions can not be copied, as they cause circular dependencies.</li>
+ *         <li>Extensions that are not copied are recorded in the functional log.</li>
+ *     </ul>
+ *     <li>All the controllers using any of the threeWindingsTransformer terminals as regulated terminal are updated.</li>
+ *     <li>New and removed equipment is also recorded in the functional log.</li>
+ *     <li>Internal connections are created to manage the replacement.</li>
+ *</ul>
+ *
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
@@ -52,22 +85,23 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         TwoWindingsTransformer t2wLeg1 = createTwoWindingsTransformer(t3w, t3w.getLeg1(), starVoltageLevel);
         TwoWindingsTransformer t2wLeg2 = createTwoWindingsTransformer(t3w, t3w.getLeg2(), starVoltageLevel);
         TwoWindingsTransformer t2wLeg3 = createTwoWindingsTransformer(t3w, t3w.getLeg3(), starVoltageLevel);
+        ThreeT2wsR threeT2ws = new ThreeT2wsR(t2wLeg1, t2wLeg2, t2wLeg3);
 
-        regulatedTerminalControllers.replaceRegulatedTerminal(t3w.getLeg1().getTerminal(), t2wLeg1.getTerminal1());
-        regulatedTerminalControllers.replaceRegulatedTerminal(t3w.getLeg2().getTerminal(), t2wLeg2.getTerminal1());
-        regulatedTerminalControllers.replaceRegulatedTerminal(t3w.getLeg3().getTerminal(), t2wLeg3.getTerminal1());
+        regulatedTerminalControllers.replaceRegulatedTerminal(t3w.getLeg1().getTerminal(), threeT2ws.t2wOne.getTerminal1());
+        regulatedTerminalControllers.replaceRegulatedTerminal(t3w.getLeg2().getTerminal(), threeT2ws.t2wTwo.getTerminal1());
+        regulatedTerminalControllers.replaceRegulatedTerminal(t3w.getLeg3().getTerminal(), threeT2ws.t2wThree.getTerminal1());
 
         // t2wLeg1, t2wLeg, and t2wLeg3 are not considered in regulatedTerminalControllers (created later in the model)
-        replaceRegulatedTerminal(t2wLeg1, t3w, t2wLeg1, t2wLeg2, t2wLeg3);
-        replaceRegulatedTerminal(t2wLeg2, t3w, t2wLeg1, t2wLeg2, t2wLeg3);
-        replaceRegulatedTerminal(t2wLeg3, t3w, t2wLeg1, t2wLeg2, t2wLeg3);
+        replaceRegulatedTerminal(threeT2ws.t2wOne, t3w, threeT2ws);
+        replaceRegulatedTerminal(threeT2ws.t2wTwo, t3w, threeT2ws);
+        replaceRegulatedTerminal(threeT2ws.t2wThree, t3w, threeT2ws);
 
-        copyTerminalActiveAndReactivePower(t2wLeg1.getTerminal1(), t3w.getLeg1().getTerminal());
-        copyTerminalActiveAndReactivePower(t2wLeg2.getTerminal1(), t3w.getLeg2().getTerminal());
-        copyTerminalActiveAndReactivePower(t2wLeg3.getTerminal1(), t3w.getLeg3().getTerminal());
+        copyTerminalActiveAndReactivePower(threeT2ws.t2wOne.getTerminal1(), t3w.getLeg1().getTerminal());
+        copyTerminalActiveAndReactivePower(threeT2ws.t2wTwo.getTerminal1(), t3w.getLeg2().getTerminal());
+        copyTerminalActiveAndReactivePower(threeT2ws.t2wThree.getTerminal1(), t3w.getLeg3().getTerminal());
 
-        List<String> lostProperties = copyProperties(t3w, t2wLeg1, t2wLeg2, t2wLeg3, starVoltageLevel);
-        List<String> lostExtensions = copyExtensions(t3w, t2wLeg1, t2wLeg2, t2wLeg3);
+        List<String> lostProperties = copyProperties(t3w, threeT2ws, starVoltageLevel);
+        List<String> lostExtensions = copyExtensions(t3w, threeT2ws);
 
         // copy necessary data before removing the transformer
         String t3wId = t3w.getId();
@@ -75,7 +109,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         t3w.remove();
 
         // after removing the threeWindingsTransformer
-        List<AliasR> lostAliases = copyAliases(t3wAliases, t2wLeg1, t2wLeg2, t2wLeg3);
+        List<AliasR> lostAliases = copyAliases(t3wAliases, threeT2ws);
 
         // warnings
         if (!lostProperties.isEmpty()) {
@@ -89,7 +123,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         }
 
         // report
-        createReportNode(reportNode, t3wId, lostProperties, lostExtensions, lostAliases, starVoltageLevel.getId(), t2wLeg1.getId(), t2wLeg2.getId(), t2wLeg3.getId());
+        createReportNode(reportNode, t3wId, lostProperties, lostExtensions, lostAliases, starVoltageLevel.getId(), threeT2ws);
     }
 
     // It is a fictitious bus, then we do not set voltage limits
@@ -194,27 +228,27 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     private record ConnectivityR(Integer node, Bus bus, Bus connectableBus) {
     }
 
-    private static void replaceRegulatedTerminal(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w, TwoWindingsTransformer t2w1, TwoWindingsTransformer t2w2, TwoWindingsTransformer t2w3) {
-        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> findNewRegulatedTerminal(rtc.getRegulationTerminal(), t3w, t2w1, t2w2, t2w3).ifPresent(rtc::setRegulationTerminal));
-        t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> findNewRegulatedTerminal(ptc.getRegulationTerminal(), t3w, t2w1, t2w2, t2w3).ifPresent(ptc::setRegulationTerminal));
+    private static void replaceRegulatedTerminal(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w, ThreeT2wsR threeT2ws) {
+        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> findNewRegulatedTerminal(rtc.getRegulationTerminal(), t3w, threeT2ws).ifPresent(rtc::setRegulationTerminal));
+        t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> findNewRegulatedTerminal(ptc.getRegulationTerminal(), t3w, threeT2ws).ifPresent(ptc::setRegulationTerminal));
     }
 
-    private static Optional<Terminal> findNewRegulatedTerminal(Terminal regulatedTerminal, ThreeWindingsTransformer t3w, TwoWindingsTransformer t2w1, TwoWindingsTransformer t2w2, TwoWindingsTransformer t2w3) {
+    private static Optional<Terminal> findNewRegulatedTerminal(Terminal regulatedTerminal, ThreeWindingsTransformer t3w, ThreeT2wsR threeT2ws) {
         if (regulatedTerminal != null && regulatedTerminal.getConnectable().getId().equals(t3w.getId())) {
             return switch (regulatedTerminal.getSide()) {
-                case ONE -> Optional.of(t2w1.getTerminal1());
-                case TWO -> Optional.of(t2w2.getTerminal1());
-                case THREE -> Optional.of(t2w3.getTerminal1());
+                case ONE -> Optional.of(threeT2ws.t2wOne.getTerminal1());
+                case TWO -> Optional.of(threeT2ws.t2wTwo.getTerminal1());
+                case THREE -> Optional.of(threeT2ws.t2wThree.getTerminal1());
             };
         } else {
             return Optional.empty();
         }
     }
 
-    private static List<String> copyProperties(ThreeWindingsTransformer t3w, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3, VoltageLevel starVoltageLevel) {
+    private static List<String> copyProperties(ThreeWindingsTransformer t3w, ThreeT2wsR threeT2ws, VoltageLevel starVoltageLevel) {
         List<String> lostProperties = new ArrayList<>();
         t3w.getPropertyNames().forEach(propertyName -> {
-            boolean copied = copyProperty(propertyName, t3w.getProperty(propertyName), t2wLeg1, t2wLeg2, t2wLeg3, starVoltageLevel);
+            boolean copied = copyProperty(propertyName, t3w.getProperty(propertyName), threeT2ws, starVoltageLevel);
             if (!copied) {
                 lostProperties.add(propertyName);
             }
@@ -222,19 +256,19 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         return lostProperties;
     }
 
-    private static boolean copyProperty(String propertyName, String property, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3, VoltageLevel starVoltageLevel) {
+    private static boolean copyProperty(String propertyName, String property, ThreeT2wsR threeT2ws, VoltageLevel starVoltageLevel) {
         boolean copied = true;
         if ("v".equals(propertyName)) {
             starVoltageLevel.getBusView().getBuses().iterator().next().setV(Double.parseDouble(property));
         } else if ("angle".equals(propertyName)) {
             starVoltageLevel.getBusView().getBuses().iterator().next().setAngle(Double.parseDouble(property));
         } else if (propertyName.startsWith("CGMES.OperationalLimitSet_")) {
-            if (t2wLeg1.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.contains(operationalLimitsGroup.getId()))) {
-                t2wLeg1.setProperty(propertyName, property);
-            } else if (t2wLeg2.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.contains(operationalLimitsGroup.getId()))) {
-                t2wLeg2.setProperty(propertyName, property);
-            } else if (t2wLeg3.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.contains(operationalLimitsGroup.getId()))) {
-                t2wLeg3.setProperty(propertyName, property);
+            if (threeT2ws.t2wOne.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.endsWith(operationalLimitsGroup.getId()))) {
+                threeT2ws.t2wOne.setProperty(propertyName, property);
+            } else if (threeT2ws.t2wTwo.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.endsWith(operationalLimitsGroup.getId()))) {
+                threeT2ws.t2wTwo.setProperty(propertyName, property);
+            } else if (threeT2ws.t2wThree.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.endsWith(operationalLimitsGroup.getId()))) {
+                threeT2ws.t2wThree.setProperty(propertyName, property);
             } else {
                 copied = false;
             }
@@ -245,10 +279,10 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     }
 
     // TODO For now, only a few extensions are supported. But a wider mechanism should be developed to support custom extensions.
-    private static List<String> copyExtensions(ThreeWindingsTransformer t3w, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3) {
+    private static List<String> copyExtensions(ThreeWindingsTransformer t3w, ThreeT2wsR threeT2w) {
         List<String> lostExtensions = new ArrayList<>();
         t3w.getExtensions().stream().map(Extension::getName).forEach(extensionName -> {
-            boolean copied = copyExtension(extensionName, t3w, t2wLeg1, t2wLeg2, t2wLeg3);
+            boolean copied = copyExtension(extensionName, t3w, threeT2w);
             if (!copied) {
                 lostExtensions.add(extensionName);
             }
@@ -256,25 +290,25 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         return lostExtensions;
     }
 
-    private static boolean copyExtension(String extensionName, ThreeWindingsTransformer t3w, TwoWindingsTransformer t2w1, TwoWindingsTransformer t2w2, TwoWindingsTransformer t2w3) {
+    private static boolean copyExtension(String extensionName, ThreeWindingsTransformer t3w, ThreeT2wsR threeT2ws) {
         boolean copied = true;
         switch (extensionName) {
             case "threeWindingsTransformerFortescue" -> {
                 ThreeWindingsTransformerFortescue extension = t3w.getExtension(ThreeWindingsTransformerFortescue.class);
-                copyAndAddFortescue(t2w1.newExtension(TwoWindingsTransformerFortescueAdder.class), extension.getLeg1());
-                copyAndAddFortescue(t2w2.newExtension(TwoWindingsTransformerFortescueAdder.class), extension.getLeg2());
-                copyAndAddFortescue(t2w3.newExtension(TwoWindingsTransformerFortescueAdder.class), extension.getLeg3());
+                copyAndAddFortescue(threeT2ws.t2wOne.newExtension(TwoWindingsTransformerFortescueAdder.class), extension.getLeg1());
+                copyAndAddFortescue(threeT2ws.t2wTwo.newExtension(TwoWindingsTransformerFortescueAdder.class), extension.getLeg2());
+                copyAndAddFortescue(threeT2ws.t2wThree.newExtension(TwoWindingsTransformerFortescueAdder.class), extension.getLeg3());
             }
             case "threeWindingsTransformerPhaseAngleClock" -> {
                 ThreeWindingsTransformerPhaseAngleClock extension = t3w.getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
-                copyAndAddPhaseAngleClock(t2w2.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class), extension.getPhaseAngleClockLeg2());
-                copyAndAddPhaseAngleClock(t2w3.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class), extension.getPhaseAngleClockLeg3());
+                copyAndAddPhaseAngleClock(threeT2ws.t2wTwo.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class), extension.getPhaseAngleClockLeg2());
+                copyAndAddPhaseAngleClock(threeT2ws.t2wThree.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class), extension.getPhaseAngleClockLeg3());
             }
             case "threeWindingsTransformerToBeEstimated" -> {
                 ThreeWindingsTransformerToBeEstimated extension = t3w.getExtension(ThreeWindingsTransformerToBeEstimated.class);
-                copyAndAddToBeEstimated(t2w1.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class), extension.shouldEstimateRatioTapChanger1(), extension.shouldEstimatePhaseTapChanger1());
-                copyAndAddToBeEstimated(t2w2.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class), extension.shouldEstimateRatioTapChanger2(), extension.shouldEstimatePhaseTapChanger2());
-                copyAndAddToBeEstimated(t2w3.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class), extension.shouldEstimateRatioTapChanger3(), extension.shouldEstimatePhaseTapChanger3());
+                copyAndAddToBeEstimated(threeT2ws.t2wOne.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class), extension.shouldEstimateRatioTapChanger1(), extension.shouldEstimatePhaseTapChanger1());
+                copyAndAddToBeEstimated(threeT2ws.t2wTwo.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class), extension.shouldEstimateRatioTapChanger2(), extension.shouldEstimatePhaseTapChanger2());
+                copyAndAddToBeEstimated(threeT2ws.t2wThree.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class), extension.shouldEstimateRatioTapChanger3(), extension.shouldEstimatePhaseTapChanger3());
             }
             default -> copied = false;
         }
@@ -285,10 +319,10 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         return t3w.getAliases().stream().map(alias -> new AliasR(alias, t3w.getAliasType(alias).orElse(""))).toList();
     }
 
-    private static List<AliasR> copyAliases(List<AliasR> t3wAliases, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3) {
+    private static List<AliasR> copyAliases(List<AliasR> t3wAliases, ThreeT2wsR threeT2w) {
         List<AliasR> lostAliases = new ArrayList<>();
         t3wAliases.forEach(aliasR -> {
-            boolean copied = copyAlias(aliasR.alias, aliasR.aliasType, t2wLeg1, t2wLeg2, t2wLeg3);
+            boolean copied = copyAlias(aliasR.alias, aliasR.aliasType, threeT2w);
             if (!copied) {
                 lostAliases.add(aliasR);
             }
@@ -296,10 +330,10 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         return lostAliases;
     }
 
-    private static boolean copyAlias(String alias, String aliasType, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3) {
-        return copyLegAlias(alias, aliasType, "1", t2wLeg1)
-                || copyLegAlias(alias, aliasType, "2", t2wLeg2)
-                || copyLegAlias(alias, aliasType, "3", t2wLeg3);
+    private static boolean copyAlias(String alias, String aliasType, ThreeT2wsR threeT2ws) {
+        return copyLegAlias(alias, aliasType, "1", threeT2ws.t2wOne)
+                || copyLegAlias(alias, aliasType, "2", threeT2ws.t2wTwo)
+                || copyLegAlias(alias, aliasType, "3", threeT2ws.t2wThree);
     }
 
     private static boolean copyLegAlias(String alias, String aliasType, String legEnd, TwoWindingsTransformer t2wLeg) {
@@ -321,8 +355,8 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     private record AliasR(String alias, String aliasType) {
     }
 
-    private static void createReportNode(ReportNode reportNode, String t3wId, List<String> lostProperties, List<String> lostExtensions, List<AliasR> lostAliases,
-                                         String starVoltageLevelId, String t2w1Id, String t2w2Id, String t2w3Id) {
+    private static void createReportNode(ReportNode reportNode, String t3wId, List<String> lostProperties, List<String> lostExtensions,
+                                         List<AliasR> lostAliases, String starVoltageLevelId, ThreeT2wsR threeT2ws) {
 
         ReportNode reportNodeReplacement = replaceThreeWindingsTransformersBy3TwoWindingsTransformersReport(reportNode);
 
@@ -341,8 +375,11 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         }
 
         createdVoltageLevelReport(reportNodeReplacement, starVoltageLevelId);
-        createdTwoWindingsTransformerReport(reportNodeReplacement, t2w1Id);
-        createdTwoWindingsTransformerReport(reportNodeReplacement, t2w2Id);
-        createdTwoWindingsTransformerReport(reportNodeReplacement, t2w3Id);
+        createdTwoWindingsTransformerReport(reportNodeReplacement, threeT2ws.t2wOne.getId());
+        createdTwoWindingsTransformerReport(reportNodeReplacement, threeT2ws.t2wTwo.getId());
+        createdTwoWindingsTransformerReport(reportNodeReplacement, threeT2ws.t2wThree.getId());
+    }
+
+    private record ThreeT2wsR(TwoWindingsTransformer t2wOne, TwoWindingsTransformer t2wTwo, TwoWindingsTransformer t2wThree) {
     }
 }
