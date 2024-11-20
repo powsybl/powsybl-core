@@ -368,7 +368,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public LineAdderImpl newLine(Line line) {
-            return newLine().setR(line.getR())
+            return newLine(null, line).setR(line.getR())
                     .setX(line.getX())
                     .setG1(line.getG1())
                     .setG2(line.getG2())

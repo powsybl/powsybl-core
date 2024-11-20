@@ -199,9 +199,15 @@ public abstract class AbstractLineTest extends AbstractIdenticalLinesTest {
                 .setBus2("busB")
                 .setConnectableBus1("busA")
                 .setConnectableBus2("busB");
-
         acLineAdder1.add();
         Line acLine1 = network.getLine("line1");
+        // Group and limits creation
+        acLine1.newOperationalLimitsGroup1("group1").newCurrentLimits().setPermanentLimit(220.0).add();
+        acLine1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<CurrentLimits> optionalLimits1 = acLine1.getCurrentLimits1();
+        assertTrue(optionalLimits1.isPresent());
+        CurrentLimits limits1 = optionalLimits1.get();
+
 
         // Second limit created by copy
         LineAdder acLineAdder2 = network.newLine(acLine1);
@@ -214,9 +220,17 @@ public abstract class AbstractLineTest extends AbstractIdenticalLinesTest {
                 .setConnectableBus2("busB");
         acLineAdder2.add();
         Line acLine2 = network.getLine("line2");
+        // Limits check to set up test
+        Optional<CurrentLimits> optionalLimits2 = acLine2.getCurrentLimits1();
+        assertTrue(optionalLimits2.isPresent());
+        CurrentLimits limits2 = optionalLimits2.get();
 
+        // Tests
         assertNotNull(acLine2);
         assertTrue(areLinesIdentical(acLine1, acLine2));
+        assertEquals(limits1.getPermanentLimit(), limits2.getPermanentLimit());
+        assertSame(acLine1.getSelectedOperationalLimitsGroupId2(), acLine2.getSelectedOperationalLimitsGroupId2());
+
     }
 
     @Test
