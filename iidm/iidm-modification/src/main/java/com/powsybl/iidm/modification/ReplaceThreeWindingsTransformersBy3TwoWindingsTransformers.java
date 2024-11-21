@@ -63,6 +63,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
 
     private static final String THREE_WINDINGS_TRANSFORMER = "ThreeWindingsTransformer";
     private static final String WAS_NOT_TRANSFERRED = "was not transferred.";
+    private static final String CGMES_OPERATIONAL_LIMIT_SET = "CGMES.OperationalLimitSet_";
 
     @Override
     public String getName() {
@@ -263,12 +264,12 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
             starVoltageLevel.getBusView().getBuses().iterator().next().setV(Double.parseDouble(property));
         } else if ("angle".equals(propertyName)) {
             starVoltageLevel.getBusView().getBuses().iterator().next().setAngle(Double.parseDouble(property));
-        } else if (propertyName.startsWith("CGMES.OperationalLimitSet_")) {
-            if (threeT2ws.t2wOne.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.endsWith(operationalLimitsGroup.getId()))) {
+        } else if (propertyName.startsWith(CGMES_OPERATIONAL_LIMIT_SET)) {
+            if (threeT2ws.t2wOne.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.equals(CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()))) {
                 threeT2ws.t2wOne.setProperty(propertyName, property);
-            } else if (threeT2ws.t2wTwo.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.endsWith(operationalLimitsGroup.getId()))) {
+            } else if (threeT2ws.t2wTwo.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.equals(CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()))) {
                 threeT2ws.t2wTwo.setProperty(propertyName, property);
-            } else if (threeT2ws.t2wThree.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.endsWith(operationalLimitsGroup.getId()))) {
+            } else if (threeT2ws.t2wThree.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.equals(CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()))) {
                 threeT2ws.t2wThree.setProperty(propertyName, property);
             } else {
                 copied = false;

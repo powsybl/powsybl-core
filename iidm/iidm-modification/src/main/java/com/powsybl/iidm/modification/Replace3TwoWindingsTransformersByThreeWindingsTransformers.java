@@ -65,6 +65,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     private static final String TWO_WINDINGS_TRANSFORMER = "TwoWindingsTransformer";
     private static final String WITH_FICTITIOUS_TERMINAL_USED_AS_REGULATED_TERMINAL = "with star terminal used as regulated terminal";
     private static final String WAS_NOT_TRANSFERRED = "was not transferred.";
+    private static final String CGMES_OPERATIONAL_LIMIT_SET = "CGMES.OperationalLimitSet_";
 
     @Override
     public String getName() {
@@ -369,12 +370,12 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
 
     private static boolean copyProperty(String propertyName, String property, ThreeWindingsTransformer t3w) {
         boolean copied = true;
-        if (propertyName.startsWith("CGMES.OperationalLimitSet_")) {
-            if (t3w.getLeg1().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.endsWith(operationalLimitsGroup.getId()))) {
+        if (propertyName.startsWith(CGMES_OPERATIONAL_LIMIT_SET)) {
+            if (t3w.getLeg1().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.equals(CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()))) {
                 t3w.setProperty(propertyName, property);
-            } else if (t3w.getLeg2().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.endsWith(operationalLimitsGroup.getId()))) {
+            } else if (t3w.getLeg2().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.equals(CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()))) {
                 t3w.setProperty(propertyName, property);
-            } else if (t3w.getLeg3().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.endsWith(operationalLimitsGroup.getId()))) {
+            } else if (t3w.getLeg3().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.equals(CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()))) {
                 t3w.setProperty(propertyName, property);
             } else {
                 copied = false;
