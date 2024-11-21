@@ -64,7 +64,7 @@ interface TerminalExt extends Terminal, MultiVariantObject {
 
     void removeRegulatingPoint(RegulatingPoint rp);
 
-    List<AbstractIidmExtension<?>> getDependentExtensions();
+    List<TerminalDependent> getDependents();
 
-    void notifyDependentExtensionsOfRemoval();
+    void notifyDependentOfRemoval();
 }
