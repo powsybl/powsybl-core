@@ -284,4 +284,17 @@ public abstract class AbstractSlackTerminalTest {
         assertNull(merged.getVoltageLevel("VL").getExtension(SlackTerminal.class)); // reset
         assertNotNull(merged.getVoltageLevel("VLHV1").getExtension(SlackTerminal.class)); // untouched
     }
+
+    @Test
+    public void removeTerminalConnectableTest() {
+        Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
+        var vlgen = network.getVoltageLevel("VLGEN");
+        var gen2 = network.getGenerator("GEN2");
+        var slackTerminal = vlgen.newExtension(SlackTerminalAdder.class)
+                .withTerminal(gen2.getTerminal())
+                .add();
+        assertNotNull(slackTerminal.getTerminal());
+        gen2.remove();
+        assertNull(slackTerminal.getTerminal());
+    }
 }

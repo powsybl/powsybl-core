@@ -35,6 +35,8 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected final List<RegulatingPoint> regulated = new ArrayList<>();
 
+    protected final List<AbstractIidmExtension<?>> dependentExtensions = new ArrayList<>();
+
     // attributes depending on the variant
 
     protected final TDoubleArrayList p;
@@ -257,5 +259,17 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public void removeRegulatingPoint(RegulatingPoint rp) {
         regulated.remove(rp);
+    }
+
+    @Override
+    public List<AbstractIidmExtension<?>> getDependentExtensions() {
+        return dependentExtensions;
+    }
+
+    @Override
+    public void notifyDependentExtensionsOfRemoval() {
+        for (AbstractIidmExtension<?> extension : dependentExtensions) {
+            extension.onReferencedTerminalRemoval(this);
+        }
     }
 }

@@ -31,6 +31,37 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
         this.setTerminal(terminal);
     }
 
+    private void unregisterReferencedTerminalIfNeeded(int variantIndex) {
+        // check there is no more same terminal referenced by any variant, unregister it
+        Terminal oldTerminal = terminals.get(variantIndex);
+        if (oldTerminal != null && !terminals.contains(oldTerminal)) {
+            unregisterReferencedTerminal(oldTerminal);
+        }
+    }
+
+    private void registerReferencedTerminalIfNeeded(Terminal terminal) {
+        // if terminal was not already referenced by another variant, register it
+        if (terminal != null && !terminals.contains(terminal)) {
+            registerReferencedTerminal(terminal);
+        }
+    }
+
+    private void setTerminalAndUpdateReferences(int variantIndex, Terminal terminal) {
+        unregisterReferencedTerminalIfNeeded(variantIndex);
+        registerReferencedTerminalIfNeeded(terminal);
+        terminals.set(variantIndex, terminal);
+    }
+    
+    private void addTerminalAndUpdateReferences(Terminal terminal) {
+        registerReferencedTerminalIfNeeded(terminal);
+        terminals.add(terminal);
+    }
+
+    private void removeTerminalAndUpdateReferences(int variantIndex) {
+        unregisterReferencedTerminalIfNeeded(variantIndex);
+        terminals.remove(variantIndex);
+    }
+
     @Override
     public Terminal getTerminal() {
         return terminals.get(getVariantIndex());
@@ -42,7 +73,7 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
             throw new PowsyblException("Terminal given is not in the right VoltageLevel ("
                 + terminal.getVoltageLevel().getId() + " instead of " + getExtendable().getId() + ")");
         }
-        terminals.set(getVariantIndex(), terminal);
+        setTerminalAndUpdateReferences(getVariantIndex(), terminal);
         return this;
     }
 
@@ -56,27 +87,35 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
         terminals.ensureCapacity(terminals.size() + number);
         Terminal sourceTerminal = terminals.get(sourceIndex);
         for (int i = 0; i < number; ++i) {
-            terminals.add(sourceTerminal);
+            addTerminalAndUpdateReferences(sourceTerminal);
         }
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         for (int i = 0; i < number; i++) {
-            terminals.remove(terminals.size() - 1); // remove elements from the top to avoid moves inside the array
+            removeTerminalAndUpdateReferences(terminals.size() - 1); // remove elements from the top to avoid moves inside the array
         }
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        terminals.set(index, null);
+        setTerminalAndUpdateReferences(index, null);
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         Terminal terminalSource = terminals.get(sourceIndex);
         for (int index : indexes) {
-            terminals.set(index, terminalSource);
+            setTerminalAndUpdateReferences(index, terminalSource);
+        }
+    }
+
+    @Override
+    public void onReferencedTerminalRemoval(Terminal terminal) {
+        int variantIndex = terminals.indexOf(terminal);
+        if (variantIndex != -1) {
+            terminals.set(variantIndex, null);
         }
     }
 }
