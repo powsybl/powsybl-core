@@ -530,12 +530,6 @@ class UndirectedGraphImplTest {
         assertArrayEquals(new boolean[] {true, true, true, true, true, true}, vEncountered);
         assertArrayEquals(new boolean[] {true, true, true, true, true, true, true}, eEncountered);
 
-        List<GraphPath> paths = new ArrayList<>();
-        graph.traverse(5, TraversalType.BREADTH_FIRST, (v1, e, v2) -> {
-            paths.add(new GraphPath(v1, e, v2));
-            return TraverseResult.CONTINUE;
-        });
-
         List<GraphPath> expected = List.of(
                 new GraphPath(5, 5, 4),
                 new GraphPath(5, 6, 3),
@@ -544,7 +538,23 @@ class UndirectedGraphImplTest {
                 new GraphPath(3, 2, 0),
                 new GraphPath(1, 0, 0),
                 new GraphPath(2, 1, 0));
-        assertEquals(expected, paths);
+
+        // Check that all edges and vertices are traversed in the right order when traversing the graph with no stopping point
+        List<GraphPath> paths1 = new ArrayList<>();
+        graph.traverse(5, TraversalType.BREADTH_FIRST, (v1, e, v2) -> {
+            paths1.add(new GraphPath(v1, e, v2));
+            return TraverseResult.CONTINUE;
+        });
+        assertEquals(expected, paths1);
+
+        // Check all calls done when traversing the graph with one stopping point at vertex 0 when arriving from 3
+        // to ensure the edge 0 and 1 still get traversed even if the destination vertex 0 is already encountered
+        List<GraphPath> paths2 = new ArrayList<>();
+        graph.traverse(5, TraversalType.BREADTH_FIRST, (v1, e, v2) -> {
+            paths2.add(new GraphPath(v1, e, v2));
+            return v1 == 3 && v2 == 0 ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;
+        });
+        assertEquals(expected, paths2);
     }
 
     /**
@@ -579,7 +589,10 @@ class UndirectedGraphImplTest {
             return TraverseResult.CONTINUE;
         });
 
-        List<GraphPath> expected = List.of(new GraphPath(0, 0, 1), new GraphPath(0, 1, 1), new GraphPath(1, 2, 2));
+        List<GraphPath> expected = List.of(
+                new GraphPath(0, 0, 1),
+                new GraphPath(0, 1, 1),
+                new GraphPath(1, 2, 2));
         assertEquals(expected, paths);
     }
 

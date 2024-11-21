@@ -507,12 +507,13 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         adjacencyListCache = null;
     }
 
-    private void traverseVertex(int v, int incomingEdgeIndex, boolean[] encountered, Deque<EdgeToTraverse> edgesToTraverse, TIntArrayList[] adjacencyList, TraversalType traversalType) {
-        if (encountered[v]) {
+    private void traverseVertex(int vToTraverse, boolean[] vEncountered, boolean[] eEncountered, Deque<EdgeToTraverse> edgesToTraverse,
+                                TIntArrayList[] adjacencyList, TraversalType traversalType) {
+        if (vEncountered[vToTraverse]) {
             return;
         }
-        encountered[v] = true;
-        TIntArrayList adjacentEdges = adjacencyList[v];
+        vEncountered[vToTraverse] = true;
+        TIntArrayList adjacentEdges = adjacencyList[vToTraverse];
         for (int i = 0; i < adjacentEdges.size(); i++) {
             // For depth-first traversal, we're going to poll the last element added in the deque. Hence, edges have to
             // be added in reverse order, otherwise the depth-first traversal will be "on the right side" instead of
@@ -521,9 +522,13 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 case DEPTH_FIRST -> adjacentEdges.size() - i - 1;
                 case BREADTH_FIRST -> i;
             };
+
             int adjacentEdgeIndex = adjacentEdges.getQuick(iEdge);
-            if (adjacentEdgeIndex != incomingEdgeIndex) { // the incoming edge has already been traversed
-                boolean flippedEdge = edges.get(adjacentEdgeIndex).v1 != v;
+
+            if (!eEncountered[adjacentEdgeIndex]) {
+                eEncountered[adjacentEdgeIndex] = true;
+                Edge<E> edge = edges.get(adjacentEdgeIndex);
+                boolean flippedEdge = edge.v1 != vToTraverse;
                 edgesToTraverse.add(new EdgeToTraverse(adjacentEdgeIndex, flippedEdge));
             }
         }
@@ -538,20 +543,21 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encountered) {
+    public boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encounteredVertices) {
         checkVertex(v);
         Objects.requireNonNull(traverser);
-        Objects.requireNonNull(encountered);
+        Objects.requireNonNull(encounteredVertices);
 
-        if (encountered.length < vertices.size()) {
+        if (encounteredVertices.length < vertices.size()) {
             throw new PowsyblException("Encountered array is too small");
         }
 
+        boolean[] encounteredEdges = new boolean[edges.size()];
         TIntArrayList[] adjacencyList = getAdjacencyList();
         boolean keepGoing = true;
 
         Deque<EdgeToTraverse> edgesToTraverse = new ArrayDeque<>();
-        traverseVertex(v, -1, encountered, edgesToTraverse, adjacencyList, traversalType);
+        traverseVertex(v, encounteredVertices, encounteredEdges, edgesToTraverse, adjacencyList, traversalType);
         while (!edgesToTraverse.isEmpty() && keepGoing) {
             EdgeToTraverse edgeToTraverse = switch (traversalType) {
                 case DEPTH_FIRST -> edgesToTraverse.pollLast();
@@ -563,7 +569,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             int vDest = edgeToTraverse.flippedDirection ? edge.getV1() : edge.getV2();
             TraverseResult traverserResult = traverser.traverse(vOrigin, edgeToTraverse.index, vDest);
             switch (traverserResult) {
-                case CONTINUE -> traverseVertex(vDest, edgeToTraverse.index, encountered, edgesToTraverse, adjacencyList, traversalType);
+                case CONTINUE -> traverseVertex(vDest, encounteredVertices, encounteredEdges, edgesToTraverse, adjacencyList, traversalType);
                 case TERMINATE_TRAVERSER -> keepGoing = false; // the whole traversing needs to stop
                 case TERMINATE_PATH -> {
                     // Path ends on edge e before reaching vDest, continuing with next edge in the deque
