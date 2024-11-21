@@ -9,7 +9,8 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 
@@ -20,17 +21,6 @@ import java.util.*;
  */
 class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<Network> implements ReferenceTerminals {
 
-    private final class ReferenceTerminalsListener extends DefaultNetworkListener {
-        @Override
-        public void beforeRemoval(Identifiable<?> identifiable) {
-            if (identifiable instanceof Connectable<?> connectable) {
-                // if connectable removed from network, remove its terminals from this extension
-                terminalsPerVariant.forEach(referenceTerminals -> connectable.getTerminals().forEach(referenceTerminals::remove));
-            }
-        }
-    }
-
-    private final NetworkListener referenceTerminalsListener;
     private final ArrayList<Set<Terminal>> terminalsPerVariant;
 
     public ReferenceTerminalsImpl(Network network, Set<Terminal> terminals) {
@@ -38,22 +28,49 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
         this.terminalsPerVariant = new ArrayList<>(
                 Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), new LinkedHashSet<>()));
         setReferenceTerminals(terminals);
-        this.referenceTerminalsListener = new ReferenceTerminalsListener();
     }
 
-    @Override
-    public void setExtendable(Network extendable) {
-        super.setExtendable(extendable);
-        if (extendable != null) {
-            // Add the listener, this will be done both extension creation, but also on extension transfer when merging and detaching.
-            extendable.getNetwork().addListener(this.referenceTerminalsListener);
+    private void unregisterReferencedTerminalIfNeeded(int variantIndex) {
+        // check there is no more same terminal referenced by any variant, unregister it
+        Set<Terminal> oldTerminals = terminalsPerVariant.get(variantIndex);
+        if (oldTerminals != null) {
+            for (Terminal oldTerminal : oldTerminals) {
+                if (terminalsPerVariant.stream()
+                    .flatMap(Collection::stream)
+                    .noneMatch(t -> t == oldTerminal)) {
+                    unregisterReferencedTerminal(oldTerminal);
+                }
+            }
         }
     }
 
-    @Override
-    protected void cleanup() {
-        // when extension removed from extendable, remove the listener. This will happen when merging and detaching.
-        getExtendable().getNetwork().removeListener(this.referenceTerminalsListener);
+    private void registerReferencedTerminalIfNeeded(Set<Terminal> terminals) {
+        // if terminal was not already referenced by another variant, register it
+        if (terminals != null) {
+            for (Terminal terminal : terminals) {
+                if (terminalsPerVariant.stream()
+                        .flatMap(Collection::stream)
+                        .noneMatch(t -> t == terminal)) {
+                    registerReferencedTerminal(terminal);
+                }
+            }
+        }
+    }
+
+    private void setTerminalsAndUpdateReferences(int variantIndex, Set<Terminal> terminals) {
+        unregisterReferencedTerminalIfNeeded(variantIndex);
+        registerReferencedTerminalIfNeeded(terminals);
+        terminalsPerVariant.set(variantIndex, new LinkedHashSet<>(terminals));
+    }
+
+    private void addTerminalsAndUpdateReferences(Set<Terminal> terminals) {
+        registerReferencedTerminalIfNeeded(terminals);
+        terminalsPerVariant.add(new LinkedHashSet<>(terminals));
+    }
+
+    private void removeTerminalsAndUpdateReferences(int variantIndex) {
+        unregisterReferencedTerminalIfNeeded(variantIndex);
+        terminalsPerVariant.remove(variantIndex); // remove elements from the top to avoid moves inside the array
     }
 
     @Override
@@ -65,12 +82,12 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     public void setReferenceTerminals(Set<Terminal> terminals) {
         Objects.requireNonNull(terminals);
         terminals.forEach(t -> checkTerminalInNetwork(t, getExtendable()));
-        terminalsPerVariant.set(getVariantIndex(), new LinkedHashSet<>(terminals));
+        setTerminalsAndUpdateReferences(getVariantIndex(), terminals);
     }
 
     @Override
     public ReferenceTerminals reset() {
-        terminalsPerVariant.set(getVariantIndex(), new LinkedHashSet<>());
+        setTerminalsAndUpdateReferences(getVariantIndex(), Collections.emptySet());
         return this;
     }
 
@@ -87,27 +104,27 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
         terminalsPerVariant.ensureCapacity(terminalsPerVariant.size() + number);
         Set<Terminal> sourceTerminals = terminalsPerVariant.get(sourceIndex);
         for (int i = 0; i < number; ++i) {
-            terminalsPerVariant.add(new LinkedHashSet<>(sourceTerminals));
+            addTerminalsAndUpdateReferences(sourceTerminals);
         }
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         for (int i = 0; i < number; i++) {
-            terminalsPerVariant.remove(terminalsPerVariant.size() - 1); // remove elements from the top to avoid moves inside the array
+            removeTerminalsAndUpdateReferences(terminalsPerVariant.size() - 1); // remove elements from the top to avoid moves inside the array
         }
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        terminalsPerVariant.set(index, new LinkedHashSet<>());
+        setTerminalsAndUpdateReferences(index, Collections.emptySet());
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         Set<Terminal> sourceTerminals = terminalsPerVariant.get(sourceIndex);
         for (int index : indexes) {
-            terminalsPerVariant.set(index, new LinkedHashSet<>(sourceTerminals));
+            setTerminalsAndUpdateReferences(index, sourceTerminals);
         }
     }
 
@@ -125,6 +142,13 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
                 throw new PowsyblException("Terminal given is not in the right Network ("
                         + terminal.getVoltageLevel().getParentNetwork().getId() + " instead of " + network.getId() + ")");
             }
+        }
+    }
+
+    @Override
+    public void onReferencedTerminalRemoval(Terminal terminal) {
+        for (Set<Terminal> terminals : terminalsPerVariant) {
+            terminals.remove(terminal);
         }
     }
 }

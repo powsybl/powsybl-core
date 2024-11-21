@@ -51,7 +51,7 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
         registerReferencedTerminalIfNeeded(terminal);
         terminals.set(variantIndex, terminal);
     }
-    
+
     private void addTerminalAndUpdateReferences(Terminal terminal) {
         registerReferencedTerminalIfNeeded(terminal);
         terminals.add(terminal);
