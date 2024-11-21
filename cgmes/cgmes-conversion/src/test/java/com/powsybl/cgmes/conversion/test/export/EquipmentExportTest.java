@@ -588,9 +588,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.NONCONFORM_LOAD), loadsCreatedFromOriginalClassCount(actual, CgmesNames.NONCONFORM_LOAD));
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.STATION_SUPPLY), loadsCreatedFromOriginalClassCount(actual, CgmesNames.STATION_SUPPLY));
 
-        // Remove the default control area created in expected network during export
-        expected.getAreaStream().map(Area::getId).toList().forEach(a -> expected.getArea(a).remove());
-
         // Avoid comparing targetP and targetQ (reimport does not consider the SSH file);
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
