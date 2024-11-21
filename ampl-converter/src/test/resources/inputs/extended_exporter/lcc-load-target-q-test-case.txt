@@ -1,0 +1,4 @@
+#LCC Converter Stations (hvdctest/InitialState)
+#"variant" "num" "bus" "con. bus" "substation" "q0 (MW)" "lossFactor (%PDC)" "powerFactor" "fault" "curative" "id" "description" "P (MW)" "Q (MVar)"
+1 1 1 1 1 473.542 1.10000 0.500000 0 0 "C1" "Converter1" 100.000 50.0000
+1 2 2 2 2 373.333 1.10000 0.600000 0 0 "C2" "Converter2" 75.0000 25.0000

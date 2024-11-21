@@ -273,6 +273,19 @@ class ExtendedAmplExporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testLccLoadTargetQ() throws IOException {
+        Network network = HvdcTestNetwork.createLcc();
+
+        exporter.export(network, properties, dataSource);
+
+        // Check that export is the same as for basic AMPL exporter
+        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/hvdc-lcc-test-case.txt");
+
+        // Check that synchronous components are different due to HVDC line
+        assertEqualsToRef(dataSource, "_network_lcc_converter_stations", "inputs/extended_exporter/lcc-load-target-q-test-case.txt");
+    }
+
+    @Test
     void writeTwoConnectedComponent() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMultipleConnectedComponents();
 

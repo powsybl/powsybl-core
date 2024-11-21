@@ -473,19 +473,31 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
         int num = mapper.getInt(AmplSubset.LCC_CONVERTER_STATION, lccStation.getId());
 
-        formatter.writeCell(variantIndex)
-            .writeCell(num)
-            .writeCell(busNum)
-            .writeCell(conBusNum != -1 ? conBusNum : busNum)
-            .writeCell(vlNum)
-            .writeCell(lccStation.getLossFactor())
-            .writeCell(lccStation.getPowerFactor())
-            .writeCell(faultNum)
-            .writeCell(actionNum)
-            .writeCell(lccStation.getId())
-            .writeCell(lccStation.getNameOrId())
-            .writeCell(t.getP())
-            .writeCell(t.getQ());
+        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+        formatterHelper.addCell(variantIndex)
+                .addCell(num)
+                .addCell(busNum)
+                .addCell(conBusNum != -1 ? conBusNum : busNum)
+                .addCell(vlNum)
+                .addCell(lccStation.getLossFactor())
+                .addCell(lccStation.getPowerFactor())
+                .addCell(faultNum)
+                .addCell(actionNum)
+                .addCell(lccStation.getId())
+                .addCell(lccStation.getNameOrId())
+                .addCell(t.getP())
+                .addCell(t.getQ());
+
+        // Add cells if necessary
+        addAdditionalCellsLccConverterStation(formatterHelper, lccStation);
+
+        // Write the cells
+        formatterHelper.write();
+    }
+
+    public void addAdditionalCellsLccConverterStation(TableFormatterHelper formatterHelper,
+                                                      LccConverterStation lccStation) {
+        // Nothing to do here
     }
 
     @Override

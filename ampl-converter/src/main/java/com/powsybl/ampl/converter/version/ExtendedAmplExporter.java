@@ -17,6 +17,7 @@ import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterHelper;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.HvdcUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
     private static final int GENERATOR_V_REGUL_BUS_COLUMN_INDEX = 14;
     private static final int GENERATOR_IS_CONDENSER_COLUMN_INDEX = 16;
     private static final int STATIC_VAR_COMPENSATOR_V_REGUL_BUS_COLUMN_INDEX = 8;
+    private static final int LCC_TARGET_Q_COLUMN_INDEX = 5;
 
     private int otherScNum = Integer.MAX_VALUE;
 
@@ -93,6 +95,14 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
         // add column for voltage regulated bus
         svcColumns.add(STATIC_VAR_COMPENSATOR_V_REGUL_BUS_COLUMN_INDEX, new Column(V_REGUL_BUS));
         return svcColumns;
+    }
+
+    @Override
+    public List<Column> getLccConverterStationsColumns() {
+        List<Column> lccColumns = new ArrayList<>(super.getLccConverterStationsColumns());
+        // add column for target Q of converter station
+        lccColumns.add(LCC_TARGET_Q_COLUMN_INDEX, new Column(Q0)); // TODO : Q0 here?
+        return lccColumns;
     }
 
     @Override
@@ -271,6 +281,13 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
 
         // Cell to add
         formatterHelper.addCell(regulatingBusNum, STATIC_VAR_COMPENSATOR_V_REGUL_BUS_COLUMN_INDEX);
+    }
+
+    @Override
+    public void addAdditionalCellsLccConverterStation(TableFormatterHelper formatterHelper,
+                                                      LccConverterStation lccStation) {
+        double loadTargetQ = HvdcUtils.getLccConverterStationLoadTargetQ(lccStation);
+        formatterHelper.addCell(loadTargetQ, LCC_TARGET_Q_COLUMN_INDEX);
     }
 
 }
