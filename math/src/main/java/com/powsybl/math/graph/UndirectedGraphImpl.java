@@ -507,7 +507,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         adjacencyListCache = null;
     }
 
-    private void traverseVertex(int vToTraverse, boolean[] vEncountered, Deque<EdgeToTraverse> edgesToTraverse,
+    private void traverseVertex(int vToTraverse, boolean[] vEncountered, Deque<DirectedEdge> edgesToTraverse,
                                 TIntArrayList[] adjacencyList, TraversalType traversalType) {
         if (vEncountered[vToTraverse]) {
             return;
@@ -525,7 +525,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
             int adjacentEdgeIndex = adjacentEdges.getQuick(iEdge);
             boolean flippedEdge = edges.get(adjacentEdgeIndex).v1 != vToTraverse;
-            edgesToTraverse.add(new EdgeToTraverse(adjacentEdgeIndex, flippedEdge));
+            edgesToTraverse.add(new DirectedEdge(adjacentEdgeIndex, flippedEdge));
         }
     }
 
@@ -534,7 +534,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
      * @param index index of the edge within the edges list
      * @param flippedDirection if true, edge.getNode2() has already been visited, otherwise it's edge.getNode1()
      */
-    private record EdgeToTraverse(int index, boolean flippedDirection) {
+    private record DirectedEdge(int index, boolean flippedDirection) {
     }
 
     @Override
@@ -551,25 +551,24 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         TIntArrayList[] adjacencyList = getAdjacencyList();
         boolean keepGoing = true;
 
-        Deque<EdgeToTraverse> edgesToTraverse = new ArrayDeque<>();
+        Deque<DirectedEdge> edgesToTraverse = new ArrayDeque<>();
         traverseVertex(v, encounteredVertices, edgesToTraverse, adjacencyList, traversalType);
         while (!edgesToTraverse.isEmpty() && keepGoing) {
-            EdgeToTraverse edgeToTraverse = switch (traversalType) {
+            DirectedEdge directedEdge = switch (traversalType) {
                 case DEPTH_FIRST -> edgesToTraverse.pollLast();
                 case BREADTH_FIRST -> edgesToTraverse.pollFirst();
             };
 
-            if (!encounteredEdges[edgeToTraverse.index]) {
-                encounteredEdges[edgeToTraverse.index] = true;
+            if (!encounteredEdges[directedEdge.index]) {
+                encounteredEdges[directedEdge.index] = true;
 
-                Edge<E> edge = edges.get(edgeToTraverse.index);
-                int vOrigin = edgeToTraverse.flippedDirection ? edge.getV2() : edge.getV1();
-                int vDest = edgeToTraverse.flippedDirection ? edge.getV1() : edge.getV2();
+                Edge<E> edge = edges.get(directedEdge.index);
+                int vOrigin = directedEdge.flippedDirection ? edge.getV2() : edge.getV1();
+                int vDest = directedEdge.flippedDirection ? edge.getV1() : edge.getV2();
 
-                TraverseResult traverserResult = traverser.traverse(vOrigin, edgeToTraverse.index, vDest);
+                TraverseResult traverserResult = traverser.traverse(vOrigin, directedEdge.index, vDest);
                 switch (traverserResult) {
-                    case CONTINUE ->
-                            traverseVertex(vDest, encounteredVertices, edgesToTraverse, adjacencyList, traversalType);
+                    case CONTINUE -> traverseVertex(vDest, encounteredVertices, edgesToTraverse, adjacencyList, traversalType);
                     case TERMINATE_TRAVERSER -> keepGoing = false; // the whole traversing needs to stop
                     case TERMINATE_PATH -> {
                         // Path ends on edge e before reaching vDest, continuing with next edge in the deque
