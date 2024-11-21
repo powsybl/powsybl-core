@@ -68,6 +68,11 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
         terminalsPerVariant.add(new LinkedHashSet<>(terminals));
     }
 
+    private void updateTerminalsAndUpdateReferences(int variantIndex, Terminal terminal) {
+        registerReferencedTerminalIfNeeded(Set.of(terminal));
+        terminalsPerVariant.get(variantIndex).add(terminal);
+    }
+
     private void removeTerminalsAndUpdateReferences(int variantIndex) {
         unregisterReferencedTerminalIfNeeded(variantIndex);
         terminalsPerVariant.remove(variantIndex); // remove elements from the top to avoid moves inside the array
@@ -95,7 +100,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     public ReferenceTerminals addReferenceTerminal(Terminal terminal) {
         Objects.requireNonNull(terminal);
         checkTerminalInNetwork(terminal, getExtendable());
-        terminalsPerVariant.get(getVariantIndex()).add(terminal);
+        updateTerminalsAndUpdateReferences(getVariantIndex(), terminal);
         return this;
     }
 

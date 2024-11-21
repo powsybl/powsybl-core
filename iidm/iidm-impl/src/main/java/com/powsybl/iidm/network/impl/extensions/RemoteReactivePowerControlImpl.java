@@ -19,11 +19,11 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifiableExtension<Generator> implements RemoteReactivePowerControl {
 
-    private TDoubleArrayList targetQ;
+    private final TDoubleArrayList targetQ;
 
-    private final Terminal regulatingTerminal;
+    private Terminal regulatingTerminal;
 
-    private TBooleanArrayList enabled;
+    private final TBooleanArrayList enabled;
 
     public RemoteReactivePowerControlImpl(Generator generator, double targetQ, Terminal regulatingTerminal, boolean enabled) {
         super(generator);
@@ -34,6 +34,9 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
         for (int i = 0; i < variantArraySize; i++) {
             this.targetQ.add(targetQ);
             this.enabled.add(enabled);
+        }
+        if (regulatingTerminal != null) {
+            registerReferencedTerminal(regulatingTerminal);
         }
     }
 
@@ -91,5 +94,10 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
             targetQ.set(index, targetQ.get(sourceIndex));
             enabled.set(index, enabled.get(sourceIndex));
         }
+    }
+
+    @Override
+    public void onReferencedTerminalRemoval(Terminal terminal) {
+        regulatingTerminal = null;
     }
 }
