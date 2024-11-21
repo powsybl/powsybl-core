@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
@@ -36,6 +37,11 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
             this.enabled.add(enabled);
         }
         if (regulatingTerminal != null) {
+            if (regulatingTerminal.getVoltageLevel().getParentNetwork() != getExtendable().getParentNetwork()) {
+                throw new PowsyblException("Regulating terminal is not in the right Network ("
+                        + regulatingTerminal.getVoltageLevel().getParentNetwork().getId() + " instead of "
+                        + getExtendable().getParentNetwork().getId() + ")");
+            }
             registerReferencedTerminal(regulatingTerminal);
         }
     }
