@@ -10,24 +10,24 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.Terminal;
 import gnu.trove.list.array.TIntArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class RegulatingPoint implements MultiVariantObject {
+class RegulatingPoint implements MultiVariantObject, TerminalDependent {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegulatingPoint.class);
 
     private final String regulatedEquipmentId;
     private final Supplier<TerminalExt> localTerminalSupplier;
     private boolean useVoltageRegulation;
-    private TerminalExt regulatingTerminal = null;
+    private TerminalExt regulatingTerminal;
 
     // attributes depending on the variant
 
@@ -58,11 +58,11 @@ class RegulatingPoint implements MultiVariantObject {
 
     void setRegulatingTerminal(TerminalExt regulatingTerminal) {
         if (this.regulatingTerminal != null) {
-            this.regulatingTerminal.removeRegulatingPoint(this);
+            unregisterReferencedTerminal(this.regulatingTerminal);
         }
         this.regulatingTerminal = regulatingTerminal != null ? regulatingTerminal : localTerminalSupplier.get();
         if (this.regulatingTerminal != null) {
-            this.regulatingTerminal.setAsRegulatingPoint(this);
+            registerReferencedTerminal(this.regulatingTerminal);
         }
     }
 
@@ -88,35 +88,6 @@ class RegulatingPoint implements MultiVariantObject {
 
     int getRegulationMode(int index) {
         return regulationMode.get(index);
-    }
-
-    void removeRegulatingTerminal() {
-        Objects.requireNonNull(regulatingTerminal);
-        TerminalExt localTerminal = localTerminalSupplier.get();
-        if (localTerminal != null && useVoltageRegulation) { // if local voltage regulation, we keep the regulating status, and re-locate the regulation at the regulated equipment
-            Bus bus = regulatingTerminal.getBusView().getBus();
-            Bus localBus = localTerminal.getBusView().getBus();
-            if (bus != null && bus == localBus) {
-                LOG.warn("Connectable {} was a local voltage regulation point for {}. Regulation point is re-located at {}.", regulatingTerminal.getConnectable().getId(),
-                        regulatedEquipmentId, regulatedEquipmentId);
-                regulatingTerminal = localTerminal;
-                return;
-            }
-        }
-        LOG.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", regulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
-        regulatingTerminal = localTerminal;
-        if (regulating != null) {
-            regulating.fill(0, regulating.size(), false);
-        }
-        if (regulationMode != null) {
-            regulationMode.fill(0, regulationMode.size(), StaticVarCompensator.RegulationMode.OFF.ordinal());
-        }
-    }
-
-    void remove() {
-        if (regulatingTerminal != null) {
-            regulatingTerminal.removeRegulatingPoint(this);
-        }
     }
 
     @Override
@@ -161,6 +132,39 @@ class RegulatingPoint implements MultiVariantObject {
             if (regulationMode != null) {
                 regulationMode.set(index, regulationMode.get(sourceIndex));
             }
+        }
+    }
+
+    @Override
+    public void registerReferencedTerminal(Terminal terminal) {
+        ((TerminalExt) terminal).getDependents().add(this);
+    }
+
+    @Override
+    public void unregisterReferencedTerminal(Terminal terminal) {
+        ((TerminalExt) terminal).getDependents().remove(this);
+    }
+
+    @Override
+    public void onReferencedTerminalRemoval(Terminal terminal) {
+        TerminalExt localTerminal = localTerminalSupplier.get();
+        if (localTerminal != null && useVoltageRegulation) { // if local voltage regulation, we keep the regulating status, and re-locate the regulation at the regulated equipment
+            Bus bus = regulatingTerminal.getBusView().getBus();
+            Bus localBus = localTerminal.getBusView().getBus();
+            if (bus != null && bus == localBus) {
+                LOG.warn("Connectable {} was a local voltage regulation point for {}. Regulation point is re-located at {}.", regulatingTerminal.getConnectable().getId(),
+                        regulatedEquipmentId, regulatedEquipmentId);
+                regulatingTerminal = localTerminal;
+                return;
+            }
+        }
+        LOG.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", regulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
+        regulatingTerminal = localTerminal;
+        if (regulating != null) {
+            regulating.fill(0, regulating.size(), false);
+        }
+        if (regulationMode != null) {
+            regulationMode.fill(0, regulationMode.size(), StaticVarCompensator.RegulationMode.OFF.ordinal());
         }
     }
 }

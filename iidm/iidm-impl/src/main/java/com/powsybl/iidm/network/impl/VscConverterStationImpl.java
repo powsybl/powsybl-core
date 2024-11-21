@@ -174,10 +174,4 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
         return this;
     }
-
-    @Override
-    public void remove() {
-        regulatingPoint.remove();
-        super.remove();
-    }
 }

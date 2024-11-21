@@ -56,13 +56,7 @@ interface TerminalExt extends Terminal, MultiVariantObject {
 
     TopologyPoint getTopologyPoint();
 
-    void removeAsRegulationPoint();
-
     void remove();
-
-    void setAsRegulatingPoint(RegulatingPoint rp);
-
-    void removeRegulatingPoint(RegulatingPoint rp);
 
     List<TerminalDependent> getDependents();
 
