@@ -121,6 +121,10 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         if (!fossilFuelType.isEmpty()) {
             generator.setProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE, fossilFuelType);
         }
+        String windGenUnitType = p.getLocal("windGenUnitType");
+        if (windGenUnitType != null) {
+            generator.setProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, windGenUnitType.replace("WindGenUnitKind.", ""));
+        }
     }
 
     private EnergySource energySourceFromGeneratingUnitType() {
