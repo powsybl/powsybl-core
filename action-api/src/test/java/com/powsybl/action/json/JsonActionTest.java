@@ -84,6 +84,8 @@ public class JsonActionTest extends AbstractSerDeTest {
                 .withStaticVarCompensatorId("svc").withRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
                 .withReactivePowerSetpoint(120.0).build());
         actions.add(new TerminalsConnectionAction("id4", "transformerId25", ThreeSides.THREE, true)); // only one side.
+        actions.add(new AreaInterchangeTargetAction("id99", "AreaA", 101.0));
+        actions.add(new AreaInterchangeTargetAction("idDisabledTarget", "AreaA", Double.NaN));
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }

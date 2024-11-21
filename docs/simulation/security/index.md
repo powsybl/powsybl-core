@@ -45,6 +45,7 @@ Remedial actions are actions that are applied when limit violations occur. Suppo
 - Change `targetP`, `targetQ`, regulation status and `targetV` of a generator
 - Change the regulation mode of a static var compensator and its associated set point.
 - Enabled or disabled AC emulation for HVDC line (with the possibility to change `P0` and `droop` for AC emulation and active power set point and converter mode for set point operating mode)
+- Change the interchange target of an area by specifying a new interchange target in MW.
 
 Remedial actions can be *preventive* or *curative*:
 - preventive: these actions are implemented before the violation occurs, for example if the flow of a monitored line is between `90%` and `100%`. Use contingency context `NONE` for that.
