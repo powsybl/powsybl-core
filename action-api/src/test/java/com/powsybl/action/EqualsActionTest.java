@@ -17,6 +17,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_PQ_RATIO;
+import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q;
+
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
@@ -159,6 +162,21 @@ class EqualsActionTest {
                 .withActivePowerValue(100)
                 .withRelativeValue(false)
                 .build();
+        new EqualsTester()
+                .addEqualityGroup(action1, action2)
+                .addEqualityGroup(action3)
+                .addEqualityGroup(action4)
+                .addEqualityGroup(action5)
+                .testEquals();
+    }
+
+    @Test
+    void pctLoadAction() {
+        PercentChangeLoadAction action1 = new PercentChangeLoadAction("id", "load", -2d, CONSTANT_Q);
+        PercentChangeLoadAction action2 = new PercentChangeLoadAction("id", "load", -2d, CONSTANT_Q);
+        PercentChangeLoadAction action3 = new PercentChangeLoadAction("id", "load", -2d, CONSTANT_PQ_RATIO);
+        PercentChangeLoadAction action4 = new PercentChangeLoadAction("id", "load", -3d, CONSTANT_Q);
+        PercentChangeLoadAction action5 = new PercentChangeLoadAction("id2", "load", -2d, CONSTANT_Q);
         new EqualsTester()
                 .addEqualityGroup(action1, action2)
                 .addEqualityGroup(action3)
