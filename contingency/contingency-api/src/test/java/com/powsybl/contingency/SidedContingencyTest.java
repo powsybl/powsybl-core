@@ -28,11 +28,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 public class SidedContingencyTest {
 
-    private static Network EUROSTAG_NETWORK;
+    private static Network eurostagNetwork;
 
     @BeforeAll
     public static void setup() {
-        EUROSTAG_NETWORK = EurostagTutorialExample1Factory.create();
+        eurostagNetwork = EurostagTutorialExample1Factory.create();
     }
 
     @ParameterizedTest(name = "{1}")
@@ -44,30 +44,30 @@ public class SidedContingencyTest {
     @Test
     void testIdNotFound() {
         SidedContingencyElement element = new BranchContingency("WRONG_ID", VLHV2);
-        assertNull(SidedContingencyElementUtils.getContingencySide(EUROSTAG_NETWORK, element));
+        assertNull(SidedContingencyElementUtils.getContingencySide(eurostagNetwork, element));
     }
 
     @Test
     void testVoltageIdNotFound() {
         SidedContingencyElement element = new BranchContingency(NHV1_NHV2_2, "WRONG_ID");
-        assertNull(SidedContingencyElementUtils.getContingencySide(EUROSTAG_NETWORK, element));
+        assertNull(SidedContingencyElementUtils.getContingencySide(eurostagNetwork, element));
     }
 
     @Test
     void testNullVoltageId() {
         SidedContingencyElement element = new BranchContingency(NHV1_NHV2_2);
-        assertNull(SidedContingencyElementUtils.getContingencySide(EUROSTAG_NETWORK, element));
+        assertNull(SidedContingencyElementUtils.getContingencySide(eurostagNetwork, element));
     }
 
     private static Stream<Arguments> sidedElementProvider() {
         return Stream.of(
-                Arguments.of(EUROSTAG_NETWORK,
+                Arguments.of(eurostagNetwork,
                         new TwoWindingsTransformerContingency(NGEN_NHV1, VLGEN),
                         TwoSides.ONE),
-                Arguments.of(EUROSTAG_NETWORK,
+                Arguments.of(eurostagNetwork,
                         new LineContingency(NHV1_NHV2_1, VLHV1),
                         TwoSides.ONE),
-                Arguments.of(EUROSTAG_NETWORK,
+                Arguments.of(eurostagNetwork,
                         new BranchContingency(NHV1_NHV2_2, VLHV2),
                         TwoSides.TWO),
                 Arguments.of(EurostagTutorialExample1Factory.createWithTieLine(),
