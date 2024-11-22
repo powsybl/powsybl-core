@@ -61,13 +61,14 @@ Remedial actions are actions that are applied when limit violations occur. Suppo
 - Open or close a switch
 - Open or close a terminal
 - Change the tap of a tap changer (phase or ratio)
-- Change the active and/or reactive power of a load
+- Change the active and/or reactive power of a load (by setting the values, or defining changes in value or percentage)
 - Change the section of a shunt compensator
 - Change the regulation status of a tap changer
 - Change `targetP`, `targetQ`, regulation status and `targetV` of a generator
 - Change the regulation mode of a static var compensator and its associated set point.
 - Enabled or disabled AC emulation for HVDC line (with the possibility to change `P0` and `droop` for AC emulation and
   active power set point and converter mode for set point operating mode)
+- Change the interchange target of an area by specifying a new interchange target in MW.
 
 Remedial actions can be *preventive* or *curative*:
 
