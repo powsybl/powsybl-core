@@ -58,11 +58,11 @@ class RegulatingPoint implements MultiVariantObject, Dependent<Terminal> {
 
     void setRegulatingTerminal(TerminalExt regulatingTerminal) {
         if (this.regulatingTerminal != null) {
-            this.regulatingTerminal.unregisterDependent(this);
+            this.regulatingTerminal.getDependentContainer().unregisterDependent(this);
         }
         this.regulatingTerminal = regulatingTerminal != null ? regulatingTerminal : localTerminalSupplier.get();
         if (this.regulatingTerminal != null) {
-            this.regulatingTerminal.registerDependent(this);
+            this.regulatingTerminal.getDependentContainer().registerDependent(this);
         }
     }
 

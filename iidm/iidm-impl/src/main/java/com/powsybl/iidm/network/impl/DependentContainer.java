@@ -24,16 +24,12 @@ public class DependentContainer<T> {
         this.referenced = Objects.requireNonNull(referenced);
     }
 
-    public void addDependent(Dependent<T> dependent) {
+    public void registerDependent(Dependent<T> dependent) {
         dependents.add(Objects.requireNonNull(dependent));
     }
 
-    public void removeDependent(Dependent<T> dependent) {
+    public void unregisterDependent(Dependent<T> dependent) {
         dependents.remove(Objects.requireNonNull(dependent));
-    }
-
-    public List<Dependent<T>> getDependents() {
-        return dependents;
     }
 
     public void notifyDependentOfRemoval() {

@@ -207,11 +207,11 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         Optional<Boundary> boundary = areaBoundary.getBoundary();
         boundary.ifPresent(b -> {
             checkBoundaryNetwork(b.getDanglingLine().getParentNetwork(), "Boundary of DanglingLine" + b.getDanglingLine().getId());
-            ((DanglingLineBoundaryImplExt) b).registerDependent(boundaryDependent);
+            ((DanglingLineBoundaryImplExt) b).getDependentContainer().registerDependent(boundaryDependent);
         });
         terminal.ifPresent(t -> {
             checkBoundaryNetwork(t.getConnectable().getParentNetwork(), "Terminal of connectable " + t.getConnectable().getId());
-            ((TerminalExt) t).registerDependent(terminalDependent);
+            ((TerminalExt) t).getDependentContainer().registerDependent(terminalDependent);
         });
         areaBoundaries.add(areaBoundary);
     }
@@ -231,8 +231,8 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
             voltageLevel.removeArea(this);
         }
         for (AreaBoundary areaBoundary : areaBoundaries) {
-            areaBoundary.getTerminal().ifPresent(t -> ((TerminalExt) t).unregisterDependent(terminalDependent));
-            areaBoundary.getBoundary().ifPresent(b -> ((DanglingLineBoundaryImplExt) b).unregisterDependent(boundaryDependent));
+            areaBoundary.getTerminal().ifPresent(t -> ((TerminalExt) t).getDependentContainer().unregisterDependent(terminalDependent));
+            areaBoundary.getBoundary().ifPresent(b -> ((DanglingLineBoundaryImplExt) b).getDependentContainer().unregisterDependent(boundaryDependent));
         }
         network.getListeners().notifyAfterRemoval(id);
         removed = true;

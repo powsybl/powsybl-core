@@ -25,12 +25,4 @@ public class DanglingLineBoundaryImplExt extends DanglingLineBoundaryImpl {
     public DependentContainer<Boundary> getDependentContainer() {
         return dependentContainer;
     }
-
-    public void registerDependent(Dependent<Boundary> dependent) {
-        dependentContainer.addDependent(dependent);
-    }
-
-    public void unregisterDependent(Dependent<Boundary> dependent) {
-        dependentContainer.removeDependent(dependent);
-    }
 }
