@@ -37,12 +37,12 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final Dependent<Terminal> terminalDependent = new Dependent<>() {
         @Override
         public void registerReferenced(Terminal referenced) {
-            ((TerminalExt) referenced).getDependents().add(this);
+            ((TerminalExt) referenced).getDependentContainer().addDependent(this);
         }
 
         @Override
         public void unregisterReferenced(Terminal referenced) {
-            ((TerminalExt) referenced).getDependents().remove(this);
+            ((TerminalExt) referenced).getDependentContainer().removeDependent(this);
         }
 
         @Override
@@ -55,12 +55,12 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
         @Override
         public void registerReferenced(Boundary referenced) {
-            ((DanglingLineBoundaryImplExt) referenced).getDependents().add(this);
+            ((DanglingLineBoundaryImplExt) referenced).getDependentContainer().addDependent(this);
         }
 
         @Override
         public void unregisterReferenced(Boundary referenced) {
-            ((DanglingLineBoundaryImplExt) referenced).getDependents().remove(this);
+            ((DanglingLineBoundaryImplExt) referenced).getDependentContainer().removeDependent(this);
         }
 
         @Override

@@ -308,7 +308,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             throw new UnsupportedOperationException("Parent tie line " + tieLine.getId() + " should be removed before the child dangling line");
         }
         super.remove();
-        boundary.notifyDependentOfRemoval();
+        boundary.getDependentContainer().notifyDependentOfRemoval();
     }
 
     void removeTieLine() {

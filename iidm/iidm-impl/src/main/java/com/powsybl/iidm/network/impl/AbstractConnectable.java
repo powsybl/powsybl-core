@@ -70,7 +70,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
         network.getIndex().remove(this);
         for (TerminalExt terminal : terminals) {
-            terminal.notifyDependentOfRemoval();
+            terminal.getDependentContainer().notifyDependentOfRemoval();
             VoltageLevelExt vl = terminal.getVoltageLevel();
             vl.getTopologyModel().detach(terminal);
         }

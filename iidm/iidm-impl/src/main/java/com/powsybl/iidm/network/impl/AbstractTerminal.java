@@ -8,13 +8,11 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -33,7 +31,7 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected VoltageLevelExt voltageLevel;
 
-    protected final List<Dependent<Terminal>> dependents = new ArrayList<>();
+    protected final DependentContainer<Terminal> dependentContainer = new DependentContainer<>(this);
 
     // attributes depending on the variant
 
@@ -244,14 +242,7 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public List<Dependent<Terminal>> getDependents() {
-        return dependents;
-    }
-
-    @Override
-    public void notifyDependentOfRemoval() {
-        for (Dependent<Terminal> dependent : dependents) {
-            dependent.onReferencedRemoval(this);
-        }
+    public DependentContainer<Terminal> getDependentContainer() {
+        return dependentContainer;
     }
 }

@@ -22,12 +22,12 @@ public abstract class AbstractIidmExtension<I extends Identifiable<I>> extends A
 
     @Override
     public void registerReferenced(Terminal terminal) {
-        ((TerminalExt) terminal).getDependents().add(this);
+        ((TerminalExt) terminal).getDependentContainer().addDependent(this);
     }
 
     @Override
     public void unregisterReferenced(Terminal terminal) {
-        ((TerminalExt) terminal).getDependents().remove(this);
+        ((TerminalExt) terminal).getDependentContainer().removeDependent(this);
     }
 
     @Override

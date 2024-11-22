@@ -11,27 +11,18 @@ import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DanglingLineBoundaryImplExt extends DanglingLineBoundaryImpl {
 
-    protected final List<Dependent<Boundary>> dependents = new ArrayList<>();
+    protected final DependentContainer<Boundary> dependentContainer = new DependentContainer<>(this);
 
     public DanglingLineBoundaryImplExt(DanglingLine parent) {
         super(parent);
     }
 
-    public List<Dependent<Boundary>> getDependents() {
-        return dependents;
-    }
-
-    public void notifyDependentOfRemoval() {
-        for (Dependent<Boundary> dependent : dependents) {
-            dependent.onReferencedRemoval(this);
-        }
+    public DependentContainer<Boundary> getDependentContainer() {
+        return dependentContainer;
     }
 }
