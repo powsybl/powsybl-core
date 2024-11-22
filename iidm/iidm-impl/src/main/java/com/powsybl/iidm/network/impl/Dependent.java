@@ -13,26 +13,9 @@ package com.powsybl.iidm.network.impl;
 public interface Dependent<T> {
 
     /**
-     * Register an object so that {@link Dependent#onReferencedRemoval(Object)}  is called when
-     * the connectable is removed from the network.
-     *
-     * @param referenced The referenced object to register.
-     */
-    void registerReferenced(T referenced);
-
-    /**
-     * Unregisters a previously registered terminal. This ensures that
-     * {@link Dependent#onReferencedRemoval(Object)} won't be called anymore if the connectable
-     * is removed from the network.
-     *
-     * @param referenced The referenced to unregister.
-     */
-    void unregisterReferenced(T referenced);
-
-    /**
-     * Called when a referenced terminal is removed because of a connectable removal.
+     * Called when a referenced object is removed because of a connectable removal.
      * Implementations of this method should handle any required cleanup or updates
-     * necessary when the terminal is no longer part of the network.
+     * necessary when the referenced object is no longer part of the network.
      *
      * @param referenced The referenced that has been removed from the network.
      */

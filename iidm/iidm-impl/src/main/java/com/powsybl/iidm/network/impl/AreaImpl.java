@@ -34,40 +34,9 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     private final TDoubleArrayList interchangeTarget;
 
-    private final Dependent<Terminal> terminalDependent = new Dependent<>() {
-        @Override
-        public void registerReferenced(Terminal referenced) {
-            ((TerminalExt) referenced).getDependentContainer().addDependent(this);
-        }
+    private final Dependent<Terminal> terminalDependent = this::removeAreaBoundary;
 
-        @Override
-        public void unregisterReferenced(Terminal referenced) {
-            ((TerminalExt) referenced).getDependentContainer().removeDependent(this);
-        }
-
-        @Override
-        public void onReferencedRemoval(Terminal referenced) {
-            removeAreaBoundary(referenced);
-        }
-    };
-
-    private final Dependent<Boundary> boundaryDependent = new Dependent<>() {
-
-        @Override
-        public void registerReferenced(Boundary referenced) {
-            ((DanglingLineBoundaryImplExt) referenced).getDependentContainer().addDependent(this);
-        }
-
-        @Override
-        public void unregisterReferenced(Boundary referenced) {
-            ((DanglingLineBoundaryImplExt) referenced).getDependentContainer().removeDependent(this);
-        }
-
-        @Override
-        public void onReferencedRemoval(Boundary referenced) {
-            removeAreaBoundary(referenced);
-        }
-    };
+    private final Dependent<Boundary> boundaryDependent = this::removeAreaBoundary;
 
     AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType,
                     double interchangeTarget) {
@@ -238,11 +207,11 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         Optional<Boundary> boundary = areaBoundary.getBoundary();
         boundary.ifPresent(b -> {
             checkBoundaryNetwork(b.getDanglingLine().getParentNetwork(), "Boundary of DanglingLine" + b.getDanglingLine().getId());
-            boundaryDependent.registerReferenced(b);
+            ((DanglingLineBoundaryImplExt) b).registerDependent(boundaryDependent);
         });
         terminal.ifPresent(t -> {
             checkBoundaryNetwork(t.getConnectable().getParentNetwork(), "Terminal of connectable " + t.getConnectable().getId());
-            terminalDependent.registerReferenced(t);
+            ((TerminalExt) t).registerDependent(terminalDependent);
         });
         areaBoundaries.add(areaBoundary);
     }
@@ -262,8 +231,8 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
             voltageLevel.removeArea(this);
         }
         for (AreaBoundary areaBoundary : areaBoundaries) {
-            areaBoundary.getTerminal().ifPresent(terminalDependent::unregisterReferenced);
-            areaBoundary.getBoundary().ifPresent(boundaryDependent::unregisterReferenced);
+            areaBoundary.getTerminal().ifPresent(t -> ((TerminalExt) t).unregisterDependent(terminalDependent));
+            areaBoundary.getBoundary().ifPresent(b -> ((DanglingLineBoundaryImplExt) b).unregisterDependent(boundaryDependent));
         }
         network.getListeners().notifyAfterRemoval(id);
         removed = true;

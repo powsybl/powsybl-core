@@ -58,11 +58,11 @@ class RegulatingPoint implements MultiVariantObject, Dependent<Terminal> {
 
     void setRegulatingTerminal(TerminalExt regulatingTerminal) {
         if (this.regulatingTerminal != null) {
-            unregisterReferenced(this.regulatingTerminal);
+            this.regulatingTerminal.unregisterDependent(this);
         }
         this.regulatingTerminal = regulatingTerminal != null ? regulatingTerminal : localTerminalSupplier.get();
         if (this.regulatingTerminal != null) {
-            registerReferenced(this.regulatingTerminal);
+            this.regulatingTerminal.registerDependent(this);
         }
     }
 
@@ -133,16 +133,6 @@ class RegulatingPoint implements MultiVariantObject, Dependent<Terminal> {
                 regulationMode.set(index, regulationMode.get(sourceIndex));
             }
         }
-    }
-
-    @Override
-    public void registerReferenced(Terminal terminal) {
-        ((TerminalExt) terminal).getDependentContainer().addDependent(this);
-    }
-
-    @Override
-    public void unregisterReferenced(Terminal terminal) {
-        ((TerminalExt) terminal).getDependentContainer().removeDependent(this);
     }
 
     @Override

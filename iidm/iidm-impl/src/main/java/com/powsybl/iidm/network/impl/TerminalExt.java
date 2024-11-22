@@ -18,7 +18,7 @@ import java.util.Set;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-interface TerminalExt extends Terminal, MultiVariantObject {
+public interface TerminalExt extends Terminal, MultiVariantObject {
 
     interface BusBreakerViewExt extends BusBreakerView {
 
@@ -58,4 +58,8 @@ interface TerminalExt extends Terminal, MultiVariantObject {
     void remove();
 
     DependentContainer<Terminal> getDependentContainer();
+
+    void registerDependent(Dependent<Terminal> dependent);
+
+    void unregisterDependent(Dependent<Terminal> dependent);
 }

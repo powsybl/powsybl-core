@@ -21,16 +21,6 @@ public abstract class AbstractIidmExtension<I extends Identifiable<I>> extends A
     }
 
     @Override
-    public void registerReferenced(Terminal terminal) {
-        ((TerminalExt) terminal).getDependentContainer().addDependent(this);
-    }
-
-    @Override
-    public void unregisterReferenced(Terminal terminal) {
-        ((TerminalExt) terminal).getDependentContainer().removeDependent(this);
-    }
-
-    @Override
     public void onReferencedRemoval(Terminal terminal) {
         // nothing by default
         // this is the place for terminal reference cleanup

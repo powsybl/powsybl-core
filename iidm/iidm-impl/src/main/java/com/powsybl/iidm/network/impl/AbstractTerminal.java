@@ -245,4 +245,14 @@ abstract class AbstractTerminal implements TerminalExt {
     public DependentContainer<Terminal> getDependentContainer() {
         return dependentContainer;
     }
+
+    @Override
+    public void registerDependent(Dependent<Terminal> dependent) {
+        dependentContainer.addDependent(dependent);
+    }
+
+    @Override
+    public void unregisterDependent(Dependent<Terminal> dependent) {
+        dependentContainer.removeDependent(dependent);
+    }
 }

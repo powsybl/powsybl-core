@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
+import com.powsybl.iidm.network.impl.TerminalExt;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
@@ -42,7 +43,7 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
                         + regulatingTerminal.getVoltageLevel().getParentNetwork().getId() + " instead of "
                         + getExtendable().getParentNetwork().getId() + ")");
             }
-            registerReferenced(regulatingTerminal);
+            ((TerminalExt) regulatingTerminal).registerDependent(this);
         }
     }
 
@@ -105,5 +106,12 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
     @Override
     public void onReferencedRemoval(Terminal terminal) {
         regulatingTerminal = null;
+    }
+
+    @Override
+    protected void cleanup() {
+        if (regulatingTerminal != null) {
+            ((TerminalExt) regulatingTerminal).unregisterDependent(this);
+        }
     }
 }

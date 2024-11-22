@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
+import com.powsybl.iidm.network.impl.TerminalExt;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,14 +36,14 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
         // check there is no more same terminal referenced by any variant, unregister it
         Terminal oldTerminal = terminals.get(variantIndex);
         if (oldTerminal != null && !terminals.contains(oldTerminal)) {
-            unregisterReferenced(oldTerminal);
+            ((TerminalExt) oldTerminal).unregisterDependent(this);
         }
     }
 
     private void registerReferencedTerminalIfNeeded(Terminal terminal) {
         // if terminal was not already referenced by another variant, register it
         if (terminal != null && !terminals.contains(terminal)) {
-            registerReferenced(terminal);
+            ((TerminalExt) terminal).registerDependent(this);
         }
     }
 

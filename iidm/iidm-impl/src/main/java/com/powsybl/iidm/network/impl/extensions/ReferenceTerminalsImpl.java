@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
+import com.powsybl.iidm.network.impl.TerminalExt;
 
 import java.util.*;
 
@@ -38,7 +39,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
                 if (terminalsPerVariant.stream()
                     .flatMap(Collection::stream)
                     .noneMatch(t -> t == oldTerminal)) {
-                    unregisterReferenced(oldTerminal);
+                    ((TerminalExt) oldTerminal).unregisterDependent(this);
                 }
             }
         }
@@ -51,7 +52,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
                 if (terminalsPerVariant.stream()
                         .flatMap(Collection::stream)
                         .noneMatch(t -> t == terminal)) {
-                    registerReferenced(terminal);
+                    ((TerminalExt) terminal).registerDependent(this);
                 }
             }
         }
