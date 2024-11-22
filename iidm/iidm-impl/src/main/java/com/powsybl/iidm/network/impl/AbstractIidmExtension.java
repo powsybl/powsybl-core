@@ -14,24 +14,24 @@ import com.powsybl.iidm.network.Terminal;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public abstract class AbstractIidmExtension<I extends Identifiable<I>> extends AbstractExtension<I> implements TerminalDependent {
+public abstract class AbstractIidmExtension<I extends Identifiable<I>> extends AbstractExtension<I> implements Dependent<Terminal> {
 
     protected AbstractIidmExtension(I extendable) {
         super(extendable);
     }
 
     @Override
-    public void registerReferencedTerminal(Terminal terminal) {
+    public void registerReferenced(Terminal terminal) {
         ((TerminalExt) terminal).getDependents().add(this);
     }
 
     @Override
-    public void unregisterReferencedTerminal(Terminal terminal) {
+    public void unregisterReferenced(Terminal terminal) {
         ((TerminalExt) terminal).getDependents().remove(this);
     }
 
     @Override
-    public void onReferencedTerminalRemoval(Terminal terminal) {
+    public void onReferencedRemoval(Terminal terminal) {
         // nothing by default
         // this is the place for terminal reference cleanup
     }

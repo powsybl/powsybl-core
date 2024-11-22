@@ -58,7 +58,7 @@ interface TerminalExt extends Terminal, MultiVariantObject {
 
     void remove();
 
-    List<TerminalDependent> getDependents();
+    List<Dependent<Terminal>> getDependents();
 
     void notifyDependentOfRemoval();
 }

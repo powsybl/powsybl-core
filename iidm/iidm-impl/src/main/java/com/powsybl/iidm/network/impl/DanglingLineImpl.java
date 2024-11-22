@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Collection;
@@ -259,7 +258,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final TDoubleArrayList q0;
 
-    private final DanglingLineBoundaryImpl boundary;
+    private final DanglingLineBoundaryImplExt boundary;
 
     DanglingLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String pairingKey, GenerationImpl generation) {
         super(network, id, name, fictitious);
@@ -277,7 +276,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.b = b;
         this.pairingKey = pairingKey;
         this.operationalLimitsGroups = new OperationalLimitsGroupsImpl(this, "limits");
-        this.boundary = new DanglingLineBoundaryImpl(this);
+        this.boundary = new DanglingLineBoundaryImplExt(this);
         this.generation = generation != null ? generation.attach(this) : null;
     }
 
@@ -309,6 +308,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             throw new UnsupportedOperationException("Parent tie line " + tieLine.getId() + " should be removed before the child dangling line");
         }
         super.remove();
+        boundary.notifyDependentOfRemoval();
     }
 
     void removeTieLine() {

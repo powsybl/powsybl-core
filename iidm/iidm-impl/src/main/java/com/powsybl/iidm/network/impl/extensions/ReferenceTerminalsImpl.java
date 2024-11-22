@@ -38,7 +38,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
                 if (terminalsPerVariant.stream()
                     .flatMap(Collection::stream)
                     .noneMatch(t -> t == oldTerminal)) {
-                    unregisterReferencedTerminal(oldTerminal);
+                    unregisterReferenced(oldTerminal);
                 }
             }
         }
@@ -51,7 +51,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
                 if (terminalsPerVariant.stream()
                         .flatMap(Collection::stream)
                         .noneMatch(t -> t == terminal)) {
-                    registerReferencedTerminal(terminal);
+                    registerReferenced(terminal);
                 }
             }
         }
@@ -151,7 +151,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     }
 
     @Override
-    public void onReferencedTerminalRemoval(Terminal terminal) {
+    public void onReferencedRemoval(Terminal terminal) {
         for (Set<Terminal> terminals : terminalsPerVariant) {
             terminals.remove(terminal);
         }

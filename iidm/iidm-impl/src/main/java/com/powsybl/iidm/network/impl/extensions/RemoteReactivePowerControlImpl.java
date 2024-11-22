@@ -42,7 +42,7 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
                         + regulatingTerminal.getVoltageLevel().getParentNetwork().getId() + " instead of "
                         + getExtendable().getParentNetwork().getId() + ")");
             }
-            registerReferencedTerminal(regulatingTerminal);
+            registerReferenced(regulatingTerminal);
         }
     }
 
@@ -103,7 +103,7 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
     }
 
     @Override
-    public void onReferencedTerminalRemoval(Terminal terminal) {
+    public void onReferencedRemoval(Terminal terminal) {
         regulatingTerminal = null;
     }
 }

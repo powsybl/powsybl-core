@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class RegulatingPoint implements MultiVariantObject, TerminalDependent {
+class RegulatingPoint implements MultiVariantObject, Dependent<Terminal> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegulatingPoint.class);
 
@@ -58,11 +58,11 @@ class RegulatingPoint implements MultiVariantObject, TerminalDependent {
 
     void setRegulatingTerminal(TerminalExt regulatingTerminal) {
         if (this.regulatingTerminal != null) {
-            unregisterReferencedTerminal(this.regulatingTerminal);
+            unregisterReferenced(this.regulatingTerminal);
         }
         this.regulatingTerminal = regulatingTerminal != null ? regulatingTerminal : localTerminalSupplier.get();
         if (this.regulatingTerminal != null) {
-            registerReferencedTerminal(this.regulatingTerminal);
+            registerReferenced(this.regulatingTerminal);
         }
     }
 
@@ -136,17 +136,17 @@ class RegulatingPoint implements MultiVariantObject, TerminalDependent {
     }
 
     @Override
-    public void registerReferencedTerminal(Terminal terminal) {
+    public void registerReferenced(Terminal terminal) {
         ((TerminalExt) terminal).getDependents().add(this);
     }
 
     @Override
-    public void unregisterReferencedTerminal(Terminal terminal) {
+    public void unregisterReferenced(Terminal terminal) {
         ((TerminalExt) terminal).getDependents().remove(this);
     }
 
     @Override
-    public void onReferencedTerminalRemoval(Terminal terminal) {
+    public void onReferencedRemoval(Terminal terminal) {
         TerminalExt localTerminal = localTerminalSupplier.get();
         if (localTerminal != null && useVoltageRegulation) { // if local voltage regulation, we keep the regulating status, and re-locate the regulation at the regulated equipment
             Bus bus = regulatingTerminal.getBusView().getBus();

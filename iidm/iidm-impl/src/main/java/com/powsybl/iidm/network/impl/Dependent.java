@@ -7,36 +7,34 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Terminal;
-
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface TerminalDependent {
+public interface Dependent<T> {
 
     /**
-     * Register a terminal so that {@link TerminalDependent#onReferencedTerminalRemoval(Terminal)} is called when
+     * Register an object so that {@link Dependent#onReferencedRemoval(Object)}  is called when
      * the connectable is removed from the network.
      *
-     * @param terminal The terminal to register.
+     * @param referenced The referenced object to register.
      */
-    void registerReferencedTerminal(Terminal terminal);
+    void registerReferenced(T referenced);
 
     /**
      * Unregisters a previously registered terminal. This ensures that
-     * {@link TerminalDependent#onReferencedTerminalRemoval(Terminal)} won't be called anymore if the connectable
+     * {@link Dependent#onReferencedRemoval(Object)} won't be called anymore if the connectable
      * is removed from the network.
      *
-     * @param terminal The terminal to unregister.
+     * @param referenced The referenced to unregister.
      */
-    void unregisterReferencedTerminal(Terminal terminal);
+    void unregisterReferenced(T referenced);
 
     /**
      * Called when a referenced terminal is removed because of a connectable removal.
      * Implementations of this method should handle any required cleanup or updates
      * necessary when the terminal is no longer part of the network.
      *
-     * @param terminal The terminal that has been removed from the network.
+     * @param referenced The referenced that has been removed from the network.
      */
-    void onReferencedTerminalRemoval(Terminal terminal);
+    void onReferencedRemoval(T referenced);
 }

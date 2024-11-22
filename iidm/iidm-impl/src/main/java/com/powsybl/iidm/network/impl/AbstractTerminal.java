@@ -33,7 +33,7 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected VoltageLevelExt voltageLevel;
 
-    protected final List<TerminalDependent> dependents = new ArrayList<>();
+    protected final List<Dependent<Terminal>> dependents = new ArrayList<>();
 
     // attributes depending on the variant
 
@@ -244,14 +244,14 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public List<TerminalDependent> getDependents() {
+    public List<Dependent<Terminal>> getDependents() {
         return dependents;
     }
 
     @Override
     public void notifyDependentOfRemoval() {
-        for (TerminalDependent dependent : dependents) {
-            dependent.onReferencedTerminalRemoval(this);
+        for (Dependent<Terminal> dependent : dependents) {
+            dependent.onReferencedRemoval(this);
         }
     }
 }
