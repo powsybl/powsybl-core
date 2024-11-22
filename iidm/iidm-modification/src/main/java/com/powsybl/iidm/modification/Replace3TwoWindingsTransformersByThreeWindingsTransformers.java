@@ -214,7 +214,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
                 .forEach(operationalLimitGroup -> copyOperationalLimitsGroup(leg.newOperationalLimitsGroup(operationalLimitGroup.getId()), operationalLimitGroup));
 
         regulatedTerminalControllers.replaceRegulatedTerminal(getTerminal1(t2w, isWellOriented), leg.getTerminal());
-        replaceRegulatedTerminal(leg, leg.getTransformer(), twoR);
+        replaceRegulatedTerminal(leg, twoR);
 
         copyTerminalActiveAndReactivePower(leg.getTerminal(), getTerminal1(t2w, isWellOriented));
     }
@@ -328,9 +328,9 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         return isWellOriented ? "1" : "2";
     }
 
-    private static void replaceRegulatedTerminal(ThreeWindingsTransformer.Leg t3wLeg, ThreeWindingsTransformer t3w, TwoR twoR) {
-        t3wLeg.getOptionalRatioTapChanger().ifPresent(rtc -> findNewRegulatedTerminal(rtc.getRegulationTerminal(), t3w, twoR).ifPresent(rtc::setRegulationTerminal));
-        t3wLeg.getOptionalPhaseTapChanger().ifPresent(ptc -> findNewRegulatedTerminal(ptc.getRegulationTerminal(), t3w, twoR).ifPresent(ptc::setRegulationTerminal));
+    private static void replaceRegulatedTerminal(ThreeWindingsTransformer.Leg t3wLeg, TwoR twoR) {
+        t3wLeg.getOptionalRatioTapChanger().ifPresent(rtc -> findNewRegulatedTerminal(rtc.getRegulationTerminal(), t3wLeg.getTransformer(), twoR).ifPresent(rtc::setRegulationTerminal));
+        t3wLeg.getOptionalPhaseTapChanger().ifPresent(ptc -> findNewRegulatedTerminal(ptc.getRegulationTerminal(), t3wLeg.getTransformer(), twoR).ifPresent(ptc::setRegulationTerminal));
     }
 
     private static Optional<Terminal> findNewRegulatedTerminal(Terminal regulatedTerminal, ThreeWindingsTransformer t3w, TwoR twoR) {
