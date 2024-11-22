@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public abstract class AbstractSidedContingency implements ContingencyElement {
+public abstract class AbstractSidedContingency implements SidedContingencyElement {
 
     protected final String id;
 
@@ -32,7 +32,13 @@ public abstract class AbstractSidedContingency implements ContingencyElement {
         return id;
     }
 
+    @Override
     public String getVoltageLevelId() {
         return voltageLevelId;
+    }
+
+    @Override
+    public boolean hasVoltageLevelId() {
+        return voltageLevelId != null;
     }
 }
