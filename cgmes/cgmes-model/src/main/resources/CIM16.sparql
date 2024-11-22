@@ -826,7 +826,7 @@ WHERE {
         cim:NonlinearShuntCompensatorPoint.NonlinearShuntCompensator ?Shunt ;
         cim:NonlinearShuntCompensatorPoint.sectionNumber ?sectionNumber ;
         cim:NonlinearShuntCompensatorPoint.b ?b ;
-        cim:NonlinearShuntCompensatorPoint.g ?g ;
+        cim:NonlinearShuntCompensatorPoint.g ?g .
 }
 
 # query: synchronousMachinesGenerators
