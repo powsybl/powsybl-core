@@ -1,0 +1,177 @@
+/**
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+package com.powsybl.cgmes.conversion.test;
+
+import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.iidm.network.*;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.regex.Pattern;
+
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
+ */
+
+class OperationalLimitConversionTest extends AbstractSerDeTest {
+
+    private static final Pattern OPERATIONAL_LIMIT_SET = Pattern.compile("<cim:OperationalLimitSet rdf:ID=\"(.*?)\">");
+    private static final Pattern OPERATIONAL_LIMIT_TYPE = Pattern.compile("<cim:OperationalLimitType rdf:ID=\"(.*?)\">");
+    private static final Pattern ACTIVE_POWER_LIMIT = Pattern.compile("<cim:ActivePowerLimit rdf:ID=\"(.*?)\">");
+    private static final Pattern CURRENT_LIMIT = Pattern.compile("<cim:CurrentLimit rdf:ID=\"(.*?)\">");
+
+    private static final String DIR = "/issues/operational-limits/";
+
+    @Test
+    void importMultipleLimitsGroupsOnSameLineEndTest() {
+        // Retrieve line
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
+        Line line = network.getLine("Line");
+
+        // There is 1 set on side 1, 2 sets on side 2
+        assertEquals(1, line.getOperationalLimitsGroups1().size());
+        assertEquals(2, line.getOperationalLimitsGroups2().size());
+
+        // The winter set (_OLS_3) contains current limits and active power limits
+        Optional<OperationalLimitsGroup> winterLimits = line.getOperationalLimitsGroup2("OLS_3");
+        assertTrue(winterLimits.isPresent());
+        assertTrue(winterLimits.get().getCurrentLimits().isPresent());
+        assertTrue(winterLimits.get().getActivePowerLimits().isPresent());
+
+        // When an end has only 1 set, this set gets selected, otherwise none is
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isPresent());
+        assertFalse(line.getSelectedOperationalLimitsGroup2().isPresent());
+    }
+
+    @Test
+    void exportSelectedLimitsGroupTest() throws IOException {
+        // Import and export CGMES limits
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
+
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, false);
+        String exportSelectedLimitsGroupXml = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
+
+        // There is 1 set on side 1 which is selected, and there are 2 sets on side 2 but none of them is selected
+        assertEquals(1, getUniqueMatches(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
+        assertEquals(3, getUniqueMatches(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
+        assertEquals(0, getUniqueMatches(exportSelectedLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
+        assertEquals(3, getUniqueMatches(exportSelectedLimitsGroupXml, CURRENT_LIMIT).size());
+
+        // Manually select one of the limits group on side 2 and export again
+        Line line = network.getLine("Line");
+        line.setSelectedOperationalLimitsGroup2("OLS_2");
+        network.write("CGMES", exportParams, tmpDir.resolve("ExportSelectedLimitsGroup.xml"));
+        exportSelectedLimitsGroupXml = Files.readString(tmpDir.resolve("ExportSelectedLimitsGroup_EQ.xml"));
+
+        // That makes 1 set selected on each side = 2 in total
+        assertEquals(2, getUniqueMatches(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
+        assertEquals(3, getUniqueMatches(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
+        assertEquals(0, getUniqueMatches(exportSelectedLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
+        assertEquals(6, getUniqueMatches(exportSelectedLimitsGroupXml, CURRENT_LIMIT).size());
+    }
+
+    @Test
+    void exportAllLimitsGroupTest() throws IOException {
+        // Import and export CGMES limits
+        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
+        String exportAllLimitsGroupXml = writeCgmesProfile(network, "EQ", tmpDir);
+
+        // All 3 OperationalLimitsGroup are exported, even though only 2 are selected
+        assertEquals(3, getUniqueMatches(exportAllLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
+        assertEquals(3, getUniqueMatches(exportAllLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
+        assertEquals(3, getUniqueMatches(exportAllLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
+        assertEquals(9, getUniqueMatches(exportAllLimitsGroupXml, CURRENT_LIMIT).size());
+    }
+
+    @Test
+    void limitSetsAssociatedToEquipmentsTest() {
+        // CGMES network:
+        //   An OperationalLimitSet with a CurrentLimit associated to a boundary ACLineSegment (Dangling Line in IIDM).
+        //   An OperationalLimitSet with a CurrentLimit associated to a normal ACLineSegment.
+        //   An OperationalLimitSet with a CurrentLimit associated to a 2-windings PowerTransformer.
+        //   An OperationalLimitSet with a CurrentLimit associated to a Switch.
+        Network network = readCgmesResources(DIR, "limitsets_associated_to_equipments_EQ.xml",
+                "limitsets_associated_to_equipments_EQBD.xml", "limitsets_associated_to_equipments_TPBD.xml");
+
+        // OperationalLimitSet on dangling line is imported on its single extremity.
+        assertNotNull(network.getDanglingLine("DL"));
+        assertTrue(network.getDanglingLine("DL").getCurrentLimits().isPresent());
+
+        // OperationalLimitSet on ACLineSegment is imported on its two extremities.
+        assertNotNull(network.getLine("ACL"));
+        assertTrue(network.getLine("ACL").getCurrentLimits1().isPresent());
+        assertTrue(network.getLine("ACL").getCurrentLimits2().isPresent());
+
+        // OperationalLimitSet on PowerTransformer is discarded.
+        assertNotNull(network.getTwoWindingsTransformer("PT"));
+        assertFalse(network.getTwoWindingsTransformer("PT").getCurrentLimits1().isPresent());
+        assertFalse(network.getTwoWindingsTransformer("PT").getCurrentLimits2().isPresent());
+
+        // There can't be any limit associated to switches in IIDM, but check anyway that the switch has been imported.
+        assertNotNull(network.getSwitch("SW"));
+    }
+
+    @Test
+    void voltageLimitTest() {
+        // CGMES network:
+        //   2 BusbarSection BBS_1, BBS_2 in 400 kV VoltageLevel VL_1, VL_2, with high/lowVoltageLimit 420/380 kV.
+        //   BBS_1 has an OperationalLimitSet with 2 VoltageLimits 410/390 kV.
+        //   BBS_2 has an OperationalLimitSet with 2 VoltageLimits 430/370 kV.
+        // IIDM network:
+        //   The IIDM VoltageLevel's limit is the most restrictive one between
+        //   the CGMES VoltageLevel's limit and the CGMES OperationalLimit value.
+        Network network = readCgmesResources(DIR, "voltage_limits.xml");
+
+        // The most restrictive limits for VL_1 are the OperationalLimit (VoltageLimit) values.
+        VoltageLevel vl1 = network.getVoltageLevel("VL_1");
+        assertNotNull(vl1);
+        assertEquals(410.0, vl1.getHighVoltageLimit());
+        assertEquals(390.0, vl1.getLowVoltageLimit());
+
+        // The most restrictive limits for VL_2 are the VoltageLevel's high/lowVoltageLimit.
+        VoltageLevel vl2 = network.getVoltageLevel("VL_2");
+        assertNotNull(vl2);
+        assertEquals(420.0, vl2.getHighVoltageLimit());
+        assertEquals(380.0, vl2.getLowVoltageLimit());
+    }
+
+    @Test
+    void missingLimitsTest() {
+        // CGMES network:
+        //   An ACLineSegment ACL with 1 OperationalLimitSet on each side.
+        //   On side 1, the limit set is missing the PATL. On side 2, the limit set is missing the TATL value for 1200s.
+        // IIDM network:
+        //   PATL are computed when missing as percentage * lowest tatl value.
+        //   TATL are discarded when value is missing.
+        Properties importParams = new Properties();
+        importParams.setProperty(CgmesImport.MISSING_PERMANENT_LIMIT_PERCENTAGE, "80");
+        Network network = readCgmesResources(importParams, DIR, "missing_limits.xml");
+        Line line = network.getLine("ACL");
+
+        // Missing PATL in CGMES is calculated as percentage (0.80) * lowest tatl value (125) = 100.
+        assertTrue(line.getCurrentLimits1().isPresent());
+        CurrentLimits limits1 = line.getCurrentLimits1().get();
+        assertEquals(125, limits1.getTemporaryLimits().iterator().next().getValue());
+        assertEquals(100, limits1.getPermanentLimit());
+
+        // TATL for 1200s has no value, the limit is discarded.
+        assertTrue(line.getCurrentLimits2().isPresent());
+        CurrentLimits limits2 = line.getCurrentLimits2().get();
+        assertNull(limits2.getTemporaryLimit(1200));
+    }
+
+}
