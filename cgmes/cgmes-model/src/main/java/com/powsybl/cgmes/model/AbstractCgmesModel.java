@@ -37,11 +37,11 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags nonlinearShuntCompensatorPoints(String id) {
+    public PropertyBags nonlinearShuntCompensatorPoints(String shuntId) {
         if (cachedGroupedShuntCompensatorPoints == null) {
             cachedGroupedShuntCompensatorPoints = computeGroupedShuntCompensatorPoints();
         }
-        return cachedGroupedShuntCompensatorPoints.getOrDefault(id, new PropertyBags());
+        return cachedGroupedShuntCompensatorPoints.getOrDefault(shuntId, new PropertyBags());
     }
 
     @Override
