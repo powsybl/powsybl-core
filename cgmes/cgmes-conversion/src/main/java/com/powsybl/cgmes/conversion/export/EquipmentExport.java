@@ -7,6 +7,9 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
@@ -1203,10 +1206,17 @@ public final class EquipmentExport {
         // Write the OperationalLimitSet
         String operationalLimitSetId;
         String operationalLimitSetName;
-        String propertyKey = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT_SET + "_" + limitsGroup.getId();
+        String propertyKey = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT_SET;
         if (identifiable.hasProperty(propertyKey)) {
             operationalLimitSetId = limitsGroup.getId();
-            operationalLimitSetName = identifiable.getProperty(propertyKey);
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode propertyNode = mapper.readTree(identifiable.getProperty(propertyKey));
+                JsonNode limitsGroupNode = propertyNode.get(operationalLimitSetId);
+                operationalLimitSetName = limitsGroupNode.textValue();
+            } catch (JsonProcessingException e) {
+                operationalLimitSetName = operationalLimitSetId;
+            }
         } else {
             operationalLimitSetId = context.getNamingStrategy().getCgmesId(ref(terminalId), ref(limitsGroup.getId()), OPERATIONAL_LIMIT_SET);
             operationalLimitSetName = limitsGroup.getId();
