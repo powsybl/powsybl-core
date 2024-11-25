@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.util;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 
+import java.util.Comparator;
+
 import static java.lang.Integer.MAX_VALUE;
 
 /**
@@ -29,6 +31,12 @@ public final class LoadingLimitsUtil {
 
         void log(String what, String reason, double wrongValue, double fixedValue);
     }
+
+    /**
+     * Comparator for temporary limits
+     * to return the temporary limits ordered by descending acceptable duration
+     */
+    public static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
 
     /**
      * <p>Compute a missing permanent limit accordingly to the temporary limits and to a given percentage.</p>
@@ -80,5 +88,22 @@ public final class LoadingLimitsUtil {
                     Double.NaN, fixedPermanentLimit);
             adder.setPermanentLimit(fixedPermanentLimit);
         }
+    }
+
+     /**
+      * <p>Initialize an adder filled with a copy of an existing limits set</p>
+      * @param adder the empty adder in which we initialize the new limits
+      * @param limits the limits to copy
+      */
+    public static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> A initializeFromLoadingLimits(A adder, L limits) {
+        adder.setPermanentLimit(limits.getPermanentLimit());
+        limits.getTemporaryLimits().forEach(limit ->
+                adder.beginTemporaryLimit()
+                        .setName(limit.getName())
+                        .setAcceptableDuration(limit.getAcceptableDuration())
+                        .setValue(limit.getValue())
+                        .setFictitious(limit.isFictitious())
+                        .endTemporaryLimit());
+        return adder;
     }
 }

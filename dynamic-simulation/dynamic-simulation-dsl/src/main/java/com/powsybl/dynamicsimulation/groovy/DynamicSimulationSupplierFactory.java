@@ -8,7 +8,7 @@
 package com.powsybl.dynamicsimulation.groovy;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.dynamicsimulation.CurvesSupplier;
+import com.powsybl.dynamicsimulation.OutputVariablesSupplier;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import org.apache.commons.io.FilenameUtils;
@@ -52,12 +52,12 @@ public final class DynamicSimulationSupplierFactory {
         return new GroovyEventModelsSupplier(is, GroovyExtension.find(EventModelGroovyExtension.class, providerName));
     }
 
-    public static CurvesSupplier createCurvesSupplier(Path path, String providerName) {
+    public static OutputVariablesSupplier createOutputVariablesSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
         if (extension.equals(GROOVY_EXTENSION)) {
-            return new GroovyCurvesSupplier(path, GroovyExtension.find(CurveGroovyExtension.class, providerName));
+            return new GroovyOutputVariablesSupplier(path, GroovyExtension.find(OutputVariableGroovyExtension.class, providerName));
         } else {
-            throw new PowsyblException("Unsupported curves format: " + extension);
+            throw new PowsyblException("Unsupported output variables format: " + extension);
         }
     }
 }

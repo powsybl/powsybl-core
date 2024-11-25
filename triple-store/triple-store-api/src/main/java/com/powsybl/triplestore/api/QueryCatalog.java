@@ -54,10 +54,9 @@ public class QueryCatalog extends HashMap<String, String> {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof QueryCatalog)) {
+        if (!(obj instanceof QueryCatalog q)) {
             return false;
         }
-        QueryCatalog q = (QueryCatalog) obj;
         return resource.equals(q.resource);
     }
 

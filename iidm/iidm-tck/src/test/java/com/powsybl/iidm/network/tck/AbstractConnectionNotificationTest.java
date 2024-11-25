@@ -7,14 +7,12 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.iidm.network.DefaultNetworkListener;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkEventRecorder;
+import com.powsybl.iidm.network.events.UpdateNetworkEvent;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,107 +22,79 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public abstract class AbstractConnectionNotificationTest {
 
-    record Event(String id, String attribute, String variantId, Object oldValue, Object newValue) {
-    }
-
-    static class EventsRecorder extends DefaultNetworkListener {
-
-        private final List<Event> events = new ArrayList<>();
-
-        public EventsRecorder(Network network) {
-            network.addListener(this);
-        }
-
-        @Override
-        public void onUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
-            events.add(new Event(identifiable.getId(), attribute, null, oldValue, newValue));
-        }
-
-        @Override
-        public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
-            events.add(new Event(identifiable.getId(), attribute, variantId, oldValue, newValue));
-        }
-
-        List<Event> getEvents() {
-            return events;
-        }
-
-        void clear() {
-            events.clear();
-        }
-    }
-
     @Test
     public void busBreakerTest() {
         var network = EurostagTutorialExample1Factory.create();
-        EventsRecorder eventsRecorder = new EventsRecorder(network);
+        NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
+        network.addListener(eventRecorder);
         var l1 = network.getLine("NHV1_NHV2_1");
 
         assertTrue(l1.getTerminal1().disconnect());
         assertEquals(List.of(
-                new Event("NHV1_NHV2_1", "beginDisconnect", "InitialState", false, null),
-                new Event("NHV1_NHV2_1", "connected1", "InitialState", true, false),
-                new Event("NHV1_NHV2_1", "endDisconnect", "InitialState", null, true)),
-                eventsRecorder.getEvents());
+                new UpdateNetworkEvent("NHV1_NHV2_1", "beginDisconnect", "InitialState", false, null),
+                new UpdateNetworkEvent("NHV1_NHV2_1", "connected1", "InitialState", true, false),
+                new UpdateNetworkEvent("NHV1_NHV2_1", "endDisconnect", "InitialState", null, true)),
+                eventRecorder.getEvents());
 
         // try with an already disconnected terminal
-        eventsRecorder.clear();
+        eventRecorder.reset();
         assertFalse(l1.getTerminal1().disconnect());
         assertEquals(List.of(
-                        new Event("NHV1_NHV2_1", "beginDisconnect", "InitialState", true, null),
-                        new Event("NHV1_NHV2_1", "endDisconnect", "InitialState", null, true)),
-                eventsRecorder.getEvents());
+                        new UpdateNetworkEvent("NHV1_NHV2_1", "beginDisconnect", "InitialState", true, null),
+                        new UpdateNetworkEvent("NHV1_NHV2_1", "endDisconnect", "InitialState", null, true)),
+                eventRecorder.getEvents());
 
-        eventsRecorder.clear();
+        eventRecorder.reset();
         assertTrue(l1.getTerminal1().connect());
         assertEquals(List.of(
-                        new Event("NHV1_NHV2_1", "beginConnect", "InitialState", false, null),
-                        new Event("NHV1_NHV2_1", "connected1", "InitialState", false, true),
-                        new Event("NHV1_NHV2_1", "endConnect", "InitialState", null, true)),
-                eventsRecorder.getEvents());
+                        new UpdateNetworkEvent("NHV1_NHV2_1", "beginConnect", "InitialState", false, null),
+                        new UpdateNetworkEvent("NHV1_NHV2_1", "connected1", "InitialState", false, true),
+                        new UpdateNetworkEvent("NHV1_NHV2_1", "endConnect", "InitialState", null, true)),
+                eventRecorder.getEvents());
 
         // try with an already connected terminal
-        eventsRecorder.clear();
+        eventRecorder.reset();
         assertFalse(l1.getTerminal1().connect()); // no action has been done
         assertEquals(List.of(
-                        new Event("NHV1_NHV2_1", "beginConnect", "InitialState", true, null),
-                        new Event("NHV1_NHV2_1", "endConnect", "InitialState", null, true)),
-                eventsRecorder.getEvents());
+                        new UpdateNetworkEvent("NHV1_NHV2_1", "beginConnect", "InitialState", true, null),
+                        new UpdateNetworkEvent("NHV1_NHV2_1", "endConnect", "InitialState", null, true)),
+                eventRecorder.getEvents());
     }
 
     @Test
     public void nodeBreakerTest() {
         var network = FourSubstationsNodeBreakerFactory.create();
-        EventsRecorder eventsRecorder = new EventsRecorder(network);
+        NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
+        network.addListener(eventRecorder);
         var l1 = network.getLine("LINE_S2S3");
 
         assertTrue(l1.getTerminal1().disconnect());
         assertEquals(List.of(
-                new Event("LINE_S2S3", "beginDisconnect", "InitialState", false, null),
-                new Event("S2VL1_LINES2S3_BREAKER", "open", "InitialState", false, true),
-                new Event("LINE_S2S3", "endDisconnect", "InitialState", null, true)),
-                eventsRecorder.getEvents());
+                new UpdateNetworkEvent("LINE_S2S3", "beginDisconnect", "InitialState", false, null),
+                new UpdateNetworkEvent("S2VL1_LINES2S3_BREAKER", "open", "InitialState", false, true),
+                new UpdateNetworkEvent("LINE_S2S3", "endDisconnect", "InitialState", null, true)),
+                eventRecorder.getEvents());
 
-        eventsRecorder.clear();
+        eventRecorder.reset();
         assertFalse(l1.getTerminal1().disconnect());
         assertEquals(List.of(
-                        new Event("LINE_S2S3", "beginDisconnect", "InitialState", true, null),
-                        new Event("LINE_S2S3", "endDisconnect", "InitialState", null, true)),
-                eventsRecorder.getEvents());
+                        new UpdateNetworkEvent("LINE_S2S3", "beginDisconnect", "InitialState", true, null),
+                        new UpdateNetworkEvent("LINE_S2S3", "endDisconnect", "InitialState", null, true)),
+                eventRecorder.getEvents());
 
-        eventsRecorder.clear();
+        eventRecorder.reset();
         assertTrue(l1.getTerminal1().connect());
         assertEquals(List.of(
-                        new Event("LINE_S2S3", "beginConnect", "InitialState", false, null),
-                        new Event("S2VL1_LINES2S3_BREAKER", "open", "InitialState", true, false),
-                        new Event("LINE_S2S3", "endConnect", "InitialState", null, true)),
-                eventsRecorder.getEvents());
+                        new UpdateNetworkEvent("LINE_S2S3", "beginConnect", "InitialState", false, null),
+                        new UpdateNetworkEvent("S2VL1_LINES2S3_BREAKER", "open", "InitialState", true, false),
+                        new UpdateNetworkEvent("LINE_S2S3", "endConnect", "InitialState", null, true)),
+                eventRecorder.getEvents());
 
-        eventsRecorder.clear();
+        eventRecorder.reset();
         assertFalse(l1.getTerminal1().connect());
         assertEquals(List.of(
-                        new Event("LINE_S2S3", "beginConnect", "InitialState", true, null),
-                        new Event("LINE_S2S3", "endConnect", "InitialState", null, true)),
-                eventsRecorder.getEvents());
+                        new UpdateNetworkEvent("LINE_S2S3", "beginConnect", "InitialState", true, null),
+                        new UpdateNetworkEvent("LINE_S2S3", "endConnect", "InitialState", null, true)),
+                eventRecorder.getEvents());
     }
 }

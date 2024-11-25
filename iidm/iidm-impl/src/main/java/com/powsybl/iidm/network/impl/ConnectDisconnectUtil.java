@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import static com.powsybl.iidm.network.TopologyKind.BUS_BREAKER;
+import static com.powsybl.iidm.network.TopologyKind.NODE_BREAKER;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -63,8 +64,9 @@ public final class ConnectDisconnectUtil {
             }
 
             // If it's a node-breaker terminal, the switches to connect are added to a set
-            if (terminal.getVoltageLevel() instanceof NodeBreakerVoltageLevel nodeBreakerVoltageLevel) {
-                isNowConnected = nodeBreakerVoltageLevel.getConnectingSwitches(terminal, isTypeSwitchToOperate, switchForDisconnection);
+            if (terminal.getVoltageLevel().getTopologyKind() == NODE_BREAKER) {
+                NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) terminal.getVoltageLevel()).getTopologyModel();
+                isNowConnected = topologyModel.getConnectingSwitches(terminal, isTypeSwitchToOperate, switchForDisconnection);
             }
             // If it's a bus-breaker terminal, there is nothing to do
 
@@ -127,10 +129,12 @@ public final class ConnectDisconnectUtil {
             isAlreadyDisconnected = false;
 
             // If it's a node-breaker terminal, the switches to disconnect are added to a set
-            if (terminal.getVoltageLevel() instanceof NodeBreakerVoltageLevel nodeBreakerVoltageLevel
-                && !nodeBreakerVoltageLevel.getDisconnectingSwitches(terminal, isSwitchOpenable, switchForDisconnection)) {
-                // Exit if the terminal cannot be disconnected
-                return false;
+            if (terminal.getVoltageLevel().getTopologyKind() == NODE_BREAKER) {
+                NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) terminal.getVoltageLevel()).getTopologyModel();
+                if (!topologyModel.getDisconnectingSwitches(terminal, isSwitchOpenable, switchForDisconnection)) {
+                    // Exit if the terminal cannot be disconnected
+                    return false;
+                }
             }
             // If it's a bus-breaker terminal, there is nothing to do
         }

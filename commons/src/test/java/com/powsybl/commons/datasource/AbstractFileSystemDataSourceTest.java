@@ -45,23 +45,26 @@ abstract class AbstractFileSystemDataSourceTest {
     protected abstract DataSource createDataSource(DataSourceObserver observer);
 
     protected String getFileName(String baseName, String dataExtension, CompressionFormat compressionFormat) {
-        return testDir + "/" + baseName + (dataExtension == null || dataExtension.isEmpty() ? "" : "." + dataExtension)
+        return baseName + (dataExtension == null || dataExtension.isEmpty() ? "" : "." + dataExtension)
             + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
     }
 
-    protected abstract void createFiles(String fileName) throws IOException;
+    protected abstract String getContainerPath(String containerFileName, String baseName, String dataExtension, CompressionFormat compressionFormat);
+
+    protected abstract void createFiles(String archiveOrDirectoryName) throws IOException;
+
+    protected abstract String getDatasourcePath(String containerFileName, String baseName, String dataExtension,
+            CompressionFormat compressionFormat);
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForWriteThenReadTest")
     void writeThenReadTest(String baseName, String dataExtension, CompressionFormat compressionFormat) throws IOException {
-        // Compute the full filename
-        String fileName = getFileName(baseName, dataExtension, compressionFormat);
-
         // Create the files
-        createFiles(fileName);
+        createFiles(getContainerPath(null, baseName, dataExtension, compressionFormat));
 
         // Create the datasource
-        DataSource dataSource = DataSource.fromPath(fileSystem.getPath(fileName));
+        String dataSourcePath = getDatasourcePath(null, baseName, dataExtension, compressionFormat);
+        DataSource dataSource = DataSource.fromPath(fileSystem.getPath(dataSourcePath));
 
         writeThenReadTest(dataSource);
     }
@@ -112,20 +115,20 @@ abstract class AbstractFileSystemDataSourceTest {
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForClassAndListingTest")
-    void testClassAndListing(String baseName, String dataExtension,
+    // containerName is the archive file name for ArchiveDataSource
+    // or the directory name for DirectoryDataSource
+    void testClassAndListing(String containerName, String baseName, String dataExtension,
                              CompressionFormat compressionFormat, Class<? extends AbstractFileSystemDataSource> dataSourceClass,
                              Set<String> listedFiles, Set<String> listedBarFiles) throws IOException {
-        // Compute the full filename
-        String fileName = getFileName(baseName, dataExtension, compressionFormat);
-
         // Update the list of unlisted files
         unlistedFiles = existingFiles.stream().filter(name -> !listedFiles.contains(name)).collect(Collectors.toSet());
 
         // Create the files
-        createFiles(fileName);
+        createFiles(getContainerPath(containerName, baseName, dataExtension, compressionFormat));
 
         // Create the datasource
-        DataSource dataSource = DataSource.fromPath(fileSystem.getPath(fileName));
+        String dataSourcePath = getDatasourcePath(containerName, baseName, dataExtension, compressionFormat);
+        DataSource dataSource = DataSource.fromPath(fileSystem.getPath(dataSourcePath));
 
         // Check the class
         assertInstanceOf(dataSourceClass, dataSource);
@@ -149,6 +152,9 @@ abstract class AbstractFileSystemDataSourceTest {
         assertEquals("foo", dataSourceWithObserver.getBaseName());
         assertEquals("iidm", dataSourceWithObserver.getDataExtension());
         assertEquals(compressionFormat, ((AbstractFileSystemDataSource) dataSourceWithObserver).getCompressionFormat());
+        if (dataSourceWithObserver instanceof DirectoryDataSource directoryDataSourceWithObserver) {
+            assertFalse(directoryDataSourceWithObserver.isAllFiles());
+        }
         assertEquals(observer, ((AbstractFileSystemDataSource) dataSourceWithObserver).getObserver());
 
         // Create the datasource
@@ -161,6 +167,9 @@ abstract class AbstractFileSystemDataSourceTest {
         assertEquals("foo", dataSourceWithoutObserver.getBaseName());
         assertNull(dataSourceWithoutObserver.getDataExtension());
         assertEquals(compressionFormat, ((AbstractFileSystemDataSource) dataSourceWithoutObserver).getCompressionFormat());
+        if (dataSourceWithoutObserver instanceof DirectoryDataSource directoryDataSourceWithoutObserver) {
+            assertFalse(directoryDataSourceWithoutObserver.isAllFiles());
+        }
         assertNull(((AbstractFileSystemDataSource) dataSourceWithoutObserver).getObserver());
     }
 
@@ -170,7 +179,7 @@ abstract class AbstractFileSystemDataSourceTest {
         DataSourceObserver observer = new DefaultDataSourceObserver();
 
         // Create the files
-        createFiles(getFileName("foo", "iidm", compressionFormat));
+        createFiles(getContainerPath(null, "foo", "iidm", compressionFormat));
 
         // Create the datasource
         DataSource dataSourceWithObserver = createDataSource(observer);

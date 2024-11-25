@@ -77,9 +77,9 @@ public class FileInformation {
 
         /* Data datasource extension
          * Four cases are possible:
-         *  - case 1 ("dummy"): currentDotIndex < 0 -> no source format is given
-         *  - case 2 (".dummy"): currentDotIndex == 0 -> considered as a hidden file so no source format is given
-         *  - case 3 ("dummy.foo"): ".foo" is the source format
+         *  - case 1 ("dummy"): currentDotIndex < 0 -> no data extension is given
+         *  - case 2 (".dummy"): currentDotIndex == 0 -> considered as a hidden file so no data extension is given
+         *  - case 3 ("dummy.foo"): "foo" is the data extension
          */
         dataExtension = currentDotIndex < 1 ? "" : fileNameWithoutCompressionNorArchive.substring(currentDotIndex + 1);
         logDataExtension(fileName, dataExtension, dataSourceInitialization);

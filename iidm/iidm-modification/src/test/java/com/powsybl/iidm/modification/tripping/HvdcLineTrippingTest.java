@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -72,5 +73,11 @@ class HvdcLineTrippingTest {
 
         HvdcLineTripping tripping = new HvdcLineTripping("L", "unknownVoltageLevel");
         assertThrows(PowsyblException.class, () -> tripping.apply(network));
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new HvdcLineTripping("ID", "VLID");
+        assertEquals("HvdcLineTripping", networkModification.getName());
     }
 }

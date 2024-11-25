@@ -9,6 +9,7 @@ package com.powsybl.security.impl;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.action.SwitchAction;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.report.ReportNode;
@@ -23,7 +24,6 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
-import com.powsybl.action.SwitchAction;
 import com.powsybl.security.condition.AnyViolationCondition;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
@@ -47,7 +47,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,6 +58,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class SecurityAnalysisTest {
 
     private static final class SecurityAnalysisModificationTest extends AbstractNetworkModification {
+
+        @Override
+        public String getName() {
+            return "SecurityAnalysisModificationTest";
+        }
+
         @Override
         public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
             network.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
@@ -224,7 +229,7 @@ class SecurityAnalysisTest {
         // Testing all contingencies at once
         ContingenciesProvider contingenciesProvider = n -> n.getBranchStream()
             .map(b -> new Contingency(b.getId(), new BranchContingency(b.getId())))
-            .collect(Collectors.toList());
+            .toList();
 
         SecurityAnalysisParameters saParameters = new SecurityAnalysisParameters();
 

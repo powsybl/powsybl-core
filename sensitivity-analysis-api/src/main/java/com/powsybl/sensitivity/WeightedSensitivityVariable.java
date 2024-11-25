@@ -80,7 +80,7 @@ public class WeightedSensitivityVariable {
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.getCurrentName();
+                    String fieldName = parser.currentName();
                     switch (fieldName) {
                         case "id" -> context.id = parser.nextTextValue();
                         case "weight" -> {

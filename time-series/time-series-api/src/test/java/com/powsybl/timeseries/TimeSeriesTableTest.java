@@ -15,7 +15,6 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
@@ -175,7 +174,7 @@ class TimeSeriesTableTest {
                             }
                             ts = new StringTimeSeries(metadata, new UncompressedStringDataChunk(0, values));
                         }
-                        table.load(1, Arrays.asList(ts));
+                        table.load(1, List.of(ts));
                     } finally {
                         cdl.countDown();
                     }
@@ -191,7 +190,7 @@ class TimeSeriesTableTest {
                 Stream.of(l.split(";"))
                 .skip(2) // date;version
                 .collect(Collectors.toList()))
-            .collect(Collectors.toList());
+            .toList();
         List<List<String>> expected = new ArrayList<>(timeSeriesLength);
         for (int j = 0; j < timeSeriesLength; j++) {
             List<String> line = new ArrayList<>(threadCount);

@@ -21,7 +21,7 @@ public class BigStringBuffer {
     private static final int BUFFER_SIZE_INTS = 1 << BUFFER_SHIFT;
     private static final int BUFFER_MASK = BUFFER_SIZE_INTS - 1;
     private CompactStringBuffer[] buffers;
-    private long size;
+    private final long size;
 
     //To remove if we ever get it from somewhere else
     //package private for tests

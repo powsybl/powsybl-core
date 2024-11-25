@@ -307,7 +307,7 @@ public abstract class AbstractLoadTest {
         assertTrue(load.getOptionalName().isEmpty());
         load.setName("FOO");
         assertEquals("FOO", load.getOptionalName().orElseThrow());
-        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "name", null, "FOO");
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "name", null, null, "FOO");
     }
 
     @Test

@@ -77,13 +77,12 @@ public final class NodeCalcVisitors {
         // already allocated.
         // The stack have a generic type of <Object> to allow to insert a null Object
         // because ArrayDeque doesn't allow nulls.
-        Deque<Object> resultsStack = preOrderStack;
         while (!postOrderStack.isEmpty()) {
             Object nodeWrapper = postOrderStack.pop();
-            R result = nodeWrapper != NULL ? ((NodeCalc) nodeWrapper).acceptHandle(visitor, arg, resultsStack) : null;
-            resultsStack.push(result == null ? NULL : result);
+            R result = nodeWrapper != NULL ? ((NodeCalc) nodeWrapper).acceptHandle(visitor, arg, preOrderStack) : null;
+            preOrderStack.push(result == null ? NULL : result);
         }
-        Object result = resultsStack.pop();
+        Object result = preOrderStack.pop();
         return result == NULL ? null : (R) result;
     }
 

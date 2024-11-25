@@ -82,7 +82,7 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         String nodeName = recordGroup.getIdentification().getJsonNodeName();
         while (!parser.isClosed()) {
             parser.nextToken();
-            if (nodeName.equals(parser.getCurrentName())) {
+            if (nodeName.equals(parser.currentName())) {
                 return mapper.convertValue(parser.readValueAsTree().get("caseid"), JsonNode.class);
             }
         }

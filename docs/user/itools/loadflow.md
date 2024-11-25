@@ -1,6 +1,6 @@
 # iTools loadflow
 
-The `loadflow` command loads a grid file and run a [load flow](../../simulation/loadflow/index.md) simulation. At the end, the results and the modified network can be exported to files.
+The `loadflow` command loads a grid file and run a [load flow](../../simulation/loadflow/index.md) simulation. In the end, the results and the modified network can be exported to files.
 
 ## Usage
 ```
@@ -88,7 +88,7 @@ Components results:
 +------------------+-----------+-----------------+--------------+--------------------+
 ```
 
-The following example shows how to run a power flow simulation, using a parameters file:
+The following example shows how to run a power flow simulation, using a parameter file:
 ```
 $> itools loadflow --case-file case.xiidm --parameters-file loadflowparameters.json
 loadflow results:

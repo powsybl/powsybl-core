@@ -1,3 +1,0 @@
-code_poste;nom_poste;fonction;etat;tension;longitude_poste;latitude_poste;geo_point_poste
-POST1;POST1;POSTE DE TRANSFORMATION;E;380kV;3;3;3,3
-POST2;POST2;POSTE DE TRANSFORMATION;E;380kV;1;1;1,1

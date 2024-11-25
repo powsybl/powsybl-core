@@ -9,7 +9,9 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.TopologyKind;
@@ -187,5 +189,46 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .setOpen(false)
                 .add();
         return network;
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new CreateCouplingDeviceBuilder()
+            .withBusOrBusbarSectionId1("bbs1")
+            .withBusOrBusbarSectionId2("bbs2")
+            .build();
+        assertEquals("CreateCouplingDevice", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        NetworkModification couplingDeviceModif = new CreateCouplingDeviceBuilder()
+            .withBusOrBusbarSectionId1("bbs1")
+            .withBusOrBusbarSectionId2("bbs3")
+            .withSwitchPrefixId("sw")
+            .build();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, couplingDeviceModif.hasImpactOnNetwork(network));
+
+        couplingDeviceModif = new CreateCouplingDeviceBuilder()
+            .withBusOrBusbarSectionId1("WRONG_BBS")
+            .withBusOrBusbarSectionId2("bbs3")
+            .withSwitchPrefixId("sw")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, couplingDeviceModif.hasImpactOnNetwork(network));
+
+        couplingDeviceModif = new CreateCouplingDeviceBuilder()
+            .withBusOrBusbarSectionId1("bbs1")
+            .withBusOrBusbarSectionId2("WRONG_BBS")
+            .withSwitchPrefixId("sw")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, couplingDeviceModif.hasImpactOnNetwork(network));
+
+        couplingDeviceModif = new CreateCouplingDeviceBuilder()
+            .withBusOrBusbarSectionId1("bbs1")
+            .withBusOrBusbarSectionId2("bbs1")
+            .withSwitchPrefixId("sw")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, couplingDeviceModif.hasImpactOnNetwork(network));
     }
 }

@@ -35,9 +35,9 @@ public final class OperationalLimitTypeEq {
         writer.writeEndElement();
     }
 
-    public static void writeTatl(String id, String name, int acceptableDuration, String cimNamespace, String euNamespace,
+    public static void writeTatl(String id, int acceptableDuration, String cimNamespace, String euNamespace,
                                  String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("OperationalLimitType", id, name, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartIdName("OperationalLimitType", id, "TATL " + acceptableDuration, cimNamespace, writer, context);
         writeDirection(cimNamespace, writer);
         writeKind(TATL, euNamespace, limitTypeAttributeName, limitKindClassName, writer);
         if (writeInfiniteDuration) {

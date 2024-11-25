@@ -27,6 +27,11 @@ public class CloseSwitch extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "CloseSwitch";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         Switch sw = network.getSwitch(switchId);
@@ -34,5 +39,17 @@ public class CloseSwitch extends AbstractNetworkModification {
             throw new PowsyblException("Switch '" + switchId + "' not found");
         }
         sw.setOpen(false);
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        Switch sw = network.getSwitch(switchId);
+        if (sw == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (!sw.isOpen()) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+        }
+        return impact;
     }
 }

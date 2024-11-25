@@ -291,10 +291,6 @@ public final class CgmesExportUtil {
             case BREAKER -> "Breaker";
             case DISCONNECTOR -> "Disconnector";
             case LOAD_BREAK_SWITCH -> "LoadBreakSwitch";
-            default -> {
-                LOG.warn("It is not possible to determine the type of switch from kind {}", kind);
-                yield "Switch";
-            }
         };
     }
 

@@ -29,8 +29,7 @@ public class CgmesDanglingLineBoundaryNodeSerDe extends AbstractExtensionSerDe<D
     @Override
     public void write(CgmesDanglingLineBoundaryNode extension, SerializerContext context) {
         context.getWriter().writeBooleanAttribute("isHvdc", extension.isHvdc());
-        extension.getLineEnergyIdentificationCodeEic().ifPresent(lineEnergyIdentificationCodeEic ->
-                context.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", lineEnergyIdentificationCodeEic));
+        context.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", extension.getLineEnergyIdentificationCodeEic().orElse(null));
     }
 
     @Override

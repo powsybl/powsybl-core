@@ -143,6 +143,7 @@ SELECT *
             #    cim:VoltageLimit.value ? value .
             #}
         #}
+    OPTIONAL { ?OperationalLimitSet cim:IdentifiedObject.name ?OperationalLimitSetName }
     ?OperationalLimitType
         cim:IdentifiedObject.name ?operationalLimitTypeName .
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.direction ?direction }

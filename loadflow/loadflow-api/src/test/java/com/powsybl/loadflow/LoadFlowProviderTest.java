@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,7 +42,7 @@ class LoadFlowProviderTest {
     void testParametersExtension() throws IOException {
         LoadFlowProvider provider = new LoadFlowProviderMock();
         assertEquals(3, provider.getSpecificParameters().size());
-        assertEquals(List.of("parameterDouble", "parameterBoolean", "parameterString"), provider.getSpecificParameters().stream().map(Parameter::getName).collect(Collectors.toList()));
+        assertEquals(List.of("parameterDouble", "parameterBoolean", "parameterString"), provider.getSpecificParameters().stream().map(Parameter::getName).toList());
         assertSame(DummyExtension.class, provider.getSpecificParametersClass().orElseThrow());
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
@@ -90,5 +89,23 @@ class LoadFlowProviderTest {
         assertTrue(provider.createMapFromSpecificParameters(new JsonLoadFlowParametersTest.DummyExtension()).isEmpty());
         provider.updateSpecificParameters(new JsonLoadFlowParametersTest.DummyExtension(), Map.of());
         assertTrue(provider.getSpecificParameters().isEmpty());
+    }
+
+    @Test
+    void testConfiguredParameters() throws IOException {
+        LoadFlowProvider provider = new LoadFlowProviderMock();
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+            List<Parameter> baseSpecificParameters = provider.getSpecificParameters();
+            assertEquals(6.4, baseSpecificParameters.get(0).getDefaultValue());
+            assertEquals(false, baseSpecificParameters.get(1).getDefaultValue());
+            assertEquals("yes", baseSpecificParameters.get(2).getDefaultValue());
+            MapModuleConfig moduleConfig = platformConfig.createModuleConfig("dummy-extension");
+            moduleConfig.setStringProperty("parameterDouble", "3.14");
+            List<Parameter> configuredSpecificParameters = provider.getSpecificParameters(platformConfig);
+            assertEquals(3.14, configuredSpecificParameters.get(0).getDefaultValue());
+            assertEquals(false, configuredSpecificParameters.get(1).getDefaultValue());
+            assertEquals("yes", configuredSpecificParameters.get(2).getDefaultValue());
+        }
     }
 }

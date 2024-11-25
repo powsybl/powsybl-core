@@ -31,7 +31,7 @@ class HvdcLineContingencyTest {
         assertEquals(ContingencyElementType.HVDC_LINE, contingency.getType());
 
         assertNotNull(contingency.toModification());
-        assertTrue(contingency.toModification() instanceof HvdcLineTripping);
+        assertInstanceOf(HvdcLineTripping.class, contingency.toModification());
 
         contingency = new HvdcLineContingency("id", "voltageLevelId");
         assertEquals("voltageLevelId", contingency.getVoltageLevelId());

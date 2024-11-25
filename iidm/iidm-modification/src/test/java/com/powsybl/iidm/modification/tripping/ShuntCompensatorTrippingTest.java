@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,5 +41,11 @@ class ShuntCompensatorTrippingTest {
     void unknownShuntCompensatorTest() {
         ShuntCompensatorTripping tripping = new ShuntCompensatorTripping("C_Filter");
         assertThrows(PowsyblException.class, () -> tripping.apply(network));
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new ShuntCompensatorTripping("ID");
+        assertEquals("ShuntCompensatorTripping", networkModification.getName());
     }
 }

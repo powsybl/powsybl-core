@@ -3,5 +3,6 @@
   "status" : "FAILURE",
   "error" : "Error test",
   "curves" : [ ],
+  "finalStateValues" : [ ],
   "timeLine" : [ ]
 }

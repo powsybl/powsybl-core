@@ -24,6 +24,8 @@ import java.util.stream.Stream;
  */
 public class DirectoryDataSource extends AbstractFileSystemDataSource {
 
+    private final boolean allFiles;
+
     public DirectoryDataSource(Path directory, String baseName) {
         this(directory, baseName, null, null, null);
     }
@@ -39,11 +41,28 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
         this(directory, baseName, dataExtension, null, observer);
     }
 
+    public DirectoryDataSource(Path directory, String baseName,
+                               String dataExtension, boolean allFiles,
+                               DataSourceObserver observer) {
+        this(directory, baseName, dataExtension, null, allFiles, observer);
+    }
+
     DirectoryDataSource(Path directory, String baseName,
                         String dataExtension,
                         CompressionFormat compressionFormat,
                         DataSourceObserver observer) {
+        this(directory, baseName, dataExtension, compressionFormat, false, observer);
+    }
+
+    DirectoryDataSource(Path directory, String baseName, String dataExtension,
+                        CompressionFormat compressionFormat,
+                        boolean allFiles, DataSourceObserver observer) {
         super(directory, baseName, dataExtension, compressionFormat, observer);
+        this.allFiles = allFiles;
+    }
+
+    public boolean isAllFiles() {
+        return allFiles;
     }
 
     /**
@@ -107,15 +126,18 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
         Pattern p = Pattern.compile(regex);
         int maxDepth = 1;
         try (Stream<Path> paths = Files.walk(directory, maxDepth)) {
-            return paths
-                .filter(Files::isRegularFile)
-                .map(Path::getFileName)
-                .map(Path::toString)
-                .filter(name -> name.startsWith(baseName))
-                // Return names after removing the compression extension
-                .map(name -> name.replace(getCompressionExtension(), ""))
-                .filter(s -> p.matcher(s).matches())
-                .collect(Collectors.toSet());
+            var filenames = paths
+                    .filter(Files::isRegularFile)
+                    .map(Path::getFileName)
+                    .map(Path::toString);
+            if (!allFiles) {
+                filenames = filenames.filter(name -> name.startsWith(baseName));
+            }
+            return filenames
+                    // Return names after removing the compression extension
+                    .map(name -> name.replace(getCompressionExtension(), ""))
+                    .filter(s -> p.matcher(s).matches())
+                    .collect(Collectors.toSet());
         }
     }
 }

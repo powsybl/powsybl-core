@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -19,7 +20,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class EquivalentShuntConversion extends AbstractConductingEquipmentConversion {
 
     public EquivalentShuntConversion(PropertyBag p, Context context) {
-        super("EquivalentShunt", p, context);
+        super(CgmesNames.EQUIVALENT_SHUNT, p, context);
     }
 
     @Override

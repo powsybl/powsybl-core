@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import static com.powsybl.security.json.LimitViolationDeserializer.VIOLATION_LOCATION_SUPPORT;
+
 /**
  *
  * @author Teofil-Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
@@ -50,17 +52,18 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
         List<Extension<ShortCircuitAnalysisResult>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version" -> {
                     parser.nextToken();
                     version = parser.readValueAs(String.class);
+                    ctx.setAttribute(VIOLATION_LOCATION_SUPPORT, version.compareTo("1.3") >= 0);
                 }
                 case "faultResults" -> faultResults = new FaultResultDeserializer().deserialize(parser, ctx, version);
                 case "extensions" -> {
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, ctx, SUPPLIER.get());
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(faultResults);

@@ -23,7 +23,7 @@ public final class EurostagTutorialExample1Factory {
     public static final String CASE_DATE = "2018-01-01T11:00:00+01:00";
     public static final String DANGLING_LINE_XNODE1_1 = "NHV1_XNODE1";
     public static final String DANGLING_LINE_XNODE1_2 = "XNODE1_NHV2";
-    public static final String DANGLING_LINE_XNODE2_1 = "NVH1_XNODE2";
+    public static final String DANGLING_LINE_XNODE2_1 = "NHV1_XNODE2";
     public static final String DANGLING_LINE_XNODE2_2 = "XNODE2_NHV2";
     public static final String VLHV1 = "VLHV1";
     public static final String VLHV2 = "VLHV2";
@@ -243,7 +243,7 @@ public final class EurostagTutorialExample1Factory {
                 .setDanglingLine1(nhv1xnode1.getId())
                 .setDanglingLine2(xnode1nhv2.getId())
                 .add();
-        DanglingLine nvh1xnode2 = network.getVoltageLevel(VLHV1).newDanglingLine()
+        DanglingLine nhv1xnode2 = network.getVoltageLevel(VLHV1).newDanglingLine()
                 .setId(DANGLING_LINE_XNODE2_1)
                 .setP0(0.0)
                 .setQ0(0.0)
@@ -267,7 +267,7 @@ public final class EurostagTutorialExample1Factory {
                 .add();
         network.newTieLine()
                 .setId(NHV1_NHV2_2)
-                .setDanglingLine1(nvh1xnode2.getId())
+                .setDanglingLine1(nhv1xnode2.getId())
                 .setDanglingLine2(xnode2nhv2.getId())
                 .add();
         network.getTieLine(NHV1_NHV2_1).getDanglingLine1().getTerminal()

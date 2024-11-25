@@ -12,6 +12,10 @@
     <cim:Location.CoordinateSystem rdf:resource="#_wgs84" />
     <cim:Location.PowerSystemResources rdf:resource="#_ACLine" />
   </cim:Location>
+  <cim:Location rdf:ID="_locationLineDismissed">
+    <cim:Location.CoordinateSystem rdf:resource="#_wgs84" />
+    <cim:Location.PowerSystemResources rdf:resource="#_Line" />
+  </cim:Location>
   <cim:Location rdf:ID="_location1">
     <cim:Location.CoordinateSystem rdf:resource="#_wgs84" />
     <cim:Location.PowerSystemResources rdf:resource="#_Substation1" />
@@ -19,6 +23,18 @@
   <cim:Location rdf:ID="_location2">
     <cim:Location.CoordinateSystem rdf:resource="#_wgs84" />
     <cim:Location.PowerSystemResources rdf:resource="#_Substation2" />
+  </cim:Location>
+  <cim:Location rdf:ID="_location3">
+    <cim:Location.CoordinateSystem rdf:resource="#_wgs84" />
+    <cim:Location.PowerSystemResources rdf:resource="#_VoltageLevel3" />
+  </cim:Location>
+  <cim:Location rdf:ID="_location4">
+    <cim:Location.CoordinateSystem rdf:resource="#_wgs84" />
+    <cim:Location.PowerSystemResources rdf:resource="#_VoltageLevel4" />
+  </cim:Location>
+  <cim:Location rdf:ID="_location_dismissed">
+    <cim:Location.CoordinateSystem rdf:resource="#_wgs84" />
+    <cim:Location.PowerSystemResources rdf:resource="#_VoltageLevel1" />
   </cim:Location>
   <cim:PositionPoint rdf:ID="_positionLine0">
     <cim:PositionPoint.Location rdf:resource="#_locationLine" />
@@ -53,5 +69,25 @@
     <cim:PositionPoint.Location rdf:resource="#_location2" />
     <cim:PositionPoint.xPosition>-2.136596</cim:PositionPoint.xPosition>
     <cim:PositionPoint.yPosition>49.224448</cim:PositionPoint.yPosition>
+  </cim:PositionPoint>
+  <cim:PositionPoint rdf:ID="_positionSubstation3a">
+    <cim:PositionPoint.Location rdf:resource="#_location3" />
+    <cim:PositionPoint.xPosition>-2.198073</cim:PositionPoint.xPosition>
+    <cim:PositionPoint.yPosition>49.209432</cim:PositionPoint.yPosition>
+  </cim:PositionPoint>
+  <cim:PositionPoint rdf:ID="_positionSubstation3b">
+    <cim:PositionPoint.Location rdf:resource="#_location4" />
+    <cim:PositionPoint.xPosition>-2.200747</cim:PositionPoint.xPosition>
+    <cim:PositionPoint.yPosition>49.209149</cim:PositionPoint.yPosition>
+  </cim:PositionPoint>
+  <cim:PositionPoint rdf:ID="_positionVoltageLevel1">
+    <cim:PositionPoint.Location rdf:resource="#_location_dismissed" />
+    <cim:PositionPoint.xPosition>0</cim:PositionPoint.xPosition>
+    <cim:PositionPoint.yPosition>0</cim:PositionPoint.yPosition>
+  </cim:PositionPoint>
+  <cim:PositionPoint rdf:ID="_positionLineDismissed">
+    <cim:PositionPoint.Location rdf:resource="#_locationLineDismissed" />
+    <cim:PositionPoint.xPosition>0</cim:PositionPoint.xPosition>
+    <cim:PositionPoint.yPosition>0</cim:PositionPoint.yPosition>
   </cim:PositionPoint>
 </rdf:RDF>

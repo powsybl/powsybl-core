@@ -36,7 +36,7 @@ public class NetworkResultDeserializer extends StdDeserializer<NetworkResult> {
         List<BusResult> busResults = null;
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "branchResults":
                     parser.nextToken();
                     branchResults = JsonUtil.readList(deserializationContext, parser, BranchResult.class);
@@ -53,7 +53,7 @@ public class NetworkResultDeserializer extends StdDeserializer<NetworkResult> {
                     break;
 
                 default:
-                    throw new JsonMappingException(parser, "Unexpected field: " + parser.getCurrentName());
+                    throw new JsonMappingException(parser, "Unexpected field: " + parser.currentName());
             }
         }
         return new NetworkResult(branchResults, busResults, threeWindingsTransformerResults);

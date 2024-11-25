@@ -31,7 +31,7 @@ class TieLineContingencyTest {
         assertEquals(ContingencyElementType.TIE_LINE, contingency.getType());
 
         assertNotNull(contingency.toModification());
-        assertTrue(contingency.toModification() instanceof TieLineTripping);
+        assertInstanceOf(TieLineTripping.class, contingency.toModification());
 
         contingency = new TieLineContingency("id", "voltageLevelId");
         assertEquals("voltageLevelId", contingency.getVoltageLevelId());

@@ -24,7 +24,11 @@
   <cim:Substation rdf:ID="_Substation2">
     <cim:Substation.Region rdf:resource="#_Region"/>
     <cim:IdentifiedObject.name>Substation 2</cim:IdentifiedObject.name>
-  </cim:Substation>  
+  </cim:Substation>
+  <cim:Substation rdf:ID="_Substation3">
+    <cim:Substation.Region rdf:resource="#_Region"/>
+    <cim:IdentifiedObject.name>Substation 3</cim:IdentifiedObject.name>
+  </cim:Substation>
   <cim:VoltageLevel rdf:ID="_VoltageLevel1">
     <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage300"/>
     <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
@@ -33,13 +37,24 @@
   <cim:VoltageLevel rdf:ID="_VoltageLevel2">
     <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage300"/>
     <cim:VoltageLevel.Substation rdf:resource="#_Substation2"/>
-    <cim:IdentifiedObject.name>Voltage level 1</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.name>Voltage level 2</cim:IdentifiedObject.name>
+  </cim:VoltageLevel>
+  <cim:VoltageLevel rdf:ID="_VoltageLevel3">
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage300"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_Substation3"/>
+    <cim:IdentifiedObject.name>Voltage level 3</cim:IdentifiedObject.name>
+  </cim:VoltageLevel>
+  <cim:VoltageLevel rdf:ID="_VoltageLevel4">
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage300"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_Substation3"/>
+    <cim:IdentifiedObject.name>Voltage level 4</cim:IdentifiedObject.name>
   </cim:VoltageLevel>
   <cim:BaseVoltage rdf:ID="_BaseVoltage300">
     <cim:BaseVoltage.nominalVoltage>300</cim:BaseVoltage.nominalVoltage>
   </cim:BaseVoltage>
   <cim:Line rdf:ID="_Line">
     <cim:Line.Region rdf:resource="#_Region"/>
+    <cim:IdentifiedObject.name>A line</cim:IdentifiedObject.name>
   </cim:Line>
   <cim:SubGeographicalRegion rdf:ID="_Region">
     <cim:SubGeographicalRegion.Region rdf:resource="#_Subregion"/>

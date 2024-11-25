@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.computation.ComputationManager;
@@ -167,7 +168,7 @@ class ImportersTest extends AbstractConvertersTest {
 
     @Test
     void createDataSource1() throws IOException {
-        DataSource dataSource = DataSource.fromPath(fileSystem.getPath(WORK_DIR), "foo");
+        DataSource dataSource = new DirectoryDataSource(fileSystem.getPath(WORK_DIR), "foo");
         assertTrue(dataSource.exists(FOO_TST));
     }
 

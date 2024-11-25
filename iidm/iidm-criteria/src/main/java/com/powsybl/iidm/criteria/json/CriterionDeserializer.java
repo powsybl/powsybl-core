@@ -45,7 +45,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
         PropertyCriterion.EquipmentToCheck equipmentToCheck = null;
         PropertyCriterion.SideToCheck sideToCheck = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "type" -> type = CriterionType.valueOf(parser.nextTextValue());
                 case "voltageInterval" -> {
                     parser.nextToken();
@@ -88,7 +88,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                 case "equipmentToCheck" ->
                         equipmentToCheck = PropertyCriterion.EquipmentToCheck.valueOf(parser.nextTextValue());
                 case "sideToCheck" -> sideToCheck = PropertyCriterion.SideToCheck.valueOf(parser.nextTextValue());
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         if (type == null) {

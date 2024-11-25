@@ -5,7 +5,7 @@ The `limit-violation-default-filter` module is used by the [security-analysis](.
 ## Optional properties
 
 **countries**  
-The `countries` property is an optional property that defines a list of [ISO-3166](https://en.wikipedia.org/wiki/ISO_3166-1) country codes used for violations filtering. A violation is displayed only if at least one of its side has its substation's country in the list. If this property is not set, there is no filtering based on the countries.
+The `countries` property is an optional property that defines a list of [ISO-3166](https://en.wikipedia.org/wiki/ISO_3166-1) country codes used for violations filtering. A violation is displayed only if at least one of its sides has its substation's country in the list. If this property is not set, there is no filtering based on the countries.
 
 **minBaseVoltage**  
 The `minBaseVoltage` property is an optional property that defines a threshold value for the nominal voltage of the voltage levels. The default value of this property is `0`.

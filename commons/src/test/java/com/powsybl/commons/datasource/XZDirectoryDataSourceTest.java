@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Olivier Bretteville {@literal <olivier.bretteville at rte-france.com>}
@@ -36,7 +37,7 @@ class XZDirectoryDataSourceTest extends DirectoryDataSourceTest {
         DataSourceObserver observer = new DefaultDataSourceObserver();
 
         // Check constructors
-        checkDataSource(new XZDirectoryDataSource(testDir, "foo_bar", "iidm", observer), observer);
+        checkDataSource(new XZDirectoryDataSource(testDir, "foo_bar", "iidm", false, observer), observer);
     }
 
     private void checkDataSource(DirectoryDataSource dataSource, DataSourceObserver observer) {
@@ -44,6 +45,7 @@ class XZDirectoryDataSourceTest extends DirectoryDataSourceTest {
         assertEquals("iidm", dataSource.getDataExtension());
         assertEquals(compressionFormat, dataSource.getCompressionFormat());
         assertEquals("foo_bar", dataSource.getBaseName());
+        assertFalse(dataSource.isAllFiles());
         assertEquals(observer, dataSource.getObserver());
     }
 
@@ -55,12 +57,12 @@ class XZDirectoryDataSourceTest extends DirectoryDataSourceTest {
 
     @Override
     protected DataSource createDataSource() {
-        return new XZDirectoryDataSource(testDir, "foo", null, null);
+        return new XZDirectoryDataSource(testDir, "foo", null, false, null);
     }
 
     @Override
     protected DataSource createDataSource(DataSourceObserver observer) {
-        return new XZDirectoryDataSource(testDir, "foo", "iidm", observer);
+        return new XZDirectoryDataSource(testDir, "foo", "iidm", false, observer);
     }
 
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
@@ -78,13 +80,13 @@ class XZDirectoryDataSourceTest extends DirectoryDataSourceTest {
             "foo.gz", "foo.txt.gz", "foo.iidm.gz", "foo.xiidm.gz", "foo.v3.iidm.gz", "foo.v3.gz", "foo_bar.iidm.gz", "foo_bar.gz");
         Set<String> listedBarFiles = Set.of("foo_bar.iidm", "foo_bar", "foo_bar.iidm.bz2", "foo_bar.bz2", "foo_bar.iidm.zst", "foo_bar.zst", "foo_bar.iidm.gz", "foo_bar.gz");
         return Stream.of(
-            Arguments.of("foo", "iidm", CompressionFormat.XZ, XZDirectoryDataSource.class,
+            Arguments.of(null, "foo", "iidm", CompressionFormat.XZ, XZDirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo", "", CompressionFormat.XZ, XZDirectoryDataSource.class,
+            Arguments.of(null, "foo", "", CompressionFormat.XZ, XZDirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo", "v3", CompressionFormat.XZ, XZDirectoryDataSource.class,
+            Arguments.of(null, "foo", "v3", CompressionFormat.XZ, XZDirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles)
         );

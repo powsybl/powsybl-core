@@ -9,8 +9,11 @@ package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.security.LimitViolation;
+import com.powsybl.security.ViolationLocation;
 import com.powsybl.security.json.LimitViolationDeserializer;
 import com.powsybl.security.json.LimitViolationSerializer;
+import com.powsybl.security.json.ViolationLocationDeserializer;
+import com.powsybl.security.json.ViolationLocationSerializer;
 import com.powsybl.shortcircuit.*;
 import com.powsybl.shortcircuit.FaultParameters;
 
@@ -24,6 +27,8 @@ public class ShortCircuitAnalysisJsonModule extends SimpleModule {
         addDeserializer(FortescueValue.class, new FortescueValuesDeserializer());
         addSerializer(LimitViolation.class, new LimitViolationSerializer());
         addDeserializer(LimitViolation.class, new LimitViolationDeserializer());
+        addSerializer(ViolationLocation.class, new ViolationLocationSerializer());
+        addDeserializer(ViolationLocation.class, new ViolationLocationDeserializer());
         addSerializer(Fault.class, new FaultSerializer());
         addDeserializer(Fault.class, new FaultDeserializer());
         addSerializer(FaultResult.class, new FaultResultSerializer());

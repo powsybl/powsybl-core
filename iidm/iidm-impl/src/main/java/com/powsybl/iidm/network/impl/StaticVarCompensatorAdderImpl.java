@@ -91,7 +91,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
                 regulationMode, regulatingTerminal != null ? regulatingTerminal : terminal,
                 getNetworkRef());
         svc.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(svc);
         network.getListeners().notifyCreation(svc);
         return svc;

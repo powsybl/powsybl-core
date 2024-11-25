@@ -184,10 +184,7 @@ final class ContainersMappingHelper {
                         // All transformers are considered with impedance
                         edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), true, false));
                         break;
-                    case "ElmLne":
-                        // All lines are considered with impedance, only zero impedance lines are necessary
-                        break;
-                    case "ElmZpu":
+                    case "ElmLne", "ElmZpu":
                         // All lines are considered with impedance, only zero impedance lines are necessary
                         break;
                     case "ElmCoup":

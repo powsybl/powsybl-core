@@ -91,16 +91,11 @@ public class NodeMapping {
     }
 
     private static boolean createFictitiousSwitch(CgmesImport.FictitiousSwitchesCreationMode mode, boolean isSwitchEnd) {
-        switch (mode) {
-            case ALWAYS:
-                return true;
-            case NEVER:
-                return false;
-            case ALWAYS_EXCEPT_SWITCHES:
-                return !isSwitchEnd;
-            default:
-                throw new IllegalStateException("Unsupported specified mode to create fictitious switches for disconnected terminals: " + mode.name());
-        }
+        return switch (mode) {
+            case ALWAYS -> true;
+            case NEVER -> false;
+            case ALWAYS_EXCEPT_SWITCHES -> !isSwitchEnd;
+        };
     }
 
     public int iidmNodeForConnectivityNode(String id, VoltageLevel vl) {

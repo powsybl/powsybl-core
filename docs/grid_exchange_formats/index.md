@@ -17,7 +17,7 @@ or network simulation via different tools: check them out below.
 | [AMPL](ampl/index.md)                       | a data separated value format easy to parse with AMPL                                                        |  <span style="color:red">&#x2718;</span>  | <span style="color:green">&#x2714;</span> |
 
 \* Note that updated export is available, that is, export is possible if the file was imported with the same format.
-For instance, if you import a UCTE-DEF file in powsybl you can update some elements and then export it back to UCTE-DEF
+For instance, if you import a UCTE-DEF file in powsybl, you can update some elements and then export it back to UCTE-DEF
 format, but you cannot export to UCTE-DEF format a file imported from another format.
 
 ```{toctree}
@@ -33,4 +33,5 @@ ieee/ieee.md
 matpower/index.md
 psse/index.md
 ampl/index.md
+going_further/index
 ```

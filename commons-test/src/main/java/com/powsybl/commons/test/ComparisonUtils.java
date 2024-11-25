@@ -15,6 +15,8 @@ import org.xmlunit.diff.Diff;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,6 +38,15 @@ public final class ComparisonUtils {
             LOGGER.error("{}", myDiff);
         }
         assertFalse(hasDiff);
+    }
+
+    public static void assertTxtEquals(Path expected, Path actual) {
+        try (InputStream expectedStream = Files.newInputStream(expected);
+            InputStream actualStream = Files.newInputStream(actual)) {
+            assertTxtEquals(expectedStream, actualStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public static void assertTxtEquals(InputStream expected, InputStream actual) {

@@ -139,7 +139,7 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
 
         assertEquals(1, parsed.getActions().size());
         Action parsedAction = parsed.getActions().get(0);
-        assertTrue(parsedAction instanceof DummyAction);
+        assertInstanceOf(DummyAction.class, parsedAction);
         assertEquals("hello", parsedAction.getId());
     }
 }

@@ -47,7 +47,7 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
         List<Extension<Contingency>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "id" -> id = parser.nextTextValue();
                 case "name" -> name = parser.nextTextValue();
                 case "elements" -> {
@@ -58,7 +58,7 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         Contingency contingency = new Contingency(id, name, elements);

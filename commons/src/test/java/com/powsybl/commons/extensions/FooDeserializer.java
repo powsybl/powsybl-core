@@ -39,7 +39,7 @@ public class FooDeserializer extends StdDeserializer<Foo> {
         List<Extension<Foo>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            if (parser.getCurrentName().equals("extensions")) {
+            if (parser.currentName().equals("extensions")) {
                 parser.nextToken();
                 extensions = JsonUtil.readExtensions(parser, context);
             }
@@ -62,7 +62,7 @@ public class FooDeserializer extends StdDeserializer<Foo> {
         List<Extension<Foo>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            if (parser.getCurrentName().equals("extensions")) {
+            if (parser.currentName().equals("extensions")) {
                 parser.nextToken();
                 extensions = JsonUtil.updateExtensions(parser, context, initFoo);
             }

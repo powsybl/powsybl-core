@@ -31,6 +31,11 @@ public class GeneratorModification extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "GeneratorModification";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         Generator g = network.getGenerator(generatorId);
@@ -57,15 +62,18 @@ public class GeneratorModification extends AbstractNetworkModification {
         }
         if (modifs.getVoltageRegulatorOn() != null) {
             if (Double.isNaN(g.getTargetV()) && modifs.getVoltageRegulatorOn().booleanValue()) {
-                double plausibleTargetV = VoltageRegulationUtils.getTargetVForRegulatingElement(g.getNetwork(), g.getRegulatingTerminal().getBusView().getBus(),
-                        g.getId(), IdentifiableType.GENERATOR).orElse(g.getRegulatingTerminal().getBusView().getBus().getV());
-                g.setTargetV(plausibleTargetV);
+                g.setTargetV(getPlausibleTargetV(g));
             }
             g.setVoltageRegulatorOn(modifs.getVoltageRegulatorOn());
         }
         if (modifs.getTargetP() != null || modifs.getDeltaTargetP() != null) {
             applyTargetP(g, skipOtherConnectionChange);
         }
+    }
+
+    private double getPlausibleTargetV(Generator g) {
+        return VoltageRegulationUtils.getTargetVForRegulatingElement(g.getNetwork(), g.getRegulatingTerminal().getBusView().getBus(),
+            g.getId(), IdentifiableType.GENERATOR).orElse(g.getRegulatingTerminal().getBusView().getBus().getV());
     }
 
     private void applyTargetP(Generator g, boolean skipOtherConnectionChange) {
@@ -207,5 +215,26 @@ public class GeneratorModification extends AbstractNetworkModification {
         public void setIgnoreCorrectiveOperations(boolean ignoreCorrectiveOperations) {
             this.ignoreCorrectiveOperations = ignoreCorrectiveOperations;
         }
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        Generator g = network.getGenerator(generatorId);
+        if (g == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (areValuesEqual(modifs.getMinP(), g.getMinP(), false)
+            && areValuesEqual(modifs.getMaxP(), g.getMaxP(), false)
+            && areValuesEqual(modifs.getTargetV(), g.getTargetV(), false)
+            && areValuesEqual(modifs.getTargetQ(), g.getTargetQ(), false)
+            && (modifs.getConnected() == null || modifs.getConnected() == g.getTerminal().isConnected())
+            && (modifs.getVoltageRegulatorOn() == null
+            || (!Double.isNaN(g.getTargetV()) || !modifs.getVoltageRegulatorOn() || areValuesEqual(getPlausibleTargetV(g), g.getTargetV(), false))
+            && modifs.getVoltageRegulatorOn() == g.isVoltageRegulatorOn())
+            && areValuesEqual(modifs.getTargetP(), g.getTargetP(), false)
+            && areValuesEqual(modifs.getDeltaTargetP(), 0, false)) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+        }
+        return impact;
     }
 }

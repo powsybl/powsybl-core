@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,7 +36,7 @@ class IrregularTimeSeriesIndexTest {
         assertEquals(2, index.getPointCount());
 
         // test iterator and stream
-        assertEquals(instants, index.stream().collect(Collectors.toList()));
+        assertEquals(instants, index.stream().toList());
         assertEquals(instants, Lists.newArrayList(index.iterator()));
 
         // test to string
@@ -65,6 +64,6 @@ class IrregularTimeSeriesIndexTest {
 
     @Test
     void testContructorError() {
-        assertThrows(IllegalArgumentException.class, () -> IrregularTimeSeriesIndex.create());
+        assertThrows(IllegalArgumentException.class, IrregularTimeSeriesIndex::create);
     }
 }

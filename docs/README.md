@@ -1,4 +1,4 @@
-These are the documentation sources for PowSybl core features.
+These are the documentation sources for PowSyBl core features.
 
 Please keep them up to date with your developments.  
 They are published on powsybl.readthedocs.io/ and pull requests are built and previewed automatically.
@@ -27,8 +27,8 @@ sphinx-build -a . ../build-docs
 Then open `build-docs/index.html` in your browser.
 
 If you want to add links to another documentation, add the corresponding repository to the `conf.py` file.
-In order to automatically get the version specified in the `pom.xml`, please use the same naming as the version: if you define the
-Groovy version with `<groovy.version>`, then use `groovy` as key. The specified URL should start with `https://` and end with `latest/` (the final `/` is mandatory).
+To automatically get the version specified in the `pom.xml`, please use the same naming as the version: if you define the
+Groovy version with `<groovy.version>`, then use `groovy` as a key. The specified URL should start with `https://` and end with `latest/` (the final `/` is mandatory).
 For example, to add a link to the documentation of Sphinx, you need to add the following lines:
 ~~~python
 # This parameter might already be present, just add the new value
@@ -38,7 +38,7 @@ intersphinx_mapping = {
 ~~~
 
 Then in your documentation file, you can add links to PowSyBl-Core documentation. If you want to link to a whole page,
-use one of the following example:
+use one of the following examples:
 ~~~Markdown
 - {doc}`sphinx:usage/extensions/intersphinx`
 - {doc}`Intersphinx <sphinx:usage/extensions/intersphinx>`

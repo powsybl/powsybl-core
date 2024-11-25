@@ -37,7 +37,7 @@ public final class SecurityAnalysisResultMerger {
 
     public static SecurityAnalysisResult merge(Collection<SecurityAnalysisResult> results) {
         Objects.requireNonNull(results);
-        return merge(results.toArray(new SecurityAnalysisResult[results.size()]));
+        return merge(results.toArray(new SecurityAnalysisResult[0]));
     }
 
     private SecurityAnalysisResultMerger() {

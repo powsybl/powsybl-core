@@ -111,11 +111,11 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         line.addTerminal(terminal2);
 
         // check that the line is attachable on both side
-        voltageLevel1.attach(terminal1, true);
-        voltageLevel2.attach(terminal2, true);
+        voltageLevel1.getTopologyModel().attach(terminal1, true);
+        voltageLevel2.getTopologyModel().attach(terminal2, true);
 
-        voltageLevel1.attach(terminal1, false);
-        voltageLevel2.attach(terminal2, false);
+        voltageLevel1.getTopologyModel().attach(terminal1, false);
+        voltageLevel2.getTopologyModel().attach(terminal2, false);
         network.getIndex().checkAndAdd(line);
         getNetwork().getListeners().notifyCreation(line);
         return line;

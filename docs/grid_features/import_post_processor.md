@@ -6,6 +6,7 @@ PowSyBl provides 2 different implementations of post-processors:
 - [Groovy](#groovy-post-processor): to execute a groovy script
 - [LoadFlow](#loadflow-post-processor): to run a power flow simulation
 
+(groovy-post-processor)=
 ## Groovy post-processor
 This post-processor executes a groovy script, loaded from a file. The script can access to the network and the [computation manager]() using the variables `network` and `computationManager`. To use this post-processor, add the `com.powsybl:powsybl-iidm-scripting` dependency to your classpath, and configure both `import` and `groovy-post-processor` modules:
 
@@ -37,8 +38,9 @@ The following example prints meta-information from the network:
 println "Network " + network.getId() + " (" + network.getSourceFormat()+ ") is imported"
 ```
 
+(loadflow-post-processor)=
 ## LoadFlow post-processor
-Mathematically speaking, a [load flow](../simulation/loadflow/index) result is fully defined by the complex voltages at each node. The consequence is that most load flow algorithms converge very fast if they are initialized with voltages. As a result, it happens that load flow results include only voltages and not flows on branches. This post-processors computes the flows given the voltages. The equations (Kirchhoff law) used are the same as the one used in the [load flow validation](../user/itools/loadflow-validation.md#load-flow-results-validation) to compute $P_1^{\text{calc}}$, $Q_1^{\text{calc}}$, $P_2^{\text{calc}}$, $Q_2^{\text{calc}}$ for branches and $P_3^{\text{calc}}$, $Q_3^{\text{calc}}$ in addition for three-windings transformers.
+Mathematically speaking, a [load flow](../simulation/loadflow/index) result is fully defined by the complex voltages at each node. The consequence is that most load flow algorithms converge very fast if they are initialized with voltages. As a result, it happens that load flow results include only voltages and not flows on branches. This post-processors computes the flows given the voltages. The equations (Kirchhoff law) used are the same as the one used in the [load flow validation](../user/itools/loadflow-validation.md#load-flow-results-validation) to compute $P_1^{\text{calc}}$, $Q_1^{\text{calc}}$, $P_2^{\text{calc}}$, $Q_2^{\text{calc}}$ for branches and $P_3^{\text{calc}}$, $Q_3^{\text{calc}}$ in addition for three-winding transformers.
 
 To use this post-processor, add the `com.powsybl:powsybl-loadflow-results-completion` to your classpath and enable it setting the `postProcessors` property of the `import` module.
 
@@ -56,8 +58,9 @@ import:
 </import>
 ```
 
-**Note:** This post-processor rely on the [load flow results completion]() module.
+**Note:** This post-processor relies on the [load flow results completion]() module.
 
+(geographical-data-import-post-processor)=
 ## Geographical data import post-processor
 
 One way to add geographical positions on a network is to use the import post-processor named odreGeoDataImporter, that will automatically add the [LinePosition](../grid_model/extensions.md#line-position) and [SubstationPosition](../grid_model/extensions.md#substation-position) extensions to the network model.
@@ -72,7 +75,7 @@ Using the links in the table below, you can obtain the RTE data CSV files, to be
 | Aerial lines         | [https://odre.opendatasoft.com/explore/dataset/lignes-aeriennes-rte-nv/export/](https://odre.opendatasoft.com/explore/dataset/lignes-aeriennes-rte-nv/export/)       |
 | Underground lines    | [https://odre.opendatasoft.com/explore/dataset/lignes-souterraines-rte-nv/export/](https://odre.opendatasoft.com/explore/dataset/lignes-souterraines-rte-nv/export/) |
 
-<span style="font-size:0.75em;">(To download these files, you should first accept the usage conditions of the ODRÉ website, which can be found - in French only - at the bottom of the pages, and the Etalab Open License v2.0, available in English [here](https://www.etalab.gouv.fr/wp-content/uploads/2018/11/open-licence.pdf).)</span>
+<span style="font-size:0.75em;">(To download these files, you should first accept the usage conditions of the ODRÉ website, which can be found—in French only—at the bottom of the pages, and the Etalab Open License v2.0, available in English [here](https://www.etalab.gouv.fr/wp-content/uploads/2018/11/open-licence.pdf).)</span>
 
 <br/>
 

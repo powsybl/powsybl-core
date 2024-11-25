@@ -53,11 +53,11 @@ public class FooExtSerializer implements ExtensionJsonSerializer<Foo, FooExt> {
     public FooExt deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         Boolean value = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            if (parser.getCurrentName().equals("value")) {
+            if (parser.currentName().equals("value")) {
                 parser.nextToken();
                 value = parser.readValueAs(Boolean.class);
             } else {
-                throw new PowsyblException("Unexpected field: " + parser.getCurrentName());
+                throw new PowsyblException("Unexpected field: " + parser.currentName());
             }
         }
 

@@ -77,7 +77,7 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
             model.setLoad(load);
         }
         load.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(load);
         network.getListeners().notifyCreation(load);
         return load;

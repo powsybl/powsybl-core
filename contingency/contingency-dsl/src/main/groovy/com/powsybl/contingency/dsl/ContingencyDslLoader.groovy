@@ -8,7 +8,7 @@
 package com.powsybl.contingency.dsl
 
 import com.powsybl.commons.extensions.Extension
-import com.powsybl.contingency.*
+import com.powsybl.contingency.Contingency
 import com.powsybl.dsl.DslException
 import com.powsybl.dsl.DslLoader
 import com.powsybl.dsl.ExtendableDslExtension
@@ -78,6 +78,16 @@ class ContingencyDslLoader extends DslLoader {
                     builder.addDanglingLine(equipment)
                 } else if (identifiable instanceof ThreeWindingsTransformer) {
                     builder.addThreeWindingsTransformer(equipment)
+                } else if (identifiable instanceof TieLine) {
+                    builder.addTieLine(equipment)
+                } else if (identifiable instanceof Bus) {
+                    builder.addBus(equipment)
+                } else if (identifiable instanceof Battery) {
+                    builder.addBattery(equipment)
+                } else if (identifiable instanceof Load) {
+                    builder.addLoad(equipment)
+                } else if (identifiable instanceof Switch) {
+                    builder.addSwitch(equipment)
                 } else {
                     LOGGER.warn("Equipment type {} not supported in contingencies", identifiable.getClass().name)
                     valid = false
@@ -101,7 +111,7 @@ class ContingencyDslLoader extends DslLoader {
         def cloned = closure.clone()
         ContingencySpec contingencySpec = new ContingencySpec()
 
-        List<Extension<Contingency>> extensionList = new ArrayList<>();
+        List<Extension<Contingency>> extensionList = new ArrayList<>()
         for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ContingencyDslExtension.class, ContingencyDslLoader.class.getClassLoader())) {
             dslContingencyExtension.addToSpec(contingencySpec.metaClass, extensionList, binding)
         }
@@ -192,6 +202,11 @@ class ContingencyDslLoader extends DslLoader {
 
             // set base network
             binding.setVariable("network", network)
+
+            // Check for thread interruption right before beginning the evaluation
+            if (Thread.currentThread().isInterrupted()) {
+                throw new InterruptedException("Execution Interrupted")
+            }
 
             def shell = createShell(binding, imports)
 

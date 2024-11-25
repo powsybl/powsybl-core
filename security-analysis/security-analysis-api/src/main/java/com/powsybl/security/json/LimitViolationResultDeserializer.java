@@ -34,7 +34,7 @@ public class LimitViolationResultDeserializer extends StdDeserializer<LimitViola
         List<LimitViolation> limitViolations = Collections.emptyList();
         List<String> actionsTaken = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "computationOk":
                     parser.nextToken();
                     computationOk = parser.readValueAs(Boolean.class);
@@ -51,7 +51,7 @@ public class LimitViolationResultDeserializer extends StdDeserializer<LimitViola
                     break;
 
                 default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
 

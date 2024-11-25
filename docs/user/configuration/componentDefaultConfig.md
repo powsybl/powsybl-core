@@ -1,5 +1,5 @@
 # componentDefaultConfig
-The `componentDefaultConfig` module is used to configure the implementation of plugins the framework has to use for specific features (e.g. computation, etc.). Contrary to the other modules, it is impossible to give an exhaustive list of the existing properties.
+The `componentDefaultConfig` module is used to configure the implementation of plugins that the framework has to use for specific features (e.g. computation, etc.). Contrary to the other modules, it is impossible to give an exhaustive list of the existing properties.
 
 The names of the properties are the names of Java interfaces of the powsybl framework. Each value must be the complete name of a class which implements this interface.
 - ContingenciesProviderFactory

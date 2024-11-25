@@ -124,11 +124,11 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         transformer.addTerminal(terminal2);
 
         // check that the two windings transformer is attachable on both side
-        voltageLevel1.attach(terminal1, true);
-        voltageLevel2.attach(terminal2, true);
+        voltageLevel1.getTopologyModel().attach(terminal1, true);
+        voltageLevel2.getTopologyModel().attach(terminal2, true);
 
-        voltageLevel1.attach(terminal1, false);
-        voltageLevel2.attach(terminal2, false);
+        voltageLevel1.getTopologyModel().attach(terminal1, false);
+        voltageLevel2.getTopologyModel().attach(terminal2, false);
         getNetwork().getIndex().checkAndAdd(transformer);
         getNetwork().getListeners().notifyCreation(transformer);
         return transformer;

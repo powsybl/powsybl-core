@@ -81,6 +81,11 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         this.lineAdder = Objects.requireNonNull(lineAdder);
     }
 
+    @Override
+    public String getName() {
+        return "CreateLineOnLine";
+    }
+
     private static boolean checkFictitiousSubstationId(boolean createFictSubstation, String fictitiousSubstationId, boolean throwException, ReportNode reportNode) {
         if (createFictSubstation && fictitiousSubstationId == null) {
             LOG.error("Fictitious substation ID must be defined if a fictitious substation is to be created");

@@ -36,7 +36,7 @@ class BusContingencyTest {
         assertEquals(ContingencyElementType.BUS, busContingency.getType());
 
         assertNotNull(busContingency.toModification());
-        assertTrue(busContingency.toModification() instanceof BusTripping);
+        assertInstanceOf(BusTripping.class, busContingency.toModification());
 
         new EqualsTester()
                 .addEqualityGroup(new BusContingency("bus1"), new BusContingency("bus1"))

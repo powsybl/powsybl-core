@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -76,14 +77,13 @@ public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
     }
 
     @Override
-    public void process(Network network, ComputationManager computationManager) {
+    public void process(Network network, ComputationManager computationManager) throws IOException {
         if (Files.exists(substationsFilePath)) {
             OdreGeoDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsFilePath, odreConfig);
             boolean aerialLinesPresent = Files.exists(aerialLinesFilePath);
             boolean undergroundLinesPresent = Files.exists(undergroundLinesFilePath);
             if (aerialLinesPresent && undergroundLinesPresent) {
-                OdreGeoDataAdder.fillNetworkLinesGeoDataFromFiles(network,
-                        aerialLinesFilePath, undergroundLinesFilePath, substationsFilePath, odreConfig);
+                OdreGeoDataAdder.fillNetworkLinesGeoDataFromFiles(network, aerialLinesFilePath, undergroundLinesFilePath, odreConfig);
             } else {
                 String missingAerialFiles = aerialLinesPresent ? "" : aerialLinesFilePath + " ";
                 String missingFiles = missingAerialFiles.concat(undergroundLinesPresent ? "" : undergroundLinesFilePath.toString());

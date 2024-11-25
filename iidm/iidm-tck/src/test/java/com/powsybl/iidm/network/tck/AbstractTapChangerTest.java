@@ -164,7 +164,7 @@ public abstract class AbstractTapChangerTest {
         currentStep.setB(5.0);
         currentStep.setAlpha(6.0);
         currentStep.setRho(7.0);
-        verify(mockedListener, times(6)).onUpdate(any(Identifiable.class), anyString(), any(), any());
+        verify(mockedListener, times(6)).onUpdate(any(Identifiable.class), anyString(), nullable(String.class), any(), any());
         // Remove observer
         network.removeListener(mockedListener);
         // Cancel modification

@@ -41,7 +41,7 @@ class TieLineReductionTest {
         assertEquals(0, observer.getTieLineRemovedCount());
         reducer.reduce(network);
         assertEquals(2, observer.getTieLineRemovedCount());
-        assertEquals(List.of("P1", "P2", "VLGEN", "LOAD", "NGEN", "NGEN_NHV1", "NHV2_NLOAD", "sim1", "VLLOAD", "NHV1", "GEN", "VLHV1", "NHV1_XNODE1", "NLOAD", "NVH1_XNODE2"),
+        assertEquals(List.of("P1", "P2", "VLGEN", "LOAD", "NGEN", "NGEN_NHV1", "NHV2_NLOAD", "sim1", "VLLOAD", "NHV1", "GEN", "VLHV1", "NHV1_XNODE2", "NHV1_XNODE1", "NLOAD"),
                 network.getIdentifiables().stream().map(Identifiable::getId).toList());
     }
 

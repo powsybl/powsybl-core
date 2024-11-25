@@ -20,6 +20,7 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -63,7 +64,7 @@ public class CgmesExport implements Exporter {
 
     @Override
     public List<Parameter> getParameters() {
-        return STATIC_PARAMETERS;
+        return ConfiguredParameter.load(STATIC_PARAMETERS, getFormat(), defaultValueConfig);
     }
 
     /**
@@ -107,14 +108,16 @@ public class CgmesExport implements Exporter {
     private void exportCGM(Network network, DataSource dataSource, CgmesExportContext context) {
         checkCgmConsistency(network, context);
 
-        // Initialize models for export. The original IGM TP and SSH don't get exported,
+        // Initialize models for export. The original IGM EQ, SSH, TP and TP_BD don't get exported,
         // but we need to init their models to retrieve their IDs when building the dependencies.
         Map<Network, IgmModelsForCgm> igmModels = new HashMap<>();
         for (Network subnetwork : network.getSubnetworks()) {
             IgmModelsForCgm igmModelsForCgm = new IgmModelsForCgm(
-                    initializeModelForExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, false, false),
                     initializeModelForExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, false, true),
-                    initializeModelForExport(subnetwork, CgmesSubset.TOPOLOGY, context, false, false)
+                    initializeModelForExport(subnetwork, CgmesSubset.EQUIPMENT, context, false, false),
+                    initializeModelForExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, false, false),
+                    initializeModelForExport(subnetwork, CgmesSubset.TOPOLOGY, context, false, false),
+                    initializeModelForExport(subnetwork, CgmesSubset.TOPOLOGY_BOUNDARY, context, false, false)
             );
             igmModels.put(subnetwork, igmModelsForCgm);
         }
@@ -122,7 +125,7 @@ public class CgmesExport implements Exporter {
 
         // Update dependencies
         if (context.updateDependencies()) {
-            updateDependenciesCGM(igmModels.values(), updatedCgmSvModel);
+            updateDependenciesCGM(igmModels.values(), updatedCgmSvModel, context.getBoundaryTpId());
         }
 
         // Export the SSH for the IGMs and the SV for the CGM
@@ -227,22 +230,29 @@ public class CgmesExport implements Exporter {
     }
 
     /**
-     * Update cross dependencies between the subset models through the dependentOn relationship.
-     * The IGMs updated SSH supersede the original ones.
-     * The CGM updated SV depends on the IGMs updated SSH and on the IGMs original TP.
-     * @param igmModels For each IGM: the original SSH model, the updated SSH model and the original TP model.
+     * Update cross dependencies between the subset models (including boundaries) through the dependentOn relationship.
+     * The IGMs updated SSH supersede the original ones and depend on the original EQ. Other dependencies are kept.
+     * The CGM updated SV depends on the IGMs updated SSH and on the IGMs original TP and TP_BD.
+     * @param igmModels For each IGM: the updated SSH model and the original SSH, TP and TP_BD models.
      * @param updatedCgmSvModel The SV model for the CGM.
+     * @param boundaryTpId The model id for the TP_BD subset.
      */
-    private void updateDependenciesCGM(Collection<IgmModelsForCgm> igmModels, CgmesMetadataModel updatedCgmSvModel) {
+    private void updateDependenciesCGM(Collection<IgmModelsForCgm> igmModels, CgmesMetadataModel updatedCgmSvModel, String boundaryTpId) {
+        // Each updated SSH model depends on the original EQ model
+        igmModels.forEach(m -> m.updatedSsh.addDependentOn(m.originalEq.getId()));
+
         // Each updated SSH model supersedes the original one
-        // Clear previous dependencies
-        igmModels.forEach(m -> m.updatedSsh.clearDependencies());
         igmModels.forEach(m -> m.updatedSsh.clearSupersedes());
         igmModels.forEach(m -> m.updatedSsh.addSupersedes(m.originalSsh.getId()));
 
-        // Updated SV model depends on updated SSH models and original TP models
+        // Updated SV model depends on updated SSH models and original TP and TP_BD models
         updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.updatedSsh.getId()).collect(Collectors.toSet()));
         updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.originalTp.getId()).collect(Collectors.toSet()));
+        if (boundaryTpId != null) {
+            updatedCgmSvModel.addDependentOn(boundaryTpId);
+        } else {
+            updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.originalTpBd.getId()).collect(Collectors.toSet()));
+        }
     }
 
     /**
@@ -412,6 +422,7 @@ public class CgmesExport implements Exporter {
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
                 .setExportTransformersWithHighestVoltageAtEnd1(Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig))
                 .setExportLoadFlowStatus(Parameter.readBoolean(getFormat(), params, EXPORT_LOAD_FLOW_STATUS_PARAMETER, defaultValueConfig))
+                .setExportAllLimitsGroup(Parameter.readBoolean(getFormat(), params, EXPORT_ALL_LIMITS_GROUP_PARAMETER, defaultValueConfig))
                 .setMaxPMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_P_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
                 .setMaxQMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_Q_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
                 .setExportSvInjectionsForSlacks(Parameter.readBoolean(getFormat(), params, EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER, defaultValueConfig))
@@ -492,14 +503,19 @@ public class CgmesExport implements Exporter {
      * when setting the relationships (dependOn, supersedes) between them in a CGM export.
      */
     private static class IgmModelsForCgm {
-        CgmesMetadataModel originalSsh;
         CgmesMetadataModel updatedSsh;
+        CgmesMetadataModel originalEq;
+        CgmesMetadataModel originalSsh;
         CgmesMetadataModel originalTp;
+        CgmesMetadataModel originalTpBd;
 
-        public IgmModelsForCgm(CgmesMetadataModel originalSsh, CgmesMetadataModel updatedSsh, CgmesMetadataModel originalTp) {
-            this.originalSsh = originalSsh;
+        public IgmModelsForCgm(CgmesMetadataModel updatedSsh, CgmesMetadataModel originalEq, CgmesMetadataModel originalSsh,
+                               CgmesMetadataModel originalTp, CgmesMetadataModel originalTpBd) {
             this.updatedSsh = updatedSsh;
+            this.originalEq = originalEq;
+            this.originalSsh = originalSsh;
             this.originalTp = originalTp;
+            this.originalTpBd = originalTpBd;
         }
     }
 
@@ -527,6 +543,7 @@ public class CgmesExport implements Exporter {
     public static final String MODEL_DESCRIPTION = "iidm.export.cgmes.model-description";
     public static final String EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1 = "iidm.export.cgmes.export-transformers-with-highest-voltage-at-end1";
     public static final String EXPORT_LOAD_FLOW_STATUS = "iidm.export.cgmes.export-load-flow-status";
+    public static final String EXPORT_ALL_LIMITS_GROUP = "iidm.export.cgmes.export-all-limits-group";
     public static final String MAX_P_MISMATCH_CONVERGED = "iidm.export.cgmes.max-p-mismatch-converged";
     public static final String MAX_Q_MISMATCH_CONVERGED = "iidm.export.cgmes.max-q-mismatch-converged";
     public static final String EXPORT_SV_INJECTIONS_FOR_SLACKS = "iidm.export.cgmes.export-sv-injections-for-slacks";
@@ -615,6 +632,11 @@ public class CgmesExport implements Exporter {
             EXPORT_LOAD_FLOW_STATUS,
             ParameterType.BOOLEAN,
             "Export load flow status of topological islands",
+            CgmesExportContext.EXPORT_LOAD_FLOW_STATUS_DEFAULT_VALUE);
+    private static final Parameter EXPORT_ALL_LIMITS_GROUP_PARAMETER = new Parameter(
+            EXPORT_ALL_LIMITS_GROUP,
+            ParameterType.BOOLEAN,
+            "True to export all OperationalLimitsGroup, False to export only the selected group",
             CgmesExportContext.EXPORT_LOAD_FLOW_STATUS_DEFAULT_VALUE);
     private static final Parameter MAX_P_MISMATCH_CONVERGED_PARAMETER = new Parameter(
             MAX_P_MISMATCH_CONVERGED,

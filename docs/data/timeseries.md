@@ -12,7 +12,7 @@ in the framework, depending on the need:
     - [Irregular index](https://en.wikipedia.org/wiki/Unevenly_spaced_time_series): the time step size varies
     - Infinite index: the time series contains only two points, one at instant 0 and another at instant `Long.MAX_VALUE`
 - Metadata: a list of key/value string data
-- Data chunks: an ordered list of data that will be associated to instants of the time index. The data chunks may be compressed or uncompressed.
+- Data chunks: an ordered list of data that will be associated with instants of the time index. The data chunks may be compressed or uncompressed.
 
 An uncompressed JSON data chunk looks like:
 ```json
@@ -24,7 +24,7 @@ An uncompressed JSON data chunk looks like:
 An uncompressed data chunk is modeled with a double (or String) array and an offset. 
 It defines values associated to instants of the time index from `offset` to `offset + values.length`.
 
-It is possible to compress the data chunks, using for example the [RLE](https://fr.wikipedia.org/wiki/Run-length_encoding).
+It is possible to compress the data chunks, using, for example, the [RLE](https://fr.wikipedia.org/wiki/Run-length_encoding).
 The JSON serialization of compressed data chunks looks like:
 Output:
 ```json
@@ -114,7 +114,7 @@ Here is the list of supported vector operations:
 In the Groovy DSL syntax, both `timeSeries['a']` and `ts['a']` are supported and are equivalent.
 
 To compare a time index vector to a literal date, the `time('2018-01-01T00:00:01Z')` function is available. For instance, the
-following code create a time series of 0 and 1 values:
+following code creates a time series of 0 and 1 values:
 ```groovy
 a = ts['dts'].time() < time('2018-01-01T00:00:01Z')
 ```

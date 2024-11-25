@@ -112,6 +112,11 @@ public interface ReportNode {
     ReportNodeAdder newReportNode();
 
     /**
+     * Get the {@link TreeContext} of the corresponding {@link ReportNode} tree.
+     */
+    TreeContext getTreeContext();
+
+    /**
      * Add a <code>ReportNode</code> as a child of current <code>ReportNode</code>.
      *
      * @param reportRoot the <code>ReportNode</code> to add, it needs to be a root <code>ReportNode</code>

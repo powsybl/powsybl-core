@@ -45,6 +45,11 @@ public class HvdcLineModification extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "HvdcLineModification";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
                       ReportNode reportNode) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcId);
@@ -92,5 +97,25 @@ public class HvdcLineModification extends AbstractNetworkModification {
                 LOG.warn("Droop is define with value {}, but it will not be apply since the hvdc line {} do not have a HvdcAngleDroopActivePowerControl extension", droop, hvdcId);
             }
         }
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        HvdcLine hvdcLine = network.getHvdcLine(hvdcId);
+        if (hvdcLine == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else {
+            HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
+            if (areValuesEqual(activePowerSetpoint, hvdcLine.getActivePowerSetpoint(), relativeValue != null && relativeValue)
+                && (converterMode == null || converterMode == hvdcLine.getConvertersMode())
+                && (hvdcAngleDroopActivePowerControl == null ||
+                (acEmulationEnabled == null || acEmulationEnabled == hvdcAngleDroopActivePowerControl.isEnabled())
+                    && areValuesEqual(p0, hvdcAngleDroopActivePowerControl.getP0(), false)
+                    && areValuesEqual(droop, hvdcAngleDroopActivePowerControl.getDroop(), false))) {
+                impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+            }
+        }
+        return impact;
     }
 }

@@ -60,7 +60,7 @@ class DataSourceTest {
 
         // Assert exception when the file does not exist
         PowsyblException exception = assertThrows(PowsyblException.class, () -> DataSource.fromPath(filePath));
-        assertEquals("File " + filePath + " does not exist or is not a regular file", exception.getMessage());
+        assertEquals("File " + filePath + " does not exist", exception.getMessage());
 
         // Create the fake file
         Files.createFile(filePath);

@@ -21,7 +21,7 @@ Available arguments are:
 This option defines the path of the script to execute. Current, only Groovy scripts are supported.
 
 ## Groovy extensions
-The `run-script` command relies on a [plugin mechanism]() to load extensions. Those extensions provide utility functions to make the usage of PowSyBl easier through the scripts. It avoids the user to write boilerplate code hiding the technical complexity of framework into more user-friendly functions. PowSyBl provides the following extensions to:
+The `run-script` command relies on a [plugin mechanism]() to load extensions. Those extensions provide utility functions to make the usage of PowSyBl easier through the scripts. It prevents the user from writing boilerplate code and hides the technical complexity of the framework in more user-friendly functions. PowSyBl provides the following extensions to:
 - [load a network from a file](#load-a-network) 
 - [save a network to a file](#save-a-network)
 - [run a power flow simulation](#run-a-power-flow)

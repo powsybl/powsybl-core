@@ -63,23 +63,24 @@ public final class XmlUtil {
         int event;
         while ((event = reader.next()) != XMLStreamConstants.END_DOCUMENT) {
             switch (event) {
-                case XMLStreamConstants.START_ELEMENT:
+                case XMLStreamConstants.START_ELEMENT -> {
                     if (reader.getLocalName().equals(startElement)) {
                         return true;
                     } else {
                         // Skip the current element
                         skipSubElements(reader);
                     }
-                    break;
+                }
 
-                case XMLStreamConstants.END_ELEMENT:
+                case XMLStreamConstants.END_ELEMENT -> {
                     if (reader.getLocalName().equals(endElement)) {
                         return false;
                     }
-                    break;
+                }
 
-                default:
-                    break;
+                default -> {
+                    // Do nothing
+                }
             }
         }
         throw new PowsyblException("Unable to find " + startElement + ": end of document has been reached");

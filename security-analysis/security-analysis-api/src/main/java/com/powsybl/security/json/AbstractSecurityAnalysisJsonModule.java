@@ -41,6 +41,7 @@ public abstract class AbstractSecurityAnalysisJsonModule extends ContingencyJson
         addSerializer(PostContingencyResult.class, new PostContingencyResultSerializer());
         addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer());
         addSerializer(LimitViolation.class, new LimitViolationSerializer());
+        addSerializer(ViolationLocation.class, new ViolationLocationSerializer());
         addSerializer(PreContingencyResult.class, new PreContingencyResultSerializer());
         addSerializer(BusResult.class, new BusResultSerializer());
         addSerializer(BranchResult.class, new BranchResultSerializer());
@@ -58,6 +59,7 @@ public abstract class AbstractSecurityAnalysisJsonModule extends ContingencyJson
         addDeserializer(PostContingencyResult.class, new PostContingencyResultDeserializer());
         addDeserializer(LimitViolationsResult.class, new LimitViolationResultDeserializer());
         addDeserializer(LimitViolation.class, new LimitViolationDeserializer());
+        addDeserializer(ViolationLocation.class, new ViolationLocationDeserializer());
         addDeserializer(PreContingencyResult.class, new PreContingencyResultDeserializer());
         addDeserializer(BusResult.class, new BusResultDeserializer());
         addDeserializer(BranchResult.class, new BranchResultDeserializer());

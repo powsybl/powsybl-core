@@ -33,6 +33,11 @@ public class BatteryModification extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "BatteryModification";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
                       ReportNode reportNode) {
         Battery battery = network.getBattery(batteryId);
@@ -46,6 +51,21 @@ public class BatteryModification extends AbstractNetworkModification {
         if (targetQ != null) {
             battery.setTargetQ(targetQ);
         }
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        Battery battery = network.getBattery(batteryId);
+        if (battery == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else {
+            if ((targetP == null || Math.abs(targetP - battery.getTargetP()) < EPSILON)
+                && (targetQ == null || Math.abs(targetQ - battery.getTargetQ()) < EPSILON)) {
+                impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+            }
+        }
+        return impact;
     }
 
     public String getBatteryId() {

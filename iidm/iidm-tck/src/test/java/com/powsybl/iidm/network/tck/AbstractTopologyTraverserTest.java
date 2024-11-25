@@ -257,7 +257,7 @@ public abstract class AbstractTopologyTraverserTest {
     }
 
     protected List<Pair<String, Integer>> getVisitedList(Terminal start, Function<Switch, TraverseResult> switchTest, Function<Terminal, TraverseResult> terminalTest) {
-        return getVisitedStream(start, switchTest, terminalTest).collect(Collectors.toList());
+        return getVisitedStream(start, switchTest, terminalTest).toList();
     }
 
     protected Set<Pair<String, Integer>> getVisitedSet(Terminal start, Function<Switch, TraverseResult> switchTest) {

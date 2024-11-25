@@ -11,10 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 
@@ -33,6 +30,11 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
         this.shuntCompensatorId = Objects.requireNonNull(shuntCompensatorId);
         this.connect = connect;
         this.sectionCount = sectionCount;
+    }
+
+    @Override
+    public String getName() {
+        return "ShuntCompensatorModification";
     }
 
     @Override
@@ -57,6 +59,21 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
         if (sectionCount != null) {
             shuntCompensator.setSectionCount(sectionCount);
         }
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
+        if (shuntCompensator == null
+            || sectionCount != null
+            && (sectionCount > shuntCompensator.getMaximumSectionCount() || sectionCount < 0)) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if ((connect == null || connect == shuntCompensator.getTerminal().isConnected())
+            && (sectionCount == null || sectionCount == shuntCompensator.getSectionCount())) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+        }
+        return impact;
     }
 
     private static void setTargetV(ShuntCompensator shuntCompensator) {

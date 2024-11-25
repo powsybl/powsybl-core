@@ -34,7 +34,7 @@ class BusbarSectionContingencyTest {
         assertEquals(ContingencyElementType.BUSBAR_SECTION, bbsContingency.getType());
 
         assertNotNull(bbsContingency.toModification());
-        assertTrue(bbsContingency.toModification() instanceof BusbarSectionTripping);
+        assertInstanceOf(BusbarSectionTripping.class, bbsContingency.toModification());
 
         new EqualsTester()
                 .addEqualityGroup(new BusbarSectionContingency("bbs1"), new BusbarSectionContingency("bbs1"))

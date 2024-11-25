@@ -49,4 +49,31 @@ class SwitchModificationsTest {
     void testInvalidCloseSwitch() {
         assertThrows(RuntimeException.class, () -> new CloseSwitch("dummy").apply(network));
     }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new OpenSwitch("ID");
+        assertEquals("OpenSwitch", networkModification.getName());
+
+        networkModification = new CloseSwitch("ID");
+        assertEquals("CloseSwitch", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        CloseSwitch modification = new CloseSwitch("dummy");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));
+        OpenSwitch modification2 = new OpenSwitch("dummy");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification2.hasImpactOnNetwork(network));
+
+        String switchId = "generator1Breaker1";
+        OpenSwitch open = new OpenSwitch(switchId);
+        CloseSwitch close = new CloseSwitch(switchId);
+
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, close.hasImpactOnNetwork(network));
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, open.hasImpactOnNetwork(network));
+        open.apply(network);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, open.hasImpactOnNetwork(network));
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, close.hasImpactOnNetwork(network));
+    }
 }

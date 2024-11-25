@@ -17,6 +17,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionSerDe;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -31,10 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -90,9 +88,10 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     @Override
     public List<Parameter> getParameters() {
-        return List.of(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
+        List<Parameter> parameters = List.of(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
                 WITH_AUTOMATION_SYSTEMS_PARAMETER, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
                 MINIMAL_VALIDATION_LEVEL_PARAMETER);
+        return ConfiguredParameter.load(parameters, getFormat(), defaultValueConfig);
     }
 
     private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
@@ -105,6 +104,11 @@ public abstract class AbstractTreeDataImporter implements Importer {
     }
 
     protected abstract String[] getExtensions();
+
+    @Override
+    public List<String> getSupportedExtensions() {
+        return Arrays.asList(getExtensions());
+    }
 
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {

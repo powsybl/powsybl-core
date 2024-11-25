@@ -21,6 +21,11 @@ public class DanglingLineTripping extends AbstractInjectionTripping {
     }
 
     @Override
+    public String getName() {
+        return "DanglingLineTripping";
+    }
+
+    @Override
     protected DanglingLine getInjection(Network network) {
         DanglingLine injection = network.getDanglingLine(id);
         if (injection == null) {

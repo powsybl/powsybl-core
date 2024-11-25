@@ -10,6 +10,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -123,6 +124,16 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         }
         voltageLevel = getVoltageLevel(identifiable, throwException, reportNode, logger);
         return voltageLevel == null;
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        Identifiable<?> identifiable = network.getIdentifiable(bbsOrBusId);
+        if (!checkVoltageLevel(identifiable) || Double.isNaN(positionPercent)) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        }
+        return impact;
     }
 
     private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, boolean throwException, ReportNode reportNode, Logger logger) {

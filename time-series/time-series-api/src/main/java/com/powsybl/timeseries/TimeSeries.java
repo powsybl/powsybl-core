@@ -304,12 +304,12 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             switch (timeFormat) {
                 case DATE_TIME -> times.add(ZonedDateTime.parse(tokens[0]).toInstant().toEpochMilli());
                 case FRACTIONS_OF_SECOND -> {
-                    Double time = Double.parseDouble(tokens[0]) * 1000;
-                    times.add(time.longValue());
+                    double time = Double.parseDouble(tokens[0]) * 1000;
+                    times.add((long) time);
                 }
                 case MILLIS -> {
-                    Double millis = Double.parseDouble(tokens[0]);
-                    times.add(millis.longValue());
+                    double millis = Double.parseDouble(tokens[0]);
+                    times.add((long) millis);
                 }
             }
         }
@@ -321,7 +321,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 if (dataTypes[i] == TimeSeriesDataType.DOUBLE) {
                     ((TDoubleArrayList) values[i]).clear();
                 } else if (dataTypes[i] == TimeSeriesDataType.STRING) {
-                    ((List) values[i]).clear();
+                    ((List<?>) values[i]).clear();
                 } else {
                     throw assertDataType(dataTypes[i]);
                 }
@@ -362,7 +362,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
 
         private TimeSeriesIndex getTimeSeriesIndex() {
-            Long spacing = checkRegularSpacing();
+            long spacing = checkRegularSpacing();
             if (spacing != Long.MIN_VALUE) {
                 return new RegularTimeSeriesIndex(times.get(0), times.get(times.size() - 1), spacing);
             } else {
@@ -439,9 +439,9 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     static void checkCsvHeader(TimeSeriesCsvConfig timeSeriesCsvConfig, String[] tokens) {
         String separatorStr = Character.toString(timeSeriesCsvConfig.separator());
-        if (timeSeriesCsvConfig.versioned() && (tokens.length < 3 || !"time".equals(tokens[0].toLowerCase()) || !"version".equals(tokens[1].toLowerCase()))) {
+        if (timeSeriesCsvConfig.versioned() && (tokens.length < 3 || !"time".equalsIgnoreCase(tokens[0]) || !"version".equalsIgnoreCase(tokens[1]))) {
             throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "version" + separatorStr + "...");
-        } else if (tokens.length < 2 || !"time".equals(tokens[0].toLowerCase())) {
+        } else if (tokens.length < 2 || !"time".equalsIgnoreCase(tokens[0])) {
             throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "...");
         }
     }
@@ -470,11 +470,11 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
         long timing = stopwatch.elapsed(TimeUnit.MILLISECONDS);
         LOGGER.info("{} time series loaded from CSV in {} ms",
-                timeSeriesPerVersion.entrySet().stream().mapToInt(e -> e.getValue().size()).sum(),
+                timeSeriesPerVersion.values().stream().mapToInt(List::size).sum(),
                     timing);
         reportNode.newReportNode()
             .withMessageTemplate("timeseriesLoadingTime", "${tsNumber} time series loaded from CSV in ${timing} ms")
-            .withUntypedValue("tsNumber", timeSeriesPerVersion.entrySet().stream().mapToInt(e -> e.getValue().size()).sum())
+            .withUntypedValue("tsNumber", timeSeriesPerVersion.values().stream().mapToInt(List::size).sum())
             .withUntypedValue("timing", timing)
             .add();
 
@@ -543,7 +543,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.getCurrentName();
+                    String fieldName = parser.currentName();
                     switch (fieldName) {
                         case "metadata" -> metadata = TimeSeriesMetadata.parseJson(parser);
                         case "chunks" -> {

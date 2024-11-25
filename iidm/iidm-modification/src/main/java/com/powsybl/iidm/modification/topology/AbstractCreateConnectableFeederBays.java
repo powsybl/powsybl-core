@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
@@ -74,6 +75,27 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         createdConnectable(reportNode, connectable);
 
         createExtensionAndTopology(connectable, network, namingStrategy, reportNode);
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        for (int side : sides) {
+            // Get the busOrBusbarSection corresponding to the side parameter
+            String busOrBusbarSectionId = getBusOrBusbarSectionId(side);
+            Identifiable<?> busOrBusbarSection = network.getIdentifiable(busOrBusbarSectionId);
+
+            if (busOrBusbarSection instanceof BusbarSection) {
+                if (getPositionOrder(side) == null || getPositionOrder(side) < 0) {
+                    impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+                    return impact;
+                }
+            } else if (!(busOrBusbarSection instanceof Bus)) {
+                impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+                return impact;
+            }
+        }
+        return impact;
     }
 
     private boolean checkOrders(int side, VoltageLevel voltageLevel, ReportNode reportNode, boolean throwException) {

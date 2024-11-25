@@ -383,6 +383,21 @@ final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringOperationalLimitsGroupId(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (comparison.getControlDetails().getXPath().contains("operationalLimitsGroup") && control != null
+                        && control.getLocalName().equals("id")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control != null && control.getLocalName().contains("selectedOperationalLimitsGroupId")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringJunctionOrBusbarTerminals(Comparison comparison, ComparisonResult result) {
         // If control node is a terminal of a junction, ignore the difference
         // Means that we also have to ignore length of children of RDF element

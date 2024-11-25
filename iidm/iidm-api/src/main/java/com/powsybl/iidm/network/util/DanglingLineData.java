@@ -26,10 +26,6 @@ public class DanglingLineData {
     private final double boundaryBusTheta;
 
     public DanglingLineData(DanglingLine danglingLine) {
-        this(danglingLine, true);
-    }
-
-    public DanglingLineData(DanglingLine danglingLine, boolean splitShuntAdmittance) {
         this.danglingLine = Objects.requireNonNull(danglingLine);
 
         double u1 = getV(danglingLine);
@@ -47,32 +43,26 @@ public class DanglingLineData {
             return;
         }
 
-        double g1 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : danglingLine.getG();
-        double b1 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : danglingLine.getB();
-        double g2 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : 0.0;
-        double b2 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : 0.0;
-
         Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
 
+        // DanglingLine model has shunt admittance on network side only, so it is not split between both sides.
         Complex vBoundaryBus = new Complex(Double.NaN, Double.NaN);
         if (danglingLine.getP0() == 0.0 && danglingLine.getQ0() == 0.0) {
-            LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(danglingLine.getR(), danglingLine.getX(), 1.0, 0.0, 1.0, 0.0, new Complex(g1, b1), new Complex(g2, b2));
+            LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(
+                    danglingLine.getR(), danglingLine.getX(), 1.0, 0.0, 1.0, 0.0, new Complex(danglingLine.getG(), danglingLine.getB()), new Complex(0, 0));
             vBoundaryBus = adm.y21().multiply(v1).negate().divide(adm.y22());
         } else {
 
             // Two buses Loadflow
             Complex sBoundary = new Complex(-danglingLine.getP0(), -danglingLine.getQ0());
-            Complex ytr = new Complex(danglingLine.getR(), danglingLine.getX()).reciprocal();
-            Complex ysh2 = new Complex(g2, b2);
-            Complex zt = ytr.add(ysh2).reciprocal();
-            Complex v0 = ytr.multiply(v1).divide(ytr.add(ysh2));
-            double v02 = v0.abs() * v0.abs();
+            Complex zt = new Complex(danglingLine.getR(), danglingLine.getX());
+            double v12 = v1.abs() * v1.abs();
 
-            Complex sigma = zt.multiply(sBoundary.conjugate()).multiply(1.0 / v02);
+            Complex sigma = zt.multiply(sBoundary.conjugate()).multiply(1.0 / v12);
             double d = 0.25 + sigma.getReal() - sigma.getImaginary() * sigma.getImaginary();
             // d < 0 Collapsed network
             if (d >= 0) {
-                vBoundaryBus = new Complex(0.5 + Math.sqrt(d), sigma.getImaginary()).multiply(v0);
+                vBoundaryBus = new Complex(0.5 + Math.sqrt(d), sigma.getImaginary()).multiply(v1);
             }
         }
 

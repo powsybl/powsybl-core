@@ -58,7 +58,7 @@ class PilotPointImpl implements PilotPoint {
             this.targetV = targetV;
             SecondaryVoltageControlImpl secondaryVoltageControl = controlZone.getSecondaryVoltageControl();
             NetworkImpl network = (NetworkImpl) secondaryVoltageControl.getExtendable();
-            network.getListeners().notifyExtensionUpdate(secondaryVoltageControl, "pilotPointTargetV",
+            network.getListeners().notifyExtensionUpdate(secondaryVoltageControl, "pilotPointTargetV", null,
                     new TargetVoltageEvent(controlZone.getName(), oldTargetV), new TargetVoltageEvent(controlZone.getName(), targetV));
         }
     }

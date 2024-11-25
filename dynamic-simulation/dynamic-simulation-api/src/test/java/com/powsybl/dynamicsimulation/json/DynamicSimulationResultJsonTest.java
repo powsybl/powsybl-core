@@ -47,6 +47,11 @@ class DynamicSimulationResultJsonTest extends AbstractSerDeTest {
             }
 
             @Override
+            public Map<String, Double> getFinalStateValues() {
+                return Collections.singletonMap("fsv1", 20.0);
+            }
+
+            @Override
             public List<TimelineEvent> getTimeLine() {
                 return List.of(
                         new TimelineEvent(0.1, "CLA_2_5", "order to change topology"),
@@ -71,6 +76,11 @@ class DynamicSimulationResultJsonTest extends AbstractSerDeTest {
 
             @Override
             public Map<String, DoubleTimeSeries> getCurves() {
+                return Collections.emptyMap();
+            }
+
+            @Override
+            public Map<String, Double> getFinalStateValues() {
                 return Collections.emptyMap();
             }
 

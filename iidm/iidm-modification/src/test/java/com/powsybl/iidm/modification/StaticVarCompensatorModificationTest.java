@@ -76,4 +76,28 @@ class StaticVarCompensatorModificationTest {
         assertEquals(OptionalDouble.of(1.), modif.getOptionalVoltageSetpoint());
         assertEquals(1., modif.getVoltageSetpoint());
     }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new StaticVarCompensatorModification("ID", 1.0, 1.);
+        assertEquals("StaticVarCompensatorModification", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        NetworkModification modification1 = new StaticVarCompensatorModification("UNKNOWN_ID", 1., 2.);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new StaticVarCompensatorModification("SVC", 0., 0.);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
+
+        NetworkModification modification3 = new StaticVarCompensatorModification("SVC", 1., 0.);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+
+        NetworkModification modification4 = new StaticVarCompensatorModification("SVC", 0., 1.);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
+
+        NetworkModification modification5 = new StaticVarCompensatorModification("SVC", null, null);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification5.hasImpactOnNetwork(network));
+    }
 }

@@ -29,8 +29,8 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
     @Override
     public Set<String> getTimeSeriesNames(TimeSeriesFilter filter) {
         Set<String> timeSeriesNames = new HashSet<>();
-        for (int i = 0; i < stores.size(); i++) {
-            timeSeriesNames.addAll(stores.get(i).getTimeSeriesNames(filter));
+        for (ReadOnlyTimeSeriesStore store : stores) {
+            timeSeriesNames.addAll(store.getTimeSeriesNames(filter));
         }
         return timeSeriesNames;
     }

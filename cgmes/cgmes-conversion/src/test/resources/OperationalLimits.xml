@@ -1,0 +1,179 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:ModelID">
+    <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+    <md:Model.description>OLS</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:BaseVoltage rdf:ID="_Base_Voltage">
+    <cim:IdentifiedObject.name>1</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+<cim:ACLineSegment rdf:ID="_Line">
+    <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+    <cim:ACLineSegment.b0ch>0</cim:ACLineSegment.b0ch>
+    <cim:ACLineSegment.bch>0</cim:ACLineSegment.bch>
+    <cim:IdentifiedObject.description>Line</cim:IdentifiedObject.description>
+    <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+    <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+    <cim:Conductor.length>1</cim:Conductor.length>
+    <cim:IdentifiedObject.name>Line</cim:IdentifiedObject.name>
+    <cim:ACLineSegment.r>0.1</cim:ACLineSegment.r>
+    <cim:ACLineSegment.r0>0.1</cim:ACLineSegment.r0>
+    <cim:ACLineSegment.shortCircuitEndTemperature>0</cim:ACLineSegment.shortCircuitEndTemperature>
+    <cim:ACLineSegment.x>1</cim:ACLineSegment.x>
+    <cim:ACLineSegment.x0>0.1</cim:ACLineSegment.x0>
+    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_Base_Voltage"/>
+</cim:ACLineSegment>
+<cim:Terminal rdf:ID="_Terminal_1">
+    <cim:IdentifiedObject.name>Term1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_Line"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_Node_1"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_Terminal_2">
+    <cim:IdentifiedObject.name>Term2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_Line"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_Node_2"/>
+</cim:Terminal>
+<cim:ConnectivityNode rdf:ID="_Node_1">
+    <cim:IdentifiedObject.name>Node1</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_Voltage_Level_1"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_Node_2">
+    <cim:IdentifiedObject.name>Node2</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_Voltage_Level_2"/>
+</cim:ConnectivityNode>
+<cim:VoltageLevel rdf:ID="_Voltage_Level_1">
+    <cim:IdentifiedObject.name>VL1</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_Base_Voltage"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_Substation_1"/>
+</cim:VoltageLevel>
+<cim:VoltageLevel rdf:ID="_Voltage_Level_2">
+    <cim:IdentifiedObject.name>VL2</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_Base_Voltage"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_Substation_2"/>
+</cim:VoltageLevel>
+<cim:Substation rdf:ID="_Substation_1">
+    <cim:IdentifiedObject.description>Substation1</cim:IdentifiedObject.description>
+    <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_Region"/>
+</cim:Substation>
+<cim:Substation rdf:ID="_Substation_2">
+    <cim:IdentifiedObject.description>Substation2</cim:IdentifiedObject.description>
+    <cim:IdentifiedObject.name>Substation2</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_Region"/>
+</cim:Substation>
+<cim:GeographicalRegion rdf:ID="_Pays">
+    <cim:IdentifiedObject.name>France</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:SubGeographicalRegion rdf:ID="_Region">
+    <cim:IdentifiedObject.name>IDF</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_Pays"/>
+</cim:SubGeographicalRegion>
+<cim:OperationalLimitSet rdf:ID="_OLS_1">
+    <cim:IdentifiedObject.name>SPRING</cim:IdentifiedObject.name>
+    <cim:OperationalLimitSet.Terminal rdf:resource="#_Terminal_1"/>
+</cim:OperationalLimitSet>
+<cim:CurrentLimit rdf:ID="_Limit_11">
+    <cim:IdentifiedObject.name>Limit1</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>101</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_1"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_1"/>
+</cim:CurrentLimit>
+<cim:CurrentLimit rdf:ID="_Limit_12">
+    <cim:IdentifiedObject.name>Limit2</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>201</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_1"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_2"/>
+</cim:CurrentLimit>
+<cim:CurrentLimit rdf:ID="_Limit_13">
+    <cim:IdentifiedObject.name>Limit3</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>301</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_1"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_3"/>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_OLS_2">
+    <cim:IdentifiedObject.name>SPRING</cim:IdentifiedObject.name>
+    <cim:OperationalLimitSet.Terminal rdf:resource="#_Terminal_2"/>
+</cim:OperationalLimitSet>
+<cim:CurrentLimit rdf:ID="_Limit_21">
+    <cim:IdentifiedObject.name>Limit1</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>102</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_2"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_1"/>
+</cim:CurrentLimit>
+<cim:CurrentLimit rdf:ID="_Limit_22">
+    <cim:IdentifiedObject.name>Limit2</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>202</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_2"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_2"/>
+</cim:CurrentLimit>
+<cim:CurrentLimit rdf:ID="_Limit_23">
+    <cim:IdentifiedObject.name>Limit3</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>302</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_2"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_3"/>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_OLS_3">
+    <cim:IdentifiedObject.name>WINTER</cim:IdentifiedObject.name>
+    <cim:OperationalLimitSet.Terminal rdf:resource="#_Terminal_2"/>
+</cim:OperationalLimitSet>
+<cim:CurrentLimit rdf:ID="_Limit_31">
+    <cim:IdentifiedObject.name>Limit1</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>103</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_3"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_1"/>
+</cim:CurrentLimit>
+<cim:CurrentLimit rdf:ID="_Limit_32">
+    <cim:IdentifiedObject.name>Limit2</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>203</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_3"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_2"/>
+</cim:CurrentLimit>
+<cim:CurrentLimit rdf:ID="_Limit_33">
+    <cim:IdentifiedObject.name>Limit3</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>303</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_3"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_3"/>
+</cim:CurrentLimit>
+<cim:ActivePowerLimit rdf:ID="_Limit_34">
+    <cim:IdentifiedObject.name>Limit4</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>104</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_3"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_1"/>
+</cim:ActivePowerLimit>
+<cim:ActivePowerLimit rdf:ID="_Limit_35">
+    <cim:IdentifiedObject.name>Limit5</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>204</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_3"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_2"/>
+</cim:ActivePowerLimit>
+<cim:ActivePowerLimit rdf:ID="_Limit_36">
+    <cim:IdentifiedObject.name>Limit6</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>304</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_3"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_3"/>
+</cim:ActivePowerLimit>
+<cim:OperationalLimitType rdf:ID="_Limit_Type_1">
+    <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#OperationalLimitDirectionKind.absoluteValue" />
+    <entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.patl" />
+    <cim:IdentifiedObject.name>IST</cim:IdentifiedObject.name>
+</cim:OperationalLimitType>
+<cim:OperationalLimitType rdf:ID="_Limit_Type_2">
+    <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#OperationalLimitDirectionKind.absoluteValue" />
+    <entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.tatl" />
+    <cim:IdentifiedObject.name>IT20</cim:IdentifiedObject.name>
+    <cim:OperationalLimitType.acceptableDuration>1200</cim:OperationalLimitType.acceptableDuration>
+</cim:OperationalLimitType>
+<cim:OperationalLimitType rdf:ID="_Limit_Type_3">
+    <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#OperationalLimitDirectionKind.absoluteValue" />
+    <entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.tatl" />
+    <cim:IdentifiedObject.name>IT5</cim:IdentifiedObject.name>
+    <cim:OperationalLimitType.acceptableDuration>300</cim:OperationalLimitType.acceptableDuration>
+</cim:OperationalLimitType>
+</rdf:RDF>

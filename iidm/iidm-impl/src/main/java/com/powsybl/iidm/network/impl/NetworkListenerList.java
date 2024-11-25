@@ -37,23 +37,13 @@ public class NetworkListenerList {
 
     void notifyUpdate(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
-            notifyUpdateListeners(identifiable, attribute.get(), oldValue, newValue);
+            notifyUpdateListeners(identifiable, attribute.get(), null, oldValue, newValue);
         }
     }
 
     void notifyUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
-            notifyUpdateListeners(identifiable, attribute, oldValue, newValue);
-        }
-    }
-
-    private void notifyUpdateListeners(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
-        for (NetworkListener listener : listeners) {
-            try {
-                listener.onUpdate(identifiable, attribute, oldValue, newValue);
-            } catch (Exception t) {
-                LOGGER.error(t.toString(), t);
-            }
+            notifyUpdateListeners(identifiable, attribute, null, oldValue, newValue);
         }
     }
 
@@ -109,16 +99,16 @@ public class NetworkListenerList {
         }
     }
 
-    public void notifyExtensionUpdate(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
+    public void notifyExtensionUpdate(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
-            notifyExtensionUpdateListeners(extension, attribute, oldValue, newValue);
+            notifyExtensionUpdateListeners(extension, attribute, variantId, oldValue, newValue);
         }
     }
 
-    private void notifyExtensionUpdateListeners(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
+    private void notifyExtensionUpdateListeners(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
         for (NetworkListener listener : listeners) {
             try {
-                listener.onExtensionUpdate(extension, attribute, oldValue, newValue);
+                listener.onExtensionUpdate(extension, attribute, variantId, oldValue, newValue);
             } catch (Exception t) {
                 LOGGER.error(t.toString(), t);
             }
@@ -155,48 +145,48 @@ public class NetworkListenerList {
         }
     }
 
-    void notifyElementAdded(Identifiable<?> identifiable, Supplier<String> attribute, Object newValue) {
+    void notifyPropertyAdded(Identifiable<?> identifiable, Supplier<String> attribute, Object newValue) {
         if (!listeners.isEmpty()) {
-            notifyElementAdded(identifiable, attribute.get(), newValue);
+            notifyPropertyAdded(identifiable, attribute.get(), newValue);
         }
     }
 
-    void notifyElementAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
+    void notifyPropertyAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
         for (NetworkListener listener : listeners) {
             try {
-                listener.onElementAdded(identifiable, attribute, newValue);
+                listener.onPropertyAdded(identifiable, attribute, newValue);
             } catch (Exception t) {
                 LOGGER.error(t.toString(), t);
             }
         }
     }
 
-    void notifyElementReplaced(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
+    void notifyPropertyReplaced(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
-            notifyElementReplaced(identifiable, attribute.get(), oldValue, newValue);
+            notifyPropertyReplaced(identifiable, attribute.get(), oldValue, newValue);
         }
     }
 
-    void notifyElementReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+    void notifyPropertyReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
         for (NetworkListener listener : listeners) {
             try {
-                listener.onElementReplaced(identifiable, attribute, oldValue, newValue);
+                listener.onPropertyReplaced(identifiable, attribute, oldValue, newValue);
             } catch (Exception t) {
                 LOGGER.error(t.toString(), t);
             }
         }
     }
 
-    void notifyElementRemoved(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue) {
+    void notifyPropertyRemoved(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue) {
         if (!listeners.isEmpty()) {
-            notifyElementRemoved(identifiable, attribute.get(), oldValue);
+            notifyPropertyRemoved(identifiable, attribute.get(), oldValue);
         }
     }
 
-    void notifyElementRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
+    void notifyPropertyRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
         for (NetworkListener listener : listeners) {
             try {
-                listener.onElementRemoved(identifiable, attribute, oldValue);
+                listener.onPropertyRemoved(identifiable, attribute, oldValue);
             } catch (Exception t) {
                 LOGGER.error(t.toString(), t);
             }

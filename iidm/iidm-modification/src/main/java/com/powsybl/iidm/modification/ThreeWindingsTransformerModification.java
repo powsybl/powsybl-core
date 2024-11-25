@@ -30,6 +30,11 @@ public class ThreeWindingsTransformerModification extends AbstractNetworkModific
     }
 
     @Override
+    public String getName() {
+        return "ThreeWindingsTransformerModification";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer(transformerId);
@@ -43,6 +48,18 @@ public class ThreeWindingsTransformerModification extends AbstractNetworkModific
             t3wt.getLeg3().setRatedU(calculateNewRatedU(t3wt.getLeg3().getRatedU(), t3wt.getRatedU0(), ratedU0));
             t3wt.setRatedU0(ratedU0);
         }
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer(transformerId);
+        if (t3wt == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (areValuesEqual(ratedU0, t3wt.getRatedU0(), false)) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+        }
+        return impact;
     }
 
     private static double calculateNewRatedU(double ratedU, double ratedU0, double newRatedU0) {

@@ -45,11 +45,7 @@ class NetworkIndex {
         objectsById.put(obj.getId(), obj);
         obj.getAliases().forEach(alias -> addAlias(obj, alias));
 
-        Set<Identifiable<?>> all = objectsByClass.get(obj.getClass());
-        if (all == null) {
-            all = new LinkedHashSet<>();
-            objectsByClass.put(obj.getClass(), all);
-        }
+        Set<Identifiable<?>> all = objectsByClass.computeIfAbsent(obj.getClass(), k -> new LinkedHashSet<>());
         all.add(obj);
     }
 

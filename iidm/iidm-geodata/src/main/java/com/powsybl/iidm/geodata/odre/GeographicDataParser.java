@@ -7,10 +7,8 @@
  */
 package com.powsybl.iidm.geodata.odre;
 
-import com.google.common.collect.Lists;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.powsybl.iidm.geodata.elements.GeoShape;
-import com.powsybl.iidm.geodata.elements.LineGeoData;
-import com.powsybl.iidm.geodata.elements.SubstationGeoData;
 import com.powsybl.iidm.geodata.utils.DistanceCalculator;
 import com.powsybl.iidm.geodata.utils.GeoShapeDeserializer;
 import com.powsybl.iidm.geodata.utils.LineGraph;
@@ -18,10 +16,10 @@ import com.powsybl.iidm.network.extensions.Coordinate;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jgrapht.Graph;
-import org.jgrapht.Graphs;
-import org.jgrapht.alg.connectivity.ConnectivityInspector;
+import org.jgrapht.event.ConnectedComponentTraversalEvent;
+import org.jgrapht.event.TraversalListenerAdapter;
+import org.jgrapht.event.VertexTraversalEvent;
 import org.jgrapht.traverse.BreadthFirstIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,66 +45,83 @@ public final class GeographicDataParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeographicDataParser.class);
     private static final int THRESHOLD = 5;
 
-    public static Map<String, SubstationGeoData> parseSubstations(Reader reader, OdreConfig odreConfig) {
-        Map<String, SubstationGeoData> substations = new HashMap<>();
+    /**
+     * Parse the substations CSV data contained in the given reader, using the given odreConfig for column names.
+     * @return the map of substation coordinates indexed by the substation id
+     */
+    public static Map<String, Coordinate> parseSubstations(Reader reader, OdreConfig odreConfig) {
+        Map<String, Coordinate> substations = new LinkedHashMap<>();
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        int substationCount = 0;
         try {
-            Iterable<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
-            for (CSVRecord row : records) {
-                String id = row.get(odreConfig.substationIdColumn());
-                double lon = Double.parseDouble(row.get(odreConfig.substationLongitudeColumn()));
-                double lat = Double.parseDouble(row.get(odreConfig.substationLatitudeColumn()));
-                SubstationGeoData substation = substations.get(id);
-                if (substation == null) {
-                    SubstationGeoData substationGeoData = new SubstationGeoData(id, FileValidator.COUNTRY_FR, new Coordinate(lat, lon));
-                    substations.put(id, substationGeoData);
+            CSVParser records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
+            if (FileValidator.validateSubstationsHeaders(records, odreConfig)) {
+                for (CSVRecord row : records) {
+                    String id = row.get(odreConfig.substationIdColumn());
+                    substations.computeIfAbsent(id, key -> {
+                        double lon = Double.parseDouble(row.get(odreConfig.substationLongitudeColumn()));
+                        double lat = Double.parseDouble(row.get(odreConfig.substationLatitudeColumn()));
+                        return new Coordinate(lat, lon);
+                    });
                 }
-                substationCount++;
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
-        LOGGER.info("{} substations read  in {} ms", substationCount, stopWatch.getTime());
+        LOGGER.info("{} substations read  in {} ms", substations.size(), stopWatch.getTime());
         return substations;
     }
 
-    private static double distanceCoordinate(Coordinate coord1, Coordinate coord2) {
-        return DistanceCalculator.distance(coord1.getLatitude(), coord1.getLongitude(), coord2.getLatitude(), coord2.getLongitude());
-    }
+    /**
+     * Parse the lines CSV data contained in the given readers, using the given odreConfig for column names and line types.
+     * @param aerialLinesReader the reader containing the aerial lines CSV data
+     * @param undergroundLinesReader the reader containing the underground lines CSV data
+     * @param odreConfig the config used for column names and line types
+     * @return the map of line coordinates indexed by the line id
+     */
+    public static Map<String, List<Coordinate>> parseLines(Reader aerialLinesReader, Reader undergroundLinesReader, OdreConfig odreConfig) {
+        try {
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
 
-    public static Pair<String, String> substationOrder(Map<String, SubstationGeoData> substationGeoData, String lineId, List<Coordinate> coordinates) {
-        String substation1 = lineId.substring(0, 5).trim();
-        String substation2 = lineId.substring(8).trim();
-        SubstationGeoData geo1 = substationGeoData.get(substation1);
-        SubstationGeoData geo2 = substationGeoData.get(substation2);
+            Map<String, List<List<Coordinate>>> coordinatesListsByLine = new HashMap<>();
 
-        if (geo1 == null && geo2 == null) {
-            LOGGER.warn("can't find any substation for {}", lineId);
-            return Pair.of("", "");
-        } else if (geo1 != null && geo2 != null) {
-            return findStartAndEndSubstationsOfLine(lineId, geo1, geo2, substation1, substation2,
-                    coordinates.get(0), coordinates.get(coordinates.size() - 1));
-        } else {
-            boolean isStart = distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(0)) < distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(coordinates.size() - 1));
-            String substation = geo1 != null ? substation1 : substation2;
-            return Pair.of(isStart ? substation : "", isStart ? "" : substation);
+            CSVParser aerialLinesRecords = CSVParser.parse(aerialLinesReader, FileValidator.CSV_FORMAT);
+            CSVParser undergroundLinesRecords = CSVParser.parse(undergroundLinesReader, FileValidator.CSV_FORMAT);
+
+            if (!FileValidator.validateAerialLinesHeaders(aerialLinesRecords, odreConfig)
+                    || !FileValidator.validateUndergroundHeaders(undergroundLinesRecords, odreConfig)) {
+                return Collections.emptyMap();
+            }
+
+            parseLine(coordinatesListsByLine, aerialLinesRecords, odreConfig);
+            parseLine(coordinatesListsByLine, undergroundLinesRecords, odreConfig);
+
+            Map<String, List<Coordinate>> lines = fixLines(coordinatesListsByLine);
+
+            LOGGER.info("{} lines read in {} ms", lines.size(), stopWatch.getTime());
+
+            if (coordinatesListsByLine.size() != lines.size()) {
+                LOGGER.warn("Total discarded lines : {}/{} ",
+                        coordinatesListsByLine.size() - lines.size(), coordinatesListsByLine.size());
+            }
+
+            return lines;
+
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    public static Map<String, LineGeoData> parseLines(Reader aerialLinesReader, Reader undergroundLinesReader,
-                                                      Map<String, SubstationGeoData> stringSubstationGeoDataMap, OdreConfig odreConfig) {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
-        Map<String, Graph<Coordinate, Object>> graphByLine = new HashMap<>();
-
-        parseLine(graphByLine, aerialLinesReader, odreConfig);
-        parseLine(graphByLine, undergroundLinesReader, odreConfig);
-
-        Map<String, LineGeoData> lines = new HashMap<>();
+    /**
+     * "Fixing" the lines coordinates data: this method tries to calculate a single list when there are several lists for
+     * a given line, which often occurs in the ODRE data.
+     * @param coordinatesListsByLine the map of all the lists of coordinates, indexed by the line id
+     * @return the map of the "fixed" line coordinates, indexed by the line id
+     */
+    private static Map<String, List<Coordinate>> fixLines(Map<String, List<List<Coordinate>>> coordinatesListsByLine) {
+        Map<String, List<Coordinate>> lines = new HashMap<>();
 
         int linesWithOneConnectedSet = 0;
         int linesWithTwoOrMoreConnectedSets = 0;
@@ -114,120 +129,123 @@ public final class GeographicDataParser {
         int oneConnectedSetDiscarded = 0;
         int twoOrMoreConnectedSetsDiscarded = 0;
 
-        for (Map.Entry<String, Graph<Coordinate, Object>> e : graphByLine.entrySet()) {
+        for (Map.Entry<String, List<List<Coordinate>>> e : coordinatesListsByLine.entrySet()) {
             String lineId = e.getKey();
-            Graph<Coordinate, Object> graph = e.getValue();
-            List<Set<Coordinate>> connectedSets = new ConnectivityInspector<>(graph).connectedSets();
-            if (connectedSets.size() == 1) {
-                linesWithOneConnectedSet++;
-                List<Coordinate> ends = getEnds(connectedSets.get(0), graph);
-                if (ends.size() == 2) {
-                    List<Coordinate> coordinates = Lists.newArrayList(new BreadthFirstIterator<>(graph, ends.get(0)));
-                    Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, coordinates);
-                    LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), coordinates);
-                    lines.put(lineId, line);
-                } else {
-                    oneConnectedSetDiscarded++;
-                }
+
+            List<List<Coordinate>> coordinatesLists = e.getValue();
+            if (coordinatesLists.size() == 1) {
+                // Easy case: only one list
+                lines.put(lineId, coordinatesLists.get(0));
             } else {
-                linesWithTwoOrMoreConnectedSets++;
-                List<List<Coordinate>> coordinatesComponents = fillMultipleConnectedSetsCoordinatesList(connectedSets,
-                        graph);
+                // We want to calculate a single list: we construct a graph based on the coordinates, adding a vertex
+                // for each coordinate, and adding an edge between two consecutive coordinates
+                LineGraph<Coordinate, Object> graph = new LineGraph<>(Object.class);
+                coordinatesLists.forEach(graph::addVerticesAndEdges);
+                List<ConnectedSet> connectedSets = getConnectedSets(graph);
+                if (connectedSets.size() == 1) {
+                    linesWithOneConnectedSet++;
+                    ConnectedSet connectedSet = connectedSets.get(0);
+                    if (connectedSet.ends().size() == 2) {
+                        // Only one connected set and two ends: this is a single line
+                        lines.put(lineId, connectedSet.list());
+                    } else {
+                        // Only one connected set and more than two ends: there are forks in the lines
+                        oneConnectedSetDiscarded++;
+                    }
+                } else {
 
-                if (coordinatesComponents.size() != connectedSets.size()) {
-                    twoOrMoreConnectedSetsDiscarded++;
-                    continue;
+                    // there are several connected sets: we try to order them to have a single line
+                    linesWithTwoOrMoreConnectedSets++;
+                    List<List<Coordinate>> coordinatesComponents = createMultipleConnectedSetsCoordinatesList(connectedSets);
+
+                    if (coordinatesComponents.size() != connectedSets.size() || coordinatesComponents.size() > 2) {
+                        // This happens if there is a fork in one of the connected components or if there are more than 2 connected components
+                        twoOrMoreConnectedSetsDiscarded++;
+                        continue;
+                    }
+
+                    lines.put(lineId, aggregateCoordinates(coordinatesComponents));
                 }
-
-                List<Coordinate> aggregatedCoordinates = aggregateCoordinates(coordinatesComponents);
-                Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, aggregatedCoordinates);
-                LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), aggregatedCoordinates);
-                lines.put(lineId, line);
             }
         }
-
-        LOGGER.info("{} lines read in {} ms", lines.size(), stopWatch.getTime());
         LOGGER.info("{} lines have one Connected set, {} of them were discarded", linesWithOneConnectedSet, oneConnectedSetDiscarded);
         LOGGER.info("{} lines have two or more Connected sets, {} of them were discarded", linesWithTwoOrMoreConnectedSets, twoOrMoreConnectedSetsDiscarded);
-
-        if (graphByLine.size() != lines.size()) {
-            LOGGER.warn("Total discarded lines : {}/{} ",
-                    graphByLine.size() - lines.size(), graphByLine.size());
-        }
-
         return lines;
     }
 
-    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, Reader reader, OdreConfig odreConfig) {
-        try {
-            Iterable<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
-            Map<String, String> idsColumnNames = odreConfig.idsColumnNames();
-            for (CSVRecord row : records) {
-                List<String> ids = Stream.of(row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_1)),
-                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_2)),
-                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_3)),
-                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_4)),
-                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_5))).filter(Objects::nonNull).toList();
-                GeoShape geoShape = GeoShapeDeserializer.read(row.get(odreConfig.geoShapeColumn()));
+    /**
+     * Compute the connected sets for the given graph. The corresponding list of coordinates and list of extremities
+     * for each connected component is computed at the same time.
+     */
+    private static List<ConnectedSet> getConnectedSets(Graph<Coordinate, Object> graph) {
+        List<ConnectedSet> connectedSets = new ArrayList<>();
+        Set<Coordinate> vertexSet = graph.vertexSet();
 
-                if (ids.isEmpty() || geoShape.coordinates().isEmpty()) {
-                    continue;
-                }
-
-                for (String lineId : ids) {
-                    putLineGraph(lineId, graphByLine).addVerticesAndEdges(geoShape.coordinates());
-                }
+        Optional<Coordinate> endCoord = vertexSet.stream().filter(v -> graph.degreeOf(v) == 1).findFirst();
+        if (endCoord.isPresent()) {
+            var bfi = new BreadthFirstIterator<Coordinate, Object>(graph, () -> Stream.concat(Stream.of(endCoord.get()), vertexSet.stream()).iterator());
+            bfi.addTraversalListener(new GeoTraversalListener(graph, connectedSets));
+            while (bfi.hasNext()) {
+                bfi.next();
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        } else {
+            connectedSets = List.of(new ConnectedSet(vertexSet.stream().toList(), List.of()));
+        }
+        return connectedSets;
+    }
+
+    /**
+     * Parsing the CSV lines data which is given by the CSVParser, using the given odreConfig for column names and line types.
+     * The resulting coordinates are put in the given map.
+     */
+    private static void parseLine(Map<String, List<List<Coordinate>>> coordinateListsByLine, CSVParser csvParser, OdreConfig odreConfig) throws JsonProcessingException {
+        Map<String, String> idsColumnNames = odreConfig.idsColumnNames();
+        for (CSVRecord row : csvParser) {
+            List<String> ids = Stream.of(row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_1)),
+                    row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_2)),
+                    row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_3)),
+                    row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_4)),
+                    row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_5))).filter(Objects::nonNull).filter(s -> !s.isEmpty()).distinct().toList();
+            GeoShape geoShape = GeoShapeDeserializer.read(row.get(odreConfig.geoShapeColumn()));
+
+            if (ids.isEmpty() || geoShape.coordinates().isEmpty()) {
+                continue;
+            }
+
+            for (String lineId : ids) {
+                coordinateListsByLine.computeIfAbsent(lineId, key -> new ArrayList<>())
+                        .add(geoShape.coordinates());
+            }
         }
     }
 
-    private static LineGraph<Coordinate, Object> putLineGraph(String lineId, Map<String, Graph<Coordinate, Object>> graphByLine) {
-        return (LineGraph<Coordinate, Object>) graphByLine.computeIfAbsent(lineId, key -> new LineGraph<>(Object.class));
-    }
-
-    private static List<Coordinate> getEnds(Set<Coordinate> connectedSet, Graph<Coordinate, Object> graph) {
-        List<Coordinate> ends = new ArrayList<>();
-        for (Coordinate coordinate : connectedSet) {
-            if (Graphs.neighborListOf(graph, coordinate).size() == 1) {
-                ends.add(coordinate);
-            }
-        }
-        return ends;
-    }
-
+    /**
+     * Calculate the distance between the first and the last coordinates of the given list
+     */
     private static double getBranchLength(List<Coordinate> coordinatesComponent) {
-        return DistanceCalculator.distance(coordinatesComponent.get(0).getLatitude(), coordinatesComponent.get(0).getLongitude(),
-                coordinatesComponent.get(coordinatesComponent.size() - 1).getLatitude(), coordinatesComponent.get(coordinatesComponent.size() - 1).getLongitude());
+        return DistanceCalculator.distance(coordinatesComponent.get(0), coordinatesComponent.get(coordinatesComponent.size() - 1));
     }
 
+    /**
+     * Aggregate coordinates of two connected components into one single list by trying to find which extremity connects to which other extremity
+     */
     private static List<Coordinate> aggregateCoordinates(List<List<Coordinate>> coordinatesComponents) {
-        coordinatesComponents.sort((comp1, comp2) -> (int) (getBranchLength(comp2) - getBranchLength(comp1)));
-        return aggregateCoordinates(coordinatesComponents.get(0), coordinatesComponents.get(1));
-    }
-
-    private static List<Coordinate> aggregateCoordinates(List<Coordinate> coordinatesComponent1, List<Coordinate> coordinatesComponent2) {
         List<Coordinate> aggregatedCoordinates;
+
+        List<Coordinate> coordinatesComponent1 = coordinatesComponents.get(0);
+        List<Coordinate> coordinatesComponent2 = coordinatesComponents.get(1);
 
         double l1 = getBranchLength(coordinatesComponent1);
         double l2 = getBranchLength(coordinatesComponent2);
 
-        if (100 * l2 / l1 < THRESHOLD) {
-            return coordinatesComponent1;
+        if (100 * Math.min(l1, l2) / Math.max(l1, l2) < THRESHOLD) {
+            return l1 > l2 ? coordinatesComponent1 : coordinatesComponent2;
         }
 
-        double d1 = DistanceCalculator.distance(coordinatesComponent1.get(0).getLatitude(), coordinatesComponent1.get(0).getLongitude(),
-                coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLatitude(), coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLongitude());
-
-        double d2 = DistanceCalculator.distance(coordinatesComponent1.get(0).getLatitude(), coordinatesComponent1.get(0).getLongitude(),
-                coordinatesComponent2.get(0).getLatitude(), coordinatesComponent2.get(0).getLongitude());
-
-        double d3 = DistanceCalculator.distance(coordinatesComponent1.get(coordinatesComponent1.size() - 1).getLatitude(), coordinatesComponent1.get(coordinatesComponent1.size() - 1).getLongitude(),
-                coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLatitude(), coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLongitude());
-
-        double d4 = DistanceCalculator.distance(coordinatesComponent1.get(coordinatesComponent1.size() - 1).getLatitude(), coordinatesComponent1.get(coordinatesComponent1.size() - 1).getLongitude(),
-                coordinatesComponent2.get(0).getLatitude(), coordinatesComponent2.get(0).getLongitude());
+        double d1 = DistanceCalculator.distance(coordinatesComponent1.get(0), coordinatesComponent2.get(coordinatesComponent2.size() - 1));
+        double d2 = DistanceCalculator.distance(coordinatesComponent1.get(0), coordinatesComponent2.get(0));
+        double d3 = DistanceCalculator.distance(coordinatesComponent1.get(coordinatesComponent1.size() - 1), coordinatesComponent2.get(coordinatesComponent2.size() - 1));
+        double d4 = DistanceCalculator.distance(coordinatesComponent1.get(coordinatesComponent1.size() - 1), coordinatesComponent2.get(0));
 
         List<Double> distances = Arrays.asList(d1, d2, d3, d4);
         double min = min(distances);
@@ -252,32 +270,54 @@ public final class GeographicDataParser {
         return aggregatedCoordinates;
     }
 
-    private static Pair<String, String> findStartAndEndSubstationsOfLine(String lineId, SubstationGeoData geo1, SubstationGeoData geo2,
-                                                                         String substation1, String substation2,
-                                                                         Coordinate firstCoordinate, Coordinate lastCoordinate) {
-        final double sub1pil1 = distanceCoordinate(geo1.getCoordinate(), firstCoordinate);
-        final double sub2pil1 = distanceCoordinate(geo2.getCoordinate(), firstCoordinate);
-        final double sub1pil2 = distanceCoordinate(geo1.getCoordinate(), lastCoordinate);
-        final double sub2pil2 = distanceCoordinate(geo2.getCoordinate(), lastCoordinate);
-        if ((sub1pil1 < sub2pil1) == (sub1pil2 < sub2pil2)) {
-            LOGGER.error("line {} for substations {} and {} has both first and last coordinate nearest to {}", lineId, substation1, substation2, sub1pil1 < sub2pil1 ? substation1 : substation2);
-            return Pair.of("", "");
-        }
-        return Pair.of(sub1pil1 < sub2pil1 ? substation1 : substation2, sub1pil1 < sub2pil1 ? substation2 : substation1);
-    }
-
-    private static List<List<Coordinate>> fillMultipleConnectedSetsCoordinatesList(List<Set<Coordinate>> connectedSets,
-                                                                                   Graph<Coordinate, Object> graph) {
+    /**
+     * Constructing the list of coordinates of each connected component, filtering out the connected sets which have more than two ends (or zero)
+     */
+    private static List<List<Coordinate>> createMultipleConnectedSetsCoordinatesList(List<ConnectedSet> connectedSets) {
         List<List<Coordinate>> coordinatesComponents = new ArrayList<>();
-        for (Set<Coordinate> connectedSet : connectedSets) {
-            List<Coordinate> endsComponent = getEnds(connectedSet, graph);
+        for (ConnectedSet connectedSet : connectedSets) {
+            List<Coordinate> endsComponent = connectedSet.ends();
             if (endsComponent.size() == 2) {
-                List<Coordinate> coordinatesComponent = Lists.newArrayList(new BreadthFirstIterator<>(graph, endsComponent.get(0)));
-                coordinatesComponents.add(coordinatesComponent);
+                coordinatesComponents.add(connectedSet.list());
             } else {
                 break;
             }
         }
         return coordinatesComponents;
+    }
+
+    private record ConnectedSet(List<Coordinate> list, List<Coordinate> ends) {
+    }
+
+    private static class GeoTraversalListener extends TraversalListenerAdapter<Coordinate, Object> {
+        private final List<ConnectedSet> connectedSets;
+        private final Graph<Coordinate, Object> graph;
+        private List<Coordinate> currentConnectedSet;
+        private List<Coordinate> currentConnectedSetEnds;
+
+        public GeoTraversalListener(Graph<Coordinate, Object> graph, List<ConnectedSet> connectedSets) {
+            this.graph = graph;
+            this.connectedSets = connectedSets;
+        }
+
+        @Override
+        public void connectedComponentFinished(ConnectedComponentTraversalEvent e) {
+            connectedSets.add(new ConnectedSet(currentConnectedSet, currentConnectedSetEnds));
+        }
+
+        @Override
+        public void connectedComponentStarted(ConnectedComponentTraversalEvent e) {
+            currentConnectedSet = new ArrayList<>();
+            currentConnectedSetEnds = new ArrayList<>();
+        }
+
+        @Override
+        public void vertexTraversed(VertexTraversalEvent<Coordinate> e) {
+            Coordinate v = e.getVertex();
+            currentConnectedSet.add(v);
+            if (graph.degreeOf(v) == 1) {
+                currentConnectedSetEnds.add(v);
+            }
+        }
     }
 }

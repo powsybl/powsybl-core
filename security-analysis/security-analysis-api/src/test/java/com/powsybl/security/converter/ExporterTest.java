@@ -55,8 +55,8 @@ class ExporterTest extends AbstractSerDeTest {
         violation2.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0, 230.0));
         violation2.addExtension(CurrentExtension.class, new CurrentExtension(95.0));
 
-        LimitViolation violation3 = new LimitViolation("GEN", LimitViolationType.HIGH_VOLTAGE, 100, 0.9f, 110);
-        LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115);
+        LimitViolation violation3 = new LimitViolation("GEN", LimitViolationType.HIGH_VOLTAGE, 100, 0.9f, 110, new BusBreakerViolationLocation(List.of("BUSID")));
+        LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115, new NodeBreakerViolationLocation("VL", Arrays.asList(0, 1)));
         violation4.addExtension(VoltageExtension.class, new VoltageExtension(400.0));
 
         LimitViolation violation5 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.ACTIVE_POWER, "20'", 1200, 100, 1.0f, 110.0, TwoSides.ONE);
@@ -130,9 +130,17 @@ class ExporterTest extends AbstractSerDeTest {
         assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
     }
 
-    @Test
-    void testCompatibilityV15Deserialization() {
-        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.5.json"));
+    private static Stream<Arguments> provideArguments2() {
+        return Stream.of(
+            Arguments.of("/SecurityAnalysisResultV1.5.json"),
+            Arguments.of("/SecurityAnalysisResultV1.6.json")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideArguments2")
+    void testCompatibilityV15Deserialization(String jsonFileName) {
+        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream(jsonFileName));
         assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
         assertEquals(PostContingencyComputationStatus.CONVERGED, result.getOperatorStrategyResults().get(0).getConditionalActionsResults().get(0).getStatus());
     }

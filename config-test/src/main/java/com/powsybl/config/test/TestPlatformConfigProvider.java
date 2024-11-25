@@ -74,6 +74,7 @@ public class TestPlatformConfigProvider implements PlatformConfigProvider {
                 // The resources have relative paths (no leading slash) with full package path.
                 Path dest = cfgDir.resolve(resource);
                 LOGGER.info("Copying classpath resource: {} -> {}", resource, dest);
+                Files.createDirectories(dest.getParent());
                 Files.copy(TestPlatformConfigProvider.class.getResourceAsStream(resource), dest);
             }
         } catch (IOException e) {

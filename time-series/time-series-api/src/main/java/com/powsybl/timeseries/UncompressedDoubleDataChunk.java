@@ -167,7 +167,7 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
 
     @Override
     public int hashCode() {
-        return Objects.hash(offset, values);
+        return Objects.hash(offset, Arrays.hashCode(values));
     }
 
     @Override

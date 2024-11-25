@@ -107,7 +107,7 @@ public class UncompressedStringDataChunk extends AbstractUncompressedDataChunk i
                 return this;
             }
         }
-        return new CompressedStringDataChunk(offset, values.length, stepValues.toArray(new String[stepValues.size()]),
+        return new CompressedStringDataChunk(offset, values.length, stepValues.toArray(new String[0]),
                                               stepLengths.toArray());
     }
 
@@ -133,11 +133,10 @@ public class UncompressedStringDataChunk extends AbstractUncompressedDataChunk i
                                                + " and first size is " + getLength() + "; second offset should be " +
                                                (getOffset() + getLength()) + "but is " + otherChunk.getOffset());
         }
-        if (!(otherChunk instanceof UncompressedStringDataChunk)) {
+        if (!(otherChunk instanceof UncompressedStringDataChunk chunk)) {
             throw new IllegalArgumentException("The chunks to merge have to have the same implentation. One of them is " + this.getClass()
                                                + ", the other one is " + otherChunk.getClass());
         }
-        UncompressedStringDataChunk chunk = (UncompressedStringDataChunk) otherChunk;
         return new UncompressedStringDataChunk(offset, ArrayUtils.addAll(getValues(), chunk.getValues()));
     }
 
@@ -182,7 +181,7 @@ public class UncompressedStringDataChunk extends AbstractUncompressedDataChunk i
 
     @Override
     public int hashCode() {
-        return Objects.hash(offset, values);
+        return Objects.hash(offset, Arrays.hashCode(values));
     }
 
     @Override

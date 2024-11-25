@@ -26,6 +26,11 @@ public class BusbarSectionTripping extends AbstractTripping {
     }
 
     @Override
+    public String getName() {
+        return "BusbarSectionTripping";
+    }
+
+    @Override
     public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(network);
 

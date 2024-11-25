@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:bv="http://www.powsybl.org/schema/iidm/ext/base_voltage_mapping/1_0" id="test" caseDate="2024-09-17T13:36:37.831Z" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="sub" country="FR" tso="RTE">
+        <iidm:voltageLevel id="vl1" name="vl1" nominalV="440.0" lowVoltageLimit="200.0" highVoltageLimit="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="busA" name="busA"/>
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="vl2" name="vl2" nominalV="200.0" lowVoltageLimit="200.0" highVoltageLimit="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="busB" name="busB"/>
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:extension id="test">
+        <bv:baseVoltageMapping>
+            <bv:baseVoltage nominalVoltage="380.0" source="BOUNDARY" id="id_380"/>
+            <bv:baseVoltage nominalVoltage="400.0" source="IGM" id="id_400"/>
+        </bv:baseVoltageMapping>
+    </iidm:extension>
+</iidm:network>

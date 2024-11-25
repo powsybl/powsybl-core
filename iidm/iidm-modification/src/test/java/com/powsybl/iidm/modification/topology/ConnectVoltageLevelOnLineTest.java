@@ -10,6 +10,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
@@ -182,5 +183,15 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine(network.getLine("CJ"))
                 .build().apply(network, new DefaultNamingStrategy(), true, report);
         testReportNode(report, "/reportNode/connect-voltage-level-on-line-NB-report.txt");
+    }
+
+    @Test
+    void testGetName() {
+        Network network2 = createBbNetwork();
+        AbstractNetworkModification networkModification = new ConnectVoltageLevelOnLineBuilder()
+            .withBusbarSectionOrBusId("NOT_EXISTING")
+            .withLine(network2.getLine("NHV1_NHV2_1"))
+            .build();
+        assertEquals("ConnectVoltageLevelOnLine", networkModification.getName());
     }
 }

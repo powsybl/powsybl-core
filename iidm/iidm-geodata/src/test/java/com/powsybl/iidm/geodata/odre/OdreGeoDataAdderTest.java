@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,9 +39,9 @@ class OdreGeoDataAdderTest extends AbstractOdreTest {
         network = EurostagTutorialExample1Factory.create();
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{0}")
     @MethodSource("provideTestArguments")
-    void addSubstationsGeoDataFromFile(String descr, String directory, OdreConfig config) throws URISyntaxException {
+    void addSubstationsGeoDataFromFile(String descr, String directory, OdreConfig config) throws URISyntaxException, IOException {
         Path substationsPath = Paths.get(getClass()
                 .getClassLoader().getResource(directory + "substations.csv").toURI());
 
@@ -59,9 +60,9 @@ class OdreGeoDataAdderTest extends AbstractOdreTest {
         assertEquals(coord2, position2.getCoordinate());
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{0}")
     @MethodSource("provideTestArguments")
-    void addLinesGeoDataFromFile(String descr, String directory, OdreConfig config) throws URISyntaxException {
+    void addLinesGeoDataFromFile(String descr, String directory, OdreConfig config) throws URISyntaxException, IOException {
         Path substationsPath = Paths.get(getClass()
                 .getClassLoader().getResource(directory + "substations.csv").toURI());
         Path aerialLinesFile = Paths.get(getClass()
@@ -69,8 +70,8 @@ class OdreGeoDataAdderTest extends AbstractOdreTest {
         Path undergroundLinesFile = Paths.get(getClass()
                 .getClassLoader().getResource(directory + "underground-lines.csv").toURI());
 
-        OdreGeoDataAdder.fillNetworkLinesGeoDataFromFiles(network, aerialLinesFile,
-                undergroundLinesFile, substationsPath, config);
+        OdreGeoDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsPath, config);
+        OdreGeoDataAdder.fillNetworkLinesGeoDataFromFiles(network, aerialLinesFile, undergroundLinesFile, config);
 
         Line line = network.getLine("NHV1_NHV2_2");
         LinePosition<Line> linePosition = line.getExtension(LinePosition.class);

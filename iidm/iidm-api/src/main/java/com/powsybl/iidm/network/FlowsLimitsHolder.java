@@ -10,6 +10,8 @@ package com.powsybl.iidm.network;
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoadingLimits;
+
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -126,20 +128,59 @@ public interface FlowsLimitsHolder {
     CurrentLimitsAdder newCurrentLimits();
 
     /**
-     * <p>Create an adder to add a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup}.</p>
+     * <p>Create an adder to add a copy of the {@link CurrentLimits} in parameters in the selected {@link OperationalLimitsGroup}. </p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
      * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
+     * are valid.</p>
+     * @param limits a set of existing current limits.
+     * @return an adder allowing to create a new {@link CurrentLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup}.
+     */
+    default CurrentLimitsAdder newCurrentLimits(CurrentLimits limits) {
+        CurrentLimitsAdder adder = newCurrentLimits();
+        return initializeFromLoadingLimits(adder, limits);
+    }
+
+    /**
+     * <p>Create an adder to add a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup}.</p>
+     * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
+     * This operation is performed when the limits are created via {@link ApparentPowerLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup}.
      */
     ApparentPowerLimitsAdder newApparentPowerLimits();
 
     /**
+     * <p>Create an adder to add a copy of the {@link ApparentPowerLimits} in parameters in the selected {@link OperationalLimitsGroup}. </p>
+     * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
+     * This operation is performed when the limits are created via {@link ApparentPowerLimitsAdder#add()}, only if the limits to add
+     * are valid.</p>
+     * @param limits a set of existing apparent power limits.
+     * @return an adder allowing to create a new {@link ApparentPowerLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup}.
+     */
+    default ApparentPowerLimitsAdder newApparentPowerLimits(ApparentPowerLimits limits) {
+        ApparentPowerLimitsAdder adder = newApparentPowerLimits();
+        return initializeFromLoadingLimits(adder, limits);
+    }
+
+    /**
      * <p>Create an adder to add a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup}.</p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
-     * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
+     * This operation is performed when the limits are created via {@link ActivePowerLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup}.
      */
     ActivePowerLimitsAdder newActivePowerLimits();
+
+    /**
+     * <p>Create an adder to add a copy of the {@link ActivePowerLimits} in parameters in the selected {@link OperationalLimitsGroup}. </p>
+     * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
+     * This operation is performed when the limits are created via {@link ActivePowerLimitsAdder#add()}, only if the limits to add
+     * are valid.</p>
+     * @param limits a set of existing active power limits.
+     * @return an adder allowing to create a new {@link ActivePowerLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup}.
+     */
+    default ActivePowerLimitsAdder newActivePowerLimits(ActivePowerLimits limits) {
+        ActivePowerLimitsAdder adder = newActivePowerLimits();
+        return initializeFromLoadingLimits(adder, limits);
+    }
 }

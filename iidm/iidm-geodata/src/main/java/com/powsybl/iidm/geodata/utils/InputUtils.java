@@ -10,14 +10,20 @@ package com.powsybl.iidm.geodata.utils;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * @author Hugo Marcellin {@literal <hugo.marcelin at rte-france.com>}
  */
 public final class InputUtils {
     private InputUtils() {
+    }
+
+    public static Reader toReader(Path path) throws IOException {
+        return new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path)), StandardCharsets.UTF_8));
     }
 
     public static BOMInputStream toBomInputStream(InputStream inputStream) throws IOException {

@@ -54,14 +54,14 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
 
     private void writeModel(LoadModel model, NetworkSerializerContext context) {
         switch (model.getType()) {
-            case EXPONENTIAL:
+            case EXPONENTIAL -> {
                 ExponentialLoadModel expModel = (ExponentialLoadModel) model;
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), EXPONENTIAL_MODEL);
                 context.getWriter().writeDoubleAttribute("np", expModel.getNp());
                 context.getWriter().writeDoubleAttribute("nq", expModel.getNq());
                 context.getWriter().writeEndNode();
-                break;
-            case ZIP:
+            }
+            case ZIP -> {
                 ZipLoadModel zipModel = (ZipLoadModel) model;
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ZIP_MODEL);
                 context.getWriter().writeDoubleAttribute("c0p", zipModel.getC0p());
@@ -71,9 +71,8 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
                 context.getWriter().writeDoubleAttribute("c1q", zipModel.getC1q());
                 context.getWriter().writeDoubleAttribute("c2q", zipModel.getC2q());
                 context.getWriter().writeEndNode();
-                break;
-            default:
-                throw new PowsyblException("Unexpected load model type: " + model.getType());
+            }
+            default -> throw new PowsyblException("Unexpected load model type: " + model.getType());
         }
     }
 

@@ -190,13 +190,13 @@ class IslandEndHvdc {
             int c = this.acDcConvertersEnd.size();
             int ls = this.dcLineSegmentsEnd.size();
 
-            if (t >= 0 && c == 1 && ls == 1) {
+            if (c == 1 && ls == 1) {
                 return HvdcEndType.HVDC_TN_C1_LS1;
-            } else if (t >= 0 && c >= 1 && ls == 2 * c) {
+            } else if (c >= 1 && ls == 2 * c) {
                 return HvdcEndType.HVDC_TN_CN_LS2N;
-            } else if (t >= 0 && c == 2 && ls == 1) {
+            } else if (c == 2 && ls == 1) {
                 return HvdcEndType.HVDC_TN_C2_LS1;
-            } else if (t >= 0 && c == ls && c > 1) {
+            } else if (c == ls && c > 1) {
                 return HvdcEndType.HVDC_TN_CN_LSN;
             }
 
@@ -211,8 +211,7 @@ class IslandEndHvdc {
                 return false;
             }
 
-            return this.dcLineSegmentsEnd.stream()
-                .allMatch(otherHvdcEnd.dcLineSegmentsEnd::contains);
+            return otherHvdcEnd.dcLineSegmentsEnd.containsAll(this.dcLineSegmentsEnd);
         }
 
         boolean isAssociatedWith(HvdcEnd otherHvdcEnd) {
@@ -223,7 +222,7 @@ class IslandEndHvdc {
 
             HvdcEnd finalHvdcEnd = new HvdcEnd(new ArrayList<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
 
-            listHvdcEnd.stream().forEach(hvdcEnd -> {
+            listHvdcEnd.forEach(hvdcEnd -> {
                 finalHvdcEnd.nodesEnd.addAll(hvdcEnd.nodesEnd);
                 finalHvdcEnd.transformersEnd.addAll(hvdcEnd.transformersEnd);
                 finalHvdcEnd.acDcConvertersEnd.addAll(hvdcEnd.acDcConvertersEnd);

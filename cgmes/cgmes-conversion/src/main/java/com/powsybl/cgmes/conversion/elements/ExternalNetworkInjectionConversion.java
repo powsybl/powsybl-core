@@ -11,13 +11,12 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
-
-import static com.powsybl.cgmes.model.CgmesNames.EXTERNAL_NETWORK_INJECTION;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -25,7 +24,7 @@ import static com.powsybl.cgmes.model.CgmesNames.EXTERNAL_NETWORK_INJECTION;
 public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOwnerConversion {
 
     public ExternalNetworkInjectionConversion(PropertyBag sm, Context context) {
-        super(EXTERNAL_NETWORK_INJECTION, sm, context);
+        super(CgmesNames.EXTERNAL_NETWORK_INJECTION, sm, context);
     }
 
     @Override
@@ -59,7 +58,7 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
     }
 
     private static void addSpecificProperties(Generator generator, PropertyBag p) {
-        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, EXTERNAL_NETWORK_INJECTION);
+        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EXTERNAL_NETWORK_INJECTION);
         double governorSCD = p.asDouble("governorSCD");
         if (!Double.isNaN(governorSCD)) {
             generator.setProperty(Conversion.PROPERTY_CGMES_GOVERNOR_SCD, String.valueOf(governorSCD));

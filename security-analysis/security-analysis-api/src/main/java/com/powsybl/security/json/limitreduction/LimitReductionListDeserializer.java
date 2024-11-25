@@ -35,7 +35,7 @@ public class LimitReductionListDeserializer extends StdDeserializer<LimitReducti
     public LimitReductionList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version":
                     context.version = parser.nextTextValue();
                     return true;

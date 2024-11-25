@@ -42,7 +42,7 @@ public class DynamicSimulationTool implements Tool {
     private static final String CASE_FILE = "case-file";
     private static final String DYNAMIC_MODELS_FILE = "dynamic-models-file";
     private static final String EVENT_MODELS_FILE = "event-models-file";
-    private static final String CURVES_FILE = "curves-file";
+    private static final String OUTPUT_VARIABLES_FILE = "output-variables-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_FILE = "output-file";
     private static final String OUTPUT_LOG_FILE = "output-log-file";
@@ -86,8 +86,8 @@ public class DynamicSimulationTool implements Tool {
                     .hasArg()
                     .argName("FILE")
                     .build());
-                options.addOption(Option.builder().longOpt(CURVES_FILE)
-                    .desc("curves description as Groovy file")
+                options.addOption(Option.builder().longOpt(OUTPUT_VARIABLES_FILE)
+                    .desc("output variables description as Groovy file: defines a list of variables to plot or get the final value")
                     .hasArg()
                     .argName("FILE")
                     .build());
@@ -142,10 +142,10 @@ public class DynamicSimulationTool implements Tool {
             eventSupplier = DynamicSimulationSupplierFactory.createEventModelsSupplier(eventFile, runner.getName());
         }
 
-        CurvesSupplier curvesSupplier = CurvesSupplier.empty();
-        if (line.hasOption(CURVES_FILE)) {
-            Path curvesFile = context.getFileSystem().getPath(line.getOptionValue(CURVES_FILE));
-            curvesSupplier = DynamicSimulationSupplierFactory.createCurvesSupplier(curvesFile, runner.getName());
+        OutputVariablesSupplier outputVariablesSupplier = OutputVariablesSupplier.empty();
+        if (line.hasOption(OUTPUT_VARIABLES_FILE)) {
+            Path outputVariablesFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_VARIABLES_FILE));
+            outputVariablesSupplier = DynamicSimulationSupplierFactory.createOutputVariablesSupplier(outputVariablesFile, runner.getName());
         }
 
         DynamicSimulationParameters params = DynamicSimulationParameters.load();
@@ -155,7 +155,7 @@ public class DynamicSimulationTool implements Tool {
         }
 
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("dynamicSimulationTool", "Dynamic Simulation Tool").build();
-        DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reportNode);
+        DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, outputVariablesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reportNode);
 
         Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
         if (outputLogFile != null) {

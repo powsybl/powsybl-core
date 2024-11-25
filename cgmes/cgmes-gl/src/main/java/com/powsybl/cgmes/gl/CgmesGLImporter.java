@@ -36,13 +36,12 @@ public class CgmesGLImporter {
 
     private void importSubstationsPosition() {
         LOG.info("Importing substations position");
-        SubstationPositionImporter positionImporter = new SubstationPositionImporter(network);
-        cgmesGLModel.getSubstationsPosition().forEach(positionImporter::importPosition);
+        new SubstationPositionImporter(network, cgmesGLModel).importPositions();
     }
 
     private void importLinesPosition() {
         LOG.info("Importing lines position");
-        new LinePositionImporter(network, cgmesGLModel).importPosition();
+        new LinePositionImporter(network, cgmesGLModel).importPositions();
     }
 
 }

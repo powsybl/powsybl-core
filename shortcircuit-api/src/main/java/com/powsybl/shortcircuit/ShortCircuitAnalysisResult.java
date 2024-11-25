@@ -22,7 +22,7 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
     // VERSION = 1.0 faultResults
     // VERSION = 1.1 status in faultResult
     // VERSION = 1.2 side in FeederResult
-    public static final String VERSION = "1.2";
+    public static final String VERSION = "1.3";
 
     private final Map<String, FaultResult> resultByFaultId = new TreeMap<>();
     private final Map<String, List<FaultResult>> resultByElementId = new TreeMap<>();

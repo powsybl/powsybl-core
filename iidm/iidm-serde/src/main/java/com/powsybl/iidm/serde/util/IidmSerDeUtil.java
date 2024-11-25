@@ -38,7 +38,7 @@ public final class IidmSerDeUtil {
         NOT_NULL_NOT_SUPPORTED("not null and not supported"),
         NOT_DEFAULT_NOT_SUPPORTED("not defined as default and not supported");
 
-        private String message;
+        private final String message;
 
         ErrorMessage(String message) {
             this.message = message;

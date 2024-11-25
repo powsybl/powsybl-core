@@ -5,16 +5,17 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-# query: substationPosition
+# query: substationVoltageLevelPosition
 SELECT ?powerSystemResource ?name ?crsName ?crsUrn ?x ?y ?seq
-{
+WHERE {
     ?location
         a cim:Location ;
         cim:Location.PowerSystemResources ?powerSystemResource ;
         cim:Location.CoordinateSystem ?coordinateSystem .
     ?powerSystemResource
-        a cim:Substation ;
+        a ?psrType ;
         cim:IdentifiedObject.name ?name .
+    VALUES ?psrType { cim:Substation cim:VoltageLevel }
     ?coordinateSystem
         a cim:CoordinateSystem ;
         cim:CoordinateSystem.crsUrn ?crsUrn .

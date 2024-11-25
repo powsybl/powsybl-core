@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,5 +42,11 @@ class DanglingLineTrippingTest extends AbstractTrippingTest {
     void unknownDlTest() {
         DanglingLineTripping tripping = new DanglingLineTripping("DL_THAT_DO_NOT_EXIST");
         assertThrows(PowsyblException.class, () -> tripping.apply(network));
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new DanglingLineTripping("ID");
+        assertEquals("DanglingLineTripping", networkModification.getName());
     }
 }

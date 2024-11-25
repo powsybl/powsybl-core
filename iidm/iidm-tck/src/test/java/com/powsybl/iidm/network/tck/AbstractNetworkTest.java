@@ -119,7 +119,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(Arrays.asList(network.getSwitch("generator1Disconnector1"), network.getSwitch("generator1Breaker1")),
             topology1.getSwitches(6));
         assertEquals(Arrays.asList(network.getSwitch("load1Disconnector1"), network.getSwitch("load1Breaker1")),
-            topology1.getSwitchStream(3).collect(Collectors.toList()));
+            topology1.getSwitchStream(3).toList());
         assertEquals(Collections.singletonList(network.getSwitch("load1Disconnector1")), topology1.getSwitches(2));
 
         assertEquals(5, Iterables.size(network.getSwitches()));
@@ -177,8 +177,8 @@ public abstract class AbstractNetworkTest {
 
         // Changes listener
         NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementAdded(any(), anyString(), any());
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementReplaced(any(), anyString(),
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onPropertyAdded(any(), anyString(), any());
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onPropertyReplaced(any(), anyString(),
                 any(), any());
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
 
@@ -206,12 +206,12 @@ public abstract class AbstractNetworkTest {
 
         // Check notification done
         verify(mockedListener, times(1))
-                .onElementAdded(busCalc, "properties[" + key + "]", value);
+                .onPropertyAdded(busCalc, "properties[" + key + "]", value);
         // Check no notification on same property
         String value2 = "ValueTest2";
         busCalc.setProperty(key, value2);
         verify(mockedListener, times(1))
-                .onElementReplaced(busCalc, "properties[" + key + "]", value, value2);
+                .onPropertyReplaced(busCalc, "properties[" + key + "]", value, value2);
         // Check no notification on same property
         busCalc.setProperty(key, value2);
         verifyNoMoreInteractions(mockedListener);
@@ -354,7 +354,7 @@ public abstract class AbstractNetworkTest {
         //Specific test on battery
         assertEquals(battery1, voltageLevel2.getConnectable("BAT", Battery.class));
         //Stream test
-        Function<Stream<? extends Identifiable>, List<String>> mapper = stream -> stream.map(Identifiable::getId).collect(Collectors.toList());
+        Function<Stream<? extends Identifiable>, List<String>> mapper = stream -> stream.map(Identifiable::getId).toList();
         assertEquals(Arrays.asList("BAT", "BAT2"), mapper.apply(network.getBatteryStream()));
         assertEquals(network.getBatteryCount(), network.getBatteryStream().count());
         assertEquals(Arrays.asList("BAT", "BAT2"), mapper.apply(network.getVoltageLevel(VLBAT).getBatteryStream()));
@@ -375,13 +375,13 @@ public abstract class AbstractNetworkTest {
         Network n = EurostagTutorialExample1Factory.create();
         assertEquals(6, n.getConnectableCount());
         assertNotNull(n.getConnectable("GEN"));
-        assertTrue(n.getConnectable("GEN") instanceof Generator);
+        assertInstanceOf(Generator.class, n.getConnectable("GEN"));
         assertEquals("GEN", n.getConnectable("GEN").getId());
     }
 
     @Test
     public void testStreams() {
-        Function<Stream<? extends Identifiable>, List<String>> mapper = stream -> stream.map(Identifiable::getId).collect(Collectors.toList());
+        Function<Stream<? extends Identifiable>, List<String>> mapper = stream -> stream.map(Identifiable::getId).toList();
         Function<Stream<? extends Identifiable>, Set<String>> mapperSet = stream -> stream.map(Identifiable::getId).collect(Collectors.toSet());
 
         Network network = EurostagTutorialExample1Factory.create();
@@ -686,5 +686,21 @@ public abstract class AbstractNetworkTest {
         currentLimits.setPermanentLimit(Double.NaN);
         assertTrue(Double.isNaN(currentLimits.getPermanentLimit()));
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+    }
+
+    @Test
+    void testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork() {
+        Network network = Network.create("test", "iidm");
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        VoltageLevel vl = network.newSubstation().setId("s1").add()
+                .newVoltageLevel().setId("vl1").setNominalV(100).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        Load l1 = vl.newLoad().setId("l1").setNode(0).add();
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+
+        l1.setP0(10.0);
+        l1.setQ0(1.0);
+
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
     }
 }

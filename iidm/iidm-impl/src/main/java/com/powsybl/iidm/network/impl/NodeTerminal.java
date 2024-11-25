@@ -57,6 +57,10 @@ class NodeTerminal extends AbstractTerminal {
         }
     };
 
+    private NodeBreakerTopologyModel getTopologyModel() {
+        return (NodeBreakerTopologyModel) voltageLevel.getTopologyModel();
+    }
+
     private final BusBreakerViewExt busBreakerView = new BusBreakerViewExt() {
 
         @Override
@@ -64,7 +68,7 @@ class NodeTerminal extends AbstractTerminal {
             if (removed) {
                 throw new PowsyblException(CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT + connectable.id);
             }
-            return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusBreakerTopology().getBus(node);
+            return getTopologyModel().getCalculatedBusBreakerTopology().getBus(node);
         }
 
         @Override
@@ -72,12 +76,12 @@ class NodeTerminal extends AbstractTerminal {
             if (removed) {
                 throw new PowsyblException(CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT + connectable.id);
             }
-            return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusBreakerTopology().getConnectableBus(node);
+            return getTopologyModel().getCalculatedBusBreakerTopology().getConnectableBus(node);
         }
 
         @Override
         public void setConnectableBus(String busId) {
-            throw NodeBreakerVoltageLevel.createNotSupportedNodeBreakerTopologyException();
+            throw NodeBreakerTopologyModel.createNotSupportedNodeBreakerTopologyException();
         }
 
         @Override
@@ -102,7 +106,7 @@ class NodeTerminal extends AbstractTerminal {
             if (removed) {
                 throw new PowsyblException(CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT + connectable.id);
             }
-            return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusTopology().getBus(node);
+            return getTopologyModel().getCalculatedBusTopology().getBus(node);
         }
 
         @Override
@@ -110,7 +114,7 @@ class NodeTerminal extends AbstractTerminal {
             if (removed) {
                 throw new PowsyblException(CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT + connectable.id);
             }
-            return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusTopology().getConnectableBus(node);
+            return getTopologyModel().getCalculatedBusTopology().getConnectableBus(node);
         }
 
     };
@@ -231,7 +235,7 @@ class NodeTerminal extends AbstractTerminal {
         if (removed) {
             throw new PowsyblException("Cannot access connectivity status of removed equipment " + connectable.id);
         }
-        return ((NodeBreakerVoltageLevel) voltageLevel).isConnected(this);
+        return getTopologyModel().isConnected(this);
     }
 
     @Override
@@ -239,7 +243,7 @@ class NodeTerminal extends AbstractTerminal {
         if (removed) {
             throw new PowsyblException(String.format("Associated equipment %s is removed", connectable.id));
         }
-        return ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser, visitedTerminals, traversalType);
+        return getTopologyModel().traverse(this, traverser, visitedTerminals, traversalType);
     }
 
     @Override
@@ -252,7 +256,7 @@ class NodeTerminal extends AbstractTerminal {
         if (removed) {
             throw new PowsyblException(String.format("Associated equipment %s is removed", connectable.id));
         }
-        ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversalType);
+        getTopologyModel().traverse(this, traverser, traversalType);
     }
 
     @Override
