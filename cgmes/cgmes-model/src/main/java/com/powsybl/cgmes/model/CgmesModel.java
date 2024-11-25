@@ -109,19 +109,18 @@ public interface CgmesModel {
 
     PropertyBags equivalentShunts();
 
-    PropertyBags shuntCompensatorPoints();
-
-    // Non-linear shunt compensator points grouped by shunt compensator
-    Map<String, PropertyBags> groupedShuntCompensatorPoints();
+    /**
+     * Query all NonlinearShuntCompensatorPoint in the CgmesModel.
+     * @return A {@link PropertyBags} with the shunt compensators points properties.
+     */
+    PropertyBags nonlinearShuntCompensatorPoints();
 
     /**
-     * @deprecated
-     * Use {@link #groupedShuntCompensatorPoints()} or {@link #shuntCompensatorPoints()} instead.
+     * Query the NonlinearShuntCompensatorPoint associated to the given NonlinearShuntCompensator.
+     * @param shuntId The id of the NonlinearShuntCompensator.
+     * @return A {@link PropertyBags} with the given shunt compensator points properties.
      */
-    @Deprecated(since = "6.6.0", forRemoval = true)
-    default PropertyBags nonlinearShuntCompensatorPoints(String id) {
-        return groupedShuntCompensatorPoints().getOrDefault(id, new PropertyBags());
-    }
+    PropertyBags nonlinearShuntCompensatorPoints(String shuntId);
 
     PropertyBags staticVarCompensators();
 

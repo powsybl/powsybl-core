@@ -498,7 +498,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags shuntCompensatorPoints() {
+    public PropertyBags nonlinearShuntCompensatorPoints() {
         return namedQuery("nonlinearShuntCompensatorPoints");
     }
 
