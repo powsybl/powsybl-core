@@ -37,11 +37,11 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedShuntCompensatorPoints() {
+    public PropertyBags nonlinearShuntCompensatorPoints(String id) {
         if (cachedGroupedShuntCompensatorPoints == null) {
             cachedGroupedShuntCompensatorPoints = computeGroupedShuntCompensatorPoints();
         }
-        return cachedGroupedShuntCompensatorPoints;
+        return cachedGroupedShuntCompensatorPoints.getOrDefault(id, new PropertyBags());
     }
 
     @Override
@@ -171,7 +171,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     private Map<String, PropertyBags> computeGroupedShuntCompensatorPoints() {
         Map<String, PropertyBags> groupedShuntCompensatorPoints = new HashMap<>();
-        shuntCompensatorPoints()
+        nonlinearShuntCompensatorPoints()
                 .forEach(point -> {
                     String shuntCompensator = point.getId("Shunt");
                     groupedShuntCompensatorPoints.computeIfAbsent(shuntCompensator, bag -> new PropertyBags())
