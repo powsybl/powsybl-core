@@ -443,7 +443,7 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags nonlinearShuntCompensatorPoints(String id) {
+    public PropertyBags nonlinearShuntCompensatorPoints(String shuntId) {
         // FakeCgmesModel does not provide grouped shunt compensator points
         return new PropertyBags();
     }

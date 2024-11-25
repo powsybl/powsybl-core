@@ -118,7 +118,7 @@ public interface CgmesModel {
     /**
      * Query the NonlinearShuntCompensatorPoint associated to the given NonlinearShuntCompensator.
      * @param shuntId The id of the NonlinearShuntCompensator.
-     * @return A {@link PropertyBags} with the given shunt compensator points properties.
+     * @return A {@link PropertyBags} with the given shunt compensator's points properties.
      */
     PropertyBags nonlinearShuntCompensatorPoints(String shuntId);
 
