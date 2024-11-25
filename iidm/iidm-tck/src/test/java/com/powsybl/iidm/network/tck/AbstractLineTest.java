@@ -201,12 +201,20 @@ public abstract class AbstractLineTest extends AbstractIdenticalLinesTest {
                 .setConnectableBus2("busB");
         acLineAdder1.add();
         Line acLine1 = network.getLine("line1");
-        // Group and limits creation
+        // Group and limits creation 1
         acLine1.newOperationalLimitsGroup1("group1").newCurrentLimits().setPermanentLimit(220.0).add();
         acLine1.setSelectedOperationalLimitsGroup1("group1");
         Optional<CurrentLimits> optionalLimits1 = acLine1.getCurrentLimits1();
         assertTrue(optionalLimits1.isPresent());
         CurrentLimits limits1 = optionalLimits1.get();
+        // Group and limit creation 2
+        acLine1.newOperationalLimitsGroup2("group2").newCurrentLimits().setPermanentLimit(80.0).add();
+        acLine1.setSelectedOperationalLimitsGroup2("group2");
+        Optional<CurrentLimits> optionalLimits2 = acLine1.getCurrentLimits2();
+        assertTrue(optionalLimits2.isPresent());
+        CurrentLimits limits2 = optionalLimits2.get();
+
+        assertNotNull(limits2);
 
         // Second limit created by copy
         LineAdder acLineAdder2 = network.newLine(acLine1);
@@ -220,15 +228,16 @@ public abstract class AbstractLineTest extends AbstractIdenticalLinesTest {
         acLineAdder2.add();
         Line acLine2 = network.getLine("line2");
         // Limits check to set up test
-        Optional<CurrentLimits> optionalLimits2 = acLine2.getCurrentLimits1();
-        assertTrue(optionalLimits2.isPresent());
-        CurrentLimits limits2 = optionalLimits2.get();
+        Optional<CurrentLimits> optionalLimits3 = acLine2.getCurrentLimits1();
+        assertTrue(optionalLimits3.isPresent());
+        CurrentLimits limits3 = optionalLimits3.get();
 
         // Tests
         assertNotNull(acLine2);
         assertTrue(areLinesIdentical(acLine1, acLine2));
-        assertEquals(limits1.getPermanentLimit(), limits2.getPermanentLimit());
-        assertSame(acLine1.getSelectedOperationalLimitsGroupId2(), acLine2.getSelectedOperationalLimitsGroupId2());
+        assertEquals(limits1.getPermanentLimit(), limits3.getPermanentLimit());
+        assertNotNull(acLine2.getOperationalLimitsGroup2("group2"));
+        assertEquals(acLine1.getSelectedOperationalLimitsGroupId2(), acLine2.getSelectedOperationalLimitsGroupId2());
 
     }
 
