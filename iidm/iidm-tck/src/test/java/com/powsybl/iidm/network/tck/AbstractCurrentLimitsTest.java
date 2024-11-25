@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
@@ -738,6 +739,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
         adder.add();
 
         assertTrue(areLimitsIdentical(limits1, limits2));
+        assertThrows(PowsyblException.class, () -> line.newCurrentLimits1(null));
     }
 
     @Test
