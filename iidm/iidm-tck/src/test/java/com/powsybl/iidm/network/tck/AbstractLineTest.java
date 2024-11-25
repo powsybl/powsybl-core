@@ -207,13 +207,28 @@ public abstract class AbstractLineTest extends AbstractIdenticalLinesTest {
         Optional<CurrentLimits> optionalLimits1 = acLine1.getCurrentLimits1();
         assertTrue(optionalLimits1.isPresent());
         CurrentLimits limits1 = optionalLimits1.get();
+        assertNotNull(limits1);
+
+        acLine1.getOperationalLimitsGroup1("group1").get().newActivePowerLimits().setPermanentLimit(220.0).add();
+        acLine1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<ActivePowerLimits> optionalActivePowerLimits1 = acLine1.getActivePowerLimits1();
+        assertTrue(optionalActivePowerLimits1.isPresent());
+        ActivePowerLimits activePowerLimits1 = optionalActivePowerLimits1.get();
+        assertNotNull(activePowerLimits1);
+
+        acLine1.getOperationalLimitsGroup1("group1").get().newApparentPowerLimits().setPermanentLimit(220.0).add();
+        acLine1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<ApparentPowerLimits> optionalApparentPowerLimits1 = acLine1.getApparentPowerLimits1();
+        assertTrue(optionalApparentPowerLimits1.isPresent());
+        ApparentPowerLimits apparentPowerLimits1 = optionalApparentPowerLimits1.get();
+        assertNotNull(apparentPowerLimits1);
+
         // Group and limit creation 2
         acLine1.newOperationalLimitsGroup2("group2").newCurrentLimits().setPermanentLimit(80.0).add();
         acLine1.setSelectedOperationalLimitsGroup2("group2");
         Optional<CurrentLimits> optionalLimits2 = acLine1.getCurrentLimits2();
         assertTrue(optionalLimits2.isPresent());
         CurrentLimits limits2 = optionalLimits2.get();
-
         assertNotNull(limits2);
 
         // Second limit created by copy
