@@ -18,6 +18,8 @@ import gnu.trove.list.array.TDoubleArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
@@ -35,20 +37,18 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
         super(generator);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
         this.targetQ = new TDoubleArrayList();
-        this.regulatingTerminal = regulatingTerminal;
+        this.regulatingTerminal = Objects.requireNonNull(regulatingTerminal);
         this.enabled = new TBooleanArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.targetQ.add(targetQ);
             this.enabled.add(enabled);
         }
-        if (regulatingTerminal != null) {
-            if (regulatingTerminal.getVoltageLevel().getParentNetwork() != getExtendable().getParentNetwork()) {
-                throw new PowsyblException("Regulating terminal is not in the right Network ("
-                        + regulatingTerminal.getVoltageLevel().getParentNetwork().getId() + " instead of "
-                        + getExtendable().getParentNetwork().getId() + ")");
-            }
-            ((TerminalExt) regulatingTerminal).getDependentContainer().registerDependent(this);
+        if (regulatingTerminal.getVoltageLevel().getParentNetwork() != getExtendable().getParentNetwork()) {
+            throw new PowsyblException("Regulating terminal is not in the right Network ("
+                    + regulatingTerminal.getVoltageLevel().getParentNetwork().getId() + " instead of "
+                    + getExtendable().getParentNetwork().getId() + ")");
         }
+        ((TerminalExt) regulatingTerminal).getDependentContainer().registerDependent(this);
     }
 
     @Override
