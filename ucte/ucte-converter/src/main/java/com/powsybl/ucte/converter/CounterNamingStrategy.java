@@ -125,12 +125,15 @@ public class CounterNamingStrategy implements NamingStrategy {
                 .orElseThrow(() -> new UcteException("Unable to generate unique element ID"));
     }
 
-    private UcteElementId generateUcteElementId(Branch<?> branch) {
+    private UcteElementId generateUcteElementId(Branch branch) {
         if (ucteElementIds.containsKey(branch.getId())) {
             return ucteElementIds.get(branch.getId());
         }
         UcteNodeCode node1 = ucteNodeIds.get(branch.getTerminal1().getBusBreakerView().getBus().getId());
         UcteNodeCode node2 = ucteNodeIds.get(branch.getTerminal2().getBusBreakerView().getBus().getId());
+        if (branch instanceof TwoWindingsTransformer) {
+            return generateUcteElementId(branch.getId(), node2, node1);
+        }
         return generateUcteElementId(branch.getId(), node1, node2);
     }
 
