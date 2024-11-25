@@ -174,4 +174,19 @@ public abstract class AbstractRemoteReactivePowerControlTest {
             assertEquals("Variant index not set", e.getMessage());
         }
     }
+
+    @Test
+    public void terminalRemoveTest() {
+        Network network = createNetwork();
+        Generator g = network.getGenerator("g4");
+        Line l = network.getLine("l34");
+        RemoteReactivePowerControl control = g.newExtension(RemoteReactivePowerControlAdder.class)
+                .withTargetQ(200.0)
+                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
+                .withEnabled(true).add();
+        assertNotNull(g.getExtension(RemoteReactivePowerControl.class));
+        l.remove();
+        // extension has been removed because regulating terminal is invalid
+        assertNull(g.getExtension(RemoteReactivePowerControl.class));
+    }
 }

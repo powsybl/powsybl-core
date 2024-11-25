@@ -105,7 +105,10 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
 
     @Override
     public void onReferencedRemoval(Terminal terminal) {
-        regulatingTerminal = null;
+        // we cannot set regulating terminal to null because otherwise extension won't be consistent anymore
+        // we cannot also as for voltage regulation fallback to a local terminal
+        // so we just remove the extension
+        getExtendable().removeExtension(RemoteReactivePowerControl.class);
     }
 
     @Override

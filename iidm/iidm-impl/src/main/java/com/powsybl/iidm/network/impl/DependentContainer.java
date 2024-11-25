@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -18,7 +18,7 @@ public class DependentContainer<T> {
 
     private final T referenced;
 
-    private final List<Dependent<T>> dependents = new ArrayList<>();
+    private final List<Dependent<T>> dependents = new CopyOnWriteArrayList<>();
 
     public DependentContainer(T referenced) {
         this.referenced = Objects.requireNonNull(referenced);
