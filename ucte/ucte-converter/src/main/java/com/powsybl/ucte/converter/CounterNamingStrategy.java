@@ -147,7 +147,7 @@ public class CounterNamingStrategy implements NamingStrategy {
         } else {
             code1 = generateUcteNodeId(danglingLine.getId(), danglingLine.getTerminal().getVoltageLevel());
         }
-        code2 = generateUcteNodeId(danglingLine.getTerminal().getBusView().getBus().getId(), danglingLine.getTerminal().getVoltageLevel());
+        code2 = generateUcteNodeId(danglingLine.getTerminal().getBusBreakerView().getBus().getId(), danglingLine.getTerminal().getVoltageLevel());
         return generateUcteElementId(danglingLine.getId(), code1, code2);
     }
 

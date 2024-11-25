@@ -118,7 +118,6 @@ class CounterNamingStrategyTest {
                 () -> assertNotEquals(lineId1, lineId2)
         );
 
-        // Test cached values
         assertEquals(transformerId1, strategy.getUcteElementId(transformer1));
         assertEquals(transformerId2, strategy.getUcteElementId(transformer2));
     }
@@ -174,7 +173,6 @@ class CounterNamingStrategyTest {
                 () -> assertNotEquals(id1, id2)
         );
     }
-
 
     @Test
     void testExistingUcteNodeCodes() {
