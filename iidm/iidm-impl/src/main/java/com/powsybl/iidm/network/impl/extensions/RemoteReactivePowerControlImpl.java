@@ -15,15 +15,19 @@ import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 import com.powsybl.iidm.network.impl.TerminalExt;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifiableExtension<Generator> implements RemoteReactivePowerControl {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteReactivePowerControlImpl.class);
+
     private final TDoubleArrayList targetQ;
 
-    private Terminal regulatingTerminal;
+    private final Terminal regulatingTerminal;
 
     private final TBooleanArrayList enabled;
 
@@ -108,6 +112,8 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
         // we cannot set regulating terminal to null because otherwise extension won't be consistent anymore
         // we cannot also as for voltage regulation fallback to a local terminal
         // so we just remove the extension
+        LOGGER.warn("Remove 'RemoteReactivePowerControl' extension of generator '{}', because its regulating terminal has been removed",
+                getExtendable().getId());
         getExtendable().removeExtension(RemoteReactivePowerControl.class);
     }
 
