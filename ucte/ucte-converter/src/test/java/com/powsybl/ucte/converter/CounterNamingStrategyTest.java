@@ -50,18 +50,20 @@ class CounterNamingStrategyTest {
     }
 
     @Test
-    void testInitializationOrder() {
+    void testVoltageLevelCounterNaming() {
         strategy.initialiseNetwork(network);
 
         UcteNodeCode firstBusCode = strategy.getUcteNodeCode(network.getBusBreakerView().getBus("NGEN"));
-        UcteNodeCode secondBusCode = strategy.getUcteNodeCode(network.getBusBreakerView().getBus("NHV1"));
+        UcteNodeCode secondBusCode = strategy.getUcteNodeCode(network.getBusBreakerView().getBus("NGEN2"));
+        UcteNodeCode thirdBusCode = strategy.getUcteNodeCode(network.getBusBreakerView().getBus("NGEN3"));
 
-        String firstNumericPart = firstBusCode.toString().substring(1, 6);
-        String secondNumericPart = secondBusCode.toString().substring(1, 6);
-        int firstNum = Integer.parseInt(firstNumericPart);
-        int secondNum = Integer.parseInt(secondNumericPart);
+        String firstIdPart = firstBusCode.toString().substring(0, 6);
+        String secondIdPart = secondBusCode.toString().substring(0, 6);
+        String thirdIdPart = thirdBusCode.toString().substring(0, 6);
 
-        assertTrue(secondNum > firstNum, "Les codes doivent être générés séquentiellement");
+        assertEquals(firstIdPart, secondIdPart);
+        assertEquals(firstIdPart, thirdIdPart);
+        assertEquals(secondIdPart, thirdIdPart);
     }
 
     @Test
@@ -72,17 +74,20 @@ class CounterNamingStrategyTest {
         Bus hv1Bus = network.getBusBreakerView().getBus("NHV1");
         Bus hv2Bus = network.getBusBreakerView().getBus("NHV2");
         Bus loadBus = network.getBusBreakerView().getBus("NLOAD");
+        Bus ucteBus = network.getBusBreakerView().getBus("F0000010");
 
         UcteNodeCode genCode = strategy.getUcteNodeCode(genBus);
         UcteNodeCode hv1Code = strategy.getUcteNodeCode(hv1Bus);
         UcteNodeCode hv2Code = strategy.getUcteNodeCode(hv2Bus);
         UcteNodeCode loadCode = strategy.getUcteNodeCode(loadBus);
+        UcteNodeCode ucteCode = strategy.getUcteNodeCode(ucteBus);
 
         assertAll(
                 () -> assertTrue(UcteNodeCode.isUcteNodeId(genCode.toString())),
                 () -> assertTrue(UcteNodeCode.isUcteNodeId(hv1Code.toString())),
                 () -> assertTrue(UcteNodeCode.isUcteNodeId(hv2Code.toString())),
-                () -> assertTrue(UcteNodeCode.isUcteNodeId(loadCode.toString()))
+                () -> assertTrue(UcteNodeCode.isUcteNodeId(loadCode.toString())),
+                () -> assertTrue(UcteNodeCode.isUcteNodeId(ucteCode.toString()))
         );
 
         assertAll(
@@ -168,8 +173,8 @@ class CounterNamingStrategyTest {
         assertAll(
                 () -> assertNotNull(id1),
                 () -> assertNotNull(id2),
-                () -> assertEquals(true, UcteElementId.isUcteElementId(id1.toString())),
-                () -> assertEquals(true, UcteElementId.isUcteElementId(id2.toString())),
+                () -> assertTrue(UcteElementId.isUcteElementId(id1.toString())),
+                () -> assertTrue(UcteElementId.isUcteElementId(id2.toString())),
                 () -> assertNotEquals(id1, id2)
         );
     }
