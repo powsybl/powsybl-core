@@ -45,6 +45,22 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
+    public Map<String, PropertyBags> groupedRatioTapChangerTablePoints() {
+        if (cachedGroupedRatioTapChangerTablePoints == null) {
+            cachedGroupedRatioTapChangerTablePoints = computeGroupedRatioTapChangerTablePoints();
+        }
+        return cachedGroupedRatioTapChangerTablePoints;
+    }
+
+    @Override
+    public Map<String, PropertyBags> groupedPhaseTapChangerTablePoints() {
+        if (cachedGroupedPhaseTapChangerTablePoints == null) {
+            cachedGroupedPhaseTapChangerTablePoints = computeGroupedPhaseTapChangerTablePoints();
+        }
+        return cachedGroupedPhaseTapChangerTablePoints;
+    }
+
+    @Override
     public Map<String, PropertyBags> groupedNonlinearShuntCompensatorPoints() {
         if (cachedGroupedShuntCompensatorPoints == null) {
             cachedGroupedShuntCompensatorPoints = computeGroupedShuntCompensatorPoints();
@@ -215,6 +231,28 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return gends;
     }
 
+    private Map<String, PropertyBags> computeGroupedRatioTapChangerTablePoints() {
+        Map<String, PropertyBags> groupedRatioTapChangerTablePoints = new HashMap<>();
+        ratioTapChangerTablePoints()
+                .forEach(point -> {
+                    String tableId = point.getId("RatioTapChangerTable");
+                    groupedRatioTapChangerTablePoints.computeIfAbsent(tableId, bag -> new PropertyBags())
+                            .add(point);
+                });
+        return groupedRatioTapChangerTablePoints;
+    }
+
+    private Map<String, PropertyBags> computeGroupedPhaseTapChangerTablePoints() {
+        Map<String, PropertyBags> groupedPhaseTapChangerTablePoints = new HashMap<>();
+        phaseTapChangerTablePoints()
+                .forEach(point -> {
+                    String tableId = point.getId("PhaseTapChangerTable");
+                    groupedPhaseTapChangerTablePoints.computeIfAbsent(tableId, bag -> new PropertyBags())
+                            .add(point);
+                });
+        return groupedPhaseTapChangerTablePoints;
+    }
+
     protected void cacheNodes() {
         if (!cachedNodes) {
             cachedConnectivityNodes = connectivityNodes();
@@ -314,6 +352,8 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         cachedGroupedTransformerEnds = null;
         powerTransformerRatioTapChanger = null;
         powerTransformerPhaseTapChanger = null;
+        cachedGroupedRatioTapChangerTablePoints = null;
+        cachedGroupedPhaseTapChangerTablePoints = null;
         cachedTerminals = null;
         cachedContainers = null;
         cachedBaseVoltages = null;
@@ -330,6 +370,8 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     // Caches
     private Map<String, PropertyBags> cachedGroupedShuntCompensatorPoints;
     private Map<String, PropertyBags> cachedGroupedTransformerEnds;
+    private Map<String, PropertyBags> cachedGroupedRatioTapChangerTablePoints;
+    private Map<String, PropertyBags> cachedGroupedPhaseTapChangerTablePoints;
     private Map<String, CgmesTerminal> cachedTerminals;
     private Map<String, CgmesContainer> cachedContainers;
     private Map<String, Double> cachedBaseVoltages;

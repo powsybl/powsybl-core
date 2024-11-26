@@ -418,6 +418,30 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags ratioTapChangerTablePoints() {
+        // FakeCgmesModel does not implement ratio tap changer tables
+        return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags phaseTapChangerTablePoints() {
+        // FakeCgmesModel does not implement phase tap changer tables
+        return new PropertyBags();
+    }
+
+    @Override
+    public Map<String, PropertyBags> groupedRatioTapChangerTablePoints() {
+        // FakeCgmesModel does not implement ratio tap changer tables
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public Map<String, PropertyBags> groupedPhaseTapChangerTablePoints() {
+        // FakeCgmesModel does not implement phase tap changer tables
+        return Collections.emptyMap();
+    }
+
+    @Override
     public PropertyBags regulatingControls() {
         return regulatingControls;
     }
@@ -491,30 +515,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
     @Override
     public PropertyBags reactiveCapabilityCurveData() {
         // FakeCgmesModel does not implement reactive capability curve
-        return new PropertyBags();
-    }
-
-    @Override
-    public PropertyBags ratioTapChangerTablesPoints() {
-        // FakeCgmesModel does not implement ratio tap changer tables
-        return new PropertyBags();
-    }
-
-    @Override
-    public PropertyBags phaseTapChangerTablesPoints() {
-        // FakeCgmesModel does not implement phase tap changer tables
-        return new PropertyBags();
-    }
-
-    @Override
-    public PropertyBags ratioTapChangerTable(String tableId) {
-        // FakeCgmesModel does not implement ratio tap changer tables
-        return new PropertyBags();
-    }
-
-    @Override
-    public PropertyBags phaseTapChangerTable(String tableId) {
-        // FakeCgmesModel does not implement phase tap changer tables
         return new PropertyBags();
     }
 

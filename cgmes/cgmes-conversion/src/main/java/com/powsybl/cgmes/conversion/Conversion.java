@@ -474,8 +474,6 @@ public class Conversion {
         context.dc().initialize();
         context.loadRatioTapChangers();
         context.loadPhaseTapChangers();
-        context.loadRatioTapChangerTables();
-        context.loadPhaseTapChangerTables();
         context.loadReactiveCapabilityCurveData();
         return context;
     }

@@ -99,6 +99,14 @@ public interface CgmesModel {
 
     PropertyBags phaseTapChangers();
 
+    PropertyBags ratioTapChangerTablePoints();
+
+    Map<String, PropertyBags> groupedRatioTapChangerTablePoints();
+
+    PropertyBags phaseTapChangerTablePoints();
+
+    Map<String, PropertyBags> groupedPhaseTapChangerTablePoints();
+
     PropertyBags regulatingControls();
 
     PropertyBags energyConsumers();
@@ -155,14 +163,6 @@ public interface CgmesModel {
     PropertyBags asynchronousMachines();
 
     PropertyBags reactiveCapabilityCurveData();
-
-    PropertyBags ratioTapChangerTablesPoints();
-
-    PropertyBags phaseTapChangerTablesPoints();
-
-    PropertyBags ratioTapChangerTable(String tableId);
-
-    PropertyBags phaseTapChangerTable(String tableId);
 
     PropertyBags controlAreas();
 
