@@ -138,6 +138,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         boolean isWellOrientedT2w3 = isWellOriented(twoR.starBus, twoR.t2w3);
 
         ThreeWindingsTransformerAdder t3wAdder = substation.newThreeWindingsTransformer()
+                .setEnsureIdUnicity(true)
                 .setId(getId(twoR))
                 .setName(getName(twoR))
                 .setRatedU0(ratedU0);
