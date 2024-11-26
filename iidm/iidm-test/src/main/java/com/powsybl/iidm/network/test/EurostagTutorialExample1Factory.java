@@ -1174,7 +1174,8 @@ public final class EurostagTutorialExample1Factory {
 
     private static Network addRemoteVoltageGenerator(Network network) {
         network.getGenerator("GEN")
-                .setRegulatingTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1());
+                .setRegulatingTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1())
+                .setTargetV(399);
         return network;
     }
 
