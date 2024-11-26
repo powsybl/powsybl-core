@@ -21,13 +21,8 @@ import java.util.*;
  * @author Clément LECLERC {@literal <clement.leclerc@rte-france.com>}
  */
 @AutoService(NamingStrategy.class)
-public class CounterNamingStrategy implements NamingStrategy {
-    private static final String NO_COUNTRY_ERROR = "No country for this substation";
-    private static final String NO_UCTE_CODE_ERROR = "No UCTE code found for id: %s";
-    private static final String NO_UCTE_COUNTRY_ERROR = "No UCTE country code for %s";
+public class CounterNamingStrategy extends AbstractNamingStrategy {
 
-    private final Map<String, UcteNodeCode> ucteNodeIds = new HashMap<>();
-    private final Map<String, UcteElementId> ucteElementIds = new HashMap<>();
     private int namingCounter;
 
     @Override
@@ -35,7 +30,6 @@ public class CounterNamingStrategy implements NamingStrategy {
         return "Counter";
     }
 
-    @Override
     public void initialiseNetwork(Network network) {
         namingCounter = 0;
         network.getVoltageLevelStream()
@@ -166,46 +160,4 @@ public class CounterNamingStrategy implements NamingStrategy {
         return generateUcteElementId(sw.getId(), u1, u2);
     }
 
-    @Override
-    public UcteNodeCode getUcteNodeCode(String id) {
-        if (id == null) {
-            throw new PowsyblException("ID is null");
-        }
-        return Optional.ofNullable(ucteNodeIds.get(id))
-                .orElseThrow(() -> new UcteException(String.format(NO_UCTE_CODE_ERROR, id)));
-    }
-
-    @Override
-    public UcteNodeCode getUcteNodeCode(Bus bus) {
-        return getUcteNodeCode(bus.getId());
-    }
-
-    @Override
-    public UcteNodeCode getUcteNodeCode(DanglingLine danglingLine) {
-        if (danglingLine.getPairingKey() == null) {
-            return getUcteNodeCode(danglingLine.getId());
-        }
-        return getUcteNodeCode(danglingLine.getPairingKey());
-    }
-
-    @Override
-    public UcteElementId getUcteElementId(String id) {
-        return Optional.ofNullable(ucteElementIds.get(id))
-                .orElseThrow(() -> new UcteException(String.format("No UCTE element id found for: %s", id)));
-    }
-
-    @Override
-    public UcteElementId getUcteElementId(Switch sw) {
-        return getUcteElementId(sw.getId());
-    }
-
-    @Override
-    public UcteElementId getUcteElementId(Branch branch) {
-        return getUcteElementId(branch.getId());
-    }
-
-    @Override
-    public UcteElementId getUcteElementId(DanglingLine danglingLine) {
-        return getUcteElementId(danglingLine.getId());
-    }
 }
