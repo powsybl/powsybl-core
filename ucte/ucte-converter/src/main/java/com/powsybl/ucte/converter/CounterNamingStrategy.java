@@ -69,9 +69,12 @@ public class CounterNamingStrategy implements NamingStrategy {
 
     private UcteNodeCode processExistingUcteNodeId(String nodeId, int orderCodeIndex) {
         String newNodeId = nodeId.substring(0, nodeId.length() - 1) + orderCodeIndex;
-        UcteNodeCode nodeCode = UcteNodeCode.parseUcteNodeCode(newNodeId).get();
-        ucteNodeIds.put(nodeId, nodeCode);
-        return nodeCode;
+        Optional<UcteNodeCode> nodeCode = UcteNodeCode.parseUcteNodeCode(newNodeId);
+        if (nodeCode.isPresent()) {
+            ucteNodeIds.put(nodeId, nodeCode.get());
+            return nodeCode.get();
+        }
+        throw new PowsyblException(String.format(NO_UCTE_CODE_ERROR, newNodeId));
     }
 
     private UcteNodeCode createNewUcteNodeId(String nodeId, VoltageLevel voltageLevel, int orderCodeIndex) {

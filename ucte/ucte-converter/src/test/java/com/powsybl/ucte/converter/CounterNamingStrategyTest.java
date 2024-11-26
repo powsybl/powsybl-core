@@ -132,13 +132,17 @@ class CounterNamingStrategyTest {
         strategy.initialiseNetwork(network);
         Switch sw = network.getSwitch("NGEN-NGEN2");
         Switch sw2 = network.getSwitch("NGEN-NGEN3");
+        Switch sw3 = network.getSwitch("NGEN-NGEN3");
+
         UcteElementId swId = strategy.getUcteElementId(sw);
         UcteElementId swId2 = strategy.getUcteElementId(sw2);
+        UcteElementId swId3 = strategy.getUcteElementId(sw3);
 
         assertAll(
                 () -> assertTrue(UcteElementId.isUcteElementId(swId.toString())),
                 () -> assertTrue(UcteElementId.isUcteElementId(swId2.toString())),
-                () -> assertNotEquals(swId, swId2)
+                () -> assertNotEquals(swId, swId2),
+                () -> assertEquals(swId3, swId2)
         );
 
     }
@@ -158,6 +162,15 @@ class CounterNamingStrategyTest {
 
         );
 
+    }
+
+    @Test
+    void testDanglingLineNodeIds() {
+        strategy.initialiseNetwork(network);
+        DanglingLine dl1 = network.getDanglingLine("DL1");
+        UcteNodeCode code1 = strategy.getUcteNodeCode(dl1);
+
+        assertTrue(UcteNodeCode.isUcteNodeId(code1.toString()));
     }
 
     @Test
