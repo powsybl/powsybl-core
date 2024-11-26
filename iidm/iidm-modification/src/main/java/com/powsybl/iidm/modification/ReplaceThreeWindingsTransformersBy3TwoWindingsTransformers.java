@@ -163,6 +163,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     private static TwoWindingsTransformer createTwoWindingsTransformer(ThreeWindingsTransformer t3w, ThreeWindingsTransformer.Leg leg, VoltageLevel starVoltageLevel) {
         TwoWindingsTransformerAdder t2wAdder = starVoltageLevel.getSubstation().orElseThrow()
                 .newTwoWindingsTransformer()
+                .setEnsureIdUnicity(true)
                 .setId(t3w.getId() + "-Leg" + leg.getSide().getNum())
                 .setName(t3w.getNameOrId() + "-Leg" + leg.getSide().getNum())
                 .setRatedU1(leg.getRatedU())
