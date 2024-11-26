@@ -18,7 +18,7 @@ import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 
-public class AbstractAmplExporterTest extends AbstractSerDeTest {
+public abstract class AbstractAmplExporterTest extends AbstractSerDeTest {
 
     MemDataSource dataSource;
     AmplExporter exporter;
