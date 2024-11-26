@@ -450,13 +450,13 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     private static boolean copyAlias(String alias, String aliasType, String leg, String end, ThreeWindingsTransformer t3w) {
         boolean copied = true;
         if (aliasType.equals("CGMES.TransformerEnd" + end)) {
-            t3w.addAlias(alias, "CGMES.TransformerEnd" + leg);
+            t3w.addAlias(alias, "CGMES.TransformerEnd" + leg, true);
         } else if (aliasType.equals("CGMES.Terminal" + end)) {
-            t3w.addAlias(alias, "CGMES.Terminal" + leg);
+            t3w.addAlias(alias, "CGMES.Terminal" + leg, true);
         } else if (aliasType.equals("CGMES.RatioTapChanger1")) {
-            t3w.addAlias(alias, "CGMES.RatioTapChanger" + leg);
+            t3w.addAlias(alias, "CGMES.RatioTapChanger" + leg, true);
         } else if (aliasType.equals("CGMES.PhaseTapChanger1")) {
-            t3w.addAlias(alias, "CGMES.PhaseTapChanger" + leg);
+            t3w.addAlias(alias, "CGMES.PhaseTapChanger" + leg, true);
         } else {
             copied = false;
         }
