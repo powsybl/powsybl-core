@@ -94,7 +94,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
      * @param limitSetId The OperationalLimitSet id to store.
      * @param limitSetName The OperationalLimitSet name to store.
      */
-    private void storeCgmesId(Identifiable<?> identifiable, String limitSetId, String limitSetName) {
+    private void storeOperationalLimitSetIdentifiers(Identifiable<?> identifiable, String limitSetId, String limitSetName) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode node;
@@ -121,12 +121,12 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private void createLimitsAdder(int terminalNumber, String limitSubClass, String limitSetId, String limitSetName, Branch<?> b) {
         if (terminalNumber == 1) {
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup1(limitSetId).orElseGet(() -> {
-                storeCgmesId(b, limitSetId, limitSetName);
+                storeOperationalLimitSetIdentifiers(b, limitSetId, limitSetName);
                 return b.newOperationalLimitsGroup1(limitSetId); });
             loadingLimitsAdder1 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else if (terminalNumber == 2) {
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup2(limitSetId).orElseGet(() -> {
-                storeCgmesId(b, limitSetId, limitSetName);
+                storeOperationalLimitSetIdentifiers(b, limitSetId, limitSetName);
                 return b.newOperationalLimitsGroup2(limitSetId); });
             loadingLimitsAdder2 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else {
@@ -143,7 +143,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
      */
     private void createLimitsAdder(String limitSubClass, String limitSetId, String limitSetName, DanglingLine dl) {
         OperationalLimitsGroup limitsGroup = dl.getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
-            storeCgmesId(dl, limitSetId, limitSetName);
+            storeOperationalLimitSetIdentifiers(dl, limitSetId, limitSetName);
             return dl.newOperationalLimitsGroup(limitSetId); });
         loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
     }
@@ -159,17 +159,17 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private void createLimitsAdder(int terminalNumber, String limitSubClass, String limitSetId, String limitSetName, ThreeWindingsTransformer twt) {
         if (terminalNumber == 1) {
             OperationalLimitsGroup limitsGroup = twt.getLeg1().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
-                storeCgmesId(twt, limitSetId, limitSetName);
+                storeOperationalLimitSetIdentifiers(twt, limitSetId, limitSetName);
                 return twt.getLeg1().newOperationalLimitsGroup(limitSetId); });
             loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else if (terminalNumber == 2) {
             OperationalLimitsGroup limitsGroup = twt.getLeg2().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
-                storeCgmesId(twt, limitSetId, limitSetName);
+                storeOperationalLimitSetIdentifiers(twt, limitSetId, limitSetName);
                 return twt.getLeg2().newOperationalLimitsGroup(limitSetId); });
             loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else if (terminalNumber == 3) {
             OperationalLimitsGroup limitsGroup = twt.getLeg3().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
-                storeCgmesId(twt, limitSetId, limitSetName);
+                storeOperationalLimitSetIdentifiers(twt, limitSetId, limitSetName);
                 return twt.getLeg3().newOperationalLimitsGroup(limitSetId); });
             loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else {
