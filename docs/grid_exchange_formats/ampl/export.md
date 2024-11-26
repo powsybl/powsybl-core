@@ -8,7 +8,7 @@ At the moment, there are:
 
 - The `BasicAmplExporter` (associated with the `AmplExportVersion` `V1_0`);
 - The `ExtendedAmplExporter` (associated with the `AmplExportVersion` `V1_1`) that inherits from the `BasicAmplExporter`.
-
+TODO
 The default version is the `V1_1`.
 
 Exporters define the information written in text files and fed to AMPL regarding:
