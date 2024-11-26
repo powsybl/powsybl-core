@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
@@ -219,7 +218,6 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
                 + test reportNode
                    + Replaced ThreeWindingsTransformer by 3 TwoWindingsTransformers
                       ThreeWindingsTransformer 3WT removed
-                      Property [t3w property2,t3w property1] of threeWindingsTransformer 3WT will be lost
                       Alias [t3w-alias1,t3w-alias2] of threeWindingsTransformer 3WT will be lost
                       VoltageLevel 3WT-Star-VL created
                       TwoWindingsTransformer 3WT-Leg1 created
@@ -292,16 +290,6 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
         Network expectedNetwork = createThreeWindingsTransformerNodeBreakerNetwork();
         t3w = expectedNetwork.getThreeWindingsTransformer("3WT");
         network = createThreeWindingsTransformerNodeBreakerNetwork();
-    }
-
-    @Test
-    void applyChecksTest() {
-        network.getThreeWindingsTransformer(t3w.getId()).setProperty("unknown property", "unknown value");
-        ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
-        assertThrows(PowsyblException.class, () -> replace.apply(network, true, ReportNode.NO_OP),
-                "An unknown property should fail to apply.");
-        assertDoesNotThrow(() -> replace.apply(network, false, ReportNode.NO_OP),
-                "An unknown property should not throw if throwException is false.");
     }
 
     @Test

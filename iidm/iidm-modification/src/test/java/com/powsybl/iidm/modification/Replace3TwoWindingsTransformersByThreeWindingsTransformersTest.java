@@ -244,9 +244,6 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
                       TwoWindingsTransformer 3WT-Leg2 removed
                       TwoWindingsTransformer 3WT-Leg3 removed
                       Voltage level 3WT-Star-VL, its equipments and the branches it is connected to have been removed
-                      Property [t2w1 property1] of twoWindingsTransformer 3WT-Leg1 will be lost
-                      Property [t2w2 property1,t2w2 property2] of twoWindingsTransformer 3WT-Leg2 will be lost
-                      Property [t2w3 property1] of twoWindingsTransformer 3WT-Leg3 will be lost
                       Alias [t2w1-alias2,t2w1-alias1] of twoWindingsTransformer 3WT-Leg1 will be lost
                       Alias [t2w2-alias1] of twoWindingsTransformer 3WT-Leg2 will be lost
                       Alias [t2w3-alias1] of twoWindingsTransformer 3WT-Leg3 will be lost
@@ -402,17 +399,8 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     }
 
     @Test
-    void applyChecks1Test() {
-        network.getTwoWindingsTransformer(t2w1.getId()).setProperty("unknown property", "unknown value");
-        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
-        assertThrows(PowsyblException.class, () -> replace.apply(network, true, ReportNode.NO_OP),
-                "An unknown property should fail to apply.");
-        assertDoesNotThrow(() -> replace.apply(network, false, ReportNode.NO_OP),
-                "An unknown property should not throw if throwException is false.");
-    }
-
-    @Test
     void applyChecks2Test() {
+        network.getTwoWindingsTransformer(t2w1.getId()).setProperty("unknown property", "unknown value");
         network.getTwoWindingsTransformer(t2w2.getId()).setProperty("unknown property", "unknown value");
         Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
         assertThrows(PowsyblException.class, () -> replace.apply(network, true, ReportNode.NO_OP),
@@ -423,6 +411,7 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
 
     @Test
     void applyChecks3Test() {
+        network.getTwoWindingsTransformer(t2w1.getId()).setProperty("unknown property", "unknown value");
         network.getTwoWindingsTransformer(t2w3.getId()).setProperty("unknown property", "unknown value");
         Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
         assertThrows(PowsyblException.class, () -> replace.apply(network, true, ReportNode.NO_OP),

@@ -28,29 +28,33 @@ import static com.powsybl.iidm.modification.util.TransformerUtils.*;
  *     <li>The star terminals of the twoWindingsTransformers must not be regulated terminals for any controller.</li>
  *     <li>Each twoWindingsTransformer is well oriented if the star bus is located at the end 2.</li>
  *     <li>A new ThreeWindingsTransformer is created for replacing the three TwoWindingsTransformers.</li>
- *     <li>The following attributes are copied from each twoWindingsTransformer to the new associated leg:</li>
- *     <ul>
- *         <li>Electrical characteristics, ratioTapChangers, and phaseTapChangers. Adjustments are required if the twoWindingsTransformer is not well oriented.</li>
- *         <li>Only the Operational Loading Limits  defined at the non-star end are copied to the leg.</li>
- *         <li>Active and reactive power at the non-star terminal are copied to the leg terminal.</li>
- *     </ul>
- *     <li>Aliases:</li>
- *     <ul>
- *         <li>Aliases for known CGMES identifiers (terminal, transformer end, ratio, and phase tap changer) are copied to the threeWindingsTransformer after adjusting the aliasType.</li>
- *         <li>Aliases that are not mapped are recorded in the functional log.</li>
- *     </ul>
- *     <li>Properties:</li>
- *     <ul>
- *         <li>Voltage and angle of the star bus are added as properties of the threeWindingsTransformer.</li>
- *         <li>Only the names of the transferred operational limits are copied as properties of the threeWindingsTransformer.</li>
- *         <li>Properties that are not mapped are recorded in the functional log.</li>
- *     </ul>
- *     <li>Extensions:</li>
- *     <ul>
- *         <li>Only IIDM extensions are copied: TransformerFortescueData, PhaseAngleClock, and TransformerToBeEstimated.</li>
- *         <li>CGMES extensions can not be copied, as they cause circular dependencies.</li>
- *         <li>Extensions that are not copied are recorded in the functional log.</li>
- *     </ul>
+ *     <li>The following attributes are copied from each twoWindingsTransformer to the new associated leg:
+ *         <ul>
+ *             <li>Electrical characteristics, ratioTapChangers, and phaseTapChangers. Adjustments are required if the twoWindingsTransformer is not well oriented.</li>
+ *             <li>Only the Operational Loading Limits  defined at the non-star end are copied to the leg.</li>
+ *             <li>Active and reactive power at the non-star terminal are copied to the leg terminal.</li>
+ *         </ul>
+ *     </li>
+ *     <li>Aliases:
+ *         <ul>
+ *             <li>Aliases for known CGMES identifiers (terminal, transformer end, ratio, and phase tap changer) are copied to the threeWindingsTransformer after adjusting the aliasType.</li>
+ *             <li>Aliases that are not mapped are recorded in the functional log.</li>
+ *         </ul>
+ *     </li>
+ *     <li>Properties:
+ *         <ul>
+ *             <li>Voltage and angle of the star bus are added as properties of the threeWindingsTransformer.</li>
+ *             <li>Only the names of the transferred operational limits are copied as properties of the threeWindingsTransformer.</li>
+ *             <li>Properties that are not mapped are recorded in the functional log.</li>
+ *         </ul>
+ *     </li>
+ *     <li>Extensions:
+ *         <ul>
+ *             <li>Only IIDM extensions are copied: TransformerFortescueData, PhaseAngleClock, and TransformerToBeEstimated.</li>
+ *             <li>CGMES extensions can not be copied, as they cause circular dependencies.</li>
+ *             <li>Extensions that are not copied are recorded in the functional log.</li>
+ *         </ul>
+ *     </li>
  *     <li>All the controllers using any of the twoWindingsTransformer terminals as regulated terminal are updated.</li>
  *     <li>New and removed equipment is also recorded in the functional log.</li>
  *     <li>Internal connections are created to manage the replacement.</li>
@@ -382,7 +386,11 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
                 copied = false;
             }
         } else {
-            copied = false;
+            if (t3w.getPropertyNames().contains(propertyName)) {
+                copied = false;
+            } else {
+                t3w.setProperty(propertyName, property);
+            }
         }
         return copied;
     }

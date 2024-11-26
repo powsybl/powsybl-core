@@ -28,29 +28,33 @@ import static com.powsybl.iidm.modification.util.TransformerUtils.copyAndAddPhas
  * <ul>
  *     <li>A new voltage level is created for the star node with nominal voltage of ratedU0.</li>
  *     <li>Three new TwoWindingsTransformers are created, one for each leg of the removed ThreeWindingsTransformer.</li>
- *     <li>The following attributes are copied from each leg to the new associated twoWindingsTransformer:</li>
- *     <ul>
- *         <li>Electrical characteristics, ratioTapChangers, and phaseTapChangers. No adjustments are required.</li>
- *         <li>Operational Loading Limits are copied to the non-star end of the twoWindingsTransformers.</li>
- *         <li>Active and reactive power at the terminal are copied to the non-star terminal of the twoWindingsTransformer.</li>
- *     </ul>
- *     <li>Aliases:</li>
- *     <ul>
- *         <li>Aliases for known CGMES identifiers (terminal, transformer end, ratio, and phase tap changer) are copied to the right twoWindingsTransformer after adjusting the aliasType.</li>
- *         <li>Aliases that are not mapped are recorded in the functional log.</li>
- *     </ul>
- *     <li>Properties:</li>
- *     <ul>
- *         <li>Star bus voltage and angle are set to the bus created for the star node.</li>
- *         <li>The names of the operationalLimitsSet are copied to the right twoWindingsTransformer.</li>
- *         <li>Properties that are not mapped are recorded in the functional log.</li>
- *     </ul>
- *     <li>Extensions:</li>
- *     <ul>
- *         <li>Only IIDM extensions are copied: TransformerFortescueData, PhaseAngleClock, and TransformerToBeEstimated.</li>
- *         <li>CGMES extensions can not be copied, as they cause circular dependencies.</li>
- *         <li>Extensions that are not copied are recorded in the functional log.</li>
- *     </ul>
+ *     <li>The following attributes are copied from each leg to the new associated twoWindingsTransformer:
+ *         <ul>
+ *             <li>Electrical characteristics, ratioTapChangers, and phaseTapChangers. No adjustments are required.</li>
+ *             <li>Operational Loading Limits are copied to the non-star end of the twoWindingsTransformers.</li>
+ *             <li>Active and reactive power at the terminal are copied to the non-star terminal of the twoWindingsTransformer.</li>
+ *         </ul>
+ *     </li>
+ *     <li>Aliases:
+ *         <ul>
+ *             <li>Aliases for known CGMES identifiers (terminal, transformer end, ratio, and phase tap changer) are copied to the right twoWindingsTransformer after adjusting the aliasType.</li>
+ *             <li>Aliases that are not mapped are recorded in the functional log.</li>
+ *         </ul>
+ *     </li>
+ *     <li>Properties:
+ *         <ul>
+ *             <li>Star bus voltage and angle are set to the bus created for the star node.</li>
+ *             <li>The names of the operationalLimitsSet are copied to the right twoWindingsTransformer.</li>
+ *             <li>Properties that are not mapped are recorded in the functional log.</li>
+ *         </ul>
+ *     </li>
+ *     <li>Extensions:
+ *         <ul>
+ *             <li>Only IIDM extensions are copied: TransformerFortescueData, PhaseAngleClock, and TransformerToBeEstimated.</li>
+ *             <li>CGMES extensions can not be copied, as they cause circular dependencies.</li>
+ *             <li>Extensions that are not copied are recorded in the functional log.</li>
+ *         </ul>
+ *     </li>
  *     <li>All the controllers using any of the threeWindingsTransformer terminals as regulated terminal are updated.</li>
  *     <li>New and removed equipment is also recorded in the functional log.</li>
  *     <li>Internal connections are created to manage the replacement.</li>
@@ -276,7 +280,10 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
                 copied = false;
             }
         } else {
-            copied = false;
+            // we copy all other properties on the 3 2wt
+            threeT2ws.t2wOne.setProperty(propertyName, property);
+            threeT2ws.t2wTwo.setProperty(propertyName, property);
+            threeT2ws.t2wThree.setProperty(propertyName, property);
         }
         return copied;
     }
