@@ -22,6 +22,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         super.setUp();
 
         Files.copy(getClass().getResourceAsStream("/contingencies.json"), fileSystem.getPath("/contingencies.json"));
+        Files.copy(getClass().getResourceAsStream("/contingenciesBatteries.json"), fileSystem.getPath("/contingenciesBatteries.json"));
         Files.copy(getClass().getResourceAsStream("/contingenciesWithOptionalName.json"), fileSystem.getPath("/contingenciesWithOptionalName.json"));
     }
 
@@ -132,6 +134,27 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         assertEquals(1, contingencies.get(1).getElements().size());
 
         roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingencies.json");
+    }
+
+    @Test
+    void readJsonListWithBatteryContingency() throws IOException {
+        Network network = BatteryNetworkFactory.create();
+
+        ContingencyList contingencyList = ContingencyList.load(fileSystem.getPath("/contingenciesBatteries.json"));
+        assertEquals("list", contingencyList.getName());
+
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(4, contingencies.size());
+        assertEquals("contingency", contingencies.get(0).getId());
+        assertEquals(2, contingencies.get(0).getElements().size());
+        assertEquals("contingency2", contingencies.get(1).getId());
+        assertEquals(1, contingencies.get(1).getElements().size());
+        assertEquals("contingency3", contingencies.get(2).getId());
+        assertEquals(1, contingencies.get(2).getElements().size());
+        assertEquals("contingency4", contingencies.get(3).getId());
+        assertEquals(1, contingencies.get(3).getElements().size());
+
+        roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesBatteries.json");
     }
 
     @Test

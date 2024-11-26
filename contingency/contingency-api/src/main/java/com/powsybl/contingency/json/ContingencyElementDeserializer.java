@@ -58,6 +58,7 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case LOAD -> new LoadContingency(id);
                 case BUS -> new BusContingency(id);
                 case TIE_LINE -> new TieLineContingency(id, voltageLevelId);
+                case BATTERY -> new BatteryContingency(id);
                 default -> throw new IllegalStateException("Unexpected ContingencyElementType value: " + type);
             };
         }
