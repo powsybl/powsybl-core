@@ -8,8 +8,8 @@ At the moment, there are:
 
 - The `BasicAmplExporter` (associated with the `AmplExportVersion` `V1_0`);
 - The `ExtendedAmplExporter` (associated with the `AmplExportVersion` `V1_1`) that inherits from the `BasicAmplExporter`.
-TODO
-The default version is the `V1_1`.
+- The `ExtendedAmplExporterV2` (associated with the `AmplExportVersion` `V1_2`) that inherits from the `ExtendedAmplExporter`.
+The default version is the `V1_2`.
 
 Exporters define the information written in text files and fed to AMPL regarding:
 
@@ -37,6 +37,14 @@ This exporter adds the following information to the `BasicAmplExporter`:
 - In the bus tables, a boolean indicating if the bus is a slack one and an integer identifying the synchronous component;
 - `r`, `g` and `b` in tap tables as it is already done for `x`;
 - The regulating bus id for generators and static VAR compensators that are in voltage regulation mode.
+
+### The `ExtendedAmplExporterV2`
+
+This exporter adds the following information to the `ExtendedAmplExporter`:
+
+- In the generator tables, a boolean indicating if the generator is a condenser;
+- In LCC converter station tables, the load target Q of the converter station;
+- TODO
 
 
 (ampl-export-options)=
