@@ -105,22 +105,21 @@ public interface CgmesModel {
 
     PropertyBags energySources();
 
-    PropertyBags shuntCompensators();
-
     PropertyBags equivalentShunts();
 
+    PropertyBags shuntCompensators();
+
     /**
-     * Query all NonlinearShuntCompensatorPoint in the CgmesModel.
+     * Get all NonlinearShuntCompensatorPoint in the CgmesModel.
      * @return A {@link PropertyBags} with the shunt compensators points properties.
      */
     PropertyBags nonlinearShuntCompensatorPoints();
 
     /**
-     * Query the NonlinearShuntCompensatorPoint associated to the given NonlinearShuntCompensator.
-     * @param shuntId The id of the NonlinearShuntCompensator.
-     * @return A {@link PropertyBags} with the given shunt compensator's points properties.
+     * Get all NonlinearShuntCompensatorPoint in the CgmesModel, grouped by their associated NonlinearShuntCompensator.
+     * @return A Map of NonlinearShuntCompensator ids and {@link PropertyBags} with the corresponding points properties.
      */
-    PropertyBags nonlinearShuntCompensatorPoints(String shuntId);
+    Map<String, PropertyBags> groupedNonlinearShuntCompensatorPoints();
 
     PropertyBags staticVarCompensators();
 
