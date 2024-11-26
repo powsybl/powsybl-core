@@ -1213,7 +1213,7 @@ public final class EquipmentExport {
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode propertyNode = mapper.readTree(identifiable.getProperty(propertyKey));
                 JsonNode limitsGroupNode = propertyNode.get(operationalLimitSetId);
-                operationalLimitSetName = limitsGroupNode.textValue();
+                operationalLimitSetName = limitsGroupNode != null ? limitsGroupNode.textValue() : operationalLimitSetId;
             } catch (JsonProcessingException e) {
                 operationalLimitSetName = operationalLimitSetId;
             }
