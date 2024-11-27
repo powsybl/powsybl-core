@@ -13,6 +13,8 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.modification.util.RegulatedTerminalControllers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -68,9 +70,9 @@ import static com.powsybl.iidm.modification.util.TransformerUtils.*;
 
 public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends AbstractNetworkModification {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Replace3TwoWindingsTransformersByThreeWindingsTransformers.class);
     private static final String TWO_WINDINGS_TRANSFORMER = "TwoWindingsTransformer";
     private static final String WITH_FICTITIOUS_TERMINAL_USED_AS_REGULATED_TERMINAL = "with star terminal used as regulated terminal";
-    private static final String WAS_NOT_TRANSFERRED = "was not transferred.";
     private static final String CGMES_OPERATIONAL_LIMIT_SET = "CGMES.OperationalLimitSet_";
 
     private final List<String> transformersToBeReplaced;
@@ -211,16 +213,16 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
 
         // warnings
         if (!lostProperties.isEmpty()) {
-            lostProperties.forEach(propertyR -> logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + propertyR.t2wId + "' property '" + propertyR.propertyName + "' " + WAS_NOT_TRANSFERRED));
+            lostProperties.forEach(propertyR -> LOG.warn("Property '{}' of twoWindingsTransformer '{}' was not transferred", propertyR.propertyName, propertyR.t2wId));
         }
         if (!lostExtensions.isEmpty()) {
-            lostExtensions.forEach(extensionR -> logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + extensionR.t2wId + "' extension '" + extensionR.extensionName + "' " + WAS_NOT_TRANSFERRED));
+            lostExtensions.forEach(extensionR -> LOG.warn("Extension '{}' of twoWindingsTransformer '{}' was not transferred", extensionR.extensionName, extensionR.t2wId));
         }
         if (!lostAliases.isEmpty()) {
-            lostAliases.forEach(aliasR -> logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + aliasR.t2wId + "' alias '" + aliasR.alias + "' '" + aliasR.aliasType + "' " + WAS_NOT_TRANSFERRED));
+            lostAliases.forEach(aliasR -> LOG.warn("Alias '{}' '{}' of twoWindingsTransformer '{}' was not transferred", aliasR.alias, aliasR.aliasType, aliasR.t2wId));
         }
         if (!lostLimits.isEmpty()) {
-            lostLimits.forEach(limitsR -> logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + limitsR.t2wId + "' operationalLimitsGroup '" + limitsR.operationalLimitsGroupName + "' is lost"));
+            lostLimits.forEach(limitsR -> LOG.warn("OperationalLimitsGroup '{}' of twoWindingsTransformer '{}' is lost", limitsR.operationalLimitsGroupName, limitsR.t2wId));
         }
 
         // report

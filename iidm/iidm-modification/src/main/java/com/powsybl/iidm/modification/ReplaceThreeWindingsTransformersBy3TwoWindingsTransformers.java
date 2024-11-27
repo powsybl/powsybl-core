@@ -14,6 +14,8 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.modification.util.RegulatedTerminalControllers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -65,8 +67,8 @@ import static com.powsybl.iidm.modification.util.TransformerUtils.copyAndAddPhas
  */
 public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends AbstractNetworkModification {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers.class);
     private static final String THREE_WINDINGS_TRANSFORMER = "ThreeWindingsTransformer";
-    private static final String WAS_NOT_TRANSFERRED = "was not transferred.";
     private static final String CGMES_OPERATIONAL_LIMIT_SET = "CGMES.OperationalLimitSet_";
 
     private final List<String> transformersToBeReplaced;
@@ -139,13 +141,13 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
 
         // warnings
         if (!lostProperties.isEmpty()) {
-            lostProperties.forEach(propertyName -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' property '" + propertyName + "' " + WAS_NOT_TRANSFERRED));
+            lostProperties.forEach(propertyName -> LOG.warn("Property '{}' of threeWindingsTransformer '{}' was not transferred", propertyName, t3wId));
         }
         if (!lostExtensions.isEmpty()) {
-            lostExtensions.forEach(extensionName -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' extension '" + extensionName + "' " + WAS_NOT_TRANSFERRED));
+            lostExtensions.forEach(extensionName -> LOG.warn("Extension '{}' of threeWindingsTransformer '{}' was not transferred", extensionName, t3wId));
         }
         if (!lostAliases.isEmpty()) {
-            lostAliases.forEach(aliasR -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' alias '" + aliasR.alias + "' '" + aliasR.aliasType + "' " + WAS_NOT_TRANSFERRED));
+            lostAliases.forEach(aliasR -> LOG.warn("Alias '{}' '{}' of threeWindingsTransformer '{}' was not transferred", aliasR.alias, aliasR.aliasType, t3wId));
         }
 
         // report

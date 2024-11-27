@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.Network;
@@ -439,28 +438,6 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         network = createThreeWindingsTransformerNodeBreakerNetwork();
         ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
         replace.apply(network);
-    }
-
-    @Test
-    void applyChecks2Test() {
-        network.getTwoWindingsTransformer(t2w1.getId()).setProperty("unknown property", "unknown value");
-        network.getTwoWindingsTransformer(t2w2.getId()).setProperty("unknown property", "unknown value");
-        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
-        assertThrows(PowsyblException.class, () -> replace.apply(network, true, ReportNode.NO_OP),
-                "An unknown property should fail to apply.");
-        assertDoesNotThrow(() -> replace.apply(network, false, ReportNode.NO_OP),
-                "An unknown property should not throw if throwException is false.");
-    }
-
-    @Test
-    void applyChecks3Test() {
-        network.getTwoWindingsTransformer(t2w1.getId()).setProperty("unknown property", "unknown value");
-        network.getTwoWindingsTransformer(t2w3.getId()).setProperty("unknown property", "unknown value");
-        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
-        assertThrows(PowsyblException.class, () -> replace.apply(network, true, ReportNode.NO_OP),
-                "An unknown property should fail to apply.");
-        assertDoesNotThrow(() -> replace.apply(network, false, ReportNode.NO_OP),
-                "An unknown property should not throw if throwException is false.");
     }
 
     @Test
