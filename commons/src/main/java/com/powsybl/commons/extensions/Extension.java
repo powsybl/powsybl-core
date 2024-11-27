@@ -38,5 +38,6 @@ public interface Extension<T> {
      * Method called just before the extension is removed from its holder.
      * Can be used for e.g. resource cleanup.
      */
-    void cleanup();
+    default void cleanup() {
+    }
 }
