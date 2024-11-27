@@ -119,4 +119,9 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
             terminals.set(variantIndex, null);
         }
     }
+
+    @Override
+    public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
+        terminals.replaceAll(t -> t == oldReferenced ? newReferenced : t);
+    }
 }

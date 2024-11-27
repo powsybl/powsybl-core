@@ -157,4 +157,13 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
             terminals.remove(terminal);
         }
     }
+
+    @Override
+    public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
+        for (Set<Terminal> terminals : terminalsPerVariant) {
+            if (terminals.remove(oldReferenced)) {
+                terminals.add(newReferenced);
+            }
+        }
+    }
 }

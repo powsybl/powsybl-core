@@ -29,7 +29,7 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
 
     private final TDoubleArrayList targetQ;
 
-    private final Terminal regulatingTerminal;
+    private Terminal regulatingTerminal;
 
     private final TBooleanArrayList enabled;
 
@@ -115,6 +115,13 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
         LOGGER.warn("Remove 'RemoteReactivePowerControl' extension of generator '{}', because its regulating terminal has been removed",
                 getExtendable().getId());
         getExtendable().removeExtension(RemoteReactivePowerControl.class);
+    }
+
+    @Override
+    public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
+        if (regulatingTerminal == oldReferenced) {
+            regulatingTerminal = newReferenced;
+        }
     }
 
     @Override

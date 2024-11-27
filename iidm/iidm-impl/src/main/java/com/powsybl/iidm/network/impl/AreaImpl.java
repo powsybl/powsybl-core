@@ -34,9 +34,39 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     private final TDoubleArrayList interchangeTarget;
 
-    private final Referrer<Terminal> terminalReferrer = this::removeAreaBoundary;
+    private final Referrer<Terminal> terminalReferrer = new Referrer<>() {
+        @Override
+        public void onReferencedRemoval(Terminal terminal) {
+            removeAreaBoundary(terminal);
+        }
 
-    private final Referrer<Boundary> boundaryReferrer = this::removeAreaBoundary;
+        @Override
+        public void onReferencedReplacement(Terminal oldTerminal, Terminal newTerminal) {
+            for (AreaBoundary areaBoundary : areaBoundaries) {
+                AreaBoundaryImpl areaBoundaryImpl = (AreaBoundaryImpl) areaBoundary;
+                if (areaBoundaryImpl.terminal == oldTerminal) {
+                    areaBoundaryImpl.terminal = newTerminal;
+                }
+            }
+        }
+    };
+
+    private final Referrer<Boundary> boundaryReferrer = new Referrer<>() {
+        @Override
+        public void onReferencedRemoval(Boundary boundary) {
+            removeAreaBoundary(boundary);
+        }
+
+        @Override
+        public void onReferencedReplacement(Boundary oldBoundary, Boundary newBoundary) {
+            for (AreaBoundary areaBoundary : areaBoundaries) {
+                AreaBoundaryImpl areaBoundaryImpl = (AreaBoundaryImpl) areaBoundary;
+                if (areaBoundaryImpl.boundary == oldBoundary) {
+                    areaBoundaryImpl.boundary = newBoundary;
+                }
+            }
+        }
+    };
 
     AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType,
                     double interchangeTarget) {

@@ -25,4 +25,9 @@ public abstract class AbstractIidmExtension<I extends Identifiable<I>> extends A
         // nothing by default
         // this is the place for terminal reference cleanup
     }
+
+    @Override
+    public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
+        // nothing by default
+    }
 }

@@ -687,8 +687,8 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
                         connectable.replaceTerminal(oldTerminalExt, oldTopologyPoint, newTerminalExt, false);
 
                         // also update regulating points terminal
-                        for (RegulatingPoint regulatingPoint : new ArrayList<>(oldTerminalExt.getRegulatingPoints())) {
-                            regulatingPoint.setRegulatingTerminal(newTerminalExt);
+                        for (Referrer<Terminal> referrer : oldTerminalExt.getReferrerManager().getReferrers()) {
+                            referrer.onReferencedReplacement(oldTerminalExt, newTerminalExt);
                         }
                     } else {
                         // here keep the removal notification

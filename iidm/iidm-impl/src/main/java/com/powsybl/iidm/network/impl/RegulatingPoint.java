@@ -157,4 +157,11 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
             regulationMode.fill(0, regulationMode.size(), StaticVarCompensator.RegulationMode.OFF.ordinal());
         }
     }
+
+    @Override
+    public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
+        if (regulatingTerminal == oldReferenced) {
+            regulatingTerminal = (TerminalExt) newReferenced;
+        }
+    }
 }
