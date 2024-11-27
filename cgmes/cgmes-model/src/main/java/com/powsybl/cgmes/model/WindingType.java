@@ -18,11 +18,8 @@ public enum WindingType {
     PRIMARY, SECONDARY, TERTIARY;
 
     public static WindingType fromTransformerEnd(PropertyBag end) {
-        // For CIM14 (CIM ENTSOE Profile1) primary is determined by windingType
-        // For CIM16 (CGMES) primary is defined by the corresponding terminal sequence number:
-        // "The Terminal.sequenceNumber distinguishes the terminals much as previously done by
-        // TransformerWinding.windingType:WindingType"
-
+        // For CIM14 (CIM ENTSOE Profile1) primary is determined by TransformerWinding.windingType
+        // For CIM16 (CGMES) primary is defined by TransformerEnd.endNumber
         if (end.containsKey("windingType")) {
             String wtype = end.getLocal("windingType");
             if (wtype.endsWith("WindingType.primary")) {
@@ -32,10 +29,13 @@ public enum WindingType {
             } else if (wtype.endsWith("WindingType.tertiary")) {
                 return WindingType.TERTIARY;
             }
-        } else if (end.containsKey("terminalSequenceNumber")) {
-            // Terminal.sequenceNumber := 1, 2 ,3 ...
-            return WindingType.values()[end.asInt("terminalSequenceNumber") - 1];
+        } else if (end.containsKey("endNumber")) {
+            return WindingType.values()[end.asInt("endNumber") - 1];
         }
         return WindingType.PRIMARY;
+    }
+
+    public static int windingEndNumber(PropertyBag end) {
+        return fromTransformerEnd(end).ordinal() + 1;
     }
 }
