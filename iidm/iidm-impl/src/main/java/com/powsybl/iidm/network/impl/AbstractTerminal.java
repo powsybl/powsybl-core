@@ -8,13 +8,11 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -33,7 +31,7 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected VoltageLevelExt voltageLevel;
 
-    protected final List<RegulatingPoint> regulatingPoints = new ArrayList<>();
+    protected final ReferrerManager<Terminal> referrerManager = new ReferrerManager<>(this);
 
     // attributes depending on the variant
 
@@ -92,12 +90,6 @@ abstract class AbstractTerminal implements TerminalExt {
         if (voltageLevel != null) {
             network = voltageLevel.getNetworkRef();
         }
-    }
-
-    @Override
-    public void removeAsRegulationPoint() {
-        regulatingPoints.forEach(RegulatingPoint::removeRegulatingTerminal);
-        regulatingPoints.clear();
     }
 
     @Override
@@ -250,17 +242,7 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public void setAsRegulatingPoint(RegulatingPoint rp) {
-        regulatingPoints.add(rp);
-    }
-
-    @Override
-    public void removeRegulatingPoint(RegulatingPoint rp) {
-        regulatingPoints.remove(rp);
-    }
-
-    @Override
-    public List<RegulatingPoint> getRegulatingPoints() {
-        return regulatingPoints;
+    public ReferrerManager<Terminal> getReferrerManager() {
+        return referrerManager;
     }
 }
