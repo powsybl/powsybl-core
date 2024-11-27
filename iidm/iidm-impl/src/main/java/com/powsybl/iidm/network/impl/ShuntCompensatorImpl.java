@@ -267,6 +267,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
+    public void remove() {
+        regulatingPoint.remove();
+        super.remove();
+    }
+
+    @Override
     protected String getTypeDescription() {
         return "Shunt compensator";
     }
