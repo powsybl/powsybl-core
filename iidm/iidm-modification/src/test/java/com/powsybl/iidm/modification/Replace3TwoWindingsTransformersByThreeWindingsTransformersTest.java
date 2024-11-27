@@ -72,44 +72,47 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
 
     @Test
     void replaceSelectedTwoWindingsTransformerOneTest() {
-        assertEquals(4, network.getVoltageLevelCount());
-        assertEquals(3, network.getTwoWindingsTransformerCount());
-        assertEquals(0, network.getThreeWindingsTransformerCount());
-
-        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers(Collections.singletonList("3WT-Leg1"));
-        replace.apply(network);
-
-        assertEquals(3, network.getVoltageLevelCount());
-        assertEquals(0, network.getTwoWindingsTransformerCount());
-        assertEquals(1, network.getThreeWindingsTransformerCount());
+        assertTrue(replaceSelectedTwoWindingsTransformerTest("3WT-Leg1"));
     }
 
     @Test
     void replaceSelectedTwoWindingsTransformerTwoTest() {
-        assertEquals(4, network.getVoltageLevelCount());
-        assertEquals(3, network.getTwoWindingsTransformerCount());
-        assertEquals(0, network.getThreeWindingsTransformerCount());
-
-        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers(Collections.singletonList("3WT-Leg2"));
-        replace.apply(network);
-
-        assertEquals(3, network.getVoltageLevelCount());
-        assertEquals(0, network.getTwoWindingsTransformerCount());
-        assertEquals(1, network.getThreeWindingsTransformerCount());
+        assertTrue(replaceSelectedTwoWindingsTransformerTest("3WT-Leg2"));
     }
 
     @Test
     void replaceSelectedTwoWindingsTransformerThreeTest() {
+        assertTrue(replaceSelectedTwoWindingsTransformerTest("3WT-Leg3"));
+    }
+
+    private boolean replaceSelectedTwoWindingsTransformerTest(String t2wId) {
         assertEquals(4, network.getVoltageLevelCount());
         assertEquals(3, network.getTwoWindingsTransformerCount());
         assertEquals(0, network.getThreeWindingsTransformerCount());
 
-        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers(Collections.singletonList("3WT-Leg3"));
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers(Collections.singletonList(t2wId));
         replace.apply(network);
 
         assertEquals(3, network.getVoltageLevelCount());
         assertEquals(0, network.getTwoWindingsTransformerCount());
         assertEquals(1, network.getThreeWindingsTransformerCount());
+
+        return true;
+    }
+
+    @Test
+    void nonReplacementTest() {
+        assertEquals(4, network.getVoltageLevelCount());
+        assertEquals(3, network.getTwoWindingsTransformerCount());
+        assertEquals(0, network.getThreeWindingsTransformerCount());
+
+        String t2wId = "unknown twoWindingsTransformer";
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers(Collections.singletonList(t2wId));
+        replace.apply(network);
+
+        assertEquals(4, network.getVoltageLevelCount());
+        assertEquals(3, network.getTwoWindingsTransformerCount());
+        assertEquals(0, network.getThreeWindingsTransformerCount());
     }
 
     @Test

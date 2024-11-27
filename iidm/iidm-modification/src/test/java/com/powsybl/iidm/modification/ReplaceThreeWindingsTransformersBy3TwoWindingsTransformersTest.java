@@ -72,6 +72,21 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
     }
 
     @Test
+    void nonReplacementTest() {
+        assertEquals(3, network.getVoltageLevelCount());
+        assertEquals(1, network.getThreeWindingsTransformerCount());
+        assertEquals(0, network.getTwoWindingsTransformerCount());
+
+        String t3wId = "unknown threeWindingsTransformer";
+        ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers(Collections.singletonList(t3wId));
+        replace.apply(network);
+
+        assertEquals(3, network.getVoltageLevelCount());
+        assertEquals(1, network.getThreeWindingsTransformerCount());
+        assertEquals(0, network.getTwoWindingsTransformerCount());
+    }
+
+    @Test
     void replaceRatioTapChangerTest() {
         assertNull(t3w.getLeg1().getRatioTapChanger());
         assertNotNull(t3w.getLeg2().getRatioTapChanger());
