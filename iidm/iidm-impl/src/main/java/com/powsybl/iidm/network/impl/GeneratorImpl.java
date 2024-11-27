@@ -248,6 +248,12 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
+    public void remove() {
+        regulatingPoint.remove();
+        super.remove();
+    }
+
+    @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         targetP.ensureCapacity(targetP.size() + number);

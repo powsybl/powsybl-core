@@ -135,8 +135,14 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
         }
     }
 
+    void remove() {
+        if (regulatingTerminal != null) {
+            regulatingTerminal.getReferrerManager().unregister(this);
+        }
+    }
+
     @Override
-    public void onReferencedRemoval(Terminal terminal) {
+    public void onReferencedRemoval(Terminal removedTerminal) {
         TerminalExt localTerminal = localTerminalSupplier.get();
         if (localTerminal != null && useVoltageRegulation) { // if local voltage regulation, we keep the regulating status, and re-locate the regulation at the regulated equipment
             Bus bus = regulatingTerminal.getBusView().getBus();

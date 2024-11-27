@@ -34,26 +34,22 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     private void unregisterReferencedTerminalIfNeeded(int variantIndex) {
         // check there is no more same terminal referenced by any variant, unregister it
         Set<Terminal> oldTerminals = terminalsPerVariant.get(variantIndex);
-        if (oldTerminals != null) {
-            for (Terminal oldTerminal : oldTerminals) {
-                if (terminalsPerVariant.stream()
-                    .flatMap(Collection::stream)
-                    .noneMatch(t -> t == oldTerminal)) {
-                    ((TerminalExt) oldTerminal).getReferrerManager().unregister(this);
-                }
+        for (Terminal oldTerminal : oldTerminals) {
+            if (terminalsPerVariant.stream()
+                .flatMap(Collection::stream)
+                .noneMatch(t -> t == oldTerminal)) {
+                ((TerminalExt) oldTerminal).getReferrerManager().unregister(this);
             }
         }
     }
 
     private void registerReferencedTerminalIfNeeded(Set<Terminal> terminals) {
         // if terminal was not already referenced by another variant, register it
-        if (terminals != null) {
-            for (Terminal terminal : terminals) {
-                if (terminalsPerVariant.stream()
-                        .flatMap(Collection::stream)
-                        .noneMatch(t -> t == terminal)) {
-                    ((TerminalExt) terminal).getReferrerManager().register(this);
-                }
+        for (Terminal terminal : terminals) {
+            if (terminalsPerVariant.stream()
+                    .flatMap(Collection::stream)
+                    .noneMatch(t -> t == terminal)) {
+                ((TerminalExt) terminal).getReferrerManager().register(this);
             }
         }
     }
@@ -152,9 +148,18 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     }
 
     @Override
-    public void onReferencedRemoval(Terminal terminal) {
+    public void onReferencedRemoval(Terminal removedTerminal) {
         for (Set<Terminal> terminals : terminalsPerVariant) {
-            terminals.remove(terminal);
+            terminals.remove(removedTerminal);
+        }
+    }
+
+    @Override
+    public void cleanup() {
+        for (Set<Terminal> terminals : terminalsPerVariant) {
+            for (Terminal terminal : terminals) {
+                ((TerminalExt) terminal).getReferrerManager().unregister(this);
+            }
         }
     }
 }

@@ -113,10 +113,19 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
     }
 
     @Override
-    public void onReferencedRemoval(Terminal terminal) {
-        int variantIndex = terminals.indexOf(terminal);
+    public void onReferencedRemoval(Terminal removedTerminal) {
+        int variantIndex = terminals.indexOf(removedTerminal);
         if (variantIndex != -1) {
             terminals.set(variantIndex, null);
+        }
+    }
+
+    @Override
+    public void cleanup() {
+        for (Terminal terminal : terminals) {
+            if (terminal != null) {
+                ((TerminalExt) terminal).getReferrerManager().unregister(this);
+            }
         }
     }
 }

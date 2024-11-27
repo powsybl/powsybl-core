@@ -21,7 +21,7 @@ public abstract class AbstractIidmExtension<I extends Identifiable<I>> extends A
     }
 
     @Override
-    public void onReferencedRemoval(Terminal terminal) {
+    public void onReferencedRemoval(Terminal removedTerminal) {
         // nothing by default
         // this is the place for terminal reference cleanup
     }

@@ -25,4 +25,8 @@ public class DanglingLineBoundaryImplExt extends DanglingLineBoundaryImpl {
     public ReferrerManager<Boundary> getReferrerManager() {
         return referrerManager;
     }
+
+    void remove() {
+        referrerManager.notifyOfRemoval();
+    }
 }
