@@ -97,11 +97,15 @@ public interface CgmesModel {
 
     PropertyBags ratioTapChangers();
 
-    PropertyBags phaseTapChangers();
+    Map<String, PropertyBags> groupedRatioTapChangers();
 
     PropertyBags ratioTapChangerTablePoints();
 
     Map<String, PropertyBags> groupedRatioTapChangerTablePoints();
+
+    PropertyBags phaseTapChangers();
+
+    Map<String, PropertyBags> groupedPhaseTapChangers();
 
     PropertyBags phaseTapChangerTablePoints();
 
@@ -223,10 +227,6 @@ public interface CgmesModel {
     void read(InputStream is, String baseName, String contextName, ReportNode reportNode);
 
     // Helper mappings
-
-    List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId);
-
-    List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId);
 
     /**
      * Obtain the substation of a given terminal.

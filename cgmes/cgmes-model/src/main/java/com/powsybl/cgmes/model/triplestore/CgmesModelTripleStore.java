@@ -468,13 +468,13 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags phaseTapChangers() {
-        return namedQuery("phaseTapChangers");
+    public PropertyBags ratioTapChangerTablePoints() {
+        return namedQuery("ratioTapChangerTablePoints");
     }
 
     @Override
-    public PropertyBags ratioTapChangerTablePoints() {
-        return namedQuery("ratioTapChangerTablePoints");
+    public PropertyBags phaseTapChangers() {
+        return namedQuery("phaseTapChangers");
     }
 
     @Override

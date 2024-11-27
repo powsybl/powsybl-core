@@ -413,8 +413,8 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags phaseTapChangers() {
-        return phaseTapChangers;
+    public Map<String, PropertyBags> groupedRatioTapChangers() {
+        return Collections.emptyMap();
     }
 
     @Override
@@ -424,15 +424,25 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags phaseTapChangerTablePoints() {
-        // FakeCgmesModel does not implement phase tap changer tables
-        return new PropertyBags();
-    }
-
-    @Override
     public Map<String, PropertyBags> groupedRatioTapChangerTablePoints() {
         // FakeCgmesModel does not implement ratio tap changer tables
         return Collections.emptyMap();
+    }
+
+    @Override
+    public PropertyBags phaseTapChangers() {
+        return phaseTapChangers;
+    }
+
+    @Override
+    public Map<String, PropertyBags> groupedPhaseTapChangers() {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public PropertyBags phaseTapChangerTablePoints() {
+        // FakeCgmesModel does not implement phase tap changer tables
+        return new PropertyBags();
     }
 
     @Override
@@ -516,16 +526,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
     public PropertyBags reactiveCapabilityCurveData() {
         // FakeCgmesModel does not implement reactive capability curve
         return new PropertyBags();
-    }
-
-    @Override
-    public List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
-        return Collections.emptyList();
     }
 
     @Override

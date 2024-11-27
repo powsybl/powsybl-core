@@ -22,7 +22,7 @@ class FakeTapChangerConversionTest {
     @Test
     void fakeTapChangersEmpty() {
         CgmesModel cgmes = new InMemoryCgmesModel();
-        assertEquals(Collections.emptyList(), cgmes.ratioTapChangerListForPowerTransformer("anyTransformer"));
-        assertEquals(Collections.emptyList(), cgmes.phaseTapChangerListForPowerTransformer("anyTransformer"));
+        assertEquals(Collections.emptyMap(), cgmes.groupedRatioTapChangers());
+        assertEquals(Collections.emptyMap(), cgmes.groupedPhaseTapChangers());
     }
 }

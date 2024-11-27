@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -25,14 +25,26 @@ public class TapChanger {
     public static TapChanger ratioTapChangerFromEnd(PropertyBag end, Context context) {
         Objects.requireNonNull(end);
         Objects.requireNonNull(context);
-        PropertyBag rtc = context.ratioTapChanger(end.getId(CgmesNames.RATIO_TAP_CHANGER));
+        PropertyBag rtc = context.cgmes()
+                .groupedRatioTapChangers()
+                .getOrDefault(end.getId("PowerTransformer"), new PropertyBags())
+                .stream()
+                .filter(tc -> end.getId("TransformerEnd").equals(tc.getId("TransformerEnd")))
+                .findFirst()
+                .orElse(null);
         return rtc != null ? AbstractCgmesTapChangerBuilder.newRatioTapChanger(rtc, context).build() : null;
     }
 
     public static TapChanger phaseTapChangerFromEnd(PropertyBag end, double x, Context context) {
         Objects.requireNonNull(end);
         Objects.requireNonNull(context);
-        PropertyBag ptc = context.phaseTapChanger(end.getId(CgmesNames.PHASE_TAP_CHANGER));
+        PropertyBag ptc = context.cgmes()
+                .groupedPhaseTapChangers()
+                .getOrDefault(end.getId("PowerTransformer"), new PropertyBags())
+                .stream()
+                .filter(tc -> end.getId("TransformerEnd").equals(tc.getId("TransformerEnd")))
+                .findFirst()
+                .orElse(null);
         return ptc != null ? AbstractCgmesTapChangerBuilder.newPhaseTapChanger(ptc, x, context).build() : null;
     }
 
