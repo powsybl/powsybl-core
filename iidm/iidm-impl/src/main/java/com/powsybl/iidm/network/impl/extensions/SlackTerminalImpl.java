@@ -35,7 +35,7 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
     private void unregisterReferencedTerminalIfNeeded(int variantIndex) {
         // check there is no more same terminal referenced by any variant, unregister it
         Terminal oldTerminal = terminals.get(variantIndex);
-        if (oldTerminal != null && !terminals.contains(oldTerminal)) {
+        if (oldTerminal != null && Collections.frequency(terminals, oldTerminal) == 1) {
             ((TerminalExt) oldTerminal).getReferrerManager().unregister(this);
         }
     }

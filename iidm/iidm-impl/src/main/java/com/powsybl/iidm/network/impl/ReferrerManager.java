@@ -24,6 +24,10 @@ public class ReferrerManager<T> {
         this.referenced = Objects.requireNonNull(referenced);
     }
 
+    public List<Referrer<T>> getReferrers() {
+        return referrers;
+    }
+
     public void register(Referrer<T> referrer) {
         referrers.add(Objects.requireNonNull(referrer));
     }

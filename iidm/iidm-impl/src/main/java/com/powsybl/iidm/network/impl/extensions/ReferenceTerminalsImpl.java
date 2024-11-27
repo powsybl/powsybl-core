@@ -37,7 +37,8 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
         for (Terminal oldTerminal : oldTerminals) {
             if (terminalsPerVariant.stream()
                 .flatMap(Collection::stream)
-                .noneMatch(t -> t == oldTerminal)) {
+                .filter(t -> t == oldTerminal)
+                .count() == 1) {
                 ((TerminalExt) oldTerminal).getReferrerManager().unregister(this);
             }
         }

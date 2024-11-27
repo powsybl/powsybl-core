@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import gnu.trove.list.array.TDoubleArrayList;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -244,5 +245,10 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public ReferrerManager<Terminal> getReferrerManager() {
         return referrerManager;
+    }
+
+    @Override
+    public List<Object> getReferrers() {
+        return referrerManager.getReferrers().stream().map(r -> (Object) r).toList();
     }
 }
