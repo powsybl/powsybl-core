@@ -157,6 +157,12 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     }
 
     @Override
+    public void remove() {
+        regulatingPoint.remove();
+        super.remove();
+    }
+
+    @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         voltageSetpoint.ensureCapacity(voltageSetpoint.size() + number);
