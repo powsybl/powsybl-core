@@ -56,10 +56,10 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case TWO_WINDINGS_TRANSFORMER -> new TwoWindingsTransformerContingency(id, voltageLevelId);
                 case THREE_WINDINGS_TRANSFORMER -> new ThreeWindingsTransformerContingency(id);
                 case LOAD -> new LoadContingency(id);
+                case SWITCH -> new SwitchContingency(id);
+                case BATTERY -> new BatteryContingency(id);
                 case BUS -> new BusContingency(id);
                 case TIE_LINE -> new TieLineContingency(id, voltageLevelId);
-                case BATTERY -> new BatteryContingency(id);
-                default -> throw new IllegalStateException("Unexpected ContingencyElementType value: " + type);
             };
         }
 
