@@ -21,7 +21,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.modification.util.TransformerUtils.*;
 
 /**
- * <p>This network modification is used to replace all 3 twoWindingsTransformers by threeWindingsTransformers.</p>
+ * <p>This network modification is used to replace 3 twoWindingsTransformers by threeWindingsTransformers.</p>
  * <ul>
  *     <li>BusbarSections and the three TwoWindingsTransformers are the only connectable equipment allowed in the voltageLevel associated with the star bus.</li>
  *     <li>The three TwoWindingsTransformers must be connected to the star bus.</li>
@@ -45,6 +45,8 @@ import static com.powsybl.iidm.modification.util.TransformerUtils.*;
  *         <ul>
  *             <li>Voltage and angle of the star bus are added as properties of the threeWindingsTransformer.</li>
  *             <li>Only the names of the transferred operational limits are copied as properties of the threeWindingsTransformer.</li>
+ *             <li>All the properties of the first twoWindingsTransformer are transferred to the threeWindingsTransformer,
+ *                 then those of the second that are not in the first, and finally, the properties of the third that are not in the first two.</li>
  *             <li>Properties that are not mapped are recorded in the functional log.</li>
  *         </ul>
  *     </li>
@@ -71,6 +73,23 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     private static final String WAS_NOT_TRANSFERRED = "was not transferred.";
     private static final String CGMES_OPERATIONAL_LIMIT_SET = "CGMES.OperationalLimitSet_";
 
+    private final List<String> transformersToBeReplaced;
+
+    /**
+     * <p>Used to replace all 3 twoWindingsTransformers by threeWindingsTransformers.</p>
+     */
+    public Replace3TwoWindingsTransformersByThreeWindingsTransformers() {
+        this.transformersToBeReplaced = null;
+    }
+
+    /**
+     * <p>Used to replace the 3 twoWindingsTransformers defined in the list by threeWindingsTransformers.
+     *    To be selected, at least one of the three transformers must be included in the list.</p>
+     */
+    public Replace3TwoWindingsTransformersByThreeWindingsTransformers(List<String> transformersToBeReplaced) {
+        this.transformersToBeReplaced = Objects.requireNonNull(transformersToBeReplaced);
+    }
+
     @Override
     public String getName() {
         return "Replace3TwoWindingsTransformersByThreeWindingsTransformers";
@@ -79,11 +98,11 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         RegulatedTerminalControllers regulatedTerminalControllers = new RegulatedTerminalControllers(network);
-        List<TwoR> twoWindingsTransformers = find3TwoWindingsTransformers(network);
+        List<TwoR> twoWindingsTransformers = find3TwoWindingsTransformers(network, transformersToBeReplaced);
         twoWindingsTransformers.forEach(twoR -> replace3TwoWindingsTransformerByThreeWindingsTransformer(twoR, regulatedTerminalControllers, throwException, reportNode));
     }
 
-    private static List<TwoR> find3TwoWindingsTransformers(Network network) {
+    private static List<TwoR> find3TwoWindingsTransformers(Network network, List<String> transformersToBeReplaced) {
         Map<Bus, List<TwoWindingsTransformer>> twoWindingTransformersByBus = new HashMap<>();
         network.getTwoWindingsTransformers().forEach(t2w -> {
             Bus bus1 = t2w.getTerminal1().getBusView().getBus();
@@ -98,7 +117,15 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         return twoWindingTransformersByBus.keySet().stream()
                 .filter(bus -> isStarBus(bus, twoWindingTransformersByBus.get(bus)))
                 .sorted(Comparator.comparing(Identifiable::getId))
-                .map(bus -> buildTwoR(bus, twoWindingTransformersByBus.get(bus))).toList();
+                .map(bus -> buildTwoR(bus, twoWindingTransformersByBus.get(bus)))
+                .filter(twoR -> isGoingToBeReplaced(twoR, transformersToBeReplaced)).toList();
+    }
+
+    private static boolean isGoingToBeReplaced(TwoR twoR, List<String> transformersToBeReplaced) {
+        return transformersToBeReplaced == null
+                || transformersToBeReplaced.contains(twoR.t2w1.getId())
+                || transformersToBeReplaced.contains(twoR.t2w2.getId())
+                || transformersToBeReplaced.contains(twoR.t2w3.getId());
     }
 
     private static boolean isStarBus(Bus bus, List<TwoWindingsTransformer> t2ws) {

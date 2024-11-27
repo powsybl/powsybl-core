@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Collections;
 
 import static com.powsybl.iidm.modification.TransformersTestUtils.*;
 import static com.powsybl.iidm.modification.util.ModificationReports.lostThreeWindingsTransformerExtensions;
@@ -48,6 +49,21 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
         assertEquals(0, network.getTwoWindingsTransformerCount());
 
         ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
+        replace.apply(network);
+
+        assertEquals(4, network.getVoltageLevelCount());
+        assertEquals(0, network.getThreeWindingsTransformerCount());
+        assertEquals(3, network.getTwoWindingsTransformerCount());
+    }
+
+    @Test
+    void replaceSelectedThreeWindingsTransformerTest() {
+        assertEquals(3, network.getVoltageLevelCount());
+        assertEquals(1, network.getThreeWindingsTransformerCount());
+        assertEquals(0, network.getTwoWindingsTransformerCount());
+
+        String t3wId = network.getThreeWindingsTransformers().iterator().next().getId();
+        ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers(Collections.singletonList(t3wId));
         replace.apply(network);
 
         assertEquals(4, network.getVoltageLevelCount());

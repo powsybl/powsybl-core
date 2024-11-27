@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Collections;
 
 import static com.powsybl.iidm.modification.TransformersTestUtils.*;
 import static com.powsybl.iidm.modification.TransformersTestUtils.addPhaseTapChanger;
@@ -63,6 +64,48 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         assertEquals(0, network.getThreeWindingsTransformerCount());
 
         Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        replace.apply(network);
+
+        assertEquals(3, network.getVoltageLevelCount());
+        assertEquals(0, network.getTwoWindingsTransformerCount());
+        assertEquals(1, network.getThreeWindingsTransformerCount());
+    }
+
+    @Test
+    void replaceSelectedTwoWindingsTransformerOneTest() {
+        assertEquals(4, network.getVoltageLevelCount());
+        assertEquals(3, network.getTwoWindingsTransformerCount());
+        assertEquals(0, network.getThreeWindingsTransformerCount());
+
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers(Collections.singletonList("3WT-Leg1"));
+        replace.apply(network);
+
+        assertEquals(3, network.getVoltageLevelCount());
+        assertEquals(0, network.getTwoWindingsTransformerCount());
+        assertEquals(1, network.getThreeWindingsTransformerCount());
+    }
+
+    @Test
+    void replaceSelectedTwoWindingsTransformerTwoTest() {
+        assertEquals(4, network.getVoltageLevelCount());
+        assertEquals(3, network.getTwoWindingsTransformerCount());
+        assertEquals(0, network.getThreeWindingsTransformerCount());
+
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers(Collections.singletonList("3WT-Leg2"));
+        replace.apply(network);
+
+        assertEquals(3, network.getVoltageLevelCount());
+        assertEquals(0, network.getTwoWindingsTransformerCount());
+        assertEquals(1, network.getThreeWindingsTransformerCount());
+    }
+
+    @Test
+    void replaceSelectedTwoWindingsTransformerThreeTest() {
+        assertEquals(4, network.getVoltageLevelCount());
+        assertEquals(3, network.getTwoWindingsTransformerCount());
+        assertEquals(0, network.getThreeWindingsTransformerCount());
+
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers(Collections.singletonList("3WT-Leg3"));
         replace.apply(network);
 
         assertEquals(3, network.getVoltageLevelCount());

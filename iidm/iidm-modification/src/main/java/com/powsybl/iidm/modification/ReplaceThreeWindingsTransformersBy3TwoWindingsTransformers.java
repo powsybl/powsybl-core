@@ -23,8 +23,8 @@ import static com.powsybl.iidm.modification.util.TransformerUtils.*;
 import static com.powsybl.iidm.modification.util.TransformerUtils.copyAndAddPhaseAngleClock;
 
 /**
- * <p>This network modification is used to replace all threeWindingsTransformers by 3 twoWindingsTransformers.</p>
- * <p>For each threeWindingsTransformer:</p>
+ * <p>This network modification is used to replace threeWindingsTransformers by 3 twoWindingsTransformers.</p>
+ * <p>For each threeWindingsTransformer to be replaced:</p>
  * <ul>
  *     <li>A new voltage level is created for the star node with nominal voltage of ratedU0.</li>
  *     <li>Three new TwoWindingsTransformers are created, one for each leg of the removed ThreeWindingsTransformer.</li>
@@ -45,7 +45,7 @@ import static com.powsybl.iidm.modification.util.TransformerUtils.copyAndAddPhas
  *         <ul>
  *             <li>Star bus voltage and angle are set to the bus created for the star node.</li>
  *             <li>The names of the operationalLimitsSet are copied to the right twoWindingsTransformer.</li>
- *             <li>Properties that are not mapped are recorded in the functional log.</li>
+ *             <li>The rest of the properties of the threeWindingsTransformer are transferred to all 3 twoWindingsTransformers.</li>
  *         </ul>
  *     </li>
  *     <li>Extensions:
@@ -69,6 +69,22 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     private static final String WAS_NOT_TRANSFERRED = "was not transferred.";
     private static final String CGMES_OPERATIONAL_LIMIT_SET = "CGMES.OperationalLimitSet_";
 
+    private final List<String> transformersToBeReplaced;
+
+    /**
+     * <p>Used to replace all threeWindingsTransformers by 3 twoWindingsTransformers.</p>
+     */
+    public ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers() {
+        this.transformersToBeReplaced = null;
+    }
+
+    /**
+     * <p>Used to replace the threeWindingsTransformers included in the list by 3 twoWindingsTransformers.</p>
+     */
+    public ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers(List<String> transformersToBeReplaced) {
+        this.transformersToBeReplaced = Objects.requireNonNull(transformersToBeReplaced);
+    }
+
     @Override
     public String getName() {
         return "ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers";
@@ -77,8 +93,12 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         RegulatedTerminalControllers regulatedTerminalControllers = new RegulatedTerminalControllers(network);
-        network.getThreeWindingsTransformerStream().toList() // toList is required to create a temporary list since the threeWindingsTransformer is removed during the replacement
+        network.getThreeWindingsTransformerStream().filter(t3w -> isGoingToBeReplaced(transformersToBeReplaced, t3w.getId())).toList() // toList is required to create a temporary list since the threeWindingsTransformer is removed during the replacement
                 .forEach(t3w -> replaceThreeWindingsTransformerBy3TwoWindingsTransformer(t3w, regulatedTerminalControllers, throwException, reportNode));
+    }
+
+    private static boolean isGoingToBeReplaced(List<String> transformersToBeReplaced, String t3wId) {
+        return transformersToBeReplaced == null || transformersToBeReplaced.contains(t3wId);
     }
 
     private void replaceThreeWindingsTransformerBy3TwoWindingsTransformer(ThreeWindingsTransformer t3w, RegulatedTerminalControllers regulatedTerminalControllers, boolean throwException, ReportNode reportNode) {
