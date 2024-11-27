@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.impl;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface Dependent<T> {
+public interface Referrer<T> {
 
     /**
      * Called when a referenced object is removed because of a connectable removal.

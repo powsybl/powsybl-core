@@ -39,7 +39,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
                 if (terminalsPerVariant.stream()
                     .flatMap(Collection::stream)
                     .noneMatch(t -> t == oldTerminal)) {
-                    ((TerminalExt) oldTerminal).getDependentContainer().unregisterDependent(this);
+                    ((TerminalExt) oldTerminal).getReferrerManager().unregister(this);
                 }
             }
         }
@@ -52,7 +52,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
                 if (terminalsPerVariant.stream()
                         .flatMap(Collection::stream)
                         .noneMatch(t -> t == terminal)) {
-                    ((TerminalExt) terminal).getDependentContainer().registerDependent(this);
+                    ((TerminalExt) terminal).getReferrerManager().register(this);
                 }
             }
         }

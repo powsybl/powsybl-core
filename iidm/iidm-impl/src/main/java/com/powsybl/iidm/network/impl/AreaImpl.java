@@ -34,9 +34,9 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     private final TDoubleArrayList interchangeTarget;
 
-    private final Dependent<Terminal> terminalDependent = this::removeAreaBoundary;
+    private final Referrer<Terminal> terminalReferrer = this::removeAreaBoundary;
 
-    private final Dependent<Boundary> boundaryDependent = this::removeAreaBoundary;
+    private final Referrer<Boundary> boundaryReferrer = this::removeAreaBoundary;
 
     AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType,
                     double interchangeTarget) {
@@ -207,11 +207,11 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         Optional<Boundary> boundary = areaBoundary.getBoundary();
         boundary.ifPresent(b -> {
             checkBoundaryNetwork(b.getDanglingLine().getParentNetwork(), "Boundary of DanglingLine" + b.getDanglingLine().getId());
-            ((DanglingLineBoundaryImplExt) b).getDependentContainer().registerDependent(boundaryDependent);
+            ((DanglingLineBoundaryImplExt) b).getReferrerManager().register(boundaryReferrer);
         });
         terminal.ifPresent(t -> {
             checkBoundaryNetwork(t.getConnectable().getParentNetwork(), "Terminal of connectable " + t.getConnectable().getId());
-            ((TerminalExt) t).getDependentContainer().registerDependent(terminalDependent);
+            ((TerminalExt) t).getReferrerManager().register(terminalReferrer);
         });
         areaBoundaries.add(areaBoundary);
     }
@@ -231,8 +231,8 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
             voltageLevel.removeArea(this);
         }
         for (AreaBoundary areaBoundary : areaBoundaries) {
-            areaBoundary.getTerminal().ifPresent(t -> ((TerminalExt) t).getDependentContainer().unregisterDependent(terminalDependent));
-            areaBoundary.getBoundary().ifPresent(b -> ((DanglingLineBoundaryImplExt) b).getDependentContainer().unregisterDependent(boundaryDependent));
+            areaBoundary.getTerminal().ifPresent(t -> ((TerminalExt) t).getReferrerManager().unregister(terminalReferrer));
+            areaBoundary.getBoundary().ifPresent(b -> ((DanglingLineBoundaryImplExt) b).getReferrerManager().unregister(boundaryReferrer));
         }
         network.getListeners().notifyAfterRemoval(id);
         removed = true;

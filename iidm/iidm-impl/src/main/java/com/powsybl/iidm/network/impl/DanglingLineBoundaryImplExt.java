@@ -16,13 +16,13 @@ import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
  */
 public class DanglingLineBoundaryImplExt extends DanglingLineBoundaryImpl {
 
-    protected final DependentContainer<Boundary> dependentContainer = new DependentContainer<>(this);
+    protected final ReferrerManager<Boundary> referrerManager = new ReferrerManager<>(this);
 
     public DanglingLineBoundaryImplExt(DanglingLine parent) {
         super(parent);
     }
 
-    public DependentContainer<Boundary> getDependentContainer() {
-        return dependentContainer;
+    public ReferrerManager<Boundary> getReferrerManager() {
+        return referrerManager;
     }
 }

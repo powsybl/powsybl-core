@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Terminal;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public abstract class AbstractIidmExtension<I extends Identifiable<I>> extends AbstractExtension<I> implements Dependent<Terminal> {
+public abstract class AbstractIidmExtension<I extends Identifiable<I>> extends AbstractExtension<I> implements Referrer<Terminal> {
 
     protected AbstractIidmExtension(I extendable) {
         super(extendable);

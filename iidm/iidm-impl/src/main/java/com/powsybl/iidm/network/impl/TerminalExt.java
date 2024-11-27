@@ -57,5 +57,5 @@ public interface TerminalExt extends Terminal, MultiVariantObject {
 
     void remove();
 
-    DependentContainer<Terminal> getDependentContainer();
+    ReferrerManager<Terminal> getReferrerManager();
 }

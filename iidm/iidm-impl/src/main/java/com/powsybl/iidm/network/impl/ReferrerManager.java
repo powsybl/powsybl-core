@@ -14,27 +14,27 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class DependentContainer<T> {
+public class ReferrerManager<T> {
 
     private final T referenced;
 
-    private final List<Dependent<T>> dependents = new CopyOnWriteArrayList<>();
+    private final List<Referrer<T>> referrers = new CopyOnWriteArrayList<>();
 
-    public DependentContainer(T referenced) {
+    public ReferrerManager(T referenced) {
         this.referenced = Objects.requireNonNull(referenced);
     }
 
-    public void registerDependent(Dependent<T> dependent) {
-        dependents.add(Objects.requireNonNull(dependent));
+    public void register(Referrer<T> referrer) {
+        referrers.add(Objects.requireNonNull(referrer));
     }
 
-    public void unregisterDependent(Dependent<T> dependent) {
-        dependents.remove(Objects.requireNonNull(dependent));
+    public void unregister(Referrer<T> referrer) {
+        referrers.remove(Objects.requireNonNull(referrer));
     }
 
-    public void notifyDependentOfRemoval() {
-        for (Dependent<T> dependent : dependents) {
-            dependent.onReferencedRemoval(referenced);
+    public void notifyOfRemoval() {
+        for (Referrer<T> referrer : referrers) {
+            referrer.onReferencedRemoval(referenced);
         }
     }
 }

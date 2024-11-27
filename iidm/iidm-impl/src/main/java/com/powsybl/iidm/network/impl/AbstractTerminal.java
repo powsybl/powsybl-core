@@ -31,7 +31,7 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected VoltageLevelExt voltageLevel;
 
-    protected final DependentContainer<Terminal> dependentContainer = new DependentContainer<>(this);
+    protected final ReferrerManager<Terminal> referrerManager = new ReferrerManager<>(this);
 
     // attributes depending on the variant
 
@@ -242,7 +242,7 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public DependentContainer<Terminal> getDependentContainer() {
-        return dependentContainer;
+    public ReferrerManager<Terminal> getReferrerManager() {
+        return referrerManager;
     }
 }

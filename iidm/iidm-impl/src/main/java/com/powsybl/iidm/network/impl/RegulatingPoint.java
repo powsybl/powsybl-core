@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class RegulatingPoint implements MultiVariantObject, Dependent<Terminal> {
+class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegulatingPoint.class);
 
@@ -58,11 +58,11 @@ class RegulatingPoint implements MultiVariantObject, Dependent<Terminal> {
 
     void setRegulatingTerminal(TerminalExt regulatingTerminal) {
         if (this.regulatingTerminal != null) {
-            this.regulatingTerminal.getDependentContainer().unregisterDependent(this);
+            this.regulatingTerminal.getReferrerManager().unregister(this);
         }
         this.regulatingTerminal = regulatingTerminal != null ? regulatingTerminal : localTerminalSupplier.get();
         if (this.regulatingTerminal != null) {
-            this.regulatingTerminal.getDependentContainer().registerDependent(this);
+            this.regulatingTerminal.getReferrerManager().register(this);
         }
     }
 
