@@ -52,11 +52,11 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedRatioTapChangerTablePoints() {
+    public PropertyBags ratioTapChangerTablePoints(String tableId) {
         if (cachedGroupedRatioTapChangerTablePoints == null) {
             cachedGroupedRatioTapChangerTablePoints = computeGroupedRatioTapChangerTablePoints();
         }
-        return cachedGroupedRatioTapChangerTablePoints;
+        return cachedGroupedRatioTapChangerTablePoints.getOrDefault(tableId, new PropertyBags());
     }
 
     @Override
@@ -68,11 +68,11 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedPhaseTapChangerTablePoints() {
+    public PropertyBags phaseTapChangerTablePoints(String tableId) {
         if (cachedGroupedPhaseTapChangerTablePoints == null) {
             cachedGroupedPhaseTapChangerTablePoints = computeGroupedPhaseTapChangerTablePoints();
         }
-        return cachedGroupedPhaseTapChangerTablePoints;
+        return cachedGroupedPhaseTapChangerTablePoints.getOrDefault(tableId, new PropertyBags());
     }
 
     @Override

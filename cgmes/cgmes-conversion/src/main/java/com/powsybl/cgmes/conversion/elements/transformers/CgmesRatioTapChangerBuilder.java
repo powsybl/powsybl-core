@@ -40,8 +40,8 @@ public class CgmesRatioTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     protected void addSteps() {
         String tableId = p.getId(CgmesNames.RATIO_TAP_CHANGER_TABLE);
         if (tableId != null) {
-            PropertyBags tablePoints = context.cgmes().groupedRatioTapChangerTablePoints().getOrDefault(tableId, null);
-            if (tablePoints == null) {
+            PropertyBags tablePoints = context.cgmes().ratioTapChangerTablePoints(tableId);
+            if (tablePoints.isEmpty()) {
                 addStepsFromLowHighIncrement();
                 return;
             }

@@ -70,8 +70,8 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         if (isLinear()) {
             addStepsLinear();
         } else if (isTabular()) {
-            PropertyBags tablePoints = context.cgmes().groupedPhaseTapChangerTablePoints().getOrDefault(tableId, null);
-            if (tablePoints == null) {
+            PropertyBags tablePoints = context.cgmes().phaseTapChangerTablePoints(tableId);
+            if (tablePoints.isEmpty()) {
                 addStepsLinear();
                 return;
             }

@@ -424,9 +424,9 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedRatioTapChangerTablePoints() {
+    public PropertyBags ratioTapChangerTablePoints(String tableId) {
         // FakeCgmesModel does not implement ratio tap changer tables
-        return Collections.emptyMap();
+        return new PropertyBags();
     }
 
     @Override
@@ -446,9 +446,9 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedPhaseTapChangerTablePoints() {
+    public PropertyBags phaseTapChangerTablePoints(String tableId) {
         // FakeCgmesModel does not implement phase tap changer tables
-        return Collections.emptyMap();
+        return new PropertyBags();
     }
 
     @Override
