@@ -36,11 +36,11 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedTransformerEnds() {
+    public PropertyBags transformerEnds(String transformerId) {
         if (cachedGroupedTransformerEnds == null) {
             cachedGroupedTransformerEnds = computeGroupedTransformerEnds();
         }
-        return cachedGroupedTransformerEnds;
+        return cachedGroupedTransformerEnds.getOrDefault(transformerId, new PropertyBags());
     }
 
     @Override

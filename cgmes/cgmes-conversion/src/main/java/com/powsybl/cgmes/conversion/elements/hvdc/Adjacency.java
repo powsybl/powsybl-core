@@ -44,15 +44,17 @@ class Adjacency {
             .forEach((key, value) -> computeAcDcConverterAdjacency(value.acNode,
                 value.dcNode));
 
-        cgmesModel.groupedTransformerEnds().forEach((t, ends) -> {
-            if (ends.size() == 2) {
-                computeTwoWindingsTransformerAdjacency(cgmesModel, ends);
-            } else if (ends.size() == 3) {
-                computeThreeWindingsTransformerAdjacency(cgmesModel, ends);
-            } else {
-                throw new PowsyblException(String.format("Unexpected TransformerEnds: ends %d", ends.size()));
-            }
-        });
+        cgmesModel.transformers().stream()
+                .map(t -> cgmesModel.transformerEnds(t.getId("PowerTransformer")))
+                .forEach(ends -> {
+                    if (ends.size() == 2) {
+                        computeTwoWindingsTransformerAdjacency(cgmesModel, ends);
+                    } else if (ends.size() == 3) {
+                        computeThreeWindingsTransformerAdjacency(cgmesModel, ends);
+                    } else {
+                        throw new PowsyblException(String.format("Unexpected TransformerEnds: ends %d", ends.size()));
+                    }
+                });
     }
 
     private void computeDcLineSegmentAdjacency(CgmesModel cgmesModel, PropertyBag equipment) {
