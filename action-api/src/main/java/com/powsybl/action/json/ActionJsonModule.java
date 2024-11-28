@@ -53,6 +53,7 @@ public class ActionJsonModule extends SimpleModule {
         registerActionBuilderType(RatioTapChangerRegulationAction.class, RatioTapChangerRegulationActionBuilder.class, RatioTapChangerRegulationAction.NAME,
                 new RatioTapChangerRegulationActionSerializer(), new RatioTapChangerRegulationActionBuilderBuilderDeserializer());
         registerActionBuilderType(LoadAction.class, LoadActionBuilder.class, LoadAction.NAME, new LoadActionSerializer(), new LoadActionBuilderBuilderDeserializer());
+        registerActionBuilderType(PercentChangeLoadAction.class, PercentChangeLoadActionBuilder.class, PercentChangeLoadAction.NAME, new PercentChangeLoadActionSerializer(), new PercentChangeLoadActionBuilderDeserializer());
         registerActionBuilderType(DanglingLineAction.class, DanglingLineActionBuilder.class, DanglingLineAction.NAME, new DanglingLineActionSerializer(), new DanglingLineActionBuilderBuilderDeserializer());
         registerActionBuilderType(HvdcAction.class, HvdcActionBuilder.class, HvdcAction.NAME, new HvdcActionSerializer(), new HvdcActionBuilderDeserializer());
         registerActionBuilderType(GeneratorAction.class, GeneratorActionBuilder.class, GeneratorAction.NAME,
@@ -63,5 +64,7 @@ public class ActionJsonModule extends SimpleModule {
         registerActionBuilderType(StaticVarCompensatorAction.class, StaticVarCompensatorActionBuilder.class,
             StaticVarCompensatorAction.NAME, new StaticVarCompensatorActionSerializer(),
             new StaticVarCompensatorActionBuilderDeserializer());
+        registerActionBuilderType(AreaInterchangeTargetAction.class, AreaInterchangeTargetActionBuilder.class, AreaInterchangeTargetAction.NAME,
+            new AreaInterchangeTargetActionSerializer(), new AreaInterchangeTargetActionDeserializer());
     }
 }

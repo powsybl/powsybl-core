@@ -733,4 +733,12 @@ public final class ModificationReports {
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
+
+    public static void generatorLocalRegulationReport(ReportNode reportNode, String generatorId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("generatorLocalRegulation", "Changed regulation for generator ${generatorId} to local instead of remote")
+                .withUntypedValue("generatorId", generatorId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
 }
