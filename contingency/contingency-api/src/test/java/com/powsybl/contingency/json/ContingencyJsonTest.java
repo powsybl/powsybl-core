@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -249,7 +249,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesWithOptionalName.json");
     }
 
-    static class DummyExtension implements Extension<Contingency> {
+    static class DummyExtension extends AbstractExtension<Contingency> {
 
         private Contingency contingency;
 

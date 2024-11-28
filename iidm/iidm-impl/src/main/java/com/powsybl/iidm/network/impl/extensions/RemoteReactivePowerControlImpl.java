@@ -14,7 +14,12 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
+import com.powsybl.iidm.network.impl.TerminalExt;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 import java.util.Objects;
 
@@ -23,22 +28,30 @@ import java.util.Objects;
  */
 public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifiableExtension<Generator> implements RemoteReactivePowerControl {
 
-    private TDoubleArrayList targetQ;
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteReactivePowerControlImpl.class);
+
+    private final TDoubleArrayList targetQ;
 
     private Terminal regulatingTerminal;
 
-    private TBooleanArrayList enabled;
+    private final TBooleanArrayList enabled;
 
     public RemoteReactivePowerControlImpl(Generator generator, double targetQ, Terminal regulatingTerminal, boolean enabled) {
         super(generator);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
         this.targetQ = new TDoubleArrayList();
-        this.regulatingTerminal = regulatingTerminal;
+        this.regulatingTerminal = Objects.requireNonNull(regulatingTerminal);
         this.enabled = new TBooleanArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.targetQ.add(targetQ);
             this.enabled.add(enabled);
         }
+        if (regulatingTerminal.getVoltageLevel().getParentNetwork() != getExtendable().getParentNetwork()) {
+            throw new PowsyblException("Regulating terminal is not in the right Network ("
+                    + regulatingTerminal.getVoltageLevel().getParentNetwork().getId() + " instead of "
+                    + getExtendable().getParentNetwork().getId() + ")");
+        }
+        ((TerminalExt) regulatingTerminal).getReferrerManager().register(this);
     }
 
     @Override
@@ -108,6 +121,23 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
         for (int index : indexes) {
             targetQ.set(index, targetQ.get(sourceIndex));
             enabled.set(index, enabled.get(sourceIndex));
+        }
+    }
+
+    @Override
+    public void onReferencedRemoval(Terminal removedTerminal) {
+        // we cannot set regulating terminal to null because otherwise extension won't be consistent anymore
+        // we cannot also as for voltage regulation fallback to a local terminal
+        // so we just remove the extension
+        LOGGER.warn("Remove 'RemoteReactivePowerControl' extension of generator '{}', because its regulating terminal has been removed",
+                getExtendable().getId());
+        getExtendable().removeExtension(RemoteReactivePowerControl.class);
+    }
+
+    @Override
+    public void cleanup() {
+        if (regulatingTerminal != null) {
+            ((TerminalExt) regulatingTerminal).getReferrerManager().unregister(this);
         }
     }
 }

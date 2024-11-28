@@ -131,7 +131,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
 
     @Override
     public void remove() {
-        regulatingPoint.remove();
+        super.remove();
         parent.setPhaseTapChanger(null);
     }
 
