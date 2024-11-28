@@ -34,31 +34,9 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     private final TDoubleArrayList interchangeTarget;
 
-    private final class AreaListener extends DefaultNetworkListener {
-        @Override
-        public void beforeRemoval(Identifiable<?> identifiable) {
-            if (identifiable instanceof DanglingLine danglingLine) {
-                // if dangling line removed from network, remove its boundary from this extension
-                AreaImpl.this.removeAreaBoundary(danglingLine.getBoundary());
-            } else if (identifiable instanceof Connectable<?> connectable) {
-                // if connectable removed from network, remove its terminals from this extension
-                connectable.getTerminals().forEach(AreaImpl.this::removeAreaBoundary);
-            }
-            // When a VoltageLevel is removed, its areas' voltageLevels attributes are directly updated. This is not managed via this listener.
-        }
-    }
+    private final Referrer<Terminal> terminalReferrer = this::removeAreaBoundary;
 
-    /**
-     * Must be called whenever the Area is moved to a different root Network when merging and detaching.
-     * @param fromNetwork previous root network
-     * @param toNetwork new root network
-     */
-    void moveListener(NetworkImpl fromNetwork, NetworkImpl toNetwork) {
-        fromNetwork.removeListener(this.areaListener);
-        toNetwork.addListener(this.areaListener);
-    }
-
-    private final NetworkListener areaListener;
+    private final Referrer<Boundary> boundaryReferrer = this::removeAreaBoundary;
 
     AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType,
                     double interchangeTarget) {
@@ -74,8 +52,6 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         for (int i = 0; i < variantArraySize; i++) {
             this.interchangeTarget.add(interchangeTarget);
         }
-        this.areaListener = new AreaListener();
-        getNetwork().addListener(this.areaListener);
     }
 
     @Override
@@ -229,8 +205,14 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     protected void addAreaBoundary(AreaBoundaryImpl areaBoundary) {
         Optional<Terminal> terminal = areaBoundary.getTerminal();
         Optional<Boundary> boundary = areaBoundary.getBoundary();
-        boundary.ifPresent(b -> checkBoundaryNetwork(b.getDanglingLine().getParentNetwork(), "Boundary of DanglingLine" + b.getDanglingLine().getId()));
-        terminal.ifPresent(t -> checkBoundaryNetwork(t.getConnectable().getParentNetwork(), "Terminal of connectable " + t.getConnectable().getId()));
+        boundary.ifPresent(b -> {
+            checkBoundaryNetwork(b.getDanglingLine().getParentNetwork(), "Boundary of DanglingLine" + b.getDanglingLine().getId());
+            ((DanglingLineBoundaryImplExt) b).getReferrerManager().register(boundaryReferrer);
+        });
+        terminal.ifPresent(t -> {
+            checkBoundaryNetwork(t.getConnectable().getParentNetwork(), "Terminal of connectable " + t.getConnectable().getId());
+            ((TerminalExt) t).getReferrerManager().register(terminalReferrer);
+        });
         areaBoundaries.add(areaBoundary);
     }
 
@@ -248,8 +230,11 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         for (VoltageLevel voltageLevel : new HashSet<>(voltageLevels)) {
             voltageLevel.removeArea(this);
         }
+        for (AreaBoundary areaBoundary : areaBoundaries) {
+            areaBoundary.getTerminal().ifPresent(t -> ((TerminalExt) t).getReferrerManager().unregister(terminalReferrer));
+            areaBoundary.getBoundary().ifPresent(b -> ((DanglingLineBoundaryImplExt) b).getReferrerManager().unregister(boundaryReferrer));
+        }
         network.getListeners().notifyAfterRemoval(id);
-        network.removeListener(this.areaListener);
         removed = true;
     }
 

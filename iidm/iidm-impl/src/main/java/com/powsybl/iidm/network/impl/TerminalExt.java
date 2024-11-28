@@ -18,7 +18,7 @@ import java.util.Set;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-interface TerminalExt extends Terminal, MultiVariantObject {
+public interface TerminalExt extends Terminal, MultiVariantObject {
 
     interface BusBreakerViewExt extends BusBreakerView {
 
@@ -55,11 +55,7 @@ interface TerminalExt extends Terminal, MultiVariantObject {
 
     TopologyPoint getTopologyPoint();
 
-    void removeAsRegulationPoint();
-
     void remove();
 
-    void setAsRegulatingPoint(RegulatingPoint rp);
-
-    void removeRegulatingPoint(RegulatingPoint rp);
+    ReferrerManager<Terminal> getReferrerManager();
 }

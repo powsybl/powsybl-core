@@ -260,10 +260,17 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public <E extends Extension<I>> boolean removeExtension(Class<E> type) {
+        return removeExtension(type, true);
+    }
+
+    public <E extends Extension<I>> boolean removeExtension(Class<E> type, boolean cleanup) {
         E extension = getExtension(type);
         NetworkListenerList listeners = getNetwork().getListeners();
         if (extension != null) {
             listeners.notifyExtensionBeforeRemoval(extension);
+            if (cleanup) {
+                extension.cleanup();
+            }
             removeExtension(type, extension);
             listeners.notifyExtensionAfterRemoval(this, extension.getName());
             return true;

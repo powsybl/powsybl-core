@@ -206,26 +206,33 @@ public abstract class AbstractSlackTerminalTest {
         SlackTerminal stGen = vlgen.getExtension(SlackTerminal.class);
         assertNotNull(stGen);
         final Terminal tGen = stGen.getTerminal();
+        assertEquals(1, tGen.getReferrers().size());
 
         // Testing that only current variant was set
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
         assertNull(stGen.getTerminal());
         stGen.setTerminal(tGen);
+        assertEquals(1, tGen.getReferrers().size());
 
         variantManager.setWorkingVariant(variant1);
         assertNull(stGen.getTerminal());
         stGen.setTerminal(tGen);
+        assertEquals(1, tGen.getReferrers().size());
 
         // Testing the empty property of the slackTerminal
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
         assertFalse(stGen.setTerminal(null).isEmpty());
+        assertEquals(1, tGen.getReferrers().size());
 
         variantManager.setWorkingVariant(variant2);
         assertFalse(stGen.setTerminal(null).isEmpty());
+        assertEquals(1, tGen.getReferrers().size());
 
         variantManager.setWorkingVariant(variant1);
         assertTrue(stGen.setTerminal(null).isEmpty());
+        assertEquals(0, tGen.getReferrers().size());
         assertFalse(stGen.setTerminal(tGen).isEmpty());
+        assertEquals(1, tGen.getReferrers().size());
 
         // Testing the cleanIfEmpty boolean
         stGen.setTerminal(null, false);
@@ -283,5 +290,18 @@ public abstract class AbstractSlackTerminalTest {
         SlackTerminal.reset(network1);
         assertNull(merged.getVoltageLevel("VL").getExtension(SlackTerminal.class)); // reset
         assertNotNull(merged.getVoltageLevel("VLHV1").getExtension(SlackTerminal.class)); // untouched
+    }
+
+    @Test
+    public void removeTerminalConnectableTest() {
+        Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
+        var vlgen = network.getVoltageLevel("VLGEN");
+        var gen2 = network.getGenerator("GEN2");
+        var slackTerminal = vlgen.newExtension(SlackTerminalAdder.class)
+                .withTerminal(gen2.getTerminal())
+                .add();
+        assertNotNull(slackTerminal.getTerminal());
+        gen2.remove();
+        assertNull(slackTerminal.getTerminal());
     }
 }

@@ -1,0 +1,42 @@
+{
+  "type" : "default",
+  "version" : "1.0",
+  "name" : "list",
+  "contingencies" : [ {
+    "id" : "contingency",
+    "elements" : [ {
+      "id" : "HVDC1",
+      "type" : "HVDC_LINE"
+    } ]
+  }, {
+    "id" : "contingency2",
+    "elements" : [ {
+      "id" : "TWT",
+      "type" : "TWO_WINDINGS_TRANSFORMER"
+    } ]
+  }, {
+    "id" : "contingency3",
+    "elements" : [ {
+      "id" : "SHUNT",
+      "type" : "SHUNT_COMPENSATOR"
+    } ]
+  }, {
+    "id" : "contingency4",
+    "elements" : [ {
+      "id" : "SVC",
+      "type" : "STATIC_VAR_COMPENSATOR"
+    } ]
+  }, {
+    "id" : "contingency5",
+    "elements" : [ {
+      "id" : "S1VL1_BBS",
+      "type" : "BUSBAR_SECTION"
+    } ]
+  }, {
+    "id" : "contingency6",
+    "elements" : [ {
+      "id" : "S1VL1_LD1_BREAKER",
+      "type" : "SWITCH"
+    } ]
+  } ]
+}

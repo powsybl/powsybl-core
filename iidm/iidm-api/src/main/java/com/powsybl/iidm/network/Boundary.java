@@ -33,6 +33,11 @@ public interface Boundary {
     double getQ();
 
     /**
+     * Get the current in A at the fictitious boundary terminal.
+     */
+    double getI();
+
+    /**
      * Get the danglingLine the boundary is associated to.
      */
     DanglingLine getDanglingLine();

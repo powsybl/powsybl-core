@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -252,4 +253,11 @@ public interface Terminal {
     }
 
     ThreeSides getSide();
+
+    /**
+     * Retrieves a list of objects that refer to the terminal.
+     *
+     * @return a list of referrer objects.
+     */
+    List<Object> getReferrers();
 }

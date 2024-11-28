@@ -136,7 +136,6 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
         int variantIndex = n.getVariantIndex();
         int oldValueOrdinal = regulatingPoint.setRegulationMode(variantIndex,
                 regulationMode != null ? regulationMode.ordinal() : -1);
-        regulatingPoint.setUseVoltageRegulation(regulationMode == RegulationMode.VOLTAGE);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("regulationMode", variantId, oldValueOrdinal == -1 ? null : RegulationMode.values()[oldValueOrdinal], regulationMode);

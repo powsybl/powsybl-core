@@ -174,4 +174,42 @@ public abstract class AbstractRemoteReactivePowerControlTest {
             assertEquals("Variant index not set", e.getMessage());
         }
     }
+
+    @Test
+    public void adderTest() {
+        Network network = createNetwork();
+        Generator g = network.getGenerator("g4");
+        Line l = network.getLine("l34");
+        var adder = g.newExtension(RemoteReactivePowerControlAdder.class)
+                .withTargetQ(200.0)
+                .withEnabled(true);
+        var e = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("Regulating terminal must be set", e.getMessage());
+        adder = g.newExtension(RemoteReactivePowerControlAdder.class)
+                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
+                .withEnabled(true);
+        e = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("Reactive power target must be set", e.getMessage());
+        var extension = g.newExtension(RemoteReactivePowerControlAdder.class)
+                .withTargetQ(200.0)
+                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
+                .add();
+        assertTrue(extension.isEnabled());
+    }
+
+    @Test
+    public void terminalRemoveTest() {
+        Network network = createNetwork();
+        Generator g = network.getGenerator("g4");
+        Line l = network.getLine("l34");
+        g.newExtension(RemoteReactivePowerControlAdder.class)
+                .withTargetQ(200.0)
+                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
+                .withEnabled(true)
+                .add();
+        assertNotNull(g.getExtension(RemoteReactivePowerControl.class));
+        l.remove();
+        // extension has been removed because regulating terminal is invalid
+        assertNull(g.getExtension(RemoteReactivePowerControl.class));
+    }
 }
