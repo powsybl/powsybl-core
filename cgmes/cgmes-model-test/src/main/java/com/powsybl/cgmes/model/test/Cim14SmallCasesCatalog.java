@@ -183,7 +183,7 @@ public final class Cim14SmallCasesCatalog {
                         "_FVALDI11-FTDPRA11-2_AC")
                 .transformers("_FP.AND11-FTDPRA11-1_PT")
                 .transformerEnds("_FP.AND11-FTDPRA11-1_TW_EX", "_FP.AND11-FTDPRA11-1_TW_OR")
-                .phaseTapChangers("_FP.AND11-FTDPRA11-1_PTC_OR")
+                .phaseTapChangers(new String[] {"_FP.AND11-FTDPRA11-1_PTC_OR"})
                 .energyConsumers("_FP.ANC12_EC", "_FS.BIC11_EC", "_FTDPRC11_EC", "_FTILLC51_EC")
                 .synchronousMachinesGenerators("_FSSV.T11_SM", "_FVALDT11_SM", "_FVERGT11_SM");
     }

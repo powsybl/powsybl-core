@@ -413,8 +413,8 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedRatioTapChangers() {
-        return Collections.emptyMap();
+    public PropertyBags ratioTapChangers(String transformerId) {
+        return new PropertyBags();
     }
 
     @Override
@@ -435,8 +435,8 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedPhaseTapChangers() {
-        return Collections.emptyMap();
+    public PropertyBags phaseTapChangers(String transformerId) {
+        return new PropertyBags();
     }
 
     @Override

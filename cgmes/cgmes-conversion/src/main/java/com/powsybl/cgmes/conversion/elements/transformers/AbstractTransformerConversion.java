@@ -122,16 +122,14 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         }
 
         // Add RatioTapChangers aliases
-        PropertyBags rtcs = context.cgmes().groupedRatioTapChangers().getOrDefault(identifiable.getId(), new PropertyBags());
-        for (PropertyBag rtc : rtcs) {
+        for (PropertyBag rtc : context.cgmes().ratioTapChangers(identifiable.getId())) {
             alias = rtc.getId("RatioTapChanger");
             aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER + WindingType.windingEndNumber(rtc);
             identifiable.addAlias(alias, aliasType);
         }
 
         // Add PhaseTapChangers aliases
-        PropertyBags ptcs = context.cgmes().groupedPhaseTapChangers().getOrDefault(identifiable.getId(), new PropertyBags());
-        for (PropertyBag ptc : ptcs) {
+        for (PropertyBag ptc : context.cgmes().phaseTapChangers(identifiable.getId())) {
             alias = ptc.getId("PhaseTapChanger");
             aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER + WindingType.windingEndNumber(ptc);
             identifiable.addAlias(alias, aliasType);

@@ -14,7 +14,6 @@ import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -26,8 +25,7 @@ public class TapChanger {
         Objects.requireNonNull(end);
         Objects.requireNonNull(context);
         PropertyBag rtc = context.cgmes()
-                .groupedRatioTapChangers()
-                .getOrDefault(end.getId("PowerTransformer"), new PropertyBags())
+                .ratioTapChangers(end.getId("PowerTransformer"))
                 .stream()
                 .filter(tc -> end.getId("TransformerEnd").equals(tc.getId("TransformerEnd")))
                 .findFirst()
@@ -39,8 +37,7 @@ public class TapChanger {
         Objects.requireNonNull(end);
         Objects.requireNonNull(context);
         PropertyBag ptc = context.cgmes()
-                .groupedPhaseTapChangers()
-                .getOrDefault(end.getId("PowerTransformer"), new PropertyBags())
+                .phaseTapChangers(end.getId("PowerTransformer"))
                 .stream()
                 .filter(tc -> end.getId("TransformerEnd").equals(tc.getId("TransformerEnd")))
                 .findFirst()

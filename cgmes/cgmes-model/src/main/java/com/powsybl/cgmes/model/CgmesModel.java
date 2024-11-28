@@ -96,7 +96,7 @@ public interface CgmesModel {
 
     PropertyBags ratioTapChangers();
 
-    Map<String, PropertyBags> groupedRatioTapChangers();
+    PropertyBags ratioTapChangers(String transformerId);
 
     PropertyBags ratioTapChangerTablePoints();
 
@@ -104,7 +104,7 @@ public interface CgmesModel {
 
     PropertyBags phaseTapChangers();
 
-    Map<String, PropertyBags> groupedPhaseTapChangers();
+    PropertyBags phaseTapChangers(String transformerId);
 
     PropertyBags phaseTapChangerTablePoints();
 

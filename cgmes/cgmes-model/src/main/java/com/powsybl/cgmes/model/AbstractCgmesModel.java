@@ -44,11 +44,11 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedRatioTapChangers() {
+    public PropertyBags ratioTapChangers(String transformerId) {
         if (cachedGroupedRatioTapChangers == null) {
             cachedGroupedRatioTapChangers = computeGroupedRatioTapChangers();
         }
-        return cachedGroupedRatioTapChangers;
+        return cachedGroupedRatioTapChangers.getOrDefault(transformerId, new PropertyBags());
     }
 
     @Override
@@ -60,11 +60,11 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedPhaseTapChangers() {
+    public PropertyBags phaseTapChangers(String transformerId) {
         if (cachedGroupedPhaseTapChangers == null) {
             cachedGroupedPhaseTapChangers = computeGroupedPhaseTapChangers();
         }
-        return cachedGroupedPhaseTapChangers;
+        return cachedGroupedPhaseTapChangers.getOrDefault(transformerId, new PropertyBags());
     }
 
     @Override

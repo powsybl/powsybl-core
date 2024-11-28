@@ -9,9 +9,8 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.InMemoryCgmesModel;
+import com.powsybl.triplestore.api.PropertyBags;
 import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -22,7 +21,7 @@ class FakeTapChangerConversionTest {
     @Test
     void fakeTapChangersEmpty() {
         CgmesModel cgmes = new InMemoryCgmesModel();
-        assertEquals(Collections.emptyMap(), cgmes.groupedRatioTapChangers());
-        assertEquals(Collections.emptyMap(), cgmes.groupedPhaseTapChangers());
+        assertEquals(new PropertyBags(), cgmes.ratioTapChangers("Fake transformer Id"));
+        assertEquals(new PropertyBags(), cgmes.phaseTapChangers("Fake transformer Id"));
     }
 }
