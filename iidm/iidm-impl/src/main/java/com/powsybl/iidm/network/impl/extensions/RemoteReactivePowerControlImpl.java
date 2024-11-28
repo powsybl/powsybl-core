@@ -21,8 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-import java.util.Objects;
-
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
