@@ -9,7 +9,7 @@ Each modification must first be created with the right attributes or parameters 
 
 ## Topology modifications
 
-Powsybl provides classes that can be used to easily modify the topology of voltage levels.
+Powsybl provides classes that can be used to easily modify the topology of the network.
 This includes: the creation of network elements with automatic creation of switches with respect to the topology of the 
 voltage level, the removal of network elements and their switches, the creation of T-pieces when connecting a line to 
 another line, and the connection of a voltage level to a line. 
@@ -21,7 +21,7 @@ All these classes rely on a builder to create the modification and then apply it
 This class should be used to create any type of `Injection`. `Injections` are network elements with one terminal, such 
 as loads, generators... 
 It takes as input:
-- The `InjectionAdder`, already created with the right parameters
+- The `InjectionAdder`, already created with the right attributes. These attributes depend on the type of `Injection`.
 - The ID of the bus or busbar section (in `BUS_BREAKER` or `NODE_BREAKER` voltage levels respectively) to which the 
 injection should be connected.
 - The position order of the injection: when adding an injection to a `NODE_BREAKER` voltage level, this integer will be
@@ -41,7 +41,7 @@ If the voltage level topology kind is `NODE_BREAKER`, then the injection is adde
 the busbar section with a closed disconnector and a breaker. Additionally, open disconnectors will be created on every
 parallel busbar section. To know which busbar sections are parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position-extension)
 is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) will also be 
-created for the injection with the given data, unless no extensions are already available in the voltage level.
+created for the injection with the given data, unless there are no extensions yet in the voltage level.
 
 #### Create Branch Feeder bays
 This class allows the creation of lines and two-winding transformers.
@@ -111,11 +111,11 @@ connected by section either by `Breakers` in `BUS_BREAKER` topology or by the sw
 topology. The length of this list must be equal to the section count - 1.
 
 Additional input can be provided:
-- The low bus or busbar section index. This integer indicates the index of the first "row" of buses or busbar sections 
+- The low-bus or busbar section index. This integer indicates the index of the first "row" of buses or busbar sections 
 that should be created. If the voltage level is not empty, then the buses or busbar sections will be created starting 
 from this index, so it can be below some already existing buses or busbar sections. By default, it is 1 (no bus or 
 busbar section already in the voltage level).
-- The low section index. This integer indicates the index of the first section of buses or busbar sections that should
+- The low-section index. This integer indicates the index of the first section of buses or busbar sections that should
 be created. If the voltage level is not empty, it is possible to create buses or busbar sections next to already 
 existing ones. By default, it is 1 (no bus or busbar section already in the voltage level).
 - The bus or busbar section prefix ID is optional and used, if specified, as a prefix for the IDs of the created buses 
