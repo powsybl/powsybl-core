@@ -26,7 +26,7 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
 
     private final String regulatedEquipmentId;
     private final Supplier<TerminalExt> localTerminalSupplier;
-    private boolean useVoltageRegulation;
+    private final boolean useVoltageRegulation;
     private TerminalExt regulatingTerminal;
 
     // attributes depending on the variant
@@ -59,23 +59,20 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
     void setRegulatingTerminal(TerminalExt regulatingTerminal) {
         if (this.regulatingTerminal != null) {
             this.regulatingTerminal.getReferrerManager().unregister(this);
+            this.regulatingTerminal = null;
         }
-        this.regulatingTerminal = regulatingTerminal != null ? regulatingTerminal : localTerminalSupplier.get();
-        if (this.regulatingTerminal != null) {
+        if (regulatingTerminal != null) {
+            this.regulatingTerminal = regulatingTerminal;
             this.regulatingTerminal.getReferrerManager().register(this);
         }
     }
 
     TerminalExt getRegulatingTerminal() {
-        return regulatingTerminal;
+        return regulatingTerminal != null ? regulatingTerminal : localTerminalSupplier.get();
     }
 
     boolean setRegulating(int index, boolean regulating) {
         return this.regulating.set(index, regulating);
-    }
-
-    void setUseVoltageRegulation(boolean useVoltageRegulation) {
-        this.useVoltageRegulation = useVoltageRegulation;
     }
 
     boolean isRegulating(int index) {
@@ -135,8 +132,15 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
         }
     }
 
+    void remove() {
+        if (regulatingTerminal != null) {
+            regulatingTerminal.getReferrerManager().unregister(this);
+        }
+    }
+
     @Override
-    public void onReferencedRemoval(Terminal terminal) {
+    public void onReferencedRemoval(Terminal removedTerminal) {
+        TerminalExt oldRegulatingTerminal = regulatingTerminal;
         TerminalExt localTerminal = localTerminalSupplier.get();
         if (localTerminal != null && useVoltageRegulation) { // if local voltage regulation, we keep the regulating status, and re-locate the regulation at the regulated equipment
             Bus bus = regulatingTerminal.getBusView().getBus();
@@ -146,10 +150,13 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
                         regulatedEquipmentId, regulatedEquipmentId);
                 regulatingTerminal = localTerminal;
                 return;
+            } else {
+                regulatingTerminal = null;
             }
+        } else {
+            regulatingTerminal = null;
         }
-        LOG.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", regulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
-        regulatingTerminal = localTerminal;
+        LOG.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", oldRegulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
         if (regulating != null) {
             regulating.fill(0, regulating.size(), false);
         }

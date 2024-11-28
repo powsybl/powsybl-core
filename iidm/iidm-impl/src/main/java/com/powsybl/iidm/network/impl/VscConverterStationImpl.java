@@ -36,7 +36,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         this.reactivePowerSetpoint.fill(0, variantArraySize, reactivePowerSetpoint);
         this.voltageSetpoint.fill(0, variantArraySize, voltageSetpoint);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
-        regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn, voltageRegulatorOn);
+        regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn, true);
         regulatingPoint.setRegulatingTerminal(regulatingTerminal);
     }
 
@@ -63,7 +63,6 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
                 n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         boolean oldValue = this.regulatingPoint.isRegulating(variantIndex);
         this.regulatingPoint.setRegulating(variantIndex, voltageRegulatorOn);
-        regulatingPoint.setUseVoltageRegulation(voltageRegulatorOn);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);

@@ -92,6 +92,9 @@ public abstract class AbstractReferenceTerminalsTest {
                 .withTerminals(Set.of(gh1.getTerminal()))
                 .add();
         ReferenceTerminals ext = network.getExtension(ReferenceTerminals.class);
+        assertEquals(1, gh1.getTerminal().getReferrers().size());
+        assertEquals(0, gh2.getTerminal().getReferrers().size());
+        assertEquals(0, gh3.getTerminal().getReferrers().size());
 
         // create variants
         String variant1 = "variant1";
@@ -102,9 +105,11 @@ public abstract class AbstractReferenceTerminalsTest {
         // add gh2 to variant1
         variantManager.setWorkingVariant(variant1);
         ext.addReferenceTerminal(gh2.getTerminal());
+        assertEquals(1, gh2.getTerminal().getReferrers().size());
         // add gh3 to variant2
         variantManager.setWorkingVariant(variant2);
         ext.addReferenceTerminal(gh3.getTerminal());
+        assertEquals(1, gh3.getTerminal().getReferrers().size());
 
         // initial variant unmodified
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
@@ -124,6 +129,8 @@ public abstract class AbstractReferenceTerminalsTest {
         // clear variant 1
         variantManager.setWorkingVariant(variant1);
         ext.reset();
+        assertEquals(0, gh2.getTerminal().getReferrers().size());
+        assertEquals(1, gh3.getTerminal().getReferrers().size());
 
         // check variant 1 empty
         assertEquals(0, ext.getReferenceTerminals().size());

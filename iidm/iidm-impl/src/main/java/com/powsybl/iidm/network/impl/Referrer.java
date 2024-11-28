@@ -17,9 +17,9 @@ public interface Referrer<T> {
      * Implementations of this method should handle any required cleanup or updates
      * necessary when the referenced object is no longer part of the network.
      *
-     * @param referenced The referenced that has been removed from the network.
+     * @param removedReferenced The referenced that has been removed from the network.
      */
-    void onReferencedRemoval(T referenced);
+    void onReferencedRemoval(T removedReferenced);
 
     /**
      * Called when a referenced object is replaced with another one. Implementations of this method

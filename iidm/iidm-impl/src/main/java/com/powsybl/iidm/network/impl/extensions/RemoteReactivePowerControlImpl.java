@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
@@ -17,6 +18,8 @@ import com.powsybl.iidm.network.impl.TerminalExt;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 import java.util.Objects;
 
@@ -74,6 +77,20 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
     }
 
     @Override
+    public RemoteReactivePowerControl setRegulatingTerminal(Terminal regulatingTerminal) {
+        Objects.requireNonNull(regulatingTerminal);
+        checkRegulatingTerminal(regulatingTerminal, getExtendable().getTerminal().getVoltageLevel().getNetwork());
+        this.regulatingTerminal = regulatingTerminal;
+        return this;
+    }
+
+    private static void checkRegulatingTerminal(Terminal regulatingTerminal, Network network) {
+        if (regulatingTerminal != null && regulatingTerminal.getVoltageLevel().getNetwork() != network) {
+            throw new PowsyblException("regulating terminal is not part of the same network");
+        }
+    }
+
+    @Override
     public boolean isEnabled() {
         return enabled.get(getVariantIndex());
     }
@@ -108,7 +125,7 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
     }
 
     @Override
-    public void onReferencedRemoval(Terminal terminal) {
+    public void onReferencedRemoval(Terminal removedTerminal) {
         // we cannot set regulating terminal to null because otherwise extension won't be consistent anymore
         // we cannot also as for voltage regulation fallback to a local terminal
         // so we just remove the extension
@@ -125,7 +142,7 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
     }
 
     @Override
-    protected void cleanup() {
+    public void cleanup() {
         if (regulatingTerminal != null) {
             ((TerminalExt) regulatingTerminal).getReferrerManager().unregister(this);
         }
