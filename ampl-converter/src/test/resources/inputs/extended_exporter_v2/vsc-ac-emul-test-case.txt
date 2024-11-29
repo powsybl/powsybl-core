@@ -1,4 +1,0 @@
-#VSC Converter Stations (hvdctest/InitialState)
-#"variant" "num" "bus" "con. bus" "substation" "minP (MW)" "maxP (MW)" "minQmaxP (MVar)" "minQ0 (MVar)" "minQminP (MVar)" "maxQmaxP (MVar)" "maxQ0 (MVar)" "maxQminP (MVar)" "v regul." "targetV (pu)" "ac emul." "targetP (MW)" "P offset (MW)" "k (MW/rad)" "targetQ (MVar)" "lossFactor (%PDC)" "fault" "curative" "id" "description" "P (MW)" "Q (MVar)"
-1 1 1 1 1 -300.000 300.000 0.00000 0.00000 0.00000 10.0000 10.0000 10.0000 true 1.01250 true 273.400 200.000 51.5662 -99999.0 1.10000 0 0 "C1" "Converter1" 100.000 50.0000
-1 2 2 2 2 -300.000 300.000 0.00000 0.00000 0.00000 10.0000 10.0000 10.0000 false -99999.0 true -280.000 200.000 51.5662 123.000 1.10000 0 0 "C2" "Converter2" -99999.0 -99999.0

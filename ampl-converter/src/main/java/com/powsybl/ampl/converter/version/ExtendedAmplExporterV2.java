@@ -66,7 +66,6 @@ public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
         List<Column> hvdcColumns = new ArrayList<>(super.getHvdcLinesColumns());
         // add columns for AC emulation
         hvdcColumns.add(HVDC_AC_EMULATION_COLUMN_INDEX, new Column("ac emul."));
-        // add column for target P of hvdc line
         hvdcColumns.add(HVDC_P_OFFSET_COLUMN_INDEX, new Column("P offset (MW)"));
         hvdcColumns.add(HVDC_K_COLUMN_INDEX, new Column("k (MW/rad)"));
         return hvdcColumns;
