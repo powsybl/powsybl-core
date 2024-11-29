@@ -29,7 +29,7 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  * The extension adds:
  *  - A condenser boolean in the generator table.
  *  - The load target P and Q in the lcc converter station table.
- *  - The target P and AC emulation parameters in the vsc converter station table.
+ *  - The target P and AC emulation parameters, along with a boolean to indicate if emulation is active, in the vsc converter station table.
  *
  * @author Pierre ARVY {@literal <pierre.arvy at artelys.com>}
  */
@@ -54,7 +54,7 @@ public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
     public List<Column> getGeneratorsColumns() {
         List<Column> generatorsColumns = new ArrayList<>(super.getGeneratorsColumns());
         // add column to indicate if generator is a condenser
-        generatorsColumns.add(GENERATOR_IS_CONDENSER_COLUMN_INDEX, new Column(CONDENSER));
+        generatorsColumns.add(GENERATOR_IS_CONDENSER_COLUMN_INDEX, new Column("condenser"));
         return generatorsColumns;
     }
 

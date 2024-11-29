@@ -32,9 +32,6 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
         assertEqualsToRef(dataSource, "_network_ptc", "inputs/eurostag-tutorial-example1-ptc.txt");
         assertEqualsToRef(dataSource, "_network_loads", "inputs/eurostag-tutorial-example1-loads.txt");
         assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits.txt");
-
-        // no modification compared to ampl exporter v1.1
-        // TODO
     }
 
     @Test
