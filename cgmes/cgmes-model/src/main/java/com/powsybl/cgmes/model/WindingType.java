@@ -17,13 +17,14 @@ public enum WindingType {
 
     PRIMARY, SECONDARY, TERTIARY;
 
-    public static WindingType fromTransformerEnd(PropertyBag end) {
-        // For CIM14 (CIM ENTSOE Profile1) primary is determined by windingType
-        // For CIM16 (CGMES) primary is defined by the corresponding terminal sequence number:
-        // "The Terminal.sequenceNumber distinguishes the terminals much as previously done by
-        // TransformerWinding.windingType:WindingType"
-
+    /**
+     * Retrieve the WindingType for the given transformer winding/end.
+     * @param end A PropertyBag with the transformer winding/end properties.
+     * @return The WindingType (PRIMARY/SECONDARY/TERTIARY) corresponding to the given transformer winding/end.
+     */
+    public static WindingType windingType(PropertyBag end) {
         if (end.containsKey("windingType")) {
+            // For CIM14 (CIM ENTSOE Profile1) primary is determined by TransformerWinding.windingType
             String wtype = end.getLocal("windingType");
             if (wtype.endsWith("WindingType.primary")) {
                 return WindingType.PRIMARY;
@@ -32,10 +33,23 @@ public enum WindingType {
             } else if (wtype.endsWith("WindingType.tertiary")) {
                 return WindingType.TERTIARY;
             }
-        } else if (end.containsKey("terminalSequenceNumber")) {
-            // Terminal.sequenceNumber := 1, 2 ,3 ...
-            return WindingType.values()[end.asInt("terminalSequenceNumber") - 1];
+        } else if (end.containsKey("endNumber")) {
+            // For CIM16 (CGMES 2.4.15) primary is defined by TransformerEnd.endNumber
+            try {
+                return WindingType.values()[end.asInt("endNumber") - 1];
+            } catch (Exception e) {
+                return WindingType.PRIMARY;
+            }
         }
         return WindingType.PRIMARY;
+    }
+
+    /**
+     * Retrieve the endNumber for the given transformer winding/end.
+     * @param end A PropertyBag with the transformer winding/end properties.
+     * @return The endNumber value (1/2/3) corresponding to the given transformer winding/end.
+     */
+    public static int endNumber(PropertyBag end) {
+        return windingType(end).ordinal() + 1;
     }
 }
