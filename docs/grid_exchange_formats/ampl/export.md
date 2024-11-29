@@ -44,8 +44,8 @@ This exporter adds the following information to the `BasicAmplExporter`:
 This exporter adds the following information to the `ExtendedAmplExporter`:
 
 - In the generator tables, a boolean indicating if the generator is a condenser;
-- In LCC converter station tables, the load target P and Q of the converter station;
-- In VSC converter station tables, the target P and AC emulation parameters of the converter station, along with a boolean to indicate whether AC emulation is active.
+- In LCC converter station tables, the load target Q of the converter station;
+- In HVDC line tables, the AC emulation parameters, along with a boolean to indicate whether AC emulation is active.
 
 
 (ampl-export-options)=

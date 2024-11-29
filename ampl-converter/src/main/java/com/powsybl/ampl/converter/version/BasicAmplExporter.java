@@ -446,20 +446,32 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         HvdcConverterStation.HvdcType type = hvdcLine.getConverterStation1().getHvdcType();
         AmplSubset subset = type.equals(
             HvdcConverterStation.HvdcType.VSC) ? AmplSubset.VSC_CONVERTER_STATION : AmplSubset.LCC_CONVERTER_STATION;
-        formatter.writeCell(variantIndex)
-            .writeCell(num)
-            .writeCell(type.equals(HvdcConverterStation.HvdcType.VSC) ? 1 : 2)
-            .writeCell(mapper.getInt(subset, hvdcLine.getConverterStation1().getId()))
-            .writeCell(mapper.getInt(subset, hvdcLine.getConverterStation2().getId()))
-            .writeCell(hvdcLine.getR())
-            .writeCell(hvdcLine.getNominalV())
-            .writeCell(hvdcLine.getConvertersMode().name())
-            .writeCell(hvdcLine.getActivePowerSetpoint())
-            .writeCell(hvdcLine.getMaxP())
-            .writeCell(faultNum)
-            .writeCell(actionNum)
-            .writeCell(id)
-            .writeCell(hvdcLine.getNameOrId());
+        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+        formatterHelper.addCell(variantIndex)
+            .addCell(num)
+            .addCell(type.equals(HvdcConverterStation.HvdcType.VSC) ? 1 : 2)
+            .addCell(mapper.getInt(subset, hvdcLine.getConverterStation1().getId()))
+            .addCell(mapper.getInt(subset, hvdcLine.getConverterStation2().getId()))
+            .addCell(hvdcLine.getR())
+            .addCell(hvdcLine.getNominalV())
+            .addCell(hvdcLine.getConvertersMode().name())
+            .addCell(hvdcLine.getActivePowerSetpoint())
+            .addCell(hvdcLine.getMaxP())
+            .addCell(faultNum)
+            .addCell(actionNum)
+            .addCell(id)
+            .addCell(hvdcLine.getNameOrId());
+
+        // Add cells if necessary
+        addAdditionalCellsHvdcLine(formatterHelper, hvdcLine);
+
+        // Write the cells
+        formatterHelper.write();
+    }
+
+    public void addAdditionalCellsHvdcLine(TableFormatterHelper formatterHelper,
+                                           HvdcLine hvdcLine) {
+        // Nothing to do here
     }
 
     @Override
@@ -516,41 +528,29 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double minP = -maxP;
 
         int num = mapper.getInt(AmplSubset.VSC_CONVERTER_STATION, vscStation.getId());
-        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
-        formatterHelper.addCell(variantIndex)
-            .addCell(num)
-            .addCell(busNum)
-            .addCell(conBusNum != -1 ? conBusNum : busNum)
-            .addCell(vlNum)
-            .addCell(minP)
-            .addCell(maxP)
-            .addCell(vscStation.getReactiveLimits().getMinQ(maxP))
-            .addCell(vscStation.getReactiveLimits().getMinQ(0))
-            .addCell(vscStation.getReactiveLimits().getMinQ(minP))
-            .addCell(vscStation.getReactiveLimits().getMaxQ(maxP))
-            .addCell(vscStation.getReactiveLimits().getMaxQ(0))
-            .addCell(vscStation.getReactiveLimits().getMaxQ(minP))
-            .addCell(vscStation.isVoltageRegulatorOn())
-            .addCell(vlSet / vb)
-            .addCell(vscStation.getReactivePowerSetpoint())
-            .addCell(vscStation.getLossFactor())
-            .addCell(faultNum)
-            .addCell(actionNum)
-            .addCell(vscStation.getId())
-            .addCell(vscStation.getNameOrId())
-            .addCell(t.getP())
-            .addCell(t.getQ());
-
-        // Add cells if necessary
-        addAdditionalCellsVscConverterStation(formatterHelper, vscStation);
-
-        // Write the cells
-        formatterHelper.write();
-    }
-
-    public void addAdditionalCellsVscConverterStation(TableFormatterHelper formatterHelper,
-                                                      VscConverterStation vscStation) {
-        // Nothing to do here
+        formatter.writeCell(variantIndex)
+            .writeCell(num)
+            .writeCell(busNum)
+            .writeCell(conBusNum != -1 ? conBusNum : busNum)
+            .writeCell(vlNum)
+            .writeCell(minP)
+            .writeCell(maxP)
+            .writeCell(vscStation.getReactiveLimits().getMinQ(maxP))
+            .writeCell(vscStation.getReactiveLimits().getMinQ(0))
+            .writeCell(vscStation.getReactiveLimits().getMinQ(minP))
+            .writeCell(vscStation.getReactiveLimits().getMaxQ(maxP))
+            .writeCell(vscStation.getReactiveLimits().getMaxQ(0))
+            .writeCell(vscStation.getReactiveLimits().getMaxQ(minP))
+            .writeCell(vscStation.isVoltageRegulatorOn())
+            .writeCell(vlSet / vb)
+            .writeCell(vscStation.getReactivePowerSetpoint())
+            .writeCell(vscStation.getLossFactor())
+            .writeCell(faultNum)
+            .writeCell(actionNum)
+            .writeCell(vscStation.getId())
+            .writeCell(vscStation.getNameOrId())
+            .writeCell(t.getP())
+            .writeCell(t.getQ());
     }
 
     private void writeBranchCurrentLimits(TableFormatter formatter) throws IOException {

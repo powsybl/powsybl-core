@@ -58,33 +58,33 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
     }
 
     @Test
-    void testLccLoadTargets() throws IOException {
+    void testLccLoadTargetQ() throws IOException {
         Network network = HvdcTestNetwork.createLcc();
 
         exporter.export(network, properties, dataSource);
 
-        // Check that export is the same as for basic AMPL exporter
-        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/hvdc-lcc-test-case.txt");
+        // Check hvdc line has null parameter for ac emulation
+        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/extended_exporter_v2/hvdc-ac-emul-lcc-test-case.txt");
 
-        // Check that synchronous components are different due to HVDC line
-        assertEqualsToRef(dataSource, "_network_lcc_converter_stations", "inputs/extended_exporter_v2/lcc-load-targets-test-case.txt");
+        // Check target Q has been added to LCC converter station table
+        assertEqualsToRef(dataSource, "_network_lcc_converter_stations", "inputs/extended_exporter_v2/lcc-load-target-q-test-case.txt");
     }
 
     @Test
-    void testVscTargetP() throws IOException {
+    void testHvdcNoAcEmulation() throws IOException {
         Network network = HvdcTestNetwork.createVsc();
 
         exporter.export(network, properties, dataSource);
 
         // Check that export is the same as for basic AMPL exporter
-        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/hvdc-vsc-test-case.txt");
+        assertEqualsToRef(dataSource, "_network_vsc_converter_stations", "inputs/vsc-test-case.txt");
 
-        // Check that synchronous components are different due to HVDC line
-        assertEqualsToRef(dataSource, "_network_vsc_converter_stations", "inputs/extended_exporter_v2/vsc-target-p-test-case.txt");
+        // Check hvdc line has null parameter for ac emulation
+        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/extended_exporter_v2/hvdc-vsc-test-case.txt");
     }
 
     @Test
-    void testVscAcEmulation() throws IOException {
+    void testHvdcAcEmulation() throws IOException {
         Network network = HvdcTestNetwork.createVsc();
         network.getHvdcLine("L").newExtension(HvdcAngleDroopActivePowerControlAdder.class)
                 .withP0(200.0f)
@@ -95,10 +95,10 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
         exporter.export(network, properties, dataSource);
 
         // Check that export is the same as for basic AMPL exporter
-        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/hvdc-vsc-test-case.txt");
+        assertEqualsToRef(dataSource, "_network_vsc_converter_stations", "inputs/vsc-test-case.txt");
 
-        // Check that synchronous components are different due to HVDC line
-        assertEqualsToRef(dataSource, "_network_vsc_converter_stations", "inputs/extended_exporter_v2/vsc-ac-emul-test-case.txt");
+        // Check ac emulation parameters of the hvdc line
+        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/extended_exporter_v2/hvdc-ac-emul-vsc-test-case.txt");
     }
 
     @Test

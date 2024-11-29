@@ -12,10 +12,7 @@ import com.powsybl.ampl.converter.AmplSubset;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatterHelper;
 import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.util.HvdcUtils;
 
@@ -28,20 +25,18 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  * 2nd extension of BasicAmplExporter, associated with AMPL version 1.2 (exporter id).
  * The extension adds:
  *  - A condenser boolean in the generator table.
- *  - The load target P and Q in the lcc converter station table.
- *  - The target P and AC emulation parameters, along with a boolean to indicate if emulation is active, in the vsc converter station table.
+ *  - The load target Q in the lcc converter station table.
+ *  - The AC emulation parameters, along with a boolean to indicate if emulation is active, in the hvdc line table.
  *
  * @author Pierre ARVY {@literal <pierre.arvy at artelys.com>}
  */
 public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
 
     private static final int GENERATOR_IS_CONDENSER_COLUMN_INDEX = 16;
-    private static final int LCC_TARGET_P_COLUMN_INDEX = 5;
-    private static final int LCC_TARGET_Q_COLUMN_INDEX = 6;
-    private static final int VSC_AC_EMULATION_COLUMN_INDEX = 15;
-    private static final int VSC_TARGET_P_COLUMN_INDEX = 16;
-    private static final int VSC_P_OFFSET_COLUMN_INDEX = 17;
-    private static final int VSC_K_COLUMN_INDEX = 18;
+    private static final int LCC_TARGET_Q_COLUMN_INDEX = 5;
+    private static final int HVDC_AC_EMULATION_COLUMN_INDEX = 8;
+    private static final int HVDC_P_OFFSET_COLUMN_INDEX = 10;
+    private static final int HVDC_K_COLUMN_INDEX = 11;
 
     public ExtendedAmplExporterV2(AmplExportConfig config,
                                 Network network,
@@ -61,22 +56,20 @@ public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
     @Override
     public List<Column> getLccConverterStationsColumns() {
         List<Column> lccColumns = new ArrayList<>(super.getLccConverterStationsColumns());
-        // add columns for load target P/Q of converter station
-        lccColumns.add(LCC_TARGET_P_COLUMN_INDEX, new Column(P0));
+        // add columns for load target Q of converter station
         lccColumns.add(LCC_TARGET_Q_COLUMN_INDEX, new Column(Q0));
         return lccColumns;
     }
 
     @Override
-    public List<Column> getVscConverterStationsColumns() {
-        List<Column> vscColumns = new ArrayList<>(super.getVscConverterStationsColumns());
+    public List<Column> getHvdcLinesColumns() {
+        List<Column> hvdcColumns = new ArrayList<>(super.getHvdcLinesColumns());
         // add columns for AC emulation
-        vscColumns.add(VSC_AC_EMULATION_COLUMN_INDEX, new Column("ac emul."));
-        // add column for target P of converter station
-        vscColumns.add(VSC_TARGET_P_COLUMN_INDEX, new Column("targetP (MW)"));
-        vscColumns.add(VSC_P_OFFSET_COLUMN_INDEX, new Column("P offset (MW)"));
-        vscColumns.add(VSC_K_COLUMN_INDEX, new Column("k (MW/rad)"));
-        return vscColumns;
+        hvdcColumns.add(HVDC_AC_EMULATION_COLUMN_INDEX, new Column("ac emul."));
+        // add column for target P of hvdc line
+        hvdcColumns.add(HVDC_P_OFFSET_COLUMN_INDEX, new Column("P offset (MW)"));
+        hvdcColumns.add(HVDC_K_COLUMN_INDEX, new Column("k (MW/rad)"));
+        return hvdcColumns;
     }
 
     @Override
@@ -88,28 +81,24 @@ public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
     @Override
     public void addAdditionalCellsLccConverterStation(TableFormatterHelper formatterHelper,
                                                       LccConverterStation lccStation) {
-        double loadTargetP = HvdcUtils.getConverterStationTargetP(lccStation);
-        formatterHelper.addCell(loadTargetP, LCC_TARGET_P_COLUMN_INDEX);
         double loadTargetQ = HvdcUtils.getLccConverterStationLoadTargetQ(lccStation);
         formatterHelper.addCell(loadTargetQ, LCC_TARGET_Q_COLUMN_INDEX);
     }
 
     @Override
-    public void addAdditionalCellsVscConverterStation(TableFormatterHelper formatterHelper,
-                                                      VscConverterStation vscStation) {
-        double targetP = HvdcUtils.getConverterStationTargetP(vscStation);
+    public void addAdditionalCellsHvdcLine(TableFormatterHelper formatterHelper,
+                                           HvdcLine hvdcLine) {
         boolean isEnabled = false;
         double p0 = Double.NaN;
         double k = Double.NaN;
-        HvdcAngleDroopActivePowerControl droopControl = vscStation.getHvdcLine().getExtension(HvdcAngleDroopActivePowerControl.class);
+        HvdcAngleDroopActivePowerControl droopControl = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
         if (droopControl != null) {
             isEnabled = droopControl.isEnabled();
             p0 = droopControl.getP0();
-            k = droopControl.getDroop() * 180 / Math.PI;
+            k = droopControl.getDroop() * 180 / Math.PI; // export MW/rad as voltage angles are exported in rad
         }
-        formatterHelper.addCell(isEnabled, VSC_AC_EMULATION_COLUMN_INDEX);
-        formatterHelper.addCell(targetP, VSC_TARGET_P_COLUMN_INDEX);
-        formatterHelper.addCell(p0, VSC_P_OFFSET_COLUMN_INDEX);
-        formatterHelper.addCell(k, VSC_K_COLUMN_INDEX);
+        formatterHelper.addCell(isEnabled, HVDC_AC_EMULATION_COLUMN_INDEX);
+        formatterHelper.addCell(p0, HVDC_P_OFFSET_COLUMN_INDEX);
+        formatterHelper.addCell(k, HVDC_K_COLUMN_INDEX);
     }
 }
