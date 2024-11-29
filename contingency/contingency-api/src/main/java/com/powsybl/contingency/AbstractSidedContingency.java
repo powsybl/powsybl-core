@@ -36,9 +36,4 @@ public abstract class AbstractSidedContingency implements SidedContingencyElemen
     public String getVoltageLevelId() {
         return voltageLevelId;
     }
-
-    @Override
-    public boolean hasVoltageLevelId() {
-        return voltageLevelId != null;
-    }
 }

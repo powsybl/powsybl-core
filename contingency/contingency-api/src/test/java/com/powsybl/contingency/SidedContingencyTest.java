@@ -38,25 +38,25 @@ public class SidedContingencyTest {
     @ParameterizedTest(name = "{1}")
     @MethodSource("sidedElementProvider")
     void testSideGetter(Network network, SidedContingencyElement element, TwoSides expectedSide) {
-        assertEquals(expectedSide, SidedContingencyElementUtils.getContingencySide(network, element));
+        assertEquals(expectedSide, SidedContingencyElement.getContingencySide(network, element));
     }
 
     @Test
     void testIdNotFound() {
         SidedContingencyElement element = new BranchContingency("WRONG_ID", VLHV2);
-        assertNull(SidedContingencyElementUtils.getContingencySide(eurostagNetwork, element));
+        assertNull(SidedContingencyElement.getContingencySide(eurostagNetwork, element));
     }
 
     @Test
     void testVoltageIdNotFound() {
         SidedContingencyElement element = new BranchContingency(NHV1_NHV2_2, "WRONG_ID");
-        assertNull(SidedContingencyElementUtils.getContingencySide(eurostagNetwork, element));
+        assertNull(SidedContingencyElement.getContingencySide(eurostagNetwork, element));
     }
 
     @Test
     void testNullVoltageId() {
         SidedContingencyElement element = new BranchContingency(NHV1_NHV2_2);
-        assertNull(SidedContingencyElementUtils.getContingencySide(eurostagNetwork, element));
+        assertNull(SidedContingencyElement.getContingencySide(eurostagNetwork, element));
     }
 
     private static Stream<Arguments> sidedElementProvider() {
