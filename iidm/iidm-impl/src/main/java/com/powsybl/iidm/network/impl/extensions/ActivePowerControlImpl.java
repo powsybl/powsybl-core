@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
+import com.powsybl.iidm.network.impl.NetworkImpl;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +123,14 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     }
 
     public void setParticipate(boolean participate) {
-        this.participate.set(getVariantIndex(), participate);
+        int variantIndex = getVariantIndex();
+        boolean oldParticipate = this.participate.get(variantIndex);
+        if (oldParticipate != participate) {
+            this.participate.set(variantIndex, participate);
+            NetworkImpl network = (NetworkImpl) getExtendable().getNetwork();
+            String variantId = getVariantManagerHolder().getVariantManager().getWorkingVariantId();
+            network.getListeners().notifyExtensionUpdate(this, "participate", variantId, oldParticipate, participate);
+        }
     }
 
     public double getDroop() {
@@ -130,7 +138,14 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     }
 
     public void setDroop(double droop) {
-        this.droop.set(getVariantIndex(), droop);
+        int variantIndex = getVariantIndex();
+        double oldDroop = this.droop.get(variantIndex);
+        if (oldDroop != droop) {
+            this.droop.set(variantIndex, droop);
+            NetworkImpl network = (NetworkImpl) getExtendable().getNetwork();
+            String variantId = getVariantManagerHolder().getVariantManager().getWorkingVariantId();
+            network.getListeners().notifyExtensionUpdate(this, "droop", variantId, oldDroop, droop);
+        }
     }
 
     public double getParticipationFactor() {

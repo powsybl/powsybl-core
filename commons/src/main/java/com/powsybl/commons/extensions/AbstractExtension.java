@@ -32,15 +32,11 @@ public abstract class AbstractExtension<T> implements Extension<T> {
         if (extendable != null && this.extendable != null && this.extendable != extendable) {
             throw new PowsyblException("Extension is already associated to the extendable " + this.extendable);
         }
-        if (extendable == null) {
-            cleanup();
-        }
         this.extendable = extendable;
     }
 
-    /**
-     * Method called when the extension is removed from its holder.
-     * Can be used for e.g. resource cleanup.
-     */
-    protected void cleanup() { }
+    @Override
+    public void cleanup() {
+        // nothing by default
+    }
 }

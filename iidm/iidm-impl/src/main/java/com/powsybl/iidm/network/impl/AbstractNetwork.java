@@ -104,7 +104,7 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
                                             "an extension of this same class already exists in the destination network.",
                                     clazz.getName(), from.getId(), to.getId());
                         } else {
-                            from.removeExtension((Class<? extends Extension<Network>>) clazz);
+                            ((AbstractIdentifiable<Network>) from).removeExtension((Class<? extends Extension<Network>>) clazz, false);
                             to.addExtension((Class<? super Extension<Network>>) clazz, (Extension<Network>) e);
                         }
                     })

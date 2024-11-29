@@ -863,6 +863,9 @@ WHERE {
         }
     }
     OPTIONAL {
+        ?GeneratingUnit cim:WindGeneratingUnit.windGenUnitType ?windGenUnitType
+    }
+    OPTIONAL {
         SELECT ?GeneratingUnit (group_concat(?fossilFuelType;separator=";") as ?fossilFuelTypeList)
         WHERE {
                 ?FossilFuel a cim:FossilFuel;

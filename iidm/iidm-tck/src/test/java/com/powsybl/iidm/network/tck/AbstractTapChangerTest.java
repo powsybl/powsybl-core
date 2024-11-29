@@ -16,8 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 public abstract class AbstractTapChangerTest {
@@ -164,7 +162,7 @@ public abstract class AbstractTapChangerTest {
         currentStep.setB(5.0);
         currentStep.setAlpha(6.0);
         currentStep.setRho(7.0);
-        verify(mockedListener, times(6)).onUpdate(any(Identifiable.class), anyString(), any(), any());
+        verify(mockedListener, times(6)).onUpdate(any(Identifiable.class), anyString(), nullable(String.class), any(), any());
         // Remove observer
         network.removeListener(mockedListener);
         // Cancel modification

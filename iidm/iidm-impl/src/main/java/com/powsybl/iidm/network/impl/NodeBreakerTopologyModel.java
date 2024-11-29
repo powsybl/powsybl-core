@@ -530,7 +530,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                     switches.put(aSwitch.getId(), e);
                     network.getListeners().notifyCreation(aSwitch);
                 } else {
-                    network.getListeners().notifyElementAdded(voltageLevel, INTERNAL_CONNECTION, null);
+                    network.getListeners().notifyPropertyAdded(voltageLevel, INTERNAL_CONNECTION, null);
                 }
                 invalidateCache();
             }
@@ -552,7 +552,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                     switches.remove(switchId);
                     network.getListeners().notifyAfterRemoval(switchId);
                 } else {
-                    network.getListeners().notifyElementRemoved(voltageLevel, INTERNAL_CONNECTION, null);
+                    network.getListeners().notifyPropertyRemoved(voltageLevel, INTERNAL_CONNECTION, null);
                 }
             }
 
@@ -569,7 +569,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                     if (ss != null) {
                         network.getIndex().remove(ss);
                     } else {
-                        network.getListeners().notifyElementRemoved(voltageLevel, INTERNAL_CONNECTION, null);
+                        network.getListeners().notifyPropertyRemoved(voltageLevel, INTERNAL_CONNECTION, null);
                     }
                 });
                 switches.clear();

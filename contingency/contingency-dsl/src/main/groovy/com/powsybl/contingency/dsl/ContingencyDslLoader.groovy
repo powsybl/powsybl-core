@@ -78,6 +78,16 @@ class ContingencyDslLoader extends DslLoader {
                     builder.addDanglingLine(equipment)
                 } else if (identifiable instanceof ThreeWindingsTransformer) {
                     builder.addThreeWindingsTransformer(equipment)
+                } else if (identifiable instanceof TieLine) {
+                    builder.addTieLine(equipment)
+                } else if (identifiable instanceof Bus) {
+                    builder.addBus(equipment)
+                } else if (identifiable instanceof Battery) {
+                    builder.addBattery(equipment)
+                } else if (identifiable instanceof Load) {
+                    builder.addLoad(equipment)
+                } else if (identifiable instanceof Switch) {
+                    builder.addSwitch(equipment)
                 } else {
                     LOGGER.warn("Equipment type {} not supported in contingencies", identifiable.getClass().name)
                     valid = false

@@ -43,4 +43,6 @@ public interface RemoteReactivePowerControl extends Extension<Generator> {
     RemoteReactivePowerControl setTargetQ(double targetQ);
 
     RemoteReactivePowerControl setEnabled(boolean enabled);
+
+    RemoteReactivePowerControl setRegulatingTerminal(Terminal regulatingTerminals);
 }

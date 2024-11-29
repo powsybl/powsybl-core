@@ -423,6 +423,7 @@ public class CgmesExport implements Exporter {
                 .setExportTransformersWithHighestVoltageAtEnd1(Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig))
                 .setExportLoadFlowStatus(Parameter.readBoolean(getFormat(), params, EXPORT_LOAD_FLOW_STATUS_PARAMETER, defaultValueConfig))
                 .setExportAllLimitsGroup(Parameter.readBoolean(getFormat(), params, EXPORT_ALL_LIMITS_GROUP_PARAMETER, defaultValueConfig))
+                .setExportGeneratorsInLocalRegulationMode(Parameter.readBoolean(getFormat(), params, EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE_PARAMETER, defaultValueConfig))
                 .setMaxPMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_P_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
                 .setMaxQMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_Q_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
                 .setExportSvInjectionsForSlacks(Parameter.readBoolean(getFormat(), params, EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER, defaultValueConfig))
@@ -544,6 +545,7 @@ public class CgmesExport implements Exporter {
     public static final String EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1 = "iidm.export.cgmes.export-transformers-with-highest-voltage-at-end1";
     public static final String EXPORT_LOAD_FLOW_STATUS = "iidm.export.cgmes.export-load-flow-status";
     public static final String EXPORT_ALL_LIMITS_GROUP = "iidm.export.cgmes.export-all-limits-group";
+    public static final String EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE = "iidm.export.cgmes.export-generators-in-local-regulation-mode";
     public static final String MAX_P_MISMATCH_CONVERGED = "iidm.export.cgmes.max-p-mismatch-converged";
     public static final String MAX_Q_MISMATCH_CONVERGED = "iidm.export.cgmes.max-q-mismatch-converged";
     public static final String EXPORT_SV_INJECTIONS_FOR_SLACKS = "iidm.export.cgmes.export-sv-injections-for-slacks";
@@ -637,7 +639,12 @@ public class CgmesExport implements Exporter {
             EXPORT_ALL_LIMITS_GROUP,
             ParameterType.BOOLEAN,
             "True to export all OperationalLimitsGroup, False to export only the selected group",
-            CgmesExportContext.EXPORT_LOAD_FLOW_STATUS_DEFAULT_VALUE);
+            CgmesExportContext.EXPORT_ALL_LIMITS_GROUP_DEFAULT_VALUE);
+    private static final Parameter EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE_PARAMETER = new Parameter(
+            EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE,
+            ParameterType.BOOLEAN,
+            "True to export voltage regulating generators in local regulation mode, False to keep their regulation mode unchanged.",
+            CgmesExportContext.EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE_DEFAULT_VALUE);
     private static final Parameter MAX_P_MISMATCH_CONVERGED_PARAMETER = new Parameter(
             MAX_P_MISMATCH_CONVERGED,
             ParameterType.DOUBLE,

@@ -28,7 +28,7 @@ class OperationalLimitsGroupImplTest {
         boolean[] updated = new boolean[1];
         network.addListener(new DefaultNetworkListener() {
             @Override
-            public void onUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+            public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
                 assertEquals("NHV1", identifiable.getId());
                 assertEquals("limits_CURRENT", attribute);
                 assertNull(((OperationalLimitsGroupImpl.OperationalLimitsInfo) oldValue).value());
