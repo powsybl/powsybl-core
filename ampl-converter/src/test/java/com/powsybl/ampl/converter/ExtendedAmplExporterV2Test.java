@@ -7,9 +7,7 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
@@ -20,7 +18,7 @@ import java.io.IOException;
 /**
  * @author Pierre ARVY {@literal <pierre.arvy at artelys.com>}
  */
-public class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
+class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
 
     @Test
     void testNoModifiedExports() throws IOException {

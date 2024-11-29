@@ -9,6 +9,7 @@ At the moment, there are:
 - The `BasicAmplExporter` (associated with the `AmplExportVersion` `V1_0`);
 - The `ExtendedAmplExporter` (associated with the `AmplExportVersion` `V1_1`) that inherits from the `BasicAmplExporter`.
 - The `ExtendedAmplExporterV2` (associated with the `AmplExportVersion` `V1_2`) that inherits from the `ExtendedAmplExporter`.
+
 The default version is the `V1_2`.
 
 Exporters define the information written in text files and fed to AMPL regarding:
@@ -43,8 +44,8 @@ This exporter adds the following information to the `BasicAmplExporter`:
 This exporter adds the following information to the `ExtendedAmplExporter`:
 
 - In the generator tables, a boolean indicating if the generator is a condenser;
-- In LCC converter station tables, the load target Q of the converter station;
-- TODO
+- In LCC converter station tables, the load target P and Q of the converter station;
+- In VSC converter station tables, the target P and AC emulation parameters of the converter station, along with a boolean to indicate whether AC emulation is active.
 
 
 (ampl-export-options)=
