@@ -7,7 +7,10 @@
  */
 package com.powsybl.ampl.converter;
 
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.jupiter.api.Test;
@@ -60,7 +63,7 @@ public class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
     }
 
     @Test
-    void testLccLoadTargetQ() throws IOException {
+    void testLccLoadTargets() throws IOException {
         Network network = HvdcTestNetwork.createLcc();
 
         exporter.export(network, properties, dataSource);
@@ -69,7 +72,38 @@ public class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
         assertEqualsToRef(dataSource, "_network_hvdc", "inputs/hvdc-lcc-test-case.txt");
 
         // Check that synchronous components are different due to HVDC line
-        assertEqualsToRef(dataSource, "_network_lcc_converter_stations", "inputs/extended_exporter_v2/lcc-load-target-q-test-case.txt");
+        assertEqualsToRef(dataSource, "_network_lcc_converter_stations", "inputs/extended_exporter_v2/lcc-load-targets-test-case.txt");
+    }
+
+    @Test
+    void testVscTargetP() throws IOException {
+        Network network = HvdcTestNetwork.createVsc();
+
+        exporter.export(network, properties, dataSource);
+
+        // Check that export is the same as for basic AMPL exporter
+        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/hvdc-vsc-test-case.txt");
+
+        // Check that synchronous components are different due to HVDC line
+        assertEqualsToRef(dataSource, "_network_vsc_converter_stations", "inputs/extended_exporter_v2/vsc-target-p-test-case.txt");
+    }
+
+    @Test
+    void testVscAcEmulation() throws IOException {
+        Network network = HvdcTestNetwork.createVsc();
+        network.getHvdcLine("L").newExtension(HvdcAngleDroopActivePowerControlAdder.class)
+                .withP0(200.0f)
+                .withDroop(0.9f)
+                .withEnabled(true)
+                .add();
+
+        exporter.export(network, properties, dataSource);
+
+        // Check that export is the same as for basic AMPL exporter
+        assertEqualsToRef(dataSource, "_network_hvdc", "inputs/hvdc-vsc-test-case.txt");
+
+        // Check that synchronous components are different due to HVDC line
+        assertEqualsToRef(dataSource, "_network_vsc_converter_stations", "inputs/extended_exporter_v2/vsc-ac-emul-test-case.txt");
     }
 
     @Test

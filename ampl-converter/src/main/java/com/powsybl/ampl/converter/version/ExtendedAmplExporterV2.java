@@ -70,10 +70,10 @@ public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
     @Override
     public List<Column> getVscConverterStationsColumns() {
         List<Column> vscColumns = new ArrayList<>(super.getVscConverterStationsColumns());
-        // add column for target P of converter station
-        vscColumns.add(VSC_TARGET_P_COLUMN_INDEX, new Column("targetP (MW)"));
         // add columns for AC emulation
         vscColumns.add(VSC_AC_EMULATION_COLUMN_INDEX, new Column("ac emul."));
+        // add column for target P of converter station
+        vscColumns.add(VSC_TARGET_P_COLUMN_INDEX, new Column("targetP (MW)"));
         vscColumns.add(VSC_P_OFFSET_COLUMN_INDEX, new Column("P offset (MW)"));
         vscColumns.add(VSC_K_COLUMN_INDEX, new Column("k (MW/rad)"));
         return vscColumns;
@@ -98,7 +98,6 @@ public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
     public void addAdditionalCellsVscConverterStation(TableFormatterHelper formatterHelper,
                                                       VscConverterStation vscStation) {
         double targetP = HvdcUtils.getConverterStationTargetP(vscStation);
-        formatterHelper.addCell(targetP, VSC_TARGET_P_COLUMN_INDEX);
         boolean isEnabled = false;
         double p0 = Double.NaN;
         double k = Double.NaN;
@@ -109,6 +108,7 @@ public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
             k = droopControl.getDroop() * 180 / Math.PI;
         }
         formatterHelper.addCell(isEnabled, VSC_AC_EMULATION_COLUMN_INDEX);
+        formatterHelper.addCell(targetP, VSC_TARGET_P_COLUMN_INDEX);
         formatterHelper.addCell(p0, VSC_P_OFFSET_COLUMN_INDEX);
         formatterHelper.addCell(k, VSC_K_COLUMN_INDEX);
     }
