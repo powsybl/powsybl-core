@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -206,10 +205,8 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             .forEach(tends -> {
                 PropertyBags tends1 = new PropertyBags(
                     tends.getValue().stream()
-                        .sorted(Comparator
-                            .comparing(WindingType::fromTransformerEnd)
-                            .thenComparing(end -> end.asInt(endNumber, -1)))
-                        .collect(Collectors.toList()));
+                        .sorted(Comparator.comparing(WindingType::endNumber))
+                        .toList());
                 tends.setValue(tends1);
             });
         return gends;
