@@ -7,6 +7,7 @@
                 <iidm:bus id="NGEN2"/>
                 <iidm:bus id="NGEN3"/>
                 <iidm:bus id="F0000014"/>
+                <iidm:bus id="F0000019"/>
                 <iidm:switch id="NGEN-NGEN2" kind="BREAKER" retained="true" open="false" bus1="NGEN" bus2="NGEN2"/>
                 <iidm:switch id="NGEN-NGEN3" kind="BREAKER" retained="true" open="false" bus1="NGEN" bus2="NGEN3"/>
             </iidm:busBreakerTopology>

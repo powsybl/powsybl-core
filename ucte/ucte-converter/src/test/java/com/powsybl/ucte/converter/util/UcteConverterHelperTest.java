@@ -12,14 +12,14 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.ucte.converter.UcteException;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.math3.complex.Complex;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Abdelsalem HEDHILI  {@literal <abdelsalem.hedhili at rte-france.com>}
@@ -89,5 +89,17 @@ class UcteConverterHelperTest {
         Complex duRef6 = calculateAsymmAngleDuAndAngle(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false);
         assertEquals(0.990, duRef6.abs(), 0.00001);
         assertEquals(90.00, Math.toDegrees(duRef6.getArgument()), 0.00001); // loss of one decimal with sign
+    }
+
+    @Test
+    void getOrderCodeTest() {
+        assertEquals('1', getOrderCode(0));
+        assertEquals('A', getOrderCode(9));
+        assertThrows(UcteException.class, () -> {
+            getOrderCode(-1);
+        });
+        assertThrows(UcteException.class, () -> {
+            getOrderCode(50);
+        });
     }
 }

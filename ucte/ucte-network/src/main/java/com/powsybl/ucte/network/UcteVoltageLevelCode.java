@@ -90,7 +90,7 @@ public enum UcteVoltageLevelCode {
                 .min(Comparator.comparingDouble(code ->
                         Math.abs(voltage - code.getVoltageLevel())))
                 .map(code -> (char) ('0' + code.ordinal()))
-                .orElse('7');
+                .orElseThrow();
     }
 
     public static boolean isVoltageLevelCode(char character) {

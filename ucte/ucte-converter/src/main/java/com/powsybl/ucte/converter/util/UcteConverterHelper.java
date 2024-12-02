@@ -10,6 +10,7 @@ package com.powsybl.ucte.converter.util;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.ucte.converter.UcteException;
 import com.powsybl.ucte.network.UcteAngleRegulation;
 import com.powsybl.ucte.network.UctePhaseRegulation;
 import org.apache.commons.math3.complex.Complex;
@@ -120,6 +121,14 @@ public final class UcteConverterHelper {
         }
 
         return ComplexUtils.polar2Complex(BigDecimal.valueOf(absDu).setScale(4, RoundingMode.HALF_UP).doubleValue(),
-                                          theta);
+                theta);
     }
+
+    public static char getOrderCode(int index) {
+        if (index > UcteConstants.ORDER_CODES.size() || index < 0) {
+            throw new UcteException("Order code index out of bounds");
+        }
+        return UcteConstants.ORDER_CODES.get(index);
+    }
+
 }

@@ -71,18 +71,25 @@ class CounterNamingStrategyTest {
 
         strategy.initialiseNetwork(network);
         Bus genBus = network.getBusBreakerView().getBus("NGEN");
-        Bus hv1Bus = network.getBusBreakerView().getBus("NHV1");
-        Bus hv2Bus = network.getBusBreakerView().getBus("NHV2");
+        Bus hv1Bus = network.getBusBreakerView().getBus("NGEN2");
+        Bus hv2Bus = network.getBusBreakerView().getBus("NGEN3");
         Bus loadBus = network.getBusBreakerView().getBus("NLOAD");
         Bus ucteBus = network.getBusBreakerView().getBus("F0000014");
+        Bus ucteBus2 = network.getBusBreakerView().getBus("F0000019");
 
         UcteNodeCode genCode = strategy.getUcteNodeCode(genBus);
         UcteNodeCode hv1Code = strategy.getUcteNodeCode(hv1Bus);
         UcteNodeCode hv2Code = strategy.getUcteNodeCode(hv2Bus);
         UcteNodeCode loadCode = strategy.getUcteNodeCode(loadBus);
         UcteNodeCode ucteCode = strategy.getUcteNodeCode(ucteBus);
+        UcteNodeCode ucteCode2 = strategy.getUcteNodeCode(ucteBus2);
 
+        System.out.println(genCode);
+        System.out.println(hv1Code);
+        System.out.println(hv2Code);
+        System.out.println(loadCode);
         System.out.println(ucteCode);
+        System.out.println(ucteCode2);
 
         assertAll(
                 () -> assertTrue(UcteNodeCode.isUcteNodeId(genCode.toString())),
@@ -121,12 +128,13 @@ class CounterNamingStrategyTest {
                 () -> assertTrue(UcteElementId.isUcteElementId(transformerId2.toString())),
                 () -> assertTrue(UcteElementId.isUcteElementId(lineId1.toString())),
                 () -> assertTrue(UcteElementId.isUcteElementId(lineId2.toString())),
-                () -> assertNotEquals(transformerId1, transformerId2),
-                () -> assertNotEquals(lineId1, lineId2)
-        );
 
-        assertEquals(transformerId1, strategy.getUcteElementId(transformer1));
-        assertEquals(transformerId2, strategy.getUcteElementId(transformer2));
+                () -> assertNotEquals(transformerId1, transformerId2),
+                () -> assertNotEquals(lineId1, lineId2),
+
+                () -> assertEquals(transformerId1, strategy.getUcteElementId(transformer1)),
+                () -> assertEquals(transformerId2, strategy.getUcteElementId(transformer2))
+        );
     }
 
     @Test
