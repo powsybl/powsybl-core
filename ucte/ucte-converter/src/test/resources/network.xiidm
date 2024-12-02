@@ -6,7 +6,7 @@
                 <iidm:bus id="NGEN"/>
                 <iidm:bus id="NGEN2"/>
                 <iidm:bus id="NGEN3"/>
-                <iidm:bus id="F0000010"/>
+                <iidm:bus id="F0000014"/>
                 <iidm:switch id="NGEN-NGEN2" kind="BREAKER" retained="true" open="false" bus1="NGEN" bus2="NGEN2"/>
                 <iidm:switch id="NGEN-NGEN3" kind="BREAKER" retained="true" open="false" bus1="NGEN" bus2="NGEN3"/>
             </iidm:busBreakerTopology>
@@ -18,7 +18,11 @@
                 <iidm:minMaxReactiveLimits minQ="-1000.0" maxQ="1000.0"/>
             </iidm:danglingLine>
             <iidm:danglingLine id="DL2" name="Dangling Line 1" p0="100.0" q0="50.0" r="1.7" x="16.1" g="0.00001" b="0.000016" generationMinP="-1" generationMaxP="100" generationVoltageRegulationOn="false" generationTargetP="50" generationTargetQ="10"
-                               bus="NGEN2" connectableBus="NGEN2">
+                               bus="NGEN2" connectableBus="NGEN2" pairingKey="X0000011">
+                <iidm:minMaxReactiveLimits minQ="-1000.0" maxQ="1000.0"/>
+            </iidm:danglingLine>
+            <iidm:danglingLine id="DL3" name="Dangling Line 1" p0="100.0" q0="50.0" r="1.7" x="16.1" g="0.00001" b="0.000016" generationMinP="-1" generationMaxP="100" generationVoltageRegulationOn="false" generationTargetP="50" generationTargetQ="10"
+                               bus="NGEN2" connectableBus="NGEN2" pairingKey="X000001$fgnjfn1">
                 <iidm:minMaxReactiveLimits minQ="-1000.0" maxQ="1000.0"/>
             </iidm:danglingLine>
         </iidm:voltageLevel>

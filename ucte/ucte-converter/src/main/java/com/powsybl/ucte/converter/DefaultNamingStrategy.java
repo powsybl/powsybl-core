@@ -23,5 +23,4 @@ public class DefaultNamingStrategy extends AbstractNamingStrategy {
     public String getName() {
         return "Default";
     }
-
 }

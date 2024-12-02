@@ -74,13 +74,15 @@ class CounterNamingStrategyTest {
         Bus hv1Bus = network.getBusBreakerView().getBus("NHV1");
         Bus hv2Bus = network.getBusBreakerView().getBus("NHV2");
         Bus loadBus = network.getBusBreakerView().getBus("NLOAD");
-        Bus ucteBus = network.getBusBreakerView().getBus("F0000010");
+        Bus ucteBus = network.getBusBreakerView().getBus("F0000014");
 
         UcteNodeCode genCode = strategy.getUcteNodeCode(genBus);
         UcteNodeCode hv1Code = strategy.getUcteNodeCode(hv1Bus);
         UcteNodeCode hv2Code = strategy.getUcteNodeCode(hv2Bus);
         UcteNodeCode loadCode = strategy.getUcteNodeCode(loadBus);
         UcteNodeCode ucteCode = strategy.getUcteNodeCode(ucteBus);
+
+        System.out.println(ucteCode);
 
         assertAll(
                 () -> assertTrue(UcteNodeCode.isUcteNodeId(genCode.toString())),
@@ -152,25 +154,20 @@ class CounterNamingStrategyTest {
         strategy.initialiseNetwork(network);
         DanglingLine dl1 = network.getDanglingLine("DL1");
         DanglingLine dl2 = network.getDanglingLine("DL2");
+        DanglingLine dl3 = network.getDanglingLine("DL3");
         UcteElementId dlId1 = strategy.getUcteElementId(dl1);
         UcteElementId dlId2 = strategy.getUcteElementId(dl2);
+        UcteElementId dlId3 = strategy.getUcteElementId(dl3);
 
         assertAll(
                 () -> assertTrue(UcteElementId.isUcteElementId(dlId1.toString())),
-                () -> assertTrue(UcteElementId.isUcteElementId(dlId1.toString())),
-                () -> assertNotEquals(dlId1, dlId2)
+                () -> assertTrue(UcteElementId.isUcteElementId(dlId3.toString())),
+                () -> assertNotEquals(dlId1, dlId2),
+                () -> assertNotEquals(dlId1, dlId3),
+                () -> assertNotEquals(dlId2, dlId3)
 
         );
 
-    }
-
-    @Test
-    void testDanglingLineNodeIds() {
-        strategy.initialiseNetwork(network);
-        DanglingLine dl1 = network.getDanglingLine("DL1");
-        UcteNodeCode code1 = strategy.getUcteNodeCode(dl1);
-
-        assertTrue(UcteNodeCode.isUcteNodeId(code1.toString()));
     }
 
     @Test

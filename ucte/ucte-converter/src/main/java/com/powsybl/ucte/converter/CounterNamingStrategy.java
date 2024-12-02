@@ -10,6 +10,7 @@ package com.powsybl.ucte.converter;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.ucte.converter.util.UcteConstants;
 import com.powsybl.ucte.network.UcteCountryCode;
 import com.powsybl.ucte.network.UcteElementId;
 import com.powsybl.ucte.network.UcteNodeCode;
@@ -23,7 +24,7 @@ import java.util.*;
 @AutoService(NamingStrategy.class)
 public class CounterNamingStrategy extends AbstractNamingStrategy {
 
-    private int namingCounter;
+    private int voltageLevelCounter;
 
     @Override
     public String getName() {
@@ -32,7 +33,7 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
 
     @Override
     public void initialiseNetwork(Network network) {
-        namingCounter = 0;
+        voltageLevelCounter = 0;
         network.getVoltageLevelStream()
                 .forEach(this::processVoltageLevel);
 
@@ -49,37 +50,35 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
 
         voltageLevel.getBusBreakerView().getSwitches()
                 .forEach(this::generateUcteElementId);
-        namingCounter++;
+        voltageLevelCounter++;
     }
 
-    private UcteNodeCode generateUcteNodeId(String nodeId, VoltageLevel voltageLevel, int orderCodeIndex) {
-        if (UcteNodeCode.isUcteNodeId(nodeId)) {
-            return processExistingUcteNodeId(nodeId, orderCodeIndex);
+    private UcteNodeCode generateUcteNodeId(String busId, VoltageLevel voltageLevel, int orderCodeIndex) {
+        if (UcteNodeCode.isUcteNodeId(busId)) {
+            return changeOrderCode(busId, orderCodeIndex);
         }
-        if (ucteNodeIds.containsKey(nodeId)) {
-            return ucteNodeIds.get(nodeId);
-        }
-        return createNewUcteNodeId(nodeId, voltageLevel, orderCodeIndex);
+        return createNewUcteNodeId(busId, voltageLevel, orderCodeIndex);
     }
 
-    private UcteNodeCode processExistingUcteNodeId(String nodeId, int orderCodeIndex) {
-        String newNodeId = nodeId.substring(0, nodeId.length() - 1) + orderCodeIndex;
-        Optional<UcteNodeCode> nodeCode = UcteNodeCode.parseUcteNodeCode(newNodeId);
-        if (nodeCode.isPresent()) {
-            ucteNodeIds.put(nodeId, nodeCode.get());
-            return nodeCode.get();
-        }
-        throw new PowsyblException(String.format(NO_UCTE_CODE_ERROR, newNodeId));
-    }
-
-    private UcteNodeCode createNewUcteNodeId(String nodeId, VoltageLevel voltageLevel, int orderCodeIndex) {
-        String newNodeId = String.format("%05d", namingCounter);
-        char countryCode = getCountryCode(voltageLevel).getUcteCode();
-        char voltageLevelCode = UcteVoltageLevelCode.voltageLevelCodeFromVoltage(voltageLevel.getNominalV());
-        if (orderCodeIndex > UcteElementId.ORDER_CODES.get(orderCodeIndex)) {
+    private UcteNodeCode changeOrderCode(String busId, int orderCodeIndex) {
+        UcteNodeCode nodeCode = UcteNodeCode.parseUcteNodeCode(busId).orElseThrow();
+        UcteNodeCode newUcteNodeCode = new UcteNodeCode(nodeCode.getUcteCountryCode(), nodeCode.getGeographicalSpot(), nodeCode.getVoltageLevelCode(), UcteConstants.ORDER_CODES.get(0));
+        if (orderCodeIndex > UcteConstants.ORDER_CODES.size()) {
             throw new PowsyblException("Order code index out of bounds");
         }
-        char orderCode = UcteElementId.ORDER_CODES.get(orderCodeIndex);
+        newUcteNodeCode.setBusbar(UcteConstants.ORDER_CODES.get(orderCodeIndex));
+        ucteNodeIds.put(busId, newUcteNodeCode);
+        return newUcteNodeCode;
+    }
+
+    private UcteNodeCode createNewUcteNodeId(String busId, VoltageLevel voltageLevel, int orderCodeIndex) {
+        String newNodeId = String.format("%05d", voltageLevelCounter);
+        char countryCode = getCountryCode(voltageLevel).getUcteCode();
+        char voltageLevelCode = UcteVoltageLevelCode.voltageLevelCodeFromVoltage(voltageLevel.getNominalV());
+        if (orderCodeIndex > UcteConstants.ORDER_CODES.size()) {
+            throw new PowsyblException("Order code index out of bounds");
+        }
+        char orderCode = UcteConstants.ORDER_CODES.get(orderCodeIndex);
 
         UcteNodeCode ucteNodeCode = new UcteNodeCode(
                 UcteCountryCode.fromUcteCode(countryCode),
@@ -87,19 +86,19 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
                 UcteVoltageLevelCode.voltageLevelCodeFromChar(voltageLevelCode),
                 orderCode);
 
-        ucteNodeIds.put(nodeId, ucteNodeCode);
+        ucteNodeIds.put(busId, ucteNodeCode);
         return ucteNodeCode;
     }
 
     private UcteCountryCode getCountryCode(VoltageLevel voltageLevel) {
         Country country = voltageLevel.getSubstation()
                 .flatMap(Substation::getCountry)
-                .orElseThrow(() -> new UcteException(NO_COUNTRY_ERROR));
+                .orElseThrow(() -> new UcteException(UcteConstants.NO_COUNTRY_ERROR));
 
         try {
             return UcteCountryCode.valueOf(country.name());
         } catch (IllegalArgumentException e) {
-            throw new UcteException(String.format(NO_UCTE_COUNTRY_ERROR, country.getName()));
+            throw new UcteException(String.format(UcteConstants.NO_UCTE_COUNTRY_ERROR, country.getName()));
         }
     }
 
@@ -108,7 +107,7 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
             return ucteElementIds.get(id);
         }
 
-        UcteElementId uniqueElementId = UcteElementId.ORDER_CODES.stream()
+        UcteElementId uniqueElementId = UcteConstants.ORDER_CODES.stream()
                 .map(orderCode -> new UcteElementId(node1, node2, orderCode))
                 .filter(elementId -> !ucteElementIds.containsValue(elementId))
                 .findFirst()
@@ -138,8 +137,13 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
 
         code1 = getUcteNodeCode(danglingLine.getTerminal().getBusBreakerView().getBus());
 
-        if (danglingLine.getPairingKey() != null) {
-            code2 = generateUcteNodeId(danglingLine.getPairingKey(), danglingLine.getTerminal().getVoltageLevel(), 0);
+        if (danglingLine.getPairingKey() != null && UcteNodeCode.isUcteNodeId(danglingLine.getPairingKey())) {
+            UcteNodeCode pairingKeyId = UcteNodeCode.parseUcteNodeCode(danglingLine.getPairingKey()).orElseThrow();
+            int orderCodeindex = UcteConstants.ORDER_CODES.indexOf(pairingKeyId.getBusbar());
+            if (orderCodeindex == -1) {
+                throw new PowsyblException("No orderCode found for " + pairingKeyId);
+            }
+            code2 = generateUcteNodeId(danglingLine.getPairingKey(), danglingLine.getTerminal().getVoltageLevel(), orderCodeindex);
         } else {
             code2 = generateUcteNodeId(danglingLine.getId(), danglingLine.getTerminal().getVoltageLevel(), 0);
         }

@@ -7,6 +7,8 @@
  */
 package com.powsybl.ucte.converter.util;
 
+import java.util.List;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
@@ -26,4 +28,9 @@ public final class UcteConstants {
     public static final String ORDER_CODE = "orderCode";
     public static final String POWER_PLANT_TYPE_PROPERTY_KEY = "powerPlantType";
     public static final int DEFAULT_POWER_LIMIT = 9999;
+    public static final String NO_COUNTRY_ERROR = "No country for this substation";
+    public static final String NO_UCTE_CODE_ERROR = "No UCTE code found for id: ";
+    public static final String NO_UCTE_COUNTRY_ERROR = "No UCTE country code for ";
+    public static final List<Character> ORDER_CODES = List.of('1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
+            'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
 }
