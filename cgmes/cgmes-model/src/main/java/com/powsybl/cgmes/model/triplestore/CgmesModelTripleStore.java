@@ -468,8 +468,18 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags ratioTapChangerTablePoints() {
+        return namedQuery("ratioTapChangerTablePoints");
+    }
+
+    @Override
     public PropertyBags phaseTapChangers() {
         return namedQuery("phaseTapChangers");
+    }
+
+    @Override
+    public PropertyBags phaseTapChangerTablePoints() {
+        return namedQuery("phaseTapChangerTablePoints");
     }
 
     @Override
@@ -540,28 +550,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     @Override
     public PropertyBags reactiveCapabilityCurveData() {
         return namedQuery("reactiveCapabilityCurveData");
-    }
-
-    @Override
-    public PropertyBags ratioTapChangerTablesPoints() {
-        return namedQuery("ratioTapChangerTablesPoints");
-    }
-
-    @Override
-    public PropertyBags phaseTapChangerTablesPoints() {
-        return namedQuery("phaseTapChangerTablesPoints");
-    }
-
-    @Override
-    public PropertyBags ratioTapChangerTable(String tableId) {
-        Objects.requireNonNull(tableId);
-        return namedQuery("ratioTapChangerTable", tableId);
-    }
-
-    @Override
-    public PropertyBags phaseTapChangerTable(String tableId) {
-        Objects.requireNonNull(tableId);
-        return namedQuery("phaseTapChangerTable", tableId);
     }
 
     @Override

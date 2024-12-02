@@ -604,22 +604,7 @@ OPTIONAL { GRAPH ?graphSV {
 }}
 }
 
-# query: ratioTapChangerTable
-SELECT *
-WHERE {
-    ?RatioTapChangerTablePoint
-        a cim:RatioTapChangerTablePoint ;
-        cim:RatioTapChangerTablePoint.RatioTapChangerTable ?Table ;
-        cim:TapChangerTablePoint.step ?step .
-    FILTER regex(str(?Table), "{0}")
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.ratio ?ratio }
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.r ?r }
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.x ?x }
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.g ?g }
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.b ?b }
-}
-
-# query: ratioTapChangerTablesPoints
+# query: ratioTapChangerTablePoints
 SELECT *
 WHERE {
     ?RatioTapChangerTablePoint
@@ -690,23 +675,7 @@ OPTIONAL { GRAPH ?graphSV {
 }}
 }
 
-# query: phaseTapChangerTable
-SELECT *
-WHERE {
-    ?PhaseTapChangerTablePoint
-        a cim:PhaseTapChangerTablePoint ;
-        cim:PhaseTapChangerTablePoint.PhaseTapChangerTable ?Table ;
-        cim:PhaseTapChangerTablePoint.angle ?angle ;
-        cim:TapChangerTablePoint.step ?step .
-    FILTER regex(str(?Table), "{0}")
-    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.ratio ?ratio }
-    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.r ?r }
-    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.x ?x }
-    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.g ?g }
-    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.b ?b }
-}
-
-# query: phaseTapChangerTablesPoints
+# query: phaseTapChangerTablePoints
 SELECT *
 WHERE {
     ?PhaseTapChangerTablePoint

@@ -472,8 +472,6 @@ public class Conversion {
     private Context createContext(Network network, ReportNode reportNode) {
         Context context = new Context(cgmes, config, network, reportNode);
         context.dc().initialize();
-        context.loadRatioTapChangerTables();
-        context.loadPhaseTapChangerTables();
         context.loadReactiveCapabilityCurveData();
         return context;
     }
