@@ -373,7 +373,6 @@ class LoadFlowParametersTest {
             balanceType, dcUseTransformerRatio, countriesToBalance, connectedComponentMode, hvdcAcEmulation, dcPowerFactor);
     }
 
-
     @Test
     void checkSecondaryNamesNonDefault() {
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
