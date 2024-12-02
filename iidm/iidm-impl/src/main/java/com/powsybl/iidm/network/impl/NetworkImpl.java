@@ -336,20 +336,17 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
-        return Iterables.concat(index.getAll(BusBreakerVoltageLevel.class),
-                index.getAll(NodeBreakerVoltageLevel.class));
+        return Collections.unmodifiableCollection(index.getAll(VoltageLevelImpl.class));
     }
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return Stream.concat(index.getAll(BusBreakerVoltageLevel.class).stream(),
-                index.getAll(NodeBreakerVoltageLevel.class).stream());
+        return index.getAll(VoltageLevelImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getVoltageLevelCount() {
-        return index.getAll(BusBreakerVoltageLevel.class).size()
-                + index.getAll(NodeBreakerVoltageLevel.class).size();
+        return index.getAll(VoltageLevelImpl.class).size();
     }
 
     @Override
@@ -1017,11 +1014,6 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         long start = System.currentTimeMillis();
 
         checkMergeability(otherNetwork);
-
-        otherNetwork.getAreaStream().forEach(a -> {
-            AreaImpl area = (AreaImpl) a;
-            area.moveListener(otherNetwork, this);
-        });
 
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();

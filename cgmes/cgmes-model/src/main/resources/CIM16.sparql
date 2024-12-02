@@ -826,8 +826,7 @@ WHERE {
         cim:NonlinearShuntCompensatorPoint.NonlinearShuntCompensator ?Shunt ;
         cim:NonlinearShuntCompensatorPoint.sectionNumber ?sectionNumber ;
         cim:NonlinearShuntCompensatorPoint.b ?b ;
-        cim:NonlinearShuntCompensatorPoint.g ?g  .
-    FILTER REGEX ( STR (?Shunt), "{0}")
+        cim:NonlinearShuntCompensatorPoint.g ?g .
 }
 
 # query: synchronousMachinesGenerators
@@ -861,6 +860,9 @@ WHERE {
         OPTIONAL {
             ?HydroPowerPlant cim:HydroPowerPlant.hydroPlantStorageType ?hydroPlantStorageType
         }
+    }
+    OPTIONAL {
+        ?GeneratingUnit cim:WindGeneratingUnit.windGenUnitType ?windGenUnitType
     }
     OPTIONAL {
         SELECT ?GeneratingUnit (group_concat(?fossilFuelType;separator=";") as ?fossilFuelTypeList)

@@ -509,6 +509,14 @@
             <artifactId>powsybl-ucte-util</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- In provided scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-itools-packager-maven-plugin</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
