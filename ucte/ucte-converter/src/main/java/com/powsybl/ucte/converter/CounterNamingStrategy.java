@@ -30,6 +30,7 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
         return "Counter";
     }
 
+    @Override
     public void initialiseNetwork(Network network) {
         namingCounter = 0;
         network.getVoltageLevelStream()
@@ -117,7 +118,7 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
         return uniqueElementId;
     }
 
-    private UcteElementId generateUcteElementId(Branch branch) {
+    private UcteElementId generateUcteElementId(Branch<?> branch) {
         if (ucteElementIds.containsKey(branch.getId())) {
             return ucteElementIds.get(branch.getId());
         }
