@@ -437,7 +437,7 @@ public final class CgmesConformity1Catalog {
                 .ratioTapChangers("83cc66dd-8d93-4a2c-8103-f1f5a9cf7e2e",
                         "955d9cd0-4a10-4031-b008-60c0dc340a07",
                         "fe25f43a-7341-446e-a71a-8ab7119ba806")
-                .phaseTapChangers("6ebbef67-3061-4236-a6fd-6ccc4595f6c3")
+                .phaseTapChangers(new String[]{"6ebbef67-3061-4236-a6fd-6ccc4595f6c3"})
                 .energyConsumers("1c6beed6-1acf-42e7-ba55-0cc9f04bddd8",
                         "b1480a00-b427-4001-a26c-51954d2bb7e9",
                         "cb459405-cc14-4215-a45c-416789205904")

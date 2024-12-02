@@ -413,8 +413,18 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags ratioTapChangers(String transformerId) {
+        return new PropertyBags();
+    }
+
+    @Override
     public PropertyBags phaseTapChangers() {
         return phaseTapChangers;
+    }
+
+    @Override
+    public PropertyBags phaseTapChangers(String transformerId) {
+        return new PropertyBags();
     }
 
     @Override
@@ -516,16 +526,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
     public PropertyBags phaseTapChangerTable(String tableId) {
         // FakeCgmesModel does not implement phase tap changer tables
         return new PropertyBags();
-    }
-
-    @Override
-    public List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
-        return Collections.emptyList();
     }
 
     @Override
