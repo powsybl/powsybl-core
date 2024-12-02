@@ -48,16 +48,17 @@ public class PhaseAngleClock implements CgmesImportPostProcessor {
             LOG.warn("PhaseAngleClock-PostProcessor: Unexpected null cgmesModel pointer");
             return;
         }
-
-        cgmes.groupedTransformerEnds().forEach((t, ends) -> {
-            if (ends.size() == 2) {
-                phaseAngleClockTwoWindingTransformer(ends, network);
-            } else if (ends.size() == 3) {
-                phaseAngleClockThreeWindingTransformer(ends, network);
-            } else {
-                throw new PowsyblException(String.format("Unexpected TransformerEnds: ends %d", ends.size()));
-            }
-        });
+        cgmes.transformers().stream()
+                .map(t -> cgmes.transformerEnds(t.getId("PowerTransformer")))
+                .forEach(ends -> {
+                    if (ends.size() == 2) {
+                        phaseAngleClockTwoWindingTransformer(ends, network);
+                    } else if (ends.size() == 3) {
+                        phaseAngleClockThreeWindingTransformer(ends, network);
+                    } else {
+                        throw new PowsyblException(String.format("Unexpected TransformerEnds: ends %d", ends.size()));
+                    }
+                });
     }
 
     private void phaseAngleClockTwoWindingTransformer(PropertyBags ends, Network network) {

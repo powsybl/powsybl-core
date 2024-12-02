@@ -402,9 +402,9 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedTransformerEnds() {
+    public PropertyBags transformerEnds(String tableId) {
         // FakeCgmesModeldoes not provide grouped transformer ends
-        return Collections.emptyMap();
+        return new PropertyBags();
     }
 
     @Override

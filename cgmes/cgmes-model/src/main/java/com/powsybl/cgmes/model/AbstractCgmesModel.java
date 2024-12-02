@@ -44,11 +44,11 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedTransformerEnds() {
+    public PropertyBags transformerEnds(String transformerId) {
         if (cachedGroupedTransformerEnds == null) {
             cachedGroupedTransformerEnds = computeGroupedTransformerEnds();
         }
-        return cachedGroupedTransformerEnds;
+        return cachedGroupedTransformerEnds.getOrDefault(transformerId, new PropertyBags());
     }
 
     @Override
@@ -184,32 +184,24 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         // instead of sorting after building each list,
         // use a sorted collection when inserting
         String endNumber = "endNumber";
-        Map<String, PropertyBags> gends = new HashMap<>();
+        Map<String, PropertyBags> groupedTransformerEnds = new HashMap<>();
         powerTransformerRatioTapChanger = new HashMap<>();
         powerTransformerPhaseTapChanger = new HashMap<>();
         transformerEnds()
-            .forEach(end -> {
-                String id = end.getId("PowerTransformer");
-                PropertyBags ends = gends.computeIfAbsent(id, x -> new PropertyBags());
-                ends.add(end);
-                if (end.getId("PhaseTapChanger") != null) {
-                    powerTransformerPhaseTapChanger.computeIfAbsent(id, s -> new String[3]);
-                    powerTransformerPhaseTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("PhaseTapChanger");
-                }
-                if (end.getId("RatioTapChanger") != null) {
-                    powerTransformerRatioTapChanger.computeIfAbsent(id, s -> new String[3]);
-                    powerTransformerRatioTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("RatioTapChanger");
-                }
-            });
-        gends.entrySet()
-            .forEach(tends -> {
-                PropertyBags tends1 = new PropertyBags(
-                    tends.getValue().stream()
-                        .sorted(Comparator.comparing(WindingType::endNumber))
-                        .toList());
-                tends.setValue(tends1);
-            });
-        return gends;
+                .forEach(end -> {
+                    String transformerId = end.getId("PowerTransformer");
+                    groupedTransformerEnds.computeIfAbsent(transformerId, x -> new PropertyBags())
+                            .add(end);
+                    if (end.getId("PhaseTapChanger") != null) {
+                        powerTransformerPhaseTapChanger.computeIfAbsent(transformerId, s -> new String[3]);
+                        powerTransformerPhaseTapChanger.get(transformerId)[end.asInt(endNumber, 1) - 1] = end.getId("PhaseTapChanger");
+                    }
+                    if (end.getId("RatioTapChanger") != null) {
+                        powerTransformerRatioTapChanger.computeIfAbsent(transformerId, s -> new String[3]);
+                        powerTransformerRatioTapChanger.get(transformerId)[end.asInt(endNumber, 1) - 1] = end.getId("RatioTapChanger");
+                    }
+                });
+        return groupedTransformerEnds;
     }
 
     protected void cacheNodes() {
