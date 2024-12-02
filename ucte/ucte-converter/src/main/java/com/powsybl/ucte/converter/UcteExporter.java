@@ -141,7 +141,7 @@ public class UcteExporter implements Exporter {
             network.getHvdcLineCount() > 0 ||
             network.getThreeWindingsTransformerCount() > 0) {
 
-            //throw new UcteException("This network contains unsupported equipments");
+            throw new UcteException("This network contains unsupported equipments");
         }
 
         UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation);
@@ -183,7 +183,7 @@ public class UcteExporter implements Exporter {
             throw new UcteException("Too many generators connected to this bus");
         }
         if (bus.getLoadStream().count() > 1) {
-            //throw new UcteException("Too many loads connected to this bus");
+            throw new UcteException("Too many loads connected to this bus");
         }
 
         UcteNodeCode ucteNodeCode = context.getNamingStrategy().getUcteNodeCode(bus);
