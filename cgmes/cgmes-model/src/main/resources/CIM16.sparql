@@ -559,8 +559,6 @@ WHERE {
     OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.phaseAngleClock ?phaseAngleClock }
     OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.g ?g }
     OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.ratedS ?ratedS }
-    OPTIONAL { ?RatioTapChanger cim:RatioTapChanger.TransformerEnd ?TransformerEnd }
-    OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.TransformerEnd ?TransformerEnd }
 }}
 } ORDER BY ?PowerTransformer ?endNumber
 
@@ -579,6 +577,10 @@ WHERE {
         cim:RatioTapChanger.stepVoltageIncrement ?stepVoltageIncrement ;
         cim:TapChanger.ltcFlag ?ltcFlag ;
         cim:RatioTapChanger.TransformerEnd ?TransformerEnd .
+    ?TransformerEnd
+        a cim:PowerTransformerEnd ;
+        cim:TransformerEnd.endNumber ?endNumber ;
+        cim:PowerTransformerEnd.PowerTransformer ?PowerTransformer .
     OPTIONAL {
         ?RatioTapChanger cim:TapChanger.TapChangerControl ?TapChangerControl .
         OPTIONAL {
@@ -647,6 +649,8 @@ WHERE {
         cim:PhaseTapChanger.TransformerEnd ?TransformerEnd .
     ?TransformerEnd
         a cim:PowerTransformerEnd ;
+        cim:TransformerEnd.endNumber ?endNumber ;
+        cim:PowerTransformerEnd.PowerTransformer ?PowerTransformer ;
         cim:PowerTransformerEnd.ratedU ?transformerWindingRatedU .
     OPTIONAL {
         ?PhaseTapChanger
