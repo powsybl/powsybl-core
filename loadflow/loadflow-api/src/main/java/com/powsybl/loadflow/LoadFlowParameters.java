@@ -150,7 +150,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                     config.getOptionalBooleanProperty("distributedSlack").ifPresent(parameters::setDistributedSlack);
                     config.getOptionalEnumProperty("balanceType", BalanceType.class).ifPresent(parameters::setBalanceType);
                     config.getOptionalBooleanProperty("dcUseTranformerRatio").ifPresent(parameters::setDcUseTransformerRatio);
-                    config.getOptionalEnumSetProperty("contriesToBalance", Country.class).ifPresent(parameters::setCountriesToBalance);
+                    config.getOptionalEnumSetProperty("countriesToBalance", Country.class).ifPresent(parameters::setCountriesToBalance);
                     config.getOptionalEnumProperty("connectedComponentMode", ConnectedComponentMode.class).ifPresent(parameters::setConnectedComponentMode);
                     config.getOptionalBooleanProperty("hvdcAcEmulation").ifPresent(parameters::setHvdcAcEmulation);
                     config.getOptionalDoubleProperty("dcPowerFactor").ifPresent(parameters::setDcPowerFactor);
