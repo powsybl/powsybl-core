@@ -92,8 +92,7 @@ public interface CgmesModel {
 
     PropertyBags transformerEnds();
 
-    // Transformer ends grouped by transformer
-    Map<String, PropertyBags> groupedTransformerEnds();
+    PropertyBags transformerEnds(String transformerId);
 
     PropertyBags ratioTapChangers();
 
