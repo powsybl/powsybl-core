@@ -50,7 +50,7 @@ class LoadFlowParametersTest {
                              boolean dc, boolean distributedSlack, LoadFlowParameters.BalanceType balanceType,
                              boolean dcUseTransformerRatio, Set<Country> countriesToBalance,
                              LoadFlowParameters.ConnectedComponentMode computedConnectedComponent,
-                             boolean hvdcAcEmulation) {
+                             boolean hvdcAcEmulation, double dcPowerFactor) {
         assertEquals(parameters.getVoltageInitMode(), voltageInitMode);
         assertEquals(parameters.isTransformerVoltageControlOn(), transformerVoltageControlOn);
         assertEquals(parameters.isPhaseShifterRegulationOn(), phaseShifterRegulationOn);
@@ -66,6 +66,7 @@ class LoadFlowParametersTest {
         assertEquals(parameters.getCountriesToBalance(), countriesToBalance);
         assertEquals(parameters.getConnectedComponentMode(), computedConnectedComponent);
         assertEquals(parameters.isHvdcAcEmulation(), hvdcAcEmulation);
+        assertEquals(parameters.getDcPowerFactor(), dcPowerFactor);
     }
 
     @Test
@@ -86,51 +87,8 @@ class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT,
                 LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
                 LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE,
-                LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON);
-    }
-
-    @Test
-    void checkConfig() {
-        boolean transformerVoltageControlOn = true;
-        boolean noGeneratorReactiveLimits = true;
-        boolean phaseShifterRegulationOn = true;
-        boolean twtSplitShuntAdmittance = true;
-        boolean simulShunt = true;
-        boolean readSlackBus = true;
-        boolean writeSlackBus = true;
-        boolean voltageRemoteControl = true;
-        boolean dc = true;
-        boolean distributedSlack = true;
-        LoadFlowParameters.BalanceType balanceType = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
-        LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
-        boolean dcUseTransformerRatio = true;
-        Set<Country> countriesToBalance = new HashSet<>();
-        LoadFlowParameters.ConnectedComponentMode computedConnectedComponent = LoadFlowParameters.ConnectedComponentMode.MAIN;
-        boolean hvdcAcEmulation = false;
-
-        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
-        moduleConfig.setStringProperty("voltageInitMode", "UNIFORM_VALUES");
-        moduleConfig.setStringProperty("transformerVoltageControlOn", Boolean.toString(transformerVoltageControlOn));
-        moduleConfig.setStringProperty("noGeneratorReactiveLimits", Boolean.toString(noGeneratorReactiveLimits));
-        moduleConfig.setStringProperty("phaseShifterRegulationOn", Boolean.toString(phaseShifterRegulationOn));
-        moduleConfig.setStringProperty("twtSplitShuntAdmittance", Boolean.toString(twtSplitShuntAdmittance));
-        moduleConfig.setStringProperty("simulShunt", Boolean.toString(simulShunt));
-        moduleConfig.setStringProperty("readSlackBus", Boolean.toString(readSlackBus));
-        moduleConfig.setStringProperty("writeSlackBus", Boolean.toString(writeSlackBus));
-        moduleConfig.setStringProperty("voltageRemoteControl", Boolean.toString(voltageRemoteControl));
-        moduleConfig.setStringProperty("dc", Boolean.toString(dc));
-        moduleConfig.setStringProperty("distributedSlack", Boolean.toString(dc));
-        moduleConfig.setStringProperty("balanceType", balanceType.name());
-        moduleConfig.setStringProperty("dcUseTransformerRatio", Boolean.toString(dc));
-        moduleConfig.setStringListProperty("countriesToBalance", countriesToBalance.stream().map(e -> e.name()).toList());
-        moduleConfig.setStringProperty("computedConnectedComponent", computedConnectedComponent.name());
-        moduleConfig.setStringProperty("hvdcAcEmulation", Boolean.toString(hvdcAcEmulation));
-
-        LoadFlowParameters parameters = new LoadFlowParameters();
-        LoadFlowParameters.load(parameters, platformConfig);
-        checkValues(parameters, voltageInitMode, transformerVoltageControlOn,
-                    !noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
-                    dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent, hvdcAcEmulation);
+                LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
+                LoadFlowParameters.DEFAULT_DC_POWER_FACTOR);
     }
 
     @Test
@@ -146,7 +104,8 @@ class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
-                LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE, LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON);
+                LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE, LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
+                LoadFlowParameters.DEFAULT_DC_POWER_FACTOR);
     }
 
     @Test
@@ -159,7 +118,8 @@ class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
-                LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE, LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON);
+                LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE, LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
+                LoadFlowParameters.DEFAULT_DC_POWER_FACTOR);
     }
 
     @Test
@@ -173,7 +133,8 @@ class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
-                LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE, LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON);
+                LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE, LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
+                LoadFlowParameters.DEFAULT_DC_POWER_FACTOR);
     }
 
     @Test
@@ -195,7 +156,8 @@ class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT,
                 LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
                 LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE,
-                LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON);
+                LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
+                LoadFlowParameters.DEFAULT_DC_POWER_FACTOR);
     }
 
     @Test
@@ -216,7 +178,8 @@ class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT,
                 LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
                 LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE,
-                LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON);
+                LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
+                LoadFlowParameters.DEFAULT_DC_POWER_FACTOR);
 
         LoadFlowParameters parameters1 = new LoadFlowParameters(parameters);
         parameters1.setDc(true);
@@ -236,7 +199,8 @@ class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT,
                 LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
                 LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE,
-                LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON);
+                LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
+                LoadFlowParameters.DEFAULT_DC_POWER_FACTOR);
     }
 
     @Test
@@ -256,6 +220,7 @@ class LoadFlowParametersTest {
         Set<Country> countriesToBalance = new HashSet<>();
         LoadFlowParameters.ConnectedComponentMode computedConnectedComponent = LoadFlowParameters.ConnectedComponentMode.MAIN;
         boolean hvdcAcEmulation = false;
+        double dcPowerFactor = 0.95;
 
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters, platformConfig);
@@ -270,11 +235,12 @@ class LoadFlowParametersTest {
                 .setDc(dc)
                 .setDistributedSlack(distributedSlack)
                 .setBalanceType(balanceType)
-                .setHvdcAcEmulation(hvdcAcEmulation);
+                .setHvdcAcEmulation(hvdcAcEmulation)
+                .setDcPowerFactor(dcPowerFactor);
 
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn, useReactiveLimits,
                     phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
-                    dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent, hvdcAcEmulation);
+                    dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent, hvdcAcEmulation, dcPowerFactor);
     }
 
     @Test
@@ -294,6 +260,7 @@ class LoadFlowParametersTest {
         Set<Country> countriesToBalance = new HashSet<>();
         LoadFlowParameters.ConnectedComponentMode computedConnectedComponent = LoadFlowParameters.ConnectedComponentMode.MAIN;
         boolean hvdcAcEmulation = false;
+        double dcPowerFactor = 0.95;
         LoadFlowParameters parameters = new LoadFlowParameters()
                 .setVoltageInitMode(voltageInitMode)
                 .setTransformerVoltageControlOn(transformerVoltageControlOn)
@@ -309,13 +276,14 @@ class LoadFlowParametersTest {
                 .setDcUseTransformerRatio(dcUseTransformerRatio)
                 .setCountriesToBalance(countriesToBalance)
                 .setConnectedComponentMode(computedConnectedComponent)
-                .setHvdcAcEmulation(hvdcAcEmulation);
+                .setHvdcAcEmulation(hvdcAcEmulation)
+                .setDcPowerFactor(dcPowerFactor);
         LoadFlowParameters parametersCloned = parameters.copy();
         checkValues(parametersCloned, parameters.getVoltageInitMode(), parameters.isTransformerVoltageControlOn(),
                 parameters.isUseReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isTwtSplitShuntAdmittance(),
                 parameters.isShuntCompensatorVoltageControlOn(), parameters.isReadSlackBus(), parameters.isWriteSlackBus(),
                 parameters.isDc(), parameters.isDistributedSlack(), parameters.getBalanceType(), parameters.isDcUseTransformerRatio(),
-                parameters.getCountriesToBalance(), parameters.getConnectedComponentMode(), parameters.isHvdcAcEmulation());
+                parameters.getCountriesToBalance(), parameters.getConnectedComponentMode(), parameters.isHvdcAcEmulation(), parameters.getDcPowerFactor());
     }
 
     @Test
@@ -359,5 +327,97 @@ class LoadFlowParametersTest {
         assertEquals(1, parameters.getExtensions().size());
         assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dummy-extension"));
         assertNotNull(parameters.getExtension(DummyExtension.class));
+    }
+
+    @Test
+    void checkAllValuesNonDefault() {
+        LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
+        boolean transformerVoltageControlOn = true;
+        boolean useReactiveLimits = false;
+        boolean phaseShifterRegulationOn = true;
+        boolean twtSplitShuntAdmittance = true;
+        boolean shuntCompensatorVoltageControlOn = true;
+        boolean readSlackBus = false;
+        boolean writeSlackBus = false;
+        boolean dc = true;
+        boolean distributedSlack = false;
+        LoadFlowParameters.BalanceType balanceType = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
+        boolean dcUseTransformerRatio = false;
+        Set<Country> countriesToBalance = Set.of(Country.FR);
+        LoadFlowParameters.ConnectedComponentMode connectedComponentMode = LoadFlowParameters.ConnectedComponentMode.ALL;
+        boolean hvdcAcEmulation = false;
+        double dcPowerFactor = 0.95;
+
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
+        moduleConfig.setStringProperty("voltageInitMode", voltageInitMode.name());
+        moduleConfig.setStringProperty("transformerVoltageControlOn", Boolean.toString(transformerVoltageControlOn));
+        moduleConfig.setStringProperty("useReactiveLimits", Boolean.toString(useReactiveLimits));
+        moduleConfig.setStringProperty("phaseShifterRegulationOn", Boolean.toString(phaseShifterRegulationOn));
+        moduleConfig.setStringProperty("twtSplitShuntAdmittance", Boolean.toString(twtSplitShuntAdmittance));
+        moduleConfig.setStringProperty("shuntCompensatorVoltageControlOn", Boolean.toString(shuntCompensatorVoltageControlOn));
+        moduleConfig.setStringProperty("readSlackBus", Boolean.toString(readSlackBus));
+        moduleConfig.setStringProperty("writeSlackBus", Boolean.toString(writeSlackBus));
+        moduleConfig.setStringProperty("dc", Boolean.toString(dc));
+        moduleConfig.setStringProperty("distributedSlack", Boolean.toString(distributedSlack));
+        moduleConfig.setStringProperty("balanceType", balanceType.name());
+        moduleConfig.setStringProperty("dcUseTransformerRatio", Boolean.toString(dcUseTransformerRatio));
+        moduleConfig.setStringListProperty("countriesToBalance", countriesToBalance.stream().map(e -> e.name()).toList());
+        moduleConfig.setStringProperty("connectedComponentMode", connectedComponentMode.name());
+        moduleConfig.setStringProperty("hvdcAcEmulation", Boolean.toString(hvdcAcEmulation));
+        moduleConfig.setStringProperty("dcPowerFactor", Double.toString(dcPowerFactor));
+
+        LoadFlowParameters parameters = new LoadFlowParameters();
+        LoadFlowParameters.load(parameters, platformConfig);
+        checkValues(parameters, voltageInitMode, transformerVoltageControlOn, useReactiveLimits, phaseShifterRegulationOn,
+            twtSplitShuntAdmittance, shuntCompensatorVoltageControlOn, readSlackBus, writeSlackBus, dc, distributedSlack,
+            balanceType, dcUseTransformerRatio, countriesToBalance, connectedComponentMode, hvdcAcEmulation, dcPowerFactor);
+    }
+
+
+    @Test
+    void checkSecondaryNamesNonDefault() {
+        LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
+        boolean transformerVoltageControlOn = true;
+        boolean useReactiveLimits = true;
+        boolean phaseShifterRegulationOn = true;
+        boolean twtSplitShuntAdmittance = true;
+        boolean shuntCompensatorVoltageControlOn = true;
+        boolean readSlackBus = false;
+        boolean writeSlackBus = false;
+        boolean dc = true;
+        boolean distributedSlack = false;
+        LoadFlowParameters.BalanceType balanceType = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
+        boolean dcUseTransformerRatio = false;
+        Set<Country> countriesToBalance = Set.of(Country.FR);
+        LoadFlowParameters.ConnectedComponentMode connectedComponentMode = LoadFlowParameters.ConnectedComponentMode.ALL;
+        boolean hvdcAcEmulation = false;
+        double dcPowerFactor = 0.95;
+
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
+        moduleConfig.setStringProperty("voltageInitMode", voltageInitMode.name());
+        moduleConfig.setStringProperty("transformerVoltageControlOn", Boolean.toString(transformerVoltageControlOn));
+        // useReactiveLimits can be replaced by noGeneratorReactiveLimits (inverted)
+        moduleConfig.setStringProperty("noGeneratorReactiveLimits", Boolean.toString(!useReactiveLimits));
+        moduleConfig.setStringProperty("phaseShifterRegulationOn", Boolean.toString(phaseShifterRegulationOn));
+        // twtSplitShuntAdmittance can be replaced by specificCompatibility
+        moduleConfig.setStringProperty("specificCompatibility", Boolean.toString(twtSplitShuntAdmittance));
+        // shuntCompensatorVoltageControlOn can be replaced by simulShunt
+        moduleConfig.setStringProperty("simulShunt", Boolean.toString(shuntCompensatorVoltageControlOn));
+        moduleConfig.setStringProperty("readSlackBus", Boolean.toString(readSlackBus));
+        moduleConfig.setStringProperty("writeSlackBus", Boolean.toString(writeSlackBus));
+        moduleConfig.setStringProperty("dc", Boolean.toString(dc));
+        moduleConfig.setStringProperty("distributedSlack", Boolean.toString(distributedSlack));
+        moduleConfig.setStringProperty("balanceType", balanceType.name());
+        moduleConfig.setStringProperty("dcUseTransformerRatio", Boolean.toString(dcUseTransformerRatio));
+        moduleConfig.setStringListProperty("countriesToBalance", countriesToBalance.stream().map(e -> e.name()).toList());
+        moduleConfig.setStringProperty("connectedComponentMode", connectedComponentMode.name());
+        moduleConfig.setStringProperty("hvdcAcEmulation", Boolean.toString(hvdcAcEmulation));
+        moduleConfig.setStringProperty("dcPowerFactor", Double.toString(dcPowerFactor));
+
+        LoadFlowParameters parameters = new LoadFlowParameters();
+        LoadFlowParameters.load(parameters, platformConfig);
+        checkValues(parameters, voltageInitMode, transformerVoltageControlOn, useReactiveLimits, phaseShifterRegulationOn,
+            twtSplitShuntAdmittance, shuntCompensatorVoltageControlOn, readSlackBus, writeSlackBus, dc, distributedSlack,
+            balanceType, dcUseTransformerRatio, countriesToBalance, connectedComponentMode, hvdcAcEmulation, dcPowerFactor);
     }
 }
