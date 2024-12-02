@@ -30,4 +30,19 @@ public interface ReactiveLimitsHolder {
      * to this generator.
      */
     MinMaxReactiveLimitsAdder newMinMaxReactiveLimits();
+
+    /**
+     * Get a builder to create and associate a new reactive capability curve
+     * to this generator based on an existing curve.
+     */
+    default ReactiveCapabilityCurveAdder newReactiveCapabilityCurve(ReactiveCapabilityCurve copiedCurve) {
+        ReactiveCapabilityCurveAdder adder = newReactiveCapabilityCurve();
+        copiedCurve.getPoints().forEach(copiedPoint ->
+            adder.beginPoint()
+                    .setP(copiedPoint.getP())
+                    .setMinQ(copiedPoint.getMinQ())
+                    .setMaxQ(copiedPoint.getMaxQ())
+                    .endPoint());
+        return adder;
+    }
 }
