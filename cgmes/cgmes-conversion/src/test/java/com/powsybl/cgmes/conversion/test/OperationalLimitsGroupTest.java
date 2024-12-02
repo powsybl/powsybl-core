@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
@@ -56,9 +55,8 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
         assertFalse(line.getSelectedOperationalLimitsGroup2().isPresent());
 
         // The CGMES id/name have been correctly imported
-        String propertyKey = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT_SET;
         String propertyValue = "{\"OLS_1\":\"SPRING\",\"OLS_2\":\"SPRING\",\"OLS_3\":\"WINTER\"}";
-        assertEquals(propertyValue, line.getProperty(propertyKey));
+        assertEquals(propertyValue, line.getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS));
     }
 
     @Test

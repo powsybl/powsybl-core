@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
@@ -21,6 +20,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -33,7 +34,6 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private static final String OPERATIONAL_LIMIT_SUBCLASS = "OperationalLimitSubclass";
     private static final String OPERATIONAL_LIMIT_SET_ID = "OperationalLimitSet";
     private static final String OPERATIONAL_LIMIT_SET_NAME = "OperationalLimitSetName";
-    private static final String PROPERTY_PREFIX = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT_SET;
     private static final String PERMANENT_LIMIT = "Permanent Limit";
     private static final String TEMPORARY_LIMIT = "Temporary Limit";
 
@@ -98,13 +98,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode node;
-            if (identifiable.hasProperty(PROPERTY_PREFIX)) {
-                node = mapper.readTree(identifiable.getProperty(PROPERTY_PREFIX));
+            if (identifiable.hasProperty(PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS)) {
+                node = mapper.readTree(identifiable.getProperty(PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS));
             } else {
                 node = mapper.createObjectNode();
             }
             ((ObjectNode) node).put(limitSetId, limitSetName);
-            identifiable.setProperty(PROPERTY_PREFIX, mapper.writeValueAsString(node));
+            identifiable.setProperty(PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS, mapper.writeValueAsString(node));
         } catch (JsonProcessingException e) {
             throw new PowsyblException(e.getMessage(), e);
         }

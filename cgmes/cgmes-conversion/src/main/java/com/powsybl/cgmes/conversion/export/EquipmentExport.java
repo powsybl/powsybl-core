@@ -1206,12 +1206,11 @@ public final class EquipmentExport {
         // Write the OperationalLimitSet
         String operationalLimitSetId;
         String operationalLimitSetName;
-        String propertyKey = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT_SET;
-        if (identifiable.hasProperty(propertyKey)) {
+        if (identifiable.hasProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS)) {
             operationalLimitSetId = limitsGroup.getId();
             try {
                 ObjectMapper mapper = new ObjectMapper();
-                JsonNode propertyNode = mapper.readTree(identifiable.getProperty(propertyKey));
+                JsonNode propertyNode = mapper.readTree(identifiable.getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS));
                 JsonNode limitsGroupNode = propertyNode.get(operationalLimitSetId);
                 operationalLimitSetName = limitsGroupNode != null ? limitsGroupNode.textValue() : operationalLimitSetId;
             } catch (JsonProcessingException e) {
