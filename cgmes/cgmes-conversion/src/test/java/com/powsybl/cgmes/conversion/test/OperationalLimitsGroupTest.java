@@ -55,7 +55,8 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
         assertFalse(line.getSelectedOperationalLimitsGroup2().isPresent());
 
         // The CGMES id/name have been correctly imported
-        String propertyValue = "{\"OLS_1\":\"SPRING\",\"OLS_2\":\"SPRING\",\"OLS_3\":\"WINTER\"}";
+        String propertyValue = """
+                {"OLS_1":"SPRING","OLS_2":"SPRING","OLS_3":"WINTER"}""";
         assertEquals(propertyValue, line.getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS));
     }
 
