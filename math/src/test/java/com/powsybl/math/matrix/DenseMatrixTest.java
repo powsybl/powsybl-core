@@ -115,4 +115,61 @@ class DenseMatrixTest extends AbstractMatrixTest {
         assertEquals("Too many elements for a dense matrix, maximum allowed is 268435455", e.getMessage());
         assertEquals(268435455, DenseMatrix.MAX_ELEMENT_COUNT);
     }
+
+    @Test
+    void testCopyValuesMatrix() {
+        DenseMatrix a = new DenseMatrix(2, 1);
+        a.set(0, 0, 4);
+        a.set(1, 0, 5);
+        DenseMatrix b = new DenseMatrix(2, 1);
+        b.copyValuesFrom(a);
+        assertEquals(4, b.get(0, 0), EPSILON);
+        assertEquals(5, b.get(1, 0), EPSILON);
+        DenseMatrix c = new DenseMatrix(3, 1);
+        MatrixException e = assertThrows(MatrixException.class, () -> c.copyValuesFrom(a));
+        assertEquals("Incompatible matrix dimensions when copying values. Received (2, 1) but expected (3, 1)", e.getMessage());
+    }
+
+    @Test
+    void testResetRow() {
+        DenseMatrix a = (DenseMatrix) createA(matrixFactory);
+        a.resetRow(0);
+        assertEquals(0d, a.get(0, 0), EPSILON);
+        assertEquals(0d, a.get(1, 0), EPSILON);
+        assertEquals(2d, a.get(2, 0), EPSILON);
+        assertEquals(0d, a.get(0, 1), EPSILON);
+        assertEquals(3d, a.get(1, 1), EPSILON);
+        assertEquals(0d, a.get(2, 1), EPSILON);
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> a.resetRow(3));
+        assertEquals("Row value out of bounds. Expected in range [0,2] but received 3", e.getMessage());
+    }
+
+    @Test
+    void testResetColumn() {
+        DenseMatrix a = (DenseMatrix) createA(matrixFactory);
+        a.resetColumn(1);
+        assertEquals(1d, a.get(0, 0), EPSILON);
+        assertEquals(0d, a.get(1, 0), EPSILON);
+        assertEquals(2d, a.get(2, 0), EPSILON);
+        assertEquals(0d, a.get(0, 1), EPSILON);
+        assertEquals(0d, a.get(1, 1), EPSILON);
+        assertEquals(0d, a.get(2, 1), EPSILON);
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> a.resetColumn(3));
+        assertEquals("Column value out of bounds. Expected in range [0,1] but received 3", e.getMessage());
+    }
+
+    @Test
+    void testRemoveSmallValues() {
+        DenseMatrix a = (DenseMatrix) createA(matrixFactory);
+        a.removeSmallValues(2d);
+        assertEquals(0d, a.get(0, 0), EPSILON);
+        assertEquals(0d, a.get(1, 0), EPSILON);
+        assertEquals(2d, a.get(2, 0), EPSILON);
+        assertEquals(0d, a.get(0, 1), EPSILON);
+        assertEquals(3d, a.get(1, 1), EPSILON);
+        assertEquals(0d, a.get(2, 1), EPSILON);
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> a.removeSmallValues(-1));
+        assertEquals("Argument epsilonValue should be positive but received -1.0", e.getMessage());
+    }
+
 }

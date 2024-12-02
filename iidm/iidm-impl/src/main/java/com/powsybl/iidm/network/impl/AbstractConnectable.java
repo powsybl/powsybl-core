@@ -70,9 +70,9 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
         network.getIndex().remove(this);
         for (TerminalExt terminal : terminals) {
-            terminal.removeAsRegulationPoint();
+            terminal.getReferrerManager().notifyOfRemoval();
             VoltageLevelExt vl = terminal.getVoltageLevel();
-            vl.detach(terminal);
+            vl.getTopologyModel().detach(terminal);
         }
 
         network.getListeners().notifyAfterRemoval(id);
@@ -181,10 +181,10 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     private void attachTerminal(TerminalExt oldTerminal, TopologyPoint oldTopologyPoint, VoltageLevelExt voltageLevel, TerminalExt terminalExt) {
         // first, attach new terminal to connectable and to voltage level of destination, to ensure that the new terminal is valid
         terminalExt.setConnectable(this);
-        voltageLevel.attach(terminalExt, false);
+        voltageLevel.getTopologyModel().attach(terminalExt, false);
 
         // then we can detach the old terminal, as we now know that the new terminal is valid
-        oldTerminal.getVoltageLevel().detach(oldTerminal);
+        oldTerminal.getVoltageLevel().getTopologyModel().detach(oldTerminal);
 
         // replace the old terminal by the new terminal in the connectable
         int iSide = terminals.indexOf(oldTerminal);

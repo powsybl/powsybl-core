@@ -218,7 +218,7 @@ If the `EquivalentBranch` is mapped to a PowSyBl [`DanglingLine`](../../grid_mod
 - `Q0` is copied from CGMES `Q` of the terminal at boundary side
 
 (cgmes-asynchronous-machine-import)=
-### AsychronousMachine
+### AsynchronousMachine
 
 Asynchronous machines represent rotating machines whose shaft rotates asynchronously with the electrical field.
 It can be motor or generator; no distinction is made for the conversion of these two types.
@@ -241,7 +241,7 @@ A `SynchronousMachine` is mapped to a PowSyBl [`Generator`](../../grid_model/net
   - If it is a `HydroGeneratingUnit`, `EnergySource` is `HYDRO`
   - If it is a `NuclearGeneratingUnit`, `EnergySource` is `NUCLEAR`
   - If it is a `ThermalGeneratingUnit`, `EnergySource` is `THERMAL`
-  - If it is a `WindGeneratingUnit`, `EnergySource` is `WIND`
+  - If it is a `WindGeneratingUnit`, `EnergySource` is `WIND`. Additionally, the `WindGeneratingUnit.windGenUnitType` value (`onshore` or `offshore`) is stored as an iIDM property `CGMES.windGenUnitType` of the generator.
   - If it is a `SolarGeneratingUnit`, `EnergySource` is `SOLAR`
   - Else, `EnergySource` is `OTHER`
 - `TargetP`/`TargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`TargetQ`. If undefined, `TargetP` is set from CGMES `GeneratingUnit.initialP` from the `GeneratingUnit` associated to the `SynchronousMachine` and `TargetQ` is set to `0`.
@@ -580,3 +580,8 @@ Optional property to define if subnetworks must be added to the network when imp
 **iidm.import.cgmes.cgm-with-subnetworks-defined-by**  
 If `iidm.import.cgmes.cgm-with-subnetworks` is set to `true`, use this property to specify how the set of input files should be split by IGM: based on their filenames (use the value `FILENAME`) or by its modeling authority, read from the header (use the value `MODELING_AUTHORITY`).
 Its default value is `MODELING_AUTHORITY`.
+
+**iidm.import.cgmes.create-fictitious-voltage-level-for-every-node**  
+Optional property that defines the fictitious voltage levels created by line container. If it is set to `true`, a fictitious voltage level is created for each connectivity node inside the line container.
+If it is set to `false`, only one fictitious voltage level is created for each line container. 
+`true` by default.
