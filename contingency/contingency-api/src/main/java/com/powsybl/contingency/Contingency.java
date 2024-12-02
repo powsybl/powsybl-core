@@ -112,8 +112,8 @@ public class Contingency extends AbstractExtendable<Contingency> {
                 case LOAD -> checkLoadContingency(this, (LoadContingency) element, network);
                 case BUS -> checkBusContingency(this, (BusContingency) element, network);
                 case TIE_LINE -> checkTieLineContingency(this, (TieLineContingency) element, network);
+                case SWITCH -> checkSwitchContingency(this, (SwitchContingency) element, network);
                 case BATTERY -> checkBatteryContingency(this, (BatteryContingency) element, network);
-                default -> throw new IllegalStateException("Unknown contingency element type " + element.getType());
             };
         }
         if (!valid) {
@@ -258,6 +258,15 @@ public class Contingency extends AbstractExtendable<Contingency> {
                     && !(element.getVoltageLevelId().equals(tieLine.getDanglingLine1().getTerminal().getVoltageLevel().getId())
                         || element.getVoltageLevelId().equals(tieLine.getDanglingLine2().getTerminal().getVoltageLevel().getId()))) {
             LOGGER.warn("Tie line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean checkSwitchContingency(Contingency contingency, SwitchContingency element, Network network) {
+        Switch switchElement = network.getSwitch(element.getId());
+        if (switchElement == null) {
+            LOGGER.warn("Switch '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
         }
         return true;
