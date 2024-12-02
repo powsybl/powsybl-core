@@ -361,7 +361,7 @@ class LoadFlowParametersTest {
         moduleConfig.setStringProperty("distributedSlack", Boolean.toString(distributedSlack));
         moduleConfig.setStringProperty("balanceType", balanceType.name());
         moduleConfig.setStringProperty("dcUseTransformerRatio", Boolean.toString(dcUseTransformerRatio));
-        moduleConfig.setStringListProperty("countriesToBalance", countriesToBalance.stream().map(e -> e.name()).toList());
+        moduleConfig.setStringListProperty("countriesToBalance", countriesToBalance.stream().map(Enum::name).toList());
         moduleConfig.setStringProperty("connectedComponentMode", connectedComponentMode.name());
         moduleConfig.setStringProperty("hvdcAcEmulation", Boolean.toString(hvdcAcEmulation));
         moduleConfig.setStringProperty("dcPowerFactor", Double.toString(dcPowerFactor));
@@ -408,7 +408,7 @@ class LoadFlowParametersTest {
         moduleConfig.setStringProperty("distributedSlack", Boolean.toString(distributedSlack));
         moduleConfig.setStringProperty("balanceType", balanceType.name());
         moduleConfig.setStringProperty("dcUseTransformerRatio", Boolean.toString(dcUseTransformerRatio));
-        moduleConfig.setStringListProperty("countriesToBalance", countriesToBalance.stream().map(e -> e.name()).toList());
+        moduleConfig.setStringListProperty("countriesToBalance", countriesToBalance.stream().map(Enum::name).toList());
         moduleConfig.setStringProperty("connectedComponentMode", connectedComponentMode.name());
         moduleConfig.setStringProperty("hvdcAcEmulation", Boolean.toString(hvdcAcEmulation));
         moduleConfig.setStringProperty("dcPowerFactor", Double.toString(dcPowerFactor));
