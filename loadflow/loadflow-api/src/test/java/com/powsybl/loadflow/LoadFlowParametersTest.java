@@ -377,7 +377,7 @@ class LoadFlowParametersTest {
     void checkSecondaryNamesNonDefault() {
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
         boolean transformerVoltageControlOn = true;
-        boolean useReactiveLimits = true;
+        boolean useReactiveLimits = false;
         boolean phaseShifterRegulationOn = true;
         boolean twtSplitShuntAdmittance = true;
         boolean shuntCompensatorVoltageControlOn = true;
