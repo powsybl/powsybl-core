@@ -523,7 +523,13 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags reactiveCapabilityCurveData() {
+    public PropertyBags curveData() {
+        // FakeCgmesModel does not implement reactive capability curve
+        return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags curveData(String curveId) {
         // FakeCgmesModel does not implement reactive capability curve
         return new PropertyBags();
     }

@@ -166,7 +166,9 @@ public interface CgmesModel {
 
     PropertyBags asynchronousMachines();
 
-    PropertyBags reactiveCapabilityCurveData();
+    PropertyBags curveData();
+
+    PropertyBags curveData(String curveId);
 
     PropertyBags controlAreas();
 

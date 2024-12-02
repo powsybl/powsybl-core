@@ -84,6 +84,14 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags curveData(String curveId) {
+        if (cachedGroupedCurveData == null) {
+            cachedGroupedCurveData = computeGroupedCurveData();
+        }
+        return cachedGroupedCurveData.getOrDefault(curveId, new PropertyBags());
+    }
+
+    @Override
     public Collection<CgmesTerminal> computedTerminals() {
         if (cachedTerminals == null) {
             cachedTerminals = computeTerminals();
@@ -256,6 +264,17 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return groupedPhaseTapChangerTablePoints;
     }
 
+    private Map<String, PropertyBags> computeGroupedCurveData() {
+        Map<String, PropertyBags> groupedCurveData = new HashMap<>();
+        curveData()
+                .forEach(data -> {
+                    String curveId = data.getId("ReactiveCapabilityCurve");
+                    groupedCurveData.computeIfAbsent(curveId, bag -> new PropertyBags())
+                            .add(data);
+                });
+        return groupedCurveData;
+    }
+
     protected void cacheNodes() {
         if (!cachedNodes) {
             cachedConnectivityNodes = connectivityNodes();
@@ -355,6 +374,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         cachedGroupedTransformerEnds = null;
         cachedGroupedRatioTapChangers = null;
         cachedGroupedPhaseTapChangers = null;
+        cachedGroupedCurveData = null;
         cachedTerminals = null;
         cachedContainers = null;
         cachedBaseVoltages = null;
@@ -375,6 +395,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private Map<String, PropertyBags> cachedGroupedRatioTapChangerTablePoints;
     private Map<String, PropertyBags> cachedGroupedPhaseTapChangers;
     private Map<String, PropertyBags> cachedGroupedPhaseTapChangerTablePoints;
+    private Map<String, PropertyBags> cachedGroupedCurveData;
     private Map<String, CgmesTerminal> cachedTerminals;
     private Map<String, CgmesContainer> cachedContainers;
     private Map<String, Double> cachedBaseVoltages;
