@@ -49,6 +49,7 @@ public final class InMemoryCgmesModel implements CgmesModel {
     private PropertyBags energyConsumers;
     private PropertyBags energySources;
     private PropertyBags shuntCompensators;
+    private PropertyBags shuntCompensatorPoints;
     private PropertyBags staticVarCompensators;
     private PropertyBags equivalentShunts;
     private PropertyBags synchronousMachinesGenerators;
@@ -90,6 +91,7 @@ public final class InMemoryCgmesModel implements CgmesModel {
         energyConsumers = new PropertyBags();
         energySources = new PropertyBags();
         shuntCompensators = new PropertyBags();
+        shuntCompensatorPoints = new PropertyBags();
         equivalentShunts = new PropertyBags();
         staticVarCompensators = new PropertyBags();
         synchronousMachinesGenerators = new PropertyBags();
@@ -222,6 +224,11 @@ public final class InMemoryCgmesModel implements CgmesModel {
 
     public InMemoryCgmesModel shuntCompensators(String... ids) {
         fakeObjectsFromIdentifiers("ShuntCompensator", ids, shuntCompensators);
+        return this;
+    }
+
+    public InMemoryCgmesModel shuntCompensatorsPoints(String... ids) {
+        fakeObjectsFromIdentifiers("NonlinearShuntCompensatorPoint", ids, shuntCompensatorPoints);
         return this;
     }
 
@@ -431,13 +438,19 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags equivalentShunts() {
-        return equivalentShunts;
+    public PropertyBags nonlinearShuntCompensatorPoints() {
+        return shuntCompensatorPoints;
     }
 
     @Override
-    public PropertyBags nonlinearShuntCompensatorPoints(String scId) {
+    public PropertyBags nonlinearShuntCompensatorPoints(String shuntId) {
+        // FakeCgmesModel does not provide grouped shunt compensator points
         return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags equivalentShunts() {
+        return equivalentShunts;
     }
 
     @Override
