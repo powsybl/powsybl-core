@@ -945,7 +945,7 @@ WHERE {
 }}
 }
 
-# query: reactiveCapabilityCurveData
+# query: curveData
 SELECT *
 WHERE {
     ?CurveData

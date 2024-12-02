@@ -64,7 +64,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         // ReactiveCapabilityCurve.
         if (p.containsKey("ReactiveCapabilityCurve")) {
             String curveId = p.getId("ReactiveCapabilityCurve");
-            PropertyBags curveData = context.reactiveCapabilityCurveData(curveId);
+            PropertyBags curveData = context.cgmes().curveData(curveId);
 
             Map<Double, Range<Double>> qRanges = new HashMap<>();
             curveData.forEach(d -> getReactiveCapabilityCurveData(d, qRanges));

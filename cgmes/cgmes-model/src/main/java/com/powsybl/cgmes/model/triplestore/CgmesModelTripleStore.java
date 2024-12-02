@@ -548,8 +548,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags reactiveCapabilityCurveData() {
-        return namedQuery("reactiveCapabilityCurveData");
+    public PropertyBags curveData() {
+        return namedQuery("curveData");
     }
 
     @Override
