@@ -176,6 +176,8 @@ class CounterNamingStrategyTest {
         UcteElementId dlId2 = strategy.getUcteElementId(dl2);
         UcteElementId dlId3 = strategy.getUcteElementId(dl3);
 
+        System.out.println(dlId3);
+
         assertAll(
                 () -> assertTrue(UcteElementId.isUcteElementId(dlId1.toString())),
                 () -> assertTrue(UcteElementId.isUcteElementId(dlId3.toString())),

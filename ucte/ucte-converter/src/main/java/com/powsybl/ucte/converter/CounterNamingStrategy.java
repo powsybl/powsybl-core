@@ -131,8 +131,8 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
         code1 = getUcteNodeCode(danglingLine.getTerminal().getBusBreakerView().getBus());
 
         if (danglingLine.getPairingKey() != null && UcteNodeCode.isUcteNodeId(danglingLine.getPairingKey())) {
-            UcteNodeCode pairingKeyId = UcteNodeCode.parseUcteNodeCode(danglingLine.getPairingKey()).orElseThrow();
-            code2 = generateUcteNodeId(danglingLine.getPairingKey(), danglingLine.getTerminal().getVoltageLevel(), pairingKeyId.getBusbar());
+            code2 = UcteNodeCode.parseUcteNodeCode(danglingLine.getPairingKey()).orElseThrow();
+            ucteNodeIds.put(danglingLine.getPairingKey(), code2);
         } else {
             code2 = generateUcteNodeId(danglingLine.getId(), danglingLine.getTerminal().getVoltageLevel(), UcteConverterHelper.getOrderCode(0));
         }
