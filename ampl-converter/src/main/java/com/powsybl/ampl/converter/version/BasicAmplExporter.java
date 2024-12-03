@@ -279,7 +279,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             new Column(CON_BUS),
             new Column(SUBSTATION),
             new Column(P0),
-            new Column(Q0),
+            new Column("q0 (MW)"), // Wrong unit, fixed in v1.2
             new Column(MINP),
             new Column(MAXP),
             new Column(MIN_Q_MAX_P),

@@ -9,6 +9,7 @@ package com.powsybl.ampl.converter;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
+import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,15 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
         assertEqualsToRef(dataSource, "_network_ptc", "inputs/eurostag-tutorial-example1-ptc.txt");
         assertEqualsToRef(dataSource, "_network_loads", "inputs/eurostag-tutorial-example1-loads.txt");
         assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits.txt");
+    }
+
+    @Test
+    void testQ0UnitColumnBatteries() throws IOException {
+        Network network = BatteryNetworkFactory.create();
+
+        exporter.export(network, properties, dataSource);
+
+        assertEqualsToRef(dataSource, "_network_batteries", "inputs/extended_exporter_v2/battery-q0-unit-column.txt");
     }
 
     @Test

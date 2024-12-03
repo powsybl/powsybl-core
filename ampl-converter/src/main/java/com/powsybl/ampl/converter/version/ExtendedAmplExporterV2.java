@@ -26,6 +26,7 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  */
 public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
 
+    private static final int BATTERY_Q0_COLUMN_INDEX = 6;
     private static final int GENERATOR_IS_CONDENSER_COLUMN_INDEX = 16;
     private static final int LCC_TARGET_Q_COLUMN_INDEX = 5;
     private static final int HVDC_AC_EMULATION_COLUMN_INDEX = 8;
@@ -37,6 +38,14 @@ public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
                                 StringToIntMapper<AmplSubset> mapper,
                                 int variantIndex, int faultNum, int actionNum) {
         super(config, network, mapper, variantIndex, faultNum, actionNum);
+    }
+
+    @Override
+    public List<Column> getBatteriesColumns() {
+        List<Column> batteriesColumns = new ArrayList<>(super.getBatteriesColumns());
+        // fix unit of q0 column
+        batteriesColumns.set(BATTERY_Q0_COLUMN_INDEX, new Column(Q0));
+        return batteriesColumns;
     }
 
     @Override
