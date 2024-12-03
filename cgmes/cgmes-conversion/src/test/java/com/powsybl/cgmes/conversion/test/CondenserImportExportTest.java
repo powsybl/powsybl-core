@@ -86,8 +86,8 @@ class CondenserImportExportTest extends AbstractSerDeTest {
         // No generating unit is referred, no generating unit is defined
         assertFalse(eq.contains("cim:RotatingMachine.GeneratingUnit rdf:resource="));
         assertFalse(eq.contains("cim:GeneratingUnit rdf:ID"));
+        assertTrue(eq.contains("cim:SynchronousMachine.type rdf:resource=\"http://iec.ch/TC57/CIM100#SynchronousMachineKind.condenser"));
         String ssh = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDir);
         assertTrue(ssh.contains("cim:SynchronousMachine.referencePriority>1<"));
-        assertTrue(eq.contains("cim:SynchronousMachine.type rdf:resource=\"http://iec.ch/TC57/CIM100#SynchronousMachineKind.condenser"));
     }
 }
