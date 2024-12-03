@@ -10,7 +10,7 @@
 		<md:Model.modelingAuthoritySet>http://powsybl.org</md:Model.modelingAuthoritySet>
 	</md:FullModel>
 	<cim:GeographicalRegion rdf:ID="Region">
-		<cim:IdentifiedObject.name>AQ</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.name>Region</cim:IdentifiedObject.name>
 	</cim:GeographicalRegion>
 	<cim:SubGeographicalRegion rdf:ID="SubRegion">
 		<cim:SubGeographicalRegion.Region rdf:resource="#Region"/>
@@ -23,21 +23,14 @@
 	<cim:Substation rdf:ID="Substation">
 		<cim:Substation.Region rdf:resource="#SubRegion"/>
 		<cim:IdentifiedObject.name>Substation</cim:IdentifiedObject.name>
-		<cim:IdentifiedObject.description>Substation</cim:IdentifiedObject.description>
 	</cim:Substation>
 	<cim:VoltageLevel rdf:ID="VoltageLevel">
 		<cim:VoltageLevel.BaseVoltage rdf:resource="#BaseVoltage67"/>
 		<cim:VoltageLevel.Substation rdf:resource="#Substation"/>
 		<cim:IdentifiedObject.name>VoltageLevel</cim:IdentifiedObject.name>
-		<cim:VoltageLevel.highVoltageLimit>75.6</cim:VoltageLevel.highVoltageLimit>
-		<cim:VoltageLevel.lowVoltageLimit>50.4</cim:VoltageLevel.lowVoltageLimit>
-		<cim:IdentifiedObject.description>VoltageLevel</cim:IdentifiedObject.description>
 	</cim:VoltageLevel>
 	<cim:BusbarSection rdf:ID="BBS">
-		<cim:BusbarSection.ipMax>20</cim:BusbarSection.ipMax>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
 		<cim:Equipment.EquipmentContainer rdf:resource="#VoltageLevel"/>
-		<cim:IdentifiedObject.description>BBS</cim:IdentifiedObject.description>
 		<cim:IdentifiedObject.name>BBS</cim:IdentifiedObject.name>
 	</cim:BusbarSection>
 	<cim:Terminal rdf:ID="BBS_T">
@@ -54,19 +47,6 @@
 		<cim:IdentifiedObject.name>Load1</cim:IdentifiedObject.name>
 		<cim:Equipment.EquipmentContainer rdf:resource="#VoltageLevel"/>
 	</cim:EnergyConsumer>
-	<cim:Jumper rdf:ID="Jumper1">
-		<cim:Switch.normalOpen>true</cim:Switch.normalOpen>
-		<cim:Switch.retained>false</cim:Switch.retained>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#VoltageLevel"/>
-		<cim:IdentifiedObject.name>opened jumper</cim:IdentifiedObject.name>
-	</cim:Jumper>
-	<cim:Terminal rdf:ID="Jumper1_T1">
-		<cim:Terminal.ConnectivityNode rdf:resource="#BBS_CN"/>
-		<cim:Terminal.ConductingEquipment rdf:resource="#Jumper1"/>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>RK</cim:IdentifiedObject.name>
-	</cim:Terminal>
 	<cim:Terminal rdf:ID="Load1_T">
 		<cim:Terminal.ConnectivityNode rdf:resource="#Load1_CN"/>
 		<cim:Terminal.ConductingEquipment rdf:resource="#Load1"/>
@@ -77,43 +57,54 @@
 		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#VoltageLevel"/>
 		<cim:IdentifiedObject.name>Load1 ConnectivityNode</cim:IdentifiedObject.name>
 	</cim:ConnectivityNode>
+	<cim:Jumper rdf:ID="Jumper1">
+		<cim:Switch.normalOpen>true</cim:Switch.normalOpen>
+		<cim:Switch.retained>false</cim:Switch.retained>
+		<cim:Equipment.EquipmentContainer rdf:resource="#VoltageLevel"/>
+		<cim:IdentifiedObject.name>opened jumper</cim:IdentifiedObject.name>
+	</cim:Jumper>
+	<cim:Terminal rdf:ID="Jumper1_T1">
+		<cim:Terminal.ConnectivityNode rdf:resource="#BBS_CN"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#Jumper1"/>
+		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+		<cim:IdentifiedObject.name>Jumper1 Terminal1</cim:IdentifiedObject.name>
+	</cim:Terminal>
 	<cim:Terminal rdf:ID="Jumper1_T2">
 		<cim:Terminal.ConnectivityNode rdf:resource="#Load1_CN"/>
 		<cim:Terminal.ConductingEquipment rdf:resource="#Jumper1"/>
 		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>ZN</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.name>Jumper1 Terminal2</cim:IdentifiedObject.name>
 	</cim:Terminal>
 	<cim:EnergyConsumer rdf:ID="Load2">
 		<cim:IdentifiedObject.name>Load2</cim:IdentifiedObject.name>
 		<cim:Equipment.EquipmentContainer rdf:resource="#VoltageLevel"/>
 	</cim:EnergyConsumer>
-	<cim:Jumper rdf:ID="Jumper2">
-		<cim:Switch.normalOpen>false</cim:Switch.normalOpen>
-		<cim:Switch.retained>true</cim:Switch.retained>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-		<cim:Equipment.EquipmentContainer rdf:resource="#VoltageLevel"/>
-		<cim:IdentifiedObject.name>closed jumper</cim:IdentifiedObject.name>
-	</cim:Jumper>
 	<cim:Terminal rdf:ID="Load2_T">
 		<cim:Terminal.ConnectivityNode rdf:resource="#Load2_CN"/>
 		<cim:Terminal.ConductingEquipment rdf:resource="#Load2"/>
 		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>HG</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.name>Load2 Terminal</cim:IdentifiedObject.name>
 	</cim:Terminal>
 	<cim:ConnectivityNode rdf:ID="Load2_CN">
 		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#VoltageLevel"/>
 		<cim:IdentifiedObject.name>Load2 ConnectivityNode</cim:IdentifiedObject.name>
 	</cim:ConnectivityNode>
+	<cim:Jumper rdf:ID="Jumper2">
+		<cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+		<cim:Switch.retained>true</cim:Switch.retained>
+		<cim:Equipment.EquipmentContainer rdf:resource="#VoltageLevel"/>
+		<cim:IdentifiedObject.name>closed jumper</cim:IdentifiedObject.name>
+	</cim:Jumper>
 	<cim:Terminal rdf:ID="Jumper2_T1">
 		<cim:Terminal.ConnectivityNode rdf:resource="#BBS_CN"/>
 		<cim:Terminal.ConductingEquipment rdf:resource="#Jumper2"/>
 		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>HG</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.name>Jumper2 Terminal1</cim:IdentifiedObject.name>
 	</cim:Terminal>
 	<cim:Terminal rdf:ID="Jumper2_T2">
 		<cim:Terminal.ConnectivityNode rdf:resource="#Load2_CN"/>
 		<cim:Terminal.ConductingEquipment rdf:resource="#Jumper2"/>
 		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>IB</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.name>Jumper2 Terminal2</cim:IdentifiedObject.name>
 	</cim:Terminal>
 </rdf:RDF>
