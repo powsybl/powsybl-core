@@ -35,6 +35,19 @@ class CondenserImportExportTest extends AbstractSerDeTest {
         Generator g = network.getGenerators().iterator().next();
         assertEquals(0, g.getMinP());
         assertEquals(0, g.getMaxP());
+        assertTrue(g.isCondenser());
+    }
+
+    @Test
+    void cgmes2condenserExportTest() throws IOException {
+        Network network = Network.read("condenser2_EQ.xml", getClass().getResourceAsStream("/issues/condenser2_EQ.xml"));
+        String basename = "condenser2";
+        network.write("CGMES", null, tmpDir.resolve(basename));
+        String eq = Files.readString(tmpDir.resolve(basename + "_EQ.xml"));
+        // No generating unit is referred, no generating unit is defined
+        assertFalse(eq.contains("cim:RotatingMachine.GeneratingUnit rdf:resource="));
+        assertFalse(eq.contains("cim:GeneratingUnit rdf:ID"));
+        assertTrue(eq.contains("cim:SynchronousMachine.type rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.condenser"));
     }
 
     @Test
@@ -44,6 +57,7 @@ class CondenserImportExportTest extends AbstractSerDeTest {
         Generator g = network.getGenerators().iterator().next();
         assertEquals(0, g.getMinP());
         assertEquals(0, g.getMaxP());
+        assertTrue(g.isCondenser());
     }
 
     @Test
@@ -55,6 +69,7 @@ class CondenserImportExportTest extends AbstractSerDeTest {
         // No generating unit is referred, no generating unit is defined
         assertFalse(eq.contains("cim:RotatingMachine.GeneratingUnit rdf:resource="));
         assertFalse(eq.contains("cim:GeneratingUnit rdf:ID"));
+        assertTrue(eq.contains("cim:SynchronousMachine.type rdf:resource=\"http://iec.ch/TC57/CIM100#SynchronousMachineKind.condenser"));
     }
 
     @Test
@@ -74,5 +89,6 @@ class CondenserImportExportTest extends AbstractSerDeTest {
         assertFalse(eq.contains("cim:GeneratingUnit rdf:ID"));
         String ssh = Files.readString(tmpDir.resolve(basename + "_SSH.xml"));
         assertTrue(ssh.contains("cim:SynchronousMachine.referencePriority>1<"));
+        assertTrue(eq.contains("cim:SynchronousMachine.type rdf:resource=\"http://iec.ch/TC57/CIM100#SynchronousMachineKind.condenser"));
     }
 }
