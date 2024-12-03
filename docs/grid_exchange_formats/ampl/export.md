@@ -47,6 +47,7 @@ This exporter adds the following information to the `ExtendedAmplExporter`:
 - In LCC converter station tables, the load target Q of the converter station;
 - In HVDC line tables, the AC emulation parameters, along with a boolean to indicate whether AC emulation is active.
 
+This exporter also corrects the unit of the load target Q (MVar) in the battery tables.
 
 (ampl-export-options)=
 ## Options
