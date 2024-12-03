@@ -85,6 +85,10 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-api</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

@@ -70,7 +70,7 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
 
     private UcteNodeCode createNewUcteNodeId(String busId, VoltageLevel voltageLevel, char orderCode) {
         String newNodeId = String.format("%05d", voltageLevelCounter);
-        char countryCode = getCountryCode(voltageLevel).getUcteCode();
+        char countryCode = UcteCountryCode.fromVoltagelevel(voltageLevel).getUcteCode();
         char voltageLevelCode = UcteVoltageLevelCode.voltageLevelCodeFromVoltage(voltageLevel.getNominalV());
 
         UcteNodeCode ucteNodeCode = new UcteNodeCode(
@@ -81,18 +81,6 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
 
         ucteNodeIds.put(busId, ucteNodeCode);
         return ucteNodeCode;
-    }
-
-    private UcteCountryCode getCountryCode(VoltageLevel voltageLevel) {
-        Country country = voltageLevel.getSubstation()
-                .flatMap(Substation::getCountry)
-                .orElseThrow(() -> new UcteException(UcteConstants.NO_COUNTRY_ERROR));
-
-        try {
-            return UcteCountryCode.valueOf(country.name());
-        } catch (IllegalArgumentException e) {
-            throw new UcteException(String.format(UcteConstants.NO_UCTE_COUNTRY_ERROR, country.getName()));
-        }
     }
 
     private UcteElementId generateUcteElementId(String id, UcteNodeCode node1, UcteNodeCode node2) {
