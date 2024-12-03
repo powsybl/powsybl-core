@@ -21,6 +21,8 @@ import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
 
+import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_PQ_RATIO;
+import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -135,6 +137,32 @@ class ApplyActionToNetworkTest {
                 .build();
         action2.toModification().apply(network);
         assertEquals(580.0, load.getP0());
+    }
+
+    @Test
+    void pctLoadActionShouldNotModifyQ0WhenConstantQ() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Load load = network.getLoad("LOAD");
+        assertEquals(600.0, load.getP0());
+        assertEquals(200.0, load.getQ0());
+        PercentChangeLoadAction action = (PercentChangeLoadAction) new PercentChangeLoadActionBuilder()
+                .withId("id").withLoadId("LOAD").withP0PercentChange(-10d).withQModificationStrategy(CONSTANT_Q).build();
+        action.toModification().apply(network);
+        assertEquals(540.0, load.getP0());
+        assertEquals(200.0, load.getQ0());
+    }
+
+    @Test
+    void pctLoadActionShouldPreservePQRatioWhenConstantPQRatio() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Load load = network.getLoad("LOAD");
+        assertEquals(600.0, load.getP0());
+        assertEquals(200.0, load.getQ0());
+        PercentChangeLoadAction action = (PercentChangeLoadAction) new PercentChangeLoadActionBuilder()
+                .withId("id").withLoadId("LOAD").withP0PercentChange(-10d).withQModificationStrategy(CONSTANT_PQ_RATIO).build();
+        action.toModification().apply(network);
+        assertEquals(540.0, load.getP0());
+        assertEquals(180.0, load.getQ0());
     }
 
     @Test
