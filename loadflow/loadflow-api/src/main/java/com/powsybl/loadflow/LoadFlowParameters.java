@@ -129,27 +129,31 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         Objects.requireNonNull(parameters);
         Objects.requireNonNull(platformConfig);
 
+        // Only the parameters present in platformConfig will be updated and no default value will be set for the absent parameters
+        // (unlike what is done for the other parameters classes).
+        // This is needed for the LoadFlowDefaultParametersLoader mechanism to work (else the default values defined
+        // by the loader will be overwritten by the hardcoded ones).
         platformConfig.getOptionalModuleConfig("load-flow-default-parameters")
                 .ifPresent(config -> {
-                    parameters.setVoltageInitMode(config.getEnumProperty("voltageInitMode", VoltageInitMode.class, DEFAULT_VOLTAGE_INIT_MODE));
-                    parameters.setTransformerVoltageControlOn(config.getBooleanProperty("transformerVoltageControlOn", DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON));
-                    parameters.setUseReactiveLimits(!config.getBooleanProperty("noGeneratorReactiveLimits", !DEFAULT_USE_REACTIVE_LIMITS)); // overwritten by reactiveLimits
-                    parameters.setUseReactiveLimits(config.getBooleanProperty("useReactiveLimits", DEFAULT_USE_REACTIVE_LIMITS));
-                    parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
-                    // keep old tag name "specificCompatibility" for compatibility
-                    parameters.setTwtSplitShuntAdmittance(config.getBooleanProperty("twtSplitShuntAdmittance", config.getBooleanProperty("specificCompatibility", DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE)));
-                    parameters.setShuntCompensatorVoltageControlOn(config.getBooleanProperty("shuntCompensatorVoltageControlOn",
-                            config.getOptionalBooleanProperty("simulShunt").orElse(DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON)));
-                    parameters.setReadSlackBus(config.getBooleanProperty("readSlackBus", DEFAULT_READ_SLACK_BUS));
-                    parameters.setWriteSlackBus(config.getBooleanProperty("writeSlackBus", DEFAULT_WRITE_SLACK_BUS));
-                    parameters.setDc(config.getBooleanProperty("dc", DEFAULT_DC));
-                    parameters.setDistributedSlack(config.getBooleanProperty("distributedSlack", DEFAULT_DISTRIBUTED_SLACK));
-                    parameters.setBalanceType(config.getEnumProperty("balanceType", BalanceType.class, DEFAULT_BALANCE_TYPE));
-                    parameters.setDcUseTransformerRatio(config.getBooleanProperty("dcUseTransformerRatio", DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT));
-                    parameters.setCountriesToBalance(config.getEnumSetProperty("countriesToBalance", Country.class, DEFAULT_COUNTRIES_TO_BALANCE));
-                    parameters.setConnectedComponentMode(config.getEnumProperty("connectedComponentMode", ConnectedComponentMode.class, DEFAULT_CONNECTED_COMPONENT_MODE));
-                    parameters.setHvdcAcEmulation(config.getBooleanProperty("hvdcAcEmulation", DEFAULT_HVDC_AC_EMULATION_ON));
-                    parameters.setDcPowerFactor(config.getDoubleProperty("dcPowerFactor", DEFAULT_DC_POWER_FACTOR));
+                    config.getOptionalEnumProperty("voltageInitMode", VoltageInitMode.class).ifPresent(parameters::setVoltageInitMode);
+                    config.getOptionalBooleanProperty("transformerVoltageControlOn").ifPresent(parameters::setTransformerVoltageControlOn);
+                    config.getOptionalBooleanProperty("useReactiveLimits").ifPresentOrElse(parameters::setUseReactiveLimits,
+                            () -> config.getOptionalBooleanProperty("noGeneratorReactiveLimits").ifPresent(value -> parameters.setUseReactiveLimits(!value)));
+                    config.getOptionalBooleanProperty("phaseShifterRegulationOn").ifPresent(parameters::setPhaseShifterRegulationOn);
+                    config.getOptionalBooleanProperty("twtSplitShuntAdmittance").ifPresentOrElse(parameters::setTwtSplitShuntAdmittance,
+                            () -> config.getOptionalBooleanProperty("specificCompatibility").ifPresent(parameters::setTwtSplitShuntAdmittance));
+                    config.getOptionalBooleanProperty("shuntCompensatorVoltageControlOn").ifPresentOrElse(parameters::setShuntCompensatorVoltageControlOn,
+                            () -> config.getOptionalBooleanProperty("simulShunt").ifPresent(parameters::setShuntCompensatorVoltageControlOn));
+                    config.getOptionalBooleanProperty("readSlackBus").ifPresent(parameters::setReadSlackBus);
+                    config.getOptionalBooleanProperty("writeSlackBus").ifPresent(parameters::setWriteSlackBus);
+                    config.getOptionalBooleanProperty("dc").ifPresent(parameters::setDc);
+                    config.getOptionalBooleanProperty("distributedSlack").ifPresent(parameters::setDistributedSlack);
+                    config.getOptionalEnumProperty("balanceType", BalanceType.class).ifPresent(parameters::setBalanceType);
+                    config.getOptionalBooleanProperty("dcUseTransformerRatio").ifPresent(parameters::setDcUseTransformerRatio);
+                    config.getOptionalEnumSetProperty("countriesToBalance", Country.class).ifPresent(parameters::setCountriesToBalance);
+                    config.getOptionalEnumProperty("connectedComponentMode", ConnectedComponentMode.class).ifPresent(parameters::setConnectedComponentMode);
+                    config.getOptionalBooleanProperty("hvdcAcEmulation").ifPresent(parameters::setHvdcAcEmulation);
+                    config.getOptionalDoubleProperty("dcPowerFactor").ifPresent(parameters::setDcPowerFactor);
                 });
     }
 

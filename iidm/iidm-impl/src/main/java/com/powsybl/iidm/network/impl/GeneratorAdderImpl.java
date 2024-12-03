@@ -127,11 +127,11 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                 = new GeneratorImpl(getNetworkRef(),
                                     id, getName(), isFictitious(), energySource,
                                     minP, maxP,
-                                    voltageRegulatorOn, regulatingTerminal != null ? regulatingTerminal : terminal,
+                                    voltageRegulatorOn, regulatingTerminal,
                                     targetP, targetQ, targetV,
                                     ratedS, isCondenser);
         generator.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(generator);
         network.getListeners().notifyCreation(generator);
         return generator;
