@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 
-class JumperConversionTest extends AbstractSerDeTest {
+class SwitchConversionTest extends AbstractSerDeTest {
 
     @Test
-    void test() {
+    void jumperImportTest() {
         Network network = Network.read("jumperTest.xml", getClass().getResourceAsStream("/jumperTest.xml"));
 
         String cgmesSwitchType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "switchType";
