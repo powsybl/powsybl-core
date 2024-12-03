@@ -18,6 +18,9 @@ import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 
+/**
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ */
 abstract class AbstractAmplExporterTest extends AbstractSerDeTest {
 
     MemDataSource dataSource;
