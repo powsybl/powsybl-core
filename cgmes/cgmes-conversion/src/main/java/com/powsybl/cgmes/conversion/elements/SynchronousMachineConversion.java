@@ -30,7 +30,8 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
     public SynchronousMachineConversion(PropertyBag sm, Context context) {
         super(CgmesNames.SYNCHRONOUS_MACHINE, sm, context);
         String type = p.getLocal("type");
-        isCondenser = type != null && type.endsWith("Kind.condenser");
+        // CIM14 uses Type.condenser, CIM16 and CIM100 use Kind.condenser
+        isCondenser = type != null && type.endsWith(".condenser");
     }
 
     @Override
@@ -61,6 +62,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
                 .setRatedS(ratedS);
         identify(adder);
         connect(adder);
+        adder.setCondenser(isCondenser);
         Generator g = adder.add();
         addAliasesAndProperties(g);
         convertedTerminals(g.getTerminal());
