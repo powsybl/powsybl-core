@@ -40,8 +40,6 @@ class CondenserImportExportTest extends AbstractSerDeTest {
     @Test
     void cgmes2condenserExportTest() throws IOException {
         Network network = Network.read("condenser2_EQ.xml", getClass().getResourceAsStream("/issues/condenser2_EQ.xml"));
-        String basename = "condenser2";
-        network.write("CGMES", null, tmpDir.resolve(basename));
         String eq = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir);
         // No generating unit is referred, no generating unit is defined
         assertFalse(eq.contains("cim:RotatingMachine.GeneratingUnit rdf:resource="));
@@ -62,8 +60,6 @@ class CondenserImportExportTest extends AbstractSerDeTest {
     @Test
     void cgmes3condenserExportTest() throws IOException {
         Network network = Network.read("condenser3_EQ.xml", getClass().getResourceAsStream("/issues/condenser3_EQ.xml"));
-        String basename = "condenser3";
-        network.write("CGMES", null, tmpDir.resolve(basename));
         String eq = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir);
         // No generating unit is referred, no generating unit is defined
         assertFalse(eq.contains("cim:RotatingMachine.GeneratingUnit rdf:resource="));
@@ -73,15 +69,13 @@ class CondenserImportExportTest extends AbstractSerDeTest {
 
     @Test
     void cgmes3condenserReferencePriorityTest() throws IOException {
-        String basename = "condenser3";
-        Network network = Network.read(new ResourceDataSource(basename,
+        Network network = Network.read(new ResourceDataSource("condenser3",
                 new ResourceSet("/issues", "condenser3_EQ.xml", "condenser3_SSH.xml")));
         Generator g = network.getGenerator("Condenser1");
         ReferencePriority referencePriority = ReferencePriorities.get(network).iterator().next();
         assertNotNull(referencePriority);
         assertEquals(g.getTerminal(), referencePriority.getTerminal());
 
-        network.write("CGMES", null, tmpDir.resolve(basename));
         String eq = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir);
         // No generating unit is referred, no generating unit is defined
         assertFalse(eq.contains("cim:RotatingMachine.GeneratingUnit rdf:resource="));
