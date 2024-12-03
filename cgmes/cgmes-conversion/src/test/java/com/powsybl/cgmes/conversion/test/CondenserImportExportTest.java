@@ -18,7 +18,6 @@ import com.powsybl.iidm.network.extensions.ReferencePriority;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,7 +42,7 @@ class CondenserImportExportTest extends AbstractSerDeTest {
         Network network = Network.read("condenser2_EQ.xml", getClass().getResourceAsStream("/issues/condenser2_EQ.xml"));
         String basename = "condenser2";
         network.write("CGMES", null, tmpDir.resolve(basename));
-        String eq = Files.readString(tmpDir.resolve(basename + "_EQ.xml"));
+        String eq = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir);
         // No generating unit is referred, no generating unit is defined
         assertFalse(eq.contains("cim:RotatingMachine.GeneratingUnit rdf:resource="));
         assertFalse(eq.contains("cim:GeneratingUnit rdf:ID"));
@@ -65,7 +64,7 @@ class CondenserImportExportTest extends AbstractSerDeTest {
         Network network = Network.read("condenser3_EQ.xml", getClass().getResourceAsStream("/issues/condenser3_EQ.xml"));
         String basename = "condenser3";
         network.write("CGMES", null, tmpDir.resolve(basename));
-        String eq = Files.readString(tmpDir.resolve(basename + "_EQ.xml"));
+        String eq = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir);
         // No generating unit is referred, no generating unit is defined
         assertFalse(eq.contains("cim:RotatingMachine.GeneratingUnit rdf:resource="));
         assertFalse(eq.contains("cim:GeneratingUnit rdf:ID"));
@@ -83,11 +82,11 @@ class CondenserImportExportTest extends AbstractSerDeTest {
         assertEquals(g.getTerminal(), referencePriority.getTerminal());
 
         network.write("CGMES", null, tmpDir.resolve(basename));
-        String eq = Files.readString(tmpDir.resolve(basename + "_EQ.xml"));
+        String eq = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir);
         // No generating unit is referred, no generating unit is defined
         assertFalse(eq.contains("cim:RotatingMachine.GeneratingUnit rdf:resource="));
         assertFalse(eq.contains("cim:GeneratingUnit rdf:ID"));
-        String ssh = Files.readString(tmpDir.resolve(basename + "_SSH.xml"));
+        String ssh = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDir);
         assertTrue(ssh.contains("cim:SynchronousMachine.referencePriority>1<"));
         assertTrue(eq.contains("cim:SynchronousMachine.type rdf:resource=\"http://iec.ch/TC57/CIM100#SynchronousMachineKind.condenser"));
     }
