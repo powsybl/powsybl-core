@@ -62,6 +62,8 @@ class SVTest {
 
         assertEquals(-dl.getP0(), dl.getBoundary().getP(), tol);
         assertEquals(-dl.getQ0(), dl.getBoundary().getQ(), tol);
+        double expectedI = Math.hypot(-dl.getP0(), -dl.getQ0()) / (Math.sqrt(3.) * dl.getBoundary().getV() / 1000);
+        assertEquals(expectedI, dl.getBoundary().getI(), tol);
     }
 
     @Test
@@ -91,6 +93,8 @@ class SVTest {
         assertEquals(-0.4187543391573424, svDl1other.getA(), tol);
 
         assertEquals(-dl.getP0(), dl.getBoundary().getP(), tol);
+        assertEquals(-dl.getQ0(), dl.getBoundary().getQ(), tol);
+        assertEquals(Double.NaN, dl.getBoundary().getI());
     }
 
     private static void svOlfDataToNetwork(Network network) {
@@ -288,6 +292,7 @@ class SVTest {
         danglingLine.getTerminal().getBusView().getBus().setV(100.0);
         assertEquals(298.937, danglingLine.getBoundary().getP(), tol);
         assertEquals(7.413, danglingLine.getBoundary().getQ(), tol);
+        assertEquals(1726.444, danglingLine.getBoundary().getI(), tol);
         assertEquals(100.0, danglingLine.getBoundary().getV(), tol);
         assertEquals(0.0, danglingLine.getBoundary().getAngle(), tol);
     }
@@ -304,7 +309,25 @@ class SVTest {
         danglingLine.getTerminal().getBusView().getBus().setV(100.0);
         assertEquals(-50.0, danglingLine.getBoundary().getP(), tol);
         assertEquals(-30.0, danglingLine.getBoundary().getQ(), tol);
+        assertEquals(336.650, danglingLine.getBoundary().getI(), tol);
         assertEquals(100.0, danglingLine.getBoundary().getV(), tol);
         assertEquals(0.0, danglingLine.getBoundary().getAngle(), tol);
+    }
+
+    @Test
+    void testWithZeroImpedanceDanglingLineWithoutGenerationWithNaNV() {
+        double tol = 0.001;
+        Network network = DanglingLineNetworkFactory.create();
+        DanglingLine danglingLine = network.getDanglingLine("DL");
+        danglingLine.setR(0.0).setX(0.0);
+        danglingLine.getTerminal().setP(50.0);
+        danglingLine.getTerminal().setQ(30.0);
+        danglingLine.getTerminal().getBusView().getBus().setAngle(0.5);
+        danglingLine.getTerminal().getBusView().getBus().setV(Double.NaN);
+        assertEquals(-50.0, danglingLine.getBoundary().getP(), tol);
+        assertEquals(-30.0, danglingLine.getBoundary().getQ(), tol);
+        assertEquals(Double.NaN, danglingLine.getBoundary().getI());
+        assertEquals(Double.NaN, danglingLine.getBoundary().getV());
+        assertEquals(Double.NaN, danglingLine.getBoundary().getAngle());
     }
 }

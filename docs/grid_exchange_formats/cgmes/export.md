@@ -391,6 +391,11 @@ This property is set to `true` by default.
 Optional property that defines whether all OperationalLimitsGroup should be exported, or only the selected (active) ones.
 This property is set to `true` by default, which means all groups are exported (not only the active ones).
 
+**iidm.export.cgmes.export-generators-in-local-regulation-mode**
+Optional property that allows to export voltage regulating generators in local regulation mode. This doesn't concern reactive power regulating generators.
+If set to true, the generator's regulating terminal is set to the generator's own terminal and the target voltage is rescaled accordingly.
+This property is set to `false` by default.
+
 **iidm.export.cgmes.max-p-mismatch-converged**  
 Optional property that defines the threshold below which a bus is considered to be balanced for the load flow status of the `TopologicalIsland` in active power. If the sum of all the active power of the terminals connected to the bus is greater than this threshold, then the load flow is considered to be divergent. Its default value is `0.1`, and it should be used only if the `iidm.export.cgmes.export-load-flow-status` property is set to `true`.
 
