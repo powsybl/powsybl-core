@@ -89,7 +89,8 @@ class CounterNamingStrategyTest {
                 () -> assertTrue(UcteNodeCode.isUcteNodeId(hv1Code.toString())),
                 () -> assertTrue(UcteNodeCode.isUcteNodeId(hv2Code.toString())),
                 () -> assertTrue(UcteNodeCode.isUcteNodeId(loadCode.toString())),
-                () -> assertTrue(UcteNodeCode.isUcteNodeId(ucteCode.toString()))
+                () -> assertTrue(UcteNodeCode.isUcteNodeId(ucteCode.toString())),
+                () -> assertTrue(UcteNodeCode.isUcteNodeId(ucteCode2.toString()))
         );
 
         assertAll(
@@ -98,7 +99,8 @@ class CounterNamingStrategyTest {
                 () -> assertNotEquals(genCode, loadCode),
                 () -> assertNotEquals(hv1Code, hv2Code),
                 () -> assertNotEquals(hv1Code, loadCode),
-                () -> assertNotEquals(hv2Code, loadCode)
+                () -> assertNotEquals(hv2Code, loadCode),
+                () -> assertNotEquals(ucteCode2, ucteCode)
         );
     }
 
