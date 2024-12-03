@@ -108,12 +108,11 @@ class CounterNamingStrategyTest {
         Branch<?> transformer1 = network.getBranch("NGEN_NHV1");
         Branch<?> transformer2 = network.getBranch("NHV2_NLOAD");
         Branch<?> line1 = network.getBranch("NHV1_NHV2_1");
-        Branch<?> line2 = network.getBranch("NHV1_NHV2_2");
 
         UcteElementId transformerId1 = strategy.getUcteElementId(transformer1);
         UcteElementId transformerId2 = strategy.getUcteElementId(transformer2);
         UcteElementId lineId1 = strategy.getUcteElementId(line1);
-        UcteElementId lineId2 = strategy.getUcteElementId(line2);
+        UcteElementId lineId2 = strategy.getUcteElementId(line1);
 
         assertAll(
                 () -> assertTrue(UcteElementId.isUcteElementId(transformerId1.toString())),
@@ -175,8 +174,6 @@ class CounterNamingStrategyTest {
         UcteElementId dlId1 = strategy.getUcteElementId(dl1);
         UcteElementId dlId2 = strategy.getUcteElementId(dl2);
         UcteElementId dlId3 = strategy.getUcteElementId(dl3);
-
-        System.out.println(dlId3);
 
         assertAll(
                 () -> assertTrue(UcteElementId.isUcteElementId(dlId1.toString())),
