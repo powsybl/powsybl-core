@@ -6,7 +6,7 @@ import.md
 export.md
 ```
 
-The [IIDM (**i**Tesla **I**nternal **D**ata **M**odel)](../../grid_model/index.md) format was designed during the [iTesla project](http://www.itesla-project.eu).
+The [IIDM (**i**Tesla **I**nternal **D**ata **M**odel)](../../grid_model/index.md) format was designed during the iTesla project.
 IIDM is the internal format used in Powsybl because it is designed for running simulations.
 
 Several exchange formats result from this internal format:
