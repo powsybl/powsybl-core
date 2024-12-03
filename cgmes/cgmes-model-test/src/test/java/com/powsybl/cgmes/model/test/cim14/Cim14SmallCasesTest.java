@@ -8,10 +8,16 @@
 
 package com.powsybl.cgmes.model.test.cim14;
 
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.cgmes.model.test.CgmesModelTester;
 import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -19,8 +25,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -42,6 +47,14 @@ class Cim14SmallCasesTest {
         assertFalse(c.names().containsAll(INVALID_CONTENT_FILES));
         // The test case ignoring the invalid content is handled correctly
         new CgmesModelTester(t).test();
+    }
+
+    @Test
+    void condenser() {
+        ReadOnlyDataSource ds = new ResourceDataSource("condenser",
+                new ResourceSet("/cim14/condenser", "condenser_EQ.xml"));
+        CgmesModel actual = CgmesModelFactory.create(ds, TripleStoreFactory.defaultImplementation());
+        assertEquals(1, actual.synchronousMachinesCondensers().size());
     }
 
     @Test
