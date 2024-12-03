@@ -6,10 +6,10 @@
                 <iidm:bus id="NGEN"/>
                 <iidm:bus id="NGEN2"/>
                 <iidm:bus id="NGEN3"/>
-                <iidm:bus id="F0000014"/>
-                <iidm:bus id="F0000019"/>
+                <iidm:bus id="F0000079"/>
                 <iidm:switch id="NGEN-NGEN2" kind="BREAKER" retained="true" open="false" bus1="NGEN" bus2="NGEN2"/>
                 <iidm:switch id="NGEN-NGEN3" kind="BREAKER" retained="true" open="false" bus1="NGEN" bus2="NGEN3"/>
+                <iidm:switch id="NGEN-NGEN4" kind="BREAKER" retained="true" open="false" bus1="NGEN" bus2="NGEN3"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN" connectableBus="NGEN">
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>

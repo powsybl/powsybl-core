@@ -71,36 +71,33 @@ class CounterNamingStrategyTest {
 
         strategy.initialiseNetwork(network);
         Bus genBus = network.getBusBreakerView().getBus("NGEN");
-        Bus hv1Bus = network.getBusBreakerView().getBus("NGEN2");
-        Bus hv2Bus = network.getBusBreakerView().getBus("NGEN3");
+        Bus genbus2 = network.getBusBreakerView().getBus("NGEN2");
+        Bus ucteBus = network.getBusBreakerView().getBus("F0000079");
         Bus loadBus = network.getBusBreakerView().getBus("NLOAD");
-        Bus ucteBus = network.getBusBreakerView().getBus("F0000014");
-        Bus ucteBus2 = network.getBusBreakerView().getBus("F0000019");
 
         UcteNodeCode genCode = strategy.getUcteNodeCode(genBus);
-        UcteNodeCode hv1Code = strategy.getUcteNodeCode(hv1Bus);
-        UcteNodeCode hv2Code = strategy.getUcteNodeCode(hv2Bus);
+        UcteNodeCode genCode2 = strategy.getUcteNodeCode(genbus2);
         UcteNodeCode loadCode = strategy.getUcteNodeCode(loadBus);
         UcteNodeCode ucteCode = strategy.getUcteNodeCode(ucteBus);
-        UcteNodeCode ucteCode2 = strategy.getUcteNodeCode(ucteBus2);
 
         assertAll(
                 () -> assertTrue(UcteNodeCode.isUcteNodeId(genCode.toString())),
-                () -> assertTrue(UcteNodeCode.isUcteNodeId(hv1Code.toString())),
-                () -> assertTrue(UcteNodeCode.isUcteNodeId(hv2Code.toString())),
+                () -> assertTrue(UcteNodeCode.isUcteNodeId(genCode2.toString())),
                 () -> assertTrue(UcteNodeCode.isUcteNodeId(loadCode.toString())),
                 () -> assertTrue(UcteNodeCode.isUcteNodeId(ucteCode.toString())),
-                () -> assertTrue(UcteNodeCode.isUcteNodeId(ucteCode2.toString()))
-        );
 
-        assertAll(
-                () -> assertNotEquals(genCode, hv1Code),
-                () -> assertNotEquals(genCode, hv2Code),
+                () -> assertNotEquals(genCode, genCode2),
                 () -> assertNotEquals(genCode, loadCode),
-                () -> assertNotEquals(hv1Code, hv2Code),
-                () -> assertNotEquals(hv1Code, loadCode),
-                () -> assertNotEquals(hv2Code, loadCode),
-                () -> assertNotEquals(ucteCode2, ucteCode)
+                () -> assertNotEquals(genCode, ucteCode),
+                () -> assertNotEquals(genCode2, loadCode),
+                () -> assertNotEquals(genCode2, ucteCode),
+                () -> assertNotEquals(ucteCode, loadCode),
+
+                () -> assertEquals("F0000071", genCode.toString()),
+                () -> assertEquals("F0000072", genCode2.toString()),
+                () -> assertEquals("F0000074", ucteCode.toString()),
+                () -> assertEquals("F0000331", loadCode.toString())
+
         );
     }
 
@@ -128,7 +125,13 @@ class CounterNamingStrategyTest {
                 () -> assertNotEquals(lineId1, lineId2),
 
                 () -> assertEquals(transformerId1, strategy.getUcteElementId(transformer1)),
-                () -> assertEquals(transformerId2, strategy.getUcteElementId(transformer2))
+                () -> assertEquals(transformerId2, strategy.getUcteElementId(transformer2)),
+
+                () -> assertEquals("F0000071 F0000111 1", transformerId1.toString()),
+                () -> assertEquals("F0000211 F0000331 1", transformerId2.toString()),
+                () -> assertEquals("F0000111 F0000211 1", lineId1.toString()),
+                () -> assertEquals("F0000111 F0000211 2", lineId2.toString())
+
         );
     }
 
@@ -138,18 +141,29 @@ class CounterNamingStrategyTest {
         Switch sw = network.getSwitch("NGEN-NGEN2");
         Switch sw2 = network.getSwitch("NGEN-NGEN3");
         Switch sw3 = network.getSwitch("NGEN-NGEN3");
+        Switch sw4 = network.getSwitch("NGEN-NGEN4");
 
         UcteElementId swId = strategy.getUcteElementId(sw);
         UcteElementId swId2 = strategy.getUcteElementId(sw2);
         UcteElementId swId3 = strategy.getUcteElementId(sw3);
+        UcteElementId swId4 = strategy.getUcteElementId(sw4);
 
         assertAll(
                 () -> assertTrue(UcteElementId.isUcteElementId(swId.toString())),
                 () -> assertTrue(UcteElementId.isUcteElementId(swId2.toString())),
+                () -> assertTrue(UcteElementId.isUcteElementId(swId3.toString())),
+                () -> assertTrue(UcteElementId.isUcteElementId(swId4.toString())),
                 () -> assertNotEquals(swId, swId2),
-                () -> assertEquals(swId3, swId2)
-        );
+                () -> assertNotEquals(swId3, swId4),
+                () -> assertNotEquals(swId, swId4),
+                () -> assertNotEquals(swId2, swId4),
+                () -> assertEquals(swId3, swId2),
 
+                () -> assertEquals("F0000071 F0000072 1", swId.toString()),
+                () -> assertEquals("F0000071 F0000073 1", swId2.toString()),
+                () -> assertEquals("F0000071 F0000073 1", swId3.toString()),
+                () -> assertEquals("F0000071 F0000073 2", swId4.toString())
+        );
     }
 
     @Test
@@ -167,10 +181,12 @@ class CounterNamingStrategyTest {
                 () -> assertTrue(UcteElementId.isUcteElementId(dlId3.toString())),
                 () -> assertNotEquals(dlId1, dlId2),
                 () -> assertNotEquals(dlId1, dlId3),
-                () -> assertNotEquals(dlId2, dlId3)
+                () -> assertNotEquals(dlId2, dlId3),
 
+                () -> assertEquals("F0000072 F0000671 1", dlId1.toString()),
+                () -> assertEquals("F0000072 X0000011 1", dlId2.toString()),
+                () -> assertEquals("F0000072 F0000671 2", dlId3.toString())
         );
-
     }
 
     @Test
@@ -184,11 +200,12 @@ class CounterNamingStrategyTest {
         UcteElementId id2 = strategy.getUcteElementId(line2);
 
         assertAll(
-                () -> assertNotNull(id1),
-                () -> assertNotNull(id2),
                 () -> assertTrue(UcteElementId.isUcteElementId(id1.toString())),
                 () -> assertTrue(UcteElementId.isUcteElementId(id2.toString())),
-                () -> assertNotEquals(id1, id2)
+                () -> assertNotEquals(id1, id2),
+
+                () -> assertEquals("F0000111 F0000211 1", id1.toString()),
+                () -> assertEquals("F0000111 F0000211 2", id2.toString())
         );
     }
 
@@ -230,5 +247,4 @@ class CounterNamingStrategyTest {
         UcteNodeCode code = strategy.getUcteNodeCode(genBus);
         assertEquals('F', code.toString().charAt(0)); // France
     }
-
 }
