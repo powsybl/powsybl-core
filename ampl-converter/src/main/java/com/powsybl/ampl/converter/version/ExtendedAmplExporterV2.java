@@ -22,12 +22,6 @@ import java.util.List;
 import static com.powsybl.ampl.converter.AmplConstants.*;
 
 /**
- * 2nd extension of BasicAmplExporter, associated with AMPL version 1.2 (exporter id).
- * The extension adds:
- *  - A condenser boolean in the generator table.
- *  - The load target Q in the lcc converter station table.
- *  - The AC emulation parameters, along with a boolean to indicate if emulation is active, in the hvdc line table.
- *
  * @author Pierre ARVY {@literal <pierre.arvy at artelys.com>}
  */
 public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
