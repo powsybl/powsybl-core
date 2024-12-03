@@ -45,9 +45,9 @@ class WindingTypeTest {
         assertEquals(3, WindingType.endNumber(end3));
 
         end4 = new PropertyBag(Collections.singletonList(WINDING_TYPE), true);
-        end4.put(WINDING_TYPE, "WindingType.quaternary");
-        assertEquals(WindingType.PRIMARY, WindingType.windingType(end4));
-        assertEquals(1, WindingType.endNumber(end4));
+        end4.put(WINDING_TYPE, "Unknown");
+        assertEquals(WindingType.UNKNOWN, WindingType.windingType(end4));
+        assertEquals(0, WindingType.endNumber(end4));
     }
 
     @Test
@@ -68,8 +68,8 @@ class WindingTypeTest {
         assertEquals(3, WindingType.endNumber(end3));
 
         end4 = new PropertyBag(Collections.singletonList(END_NUMBER), true);
-        end4.put(END_NUMBER, "4");
-        assertEquals(WindingType.PRIMARY, WindingType.windingType(end4));
-        assertEquals(1, WindingType.endNumber(end4));
+        end4.put(END_NUMBER, "Unknown");
+        assertEquals(WindingType.UNKNOWN, WindingType.windingType(end4));
+        assertEquals(0, WindingType.endNumber(end4));
     }
 }

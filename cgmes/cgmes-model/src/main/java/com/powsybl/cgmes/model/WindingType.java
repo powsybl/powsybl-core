@@ -15,7 +15,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public enum WindingType {
 
-    PRIMARY, SECONDARY, TERTIARY;
+    UNKNOWN, PRIMARY, SECONDARY, TERTIARY;
 
     /**
      * Retrieve the WindingType for the given transformer winding/end.
@@ -25,23 +25,21 @@ public enum WindingType {
     public static WindingType windingType(PropertyBag end) {
         if (end.containsKey("windingType")) {
             // For CIM14 (CIM ENTSOE Profile1) primary is determined by TransformerWinding.windingType
-            String wtype = end.getLocal("windingType");
-            if (wtype.endsWith("WindingType.primary")) {
-                return WindingType.PRIMARY;
-            } else if (wtype.endsWith("WindingType.secondary")) {
-                return WindingType.SECONDARY;
-            } else if (wtype.endsWith("WindingType.tertiary")) {
-                return WindingType.TERTIARY;
-            }
+            return switch (end.getLocal("windingType")) {
+                case "WindingType.primary" -> WindingType.PRIMARY;
+                case "WindingType.secondary" -> WindingType.SECONDARY;
+                case "WindingType.tertiary" -> WindingType.TERTIARY;
+                default -> WindingType.UNKNOWN;
+            };
         } else if (end.containsKey("endNumber")) {
             // For CIM16 (CGMES 2.4.15) primary is defined by TransformerEnd.endNumber
             try {
-                return WindingType.values()[end.asInt("endNumber") - 1];
+                return WindingType.values()[end.asInt("endNumber")];
             } catch (Exception e) {
-                return WindingType.PRIMARY;
+                return WindingType.UNKNOWN;
             }
         }
-        return WindingType.PRIMARY;
+        return WindingType.UNKNOWN;
     }
 
     /**
@@ -50,6 +48,6 @@ public enum WindingType {
      * @return The endNumber value (1/2/3) corresponding to the given transformer winding/end.
      */
     public static int endNumber(PropertyBag end) {
-        return windingType(end).ordinal() + 1;
+        return windingType(end).ordinal();
     }
 }
