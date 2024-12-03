@@ -20,6 +20,7 @@ import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Pierre ARVY {@literal <pierre.arvy at artelys.com>}
  */
 abstract class AbstractAmplExporterTest extends AbstractSerDeTest {
 
