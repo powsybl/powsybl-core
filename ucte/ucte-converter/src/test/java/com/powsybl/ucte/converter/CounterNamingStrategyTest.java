@@ -84,13 +84,6 @@ class CounterNamingStrategyTest {
         UcteNodeCode ucteCode = strategy.getUcteNodeCode(ucteBus);
         UcteNodeCode ucteCode2 = strategy.getUcteNodeCode(ucteBus2);
 
-        System.out.println(genCode);
-        System.out.println(hv1Code);
-        System.out.println(hv2Code);
-        System.out.println(loadCode);
-        System.out.println(ucteCode);
-        System.out.println(ucteCode2);
-
         assertAll(
                 () -> assertTrue(UcteNodeCode.isUcteNodeId(genCode.toString())),
                 () -> assertTrue(UcteNodeCode.isUcteNodeId(hv1Code.toString())),
