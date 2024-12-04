@@ -21,7 +21,7 @@ public class AreaBoundaryImpl implements AreaBoundary {
 
     private Terminal terminal;
 
-    private Boundary boundary;
+    private final Boundary boundary;
 
     private final boolean ac;
 
