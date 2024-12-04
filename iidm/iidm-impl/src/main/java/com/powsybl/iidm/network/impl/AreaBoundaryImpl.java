@@ -17,13 +17,13 @@ import java.util.Optional;
 
 public class AreaBoundaryImpl implements AreaBoundary {
 
-    final Area area;
+    private final Area area;
 
-    final Terminal terminal;
+    private Terminal terminal;
 
-    final Boundary boundary;
+    private final Boundary boundary;
 
-    final boolean ac;
+    private final boolean ac;
 
     AreaBoundaryImpl(Area area, Terminal terminal, boolean ac) {
         this.area = Objects.requireNonNull(area);
@@ -67,5 +67,13 @@ public class AreaBoundaryImpl implements AreaBoundary {
     @Override
     public double getQ() {
         return boundary != null ? boundary.getQ() : terminal.getQ();
+    }
+
+    void replaceTerminal(Terminal oldTerminal, Terminal newTerminal) {
+        Objects.requireNonNull(oldTerminal);
+        Objects.requireNonNull(newTerminal);
+        if (terminal == oldTerminal) {
+            terminal = newTerminal;
+        }
     }
 }
