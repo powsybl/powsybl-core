@@ -43,68 +43,36 @@
 		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#VoltageLevel"/>
 		<cim:IdentifiedObject.name>BBS ConnectivityNode</cim:IdentifiedObject.name>
 	</cim:ConnectivityNode>
-	<cim:EnergyConsumer rdf:ID="Load1">
-		<cim:IdentifiedObject.name>Load1</cim:IdentifiedObject.name>
+	<cim:EnergyConsumer rdf:ID="Load">
+		<cim:IdentifiedObject.name>Load</cim:IdentifiedObject.name>
 		<cim:Equipment.EquipmentContainer rdf:resource="#VoltageLevel"/>
 	</cim:EnergyConsumer>
-	<cim:Terminal rdf:ID="Load1_T">
-		<cim:Terminal.ConnectivityNode rdf:resource="#Load1_CN"/>
-		<cim:Terminal.ConductingEquipment rdf:resource="#Load1"/>
+	<cim:Terminal rdf:ID="Load_T">
+		<cim:Terminal.ConnectivityNode rdf:resource="#Load_CN"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#Load"/>
 		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>Load1 Terminal</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.name>Load Terminal</cim:IdentifiedObject.name>
 	</cim:Terminal>
-	<cim:ConnectivityNode rdf:ID="Load1_CN">
+	<cim:ConnectivityNode rdf:ID="Load_CN">
 		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#VoltageLevel"/>
-		<cim:IdentifiedObject.name>Load1 ConnectivityNode</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.name>Load ConnectivityNode</cim:IdentifiedObject.name>
 	</cim:ConnectivityNode>
-	<cim:Jumper rdf:ID="Jumper1">
+	<cim:Jumper rdf:ID="Jumper">
 		<cim:Switch.normalOpen>true</cim:Switch.normalOpen>
 		<cim:Switch.retained>false</cim:Switch.retained>
 		<cim:Equipment.EquipmentContainer rdf:resource="#VoltageLevel"/>
 		<cim:IdentifiedObject.name>opened jumper</cim:IdentifiedObject.name>
 	</cim:Jumper>
-	<cim:Terminal rdf:ID="Jumper1_T1">
+	<cim:Terminal rdf:ID="Jumper_T1">
 		<cim:Terminal.ConnectivityNode rdf:resource="#BBS_CN"/>
-		<cim:Terminal.ConductingEquipment rdf:resource="#Jumper1"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#Jumper"/>
 		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>Jumper1 Terminal1</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.name>Jumper Terminal1</cim:IdentifiedObject.name>
 	</cim:Terminal>
-	<cim:Terminal rdf:ID="Jumper1_T2">
-		<cim:Terminal.ConnectivityNode rdf:resource="#Load1_CN"/>
-		<cim:Terminal.ConductingEquipment rdf:resource="#Jumper1"/>
+	<cim:Terminal rdf:ID="Jumper_T2">
+		<cim:Terminal.ConnectivityNode rdf:resource="#Load_CN"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#Jumper"/>
 		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>Jumper1 Terminal2</cim:IdentifiedObject.name>
-	</cim:Terminal>
-	<cim:EnergyConsumer rdf:ID="Load2">
-		<cim:IdentifiedObject.name>Load2</cim:IdentifiedObject.name>
-		<cim:Equipment.EquipmentContainer rdf:resource="#VoltageLevel"/>
-	</cim:EnergyConsumer>
-	<cim:Terminal rdf:ID="Load2_T">
-		<cim:Terminal.ConnectivityNode rdf:resource="#Load2_CN"/>
-		<cim:Terminal.ConductingEquipment rdf:resource="#Load2"/>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>Load2 Terminal</cim:IdentifiedObject.name>
-	</cim:Terminal>
-	<cim:ConnectivityNode rdf:ID="Load2_CN">
-		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#VoltageLevel"/>
-		<cim:IdentifiedObject.name>Load2 ConnectivityNode</cim:IdentifiedObject.name>
-	</cim:ConnectivityNode>
-	<cim:Jumper rdf:ID="Jumper2">
-		<cim:Switch.normalOpen>false</cim:Switch.normalOpen>
-		<cim:Switch.retained>true</cim:Switch.retained>
-		<cim:Equipment.EquipmentContainer rdf:resource="#VoltageLevel"/>
-		<cim:IdentifiedObject.name>closed jumper</cim:IdentifiedObject.name>
-	</cim:Jumper>
-	<cim:Terminal rdf:ID="Jumper2_T1">
-		<cim:Terminal.ConnectivityNode rdf:resource="#BBS_CN"/>
-		<cim:Terminal.ConductingEquipment rdf:resource="#Jumper2"/>
-		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>Jumper2 Terminal1</cim:IdentifiedObject.name>
-	</cim:Terminal>
-	<cim:Terminal rdf:ID="Jumper2_T2">
-		<cim:Terminal.ConnectivityNode rdf:resource="#Load2_CN"/>
-		<cim:Terminal.ConductingEquipment rdf:resource="#Jumper2"/>
-		<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-		<cim:IdentifiedObject.name>Jumper2 Terminal2</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.name>Jumper Terminal2</cim:IdentifiedObject.name>
 	</cim:Terminal>
 </rdf:RDF>

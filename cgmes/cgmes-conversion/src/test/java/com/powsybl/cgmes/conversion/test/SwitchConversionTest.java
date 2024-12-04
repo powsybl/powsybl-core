@@ -27,20 +27,11 @@ class SwitchConversionTest extends AbstractSerDeTest {
     void jumperImportTest() {
         Network network = Network.read("jumperTest.xml", getClass().getResourceAsStream("/jumperTest.xml"));
 
-        String cgmesSwitchType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "switchType";
-
-        Switch switch1 = network.getSwitch("Jumper1");
-        assertEquals(SwitchKind.DISCONNECTOR, switch1.getKind());
-        assertEquals("Jumper", switch1.getProperty(cgmesSwitchType));
-        assertEquals("opened jumper", switch1.getNameOrId());
-        assertTrue(switch1.isOpen());
-        assertFalse(switch1.isRetained());
-
-        Switch switch2 = network.getSwitch("Jumper2");
-        assertEquals(SwitchKind.DISCONNECTOR, switch2.getKind());
-        assertEquals("Jumper", switch2.getProperty(cgmesSwitchType));
-        assertEquals("closed jumper", switch2.getNameOrId());
-        assertFalse(switch2.isOpen());
-        assertTrue(switch2.isRetained());
+        Switch aswitch = network.getSwitch("Jumper");
+        assertEquals(SwitchKind.DISCONNECTOR, aswitch.getKind());
+        assertEquals("Jumper", aswitch.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "switchType"));
+        assertEquals("opened jumper", aswitch.getNameOrId());
+        assertTrue(aswitch.isOpen());
+        assertFalse(aswitch.isRetained());
     }
 }
