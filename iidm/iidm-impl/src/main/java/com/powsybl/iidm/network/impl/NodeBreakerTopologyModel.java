@@ -1167,6 +1167,10 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         return t != null && t.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION;
     }
 
+    private static boolean isTerminal(Terminal t) {
+        return t != null;
+    }
+
     /**
      * Check if a switch is open and cannot be operated (according to the given predicate)
      * @param sw the switch to test
@@ -1286,7 +1290,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
         int node = ((NodeTerminal) terminal).getNode();
         // find all paths starting from the current terminal to a busbar section that does not contain an open switch
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerTopologyModel::isBusbarSection, SwitchPredicates.IS_OPEN);
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerTopologyModel::isTerminal, SwitchPredicates.IS_OPEN);
         if (paths.isEmpty()) {
             return false;
         }
