@@ -107,7 +107,7 @@ class TimeSeriesTest {
 
     @Test
     void testTimeSeriesNameMissing() {
-        String csv = """    
+        String csv = """
             Time;Version;;ts2
             1970-01-01T01:00:00.000+01:00;1;1.0;
             1970-01-01T02:00:00.000+01:00;1;;a
