@@ -418,7 +418,7 @@ WHERE {
     ?Switch
         a ?type ;
         cim:Equipment.EquipmentContainer ?EquipmentContainer .
-    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector cim:Jumper } .
+    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector } .
     OPTIONAL {
         ?Switch cim:IdentifiedObject.name ?name ;
     }

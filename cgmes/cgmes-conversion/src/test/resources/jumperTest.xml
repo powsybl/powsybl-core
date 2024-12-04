@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rdf:RDF  xmlns:base="urn:uuid:" xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<rdf:RDF  xmlns:base="urn:uuid:" xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 	<md:FullModel rdf:about="urn:uuid:test">
 		<md:Model.scenarioTime>2023-01-01T00:00:00Z</md:Model.scenarioTime>
 		<md:Model.created>2023-01-01T00:00:00Z</md:Model.created>
