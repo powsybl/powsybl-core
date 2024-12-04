@@ -291,27 +291,25 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
 
         void parseLine(String[] tokens) {
-            for (int i = fixedColumns; i < tokens.length; i++) {
-                String token = tokens[i] != null ? tokens[i].trim() : "";
-                parseToken(i, token);
+            long time = parseTokenTime(tokens[0]);
+            if (times.isEmpty() || times.get(times.size() - 1) != time) {
+                for (int i = fixedColumns; i < tokens.length; i++) {
+                    String token = tokens[i] != null ? tokens[i].trim() : "";
+                    parseToken(i, token);
+                }
+                times.add(time);
+            } else {
+                LOGGER.warn("Row with the same time have already been read, the row will be skipped");
             }
-
-            parseTokenTime(tokens);
         }
 
-        void parseTokenTime(String[] tokens) {
+        long parseTokenTime(String token) {
             TimeFormat timeFormat = timeSeriesCsvConfig.timeFormat();
-            switch (timeFormat) {
-                case DATE_TIME -> times.add(ZonedDateTime.parse(tokens[0]).toInstant().toEpochMilli());
-                case FRACTIONS_OF_SECOND -> {
-                    double time = Double.parseDouble(tokens[0]) * 1000;
-                    times.add((long) time);
-                }
-                case MILLIS -> {
-                    double millis = Double.parseDouble(tokens[0]);
-                    times.add((long) millis);
-                }
-            }
+            return switch (timeFormat) {
+                case DATE_TIME -> ZonedDateTime.parse(token).toInstant().toEpochMilli();
+                case FRACTIONS_OF_SECOND -> (long) (Double.parseDouble(token) * 1000);
+                case MILLIS -> (long) Double.parseDouble(token);
+            };
         }
 
         void reInit() {

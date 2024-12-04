@@ -139,6 +139,25 @@ class TimeSeriesTest {
     }
 
     @Test
+    void testFractionsOfSecondsRegularTimeSeriesIndexWithDuplicateTime() {
+        String csv = String.join(System.lineSeparator(),
+                "Time;Version;ts1;ts2",
+                "0.000;1;1.0;",
+                "0.001;1;;a",
+                "0.0015;1;;b",
+                "0.002;1;3.0;b",
+                "0.000;2;4.0;c",
+                "0.0002;2;4.5;c",
+                "0.001;2;5.0;",
+                "0.002;2;6.0;d") + System.lineSeparator();
+
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
+
+        assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
+    }
+
+    @Test
     void testParseCsvBuffered() {
         String csv = String.join(System.lineSeparator(),
             "Time;Version;ts1;ts2",
