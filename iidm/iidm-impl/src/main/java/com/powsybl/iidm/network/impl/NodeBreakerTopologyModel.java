@@ -626,6 +626,16 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         return variants.get().calculatedBusTopology;
     }
 
+    void removeSwitchFromTopology(String switchId, boolean notify) {
+        Integer e = switches.get(switchId);
+        if (e == null) {
+            throw new PowsyblException("Switch '" + switchId
+                    + "' not found in voltage level '" + voltageLevel.getId() + "'");
+        }
+        graph.removeEdge(e, notify);
+        graph.removeIsolatedVertices(notify);
+    }
+
     private final VoltageLevelExt.NodeBreakerViewExt nodeBreakerView = new VoltageLevelExt.NodeBreakerViewExt() {
 
         private final TIntObjectMap<TDoubleArrayList> fictitiousP0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
@@ -873,13 +883,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
         @Override
         public void removeSwitch(String switchId) {
-            Integer e = switches.get(switchId);
-            if (e == null) {
-                throw new PowsyblException("Switch '" + switchId
-                        + "' not found in voltage level '" + voltageLevel.getId() + "'");
-            }
-            graph.removeEdge(e);
-            graph.removeIsolatedVertices();
+            NodeBreakerTopologyModel.this.removeSwitchFromTopology(switchId, true);
         }
 
         @Override

@@ -20,4 +20,14 @@ public interface Referrer<T> {
      * @param removedReferenced The referenced that has been removed from the network.
      */
     void onReferencedRemoval(T removedReferenced);
+
+    /**
+     * Called when a referenced object is replaced with another one. Implementations of this method
+     * should handle any required updates or transfers necessary when the referenced object is
+     * replaced.
+     *
+     * @param oldReferenced The original referenced object that is being replaced.
+     * @param newReferenced The new referenced object that is taking the place of the old one.
+     */
+    void onReferencedReplacement(T oldReferenced, T newReferenced);
 }

@@ -133,6 +133,13 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
     }
 
     @Override
+    public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
+        if (regulatingTerminal == oldReferenced) {
+            regulatingTerminal = newReferenced;
+        }
+    }
+
+    @Override
     public void cleanup() {
         if (regulatingTerminal != null) {
             ((TerminalExt) regulatingTerminal).getReferrerManager().unregister(this);
