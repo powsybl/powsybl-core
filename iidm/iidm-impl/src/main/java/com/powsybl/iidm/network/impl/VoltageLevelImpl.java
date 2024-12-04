@@ -13,7 +13,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
-import org.apache.commons.lang3.tuple.Triple;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -647,29 +646,32 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
                 // reconnect all connectable to new topology model
                 // first store all bus/breaker topological infos associated to this terminal because we will start moving
                 // terminal from old mode to new one, it will modify the old topology model
-                List<Triple<TerminalExt, Bus, Boolean>> oldTopologyModelInfos = new ArrayList<>();
+                record TopologyModelInfos(TerminalExt terminal, String connectableBusId, boolean connected) {
+                }
+                List<TopologyModelInfos> oldTopologyModelInfos = new ArrayList<>();
                 for (Terminal oldTerminal : topologyModel.getTerminals()) {
                     Bus connectableBus = oldTerminal.getBusBreakerView().getConnectableBus();
+                    String connectableBusId = connectableBus == null ? null : connectableBus.getId();
                     boolean connected = oldTerminal.isConnected();
-                    oldTopologyModelInfos.add(Triple.of((TerminalExt) oldTerminal, connectableBus, connected));
+                    oldTopologyModelInfos.add(new TopologyModelInfos((TerminalExt) oldTerminal, connectableBusId, connected));
                 }
 
-                for (var triple : oldTopologyModelInfos) {
-                    TerminalExt oldTerminalExt = triple.getLeft();
-                    Bus connectableBus = triple.getMiddle();
-                    boolean connected = triple.getRight();
+                for (var infos : oldTopologyModelInfos) {
+                    TerminalExt oldTerminalExt = infos.terminal();
+                    String connectableBusId = infos.connectableBusId();
+                    boolean connected = infos.connected;
 
                     // if there is no way to find a connectable bus, remove the connectable
                     // an alternative would be to connect them all to a new trash configured bus
-                    if (connectableBus != null) {
+                    if (connectableBusId != null) {
                         AbstractConnectable<?> connectable = oldTerminalExt.getConnectable();
 
                         // create the new terminal with new type
                         TerminalExt newTerminalExt = null;
                         if (oldTerminalExt.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION) {
                             newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide())
-                                    .setBus(connected ? connectableBus.getId() : null)
-                                    .setConnectableBus(connectableBus.getId())
+                                    .setBus(connected ? connectableBusId : null)
+                                    .setConnectableBus(connectableBusId)
                                     .build();
                         }
 
@@ -696,7 +698,7 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
                     }
                 }
 
-                // also here keep the notification for remaining switches and internal connection removal
+                // also here keep the notification for remaining switches removal
                 topologyModel.removeTopology();
 
                 TopologyKind oldTopologyKind = topologyModel.getTopologyKind();

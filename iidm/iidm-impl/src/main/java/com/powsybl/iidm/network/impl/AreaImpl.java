@@ -43,10 +43,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         @Override
         public void onReferencedReplacement(Terminal oldTerminal, Terminal newTerminal) {
             for (AreaBoundary areaBoundary : areaBoundaries) {
-                AreaBoundaryImpl areaBoundaryImpl = (AreaBoundaryImpl) areaBoundary;
-                if (areaBoundaryImpl.terminal == oldTerminal) {
-                    areaBoundaryImpl.terminal = newTerminal;
-                }
+                ((AreaBoundaryImpl) areaBoundary).replaceTerminal(oldTerminal, newTerminal);
             }
         }
     };
@@ -60,10 +57,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         @Override
         public void onReferencedReplacement(Boundary oldBoundary, Boundary newBoundary) {
             for (AreaBoundary areaBoundary : areaBoundaries) {
-                AreaBoundaryImpl areaBoundaryImpl = (AreaBoundaryImpl) areaBoundary;
-                if (areaBoundaryImpl.boundary == oldBoundary) {
-                    areaBoundaryImpl.boundary = newBoundary;
-                }
+                ((AreaBoundaryImpl) areaBoundary).replaceBoundary(oldBoundary, newBoundary);
             }
         }
     };
