@@ -8,14 +8,20 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -28,7 +34,6 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private static final String OPERATIONAL_LIMIT_SUBCLASS = "OperationalLimitSubclass";
     private static final String OPERATIONAL_LIMIT_SET_ID = "OperationalLimitSet";
     private static final String OPERATIONAL_LIMIT_SET_NAME = "OperationalLimitSetName";
-    private static final String PROPERTY_PREFIX = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT_SET + "_";
     private static final String PERMANENT_LIMIT = "Permanent Limit";
     private static final String TEMPORARY_LIMIT = "Temporary Limit";
 
@@ -82,6 +87,30 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     /**
+     * Store the CGMES OperationalLimitSet id/name pair in a property of the identifiable.
+     * If the property already exists, meaning it has been created for another limit set of that identifiable,
+     * then append the id/name pair to the property value (which actually represents a serialized json).
+     * @param identifiable The Branch, DanglingLine, ThreeWindingsTransformer where the limit set id/name are stored.
+     * @param limitSetId The OperationalLimitSet id to store.
+     * @param limitSetName The OperationalLimitSet name to store.
+     */
+    private void storeOperationalLimitSetIdentifiers(Identifiable<?> identifiable, String limitSetId, String limitSetName) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node;
+            if (identifiable.hasProperty(PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS)) {
+                node = mapper.readTree(identifiable.getProperty(PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS));
+            } else {
+                node = mapper.createObjectNode();
+            }
+            ((ObjectNode) node).put(limitSetId, limitSetName);
+            identifiable.setProperty(PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS, mapper.writeValueAsString(node));
+        } catch (JsonProcessingException e) {
+            throw new PowsyblException(e.getMessage(), e);
+        }
+    }
+
+    /**
      * Create the LoadingLimitsAdder for the given branch + side and the given limit set + subclass.
      * @param terminalNumber The side of the branch to which the OperationalLimit applies.
      * @param limitSubClass The subclass of the OperationalLimit.
@@ -92,12 +121,12 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private void createLimitsAdder(int terminalNumber, String limitSubClass, String limitSetId, String limitSetName, Branch<?> b) {
         if (terminalNumber == 1) {
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup1(limitSetId).orElseGet(() -> {
-                b.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
+                storeOperationalLimitSetIdentifiers(b, limitSetId, limitSetName);
                 return b.newOperationalLimitsGroup1(limitSetId); });
             loadingLimitsAdder1 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else if (terminalNumber == 2) {
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup2(limitSetId).orElseGet(() -> {
-                b.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
+                storeOperationalLimitSetIdentifiers(b, limitSetId, limitSetName);
                 return b.newOperationalLimitsGroup2(limitSetId); });
             loadingLimitsAdder2 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else {
@@ -114,7 +143,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
      */
     private void createLimitsAdder(String limitSubClass, String limitSetId, String limitSetName, DanglingLine dl) {
         OperationalLimitsGroup limitsGroup = dl.getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
-            dl.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
+            storeOperationalLimitSetIdentifiers(dl, limitSetId, limitSetName);
             return dl.newOperationalLimitsGroup(limitSetId); });
         loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
     }
@@ -130,17 +159,17 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private void createLimitsAdder(int terminalNumber, String limitSubClass, String limitSetId, String limitSetName, ThreeWindingsTransformer twt) {
         if (terminalNumber == 1) {
             OperationalLimitsGroup limitsGroup = twt.getLeg1().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
-                twt.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
+                storeOperationalLimitSetIdentifiers(twt, limitSetId, limitSetName);
                 return twt.getLeg1().newOperationalLimitsGroup(limitSetId); });
             loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else if (terminalNumber == 2) {
             OperationalLimitsGroup limitsGroup = twt.getLeg2().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
-                twt.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
+                storeOperationalLimitSetIdentifiers(twt, limitSetId, limitSetName);
                 return twt.getLeg2().newOperationalLimitsGroup(limitSetId); });
             loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else if (terminalNumber == 3) {
             OperationalLimitsGroup limitsGroup = twt.getLeg3().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
-                twt.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
+                storeOperationalLimitSetIdentifiers(twt, limitSetId, limitSetName);
                 return twt.getLeg3().newOperationalLimitsGroup(limitSetId); });
             loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else {

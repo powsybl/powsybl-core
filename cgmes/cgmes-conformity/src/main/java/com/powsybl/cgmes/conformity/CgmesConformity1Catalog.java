@@ -1087,6 +1087,11 @@ public final class CgmesConformity1Catalog {
                 "fd227658-0e1b-4ecd-952a-c6b0307b1ea11",
                 "ff466d18-e4f5-439b-a50a-daec2fa41e2c",
                 "ff466d18-e4f5-439b-a50a-daec2fa41e2c1");
+        m.shuntCompensatorsPoints("46e3d51d-0a41-4e3f-8ce5-63e7bb165b73",
+                "7dc75c5a-74cc-434c-a125-860960b6ed35",
+                "89e965d7-0348-4dc1-98d4-be3bf8891fad",
+                "8b93ca77-3cc3-4c82-8524-2f8a13513e20",
+                "ca954c3a-5194-49eb-9097-10c77cea36b9");
         Set<String> tlremove = new HashSet<>(Arrays.asList(
                 "acbd4688-6393-4b43-a9f4-27d8c3f8c309",
                 "1c8440dc-e65d-4337-9d3e-7558062228da1",
