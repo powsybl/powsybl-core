@@ -622,6 +622,11 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
     private void convertToBusBreakerModel() {
         BusBreakerTopologyModel newTopologyModel = new BusBreakerTopologyModel(this);
 
+        // remove busbar sections because not needed in a bus/breaker topology
+        for (BusbarSection bbs : topologyModel.getNodeBreakerView().getBusbarSections()) {
+            bbs.remove();
+        }
+
         for (Bus bus : topologyModel.getBusBreakerView().getBuses()) {
             // no notification, this is just a mutation of a calculation bus to a configured bus
             ConfiguredBusImpl configuredBus = new ConfiguredBusImpl(bus.getId(), bus.getOptionalName().orElse(null), bus.isFictitious(), this);
@@ -664,13 +669,10 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
             AbstractConnectable<?> connectable = oldTerminalExt.getConnectable();
 
             // create the new terminal with new type
-            TerminalExt newTerminalExt = null;
-            if (oldTerminalExt.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION) {
-                newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide())
-                        .setBus(infos.connected ? infos.connectableBusId() : null)
-                        .setConnectableBus(infos.connectableBusId())
-                        .build();
-            }
+            TerminalExt newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide())
+                    .setBus(infos.connected ? infos.connectableBusId() : null)
+                    .setConnectableBus(infos.connectableBusId())
+                    .build();
 
             connectable.replaceTerminal(oldTerminalExt, newTopologyModel, newTerminalExt, false);
         }

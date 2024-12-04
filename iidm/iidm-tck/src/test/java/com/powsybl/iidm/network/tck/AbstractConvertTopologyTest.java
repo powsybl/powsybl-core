@@ -17,8 +17,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -59,7 +58,11 @@ public abstract class AbstractConvertTopologyTest {
         assertEquals(List.of("VSC1", "LD2", "LD3", "LD4", "LCC1"), busesBbModel.get(1).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
         // only retained switches have been kept
         assertEquals(List.of("S1VL2_COUPLER"), vl.getBusBreakerView().getSwitchStream().map(Identifiable::getId).toList());
-        assertEquals(List.of(new RemovalNetworkEvent("S1VL2_BBS1_TWT_DISCONNECTOR", false),
+        assertEquals(List.of(new RemovalNetworkEvent("S1VL2_BBS1", false),
+                             new RemovalNetworkEvent("S1VL2_BBS1", true),
+                             new RemovalNetworkEvent("S1VL2_BBS2", false),
+                             new RemovalNetworkEvent("S1VL2_BBS2", true),
+                             new RemovalNetworkEvent("S1VL2_BBS1_TWT_DISCONNECTOR", false),
                              new RemovalNetworkEvent("S1VL2_BBS2_TWT_DISCONNECTOR", false),
                              new RemovalNetworkEvent("S1VL2_TWT_BREAKER", false),
                              new RemovalNetworkEvent("S1VL2_BBS1_VSC1_DISCONNECTOR", false),
@@ -128,6 +131,10 @@ public abstract class AbstractConvertTopologyTest {
 
         // check regulating terminal has been correctly updated
         assertEquals("S1VL2_0", gh1.getRegulatingTerminal().getBusBreakerView().getBus().getId());
+
+        // check busbar sections have been removed
+        assertNull(network.getBusbarSection("S1VL2_BBS1"));
+        assertNull(network.getBusbarSection("S1VL2_BBS2"));
     }
 
     @Test
@@ -143,7 +150,7 @@ public abstract class AbstractConvertTopologyTest {
         assertEquals(List.of("S1VL2_BBS2", "VSC1", "LD2", "LD3", "LD4", "LCC1"), busesNbModel.get(1).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
         assertEquals(List.of("GH2"), busesNbModel.get(2).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
         vl.convertToTopology(TopologyKind.BUS_BREAKER);
-        assertEquals(65, eventRecorder.getEvents().size());
+        assertEquals(69, eventRecorder.getEvents().size());
 
         var busesBbModel = vl.getBusBreakerView().getBusStream().toList();
         assertEquals(3, busesBbModel.size());
