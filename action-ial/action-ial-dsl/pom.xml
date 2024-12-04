@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-action-ial</artifactId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>6.6.0-RC1</version>
     </parent>
 
     <artifactId>powsybl-action-ial-dsl</artifactId>

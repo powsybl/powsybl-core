@@ -13,7 +13,7 @@
     <parent>
         <artifactId>powsybl-matpower</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>6.6.0-RC1</version>
     </parent>
 
     <artifactId>powsybl-matpower-converter</artifactId>
