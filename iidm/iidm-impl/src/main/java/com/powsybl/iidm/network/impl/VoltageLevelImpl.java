@@ -619,6 +619,89 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
         topologyModel.allocateVariantArrayElement(indexes, sourceIndex);
     }
 
+    private void convertToBusBreakerModel() {
+        BusBreakerTopologyModel newTopologyModel = new BusBreakerTopologyModel(this);
+
+        for (Bus bus : topologyModel.getBusBreakerView().getBuses()) {
+            // no notification, this is just a mutation of a calculation bus to a configured bus
+            ConfiguredBusImpl configuredBus = new ConfiguredBusImpl(bus.getId(), bus.getOptionalName().orElse(null), bus.isFictitious(), this);
+            newTopologyModel.addBus(configuredBus);
+        }
+
+        // transfer retained switches
+        for (Switch sw : topologyModel.getBusBreakerView().getSwitchStream().toList()) {
+            String busId1 = topologyModel.getBusBreakerView().getBus1(sw.getId()).getId();
+            String busId2 = topologyModel.getBusBreakerView().getBus2(sw.getId()).getId();
+            // no notification, this is just a transfer
+            ((NodeBreakerTopologyModel) topologyModel).removeSwitchFromTopology(sw.getId(), false);
+            newTopologyModel.addSwitchToTopology((SwitchImpl) sw, busId1, busId2);
+        }
+
+        // reconnect all connectable to new topology model
+        // first store all bus/breaker topological infos associated to this terminal because we will start moving
+        // terminal from old mode to new one, it will modify the old topology model
+        record TopologyModelInfos(TerminalExt terminal, String connectableBusId, boolean connected) {
+        }
+        List<TopologyModelInfos> oldTopologyModelInfos = new ArrayList<>();
+        for (Terminal oldTerminal : topologyModel.getTerminals()) {
+            Bus connectableBus = oldTerminal.getBusBreakerView().getConnectableBus();
+            String connectableBusId = connectableBus == null ? null : connectableBus.getId();
+            boolean connected = oldTerminal.isConnected();
+            oldTopologyModelInfos.add(new TopologyModelInfos((TerminalExt) oldTerminal, connectableBusId, connected));
+        }
+
+        for (var infos : oldTopologyModelInfos) {
+            TerminalExt oldTerminalExt = infos.terminal();
+            String connectableBusId = infos.connectableBusId();
+            boolean connected = infos.connected;
+
+            // if there is no way to find a connectable bus, remove the connectable
+            // an alternative would be to connect them all to a new trash configured bus
+            if (connectableBusId == null) {
+                // here keep the removal notification
+                oldTerminalExt.getConnectable().remove();
+                continue;
+            }
+
+            AbstractConnectable<?> connectable = oldTerminalExt.getConnectable();
+
+            // create the new terminal with new type
+            TerminalExt newTerminalExt = null;
+            if (oldTerminalExt.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION) {
+                newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide())
+                        .setBus(connected ? connectableBusId : null)
+                        .setConnectableBus(connectableBusId)
+                        .build();
+            }
+
+            // first attach new terminal to connectable and to new topology model
+            if (newTerminalExt != null) {
+                newTerminalExt.setConnectable(connectable);
+                newTopologyModel.attach(newTerminalExt, false);
+            }
+
+            // then we can detach the old terminal
+            TopologyPoint oldTopologyPoint = oldTerminalExt.getTopologyPoint();
+            topologyModel.detach(oldTerminalExt);
+
+            // replace the old terminal by the new terminal in the connectable
+            connectable.replaceTerminal(oldTerminalExt, oldTopologyPoint, newTerminalExt, false);
+
+            // also update regulating points terminal
+            for (Referrer<Terminal> referrer : oldTerminalExt.getReferrerManager().getReferrers()) {
+                referrer.onReferencedReplacement(oldTerminalExt, newTerminalExt);
+            }
+        }
+
+        // also here keep the notification for remaining switches removal
+        topologyModel.removeTopology();
+
+        TopologyKind oldTopologyKind = topologyModel.getTopologyKind();
+        topologyModel = newTopologyModel;
+
+        notifyUpdate("topologyKind", oldTopologyKind, TopologyKind.BUS_BREAKER);
+    }
+
     @Override
     public void convertToTopology(TopologyKind newTopologyKind) {
         Objects.requireNonNull(newTopologyKind);
@@ -626,85 +709,7 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
             if (newTopologyKind == TopologyKind.NODE_BREAKER) {
                 throw new PowsyblException("Topology model conversion from bus/breaker to node/breaker not yet supported");
             } else if (newTopologyKind == TopologyKind.BUS_BREAKER) {
-                BusBreakerTopologyModel newTopologyModel = new BusBreakerTopologyModel(this);
-
-                for (Bus bus : topologyModel.getBusBreakerView().getBuses()) {
-                    // no notification, this is just a mutation of a calculation bus to a configured bus
-                    ConfiguredBusImpl configuredBus = new ConfiguredBusImpl(bus.getId(), bus.getOptionalName().orElse(null), bus.isFictitious(), this);
-                    newTopologyModel.addBus(configuredBus);
-                }
-
-                // transfer retained switches
-                for (Switch sw : topologyModel.getBusBreakerView().getSwitchStream().toList()) {
-                    String busId1 = topologyModel.getBusBreakerView().getBus1(sw.getId()).getId();
-                    String busId2 = topologyModel.getBusBreakerView().getBus2(sw.getId()).getId();
-                    // no notification, this is just a transfer
-                    ((NodeBreakerTopologyModel) topologyModel).removeSwitchFromTopology(sw.getId(), false);
-                    newTopologyModel.addSwitchToTopology((SwitchImpl) sw, busId1, busId2);
-                }
-
-                // reconnect all connectable to new topology model
-                // first store all bus/breaker topological infos associated to this terminal because we will start moving
-                // terminal from old mode to new one, it will modify the old topology model
-                record TopologyModelInfos(TerminalExt terminal, String connectableBusId, boolean connected) {
-                }
-                List<TopologyModelInfos> oldTopologyModelInfos = new ArrayList<>();
-                for (Terminal oldTerminal : topologyModel.getTerminals()) {
-                    Bus connectableBus = oldTerminal.getBusBreakerView().getConnectableBus();
-                    String connectableBusId = connectableBus == null ? null : connectableBus.getId();
-                    boolean connected = oldTerminal.isConnected();
-                    oldTopologyModelInfos.add(new TopologyModelInfos((TerminalExt) oldTerminal, connectableBusId, connected));
-                }
-
-                for (var infos : oldTopologyModelInfos) {
-                    TerminalExt oldTerminalExt = infos.terminal();
-                    String connectableBusId = infos.connectableBusId();
-                    boolean connected = infos.connected;
-
-                    // if there is no way to find a connectable bus, remove the connectable
-                    // an alternative would be to connect them all to a new trash configured bus
-                    if (connectableBusId != null) {
-                        AbstractConnectable<?> connectable = oldTerminalExt.getConnectable();
-
-                        // create the new terminal with new type
-                        TerminalExt newTerminalExt = null;
-                        if (oldTerminalExt.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION) {
-                            newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide())
-                                    .setBus(connected ? connectableBusId : null)
-                                    .setConnectableBus(connectableBusId)
-                                    .build();
-                        }
-
-                        // first attach new terminal to connectable and to new topology model
-                        if (newTerminalExt != null) {
-                            newTerminalExt.setConnectable(connectable);
-                            newTopologyModel.attach(newTerminalExt, false);
-                        }
-
-                        // then we can detach the old terminal
-                        TopologyPoint oldTopologyPoint = oldTerminalExt.getTopologyPoint();
-                        topologyModel.detach(oldTerminalExt);
-
-                        // replace the old terminal by the new terminal in the connectable
-                        connectable.replaceTerminal(oldTerminalExt, oldTopologyPoint, newTerminalExt, false);
-
-                        // also update regulating points terminal
-                        for (Referrer<Terminal> referrer : oldTerminalExt.getReferrerManager().getReferrers()) {
-                            referrer.onReferencedReplacement(oldTerminalExt, newTerminalExt);
-                        }
-                    } else {
-                        // here keep the removal notification
-                        oldTerminalExt.getConnectable().remove();
-                    }
-                }
-
-                // also here keep the notification for remaining switches removal
-                topologyModel.removeTopology();
-
-                TopologyKind oldTopologyKind = topologyModel.getTopologyKind();
-                topologyModel = newTopologyModel;
-
-                notifyUpdate("topologyKind", oldTopologyKind, newTopologyKind);
+                convertToBusBreakerModel();
             }
         }
     }
