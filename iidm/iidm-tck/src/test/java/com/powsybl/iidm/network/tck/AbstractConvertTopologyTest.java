@@ -164,4 +164,18 @@ public abstract class AbstractConvertTopologyTest {
         // only retained switches have been kept
         assertEquals(List.of("S1VL2_COUPLER"), vl.getBusBreakerView().getSwitchStream().map(Identifiable::getId).toList());
     }
+
+    @Test
+    void testNodeBreakerToBusBreakerWithArea() {
+        var gh2 = network.getGenerator("GH2");
+        network.newArea()
+                .setId("area1")
+                .setAreaType("fake")
+                .addAreaBoundary(gh2.getTerminal(), true)
+                .add();
+        var area1 = network.getArea("area1").getAreaBoundaryStream().findFirst().orElseThrow();
+        assertEquals(gh2.getTerminal(), area1.getTerminal().orElse(null));
+        vl.convertToTopology(TopologyKind.BUS_BREAKER);
+        assertEquals(gh2.getTerminal(), area1.getTerminal().orElse(null));
+    }
 }
