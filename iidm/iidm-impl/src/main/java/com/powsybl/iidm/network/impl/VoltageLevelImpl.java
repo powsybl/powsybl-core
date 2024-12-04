@@ -652,12 +652,10 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
 
         for (var infos : oldTopologyModelInfos) {
             TerminalExt oldTerminalExt = infos.terminal();
-            String connectableBusId = infos.connectableBusId();
-            boolean connected = infos.connected;
 
             // if there is no way to find a connectable bus, remove the connectable
             // an alternative would be to connect them all to a new trash configured bus
-            if (connectableBusId == null) {
+            if (infos.connectableBusId() == null) {
                 // here keep the removal notification
                 oldTerminalExt.getConnectable().remove();
                 continue;
@@ -669,28 +667,12 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
             TerminalExt newTerminalExt = null;
             if (oldTerminalExt.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION) {
                 newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide())
-                        .setBus(connected ? connectableBusId : null)
-                        .setConnectableBus(connectableBusId)
+                        .setBus(infos.connected ? infos.connectableBusId() : null)
+                        .setConnectableBus(infos.connectableBusId())
                         .build();
             }
 
-            // first attach new terminal to connectable and to new topology model
-            if (newTerminalExt != null) {
-                newTerminalExt.setConnectable(connectable);
-                newTopologyModel.attach(newTerminalExt, false);
-            }
-
-            // then we can detach the old terminal
-            TopologyPoint oldTopologyPoint = oldTerminalExt.getTopologyPoint();
-            topologyModel.detach(oldTerminalExt);
-
-            // replace the old terminal by the new terminal in the connectable
-            connectable.replaceTerminal(oldTerminalExt, oldTopologyPoint, newTerminalExt, false);
-
-            // also update regulating points terminal
-            for (Referrer<Terminal> referrer : oldTerminalExt.getReferrerManager().getReferrers()) {
-                referrer.onReferencedReplacement(oldTerminalExt, newTerminalExt);
-            }
+            connectable.replaceTerminal(oldTerminalExt, newTopologyModel, newTerminalExt, false);
         }
 
         // also here keep the notification for remaining switches removal
