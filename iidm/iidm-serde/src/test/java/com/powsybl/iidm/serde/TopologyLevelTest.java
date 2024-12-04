@@ -43,13 +43,13 @@ class TopologyLevelTest extends AbstractIidmSerDeTest {
 
     private void testConversion(Network network) throws IOException {
 
-        ExportOptions options = new ExportOptions();
-        testWriteVersionedXml(network, options.setTopologyLevel(TopologyLevel.NODE_BREAKER), "fictitiousSwitchRef.xml", CURRENT_IIDM_VERSION);
+        testWriteXml(network, "/fictitiousSwitchRef.xml");
 
         network.getSwitchStream().forEach(sw -> sw.setRetained(false));
         network.getSwitch("BJ").setRetained(true);
 
-        testWriteVersionedXml(network, options.setTopologyLevel(TopologyLevel.BUS_BREAKER), "fictitiousSwitchRef-bbk.xml", CURRENT_IIDM_VERSION);
-        testWriteVersionedXml(network, options.setTopologyLevel(TopologyLevel.BUS_BRANCH), "fictitiousSwitchRef-bbr.xml", CURRENT_IIDM_VERSION);
+        ExportOptions options = new ExportOptions();
+        testWriteXml(network, options.setTopologyLevel(TopologyLevel.BUS_BREAKER), "/fictitiousSwitchRef-bbk.xml");
+        testWriteXml(network, options.setTopologyLevel(TopologyLevel.BUS_BRANCH), "/fictitiousSwitchRef-bbr.xml");
     }
 }
