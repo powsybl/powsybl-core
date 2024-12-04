@@ -41,7 +41,7 @@ class BusTerminal extends AbstractTerminal {
             if (removed) {
                 throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
             }
-            getConnectable().move(BusTerminal.this, getTopologyPoint(), node, voltageLevelId);
+            getConnectable().move(BusTerminal.this, node, voltageLevelId);
         }
     };
 
@@ -87,7 +87,7 @@ class BusTerminal extends AbstractTerminal {
             if (removed) {
                 throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
             }
-            getConnectable().move(BusTerminal.this, getTopologyPoint(), busId, connected);
+            getConnectable().move(BusTerminal.this, busId, connected);
         }
 
     };
