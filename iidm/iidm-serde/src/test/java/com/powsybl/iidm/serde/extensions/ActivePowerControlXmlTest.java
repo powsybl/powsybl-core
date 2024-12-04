@@ -51,7 +51,7 @@ class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
     void testTargetPLimits() throws IOException {
         network.getGenerator("GEN").getExtension(ActivePowerControl.class).setMaxTargetP(800.);
         network.getBattery("BAT").getExtension(ActivePowerControl.class).setMinTargetP(10.);
-        Network network2 = allFormatsRoundTripTest(network, "/activePowerControlWithLimitRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "/activePowerControlWithLimitRoundTripRef.xml");
 
         Generator gen2 = network2.getGenerator("GEN");
         assertNotNull(gen2);
