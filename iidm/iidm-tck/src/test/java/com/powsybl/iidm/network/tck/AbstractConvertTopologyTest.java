@@ -7,9 +7,11 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.events.RemovalNetworkEvent;
 import com.powsybl.iidm.network.events.UpdateNetworkEvent;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +39,14 @@ public abstract class AbstractConvertTopologyTest {
         }
         eventRecorder = new NetworkEventRecorder();
         network.addListener(eventRecorder);
+    }
+
+    @Test
+    void testBusBreakerToNodeBreaker() {
+        Network busBreakerNetwork = EurostagTutorialExample1Factory.create();
+        VoltageLevel vlgen = busBreakerNetwork.getVoltageLevel("VLGEN");
+        var e = assertThrows(PowsyblException.class, () -> vlgen.convertToTopology(TopologyKind.NODE_BREAKER));
+        assertEquals("Topology model conversion from bus/breaker to node/breaker not yet supported", e.getMessage());
     }
 
     @Test
