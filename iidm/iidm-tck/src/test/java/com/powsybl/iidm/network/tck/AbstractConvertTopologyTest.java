@@ -168,28 +168,14 @@ public abstract class AbstractConvertTopologyTest {
     @Test
     void testNodeBreakerToBusBreakerWithArea() {
         var gh2 = network.getGenerator("GH2");
-        network.getGenerator("GH1").remove();
-        var dl1 = vl.newDanglingLine()
-                .setId("dl1")
-                .setNode(7)
-                .setP0(0)
-                .setQ0(0)
-                .setR(1)
-                .setX(1)
-                .add();
         network.newArea()
                 .setId("area1")
                 .setAreaType("fake")
                 .addAreaBoundary(gh2.getTerminal(), true)
-                .addAreaBoundary(dl1.getBoundary(), true)
                 .add();
-        var areas = network.getArea("area1").getAreaBoundaryStream().toList();
-        var area1 = areas.get(0);
-        var area2 = areas.get(1);
-        assertEquals(gh2.getTerminal(), area1.getTerminal().orElse(null));
-        assertEquals(dl1.getBoundary(), area2.getBoundary().orElse(null));
+        var boundary = network.getArea("area1").getAreaBoundaryStream().findFirst().orElseThrow();
+        assertEquals(gh2.getTerminal(), boundary.getTerminal().orElse(null));
         vl.convertToTopology(TopologyKind.BUS_BREAKER);
-        assertEquals(gh2.getTerminal(), area1.getTerminal().orElse(null));
-        assertEquals(dl1.getBoundary(), area2.getBoundary().orElse(null));
+        assertEquals(gh2.getTerminal(), boundary.getTerminal().orElse(null));
     }
 }

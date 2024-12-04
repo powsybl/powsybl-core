@@ -76,12 +76,4 @@ public class AreaBoundaryImpl implements AreaBoundary {
             terminal = newTerminal;
         }
     }
-
-    void replaceBoundary(Boundary oldBoundary, Boundary newBoundary) {
-        Objects.requireNonNull(oldBoundary);
-        Objects.requireNonNull(newBoundary);
-        if (boundary == oldBoundary) {
-            boundary = newBoundary;
-        }
-    }
 }

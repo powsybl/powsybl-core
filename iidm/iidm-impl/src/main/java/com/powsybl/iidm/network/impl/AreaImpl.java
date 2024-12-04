@@ -56,9 +56,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
         @Override
         public void onReferencedReplacement(Boundary oldBoundary, Boundary newBoundary) {
-            for (AreaBoundary areaBoundary : areaBoundaries) {
-                ((AreaBoundaryImpl) areaBoundary).replaceBoundary(oldBoundary, newBoundary);
-            }
+            // cannot happen
         }
     };
 

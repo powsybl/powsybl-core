@@ -180,23 +180,26 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     void replaceTerminal(TerminalExt oldTerminal, TopologyPoint oldTopologyPoint, TerminalExt newTerminalExt, boolean notify) {
         Objects.requireNonNull(oldTerminal);
+        Objects.requireNonNull(newTerminalExt);
         int iSide = terminals.indexOf(oldTerminal);
         if (iSide == -1) {
             throw new PowsyblException("Terminal to replace not found");
         }
         terminals.set(iSide, newTerminalExt);
 
-        if (newTerminalExt != null && notify) {
+        if (notify) {
             notifyUpdate("terminal" + (iSide + 1), oldTopologyPoint, newTerminalExt.getTopologyPoint());
         }
     }
 
     void replaceTerminal(TerminalExt oldTerminal, TopologyModel newTopologyModel, TerminalExt newTerminalExt, boolean notify) {
+        Objects.requireNonNull(oldTerminal);
+        Objects.requireNonNull(newTopologyModel);
+        Objects.requireNonNull(newTerminalExt);
+
         // first, attach new terminal to connectable and to voltage level of destination, to ensure that the new terminal is valid
-        if (newTerminalExt != null) {
-            newTerminalExt.setConnectable(this);
-            newTopologyModel.attach(newTerminalExt, false);
-        }
+        newTerminalExt.setConnectable(this);
+        newTopologyModel.attach(newTerminalExt, false);
 
         // then we can detach the old terminal, as we now know that the new terminal is valid
         TopologyPoint oldTopologyPoint = oldTerminal.getTopologyPoint();
