@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.events.RemovalNetworkEvent;
 import com.powsybl.iidm.network.events.UpdateNetworkEvent;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -187,5 +188,15 @@ public abstract class AbstractConvertTopologyTest {
         assertEquals(gh2.getTerminal(), boundary.getTerminal().orElse(null));
         vl.convertToTopology(TopologyKind.BUS_BREAKER);
         assertEquals(gh2.getTerminal(), boundary.getTerminal().orElse(null));
+    }
+
+    @Test
+    void testWithSlackTerminalExtension() {
+        var gh2 = network.getGenerator("GH2");
+        SlackTerminal.reset(gh2.getTerminal().getVoltageLevel(), gh2.getTerminal());
+        var slackTerminal = gh2.getTerminal().getVoltageLevel().getExtension(SlackTerminal.class);
+        assertEquals(gh2.getTerminal(), slackTerminal.getTerminal());
+        vl.convertToTopology(TopologyKind.BUS_BREAKER);
+        assertEquals(gh2.getTerminal(), slackTerminal.getTerminal());
     }
 }
