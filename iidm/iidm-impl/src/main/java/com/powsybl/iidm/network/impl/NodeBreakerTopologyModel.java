@@ -263,17 +263,20 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             if (!encountered[n]) {
                 final TIntArrayList nodes = new TIntArrayList(1);
                 nodes.add(n);
-                graph.traverse(n, TraversalType.DEPTH_FIRST, (n1, e, n2) -> {
+                Traverser traverser = (n1, e, n2) -> {
                     SwitchImpl aSwitch = graph.getEdgeObject(e);
                     if (aSwitch != null && terminate.test(aSwitch)) {
                         return TraverseResult.TERMINATE_PATH;
                     }
 
                     if (!encountered[n2]) {
+                        // We need to check this as the traverser might be called twice with the same n2 but with different edges.
+                        // Note that the "encountered" array is used and maintained inside graph::traverse method, hence we should not update it.
                         nodes.add(n2);
                     }
                     return TraverseResult.CONTINUE;
-                }, encountered);
+                };
+                graph.traverse(n, TraversalType.DEPTH_FIRST, traverser, encountered);
 
                 // check that the component is a bus
                 String busId = Identifiables.getUniqueId(NAMING_STRATEGY.getId(voltageLevel, nodes), getNetwork().getIndex()::contains);
