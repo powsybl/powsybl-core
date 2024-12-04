@@ -402,9 +402,9 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedTransformerEnds() {
+    public PropertyBags transformerEnds(String tableId) {
         // FakeCgmesModeldoes not provide grouped transformer ends
-        return Collections.emptyMap();
+        return new PropertyBags();
     }
 
     @Override
@@ -413,8 +413,42 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags ratioTapChangers(String transformerId) {
+        return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags ratioTapChangerTablePoints() {
+        // FakeCgmesModel does not implement ratio tap changer tables
+        return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags ratioTapChangerTablePoints(String tableId) {
+        // FakeCgmesModel does not implement ratio tap changer tables
+        return new PropertyBags();
+    }
+
+    @Override
     public PropertyBags phaseTapChangers() {
         return phaseTapChangers;
+    }
+
+    @Override
+    public PropertyBags phaseTapChangers(String transformerId) {
+        return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags phaseTapChangerTablePoints() {
+        // FakeCgmesModel does not implement phase tap changer tables
+        return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags phaseTapChangerTablePoints(String tableId) {
+        // FakeCgmesModel does not implement phase tap changer tables
+        return new PropertyBags();
     }
 
     @Override
@@ -489,43 +523,15 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags reactiveCapabilityCurveData() {
+    public PropertyBags curveData() {
         // FakeCgmesModel does not implement reactive capability curve
         return new PropertyBags();
     }
 
     @Override
-    public PropertyBags ratioTapChangerTablesPoints() {
-        // FakeCgmesModel does not implement ratio tap changer tables
+    public PropertyBags curveData(String curveId) {
+        // FakeCgmesModel does not implement reactive capability curve
         return new PropertyBags();
-    }
-
-    @Override
-    public PropertyBags phaseTapChangerTablesPoints() {
-        // FakeCgmesModel does not implement phase tap changer tables
-        return new PropertyBags();
-    }
-
-    @Override
-    public PropertyBags ratioTapChangerTable(String tableId) {
-        // FakeCgmesModel does not implement ratio tap changer tables
-        return new PropertyBags();
-    }
-
-    @Override
-    public PropertyBags phaseTapChangerTable(String tableId) {
-        // FakeCgmesModel does not implement phase tap changer tables
-        return new PropertyBags();
-    }
-
-    @Override
-    public List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
-        return Collections.emptyList();
     }
 
     @Override
