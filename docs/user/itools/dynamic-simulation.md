@@ -97,4 +97,4 @@ dynamic simulation results:
 ```
 
 ## See also
-- [List dynamic simulation models with an iTools command](../../user/itools/list-dynamic-simulation-models.md): Learn how to load a list of all dynamic simulation models from the command line.
+- [List dynamic simulation models with an iTools command](../../user/itools/list-dynamic-simulation-models.md): learn how to load a list of all dynamic simulation models from the command line.

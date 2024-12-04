@@ -1,6 +1,6 @@
 # iTools list-dynamic-simulation-models
 
-The `list-dynamic-simulation-models` command list all models used by the [time domain](../../simulation/dynamic/index.md) simulation for a given provider.
+The `list-dynamic-simulation-models` command lists all models used by the [time domain](../../simulation/dynamic/index.md) simulation for a given provider.
 
 ## Usage
 ```
@@ -19,11 +19,10 @@ Available arguments are:
 
 ### Optional options
 
-`--dynamic-models`  
-This option allows to display dynamic models only. (by default all models will be displayed)
+By default, all models are displayed, but you can use one of the following options to display specific models:
+- `--dynamic-models`: allows to display dynamic models only.
 
-`--event-models`  
-This option allows to display event models only. (by default all models will be displayed)
+- `--event-models`: allows to display event models only.
 
 ## See also
-- [Run a dynamic simulation through an iTools command](../../user/itools/dynamic-simulation.md): Learn how to perform a dynamic simulation from the command line.
+- [Run a dynamic simulation through an iTools command](../../user/itools/dynamic-simulation.md): learn how to perform a dynamic simulation from the command line.

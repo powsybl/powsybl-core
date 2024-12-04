@@ -24,17 +24,17 @@ The inputs of a dynamic simulation are the following:
 
 (dynamic-models-mapping)=
 ### Dynamic models mapping
-Powsybl core implements dynamic models mapping through a groovy script. Note that the syntax of this script is specific to each simulator.
+The dynamic models may be provided through a groovy script thanks to the `GroovyDynamicModelsSupplier` provided in powsybl-dynamic-simulation-dsl artifact. Note that the syntax of this groovy script is specific to each simulator.
 See [Dynawo dynamic model mapping](inv:powsybldynawo:*:*#dynamic_simulation/dynamic-models-mapping) for Dynawo specific DSL and others mapping methods. 
 
 (event-models-mapping)=
 ### Event models mapping
-Powsybl core implements event models mapping through a groovy script. Note that the syntax of this script is specific to each simulator.
+The event models may be provided through a groovy script thanks to the `GroovyEventModelsSupplier` provided in powsybl-dynamic-simulation-dsl artifact. Note that the syntax of this groovy script is specific to each simulator.
 See [Dynawo event model DSL](inv:powsybldynawo:*:*#dynamic_simulation/event-models-mapping) for Dynawo specific DSL and others mapping methods.
 
 (output-variables-configuration)=
 ### Output variables configuration
-Powsybl core implements output variables configuration mapping through a groovy script. Note that the syntax of this script is specific to each simulator.
+The output variables configuration may be provided through a groovy script thanks to the `GroovyOutputVariablesSupplier` provided in powsybl-dynamic-simulation-dsl artifact. Note that the syntax of this groovy script is specific to each simulator.
 See [Dynawo output variables DSL](inv:powsybldynawo:*:*#dynamic_simulation/output-variables-mapping) for Dynawo specific DSL and others mapping methods.
 
 ## Outputs
@@ -52,5 +52,5 @@ The outputs of a dynamic simulation are:
 For the moment, the only available implementation is provided by powsybl-dynawo, which links PowSyBl with [Dynaωo](http://dynawo.org) open source suite.
 
 ## Going further
-- [Run a dynamic simulation through an iTools command](../../user/itools/dynamic-simulation.md): Learn how to perform a dynamic simulation from the command line
-- [List dynamic simulation models with an iTools command](../../user/itools/list-dynamic-simulation-models.md): Learn how to load a list of all dynamic simulation models from the command line
+- [Run a dynamic simulation through an iTools command](../../user/itools/dynamic-simulation.md): learn how to perform a dynamic simulation from the command line
+- [List dynamic simulation models with an iTools command](../../user/itools/list-dynamic-simulation-models.md): learn how to load a list of all dynamic simulation models from the command line
