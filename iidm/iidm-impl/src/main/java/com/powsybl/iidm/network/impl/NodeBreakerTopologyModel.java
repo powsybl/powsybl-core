@@ -269,7 +269,9 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                         return TraverseResult.TERMINATE_PATH;
                     }
 
-                    nodes.add(n2);
+                    if (!encountered[n2]) {
+                        nodes.add(n2);
+                    }
                     return TraverseResult.CONTINUE;
                 }, encountered);
 
