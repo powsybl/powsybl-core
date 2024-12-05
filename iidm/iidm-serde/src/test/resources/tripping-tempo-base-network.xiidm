@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:cp="http://www.powsybl.org/schema/iidm/ext/connectable_position/1_1" xmlns:ld="http://www.itesla_project.eu/schema/iidm/ext/load_detail/1_0" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="Network" caseDate="2024-01-01T00:00:00.000+02:00" forecastDistance="0" sourceFormat="NF" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="Substation" country="AO" tso="FictitiousTSO">
+        <iidm:voltageLevel id="VoltageLevel_1" nominalV="63.0" lowVoltageLimit="59.0" highVoltageLimit="68.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VoltageLevel1_bb_1" name="1" node="0"/>
+                <iidm:busbarSection id="VoltageLevel1_bb_2" name="2" node="1"/>
+                <iidm:switch id="Switch1_ID" name="switch_1" kind="BREAKER" retained="true" open="false" node1="10" node2="5"/>
+                <iidm:bus v="64.7908" angle="-0.04285" nodes="0,1,10"/>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VoltageLevel_2" nominalV="225.0" lowVoltageLimit="220.0" highVoltageLimit="245.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VoltageLevel_2_bb_1" name="1" node="0"/>
+                <iidm:switch id="Switch2_ID" name="switch_2" kind="BREAKER" retained="true" open="false" node1="0" node2="2"/>
+                <iidm:switch id="Switch3_ID" name="switch_3" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:bus v="240.3685" angle="2.2817" nodes="0,1,2"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:load id="load_1" loadType="FICTITIOUS" p0="-33.063" q0="-1.264" node="2" p="-33.063" q="-1.2649"/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="Transformer_1" r="0.161" x="5.1689" g="2.4421E-5" b="-2.250E-4" ratedU1="225.0" ratedU2="64.5" voltageLevelId1="VoltageLevel_2" node1="1" voltageLevelId2="VoltageLevel_1" node2="5" p1="33.0" q1="1.264" p2="-32.919" q2="1.019">
+            <iidm:ratioTapChanger regulating="false" lowTapPosition="0" tapPosition="2" loadTapChangingCapabilities="true">
+                <iidm:terminalRef id="Transformer_1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8695651"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8795074"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8888888"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8992805"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+</iidm:network>
