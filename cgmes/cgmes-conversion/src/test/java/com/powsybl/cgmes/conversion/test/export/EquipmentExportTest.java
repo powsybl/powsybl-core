@@ -69,6 +69,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     private Properties importParams;
 
+    @Override
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
@@ -174,13 +175,13 @@ class EquipmentExportTest extends AbstractSerDeTest {
         //  instead of an error logged and the tie flow ignored,
         //  the reimported network control area should contain one tie flow
         Network actual = exportImportNodeBreaker(network, dataSource);
-        CgmesControlArea actualCgmesControlArea = actual.getExtension(CgmesControlAreas.class).getCgmesControlArea("controlAreaId");
+        Area actualControlArea = actual.getArea("controlAreaId");
         boolean tieFlowsAtTieLinesAreSupported = false;
         if (tieFlowsAtTieLinesAreSupported) {
-            assertEquals(1, actualCgmesControlArea.getBoundaries().size());
-            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getDanglingLine().getId());
+            assertEquals(1, actualControlArea.getAreaBoundaryStream().count());
+            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualControlArea.getAreaBoundaries().iterator().next().getBoundary().get().getDanglingLine().getId());
         } else {
-            assertEquals(0, actualCgmesControlArea.getBoundaries().size());
+            assertNull(actualControlArea);
         }
     }
 
@@ -588,6 +589,9 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.CONFORM_LOAD), loadsCreatedFromOriginalClassCount(actual, CgmesNames.CONFORM_LOAD));
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.NONCONFORM_LOAD), loadsCreatedFromOriginalClassCount(actual, CgmesNames.NONCONFORM_LOAD));
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.STATION_SUPPLY), loadsCreatedFromOriginalClassCount(actual, CgmesNames.STATION_SUPPLY));
+
+        // Remove the default control area created in expected network during export
+        expected.getAreaStream().map(Area::getId).toList().forEach(a -> expected.getArea(a).remove());
 
         // Avoid comparing targetP and targetQ (reimport does not consider the SSH file);
         expected.getGenerators().forEach(expectedGenerator -> {
@@ -1697,7 +1701,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
         // Export original and only EQ
         ExportOptions exportOptions = new ExportOptions();
-        exportOptions.setExtensions(Collections.emptySet());
+        exportOptions.setExtensions(Set.of("cgmesControlAreas"));
         exportOptions.setSorted(true);
 
         Path expectedPath = tmpDir.resolve("expected.xml");
@@ -1833,6 +1837,9 @@ class EquipmentExportTest extends AbstractSerDeTest {
         });
         for (Load load : network.getLoads()) {
             load.setP0(0.0).setQ0(0.0);
+        }
+        for (Area area : network.getAreas()) {
+            area.setInterchangeTarget(0.0);
         }
 
         network.removeExtension(CgmesModelExtension.class);
