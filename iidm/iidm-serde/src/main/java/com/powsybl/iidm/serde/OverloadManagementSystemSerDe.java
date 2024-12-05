@@ -105,8 +105,11 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
         ThreeSides monitoredSide = context.getReader().readEnumAttribute("side", ThreeSides.class, ThreeSides.ONE);
         if (adder != null) {
             adder.setEnabled(enabled)
+                    .validateAfterCreation()
                     .setMonitoredElementId(monitoredElementId)
                     .setMonitoredElementSide(monitoredSide);
+
+            toApply.addAll(adder.getValidationChecks());
         }
     }
 
@@ -121,70 +124,76 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
             boolean openAction = context.getReader().readBooleanAttribute("openAction");
 
             switch (elementName) {
-                case BRANCH_TRIPPING_TAG -> readBranchTripping(adder, context, key, name, currentLimit, openAction);
-                case SWITCH_TRIPPING_TAG -> readSwitchTripping(adder, context, key, name, currentLimit, openAction);
-                case THREE_WINDINGS_TRANSFORMER_TRIPPING_TAG -> readThreeWindingsTransformerTripping(adder, context, key, name, currentLimit, openAction);
+                case BRANCH_TRIPPING_TAG -> readBranchTripping(adder, context, key, name, currentLimit, openAction, toApply);
+                case SWITCH_TRIPPING_TAG -> readSwitchTripping(adder, context, key, name, currentLimit, openAction, toApply);
+                case THREE_WINDINGS_TRANSFORMER_TRIPPING_TAG -> readThreeWindingsTransformerTripping(adder, context, key, name, currentLimit, openAction, toApply);
                 default -> readSubElement(elementName, id, toApply, context);
             }
         });
     }
 
     private static void readBranchTripping(OverloadManagementSystemAdder adder, NetworkDeserializerContext context,
-                                           String key, String name, double currentLimit, boolean openAction) {
+                                           String key, String name, double currentLimit, boolean openAction, List<Consumer<OverloadManagementSystem>> toApply) {
         String branchId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("branchId"));
         TwoSides sideToOperate = context.getReader().readEnumAttribute("side", TwoSides.class, TwoSides.ONE);
         context.getReader().readEndNode();
         if (adder != null) {
-            adder.newBranchTripping()
+            OverloadManagementSystemAdder.BranchTrippingAdder branchTrippingAdder = adder.newBranchTripping()
                     .setKey(key)
                     .setName(name)
                     .setCurrentLimit(currentLimit)
                     .setOpenAction(openAction)
                     .setBranchToOperateId(branchId)
-                    .setSideToOperate(sideToOperate)
-                    .add();
+                    .setSideToOperate(sideToOperate);
+            branchTrippingAdder.add();
+
+            toApply.addAll(branchTrippingAdder.getValidationChecks());
         }
     }
 
     private static void readSwitchTripping(OverloadManagementSystemAdder adder, NetworkDeserializerContext context,
-                                           String key, String name, double currentLimit, boolean openAction) {
+                                           String key, String name, double currentLimit, boolean openAction, List<Consumer<OverloadManagementSystem>> toApply) {
         String switchId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("switchId"));
         context.getReader().readEndNode();
         if (adder != null) {
-            adder.newSwitchTripping()
+            OverloadManagementSystemAdder.SwitchTrippingAdder switchTrippingAdder = adder.newSwitchTripping()
                     .setKey(key)
                     .setName(name)
                     .setCurrentLimit(currentLimit)
                     .setOpenAction(openAction)
-                    .setSwitchToOperateId(switchId)
-                    .add();
+                    .setSwitchToOperateId(switchId);
+            switchTrippingAdder.add();
+
+            toApply.addAll(switchTrippingAdder.getValidationChecks());
         }
     }
 
     private static void readThreeWindingsTransformerTripping(OverloadManagementSystemAdder adder, NetworkDeserializerContext context,
-                                                             String key, String name, double currentLimit, boolean openAction) {
+                                                             String key, String name, double currentLimit, boolean openAction, List<Consumer<OverloadManagementSystem>> toApply) {
         String twtId = context.getAnonymizer().deanonymizeString(
                 context.getReader().readStringAttribute("threeWindingsTransformerId"));
         ThreeSides sideToOperate = context.getReader().readEnumAttribute("side", ThreeSides.class, ThreeSides.ONE);
         context.getReader().readEndNode();
         if (adder != null) {
-            adder.newThreeWindingsTransformerTripping()
+            OverloadManagementSystemAdder.ThreeWindingsTransformerTrippingAdder threeWindingsTransformerTrippingAdder = adder.newThreeWindingsTransformerTripping()
                     .setKey(key)
                     .setName(name)
                     .setCurrentLimit(currentLimit)
                     .setOpenAction(openAction)
                     .setThreeWindingsTransformerToOperateId(twtId)
-                    .setSideToOperate(sideToOperate)
-                    .add();
+                    .setSideToOperate(sideToOperate);
+            threeWindingsTransformerTrippingAdder.add();
+
+            toApply.addAll(threeWindingsTransformerTrippingAdder.getValidationChecks());
         }
     }
 
     @Override
-    protected boolean postponeElementCreation() {
+    protected boolean postponeValidation() {
         // OverloadManagementSystems may reference other elements which are not in the same substation (for instance lines).
         // In that case, there's no guarantee that the other elements were previously read when deserializing the network.
         // This could lead to errors at the OverloadManagementSystem's creation.
-        // To avoid this, this latter is postponed.
+        // To avoid this, validation of exernal dependencies of the created overload management system is postponed.
         return true;
     }
 
