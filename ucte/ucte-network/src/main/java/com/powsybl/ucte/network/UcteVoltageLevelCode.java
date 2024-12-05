@@ -7,6 +7,9 @@
  */
 package com.powsybl.ucte.network;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -73,6 +76,21 @@ public enum UcteVoltageLevelCode {
             throw new IllegalArgumentException("'" + code + "' doesn't refer to a voltage level");
         }
         return UcteVoltageLevelCode.values()[code - '0'];
+    }
+
+    public static char voltageLevelCodeFromVoltage(double voltage) {
+        if (voltage < UcteVoltageLevelCode.VL_27.getVoltageLevel()) {
+            return '7';
+        }
+        if (voltage > UcteVoltageLevelCode.VL_750.getVoltageLevel()) {
+            return '0';
+        }
+
+        return Arrays.stream(UcteVoltageLevelCode.values())
+                .min(Comparator.comparingDouble(code ->
+                        Math.abs(voltage - code.getVoltageLevel())))
+                .map(code -> (char) ('0' + code.ordinal()))
+                .orElseThrow();
     }
 
     public static boolean isVoltageLevelCode(char character) {
