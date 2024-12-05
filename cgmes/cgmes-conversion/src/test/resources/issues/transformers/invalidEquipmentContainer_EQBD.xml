@@ -1,0 +1,19 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:EQBD_ModelID">
+    <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+    <md:Model.description>Invalid equipment container</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentBoundary/3/1</md:Model.profile>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentBoundaryOperation/3/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:ConnectivityNode rdf:ID="_CN_BOUNDARY">
+    <cim:IdentifiedObject.name>Connectivity node boundary</cim:IdentifiedObject.name>
+    <entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_TL"/>
+</cim:ConnectivityNode>
+<cim:Line rdf:ID="_TL">
+    <cim:IdentifiedObject.name>Tie Line</cim:IdentifiedObject.name>
+</cim:Line>
+</rdf:RDF>

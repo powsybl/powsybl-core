@@ -8,19 +8,18 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.Conversion.*;
 import com.powsybl.cgmes.conversion.PhaseAngleClock;
 import com.powsybl.cgmes.model.GridModelReference;
+import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import org.junit.jupiter.api.Test;
@@ -30,376 +29,311 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
 class TransformerConversionTest {
 
     private static final String EQUALS_LINE = "======================";
+    private static final String DIR = "/issues/transformers/";
 
     @Test
-    void microGridBaseCaseBExfmr2ShuntDefault() {
-        Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
-        assertTrue(ok);
-    }
-
-    @Test
-    void microGridBaseCaseBExfmr2ShuntEnd1() {
+    void t2wShuntEnd1Test() {
+        // All shunt admittances to ground (g, b) at end1 (before transmission impedance)
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END1);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
-        assertTrue(ok);
+        Network n = networkModel(twoWindingsTransformers(), config);
+
+        assertTrue(t2xCompareFlow(n, "T2W", -93.855301, -15.285520, 94.158074, 20.388478));
     }
 
     @Test
-    void microGridBaseCaseBExfmr2ShuntEnd2() {
+    void t2wShuntEnd2Test() {
+        // All shunt admittances to ground (g, b) at end2 (after transmission impedance)
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END2);
-        // Same result as End1, IIDM model and LoadFlowParameters does not allow this configuration
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
-        assertTrue(ok);
+        Network n = networkModel(twoWindingsTransformers(), config);
+
+        // Same result as end1, IIDM model and LoadFlowParameters don't allow this configuration
+        assertTrue(t2xCompareFlow(n, "T2W", -93.855301, -15.285520, 94.158074, 20.388478));
     }
 
     @Test
-    void microGridBaseCaseBExfmr2ShuntEnd1End2() {
+    void t2wShuntEnd1End2Test() {
+        // Shunt admittances to ground (g, b) at the end where they are defined in CGMES model
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END1_END2);
-        // Same result as End1, IIDM model and LoadFlowParameters does not allow this configuration
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
-        assertTrue(ok);
+        Network n = networkModel(twoWindingsTransformers(), config);
+
+        // Same result as end1, IIDM model and LoadFlowParameters don't allow this configuration
+        assertTrue(t2xCompareFlow(n, "T2W", -93.855301, -15.285520, 94.158074, 20.388478));
     }
 
     @Test
-    void microGridBaseCaseBExfmr2ShuntSplit() {
+    void t2wShuntSplitTest() {
+        // Split shunt admittances to ground (g, b) between end1 and end2.
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.SPLIT);
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.SPLIT);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.970891, -15.839366, 94.275697, 20.952066);
-        assertTrue(ok);
+        Network n = networkModel(twoWindingsTransformers(), config);
+
+        assertTrue(t2xCompareFlow(n, "T2W", -93.970891, -15.839366, 94.275697, 20.952066));
     }
 
     @Test
-    void microGridBaseCaseBExfmr2RatioPhaseDefault() {
-        Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
-        assertTrue(ok);
-        // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
-        assertTrue(ok);
-    }
-
-    @Test
-    void microGridBaseCaseBExfmr2RatioPhaseEnd1() {
+    void t2wRatioPhaseEnd1Test() {
+        // All tapChangers (ratioTapChanger and phaseTapChanger) are considered at end1 (before transmission impedance)
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END1);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -91.807775, 98.389959, 92.184500, -89.747219);
-        assertTrue(ok);
-        // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
-        assertTrue(ok);
+        Network n = networkModel(twoWindingsTransformers(), config);
+
+        assertTrue(t2xCompareFlow(n, "T2W", -91.807775, 98.389959, 92.184500, -89.747219));
+        assertTrue(t2xCompareFlow(n, "PST", 927.034612, -339.274880, -911.542354, 422.345850));
     }
 
     @Test
-    void microGridBaseCaseBExfmr2RatioPhaseEnd2() {
+    void t2wRatioPhaseEnd2Test() {
+        // All tapChangers (ratioTapChanger and phaseTapChanger) are considered at end2 (after transmission impedance)
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END2);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
-        assertTrue(ok);
-        // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 58.877292, -201.626411, -58.176878, 205.382102);
-        assertTrue(ok);
+        Network n = networkModel(twoWindingsTransformers(), config);
+
+        assertTrue(t2xCompareFlow(n, "T2W", -93.855301, -15.285520, 94.158074, 20.388478));
+        assertTrue(t2xCompareFlow(n, "PST", 58.877292, -201.626411, -58.176878, 205.382102));
     }
 
     @Test
-    void microGridBaseCaseBExfmr2RatioPhaseEnd1End2() {
+    void t2wRatioPhaseEnd1End2Test() {
+        // TapChangers (ratioTapChanger and phaseTapChanger) are considered at the end where they are defined in CGMES
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END1_END2);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
-        assertTrue(ok);
-        // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
-        assertTrue(ok);
+        Network n = networkModel(twoWindingsTransformers(), config);
+
+        assertTrue(t2xCompareFlow(n, "T2W", -93.855301, -15.285520, 94.158074, 20.388478));
+        assertTrue(t2xCompareFlow(n, "PST", 927.034612, -339.274880, -911.542354, 422.345850));
     }
 
     @Test
-    void microGridBaseCaseBExfmr2RatioPhaseX() {
+    void t2wRatioPhaseXTest() {
+        // If x1 == 0 all tapChangers (ratioTapChanger and phaseTapChanger) are considered at the end1
+        // otherwise they are considered at end2
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.X);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
-        assertTrue(ok);
-        // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 58.877292, -201.626411, -58.176878, 205.382102);
-        assertTrue(ok);
+        Network n = networkModel(twoWindingsTransformers(), config);
+
+        assertTrue(t2xCompareFlow(n, "T2W", -93.855301, -15.285520, 94.158074, 20.388478));
+        assertTrue(t2xCompareFlow(n, "PST", 58.877292, -201.626411, -58.176878, 205.382102));
     }
 
     @Test
-    void microGridBaseCaseBExfmr2Ratio0Default() {
-        Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
-        assertTrue(ok);
-        // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
-        assertTrue(ok);
-    }
-
-    @Test
-    void microGridBaseCaseBExfmr2Ratio0End1() {
+    void t2wRatio0End1Test() {
+        // Structural ratio always at end1 (before transmission impedance)
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.END1);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -0.849849, -0.138409, 0.852591, 0.184615);
-        assertTrue(ok);
-        // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 70.106993, -25.657663, -68.935391, 31.939905);
-        assertTrue(ok);
+        Network n = networkModel(twoWindingsTransformers(), config);
+
+        assertTrue(t2xCompareFlow(n, "T2W", -0.849849, -0.138409, 0.852591, 0.184615));
+        assertTrue(t2xCompareFlow(n, "PST", 70.106993, -25.657663, -68.935391, 31.939905));
     }
 
     @Test
-    void microGridBaseCaseBExfmr2Ratio0End2() {
+    void t2wRatio0End2Test() {
+        // Structural ratio always at end2 (after transmission impedance)
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.END2);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
-        assertTrue(ok);
-        // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
-        assertTrue(ok);
+        Network n = networkModel(twoWindingsTransformers(), config);
+
+        assertTrue(t2xCompareFlow(n, "T2W", -93.855301, -15.285520, 94.158074, 20.388478));
+        assertTrue(t2xCompareFlow(n, "PST", 927.034612, -339.274880, -911.542354, 422.345850));
     }
 
     @Test
-    void microGridBaseCaseBExfmr2Ratio0X() {
+    void t2wRatio0XTest() {
+        // If x1 == 0 structural ratio at end1, otherwise at end2
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.X);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
-        assertTrue(ok);
-        // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
-        assertTrue(ok);
-    }
+        Network n = networkModel(twoWindingsTransformers(), config);
 
-    /**
-     * Default test for:
-     * <ul>
-     *     <li>microGridBaseCaseBExfmr3Shunt</ul>
-     *     <li>microGridBaseCaseBExfmr3RatioPhase</ul>
-     *     <li>microGridBaseCaseBExfmr3Ratio0</ul>
-     * </ul>
-     */
-    @Test
-    void microGridBaseCaseDefault() {
-        Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
+        assertTrue(t2xCompareFlow(n, "T2W", -93.855301, -15.285520, 94.158074, 20.388478));
+        assertTrue(t2xCompareFlow(n, "PST", 927.034612, -339.274880, -911.542354, 422.345850));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3ShuntNetworkSide() {
+    void t3wShuntNetworkSideTest() {
+        // Shunt admittances to ground at the network side (end1 of the leg)
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3ShuntStarBusSide() {
+    void t3wShuntStarBusSideTest() {
+        // Shunt admittances to ground at the start bus side (end2 of the leg)
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.STAR_BUS_SIDE);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3ShuntSplit() {
+    void t3wShuntSplitTest() {
+        // Split shunt admittances to ground between two ends of the leg
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.SPLIT);
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.SPLIT);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.231950, 2.876479, -216.194348, -85.558437, 117.981856, 92.439531);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", 99.231950, 2.876479, -216.194348, -85.558437, 117.981856, 92.439531));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3RatioPhaseNetworkSide() {
+    void t3wRatioPhaseNetworkSideTest() {
+        // All tapChangers (ratioTapChanger and phaseTapChanger) at the network side
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3RatioPhaseStarBusSide() {
+    void t3wRatioPhaseStarBusSideTest() {
+        // All tapChangers (ratioTapChanger and phaseTapChanger) at the star bus side
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative.STAR_BUS_SIDE);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0StarBusSide() {
+    void t3wRatio0StarBusSideTest() {
+        // Structural ratio at the star bus side of all legs and RatedU0 = RatedU1
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0NetworkSide() {
+    void t3wRatio0NetworkSideTest() {
+        // Structural ratio at the network side of all legs. RatedU0 = 1 kv
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.NETWORK_SIDE);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", -0.000166, -0.000842, -0.006802, -0.004135, 0.006989, 0.005353);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", -0.000166, -0.000842, -0.006802, -0.004135, 0.006989, 0.005353));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0End1() {
+    void t3wRatio0End1Test() {
+        // Structural ratio at the network side of legs 2 and 3. RatedU0 = RatedU1
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END1);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", -26.608872, -134.702971, -1088.277421, -661.570093, 1118.294368, 856.437794);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", -26.608872, -134.702971, -1088.277421, -661.570093, 1118.294368, 856.437794));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0End2() {
+    void t3wRatio0End2Test() {
+        // Structural ratio at the network side of legs 1 and 3. RatedU0 = RatedU2
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END2);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", -8.049184, -40.747649, -329.203920, -200.124953, 338.284046, 259.072433);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", -8.049184, -40.747649, -329.203920, -200.124953, 338.284046, 259.072433));
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0End3() {
+    void t3wRatio0End3Test() {
+        // Structural ratio at the network side of legs 1 and 2. RatedU0 = RatedU2
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END3);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
+        Network n = networkModel(threeWindingsTransformer(), config);
 
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", -0.073341, -0.371275, -2.999565, -1.823453, 3.082299, 2.360557);
-        assertTrue(ok);
+        assertTrue(t3xCompareFlow(n, "T3W", -0.073341, -0.371275, -2.999565, -1.823453, 3.082299, 2.360557));
     }
 
     @Test
-    void miniBusBranchPhaseAngleClock() {
-        Conversion.Config config = new Conversion.Config();
-        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new PhaseAngleClock());
+    void phaseAngleClockTest() {
+        // A 2w- and a 3w-transformer with non-null phase angle clock value on respectively 2nd and 3rd winding
+        Network n = networkModel(phaseAngleClock("phaseAngleClock_EQ.xml"), new PhaseAngleClock());
 
-        Network n = networkModel(CgmesConformity1Catalog.miniBusBranch(), config, postProcessors);
+        // Phase angle clock values have been correctly read
+        assertEquals(5, n.getTwoWindingsTransformer("T2W").getExtension(TwoWindingsTransformerPhaseAngleClock.class).getPhaseAngleClock());
+        assertEquals(0, n.getThreeWindingsTransformer("T3W").getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg2());
+        assertEquals(5, n.getThreeWindingsTransformer("T3W").getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg3());
 
-        boolean ok = t2xCompareFlow(n, "f1e72854-ec35-46e9-b614-27db354e8dbb", -318.691633, 1424.484145, 436.204160, 1393.367311);
-        assertTrue(ok);
-        ok = t3xCompareFlow(n, "5d38b7ed-73fd-405a-9cdb-78425e003773", -7.505045, -1.896561, -288.380946, 1216.566903, 351.090362, 1199.878285);
-        assertTrue(ok);
+        // Power flows are calculated from SV voltages
+        assertTrue(t2xCompareFlow(n, "T2W", -318.691633, 1424.484145, 436.204160, 1393.367311));
+        assertTrue(t3xCompareFlow(n, "T3W", -7.505045, -1.896561, -288.380946, 1216.566903, 351.090362, 1199.878285));
     }
 
     @Test
-    void miniBusBranchPhaseAngleClockZero() {
-        Conversion.Config config = new Conversion.Config();
-        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new PhaseAngleClock());
+    void phaseAngleClockAllZeroTest() {
+        // A 2w- and a 3w-transformer with all phase angle clock equal to 0
+        Network n = networkModel(phaseAngleClock("phaseAngleClock_EQ_AllZero.xml"), new PhaseAngleClock());
 
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchPhaseAngleClockZero(), config, postProcessors);
+        // No phase angle clock extension has been created since all values are equal to 0
+        assertNull(n.getTwoWindingsTransformer("T2W").getExtension(TwoWindingsTransformerPhaseAngleClock.class));
+        assertNull(n.getThreeWindingsTransformer("T3W").getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
 
-        boolean ok = t2xCompareFlow(n, "f1e72854-ec35-46e9-b614-27db354e8dbb", -0.087780, -0.178561, 0.087782, 0.178613);
-        assertTrue(ok);
-        ok = t3xCompareFlow(n, "5d38b7ed-73fd-405a-9cdb-78425e003773", -0.000001, -0.000022, 0.000002, 0.000068, -0.000001, -0.000045);
-        assertTrue(ok);
+        // Power flows differ from the ones in phaseAngleClockTest()
+        assertTrue(t2xCompareFlow(n, "T2W", -0.087780, -0.178561, 0.087782, 0.178613));
+        assertTrue(t3xCompareFlow(n, "T3W", -0.000001, -0.000022, 0.000002, 0.000068, -0.000001, -0.000045));
     }
 
     @Test
-    void miniBusBranchT2xPhaseAngleClock1NonZero() {
-        Conversion.Config config = new Conversion.Config();
-        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new PhaseAngleClock());
+    void phaseAngleClockAllNonZeroTest() {
+        // A 2w- and a 3w-transformer with non-null phase angle clock value on all windings
+        Network n = networkModel(phaseAngleClock("phaseAngleClock_EQ_AllNonZero.xml"), new PhaseAngleClock());
 
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchT2xPhaseAngleClock1NonZero(), config, postProcessors);
+        // Non-null phase angle clock values on 1st winding are discarded, the other ones are correctly read
+        assertEquals(5, n.getTwoWindingsTransformer("T2W").getExtension(TwoWindingsTransformerPhaseAngleClock.class).getPhaseAngleClock());
+        assertEquals(3, n.getThreeWindingsTransformer("T3W").getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg2());
+        assertEquals(5, n.getThreeWindingsTransformer("T3W").getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg3());
 
-        boolean ok = t2xCompareFlow(n, "f1e72854-ec35-46e9-b614-27db354e8dbb", -318.691633, 1424.484145, 436.204160, 1393.367311);
-        assertTrue(ok);
+        // Power flows differ from the ones in phaseAngleClockTest() when the pac values differ (3w-transformer)
+        assertTrue(t2xCompareFlow(n, "T2W", -318.691633, 1424.484145, 436.204160, 1393.367311));
+        assertTrue(t3xCompareFlow(n, "T3W", -1494.636083, 1530.638656, 981.686099, 1826.870720, 562.199867, 309.289551));
     }
 
     @Test
-    void miniBusBranchT3xAllPhaseAngleClockNonZero() {
-        Conversion.Config config = new Conversion.Config();
-        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new PhaseAngleClock());
+    void phaseTapChangerXMinTest() {
+        // 3 PhaseTapChangers: linear, symmetrical, asymmetrical all with the same issue: xMin = 0 (incorrect)
+        Network network = readCgmesResources(DIR, "phaseTapChanger_xMin.xml");
 
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchT3xAllPhaseAngleClockNonZero(), config, postProcessors);
-
-        boolean ok = t3xCompareFlow(n, "5d38b7ed-73fd-405a-9cdb-78425e003773", -1494.636083, 1530.638656, 981.686099, 1826.870720, 562.199867, 309.289551);
-        assertTrue(ok);
+        // If PhaseTapChangerLinear.xMin that represents the total reactance at the neutral step is inconsistent (<= 0),
+        // then PowerTransformerEnd.x should be used instead for the tap steps reactance deviation calculation.
+        // In that case, there is 0% reactance deviation at neutral step.
+        assertEquals(0, network.getTwoWindingsTransformer("LINEAR").getPhaseTapChanger().getCurrentStep().getX());
+        assertEquals(0, network.getTwoWindingsTransformer("SYMMETRICAL").getPhaseTapChanger().getCurrentStep().getX());
+        assertEquals(0, network.getTwoWindingsTransformer("ASYMMETRICAL").getPhaseTapChanger().getCurrentStep().getX());
     }
 
     @Test
-    void microGridBaseCaseBEPhaseTapChangerXMin() {
-        Network n = networkModel(Cgmes3ModifiedCatalog.microGridBaseCasePhaseTapChangerXMin(), new Conversion.Config());
-
-        TwoWindingsTransformer twt1 = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
-        TwoWindingsTransformer twt2 = n.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
-
-        assertEquals(1.10949, obtainXcurrentStep(twt1), 0.00001);
-        assertEquals(2.796323, obtainXcurrentStep(twt2), 0.00001);
-    }
-
-    private static double obtainXcurrentStep(TwoWindingsTransformer twt) {
-        double xtx = twt.getX();
-        double ptcStepX = twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getX()).orElse(0d);
-        return xtx * (1 + ptcStepX / 100);
+    void invalidEquipmentContainerTest() {
+        // A 2-w transformer unconnected on end 2 side. This results in a fictitious substation created for end 2
+        // and thus the 2 windings are in different substations, which is not allowed in IIDM.
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.CONVERT_BOUNDARY, true);
+        PowsyblException e = assertThrows(PowsyblException.class,
+                () -> readCgmesResources(importParams, DIR, "invalidEquipmentContainer_EQ.xml",
+                "invalidEquipmentContainer_EQBD.xml", "invalidEquipmentContainer_TPBD.xml"));
+        assertEquals("2 windings transformer 'T2W': the 2 windings of the transformer shall belong to the substation 'ST' ('ST', 'CN_BOUNDARY_S')",
+                e.getMessage());
     }
 
     private boolean t2xCompareFlow(Network n, String id, double p1, double q1, double p2, double q2) {
@@ -441,13 +375,20 @@ class TransformerConversionTest {
         return ok;
     }
 
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
-        return networkModel(testGridModel, config, Collections.emptyList());
+    private Network networkModel(GridModelReference gridModelReference, CgmesImportPostProcessor postProcessor) {
+        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
+        postProcessors.add(postProcessor);
+
+        return networkModel(gridModelReference, new Conversion.Config(), postProcessors);
     }
 
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) {
+    private Network networkModel(GridModelReference gridModelReference, Conversion.Config config) {
+        return networkModel(gridModelReference, config, Collections.emptyList());
+    }
+
+    private Network networkModel(GridModelReference gridModelReference, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) {
         config.setConvertSvInjections(true);
-        Network n = ConversionUtil.networkModel(testGridModel, config, postProcessors);
+        Network n = ConversionUtil.networkModel(gridModelReference, config, postProcessors);
 
         double threshold = 0.01;
         ValidationConfig vconfig = loadFlowValidationConfig(threshold);
@@ -455,6 +396,39 @@ class TransformerConversionTest {
         ConversionTester.computeMissingFlows(n, lfParameters);
 
         return n;
+    }
+
+    private GridModelReferenceResources twoWindingsTransformers() {
+        return new GridModelReferenceResources(
+                "TwoWindingsTransformers",
+                null,
+                new ResourceSet(DIR,
+                        "twoWindingsTransformers_EQ.xml",
+                        "twoWindingsTransformers_SSH.xml",
+                        "twoWindingsTransformers_SV.xml",
+                        "twoWindingsTransformers_TP.xml"));
+    }
+
+    private GridModelReferenceResources threeWindingsTransformer() {
+        return new GridModelReferenceResources(
+                "ThreeWindingsTransformer",
+                null,
+                new ResourceSet(DIR,
+                        "threeWindingsTransformer_EQ.xml",
+                        "threeWindingsTransformer_SSH.xml",
+                        "threeWindingsTransformer_SV.xml",
+                        "threeWindingsTransformer_TP.xml"));
+    }
+
+    private GridModelReferenceResources phaseAngleClock(String phaseAngleClockEQ) {
+        return new GridModelReferenceResources(
+                "PhaseAngleClock",
+                null,
+                new ResourceSet(DIR,
+                        phaseAngleClockEQ,
+                        "phaseAngleClock_SSH.xml",
+                        "phaseAngleClock_TP.xml",
+                        "phaseAngleClock_SV.xml"));
     }
 
     private static ValidationConfig loadFlowValidationConfig(double threshold) {
