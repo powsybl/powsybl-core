@@ -37,7 +37,7 @@ class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTermi
         withFieldNames(V32, FIELD_NAMES_32_33);
         withFieldNames(V33, FIELD_NAMES_32_33);
         withFieldNames(V35, "name", "mdc", "rdc", "setvl", "vschd", "vcmod", "rcomp", "delti", "met", "dcvmin", "cccitmx", "cccacc");
-        withQuotedFields("name", "meter", "idr", "idi", "met");
+        withQuotedFields("name", "meter", "idr", "idi", "met", "id");
     }
 
     @Override
@@ -56,12 +56,12 @@ class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTermi
             List<String> mainRecords = new ArrayList<>();
             List<String> converterRecords = new ArrayList<>();
             if (!reader.isQRecordFound()) {
-                String line = reader.readRecordLine();
+                String line = reader.readUntilFindingARecordLineNotEmpty();
                 while (!reader.endOfBlock(line)) {
                     mainRecords.add(line);
                     converterRecords.add(reader.readRecordLine());
                     converterRecords.add(reader.readRecordLine());
-                    line = reader.readRecordLine();
+                    line = reader.readUntilFindingARecordLineNotEmpty();
                 }
             }
 
