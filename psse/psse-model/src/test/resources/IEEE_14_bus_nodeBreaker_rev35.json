@@ -2,7 +2,7 @@
   "caseIdentification" : {
     "ic" : 0,
     "sbase" : 100.0,
-    "rev" : 33,
+    "rev" : 35,
     "xfrrat" : 0.0,
     "nxfrat" : 0.0,
     "basfrq" : 60.0,
@@ -220,7 +220,11 @@
     "yq" : -0.0,
     "owner" : 1,
     "scale" : 1,
-    "intrpt" : 0
+    "intrpt" : 0,
+    "dgenp" : 0.0,
+    "dgenq" : 0.0,
+    "dgenm" : 0.0,
+    "loadtype" : "            "
   }, {
     "i" : 3,
     "id" : "1 ",
@@ -235,7 +239,11 @@
     "yq" : -0.0,
     "owner" : 1,
     "scale" : 1,
-    "intrpt" : 0
+    "intrpt" : 0,
+    "dgenp" : 0.0,
+    "dgenq" : 0.0,
+    "dgenm" : 0.0,
+    "loadtype" : "            "
   }, {
     "i" : 4,
     "id" : "1 ",
@@ -250,7 +258,11 @@
     "yq" : -0.0,
     "owner" : 1,
     "scale" : 1,
-    "intrpt" : 0
+    "intrpt" : 0,
+    "dgenp" : 0.0,
+    "dgenq" : 0.0,
+    "dgenm" : 0.0,
+    "loadtype" : "            "
   }, {
     "i" : 5,
     "id" : "1 ",
@@ -265,7 +277,11 @@
     "yq" : -0.0,
     "owner" : 1,
     "scale" : 1,
-    "intrpt" : 0
+    "intrpt" : 0,
+    "dgenp" : 0.0,
+    "dgenq" : 0.0,
+    "dgenm" : 0.0,
+    "loadtype" : "            "
   }, {
     "i" : 6,
     "id" : "1 ",
@@ -280,7 +296,11 @@
     "yq" : -0.0,
     "owner" : 1,
     "scale" : 1,
-    "intrpt" : 0
+    "intrpt" : 0,
+    "dgenp" : 0.0,
+    "dgenq" : 0.0,
+    "dgenm" : 0.0,
+    "loadtype" : "            "
   }, {
     "i" : 9,
     "id" : "1 ",
@@ -295,7 +315,11 @@
     "yq" : -0.0,
     "owner" : 1,
     "scale" : 1,
-    "intrpt" : 0
+    "intrpt" : 0,
+    "dgenp" : 0.0,
+    "dgenq" : 0.0,
+    "dgenm" : 0.0,
+    "loadtype" : "            "
   }, {
     "i" : 10,
     "id" : "1 ",
@@ -310,7 +334,11 @@
     "yq" : -0.0,
     "owner" : 1,
     "scale" : 1,
-    "intrpt" : 0
+    "intrpt" : 0,
+    "dgenp" : 0.0,
+    "dgenq" : 0.0,
+    "dgenm" : 0.0,
+    "loadtype" : "            "
   }, {
     "i" : 11,
     "id" : "1 ",
@@ -325,7 +353,11 @@
     "yq" : -0.0,
     "owner" : 1,
     "scale" : 1,
-    "intrpt" : 0
+    "intrpt" : 0,
+    "dgenp" : 0.0,
+    "dgenq" : 0.0,
+    "dgenm" : 0.0,
+    "loadtype" : "            "
   }, {
     "i" : 12,
     "id" : "1 ",
@@ -340,7 +372,11 @@
     "yq" : -0.0,
     "owner" : 1,
     "scale" : 1,
-    "intrpt" : 0
+    "intrpt" : 0,
+    "dgenp" : 0.0,
+    "dgenq" : 0.0,
+    "dgenm" : 0.0,
+    "loadtype" : "            "
   }, {
     "i" : 13,
     "id" : "1 ",
@@ -355,7 +391,11 @@
     "yq" : -0.0,
     "owner" : 1,
     "scale" : 1,
-    "intrpt" : 0
+    "intrpt" : 0,
+    "dgenp" : 0.0,
+    "dgenq" : 0.0,
+    "dgenm" : 0.0,
+    "loadtype" : "            "
   }, {
     "i" : 14,
     "id" : "1 ",
@@ -370,7 +410,11 @@
     "yq" : -0.0,
     "owner" : 1,
     "scale" : 1,
-    "intrpt" : 0
+    "intrpt" : 0,
+    "dgenp" : 0.0,
+    "dgenq" : 0.0,
+    "dgenm" : 0.0,
+    "loadtype" : "            "
   } ],
   "fixedShunts" : [ {
     "i" : 9,
@@ -409,7 +453,9 @@
       "f4" : 1.0
     },
     "wmod" : 0,
-    "wpf" : 1.0
+    "wpf" : 1.0,
+    "nreg" : 0,
+    "baslod" : 0
   }, {
     "i" : 2,
     "id" : "1 ",
@@ -440,7 +486,9 @@
       "f4" : 1.0
     },
     "wmod" : 0,
-    "wpf" : 1.0
+    "wpf" : 1.0,
+    "nreg" : 0,
+    "baslod" : 0
   }, {
     "i" : 3,
     "id" : "1 ",
@@ -471,7 +519,9 @@
       "f4" : 1.0
     },
     "wmod" : 0,
-    "wpf" : 1.0
+    "wpf" : 1.0,
+    "nreg" : 0,
+    "baslod" : 0
   }, {
     "i" : 6,
     "id" : "1 ",
@@ -502,7 +552,9 @@
       "f4" : 1.0
     },
     "wmod" : 0,
-    "wpf" : 1.0
+    "wpf" : 1.0,
+    "nreg" : 0,
+    "baslod" : 0
   }, {
     "i" : 8,
     "id" : "1 ",
@@ -533,7 +585,9 @@
       "f4" : 1.0
     },
     "wmod" : 0,
-    "wpf" : 1.0
+    "wpf" : 1.0,
+    "nreg" : 0,
+    "baslod" : 0
   } ],
   "nonTransformerBranches" : [ {
     "i" : 1,
@@ -543,9 +597,18 @@
     "x" : 0.05917,
     "b" : 0.0528,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -563,7 +626,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 1,
     "j" : 5,
@@ -572,9 +636,18 @@
     "x" : 0.22304,
     "b" : 0.0492,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -592,7 +665,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 2,
     "j" : 3,
@@ -601,9 +675,18 @@
     "x" : 0.19797,
     "b" : 0.0438,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -621,7 +704,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 2,
     "j" : 4,
@@ -630,9 +714,18 @@
     "x" : 0.17632,
     "b" : 0.034,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -650,7 +743,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 2,
     "j" : 5,
@@ -659,9 +753,18 @@
     "x" : 0.17388,
     "b" : 0.0346,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -679,7 +782,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 3,
     "j" : 4,
@@ -688,9 +792,18 @@
     "x" : 0.17103,
     "b" : 0.0128,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -708,7 +821,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 4,
     "j" : 5,
@@ -717,9 +831,18 @@
     "x" : 0.04211,
     "b" : 0.0,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -737,7 +860,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 6,
     "j" : 11,
@@ -746,9 +870,18 @@
     "x" : 0.1989,
     "b" : 0.0,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -766,7 +899,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 6,
     "j" : 12,
@@ -775,9 +909,18 @@
     "x" : 0.25581,
     "b" : 0.0,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -795,7 +938,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 6,
     "j" : 13,
@@ -804,9 +948,18 @@
     "x" : 0.13027,
     "b" : 0.0,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -824,7 +977,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 7,
     "j" : 8,
@@ -833,9 +987,18 @@
     "x" : 0.17615,
     "b" : 0.0,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -853,7 +1016,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 7,
     "j" : 9,
@@ -862,9 +1026,18 @@
     "x" : 0.11001,
     "b" : 0.0,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -882,7 +1055,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 9,
     "j" : 10,
@@ -891,9 +1065,18 @@
     "x" : 0.0845,
     "b" : 0.0,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -911,7 +1094,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 9,
     "j" : 14,
@@ -920,9 +1104,18 @@
     "x" : 0.27038,
     "b" : 0.0,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -940,7 +1133,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 10,
     "j" : 11,
@@ -949,9 +1143,18 @@
     "x" : 0.19207,
     "b" : 0.0,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -969,7 +1172,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 12,
     "j" : 13,
@@ -978,9 +1182,18 @@
     "x" : 0.19988,
     "b" : 0.0,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -998,7 +1211,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   }, {
     "i" : 13,
     "j" : 14,
@@ -1007,9 +1221,18 @@
     "x" : 0.34802,
     "b" : 0.0,
     "rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "gi" : 0.0,
     "bi" : 0.0,
@@ -1027,7 +1250,8 @@
       "f3" : 1.0,
       "o4" : 0,
       "f4" : 1.0
-    }
+    },
+    "name" : " "
   } ],
   "transformers" : [ {
     "anstar" : 0.0,
@@ -1067,6 +1291,7 @@
       "ang" : 0.0,
       "cod" : 0,
       "cont" : 0,
+      "node" : 0,
       "rma" : 1.5,
       "rmi" : 0.51,
       "vma" : 1.5,
@@ -1078,9 +1303,18 @@
       "cnxa" : 0.0
     },
     "winding1Rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "winding2" : {
       "windv" : 1.0,
@@ -1088,6 +1322,7 @@
       "ang" : 0.0,
       "cod" : 0,
       "cont" : 0,
+      "node" : 0,
       "rma" : "NaN",
       "rmi" : "NaN",
       "vma" : "NaN",
@@ -1099,9 +1334,18 @@
       "cnxa" : 0.0
     },
     "winding2Rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "winding3" : {
       "windv" : "NaN",
@@ -1109,6 +1353,7 @@
       "ang" : 0.0,
       "cod" : 0,
       "cont" : 0,
+      "node" : 0,
       "rma" : "NaN",
       "rmi" : "NaN",
       "vma" : "NaN",
@@ -1120,13 +1365,23 @@
       "cnxa" : 0.0
     },
     "winding3Rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "x12" : 0.20912,
     "x23" : "NaN",
-    "x31" : "NaN"
+    "x31" : "NaN",
+    "zcod" : 0
   }, {
     "anstar" : 0.0,
     "ckt" : "1 ",
@@ -1165,6 +1420,7 @@
       "ang" : 0.0,
       "cod" : 0,
       "cont" : 0,
+      "node" : 0,
       "rma" : 1.5,
       "rmi" : 0.51,
       "vma" : 1.5,
@@ -1176,9 +1432,18 @@
       "cnxa" : 0.0
     },
     "winding1Rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "winding2" : {
       "windv" : 1.0,
@@ -1186,6 +1451,7 @@
       "ang" : 0.0,
       "cod" : 0,
       "cont" : 0,
+      "node" : 0,
       "rma" : "NaN",
       "rmi" : "NaN",
       "vma" : "NaN",
@@ -1197,9 +1463,18 @@
       "cnxa" : 0.0
     },
     "winding2Rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "winding3" : {
       "windv" : "NaN",
@@ -1207,6 +1482,7 @@
       "ang" : 0.0,
       "cod" : 0,
       "cont" : 0,
+      "node" : 0,
       "rma" : "NaN",
       "rmi" : "NaN",
       "vma" : "NaN",
@@ -1218,13 +1494,23 @@
       "cnxa" : 0.0
     },
     "winding3Rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "x12" : 0.55618,
     "x23" : "NaN",
-    "x31" : "NaN"
+    "x31" : "NaN",
+    "zcod" : 0
   }, {
     "anstar" : 0.0,
     "ckt" : "1 ",
@@ -1263,6 +1549,7 @@
       "ang" : 0.0,
       "cod" : 0,
       "cont" : 0,
+      "node" : 0,
       "rma" : 1.5,
       "rmi" : 0.51,
       "vma" : 1.5,
@@ -1274,9 +1561,18 @@
       "cnxa" : 0.0
     },
     "winding1Rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "winding2" : {
       "windv" : 1.0,
@@ -1284,6 +1580,7 @@
       "ang" : 0.0,
       "cod" : 0,
       "cont" : 0,
+      "node" : 0,
       "rma" : "NaN",
       "rmi" : "NaN",
       "vma" : "NaN",
@@ -1295,9 +1592,18 @@
       "cnxa" : 0.0
     },
     "winding2Rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "winding3" : {
       "windv" : "NaN",
@@ -1305,6 +1611,7 @@
       "ang" : 0.0,
       "cod" : 0,
       "cont" : 0,
+      "node" : 0,
       "rma" : "NaN",
       "rmi" : "NaN",
       "vma" : "NaN",
@@ -1316,13 +1623,23 @@
       "cnxa" : 0.0
     },
     "winding3Rates" : {
-      "ratea" : 0.0,
-      "rateb" : 0.0,
-      "ratec" : 0.0
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0,
+      "rate4" : 0.0,
+      "rate5" : 0.0,
+      "rate6" : 0.0,
+      "rate7" : 0.0,
+      "rate8" : 0.0,
+      "rate9" : 0.0,
+      "rate10" : 0.0,
+      "rate11" : 0.0,
+      "rate12" : 0.0
     },
     "x12" : 0.25202,
     "x23" : "NaN",
-    "x31" : "NaN"
+    "x31" : "NaN",
+    "zcod" : 0
   } ],
   "areas" : [ {
     "i" : 1,
@@ -1336,10 +1653,7 @@
   "transformerImpedanceCorrections" : [ ],
   "multiTerminalDcTransmissionLines" : [ ],
   "lineGrouping" : [ ],
-  "zones" : [ {
-    "i" : 1,
-    "zoname" : "IEEE 14 "
-  } ],
+  "zones" : [ ],
   "interareaTransfer" : [ ],
   "owners" : [ {
     "i" : 1,
@@ -1349,5 +1663,309 @@
   "switchedShunts" : [ ],
   "gneDevice" : [ ],
   "inductionMachines" : [ ],
-  "substations" : [ ]
+  "substations" : [ {
+    "is" : 1,
+    "name" : "STATION 1",
+    "lati" : 0.0,
+    "long" : 0.0,
+    "srg" : 0.1,
+    "nodes" : [ {
+      "ni" : 1,
+      "name" : "NB1",
+      "i" : 1,
+      "status" : 1,
+      "vm" : 1.0,
+      "va" : 0.0
+    }, {
+      "ni" : 2,
+      "name" : "NB2",
+      "i" : 1,
+      "status" : 1,
+      "vm" : 1.0,
+      "va" : 0.0
+    }, {
+      "ni" : 3,
+      "name" : "NL2",
+      "i" : 1,
+      "status" : 1,
+      "vm" : 1.0,
+      "va" : 0.0
+    }, {
+      "ni" : 4,
+      "name" : "NL5",
+      "i" : 1,
+      "status" : 1,
+      "vm" : 1.0,
+      "va" : 0.0
+    }, {
+      "ni" : 5,
+      "name" : "NG1",
+      "i" : 1,
+      "status" : 1,
+      "vm" : 1.0,
+      "va" : 0.0
+    } ],
+    "switchingDevices" : [ {
+      "ni" : 1,
+      "nj" : 2,
+      "ckt" : "1 ",
+      "name" : "Sw-BusBars",
+      "type" : 2,
+      "status" : 1,
+      "nstat" : 1,
+      "x" : 0.0,
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0
+    }, {
+      "ni" : 1,
+      "nj" : 3,
+      "ckt" : "1 ",
+      "name" : "Sw-BranchToBus2",
+      "type" : 2,
+      "status" : 1,
+      "nstat" : 1,
+      "x" : 0.0,
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0
+    }, {
+      "ni" : 2,
+      "nj" : 4,
+      "ckt" : "1 ",
+      "name" : "Sw-BranchToBus5",
+      "type" : 2,
+      "status" : 1,
+      "nstat" : 1,
+      "x" : 0.0,
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0
+    }, {
+      "ni" : 2,
+      "nj" : 5,
+      "ckt" : "1 ",
+      "name" : "Sw-Gen1",
+      "type" : 2,
+      "status" : 1,
+      "nstat" : 1,
+      "x" : 0.0,
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0
+    } ],
+    "equipmentTerminals" : [ {
+      "i" : 1,
+      "ni" : 5,
+      "type" : "M",
+      "id" : "1 ",
+      "j" : 0,
+      "k" : 0
+    }, {
+      "i" : 1,
+      "ni" : 3,
+      "type" : "B",
+      "id" : "1 ",
+      "j" : 2,
+      "k" : 0
+    }, {
+      "i" : 1,
+      "ni" : 4,
+      "type" : "B",
+      "id" : "1 ",
+      "j" : 5,
+      "k" : 0
+    } ]
+  }, {
+    "is" : 2,
+    "name" : "STATION 5",
+    "lati" : 0.0,
+    "long" : 0.0,
+    "srg" : 0.1,
+    "nodes" : [ {
+      "ni" : 1,
+      "name" : "NB1",
+      "i" : 2,
+      "status" : 1,
+      "vm" : 1.0,
+      "va" : 0.0
+    }, {
+      "ni" : 2,
+      "name" : "NB2",
+      "i" : 2,
+      "status" : 1,
+      "vm" : 1.0,
+      "va" : 0.0
+    }, {
+      "ni" : 3,
+      "name" : "NL3",
+      "i" : 2,
+      "status" : 1,
+      "vm" : 1.0,
+      "va" : 0.0
+    }, {
+      "ni" : 4,
+      "name" : "NL4",
+      "i" : 2,
+      "status" : 1,
+      "vm" : 1.0,
+      "va" : 0.0
+    }, {
+      "ni" : 5,
+      "name" : "NL5",
+      "i" : 2,
+      "status" : 1,
+      "vm" : 1.0,
+      "va" : 0.0
+    }, {
+      "ni" : 6,
+      "name" : "NL1",
+      "i" : 2,
+      "status" : 1,
+      "vm" : 1.0,
+      "va" : 0.0
+    }, {
+      "ni" : 7,
+      "name" : "NG1",
+      "i" : 2,
+      "status" : 1,
+      "vm" : 1.0,
+      "va" : 0.0
+    }, {
+      "ni" : 8,
+      "name" : "NLd1",
+      "i" : 2,
+      "status" : 1,
+      "vm" : 1.0,
+      "va" : 0.0
+    } ],
+    "switchingDevices" : [ {
+      "ni" : 1,
+      "nj" : 2,
+      "ckt" : "1 ",
+      "name" : "Sw-BusBars",
+      "type" : 2,
+      "status" : 1,
+      "nstat" : 1,
+      "x" : 0.0,
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0
+    }, {
+      "ni" : 1,
+      "nj" : 6,
+      "ckt" : "1 ",
+      "name" : "Sw-BranchToBus1",
+      "type" : 2,
+      "status" : 1,
+      "nstat" : 1,
+      "x" : 0.0,
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0
+    }, {
+      "ni" : 1,
+      "nj" : 7,
+      "ckt" : "1 ",
+      "name" : "Sw-Gen1",
+      "type" : 2,
+      "status" : 1,
+      "nstat" : 1,
+      "x" : 0.0,
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0
+    }, {
+      "ni" : 1,
+      "nj" : 8,
+      "ckt" : "1 ",
+      "name" : "Sw-Load1",
+      "type" : 2,
+      "status" : 1,
+      "nstat" : 1,
+      "x" : 0.0,
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0
+    }, {
+      "ni" : 2,
+      "nj" : 3,
+      "ckt" : "1 ",
+      "name" : "Sw-BranchToBus3",
+      "type" : 2,
+      "status" : 1,
+      "nstat" : 1,
+      "x" : 0.0,
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0
+    }, {
+      "ni" : 2,
+      "nj" : 4,
+      "ckt" : "1 ",
+      "name" : "Sw-BranchToBus4",
+      "type" : 2,
+      "status" : 1,
+      "nstat" : 1,
+      "x" : 0.0,
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0
+    }, {
+      "ni" : 2,
+      "nj" : 5,
+      "ckt" : "1 ",
+      "name" : "Sw-BranchToBus5",
+      "type" : 2,
+      "status" : 1,
+      "nstat" : 1,
+      "x" : 0.0,
+      "rate1" : 0.0,
+      "rate2" : 0.0,
+      "rate3" : 0.0
+    } ],
+    "equipmentTerminals" : [ {
+      "i" : 2,
+      "ni" : 7,
+      "type" : "M",
+      "id" : "1 ",
+      "j" : 0,
+      "k" : 0
+    }, {
+      "i" : 2,
+      "ni" : 8,
+      "type" : "L",
+      "id" : "1 ",
+      "j" : 0,
+      "k" : 0
+    }, {
+      "i" : 2,
+      "ni" : 6,
+      "type" : "B",
+      "id" : "1 ",
+      "j" : 1,
+      "k" : 0
+    }, {
+      "i" : 2,
+      "ni" : 3,
+      "type" : "B",
+      "id" : "1 ",
+      "j" : 3,
+      "k" : 0
+    }, {
+      "i" : 2,
+      "ni" : 4,
+      "type" : "B",
+      "id" : "1 ",
+      "j" : 4,
+      "k" : 0
+    }, {
+      "i" : 2,
+      "ni" : 5,
+      "type" : "B",
+      "id" : "1 ",
+      "j" : 5,
+      "k" : 0
+    } ]
+  } ]
 }
