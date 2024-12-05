@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.LoadingLimitsAdder;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
 
 import java.util.Comparator;
 
@@ -96,6 +96,9 @@ public final class LoadingLimitsUtil {
       * @param limits the limits to copy
       */
     public static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> A initializeFromLoadingLimits(A adder, L limits) {
+        if (limits == null) {
+            throw new PowsyblException("Cannot initialize new limits from null limits");
+        }
         adder.setPermanentLimit(limits.getPermanentLimit());
         limits.getTemporaryLimits().forEach(limit ->
                 adder.beginTemporaryLimit()
