@@ -162,6 +162,31 @@ generator.newExtension(GeneratorShortCircuitAdder.class)
     .add();
 ```
 
+(battery-short-circuit)=
+## Battery short-circuit
+
+This extension models the battery data used for short-circuit calculations.
+Depending on the type of short-circuit study to be performed, either the transient or the sub-transient reactance should
+be filled. The step-up transformer reactance should be filled if the battery has a transformer that is not directly 
+modeled on the network.
+
+| Attribute              | Type   | Unit | Required | Default value | Description                                   |
+|------------------------|--------|------|----------|---------------|-----------------------------------------------|
+| directTransX (X'd)     | double | Ω    | yes      | -             | Direct transient reactance of the battery     |
+| directSubtransX (X''d) | double | Ω    | no       | -             | Direct sub-transient reactance of the battery |
+| stepUpTransformerX     | double | Ω    | no       | -             | Reactance of the step-up transformer          |
+
+This extension is provided in the  `com.powsybl:powsybl-iidm-extensions` module.
+
+To add this extension to a battery, the code to be used is:
+```java
+battery.newExtension(BatteryShortCircuitAdder.class)
+    .withDirectTransX(20)
+    .withDirectSubtransX(14)
+    .withStepUpTransformerX(10)
+    .add();
+```
+
 (identifiable-short-circuit-extension)=
 ## Identifiable short-circuit
 
