@@ -9,12 +9,13 @@ action-simulator.md
 cim_anonymizer.md
 compare-security-analysis-results.md
 convert_network.md
+dynamic-security-analysis.md
 dynamic-simulation.md
+list-dynamic-simulation-models.md
 loadflow.md
 loadflow-validation.md
 run-script.md
 security-analysis.md
-dynamic-security-analysis.md
 sensitivity-computation.md
 ```
 
