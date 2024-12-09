@@ -21,10 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.OptionalDouble;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
