@@ -22,11 +22,7 @@ class UcteNetworkUtilTest {
     void getOrderCodeTest() {
         assertEquals('0', UcteNetworkUtil.getOrderCode(0));
         assertEquals('A', UcteNetworkUtil.getOrderCode(10));
-        assertThrows(com.powsybl.ucte.network.UcteException.class, () -> {
-            UcteNetworkUtil.getOrderCode(-1);
-        });
-        assertThrows(UcteException.class, () -> {
-            UcteNetworkUtil.getOrderCode(50);
-        });
+        assertThrows(UcteException.class, () -> UcteNetworkUtil.getOrderCode(-1));
+        assertThrows(UcteException.class, () -> UcteNetworkUtil.getOrderCode(50));
     }
 }

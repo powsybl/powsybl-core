@@ -132,7 +132,7 @@ public enum UcteCountryCode {
         try {
             return UcteCountryCode.valueOf(country.name());
         } catch (IllegalArgumentException e) {
-            throw new UcteException(String.format("No UCTE country found for %s",country.name()));
+            throw new UcteException(String.format("No UCTE country found for %s", country.name()));
         }
     }
 
