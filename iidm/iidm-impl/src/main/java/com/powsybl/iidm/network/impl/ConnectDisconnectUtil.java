@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -182,9 +183,7 @@ public final class ConnectDisconnectUtil {
                         ((HvdcConverterStation<?>) terminal.getConnectable()).getHvdcLine().disconnectConverterStations(isSwitchOpenable);
                     case DANGLING_LINE -> {
                         DanglingLine danglingLine = (DanglingLine) terminal.getConnectable();
-                        if (danglingLine.getTieLine().isPresent()) {
-                            danglingLine.getTieLine().get().disconnectDanglingLines(isSwitchOpenable);
-                        }
+                        danglingLine.getTieLine().ifPresent(line -> line.disconnectDanglingLines(isSwitchOpenable));
                     }
                     default -> {
                         // Nothing to do
