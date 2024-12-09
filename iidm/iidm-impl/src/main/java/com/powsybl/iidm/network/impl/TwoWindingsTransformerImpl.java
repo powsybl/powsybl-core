@@ -285,4 +285,15 @@ class TwoWindingsTransformerImpl extends AbstractConnectableBranch<TwoWindingsTr
     protected String getTypeDescription() {
         return "2 windings transformer";
     }
+
+    @Override
+    public void remove() {
+        if (ratioTapChanger != null) {
+            ratioTapChanger.remove();
+        }
+        if (phaseTapChanger != null) {
+            phaseTapChanger.remove();
+        }
+        super.remove();
+    }
 }

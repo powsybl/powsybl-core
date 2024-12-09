@@ -7,14 +7,17 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.ShortIdDictionary;
 
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.Writer;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,14 +26,10 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> implements VoltageLevelExt {
-
-    private static final int DEFAULT_NODE_INDEX_LIMIT = 1000;
-
-    public static final int NODE_INDEX_LIMIT = loadNodeIndexLimit(PlatformConfig.defaultConfig());
+class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements VoltageLevelExt {
 
     private final Ref<NetworkImpl> networkRef;
-    private Ref<SubnetworkImpl> subnetworkRef;
+    private final Ref<SubnetworkImpl> subnetworkRef;
 
     private final SubstationImpl substation;
 
@@ -40,13 +39,16 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     private double highVoltageLimit;
 
+    private AbstractTopologyModel topologyModel;
+
     /** Areas associated to this VoltageLevel, with at most one area for each area type */
     private final Set<Area> areas = new LinkedHashSet<>();
 
     private boolean removed = false;
 
-    AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> networkRef,
-                         Ref<SubnetworkImpl> subnetworkRef, double nominalV, double lowVoltageLimit, double highVoltageLimit) {
+    VoltageLevelImpl(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> networkRef,
+                     Ref<SubnetworkImpl> subnetworkRef, double nominalV, double lowVoltageLimit, double highVoltageLimit,
+                     TopologyKind topologyKind) {
         super(id, name, fictitious);
         this.substation = substation;
         this.networkRef = networkRef;
@@ -54,13 +56,15 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         this.nominalV = nominalV;
         this.lowVoltageLimit = lowVoltageLimit;
         this.highVoltageLimit = highVoltageLimit;
+        this.topologyModel = switch (Objects.requireNonNull(topologyKind)) {
+            case NODE_BREAKER -> new NodeBreakerTopologyModel(this);
+            case BUS_BREAKER -> new BusBreakerTopologyModel(this);
+        };
     }
 
-    protected static int loadNodeIndexLimit(PlatformConfig platformConfig) {
-        return platformConfig
-            .getOptionalModuleConfig("iidm")
-            .map(moduleConfig -> moduleConfig.getIntProperty("node-index-limit", DEFAULT_NODE_INDEX_LIMIT))
-            .orElse(DEFAULT_NODE_INDEX_LIMIT);
+    @Override
+    public AbstractTopologyModel getTopologyModel() {
+        return topologyModel;
     }
 
     @Override
@@ -158,6 +162,21 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
+    public NodeBreakerViewExt getNodeBreakerView() {
+        return topologyModel.getNodeBreakerView();
+    }
+
+    @Override
+    public BusBreakerViewExt getBusBreakerView() {
+        return topologyModel.getBusBreakerView();
+    }
+
+    @Override
+    public BusViewExt getBusView() {
+        return topologyModel.getBusView();
+    }
+
+    @Override
     public NetworkImpl getNetwork() {
         if (removed) {
             throw new PowsyblException("Cannot access network of removed voltage level " + id);
@@ -247,39 +266,27 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public <T extends Connectable> Iterable<T> getConnectables(Class<T> clazz) {
-        Iterable<Terminal> terminals = getTerminals();
-        return FluentIterable.from(terminals)
-                .transform(Terminal::getConnectable)
-                .filter(clazz)
-                .toSet();
+        return topologyModel.getConnectables(clazz);
     }
 
     @Override
     public <T extends Connectable> Stream<T> getConnectableStream(Class<T> clazz) {
-        return getTerminalStream()
-                .map(Terminal::getConnectable)
-                .filter(clazz::isInstance)
-                .map(clazz::cast)
-                .distinct();
+        return topologyModel.getConnectableStream(clazz);
     }
 
     @Override
     public <T extends Connectable> int getConnectableCount(Class<T> clazz) {
-        return Ints.checkedCast(getConnectableStream(clazz).count());
+        return topologyModel.getConnectableCount(clazz);
     }
 
     @Override
     public Iterable<Connectable> getConnectables() {
-        return FluentIterable.from(getTerminals())
-                .transform(Terminal::getConnectable)
-                .toSet();
+        return topologyModel.getConnectables();
     }
 
     @Override
     public Stream<Connectable> getConnectableStream() {
-        return getTerminalStream()
-                .map(Terminal::getConnectable)
-                .distinct();
+        return topologyModel.getConnectableStream();
     }
 
     @Override
@@ -340,6 +347,16 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     @Override
     public Stream<Load> getLoadStream() {
         return getConnectableStream(Load.class);
+    }
+
+    @Override
+    public Iterable<Switch> getSwitches() {
+        return topologyModel.getSwitches();
+    }
+
+    @Override
+    public int getSwitchCount() {
+        return topologyModel.getSwitchCount();
     }
 
     @Override
@@ -517,41 +534,39 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         return "Voltage level";
     }
 
-    protected abstract Iterable<Terminal> getTerminals();
-
-    protected abstract Stream<Terminal> getTerminalStream();
-
     @Override
     public void visitEquipments(TopologyVisitor visitor) {
-        AbstractBus.visitEquipments(getTerminals(), visitor);
+        AbstractBus.visitEquipments(topologyModel.getTerminals(), visitor);
     }
 
-    protected static void addNextTerminals(TerminalExt otherTerminal, List<TerminalExt> nextTerminals) {
-        Objects.requireNonNull(otherTerminal);
-        Objects.requireNonNull(nextTerminals);
-        Connectable otherConnectable = otherTerminal.getConnectable();
-        if (otherConnectable instanceof Branch<?> branch) {
-            if (branch.getTerminal1() == otherTerminal) {
-                nextTerminals.add((TerminalExt) branch.getTerminal2());
-            } else if (branch.getTerminal2() == otherTerminal) {
-                nextTerminals.add((TerminalExt) branch.getTerminal1());
-            } else {
-                throw new IllegalStateException();
-            }
-        } else if (otherConnectable instanceof ThreeWindingsTransformer ttc) {
-            if (ttc.getLeg1().getTerminal() == otherTerminal) {
-                nextTerminals.add((TerminalExt) ttc.getLeg2().getTerminal());
-                nextTerminals.add((TerminalExt) ttc.getLeg3().getTerminal());
-            } else if (ttc.getLeg2().getTerminal() == otherTerminal) {
-                nextTerminals.add((TerminalExt) ttc.getLeg1().getTerminal());
-                nextTerminals.add((TerminalExt) ttc.getLeg3().getTerminal());
-            } else if (ttc.getLeg3().getTerminal() == otherTerminal) {
-                nextTerminals.add((TerminalExt) ttc.getLeg1().getTerminal());
-                nextTerminals.add((TerminalExt) ttc.getLeg2().getTerminal());
-            } else {
-                throw new IllegalStateException();
-            }
-        }
+    @Override
+    public TopologyKind getTopologyKind() {
+        return topologyModel.getTopologyKind();
+    }
+
+    @Override
+    public void printTopology() {
+        topologyModel.printTopology();
+    }
+
+    @Override
+    public void printTopology(PrintStream out, ShortIdDictionary dict) {
+        topologyModel.printTopology(out, dict);
+    }
+
+    @Override
+    public void exportTopology(Path file) throws IOException {
+        topologyModel.exportTopology(file);
+    }
+
+    @Override
+    public void exportTopology(Writer writer, Random random) {
+        topologyModel.exportTopology(writer, random);
+    }
+
+    @Override
+    public void exportTopology(Writer writer) {
+        topologyModel.exportTopology(writer);
     }
 
     @Override
@@ -568,7 +583,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         }
 
         // Remove the topology
-        removeTopology();
+        topologyModel.removeTopology();
 
         // Remove this voltage level from the areas
         getAreas().forEach(area -> area.removeVoltageLevel(this));
@@ -580,5 +595,106 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         removed = true;
     }
 
-    protected abstract void removeTopology();
+    @Override
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        topologyModel.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+    }
+
+    @Override
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
+        topologyModel.reduceVariantArraySize(number);
+    }
+
+    @Override
+    public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
+        topologyModel.deleteVariantArrayElement(index);
+    }
+
+    @Override
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
+        topologyModel.allocateVariantArrayElement(indexes, sourceIndex);
+    }
+
+    private void convertToBusBreakerModel() {
+        BusBreakerTopologyModel newTopologyModel = new BusBreakerTopologyModel(this);
+
+        // remove busbar sections because not needed in a bus/breaker topology
+        for (BusbarSection bbs : topologyModel.getNodeBreakerView().getBusbarSections()) {
+            bbs.remove();
+        }
+
+        for (Bus bus : topologyModel.getBusBreakerView().getBuses()) {
+            // no notification, this is just a mutation of a calculation bus to a configured bus
+            ConfiguredBusImpl configuredBus = new ConfiguredBusImpl(bus.getId(), bus.getOptionalName().orElse(null), bus.isFictitious(), this);
+            newTopologyModel.addBus(configuredBus);
+        }
+
+        // transfer retained switches
+        for (Switch sw : topologyModel.getBusBreakerView().getSwitchStream().toList()) {
+            String busId1 = topologyModel.getBusBreakerView().getBus1(sw.getId()).getId();
+            String busId2 = topologyModel.getBusBreakerView().getBus2(sw.getId()).getId();
+            // no notification, this is just a transfer
+            ((NodeBreakerTopologyModel) topologyModel).removeSwitchFromTopology(sw.getId(), false);
+            newTopologyModel.addSwitchToTopology((SwitchImpl) sw, busId1, busId2);
+        }
+
+        // reconnect all connectable to new topology model
+        // first store all bus/breaker topological infos associated to this terminal because we will start moving
+        // terminal from old mode to new one, it will modify the old topology model
+        record TopologyModelInfos(TerminalExt terminal, String connectableBusId, boolean connected) {
+        }
+        List<TopologyModelInfos> oldTopologyModelInfos = new ArrayList<>();
+        for (Terminal oldTerminal : topologyModel.getTerminals()) {
+            Bus connectableBus = oldTerminal.getBusBreakerView().getConnectableBus();
+            String connectableBusId = connectableBus == null ? null : connectableBus.getId();
+            boolean connected = oldTerminal.isConnected();
+            oldTopologyModelInfos.add(new TopologyModelInfos((TerminalExt) oldTerminal, connectableBusId, connected));
+        }
+
+        for (var infos : oldTopologyModelInfos) {
+            TerminalExt oldTerminalExt = infos.terminal();
+
+            // if there is no way to find a connectable bus, remove the connectable
+            // an alternative would be to connect them all to a new trash configured bus
+            if (infos.connectableBusId() == null) {
+                // here keep the removal notification
+                oldTerminalExt.getConnectable().remove();
+                continue;
+            }
+
+            AbstractConnectable<?> connectable = oldTerminalExt.getConnectable();
+
+            // create the new terminal with new type
+            TerminalExt newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide())
+                    .setBus(infos.connected ? infos.connectableBusId() : null)
+                    .setConnectableBus(infos.connectableBusId())
+                    .build();
+
+            connectable.replaceTerminal(oldTerminalExt, newTopologyModel, newTerminalExt, false);
+        }
+
+        // also here keep the notification for remaining switches removal
+        topologyModel.removeTopology();
+
+        TopologyKind oldTopologyKind = topologyModel.getTopologyKind();
+        topologyModel = newTopologyModel;
+
+        notifyUpdate("topologyKind", oldTopologyKind, TopologyKind.BUS_BREAKER);
+    }
+
+    @Override
+    public void convertToTopology(TopologyKind newTopologyKind) {
+        Objects.requireNonNull(newTopologyKind);
+        if (newTopologyKind != topologyModel.getTopologyKind()) {
+            if (newTopologyKind == TopologyKind.NODE_BREAKER) {
+                throw new PowsyblException("Topology model conversion from bus/breaker to node/breaker not yet supported");
+            } else if (newTopologyKind == TopologyKind.BUS_BREAKER) {
+                convertToBusBreakerModel();
+            }
+        }
+    }
 }

@@ -27,7 +27,7 @@ public abstract class AbstractMoveConnectableNotifTest {
         MutableObject<Object> obj = new MutableObject<>();
         network.addListener(new DefaultNetworkListener() {
             @Override
-            public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+            public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
                 obj.setValue(newValue);
             }
         });
@@ -47,7 +47,7 @@ public abstract class AbstractMoveConnectableNotifTest {
         MutableObject<Object> obj = new MutableObject<>();
         network.addListener(new DefaultNetworkListener() {
             @Override
-            public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+            public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
                 obj.setValue(newValue);
             }
         });

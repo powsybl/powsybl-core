@@ -15,10 +15,7 @@ import gnu.trove.list.array.TLongArrayList;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -32,6 +29,11 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     public IrregularTimeSeriesIndex(long[] times) {
         this.times = Objects.requireNonNull(times);
+        for (int i = 1; i < times.length; i++) {
+            if (times[i] <= times[i - 1]) {
+                throw new IllegalArgumentException("Time list should be sorted and without duplicate values");
+            }
+        }
         if (times.length == 0) {
             throw new IllegalArgumentException("Empty time list");
         }

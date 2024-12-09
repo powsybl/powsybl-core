@@ -14,8 +14,8 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnectionAdder;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
-import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.iidm.network.util.SwitchPredicates;
@@ -50,9 +50,9 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
+class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NodeBreakerVoltageLevel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NodeBreakerTopologyModel.class);
 
     private static final String WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE = "Given TerminalExt not supported: ";
 
@@ -85,7 +85,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private final VariantArray<VariantImpl> variants;
 
-    private final class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements NodeBreakerView.SwitchAdder {
+    private final class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements SwitchAdder {
 
         private Integer node1;
 
@@ -107,7 +107,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         protected NetworkImpl getNetwork() {
-            return NodeBreakerVoltageLevel.this.getNetwork();
+            return NodeBreakerTopologyModel.this.getNetwork();
         }
 
         @Override
@@ -116,19 +116,19 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public NodeBreakerView.SwitchAdder setNode1(int node1) {
+        public SwitchAdder setNode1(int node1) {
             this.node1 = node1;
             return this;
         }
 
         @Override
-        public NodeBreakerView.SwitchAdder setNode2(int node2) {
+        public SwitchAdder setNode2(int node2) {
             this.node2 = node2;
             return this;
         }
 
         @Override
-        public NodeBreakerView.SwitchAdder setKind(SwitchKind kind) {
+        public SwitchAdder setKind(SwitchKind kind) {
             if (kind == null) {
                 throw new NullPointerException("kind is null");
             }
@@ -142,13 +142,13 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public NodeBreakerView.SwitchAdder setOpen(boolean open) {
+        public SwitchAdder setOpen(boolean open) {
             this.open = open;
             return this;
         }
 
         @Override
-        public NodeBreakerView.SwitchAdder setRetained(boolean retained) {
+        public SwitchAdder setRetained(boolean retained) {
             this.retained = retained;
             return this;
         }
@@ -168,7 +168,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             if (kind == null) {
                 throw new ValidationException(this, "kind is not set");
             }
-            SwitchImpl aSwitch = new SwitchImpl(NodeBreakerVoltageLevel.this, id, getName(), isFictitious(), kind, open, retained);
+            SwitchImpl aSwitch = new SwitchImpl(voltageLevel, id, getName(), isFictitious(), kind, open, retained);
             graph.addVertexIfNotPresent(node1);
             graph.addVertexIfNotPresent(node2);
             graph.addEdge(node1, node2, aSwitch);
@@ -177,7 +177,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     }
 
-    private final class InternalConnectionAdderImpl implements NodeBreakerView.InternalConnectionAdder {
+    private final class InternalConnectionAdderImpl implements InternalConnectionAdder {
 
         private Integer node1;
 
@@ -187,13 +187,13 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public NodeBreakerView.InternalConnectionAdder setNode1(int node1) {
+        public InternalConnectionAdder setNode1(int node1) {
             this.node1 = node1;
             return this;
         }
 
         @Override
-        public NodeBreakerView.InternalConnectionAdder setNode2(int node2) {
+        public InternalConnectionAdder setNode2(int node2) {
             this.node2 = node2;
             return this;
         }
@@ -201,10 +201,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public void add() {
             if (node1 == null) {
-                throw new ValidationException(NodeBreakerVoltageLevel.this, "first connection node is not set");
+                throw new ValidationException(voltageLevel, "first connection node is not set");
             }
             if (node2 == null) {
-                throw new ValidationException(NodeBreakerVoltageLevel.this, "second connection node is not set");
+                throw new ValidationException(voltageLevel, "second connection node is not set");
             }
             graph.addVertexIfNotPresent(node1);
             graph.addVertexIfNotPresent(node2);
@@ -263,18 +263,23 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             if (!encountered[n]) {
                 final TIntArrayList nodes = new TIntArrayList(1);
                 nodes.add(n);
-                graph.traverse(n, TraversalType.DEPTH_FIRST, (n1, e, n2) -> {
+                Traverser traverser = (n1, e, n2) -> {
                     SwitchImpl aSwitch = graph.getEdgeObject(e);
                     if (aSwitch != null && terminate.test(aSwitch)) {
                         return TraverseResult.TERMINATE_PATH;
                     }
 
-                    nodes.add(n2);
+                    if (!encountered[n2]) {
+                        // We need to check this as the traverser might be called twice with the same n2 but with different edges.
+                        // Note that the "encountered" array is used and maintained inside graph::traverse method, hence we should not update it.
+                        nodes.add(n2);
+                    }
                     return TraverseResult.CONTINUE;
-                }, encountered);
+                };
+                graph.traverse(n, TraversalType.DEPTH_FIRST, traverser, encountered);
 
                 // check that the component is a bus
-                String busId = Identifiables.getUniqueId(NAMING_STRATEGY.getId(NodeBreakerVoltageLevel.this, nodes), getNetwork().getIndex()::contains);
+                String busId = Identifiables.getUniqueId(NAMING_STRATEGY.getId(voltageLevel, nodes), getNetwork().getIndex()::contains);
                 CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
                 for (int i = 0; i < nodes.size(); i++) {
                     int n2 = nodes.getQuick(i);
@@ -291,9 +296,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         private void addBus(TIntArrayList nodes, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus,
                             String busId, CopyOnWriteArrayList<NodeTerminal> terminals) {
-            String busName = NAMING_STRATEGY.getName(NodeBreakerVoltageLevel.this, nodes);
+            String busName = NAMING_STRATEGY.getName(voltageLevel, nodes);
             Function<Terminal, Bus> getBusFromTerminal = getBusChecker() == CALCULATED_BUS_CHECKER ? t -> t.getBusView().getBus() : t -> t.getBusBreakerView().getBus();
-            CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, NodeBreakerVoltageLevel.this.fictitious, NodeBreakerVoltageLevel.this, nodes, terminals, getBusFromTerminal);
+            CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, voltageLevel.isFictitious(), voltageLevel, nodes, terminals, getBusFromTerminal);
             id2bus.put(busId, bus);
             for (int i = 0; i < nodes.size(); i++) {
                 node2bus[nodes.getQuick(i)] = bus;
@@ -304,7 +309,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             if (busCache != null) {
                 return;
             }
-            LOGGER.trace("Update bus topology of voltage level {}", NodeBreakerVoltageLevel.this.id);
+            LOGGER.trace("Update bus topology of voltage level {}", voltageLevel.getId());
             Map<String, CalculatedBus> id2bus = new LinkedHashMap<>();
             CalculatedBus[] node2bus = new CalculatedBus[graph.getVertexCapacity()];
             boolean[] encountered = new boolean[graph.getVertexCapacity()];
@@ -497,28 +502,27 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private interface BusNamingStrategy {
 
-        String getId(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes);
+        String getId(VoltageLevel voltageLevel, TIntArrayList nodes);
 
-        String getName(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes);
+        String getName(VoltageLevel voltageLevel, TIntArrayList nodes);
     }
 
     private static final class LowestNodeNumberBusNamingStrategy implements BusNamingStrategy {
 
         @Override
-        public String getId(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes) {
+        public String getId(VoltageLevel voltageLevel, TIntArrayList nodes) {
             return voltageLevel.getId() + "_" + nodes.min();
         }
 
         @Override
-        public String getName(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes) {
-            return voltageLevel.name != null ? voltageLevel.name + "_" + nodes.min() : null;
+        public String getName(VoltageLevel voltageLevel, TIntArrayList nodes) {
+            return voltageLevel.getOptionalName().map(name -> name + "_" + nodes.min()).orElse(null);
         }
     }
 
-    NodeBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> ref,
-                            Ref<SubnetworkImpl> subnetworkRef, double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        super(id, name, fictitious, substation, ref, subnetworkRef, nominalV, lowVoltageLimit, highVoltageLimit);
-        variants = new VariantArray<>(ref, VariantImpl::new);
+    NodeBreakerTopologyModel(VoltageLevelExt voltageLevel) {
+        super(voltageLevel);
+        variants = new VariantArray<>(voltageLevel.getNetworkRef(), VariantImpl::new);
         graph.addListener(new DefaultUndirectedGraphListener<>() {
 
             private static final String INTERNAL_CONNECTION = "internalConnection";
@@ -531,7 +535,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                     switches.put(aSwitch.getId(), e);
                     network.getListeners().notifyCreation(aSwitch);
                 } else {
-                    network.getListeners().notifyElementAdded(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
+                    network.getListeners().notifyPropertyAdded(voltageLevel, INTERNAL_CONNECTION, null);
                 }
                 invalidateCache();
             }
@@ -553,7 +557,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                     switches.remove(switchId);
                     network.getListeners().notifyAfterRemoval(switchId);
                 } else {
-                    network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
+                    network.getListeners().notifyPropertyRemoved(voltageLevel, INTERNAL_CONNECTION, null);
                 }
             }
 
@@ -570,7 +574,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                     if (ss != null) {
                         network.getIndex().remove(ss);
                     } else {
-                        network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
+                        network.getListeners().notifyPropertyRemoved(voltageLevel, INTERNAL_CONNECTION, null);
                     }
                 });
                 switches.clear();
@@ -627,7 +631,17 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return variants.get().calculatedBusTopology;
     }
 
-    private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
+    void removeSwitchFromTopology(String switchId, boolean notify) {
+        Integer e = switches.get(switchId);
+        if (e == null) {
+            throw new PowsyblException("Switch '" + switchId
+                    + "' not found in voltage level '" + voltageLevel.getId() + "'");
+        }
+        graph.removeEdge(e, notify);
+        graph.removeIsolatedVertices(notify);
+    }
+
+    private final VoltageLevelExt.NodeBreakerViewExt nodeBreakerView = new VoltageLevelExt.NodeBreakerViewExt() {
 
         private final TIntObjectMap<TDoubleArrayList> fictitiousP0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
         private final TIntObjectMap<TDoubleArrayList> fictitiousQ0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
@@ -642,9 +656,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public NodeBreakerView setFictitiousP0(int node, double p0) {
+        public VoltageLevel.NodeBreakerView setFictitiousP0(int node, double p0) {
             if (Double.isNaN(p0)) {
-                throw new ValidationException(NodeBreakerVoltageLevel.this, "undefined value cannot be set as fictitious p0");
+                throw new ValidationException(voltageLevel, "undefined value cannot be set as fictitious p0");
             }
             TDoubleArrayList p0ByVariant = fictitiousP0ByNode.get(node);
             if (p0ByVariant == null) {
@@ -660,7 +674,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             int variantIndex = getNetwork().getVariantIndex();
             double oldValue = p0ByVariant.set(getNetwork().getVariantIndex(), p0);
             String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
-            getNetwork().getListeners().notifyUpdate(NodeBreakerVoltageLevel.this, "fictitiousP0", variantId, oldValue, p0);
+            getNetwork().getListeners().notifyUpdate(voltageLevel, "fictitiousP0", variantId, oldValue, p0);
             TIntSet toRemove = clearFictitiousInjections(fictitiousP0ByNode);
             synchronized (fictitiousP0ByNode) {
                 toRemove.forEach(n -> {
@@ -681,9 +695,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public NodeBreakerView setFictitiousQ0(int node, double q0) {
+        public VoltageLevel.NodeBreakerView setFictitiousQ0(int node, double q0) {
             if (Double.isNaN(q0)) {
-                throw new ValidationException(NodeBreakerVoltageLevel.this, "undefined value cannot be set as fictitious q0");
+                throw new ValidationException(voltageLevel, "undefined value cannot be set as fictitious q0");
             }
             TDoubleArrayList q0ByVariant = fictitiousQ0ByNode.get(node);
             if (q0ByVariant == null) {
@@ -699,7 +713,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             int variantIndex = getNetwork().getVariantIndex();
             double oldValue = q0ByVariant.set(getNetwork().getVariantIndex(), q0);
             String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
-            getNetwork().getListeners().notifyUpdate(NodeBreakerVoltageLevel.this, "fictitiousQ0", variantId, oldValue, q0);
+            getNetwork().getListeners().notifyUpdate(voltageLevel, "fictitiousQ0", variantId, oldValue, q0);
             TIntSet toRemove = clearFictitiousInjections(fictitiousQ0ByNode);
             synchronized (fictitiousQ0ByNode) {
                 toRemove.forEach(n -> {
@@ -874,18 +888,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public void removeSwitch(String switchId) {
-            Integer e = switches.get(switchId);
-            if (e == null) {
-                throw new PowsyblException("Switch '" + switchId
-                        + "' not found in voltage level '" + id + "'");
-            }
-            graph.removeEdge(e);
-            graph.removeIsolatedVertices();
+            NodeBreakerTopologyModel.this.removeSwitchFromTopology(switchId, true);
         }
 
         @Override
         public BusbarSectionAdder newBusbarSection() {
-            return new BusbarSectionAdderImpl(NodeBreakerVoltageLevel.this);
+            return new BusbarSectionAdderImpl(voltageLevel);
         }
 
         @Override
@@ -906,7 +914,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public BusbarSection getBusbarSection(String id) {
             BusbarSection bbs = getNetwork().getIndex().get(id, BusbarSection.class);
-            if (bbs != null && bbs.getTerminal().getVoltageLevel() != NodeBreakerVoltageLevel.this) {
+            if (bbs != null && bbs.getTerminal().getVoltageLevel() != voltageLevel) {
                 return null;
             }
             return bbs;
@@ -942,11 +950,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public NodeBreakerViewExt getNodeBreakerView() {
+    public VoltageLevelExt.NodeBreakerViewExt getNodeBreakerView() {
         return nodeBreakerView;
     }
 
-    private final BusViewExt busView = new BusViewExt() {
+    private final VoltageLevelExt.BusViewExt busView = new VoltageLevelExt.BusViewExt() {
 
         @Override
         public Iterable<Bus> getBuses() {
@@ -972,11 +980,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     };
 
     @Override
-    public BusViewExt getBusView() {
+    public VoltageLevelExt.BusViewExt getBusView() {
         return busView;
     }
 
-    private final BusBreakerViewExt busBreakerView = new BusBreakerViewExt() {
+    private final VoltageLevelExt.BusBreakerViewExt busBreakerView = new VoltageLevelExt.BusBreakerViewExt() {
 
         @Override
         public Iterable<Bus> getBuses() {
@@ -1074,7 +1082,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public BusBreakerView.SwitchAdder newSwitch() {
+        public SwitchAdder newSwitch() {
             throw createNotSupportedNodeBreakerTopologyException();
         }
 
@@ -1085,7 +1093,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     };
 
     @Override
-    public BusBreakerViewExt getBusBreakerView() {
+    public VoltageLevelExt.BusBreakerViewExt getBusBreakerView() {
         return busBreakerView;
     }
 
@@ -1107,7 +1115,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     private void checkTerminal(TerminalExt terminal) {
         if (!(terminal instanceof NodeTerminal)) {
             throw new ValidationException(terminal.getConnectable(),
-                    "voltage level " + NodeBreakerVoltageLevel.this.id + " has a node/breaker topology"
+                    "voltage level " + voltageLevel.getId() + " has a node/breaker topology"
                             + ", a node connection should be specified instead of a bus connection");
         }
         int node = ((NodeTerminal) terminal).getNode();
@@ -1116,7 +1124,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             throw new ValidationException(terminal.getConnectable(),
                     "an equipment (" + graph.getVertexObject(node).getConnectable().getId()
                             + ") is already connected to node " + node + " of voltage level "
-                            + NodeBreakerVoltageLevel.this.id);
+                            + voltageLevel.getId());
         }
     }
 
@@ -1129,12 +1137,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         int node = ((NodeTerminal) terminal).getNode();
 
         // create the link terminal <-> voltage level
-        terminal.setVoltageLevel(NodeBreakerVoltageLevel.this);
+        terminal.setVoltageLevel(voltageLevel);
 
         // create the link terminal <-> graph vertex
         graph.setVertexObject(node, (NodeTerminal) terminal);
 
-        getNetwork().getVariantManager().forEachVariant(this::invalidateCache);
+        getNetwork().getVariantManager().forEachVariant(NodeBreakerTopologyModel.this::invalidateCache);
     }
 
     @Override
@@ -1147,7 +1155,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         graph.setVertexObject(node, null);
 
-        getNetwork().getVariantManager().forEachVariant(this::invalidateCache);
+        getNetwork().getVariantManager().forEachVariant(NodeBreakerTopologyModel.this::invalidateCache);
 
         // remove the link terminal -> voltage level
         terminal.setVoltageLevel(null);
@@ -1181,8 +1189,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
      * @param terminal Terminal to connect
      * @return <code>true</code> if the terminal has been connected, <code>false</code> if it hasn't or if it was already connected
      */
-    @Override
-    public boolean connect(TerminalExt terminal) {
+    boolean connect(TerminalExt terminal) {
         // Only keep the closed non-fictional breakers in the nominal case
         return connect(terminal, SwitchPredicates.IS_NONFICTIONAL_BREAKER);
     }
@@ -1224,7 +1231,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         // find all paths starting from the current terminal to a busbar section that does not contain an open switch
         // that is not of the type of switch the user wants to operate
         // Paths are already sorted by the number of open switches and by the size of the paths
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, sw -> checkNonClosableSwitch(sw, isSwitchOperable),
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerTopologyModel::isBusbarSection, sw -> checkNonClosableSwitch(sw, isSwitchOperable),
             Comparator.comparing((TIntArrayList o) -> o.grep(idx -> SwitchPredicates.IS_OPEN.test(graph.getEdgeObject(idx))).size())
                 .thenComparing(TIntArrayList::size));
         if (!paths.isEmpty()) {
@@ -1245,8 +1252,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return false;
     }
 
-    @Override
-    public boolean disconnect(TerminalExt terminal) {
+    boolean disconnect(TerminalExt terminal) {
         // Only keep the closed non-fictional breakers in the nominal case
         return disconnect(terminal, SwitchPredicates.IS_CLOSED_BREAKER);
     }
@@ -1280,7 +1286,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         int node = ((NodeTerminal) terminal).getNode();
         // find all paths starting from the current terminal to a busbar section that does not contain an open switch
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, SwitchPredicates.IS_OPEN);
+        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerTopologyModel::isBusbarSection, SwitchPredicates.IS_OPEN);
         if (paths.isEmpty()) {
             return false;
         }
@@ -1385,25 +1391,21 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         variants.push(number, VariantImpl::new);
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        super.reduceVariantArraySize(number);
         variants.pop(number);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        super.deleteVariantArrayElement(index);
         variants.delete(index);
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
-        super.allocateVariantArrayElement(indexes, sourceIndex);
         variants.allocate(indexes, VariantImpl::new);
     }
 
@@ -1424,7 +1426,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public void printTopology(PrintStream out, ShortIdDictionary dict) {
         out.println("-------------------------------------------------------------");
-        out.println("Topology of " + NodeBreakerVoltageLevel.this.id);
+        out.println("Topology of " + voltageLevel.getId());
         graph.print(out, terminal -> terminal != null ? terminal.getConnectable().toString() : null, null);
     }
 
