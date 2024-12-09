@@ -1285,6 +1285,11 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     boolean getDisconnectingSwitches(Terminal terminal, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchForDisconnection) {
+        return getDisconnectingSwitches(terminal, isSwitchOpenable, switchForDisconnection, new HashSet<>());
+    }
+
+    boolean getDisconnectingSwitches(Terminal terminal, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchForDisconnection,
+                                     Set<NodeTerminal> endOfPathTerminals) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
@@ -1303,6 +1308,9 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 return false;
             }
         }
+
+        // Identify the terminal at the end of the paths
+        graph.identifyEndOfPathVerticesObjects(paths, endOfPathTerminals, NodeBreakerTopologyModel::isTerminal);
         return true;
     }
 

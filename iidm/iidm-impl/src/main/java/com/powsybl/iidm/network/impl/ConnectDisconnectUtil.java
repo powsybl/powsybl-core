@@ -9,9 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 
 import java.util.HashSet;
 import java.util.List;
@@ -114,6 +112,9 @@ public final class ConnectDisconnectUtil {
         // Initialisation of a list to open in case some terminals are in node-breaker view
         Set<SwitchImpl> switchForDisconnection = new HashSet<>();
 
+        // Set of terminals at the other end of paths - used to disconnect their connectable if needed
+        Set<NodeTerminal> endOfPathTerminals = new HashSet<>();
+
         // We try to disconnect each terminal
         for (Terminal terminal : terminals) {
             // Check if the terminal is already disconnected
@@ -131,7 +132,7 @@ public final class ConnectDisconnectUtil {
             // If it's a node-breaker terminal, the switches to disconnect are added to a set
             if (terminal.getVoltageLevel().getTopologyKind() == NODE_BREAKER) {
                 NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) terminal.getVoltageLevel()).getTopologyModel();
-                if (!topologyModel.getDisconnectingSwitches(terminal, isSwitchOpenable, switchForDisconnection)) {
+                if (!topologyModel.getDisconnectingSwitches(terminal, isSwitchOpenable, switchForDisconnection, endOfPathTerminals)) {
                     // Exit if the terminal cannot be disconnected
                     return false;
                 }
@@ -154,6 +155,42 @@ public final class ConnectDisconnectUtil {
         }
         // Disconnect all switches on node-breaker terminals
         switchForDisconnection.forEach(sw -> sw.setOpen(true));
+
+        // Completely disconnect if needed the elements (other than busbar sections at the end of the paths)
+        disconnectEndOfPathTerminals(endOfPathTerminals, isSwitchOpenable);
         return isNowDisconnected;
+    }
+
+    private static void disconnectEndOfPathTerminals(Set<NodeTerminal> endOfPathTerminals, Predicate<Switch> isSwitchOpenable) {
+        for (Terminal terminal : endOfPathTerminals) {
+            if (!terminal.isConnected()) {
+                // If one side is disconnected, the connectable has to be fully disconnected
+                switch (terminal.getConnectable().getType()) {
+                    case LINE -> {
+                        Line line = (Line) terminal.getConnectable();
+                        line.disconnect(isSwitchOpenable);
+                    }
+                    case TWO_WINDINGS_TRANSFORMER -> {
+                        TwoWindingsTransformer twt = (TwoWindingsTransformer) terminal.getConnectable();
+                        twt.disconnect(isSwitchOpenable);
+                    }
+                    case THREE_WINDINGS_TRANSFORMER -> {
+                        ThreeWindingsTransformer twt = (ThreeWindingsTransformer) terminal.getConnectable();
+                        twt.disconnect(isSwitchOpenable);
+                    }
+                    case HVDC_CONVERTER_STATION ->
+                        ((HvdcConverterStation<?>) terminal.getConnectable()).getHvdcLine().disconnectConverterStations(isSwitchOpenable);
+                    case DANGLING_LINE -> {
+                        DanglingLine danglingLine = (DanglingLine) terminal.getConnectable();
+                        if (danglingLine.getTieLine().isPresent()) {
+                            danglingLine.getTieLine().get().disconnectDanglingLines(isSwitchOpenable);
+                        }
+                    }
+                    default -> {
+                        // Nothing to do
+                    }
+                }
+            }
+        }
     }
 }

@@ -35,26 +35,36 @@ public abstract class AbstractForkConnectDisconnectTest {
         VoltageLevel vl2 = s1.newVoltageLevel()
             .setId("VL2")
             .setNominalV(1.0)
-            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
             .add();
 
         // Busbar sections
-        BusbarSection bbs11 = vl1.getNodeBreakerView()
+        BusbarSection bbs1 = vl1.getNodeBreakerView()
             .newBusbarSection()
             .setId("BBS11")
             .setNode(0)
             .add();
-        bbs11.newExtension(BusbarSectionPositionAdder.class)
+        bbs1.newExtension(BusbarSectionPositionAdder.class)
             .withBusbarIndex(1)
             .withSectionIndex(1)
             .add();
-        vl2.getBusBreakerView()
-            .newBus()
-            .setId("bus2A")
+        BusbarSection bbs2A = vl2.getNodeBreakerView()
+            .newBusbarSection()
+            .setId("BBS2A")
+            .setNode(0)
             .add();
-        vl2.getBusBreakerView()
-            .newBus()
-            .setId("bus2B")
+        bbs2A.newExtension(BusbarSectionPositionAdder.class)
+            .withBusbarIndex(1)
+            .withSectionIndex(1)
+            .add();
+        BusbarSection bbs2B = vl2.getNodeBreakerView()
+            .newBusbarSection()
+            .setId("BBS2B")
+            .setNode(1)
+            .add();
+        bbs2B.newExtension(BusbarSectionPositionAdder.class)
+            .withBusbarIndex(2)
+            .withSectionIndex(1)
             .add();
 
         // Lines
@@ -70,8 +80,7 @@ public abstract class AbstractForkConnectDisconnectTest {
             .setVoltageLevel1("VL1")
             .setVoltageLevel2("VL2")
             .setNode1(4)
-            .setBus2("bus2A")
-            .setConnectableBus2("bus2A")
+            .setNode2(3)
             .add();
         network.newLine()
             .setId("L2")
@@ -85,11 +94,10 @@ public abstract class AbstractForkConnectDisconnectTest {
             .setVoltageLevel1("VL1")
             .setVoltageLevel2("VL2")
             .setNode1(5)
-            .setBus2("bus2B")
-            .setConnectableBus2("bus2B")
+            .setNode2(5)
             .add();
 
-        // Breakers and disconnectors for L1 and L2
+        // VL1 - Breakers and disconnectors for L1 and L2
         vl1.getNodeBreakerView().newDisconnector()
             .setId("D_L1")
             .setNode1(4)
@@ -113,6 +121,46 @@ public abstract class AbstractForkConnectDisconnectTest {
             .setId("D0")
             .setNode1(7)
             .setNode2(0)
+            .setOpen(false)
+            .add();
+
+        // VL2 - Breakers and disconnectors for L1 and L2
+        vl2.getNodeBreakerView().newBreaker()
+            .setId("B_L1_VL2")
+            .setNode1(3)
+            .setNode2(2)
+            .setOpen(false)
+            .setFictitious(false)
+            .add();
+        vl2.getNodeBreakerView().newDisconnector()
+            .setId("D_L1_BBS2A")
+            .setNode1(2)
+            .setNode2(0)
+            .setOpen(false)
+            .add();
+        vl2.getNodeBreakerView().newDisconnector()
+            .setId("D_L1_BBS2B")
+            .setNode1(2)
+            .setNode2(1)
+            .setOpen(true)
+            .add();
+        vl2.getNodeBreakerView().newBreaker()
+            .setId("B_L2_VL2")
+            .setNode1(5)
+            .setNode2(4)
+            .setOpen(false)
+            .setFictitious(false)
+            .add();
+        vl2.getNodeBreakerView().newDisconnector()
+            .setId("D_L2_BBS2A")
+            .setNode1(4)
+            .setNode2(0)
+            .setOpen(true)
+            .add();
+        vl2.getNodeBreakerView().newDisconnector()
+            .setId("D_L2_BBS2B")
+            .setNode1(4)
+            .setNode2(1)
             .setOpen(false)
             .add();
         return network;
@@ -184,7 +232,6 @@ public abstract class AbstractForkConnectDisconnectTest {
         assertTrue(topo.getOptionalTerminal(5).isPresent());
         line2.getTerminals().forEach(terminal -> assertNull(terminal.getBusView().getBus()));
         line2.getTerminals().forEach(terminal -> assertFalse(terminal.isConnected()));
-        // TODO: Warning - L2 is half connected!
 
         // D_L1 should be open but not D_L2
         assertTrue(disconnectorL1.isOpen());
