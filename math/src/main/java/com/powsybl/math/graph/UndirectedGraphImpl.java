@@ -706,26 +706,6 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
     }
 
-    public void identifyEndOfPathVerticesObjects(List<TIntArrayList> paths, Set<V> endOfPathVerticesObjects,
-                                                  Predicate<V> pathComplete) {
-        for (TIntArrayList path : paths) {
-            // We get the last edge of the path
-            int e = path.get(path.size() - 1);
-            Edge<E> edge = edges.get(e);
-
-            // The last vertice can be at either side of the edge
-            V object1 = vertices.get(edge.getV1()).getObject();
-            V object2 = vertices.get(edge.getV2()).getObject();
-
-            // Only one side can validate the predicate
-            if (Boolean.TRUE.equals(pathComplete.test(object1))) {
-                endOfPathVerticesObjects.add(object1);
-            } else {
-                endOfPathVerticesObjects.add(object2);
-            }
-        }
-    }
-
     @Override
     public void addListener(UndirectedGraphListener<V, E> l) {
         listeners.add(l);
