@@ -117,17 +117,17 @@ public final class InMemoryCgmesModel implements CgmesModel {
         return true;
     }
 
-    public InMemoryCgmesModel modelId(String modelId) {
+    public InMemoryCgmesModel withModelId(String modelId) {
         this.modelId = modelId;
         return this;
     }
 
-    public InMemoryCgmesModel version(String version) {
+    public InMemoryCgmesModel withVersion(String version) {
         this.version = version;
         return this;
     }
 
-    public InMemoryCgmesModel nodeBreaker(boolean b) {
+    public InMemoryCgmesModel withNodeBreaker(boolean b) {
         isNodeBreaker = b;
         return this;
     }
@@ -140,7 +140,7 @@ public final class InMemoryCgmesModel implements CgmesModel {
         return false;
     }
 
-    public InMemoryCgmesModel substations(String... ids) {
+    public InMemoryCgmesModel withSubstations(String... ids) {
         fakeObjectsFromIdentifiers("Substation", ids, substations);
         // Add a default SubRegion to every substation
         substations.forEach(s -> {
@@ -152,122 +152,112 @@ public final class InMemoryCgmesModel implements CgmesModel {
         return this;
     }
 
-    public InMemoryCgmesModel voltageLevels(String... ids) {
+    public InMemoryCgmesModel withVoltageLevels(String... ids) {
         fakeObjectsFromIdentifiers("VoltageLevel", ids, voltageLevels);
         return this;
     }
 
-    public InMemoryCgmesModel terminals(String... ids) {
+    public InMemoryCgmesModel withTerminals(String... ids) {
         fakeObjectsFromIdentifiers("Terminal", ids, terminals);
         return this;
     }
 
-    public InMemoryCgmesModel operationalLimits(String... ids) {
+    public InMemoryCgmesModel withOperationalLimits(String... ids) {
         fakeObjectsFromIdentifiers("OperationalLimit", ids, operationalLimits);
         return this;
     }
 
-    public InMemoryCgmesModel topologicalNodes(String... ids) {
+    public InMemoryCgmesModel withTopologicalNodes(String... ids) {
         fakeObjectsFromIdentifiers("TopologicalNode", ids, topologicalNodes);
         return this;
     }
 
-    public InMemoryCgmesModel busBarSections(String... ids) {
+    public InMemoryCgmesModel withBusBarSections(String... ids) {
         fakeObjectsFromIdentifiers("BusbarSection", ids, busbarSections);
         return this;
     }
 
-    public InMemoryCgmesModel switches(String... ids) {
+    public InMemoryCgmesModel withSwitches(String... ids) {
         fakeObjectsFromIdentifiers("Switch", ids, switches);
         return this;
     }
 
-    public InMemoryCgmesModel acLineSegments(String... ids) {
+    public InMemoryCgmesModel withAcLineSegments(String... ids) {
         fakeObjectsFromIdentifiers("ACLineSegment", ids, acLineSegments);
         return this;
     }
 
-    @Override
-    public PropertyBags equivalentBranches() {
-        return equivalentBranches;
-    }
-
-    @Override
-    public PropertyBags seriesCompensators() {
-        return seriesCompensators;
-    }
-
-    public InMemoryCgmesModel transformers(String... ids) {
+    public InMemoryCgmesModel withTransformers(String... ids) {
         fakeObjectsFromIdentifiers("PowerTransformer", ids, transformers);
         return this;
     }
 
-    public InMemoryCgmesModel transformerEnds(String... ids) {
+    public InMemoryCgmesModel withTransformerEnds(String... ids) {
         fakeObjectsFromIdentifiers("TransformerEnd", ids, transformerEnds);
         return this;
     }
 
-    public InMemoryCgmesModel ratioTapChangers(String... ids) {
+    public InMemoryCgmesModel withRatioTapChangers(String... ids) {
         fakeObjectsFromIdentifiers("RatioTapChanger", ids, ratioTapChangers);
         return this;
     }
 
-    public InMemoryCgmesModel phaseTapChangers(String... ids) {
+    public InMemoryCgmesModel withPhaseTapChangers(String... ids) {
         fakeObjectsFromIdentifiers("PhaseTapChanger", ids, phaseTapChangers);
         return this;
     }
 
-    public InMemoryCgmesModel energyConsumers(String... ids) {
+    public InMemoryCgmesModel withEnergyConsumers(String... ids) {
         fakeObjectsFromIdentifiers("EnergyConsumer", ids, energyConsumers);
         return this;
     }
 
-    public InMemoryCgmesModel shuntCompensators(String... ids) {
+    public InMemoryCgmesModel withShuntCompensators(String... ids) {
         fakeObjectsFromIdentifiers("ShuntCompensator", ids, shuntCompensators);
         return this;
     }
 
-    public InMemoryCgmesModel shuntCompensatorsPoints(String... ids) {
+    public InMemoryCgmesModel withShuntCompensatorsPoints(String... ids) {
         fakeObjectsFromIdentifiers("NonlinearShuntCompensatorPoint", ids, shuntCompensatorPoints);
         return this;
     }
 
-    public InMemoryCgmesModel staticVarCompensators(String... ids) {
+    public InMemoryCgmesModel withStaticVarCompensators(String... ids) {
         fakeObjectsFromIdentifiers("StaticVarCompensator", ids, staticVarCompensators);
         return this;
     }
 
-    public InMemoryCgmesModel synchronousMachinesGenerators(String... ids) {
+    public InMemoryCgmesModel withSynchronousMachinesGenerators(String... ids) {
         fakeObjectsFromIdentifiers("SynchronousMachine", ids, synchronousMachinesGenerators);
         return this;
     }
 
-    public InMemoryCgmesModel asynchronousMachines(String... ids) {
+    public InMemoryCgmesModel withAsynchronousMachines(String... ids) {
         fakeObjectsFromIdentifiers("AsynchronousMachine", ids, asynchronousMachines);
         return this;
     }
 
-    public InMemoryCgmesModel acDcConverters(String... ids) {
+    public InMemoryCgmesModel withAcDcConverters(String... ids) {
         fakeObjectsFromIdentifiers("ACDCConverter", ids, acDcConverters);
         return this;
     }
 
-    public InMemoryCgmesModel dcLineSegments(String... ids) {
+    public InMemoryCgmesModel withDcLineSegments(String... ids) {
         fakeObjectsFromIdentifiers("DCLineSegment", ids, dcLineSegments);
         return this;
     }
 
-    public InMemoryCgmesModel dcTerminals(String... ids) {
+    public InMemoryCgmesModel withDcTerminals(String... ids) {
         fakeObjectsFromIdentifiers("DCTerminal", ids, dcTerminals);
         return this;
     }
 
-    public InMemoryCgmesModel tieFlows(String... ids) {
+    public InMemoryCgmesModel withTieFlows(String... ids) {
         fakeObjectsFromIdentifiers("TieFlow", ids, tieFlows);
         return this;
     }
 
-    public InMemoryCgmesModel modelProfiles(String... ids) {
+    public InMemoryCgmesModel withModelProfiles(String... ids) {
         fakeObjectsFromIdentifiers("FullModel", ids, modelProfiles);
         return this;
     }
@@ -389,6 +379,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
     @Override
     public PropertyBags acLineSegments() {
         return acLineSegments;
+    }
+
+    @Override
+    public PropertyBags equivalentBranches() {
+        return equivalentBranches;
+    }
+
+    @Override
+    public PropertyBags seriesCompensators() {
+        return seriesCompensators;
     }
 
     @Override

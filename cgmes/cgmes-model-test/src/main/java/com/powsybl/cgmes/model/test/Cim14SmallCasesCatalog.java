@@ -97,32 +97,32 @@ public final class Cim14SmallCasesCatalog {
 
     private static CgmesModel expectedSmall1() {
         return new InMemoryCgmesModel()
-                .modelId("Small1")
-                .version(VERSION)
-                .substations("_GEN______SS", "_INF______SS")
-                .voltageLevels("_GEN______VL", "_GRID_____VL", "_INF______VL")
-                .terminals("_GEN_____-GRID____-1_TW_EX_TE",
+                .withModelId("Small1")
+                .withVersion(VERSION)
+                .withSubstations("_GEN______SS", "_INF______SS")
+                .withVoltageLevels("_GEN______VL", "_GRID_____VL", "_INF______VL")
+                .withTerminals("_GEN_____-GRID____-1_TW_EX_TE",
                         "_GEN_____-GRID____-1_TW_OR_TE", "_GEN______SM_TE",
                         "_GRID____-INF_____-1_AC_TE_EX", "_GRID____-INF_____-1_AC_TE_OR",
                         "_INF______SM_TE")
-                .operationalLimits("_GEN_____-GRID____-1_TW_EX_CL", "_GEN_____-GRID____-1_TW_OR_CL",
+                .withOperationalLimits("_GEN_____-GRID____-1_TW_EX_CL", "_GEN_____-GRID____-1_TW_OR_CL",
                         "_GRID____-INF_____-1_AC_CL")
-                .topologicalNodes("_GEN______TN", "_GRID_____TN", "_INF______TN")
-                .acLineSegments("_GRID____-INF_____-1_AC")
-                .transformers("_GEN_____-GRID____-1_PT")
-                .transformerEnds("_GEN_____-GRID____-1_TW_EX", "_GEN_____-GRID____-1_TW_OR")
-                .synchronousMachinesGenerators("_GEN______SM", "_INF______SM");
+                .withTopologicalNodes("_GEN______TN", "_GRID_____TN", "_INF______TN")
+                .withAcLineSegments("_GRID____-INF_____-1_AC")
+                .withTransformers("_GEN_____-GRID____-1_PT")
+                .withTransformerEnds("_GEN_____-GRID____-1_TW_EX", "_GEN_____-GRID____-1_TW_OR")
+                .withSynchronousMachinesGenerators("_GEN______SM", "_INF______SM");
     }
 
     private static CgmesModel expectedM7Buses() {
         return new InMemoryCgmesModel()
-                .modelId("M7Buses")
-                .version(VERSION)
-                .substations("_FP.AND11_SS", "_FS.BIS11_SS", "_FSSV.O11_SS", "_FTILL511_SS",
+                .withModelId("M7Buses")
+                .withVersion(VERSION)
+                .withSubstations("_FP.AND11_SS", "_FS.BIS11_SS", "_FSSV.O11_SS", "_FTILL511_SS",
                         "_FVALDI11_SS", "_FVERGE11_SS")
-                .voltageLevels("_FP.AND11_VL", "_FS.BIS11_VL", "_FSSV.O11_VL", "_FTDPRA11_VL",
+                .withVoltageLevels("_FP.AND11_VL", "_FS.BIS11_VL", "_FSSV.O11_VL", "_FTDPRA11_VL",
                         "_FTILL511_VL", "_FVALDI11_VL", "_FVERGE11_VL")
-                .terminals("_FP.ANC12_EC_TE", "_FP.AND11-FP.AND12-A_SW_TE_EX",
+                .withTerminals("_FP.ANC12_EC_TE", "_FP.AND11-FP.AND12-A_SW_TE_EX",
                         "_FP.AND11-FP.AND12-A_SW_TE_OR", "_FP.AND11-FTDPRA11-1_TW_EX_TE",
                         "_FP.AND11-FTDPRA11-1_TW_OR_TE", "_FP.AND11-FVERGE11-1_AC_TE_EX",
                         "_FP.AND11-FVERGE11-1_AC_TE_OR",
@@ -151,7 +151,7 @@ public final class Cim14SmallCasesCatalog {
                         "_FVALDI11-FVALDI12-A_SW_TE_OR", "_FVALDT11_SM_TE",
                         "_FVERGE11-FVERGE12-A_SW_TE_EX",
                         "_FVERGE11-FVERGE12-A_SW_TE_OR", "_FVERGT11_SM_TE")
-                .operationalLimits("_FP.AND11-FTDPRA11-1_TW_EX_CL", "_FP.AND11-FTDPRA11-1_TW_OR_CL",
+                .withOperationalLimits("_FP.AND11-FTDPRA11-1_TW_EX_CL", "_FP.AND11-FTDPRA11-1_TW_OR_CL",
                         "_FP.AND11-FVERGE11-1_AC_CL", "_FP.AND11-FVERGE11-2_AC_CL",
                         "_FS.BIS11-FVALDI11-1_AC_CL", "_FS.BIS11-FVALDI11-2_AC_CL",
                         "_FSSV.O11-FP.AND11-1_AC_CL",
@@ -161,19 +161,19 @@ public final class Cim14SmallCasesCatalog {
                         "_FTILL511-FS.BIS11-1_AC_CL", "_FTILL511-FS.BIS11-2_AC_CL",
                         "_FVALDI11-FTDPRA11-1_AC_CL",
                         "_FVALDI11-FTDPRA11-2_AC_CL")
-                .topologicalNodes("_FP.AND11_TN", "_FP.AND12_TN", "_FS.BIS11_TN",
+                .withTopologicalNodes("_FP.AND11_TN", "_FP.AND12_TN", "_FS.BIS11_TN",
                         "_FS.BIS12_TN", "_FSSV.O11_TN", "_FSSV.O12_TN", "_FTDPRA11_TN",
                         "_FTDPRA12_TN", "_FTILL511_TN", "_FTILL512_TN", "_FVALDI11_TN",
                         "_FVALDI12_TN", "_FVERGE11_TN", "_FVERGE12_TN")
                 // Switch identifiers are repeated twice, one record per terminal
-                .switches("_FP.AND11-FP.AND12-A_SW",
+                .withSwitches("_FP.AND11-FP.AND12-A_SW",
                         "_FS.BIS11-FS.BIS12-A_SW",
                         "_FSSV.O11-FSSV.O12-A_SW",
                         "_FTDPRA11-FTDPRA12-A_SW",
                         "_FTILL511-FTILL512-A_SW",
                         "_FVALDI11-FVALDI12-A_SW",
                         "_FVERGE11-FVERGE12-A_SW")
-                .acLineSegments("_FP.AND11-FVERGE11-1_AC", "_FP.AND11-FVERGE11-2_AC",
+                .withAcLineSegments("_FP.AND11-FVERGE11-1_AC", "_FP.AND11-FVERGE11-2_AC",
                         "_FS.BIS11-FVALDI11-1_AC", "_FS.BIS11-FVALDI11-2_AC",
                         "_FSSV.O11-FP.AND11-1_AC", "_FSSV.O11-FP.AND11-2_AC",
                         "_FSSV.O11-FTILL511-1_AC", "_FSSV.O11-FTILL511-2_AC",
@@ -181,27 +181,27 @@ public final class Cim14SmallCasesCatalog {
                         "_FTDPRA11-FVERGE11-2_AC", "_FTILL511-FS.BIS11-1_AC",
                         "_FTILL511-FS.BIS11-2_AC", "_FVALDI11-FTDPRA11-1_AC",
                         "_FVALDI11-FTDPRA11-2_AC")
-                .transformers("_FP.AND11-FTDPRA11-1_PT")
-                .transformerEnds("_FP.AND11-FTDPRA11-1_TW_EX", "_FP.AND11-FTDPRA11-1_TW_OR")
-                .phaseTapChangers(new String[] {"_FP.AND11-FTDPRA11-1_PTC_OR"})
-                .energyConsumers("_FP.ANC12_EC", "_FS.BIC11_EC", "_FTDPRC11_EC", "_FTILLC51_EC")
-                .synchronousMachinesGenerators("_FSSV.T11_SM", "_FVALDT11_SM", "_FVERGT11_SM");
+                .withTransformers("_FP.AND11-FTDPRA11-1_PT")
+                .withTransformerEnds("_FP.AND11-FTDPRA11-1_TW_EX", "_FP.AND11-FTDPRA11-1_TW_OR")
+                .withPhaseTapChangers("_FP.AND11-FTDPRA11-1_PTC_OR")
+                .withEnergyConsumers("_FP.ANC12_EC", "_FS.BIC11_EC", "_FTDPRC11_EC", "_FTILLC51_EC")
+                .withSynchronousMachinesGenerators("_FSSV.T11_SM", "_FVALDT11_SM", "_FVERGT11_SM");
     }
 
     private static CgmesModel expectedIeee14() {
         return new InMemoryCgmesModel()
-                .modelId("IEEE14")
-                .version(VERSION)
-                .substations(
+                .withModelId("IEEE14")
+                .withVersion(VERSION)
+                .withSubstations(
                         "_BUS___10_SS", "_BUS___11_SS", "_BUS___12_SS", "_BUS___13_SS",
                         "_BUS___14_SS", "_BUS____1_SS", "_BUS____2_SS", "_BUS____3_SS",
                         "_BUS____4_SS", "_BUS____5_SS", "_BUS____8_SS")
-                .voltageLevels(
+                .withVoltageLevels(
                         "_BUS___10_VL", "_BUS___11_VL", "_BUS___12_VL", "_BUS___13_VL",
                         "_BUS___14_VL", "_BUS____1_VL", "_BUS____2_VL", "_BUS____3_VL",
                         "_BUS____4_VL", "_BUS____5_VL", "_BUS____6_VL", "_BUS____7_VL",
                         "_BUS____8_VL", "_BUS____9_VL")
-                .terminals(
+                .withTerminals(
                         "_BANK___9_SC_TE", "_BUS___10-BUS___11-1_AC_TE_EX",
                         "_BUS___10-BUS___11-1_AC_TE_OR", "_BUS___12-BUS___13-1_AC_TE_EX",
                         "_BUS___12-BUS___13-1_AC_TE_OR", "_BUS___13-BUS___14-1_AC_TE_EX",
@@ -231,7 +231,7 @@ public final class Cim14SmallCasesCatalog {
                         "_LOAD__11_EC_TE", "_LOAD__12_EC_TE", "_LOAD__13_EC_TE", "_LOAD__14_EC_TE",
                         "_LOAD___2_EC_TE", "_LOAD___3_EC_TE", "_LOAD___4_EC_TE", "_LOAD___5_EC_TE",
                         "_LOAD___6_EC_TE", "_LOAD___9_EC_TE")
-                .operationalLimits(
+                .withOperationalLimits(
                         "_BUS___10-BUS___11-1_AC_CL", "_BUS___12-BUS___13-1_AC_CL",
                         "_BUS___13-BUS___14-1_AC_CL", "_BUS____1-BUS____2-1_AC_CL",
                         "_BUS____1-BUS____5-1_AC_CL", "_BUS____2-BUS____3-1_AC_CL",
@@ -244,13 +244,13 @@ public final class Cim14SmallCasesCatalog {
                         "_BUS____6-BUS___13-1_AC_CL", "_BUS____7-BUS____8-1_AC_CL",
                         "_BUS____7-BUS____9-1_AC_CL", "_BUS____9-BUS___10-1_AC_CL",
                         "_BUS____9-BUS___14-1_AC_CL")
-                .topologicalNodes(
+                .withTopologicalNodes(
                         "_BUS___10_TN", "_BUS___11_TN", "_BUS___12_TN", "_BUS___13_TN",
                         "_BUS___14_TN", "_BUS____1_TN", "_BUS____2_TN", "_BUS____3_TN",
                         "_BUS____4_TN", "_BUS____5_TN", "_BUS____6_TN", "_BUS____7_TN",
                         "_BUS____8_TN",
                         "_BUS____9_TN")
-                .acLineSegments("_BUS___10-BUS___11-1_AC", "_BUS___12-BUS___13-1_AC",
+                .withAcLineSegments("_BUS___10-BUS___11-1_AC", "_BUS___12-BUS___13-1_AC",
                         "_BUS___13-BUS___14-1_AC", "_BUS____1-BUS____2-1_AC",
                         "_BUS____1-BUS____5-1_AC", "_BUS____2-BUS____3-1_AC",
                         "_BUS____2-BUS____4-1_AC", "_BUS____2-BUS____5-1_AC",
@@ -259,26 +259,26 @@ public final class Cim14SmallCasesCatalog {
                         "_BUS____6-BUS___12-1_AC", "_BUS____6-BUS___13-1_AC",
                         "_BUS____7-BUS____8-1_AC", "_BUS____7-BUS____9-1_AC",
                         "_BUS____9-BUS___10-1_AC", "_BUS____9-BUS___14-1_AC")
-                .transformers("_BUS____4-BUS____7-1_PT", "_BUS____4-BUS____9-1_PT",
+                .withTransformers("_BUS____4-BUS____7-1_PT", "_BUS____4-BUS____9-1_PT",
                         "_BUS____5-BUS____6-1_PT")
-                .transformerEnds("_BUS____4-BUS____7-1_TW_EX", "_BUS____4-BUS____7-1_TW_OR",
+                .withTransformerEnds("_BUS____4-BUS____7-1_TW_EX", "_BUS____4-BUS____7-1_TW_OR",
                         "_BUS____4-BUS____9-1_TW_EX", "_BUS____4-BUS____9-1_TW_OR",
                         "_BUS____5-BUS____6-1_TW_EX", "_BUS____5-BUS____6-1_TW_OR")
-                .ratioTapChangers("_BUS____4-BUS____7-1_RTC_OR", "_BUS____4-BUS____9-1_RTC_OR",
+                .withRatioTapChangers("_BUS____4-BUS____7-1_RTC_OR", "_BUS____4-BUS____9-1_RTC_OR",
                         "_BUS____5-BUS____6-1_RTC_OR")
-                .energyConsumers("_LOAD__10_EC", "_LOAD__11_EC", "_LOAD__12_EC", "_LOAD__13_EC",
+                .withEnergyConsumers("_LOAD__10_EC", "_LOAD__11_EC", "_LOAD__12_EC", "_LOAD__13_EC",
                         "_LOAD__14_EC", "_LOAD___2_EC", "_LOAD___3_EC", "_LOAD___4_EC",
                         "_LOAD___5_EC", "_LOAD___6_EC", "_LOAD___9_EC")
-                .shuntCompensators("_BANK___9_SC")
-                .synchronousMachinesGenerators("_GEN____1_SM", "_GEN____2_SM", "_GEN____3_SM", "_GEN____6_SM",
+                .withShuntCompensators("_BANK___9_SC")
+                .withSynchronousMachinesGenerators("_GEN____1_SM", "_GEN____2_SM", "_GEN____3_SM", "_GEN____6_SM",
                         "_GEN____8_SM");
     }
 
     private static CgmesModel expectedNordic32() {
         return new InMemoryCgmesModel()
-                .modelId("Nordic32")
-                .version(VERSION)
-                .substations(
+                .withModelId("Nordic32")
+                .withVersion(VERSION)
+                .withSubstations(
                         "_N1011____SS", "_N1012____SS", "_N1022____SS", "_N1041____SS",
                         "_N1044____SS", "_N1045____SS", "_N2031____SS", "_N4032____SS",
                         "_N4043____SS", "_N4046____SS", "_N4061____SS", "_NG11_____SS",
@@ -286,7 +286,7 @@ public final class Cim14SmallCasesCatalog {
                         "_NG17_____SS", "_NG18_____SS", "_NG19_____SS", "_NG20_____SS",
                         "_NG2______SS", "_NG3______SS", "_NG4______SS", "_NG6______SS",
                         "_NG7______SS", "_NG8______SS")
-                .voltageLevels(
+                .withVoltageLevels(
                         "_N1011____VL", "_N1012____VL", "_N1013____VL", "_N1014____VL",
                         "_N1021____VL", "_N1022____VL", "_N1041____VL", "_N1042____VL",
                         "_N1043____VL", "_N1044____VL", "_N1045____VL", "_N2031____VL",
@@ -300,7 +300,7 @@ public final class Cim14SmallCasesCatalog {
                         "_NG18_____VL", "_NG19_____VL", "_NG1______VL", "_NG20_____VL",
                         "_NG2______VL", "_NG3______VL", "_NG4______VL", "_NG5______VL",
                         "_NG6______VL", "_NG7______VL", "_NG8______VL", "_NG9______VL")
-                .terminals(
+                .withTerminals(
                         "_G10______SM_TE", "_G11______SM_TE", "_G12______SM_TE", "_G13______SM_TE",
                         "_G14______SM_TE", "_G15______SM_TE", "_G16______SM_TE", "_G17______SM_TE",
                         "_G18______SM_TE", "_G19______SM_TE", "_G1_______SM_TE", "_G20______SM_TE",
@@ -397,7 +397,7 @@ public final class Cim14SmallCasesCatalog {
                         "_NG7_____-N1043___-1_TW_OR_TE", "_NG8_____-N2032___-1_TW_EX_TE",
                         "_NG8_____-N2032___-1_TW_OR_TE", "_NG9_____-N4011___-1_TW_EX_TE",
                         "_NG9_____-N4011___-1_TW_OR_TE")
-                .operationalLimits(
+                .withOperationalLimits(
                         "_N1011___-N1013___-1_AC_CL", "_N1011___-N1013___-2_AC_CL",
                         "_N1011___-N4011___-1_TW_EX_CL", "_N1011___-N4011___-1_TW_OR_CL",
                         "_N1012___-N1014___-1_AC_CL", "_N1012___-N1014___-2_AC_CL",
@@ -452,7 +452,7 @@ public final class Cim14SmallCasesCatalog {
                         "_NG7_____-N1043___-1_TW_EX_CL", "_NG7_____-N1043___-1_TW_OR_CL",
                         "_NG8_____-N2032___-1_TW_EX_CL", "_NG8_____-N2032___-1_TW_OR_CL",
                         "_NG9_____-N4011___-1_TW_EX_CL", "_NG9_____-N4011___-1_TW_OR_CL")
-                .topologicalNodes(
+                .withTopologicalNodes(
                         "_N1011____TN", "_N1012____TN", "_N1013____TN", "_N1014____TN",
                         "_N1021____TN", "_N1022____TN", "_N1041____TN", "_N1042____TN",
                         "_N1043____TN", "_N1044____TN", "_N1045____TN", "_N2031____TN",
@@ -466,7 +466,7 @@ public final class Cim14SmallCasesCatalog {
                         "_NG18_____TN", "_NG19_____TN", "_NG1______TN", "_NG20_____TN",
                         "_NG2______TN", "_NG3______TN", "_NG4______TN", "_NG5______TN",
                         "_NG6______TN", "_NG7______TN", "_NG8______TN", "_NG9______TN")
-                .acLineSegments(
+                .withAcLineSegments(
                         "_N1011___-N1013___-1_AC", "_N1011___-N1013___-2_AC",
                         "_N1012___-N1014___-1_AC", "_N1012___-N1014___-2_AC",
                         "_N1013___-N1014___-1_AC", "_N1013___-N1014___-2_AC",
@@ -493,7 +493,7 @@ public final class Cim14SmallCasesCatalog {
                         "_N4046___-N4047___-1_AC", "_N4061___-N4062___-1_AC",
                         "_N4062___-N4063___-1_AC", "_N4062___-N4063___-2_AC",
                         "_N4071___-N4072___-1_AC", "_N4071___-N4072___-2_AC")
-                .transformers(
+                .withTransformers(
                         "_N1011___-N4011___-1_PT", "_N1012___-N4012___-1_PT",
                         "_N1022___-N4022___-1_PT", "_N1044___-N4044___-1_PT",
                         "_N1044___-N4044___-2_PT", "_N1045___-N4045___-1_PT",
@@ -508,7 +508,7 @@ public final class Cim14SmallCasesCatalog {
                         "_NG4_____-N1021___-1_PT", "_NG5_____-N1022___-1_PT",
                         "_NG6_____-N1042___-1_PT", "_NG7_____-N1043___-1_PT",
                         "_NG8_____-N2032___-1_PT", "_NG9_____-N4011___-1_PT")
-                .transformerEnds(
+                .withTransformerEnds(
                         "_N1011___-N4011___-1_TW_EX", "_N1011___-N4011___-1_TW_OR",
                         "_N1012___-N4012___-1_TW_EX", "_N1012___-N4012___-1_TW_OR",
                         "_N1022___-N4022___-1_TW_EX", "_N1022___-N4022___-1_TW_OR",
@@ -537,18 +537,18 @@ public final class Cim14SmallCasesCatalog {
                         "_NG7_____-N1043___-1_TW_EX", "_NG7_____-N1043___-1_TW_OR",
                         "_NG8_____-N2032___-1_TW_EX", "_NG8_____-N2032___-1_TW_OR",
                         "_NG9_____-N4011___-1_TW_EX", "_NG9_____-N4011___-1_TW_OR")
-                .energyConsumers(
+                .withEnergyConsumers(
                         "_N1011____EC", "_N1012____EC", "_N1013____EC", "_N1022____EC",
                         "_N1041____EC", "_N1042____EC", "_N1043____EC", "_N1044____EC",
                         "_N1045____EC", "_N2031____EC", "_N2032____EC", "_N4041____EC",
                         "_N4042____EC", "_N4043____EC", "_N4046____EC", "_N4047____EC",
                         "_N4051____EC", "_N4061____EC", "_N4062____EC", "_N4063____EC",
                         "_N4071____EC", "_N4072____EC")
-                .shuntCompensators(
+                .withShuntCompensators(
                         "_N1022____SC", "_N1041____SC", "_N1043____SC", "_N1044____SC",
                         "_N1045____SC", "_N4012____SC", "_N4041____SC", "_N4043____SC",
                         "_N4046____SC", "_N4051____SC", "_N4071____SC")
-                .synchronousMachinesGenerators(
+                .withSynchronousMachinesGenerators(
                         "_G10______SM", "_G11______SM", "_G12______SM", "_G13______SM",
                         "_G14______SM", "_G15______SM", "_G16______SM", "_G17______SM",
                         "_G18______SM", "_G19______SM", "_G1_______SM", "_G20______SM",

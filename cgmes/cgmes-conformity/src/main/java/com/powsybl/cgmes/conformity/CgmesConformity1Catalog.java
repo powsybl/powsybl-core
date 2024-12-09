@@ -243,17 +243,17 @@ public final class CgmesConformity1Catalog {
 
     public static InMemoryCgmesModel expectedMicroGridBaseCaseBE() {
         return new InMemoryCgmesModel()
-                .modelId("MicroBaseCaseBE")
-                .version("unknown")
-                .substations("37e14a0f-5e34-4647-a062-8bfd9305fa9d",
+                .withModelId("MicroBaseCaseBE")
+                .withVersion("unknown")
+                .withSubstations("37e14a0f-5e34-4647-a062-8bfd9305fa9d",
                         "87f7002b-056f-4a6a-a872-1744eea757e3")
-                .voltageLevels("469df5f7-058f-4451-a998-57a48e8a56fe",
+                .withVoltageLevels("469df5f7-058f-4451-a998-57a48e8a56fe",
                         "4ba71b59-ee2f-450b-9f7d-cc2f1cc5e386",
                         "8bbd7e74-ae20-4dce-8780-c20f8e18c2e0",
                         "929ba893-c9dc-44d7-b1fd-30834bd3ab85",
                         "b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c",
                         "d0486169-2205-40b2-895e-b672ecb9e5fc")
-                .terminals("02a244ca-8bcb-4e25-8613-e948b8ba1f22",
+                .withTerminals("02a244ca-8bcb-4e25-8613-e948b8ba1f22",
                         "051d49ba-4360-4372-86bf-50eb8cf29778",
                         "05a17350-55f5-4a00-9a50-8c0048a25495",
                         "1182d878-2eaa-4eec-91be-ce7b2b1e7f9a",
@@ -299,7 +299,7 @@ public final class CgmesConformity1Catalog {
                         "f3b56334-4638-49d3-a6a0-3f417422b8f5",
                         "f9f29835-8a31-4310-9780-b1ad26f3cbb0",
                         "fa9e0f4d-8a2f-45e1-9e36-3611600d1c94")
-                .operationalLimits("05b69cbf-0e24-4c98-bd81-9450c751be6f",
+                .withOperationalLimits("05b69cbf-0e24-4c98-bd81-9450c751be6f",
                         "05b69cbf-0e24-4c98-bd81-9450c751be6f1",
                         "0d6f26df-9f86-4df0-b00c-bfb23870257f",
                         "0f8bff64-4cfe-4c94-9471-da94b2efcc4f",
@@ -400,7 +400,7 @@ public final class CgmesConformity1Catalog {
                         "fdae97f0-ee12-4d0e-9bba-e994b2ca78fb",
                         "fdae97f0-ee12-4d0e-9bba-e994b2ca78fb1")
                 // Topological nodes only for voltage levels as connectivity node containers
-                .topologicalNodes("5c74cb26-ce2f-40c6-951d-89091eb781b6",
+                .withTopologicalNodes("5c74cb26-ce2f-40c6-951d-89091eb781b6",
                         "99b219f3-4593-428b-a4da-124a54630178",
                         "a81d08ed-f51d-4538-8d1e-fb2d0dbd128e",
                         "e44141af-f1dc-44d3-bfa4-b674e5c953d7",
@@ -414,18 +414,18 @@ public final class CgmesConformity1Catalog {
                         "1fa19c281c8f4e1eaad9e1cab70f923e",
                         "1098b1c9-dc85-40ce-b65c-39ae02a3afaa")
                 // No switches are defined, it is a bus branch model
-                .acLineSegments("17086487-56ba-4979-b8de-064025a6b4da",
+                .withAcLineSegments("17086487-56ba-4979-b8de-064025a6b4da",
                         "78736387-5f60-4832-b3fe-d50daf81b0a6",
                         "a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4",
                         "b18cd1aa-7808-49b9-a7cf-605eaf07b006",
                         "b58bf21a-096a-4dae-9a01-3f03b60c24c7",
                         "ed0c5d75-4a54-43c8-b782-b20d7431630b",
                         "ffbabc27-1ccd-4fdc-b037-e341706c8d29")
-                .transformers("84ed55f4-61f5-4d9d-8755-bba7b877a246",
+                .withTransformers("84ed55f4-61f5-4d9d-8755-bba7b877a246",
                         "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0",
                         "b94318f6-6d24-4f56-96b9-df2531ad6543",
                         "e482b89a-fa84-4ea9-8e70-a83d44790957")
-                .transformerEnds("1912224a-9e98-41aa-84cf-00875bce7264",
+                .withTransformerEnds("1912224a-9e98-41aa-84cf-00875bce7264",
                         "2e21d1ef-2287-434c-a767-1ca807cf2478",
                         "35651e25-a77a-46a1-92f4-443d6acce90e",
                         "49ca3fd4-1b54-4c5b-83fd-4dbd0f9fec9d",
@@ -434,18 +434,18 @@ public final class CgmesConformity1Catalog {
                         "81a18364-0397-48d3-b850-22a0e34b410f",
                         "e1f661c0-971d-4ce5-ad39-0ec427f288ab",
                         "f58281c5-862a-465e-97ec-d809be6e24ab")
-                .ratioTapChangers("83cc66dd-8d93-4a2c-8103-f1f5a9cf7e2e",
+                .withRatioTapChangers("83cc66dd-8d93-4a2c-8103-f1f5a9cf7e2e",
                         "955d9cd0-4a10-4031-b008-60c0dc340a07",
                         "fe25f43a-7341-446e-a71a-8ab7119ba806")
-                .phaseTapChangers(new String[]{"6ebbef67-3061-4236-a6fd-6ccc4595f6c3"})
-                .energyConsumers("1c6beed6-1acf-42e7-ba55-0cc9f04bddd8",
+                .withPhaseTapChangers("6ebbef67-3061-4236-a6fd-6ccc4595f6c3")
+                .withEnergyConsumers("1c6beed6-1acf-42e7-ba55-0cc9f04bddd8",
                         "b1480a00-b427-4001-a26c-51954d2bb7e9",
                         "cb459405-cc14-4215-a45c-416789205904")
-                .shuntCompensators("002b0a40-3957-46db-b84a-30420083558f",
+                .withShuntCompensators("002b0a40-3957-46db-b84a-30420083558f",
                         "d771118f-36e9-4115-a128-cc3d9ce3e3da")
-                .synchronousMachinesGenerators("3a3b27be-b18b-4385-b557-6735d733baf0",
+                .withSynchronousMachinesGenerators("3a3b27be-b18b-4385-b557-6735d733baf0",
                         "550ebe0d-f2b2-48c1-991f-cebea43a21aa")
-                .modelProfiles("urn:uuid:0eb1540d-5ca3-40ab-9bf7-c91ec4c5d7c3",
+                .withModelProfiles("urn:uuid:0eb1540d-5ca3-40ab-9bf7-c91ec4c5d7c3",
                         UUID_STR_1,
                         UUID_STR_1,
                         UUID_STR_2,
@@ -460,15 +460,15 @@ public final class CgmesConformity1Catalog {
 
     private static InMemoryCgmesModel expectedMiniNodeBreaker() {
         return new InMemoryCgmesModel()
-                .modelId("MiniNodeBreakerBaseCaseComplete")
-                .version("unknown")
-                .nodeBreaker(true)
-                .substations("3f64f4e2-adfe-4d12-b082-68e7fe4b11c9",
+                .withModelId("MiniNodeBreakerBaseCaseComplete")
+                .withVersion("unknown")
+                .withNodeBreaker(true)
+                .withSubstations("3f64f4e2-adfe-4d12-b082-68e7fe4b11c9",
                         "974565b1-ac55-4901-9f48-afc7ef5486df",
                         "af9a4ae3-ba2e-4c34-8e47-5af894ee20f4",
                         "b3e5b4de-b74d-43b4-8db9-784302a12acf",
                         "d6056127-34f1-43a9-b029-23fddb913bd5")
-                .voltageLevels("051b93ae-9c15-4490-8cea-33395298f031",
+                .withVoltageLevels("051b93ae-9c15-4490-8cea-33395298f031",
                         "0d68ac81-124d-4d21-afa8-6c503feef5b8",
                         "347fb7af-642f-4c60-97d9-c03d440b6a82",
                         "5d9d9d87-ce6b-4213-b4ec-d50de9790a59",
@@ -478,7 +478,7 @@ public final class CgmesConformity1Catalog {
                         "a43d15db-44a6-4fda-a525-2402ff43226f",
                         "b2707f00-2554-41d2-bde2-7dd80a669e50",
                         "cd28a27e-8b17-4f23-b9f5-03b6de15203f")
-                .terminals("01a240e9-5607-4844-9d53-5c8b08b5c9a8",
+                .withTerminals("01a240e9-5607-4844-9d53-5c8b08b5c9a8",
                         "01df618d-a8cd-493e-ad4a-793ae42c427f",
                         "01f33c90-d1ca-448f-9d62-13677c5c7a5f",
                         "02820aae-8266-4c45-96de-5640eff65320",
@@ -711,7 +711,7 @@ public final class CgmesConformity1Catalog {
                         "fecfd76e-409a-42f1-bc4a-eb538bf07b8f",
                         "fee53b4a-5459-4c52-9a84-c4c8c5af6c44",
                         "ff096281-10e6-44c9-af78-8e2829cff084")
-                .operationalLimits("03f63965-4a6c-48c1-b859-b1247a48a49f",
+                .withOperationalLimits("03f63965-4a6c-48c1-b859-b1247a48a49f",
                         "088eb5f2-e13b-4edf-a30a-ff48b7a8ae41",
                         "10be2112-5068-4819-b82a-a640e4df11a6",
                         "1162b24f-783f-4fe9-afce-24bac9cb061a",
@@ -803,7 +803,7 @@ public final class CgmesConformity1Catalog {
                         "f7db6e6d-a44e-4df1-b9ec-8b0711e96763",
                         "fafc5f7d-b49f-497c-a4a4-d15df5eb8040",
                         "febfc21c-435b-47a8-851c-c1b8e2400fa6")
-                .topologicalNodes("03163ede-7eec-457f-8641-365982227d7c",
+                .withTopologicalNodes("03163ede-7eec-457f-8641-365982227d7c",
                         "37edd845-456f-4c3e-98d5-19af0c1cef1e",
                         "764e0b8a-f2af-4092-b6aa-b4a19e55db98",
                         "7f5515b2-ca6b-45af-93ee-f196686f0c66",
@@ -817,7 +817,7 @@ public final class CgmesConformity1Catalog {
                         // Boundary
                         "8372a156-7579-4ea5-1111-24caf0d24603",
                         "8372a156-7579-4ea5-2222-24caf0d24603")
-                .switches("052682ba-a4e5-41d5-9728-0fa4e2e01011",
+                .withSwitches("052682ba-a4e5-41d5-9728-0fa4e2e01011",
                         "06917aa0-6cc2-4d46-b37b-6ed9fec32ccd",
                         "0bc3b6a5-091e-4b8f-b9d9-a34d327473d0",
                         "0f02c390-e5bc-4e8f-9936-2d269b8847ad",
@@ -907,7 +907,7 @@ public final class CgmesConformity1Catalog {
                         "fbdcf00d-8a07-4c62-9e39-86f459bea2be",
                         "fdf5cfbe-9bf5-406a-8d04-fafe47afe31d",
                         "fe1384c9-f1c1-4026-9f5d-10a3b22208b9")
-                .acLineSegments("05597934-b248-491e-803a-68ce6290f502",
+                .withAcLineSegments("05597934-b248-491e-803a-68ce6290f502",
                         "1e7f52a9-21d0-4ebe-9a8a-b29281d5bfc9",
                         "35df6abe-3087-4c27-a90a-12b5065333f3",
                         "5150a037-e241-421f-98b2-fe60e5c90303",
@@ -916,13 +916,13 @@ public final class CgmesConformity1Catalog {
                         "e95a6228-ceac-4f0a-8b52-d35367b364dc",
                         "efdd7f46-67e6-46e3-9dcd-a3b6f8c613a4",
                         "f32baf36-7ea3-4b6a-9452-71e7f18779f8")
-                .transformers("411b5401-0a43-404a-acb4-05c3d7d0c95c",
+                .withTransformers("411b5401-0a43-404a-acb4-05c3d7d0c95c",
                         "5d38b7ed-73fd-405a-9cdb-78425e003773",
                         "6c89588b-3df5-4120-88e5-26164afb43e9",
                         "813365c3-5be7-4ef0-a0a7-abd1ae6dc174",
                         "ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51",
                         "f1e72854-ec35-46e9-b614-27db354e8dbb")
-                .transformerEnds("03916530-aaea-41c2-b0a2-770d44470839",
+                .withTransformerEnds("03916530-aaea-41c2-b0a2-770d44470839",
                         "063fef99-e19b-4ebe-92a9-1e8927fdca2a",
                         "0a33f633-7415-4f95-b3c2-f3ddbee92644",
                         "3b446af6-630a-46ee-bc76-d5543509b355",
@@ -936,16 +936,16 @@ public final class CgmesConformity1Catalog {
                         "d2e671db-1ed5-4f8d-bbbf-54554b175428",
                         "d99ae781-8809-4e59-b167-fc0106934b25",
                         "fe6b71c8-5a63-4a10-a699-a6bf376e2e2f")
-                .ratioTapChangers("0522ca48-e644-4d3a-9721-22bb0abd1c8b",
+                .withRatioTapChangers("0522ca48-e644-4d3a-9721-22bb0abd1c8b",
                         "4a8a5456-91ac-4bc9-b8e2-64eeeef78a1a",
                         "8de2d157-15d1-42c7-b376-a8ae5b6c0e77")
-                .synchronousMachinesGenerators("2970a2b7-b840-4e9c-b405-0cb854cd2318",
+                .withSynchronousMachinesGenerators("2970a2b7-b840-4e9c-b405-0cb854cd2318",
                         "392ea173-4f8e-48fa-b2a3-5c3721e93196",
                         "ca67be42-750e-4ebf-bfaa-24d446e59a22")
-                .asynchronousMachines("062ece1f-ade5-4d20-9c3a-fd8f12d12ec1",
+                .withAsynchronousMachines("062ece1f-ade5-4d20-9c3a-fd8f12d12ec1",
                         "ba62884d-8800-41a8-9c26-698297d7ebaa",
                         "f184d87b-5565-45ee-89b4-29e8a42d3ad1")
-                .modelProfiles(UUID_STR_1,
+                .withModelProfiles(UUID_STR_1,
                         UUID_STR_1,
                         UUID_STR_2,
                         UUID_STR_3,
@@ -958,11 +958,11 @@ public final class CgmesConformity1Catalog {
 
     public static CgmesModel expectedMicroGridType4BE() {
         InMemoryCgmesModel m = expectedMicroGridBaseCaseBE();
-        m.voltageLevels("69ef0dbd-da79-4eef-a02f-690cb8a28361");
-        m.terminals("13dcec71-4b02-4c0c-93a7-8e16db4aa0b7",
+        m.withVoltageLevels("69ef0dbd-da79-4eef-a02f-690cb8a28361");
+        m.withTerminals("13dcec71-4b02-4c0c-93a7-8e16db4aa0b7",
                 "67bb74f1-8620-4a32-9d7d-a44092d11d22",
                 "8171fc34-6891-40e0-92d1-da9f4ba69e26");
-        m.operationalLimits(
+        m.withOperationalLimits(
                 "0068a5c1-9212-4366-8e0e-cf621a92a8b7",
                 "0068a5c1-9212-4366-8e0e-cf621a92a8b71",
                 "08322f60-4e75-4a00-a4e0-0c55bf588919",
@@ -1087,7 +1087,7 @@ public final class CgmesConformity1Catalog {
                 "fd227658-0e1b-4ecd-952a-c6b0307b1ea11",
                 "ff466d18-e4f5-439b-a50a-daec2fa41e2c",
                 "ff466d18-e4f5-439b-a50a-daec2fa41e2c1");
-        m.shuntCompensatorsPoints("46e3d51d-0a41-4e3f-8ce5-63e7bb165b73",
+        m.withShuntCompensatorsPoints("46e3d51d-0a41-4e3f-8ce5-63e7bb165b73",
                 "7dc75c5a-74cc-434c-a125-860960b6ed35",
                 "89e965d7-0348-4dc1-98d4-be3bf8891fad",
                 "8b93ca77-3cc3-4c82-8524-2f8a13513e20",
@@ -1112,8 +1112,8 @@ public final class CgmesConformity1Catalog {
                 "7939fc42-08ef-4ce7-9912-97552a4db39a",
                 "0d6f26df-9f86-4df0-b00c-bfb23870257f"));
         m.operationalLimits().removeIf(tl -> tlremove.contains(tl.getId("OperationalLimit")));
-        m.topologicalNodes("23b65c6b-2351-4673-89e9-1895c7291543");
-        m.transformerEnds(
+        m.withTopologicalNodes("23b65c6b-2351-4673-89e9-1895c7291543");
+        m.withTransformerEnds(
                 "3c59d1b0-1ee9-4ca3-9086-4fe102b51b21",
                 "ba56158e-0c51-448d-999b-44cb0b3cebf5",
                 "bf76ac9d-0144-48f5-a24a-34ae15a455fb",
@@ -1128,12 +1128,12 @@ public final class CgmesConformity1Catalog {
                 .removeIf(rtc -> rtc.getId("RatioTapChanger").equals("955d9cd0-4a10-4031-b008-60c0dc340a07"));
         m.phaseTapChangers()
                 .removeIf(ptc -> ptc.getId("PhaseTapChanger").equals("6ebbef67-3061-4236-a6fd-6ccc4595f6c3"));
-        m.phaseTapChangers(
+        m.withPhaseTapChangers(
                 "36b83adb-3d45-4693-8967-96627b5f9ec9",
                 "63454a73-f439-45bb-951a-e7b193986571");
-        m.staticVarCompensators("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
+        m.withStaticVarCompensators("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         m.modelProfiles().clear();
-        m.modelProfiles("urn:uuid:1a64ce59-b28c-4b43-bf21-50b51865d777",
+        m.withModelProfiles("urn:uuid:1a64ce59-b28c-4b43-bf21-50b51865d777",
                 UUID_STR_1,
                 UUID_STR_1,
                 UUID_STR_2,
