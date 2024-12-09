@@ -10,9 +10,9 @@ package com.powsybl.ucte.converter.util;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public final class UcteConstants {
+public final class UcteConverterConstants {
 
-    private UcteConstants() {
+    private UcteConverterConstants() {
         throw new IllegalStateException("Should not be constructed");
     }
 
@@ -26,4 +26,5 @@ public final class UcteConstants {
     public static final String ORDER_CODE = "orderCode";
     public static final String POWER_PLANT_TYPE_PROPERTY_KEY = "powerPlantType";
     public static final int DEFAULT_POWER_LIMIT = 9999;
+    public static final String NO_UCTE_CODE_ERROR = "No UCTE code found for id: ";
 }

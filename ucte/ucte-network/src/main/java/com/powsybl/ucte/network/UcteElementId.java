@@ -7,6 +7,8 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.ucte.network.util.UcteNetworkUtil;
+
 import java.util.*;
 
 /**
@@ -14,9 +16,6 @@ import java.util.*;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UcteElementId implements Comparable<UcteElementId> {
-
-    private static final List<Character> ORDER_CODES = Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
-        'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', '-', '.', ' ');
 
     private final UcteNodeCode nodeCode1;
     private final UcteNodeCode nodeCode2;
@@ -114,8 +113,7 @@ public class UcteElementId implements Comparable<UcteElementId> {
         /*
            Update to match modification on UCTE format
            The new update is available on the ENTSO-E website:
-           https://docstore.entsoe.eu/Documents/Publications/SOC/Continental_Europe/150420_quality_of_datasets_and_calculations_3rd_edition.pdf
-         */
-        return ORDER_CODES.contains(orderCode);
+           https://eepublicdownloads.entsoe.eu/clean-documents/Publications/SOC/Continental_Europe/150420_quality_of_datasets_and_calculations_3rd_edition.pdf         */
+        return UcteNetworkUtil.ORDER_CODES.contains(orderCode);
     }
 }

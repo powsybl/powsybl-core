@@ -7,6 +7,10 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.VoltageLevel;
+
 import java.util.Objects;
 
 /**
@@ -118,6 +122,17 @@ public enum UcteCountryCode {
             return true;
         } catch (IllegalArgumentException e) {
             return false;
+        }
+    }
+
+    public static UcteCountryCode fromVoltagelevel(VoltageLevel voltageLevel) {
+        Country country = voltageLevel.getSubstation()
+                .flatMap(Substation::getCountry)
+                .orElseThrow(() -> new UcteException("No UCTE country found for substation"));
+        try {
+            return UcteCountryCode.valueOf(country.name());
+        } catch (IllegalArgumentException e) {
+            throw new UcteException(String.format("No UCTE country found for %s", country.name()));
         }
     }
 
