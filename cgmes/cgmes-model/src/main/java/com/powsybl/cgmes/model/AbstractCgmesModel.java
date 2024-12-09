@@ -25,6 +25,31 @@ import java.util.*;
  */
 public abstract class AbstractCgmesModel implements CgmesModel {
 
+    private final Properties properties;
+    private String baseName;
+
+    // Caches
+    private final Map<String, PropertyBags> cachedGroupedTransformerEnds = new HashMap<>();
+    private final Map<String, PropertyBags> cachedGroupedRatioTapChangers = new HashMap<>();
+    private final Map<String, PropertyBags> cachedGroupedRatioTapChangerTablePoints = new HashMap<>();
+    private final Map<String, PropertyBags> cachedGroupedPhaseTapChangers = new HashMap<>();
+    private final Map<String, PropertyBags> cachedGroupedPhaseTapChangerTablePoints = new HashMap<>();
+    private final Map<String, PropertyBags> cachedGroupedShuntCompensatorPoints = new HashMap<>();
+    private final Map<String, PropertyBags> cachedGroupedCurveData = new HashMap<>();
+
+    private Map<String, CgmesTerminal> cachedTerminals;
+    private Map<String, CgmesContainer> cachedContainers;
+    private Map<String, Double> cachedBaseVoltages;
+    protected boolean cachedNodes = false;
+    protected PropertyBags cachedConnectivityNodes;
+    protected PropertyBags cachedTopologicalNodes;
+    private Map<String, PropertyBag> cachedNodesById;
+    // equipmentId, sequenceNumber, terminalId
+    private Map<String, CgmesDcTerminal> cachedDcTerminals;
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesModel.class);
+    private static final String SUBSTATION = "Substation";
+
     protected AbstractCgmesModel() {
         // FIXME(Luma) we must remove properties from here. They are not used!
         this.properties = new Properties();
@@ -36,19 +61,38 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags transformerEnds(String transformerId) {
+        return cachedGroupedTransformerEnds.getOrDefault(transformerId, new PropertyBags());
+    }
+
+    @Override
+    public PropertyBags ratioTapChangers(String transformerId) {
+        return cachedGroupedRatioTapChangers.getOrDefault(transformerId, new PropertyBags());
+    }
+
+    @Override
+    public PropertyBags ratioTapChangerTablePoints(String tableId) {
+        return cachedGroupedRatioTapChangerTablePoints.getOrDefault(tableId, new PropertyBags());
+    }
+
+    @Override
+    public PropertyBags phaseTapChangers(String transformerId) {
+        return cachedGroupedPhaseTapChangers.getOrDefault(transformerId, new PropertyBags());
+    }
+
+    @Override
+    public PropertyBags phaseTapChangerTablePoints(String tableId) {
+        return cachedGroupedPhaseTapChangerTablePoints.getOrDefault(tableId, new PropertyBags());
+    }
+
+    @Override
     public PropertyBags nonlinearShuntCompensatorPoints(String shuntId) {
-        if (cachedGroupedShuntCompensatorPoints == null) {
-            cachedGroupedShuntCompensatorPoints = computeGroupedShuntCompensatorPoints();
-        }
         return cachedGroupedShuntCompensatorPoints.getOrDefault(shuntId, new PropertyBags());
     }
 
     @Override
-    public Map<String, PropertyBags> groupedTransformerEnds() {
-        if (cachedGroupedTransformerEnds == null) {
-            cachedGroupedTransformerEnds = computeGroupedTransformerEnds();
-        }
-        return cachedGroupedTransformerEnds;
+    public PropertyBags curveData(String curveId) {
+        return cachedGroupedCurveData.getOrDefault(curveId, new PropertyBags());
     }
 
     @Override
@@ -73,16 +117,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             cachedDcTerminals = computeDcTerminals();
         }
         return cachedDcTerminals.get(dcTerminalId);
-    }
-
-    @Override
-    public List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
-        return powerTransformerRatioTapChanger.get(powerTransformerId) == null ? null : Arrays.asList(powerTransformerRatioTapChanger.get(powerTransformerId));
-    }
-
-    @Override
-    public List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
-        return powerTransformerPhaseTapChanger.get(powerTransformerId) == null ? null : Arrays.asList(powerTransformerPhaseTapChanger.get(powerTransformerId));
     }
 
     @Override
@@ -166,50 +200,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         }
 
         return (containerId == null) ? null : container(containerId);
-    }
-
-    private Map<String, PropertyBags> computeGroupedShuntCompensatorPoints() {
-        Map<String, PropertyBags> groupedShuntCompensatorPoints = new HashMap<>();
-        nonlinearShuntCompensatorPoints()
-                .forEach(point -> {
-                    String shuntCompensator = point.getId("Shunt");
-                    groupedShuntCompensatorPoints.computeIfAbsent(shuntCompensator, bag -> new PropertyBags())
-                            .add(point);
-                });
-        return groupedShuntCompensatorPoints;
-    }
-
-    private Map<String, PropertyBags> computeGroupedTransformerEnds() {
-        // Alternative implementation:
-        // instead of sorting after building each list,
-        // use a sorted collection when inserting
-        String endNumber = "endNumber";
-        Map<String, PropertyBags> gends = new HashMap<>();
-        powerTransformerRatioTapChanger = new HashMap<>();
-        powerTransformerPhaseTapChanger = new HashMap<>();
-        transformerEnds()
-            .forEach(end -> {
-                String id = end.getId("PowerTransformer");
-                PropertyBags ends = gends.computeIfAbsent(id, x -> new PropertyBags());
-                ends.add(end);
-                if (end.getId("PhaseTapChanger") != null) {
-                    powerTransformerPhaseTapChanger.computeIfAbsent(id, s -> new String[3]);
-                    powerTransformerPhaseTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("PhaseTapChanger");
-                }
-                if (end.getId("RatioTapChanger") != null) {
-                    powerTransformerRatioTapChanger.computeIfAbsent(id, s -> new String[3]);
-                    powerTransformerRatioTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("RatioTapChanger");
-                }
-            });
-        gends.entrySet()
-            .forEach(tends -> {
-                PropertyBags tends1 = new PropertyBags(
-                    tends.getValue().stream()
-                        .sorted(Comparator.comparing(WindingType::endNumber))
-                        .toList());
-                tends.setValue(tends1);
-            });
-        return gends;
     }
 
     protected void cacheNodes() {
@@ -304,13 +294,17 @@ public abstract class AbstractCgmesModel implements CgmesModel {
                 throw new CgmesModelException(msg, e);
             }
         }
+        buildCaches();
     }
 
     protected void invalidateCaches() {
-        cachedGroupedShuntCompensatorPoints = null;
-        cachedGroupedTransformerEnds = null;
-        powerTransformerRatioTapChanger = null;
-        powerTransformerPhaseTapChanger = null;
+        cachedGroupedTransformerEnds.clear();
+        cachedGroupedRatioTapChangers.clear();
+        cachedGroupedRatioTapChangerTablePoints.clear();
+        cachedGroupedPhaseTapChangers.clear();
+        cachedGroupedPhaseTapChangerTablePoints.clear();
+        cachedGroupedShuntCompensatorPoints.clear();
+        cachedGroupedCurveData.clear();
         cachedTerminals = null;
         cachedContainers = null;
         cachedBaseVoltages = null;
@@ -321,24 +315,20 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         cachedDcTerminals = null;
     }
 
-    private final Properties properties;
-    private String baseName;
+    private void buildCaches() {
+        buildCache(cachedGroupedTransformerEnds, transformerEnds(), CgmesNames.POWER_TRANSFORMER);
+        buildCache(cachedGroupedRatioTapChangers, ratioTapChangers(), CgmesNames.POWER_TRANSFORMER);
+        buildCache(cachedGroupedRatioTapChangerTablePoints, ratioTapChangerTablePoints(), CgmesNames.RATIO_TAP_CHANGER_TABLE);
+        buildCache(cachedGroupedPhaseTapChangers, phaseTapChangers(), CgmesNames.POWER_TRANSFORMER);
+        buildCache(cachedGroupedPhaseTapChangerTablePoints, phaseTapChangerTablePoints(), CgmesNames.PHASE_TAP_CHANGER_TABLE);
+        buildCache(cachedGroupedShuntCompensatorPoints, nonlinearShuntCompensatorPoints(), "Shunt");
+        buildCache(cachedGroupedCurveData, curveData(), "ReactiveCapabilityCurve");
+    }
 
-    // Caches
-    private Map<String, PropertyBags> cachedGroupedShuntCompensatorPoints;
-    private Map<String, PropertyBags> cachedGroupedTransformerEnds;
-    private Map<String, CgmesTerminal> cachedTerminals;
-    private Map<String, CgmesContainer> cachedContainers;
-    private Map<String, Double> cachedBaseVoltages;
-    protected boolean cachedNodes = false;
-    protected PropertyBags cachedConnectivityNodes;
-    protected PropertyBags cachedTopologicalNodes;
-    private Map<String, PropertyBag> cachedNodesById;
-    // equipmentId, sequenceNumber, terminalId
-    private Map<String, String[]> powerTransformerRatioTapChanger;
-    private Map<String, String[]> powerTransformerPhaseTapChanger;
-    private Map<String, CgmesDcTerminal> cachedDcTerminals;
-
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesModel.class);
-    private static final String SUBSTATION = "Substation";
+    private void buildCache(Map<String, PropertyBags> cache, PropertyBags ps, String groupName) {
+        ps.forEach(p -> {
+            String groupId = p.getId(groupName);
+            cache.computeIfAbsent(groupId, b -> new PropertyBags()).add(p);
+        });
+    }
 }

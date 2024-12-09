@@ -40,13 +40,15 @@ class NodeEquipment {
             .forEach(value -> addEquipment(adjacency, value.id, value.acNode,
                 value.dcNode, EquipmentType.AC_DC_CONVERTER));
 
-        cgmesModel.groupedTransformerEnds().forEach((t, ends) -> {
-            if (ends.size() == 2) {
-                computeTwoWindingsTransformer(cgmesModel, adjacency, ends);
-            } else if (ends.size() == 3) {
-                computeThreeWindingsTransformer(cgmesModel, adjacency, ends);
-            }
-        });
+        cgmesModel.transformers().stream()
+                .map(t -> cgmesModel.transformerEnds(t.getId("PowerTransformer")))
+                .forEach(ends -> {
+                    if (ends.size() == 2) {
+                        computeTwoWindingsTransformer(cgmesModel, adjacency, ends);
+                    } else if (ends.size() == 3) {
+                        computeThreeWindingsTransformer(cgmesModel, adjacency, ends);
+                    }
+                });
     }
 
     private void computeDcLineSegment(CgmesModel cgmesModel, Adjacency adjacency, PropertyBag equipment) {

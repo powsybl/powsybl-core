@@ -92,12 +92,23 @@ public interface CgmesModel {
 
     PropertyBags transformerEnds();
 
-    // Transformer ends grouped by transformer
-    Map<String, PropertyBags> groupedTransformerEnds();
+    PropertyBags transformerEnds(String transformerId);
 
     PropertyBags ratioTapChangers();
 
+    PropertyBags ratioTapChangers(String transformerId);
+
+    PropertyBags ratioTapChangerTablePoints();
+
+    PropertyBags ratioTapChangerTablePoints(String tableId);
+
     PropertyBags phaseTapChangers();
+
+    PropertyBags phaseTapChangers(String transformerId);
+
+    PropertyBags phaseTapChangerTablePoints();
+
+    PropertyBags phaseTapChangerTablePoints(String tableId);
 
     PropertyBags regulatingControls();
 
@@ -155,15 +166,9 @@ public interface CgmesModel {
 
     PropertyBags asynchronousMachines();
 
-    PropertyBags reactiveCapabilityCurveData();
+    PropertyBags curveData();
 
-    PropertyBags ratioTapChangerTablesPoints();
-
-    PropertyBags phaseTapChangerTablesPoints();
-
-    PropertyBags ratioTapChangerTable(String tableId);
-
-    PropertyBags phaseTapChangerTable(String tableId);
+    PropertyBags curveData(String curveId);
 
     PropertyBags controlAreas();
 
@@ -224,10 +229,6 @@ public interface CgmesModel {
     void read(InputStream is, String baseName, String contextName, ReportNode reportNode);
 
     // Helper mappings
-
-    List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId);
-
-    List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId);
 
     /**
      * Obtain the substation of a given terminal.

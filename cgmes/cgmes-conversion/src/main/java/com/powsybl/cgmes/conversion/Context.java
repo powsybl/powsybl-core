@@ -12,19 +12,14 @@ import com.powsybl.cgmes.conversion.Conversion.Config;
 import com.powsybl.cgmes.conversion.elements.hvdc.DcMapping;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -58,12 +53,6 @@ public class Context {
         loadingLimitsMapping = new LoadingLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping(this);
-
-        ratioTapChangerTables = new HashMap<>();
-        phaseTapChangerTables = new HashMap<>();
-        reactiveCapabilityCurveData = new HashMap<>();
-        powerTransformerRatioTapChangers = new HashMap<>();
-        powerTransformerPhaseTapChangers = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -136,73 +125,6 @@ public class Context {
     public static String boundarySubstationId(String nodeId) {
         Objects.requireNonNull(nodeId);
         return nodeId + "_S";
-    }
-
-    public void loadReactiveCapabilityCurveData() {
-        PropertyBags rccdata = cgmes.reactiveCapabilityCurveData();
-        if (rccdata == null) {
-            return;
-        }
-        rccdata.forEach(p -> {
-            String curveId = p.getId("ReactiveCapabilityCurve");
-            reactiveCapabilityCurveData.computeIfAbsent(curveId, cid -> new PropertyBags()).add(p);
-        });
-    }
-
-    public PropertyBags reactiveCapabilityCurveData(String curveId) {
-        return reactiveCapabilityCurveData.get(curveId);
-    }
-
-    public void loadRatioTapChangers() {
-        cgmes.ratioTapChangers().forEach(ratio -> {
-            String id = ratio.getId(CgmesNames.RATIO_TAP_CHANGER);
-            powerTransformerRatioTapChangers.put(id, ratio);
-        });
-    }
-
-    public PropertyBag ratioTapChanger(String id) {
-        return powerTransformerRatioTapChangers.get(id);
-    }
-
-    public void loadPhaseTapChangers() {
-        cgmes.phaseTapChangers().forEach(phase -> {
-            String id = phase.getId(CgmesNames.PHASE_TAP_CHANGER);
-            powerTransformerPhaseTapChangers.put(id, phase);
-        });
-    }
-
-    public PropertyBag phaseTapChanger(String id) {
-        return powerTransformerPhaseTapChangers.get(id);
-    }
-
-    public void loadRatioTapChangerTables() {
-        PropertyBags rtcpoints = cgmes.ratioTapChangerTablesPoints();
-        if (rtcpoints == null) {
-            return;
-        }
-        rtcpoints.forEach(p -> {
-            String tableId = p.getId("RatioTapChangerTable");
-            ratioTapChangerTables.computeIfAbsent(tableId, tid -> new PropertyBags()).add(p);
-        });
-    }
-
-    public void loadPhaseTapChangerTables() {
-        PropertyBags ptcpoints = cgmes.phaseTapChangerTablesPoints();
-        if (ptcpoints == null) {
-            return;
-        }
-        ptcpoints.forEach(p -> {
-            String tableId = p.getId("PhaseTapChangerTable");
-            phaseTapChangerTables.computeIfAbsent(tableId, tid -> new PropertyBags()).add(p);
-        });
-    }
-
-    public PropertyBags ratioTapChangerTable(String tableId) {
-        return ratioTapChangerTables.get(tableId);
-    }
-
-    public PropertyBags phaseTapChangerTable(String tableId) {
-        return phaseTapChangerTables.get(tableId);
     }
 
     // Handling issues found during conversion
@@ -312,12 +234,6 @@ public class Context {
     private final DcMapping dcMapping;
     private final LoadingLimitsMapping loadingLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
-
-    private final Map<String, PropertyBags> ratioTapChangerTables;
-    private final Map<String, PropertyBags> phaseTapChangerTables;
-    private final Map<String, PropertyBags> reactiveCapabilityCurveData;
-    private final Map<String, PropertyBag> powerTransformerRatioTapChangers;
-    private final Map<String, PropertyBag> powerTransformerPhaseTapChangers;
 
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }
