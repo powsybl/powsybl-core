@@ -9,12 +9,11 @@ package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.*;
-import com.powsybl.ucte.converter.util.UcteConstants;
-import com.powsybl.ucte.converter.util.UcteConverterHelper;
 import com.powsybl.ucte.network.UcteCountryCode;
 import com.powsybl.ucte.network.UcteElementId;
 import com.powsybl.ucte.network.UcteNodeCode;
 import com.powsybl.ucte.network.UcteVoltageLevelCode;
+import com.powsybl.ucte.network.util.UcteNetworkUtil;
 
 import java.util.*;
 
@@ -32,7 +31,7 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
     }
 
     @Override
-    public void initialiseNetwork(Network network) {
+    public void initializeNetwork(Network network) {
         voltageLevelCounter = 0;
         network.getVoltageLevelStream()
                 .forEach(this::processVoltageLevel);
@@ -45,7 +44,7 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
         Iterator<Bus> buslist = voltageLevel.getBusBreakerView().getBuses().iterator();
         for (int i = 0; buslist.hasNext(); i++) {
             Bus bus = buslist.next();
-            char orderCode = UcteConverterHelper.getOrderCode(i);
+            char orderCode = UcteNetworkUtil.getOrderCode(i);
             generateUcteNodeId(bus.getId(), voltageLevel, orderCode);
         }
 
@@ -88,7 +87,7 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
             return ucteElementIds.get(id);
         }
 
-        UcteElementId uniqueElementId = UcteConstants.ORDER_CODES.stream()
+        UcteElementId uniqueElementId = UcteNetworkUtil.ORDER_CODES.stream()
                 .map(orderCode -> new UcteElementId(node1, node2, orderCode))
                 .filter(elementId -> !ucteElementIds.containsValue(elementId))
                 .findFirst()
@@ -122,7 +121,7 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
             code2 = UcteNodeCode.parseUcteNodeCode(danglingLine.getPairingKey()).orElseThrow();
             ucteNodeIds.put(danglingLine.getPairingKey(), code2);
         } else {
-            code2 = generateUcteNodeId(danglingLine.getId(), danglingLine.getTerminal().getVoltageLevel(), UcteConverterHelper.getOrderCode(0));
+            code2 = generateUcteNodeId(danglingLine.getId(), danglingLine.getTerminal().getVoltageLevel(), UcteNetworkUtil.getOrderCode(0));
         }
         return generateUcteElementId(danglingLine.getId(), code1, code2);
     }

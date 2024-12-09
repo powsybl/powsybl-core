@@ -8,7 +8,7 @@
 package com.powsybl.ucte.converter;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.ucte.converter.util.UcteConstants;
+import com.powsybl.ucte.converter.util.UcteConverterConstants;
 import com.powsybl.ucte.network.UcteElementId;
 import com.powsybl.ucte.network.UcteNodeCode;
 
@@ -24,14 +24,14 @@ public abstract class AbstractNamingStrategy implements NamingStrategy {
     protected final Map<String, UcteElementId> ucteElementIds = new HashMap<>();
 
     @Override
-    public void initialiseNetwork(Network network) {
+    public void initializeNetwork(Network network) {
         //Empty implementation by default
     }
 
     @Override
     public UcteNodeCode getUcteNodeCode(String id) {
         return ucteNodeIds.computeIfAbsent(id, k -> UcteNodeCode.parseUcteNodeCode(k)
-                .orElseThrow(() -> new UcteException(UcteConstants.NO_UCTE_CODE_ERROR + k)));
+                .orElseThrow(() -> new UcteException(UcteConverterConstants.NO_UCTE_CODE_ERROR + k)));
     }
 
     @Override
@@ -50,7 +50,7 @@ public abstract class AbstractNamingStrategy implements NamingStrategy {
     @Override
     public UcteElementId getUcteElementId(String id) {
         return ucteElementIds.computeIfAbsent(id, k -> UcteElementId.parseUcteElementId(k)
-                .orElseThrow(() -> new UcteException(UcteConstants.NO_UCTE_CODE_ERROR + k)));
+                .orElseThrow(() -> new UcteException(UcteConverterConstants.NO_UCTE_CODE_ERROR + k)));
     }
 
     @Override

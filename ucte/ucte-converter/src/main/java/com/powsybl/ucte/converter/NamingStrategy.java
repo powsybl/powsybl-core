@@ -17,7 +17,7 @@ import com.powsybl.ucte.network.UcteNodeCode;
  */
 public interface NamingStrategy {
 
-    void initialiseNetwork(Network network);
+    void initializeNetwork(Network network);
 
     String getName();
 
