@@ -37,7 +37,7 @@ public abstract class AbstractNamingStrategy implements NamingStrategy {
 
     @Override
     public UcteNodeCode getUcteNodeCode(Bus bus) {
-        if(bus == null) {
+        if (bus == null) {
             throw  new PowsyblException("the bus is null");
         }
         return getUcteNodeCode(bus.getId());
@@ -59,7 +59,7 @@ public abstract class AbstractNamingStrategy implements NamingStrategy {
 
     @Override
     public UcteElementId getUcteElementId(Switch sw) {
-        if(sw == null) {
+        if (sw == null) {
             throw  new PowsyblException("the bus is null");
         }
         return getUcteElementId(sw.getId());
@@ -67,7 +67,7 @@ public abstract class AbstractNamingStrategy implements NamingStrategy {
 
     @Override
     public UcteElementId getUcteElementId(Branch branch) {
-        if(branch == null) {
+        if (branch == null) {
             throw  new PowsyblException("the bus is null");
         }
         return getUcteElementId(branch.getId());
@@ -75,7 +75,7 @@ public abstract class AbstractNamingStrategy implements NamingStrategy {
 
     @Override
     public UcteElementId getUcteElementId(DanglingLine danglingLine) {
-        if(danglingLine == null) {
+        if (danglingLine == null) {
             throw  new PowsyblException("the bus is null");
         }
         return getUcteElementId(danglingLine.getId());
