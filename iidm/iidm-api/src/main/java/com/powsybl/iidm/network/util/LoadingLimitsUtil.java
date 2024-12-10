@@ -7,8 +7,9 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.LoadingLimitsAdder;
+import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 
@@ -21,6 +22,8 @@ public final class LoadingLimitsUtil {
 
     private LoadingLimitsUtil() {
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoadingLimitsUtil.class);
 
     /**
      * Interface for objects used to report the performed operation on limits when fixed by
@@ -96,6 +99,10 @@ public final class LoadingLimitsUtil {
       * @param limits the limits to copy
       */
     public static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> A initializeFromLoadingLimits(A adder, L limits) {
+        if (limits == null) {
+            LOGGER.warn("Created adder is empty");
+            return adder;
+        }
         adder.setPermanentLimit(limits.getPermanentLimit());
         limits.getTemporaryLimits().forEach(limit ->
                 adder.beginTemporaryLimit()
