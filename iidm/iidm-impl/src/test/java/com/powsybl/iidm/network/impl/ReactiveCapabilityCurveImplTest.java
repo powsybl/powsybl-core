@@ -55,7 +55,7 @@ class ReactiveCapabilityCurveImplTest {
         ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(100.0, 200.0, 300.0),
                 new PointImpl(200.0, 300.0, 400.0),
                 new PointImpl(300.0, 300.0, 400.0),
-                new PointImpl(400.0, 100.0, 500.0));
+                new PointImpl(400.0, 310.0, 390.0));
         // bounds test
         assertEquals(200.0, curve.getMinQ(100.0, extrapolate), 0.0);
         assertEquals(300.0, curve.getMaxQ(100.0, extrapolate), 0.0);
@@ -71,8 +71,12 @@ class ReactiveCapabilityCurveImplTest {
         // out of bounds test
         assertEquals(extrapolate ? 100.0 : 200.0, curve.getMinQ(0.0, extrapolate), 0.0);
         assertEquals(extrapolate ? 200.0 : 300.0, curve.getMaxQ(0.0, extrapolate), 0.0);
-        assertEquals(extrapolate ? -100.0 : 100.0, curve.getMinQ(500.0, extrapolate), 0.0);
-        assertEquals(extrapolate ? 600.0 : 500.0, curve.getMaxQ(500.0, extrapolate), 0.0);
+        assertEquals(extrapolate ? 320.0 : 310.0, curve.getMinQ(500.0, extrapolate), 0.0);
+        assertEquals(extrapolate ? 380.0 : 390.0, curve.getMaxQ(500.0, extrapolate), 0.0);
+
+        // intersecting reactive limits test
+        assertEquals(extrapolate ? 350.0 : 310.0, curve.getMinQ(1500.0, extrapolate), 0.0);
+        assertEquals(extrapolate ? 350.0 : 390.0, curve.getMaxQ(1500.0, extrapolate), 0.0);
     }
 
     @Test
