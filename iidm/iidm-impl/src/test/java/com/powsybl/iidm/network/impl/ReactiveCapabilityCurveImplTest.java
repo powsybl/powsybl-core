@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.impl.ReactiveCapabilityCurveImpl.PointImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.TreeMap;
 
@@ -51,7 +53,9 @@ class ReactiveCapabilityCurveImplTest {
         assertEquals(400.0, curve.getMaxQ(1000.0), 0.0);
     }
 
-    private void testReactiveCapabilityCurveWithReactiveLimitsExtrapolation(boolean extrapolate) {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testReactiveCapabilityCurveWithReactiveLimitsExtrapolation(boolean extrapolate) {
         ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(100.0, 200.0, 300.0),
                 new PointImpl(200.0, 300.0, 400.0),
                 new PointImpl(300.0, 300.0, 400.0),
@@ -78,11 +82,4 @@ class ReactiveCapabilityCurveImplTest {
         assertEquals(extrapolate ? 350.0 : 310.0, curve.getMinQ(1500.0, extrapolate), 0.0);
         assertEquals(extrapolate ? 350.0 : 390.0, curve.getMaxQ(1500.0, extrapolate), 0.0);
     }
-
-    @Test
-    void testReactiveCapabilityCurveWithReactiveLimitsExtrapolation() {
-        testReactiveCapabilityCurveWithReactiveLimitsExtrapolation(false);
-        testReactiveCapabilityCurveWithReactiveLimitsExtrapolation(true);
-    }
-
 }
