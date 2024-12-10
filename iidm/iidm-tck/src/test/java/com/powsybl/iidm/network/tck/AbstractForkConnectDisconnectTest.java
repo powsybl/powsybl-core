@@ -200,7 +200,7 @@ public abstract class AbstractForkConnectDisconnectTest {
     }
 
     @Test
-    public void forkDisconnectedTestWithLines() {
+    public void forkDisconnectedTest() {
         Network network = createNetwork();
 
         // Useful elements
