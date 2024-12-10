@@ -142,29 +142,30 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
 
         // VL3 - Breakers and disconnectors
         VoltageLevel vl3 = network.getVoltageLevel("VL3");
+        vl3.getNodeBreakerView().newBreaker()
+            .setId("L1_BREAKER")
+            .setNode1(1)
+            .setNode2(2)
+            .setOpen(false)
+            .setRetained(true)
+            .setFictitious(false)
+            .add();
         vl3.getNodeBreakerView().newDisconnector()
             .setId("L1_DISCONNECTOR_2_0")
             .setNode1(2)
             .setNode2(0)
             .setOpen(false)
             .add();
-        vl3.getNodeBreakerView().newBreaker()
-            .setId("L1_BREAKER")
-            .setNode1(1)
-            .setNode2(2)
-            .setOpen(false)
-            .setFictitious(false)
-            .add();
 
         // Lines
         network.newLine()
             .setId("L1_1")
-            .setR(1.0)
-            .setX(2.0)
-            .setG1(3.0)
-            .setG2(3.5)
-            .setB1(4.0)
-            .setB2(4.5)
+            .setR(0.5)
+            .setX(1.0)
+            .setG1(1.5)
+            .setG2(1.75)
+            .setB1(2.0)
+            .setB2(2.25)
             .setVoltageLevel1("VL1")
             .setVoltageLevel2("L1_VL")
             .setNode1(2)
@@ -172,24 +173,95 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
             .add();
         network.newLine()
             .setId("L1_2")
+            .setR(0.5)
+            .setX(1.0)
+            .setG1(1.5)
+            .setG2(1.75)
+            .setB1(2.0)
+            .setB2(2.25)
+            .setVoltageLevel1("L1_VL")
+            .setVoltageLevel2("VL2")
+            .setNode1(2)
+            .setNode2(2)
+            .add();
+        network.newLine()
+            .setId("testLine")
             .setR(1.0)
             .setX(2.0)
             .setG1(3.0)
             .setG2(3.5)
             .setB1(4.0)
             .setB2(4.5)
-            .setVoltageLevel1("VL1")
-            .setVoltageLevel2("L1_VL")
-            .setNode1(2)
-            .setNode2(0)
+            .setVoltageLevel1("L1_VL")
+            .setVoltageLevel2("VL3")
+            .setNode1(3)
+            .setNode2(1)
             .add();
 
         return network;
     }
 
-    private Network createnetworkWithFictitiousVoltageLevel() {
+    private Network createNetworkWithFictitiousVoltageLevel() {
         Network network = createBaseNetwork();
 
+        // VL3 - Breakers and disconnectors
+        VoltageLevel vl3 = network.getVoltageLevel("VL3");
+        vl3.getNodeBreakerView().newBreaker()
+            .setId("L1_1_BREAKER")
+            .setNode1(1)
+            .setNode2(2)
+            .setOpen(false)
+            .setRetained(true)
+            .setFictitious(false)
+            .add();
+        vl3.getNodeBreakerView().newDisconnector()
+            .setId("L1_1_DISCONNECTOR_2_0")
+            .setNode1(2)
+            .setNode2(0)
+            .setOpen(false)
+            .add();
+        vl3.getNodeBreakerView().newBreaker()
+            .setId("L1_2_BREAKER")
+            .setNode1(4)
+            .setNode2(3)
+            .setOpen(false)
+            .setRetained(true)
+            .setFictitious(false)
+            .add();
+        vl3.getNodeBreakerView().newDisconnector()
+            .setId("L1_2_DISCONNECTOR_3_0")
+            .setNode1(3)
+            .setNode2(0)
+            .setOpen(false)
+            .add();
+
+        // Lines
+        network.newLine()
+            .setId("L1_1")
+            .setR(0.5)
+            .setX(1.0)
+            .setG1(1.5)
+            .setG2(1.75)
+            .setB1(2.0)
+            .setB2(2.25)
+            .setVoltageLevel1("VL1")
+            .setVoltageLevel2("VL3")
+            .setNode1(2)
+            .setNode2(1)
+            .add();
+        network.newLine()
+            .setId("L1_2")
+            .setR(0.5)
+            .setX(1.0)
+            .setG1(1.5)
+            .setG2(1.75)
+            .setB1(2.0)
+            .setB2(2.25)
+            .setVoltageLevel1("VL3")
+            .setVoltageLevel2("VL2")
+            .setNode1(4)
+            .setNode2(2)
+            .add();
 
         return network;
     }
@@ -201,6 +273,6 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
 
     @Test
     void propagationThroughVoltageLevelTest() {
-        Network network = createnetworkWithFictitiousVoltageLevel();
+        Network network = createNetworkWithFictitiousVoltageLevel();
     }
 }
