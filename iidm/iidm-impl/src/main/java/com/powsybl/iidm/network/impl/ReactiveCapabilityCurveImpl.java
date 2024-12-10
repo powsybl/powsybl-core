@@ -127,50 +127,52 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
     @Override
     public double getMinQ(double p, boolean extrapolateReactiveLimitSlope) {
         checkPointsSize(points);
+
         Point pt = points.get(p);
         if (pt != null) {
             return pt.getMinQ();
+        }
+
+        Map.Entry<Double, Point> e1 = points.floorEntry(p);
+        Map.Entry<Double, Point> e2 = points.ceilingEntry(p);
+        if (e1 == null && e2 != null) {
+            Point pMin = e2.getValue();
+            return extrapolateReactiveLimitSlope ? extrapolateReactiveLimitsSlope(p, pMin).getMinQ() : pMin.getMinQ();
+        } else if (e1 != null && e2 == null) {
+            Point pMax = e1.getValue();
+            return extrapolateReactiveLimitSlope ? extrapolateReactiveLimitsSlope(p, pMax).getMinQ() : pMax.getMinQ();
+        } else if (e1 != null && e2 != null) {
+            Point p1 = e1.getValue();
+            Point p2 = e2.getValue();
+            return p1.getMinQ() + (p2.getMinQ() - p1.getMinQ()) / (p2.getP() - p1.getP()) * (p - p1.getP());
         } else {
-            Map.Entry<Double, Point> e1 = points.floorEntry(p);
-            Map.Entry<Double, Point> e2 = points.ceilingEntry(p);
-            if (e1 == null && e2 != null) {
-                Point pMin = e2.getValue();
-                return extrapolateReactiveLimitSlope ? extrapolateReactiveLimitsSlope(p, pMin).getMinQ() : pMin.getMinQ();
-            } else if (e1 != null && e2 == null) {
-                Point pMax = e1.getValue();
-                return extrapolateReactiveLimitSlope ? extrapolateReactiveLimitsSlope(p, pMax).getMinQ() : pMax.getMinQ();
-            } else if (e1 != null && e2 != null) {
-                Point p1 = e1.getValue();
-                Point p2 = e2.getValue();
-                return p1.getMinQ() + (p2.getMinQ() - p1.getMinQ()) / (p2.getP() - p1.getP()) * (p - p1.getP());
-            } else {
-                throw new IllegalStateException();
-            }
+            throw new IllegalStateException();
         }
     }
 
     @Override
     public double getMaxQ(double p, boolean extrapolateReactiveLimitSlope) {
         checkPointsSize(points);
+
         Point pt = points.get(p);
         if (pt != null) {
             return pt.getMaxQ();
+        }
+
+        Map.Entry<Double, Point> e1 = points.floorEntry(p);
+        Map.Entry<Double, Point> e2 = points.ceilingEntry(p);
+        if (e1 == null && e2 != null) {
+            Point pMin = e2.getValue();
+            return extrapolateReactiveLimitSlope ? extrapolateReactiveLimitsSlope(p, pMin).getMaxQ() : pMin.getMaxQ();
+        } else if (e1 != null && e2 == null) {
+            Point pMax = e1.getValue();
+            return extrapolateReactiveLimitSlope ? extrapolateReactiveLimitsSlope(p, pMax).getMaxQ() : pMax.getMaxQ();
+        } else if (e1 != null && e2 != null) {
+            Point p1 = e1.getValue();
+            Point p2 = e2.getValue();
+            return p1.getMaxQ() + (p2.getMaxQ() - p1.getMaxQ()) / (p2.getP() - p1.getP()) * (p - p1.getP());
         } else {
-            Map.Entry<Double, Point> e1 = points.floorEntry(p);
-            Map.Entry<Double, Point> e2 = points.ceilingEntry(p);
-            if (e1 == null && e2 != null) {
-                Point pMin = e2.getValue();
-                return extrapolateReactiveLimitSlope ? extrapolateReactiveLimitsSlope(p, pMin).getMaxQ() : pMin.getMaxQ();
-            } else if (e1 != null && e2 == null) {
-                Point pMax = e1.getValue();
-                return extrapolateReactiveLimitSlope ? extrapolateReactiveLimitsSlope(p, pMax).getMaxQ() : pMax.getMaxQ();
-            } else if (e1 != null && e2 != null) {
-                Point p1 = e1.getValue();
-                Point p2 = e2.getValue();
-                return p1.getMaxQ() + (p2.getMaxQ() - p1.getMaxQ()) / (p2.getP() - p1.getP()) * (p - p1.getP());
-            } else {
-                throw new IllegalStateException();
-            }
+            throw new IllegalStateException();
         }
     }
 }
