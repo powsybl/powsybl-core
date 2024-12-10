@@ -25,7 +25,6 @@ public final class LoadingLimitsUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadingLimitsUtil.class);
 
-
     /**
      * Interface for objects used to report the performed operation on limits when fixed by
      * {@link #fixMissingPermanentLimit(LoadingLimitsAdder, double, String, LimitFixLogger)}.

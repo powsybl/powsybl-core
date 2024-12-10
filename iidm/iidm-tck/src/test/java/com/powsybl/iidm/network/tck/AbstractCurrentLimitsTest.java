@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
