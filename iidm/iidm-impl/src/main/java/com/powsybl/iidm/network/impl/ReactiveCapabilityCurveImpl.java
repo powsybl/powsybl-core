@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
@@ -133,6 +132,60 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
             } else {
                 throw new IllegalStateException();
             }
+        }
+    }
+
+    @Override
+    public double getMinQ(double p, boolean extrapolateReactiveLimitSlope) {
+        if (points.size() < 2) {
+            throw new IllegalStateException("points size should be >= 2");
+        }
+        if (!extrapolateReactiveLimitSlope || p >= points.firstKey() && p <= points.lastKey()) {
+            return getMinQ(p);
+        }
+        Map.Entry<Double, Point> e1 = points.floorEntry(p);
+        Map.Entry<Double, Point> e2 = points.ceilingEntry(p);
+        if (e1 == null && e2 != null) {
+            // Extrapolate min reactive limit slope below min active power limit p2
+            Point p2 = e2.getValue();
+            Point p2bis = points.higherEntry(e2.getKey()).getValue(); // p < p2 < p2bis
+            double slope = (p2bis.getMinQ() - p2.getMinQ()) / (p2bis.getP() - p2.getP());
+            return p2.getMinQ() + slope * (p - p2.getP());
+        } else if (e1 != null && e2 == null) {
+            // Extrapolate min reactive limit slope above max active power limit p1
+            Point p1 = e1.getValue();
+            Point p1bis = points.lowerEntry(e1.getKey()).getValue(); // p1bis < p1 < p
+            double slope = (p1.getMinQ() - p1bis.getMinQ()) / (p1.getP() - p1bis.getP());
+            return p1.getMinQ() + slope * (p - p1.getP());
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    @Override
+    public double getMaxQ(double p, boolean extrapolateReactiveLimitSlope) {
+        if (points.size() < 2) {
+            throw new IllegalStateException("points size should be >= 2");
+        }
+        if (!extrapolateReactiveLimitSlope || p >= points.firstKey() && p <= points.lastKey()) {
+            return getMaxQ(p);
+        }
+        Map.Entry<Double, Point> e1 = points.floorEntry(p);
+        Map.Entry<Double, Point> e2 = points.ceilingEntry(p);
+        if (e1 == null && e2 != null) {
+            // Extrapolate max reactive limit slope below min active power limit p2
+            Point p2 = e2.getValue();
+            Point p2bis = points.higherEntry(e2.getKey()).getValue(); // p < p2 < p2bis
+            double slope = (p2bis.getMaxQ() - p2.getMaxQ()) / (p2bis.getP() - p2.getP());
+            return p2.getMaxQ() + slope * (p - p2.getP());
+        } else if (e1 != null && e2 == null) {
+            // Extrapolate max reactive limit slope above max active power limit p1
+            Point p1 = e1.getValue();
+            Point p1bis = points.lowerEntry(e1.getKey()).getValue(); // p1bis < p1 < p
+            double slope = (p1.getMaxQ() - p1bis.getMaxQ()) / (p1.getP() - p1bis.getP());
+            return p1.getMaxQ() + slope * (p - p1.getP());
+        } else {
+            throw new IllegalStateException();
         }
     }
 }

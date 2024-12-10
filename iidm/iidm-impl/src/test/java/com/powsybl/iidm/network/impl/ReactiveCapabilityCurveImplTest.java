@@ -29,7 +29,7 @@ class ReactiveCapabilityCurveImplTest {
     }
 
     @Test
-    void testInterpolation() {
+    void testReactiveCapabilityCurve() {
         ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(100.0, 200.0, 300.0),
                                                         new PointImpl(200.0, 300.0, 400.0));
         // bounds test
@@ -49,6 +49,36 @@ class ReactiveCapabilityCurveImplTest {
         assertEquals(300.0, curve.getMaxQ(0.0), 0.0);
         assertEquals(300.0, curve.getMinQ(1000.0), 0.0);
         assertEquals(400.0, curve.getMaxQ(1000.0), 0.0);
+    }
+
+    private void testReactiveCapabilityCurveWithReactiveLimitsExtrapolation(boolean extrapolate) {
+        ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(100.0, 200.0, 300.0),
+                new PointImpl(200.0, 300.0, 400.0),
+                new PointImpl(300.0, 300.0, 400.0),
+                new PointImpl(400.0, 100.0, 500.0));
+        // bounds test
+        assertEquals(200.0, curve.getMinQ(100.0, extrapolate), 0.0);
+        assertEquals(300.0, curve.getMaxQ(100.0, extrapolate), 0.0);
+        assertEquals(300.0, curve.getMinQ(200.0, extrapolate), 0.0);
+        assertEquals(400.0, curve.getMaxQ(200.0, extrapolate), 0.0);
+
+        // interpolation test
+        assertEquals(250.0, curve.getMinQ(150.0, extrapolate), 0.0);
+        assertEquals(350.0, curve.getMaxQ(150.0, extrapolate), 0.0);
+        assertEquals(210.0, curve.getMinQ(110.0, extrapolate), 0.0);
+        assertEquals(310.0, curve.getMaxQ(110.0, extrapolate), 0.0);
+
+        // out of bounds test
+        assertEquals(extrapolate ? 100.0 : 200.0, curve.getMinQ(0.0, extrapolate), 0.0);
+        assertEquals(extrapolate ? 200.0 : 300.0, curve.getMaxQ(0.0, extrapolate), 0.0);
+        assertEquals(extrapolate ? -100.0 : 100.0, curve.getMinQ(500.0, extrapolate), 0.0);
+        assertEquals(extrapolate ? 600.0 : 500.0, curve.getMaxQ(500.0, extrapolate), 0.0);
+    }
+
+    @Test
+    void testReactiveCapabilityCurveWithReactiveLimitsExtrapolation() {
+        testReactiveCapabilityCurveWithReactiveLimitsExtrapolation(false);
+        testReactiveCapabilityCurveWithReactiveLimitsExtrapolation(true);
     }
 
 }
