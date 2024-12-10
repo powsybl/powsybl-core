@@ -11,12 +11,15 @@ import com.powsybl.iidm.network.*;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<OverloadManagementSystemAdderImpl>
         implements OverloadManagementSystemAdder {
+
+    private boolean validateAfterCreation = false;
 
     abstract class AbstractTrippingAdderImpl<I extends TrippingAdder<I>> implements Validable, TrippingAdder<I> {
         protected String key = null;
@@ -62,15 +65,18 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
             return type + " '" + id + "' not found";
         }
 
-        protected <E> String checkElementId(String elementId, BiFunction<Network, String, E> getter, String attributeName, String type) {
+        protected String checkElementId(String elementId, String attributeName) {
             if (elementId == null) {
                 throw new ValidationException(this, attributeName + " is not set");
             }
+            return elementId;
+        }
+
+        protected <E> void validateElementId(String elementId, BiFunction<Network, String, E> getter, String type) {
             E element = getter.apply(getNetwork(), elementId);
             if (element == null) {
                 throw new ValidationException(this, getNotFoundMessage(type, elementId));
             }
-            return elementId;
         }
     }
 
@@ -85,7 +91,16 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         }
 
         protected String checkSwitchId() {
-            return checkElementId(switchId, Network::getSwitch, "switchId", "switch");
+            return checkElementId(switchId, "switchId");
+        }
+
+        protected void validateSwitchId() {
+            validateElementId(switchId, Network::getSwitch, "switch");
+        }
+
+        @Override
+        public Collection<Consumer<OverloadManagementSystem>> getValidationChecks() {
+            return List.of(oms -> this.validateSwitchId());
         }
     }
 
@@ -107,7 +122,16 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         }
 
         protected String checkBranchId() {
-            return checkElementId(branchId, Network::getBranch, "branchId", "branch");
+            return checkElementId(branchId, "branchId");
+        }
+
+        protected void validateBranchId() {
+            validateElementId(branchId, Network::getBranch, "branch");
+        }
+
+        @Override
+        public Collection<Consumer<OverloadManagementSystem>> getValidationChecks() {
+            return List.of(oms -> this.validateBranchId());
         }
     }
 
@@ -130,8 +154,17 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         }
 
         protected String checkThreeWindingsTransformerId() {
-            return checkElementId(threeWindingsTransformerId, Network::getThreeWindingsTransformer,
-                    "threeWindingsTransformerId", "three windings transformer");
+            return checkElementId(threeWindingsTransformerId,
+                    "threeWindingsTransformerId");
+        }
+
+        protected void validateThreeWindingsTransformerId() {
+            validateElementId(threeWindingsTransformerId, Network::getThreeWindingsTransformer, "three windings transformer");
+        }
+
+        @Override
+        public Collection<Consumer<OverloadManagementSystem>> getValidationChecks() {
+            return List.of(oms -> validateThreeWindingsTransformerId());
         }
     }
 
@@ -190,11 +223,33 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
     }
 
     @Override
+    public OverloadManagementSystemAdder validateAfterCreation() {
+        validateAfterCreation = true;
+        return this;
+    }
+
+    @Override
+    public Collection<Consumer<OverloadManagementSystem>> getValidationChecks() {
+        return List.of(this::validateMonitoredElementId);
+    }
+
+    public void validateMonitoredElementId(OverloadManagementSystem oms) {
+        Identifiable<?> element = getNetwork().getIdentifiable(monitoredElementId);
+        if (element == null) {
+            throw new ValidationException(this, " '" + monitoredElementId + "' not found");
+        }
+    }
+
+    @Override
     public OverloadManagementSystem add() {
         String id = checkAndGetUniqueId();
 
         OverloadManagementSystemImpl overloadManagementSystem = new OverloadManagementSystemImpl(id, getName(), substation,
                 monitoredElementId, monitoredElementSide, enabled);
+
+        if (!validateAfterCreation) {
+            validateMonitoredElementId(overloadManagementSystem);
+        }
 
         // Add the trippings
         Set<String> knownTrippingKeys = new HashSet<>();
@@ -224,6 +279,9 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
     }
 
     private OverloadManagementSystem.Tripping createTripping(SwitchTrippingAdderImpl adder, String overloadManagementSystemId) {
+        if (!validateAfterCreation) {
+            adder.validateSwitchId();
+        }
         return new OverloadManagementSystemImpl.SwitchTrippingImpl(
                 overloadManagementSystemId, adder.key, adder.name,
                 adder.currentLimit, adder.openAction,
@@ -231,6 +289,9 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
     }
 
     private OverloadManagementSystem.Tripping createTripping(BranchTrippingAdderImpl adder, String overloadManagementSystemId) {
+        if (!validateAfterCreation) {
+            adder.validateBranchId();
+        }
         return new OverloadManagementSystemImpl.BranchTrippingImpl(
                 overloadManagementSystemId,
                 adder.key, adder.name, adder.currentLimit, adder.openAction,
@@ -239,6 +300,9 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
 
     private OverloadManagementSystem.Tripping createTripping(ThreeWindingsTransformerTrippingAdderImpl adder,
                                                              String overloadManagementSystemId) {
+        if (!validateAfterCreation) {
+            adder.validateThreeWindingsTransformerId();
+        }
         return new OverloadManagementSystemImpl.ThreeWindingsTransformerTrippingImpl(
                 overloadManagementSystemId,
                 adder.key, adder.name, adder.currentLimit, adder.openAction,
