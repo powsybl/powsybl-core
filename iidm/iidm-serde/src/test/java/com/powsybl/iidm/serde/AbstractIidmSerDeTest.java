@@ -158,6 +158,20 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
+     * Execute a write test for the given network and compare to the given xml reference resource
+     */
+    protected void testWriteXml(Network network, String referencePath) throws IOException {
+        testWriteXml(network, new ExportOptions(), referencePath);
+    }
+
+    /**
+     * Execute a write test for the given network and compare to the given xml reference resource
+     */
+    protected void testWriteXml(Network network, ExportOptions exportOptions, String referencePath) throws IOException {
+        writeXmlTest(network, (n, p) -> NetworkSerDe.write(n, exportOptions, p), referencePath);
+    }
+
+    /**
      * Execute a write test for the given network, for all IIDM versions given, and compare to the given versioned xml
      * reference test resource.
      */
