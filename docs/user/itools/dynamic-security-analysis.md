@@ -95,3 +95,6 @@ This option defines the list of extensions to complete the simulation results wi
 ### with-extensions
 Use the `--with-extensions` parameter to activate a list of `com.powsybl.security.interceptors.SecurityAnalysisInterceptor`
 implementations.
+
+## See also
+- [List dynamic simulation models with an iTools command](../../user/itools/list-dynamic-simulation-models.md): learn how to load a list of all dynamic simulation models from the command line.
