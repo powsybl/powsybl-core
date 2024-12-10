@@ -187,7 +187,7 @@ public abstract class AbstractForkConnectDisconnectTest {
         assertTerminalsStatus(line2.getTerminals(), true);
 
         // Disconnect L1
-        line1.disconnect(SwitchPredicates.IS_OPEN.negate());
+        line1.disconnect(SwitchPredicates.IS_NON_NULL);
 
         // check that L1 is disconnected while L2 is still connected
         assertTrue(topo.getOptionalTerminal(4).isPresent());
@@ -221,7 +221,7 @@ public abstract class AbstractForkConnectDisconnectTest {
         assertTerminalsStatus(line2.getTerminals(), true);
 
         // Disconnect L1
-        line1.disconnect(SwitchPredicates.IS_OPEN.negate());
+        line1.disconnect(SwitchPredicates.IS_NON_NULL);
 
         // check that L1 and L2 are disconnected
         assertTrue(topo.getOptionalTerminal(4).isPresent());
