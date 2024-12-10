@@ -199,7 +199,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         // Add the trippings
         Set<String> knownTrippingKeys = new HashSet<>();
         for (AbstractTrippingAdderImpl<?> adder : trippingAdders) {
-            overloadManagementSystem.addTripping(createTripping(adder, id, knownTrippingKeys));
+            overloadManagementSystem.addTripping(createTripping(adder, overloadManagementSystem, knownTrippingKeys));
         }
 
         getNetwork().getIndex().checkAndAdd(overloadManagementSystem);
@@ -208,7 +208,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         return overloadManagementSystem;
     }
 
-    private OverloadManagementSystem.Tripping createTripping(AbstractTrippingAdderImpl<?> adder, String overloadManagementSystemId,
+    private OverloadManagementSystem.Tripping createTripping(AbstractTrippingAdderImpl<?> adder, OverloadManagementSystem overloadManagementSystem,
                                                              Set<String> knownTrippingKeys) {
         String key = adder.key;
         if (!knownTrippingKeys.add(key)) {
@@ -216,31 +216,31 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
                     "\" is already used for another tripping in the overload management system.");
         }
         return switch (adder.getType()) {
-            case SWITCH_TRIPPING -> createTripping((SwitchTrippingAdderImpl) adder, overloadManagementSystemId);
-            case BRANCH_TRIPPING -> createTripping((BranchTrippingAdderImpl) adder, overloadManagementSystemId);
+            case SWITCH_TRIPPING -> createTripping((SwitchTrippingAdderImpl) adder, overloadManagementSystem);
+            case BRANCH_TRIPPING -> createTripping((BranchTrippingAdderImpl) adder, overloadManagementSystem);
             case THREE_WINDINGS_TRANSFORMER_TRIPPING -> createTripping((ThreeWindingsTransformerTrippingAdderImpl) adder,
-                    overloadManagementSystemId);
+                    overloadManagementSystem);
         };
     }
 
-    private OverloadManagementSystem.Tripping createTripping(SwitchTrippingAdderImpl adder, String overloadManagementSystemId) {
+    private OverloadManagementSystem.Tripping createTripping(SwitchTrippingAdderImpl adder, OverloadManagementSystem overloadManagementSystem) {
         return new OverloadManagementSystemImpl.SwitchTrippingImpl(
-                overloadManagementSystemId, adder.key, adder.name,
+                overloadManagementSystem, adder.key, adder.name,
                 adder.currentLimit, adder.openAction,
                 adder.checkSwitchId());
     }
 
-    private OverloadManagementSystem.Tripping createTripping(BranchTrippingAdderImpl adder, String overloadManagementSystemId) {
+    private OverloadManagementSystem.Tripping createTripping(BranchTrippingAdderImpl adder, OverloadManagementSystem overloadManagementSystem) {
         return new OverloadManagementSystemImpl.BranchTrippingImpl(
-                overloadManagementSystemId,
+                overloadManagementSystem,
                 adder.key, adder.name, adder.currentLimit, adder.openAction,
                 adder.checkBranchId(), adder.side);
     }
 
     private OverloadManagementSystem.Tripping createTripping(ThreeWindingsTransformerTrippingAdderImpl adder,
-                                                             String overloadManagementSystemId) {
+                                                             OverloadManagementSystem overloadManagementSystem) {
         return new OverloadManagementSystemImpl.ThreeWindingsTransformerTrippingImpl(
-                overloadManagementSystemId,
+                overloadManagementSystem,
                 adder.key, adder.name, adder.currentLimit, adder.openAction,
                 adder.checkThreeWindingsTransformerId(), adder.side);
     }
