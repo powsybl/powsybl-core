@@ -7,8 +7,9 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 
@@ -21,6 +22,9 @@ public final class LoadingLimitsUtil {
 
     private LoadingLimitsUtil() {
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoadingLimitsUtil.class);
+
 
     /**
      * Interface for objects used to report the performed operation on limits when fixed by
@@ -97,7 +101,8 @@ public final class LoadingLimitsUtil {
       */
     public static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> A initializeFromLoadingLimits(A adder, L limits) {
         if (limits == null) {
-            throw new PowsyblException("Cannot initialize new limits from null limits");
+            LOGGER.warn("Created adder is empty");
+            return adder;
         }
         adder.setPermanentLimit(limits.getPermanentLimit());
         limits.getTemporaryLimits().forEach(limit ->

@@ -234,7 +234,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public LineAdder newLine(Line line) {
-        return getNetwork().newLine(line.getId());
+        return getNetwork().newLine(id, line);
     }
 
     @Override

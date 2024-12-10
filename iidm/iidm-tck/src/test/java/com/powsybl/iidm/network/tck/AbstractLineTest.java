@@ -20,6 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -27,7 +28,7 @@ import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_I
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public abstract class AbstractLineTest extends AbstractIdenticalLinesTest {
+public abstract class AbstractLineTest {
 
     private static final String INVALID = "invalid";
 
@@ -40,6 +41,22 @@ public abstract class AbstractLineTest extends AbstractIdenticalLinesTest {
     private Network network;
     private VoltageLevel voltageLevelA;
     private VoltageLevel voltageLevelB;
+
+    public boolean areLinesIdentical(Line line1, Line line2) {
+        boolean areIdentical = false;
+
+        if (line1 != null && line2 != null) {
+            areIdentical = line1.getR() == line2.getR()
+                    && line1.getX() == line2.getX()
+                    && line1.getG1() == line2.getG1()
+                    && line1.getG2() == line2.getG2()
+                    && line1.getB1() == line2.getB1()
+                    && line1.getB2() == line2.getB2()
+                    && Objects.equals(line1.getTerminal1().getVoltageLevel().getId(), line2.getTerminal1().getVoltageLevel().getId())
+                    && Objects.equals(line1.getTerminal2().getVoltageLevel().getId(), line2.getTerminal2().getVoltageLevel().getId());
+        }
+        return areIdentical;
+    }
 
     @BeforeEach
     public void setUp() {
