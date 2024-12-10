@@ -9,7 +9,9 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
 
 import java.util.HashSet;
 import java.util.List;
