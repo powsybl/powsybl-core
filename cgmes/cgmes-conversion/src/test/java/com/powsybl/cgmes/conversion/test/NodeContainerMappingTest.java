@@ -97,12 +97,15 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         assertNotNull(network);
         assertEquals(Set.of("VL_1", "VL_2", "LN_12_VL"),
                 network.getVoltageLevelStream().map(Identifiable::getId).collect(Collectors.toSet()));
+        assertTrue(network.getVoltageLevel("LN_12_VL").isFictitious());
 
         importParams.put(CgmesImport.CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE, "true");
         network = readCgmesResources(importParams, DIR, "chained_line_segments.xml");
         assertNotNull(network);
         assertEquals(Set.of("VL_1", "VL_2", "CN_A_VL", "CN_B_VL"),
                 network.getVoltageLevelStream().map(Identifiable::getId).collect(Collectors.toSet()));
+        assertTrue(network.getVoltageLevel("CN_A_VL").isFictitious());
+        assertTrue(network.getVoltageLevel("CN_B_VL").isFictitious());
     }
 
     @Test
