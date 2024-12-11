@@ -52,16 +52,11 @@ public final class ConnectDisconnectUtil {
         // We try to connect each terminal
         for (Terminal terminal : terminals) {
             // Check if the terminal is already connected
-            if (terminal.isConnected()) {
-                reportNode.newReportNode()
-                    .withMessageTemplate("alreadyConnectedTerminal", "A terminal of identifiable ${identifiable} is already connected.")
-                    .withUntypedValue("identifiable", identifiable.getId())
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .add();
+            if (checkCurrentTerminalStatus(terminal, identifiable, reportNode)) {
+                // If the terminal is connected and its voltage level is not fictitious, we skip it
                 continue;
-            } else {
-                isAlreadyConnected = false;
             }
+            isAlreadyConnected = false;
 
             // If it's a node-breaker terminal, the switches to connect are added to a set
             if (terminal.getVoltageLevel().getTopologyKind() == NODE_BREAKER) {
@@ -93,6 +88,20 @@ public final class ConnectDisconnectUtil {
         // Disconnect all switches on node-breaker terminals
         switchForDisconnection.forEach(sw -> sw.setOpen(false));
         return isNowConnected;
+    }
+
+    private static boolean checkCurrentTerminalStatus(Terminal terminal, Identifiable<?> identifiable, ReportNode reportNode) {
+        if (terminal.isConnected()) {
+            reportNode.newReportNode()
+                .withMessageTemplate("alreadyConnectedTerminal", "A terminal of identifiable ${identifiable} is already connected.")
+                .withUntypedValue("identifiable", identifiable.getId())
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+            // If the voltage level is fictitious, we continue to try to propagate
+            return !terminal.getVoltageLevel().isFictitious();
+        } else {
+            return false;
+        }
     }
 
     /**

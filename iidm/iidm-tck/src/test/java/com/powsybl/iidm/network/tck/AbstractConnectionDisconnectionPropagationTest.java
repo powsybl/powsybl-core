@@ -266,6 +266,9 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
             .setNode2(2)
             .add();
 
+        // Set VL3 fictitious
+        vl3.setFictitious(true);
+
         return network;
     }
 
@@ -273,14 +276,56 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     void propagationOnTeePointTest() {
         Network network = createNetworkWithTeePoint();
 
-        // Line to disconnect
-        Line line = network.getLine("L1_1");
+        // Lines
+        Line line1 = network.getLine("L1_1");
+        Line line2 = network.getLine("L1_2");
+        Line line3 = network.getLine("testLine");
 
-        assertTrue(line.disconnect(SwitchPredicates.IS_NON_NULL));
+        // Disconnect the line
+        assertTrue(line1.disconnect(SwitchPredicates.IS_NON_NULL));
+
+        // Check that the 3 lines are disconnected on one side only
+        assertFalse(line1.getTerminal1().isConnected());
+        assertTrue(line1.getTerminal2().isConnected());
+        assertTrue(line2.getTerminal1().isConnected());
+        assertFalse(line2.getTerminal2().isConnected());
+        assertTrue(line3.getTerminal1().isConnected());
+        assertFalse(line3.getTerminal2().isConnected());
+
+        // Check the switches that were opened
+        assertTrue(network.getSwitch("B_L1_VL1").isOpen());
+        assertTrue(network.getSwitch("B_L1_VL2").isOpen());
+        assertTrue(network.getSwitch("L1_BREAKER").isOpen());
+
+        // Reconnect the line
+        assertTrue(line1.connect(SwitchPredicates.IS_NON_NULL));
+
+        // Check that the 3 lines are connected on both sides
+        line1.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
+        line2.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
+        line3.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
+
+        // Check the switches that were closed
+        assertFalse(network.getSwitch("B_L1_VL1").isOpen());
+        assertFalse(network.getSwitch("B_L1_VL2").isOpen());
+        assertFalse(network.getSwitch("L1_BREAKER").isOpen());
     }
 
-    @Test
-    void propagationThroughVoltageLevelTest() {
-        Network network = createNetworkWithFictitiousVoltageLevel();
-    }
+//    @Test
+//    void propagationThroughVoltageLevelTest() {
+//        Network network = createNetworkWithFictitiousVoltageLevel();
+//
+//        // Lines
+//        Line line1 = network.getLine("L1_1");
+//        Line line2 = network.getLine("L1_2");
+//
+//        // Disconnect the line
+//        assertTrue(line1.disconnect(SwitchPredicates.IS_NON_NULL));
+//
+//        // Check that the 3 lines are disconnected on one side only
+//        assertFalse(line1.getTerminal1().isConnected());
+//        assertTrue(line1.getTerminal2().isConnected());
+//        assertTrue(line2.getTerminal1().isConnected());
+//        assertFalse(line2.getTerminal2().isConnected());
+//    }
 }

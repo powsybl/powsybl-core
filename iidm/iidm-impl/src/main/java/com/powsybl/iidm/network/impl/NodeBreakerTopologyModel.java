@@ -1201,7 +1201,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
      * @return <code>true</code> if the terminal has been connected, <code>false</code> if it hasn't or if it was already connected
      */
     @Override
-    public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOperable) {
+    public boolean connect(TerminalExt terminal, Predicate<Switch> isSwitchOperable) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
@@ -1223,7 +1223,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         }
     }
 
-    boolean getConnectingSwitches(Terminal terminal, Predicate<? super SwitchImpl> isSwitchOperable, Set<SwitchImpl> switchForConnection) {
+    boolean getConnectingSwitches(Terminal terminal, Predicate<Switch> isSwitchOperable, Set<SwitchImpl> switchForConnection) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
@@ -1248,8 +1248,52 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 }
             }
             return true;
+        } else if (terminal.getVoltageLevel().isFictitious()) {
+            // If no path was found and the voltage level is fictitious, try to propagate connection
+            return propagateConnection(node, isSwitchOperable);
         }
         return false;
+    }
+
+    private boolean propagateConnection(int node, Predicate<Switch> isSwitchOperable) {
+        // If no path was found and the voltage level is fictitious, try to propagate connection
+        List<TIntArrayList> paths = graph.findAllPaths(node, Objects::nonNull, sw -> checkNonClosableSwitch(sw, isSwitchOperable));
+        if (!paths.isEmpty()) {
+            List<Terminal> connectedTerminals = new ArrayList<>();
+            // On each path, we try to connect the opposite terminal
+            for (TIntArrayList path : paths) {
+                if (!connectNextLine(path, isSwitchOperable, connectedTerminals)) {
+                    // If a connection failed, disconnect all the connected terminals
+                    connectedTerminals.forEach(t -> t.disconnect(isSwitchOperable));
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    boolean connectNextLine(TIntArrayList path, Predicate<Switch> isSwitchOpenable, List<Terminal> connectedTerminals) {
+        // Get the terminal at the end of the path
+        Terminal terminalEndOfPath = getEndOfPathTerminal(path);
+
+        // If the connectable at the end of the path is a line, we find the side and disconnect the others
+        if (terminalEndOfPath.getConnectable() instanceof Line line) {
+            Terminal otherTerminal = line.getTerminal1() == terminalEndOfPath ? line.getTerminal2() : line.getTerminal1();
+            if (otherTerminal.connect(isSwitchOpenable)) {
+                connectedTerminals.add(otherTerminal);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Terminal getEndOfPathTerminal(TIntArrayList path) {
+        // Get the terminal at the end of the path
+        int e = path.get(path.size() - 1);
+        int v1 = graph.getEdgeVertex1(e);
+        int v2 = graph.getEdgeVertex2(e);
+        return graph.getVertexObject(v1) != null ? graph.getVertexObject(v1) : graph.getVertexObject(v2);
     }
 
     boolean disconnect(TerminalExt terminal) {
@@ -1258,7 +1302,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     @Override
-    public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable) {
+    public boolean disconnect(TerminalExt terminal, Predicate<Switch> isSwitchOpenable) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
@@ -1280,7 +1324,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         }
     }
 
-    boolean getDisconnectingSwitches(Terminal terminal, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchForDisconnection) {
+    boolean getDisconnectingSwitches(Terminal terminal, Predicate<Switch> isSwitchOpenable, Set<SwitchImpl> switchForDisconnection) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
@@ -1293,13 +1337,29 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
         // Each path is visited and for each, the first openable switch found is added in the set of switches to open
         for (TIntArrayList path : paths) {
-            // Identify the first openable switch on the path
-            if (!identifySwitchToOpenPath(path, isSwitchOpenable, switchForDisconnection)) {
+            // Identify the first openable switch on the path or try to disconnect the other side(s) of the connectable at the end of the path
+            if (!identifySwitchToOpenPath(path, isSwitchOpenable, switchForDisconnection)
+                && (!terminal.getVoltageLevel().isFictitious() || !disconnectNextLine(path, isSwitchOpenable))) {
                 // If no such switch was found, return false immediately
                 return false;
             }
         }
         return true;
+    }
+
+    boolean disconnectNextLine(TIntArrayList path, Predicate<Switch> isSwitchOpenable) {
+        // Get the terminal at the end of the path
+        Terminal terminalEndOfPath = getEndOfPathTerminal(path);
+
+        // If the connectable at the end of the path is a line, we find the side and disconnect the others
+        if (terminalEndOfPath.getConnectable() instanceof Line line) {
+            if (line.getTerminal1() == terminalEndOfPath) {
+                return line.disconnect(isSwitchOpenable, ThreeSides.TWO);
+            } else {
+                return line.disconnect(isSwitchOpenable, ThreeSides.ONE);
+            }
+        }
+        return false;
     }
 
     /**
@@ -1309,7 +1369,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
      * @param switchesToOpen set of switches to be opened
      * @return true if the path can be opened, else false
      */
-    boolean identifySwitchToOpenPath(TIntArrayList path, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
+    boolean identifySwitchToOpenPath(TIntArrayList path, Predicate<Switch> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
         for (int i = 0; i < path.size(); i++) {
             int e = path.get(i);
             SwitchImpl sw = graph.getEdgeObject(e);
