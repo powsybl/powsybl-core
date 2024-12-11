@@ -14,7 +14,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>6.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-itools-packager-maven-plugin</artifactId>
@@ -66,6 +66,34 @@
             <artifactId>maven-plugin-annotations</artifactId>
             <version>${maven.plugin.annotations.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.apache.maven.plugin-testing</groupId>
+            <artifactId>maven-plugin-testing-harness</artifactId>
+            <version>${maven.plugin.testing.harness.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-compat</artifactId>
+            <version>${maven.compat}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

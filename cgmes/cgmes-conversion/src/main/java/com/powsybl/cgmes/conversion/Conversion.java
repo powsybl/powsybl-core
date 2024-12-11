@@ -1178,9 +1178,11 @@ public class Conversion {
     public static final String PROPERTY_IS_EQUIVALENT_SHUNT = CGMES_PREFIX_ALIAS_PROPERTIES + "isEquivalentShunt";
     public static final String PROPERTY_HYDRO_PLANT_STORAGE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "hydroPlantStorageKind";
     public static final String PROPERTY_FOSSIL_FUEL_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "fuelType";
+    public static final String PROPERTY_WIND_GEN_UNIT_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "windGenUnitType";
     public static final String PROPERTY_CGMES_ORIGINAL_CLASS = CGMES_PREFIX_ALIAS_PROPERTIES + "originalClass";
     public static final String PROPERTY_BUSBAR_SECTION_TERMINALS = CGMES_PREFIX_ALIAS_PROPERTIES + "busbarSectionTerminals";
     public static final String PROPERTY_CGMES_GOVERNOR_SCD = CGMES_PREFIX_ALIAS_PROPERTIES + "governorSCD";
     public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineType";
     public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineOperatingMode";
+    public static final String PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS = CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT_SET + "_identifiers";
 }

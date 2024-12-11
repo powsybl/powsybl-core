@@ -36,6 +36,7 @@
             <iidm:branchTripping key="tripping1" name="1st tripping name" currentLimit="1200.0" openAction="true" branchId="2WT" side="ONE"/>
             <iidm:threeWindingsTransformerTripping key="tripping2" name="2nd tripping name" currentLimit="1000.0" openAction="false" threeWindingsTransformerId="3WT" side="ONE"/>
             <iidm:switchTripping key="tripping3" name="3rd tripping name" currentLimit="1000.0" openAction="true" switchId="S1_400_LINE_2_BREAKER"/>
+            <iidm:switchTripping key="trippingWithNoName" currentLimit="800.0" openAction="true" switchId="S1_400_LINE_2_BREAKER"/>
         </iidm:overloadManagementSystem>
         <iidm:overloadManagementSystem id="OMS2" name="2nd OMS" enabled="true" monitoredElementId="LINE_1" side="ONE">
             <iidm:branchTripping key="tripping" name="tripping name" currentLimit="1300.0" openAction="true" branchId="LINE_2" side="ONE"/>
