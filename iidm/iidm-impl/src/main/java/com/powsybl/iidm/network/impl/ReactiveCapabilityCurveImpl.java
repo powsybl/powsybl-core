@@ -69,11 +69,11 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         double maxQ;
         Point pbis;
         if (p < pBound.getP()) {
-            // Extrapolate reactive limits slope below min active power limit (bound_p = min active power limit)
-            pbis = points.higherEntry(points.firstKey()).getValue(); // p < bound_p < pbis
+            // Extrapolate reactive limits slope below min active power limit (pBound = min active power limit)
+            pbis = points.higherEntry(points.firstKey()).getValue(); // p < pBound < pbis
         } else if (p > pBound.getP()) {
-            // Extrapolate reactive limits slope above max active power limit (bound_p = max active power limit)
-            pbis = points.lowerEntry(points.lastKey()).getValue(); // pbis < bound_p < p
+            // Extrapolate reactive limits slope above max active power limit (pBound = max active power limit)
+            pbis = points.lowerEntry(points.lastKey()).getValue(); // pbis < pBound < p
         } else {
             throw new IllegalStateException();
         }
