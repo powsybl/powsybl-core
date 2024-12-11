@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -19,6 +21,9 @@ import java.util.TreeMap;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveCapabilityCurveImpl.class);
+    private int warning_count = 0;
 
     static class PointImpl implements Point {
 
@@ -80,6 +85,9 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
             return new PointImpl(p, minQ, maxQ);
         } else { // Corner case of intersecting reactive limits when extrapolated
             double limitQ = (minQ + maxQ) / 2;
+            if (warning_count++ % 100 == 0) { // Warn message only every 100 calls to avoid logging overflow
+                LOGGER.warn("PQ diagram extrapolation leads to minQ > maxQ ({} > {}) for P = {} => changing to minQ = maxQ = {}", minQ, maxQ, p, limitQ);
+            }
             return new PointImpl(p, limitQ, limitQ); // Returning the mean as limits minQ and maxQ
         }
     }
