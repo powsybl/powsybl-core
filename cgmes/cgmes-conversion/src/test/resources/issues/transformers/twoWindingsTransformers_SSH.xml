@@ -1,0 +1,32 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:ModelID">
+    <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+    <md:Model.description>Two windings transformer</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:RatioTapChanger rdf:about="#_RTC">
+    <cim:TapChanger.step>14</cim:TapChanger.step>
+    <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+</cim:RatioTapChanger>
+<cim:TapChangerControl rdf:about="#_RTCC">
+    <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+    <cim:RegulatingControl.targetDeadband>0.5</cim:RegulatingControl.targetDeadband>
+    <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k"/>
+    <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+    <cim:RegulatingControl.targetValue>10.815</cim:RegulatingControl.targetValue>
+</cim:TapChangerControl>
+<cim:PhaseTapChangerSymmetrical rdf:about="#_PTC">
+    <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+    <cim:TapChanger.step>10</cim:TapChanger.step>
+</cim:PhaseTapChangerSymmetrical>
+<cim:TapChangerControl rdf:about="#_PTCC">
+    <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+    <cim:RegulatingControl.targetDeadband>35</cim:RegulatingControl.targetDeadband>
+    <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.M"/>
+    <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+    <cim:RegulatingControl.targetValue>-65</cim:RegulatingControl.targetValue>
+</cim:TapChangerControl>
+</rdf:RDF>
