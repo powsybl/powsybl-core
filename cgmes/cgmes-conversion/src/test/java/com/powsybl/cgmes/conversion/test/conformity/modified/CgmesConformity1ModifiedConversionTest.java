@@ -504,6 +504,7 @@ class CgmesConformity1ModifiedConversionTest {
         Generator generator = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
         assertEquals(50.0, generator.getMinP(), 0.0);
         assertEquals(200.0, generator.getMaxP(), 0.0);
+        assertFalse(generator.isCondenser());
     }
 
     @Test

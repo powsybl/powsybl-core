@@ -37,6 +37,14 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags nonlinearShuntCompensatorPoints(String shuntId) {
+        if (cachedGroupedShuntCompensatorPoints == null) {
+            cachedGroupedShuntCompensatorPoints = computeGroupedShuntCompensatorPoints();
+        }
+        return cachedGroupedShuntCompensatorPoints.getOrDefault(shuntId, new PropertyBags());
+    }
+
+    @Override
     public Map<String, PropertyBags> groupedTransformerEnds() {
         if (cachedGroupedTransformerEnds == null) {
             cachedGroupedTransformerEnds = computeGroupedTransformerEnds();
@@ -159,6 +167,17 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         }
 
         return (containerId == null) ? null : container(containerId);
+    }
+
+    private Map<String, PropertyBags> computeGroupedShuntCompensatorPoints() {
+        Map<String, PropertyBags> groupedShuntCompensatorPoints = new HashMap<>();
+        nonlinearShuntCompensatorPoints()
+                .forEach(point -> {
+                    String shuntCompensator = point.getId("Shunt");
+                    groupedShuntCompensatorPoints.computeIfAbsent(shuntCompensator, bag -> new PropertyBags())
+                            .add(point);
+                });
+        return groupedShuntCompensatorPoints;
     }
 
     private Map<String, PropertyBags> computeGroupedTransformerEnds() {
@@ -292,6 +311,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     @Override
     public void invalidateCaches() {
+        cachedGroupedShuntCompensatorPoints = null;
         cachedGroupedTransformerEnds = null;
         powerTransformerRatioTapChanger = null;
         powerTransformerPhaseTapChanger = null;
@@ -309,6 +329,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private String baseName;
 
     // Caches
+    private Map<String, PropertyBags> cachedGroupedShuntCompensatorPoints;
     private Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private Map<String, CgmesTerminal> cachedTerminals;
     private Map<String, CgmesContainer> cachedContainers;

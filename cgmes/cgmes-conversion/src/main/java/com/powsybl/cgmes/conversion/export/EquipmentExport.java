@@ -7,6 +7,9 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
@@ -382,7 +385,15 @@ public final class EquipmentExport {
             String cgmesOriginalClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
             RemoteReactivePowerControl rrpc = generator.getExtension(RemoteReactivePowerControl.class);
             String mode = CgmesExportUtil.getGeneratorRegulatingControlMode(generator, rrpc);
-            Terminal regulatingTerminal = mode.equals(RegulatingControlEq.REGULATING_CONTROL_VOLTAGE) ? generator.getRegulatingTerminal() : rrpc.getRegulatingTerminal();
+            Terminal regulatingTerminal;
+            if (mode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
+                regulatingTerminal = rrpc.getRegulatingTerminal();
+            } else if (context.isExportGeneratorsInLocalRegulationMode()) {
+                regulatingTerminal = generator.getTerminal();
+            } else {
+                regulatingTerminal = generator.getRegulatingTerminal();
+            }
+            String regulatingControlId;
             switch (cgmesOriginalClass) {
                 case CgmesNames.EQUIVALENT_INJECTION:
                     String reactiveCapabilityCurveId = writeReactiveCapabilityCurve(generator, cimNamespace, writer, context);
@@ -393,7 +404,7 @@ public final class EquipmentExport {
                             cimNamespace, writer, context);
                     break;
                 case CgmesNames.EXTERNAL_NETWORK_INJECTION:
-                    String regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(generator, exportedTerminalId(mapTerminal2Id, regulatingTerminal), regulatingControlsWritten, mode, cimNamespace, writer, context);
+                    regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(generator, exportedTerminalId(mapTerminal2Id, regulatingTerminal), regulatingControlsWritten, mode, cimNamespace, writer, context);
                     ExternalNetworkInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
                             context.getNamingStrategy().getCgmesId(generator.getTerminal().getVoltageLevel()),
                             obtainGeneratorGovernorScd(generator), generator.getMaxP(), obtainMaxQ(generator), generator.getMinP(), obtainMinQ(generator),
@@ -448,13 +459,14 @@ public final class EquipmentExport {
         if (generatingUnit != null && !generatingUnitsWritten.contains(generatingUnit)) {
 
             String hydroPowerPlantId = generatingUnitWriteHydroPowerPlantAndFossilFuel(i, cimNamespace, energySource, generatingUnit, writer, context);
+            String windGenUnitType = i.getProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "onshore");  // considered onshore if property missing
 
             // We have not preserved the names of generating units
             // We name generating units based on the first machine found
             String generatingUnitName = "GU_" + i.getNameOrId();
             GeneratingUnitEq.write(generatingUnit, generatingUnitName, energySource, minP, maxP, targetP, cimNamespace, writeInitialP,
                     i.getTerminal().getVoltageLevel().getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null),
-                    hydroPowerPlantId, writer, context);
+                    hydroPowerPlantId, windGenUnitType, writer, context);
             generatingUnitsWritten.add(generatingUnit);
         }
     }
@@ -1214,10 +1226,16 @@ public final class EquipmentExport {
         // Write the OperationalLimitSet
         String operationalLimitSetId;
         String operationalLimitSetName;
-        String propertyKey = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT_SET + "_" + limitsGroup.getId();
-        if (identifiable.hasProperty(propertyKey)) {
+        if (identifiable.hasProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS)) {
             operationalLimitSetId = limitsGroup.getId();
-            operationalLimitSetName = identifiable.getProperty(propertyKey);
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode propertyNode = mapper.readTree(identifiable.getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS));
+                JsonNode limitsGroupNode = propertyNode.get(operationalLimitSetId);
+                operationalLimitSetName = limitsGroupNode != null ? limitsGroupNode.textValue() : operationalLimitSetId;
+            } catch (JsonProcessingException e) {
+                operationalLimitSetName = operationalLimitSetId;
+            }
         } else {
             operationalLimitSetId = context.getNamingStrategy().getCgmesId(ref(terminalId), ref(limitsGroup.getId()), OPERATIONAL_LIMIT_SET);
             operationalLimitSetName = limitsGroup.getId();

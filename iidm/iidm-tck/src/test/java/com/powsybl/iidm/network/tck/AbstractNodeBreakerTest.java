@@ -312,6 +312,33 @@ public abstract class AbstractNodeBreakerTest {
         return network;
     }
 
+    /**
+     * <pre>
+     *                load
+     *                  |
+     *               ___|___
+     *               |     |
+     *           fd1 x     x fd2
+     * bbs1 _________|__   |
+     *        |            |
+     *        c            |
+     * bbs2 __|____________|__
+     * </pre>
+     */
+    private static Network createNetworkWithLoop() {
+        Network network = Network.create("test", "test");
+        Substation substation = network.newSubstation().setId("s").add();
+        VoltageLevel vl = substation.newVoltageLevel().setId("vl").setNominalV(400).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        VoltageLevel.NodeBreakerView topology = vl.getNodeBreakerView();
+        topology.newBusbarSection().setId("bbs1").setNode(0).add();
+        topology.newBusbarSection().setId("bbs2").setNode(1).add();
+        topology.newDisconnector().setId("fd1").setNode1(0).setNode2(2).add();
+        topology.newDisconnector().setId("fd2").setNode1(1).setNode2(2).add();
+        topology.newBreaker().setId("c").setNode1(0).setNode2(1).add();
+        vl.newLoad().setId("load").setNode(2).setP0(10).setQ0(3).add();
+        return network;
+    }
+
     @Test
     public void connectDisconnectRemove() {
         Network network = createNetwork();
@@ -532,5 +559,20 @@ public abstract class AbstractNodeBreakerTest {
         // Remove substation
         sub.remove();
         assertNull(network.getSubstation("S1"));
+    }
+
+    @Test
+    public void testCalculatedBusTopologyWithLoop() {
+        Network n = createNetworkWithLoop();
+
+        Bus busBbv = n.getBusBreakerView().getBus("vl_0");
+        assertNotNull(busBbv);
+        assertEquals(1, n.getBusBreakerView().getBusCount());
+        assertEquals(3, busBbv.getConnectedTerminalCount());
+
+        Bus busBv = n.getBusView().getBus("vl_0");
+        assertNotNull(busBv);
+        assertEquals(1, n.getBusView().getBusStream().count());
+        assertEquals(3, busBv.getConnectedTerminalCount());
     }
 }
