@@ -7,44 +7,25 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
-import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  * @author Pierre ARVY {@literal <pierre.arvy at artelys.com>}
  */
-class ExtendedAmplExporterTest extends AbstractSerDeTest {
-
-    MemDataSource dataSource;
-    AmplExporter exporter;
-    Properties properties;
-
-    private void assertEqualsToRef(MemDataSource dataSource, String suffix, String refFileName) throws IOException {
-        try (InputStream actual = new ByteArrayInputStream(dataSource.getData(suffix, "txt"))) {
-            assertTxtEquals(getClass().getResourceAsStream("/" + refFileName), actual);
-        }
-    }
+class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
 
     @Override
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
-        dataSource = new MemDataSource();
-        exporter = new AmplExporter();
-        properties = new Properties();
+        properties.put("iidm.export.ampl.export-version", "1.1");
     }
 
     @Test
