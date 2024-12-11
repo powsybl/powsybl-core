@@ -701,6 +701,7 @@ public class Conversion {
                 .setLowVoltageLimit(vlref.getLowVoltageLimit())
                 .setHighVoltageLimit(vlref.getHighVoltageLimit())
                 .setId(fictitiousVoltageLevelId)
+                .setFictitious(true)
                 .setName(containerName)
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
