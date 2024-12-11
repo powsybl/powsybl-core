@@ -13,7 +13,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-dynamic-simulation</artifactId>
-        <version>6.6.0-RC1</version>
+        <version>6.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-dynamic-simulation-tool</artifactId>
