@@ -9,7 +9,10 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -269,6 +272,11 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     @Test
     void propagationOnTeePointTest() {
         Network network = createNetworkWithTeePoint();
+
+        // Line to disconnect
+        Line line = network.getLine("L1_1");
+
+        assertTrue(line.disconnect(SwitchPredicates.IS_NON_NULL));
     }
 
     @Test
