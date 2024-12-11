@@ -30,8 +30,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -111,6 +112,22 @@ class Cim14SmallCasesConversionTest {
         assertEquals(0, c.getMinP());
         assertEquals(0, c.getMaxP());
         assertTrue(c.isCondenser());
+    }
+
+    @Test
+    void voltageLevelWithoutName() {
+        // CGMES network:
+        //   Voltage level of ID "VoltageLevel1" has no name
+        // IIDM network:
+        //   The voltage level imported without name, and can be retrieved via its id
+
+        ReadOnlyDataSource ds = new ResourceDataSource("vl_without_name",
+                new ResourceSet("/cim14/", "vl_without_name.xml"));
+        Network network = new CgmesImport().importData(ds, new NetworkFactoryImpl(), new Properties());
+
+        assertNotNull(network);
+        assertEquals(2, network.getVoltageLevelCount());
+        assertNotNull(network.getVoltageLevel("VoltageLevel1"));
     }
 
     private static ConversionTester tester;
