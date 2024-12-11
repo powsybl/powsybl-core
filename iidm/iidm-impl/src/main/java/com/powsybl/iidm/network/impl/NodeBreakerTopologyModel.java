@@ -1285,8 +1285,8 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         checkTopologyKind(terminal);
 
         int node = ((NodeTerminal) terminal).getNode();
-        // find all paths starting from the current terminal to a busbar section that does not contain an open switch
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerTopologyModel::isBusbarSection, SwitchPredicates.IS_OPEN);
+        // find all paths starting from the current terminal to a terminal that does not contain an open switch
+        List<TIntArrayList> paths = graph.findAllPaths(node, Objects::nonNull, SwitchPredicates.IS_OPEN);
         if (paths.isEmpty()) {
             return false;
         }
