@@ -55,7 +55,7 @@ GRAPH ?graph {
         a cim:VoltageLevel ;
         cim:VoltageLevel.MemberOf_Substation ?Substation ;
         cim:VoltageLevel.BaseVoltage ?BaseVoltage .
-    OPTIONAL { ?VoltageLevel cim:IdentifiedObject.name ?name ; }
+    OPTIONAL { ?VoltageLevel cim:IdentifiedObject.name ?name }
 }
 # BaseVoltage may be defined in a different EQ graph
 GRAPH ?graph2 {

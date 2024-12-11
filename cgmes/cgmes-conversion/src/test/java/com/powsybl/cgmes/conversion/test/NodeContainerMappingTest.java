@@ -155,7 +155,7 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"CIM14", "CIM16"})
-    void voltageLevelWithoutNamesCim14(String version) {
+    void voltageLevelWithoutName(String version) {
         // CGMES network:
         //   Voltage level of ID "VoltageLevel1" has no name
         // IIDM network:
