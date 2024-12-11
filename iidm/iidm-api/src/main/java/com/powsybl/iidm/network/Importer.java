@@ -339,32 +339,34 @@ public interface Importer {
     }
 
     /**
-     * Update a model with additional data.
-     *
-     * @param dataSource data source
-     * @param parameters some properties to configure the import
-     */
-    default void importData(ReadOnlyDataSource dataSource, Network network, Properties parameters) {
-        importData(dataSource, network, parameters, ReportNode.NO_OP);
-    }
-
-    /**
-     * Update a model with additional data.
-     *
-     * @param dataSource data source
-     * @param parameters some properties to configure the import
-     * @param reportNode the reportNode used for functional logs
-     */
-    default void importData(ReadOnlyDataSource dataSource, Network network, Properties parameters, ReportNode reportNode) {
-        throw new UnsupportedOperationException("Import data over existing network not supported");
-    }
-
-    /**
      * Copy data from one data source to another.
      * @param fromDataSource from data source
      * @param toDataSource destination data source
      */
     default void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
         throw new UnsupportedOperationException("Copy not implemented");
+    }
+
+    /**
+     * Update a given network with contents coming from a data source.
+     *
+     * @param network network
+     * @param dataSource data source
+     * @param parameters some properties to configure the import
+     * @param reportNode the reportNode used for functional logs
+     */
+    default void update(Network network, ReadOnlyDataSource dataSource, Properties parameters, ReportNode reportNode) {
+        update(network, dataSource, parameters);
+    }
+
+    /**
+     * Update a given network with contents coming from a data source.
+     *
+     * @param network network
+     * @param dataSource data source
+     * @param parameters some properties to configure the import
+     */
+    default void update(Network network, ReadOnlyDataSource dataSource, Properties parameters) {
+        throw new UnsupportedOperationException("Importer do not implement updates");
     }
 }
