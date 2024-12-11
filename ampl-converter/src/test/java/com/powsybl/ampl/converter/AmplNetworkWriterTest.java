@@ -7,7 +7,6 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.*;
@@ -15,32 +14,20 @@ import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class AmplNetworkWriterTest extends AbstractSerDeTest {
-
-    Properties properties;
-
-    private void assertEqualsToRef(MemDataSource dataSource, String suffix, String refFileName) throws IOException {
-        try (InputStream actual = new ByteArrayInputStream(dataSource.getData(suffix, "txt"))) {
-            assertTxtEquals(getClass().getResourceAsStream("/" + refFileName), actual);
-        }
-    }
+class AmplNetworkWriterTest extends AbstractAmplExporterTest {
 
     @Override
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
-        properties = new Properties();
         properties.put("iidm.export.ampl.export-version", "1.0");
     }
 
@@ -274,7 +261,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> export(network, properties, dataSource));
 
-        assertTrue(e.getMessage().contains("Value V1_0 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0, 1.1]"));
+        assertTrue(e.getMessage().contains("Value V1_0 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0, 1.1, 1.2]"));
     }
 
     @Test

@@ -10,14 +10,13 @@ package com.powsybl.math.graph;
 import com.powsybl.commons.PowsyblException;
 import gnu.trove.list.array.TIntArrayList;
 import org.junit.jupiter.api.AfterEach;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -281,6 +280,7 @@ class UndirectedGraphImplTest {
     }
 
     /**
+     * <pre>
      *           0
      *           |
      *         ---------
@@ -307,7 +307,7 @@ class UndirectedGraphImplTest {
      *  all paths (edge numbers) between vertex 0 and 5:
      *  0, 3, 5
      *  1, 4, 5
-     *  2, 6
+     *  2, 6</pre>
      */
     @Test
     void testFindAllPaths() {
@@ -327,12 +327,13 @@ class UndirectedGraphImplTest {
         graph.addEdge(3, 5, null); // 6
         List<TIntArrayList> paths = graph.findAllPaths(0, vertex -> vertex != null && "end".equals(vertex.name), null);
         assertEquals(3, paths.size());
-        assertArrayEquals(paths.get(0).toArray(), new int[] {2, 6});
-        assertArrayEquals(paths.get(1).toArray(), new int[] {0, 3, 5});
-        assertArrayEquals(paths.get(2).toArray(), new int[] {1, 4, 5});
+        assertArrayEquals(new int[] {2, 6}, paths.get(0).toArray());
+        assertArrayEquals(new int[] {0, 3, 5}, paths.get(1).toArray());
+        assertArrayEquals(new int[] {1, 4, 5}, paths.get(2).toArray());
     }
 
     /**
+     * <pre>
      *           0
      *           |
      *         ---------
@@ -359,10 +360,10 @@ class UndirectedGraphImplTest {
      *  all paths (edge numbers) between vertex 0 and 5:
      *  0, 3, 5
      *  1, 4, 5
-     *  2, 6
+     *  2, 6</pre>
      */
     @Test
-    void testPrintGraph() throws IOException {
+    void testPrintGraph() {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
@@ -458,7 +459,7 @@ class UndirectedGraphImplTest {
      *           -------
      *              |
      *              5
-     * </pre>
+     *
      *  edges:
      *  0 <-> 1 : 0
      *  0 <-> 2 : 1
@@ -471,7 +472,7 @@ class UndirectedGraphImplTest {
      *  all paths (edge numbers) between vertex 0 and 5:
      *  0, 3, 5
      *  1, 4, 5
-     *  2, 6
+     *  2, 6</pre>
      */
     @Test
     void testTraverse() {
@@ -496,30 +497,117 @@ class UndirectedGraphImplTest {
         Mockito.when(traverser.traverse(4, 3, 1)).thenReturn(TraverseResult.TERMINATE_PATH);
         Mockito.when(traverser.traverse(4, 4, 2)).thenReturn(TraverseResult.TERMINATE_PATH);
         Mockito.when(traverser.traverse(5, 6, 3)).thenReturn(TraverseResult.TERMINATE_PATH);
-        boolean[] encountered = new boolean[graph.getVertexCount()];
-        Arrays.fill(encountered, false);
-        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser, encountered);
+        boolean[] vEncountered = new boolean[graph.getVertexCount()];
+        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser, vEncountered);
         // Only vertex 4 and 5 encountered
-        assertArrayEquals(new boolean[] {false, false, false, false, true, true}, encountered);
+        assertArrayEquals(new boolean[] {false, false, false, false, true, true}, vEncountered);
 
-        Arrays.fill(encountered, false);
+        Arrays.fill(vEncountered, false);
         Traverser traverser2 = (v1, e, v2) -> {
-            encountered[v1] = true;
+            vEncountered[v1] = true;
             return v2 == 1 || v2 == 2 || v2 == 3 ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;
         };
 
         graph.traverse(4, TraversalType.DEPTH_FIRST, traverser2);
         // Only vertex 4 and 5 encountered
-        assertArrayEquals(new boolean[] {false, false, false, false, true, true}, encountered);
+        assertArrayEquals(new boolean[] {false, false, false, false, true, true}, vEncountered);
 
-        Arrays.fill(encountered, false);
-        Traverser traverser3 = (v1, e, v2) -> {
-            return v2 == 0 ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE;
-        };
+        Arrays.fill(vEncountered, false);
+        Traverser traverser3 = (v1, e, v2) -> v2 == 0 ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE;
 
-        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser3, encountered);
+        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser3, vEncountered);
         // Only vertices on first path encountering 0 are encountered
-        assertArrayEquals(new boolean[] {false, true, false, false, true, true}, encountered);
+        assertArrayEquals(new boolean[] {false, true, false, false, true, true}, vEncountered);
+
+        Arrays.fill(vEncountered, false);
+        boolean[] eEncountered = new boolean[graph.getEdgeCount()];
+        Traverser traverser4 = (v1, e, v2) -> {
+            eEncountered[e] = true;
+            return TraverseResult.CONTINUE;
+        };
+        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser4, vEncountered);
+        // All vertices and edges are encountered
+        assertArrayEquals(new boolean[] {true, true, true, true, true, true}, vEncountered);
+        assertArrayEquals(new boolean[] {true, true, true, true, true, true, true}, eEncountered);
+
+        List<GraphPath> breadthFirstexpected = List.of(
+                new GraphPath(5, 5, 4),
+                new GraphPath(5, 6, 3),
+                new GraphPath(4, 3, 1),
+                new GraphPath(4, 4, 2),
+                new GraphPath(3, 2, 0),
+                new GraphPath(1, 0, 0),
+                new GraphPath(2, 1, 0));
+        List<GraphPath> depthFirstExpected = List.of(
+                new GraphPath(5, 5, 4),
+                new GraphPath(4, 3, 1),
+                new GraphPath(1, 0, 0),
+                new GraphPath(0, 1, 2),
+                new GraphPath(2, 4, 4),
+                new GraphPath(0, 2, 3),
+                new GraphPath(3, 6, 5));
+
+        // Check that all edges and vertices are traversed in the right order when traversing the graph with no stopping point
+        List<GraphPath> pathsBf = new ArrayList<>();
+        List<GraphPath> pathsDf = new ArrayList<>();
+        graph.traverse(5, TraversalType.BREADTH_FIRST, (v1, e, v2) -> {
+            pathsBf.add(new GraphPath(v1, e, v2));
+            return TraverseResult.CONTINUE;
+        });
+        graph.traverse(5, TraversalType.DEPTH_FIRST, (v1, e, v2) -> {
+            pathsDf.add(new GraphPath(v1, e, v2));
+            return TraverseResult.CONTINUE;
+        });
+        assertEquals(breadthFirstexpected, pathsBf);
+        assertEquals(depthFirstExpected, pathsDf);
+
+        // Check all calls done when traversing the graph with one stopping point at vertex 0 when arriving from 3
+        // to ensure the edge 0 and 1 still get traversed even if the destination vertex 0 is already encountered
+        List<GraphPath> pathsWithStoppingPoint = new ArrayList<>();
+        graph.traverse(5, TraversalType.BREADTH_FIRST, (v1, e, v2) -> {
+            pathsWithStoppingPoint.add(new GraphPath(v1, e, v2));
+            return v1 == 3 && v2 == 0 ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;
+        });
+        assertEquals(breadthFirstexpected, pathsWithStoppingPoint);
+    }
+
+    /**
+     * <pre>
+     *           0
+     *           |
+     *         -----
+     *         |   |
+     *         -----
+     *           |
+     *           1
+     *           |
+     *           2
+     *
+     *  edges:
+     *  0 <-> 1 : 0
+     *  0 <-> 1 : 1
+     *  1 <-> 2 : 2</pre>
+     */
+    @Test
+    void testTraverseParallelEdges() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addEdge(0, 1, null); // 0
+        graph.addEdge(1, 0, null); // 1
+        graph.addEdge(1, 2, null); // 2
+
+        List<GraphPath> paths = new ArrayList<>();
+        graph.traverse(0, TraversalType.BREADTH_FIRST, (v1, e, v2) -> {
+            paths.add(new GraphPath(v1, e, v2));
+            return TraverseResult.CONTINUE;
+        });
+
+        List<GraphPath> expected = List.of(
+                new GraphPath(0, 0, 1),
+                new GraphPath(0, 1, 1),
+                new GraphPath(1, 2, 2));
+        assertEquals(expected, paths);
     }
 
     @Test
@@ -573,5 +661,8 @@ class UndirectedGraphImplTest {
         // Now vertex 0 must be removed.
         graph.removeIsolatedVertices();
         assertEquals(2, graph.getVertexCount());
+    }
+
+    private record GraphPath(int v1, int e, int v2) {
     }
 }
