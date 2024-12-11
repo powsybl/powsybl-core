@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"	xmlns:cim="http://iec.ch/TC57/2009/CIM-schema-cim14#">
+
+    <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest">
+        <cim:IdentifiedObject.name>GeographicalRegionTest</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest">
+        <cim:IdentifiedObject.name>SubGeographicalRegionTest</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest" />
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_Substation1">
+        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:Substation rdf:ID="_Substation2">
+        <cim:IdentifiedObject.name>Substation2</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_BV11">
+        <cim:IdentifiedObject.name>11 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>11.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+
+    <cim:Line rdf:ID="_LineContainer">
+        <cim:IdentifiedObject.name>Line Container</cim:IdentifiedObject.name>
+    </cim:Line>
+    <cim:ConnectivityNode rdf:ID="_NodeInsideLineContainer">
+        <cim:IdentifiedObject.name>Node inside line container</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_LineContainer"/>
+    </cim:ConnectivityNode>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel1">
+        <!-- _VoltageLevel1 has no name -->
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV11"/>
+        <cim:VoltageLevel.MemberOf_Substation rdf:resource="#_Substation1"/>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel2">
+        <cim:IdentifiedObject.name>11.0</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV11"/>
+        <cim:VoltageLevel.MemberOf_Substation rdf:resource="#_Substation2"/>
+    </cim:VoltageLevel>
+
+    <cim:IEC61970CIMVersion rdf:ID="version">
+        <cim:IEC61970CIMVersion.version>IEC61970CIM14v02</cim:IEC61970CIMVersion.version>
+        <cim:IEC61970CIMVersion.date>2009-05-10</cim:IEC61970CIMVersion.date>
+    </cim:IEC61970CIMVersion>
+</rdf:RDF>

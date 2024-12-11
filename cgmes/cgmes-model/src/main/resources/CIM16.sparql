@@ -215,8 +215,8 @@ WHERE {
     ?VoltageLevel
         a cim:VoltageLevel ;
         cim:VoltageLevel.Substation ?Substation ;
-        cim:IdentifiedObject.name ?name ;
         cim:VoltageLevel.BaseVoltage ?BaseVoltage .
+    OPTIONAL { ?VoltageLevel cim:IdentifiedObject.name ?name ; }
     OPTIONAL { ?VoltageLevel cim:VoltageLevel.lowVoltageLimit ?lowVoltageLimit }
     OPTIONAL { ?VoltageLevel cim:VoltageLevel.highVoltageLimit ?highVoltageLimit }
 }}
@@ -343,8 +343,10 @@ WHERE {
 # and a Voltage Level in a different instance file of its containing Substation.
 # This is why we do not use a "restrictive" GRAPH clause here.
     ?ConnectivityNodeContainer a ?connectivityNodeContainerType ;
+    OPTIONAL {
+        ?ConnectivityNodeContainer cim:IdentifiedObject.name ?name
+    }
     VALUES ?connectivityNodeContainerType { cim:VoltageLevel cim:Bay cim:Line cim:Substation} .
-    ?ConnectivityNodeContainer cim:IdentifiedObject.name ?name .
     OPTIONAL {
         ?ConnectivityNodeContainer
             a cim:VoltageLevel ;

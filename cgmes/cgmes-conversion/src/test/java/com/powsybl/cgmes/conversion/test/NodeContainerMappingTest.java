@@ -9,9 +9,15 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Properties;
 import java.util.Set;
@@ -145,5 +151,28 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         // Still there is only one VoltageLevel.
         assertEquals(1, network.getVoltageLevelCount());
         assertNotNull(network.getVoltageLevel("VL_1"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"CIM14", "CIM16"})
+    void voltageLevelWithoutNamesCim14(String version) {
+        // CGMES network:
+        //   Voltage level of ID "VoltageLevel1" has no name
+        // IIDM network:
+        //   The voltage level imported without name, and can be retrieved via its id
+
+        Network network = switch (version) {
+            case "CIM14" -> {
+                ReadOnlyDataSource ds = new ResourceDataSource("vl_without_name_14",
+                    new ResourceSet(DIR, "vl_without_name_14.xml"));
+                yield new CgmesImport().importData(ds, new NetworkFactoryImpl(), new Properties());
+            }
+            case "CIM16" -> readCgmesResources(DIR, "vl_without_name_16.xml");
+            default -> throw new IllegalStateException("Unexpected version: " + version);
+        };
+
+        assertNotNull(network);
+        assertEquals(2, network.getVoltageLevelCount());
+        assertNotNull(network.getVoltageLevel("VoltageLevel1"));
     }
 }
