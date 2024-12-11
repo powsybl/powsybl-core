@@ -315,17 +315,21 @@ public interface UndirectedGraph<V, E> {
     /**
      * Traverse the entire graph, starting at the specified vertex v.
      * This method relies on a {@link Traverser} instance to know if the traverse of the graph should continue or stop.
-     * This method throws a {@link com.powsybl.commons.PowsyblException} if the encountered table size is less than the maximum vertex index.
-     * At the end of the method, the encountered array contains {@literal true} for all the traversed vertices, {@literal false} otherwise.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the verticesEncountered table size is less than the maximum vertex index.
+     * At the end of the method, the verticesEncountered array contains {@literal true} for all the traversed vertices, {@literal false} otherwise.
      *
      * @param v the vertex index where the traverse has to start.
      * @param traversalType the type of traversal (breadth-first or depth-first)
      * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
-     * @param encountered the list of traversed vertices.
+     * @param verticesEncountered the list of traversed vertices - a vertex is considered as traversed:
+     *                           <ul>
+     *                            <li>if it is the starting vertex</li>
+     *                            <li>if one of its edges has been traversed, with a traverser result {@link TraverseResult#CONTINUE}</li>
+     *                           </ul>
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
      */
-    boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encountered);
+    boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] verticesEncountered);
 
     /**
      * Traverse the entire graph, starting at the specified vertex v.
