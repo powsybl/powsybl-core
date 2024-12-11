@@ -7,9 +7,7 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
@@ -44,8 +42,9 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertEquals("PSS/E", importer.getFormat());
         assertEquals("PSS/E Format to IIDM converter", importer.getComment());
         assertEquals(List.of("raw", "RAW", "rawx", "RAWX"), importer.getSupportedExtensions());
-        assertEquals(1, importer.getParameters().size());
+        assertEquals(2, importer.getParameters().size());
         assertEquals("psse.import.ignore-base-voltage", importer.getParameters().get(0).getName());
+        assertEquals("psse.import.ignore-node-breaker-topology", importer.getParameters().get(1).getName());
     }
 
     private void testNetwork(Network network) throws IOException {
@@ -291,6 +290,16 @@ class PsseImporterTest extends AbstractSerDeTest {
     @Test
     void importTest14ZipLoad() throws IOException {
         importTest("IEEE_14_buses_zip_load", "IEEE_14_buses_zip_load.raw", false);
+    }
+
+    @Test
+    void importTest14NodeBreaker() throws IOException {
+        importTest("IEEE_14_bus_nodeBreaker_rev35", "IEEE_14_bus_nodeBreaker_rev35.raw", false);
+    }
+
+    @Test
+    void importFiveBusNodeBreaker() throws IOException {
+        importTest("five_bus_nodeBreaker_rev35", "five_bus_nodeBreaker_rev35.raw", false);
     }
 
     @Test
