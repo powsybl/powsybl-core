@@ -176,6 +176,20 @@ public class CgmesImport implements Importer {
         return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
     }
 
+    public void updateData(Network network, ReadOnlyDataSource ds, Properties p, ReportNode reportNode) {
+        TripleStoreOptions tripleStoreOptions = new TripleStoreOptions();
+        tripleStoreOptions.setQueryCatalog("-update");
+        ReadOnlyDataSource alternativeDataSourceForBoundary = null;
+        CgmesModel cgmes = CgmesModelFactory.create(
+                ds,
+                alternativeDataSourceForBoundary,
+                TripleStoreFactory.DEFAULT_IMPLEMENTATION,
+                reportNode,
+                tripleStoreOptions);
+        Conversion conversion = new Conversion(cgmes, config(p));
+        conversion.update(network, reportNode);
+    }
+
     static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
         private final ReadOnlyDataSource ds;
         private final Predicate<String> filter;

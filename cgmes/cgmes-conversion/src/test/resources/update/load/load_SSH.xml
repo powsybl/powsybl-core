@@ -1,0 +1,35 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>All type of Loads</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:EnergyConsumer rdf:about="#_EnergyConsumer">
+        <cim:EnergyConsumer.p>10.0</cim:EnergyConsumer.p>
+        <cim:EnergyConsumer.q>5.0</cim:EnergyConsumer.q>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:about="#_EnergyConsumer_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:EnergySource rdf:about="#_EnergySource">
+        <cim:EnergySource.activePower>-200.0</cim:EnergySource.activePower>
+        <cim:EnergySource.reactivePower>-90.0</cim:EnergySource.reactivePower>
+    </cim:EnergySource>
+    <cim:Terminal rdf:about="#_EnergySource_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:AsynchronousMachine rdf:about="#_AsynchronousMachine">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>false</cim:RegulatingCondEq.controlEnabled>
+        <cim:RotatingMachine.p>200</cim:RotatingMachine.p>
+        <cim:RotatingMachine.q>50</cim:RotatingMachine.q>
+        <cim:AsynchronousMachine.asynchronousMachineType rdf:resource="http://iec.ch/TC57/CIM100#AsynchronousMachineKind.motor" />
+    </cim:AsynchronousMachine>
+    <cim:Terminal rdf:about="#_AsynchronousMachine_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+</rdf:RDF>
