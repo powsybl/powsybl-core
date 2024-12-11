@@ -7,13 +7,13 @@
  */
 package com.powsybl.security.extensions;
 
-import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.security.LimitViolation;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class ActivePowerExtension implements Extension<LimitViolation> {
+public class ActivePowerExtension extends AbstractExtension<LimitViolation> {
 
     private LimitViolation limitViolation;
 

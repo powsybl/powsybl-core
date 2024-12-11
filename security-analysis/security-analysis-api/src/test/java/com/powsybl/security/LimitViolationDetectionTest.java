@@ -9,8 +9,8 @@ package com.powsybl.security;
 
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.criteria.NetworkElementIdListCriterion;
-import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
+import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -26,8 +26,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -104,7 +106,8 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Test
     void testVoltageViolationDetection() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-        LimitViolationDetection.checkVoltage((Bus) network.getIdentifiable("NHV2"), 620, violationsCollector::add);
+        Bus mergedBus = getMergedBusFromConfiguredBusId(network, "NHV2");
+        LimitViolationDetection.checkVoltage(mergedBus, 620, violationsCollector::add);
         Assertions.assertThat(violationsCollector)
             .hasSize(1)
             .allSatisfy(l -> {
@@ -118,7 +121,19 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Test
     void testVoltageViolationDetectionWithDetailLimitViolationId() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-        LimitViolationDetection.checkVoltage((Bus) network.getIdentifiable("NHV2"), 620, violationsCollector::add);
+        // Add a new bus "NHV20" which will be merged with "NHV2" in the bs view
+        VoltageLevel vlh2 = network.getVoltageLevel("VLHV2");
+        vlh2.getBusBreakerView().newBus()
+                .setId("NHV20")
+                .add();
+        vlh2.getBusBreakerView().newSwitch()
+                .setBus1("NHV2").setBus2("NHV20")
+                .setOpen(false).setId("DJ")
+                .add();
+        // Retrieve the merged bus containing "NHV2"
+        Bus mergedBus = getMergedBusFromConfiguredBusId(network, "NHV2");
+        // Check the voltage on this merged bus
+        LimitViolationDetection.checkVoltage(mergedBus, 620, violationsCollector::add);
         Assertions.assertThat(violationsCollector)
             .hasSize(1)
             .allSatisfy(l -> {
@@ -130,13 +145,22 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     .get()
                     .isInstanceOfSatisfying(BusBreakerViolationLocation.class,
                         vli -> {
-                            assertEquals("NHV2", vli.getId());
-                            assertTrue(vli.getBusId().isPresent());
-                            assertEquals("NHV2", vli.getBusId().get());
-                            assertEquals("VLHV2", vli.getVoltageLevelId());
-                            Assertions.assertThat(vli.getBusBarIds()).isEmpty();
+                            assertEquals(ViolationLocation.Type.BUS_BREAKER, vli.getType());
+                            assertEquals(2, vli.getBusIds().size());
+                            assertTrue(vli.getBusIds().containsAll(List.of("NHV2", "NHV20"))); // Both configured buses are present
+                            Set<Bus> buses = vli.getBusBreakerView(network).getBusStream().collect(Collectors.toSet());
+                            assertEquals(2, buses.size());
+                            assertTrue(buses.contains(network.getBusBreakerView().getBus("NHV2")));
+                            assertTrue(buses.contains(network.getBusBreakerView().getBus("NHV20")));
+                            Set<Bus> mergedBuses = vli.getBusView(network).getBusStream().collect(Collectors.toSet());
+                            assertEquals(1, mergedBuses.size());
                         });
             });
+    }
+
+    private Bus getMergedBusFromConfiguredBusId(Network network, String busId) {
+        Bus b = (Bus) network.getIdentifiable(busId);
+        return b.getVoltageLevel().getBusView().getMergedBus(busId);
     }
 
     @Test
@@ -155,15 +179,30 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     .get()
                     .isInstanceOfSatisfying(NodeBreakerViolationLocation.class,
                         vli -> {
-                            assertEquals("S1VL1_BBS", vli.getId());
-                            assertTrue(vli.getBusId().isEmpty());
+                            assertEquals(ViolationLocation.Type.NODE_BREAKER, vli.getType());
                             assertEquals("S1VL1", vli.getVoltageLevelId());
-                            Assertions.assertThat(vli.getBusBarIds())
-                                .hasSize(1)
-                                .first()
-                                .isEqualTo("S1VL1_BBS");
+                            Assertions.assertThat(vli.getNodes())
+                                .hasSize(5)
+                                .isEqualTo(List.of(0, 1, 2, 3, 4));
+                            assertThrows(UnsupportedOperationException.class, () -> vli.getBusBreakerView(network));
+                            Set<Bus> mergedBuses = vli.getBusView(network).getBusStream().collect(Collectors.toSet());
+                            assertEquals(1, mergedBuses.size());
+                            assertTrue(mergedBuses.contains(network.getBusView().getBus("S1VL1_0")));
                         });
             });
+        // Check corresponding busbar sections
+        ViolationLocation violationLocation = violationsCollector.get(0).getViolationLocation().orElseThrow();
+        NodeBreakerViolationLocation vloc = (NodeBreakerViolationLocation) violationLocation;
+        VoltageLevel vl = network.getVoltageLevel(vloc.getVoltageLevelId());
+        List<String> busbarSectionIds = vloc.getNodes().stream()
+                .map(node -> vl.getNodeBreakerView().getTerminal(node))
+                .filter(Objects::nonNull)
+                .map(Terminal::getConnectable)
+                .filter(t -> t.getType() == IdentifiableType.BUSBAR_SECTION)
+                .map(Identifiable::getId)
+                .toList();
+        assertEquals(1, busbarSectionIds.size());
+        assertEquals("S1VL1_BBS", busbarSectionIds.get(0));
     }
 
     @Test

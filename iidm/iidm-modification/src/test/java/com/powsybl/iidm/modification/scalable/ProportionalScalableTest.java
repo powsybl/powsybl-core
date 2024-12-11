@@ -691,4 +691,87 @@ class ProportionalScalableTest {
         assertEquals(50.0, network.getDanglingLine("dl1").getP0(), 1e-5);
         reset();
     }
+
+    @Test
+    void testSmallPercentageAndAskingEpsilonMoreThanAvailable() {
+        Load load1 = network.getLoad("l1");
+        Load load2 = network.getLoad("l2");
+        load1.setP0(100. - 1e-5);
+        load2.setP0(1e-5);
+        ProportionalScalable proportionalScalable = Scalable.proportional(List.of(load1, load2), PROPORTIONAL_TO_P0);
+        double volumeAsked = -100. - 0.01; // only -100 can be achieved due to load scalable 0 MW min limit
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+                true, false, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        double variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
+        assertEquals(-100., variationDone, 1e-5);
+        assertEquals(0.0, load1.getP0()); // a perfect 0.
+        assertEquals(0.0, load2.getP0()); // a perfect 0.
+    }
+
+    @Test
+    void testSmallPercentageOnDiscardedScalable() {
+        Load load1 = network.getLoad("l1");
+        Load load2 = network.getLoad("l2");
+        Load load3 = network.getLoad("l3");
+        load1.setP0(100.);
+        load2.setP0(100.);
+        load3.setP0(100.);
+        Scalable scalable1 = Scalable.onLoad(load1.getId());
+        Scalable scalable2 = Scalable.onLoad(load2.getId());
+        Scalable scalable3 = Scalable.onLoad(load3.getId());
+        ProportionalScalable proportionalScalable = Scalable.proportional(List.of(100 - 2e-5, 1e-5, 1e-5), List.of(scalable1, scalable2, scalable3));
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, false, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        scalingParametersProportional.setIgnoredInjectionIds(Set.of("l2", "l3"));
+        double volumeAsked = -100.15; // 100 MW should be done by load1 alone and nothing by ignored load2 and load3
+        double variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
+        assertEquals(-100., variationDone, 1e-5);
+        assertEquals(0.0, load1.getP0()); // a perfect 0.
+        assertEquals(100.0, load2.getP0()); // load 2 should not move
+        assertEquals(100.0, load3.getP0()); // load 3 should not move
+    }
+
+    @Test
+    void testSmallPercentageReNormalized() {
+        Load load1 = network.getLoad("l1");
+        Load load2 = network.getLoad("l2");
+        Load load3 = network.getLoad("l3");
+        load1.setP0(100.);
+        load2.setP0(100.);
+        load3.setP0(100.);
+        Scalable scalable1 = Scalable.onLoad(load1.getId(), 99., Double.MAX_VALUE);
+        Scalable scalable2 = Scalable.onLoad(load2.getId());
+        Scalable scalable3 = Scalable.onLoad(load3.getId());
+        ProportionalScalable proportionalScalable = Scalable.proportional(List.of(100 - 2e-5, 1e-5, 1e-5), List.of(scalable1, scalable2, scalable3));
+        double volumeAsked = -100;
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, false, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        double variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
+        assertEquals(-100., variationDone, 1e-5);
+        assertEquals(99.0, load1.getP0(), 1e-5); // at limit
+        assertEquals(50.5, load2.getP0());
+        assertEquals(50.5, load3.getP0());
+    }
+
+    @Test
+    void testSmallPercentageReNormalized2() {
+        Load load1 = network.getLoad("l1");
+        Load load2 = network.getLoad("l2");
+        Load load3 = network.getLoad("l3");
+        load1.setP0(0.);
+        load2.setP0(100.);
+        load3.setP0(100.);
+        Scalable scalable1 = Scalable.onLoad(load1.getId(), 99., Double.MAX_VALUE);
+        Scalable scalable2 = Scalable.onLoad(load2.getId());
+        Scalable scalable3 = Scalable.onLoad(load3.getId());
+        ProportionalScalable proportionalScalable = Scalable.proportional(List.of(100 - 2e-5, 1e-5, 1e-5), List.of(scalable1, scalable2, scalable3));
+        double volumeAsked = -100;
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, false, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        double variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
+        assertEquals(-100., variationDone, 1e-5);
+        assertEquals(0.0, load1.getP0());
+        assertEquals(50., load2.getP0());
+        assertEquals(50., load3.getP0());
+    }
 }

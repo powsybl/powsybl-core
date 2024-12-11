@@ -7,6 +7,10 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.util.Networks;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -15,27 +19,43 @@ import java.util.Objects;
  */
 public class NodeBreakerViolationLocation implements ViolationLocation {
     private final String voltageLevelId;
-    private final List<String> busBarIds;
+    private final List<Integer> nodes;
 
-    public NodeBreakerViolationLocation(String voltageLevelId, List<String> busBarIds) {
-        Objects.requireNonNull(voltageLevelId, "voltageLevelId");
-        this.voltageLevelId = voltageLevelId;
-        this.busBarIds = busBarIds;
+    /**
+     * Create a ViolationLocation for a violation detected in a voltage level in node/breaker topology.
+     * @param voltageLevelId the id of the voltage level
+     * @param nodes The list of the nodes where the violation was detected.
+     */
+    public NodeBreakerViolationLocation(String voltageLevelId, List<Integer> nodes) {
+        this.voltageLevelId = Objects.requireNonNull(voltageLevelId, "voltageLevelId should not be null");
+        this.nodes = Objects.requireNonNull(nodes, "nodes should not be null");
     }
 
-    @Override
     public String getVoltageLevelId() {
         return voltageLevelId;
     }
 
-    @Override
-    public List<String> getBusBarIds() {
-        return busBarIds;
+    public List<Integer> getNodes() {
+        return nodes;
     }
 
     @Override
-    public String getId() {
-        return busBarIds.isEmpty() ? voltageLevelId : busBarIds.get(0);
+    public BusView getBusView(Network network) {
+        return () -> {
+            VoltageLevel vl = network.getVoltageLevel(voltageLevelId);
+            var busView = vl.getBusView();
+            return Networks.getNodesByBus(vl)
+                    .entrySet()
+                    .stream()
+                    .filter(e -> nodes.stream().anyMatch(i -> e.getValue().contains(i)))
+                    .map(e -> busView.getBus(e.getKey()))
+                    .distinct();
+        };
+    }
+
+    @Override
+    public BusView getBusBreakerView(Network network) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -47,7 +67,7 @@ public class NodeBreakerViolationLocation implements ViolationLocation {
     public String toString() {
         return "NodeBreakerVoltageLocation{" +
             "voltageLevelId='" + voltageLevelId + '\'' +
-            ", busBarIds=" + busBarIds +
+            ", nodes=" + nodes +
             '}';
     }
 }

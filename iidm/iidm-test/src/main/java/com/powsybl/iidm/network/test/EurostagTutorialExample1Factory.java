@@ -18,8 +18,8 @@ import java.time.ZonedDateTime;
  */
 public final class EurostagTutorialExample1Factory {
 
-    private static final String VLGEN = "VLGEN";
-    private static final String VLLOAD = "VLLOAD";
+    public static final String VLGEN = "VLGEN";
+    public static final String VLLOAD = "VLLOAD";
     public static final String CASE_DATE = "2018-01-01T11:00:00+01:00";
     public static final String DANGLING_LINE_XNODE1_1 = "NHV1_XNODE1";
     public static final String DANGLING_LINE_XNODE1_2 = "XNODE1_NHV2";
@@ -1174,7 +1174,8 @@ public final class EurostagTutorialExample1Factory {
 
     private static Network addRemoteVoltageGenerator(Network network) {
         network.getGenerator("GEN")
-                .setRegulatingTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1());
+                .setRegulatingTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1())
+                .setTargetV(399);
         return network;
     }
 
