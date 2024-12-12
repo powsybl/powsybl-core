@@ -26,9 +26,6 @@ import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
  */
 public class EnergyConsumerConversion extends AbstractConductingEquipmentConversion {
 
-    private static final String P_FIXED = "pFixed";
-    private static final String Q_FIXED = "qFixed";
-
     public EnergyConsumerConversion(PropertyBag ec, Context context) {
         super(CgmesNames.ENERGY_CONSUMER, ec, context);
         loadKind = ec.getLocal("type");
@@ -44,8 +41,8 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         } else {
             loadType = LoadType.UNDEFINED;
         }
-        double pFixed = p.asDouble(P_FIXED, 0.0);
-        double qFixed = p.asDouble(Q_FIXED, 0.0);
+        double pFixed = p.asDouble(CgmesNames.P_FIXED, 0.0);
+        double qFixed = p.asDouble(CgmesNames.Q_FIXED, 0.0);
         LoadAdder adder = voltageLevel().newLoad()
                 .setLoadType(loadType);
         identify(adder);
@@ -61,8 +58,8 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
 
     private void addSpecificProperties(Load newLoad, double pFixed, double qFixed) {
         newLoad.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, loadKind);
-        newLoad.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + P_FIXED, String.valueOf(pFixed));
-        newLoad.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + Q_FIXED, String.valueOf(qFixed));
+        newLoad.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.P_FIXED, String.valueOf(pFixed));
+        newLoad.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.Q_FIXED, String.valueOf(qFixed));
     }
 
     private void model(LoadAdder adder) {
@@ -145,8 +142,8 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     public static void update(Load load, PropertyBag cgmesData, Context context) {
         updateTerminals(load, context, load.getTerminal());
 
-        double pFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + P_FIXED));
-        double qFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + Q_FIXED));
+        double pFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.P_FIXED));
+        double qFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.Q_FIXED));
 
         PowerFlow updatedPowerFlow = updatedPowerFlow(load, cgmesData, context);
         load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : defaultValue(pFixed, load.getP0(), 0.0, Double.NaN, getDefaultValueSelector(context)));

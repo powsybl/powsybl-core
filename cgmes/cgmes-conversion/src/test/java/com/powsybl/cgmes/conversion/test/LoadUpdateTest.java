@@ -7,6 +7,8 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
@@ -28,13 +30,13 @@ class LoadUpdateTest {
         assertEquals(3, network.getLoadCount());
 
         Load loadEnergyConsumer = network.getLoad("EnergyConsumer");
-        assertTrue(checkNaNLoad(loadEnergyConsumer));
+        assertTrue(checkEq(loadEnergyConsumer));
 
         Load loadEnergySource = network.getLoad("EnergySource");
-        assertTrue(checkNaNLoad(loadEnergySource));
+        assertTrue(checkEq(loadEnergySource));
 
         Load loadAsynchronousMachine = network.getLoad("AsynchronousMachine");
-        assertTrue(checkNaNLoad(loadAsynchronousMachine));
+        assertTrue(checkEq(loadAsynchronousMachine));
     }
 
     @Test
@@ -43,67 +45,73 @@ class LoadUpdateTest {
         assertEquals(3, network.getLoadCount());
 
         Load loadEnergyConsumer = network.getLoad("EnergyConsumer");
-        assertTrue(checkLoad(loadEnergyConsumer, 10.0, 5.0));
+        assertTrue(checkSsh(loadEnergyConsumer, 10.0, 5.0));
 
         Load loadEnergySource = network.getLoad("EnergySource");
-        assertTrue(checkLoad(loadEnergySource, -200.0, -90.0));
+        assertTrue(checkSsh(loadEnergySource, -200.0, -90.0));
 
         Load loadAsynchronousMachine = network.getLoad("AsynchronousMachine");
-        assertTrue(checkLoad(loadAsynchronousMachine, 200.0, 50.0));
+        assertTrue(checkSsh(loadAsynchronousMachine, 200.0, 50.0));
     }
 
     @Test
-    void importEAndSshSeparatelyTest() {
+    void importEqAndSshSeparatelyTest() {
         Network network = readCgmesResources(DIR, "load_EQ.xml");
         assertEquals(3, network.getLoadCount());
 
         Load loadEnergyConsumer = network.getLoad("EnergyConsumer");
-        assertTrue(checkNaNLoad(loadEnergyConsumer));
+        assertTrue(checkEq(loadEnergyConsumer));
         Load loadEnergySource = network.getLoad("EnergySource");
-        assertTrue(checkNaNLoad(loadEnergySource));
+        assertTrue(checkEq(loadEnergySource));
         Load loadAsynchronousMachine = network.getLoad("AsynchronousMachine");
-        assertTrue(checkNaNLoad(loadAsynchronousMachine));
+        assertTrue(checkEq(loadAsynchronousMachine));
 
         readCgmesResources(network, DIR, "load_SSH.xml");
 
-        assertTrue(checkLoad(loadEnergyConsumer, 10.0, 5.0));
-        assertTrue(checkLoad(loadEnergySource, -200.0, -90.0));
-        assertTrue(checkLoad(loadAsynchronousMachine, 200.0, 50.0));
+        assertTrue(checkSsh(loadEnergyConsumer, 10.0, 5.0));
+        assertTrue(checkSsh(loadEnergySource, -200.0, -90.0));
+        assertTrue(checkSsh(loadAsynchronousMachine, 200.0, 50.0));
     }
 
     @Test
-    void importEAndTwoSshsTest() {
+    void importEqAndTwoSshsTest() {
         Network network = readCgmesResources(DIR, "load_EQ.xml");
         assertEquals(3, network.getLoadCount());
 
         Load loadEnergyConsumer = network.getLoad("EnergyConsumer");
-        assertTrue(checkNaNLoad(loadEnergyConsumer));
+        assertTrue(checkEq(loadEnergyConsumer));
         Load loadEnergySource = network.getLoad("EnergySource");
-        assertTrue(checkNaNLoad(loadEnergySource));
+        assertTrue(checkEq(loadEnergySource));
         Load loadAsynchronousMachine = network.getLoad("AsynchronousMachine");
-        assertTrue(checkNaNLoad(loadAsynchronousMachine));
+        assertTrue(checkEq(loadAsynchronousMachine));
 
         readCgmesResources(network, DIR, "load_SSH.xml");
 
-        assertTrue(checkLoad(loadEnergyConsumer, 10.0, 5.0));
-        assertTrue(checkLoad(loadEnergySource, -200.0, -90.0));
-        assertTrue(checkLoad(loadAsynchronousMachine, 200.0, 50.0));
+        assertTrue(checkSsh(loadEnergyConsumer, 10.0, 5.0));
+        assertTrue(checkSsh(loadEnergySource, -200.0, -90.0));
+        assertTrue(checkSsh(loadAsynchronousMachine, 200.0, 50.0));
 
         readCgmesResources(network, DIR, "load_SSH_1.xml");
 
-        assertTrue(checkLoad(loadEnergyConsumer, 10.5, 5.5));
-        assertTrue(checkLoad(loadEnergySource, -200.5, -90.5));
-        assertTrue(checkLoad(loadAsynchronousMachine, 200.5, 50.5));
+        assertTrue(checkSsh(loadEnergyConsumer, 10.5, 5.5));
+        assertTrue(checkSsh(loadEnergySource, -200.5, -90.5));
+        assertTrue(checkSsh(loadAsynchronousMachine, 200.5, 50.5));
     }
 
-    private static boolean checkNaNLoad(Load load) {
+    private static boolean checkEq(Load load) {
         assertNotNull(load);
         assertTrue(Double.isNaN(load.getP0()));
         assertTrue(Double.isNaN(load.getQ0()));
+        String originalClass = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        if (originalClass.equals(CgmesNames.ENERGY_CONSUMER)) {
+            assertNotNull(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.P_FIXED));
+            assertNotNull(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.Q_FIXED));
+        }
+        load.getPropertyNames().forEach(pn -> System.err.printf("Property %s %s %n", pn, load.getProperty(pn)));
         return true;
     }
 
-    private static boolean checkLoad(Load load, double p0, double q0) {
+    private static boolean checkSsh(Load load, double p0, double q0) {
         assertNotNull(load);
         assertEquals(p0, load.getP0());
         assertEquals(q0, load.getQ0());
