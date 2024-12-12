@@ -363,6 +363,8 @@ final class ExportXmlCompare {
                     return ComparisonResult.EQUAL;
                 } else if (control != null && control.getLocalName().equals("targetQ")) {
                     return ComparisonResult.EQUAL;
+                } else if (control != null && control.getLocalName().equals("tapPosition")) {
+                        return ComparisonResult.EQUAL;
                 } else if (comparison.getControlDetails().getXPath().contains("temporaryLimit")) {
                     // If the control node is a temporary limit, the order depends on the name attribute,
                     // this attribute is generated as a unique identifier in the EQ export to avoid duplicates in CGMES
