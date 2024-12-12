@@ -156,6 +156,6 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         Network network = readCgmesResources(DIR, "vl_without_name.xml");
         assertNotNull(network);
         assertEquals(2, network.getVoltageLevelCount());
-        assertNotNull(network.getVoltageLevel("VoltageLevel1"));
+        assertNotNull(network.getVoltageLevel("VoltageLevel"));
     }
 }

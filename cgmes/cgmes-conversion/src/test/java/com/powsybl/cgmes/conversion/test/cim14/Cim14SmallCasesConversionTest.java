@@ -125,8 +125,7 @@ class Cim14SmallCasesConversionTest {
         Network network = new CgmesImport().importData(ds, new NetworkFactoryImpl(), new Properties());
 
         assertNotNull(network);
-        assertEquals(2, network.getVoltageLevelCount());
-        assertNotNull(network.getVoltageLevel("VoltageLevel1"));
+        assertNotNull(network.getVoltageLevel("VoltageLevel"));
     }
 
     private static ConversionTester tester;

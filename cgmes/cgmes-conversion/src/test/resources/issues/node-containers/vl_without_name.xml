@@ -1,83 +1,72 @@
 <rdf:RDF  xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
-        <md:Model.created>2024-03-28T11:00:00Z</md:Model.created>
-        <md:Model.scenarioTime>2024-03-28T11:00:00Z</md:Model.scenarioTime>
-        <md:Model.version>1</md:Model.version>
-        <md:Model.description>Line containers and fictitious voltage levels</md:Model.description>
-        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
-        <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
-        <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
-    </md:FullModel>
-
-    <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest">
-        <cim:IdentifiedObject.name>GeographicalRegionTest</cim:IdentifiedObject.name>
-    </cim:GeographicalRegion>
-    <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest">
-        <cim:IdentifiedObject.name>SubGeographicalRegionTest</cim:IdentifiedObject.name>
-        <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest" />
-    </cim:SubGeographicalRegion>
-    <cim:Substation rdf:ID="_Substation1">
-        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
-        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
-    </cim:Substation>
-    <cim:Substation rdf:ID="_Substation2">
-        <cim:IdentifiedObject.name>Substation2</cim:IdentifiedObject.name>
-        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
-    </cim:Substation>
-    <cim:BaseVoltage rdf:ID="_BV11">
-        <cim:IdentifiedObject.name>11 kV</cim:IdentifiedObject.name>
-        <cim:BaseVoltage.nominalVoltage>11.0</cim:BaseVoltage.nominalVoltage>
-    </cim:BaseVoltage>
-
-    <cim:Line rdf:ID="_LineContainer">
-        <cim:IdentifiedObject.name>Line Container</cim:IdentifiedObject.name>
-    </cim:Line>
-    <cim:ConnectivityNode rdf:ID="_NodeInsideLineContainer">
-        <cim:IdentifiedObject.name>Node inside line container</cim:IdentifiedObject.name>
-        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_LineContainer"/>
-    </cim:ConnectivityNode>
-    <cim:VoltageLevel rdf:ID="_VoltageLevel1">
-        <!-- _VoltageLevel1 has no name -->
-        <cim:VoltageLevel.lowVoltageLimit>10.45</cim:VoltageLevel.lowVoltageLimit>
-        <cim:VoltageLevel.highVoltageLimit>11.55</cim:VoltageLevel.highVoltageLimit>
-        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV11"/>
-        <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
-    </cim:VoltageLevel>
-    <cim:ConnectivityNode rdf:ID="_NodeInsideVoltageLevel1">
-        <cim:IdentifiedObject.name>Node inside voltage level 1</cim:IdentifiedObject.name>
-        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1"/>
-    </cim:ConnectivityNode>
-    <cim:VoltageLevel rdf:ID="_VoltageLevel2">
-        <cim:IdentifiedObject.name>11.0</cim:IdentifiedObject.name>
-        <cim:VoltageLevel.lowVoltageLimit>10.45</cim:VoltageLevel.lowVoltageLimit>
-        <cim:VoltageLevel.highVoltageLimit>11.55</cim:VoltageLevel.highVoltageLimit>
-        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV11"/>
-        <cim:VoltageLevel.Substation rdf:resource="#_Substation2"/>
-    </cim:VoltageLevel>
-    <cim:ConnectivityNode rdf:ID="_NodeInsideVoltageLevel2">
-        <cim:IdentifiedObject.name>Node inside voltage level 2</cim:IdentifiedObject.name>
-        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel2"/>
-    </cim:ConnectivityNode>
-
-    <cim:Disconnector rdf:ID="_SwitchBetweenVoltageLevel1AndLineContainer">
-        <cim:IdentifiedObject.name>Disconnector 1</cim:IdentifiedObject.name>
-        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
-        <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
-        <cim:Switch.retained>false</cim:Switch.retained>
-    </cim:Disconnector>
-    <cim:Terminal rdf:ID="_SwitchBetweenVoltageLevel1AndLineContainer-T1">
-        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
-        <cim:IdentifiedObject.name>Disconnector 1 T1</cim:IdentifiedObject.name>
-        <cim:Terminal.ConductingEquipment rdf:resource="#_SwitchBetweenVoltageLevel1AndLineContainer"/>
-        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-        <cim:Terminal.ConnectivityNode rdf:resource="#_NodeInsideVoltageLevel1"/>
-    </cim:Terminal>
-    <cim:Terminal rdf:ID="_SwitchBetweenVoltageLevel1AndLineContainer-T2">
-        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
-        <cim:IdentifiedObject.name>Disconnector 1 T2</cim:IdentifiedObject.name>
-        <cim:Terminal.ConductingEquipment rdf:resource="#_SwitchBetweenVoltageLevel1AndLineContainer"/>
-        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-        <cim:Terminal.ConnectivityNode rdf:resource="#_NodeInsideLineContainer"/>
-    </cim:Terminal>
-
+<md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+    <md:Model.created>2024-03-28T11:00:00Z</md:Model.created>
+    <md:Model.scenarioTime>2024-03-28T11:00:00Z</md:Model.scenarioTime>
+    <md:Model.version>1</md:Model.version>
+    <md:Model.description>Line containers and fictitious voltage levels</md:Model.description>
+    <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+</md:FullModel>
+<cim:GeographicalRegion rdf:ID="_GeographicalRegion">
+    <cim:IdentifiedObject.name>GeographicalRegion</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegion">
+    <cim:IdentifiedObject.name>SubGeographicalRegion</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegion" />
+</cim:SubGeographicalRegion>
+<cim:Substation rdf:ID="_Substation">
+    <cim:IdentifiedObject.name>Substation</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SubGeographicalRegion" />
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_VoltageLevel">
+    <!-- _VoltageLevel has no name -->
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_Substation"/>
+</cim:VoltageLevel>
+<cim:Bay rdf:ID="_Bay">
+    <cim:IdentifiedObject.name>Bay</cim:IdentifiedObject.name>
+    <cim:Bay.VoltageLevel rdf:resource="#_VoltageLevel"/>
+</cim:Bay>
+<cim:ConnectivityNode rdf:ID="_Node1">
+    <cim:IdentifiedObject.name>Node inside bay</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_Bay"/>
+</cim:ConnectivityNode>
+<cim:Line rdf:ID="_LineContainer">
+    <cim:IdentifiedObject.name>Line Container</cim:IdentifiedObject.name>
+</cim:Line>
+<cim:ConnectivityNode rdf:ID="_Node2">
+    <cim:IdentifiedObject.name>Node inside line container</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_LineContainer"/>
+</cim:ConnectivityNode>
+<cim:ACLineSegment rdf:ID="_ACLineSegment">
+    <cim:ACLineSegment.b0ch>0</cim:ACLineSegment.b0ch>
+    <cim:ACLineSegment.bch>0</cim:ACLineSegment.bch>
+    <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+    <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+    <cim:IdentifiedObject.name>Line segment</cim:IdentifiedObject.name>
+    <cim:ACLineSegment.r>0.1</cim:ACLineSegment.r>
+    <cim:ACLineSegment.r0>0.1</cim:ACLineSegment.r0>
+    <cim:ACLineSegment.shortCircuitEndTemperature>75</cim:ACLineSegment.shortCircuitEndTemperature>
+    <cim:ACLineSegment.x>1</cim:ACLineSegment.x>
+    <cim:ACLineSegment.x0>1</cim:ACLineSegment.x0>
+    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage"/>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_LineContainer"/>
+</cim:ACLineSegment>
+<cim:Terminal rdf:ID="_ACLineSegment-T1">
+    <cim:IdentifiedObject.name>Line segment Terminal 1</cim:IdentifiedObject.name>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment"/>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_Node1"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_ACLineSegment-T2">
+    <cim:IdentifiedObject.name>Line segment Terminal 2</cim:IdentifiedObject.name>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment"/>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_Node2"/>
+</cim:Terminal>
+<cim:BaseVoltage rdf:ID="_BaseVoltage">
+    <cim:IdentifiedObject.name>11 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>11.0</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
 </rdf:RDF>
