@@ -451,8 +451,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private void addTemporaryOperationalLimitProperties(TPR temporaryPropertyNameData, String operationalLimitId, double value) {
         Objects.requireNonNull(loadingLimitsIdentifiable);
-        loadingLimitsIdentifiable.setProperty(getPropertyName(temporaryPropertyNameData), operationalLimitId);
-        loadingLimitsIdentifiable.setProperty(getPropertyName(operationalLimitId), String.valueOf(value));
+        loadingLimitsIdentifiable.setProperty(getPropertyName(temporaryPropertyNameData, CgmesNames.OPERATIONAL_LIMIT), operationalLimitId);
+        loadingLimitsIdentifiable.setProperty(getPropertyName(temporaryPropertyNameData, CgmesNames.NORMAL_VALUE), String.valueOf(value));
     }
 
     private void addPermanentOperationalLimitPropertiesIfLimitHasBeenConsidered(boolean included, PR propertyNameData, String operationalLimitId, double value) {
@@ -463,8 +463,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private void addPermanentOperationalLimitProperties(PR propertyNameData, String operationalLimitId, double value) {
         Objects.requireNonNull(loadingLimitsIdentifiable);
-        loadingLimitsIdentifiable.setProperty(getPropertyName(propertyNameData), operationalLimitId);
-        loadingLimitsIdentifiable.setProperty(getPropertyName(operationalLimitId), String.valueOf(value));
+        loadingLimitsIdentifiable.setProperty(getPropertyName(propertyNameData, CgmesNames.OPERATIONAL_LIMIT), operationalLimitId);
+        loadingLimitsIdentifiable.setProperty(getPropertyName(propertyNameData, CgmesNames.NORMAL_VALUE), String.valueOf(value));
     }
 
     private void notAssigned() {
@@ -523,15 +523,15 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private static double getValue(PR propertyNameData, Identifiable<?> identifiable, double previousValue, Context context) {
-        String operationalLimitId = getOperationalLimitId(getPropertyName(propertyNameData), identifiable);
+        String operationalLimitId = getOperationalLimitId(getPropertyName(propertyNameData, CgmesNames.OPERATIONAL_LIMIT_SET), identifiable);
         return updatedValue(operationalLimitId, context)
-                .orElse(defaultValue(getNormalValue(getPropertyName(operationalLimitId), identifiable), previousValue, getDefaultValue(context)));
+                .orElse(defaultValue(getNormalValue(getPropertyName(propertyNameData, CgmesNames.NORMAL_VALUE), identifiable), previousValue, getDefaultValue(context)));
     }
 
     private static double getValue(TPR temporaryPropertyNameData, Identifiable<?> identifiable, double previousValue, Context context) {
-        String operationalLimitId = getOperationalLimitId(getPropertyName(temporaryPropertyNameData), identifiable);
+        String operationalLimitId = getOperationalLimitId(getPropertyName(temporaryPropertyNameData, CgmesNames.OPERATIONAL_LIMIT_SET), identifiable);
         return updatedValue(operationalLimitId, context)
-                .orElse(defaultValue(getNormalValue(getPropertyName(operationalLimitId), identifiable), previousValue, getDefaultValue(context)));
+                .orElse(defaultValue(getNormalValue(getPropertyName(temporaryPropertyNameData, CgmesNames.NORMAL_VALUE), identifiable), previousValue, getDefaultValue(context)));
     }
 
     private static OptionalDouble updatedValue(String operationalLimitId, Context context) {
@@ -550,25 +550,21 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return Double.parseDouble(identifiable.getProperty(propertyName));
     }
 
-    private static String getPropertyName(PR pr) {
-        return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT + "_"
+    private static String getPropertyName(PR pr, String tagProperty) {
+        return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tagProperty + "_"
                 + pr.operationalLimitSetId + "_"
                 + pr.end + "_"
                 + pr.limitSubclass + "_"
                 + "patl";
     }
 
-    private static String getPropertyName(TPR tpr) {
-        return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT + "_"
+    private static String getPropertyName(TPR tpr, String tagProperty) {
+        return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tagProperty + "_"
                 + tpr.operationalLimitSetId + "_"
                 + tpr.end + "_"
                 + tpr.limitSubclass + "_"
                 + "tatl" + "_"
                 + tpr.duration;
-    }
-
-    private static String getPropertyName(String operationalLimitId) {
-        return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalValue" + "_" + operationalLimitId;
     }
 
     protected static double defaultValue(double normalValue, double previousValue, Conversion.Config.DefaultValue defaultValue) {
