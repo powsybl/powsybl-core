@@ -368,37 +368,37 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void positionOrderAlreadyTakenReport(ReportNode reportNode, int positionOrder) {
+    public static void positionOrderAlreadyTakenReport(ReportNode reportNode, int positionOrder, TypedValue severity) {
         reportNode.newReportNode()
-                .withMessageTemplate("positionOrderAlreadyTaken", "PositionOrder ${positionOrder} already taken. No position extension created.")
+                .withMessageTemplate("positionOrderAlreadyTaken", "PositionOrder ${positionOrder} already taken.")
                 .withUntypedValue(POSITION_ORDER, positionOrder)
-                .withSeverity(TypedValue.WARN_SEVERITY)
+                .withSeverity(severity)
                 .add();
     }
 
-    public static void positionNoSlotLeftByAdjacentBbsReport(ReportNode reportNode, String bbsId) {
+    public static void positionNoSlotLeftByAdjacentBbsReport(ReportNode reportNode, String bbsId, TypedValue severity) {
         reportNode.newReportNode()
                 .withMessageTemplate("positionAdjacentBbsIncoherent", "Positions of adjacent busbar sections do not leave slots for new positions on busbar section ${bbsId}")
                 .withUntypedValue(BBS_ID, bbsId)
-                .withSeverity(TypedValue.WARN_SEVERITY)
+                .withSeverity(severity)
                 .add();
     }
 
-    public static void positionOrderTooLowReport(ReportNode reportNode, int minValue, int positionOrder) {
+    public static void positionOrderTooLowReport(ReportNode reportNode, int minValue, int positionOrder, TypedValue severity) {
         reportNode.newReportNode()
-                .withMessageTemplate("positionOrderTooLow", "PositionOrder ${positionOrder} too low (<${minValue}). No position extension created.")
+                .withMessageTemplate("positionOrderTooLow", "PositionOrder ${positionOrder} too low (<${minValue}).")
                 .withUntypedValue(POSITION_ORDER, positionOrder)
                 .withUntypedValue("minValue", minValue)
-                .withSeverity(TypedValue.WARN_SEVERITY)
+                .withSeverity(severity)
                 .add();
     }
 
-    public static void positionOrderTooHighReport(ReportNode reportNode, int maxValue, int positionOrder) {
+    public static void positionOrderTooHighReport(ReportNode reportNode, int maxValue, int positionOrder, TypedValue severity) {
         reportNode.newReportNode()
-                .withMessageTemplate("positionOrderTooHigh", "PositionOrder ${positionOrder} too high (>${minValue}). No position extension created.")
+                .withMessageTemplate("positionOrderTooHigh", "PositionOrder ${positionOrder} too high (>${minValue}).")
                 .withUntypedValue(POSITION_ORDER, positionOrder)
                 .withUntypedValue("maxValue", maxValue)
-                .withSeverity(TypedValue.WARN_SEVERITY)
+                .withSeverity(severity)
                 .add();
     }
 
