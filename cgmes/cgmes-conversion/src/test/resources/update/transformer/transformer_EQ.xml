@@ -1,0 +1,244 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>All type of Loads</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest">
+        <cim:IdentifiedObject.mRID>GeographicalRegionTest</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>GeographicalRegionTest</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest">
+        <cim:IdentifiedObject.mRID>SubGeographicalRegionTest</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>SubGeographicalRegionTest</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest" />
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_Substation1">
+        <cim:IdentifiedObject.mRID>Substation1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage400">
+        <cim:IdentifiedObject.mRID>BaseVoltage400</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.description>Base Voltage Level 400kV</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>400.0 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage220">
+        <cim:IdentifiedObject.mRID>BaseVoltage220</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.description>Base Voltage Level 220kV</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>220.0 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>220.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage110">
+        <cim:IdentifiedObject.mRID>BaseVoltage110</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.description>Base Voltage Level 110kV</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>110.0 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>110.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel1">
+        <cim:IdentifiedObject.mRID>VoltageLevel1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>VoltageLevel1</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.highVoltageLimit>420</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.lowVoltageLimit>380</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode1">
+        <cim:IdentifiedObject.mRID>ConnectivityNode1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Connectivity Node 1</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel2">
+        <cim:IdentifiedObject.mRID>VoltageLevel2</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>VoltageLevel2</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.highVoltageLimit>235</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.lowVoltageLimit>205</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage220"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode2">
+        <cim:IdentifiedObject.mRID>ConnectivityNode2</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Connectivity Node 2</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel2" />
+    </cim:ConnectivityNode>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel3">
+        <cim:IdentifiedObject.mRID>VoltageLevel3</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>VoltageLevel3</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.highVoltageLimit>120</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.lowVoltageLimit>100</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage110"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode3">
+        <cim:IdentifiedObject.mRID>ConnectivityNode3</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Connectivity Node 3</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel3" />
+    </cim:ConnectivityNode>
+
+    <cim:PowerTransformer rdf:ID="_T2W">
+        <cim:IdentifiedObject.name>T2W</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_Substation1"/>
+    </cim:PowerTransformer>
+
+    <cim:PowerTransformerEnd rdf:ID="_T2W-End1">
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:PowerTransformerEnd.g>0.0</cim:PowerTransformerEnd.g>
+        <cim:IdentifiedObject.name>T2W-End1</cim:IdentifiedObject.name>
+        <cim:PowerTransformerEnd.r>0.10</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.ratedS>999</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.x>5.44</cim:PowerTransformerEnd.x>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_T2W"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T2W-Terminal1"/>
+    </cim:PowerTransformerEnd>
+
+    <cim:Terminal rdf:ID="_T2W-Terminal1">
+        <cim:IdentifiedObject.name>T2W-Terminal1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_T2W"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+
+    <cim:PowerTransformerEnd rdf:ID="_T2W-End2">
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:IdentifiedObject.name>T2W-End2</cim:IdentifiedObject.name>
+        <cim:PowerTransformerEnd.r>0</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.ratedS>999</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>220</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.x>0</cim:PowerTransformerEnd.x>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BaseVoltage220"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_T2W"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T2W-Terminal2"/>
+    </cim:PowerTransformerEnd>
+
+    <cim:Terminal rdf:ID="_T2W-Terminal2">
+        <cim:IdentifiedObject.name>T2W-Terminal2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_T2W"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+
+    <cim:PhaseTapChangerLinear rdf:ID="_T2W-PhaseTapChanger">
+        <cim:TapChanger.highStep>8</cim:TapChanger.highStep>
+        <cim:TapChanger.lowStep>-8</cim:TapChanger.lowStep>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+        <cim:IdentifiedObject.name>T2W-PhaseTapChanger</cim:IdentifiedObject.name>
+        <cim:TapChanger.neutralStep>0</cim:TapChanger.neutralStep>
+        <cim:TapChanger.neutralU>400</cim:TapChanger.neutralU>
+        <cim:TapChanger.normalStep>4</cim:TapChanger.normalStep>
+        <cim:PhaseTapChangerLinear.stepPhaseShiftIncrement>-1.25</cim:PhaseTapChangerLinear.stepPhaseShiftIncrement>
+        <cim:PhaseTapChangerLinear.xMax>5.45</cim:PhaseTapChangerLinear.xMax>
+        <cim:PhaseTapChangerLinear.xMin>5.45</cim:PhaseTapChangerLinear.xMin>
+        <cim:TapChanger.TapChangerControl rdf:resource="#_T2W-PhaseTapChanger-Control"/>
+        <cim:PhaseTapChanger.TransformerEnd rdf:resource="#_T2W-End1"/>
+    </cim:PhaseTapChangerLinear>
+
+    <cim:TapChangerControl rdf:ID="_T2W-PhaseTapChanger-Control">
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.activePower"/>
+        <cim:IdentifiedObject.name>TT2W-PhaseTapChanger-Control</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.Terminal rdf:resource="#_T2W-Terminal2"/>
+    </cim:TapChangerControl>
+
+    <cim:PowerTransformer rdf:ID="_T3W">
+        <cim:IdentifiedObject.name>T3W</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_Substation1"/>
+    </cim:PowerTransformer>
+
+    <cim:PowerTransformerEnd rdf:ID="_T3W-End1">
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:PowerTransformerEnd.g>0.0</cim:PowerTransformerEnd.g>
+        <cim:IdentifiedObject.name>T3W-End1</cim:IdentifiedObject.name>
+        <cim:PowerTransformerEnd.r>0.10</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.ratedS>999</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.x>5.44</cim:PowerTransformerEnd.x>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_T3W"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T3W-Terminal1"/>
+    </cim:PowerTransformerEnd>
+
+    <cim:Terminal rdf:ID="_T3W-Terminal1">
+        <cim:IdentifiedObject.name>T3W-Terminal1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_T3W"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+
+    <cim:PowerTransformerEnd rdf:ID="_T3W-End2">
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:IdentifiedObject.name>T3W-End2</cim:IdentifiedObject.name>
+        <cim:PowerTransformerEnd.r>0.018</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.ratedS>999</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>220</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.x>0.44</cim:PowerTransformerEnd.x>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BaseVoltage220"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_T3W"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T3W-Terminal2"/>
+    </cim:PowerTransformerEnd>
+
+    <cim:Terminal rdf:ID="_T3W-Terminal2">
+        <cim:IdentifiedObject.name>T3W-Terminal2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_T3W"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+
+    <cim:PowerTransformerEnd rdf:ID="_T3W-End3">
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:TransformerEnd.endNumber>3</cim:TransformerEnd.endNumber>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:IdentifiedObject.name>T3W-End3</cim:IdentifiedObject.name>
+        <cim:PowerTransformerEnd.r>0.018</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.ratedS>999</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.x>0.44</cim:PowerTransformerEnd.x>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BaseVoltage110"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_T3W"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T3W-Terminal3"/>
+    </cim:PowerTransformerEnd>
+
+    <cim:Terminal rdf:ID="_T3W-Terminal3">
+        <cim:IdentifiedObject.name>T3W-Terminal3</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>3</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_T3W"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode3"/>
+    </cim:Terminal>
+
+    <cim:RatioTapChanger rdf:ID="_T3W-Winding2-RatioTapChanger">
+        <cim:TapChanger.highStep>15</cim:TapChanger.highStep>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+        <cim:IdentifiedObject.name>T3W-Winding2-RatioTapChanger</cim:IdentifiedObject.name>
+        <cim:TapChanger.neutralStep>8</cim:TapChanger.neutralStep>
+        <cim:TapChanger.neutralU>220</cim:TapChanger.neutralU>
+        <cim:TapChanger.normalStep>8</cim:TapChanger.normalStep>
+        <cim:RatioTapChanger.stepVoltageIncrement>-2</cim:RatioTapChanger.stepVoltageIncrement>
+        <cim:RatioTapChanger.tculControlMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#TransformerControlMode.volt"/>
+        <cim:TapChanger.TapChangerControl rdf:resource="#_T3W-Winding2-RatioTapChanger-Control"/>
+        <cim:RatioTapChanger.TransformerEnd rdf:resource="#_T3W-End2"/>
+    </cim:RatioTapChanger>
+
+    <cim:TapChangerControl rdf:ID="_T3W-Winding2-RatioTapChanger-Control">
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+        <cim:IdentifiedObject.name>T3W-winding2-ratioTapChanger-control</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.Terminal rdf:resource="#_T3W-Terminal2"/>
+    </cim:TapChangerControl>
+
+</rdf:RDF>
