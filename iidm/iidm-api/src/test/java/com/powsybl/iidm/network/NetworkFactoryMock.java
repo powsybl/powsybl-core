@@ -9,8 +9,11 @@ package com.powsybl.iidm.network;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Properties;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
 import org.mockito.Mockito;
 
 /**
@@ -36,13 +39,30 @@ public class NetworkFactoryMock implements NetworkFactory {
         Mockito.when(load.getLoadType())
                 .thenAnswer(invocationOnMock -> loadType[0]);
 
-        // The load P0 in the mocked network returns a specific value after update
+        // When called to be updated, rely on default method, that will call importer
+        Mockito.doCallRealMethod().when(network).update(
+                Mockito.any(ReadOnlyDataSource.class),
+                Mockito.any(ComputationManager.class),
+                Mockito.any(ImportConfig.class),
+                Mockito.nullable(Properties.class),
+                Mockito.any(ImportersLoader.class),
+                Mockito.any(ReportNode.class));
+        Mockito.doCallRealMethod().when(network).update(
+                Mockito.any(ReadOnlyDataSource.class),
+                Mockito.nullable(Properties.class),
+                Mockito.any(ReportNode.class));
+        Mockito.doCallRealMethod().when(network).update(
+                Mockito.any(ReadOnlyDataSource.class),
+                Mockito.nullable(Properties.class));
+        Mockito.doCallRealMethod().when(network).update(
+                Mockito.any(ReadOnlyDataSource.class));
+        // Allow setting a value for P0
         double[] loadP = new double[1];
         loadP[0] = Double.NaN;
         Mockito.doAnswer(invocationOnMock -> {
-            loadP[0] = 123.0;
-            return null;
-        }).when(network).update(Mockito.any(ReadOnlyDataSource.class));
+            loadP[0] = (double) invocationOnMock.getArguments()[0];
+            return load;
+        }).when(load).setP0(Mockito.anyDouble());
         Mockito.when(load.getP0())
                 .thenAnswer(invocationOnMock -> loadP[0]);
 
