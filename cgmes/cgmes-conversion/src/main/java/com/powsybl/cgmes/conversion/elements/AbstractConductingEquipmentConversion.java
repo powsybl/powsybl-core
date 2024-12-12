@@ -24,7 +24,6 @@ import com.powsybl.triplestore.api.PropertyBags;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.EMPTY;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

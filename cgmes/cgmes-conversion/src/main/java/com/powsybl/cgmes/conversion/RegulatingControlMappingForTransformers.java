@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
@@ -189,7 +190,7 @@ public class RegulatingControlMappingForTransformers {
         ptc.setRegulationTerminal(mappedRegulatingTerminal.getTerminal())
                 .setRegulationMode(regulationMode);
 
-        twt.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign" + end, String.valueOf(mappedRegulatingTerminal.getSign()));
+        twt.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN + end, String.valueOf(mappedRegulatingTerminal.getSign()));
 
         return true;
     }

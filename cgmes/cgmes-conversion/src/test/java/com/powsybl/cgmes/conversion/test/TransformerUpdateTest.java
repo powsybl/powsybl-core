@@ -91,12 +91,12 @@ class TransformerUpdateTest {
         assertNotNull(t2w);
         String tapChangerId = t2w.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1).orElseThrow();
         int normalStep = getNormalStep(t2w, tapChangerId);
-        assertNotNull(t2w.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign"));
+        assertNotNull(t2w.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN));
         assertEquals(normalStep, t2w.getPhaseTapChanger().getTapPosition());
 
         assertTrue(Double.isNaN(t2w.getPhaseTapChanger().getRegulationValue()));
         assertTrue(Double.isNaN(t2w.getPhaseTapChanger().getTargetDeadband()));
-        assertSame(t2w.getPhaseTapChanger().getRegulationMode(), PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+        assertSame(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, t2w.getPhaseTapChanger().getRegulationMode());
         assertNotNull(t2w.getPhaseTapChanger().getRegulationTerminal());
         assertFalse(t2w.getPhaseTapChanger().isRegulating());
         return true;
@@ -110,7 +110,7 @@ class TransformerUpdateTest {
 
         assertTrue(Double.isNaN(t3w.getLeg2().getRatioTapChanger().getRegulationValue()));
         assertTrue(Double.isNaN(t3w.getLeg2().getRatioTapChanger().getTargetDeadband()));
-        assertSame(t3w.getLeg2().getRatioTapChanger().getRegulationMode(), RatioTapChanger.RegulationMode.VOLTAGE);
+        assertSame(RatioTapChanger.RegulationMode.VOLTAGE, t3w.getLeg2().getRatioTapChanger().getRegulationMode());
         assertNotNull(t3w.getLeg2().getRatioTapChanger().getRegulationTerminal());
         assertFalse(t3w.getLeg2().getRatioTapChanger().isRegulating());
         return true;

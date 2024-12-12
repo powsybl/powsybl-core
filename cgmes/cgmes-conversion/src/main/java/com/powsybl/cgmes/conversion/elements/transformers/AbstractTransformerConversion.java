@@ -346,7 +346,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     }
 
     private static <C extends Connectable<C>> int findTerminalSign(Connectable<C> tw, String end) {
-        String terminalSign = tw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign" + end);
+        String terminalSign = tw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN + end);
         return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
     }
 
