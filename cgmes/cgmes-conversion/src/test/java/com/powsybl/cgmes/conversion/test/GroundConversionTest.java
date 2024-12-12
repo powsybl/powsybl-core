@@ -8,17 +8,20 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import com.google.common.io.ByteStreams;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Ground;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,7 +54,7 @@ class GroundConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void groundConversionRemoveTest() {
+    void groundConversionRemoveTest() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.POST_PROCESSORS, "RemoveGrounds");
         Network network = Network.read(
@@ -63,36 +66,17 @@ class GroundConversionTest extends AbstractSerDeTest {
         // Check also the exported GraphViz
         // Some edges have been removed, ensure it is exported properly
         String actual = graphVizClean(graphViz(network, "S"));
-        String expected = graphVizClean("""
-                digraph G {
-                \tnode [shape=box];
-                \tcompound=true;
-                \tn0 [label="0",shape="ellipse",style="filled",fillcolor="#8F7AF3"];
-                \tn2 [label="5\\lBUSBAR_SECTION\\lAX\\lEF",shape="ellipse",style="filled",fillcolor="#8F7AF3"];
-                \tn3 [label="8\\lGENERATOR\\lZX\\lZY",shape="ellipse",style="filled",fillcolor="#8F7AF3"];
-                \tn2 -> n0 [];
-                \tn3 -> n0 [];
-                \tsubgraph cluster_c1 {
-                \t\t// scope=1392570698
-                \t\tcluster_c1 [label="",shape=point,style=invis];
-                \t\tpencolor="transparent";
-                \t\tn0;
-                \t\tn2;
-                \t\tn3;
-                \t}
-                }
-                """);
-        assertEquals(expected, actual);
+
+        String rawExpected = new String(ByteStreams.toByteArray(Objects.requireNonNull(
+                getClass().getResourceAsStream("/groundConversionRemoveGraph.dot"))), StandardCharsets.UTF_8);
+        String expected = graphVizClean(rawExpected);
+        ComparisonUtils.assertTxtEquals(expected, actual);
     }
 
-    private String graphViz(Network network, String voltageLevelId) {
-        try {
-            Path gv = tmpDir.resolve(voltageLevelId + ".gv");
-            network.getVoltageLevel(voltageLevelId).exportTopology(gv);
-            return Files.readString(gv);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private String graphViz(Network network, String voltageLevelId) throws IOException {
+        StringWriter writer = new StringWriter();
+        network.getVoltageLevel(voltageLevelId).exportTopology(writer);
+        return writer.toString();
     }
 
     private String graphVizClean(String gv) {
