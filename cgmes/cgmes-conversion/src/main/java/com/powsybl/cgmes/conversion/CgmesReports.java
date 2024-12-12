@@ -17,6 +17,8 @@ import com.powsybl.iidm.network.Substation;
  */
 public final class CgmesReports {
 
+    private static final String EQUIPMENT_ID = "equipmentId";
+
     private CgmesReports() {
     }
 
@@ -92,7 +94,7 @@ public final class CgmesReports {
     public static void badVoltageTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
         reportNode.newReportNode()
                 .withMessageTemplate("badVoltageTargetValueRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target value for voltage: ${targetValue}.")
-                .withUntypedValue("equipmentId", eqId)
+                .withUntypedValue(EQUIPMENT_ID, eqId)
                 .withTypedValue("targetValue", targetValue, TypedValue.VOLTAGE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -101,7 +103,7 @@ public final class CgmesReports {
     public static void badTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
         reportNode.newReportNode()
                 .withMessageTemplate("badTargetValueRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target value: ${targetValue}.")
-                .withUntypedValue("equipmentId", eqId)
+                .withUntypedValue(EQUIPMENT_ID, eqId)
                 .withUntypedValue("targetValue", targetValue)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -110,7 +112,7 @@ public final class CgmesReports {
     public static void badTargetDeadbandRegulatingControlReport(ReportNode reportNode, String eqId, double targetDeadband) {
         reportNode.newReportNode()
                 .withMessageTemplate("badTargetDeadbandRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}.")
-                .withUntypedValue("equipmentId", eqId)
+                .withUntypedValue(EQUIPMENT_ID, eqId)
                 .withUntypedValue("targetDeadband", targetDeadband)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
