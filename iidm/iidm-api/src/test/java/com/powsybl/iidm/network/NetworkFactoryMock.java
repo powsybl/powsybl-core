@@ -9,6 +9,8 @@ package com.powsybl.iidm.network;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import org.mockito.Mockito;
 
 /**
@@ -33,6 +35,16 @@ public class NetworkFactoryMock implements NetworkFactory {
         }).when(load).setLoadType(Mockito.any(LoadType.class));
         Mockito.when(load.getLoadType())
                 .thenAnswer(invocationOnMock -> loadType[0]);
+
+        // The load P0 in the mocked network returns a specific value after update
+        double[] loadP = new double[1];
+        loadP[0] = Double.NaN;
+        Mockito.doAnswer(invocationOnMock -> {
+            loadP[0] = 123.0;
+            return null;
+        }).when(network).update(Mockito.any(ReadOnlyDataSource.class));
+        Mockito.when(load.getP0())
+                .thenAnswer(invocationOnMock -> loadP[0]);
 
         return network;
     }
