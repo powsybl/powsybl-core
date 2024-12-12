@@ -383,37 +383,37 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void positionOrderAlreadyTakenReport(ReportNode reportNode, int positionOrder) {
+    public static void positionOrderAlreadyTakenReport(ReportNode reportNode, int positionOrder, TypedValue severity) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.positionOrderAlreadyTaken")
                 .withUntypedValue(POSITION_ORDER, positionOrder)
-                .withSeverity(TypedValue.WARN_SEVERITY)
+                .withSeverity(severity)
                 .add();
     }
 
-    public static void positionNoSlotLeftByAdjacentBbsReport(ReportNode reportNode, String bbsId) {
+    public static void positionNoSlotLeftByAdjacentBbsReport(ReportNode reportNode, String bbsId, TypedValue severity) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.positionAdjacentBbsIncoherent")
                 .withUntypedValue(BBS_ID, bbsId)
-                .withSeverity(TypedValue.WARN_SEVERITY)
+                .withSeverity(severity)
                 .add();
     }
 
-    public static void positionOrderTooLowReport(ReportNode reportNode, int minValue, int positionOrder) {
+    public static void positionOrderTooLowReport(ReportNode reportNode, int minValue, int positionOrder, TypedValue severity) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.positionOrderTooLow")
                 .withUntypedValue(POSITION_ORDER, positionOrder)
                 .withUntypedValue("minValue", minValue)
-                .withSeverity(TypedValue.WARN_SEVERITY)
+                .withSeverity(severity)
                 .add();
     }
 
-    public static void positionOrderTooHighReport(ReportNode reportNode, int maxValue, int positionOrder) {
+    public static void positionOrderTooHighReport(ReportNode reportNode, int maxValue, int positionOrder, TypedValue severity) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.positionOrderTooHigh")
                 .withUntypedValue(POSITION_ORDER, positionOrder)
                 .withUntypedValue("maxValue", maxValue)
-                .withSeverity(TypedValue.WARN_SEVERITY)
+                .withSeverity(severity)
                 .add();
     }
 

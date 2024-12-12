@@ -13,11 +13,11 @@ import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
+import com.powsybl.iidm.network.impl.extensions.ConnectablePositionImpl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.Test;
@@ -219,10 +219,10 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
         CreateBranchFeederBays modification0 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("bbs1")
-                .withPositionOrder1(115)
+                .withPositionOrder1(11)
                 .withDirection1(BOTTOM)
                 .withBusOrBusbarSectionId2("bbs5")
-                .withPositionOrder2(115)
+                .withPositionOrder2(11)
                 .withDirection2(BOTTOM)
                 .build();
         assertDoesNotThrow(() -> modification0.apply(network1, false, ReportNode.NO_OP));
@@ -400,6 +400,80 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .build()
                 .apply(network, true, reportNode);
         testReportNode(reportNode, "/reportNode/create-line-NB-without-extensions-report.txt");
+    }
+
+    @Test
+    void testNoConnectableCreatedIfOrderPositionIsOutOfRangeAndForceExtensionCreation() {
+        LineAdder lineAdder = nbNetwork.newLine()
+            .setId("lineTest")
+            .setR(1.0)
+            .setX(1.0)
+            .setG1(0.0)
+            .setG2(0.0)
+            .setB1(0.0)
+            .setB2(0.0);
+
+        // order position is already taken
+        new CreateBranchFeederBaysBuilder()
+            .withBranchAdder(lineAdder)
+            .withBusOrBusbarSectionId1("bbs2")
+            .withPositionOrder1(80)
+            .withForceExtensionCreation1(true)
+            .withBusOrBusbarSectionId2("bbs1_2")
+            .withPositionOrder2(11)
+            .withForceExtensionCreation1(true)
+            .build().apply(nbNetwork);
+        assertNull(nbNetwork.getLine("lineTest"));
+
+        // order position is too high
+        new CreateBranchFeederBaysBuilder()
+            .withBranchAdder(lineAdder)
+            .withBusOrBusbarSectionId1("bbs1")
+            .withPositionOrder1(81)
+            .withForceExtensionCreation1(true)
+            .withBusOrBusbarSectionId2("bbs1_2")
+            .withPositionOrder2(11)
+            .withForceExtensionCreation1(true)
+            .build().apply(nbNetwork);
+        assertNull(nbNetwork.getLine("lineTest"));
+
+        // order position is too low
+        new CreateBranchFeederBaysBuilder()
+            .withBranchAdder(lineAdder)
+            .withBusOrBusbarSectionId1("bbs2")
+            .withPositionOrder1(12)
+            .withForceExtensionCreation1(true)
+            .withBusOrBusbarSectionId2("bbs1_2")
+            .withPositionOrder2(11)
+            .withForceExtensionCreation2(true)
+            .build().apply(nbNetwork);
+        assertNull(nbNetwork.getLine("lineTest"));
+
+        // no space on bbs1
+        addIncoherentPositionBusBarSection(nbNetwork);
+
+        new CreateBranchFeederBaysBuilder()
+            .withBranchAdder(lineAdder)
+            .withBusOrBusbarSectionId1("bbs1")
+            .withPositionOrder1(71)
+            .withForceExtensionCreation1(true)
+            .withBusOrBusbarSectionId2("bbs1_2")
+            .withPositionOrder2(11)
+            .withForceExtensionCreation2(true)
+            .build().apply(nbNetwork);
+        assertNull(nbNetwork.getLine("lineTest"));
+    }
+
+    private static void addIncoherentPositionBusBarSection(Network network) {
+        VoltageLevel vl1 = network.getVoltageLevel("vl1");
+        BusbarSection bbs = vl1.getNodeBreakerView().newBusbarSection().setId("extraBbs").setNode(40).add();
+        Load load = vl1.newLoad().setId("extraLoad").setP0(0).setQ0(0).setNode(41).add();
+        vl1.getNodeBreakerView().newSwitch().setId("extraDisconnector").setKind(SwitchKind.DISCONNECTOR).setNode1(40).setNode2(41).add();
+
+        bbs.addExtension(BusbarSectionPosition.class, new BusbarSectionPositionImpl(bbs, 1, 0));
+        ConnectablePosition<Load> connectablePosition = new ConnectablePositionImpl<>(load,
+            new ConnectablePositionImpl.FeederImpl("", 79), null, null, null);
+        load.addExtension(ConnectablePosition.class, connectablePosition);
     }
 
     @Test

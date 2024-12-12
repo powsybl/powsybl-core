@@ -33,9 +33,12 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     private final String feederName2;
     private final ConnectablePosition.Direction direction1;
     private final ConnectablePosition.Direction direction2;
+    private final boolean forceExtensionCreation1;
+    private final boolean forceExtensionCreation2;
 
     CreateBranchFeederBays(BranchAdder<?, ?> branchAdder, String busOrBbsId1, String busOrBbsId2, Integer positionOrder1, Integer positionOrder2,
-                           String feederName1, String feederName2, ConnectablePosition.Direction direction1, ConnectablePosition.Direction direction2) {
+                           String feederName1, String feederName2, ConnectablePosition.Direction direction1, ConnectablePosition.Direction direction2,
+                           boolean forceExtensionCreation1, boolean forceExtensionCreation2) {
         super(1, 2);
         this.branchAdder = Objects.requireNonNull(branchAdder);
         this.busOrBbsId1 = Objects.requireNonNull(busOrBbsId1);
@@ -46,6 +49,8 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         this.feederName2 = feederName2;
         this.direction1 = Objects.requireNonNull(direction1);
         this.direction2 = Objects.requireNonNull(direction2);
+        this.forceExtensionCreation1 = forceExtensionCreation1;
+        this.forceExtensionCreation2 = forceExtensionCreation2;
     }
 
     @Override
@@ -155,6 +160,16 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         }
         if (side == 2) {
             return connectablePositionAdder.newFeeder2();
+        }
+        throw createSideIllegalStateException(side);
+    }
+
+    @Override
+    protected boolean getForceExtensionCreation(int side) {
+        if (side == 1) {
+            return forceExtensionCreation1;
+        } else if (side == 2) {
+            return forceExtensionCreation2;
         }
         throw createSideIllegalStateException(side);
     }

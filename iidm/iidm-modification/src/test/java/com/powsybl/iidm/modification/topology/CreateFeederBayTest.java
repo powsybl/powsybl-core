@@ -151,7 +151,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
         CreateFeederBay modification0 = new CreateFeederBayBuilder().
                 withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId("bbs1")
-                .withInjectionPositionOrder(115)
+                .withInjectionPositionOrder(11)
                 .withInjectionDirection(BOTTOM)
                 .build();
         assertDoesNotThrow(() -> modification0.apply(network1, false, ReportNode.NO_OP));
@@ -428,6 +428,54 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withInjectionPositionOrder(101)
                 .build().apply(network);
         assertNull(network.getLoad("newLoad4").getExtension(ConnectablePosition.class));
+    }
+
+    @Test
+    void testNoConnectableCreatedIfOrderPositionIsOutOfRangeAndForceExtensionCreation() {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+            .setId("newLoad")
+            .setLoadType(LoadType.UNDEFINED)
+            .setP0(0)
+            .setQ0(0);
+
+        // order position is too high
+        new CreateFeederBayBuilder()
+            .withInjectionAdder(loadAdder)
+            .withBusOrBusbarSectionId("bbs1")
+            .withInjectionPositionOrder(101)
+            .withForceExtensionCreation(true)
+            .build().apply(network);
+        assertNull(network.getLoad("newLoad"));
+
+        // order position is too low
+        loadAdder.setId("newLoad2");
+        new CreateFeederBayBuilder()
+            .withInjectionAdder(loadAdder)
+            .withBusOrBusbarSectionId("bbs4")
+            .withInjectionPositionOrder(61)
+            .withForceExtensionCreation(true)
+            .build().apply(network);
+        assertNull(network.getLoad("newLoad2"));
+
+        // Add extra bbs to leave no space on bbs1
+        addIncoherentPositionBusBarSection(network, loadAdder);
+        new CreateFeederBayBuilder()
+            .withInjectionAdder(loadAdder)
+            .withBusOrBusbarSectionId("bbs1")
+            .withInjectionPositionOrder(51)
+            .withForceExtensionCreation(true)
+            .build().apply(network);
+        assertNull(network.getLoad("newLoad3"));
+
+        loadAdder.setId("newLoad4");
+        new CreateFeederBayBuilder()
+            .withInjectionAdder(loadAdder)
+            .withBusOrBusbarSectionId("bbs3")
+            .withInjectionPositionOrder(101)
+            .withForceExtensionCreation(true)
+            .build().apply(network);
+        assertNull(network.getLoad("newLoad4"));
     }
 
     private static void addIncoherentPositionBusBarSection(Network network, LoadAdder loadAdder) {

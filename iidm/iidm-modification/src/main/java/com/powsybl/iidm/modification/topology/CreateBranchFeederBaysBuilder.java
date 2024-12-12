@@ -24,9 +24,11 @@ public class CreateBranchFeederBaysBuilder {
     private String feederName2 = null;
     private ConnectablePosition.Direction direction1 = ConnectablePosition.Direction.TOP;
     private ConnectablePosition.Direction direction2 = ConnectablePosition.Direction.TOP;
+    private boolean forceExtensionCreation1 = false;
+    private boolean forceExtensionCreation2 = false;
 
     public CreateBranchFeederBays build() {
-        return new CreateBranchFeederBays(branchAdder, busOrBbs1, busOrBbs2, positionOrder1, positionOrder2, feederName1, feederName2, direction1, direction2);
+        return new CreateBranchFeederBays(branchAdder, busOrBbs1, busOrBbs2, positionOrder1, positionOrder2, feederName1, feederName2, direction1, direction2, forceExtensionCreation1, forceExtensionCreation2);
     }
 
     public CreateBranchFeederBaysBuilder withBranchAdder(BranchAdder<?, ?> branchAdder) {
@@ -97,6 +99,16 @@ public class CreateBranchFeederBaysBuilder {
 
     public CreateBranchFeederBaysBuilder withDirection2(ConnectablePosition.Direction direction2) {
         this.direction2 = direction2;
+        return this;
+    }
+
+    public CreateBranchFeederBaysBuilder withForceExtensionCreation1(boolean forceExtensionCreation1) {
+        this.forceExtensionCreation1 = forceExtensionCreation1;
+        return this;
+    }
+
+    public CreateBranchFeederBaysBuilder withForceExtensionCreation2(boolean forceExtensionCreation2) {
+        this.forceExtensionCreation2 = forceExtensionCreation2;
         return this;
     }
 }
