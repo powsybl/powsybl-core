@@ -216,8 +216,8 @@ WHERE {
     ?VoltageLevel
         a cim:VoltageLevel ;
         cim:VoltageLevel.Substation ?Substation ;
-        cim:IdentifiedObject.name ?name ;
         cim:VoltageLevel.BaseVoltage ?BaseVoltage .
+    OPTIONAL { ?VoltageLevel cim:IdentifiedObject.name ?name }
     OPTIONAL { ?VoltageLevel cim:VoltageLevel.lowVoltageLimit ?lowVoltageLimit }
     OPTIONAL { ?VoltageLevel cim:VoltageLevel.highVoltageLimit ?highVoltageLimit }
 }}
@@ -344,7 +344,8 @@ WHERE {
 # and a Voltage Level in a different instance file of its containing Substation.
 # This is why we do not use a "restrictive" GRAPH clause here.
     ?ConnectivityNodeContainer a ?connectivityNodeContainerType .
-    VALUES ?connectivityNodeContainerType { cim:VoltageLevel cim:Bay cim:Line } .
+    OPTIONAL { ?ConnectivityNodeContainer cim:IdentifiedObject.name ?name }
+    VALUES ?connectivityNodeContainerType { cim:VoltageLevel cim:Bay cim:Line cim:Substation} .
     OPTIONAL {
         ?ConnectivityNodeContainer
             a cim:VoltageLevel ;
@@ -355,6 +356,10 @@ WHERE {
         ?ConnectivityNodeContainer a cim:Bay ;
             cim:Bay.VoltageLevel ?VoltageLevel .
         ?VoltageLevel cim:VoltageLevel.Substation ?Substation
+    }
+    OPTIONAL {
+        ?ConnectivityNodeContainer a cim:Substation ;
+        BIND ( ?ConnectivityNodeContainer AS ?Substation )
     }
 }
 
@@ -822,8 +827,7 @@ WHERE {
         cim:NonlinearShuntCompensatorPoint.NonlinearShuntCompensator ?Shunt ;
         cim:NonlinearShuntCompensatorPoint.sectionNumber ?sectionNumber ;
         cim:NonlinearShuntCompensatorPoint.b ?b ;
-        cim:NonlinearShuntCompensatorPoint.g ?g  .
-    FILTER REGEX ( STR (?Shunt), "{0}")
+        cim:NonlinearShuntCompensatorPoint.g ?g .
 }
 
 # query: synchronousMachinesGenerators
@@ -857,6 +861,9 @@ WHERE {
         OPTIONAL {
             ?HydroPowerPlant cim:HydroPowerPlant.hydroPlantStorageType ?hydroPlantStorageType
         }
+    }
+    OPTIONAL {
+        ?GeneratingUnit cim:WindGeneratingUnit.windGenUnitType ?windGenUnitType
     }
     OPTIONAL {
         SELECT ?GeneratingUnit (group_concat(?fossilFuelType;separator=";") as ?fossilFuelTypeList)

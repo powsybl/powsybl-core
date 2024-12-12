@@ -387,6 +387,14 @@ public final class SteadyStateHypothesisExport {
                 enabled = rrpc.isEnabled();
             } else {
                 target = g.getTargetV();
+                if (context.isExportGeneratorsInLocalRegulationMode()) {
+                    double remoteNominalV = g.getRegulatingTerminal().getVoltageLevel().getNominalV();
+                    double localNominalV = g.getTerminal().getVoltageLevel().getNominalV();
+                    if (localNominalV != remoteNominalV) {
+                        // This check prevents potential rounding variations of target when both voltages are equals
+                        target = localNominalV * target / remoteNominalV;
+                    }
+                }
                 targetValueUnitMultiplier = "k";
                 enabled = g.isVoltageRegulatorOn();
             }

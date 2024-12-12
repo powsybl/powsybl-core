@@ -14,8 +14,13 @@ import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -25,7 +30,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -93,6 +99,33 @@ class Cim14SmallCasesConversionTest {
             String aclsNoSeqTerminal2Id = aclsNoSeq.getId("Terminal2");
             assertEquals(aclsSeqTerminal1Id, aclsNoSeqTerminal2Id);
         });
+    }
+
+    @Test
+    void condenser() {
+        ReadOnlyDataSource ds = new ResourceDataSource("condenser",
+                new ResourceSet("/cim14/condenser", "condenser_EQ.xml", "condenser_TP.xml"));
+        Network network = new CgmesImport().importData(ds, new NetworkFactoryImpl(), new Properties());
+        assertEquals(1, network.getGeneratorCount());
+        Generator c = network.getGenerator("CONDENSER_1");
+        assertEquals(0, c.getMinP());
+        assertEquals(0, c.getMaxP());
+        assertTrue(c.isCondenser());
+    }
+
+    @Test
+    void voltageLevelWithoutName() {
+        // CGMES network:
+        //   Voltage level of ID "VoltageLevel1" has no name
+        // IIDM network:
+        //   The voltage level imported without name, and can be retrieved via its id
+
+        ReadOnlyDataSource ds = new ResourceDataSource("vl_without_name",
+                new ResourceSet("/cim14/", "vl_without_name.xml"));
+        Network network = new CgmesImport().importData(ds, new NetworkFactoryImpl(), new Properties());
+
+        assertNotNull(network);
+        assertNotNull(network.getVoltageLevel("VoltageLevel"));
     }
 
     private static ConversionTester tester;

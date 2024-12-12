@@ -279,7 +279,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             new Column(CON_BUS),
             new Column(SUBSTATION),
             new Column(P0),
-            new Column(Q0),
+            new Column("q0 (MW)"), // Wrong unit, fixed in v1.2
             new Column(MINP),
             new Column(MAXP),
             new Column(MIN_Q_MAX_P),
@@ -446,20 +446,32 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         HvdcConverterStation.HvdcType type = hvdcLine.getConverterStation1().getHvdcType();
         AmplSubset subset = type.equals(
             HvdcConverterStation.HvdcType.VSC) ? AmplSubset.VSC_CONVERTER_STATION : AmplSubset.LCC_CONVERTER_STATION;
-        formatter.writeCell(variantIndex)
-            .writeCell(num)
-            .writeCell(type.equals(HvdcConverterStation.HvdcType.VSC) ? 1 : 2)
-            .writeCell(mapper.getInt(subset, hvdcLine.getConverterStation1().getId()))
-            .writeCell(mapper.getInt(subset, hvdcLine.getConverterStation2().getId()))
-            .writeCell(hvdcLine.getR())
-            .writeCell(hvdcLine.getNominalV())
-            .writeCell(hvdcLine.getConvertersMode().name())
-            .writeCell(hvdcLine.getActivePowerSetpoint())
-            .writeCell(hvdcLine.getMaxP())
-            .writeCell(faultNum)
-            .writeCell(actionNum)
-            .writeCell(id)
-            .writeCell(hvdcLine.getNameOrId());
+        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+        formatterHelper.addCell(variantIndex)
+            .addCell(num)
+            .addCell(type.equals(HvdcConverterStation.HvdcType.VSC) ? 1 : 2)
+            .addCell(mapper.getInt(subset, hvdcLine.getConverterStation1().getId()))
+            .addCell(mapper.getInt(subset, hvdcLine.getConverterStation2().getId()))
+            .addCell(hvdcLine.getR())
+            .addCell(hvdcLine.getNominalV())
+            .addCell(hvdcLine.getConvertersMode().name())
+            .addCell(hvdcLine.getActivePowerSetpoint())
+            .addCell(hvdcLine.getMaxP())
+            .addCell(faultNum)
+            .addCell(actionNum)
+            .addCell(id)
+            .addCell(hvdcLine.getNameOrId());
+
+        // Add cells if necessary
+        addAdditionalCellsHvdcLine(formatterHelper, hvdcLine);
+
+        // Write the cells
+        formatterHelper.write();
+    }
+
+    public void addAdditionalCellsHvdcLine(TableFormatterHelper formatterHelper,
+                                           HvdcLine hvdcLine) {
+        // Nothing to do here
     }
 
     @Override
@@ -473,19 +485,31 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
         int num = mapper.getInt(AmplSubset.LCC_CONVERTER_STATION, lccStation.getId());
 
-        formatter.writeCell(variantIndex)
-            .writeCell(num)
-            .writeCell(busNum)
-            .writeCell(conBusNum != -1 ? conBusNum : busNum)
-            .writeCell(vlNum)
-            .writeCell(lccStation.getLossFactor())
-            .writeCell(lccStation.getPowerFactor())
-            .writeCell(faultNum)
-            .writeCell(actionNum)
-            .writeCell(lccStation.getId())
-            .writeCell(lccStation.getNameOrId())
-            .writeCell(t.getP())
-            .writeCell(t.getQ());
+        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+        formatterHelper.addCell(variantIndex)
+                .addCell(num)
+                .addCell(busNum)
+                .addCell(conBusNum != -1 ? conBusNum : busNum)
+                .addCell(vlNum)
+                .addCell(lccStation.getLossFactor())
+                .addCell(lccStation.getPowerFactor())
+                .addCell(faultNum)
+                .addCell(actionNum)
+                .addCell(lccStation.getId())
+                .addCell(lccStation.getNameOrId())
+                .addCell(t.getP())
+                .addCell(t.getQ());
+
+        // Add cells if necessary
+        addAdditionalCellsLccConverterStation(formatterHelper, lccStation);
+
+        // Write the cells
+        formatterHelper.write();
+    }
+
+    public void addAdditionalCellsLccConverterStation(TableFormatterHelper formatterHelper,
+                                                      LccConverterStation lccStation) {
+        // Nothing to do here
     }
 
     @Override
