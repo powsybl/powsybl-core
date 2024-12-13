@@ -1657,7 +1657,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     private Path exportToCgmesEQ(Network network, boolean transformersWithHighestVoltageAtEnd1) throws IOException, XMLStreamException {
         // Export CGMES EQ file
-        tmpDir = Path.of("/Users/zamarrenolm/Downloads");
         Path exportedEq = tmpDir.resolve("exportedEq.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedEq))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
