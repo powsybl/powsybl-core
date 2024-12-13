@@ -15,7 +15,6 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
-import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
@@ -862,7 +861,7 @@ class CgmesConformity1ModifiedConversionTest {
     @Test
     void smallBusBranchTieFlowWithoutControlArea() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallBusBranchTieFlowsWithoutControlArea().dataSource(), NetworkFactory.findDefault(), importParams);
-        assertNull(network.getExtension(CgmesControlAreas.class));
+        assertEquals(0, network.getAreaCount());
     }
 
     @Test

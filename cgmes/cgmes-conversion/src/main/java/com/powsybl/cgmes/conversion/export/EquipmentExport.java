@@ -1385,29 +1385,29 @@ public final class EquipmentExport {
     private static void writeControlAreas(String energyAreaId, Network network, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Area area : network.getAreas()) {
             if (area.getAreaType().equals("ControlAreaTypeKind.Interchange")) {
-                writeControlArea(area, energyAreaId, cimNamespace, euNamespace, writer, context, network);
+                writeControlArea(area, energyAreaId, cimNamespace, euNamespace, writer, context);
             }
         }
     }
 
     private static void writeControlArea(Area controlArea, String energyAreaId, String cimNamespace, String euNamespace,
-                                         XMLStreamWriter writer, CgmesExportContext context, Network network) throws XMLStreamException {
+                                         XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // Original control area identifiers may not respect mRID rules, so we pass it through naming strategy
         // to obtain always valid mRID identifiers
         String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(controlArea.getId());
         String energyIdentCodeEic = controlArea.getAliasFromType(CgmesNames.ENERGY_IDENT_CODE_EIC).orElse("");
         ControlAreaEq.write(controlAreaCgmesId, controlArea.getNameOrId(), energyIdentCodeEic, energyAreaId, cimNamespace, euNamespace, writer, context);
         for (AreaBoundary areaBoundary : controlArea.getAreaBoundaries()) {
-            TieFlow.from(areaBoundary, context, network).ifPresent(tieFlow ->
+            TieFlow.from(areaBoundary, context).ifPresent(tieFlow ->
                 TieFlowEq.write(tieFlow.id(), controlAreaCgmesId, tieFlow.terminalId(), cimNamespace, writer, context)
             );
         }
     }
 
     private record TieFlow(String id, String terminalId) {
-        static Optional<TieFlow> from(AreaBoundary areaBoundary, CgmesExportContext context, Network network) {
+        static Optional<TieFlow> from(AreaBoundary areaBoundary, CgmesExportContext context) {
             return areaBoundary.getTerminal().map(terminal -> from(terminal, context))
-                    .orElse(areaBoundary.getBoundary().flatMap(boundary -> from(boundary, context, network)));
+                    .orElse(areaBoundary.getBoundary().flatMap(boundary -> from(boundary, context)));
         }
 
         static Optional<TieFlow> from(Terminal terminal, CgmesExportContext context) {
@@ -1416,8 +1416,8 @@ public final class EquipmentExport {
                     CgmesExportUtil.getTerminalId(terminal, context)));
         }
 
-        static Optional<TieFlow> from(Boundary boundary, CgmesExportContext context, Network network) {
-            String terminalId = getTieFlowBoundaryTerminal(boundary, context, network);
+        static Optional<TieFlow> from(Boundary boundary, CgmesExportContext context) {
+            String terminalId = getTieFlowBoundaryTerminal(boundary, context);
             if (terminalId != null) {
                 return Optional.of(new TieFlow(
                         context.getNamingStrategy().getCgmesId(ref(terminalId), TIE_FLOW),
@@ -1428,34 +1428,14 @@ public final class EquipmentExport {
         }
     }
 
-    private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context, Network network) {
+    private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context) {
         DanglingLine dl = boundary.getDanglingLine();
-        if (network.isBoundaryElement(dl)) {
-            return context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
-        } else {
-            // This means the boundary corresponds to a TieLine.
-            // Because the network should not be a merging view,
-            // the only way to have a TieLine in the model is that
-            // the original data for the network contained both halves of the TieLine.
-            // That is, the initial CGMES data contains the two ACLSs at each side of one boundary point.
-
-            // Currently, we are exporting TieLines in the EQ as a single ACLS,
-            // We are not exporting the individual halves of the tie line as separate equipment.
-            // So we do not have terminals for the boundary points.
-
-            // This error should be fixed exporting the two halves of the TieLine to the EQ,
-            // with their corresponding terminals.
-            // Also, the boundary node should not be exported but referenced,
-            // as it should be defined in the boundary, not in the instance EQ file.
-
-            LOG.error("Unsupported tie flow at TieLine boundary {}", dl.getId());
-            return null;
-        }
+        return context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
     }
 
     private static void writeTerminals(Network network, Map<Terminal, String> mapTerminal2Id, Map<String, String> mapNodeKey2NodeId,
                                        String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (Connectable<?> c : network.getConnectables()) { // TODO write boundary terminals for tie lines from CGMES
+        for (Connectable<?> c : network.getConnectables()) {
             if (context.isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
                     writeTerminal(t, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);
