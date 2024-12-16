@@ -263,15 +263,20 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             if (!encountered[n]) {
                 final TIntArrayList nodes = new TIntArrayList(1);
                 nodes.add(n);
-                graph.traverse(n, TraversalType.DEPTH_FIRST, (n1, e, n2) -> {
+                Traverser traverser = (n1, e, n2) -> {
                     SwitchImpl aSwitch = graph.getEdgeObject(e);
                     if (aSwitch != null && terminate.test(aSwitch)) {
                         return TraverseResult.TERMINATE_PATH;
                     }
 
-                    nodes.add(n2);
+                    if (!encountered[n2]) {
+                        // We need to check this as the traverser might be called twice with the same n2 but with different edges.
+                        // Note that the "encountered" array is used and maintained inside graph::traverse method, hence we should not update it.
+                        nodes.add(n2);
+                    }
                     return TraverseResult.CONTINUE;
-                }, encountered);
+                };
+                graph.traverse(n, TraversalType.DEPTH_FIRST, traverser, encountered);
 
                 // check that the component is a bus
                 String busId = Identifiables.getUniqueId(NAMING_STRATEGY.getId(voltageLevel, nodes), getNetwork().getIndex()::contains);
@@ -626,6 +631,16 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         return variants.get().calculatedBusTopology;
     }
 
+    void removeSwitchFromTopology(String switchId, boolean notify) {
+        Integer e = switches.get(switchId);
+        if (e == null) {
+            throw new PowsyblException("Switch '" + switchId
+                    + "' not found in voltage level '" + voltageLevel.getId() + "'");
+        }
+        graph.removeEdge(e, notify);
+        graph.removeIsolatedVertices(notify);
+    }
+
     private final VoltageLevelExt.NodeBreakerViewExt nodeBreakerView = new VoltageLevelExt.NodeBreakerViewExt() {
 
         private final TIntObjectMap<TDoubleArrayList> fictitiousP0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
@@ -873,13 +888,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
         @Override
         public void removeSwitch(String switchId) {
-            Integer e = switches.get(switchId);
-            if (e == null) {
-                throw new PowsyblException("Switch '" + switchId
-                        + "' not found in voltage level '" + voltageLevel.getId() + "'");
-            }
-            graph.removeEdge(e);
-            graph.removeIsolatedVertices();
+            NodeBreakerTopologyModel.this.removeSwitchFromTopology(switchId, true);
         }
 
         @Override
@@ -1276,8 +1285,8 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         checkTopologyKind(terminal);
 
         int node = ((NodeTerminal) terminal).getNode();
-        // find all paths starting from the current terminal to a busbar section that does not contain an open switch
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerTopologyModel::isBusbarSection, SwitchPredicates.IS_OPEN);
+        // find all paths starting from the current terminal to a terminal that does not contain an open switch
+        List<TIntArrayList> paths = graph.findAllPaths(node, Objects::nonNull, SwitchPredicates.IS_OPEN);
         if (paths.isEmpty()) {
             return false;
         }

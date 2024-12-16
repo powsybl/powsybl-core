@@ -121,6 +121,11 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
     }
 
     @Override
+    public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
+        terminals.replaceAll(t -> t == oldReferenced ? newReferenced : t);
+    }
+
+    @Override
     public void cleanup() {
         for (Terminal terminal : terminals) {
             if (terminal != null) {

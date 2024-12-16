@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"	xmlns:cim="http://iec.ch/TC57/2009/CIM-schema-cim14#">
+<cim:Terminal rdf:about="#_T_1">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_TN_1"/>
+</cim:Terminal>
+<cim:TopologicalNode rdf:ID="_TN_1">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VL_1"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_100"/>
+	<cim:IdentifiedObject.name>TN 1</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:TopologicalIsland rdf:ID="_TI_1">
+	<cim:TopologicalIsland.AngleRef_TopologicalNode rdf:resource="#_TN_1"/>
+</cim:TopologicalIsland>
+</rdf:RDF>

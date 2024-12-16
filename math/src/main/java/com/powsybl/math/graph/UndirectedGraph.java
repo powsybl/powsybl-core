@@ -321,7 +321,11 @@ public interface UndirectedGraph<V, E> {
      * @param v the vertex index where the traverse has to start.
      * @param traversalType the type of traversal (breadth-first or depth-first)
      * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
-     * @param verticesEncountered the list of traversed vertices.
+     * @param verticesEncountered the list of traversed vertices - a vertex is considered as traversed:
+     *                           <ul>
+     *                            <li>if it is the starting vertex</li>
+     *                            <li>if one of its edges has been traversed, with a traverser result {@link TraverseResult#CONTINUE}</li>
+     *                           </ul>
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
      */

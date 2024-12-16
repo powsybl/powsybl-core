@@ -41,7 +41,7 @@ public final class AmplConstants {
     public static final String NUM = "num";
     public static final String BUS = "bus";
     public static final String P0 = "p0 (MW)";
-    public static final String Q0 = "q0 (MW)";
+    public static final String Q0 = "q0 (MVar)";
     public static final String ID = "id";
     // End column headers
 
