@@ -672,5 +672,34 @@ class CgmesExportTest {
         }
     }
 
+    @Test
+    void networkWithoutControlAreaInterchange() throws IOException {
+        Network network = DanglingLineNetworkFactory.create();
+        assertEquals(0, network.getAreaCount());
+
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath("/temp"));
+            String baseName = "dl-net";
+
+            // Exporting with default behaviour, no default control area is written
+            Path tmpDirNoCA = tmpDir.resolve("network-no-ca");
+            Files.createDirectories(tmpDirNoCA);
+            network.write("CGMES", null, tmpDirNoCA.resolve(baseName));
+            Network networkNoCA = Network.read(new GenericReadOnlyDataSource(tmpDirNoCA, baseName));
+            assertEquals(0, networkNoCA.getAreaCount());
+
+            // Explicit creation of a default control area
+            new CgmesExport().createDefaultControlAreaInterchange(network);
+
+            // Check that exported files now have a control area definition
+            Path tmpDirWithCA = tmpDir.resolve("network-with-ca");
+            Files.createDirectories(tmpDirWithCA);
+            network.write("CGMES", null, tmpDirWithCA.resolve(baseName));
+            Network networkWithCA = Network.read(new GenericReadOnlyDataSource(tmpDirWithCA, baseName));
+            assertEquals(1, networkWithCA.getAreaCount());
+            assertEquals(1, networkWithCA.getAreas().iterator().next().getAreaBoundaryStream().count());
+        }
+    }
+
     private static final double EPSILON = 1e-10;
 }

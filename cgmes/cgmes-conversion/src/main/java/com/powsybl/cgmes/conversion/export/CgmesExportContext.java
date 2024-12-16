@@ -19,7 +19,6 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.triplestore.api.PropertyBags;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.net.URLEncoder;
@@ -155,6 +154,10 @@ public class CgmesExportContext {
         }
     }
 
+    public ReferenceDataProvider getReferenceDataProvider() {
+        return referenceDataProvider;
+    }
+
     private CgmesTopologyKind networkTopologyKind(Network network) {
         for (VoltageLevel vl : network.getVoltageLevels()) {
             if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
@@ -181,7 +184,6 @@ public class CgmesExportContext {
         addIidmMappingsStaticVarCompensators(network);
         addIidmMappingsEndsAndTapChangers(network);
         addIidmMappingsEquivalentInjection(network);
-        addIidmMappingsControlArea(network);
     }
 
     private void addIidmMappingsSubstations(Network network) {
@@ -530,62 +532,6 @@ public class CgmesExportContext {
                 danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", equivalentInjectionTerminalId);
             }
         }
-    }
-
-    private void addIidmMappingsControlArea(Network network) {
-        // If no control area exists, create one for the whole network, containing the dangling lines as boundaries,
-        // but only if the network does not contain subnetworks
-        long numControlAreas = network.getAreaStream().filter(a -> a.getAreaType().equals("ControlAreaTypeKind.Interchange")).count();
-        int numSubnetworks = network.getSubnetworks().size();
-        if (numControlAreas == 0 && numSubnetworks == 0) {
-            createDefaultControlArea(network);
-        }
-    }
-
-    private void createDefaultControlArea(Network network) {
-        String controlAreaId = namingStrategy.getCgmesId(refTyped(network), CONTROL_AREA);
-        Area area = network.newArea()
-                .setAreaType("ControlAreaTypeKind.Interchange")
-                .setId(controlAreaId)
-                .setName("Network")
-                .add();
-        if (referenceDataProvider != null && referenceDataProvider.getSourcingActor().containsKey(CgmesNames.ENERGY_IDENT_CODE_EIC)) {
-            area.addAlias(referenceDataProvider.getSourcingActor().get(CgmesNames.ENERGY_IDENT_CODE_EIC), CgmesNames.ENERGY_IDENT_CODE_EIC);
-        }
-        double currentInterchange = 0;
-        Set<String> boundaryDcNodes = getBoundaryDcNodes();
-        for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
-            // Our exchange should be referred the boundary
-            area.newAreaBoundary()
-                    .setAc(isAcBoundary(danglingLine, boundaryDcNodes))
-                    .setBoundary(danglingLine.getBoundary())
-                    .add();
-            currentInterchange += danglingLine.getBoundary().getP();
-        }
-        area.setInterchangeTarget(currentInterchange);
-    }
-
-    private Set<String> getBoundaryDcNodes() {
-        if (referenceDataProvider == null) {
-            return Collections.emptySet();
-        }
-        PropertyBags boundaryNodes = referenceDataProvider.getBoundaryNodes();
-        if (boundaryNodes == null) {
-            return Collections.emptySet();
-        } else {
-            return boundaryNodes.stream()
-                    .filter(node -> node.containsKey("topologicalNodeDescription") && node.get("topologicalNodeDescription").startsWith("HVDC"))
-                    .map(node -> node.getId(CgmesNames.TOPOLOGICAL_NODE))
-                    .collect(Collectors.toSet());
-        }
-    }
-
-    private boolean isAcBoundary(DanglingLine danglingLine, Set<String> boundaryDcNodes) {
-        String dlBoundaryNode = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
-        if (dlBoundaryNode != null) {
-            return !boundaryDcNodes.contains(dlBoundaryNode);
-        }
-        return true;
     }
 
     public int getCimVersion() {

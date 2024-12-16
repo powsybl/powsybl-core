@@ -1383,6 +1383,13 @@ public final class EquipmentExport {
     }
 
     private static void writeControlAreas(String energyAreaId, Network network, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        // Log a warning if we are a stand-alone network (an IGM) and no control area is being exported
+        long numControlAreas = network.getAreaStream().filter(a -> a.getAreaType().equals("ControlAreaTypeKind.Interchange")).count();
+        int numSubnetworks = network.getSubnetworks().size();
+        if (numControlAreas == 0 && numSubnetworks == 0) {
+            LOG.warn("No control area of type interchange is being exported");
+        }
+
         for (Area area : network.getAreas()) {
             if (area.getAreaType().equals("ControlAreaTypeKind.Interchange")) {
                 writeControlArea(area, energyAreaId, cimNamespace, euNamespace, writer, context);
