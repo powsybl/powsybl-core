@@ -36,11 +36,10 @@ public class ControlAreaConversion extends AbstractIdentifiedObjectConversion {
                 .setName(p.getLocal("name"))
                 .setInterchangeTarget(p.asDouble("netInterchange", Double.NaN))
                 .add();
-        String pTolerance = "0";
         if (p.containsKey(CgmesNames.P_TOLERANCE)) {
-            pTolerance = p.get(CgmesNames.P_TOLERANCE);
+            String pTolerance = p.get(CgmesNames.P_TOLERANCE);
+            area.setProperty(CgmesNames.P_TOLERANCE, pTolerance);
         }
-        area.setProperty(CgmesNames.P_TOLERANCE, pTolerance);
         if (p.containsKey(CgmesNames.ENERGY_IDENT_CODE_EIC)) {
             area.addAlias(p.get(CgmesNames.ENERGY_IDENT_CODE_EIC), CgmesNames.ENERGY_IDENT_CODE_EIC);
         }

@@ -692,12 +692,30 @@ class CgmesExportTest {
             new CgmesExport().createDefaultControlAreaInterchange(network);
 
             // Check that exported files now have a control area definition
+            // No default value for tolerance
             Path tmpDirWithCA = tmpDir.resolve("network-with-ca");
             Files.createDirectories(tmpDirWithCA);
             network.write("CGMES", null, tmpDirWithCA.resolve(baseName));
             Network networkWithCA = Network.read(new GenericReadOnlyDataSource(tmpDirWithCA, baseName));
             assertEquals(1, networkWithCA.getAreaCount());
-            assertEquals(1, networkWithCA.getAreas().iterator().next().getAreaBoundaryStream().count());
+            Area areaExported = networkWithCA.getAreas().iterator().next();
+            assertEquals(1, areaExported.getAreaBoundaryStream().count());
+            assertEquals(-50, areaExported.getInterchangeTarget().orElse(Double.NaN));
+            // No default value for tolerance
+            assertNull(areaExported.getProperty(CgmesNames.P_TOLERANCE));
+
+            // Check that tolerance is exported only if explicitly defined
+            Area area = network.getAreas().iterator().next();
+            area.setProperty(CgmesNames.P_TOLERANCE, "1.01");
+            Path tmpDirWithCaTolerance = tmpDir.resolve("network-with-ca-tolerance");
+            Files.createDirectories(tmpDirWithCaTolerance);
+            network.write("CGMES", null, tmpDirWithCaTolerance.resolve(baseName));
+            Network networkWithCaTolerance = Network.read(new GenericReadOnlyDataSource(tmpDirWithCaTolerance, baseName));
+            assertEquals(1, networkWithCaTolerance.getAreaCount());
+            areaExported = networkWithCaTolerance.getAreas().iterator().next();
+            assertEquals(1, areaExported.getAreaBoundaryStream().count());
+            assertEquals(-50, areaExported.getInterchangeTarget().orElse(Double.NaN));
+            assertEquals("1.01", areaExported.getProperty(CgmesNames.P_TOLERANCE));
         }
     }
 

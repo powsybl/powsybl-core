@@ -866,11 +866,9 @@ public final class SteadyStateHypothesisExport {
         double pTolerance;
         if (controlArea.hasProperty("pTolerance")) {
             pTolerance = Double.parseDouble(controlArea.getProperty("pTolerance"));
-        } else {
-            pTolerance = Math.abs(0.01 * netInterchange);
+            writer.writeStartElement(cimNamespace, "ControlArea.pTolerance");
+            writer.writeCharacters(CgmesExportUtil.format(pTolerance));
         }
-        writer.writeStartElement(cimNamespace, "ControlArea.pTolerance");
-        writer.writeCharacters(CgmesExportUtil.format(pTolerance));
         writer.writeEndElement();
         writer.writeEndElement();
     }
