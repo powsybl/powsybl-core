@@ -69,6 +69,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     private Properties importParams;
 
+    @Override
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
@@ -159,29 +160,22 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
 
-        network.newExtension(CgmesControlAreasAdder.class).add();
-        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-        CgmesControlArea cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
+        // Define a tie flow at the boundary of a dangling line
+        TieLine tieLine = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        Area area = network.newArea()
                 .setId("controlAreaId")
                 .setName("controlAreaName")
-                .setEnergyIdentificationCodeEic("energyIdentCodeEic")
-                .setNetInterchange(Double.NaN)
+                .setAreaType("ControlAreaTypeKind.Interchange")
+                .setInterchangeTarget(Double.NaN)
+                .addAreaBoundary(tieLine.getDanglingLine2().getBoundary(), true)
                 .add();
-        TieLine tieLine = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
-        cgmesControlArea.add(tieLine.getDanglingLine2().getBoundary());
+        area.addAlias("energyIdentCodeEic", CgmesNames.ENERGY_IDENT_CODE_EIC);
 
-        // TODO(Luma) updated expected result after halves of tie lines are exported as equipment
-        //  instead of an error logged and the tie flow ignored,
-        //  the reimported network control area should contain one tie flow
-        Network actual = exportImportNodeBreaker(network, dataSource);
-        CgmesControlArea actualCgmesControlArea = actual.getExtension(CgmesControlAreas.class).getCgmesControlArea("controlAreaId");
-        boolean tieFlowsAtTieLinesAreSupported = false;
-        if (tieFlowsAtTieLinesAreSupported) {
-            assertEquals(1, actualCgmesControlArea.getBoundaries().size());
-            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getDanglingLine().getId());
-        } else {
-            assertEquals(0, actualCgmesControlArea.getBoundaries().size());
-        }
+        // The reimported network control area should contain one tie flow
+        Network actual = exportImportBusBranch(network, dataSource);
+        Area actualControlArea = actual.getArea("controlAreaId");
+        assertEquals(1, actualControlArea.getAreaBoundaryStream().count());
+        assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualControlArea.getAreaBoundaries().iterator().next().getBoundary().get().getDanglingLine().getId());
     }
 
     @Test
@@ -589,7 +583,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.NONCONFORM_LOAD), loadsCreatedFromOriginalClassCount(actual, CgmesNames.NONCONFORM_LOAD));
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.STATION_SUPPLY), loadsCreatedFromOriginalClassCount(actual, CgmesNames.STATION_SUPPLY));
 
-        // Avoid comparing targetP and targetQ (reimport does not consider the SSH file);
+        // Remove the default control area created in expected network during export
+        expected.getAreaStream().map(Area::getId).toList().forEach(a -> expected.getArea(a).remove());
+
+        // Avoid comparing targetP and targetQ, as reimport does not consider the SSH file
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
             actualGenerator.setTargetP(expectedGenerator.getTargetP());
@@ -667,7 +664,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals(generatorsCreatedFromOriginalClassCount(expected, "ExternalNetworkInjection"), generatorsCreatedFromOriginalClassCount(actual, "ExternalNetworkInjection"));
         assertEquals(generatorsCreatedFromOriginalClassCount(expected, "EquivalentInjection"), generatorsCreatedFromOriginalClassCount(actual, "EquivalentInjection"));
 
-        // Avoid comparing targetP and targetQ (reimport does not consider the SSH file);
+        // Avoid comparing targetP and targetQ, as reimport does not consider the SSH file
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
             actualGenerator.setTargetP(expectedGenerator.getTargetP());
@@ -1697,7 +1694,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
         // Export original and only EQ
         ExportOptions exportOptions = new ExportOptions();
-        exportOptions.setExtensions(Collections.emptySet());
+        exportOptions.setExtensions(Set.of("cgmesControlAreas"));
         exportOptions.setSorted(true);
 
         Path expectedPath = tmpDir.resolve("expected.xml");
@@ -1833,6 +1830,9 @@ class EquipmentExportTest extends AbstractSerDeTest {
         });
         for (Load load : network.getLoads()) {
             load.setP0(0.0).setQ0(0.0);
+        }
+        for (Area area : network.getAreas()) {
+            area.setInterchangeTarget(0.0);
         }
 
         network.removeExtension(CgmesModelExtension.class);
