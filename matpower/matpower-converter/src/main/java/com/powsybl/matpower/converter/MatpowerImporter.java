@@ -354,6 +354,9 @@ public class MatpowerImporter implements Importer {
 
             Branch<?> branch;
             if (isTransformer(model, mBranch)) {
+                // we might have a matpower branch with a phase shift and a 0 ratio (0 in matpower just means undefined)
+                // we need to create an IIDM transformer but we just in that case fix the ratio to 1
+                double ratio = mBranch.getRatio() == 0 ? 1 : mBranch.getRatio();
                 TwoWindingsTransformer newTwt = voltageLevel2.getSubstation()
                         .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
                         .newTwoWindingsTransformer()
@@ -365,7 +368,7 @@ public class MatpowerImporter implements Importer {
                         .setBus2(connectedBus2)
                         .setConnectableBus2(bus2Id)
                         .setVoltageLevel2(voltageLevel2Id)
-                        .setRatedU1(voltageLevel1.getNominalV() * mBranch.getRatio())
+                        .setRatedU1(voltageLevel1.getNominalV() * ratio)
                         .setRatedU2(voltageLevel2.getNominalV())
                         .setR(mBranch.getR() * zb)
                         .setX(mBranch.getX() * zb)
