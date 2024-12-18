@@ -129,6 +129,17 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     }
 
     @Override
+    public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer) {
+        return new TwoWindingsTransformerAdderImpl(this, twoWindingsTransformer).setR(twoWindingsTransformer.getR())
+                .setX(twoWindingsTransformer.getX())
+                .setB(twoWindingsTransformer.getB())
+                .setG(twoWindingsTransformer.getG())
+                .setRatedU1(twoWindingsTransformer.getRatedU1())
+                .setRatedU2(twoWindingsTransformer.getRatedU2());
+    }
+
+    TwoWindingsTransformerAdder newTwoWindings
+    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return FluentIterable.from(voltageLevels)
                 .transformAndConcat(vl -> vl.getConnectables(TwoWindingsTransformer.class))
