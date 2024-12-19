@@ -8,6 +8,8 @@
 package com.powsybl.matpower.model;
 
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.types.*;
 
@@ -24,10 +26,13 @@ import java.util.Set;
  */
 public final class MatpowerReader {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MatpowerReader.class);
+
     public static final String MATPOWER_STRUCT_NAME = "mpc";
     public static final String MATPOWER_SUPPORTED_VERSION = "2";
     public static final int MATPOWER_BUSES_COLUMNS = 13;
-    public static final int MATPOWER_GENERATORS_COLUMNS = 21;
+    public static final int MATPOWER_V1_GENERATORS_COLUMNS = 10;
+    public static final int MATPOWER_V2_GENERATORS_COLUMNS = 21;
     public static final int MATPOWER_BRANCHES_COLUMNS = 13;
     public static final int MATPOWER_DCLINES_COLUMNS = 17;
 
@@ -88,20 +93,27 @@ public final class MatpowerReader {
     }
 
     private static void checkNumberOfColumns(Matrix buses, Matrix generators, Matrix branches, Matrix dcLines) {
-        if (buses.getDimensions()[1] < MATPOWER_BUSES_COLUMNS
-                || generators.getDimensions()[1] < MATPOWER_GENERATORS_COLUMNS
-                || branches.getDimensions()[1] < MATPOWER_BRANCHES_COLUMNS
+        int busColumns = buses.getDimensions()[1];
+        int generatorColumns = generators.getDimensions()[1];
+        int branchColumns = branches.getDimensions()[1];
+        if (generatorColumns == MATPOWER_V1_GENERATORS_COLUMNS) {
+            LOGGER.warn("It is not expected in Matpower v2 format to have {} columns for generators. {} columns are only expected for the v1 format and v2 requires {} columns",
+                    MATPOWER_V1_GENERATORS_COLUMNS, MATPOWER_V1_GENERATORS_COLUMNS, MATPOWER_V2_GENERATORS_COLUMNS);
+        }
+        if (busColumns < MATPOWER_BUSES_COLUMNS
+                || generatorColumns < MATPOWER_V1_GENERATORS_COLUMNS
+                || branchColumns < MATPOWER_BRANCHES_COLUMNS
                 || dcLines != null && dcLines.getDimensions()[1] < MATPOWER_DCLINES_COLUMNS) {
 
             String exceptionMessage;
             if (dcLines == null) {
                 exceptionMessage = String.format("Unexpected number of columns. Expected: Buses %d Generators %d Branches %d Received: Buses %d Generators %d Branches %d",
-                        MATPOWER_BUSES_COLUMNS, MATPOWER_GENERATORS_COLUMNS, MATPOWER_BRANCHES_COLUMNS,
-                        buses.getDimensions()[1], generators.getDimensions()[1], branches.getDimensions()[1]);
+                        MATPOWER_BUSES_COLUMNS, MATPOWER_V1_GENERATORS_COLUMNS, MATPOWER_BRANCHES_COLUMNS,
+                        busColumns, generatorColumns, branchColumns);
             } else {
                 exceptionMessage = String.format("Unexpected number of columns. Expected: Buses %d Generators %d Branches %d DcLines %d Received: Buses %d Generators %d Branches %d DcLines %d",
-                        MATPOWER_BUSES_COLUMNS, MATPOWER_GENERATORS_COLUMNS, MATPOWER_BRANCHES_COLUMNS, MATPOWER_DCLINES_COLUMNS,
-                        buses.getDimensions()[1], generators.getDimensions()[1], branches.getDimensions()[1], dcLines.getDimensions()[1]);
+                        MATPOWER_BUSES_COLUMNS, MATPOWER_V1_GENERATORS_COLUMNS, MATPOWER_BRANCHES_COLUMNS, MATPOWER_DCLINES_COLUMNS,
+                        busColumns, generatorColumns, branchColumns, dcLines.getDimensions()[1]);
             }
             throw new IllegalStateException(exceptionMessage);
         }
@@ -145,17 +157,19 @@ public final class MatpowerReader {
             gen.setStatus(generators.getInt(row, 7));
             gen.setMaximumRealPowerOutput(generators.getDouble(row, 8));
             gen.setMinimumRealPowerOutput(generators.getDouble(row, 9));
-            gen.setPc1(generators.getDouble(row, 10));
-            gen.setPc2(generators.getDouble(row, 11));
-            gen.setQc1Min(generators.getDouble(row, 12));
-            gen.setQc1Max(generators.getDouble(row, 13));
-            gen.setQc2Min(generators.getDouble(row, 14));
-            gen.setQc2Max(generators.getDouble(row, 15));
-            gen.setRampAgc(generators.getDouble(row, 16));
-            gen.setRampTenMinutes(generators.getDouble(row, 17));
-            gen.setRampThirtyMinutes(generators.getDouble(row, 18));
-            gen.setRampQ(generators.getDouble(row, 19));
-            gen.setApf(generators.getDouble(row, 20));
+            if (generators.getDimensions()[1] > MATPOWER_V1_GENERATORS_COLUMNS) {
+                gen.setPc1(generators.getDouble(row, 10));
+                gen.setPc2(generators.getDouble(row, 11));
+                gen.setQc1Min(generators.getDouble(row, 12));
+                gen.setQc1Max(generators.getDouble(row, 13));
+                gen.setQc2Min(generators.getDouble(row, 14));
+                gen.setQc2Max(generators.getDouble(row, 15));
+                gen.setRampAgc(generators.getDouble(row, 16));
+                gen.setRampTenMinutes(generators.getDouble(row, 17));
+                gen.setRampThirtyMinutes(generators.getDouble(row, 18));
+                gen.setRampQ(generators.getDouble(row, 19));
+                gen.setApf(generators.getDouble(row, 20));
+            }
 
             model.addGenerator(gen);
         }

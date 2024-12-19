@@ -96,7 +96,7 @@ public final class MatpowerWriter {
     }
 
     private static Matrix fillGeneratorsMatrix(List<MGen> gens) {
-        Matrix gensM = Mat5.newMatrix(gens.size(), MatpowerReader.MATPOWER_GENERATORS_COLUMNS);
+        Matrix gensM = Mat5.newMatrix(gens.size(), MatpowerReader.MATPOWER_V2_GENERATORS_COLUMNS);
 
         for (int row = 0; row < gens.size(); row++) {
             gensM.setInt(row, 0, gens.get(row).getNumber());
