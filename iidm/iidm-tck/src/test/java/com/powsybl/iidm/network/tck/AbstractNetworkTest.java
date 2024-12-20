@@ -177,8 +177,8 @@ public abstract class AbstractNetworkTest {
 
         // Changes listener
         NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementAdded(any(), anyString(), any());
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementReplaced(any(), anyString(),
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onPropertyAdded(any(), anyString(), any());
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onPropertyReplaced(any(), anyString(),
                 any(), any());
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
 
@@ -206,12 +206,12 @@ public abstract class AbstractNetworkTest {
 
         // Check notification done
         verify(mockedListener, times(1))
-                .onElementAdded(busCalc, "properties[" + key + "]", value);
+                .onPropertyAdded(busCalc, "properties[" + key + "]", value);
         // Check no notification on same property
         String value2 = "ValueTest2";
         busCalc.setProperty(key, value2);
         verify(mockedListener, times(1))
-                .onElementReplaced(busCalc, "properties[" + key + "]", value, value2);
+                .onPropertyReplaced(busCalc, "properties[" + key + "]", value, value2);
         // Check no notification on same property
         busCalc.setProperty(key, value2);
         verifyNoMoreInteractions(mockedListener);
@@ -686,5 +686,21 @@ public abstract class AbstractNetworkTest {
         currentLimits.setPermanentLimit(Double.NaN);
         assertTrue(Double.isNaN(currentLimits.getPermanentLimit()));
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+    }
+
+    @Test
+    void testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork() {
+        Network network = Network.create("test", "iidm");
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        VoltageLevel vl = network.newSubstation().setId("s1").add()
+                .newVoltageLevel().setId("vl1").setNominalV(100).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        Load l1 = vl.newLoad().setId("l1").setNode(0).add();
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+
+        l1.setP0(10.0);
+        l1.setQ0(1.0);
+
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
     }
 }

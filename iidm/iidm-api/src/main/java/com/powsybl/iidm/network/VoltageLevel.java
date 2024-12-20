@@ -472,7 +472,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         SwitchAdder newSwitch();
 
         /**
-         * Get a builder to create a new switch.
+         * Get a builder to create a new internal connection.
          */
         InternalConnectionAdder newInternalConnection();
 
@@ -1354,6 +1354,15 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @return a bus view of the topology
      */
     BusView getBusView();
+
+    /**
+     * Convert the topology model to another one. Notice that when converting from a
+     * node/breaker model to a bus/breaker model, we definitely lost some information as
+     * we are converting to a simpler topology model.
+     *
+     * @param newTopologyKind the new topology model kind
+     */
+    void convertToTopology(TopologyKind newTopologyKind);
 
     /**
      * Print an ASCII representation of the topology on the standard ouput.

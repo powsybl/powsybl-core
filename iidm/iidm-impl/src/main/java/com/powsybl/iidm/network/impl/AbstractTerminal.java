@@ -8,12 +8,11 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -33,7 +32,7 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected VoltageLevelExt voltageLevel;
 
-    protected final List<RegulatingPoint> regulated = new ArrayList<>();
+    protected final ReferrerManager<Terminal> referrerManager = new ReferrerManager<>(this);
 
     // attributes depending on the variant
 
@@ -92,12 +91,6 @@ abstract class AbstractTerminal implements TerminalExt {
         if (voltageLevel != null) {
             network = voltageLevel.getNetworkRef();
         }
-    }
-
-    @Override
-    public void removeAsRegulationPoint() {
-        regulated.forEach(RegulatingPoint::removeRegulatingTerminal);
-        regulated.clear();
     }
 
     @Override
@@ -182,7 +175,7 @@ abstract class AbstractTerminal implements TerminalExt {
         String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
         boolean connectedBefore = isConnected();
         connectable.notifyUpdate("beginConnect", variantId, connectedBefore, null);
-        boolean connected = voltageLevel.connect(this, isTypeSwitchToOperate);
+        boolean connected = voltageLevel.getTopologyModel().connect(this, isTypeSwitchToOperate);
         boolean connectedAfter = isConnected();
         connectable.notifyUpdate("endConnect", variantId, null, connectedAfter);
         return connected;
@@ -209,7 +202,7 @@ abstract class AbstractTerminal implements TerminalExt {
         String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
         boolean disconnectedBefore = !isConnected();
         connectable.notifyUpdate("beginDisconnect", variantId, disconnectedBefore, null);
-        boolean disconnected = voltageLevel.disconnect(this, isSwitchOpenable);
+        boolean disconnected = voltageLevel.getTopologyModel().disconnect(this, isSwitchOpenable);
         boolean disconnectedAfter = !isConnected();
         connectable.notifyUpdate("endDisconnect", variantId, null, disconnectedAfter);
         return disconnected;
@@ -250,12 +243,12 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public void setAsRegulatingPoint(RegulatingPoint rp) {
-        regulated.add(rp);
+    public ReferrerManager<Terminal> getReferrerManager() {
+        return referrerManager;
     }
 
     @Override
-    public void removeRegulatingPoint(RegulatingPoint rp) {
-        regulated.remove(rp);
+    public List<Object> getReferrers() {
+        return referrerManager.getReferrers().stream().map(r -> (Object) r).toList();
     }
 }

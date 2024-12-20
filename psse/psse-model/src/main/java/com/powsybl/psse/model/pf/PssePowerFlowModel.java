@@ -259,6 +259,7 @@ public class PssePowerFlowModel {
 
     private static void copyModifiedBlocks(PssePowerFlowModel psseModel, PssePowerFlowModel newPsseModel) {
         psseModel.getSubstations().forEach(psseSubstation -> newPsseModel.substations.add(psseSubstation.copy()));
+
         psseModel.getBuses().forEach(psseBus -> newPsseModel.buses.add(psseBus.copy()));
         psseModel.getLoads().forEach(psseLoad -> newPsseModel.loads.add(psseLoad.copy()));
 

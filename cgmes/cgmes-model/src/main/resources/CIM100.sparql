@@ -57,7 +57,14 @@ WHERE {
         cim:RotatingMachine.GeneratingUnit ?GeneratingUnit .
     # Some test cases of condensers have a (wrong) association with a generating unit,
     # So we explicitly check for the type of the synchronous machine
-    FILTER (!REGEX(STR(?type), "Kind.condenser"))
+    VALUES ?type {
+        cim:SynchronousMachineKind.generator
+        cim:SynchronousMachineKind.generatorOrCondenser
+        cim:SynchronousMachineKind.motor
+        cim:SynchronousMachineKind.generatorOrMotor
+        cim:SynchronousMachineKind.motorOrCondenser
+        cim:SynchronousMachineKind.generatorOrCondenserOrMotor
+    }
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
        }
@@ -70,6 +77,9 @@ WHERE {
         OPTIONAL {
             ?HydroPowerPlant cim:HydroPowerPlant.hydroPlantStorageType ?hydroPlantStorageType
         }
+    }
+    OPTIONAL {
+        ?GeneratingUnit cim:WindGeneratingUnit.windGenUnitType ?windGenUnitType
     }
     OPTIONAL {
             SELECT ?GeneratingUnit (group_concat(?fossilFuelType;separator=";") as ?fossilFuelTypeList)
@@ -131,3 +141,37 @@ WHERE {
    OPTIONAL {?OperationalLimit cim:VoltageLimit.value ?value }
 }}
 }
+
+# query: switches
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?Switch
+        a ?type ;
+        cim:Equipment.EquipmentContainer ?EquipmentContainer .
+    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector cim:Jumper } .
+    OPTIONAL {
+        ?Switch cim:IdentifiedObject.name ?name ;
+    }
+    OPTIONAL {
+        ?Switch cim:Switch.retained ?retained
+    }
+    OPTIONAL {
+        ?Switch cim:Switch.normalOpen ?normalOpen
+    }
+    ?Terminal1
+        a cim:Terminal ;
+        cim:Terminal.ConductingEquipment ?Switch .
+    OPTIONAL { ?Terminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
+    ?Terminal2
+        a cim:Terminal ;
+        cim:Terminal.ConductingEquipment ?Switch .
+    OPTIONAL { ?Terminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2) )
+}}
+OPTIONAL { GRAPH ?graphSSH {
+    ?Switch cim:Switch.open ?open
+}}
+}
+
