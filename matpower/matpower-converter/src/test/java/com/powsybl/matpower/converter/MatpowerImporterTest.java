@@ -96,6 +96,11 @@ class MatpowerImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testCase14WithPhaseShifterZeroRatioIssue() throws IOException {
+        testCase(MatpowerModelFactory.readModelJsonFromResources("ieee14-phase-shifter-zero-ratio-issue.json"));
+    }
+
+    @Test
     void testCase14WithPhaseShifterSolved() throws IOException {
         testCaseSolved(MatpowerModelFactory.create14WithPhaseShifter());
     }
