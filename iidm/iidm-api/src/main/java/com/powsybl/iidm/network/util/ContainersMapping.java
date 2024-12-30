@@ -31,7 +31,7 @@ public class ContainersMapping {
     private final Map<String, String> voltageLevelIdToSubstationId = new HashMap<>();
 
     public Set<Integer> getBusesSet(String voltageLevelId) {
-        return voltageLevelIdToBusNums.containsKey(voltageLevelId) ? voltageLevelIdToBusNums.get(voltageLevelId) : new HashSet<>();
+        return voltageLevelIdToBusNums.computeIfAbsent(voltageLevelId, k -> new HashSet<>());
     }
 
     public String getVoltageLevelId(int num) {

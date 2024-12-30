@@ -61,12 +61,10 @@ class TransformerConverter extends AbstractConverter {
 
         String id = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getCkt());
 
-        String bus1Id = getBusId(psseTransformer.getI());
         String voltageLevel1Id = getContainersMapping().getVoltageLevelId(psseTransformer.getI());
         VoltageLevel voltageLevel1 = getNetwork().getVoltageLevel(voltageLevel1Id);
         double baskv1 = busNumToPsseBus.get(psseTransformer.getI()).getBaskv();
 
-        String bus2Id = getBusId(psseTransformer.getJ());
         String voltageLevel2Id = getContainersMapping().getVoltageLevelId(psseTransformer.getJ());
         VoltageLevel voltageLevel2 = getNetwork().getVoltageLevel(voltageLevel2Id);
         double baskv2 = busNumToPsseBus.get(psseTransformer.getJ()).getBaskv();
@@ -119,6 +117,7 @@ class TransformerConverter extends AbstractConverter {
         if (node1.isPresent()) {
             adder.setNode1(node1.getAsInt());
         } else {
+            String bus1Id = getBusId(psseTransformer.getI());
             adder.setConnectableBus1(bus1Id);
             adder.setBus1(psseTransformer.getStat() == 1 ? bus1Id : null);
         }
@@ -126,6 +125,7 @@ class TransformerConverter extends AbstractConverter {
         if (node2.isPresent()) {
             adder.setNode2(node2.getAsInt());
         } else {
+            String bus2Id = getBusId(psseTransformer.getJ());
             adder.setConnectableBus2(bus2Id);
             adder.setBus2(psseTransformer.getStat() == 1 ? bus2Id : null);
         }
