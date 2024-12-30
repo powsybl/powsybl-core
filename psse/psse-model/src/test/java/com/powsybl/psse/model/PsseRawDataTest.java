@@ -108,6 +108,10 @@ class PsseRawDataTest extends AbstractSerDeTest {
         return new ResourceDataSource("IEEE_14_bus_nodeBreaker_rev35", new ResourceSet("/", "IEEE_14_bus_nodeBreaker_rev35.rawx"));
     }
 
+    private ReadOnlyDataSource fiveBusNodeBreakerRaw35() {
+        return new ResourceDataSource("five_bus_nodeBreaker_rev35", new ResourceSet("/", "five_bus_nodeBreaker_rev35.raw"));
+    }
+
     private ReadOnlyDataSource ieee14InvalidRaw() {
         return new ResourceDataSource("IEEE_14_bus_invalid", new ResourceSet("/", "IEEE_14_bus_invalid.raw"));
     }
@@ -712,6 +716,13 @@ class PsseRawDataTest extends AbstractSerDeTest {
     }
 
     @Test
+    void ieee14BusNodeBreakerRev35RawxTest() throws IOException {
+        String expectedJson = loadReference("/IEEE_14_bus_nodeBreaker_rev35.json");
+        PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee14NodeBreakerRawx35(), "rawx", new Context());
+        assertNotNull(rawData);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
     void ieee14BusNodeBreakerRev35CopyTest() throws IOException {
         String expectedJson = loadReference("/IEEE_14_bus_nodeBreaker_rev35.json");
         PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee14NodeBreakerRaw35(), "raw", new Context());
@@ -721,9 +732,9 @@ class PsseRawDataTest extends AbstractSerDeTest {
     }
 
     @Test
-    void ieee14BusNodeBreakerRev35RawxTest() throws IOException {
-        String expectedJson = loadReference("/IEEE_14_bus_nodeBreaker_rev35.json");
-        PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee14NodeBreakerRawx35(), "rawx", new Context());
+    void fiveBusNodeBreakerRev35Test() throws IOException {
+        String expectedJson = loadReference("/five_bus_nodeBreaker_rev35.json");
+        PssePowerFlowModel rawData = new PowerFlowRawData35().read(fiveBusNodeBreakerRaw35(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
     }
