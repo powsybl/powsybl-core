@@ -74,7 +74,7 @@ public abstract class AbstractRecordGroup<T> {
 
     /**
      * Some record groups have a fine level of detail on which field names should be saved in the context depending on each record
-     * This function will be override for Transformer data:
+     * This function will be overridden for Transformer data:
      * We want to save different field names for transformers with 2 / 3 windings
      *
      * @param object the object to be evaluated for a specific record group identification
@@ -145,6 +145,10 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     public List<T> readFromStrings(List<String> records, Context context) {
+        // fieldNames should not be updated when recordsList is empty
+        if (records.isEmpty()) {
+            return new ArrayList<>();
+        }
         String[] allFieldNames = fieldNames(context.getVersion());
         List<T> psseObjects = parseRecords(records, allFieldNames, context);
         String[] actualFieldNames = ArrayUtils.subarray(allFieldNames, 0, context.getCurrentRecordGroupMaxNumFields());

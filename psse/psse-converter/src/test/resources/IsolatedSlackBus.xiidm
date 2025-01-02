@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" id="IsolatedSlackBus" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1">
-        <iidm:voltageLevel id="VL1" nominalV="138.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL1-2" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1" name="Bus 1       " v="146.28" angle="0.0"/>
                 <iidm:bus id="B2" name="Bus 2       " v="145.99020000000002" angle="-4.27"/>
@@ -11,7 +11,7 @@
             </iidm:generator>
             <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="21.7" q0="12.7" bus="B2" connectableBus="B2"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-1-2-1 " r="0.0" x="39.8248128" g="0.0" b="0.0" ratedU1="138.0" ratedU2="138.0" bus1="B1" connectableBus1="B1" voltageLevelId1="VL1" bus2="B2" connectableBus2="B2" voltageLevelId2="VL1">
+        <iidm:twoWindingsTransformer id="T-1-2-1 " r="0.0" x="39.8248128" g="0.0" b="0.0" ratedU1="138.0" ratedU2="138.0" bus1="B1" connectableBus1="B1" voltageLevelId1="VL1-2" bus2="B2" connectableBus2="B2" voltageLevelId2="VL1-2">
             <iidm:phaseTapChanger lowTapPosition="0" tapPosition="0" regulationMode="FIXED_TAP">
                 <iidm:step r="0.0" x="0.0" g="-4.351599999999978" b="-4.351599999999978" rho="1.0224948875255624" alpha="-2.0"/>
             </iidm:phaseTapChanger>
