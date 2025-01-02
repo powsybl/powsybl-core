@@ -1,0 +1,125 @@
+#
+# Copyright (c) 2024, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+# SPDX-License-Identifier: MPL-2.0
+#
+
+# query: numObjectsByType
+# Only types in a namespace given as parameter
+SELECT ?Type (COUNT (DISTINCT ?object) AS ?numObjects)
+{ GRAPH ?graph {
+     ?object a ?Type .
+    FILTER (STRSTARTS(STR(?Type), "{0}"))
+}}
+GROUP BY ?Type
+
+# query: allObjectsOfType
+SELECT *
+{ GRAPH ?graph {
+     ?object a cim:{0} ;
+     ?attribute ?value .
+}}
+
+# query: terminals
+# we cannot access the 'inService' Status
+SELECT *
+{
+    ?Terminal
+        a cim:Terminal ;
+        cim:ACDCTerminal.connected ?connected
+    OPTIONAL {
+        ?SvPowerFlow a cim:SvPowerFlow ;
+            cim:SvPowerFlow.Terminal ?Terminal ;
+            cim:SvPowerFlow.p ?p ;
+            cim:SvPowerFlow.q ?q .
+    }
+}
+
+# query: topologicalIslands
+SELECT *
+{
+    ?TopologicalIsland a cim:TopologicalIsland ;
+        cim:IdentifiedObject.name ?name ;
+        cim:TopologicalIsland.AngleRefTopologicalNode ?AngleRefTopologicalNode ;
+        cim:TopologicalIsland.TopologicalNodes ?TopologicalNodes .
+}
+
+# query: topologicalNodes
+SELECT *
+{
+    ?TopologicalNode a cim:TopologicalNode .
+    OPTIONAL {
+        ?SvVoltage a cim:SvVoltage ;
+            cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+            cim:SvVoltage.v ?v ;
+            cim:SvVoltage.angle ?angle
+    }
+    OPTIONAL {
+        SELECT ?ConnectivityNode
+        WHERE {
+            ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode
+        }
+        LIMIT 1
+    }
+}
+
+# query: switches
+SELECT *
+{
+    ?Switch a ?type ;
+        cim:Switch.open ?open .
+    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector }
+}
+
+# query: energyConsumers
+SELECT *
+{
+    ?EnergyConsumer a ?type ;
+            cim:EnergyConsumer.p ?p ;
+            cim:EnergyConsumer.q ?q .
+    VALUES ?type { cim:EnergyConsumer cim:ConformLoad cim:NonConformLoad cim:StationSupply }
+}
+
+# query: energySources
+SELECT *
+{
+    ?EnergySource a cim:EnergySource ;
+            cim:EnergySource.activePower ?p ;
+            cim:EnergySource.reactivePower ?q
+}
+
+# query: asynchronousMachines
+SELECT *
+{
+    ?AsynchronousMachine a cim:AsynchronousMachine ;
+        cim:AsynchronousMachine.asynchronousMachineType ?type ;
+        cim:RotatingMachine.p ?p ;
+        cim:RotatingMachine.q ?q ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled
+}
+
+# query: boundaryNodes
+# All pairs (Connectiviy Node, Topological Node) from instance files that have boundary profile and attribute boundaryPoint set to true
+# We expect all Connectivity Nodes have 1 and only one corresponding TopologicalNode
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{
+GRAPH ?graphBDEQ {
+    ?FullModel md:Model.profile ?modelProfile .
+    FILTER (regex(?modelProfile, "EquipmentBoundaryOperation", "i"))
+    ?ConnectivityNode
+        a cim:ConnectivityNode ;
+        cim:IdentifiedObject.name ?name ;
+        cim:ConnectivityNode.ConnectivityNodeContainer ?container ;
+        entsoe:ConnectivityNode.boundaryPoint "true" .
+    OPTIONAL { ?ConnectivityNode entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNode }
+    OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNodeContainer }
+    OPTIONAL { ?ConnectivityNode cim:IdentifiedObject.description ?description }
+}
+GRAPH ?grapBDTP {
+    ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
+    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName
+}
+}

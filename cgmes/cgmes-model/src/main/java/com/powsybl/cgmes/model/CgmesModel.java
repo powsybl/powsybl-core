@@ -256,4 +256,12 @@ public interface CgmesModel {
     default PropertyBags modelProfiles() {
         throw new UnsupportedOperationException();
     }
+
+    default void invalidateCaches() {
+        // Do nothing
+    }
+
+    default void setQueryCatalog(String s) {
+        // Do nothing
+    }
 }

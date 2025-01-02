@@ -144,6 +144,8 @@ public final class CgmesNames {
     public static final String CURRENT_LIMIT = "CurrentLimit";
     public static final String ACTIVE_POWER_LIMIT = "ActivePowerLimit";
     public static final String APPARENT_POWER_LIMIT = "ApparentPowerLimit";
+    public static final String P_FIXED = "pFixed";
+    public static final String Q_FIXED = "qFixed";
 
     private CgmesNames() {
     }
