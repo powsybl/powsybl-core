@@ -767,7 +767,7 @@ class TransformerConverter extends AbstractConverter {
         double targetV = (vmin + vmax) * 0.5;
         double targetDeadBand = vmax - vmin;
 
-        boolean regulating = !(targetV <= 0.0) && !(targetDeadBand < 0.0);
+        boolean regulating = targetV > 0.0 && targetDeadBand >= 0.0;
         if (regulating && regulatingForcedToOff) {
             LOGGER.warn("Transformer {}. Regulating control forced to off. Only one control is supported", id);
             regulating = false;
@@ -794,7 +794,7 @@ class TransformerConverter extends AbstractConverter {
         double activePowerMax = winding.getVma();
         double targetValue = 0.5 * (activePowerMin + activePowerMax);
         double targetDeadBand = activePowerMax - activePowerMin;
-        boolean regulating = !(targetDeadBand < 0.0);
+        boolean regulating = targetDeadBand >= 0.0;
         if (regulating && regulatingForcedToOff) {
             LOGGER.warn("Transformer {}. Regulating control forced to off. Only one control is supported", id);
             regulating = false;
