@@ -32,7 +32,7 @@
             <iidm:load id="B3-L1 " loadType="UNDEFINED" p0="94.2" q0="19.0" bus="B3" connectableBus="B3"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S4">
+    <iidm:substation id="S4-7-9">
         <iidm:voltageLevel id="VL4-7-9" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B4" name="Bus 4       " v="140.43846000000002" angle="-10.3128"/>
@@ -56,7 +56,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S5">
+    <iidm:substation id="S5-6">
         <iidm:voltageLevel id="VL5-6" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B5" name="Bus 5       " v="140.69237999999999" angle="-8.7738"/>
@@ -124,7 +124,7 @@
             <iidm:load id="B14-L1 " loadType="UNDEFINED" p0="14.9" q0="5.0" bus="B14" connectableBus="B14"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S15">
+    <iidm:substation id="S15-16">
         <iidm:voltageLevel id="VL15" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B15" name="Bus 15 /15  " v="138.0" angle="0.0"/>

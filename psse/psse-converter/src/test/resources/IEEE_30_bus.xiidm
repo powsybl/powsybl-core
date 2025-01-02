@@ -29,7 +29,7 @@
             <iidm:load id="B3-L1 " loadType="UNDEFINED" p0="2.4" q0="1.2" bus="B3" connectableBus="B3"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S4">
+    <iidm:substation id="S4-12">
         <iidm:voltageLevel id="VL4" nominalV="132.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B4" name="Hancock     " v="133.55232" angle="89.1475"/>
@@ -65,7 +65,7 @@
             <iidm:load id="B5-L1 " loadType="UNDEFINED" p0="94.2" q0="19.0" bus="B5" connectableBus="B5"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S6">
+    <iidm:substation id="S6-9-10">
         <iidm:voltageLevel id="VL6" nominalV="132.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B6" name="Roanoke     " v="133.35432" angle="87.367"/>
@@ -252,7 +252,7 @@
             <iidm:load id="B26-L1 " loadType="UNDEFINED" p0="3.5" q0="2.3" bus="B26" connectableBus="B26"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S27">
+    <iidm:substation id="S27-28">
         <iidm:voltageLevel id="VL27" nominalV="33.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B27" name="Cloverdl    " v="33.76725" angle="82.8892"/>
