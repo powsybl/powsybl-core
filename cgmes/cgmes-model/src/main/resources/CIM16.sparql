@@ -562,7 +562,7 @@ WHERE {
     OPTIONAL { ?RatioTapChanger cim:RatioTapChanger.TransformerEnd ?TransformerEnd }
     OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.TransformerEnd ?TransformerEnd }
 }}
-}
+} ORDER BY ?PowerTransformer ?endNumber
 
 # query: ratioTapChangers
 SELECT *

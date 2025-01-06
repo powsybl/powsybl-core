@@ -59,11 +59,14 @@ public class Context {
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping(this);
 
+        cachedGroupedTransformerEnds = new HashMap<>();
         ratioTapChangerTables = new HashMap<>();
         phaseTapChangerTables = new HashMap<>();
         reactiveCapabilityCurveData = new HashMap<>();
         powerTransformerRatioTapChangers = new HashMap<>();
         powerTransformerPhaseTapChangers = new HashMap<>();
+
+        buildCaches();
     }
 
     public CgmesModel cgmes() {
@@ -136,6 +139,21 @@ public class Context {
     public static String boundarySubstationId(String nodeId) {
         Objects.requireNonNull(nodeId);
         return nodeId + "_S";
+    }
+
+    private void buildCaches() {
+        buildCache(cachedGroupedTransformerEnds, cgmes().transformerEnds(), CgmesNames.POWER_TRANSFORMER);
+    }
+
+    private void buildCache(Map<String, PropertyBags> cache, PropertyBags ps, String groupName) {
+        ps.forEach(p -> {
+            String groupId = p.getId(groupName);
+            cache.computeIfAbsent(groupId, b -> new PropertyBags()).add(p);
+        });
+    }
+
+    public PropertyBags transformerEnds(String transformerId) {
+        return cachedGroupedTransformerEnds.getOrDefault(transformerId, new PropertyBags());
     }
 
     public void loadReactiveCapabilityCurveData() {
@@ -313,6 +331,7 @@ public class Context {
     private final LoadingLimitsMapping loadingLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
 
+    private final Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private final Map<String, PropertyBags> ratioTapChangerTables;
     private final Map<String, PropertyBags> phaseTapChangerTables;
     private final Map<String, PropertyBags> reactiveCapabilityCurveData;

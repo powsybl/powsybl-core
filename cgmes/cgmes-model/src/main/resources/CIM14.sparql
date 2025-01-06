@@ -230,7 +230,7 @@ WHERE {
     OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.TransformerWinding ?TransformerWinding }
 }}
 BIND ( ?TransformerWinding AS ?TransformerEnd )
-}
+} ORDER BY ?PowerTransformer ?windingType
 
 # query: ratioTapChangers
 SELECT *

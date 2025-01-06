@@ -44,14 +44,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedTransformerEnds() {
-        if (cachedGroupedTransformerEnds == null) {
-            cachedGroupedTransformerEnds = computeGroupedTransformerEnds();
-        }
-        return cachedGroupedTransformerEnds;
-    }
-
-    @Override
     public Collection<CgmesTerminal> computedTerminals() {
         if (cachedTerminals == null) {
             cachedTerminals = computeTerminals();
@@ -301,7 +293,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     protected void invalidateCaches() {
         cachedGroupedShuntCompensatorPoints = null;
-        cachedGroupedTransformerEnds = null;
         powerTransformerRatioTapChanger = null;
         powerTransformerPhaseTapChanger = null;
         cachedTerminals = null;
@@ -319,7 +310,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     // Caches
     private Map<String, PropertyBags> cachedGroupedShuntCompensatorPoints;
-    private Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private Map<String, CgmesTerminal> cachedTerminals;
     private Map<String, CgmesContainer> cachedContainers;
     private Map<String, Double> cachedBaseVoltages;
