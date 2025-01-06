@@ -63,7 +63,7 @@ public class Context {
         cachedGroupedRatioTapChangerTablePoints = new HashMap<>();
         cachedGroupedPhaseTapChangers = new HashMap<>();
         cachedGroupedPhaseTapChangerTablePoints = new HashMap<>();
-        reactiveCapabilityCurveData = new HashMap<>();
+        cachedGroupedReactiveCapabilityCurveData = new HashMap<>();
 
         buildCaches();
     }
@@ -146,6 +146,7 @@ public class Context {
         buildCache(cachedGroupedRatioTapChangerTablePoints, cgmes().ratioTapChangerTablePoints(), CgmesNames.RATIO_TAP_CHANGER_TABLE);
         buildCache(cachedGroupedPhaseTapChangers, cgmes().phaseTapChangers(), CgmesNames.POWER_TRANSFORMER);
         buildCache(cachedGroupedPhaseTapChangerTablePoints, cgmes().phaseTapChangerTablePoints(), CgmesNames.PHASE_TAP_CHANGER_TABLE);
+        buildCache(cachedGroupedReactiveCapabilityCurveData, cgmes().reactiveCapabilityCurveData(), "ReactiveCapabilityCurve");
     }
 
     private void buildCache(Map<String, PropertyBags> cache, PropertyBags ps, String groupName) {
@@ -175,19 +176,8 @@ public class Context {
         return cachedGroupedPhaseTapChangerTablePoints.getOrDefault(tableId, new PropertyBags());
     }
 
-    public void loadReactiveCapabilityCurveData() {
-        PropertyBags rccdata = cgmes.reactiveCapabilityCurveData();
-        if (rccdata == null) {
-            return;
-        }
-        rccdata.forEach(p -> {
-            String curveId = p.getId("ReactiveCapabilityCurve");
-            reactiveCapabilityCurveData.computeIfAbsent(curveId, cid -> new PropertyBags()).add(p);
-        });
-    }
-
     public PropertyBags reactiveCapabilityCurveData(String curveId) {
-        return reactiveCapabilityCurveData.get(curveId);
+        return cachedGroupedReactiveCapabilityCurveData.getOrDefault(curveId, new PropertyBags());
     }
 
     // Handling issues found during conversion
@@ -303,7 +293,7 @@ public class Context {
     private final Map<String, PropertyBags> cachedGroupedRatioTapChangerTablePoints;
     private final Map<String, PropertyBags> cachedGroupedPhaseTapChangers;
     private final Map<String, PropertyBags> cachedGroupedPhaseTapChangerTablePoints;
-    private final Map<String, PropertyBags> reactiveCapabilityCurveData;
+    private final Map<String, PropertyBags> cachedGroupedReactiveCapabilityCurveData;
 
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }
