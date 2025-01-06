@@ -513,16 +513,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
-        return Collections.emptyList();
-    }
-
-    @Override
     public PropertyBags acDcConverters() {
         return acDcConverters;
     }

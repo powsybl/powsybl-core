@@ -68,16 +68,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
-        return powerTransformerRatioTapChanger.get(powerTransformerId) == null ? null : Arrays.asList(powerTransformerRatioTapChanger.get(powerTransformerId));
-    }
-
-    @Override
-    public List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
-        return powerTransformerPhaseTapChanger.get(powerTransformerId) == null ? null : Arrays.asList(powerTransformerPhaseTapChanger.get(powerTransformerId));
-    }
-
-    @Override
     public String substation(CgmesTerminal t, boolean nodeBreaker) {
         CgmesContainer c = container(t, nodeBreaker);
         if (c == null) {
@@ -169,32 +159,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
                             .add(point);
                 });
         return groupedShuntCompensatorPoints;
-    }
-
-    private Map<String, PropertyBags> computeGroupedTransformerEnds() {
-        // Alternative implementation:
-        // instead of sorting after building each list,
-        // use a sorted collection when inserting
-        String endNumber = "endNumber";
-        Map<String, PropertyBags> gends = new HashMap<>();
-        powerTransformerRatioTapChanger = new HashMap<>();
-        powerTransformerPhaseTapChanger = new HashMap<>();
-        transformerEnds()
-            .forEach(end -> {
-                String id = end.getId("PowerTransformer");
-                PropertyBags ends = gends.computeIfAbsent(id, x -> new PropertyBags());
-                ends.add(end);
-                if (end.getId("PhaseTapChanger") != null) {
-                    powerTransformerPhaseTapChanger.computeIfAbsent(id, s -> new String[3]);
-                    powerTransformerPhaseTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("PhaseTapChanger");
-                }
-                if (end.getId("RatioTapChanger") != null) {
-                    powerTransformerRatioTapChanger.computeIfAbsent(id, s -> new String[3]);
-                    powerTransformerRatioTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("RatioTapChanger");
-                }
-            });
-        gends.values().forEach(tends -> tends.sort(Comparator.comparing(WindingType::endNumber)));
-        return gends;
     }
 
     protected void cacheNodes() {
@@ -293,8 +257,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     protected void invalidateCaches() {
         cachedGroupedShuntCompensatorPoints = null;
-        powerTransformerRatioTapChanger = null;
-        powerTransformerPhaseTapChanger = null;
         cachedTerminals = null;
         cachedContainers = null;
         cachedBaseVoltages = null;
@@ -318,8 +280,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     protected PropertyBags cachedTopologicalNodes;
     private Map<String, PropertyBag> cachedNodesById;
     // equipmentId, sequenceNumber, terminalId
-    private Map<String, String[]> powerTransformerRatioTapChanger;
-    private Map<String, String[]> powerTransformerPhaseTapChanger;
     private Map<String, CgmesDcTerminal> cachedDcTerminals;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesModel.class);

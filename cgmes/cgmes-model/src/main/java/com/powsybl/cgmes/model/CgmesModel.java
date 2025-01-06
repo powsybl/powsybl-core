@@ -222,10 +222,6 @@ public interface CgmesModel {
 
     // Helper mappings
 
-    List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId);
-
-    List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId);
-
     /**
      * Obtain the substation of a given terminal.
      *

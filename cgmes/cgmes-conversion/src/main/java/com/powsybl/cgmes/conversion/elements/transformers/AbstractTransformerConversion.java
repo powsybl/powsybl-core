@@ -9,20 +9,18 @@
 package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.WindingType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-import java.util.List;
-import java.util.Optional;
+import static com.powsybl.cgmes.conversion.Conversion.CGMES_PREFIX_ALIAS_PROPERTIES;
+import static com.powsybl.cgmes.model.CgmesNames.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -111,23 +109,30 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
 
     @Override
     protected void addAliasesAndProperties(Identifiable<?> identifiable) {
+        // Add PowerTransformer aliases
         super.addAliasesAndProperties(identifiable);
-        for (PropertyBag p : ps) {
-            identifiable.addAlias(p.getId("TransformerEnd"), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + WindingType.endNumber(p));
+
+        // Add PowerTransformerEnds aliases
+        String alias;
+        String aliasType;
+        for (PropertyBag end : ps) {
+            alias = end.getId("TransformerEnd");
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END + WindingType.endNumber(end);
+            identifiable.addAlias(alias, aliasType);
         }
-        List<String> ptcs = context.cgmes().phaseTapChangerListForPowerTransformer(identifiable.getId());
-        if (ptcs != null) {
-            for (int i = 0; i < ptcs.size(); i++) {
-                int index = i + 1;
-                Optional.ofNullable(ptcs.get(i)).ifPresent(ptc -> identifiable.addAlias(ptc, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + index, context.config().isEnsureIdAliasUnicity()));
-            }
+
+        // Add RatioTapChangers aliases
+        for (PropertyBag rtc : context.ratioTapChangers(identifiable.getId())) {
+            alias = rtc.getId("RatioTapChanger");
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER + WindingType.endNumber(rtc);
+            identifiable.addAlias(alias, aliasType);
         }
-        List<String> rtcs = context.cgmes().ratioTapChangerListForPowerTransformer(identifiable.getId());
-        if (rtcs != null) {
-            for (int i = 0; i < rtcs.size(); i++) {
-                int index = i + 1;
-                Optional.ofNullable(rtcs.get(i)).ifPresent(rtc -> identifiable.addAlias(rtc, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + index, context.config().isEnsureIdAliasUnicity()));
-            }
+
+        // Add PhaseTapChangers aliases
+        for (PropertyBag ptc : context.phaseTapChangers(identifiable.getId())) {
+            alias = ptc.getId("PhaseTapChanger");
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER + WindingType.endNumber(ptc);
+            identifiable.addAlias(alias, aliasType);
         }
     }
 
