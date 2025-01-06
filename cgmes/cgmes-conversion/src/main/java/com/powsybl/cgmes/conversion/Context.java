@@ -60,9 +60,9 @@ public class Context {
 
         cachedGroupedTransformerEnds = new HashMap<>();
         cachedGroupedRatioTapChangers = new HashMap<>();
+        cachedGroupedRatioTapChangerTablePoints = new HashMap<>();
         cachedGroupedPhaseTapChangers = new HashMap<>();
-        ratioTapChangerTables = new HashMap<>();
-        phaseTapChangerTables = new HashMap<>();
+        cachedGroupedPhaseTapChangerTablePoints = new HashMap<>();
         reactiveCapabilityCurveData = new HashMap<>();
 
         buildCaches();
@@ -143,7 +143,9 @@ public class Context {
     private void buildCaches() {
         buildCache(cachedGroupedTransformerEnds, cgmes().transformerEnds(), CgmesNames.POWER_TRANSFORMER);
         buildCache(cachedGroupedRatioTapChangers, cgmes().ratioTapChangers(), CgmesNames.POWER_TRANSFORMER);
+        buildCache(cachedGroupedRatioTapChangerTablePoints, cgmes().ratioTapChangerTablePoints(), CgmesNames.RATIO_TAP_CHANGER_TABLE);
         buildCache(cachedGroupedPhaseTapChangers, cgmes().phaseTapChangers(), CgmesNames.POWER_TRANSFORMER);
+        buildCache(cachedGroupedPhaseTapChangerTablePoints, cgmes().phaseTapChangerTablePoints(), CgmesNames.PHASE_TAP_CHANGER_TABLE);
     }
 
     private void buildCache(Map<String, PropertyBags> cache, PropertyBags ps, String groupName) {
@@ -161,8 +163,16 @@ public class Context {
         return cachedGroupedRatioTapChangers.getOrDefault(transformerId, new PropertyBags());
     }
 
+    public PropertyBags ratioTapChangerTablePoints(String tableId) {
+        return cachedGroupedRatioTapChangerTablePoints.getOrDefault(tableId, new PropertyBags());
+    }
+
     public PropertyBags phaseTapChangers(String transformerId) {
         return cachedGroupedPhaseTapChangers.getOrDefault(transformerId, new PropertyBags());
+    }
+
+    public PropertyBags phaseTapChangerTablePoints(String tableId) {
+        return cachedGroupedPhaseTapChangerTablePoints.getOrDefault(tableId, new PropertyBags());
     }
 
     public void loadReactiveCapabilityCurveData() {
@@ -178,36 +188,6 @@ public class Context {
 
     public PropertyBags reactiveCapabilityCurveData(String curveId) {
         return reactiveCapabilityCurveData.get(curveId);
-    }
-
-    public void loadRatioTapChangerTables() {
-        PropertyBags rtcpoints = cgmes.ratioTapChangerTablesPoints();
-        if (rtcpoints == null) {
-            return;
-        }
-        rtcpoints.forEach(p -> {
-            String tableId = p.getId("RatioTapChangerTable");
-            ratioTapChangerTables.computeIfAbsent(tableId, tid -> new PropertyBags()).add(p);
-        });
-    }
-
-    public void loadPhaseTapChangerTables() {
-        PropertyBags ptcpoints = cgmes.phaseTapChangerTablesPoints();
-        if (ptcpoints == null) {
-            return;
-        }
-        ptcpoints.forEach(p -> {
-            String tableId = p.getId("PhaseTapChangerTable");
-            phaseTapChangerTables.computeIfAbsent(tableId, tid -> new PropertyBags()).add(p);
-        });
-    }
-
-    public PropertyBags ratioTapChangerTable(String tableId) {
-        return ratioTapChangerTables.get(tableId);
-    }
-
-    public PropertyBags phaseTapChangerTable(String tableId) {
-        return phaseTapChangerTables.get(tableId);
     }
 
     // Handling issues found during conversion
@@ -320,9 +300,9 @@ public class Context {
 
     private final Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private final Map<String, PropertyBags> cachedGroupedRatioTapChangers;
+    private final Map<String, PropertyBags> cachedGroupedRatioTapChangerTablePoints;
     private final Map<String, PropertyBags> cachedGroupedPhaseTapChangers;
-    private final Map<String, PropertyBags> ratioTapChangerTables;
-    private final Map<String, PropertyBags> phaseTapChangerTables;
+    private final Map<String, PropertyBags> cachedGroupedPhaseTapChangerTablePoints;
     private final Map<String, PropertyBags> reactiveCapabilityCurveData;
 
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
