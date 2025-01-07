@@ -57,7 +57,7 @@ final class NodeBreakerValidation {
 
         // Do the validations
 
-        // a bus only in one psseSubstation
+        // a bus can only be included in one psseSubstation
         busSubstations.forEach((bus, substationList) -> {
             if (substationList.size() >= 2) {
                 invalidSubstations.addAll(substationList);
