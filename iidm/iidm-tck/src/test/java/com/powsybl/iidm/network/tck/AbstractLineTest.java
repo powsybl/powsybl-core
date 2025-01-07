@@ -42,7 +42,7 @@ public abstract class AbstractLineTest {
     private VoltageLevel voltageLevelA;
     private VoltageLevel voltageLevelB;
 
-    public boolean areLinesIdentical(Line line1, Line line2) {
+    public static boolean areLinesIdentical(Line line1, Line line2) {
         boolean areIdentical = false;
 
         if (line1 != null && line2 != null) {
