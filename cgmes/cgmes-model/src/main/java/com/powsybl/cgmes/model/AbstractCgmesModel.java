@@ -36,14 +36,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags nonlinearShuntCompensatorPoints(String shuntId) {
-        if (cachedGroupedShuntCompensatorPoints == null) {
-            cachedGroupedShuntCompensatorPoints = computeGroupedShuntCompensatorPoints();
-        }
-        return cachedGroupedShuntCompensatorPoints.getOrDefault(shuntId, new PropertyBags());
-    }
-
-    @Override
     public Collection<CgmesTerminal> computedTerminals() {
         if (cachedTerminals == null) {
             cachedTerminals = computeTerminals();
@@ -150,17 +142,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return (containerId == null) ? null : container(containerId);
     }
 
-    private Map<String, PropertyBags> computeGroupedShuntCompensatorPoints() {
-        Map<String, PropertyBags> groupedShuntCompensatorPoints = new HashMap<>();
-        nonlinearShuntCompensatorPoints()
-                .forEach(point -> {
-                    String shuntCompensator = point.getId("Shunt");
-                    groupedShuntCompensatorPoints.computeIfAbsent(shuntCompensator, bag -> new PropertyBags())
-                            .add(point);
-                });
-        return groupedShuntCompensatorPoints;
-    }
-
     protected void cacheNodes() {
         if (!cachedNodes) {
             cachedConnectivityNodes = connectivityNodes();
@@ -256,7 +237,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     protected void invalidateCaches() {
-        cachedGroupedShuntCompensatorPoints = null;
         cachedTerminals = null;
         cachedContainers = null;
         cachedBaseVoltages = null;
@@ -271,7 +251,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private String baseName;
 
     // Caches
-    private Map<String, PropertyBags> cachedGroupedShuntCompensatorPoints;
     private Map<String, CgmesTerminal> cachedTerminals;
     private Map<String, CgmesContainer> cachedContainers;
     private Map<String, Double> cachedBaseVoltages;

@@ -63,6 +63,7 @@ public class Context {
         cachedGroupedRatioTapChangerTablePoints = new HashMap<>();
         cachedGroupedPhaseTapChangers = new HashMap<>();
         cachedGroupedPhaseTapChangerTablePoints = new HashMap<>();
+        cachedGroupedShuntCompensatorPoints = new HashMap<>();
         cachedGroupedReactiveCapabilityCurveData = new HashMap<>();
 
         buildCaches();
@@ -146,6 +147,7 @@ public class Context {
         buildCache(cachedGroupedRatioTapChangerTablePoints, cgmes().ratioTapChangerTablePoints(), CgmesNames.RATIO_TAP_CHANGER_TABLE);
         buildCache(cachedGroupedPhaseTapChangers, cgmes().phaseTapChangers(), CgmesNames.POWER_TRANSFORMER);
         buildCache(cachedGroupedPhaseTapChangerTablePoints, cgmes().phaseTapChangerTablePoints(), CgmesNames.PHASE_TAP_CHANGER_TABLE);
+        buildCache(cachedGroupedShuntCompensatorPoints, cgmes().nonlinearShuntCompensatorPoints(), "Shunt");
         buildCache(cachedGroupedReactiveCapabilityCurveData, cgmes().reactiveCapabilityCurveData(), "ReactiveCapabilityCurve");
     }
 
@@ -174,6 +176,10 @@ public class Context {
 
     public PropertyBags phaseTapChangerTablePoints(String tableId) {
         return cachedGroupedPhaseTapChangerTablePoints.getOrDefault(tableId, new PropertyBags());
+    }
+
+    public PropertyBags nonlinearShuntCompensatorPoints(String shuntId) {
+        return cachedGroupedShuntCompensatorPoints.getOrDefault(shuntId, new PropertyBags());
     }
 
     public PropertyBags reactiveCapabilityCurveData(String curveId) {
@@ -293,6 +299,7 @@ public class Context {
     private final Map<String, PropertyBags> cachedGroupedRatioTapChangerTablePoints;
     private final Map<String, PropertyBags> cachedGroupedPhaseTapChangers;
     private final Map<String, PropertyBags> cachedGroupedPhaseTapChangerTablePoints;
+    private final Map<String, PropertyBags> cachedGroupedShuntCompensatorPoints;
     private final Map<String, PropertyBags> cachedGroupedReactiveCapabilityCurveData;
 
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
