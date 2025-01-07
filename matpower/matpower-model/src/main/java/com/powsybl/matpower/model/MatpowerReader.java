@@ -8,6 +8,7 @@
 package com.powsybl.matpower.model;
 
 import com.google.common.collect.Sets;
+import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.hebi.matlab.mat.format.Mat5;
@@ -77,14 +78,18 @@ public final class MatpowerReader {
                 dcLines = mpcStruct.getMatrix("dcline");
             }
 
-            checkNumberOfColumns(buses, generators, branches, dcLines);
+            int busColumns = buses.getDimensions()[1];
+            int generatorColumns = generators.getDimensions()[1];
+            int branchColumns = branches.getDimensions()[1];
+            Integer dcLineColumns = dcLines != null ? dcLines.getDimensions()[1] : null;
+            NumberOfColumnsToRead numberOfColumnsToRead = checkNumberOfColumnsToRead(busColumns, generatorColumns, branchColumns, dcLineColumns);
 
             model = new MatpowerModel(caseName);
             model.setVersion(version);
             model.setBaseMva(baseMVA);
 
             readBuses(buses, busesNames, model);
-            readGenerators(generators, model);
+            readGenerators(generators, numberOfColumnsToRead.generatorColumns, model);
             readBranches(branches, model);
             readDcLines(dcLines, model);
         }
@@ -92,31 +97,31 @@ public final class MatpowerReader {
         return model;
     }
 
-    private static void checkNumberOfColumns(Matrix buses, Matrix generators, Matrix branches, Matrix dcLines) {
-        int busColumns = buses.getDimensions()[1];
-        int generatorColumns = generators.getDimensions()[1];
-        int branchColumns = branches.getDimensions()[1];
-        if (generatorColumns == MATPOWER_V1_GENERATORS_COLUMNS) {
-            LOGGER.warn("It is not expected in Matpower v2 format to have {} columns for generators. {} columns are only expected for the v1 format and v2 requires {} columns",
-                    MATPOWER_V1_GENERATORS_COLUMNS, MATPOWER_V1_GENERATORS_COLUMNS, MATPOWER_V2_GENERATORS_COLUMNS);
-        }
-        if (busColumns < MATPOWER_BUSES_COLUMNS
-                || generatorColumns < MATPOWER_V1_GENERATORS_COLUMNS
-                || branchColumns < MATPOWER_BRANCHES_COLUMNS
-                || dcLines != null && dcLines.getDimensions()[1] < MATPOWER_DCLINES_COLUMNS) {
+    record NumberOfColumnsToRead(int generatorColumns) {
+    }
 
-            String exceptionMessage;
-            if (dcLines == null) {
-                exceptionMessage = String.format("Unexpected number of columns. Expected: Buses %d Generators %d Branches %d Received: Buses %d Generators %d Branches %d",
-                        MATPOWER_BUSES_COLUMNS, MATPOWER_V1_GENERATORS_COLUMNS, MATPOWER_BRANCHES_COLUMNS,
-                        busColumns, generatorColumns, branchColumns);
-            } else {
-                exceptionMessage = String.format("Unexpected number of columns. Expected: Buses %d Generators %d Branches %d DcLines %d Received: Buses %d Generators %d Branches %d DcLines %d",
-                        MATPOWER_BUSES_COLUMNS, MATPOWER_V1_GENERATORS_COLUMNS, MATPOWER_BRANCHES_COLUMNS, MATPOWER_DCLINES_COLUMNS,
-                        busColumns, generatorColumns, branchColumns, dcLines.getDimensions()[1]);
-            }
-            throw new IllegalStateException(exceptionMessage);
+    static NumberOfColumnsToRead checkNumberOfColumnsToRead(int busColumns, int generatorColumns, int branchColumns, Integer dcLineColumns) {
+        if (busColumns < MATPOWER_BUSES_COLUMNS) {
+            throw new PowsyblException("Unexpected number of columns for buses, expected at least " + MATPOWER_BUSES_COLUMNS + " columns, but got " + busColumns);
         }
+        if (generatorColumns < MATPOWER_V1_GENERATORS_COLUMNS) {
+            throw new PowsyblException("Unexpected number of columns for generators, expected at least " + MATPOWER_V1_GENERATORS_COLUMNS + " columns, but got " + generatorColumns);
+        }
+        int generatorColumnsToRead;
+        if (generatorColumns < MATPOWER_V2_GENERATORS_COLUMNS) {
+            LOGGER.warn("It is not expected in Matpower v2 format to have less than {} columns for generators, reading {} columns instead as for v1 format",
+                    MATPOWER_V2_GENERATORS_COLUMNS, MATPOWER_V1_GENERATORS_COLUMNS);
+            generatorColumnsToRead = MATPOWER_V1_GENERATORS_COLUMNS;
+        } else {
+            generatorColumnsToRead = MATPOWER_V2_GENERATORS_COLUMNS;
+        }
+        if (branchColumns < MATPOWER_BRANCHES_COLUMNS) {
+            throw new PowsyblException("Unexpected number of columns for branches, expected at least " + MATPOWER_BRANCHES_COLUMNS + " columns, but got " + branchColumns);
+        }
+        if (dcLineColumns != null && dcLineColumns < MATPOWER_DCLINES_COLUMNS) {
+            throw new PowsyblException("Unexpected number of columns for DC lines, expected at least " + MATPOWER_DCLINES_COLUMNS + " columns, but got " + dcLineColumns);
+        }
+        return new NumberOfColumnsToRead(generatorColumnsToRead);
     }
 
     private static void readBuses(Matrix buses, Cell busesNames, MatpowerModel model) {
@@ -144,7 +149,7 @@ public final class MatpowerReader {
         }
     }
 
-    private static void readGenerators(Matrix generators, MatpowerModel model) {
+    private static void readGenerators(Matrix generators, int generatorColumnsToRead, MatpowerModel model) {
         for (int row = 0; row < generators.getDimensions()[0]; row++) {
             MGen gen = new MGen();
             gen.setNumber(generators.getInt(row, 0));
@@ -157,7 +162,7 @@ public final class MatpowerReader {
             gen.setStatus(generators.getInt(row, 7));
             gen.setMaximumRealPowerOutput(generators.getDouble(row, 8));
             gen.setMinimumRealPowerOutput(generators.getDouble(row, 9));
-            if (generators.getDimensions()[1] > MATPOWER_V1_GENERATORS_COLUMNS) {
+            if (generatorColumnsToRead > 9) {
                 gen.setPc1(generators.getDouble(row, 10));
                 gen.setPc2(generators.getDouble(row, 11));
                 gen.setQc1Min(generators.getDouble(row, 12));
