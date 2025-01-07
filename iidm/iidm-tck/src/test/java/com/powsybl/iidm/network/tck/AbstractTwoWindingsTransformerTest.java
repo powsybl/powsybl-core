@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.Objects;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransformerTest {
@@ -19,6 +21,22 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     private static final String INVALID = "invalid";
 
     private static final String TWT_NAME = "twt_name";
+
+    public static boolean areTwoWindingsTransformersIdentical(TwoWindingsTransformer transformer1, TwoWindingsTransformer transformer2) {
+        boolean areIdentical = false;
+
+        if (transformer1 != null && transformer2 != null) {
+            areIdentical = transformer1.getR() == transformer2.getR()
+                    && transformer1.getX() == transformer2.getX()
+                    && transformer1.getB() == transformer2.getB()
+                    && transformer1.getG() == transformer2.getG()
+                    && transformer1.getRatedU1() == transformer2.getRatedU1()
+                    && transformer1.getRatedU2() == transformer2.getRatedU2()
+                    && Objects.equals(transformer1.getTerminal1().getVoltageLevel().getId(), transformer2.getTerminal1().getVoltageLevel().getId())
+                    && Objects.equals(transformer1.getTerminal2().getVoltageLevel().getId(), transformer2.getTerminal2().getVoltageLevel().getId());
+        }
+        return areIdentical;
+    }
 
     @Test
     public void baseTests() {
@@ -212,6 +230,57 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertTrue(e.getMessage().contains("the 2 windings of the transformer shall belong to the substation"));
     }
 
+    @Test
+    public void testTwoWindingsTransformersCopier() {
+        // Transformers creation
+        TwoWindingsTransformer transformer1 = substation.newTwoWindingsTransformer()
+                .setId("twt1")
+                .setName(TWT_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRatedU1(5.0)
+                .setRatedU2(6.0)
+                .setRatedS(7.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+
+        TwoWindingsTransformer transformer3 = substation.newTwoWindingsTransformer()
+                .setId("twt3")
+                .setName(TWT_NAME)
+                .setR(2.0)
+                .setX(3.0)
+                .setG(5.0)
+                .setB(5.0)
+                .setRatedU1(6.0)
+                .setRatedU2(7.0)
+                .setRatedS(8.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+
+        // Transformers creation by copy
+        TwoWindingsTransformer transformer2 = substation.newTwoWindingsTransformer(transformer1)
+                .setId("twt2")
+                .setRatedS(7.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+
+        // Tests
+        assertNotNull(transformer2);
+        assertNotNull(transformer1);
+        assertEquals(transformer1.getR(), transformer2.getR());
+        assertEquals(transformer1.getX(), transformer2.getX());
+        assertTrue(areTwoWindingsTransformersIdentical(transformer1, transformer2));
+        assertFalse(areTwoWindingsTransformersIdentical(transformer1, transformer3));
+        assertFalse(areTwoWindingsTransformersIdentical(transformer2, transformer3));
+
+    }
+
+
     private void createTwoWindingTransformer(String id, String name, double r, double x, double g, double b,
                                              double ratedU1, double ratedU2, double ratedS) {
         substation.newTwoWindingsTransformer()
@@ -307,4 +376,6 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .endStep()
                 .add();
     }
+
+
 }
