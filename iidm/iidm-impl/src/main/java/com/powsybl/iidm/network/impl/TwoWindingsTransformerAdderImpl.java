@@ -16,8 +16,6 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     private final SubstationImpl substation;
 
-    private final TwoWindingsTransformer copiedTwoWindingsTransformer;
-
     private double r = Double.NaN;
 
     private double x = Double.NaN;
@@ -34,12 +32,6 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     TwoWindingsTransformerAdderImpl(SubstationImpl substation) {
         this.substation = substation;
-        this.copiedTwoWindingsTransformer = null;
-    }
-
-    TwoWindingsTransformerAdderImpl(SubstationImpl substation, TwoWindingsTransformer copiedTwoWindingsTransformer) {
-        this.substation = substation;
-        this.copiedTwoWindingsTransformer = copiedTwoWindingsTransformer;
     }
 
     @Override
