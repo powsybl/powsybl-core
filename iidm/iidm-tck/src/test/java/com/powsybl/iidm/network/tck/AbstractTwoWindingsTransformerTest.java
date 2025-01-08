@@ -280,7 +280,6 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
 
     }
 
-
     private void createTwoWindingTransformer(String id, String name, double r, double x, double g, double b,
                                              double ratedU1, double ratedU2, double ratedS) {
         substation.newTwoWindingsTransformer()
@@ -376,6 +375,5 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .endStep()
                 .add();
     }
-
 
 }
