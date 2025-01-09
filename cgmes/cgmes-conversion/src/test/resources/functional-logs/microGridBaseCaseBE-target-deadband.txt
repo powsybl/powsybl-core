@@ -38,6 +38,7 @@
       Applying postprocessors.
       CGMES network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73 is imported.
       Updating LOAD.
+      Updating GENERATOR.
       + Updating TWO_WINDINGS_TRANSFORMER.
          Equipment 955d9cd0-4a10-4031-b008-60c0dc340a07 has a regulating control with bad target value for voltage: 0.0.
          Equipment 955d9cd0-4a10-4031-b008-60c0dc340a07 has a regulating control with bad target deadband: -0.5.

@@ -18,12 +18,14 @@ import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
+import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerConversion {
-
-    private static final String REGULATION_TARGET = "regulationTarget";
 
     public EquivalentInjectionConversion(PropertyBag ei, Context context) {
         super(CgmesNames.EQUIVALENT_INJECTION, ei, context);
@@ -99,28 +101,24 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     private void convertToGenerator() {
         double minP = p.asDouble("minP", -Double.MAX_VALUE);
         double maxP = p.asDouble("maxP", Double.MAX_VALUE);
-        EnergySource energySource = EnergySource.OTHER;
 
-        Regulation regulation = getRegulation();
         GeneratorAdder adder = voltageLevel().newGenerator();
         setMinPMaxP(adder, minP, maxP);
-        adder.setVoltageRegulatorOn(regulation.status)
-                .setTargetP(regulation.targetP)
-                .setTargetQ(regulation.targetQ)
-                .setTargetV(regulation.targetV)
-                .setEnergySource(energySource);
+        adder.setEnergySource(EnergySource.OTHER);
         identify(adder);
-        connect(adder);
+        connectWithOnlyEq(adder);
         Generator g = adder.add();
         addAliasesAndProperties(g);
-        convertedTerminals(g.getTerminal());
+        convertedTerminalsWithOnlyEq(g.getTerminal());
         convertReactiveLimits(g);
 
-        addSpecificProperties(g);
+        addSpecificProperties(g, p);
     }
 
-    private static void addSpecificProperties(Generator generator) {
+    private static void addSpecificProperties(Generator generator, PropertyBag propertyBag) {
         generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
+        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS + CgmesNames.REGULATION_CAPABILITY,
+                String.valueOf(propertyBag.asBoolean(CgmesNames.REGULATION_CAPABILITY, false)));
     }
 
     static class Regulation {
@@ -133,16 +131,16 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     private Regulation getRegulation() {
         Regulation regulation = new Regulation();
 
-        boolean regulationCapability = p.asBoolean("regulationCapability", false);
-        regulation.status = p.asBoolean("regulationStatus", false) && regulationCapability;
-        if (!p.containsKey("regulationStatus") || !p.containsKey(REGULATION_TARGET)) {
+        boolean regulationCapability = p.asBoolean(CgmesNames.REGULATION_CAPABILITY, false);
+        regulation.status = p.asBoolean(CgmesNames.REGULATION_STATUS, false) && regulationCapability;
+        if (!p.containsKey(CgmesNames.REGULATION_STATUS) || !p.containsKey(CgmesNames.REGULATION_TARGET)) {
             LOG.trace("Attributes regulationStatus or regulationTarget not present for equivalent injection {}. Voltage regulation is considered as off.", id);
         }
 
         regulation.status = regulation.status && terminalConnected();
         regulation.targetV = Double.NaN;
         if (regulation.status) {
-            regulation.targetV = p.asDouble(REGULATION_TARGET);
+            regulation.targetV = p.asDouble(CgmesNames.REGULATION_TARGET);
             if (Double.isNaN(regulation.targetV) || regulation.targetV == 0) {
                 missing("Valid target voltage value (voltage regulation is considered as off)");
                 regulation.status = false;
@@ -158,6 +156,52 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         }
 
         return regulation;
+    }
+
+    public static void update(Generator generator, PropertyBag cgmesData, Context context) {
+        updateTerminals(generator, context, generator.getTerminal());
+
+        boolean regulationCapability = Boolean.parseBoolean(generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS + CgmesNames.REGULATION_CAPABILITY));
+
+        double targetP = 0.0;
+        double targetQ = 0.0;
+        PowerFlow updatedPowerFlow = updatedPowerFlow(generator, cgmesData, context);
+        if (updatedPowerFlow.defined()) {
+            targetP = -updatedPowerFlow.p();
+            targetQ = -updatedPowerFlow.q();
+        }
+
+        double targetV = findTargetV(cgmesData, generator, context);
+        boolean regulatingOn = findRegulatingOn(cgmesData, generator, context);
+
+        generator.setTargetP(targetP)
+                .setTargetQ(targetQ)
+                .setTargetV(targetV)
+                .setVoltageRegulatorOn(regulatingOn && regulationCapability && isValidTargetV(targetV));
+    }
+
+    private static double findTargetV(PropertyBag cgmesData, Generator generator, Context context) {
+        return cgmesData.containsKey(CgmesNames.REGULATION_TARGET) ? cgmesData.asDouble(CgmesNames.REGULATION_TARGET) : findDefaultTargetV(generator, context);
+    }
+
+    private static double findDefaultTargetV(Generator generator, Context context) {
+        return defaultValue(Double.NaN, generator.getTargetV(), Double.NaN, Double.NaN, getDefaultValueSelector(context));
+    }
+
+    private static boolean findRegulatingOn(PropertyBag cgmesData, Generator generator, Context context) {
+        return cgmesData.asBoolean(CgmesNames.REGULATION_STATUS).orElse(findDefaultRegulatingOn(generator, context));
+    }
+
+    private static boolean findDefaultRegulatingOn(Generator generator, Context context) {
+        return defaultValue(false, generator.isVoltageRegulatorOn(), false, false, getDefaultValueSelector(context));
+    }
+
+    private static boolean isValidTargetV(double targetV) {
+        return Double.isFinite(targetV) && targetV > 0.0;
+    }
+
+    private static Conversion.Config.DefaultValue getDefaultValueSelector(Context context) {
+        return getDefaultValueSelector(List.of(PREVIOUS, DEFAULT, EMPTY), context);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(EquivalentInjectionConversion.class);

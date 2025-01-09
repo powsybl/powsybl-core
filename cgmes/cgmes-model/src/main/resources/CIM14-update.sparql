@@ -67,3 +67,30 @@ SELECT *
         LIMIT 1
     }
 }
+
+# query: synchronousMachinesForUpdate
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?SynchronousMachine
+        a cim:SynchronousMachine .
+    BIND ( "true" AS ?controlEnabled )
+}}
+}
+
+# query: regulatingControls
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    {
+        ?RegulatingControl a cim:RegulatingControl
+    }
+    UNION
+    {
+        ?RegulatingControl a cim:TapChangerControl
+    }
+    ?RegulatingControl
+        cim:RegulatingControl.targetValue ?targetValue .
+    BIND ( "true" AS ?enabled )
+}}
+}

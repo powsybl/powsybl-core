@@ -31,25 +31,16 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
     public void convert() {
         double minP = p.asDouble("minP", -Double.MAX_VALUE);
         double maxP = p.asDouble("maxP", Double.MAX_VALUE);
-        double targetP = 0;
-        double targetQ = 0;
-        PowerFlow f = powerFlow();
-        if (f.defined()) {
-            targetP = -f.p();
-            targetQ = -f.q();
-        }
 
         GeneratorAdder adder = voltageLevel().newGenerator();
         RegulatingControlMappingForGenerators.initialize(adder);
         setMinPMaxP(adder, minP, maxP);
-        adder.setTargetP(targetP)
-                .setTargetQ(targetQ)
-                .setEnergySource(EnergySource.OTHER);
+        adder.setEnergySource(EnergySource.OTHER);
         identify(adder);
-        connect(adder);
+        connectWithOnlyEq(adder);
         Generator g = adder.add();
         addAliasesAndProperties(g);
-        convertedTerminals(g.getTerminal());
+        convertedTerminalsWithOnlyEq(g.getTerminal());
         convertReactiveLimits(g);
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
@@ -63,5 +54,21 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
         if (!Double.isNaN(governorSCD)) {
             generator.setProperty(Conversion.PROPERTY_CGMES_GOVERNOR_SCD, String.valueOf(governorSCD));
         }
+    }
+
+    public static void update(Generator generator, PropertyBag cgmesData, Context context) {
+        updateTerminals(generator, context, generator.getTerminal());
+
+        double targetP = 0.0;
+        double targetQ = 0.0;
+        PowerFlow updatedPowerFlow = updatedPowerFlow(generator, cgmesData, context);
+        if (updatedPowerFlow.defined()) {
+            targetP = -updatedPowerFlow.p();
+            targetQ = -updatedPowerFlow.q();
+        }
+        generator.setTargetP(targetP).setTargetQ(targetQ);
+
+        boolean controlEnabled = cgmesData.asBoolean("controlEnabled", false);
+        updateRegulatingControl(generator, controlEnabled, context);
     }
 }

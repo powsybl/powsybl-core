@@ -7,9 +7,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.conversion.elements.AsynchronousMachineConversion;
-import com.powsybl.cgmes.conversion.elements.EnergyConsumerConversion;
-import com.powsybl.cgmes.conversion.elements.EnergySourceConversion;
+import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -54,6 +52,29 @@ public final class Update {
                 default ->
                         throw new ConversionException("Unexpected originalClass " + originalClass + " for Load: " + load.getId());
             }
+        }
+    }
+
+    static void updateGenerators(Network network, CgmesModel cgmes, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.GENERATOR.name()));
+
+        Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
+        addPropertyBags(cgmes.synchronousMachinesForUpdate(), CgmesNames.SYNCHRONOUS_MACHINE, equipmentIdPropertyBag);
+        addPropertyBags(cgmes.equivalentInjections(), CgmesNames.EQUIVALENT_INJECTION, equipmentIdPropertyBag);
+        addPropertyBags(cgmes.externalNetworkInjections(), CgmesNames.EXTERNAL_NETWORK_INJECTION, equipmentIdPropertyBag);
+
+        network.getGenerators().forEach(generator -> updateGenerator(generator, getPropertyBag(generator.getId(), equipmentIdPropertyBag), context));
+        context.popReportNode();
+    }
+
+    private static void updateGenerator(Generator generator, PropertyBag cgmesData, Context context) {
+        String originalClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+
+        switch (originalClass) {
+            case CgmesNames.SYNCHRONOUS_MACHINE -> SynchronousMachineConversion.update(generator, cgmesData, context);
+            case CgmesNames.EQUIVALENT_INJECTION -> EquivalentInjectionConversion.update(generator, cgmesData, context);
+            case CgmesNames.EXTERNAL_NETWORK_INJECTION -> ExternalNetworkInjectionConversion.update(generator, cgmesData, context);
+            default -> throw new ConversionException("Unexpected originalClass " + originalClass + " for Generator: " + generator.getId());
         }
     }
 

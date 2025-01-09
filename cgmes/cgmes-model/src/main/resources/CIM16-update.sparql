@@ -155,6 +155,54 @@ SELECT *
             cim:EnergySource.reactivePower ?q
 }
 
+# FIXME(Luma) we do not have access to the type when reading update only files,
+# we cannot differentiate between generators and condensers
+# this means that we may not deprecate synchronousMachines in the end,
+# or we could make the new query "synchronousMachinesForUpdate"
+
+# query: synchronousMachinesForUpdate
+SELECT *
+{
+    ?SynchronousMachine a cim:SynchronousMachine
+    # FIXME(Luma) p in a separate optional block because condensers could not define it
+    OPTIONAL { ?SynchronousMachine cim:RotatingMachine.p ?p }
+    OPTIONAL {
+        ?SynchronousMachine
+            cim:RotatingMachine.q ?q ;
+            cim:SynchronousMachine.referencePriority ?referencePriority ;
+            cim:SynchronousMachine.operatingMode ?operatingMode ;
+            cim:RegulatingCondEq.controlEnabled ?controlEnabled .
+        # For condensers giving p is optional,
+    }
+}
+
+# query: generatingUnits
+SELECT *
+{
+    ?GeneratingUnit
+        a ?generatingUnitType ;
+        cim:GeneratingUnit.normalPF ?normalPF
+}
+
+# query: equivalentInjections
+SELECT *
+{
+    ?EquivalentInjection a cim:EquivalentInjection ;
+        cim:EquivalentInjection.p ?p ;
+        cim:EquivalentInjection.q ?q .
+    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationStatus ?regulationStatus }
+    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationTarget ?regulationTarget }
+}
+
+# query: externalNetworkInjections
+SELECT *
+{
+    ?ExternalNetworkInjection  a cim:ExternalNetworkInjection ;
+        cim:ExternalNetworkInjection.p ?p ;
+        cim:ExternalNetworkInjection.q ?q ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled
+}
+
 # query: asynchronousMachines
 SELECT *
 {
@@ -166,7 +214,7 @@ SELECT *
 }
 
 # query: boundaryNodes
-# All pairs (Connectiviy Node, Topological Node) from instance files that have boundary profile and attribute boundaryPoint set to true
+# All pairs (Connectivity Node, Topological Node) from instance files that have boundary profile and attribute boundaryPoint set to true
 # We expect all Connectivity Nodes have 1 and only one corresponding TopologicalNode
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *

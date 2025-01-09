@@ -1,0 +1,130 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>All type of Generators</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest">
+        <cim:IdentifiedObject.mRID>GeographicalRegionTest</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>GeographicalRegionTest</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest">
+        <cim:IdentifiedObject.mRID>SubGeographicalRegionTest</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>SubGeographicalRegionTest</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest" />
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_Substation1">
+        <cim:IdentifiedObject.mRID>Substation1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage400">
+        <cim:IdentifiedObject.mRID>BaseVoltage400</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.description>Base Voltage Level 400kV</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>400.0 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel1">
+        <cim:IdentifiedObject.mRID>VoltageLevel1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>VoltageLevel1</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.highVoltageLimit>420</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.lowVoltageLimit>380</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode1">
+        <cim:IdentifiedObject.mRID>ConnectivityNode1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Connectivity Node 1</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+
+    <cim:SynchronousMachine rdf:ID="_SynchronousMachine">
+        <cim:IdentifiedObject.name>SynchronousMachine</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1"/>
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_SynchronousMachine-RegulatingControl" />
+        <cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+        <cim:SynchronousMachine.r0>0</cim:SynchronousMachine.r0>
+        <cim:SynchronousMachine.r2>0</cim:SynchronousMachine.r2>
+        <cim:SynchronousMachine.satDirectSubtransX>0</cim:SynchronousMachine.satDirectSubtransX>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineKind.generator" />
+        <cim:SynchronousMachine.x0>0</cim:SynchronousMachine.x0>
+        <cim:SynchronousMachine.x2>0</cim:SynchronousMachine.x2>
+        <cim:RotatingMachine.GeneratingUnit rdf:resource="#_SynchronousMachine-GeneratingUnit" />
+    </cim:SynchronousMachine>
+    <cim:Terminal rdf:ID="_SynchronousMachine_T">
+        <cim:IdentifiedObject.mRID>SynchronousMachine_T</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
+        <cim:Terminal.ConductingEquipment rdf:resource="#_SynchronousMachine" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:ID="_SynchronousMachine-RegulatingControl">
+        <cim:IdentifiedObject.name>SynchronousMachine-RegulatingControl</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.voltage" />
+        <cim:RegulatingControl.Terminal rdf:resource="#_SynchronousMachine_T" />
+    </cim:RegulatingControl>
+    <cim:ThermalGeneratingUnit rdf:ID="_SynchronousMachine-GeneratingUnit">
+        <cim:IdentifiedObject.name>SynchronousMachine-GeneratingUnit</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="##_VoltageLevel1" />
+        <cim:GeneratingUnit.genControlSource rdf:resource="http://iec.ch/TC57/CIM100#GeneratorControlSource.offAGC" />
+        <cim:GeneratingUnit.maxOperatingP>240</cim:GeneratingUnit.maxOperatingP>
+        <cim:GeneratingUnit.minOperatingP>120</cim:GeneratingUnit.minOperatingP>
+        <cim:GeneratingUnit.nominalP>240</cim:GeneratingUnit.nominalP>
+    </cim:ThermalGeneratingUnit>
+    <cim:FossilFuel rdf:ID="_SynchronousMachine-GeneratingUnit-FossilFuel">
+        <cim:IdentifiedObject.name>SynchronousMachine-GeneratingUnit-FossilFuel</cim:IdentifiedObject.name>
+        <cim:FossilFuel.fossilFuelType rdf:resource="http://iec.ch/TC57/CIM100#FuelType.coal" />
+        <cim:FossilFuel.ThermalGeneratingUnit rdf:resource="#_SynchronousMachine-GeneratingUnit" />
+    </cim:FossilFuel>
+
+    <cim:EquivalentInjection rdf:ID="_EquivalentInjection">
+        <cim:IdentifiedObject.name>EquivalentInjection</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1"/>
+        <cim:EquivalentInjection.r>0</cim:EquivalentInjection.r>
+        <cim:EquivalentInjection.r0>0</cim:EquivalentInjection.r0>
+        <cim:EquivalentInjection.r2>0</cim:EquivalentInjection.r2>
+        <cim:EquivalentInjection.regulationCapability>false</cim:EquivalentInjection.regulationCapability>
+        <cim:EquivalentInjection.x>0</cim:EquivalentInjection.x>
+        <cim:EquivalentInjection.x0>0</cim:EquivalentInjection.x0>
+        <cim:EquivalentInjection.x2>0</cim:EquivalentInjection.x2>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_EquivalentInjection_T">
+        <cim:IdentifiedObject.mRID>EquivalentInjection_T</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
+        <cim:Terminal.ConductingEquipment rdf:resource="#_EquivalentInjection" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+
+    <cim:ExternalNetworkInjection rdf:ID="_ExternalNetworkInjection">
+        <cim:IdentifiedObject.name>ExternalNetworkInjection</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+        <cim:ExternalNetworkInjection.governorSCD>0</cim:ExternalNetworkInjection.governorSCD>
+        <cim:ExternalNetworkInjection.maxInitialSymShCCurrent>16000</cim:ExternalNetworkInjection.maxInitialSymShCCurrent>
+        <cim:ExternalNetworkInjection.maxR0ToX0Ratio>0.2</cim:ExternalNetworkInjection.maxR0ToX0Ratio>
+        <cim:ExternalNetworkInjection.maxR1ToX1Ratio>0.1</cim:ExternalNetworkInjection.maxR1ToX1Ratio>
+        <cim:ExternalNetworkInjection.maxZ0ToZ1Ratio>3.34865</cim:ExternalNetworkInjection.maxZ0ToZ1Ratio>
+        <cim:ExternalNetworkInjection.minInitialSymShCCurrent>0</cim:ExternalNetworkInjection.minInitialSymShCCurrent>
+        <cim:ExternalNetworkInjection.minR0ToX0Ratio>0</cim:ExternalNetworkInjection.minR0ToX0Ratio>
+        <cim:ExternalNetworkInjection.minR1ToX1Ratio>0</cim:ExternalNetworkInjection.minR1ToX1Ratio>
+        <cim:ExternalNetworkInjection.minZ0ToZ1Ratio>0</cim:ExternalNetworkInjection.minZ0ToZ1Ratio>
+        <cim:ExternalNetworkInjection.maxP>88</cim:ExternalNetworkInjection.maxP>
+        <cim:ExternalNetworkInjection.maxQ>66</cim:ExternalNetworkInjection.maxQ>
+        <cim:ExternalNetworkInjection.minP>-88</cim:ExternalNetworkInjection.minP>
+        <cim:ExternalNetworkInjection.minQ>-66</cim:ExternalNetworkInjection.minQ>
+    </cim:ExternalNetworkInjection>
+    <cim:Terminal rdf:ID="_ExternalNetworkInjection_T">
+        <cim:IdentifiedObject.mRID>ExternalNetworkInjection_T</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ExternalNetworkInjection" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+</rdf:RDF>

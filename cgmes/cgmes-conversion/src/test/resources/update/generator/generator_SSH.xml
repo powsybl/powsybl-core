@@ -1,0 +1,52 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>All type of Generators</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:SynchronousMachine rdf:about="#_SynchronousMachine">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+        <cim:RotatingMachine.p>-160</cim:RotatingMachine.p>
+        <cim:RotatingMachine.q>0</cim:RotatingMachine.q>
+        <cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineOperatingMode.generator" />
+        <cim:SynchronousMachine.referencePriority>0</cim:SynchronousMachine.referencePriority>
+    </cim:SynchronousMachine>
+    <cim:Terminal rdf:about="#_SynchronousMachine_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:about="#_SynchronousMachine-RegulatingControl">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>131.34</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k" />
+    </cim:RegulatingControl>
+    <cim:ThermalGeneratingUnit rdf:about="#_SynchronousMachine-GeneratingUnit">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:GeneratingUnit.normalPF>0</cim:GeneratingUnit.normalPF>
+    </cim:ThermalGeneratingUnit>
+
+    <cim:EquivalentInjection rdf:about="#_EquivalentInjection">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:EquivalentInjection.p>184</cim:EquivalentInjection.p>
+        <cim:EquivalentInjection.q>0</cim:EquivalentInjection.q>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:about="#_EquivalentInjection_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+
+    <cim:ExternalNetworkInjection rdf:about="#_ExternalNetworkInjection">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+        <cim:ExternalNetworkInjection.p>0</cim:ExternalNetworkInjection.p>
+        <cim:ExternalNetworkInjection.q>0</cim:ExternalNetworkInjection.q>
+        <cim:ExternalNetworkInjection.referencePriority>0</cim:ExternalNetworkInjection.referencePriority>
+    </cim:ExternalNetworkInjection>
+    <cim:Terminal rdf:about="#_ExternalNetworkInjection_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+</rdf:RDF>

@@ -845,17 +845,6 @@ WHERE {
     OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.qPercent ?qPercent }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?SynchronousMachine
-        cim:RotatingMachine.p ?p ;
-        cim:RotatingMachine.q ?q ;
-        cim:SynchronousMachine.referencePriority ?referencePriority ;
-        cim:SynchronousMachine.operatingMode ?operatingMode ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled .
-}}
-OPTIONAL { GRAPH ?graphSSH2 {
-    ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF
-}}
 }
 
 # query: synchronousMachinesCondensers
@@ -878,14 +867,6 @@ WHERE {
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.InitialReactiveCapabilityCurve ?ReactiveCapabilityCurve }
     OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.qPercent ?qPercent }
-}}
-OPTIONAL { GRAPH ?graphSSH {
-    ?SynchronousMachine
-        cim:RotatingMachine.q ?q ;
-        cim:SynchronousMachine.referencePriority ?referencePriority ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled .
-    # For condensers, the p value is always 0
-    BIND ( "0" AS ?p )
 }}
 }
 
@@ -963,12 +944,6 @@ WHERE {
     OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.minQ ?minQ }
     OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.maxQ ?maxQ }
     OPTIONAL { ?ExternalNetworkInjection cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
-}}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?ExternalNetworkInjection
-        cim:ExternalNetworkInjection.p ?p ;
-        cim:ExternalNetworkInjection.q ?q ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled
 }}
 }
 

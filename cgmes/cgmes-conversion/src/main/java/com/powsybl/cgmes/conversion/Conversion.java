@@ -37,8 +37,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
-import static com.powsybl.cgmes.conversion.Update.updateLoads;
-import static com.powsybl.cgmes.conversion.Update.updateTransformers;
+import static com.powsybl.cgmes.conversion.Update.*;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -332,6 +331,7 @@ public class Conversion {
         }
 
         updateLoads(network, cgmes, updateContext);
+        updateGenerators(network, cgmes, updateContext);
         updateTransformers(network, updateContext);
 
         completeVoltagesAndAngles(network);
@@ -551,6 +551,7 @@ public class Conversion {
         context.loadPhaseTapChangers();
         context.loadRegulatingControls();
         context.loadOperationalLimits();
+        context.loadGeneratingUnits();
         return context;
     }
 
@@ -1171,7 +1172,7 @@ public class Conversion {
         private double missingPermanentLimitPercentage = 100;
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
         private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
-        private final List<DefaultValue> updateDefaultValuesPriority = List.of(DefaultValue.EQ, DefaultValue.EMPTY);
+        private final List<DefaultValue> updateDefaultValuesPriority = List.of(DefaultValue.EQ, DefaultValue.DEFAULT, DefaultValue.EMPTY);
     }
 
     private final CgmesModel cgmes;

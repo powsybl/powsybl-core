@@ -67,6 +67,7 @@ public class Context {
         cgmesTerminals = new HashMap<>();
         regulatingControls = new HashMap<>();
         operationalLimits = new HashMap<>();
+        generatingUnits = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -247,6 +248,17 @@ public class Context {
         return operationalLimits.get(id);
     }
 
+    public void loadGeneratingUnits() {
+        cgmes.generatingUnits().forEach(generatingUnit -> {
+            String id = generatingUnit.getId(CgmesNames.GENERATING_UNIT);
+            generatingUnits.put(id, generatingUnit);
+        });
+    }
+
+    public PropertyBag generatingUnit(String id) {
+        return generatingUnits.get(id);
+    }
+
     // Handling issues found during conversion
 
     public ReportNode getReportNode() {
@@ -363,6 +375,7 @@ public class Context {
     private final Map<String, PropertyBag> cgmesTerminals;
     private final Map<String, PropertyBag> regulatingControls;
     private final Map<String, PropertyBag> operationalLimits;
+    private final Map<String, PropertyBag> generatingUnits;
 
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }
