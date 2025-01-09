@@ -152,8 +152,6 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
             copiedTwoWindingsTransformer.getSelectedOperationalLimitsGroupId2().ifPresent(transformer::setSelectedOperationalLimitsGroup2);
         }
 
-
-
         // check that the two windings transformer is attachable on both side
         voltageLevel1.getTopologyModel().attach(terminal1, true);
         voltageLevel2.getTopologyModel().attach(terminal2, true);
