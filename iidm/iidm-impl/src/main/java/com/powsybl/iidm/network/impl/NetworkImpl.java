@@ -364,13 +364,13 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
-    public LineAdderImpl newLine(Line line) {
-        return newLine(null, line);
+    public LineAdderImpl newLine(Line copiedLine) {
+        return newLine(null, copiedLine);
     }
 
-    LineAdderImpl newLine(String subnetwork, Line line) {
-        LineAdderImpl lineAdder = new LineAdderImpl(this, subnetwork, line);
-        return (LineAdderImpl) BranchUtil.fillLineAdder(lineAdder, line);
+    LineAdderImpl newLine(String subnetwork, Line copiedLine) {
+        LineAdderImpl lineAdder = new LineAdderImpl(this, subnetwork, copiedLine);
+        return (LineAdderImpl) LineAdder.fillLineAdder(lineAdder, copiedLine);
     }
 
     @Override
