@@ -107,7 +107,6 @@ class LoadUpdateTest {
             assertNotNull(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.P_FIXED));
             assertNotNull(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.Q_FIXED));
         }
-        load.getPropertyNames().forEach(pn -> System.err.printf("Property %s %s %n", pn, load.getProperty(pn)));
         return true;
     }
 
