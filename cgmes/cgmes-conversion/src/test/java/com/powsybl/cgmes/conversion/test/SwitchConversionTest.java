@@ -18,8 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.getUniqueMatches;
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -58,7 +57,7 @@ class SwitchConversionTest extends AbstractSerDeTest {
         // CGMES network:
         //   An ACLineSegment ACL with zero impedance between two nodes of the same voltage level.
         // IIDM network:
-        //   A branch with 0 impedance inside a VoltageLevel is converted to a Switch
+        //   A branch with 0 impedance inside a VoltageLevel is converted to a Switch.
         Network network = readCgmesResources(DIR, "line_with_0_impedance.xml");
         assertNotNull(network);
 
@@ -66,5 +65,38 @@ class SwitchConversionTest extends AbstractSerDeTest {
         assertNull(network.getLine("ACL"));
         assertNotNull(network.getSwitch("ACL"));
         assertTrue(network.getSwitch("ACL").isFictitious());
+    }
+
+    @Test
+    void fictitiousSwitchForDisconnectedTerminalTest() throws IOException {
+        // CGMES network:
+        //   A Load, whose terminal T_LD is disconnected, attached to a bus.
+        // IIDM network:
+        //   Fictitious Switch are created for disconnected terminals, but these shouldn't be exported back to CGMES.
+        Network network = readCgmesResources(DIR, "disconnected_terminal_EQ.xml", "disconnected_terminal_SSH.xml");
+        assertNotNull(network);
+
+        // A fictitious switch has been created for the disconnected terminal.
+        Switch fictitiousSwitch = network.getSwitch("T_LD_SW_fict");
+        assertNotNull(fictitiousSwitch);
+        assertTrue(fictitiousSwitch.isFictitious());
+        assertTrue(fictitiousSwitch.isOpen());
+        assertEquals("true", fictitiousSwitch.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL));
+
+        // The fictitious switch isn't present in the EQ export and the terminal is disconnected in the SSH.
+        String eqExport = writeCgmesProfile(network, "EQ", tmpDir);
+        String sshExport = writeCgmesProfile(network, "SSH", tmpDir);
+        Pattern switchPattern = Pattern.compile("<cim:Breaker rdf:ID=\"(.*?)\">");
+        Pattern terminalPattern = Pattern.compile("<cim:Terminal rdf:about=\"#_T_LD\">.*?" +
+                "<cim:ACDCTerminal.connected>(.*?)</cim:ACDCTerminal.connected>.*?</cim:Terminal>", Pattern.DOTALL);
+        assertNull(getFirstMatch(eqExport, switchPattern));
+        assertEquals("false", getFirstMatch(sshExport, terminalPattern));
+
+        // If the fictitious switch gets closed, it still isn't exported but the terminal now gets connected.
+        fictitiousSwitch.setOpen(false);
+        eqExport = writeCgmesProfile(network, "EQ", tmpDir);
+        sshExport = writeCgmesProfile(network, "SSH", tmpDir);
+        assertNull(getFirstMatch(eqExport, switchPattern));
+        assertEquals("true", getFirstMatch(sshExport, terminalPattern));
     }
 }
