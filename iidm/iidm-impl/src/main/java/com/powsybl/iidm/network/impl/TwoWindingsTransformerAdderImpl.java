@@ -16,6 +16,8 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     private final SubstationImpl substation;
 
+    private final TwoWindingsTransformer copiedTwoWindingsTransformer;
+
     private double r = Double.NaN;
 
     private double x = Double.NaN;
@@ -32,6 +34,14 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     TwoWindingsTransformerAdderImpl(SubstationImpl substation) {
         this.substation = substation;
+        this.copiedTwoWindingsTransformer = null;
+    }
+
+    TwoWindingsTransformerAdderImpl(SubstationImpl substation, TwoWindingsTransformer copiedTwoWindingsTransformer) {
+        this.substation = substation;
+        this.copiedTwoWindingsTransformer = copiedTwoWindingsTransformer;
+        TwoWindingsTransformerAdderImpl twoWindingsTransformerImpl = this;
+        TwoWindingsTransformerAdder.fillTwoWindingsTransformerAdder(twoWindingsTransformerImpl, copiedTwoWindingsTransformer);
     }
 
     @Override
@@ -122,6 +132,27 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
                 ratedU1, ratedU2, ratedS);
         transformer.addTerminal(terminal1);
         transformer.addTerminal(terminal2);
+
+        if (copiedTwoWindingsTransformer != null) {
+            copiedTwoWindingsTransformer.getOperationalLimitsGroups1().forEach(groupToCopy -> {
+                OperationalLimitsGroup copy1 = transformer.newOperationalLimitsGroup1(groupToCopy.getId());
+                groupToCopy.getCurrentLimits().ifPresent(limit -> copy1.newCurrentLimits(limit).add());
+                groupToCopy.getActivePowerLimits().ifPresent(limit -> copy1.newActivePowerLimits(limit).add());
+                groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy1.newApparentPowerLimits(limit).add());
+            });
+
+            copiedTwoWindingsTransformer.getOperationalLimitsGroups2().forEach(groupToCopy -> {
+                OperationalLimitsGroup copy2 = transformer.newOperationalLimitsGroup2(groupToCopy.getId());
+                groupToCopy.getCurrentLimits().ifPresent(limit -> copy2.newCurrentLimits(limit).add());
+                groupToCopy.getActivePowerLimits().ifPresent(limit -> copy2.newActivePowerLimits(limit).add());
+                groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy2.newApparentPowerLimits(limit).add());
+            });
+
+            copiedTwoWindingsTransformer.getSelectedOperationalLimitsGroupId1().ifPresent(transformer::setSelectedOperationalLimitsGroup1);
+            copiedTwoWindingsTransformer.getSelectedOperationalLimitsGroupId2().ifPresent(transformer::setSelectedOperationalLimitsGroup2);
+        }
+
+
 
         // check that the two windings transformer is attachable on both side
         voltageLevel1.getTopologyModel().attach(terminal1, true);

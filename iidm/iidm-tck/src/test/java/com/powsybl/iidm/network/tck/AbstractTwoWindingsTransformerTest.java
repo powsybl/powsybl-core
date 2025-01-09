@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -232,7 +233,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
 
     @Test
     public void testTwoWindingsTransformersCopier() {
-        // Transformers creation
+        // Transformers creation 1
         TwoWindingsTransformer transformer1 = substation.newTwoWindingsTransformer()
                 .setId("twt1")
                 .setName(TWT_NAME)
@@ -247,6 +248,37 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .setBus2("busB")
                 .add();
 
+        // Group and limits creation 1
+        transformer1.newOperationalLimitsGroup1("group1").newCurrentLimits().setPermanentLimit(220.0).add();
+        transformer1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<CurrentLimits> optionalLimits1 = transformer1.getCurrentLimits1();
+        assertTrue(optionalLimits1.isPresent());
+        CurrentLimits limits1 = optionalLimits1.get();
+        assertNotNull(limits1);
+
+        transformer1.getOperationalLimitsGroup1("group1").get().newActivePowerLimits().setPermanentLimit(220.0).add();
+        transformer1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<ActivePowerLimits> optionalActivePowerLimits1 = transformer1.getActivePowerLimits1();
+        assertTrue(optionalActivePowerLimits1.isPresent());
+        ActivePowerLimits activePowerLimits1 = optionalActivePowerLimits1.get();
+        assertNotNull(activePowerLimits1);
+
+        transformer1.getOperationalLimitsGroup1("group1").get().newApparentPowerLimits().setPermanentLimit(220.0).add();
+        transformer1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<ApparentPowerLimits> optionalApparentPowerLimits1 = transformer1.getApparentPowerLimits1();
+        assertTrue(optionalApparentPowerLimits1.isPresent());
+        ApparentPowerLimits apparentPowerLimits1 = optionalApparentPowerLimits1.get();
+        assertNotNull(apparentPowerLimits1);
+
+        // Group and limit creation 2
+        transformer1.newOperationalLimitsGroup2("group2").newCurrentLimits().setPermanentLimit(80.0).add();
+        transformer1.setSelectedOperationalLimitsGroup2("group2");
+        Optional<CurrentLimits> optionalLimits2 = transformer1.getCurrentLimits2();
+        assertTrue(optionalLimits2.isPresent());
+        CurrentLimits limits2 = optionalLimits2.get();
+        assertNotNull(limits2);
+
+        // Transformers creation 2
         TwoWindingsTransformer transformer3 = substation.newTwoWindingsTransformer()
                 .setId("twt3")
                 .setName(TWT_NAME)
@@ -269,6 +301,11 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .setBus2("busB")
                 .add();
 
+        // Group and limit creation 3
+        Optional<CurrentLimits> optionalLimits3 = transformer2.getCurrentLimits1();
+        assertTrue(optionalLimits3.isPresent());
+        CurrentLimits limits3 = optionalLimits3.get();
+
         // Tests
         assertNotNull(transformer2);
         assertNotNull(transformer1);
@@ -277,7 +314,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertTrue(areTwoWindingsTransformersIdentical(transformer1, transformer2));
         assertFalse(areTwoWindingsTransformersIdentical(transformer1, transformer3));
         assertFalse(areTwoWindingsTransformersIdentical(transformer2, transformer3));
-
+        assertTrue(areLimitsIdentical(limits1, limits3));
     }
 
     private void createTwoWindingTransformer(String id, String name, double r, double x, double g, double b,
