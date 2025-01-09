@@ -19,13 +19,17 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getUniqueMatches;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
+ * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
 
 class SwitchConversionTest extends AbstractSerDeTest {
+
+    private static final String DIR = "/issues/switches/";
 
     @Test
     void jumperImportTest() {
@@ -47,5 +51,20 @@ class SwitchConversionTest extends AbstractSerDeTest {
         String eqFile = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir);
         Pattern pattern = Pattern.compile("(<cim:GroundDisconnector rdf:ID=\"_CO\">)");
         assertEquals(1, getUniqueMatches(eqFile, pattern).size());
+    }
+
+    @Test
+    void lineWithZeroImpedanceTest() {
+        // CGMES network:
+        //   An ACLineSegment ACL with zero impedance between two nodes of the same voltage level.
+        // IIDM network:
+        //   A branch with 0 impedance inside a VoltageLevel is converted to a Switch
+        Network network = readCgmesResources(DIR, "line_with_0_impedance.xml");
+        assertNotNull(network);
+
+        // The line has been imported as a fictitious switch
+        assertNull(network.getLine("ACL"));
+        assertNotNull(network.getSwitch("ACL"));
+        assertTrue(network.getSwitch("ACL").isFictitious());
     }
 }

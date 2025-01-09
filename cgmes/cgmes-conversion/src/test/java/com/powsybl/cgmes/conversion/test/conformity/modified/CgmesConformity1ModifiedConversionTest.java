@@ -912,16 +912,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void miniNodeBreakerInternalLineZ0() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerInternalLineZ0().dataSource(), NetworkFactory.findDefault(), importParams);
-        // The internal z0 line named "INTERCONNECTOR22" has been converted to a switch
-        Switch sw = network.getSwitch("fdf5cfbe-9bf5-406a-8d04-fafe47afe31d");
-        assertNotNull(sw);
-        assertEquals("INTERCONNECTOR22", sw.getNameOrId());
-    }
-
-    @Test
     void microGridBaseCaseAssembledEntsoeCategory() {
         importParams.put(CgmesImport.POST_PROCESSORS, "EntsoeCategory");
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEntsoeCategory().dataSource(), importParams);
