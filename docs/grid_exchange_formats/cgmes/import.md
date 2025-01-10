@@ -400,17 +400,16 @@ A PowSyBl [`VoltagePerReactivePowerControl`](../../grid_model/extensions.md#volt
 <span style="color: red">TODO regulation</span>
 
 (cgmes-switch-import)=
-### Switch (Switch, Breaker, Disconnector, LoadBreakSwitch, ProtectedSwitch, GroundDisconnector)
+### Switch (Switch, Breaker, Disconnector, LoadBreakSwitch, ProtectedSwitch, GroundDisconnector, Jumper)
 
-Switches, breakers, disconnectors, load break switches, protected switches and ground disconnectors are
+Switches, breakers, disconnectors, load break switches, protected switches, jumpers and ground disconnectors are
 all imported in the same manner. For convenience purposes, we will now use `Switch` as a say but keep in mind that this section is valid for all these CGMES classes.
 
 If the `Switch` has its ends both inside the same voltage level, it is mapped to a PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch) with attributes as described below:
 - `SwitchKind` is defined depending on the CGMES class
-  - If it is a CGMES `Breaker`, it is `BREAKER`
-  - If it is a CGMES `Disconnector`, it is `DISCONNECTOR`
+  - If it is a CGMES `Breaker`, `Switch` or `ProtectedSwitch`, it is `BREAKER`
+  - If it is a CGMES `Disconnector`, `GroundDisconnector` or `Jumper` it is `DISCONNECTOR`
   - If it is a CGMES `LoadBreakSwitch`, it is `LOAD_BREAK_SWITCH`
-  - Otherwise, it is `BREAKER`
 - `Retained` is copied from CGMES `retained` if defined in node-breaker. Else, it is `false`.
 - `Open` is copied from CGMES SSH `open` if defined. Else, it is copied from CGMES `normalOpen`. If neither are defined, it is `false`.
 
