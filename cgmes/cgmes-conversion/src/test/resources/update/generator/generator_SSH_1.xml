@@ -22,7 +22,7 @@
     <cim:RegulatingControl rdf:about="#_SynchronousMachine-RegulatingControl">
         <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
         <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
-        <cim:RegulatingControl.targetValue>130.34</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetValue>410.0</cim:RegulatingControl.targetValue>
         <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k" />
     </cim:RegulatingControl>
     <cim:ThermalGeneratingUnit rdf:about="#_SynchronousMachine-GeneratingUnit">

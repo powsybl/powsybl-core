@@ -47,7 +47,7 @@ class GeneratorUpdateTest {
         assertEquals(3, network.getGeneratorCount());
 
         Generator synchronousMachine = network.getGenerator("SynchronousMachine");
-        assertTrue(checkSsh(synchronousMachine, 160.0, 0.0, 131.34, true, 0.0, 0));
+        assertTrue(checkSsh(synchronousMachine, 160.0, 0.0, 405.0, true, 0.0, 0));
 
         Generator externalNetworkInjection = network.getGenerator("ExternalNetworkInjection");
         assertTrue(checkSsh(externalNetworkInjection, -0.0, -0.0, Double.NaN, false, 0.0, 0));
@@ -70,7 +70,7 @@ class GeneratorUpdateTest {
 
         readCgmesResources(network, DIR, "generator_SSH.xml");
 
-        assertTrue(checkSsh(synchronousMachine, 160.0, 0.0, 131.34, true, 0.0, 0));
+        assertTrue(checkSsh(synchronousMachine, 160.0, 0.0, 405.0, true, 0.0, 0));
         assertTrue(checkSsh(externalNetworkInjection, -0.0, -0.0, Double.NaN, false, 0.0, 0));
         assertTrue(checkSsh(equivalentInjection, -184.0, 0.0, Double.NaN, false, 0.0, 0));
     }
@@ -89,13 +89,13 @@ class GeneratorUpdateTest {
 
         readCgmesResources(network, DIR, "generator_SSH.xml");
 
-        assertTrue(checkSsh(synchronousMachine, 160.0, 0.0, 131.34, true, 0.0, 0));
+        assertTrue(checkSsh(synchronousMachine, 160.0, 0.0, 405.0, true, 0.0, 0));
         assertTrue(checkSsh(externalNetworkInjection, -0.0, -0.0, Double.NaN, false, 0.0, 0));
         assertTrue(checkSsh(equivalentInjection, -184.0, 0.0, Double.NaN, false, 0.0, 0));
 
         readCgmesResources(network, DIR, "generator_SSH_1.xml");
 
-        assertTrue(checkSsh(synchronousMachine, 165.0, -5.0, 130.34, true, 0.9, 1));
+        assertTrue(checkSsh(synchronousMachine, 165.0, -5.0, 410.0, true, 0.9, 1));
         assertTrue(checkSsh(externalNetworkInjection, -10.0, -5.0, Double.NaN, false, 0.0, 0));
         assertTrue(checkSsh(equivalentInjection, -174.0, -5.0, Double.NaN, false, 0.0, 0));
     }
