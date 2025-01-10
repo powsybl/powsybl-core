@@ -201,14 +201,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
                     powerTransformerRatioTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("RatioTapChanger");
                 }
             });
-        gends.entrySet()
-            .forEach(tends -> {
-                PropertyBags tends1 = new PropertyBags(
-                    tends.getValue().stream()
-                        .sorted(Comparator.comparing(WindingType::endNumber))
-                        .toList());
-                tends.setValue(tends1);
-            });
+        gends.values().forEach(tends -> tends.sort(Comparator.comparing(WindingType::endNumber)));
         return gends;
     }
 
