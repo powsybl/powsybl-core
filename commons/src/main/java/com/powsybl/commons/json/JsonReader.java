@@ -230,6 +230,30 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
+    protected void skipSimpleValueAttributes() {
+        try {
+            Context startContext = contextQueue.peekLast();
+            while (!(getNextToken() == JsonToken.END_OBJECT && contextQueue.peekLast() == startContext)) {
+                if (Objects.requireNonNull(parser.currentToken()) == JsonToken.FIELD_NAME) {
+                    JsonToken nextToken = parser.nextToken();
+                    if (nextToken.isStructStart()) {
+                        // all attributes have been skipped as a child node is starting
+                        return;
+                    } else if (nextToken.isScalarValue()) {
+                        currentJsonTokenConsumed = true;
+                    } else {
+                        throw newUnexpectedTokenException();
+                    }
+                } else {
+                    throw newUnexpectedTokenException();
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
     public void readChildNodes(ChildNodeReader childNodeReader) {
         Objects.requireNonNull(childNodeReader);
         try {

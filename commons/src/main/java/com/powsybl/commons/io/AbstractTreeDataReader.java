@@ -46,6 +46,12 @@ public abstract class AbstractTreeDataReader implements TreeDataReader {
 
     @Override
     public void skipChildNodes() {
+        skipSimpleValueAttributes();
         readChildNodes(elementName -> skipChildNodes());
     }
+
+    /**
+     * Skip the attributes with scalar values
+     */
+    protected abstract void skipSimpleValueAttributes();
 }

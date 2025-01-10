@@ -60,6 +60,11 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
+    protected void skipSimpleValueAttributes() {
+        // nothing to do
+    }
+
+    @Override
     public double readDoubleAttribute(String name, double defaultValue) {
         return XmlUtil.readDoubleAttribute(reader, name, defaultValue);
     }
