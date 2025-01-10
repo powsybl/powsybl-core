@@ -10,9 +10,7 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -98,5 +96,34 @@ class SwitchConversionTest extends AbstractSerDeTest {
         sshExport = writeCgmesProfile(network, "SSH", tmpDir);
         assertNull(getFirstMatch(eqExport, switchPattern));
         assertEquals("true", getFirstMatch(sshExport, terminalPattern));
+    }
+
+    @Test
+    void retainedSwitchTest() throws IOException {
+        // IIDM network:
+        //   Two BusbarSections BBS_1 and BBS_2 connected by a COUPLER Switch.
+        //   A feeder bay with two Disconnectors, 1 Breaker, 1 Load also can couple the two bars.
+        // CGMES export:
+        //   A retained switch cannot have both its terminals associated to the same topological node.
+        Network network = readCgmesResources(DIR, "retained_switch.xml");
+
+        // Open one disconnector so that the 2 ends of the retained switch are on different buses/topological nodes.
+        network.getSwitch("DIS_1").setOpen(true);
+        VoltageLevel.BusBreakerView bbv = network.getVoltageLevel("VL").getBusBreakerView();
+        assertNotEquals(bbv.getBus1("COUPLER"), bbv.getBus2("COUPLER"));
+
+        // The retained switch can be exported as such.
+        String eqExport = writeCgmesProfile(network, "EQ", tmpDir);
+        Pattern couplerRetainedPattern = Pattern.compile("<cim:Breaker rdf:ID=\"_COUPLER\">.*?" +
+                "<cim:Switch.retained>(.*?)</cim:Switch.retained>", Pattern.DOTALL);
+        assertEquals("true", getFirstMatch(eqExport, couplerRetainedPattern));
+
+        // Now close the disconnector so that the 2 ends of the retained switch are on the same bus/topological node.
+        network.getSwitch("DIS_1").setOpen(false);
+        assertEquals(bbv.getBus1("COUPLER"), bbv.getBus2("COUPLER"));
+
+        // The retained switch can't be exported as such.
+        eqExport = writeCgmesProfile(network, "EQ", tmpDir);
+        assertEquals("false", getFirstMatch(eqExport, couplerRetainedPattern));
     }
 }
