@@ -826,10 +826,10 @@ public final class NetworkSerDe {
                     extensionNamesImported.add(extensionName);
                 } else {
                     extensionNamesNotFound.add(extensionName);
-                    context.getReader().skipChildNodes();
+                    context.getReader().skipNode();
                 }
             } else {
-                context.getReader().skipChildNodes();
+                context.getReader().skipNode();
             }
         });
     }

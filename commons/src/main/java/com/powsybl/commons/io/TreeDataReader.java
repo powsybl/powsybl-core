@@ -63,7 +63,7 @@ public interface TreeDataReader extends AutoCloseable {
 
     List<String> readStringArrayAttribute(String name);
 
-    void skipChildNodes();
+    void skipNode();
 
     void readChildNodes(ChildNodeReader childNodeReader);
 
