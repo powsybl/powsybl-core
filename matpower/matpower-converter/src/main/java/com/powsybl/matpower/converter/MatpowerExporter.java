@@ -43,7 +43,6 @@ public class MatpowerExporter implements Exporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(MatpowerExporter.class);
 
     private static final double BASE_MVA = 100;
-    private static final String FORMAT_VERSION = "2";
     private static final int AREA_NUMBER = 1;
     private static final int LOSS_ZONE = 1;
     private static final int CONNECTED_STATUS = 1;
@@ -1092,7 +1091,7 @@ public class MatpowerExporter implements Exporter {
 
         MatpowerModel model = new MatpowerModel(network.getId());
         model.setBaseMva(BASE_MVA);
-        model.setVersion(FORMAT_VERSION);
+        model.setVersion(MatpowerFormatVersion.V2);
 
         Context context = new Context(maxGeneratorActivePower, maxGeneratorReactivePower);
         context.findSynchronousComponentsToBeExported(network);
