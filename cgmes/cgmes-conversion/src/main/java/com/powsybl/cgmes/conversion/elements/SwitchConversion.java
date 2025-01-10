@@ -111,17 +111,17 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     private SwitchKind kind() {
-        String type = p.getLocal("type").toLowerCase();
+        String type = p.getLocal("type");
         return switch (type) {
-            case "disconnector", "grounddisconnector", "jumper" -> SwitchKind.DISCONNECTOR;
-            case "loadbreakswitch" -> SwitchKind.LOAD_BREAK_SWITCH;
-            default -> SwitchKind.BREAKER;  // breaker, switch, protectedswitch
+            case "Disconnector", "GroundDisconnector", "Jumper" -> SwitchKind.DISCONNECTOR;
+            case "LoadBreakSwitch" -> SwitchKind.LOAD_BREAK_SWITCH;
+            default -> SwitchKind.BREAKER;  // Breaker, Switch, ProtectedSwitch
         };
     }
 
     private boolean kindHasDirectMapToIiidm() {
-        String type = p.getLocal("type").toLowerCase();
-        return type.equals("breaker") || type.equals("disconnector") || type.equals("loadbreakswitch");
+        String type = p.getLocal("type");
+        return type.equals("Breaker") || type.equals("Disconnector") || type.equals("LoadBreakSwitch");
     }
 
     private void addTypeAsProperty(Switch s) {
