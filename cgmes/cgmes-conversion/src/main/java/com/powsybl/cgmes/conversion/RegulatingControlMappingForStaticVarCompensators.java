@@ -148,6 +148,9 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     private void setDefaultRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc, boolean onlyReactivePowerReg, RegulatingControl control) {
+        if (!defaultRegulatingControlIsWellDefined(rc)) {
+            return;
+        }
 
         double targetVoltage = Double.NaN;
         double targetReactivePower = Double.NaN;
@@ -172,6 +175,13 @@ public class RegulatingControlMappingForStaticVarCompensators {
         if (rc.controlEnabled) {
             svc.setRegulationMode(regulationMode);
         }
+    }
+
+    // SVCControlMode and voltageSetPoint are optional in Cgmes 3.0
+    private static boolean defaultRegulatingControlIsWellDefined(CgmesRegulatingControlForStaticVarCompensator rc) {
+        return rc.defaultRegulationMode != null
+                && (RegulatingControlMapping.isControlModeVoltage(rc.defaultRegulationMode.toLowerCase()) && Double.isFinite(rc.defaultTargetVoltage) && rc.defaultTargetVoltage > 0.0
+                || isControlModeReactivePower(rc.defaultRegulationMode.toLowerCase()) && Double.isFinite(rc.defaultTargetReactivePower));
     }
 
     private static boolean isControlModeReactivePower(String controlMode) {
