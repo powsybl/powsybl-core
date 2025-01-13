@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -34,6 +33,14 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     @Override
     public Properties getProperties() {
         return this.properties;
+    }
+
+    @Override
+    public PropertyBags nonlinearShuntCompensatorPoints(String shuntId) {
+        if (cachedGroupedShuntCompensatorPoints == null) {
+            cachedGroupedShuntCompensatorPoints = computeGroupedShuntCompensatorPoints();
+        }
+        return cachedGroupedShuntCompensatorPoints.getOrDefault(shuntId, new PropertyBags());
     }
 
     @Override
@@ -101,16 +108,8 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         if (cachedContainers == null) {
             cachedContainers = computeContainers();
         }
-        if (cachedContainers.get(containerId) == null) { // container ID is substation
-            String fixedContainerId = connectivityNodeContainers().stream()
-                    .filter(p -> p.containsKey(SUBSTATION))
-                    .filter(p -> p.getId(SUBSTATION).equals(containerId))
-                    .findFirst()
-                    .map(p -> p.getId("VoltageLevel"))
-                    .orElseThrow(() -> new CgmesModelException(containerId + " should be a connectivity node container containing at least one voltage level"));
-            LOG.warn("{} is a substation, not a voltage level, a line or a bay but contains nodes. " +
-                    "The first CGMES voltage level found in this substation ({}}) is used instead.", containerId, fixedContainerId);
-            cachedContainers.put(containerId, cachedContainers.get(fixedContainerId));
+        if (cachedContainers.get(containerId) == null) {
+            throw new CgmesModelException("Unexpected CgmesContainer for containerId: " + containerId);
         }
         return cachedContainers.get(containerId);
     }
@@ -125,6 +124,32 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return cachedBaseVoltages.getOrDefault(baseVoltageId, Double.NaN);
     }
 
+    @Override
+    public Optional<String> node(CgmesTerminal t, boolean nodeBreaker) {
+        cacheNodes();
+        String nodeId = nodeBreaker && t.connectivityNode() != null ? t.connectivityNode() : t.topologicalNode();
+        return nodeId != null ? Optional.of(nodeId) : Optional.empty();
+    }
+
+    @Override
+    public Optional<CgmesContainer> nodeContainer(String nodeId) {
+        cacheNodes();
+
+        String containerId = null;
+
+        if (nodeId != null) {
+            PropertyBag node = cachedNodesById.get(nodeId);
+            if (node != null) {
+                containerId = node.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER);
+            } else {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Missing node {}", nodeId);
+                }
+            }
+        }
+        return containerId == null ? Optional.empty() : Optional.of(container(containerId));
+    }
+
     private CgmesContainer container(CgmesTerminal t, boolean nodeBreaker) {
         cacheNodes();
         String containerId = null;
@@ -132,7 +157,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         if (nodeId != null) {
             PropertyBag node = cachedNodesById.get(nodeId);
             if (node != null) {
-                containerId = node.getId("ConnectivityNodeContainer");
+                containerId = node.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER);
             } else {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Missing node {} from terminal {}", nodeId, t.id());
@@ -141,6 +166,17 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         }
 
         return (containerId == null) ? null : container(containerId);
+    }
+
+    private Map<String, PropertyBags> computeGroupedShuntCompensatorPoints() {
+        Map<String, PropertyBags> groupedShuntCompensatorPoints = new HashMap<>();
+        nonlinearShuntCompensatorPoints()
+                .forEach(point -> {
+                    String shuntCompensator = point.getId("Shunt");
+                    groupedShuntCompensatorPoints.computeIfAbsent(shuntCompensator, bag -> new PropertyBags())
+                            .add(point);
+                });
+        return groupedShuntCompensatorPoints;
     }
 
     private Map<String, PropertyBags> computeGroupedTransformerEnds() {
@@ -165,16 +201,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
                     powerTransformerRatioTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("RatioTapChanger");
                 }
             });
-        gends.entrySet()
-            .forEach(tends -> {
-                PropertyBags tends1 = new PropertyBags(
-                    tends.getValue().stream()
-                        .sorted(Comparator
-                            .comparing(WindingType::fromTransformerEnd)
-                            .thenComparing(end -> end.asInt(endNumber, -1)))
-                        .collect(Collectors.toList()));
-                tends.setValue(tends1);
-            });
+        gends.values().forEach(tends -> tends.sort(Comparator.comparing(WindingType::endNumber)));
         return gends;
     }
 
@@ -218,10 +245,13 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private Map<String, CgmesContainer> computeContainers() {
         Map<String, CgmesContainer> cs = new HashMap<>();
         connectivityNodeContainers().forEach(c -> {
-            String id = c.getId("ConnectivityNodeContainer");
+            String id = c.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER);
             String voltageLevel = c.getId("VoltageLevel");
             String substation = c.getId(SUBSTATION);
-            cs.put(id, new CgmesContainer(voltageLevel, substation));
+            String type = c.getId("connectivityNodeContainerType");
+            String line = type != null && type.contains("Line") ? id : null;
+            String name = c.get("name");
+            cs.put(id, new CgmesContainer(voltageLevel, substation, line, name));
         });
         return cs;
     }
@@ -270,6 +300,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     protected void invalidateCaches() {
+        cachedGroupedShuntCompensatorPoints = null;
         cachedGroupedTransformerEnds = null;
         powerTransformerRatioTapChanger = null;
         powerTransformerPhaseTapChanger = null;
@@ -287,6 +318,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private String baseName;
 
     // Caches
+    private Map<String, PropertyBags> cachedGroupedShuntCompensatorPoints;
     private Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private Map<String, CgmesTerminal> cachedTerminals;
     private Map<String, CgmesContainer> cachedContainers;

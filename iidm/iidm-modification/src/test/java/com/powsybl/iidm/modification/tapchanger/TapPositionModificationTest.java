@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.tapchanger;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
@@ -224,6 +225,15 @@ class TapPositionModificationTest {
 
     public enum TapType {
         PHASE, RATIO
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new PhaseTapPositionModification("ID", 10);
+        assertEquals("PhaseTapPositionModification", networkModification.getName());
+
+        networkModification = new RatioTapPositionModification("ID", 10);
+        assertEquals("RatioTapPositionModification", networkModification.getName());
     }
 
     @Test

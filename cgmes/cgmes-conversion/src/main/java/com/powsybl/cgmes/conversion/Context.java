@@ -41,7 +41,7 @@ public class Context {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
         this.network = Objects.requireNonNull(network);
-        this.reportNode = Objects.requireNonNull(reportNode);
+        pushReportNode(Objects.requireNonNull(reportNode));
 
         // Even if the CGMES model is node-breaker,
         // we could decide to ignore the connectivity nodes and
@@ -52,7 +52,7 @@ public class Context {
 
         namingStrategy = config.getNamingStrategy();
         cgmesBoundary = new CgmesBoundary(cgmes);
-        substationIdMapping = new SubstationIdMapping(this);
+        nodeContainerMapping = new NodeContainerMapping(this);
         terminalMapping = new TerminalMapping();
         dcMapping = new DcMapping(this);
         loadingLimitsMapping = new LoadingLimitsMapping(this);
@@ -108,8 +108,8 @@ public class Context {
         return nodeMapping;
     }
 
-    public SubstationIdMapping substationIdMapping() {
-        return substationIdMapping;
+    public NodeContainerMapping nodeContainerMapping() {
+        return nodeContainerMapping;
     }
 
     public CgmesBoundary boundary() {
@@ -208,7 +208,15 @@ public class Context {
     // Handling issues found during conversion
 
     public ReportNode getReportNode() {
-        return reportNode;
+        return network.getReportNodeContext().getReportNode();
+    }
+
+    public void pushReportNode(ReportNode node) {
+        network.getReportNodeContext().pushReportNode(node);
+    }
+
+    public ReportNode popReportNode() {
+        return network.getReportNodeContext().popReportNode();
     }
 
     private enum ConversionIssueCategory {
@@ -295,11 +303,9 @@ public class Context {
     private final Network network;
     private final Config config;
 
-    private final ReportNode reportNode;
-
     private final boolean nodeBreaker;
     private final NamingStrategy namingStrategy;
-    private final SubstationIdMapping substationIdMapping;
+    private final NodeContainerMapping nodeContainerMapping;
     private final CgmesBoundary cgmesBoundary;
     private final TerminalMapping terminalMapping;
     private final NodeMapping nodeMapping;

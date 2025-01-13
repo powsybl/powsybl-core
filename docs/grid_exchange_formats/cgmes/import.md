@@ -218,7 +218,7 @@ If the `EquivalentBranch` is mapped to a PowSyBl [`DanglingLine`](../../grid_mod
 - `Q0` is copied from CGMES `Q` of the terminal at boundary side
 
 (cgmes-asynchronous-machine-import)=
-### AsychronousMachine
+### AsynchronousMachine
 
 Asynchronous machines represent rotating machines whose shaft rotates asynchronously with the electrical field.
 It can be motor or generator; no distinction is made for the conversion of these two types.
@@ -241,7 +241,7 @@ A `SynchronousMachine` is mapped to a PowSyBl [`Generator`](../../grid_model/net
   - If it is a `HydroGeneratingUnit`, `EnergySource` is `HYDRO`
   - If it is a `NuclearGeneratingUnit`, `EnergySource` is `NUCLEAR`
   - If it is a `ThermalGeneratingUnit`, `EnergySource` is `THERMAL`
-  - If it is a `WindGeneratingUnit`, `EnergySource` is `WIND`
+  - If it is a `WindGeneratingUnit`, `EnergySource` is `WIND`. Additionally, the `WindGeneratingUnit.windGenUnitType` value (`onshore` or `offshore`) is stored as an iIDM property `CGMES.windGenUnitType` of the generator.
   - If it is a `SolarGeneratingUnit`, `EnergySource` is `SOLAR`
   - Else, `EnergySource` is `OTHER`
 - `TargetP`/`TargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`TargetQ`. If undefined, `TargetP` is set from CGMES `GeneratingUnit.initialP` from the `GeneratingUnit` associated to the `SynchronousMachine` and `TargetQ` is set to `0`.
@@ -304,8 +304,37 @@ Sections are created from the lowest CGMES `sectionNumber` to the highest and ea
 <span style="color: red">TODO regulation</span>
 
 (cgmes-operational_limit-import)=
-### OperationalLimit
-<span style="color: red">TODO</span>
+### OperationalLimits
+
+OperationalLimits model a specification of limits associated with equipments.
+
+#### OperationalLimitSet
+
+A CGMES `OperationalLimitSet` is a set of `OperationalLimit` associated with equipment or terminal. It is mapped to a PowSyBl [`OperationalLimitsGroup`](../../grid_model/additional.md#limit-group-collection).
+
+Just like CGMES allows to attach multiple `OperationalLimitSet` on the same equipment or terminal, PowSyBl stores a collection of `OperationalLimitsGroup` for every 
+[`Line`](../../grid_model/network_subnetwork.md#line) side, [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line) and [`ThreeWindingTransformer.Leg`](../../grid_model/network_subnetwork.md#three-winding-transformer-leg).
+
+The same way a CGMES `OperationalLimitSet` may contain `OperationalLimit` of different subclasses, a PowSyBl `OperationalLimitsGroup` may have multipe non-null `LoadingLimits`.
+
+If there is only one `OperationalLimitsGroup` on an end, it automatically gets to be selected (active). However, if there is multiple groups, none is selected: the user has to choose which set is active.
+
+#### OperationalLimit
+
+A CGMES `OperationalLimit` is an abstract class that represent different kinds of limits: current, active power or apparent power.
+The collection of the same subclass of CGMES `OperationalLimit` in the set is mapped to a PowSyBl [`LoadingLimits`](../../grid_model/additional.md#loading-limits) as follows:
+- The collection of CGMES `CurrentLimit` in the `OperationalLimitSet` is mapped to the `currentLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set. 
+- The collection of CGMES `ActivePowerLimit` in the `OperationalLimitSet` is mapped to the `activePowerLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set. 
+- The collection of CGMES `ApparentPowerLimit` in the `OperationalLimitSet` is mapped to the `apparentPowerLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set.
+
+A particular CGMES `OperationalLimit` is mapped differently depending on its associated CGMES `OperationalLimitType`:
+- A permanent limit (`OperationalLimitType.limitType` is `LimitTypeKind.patl`) is mapped as follows:
+    - PowSyBl `LoadingLimits.permanentLimit` is copied from CGMES `OperationalLimit.value`
+- A temporary limit (`OperationalLimitType.limitType` is `LimitTypeKind.tatl`) is mapped as follows:
+    - A new entry is created in PowSyBl `LoadingLimits.temporaryLimits`
+    - `name` is copied from `OperationalLimit.name`
+    - `value` is copied from `OperationalLimit.value`
+    - `acceptableDuration` is copied from `OperationalType.acceptableDuration`
 
 (cgmes-power-transformer-import)=
 ### PowerTransformer
@@ -371,17 +400,16 @@ A PowSyBl [`VoltagePerReactivePowerControl`](../../grid_model/extensions.md#volt
 <span style="color: red">TODO regulation</span>
 
 (cgmes-switch-import)=
-### Switch (Switch, Breaker, Disconnector, LoadBreakSwitch, ProtectedSwitch, GroundDisconnector)
+### Switch (Switch, Breaker, Disconnector, LoadBreakSwitch, ProtectedSwitch, GroundDisconnector, Jumper)
 
-Switches, breakers, disconnectors, load break switches, protected switches and ground disconnectors are
+Switches, breakers, disconnectors, load break switches, protected switches, jumpers and ground disconnectors are
 all imported in the same manner. For convenience purposes, we will now use `Switch` as a say but keep in mind that this section is valid for all these CGMES classes.
 
 If the `Switch` has its ends both inside the same voltage level, it is mapped to a PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch) with attributes as described below:
 - `SwitchKind` is defined depending on the CGMES class
-  - If it is a CGMES `Breaker`, it is `BREAKER`
-  - If it is a CGMES `Disconnector`, it is `DISCONNECTOR`
+  - If it is a CGMES `Breaker`, `Switch` or `ProtectedSwitch`, it is `BREAKER`
+  - If it is a CGMES `Disconnector`, `GroundDisconnector` or `Jumper` it is `DISCONNECTOR`
   - If it is a CGMES `LoadBreakSwitch`, it is `LOAD_BREAK_SWITCH`
-  - Otherwise, it is `BREAKER`
 - `Retained` is copied from CGMES `retained` if defined in node-breaker. Else, it is `false`.
 - `Open` is copied from CGMES SSH `open` if defined. Else, it is copied from CGMES `normalOpen`. If neither are defined, it is `false`.
 
@@ -551,3 +579,8 @@ Optional property to define if subnetworks must be added to the network when imp
 **iidm.import.cgmes.cgm-with-subnetworks-defined-by**  
 If `iidm.import.cgmes.cgm-with-subnetworks` is set to `true`, use this property to specify how the set of input files should be split by IGM: based on their filenames (use the value `FILENAME`) or by its modeling authority, read from the header (use the value `MODELING_AUTHORITY`).
 Its default value is `MODELING_AUTHORITY`.
+
+**iidm.import.cgmes.create-fictitious-voltage-level-for-every-node**  
+Optional property that defines the fictitious voltage levels created by line container. If it is set to `true`, a fictitious voltage level is created for each connectivity node inside the line container.
+If it is set to `false`, only one fictitious voltage level is created for each line container. 
+`true` by default.

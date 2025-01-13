@@ -355,7 +355,7 @@ Optional property that defines which naming strategy is used to transform IIDM i
 It can be:
 - `identity`: CGMES IDs are the same as IIDM IDs.
 - `cgmes`: new CGMES IDs (new master resource identifiers, cim:mRID) are created for IIDM `Identifiables` if the IIDM IDs are not compliant with CGMES requirements.
-- `cgmes-fix-all-invalid-ids`: ensures that all CGMES IDs in the export will comply with CGMES requirements, for IIDM `Identifiables`and also for its related objects (tap changers, operational limits, regulating controls, reactive capability curves, ...).
+- `cgmes-fix-all-invalid-ids`: ensures that all CGMES IDs in the export will comply with CGMES requirements, for IIDM `Identifiables`and also for its related objects (tap changers, operational limits, regulating controls, reactive capability outputVariables, ...).
   Its default value is `identity`.
 
 **iidm.export.cgmes.uuid-namespace**  
@@ -386,6 +386,15 @@ if the voltage and angle are valid, and if the bus is respecting Kirchhoff's fir
 the sums of active power and reactive power at the bus are higher than a threshold defined by the properties
 `iidm.export.cgmes.max-p-mismatch-converged` and `iidm.export.cgmes.max-q-mismatch-converged`.
 This property is set to `true` by default.
+
+**iidm.export.cgmes.export-all-limits-group**
+Optional property that defines whether all OperationalLimitsGroup should be exported, or only the selected (active) ones.
+This property is set to `true` by default, which means all groups are exported (not only the active ones).
+
+**iidm.export.cgmes.export-generators-in-local-regulation-mode**
+Optional property that allows to export voltage regulating generators in local regulation mode. This doesn't concern reactive power regulating generators.
+If set to true, the generator's regulating terminal is set to the generator's own terminal and the target voltage is rescaled accordingly.
+This property is set to `false` by default.
 
 **iidm.export.cgmes.max-p-mismatch-converged**  
 Optional property that defines the threshold below which a bus is considered to be balanced for the load flow status of the `TopologicalIsland` in active power. If the sum of all the active power of the terminals connected to the bus is greater than this threshold, then the load flow is considered to be divergent. Its default value is `0.1`, and it should be used only if the `iidm.export.cgmes.export-load-flow-status` property is set to `true`.

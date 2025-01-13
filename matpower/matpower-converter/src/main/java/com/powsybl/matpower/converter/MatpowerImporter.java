@@ -12,18 +12,16 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.matpower.model.*;
-
 import org.apache.commons.math3.complex.Complex;
 import org.jgrapht.alg.util.Pair;
-import java.time.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -340,81 +339,20 @@ public class MatpowerImporter implements Importer {
     private static void createBranches(MatpowerModel model, ContainersMapping containerMapping, Network network, Context context) {
         for (MBranch mBranch : model.getBranches()) {
 
-            String bus1Id = getId(BUS_PREFIX, mBranch.getFrom());
-            String bus2Id = getId(BUS_PREFIX, mBranch.getTo());
+            String connectableBus1 = getId(BUS_PREFIX, mBranch.getFrom());
+            String connectableBus2 = getId(BUS_PREFIX, mBranch.getTo());
             String voltageLevel1Id = containerMapping.getVoltageLevelId(mBranch.getFrom());
             String voltageLevel2Id = containerMapping.getVoltageLevelId(mBranch.getTo());
             VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
             VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
             double zb = voltageLevel2.getNominalV() * voltageLevel2.getNominalV() / context.getBaseMva();
             boolean isInService = isInService(mBranch);
-            String connectedBus1 = isInService ? bus1Id : null;
-            String connectedBus2 = isInService ? bus2Id : null;
 
             Branch<?> branch;
             if (isTransformer(model, mBranch)) {
-                TwoWindingsTransformer newTwt = voltageLevel2.getSubstation()
-                        .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
-                        .newTwoWindingsTransformer()
-                        .setId(getId(TRANSFORMER_PREFIX, mBranch.getFrom(), mBranch.getTo()))
-                        .setEnsureIdUnicity(true)
-                        .setBus1(connectedBus1)
-                        .setConnectableBus1(bus1Id)
-                        .setVoltageLevel1(voltageLevel1Id)
-                        .setBus2(connectedBus2)
-                        .setConnectableBus2(bus2Id)
-                        .setVoltageLevel2(voltageLevel2Id)
-                        .setRatedU1(voltageLevel1.getNominalV() * mBranch.getRatio())
-                        .setRatedU2(voltageLevel2.getNominalV())
-                        .setR(mBranch.getR() * zb)
-                        .setX(mBranch.getX() * zb)
-                        .setG(0)
-                        .setB(mBranch.getB() / zb)
-                        .add();
-                if (mBranch.getPhaseShiftAngle() != 0) {
-                    newTwt.newPhaseTapChanger()
-                            .setTapPosition(0)
-                            .beginStep()
-                            .setRho(1)
-                            .setAlpha(-mBranch.getPhaseShiftAngle())
-                            .setR(0)
-                            .setX(0)
-                            .setG(0)
-                            .setB(0)
-                            .endStep()
-                            .add();
-                }
-                branch = newTwt;
-                LOGGER.trace("Created TwoWindingsTransformer {} {} {}", newTwt.getId(), bus1Id, bus2Id);
+                branch = createTransformer(mBranch, voltageLevel1, connectableBus1, voltageLevel2, connectableBus2, isInService, zb);
             } else {
-                double nominalV1 = voltageLevel1.getNominalV();
-                double nominalV2 = voltageLevel2.getNominalV();
-                double sBase = context.getBaseMva();
-                double r = impedanceToEngineeringUnitsForLine(mBranch.getR(), nominalV1, nominalV2, sBase);
-                double x = impedanceToEngineeringUnitsForLine(mBranch.getX(), nominalV1, nominalV2, sBase);
-                Complex ytr = impedanceToAdmittance(r, x);
-                double g1 = admittanceEndToEngineeringUnitsForLine(ytr.getReal(), 0.0, nominalV1, nominalV2, sBase);
-                double b1 = admittanceEndToEngineeringUnitsForLine(ytr.getImaginary(), mBranch.getB() * 0.5, nominalV1, nominalV2, sBase);
-                double g2 = admittanceEndToEngineeringUnitsForLine(ytr.getReal(), 0.0, nominalV2, nominalV1, sBase);
-                double b2 = admittanceEndToEngineeringUnitsForLine(ytr.getImaginary(), mBranch.getB() * 0.5, nominalV2, nominalV1, sBase);
-
-                branch = network.newLine()
-                        .setId(getId(LINE_PREFIX, mBranch.getFrom(), mBranch.getTo()))
-                        .setEnsureIdUnicity(true)
-                        .setBus1(connectedBus1)
-                        .setConnectableBus1(bus1Id)
-                        .setVoltageLevel1(voltageLevel1Id)
-                        .setBus2(connectedBus2)
-                        .setConnectableBus2(bus2Id)
-                        .setVoltageLevel2(voltageLevel2Id)
-                        .setR(r)
-                        .setX(x)
-                        .setG1(g1)
-                        .setB1(b1)
-                        .setG2(g2)
-                        .setB2(b2)
-                        .add();
-                LOGGER.trace("Created line {} {} {}", branch.getId(), bus1Id, bus2Id);
+                branch = createLine(network, context, mBranch, voltageLevel1, connectableBus1, voltageLevel2, connectableBus2, isInService);
             }
             if (mBranch.getRateA() != 0) {
                 // we create the apparent power limit arbitrary on both sides
@@ -425,6 +363,90 @@ public class MatpowerImporter implements Importer {
                 createApparentPowerLimits(mBranch, branch.newApparentPowerLimits2());
             }
         }
+    }
+
+    private static Branch<?> createLine(Network network, Context context, MBranch mBranch,
+                                        VoltageLevel voltageLevel1, String connectableBus1,
+                                        VoltageLevel voltageLevel2, String connectableBus2,
+                                        boolean isInService) {
+        Branch<?> branch;
+        String bus1 = isInService ? connectableBus1 : null;
+        String bus2 = isInService ? connectableBus2 : null;
+        double nominalV1 = voltageLevel1.getNominalV();
+        double nominalV2 = voltageLevel2.getNominalV();
+        double sBase = context.getBaseMva();
+        double r = impedanceToEngineeringUnitsForLine(mBranch.getR(), nominalV1, nominalV2, sBase);
+        double x = impedanceToEngineeringUnitsForLine(mBranch.getX(), nominalV1, nominalV2, sBase);
+        Complex ytr = impedanceToAdmittance(r, x);
+        double g1 = admittanceEndToEngineeringUnitsForLine(ytr.getReal(), 0.0, nominalV1, nominalV2, sBase);
+        double b1 = admittanceEndToEngineeringUnitsForLine(ytr.getImaginary(), mBranch.getB() * 0.5, nominalV1, nominalV2, sBase);
+        double g2 = admittanceEndToEngineeringUnitsForLine(ytr.getReal(), 0.0, nominalV2, nominalV1, sBase);
+        double b2 = admittanceEndToEngineeringUnitsForLine(ytr.getImaginary(), mBranch.getB() * 0.5, nominalV2, nominalV1, sBase);
+
+        branch = network.newLine()
+                .setId(getId(LINE_PREFIX, mBranch.getFrom(), mBranch.getTo()))
+                .setEnsureIdUnicity(true)
+                .setBus1(bus1)
+                .setConnectableBus1(connectableBus1)
+                .setVoltageLevel1(voltageLevel1.getId())
+                .setBus2(bus2)
+                .setConnectableBus2(connectableBus2)
+                .setVoltageLevel2(voltageLevel2.getId())
+                .setR(r)
+                .setX(x)
+                .setG1(g1)
+                .setB1(b1)
+                .setG2(g2)
+                .setB2(b2)
+                .add();
+        LOGGER.trace("Created line {} {} {}", branch.getId(), bus1, bus2);
+        return branch;
+    }
+
+    private static Branch<?> createTransformer(MBranch mBranch,
+                                               VoltageLevel voltageLevel1, String connectableBus1,
+                                               VoltageLevel voltageLevel2, String connectableBus2,
+                                               boolean isInService, double zb) {
+        Branch<?> branch;
+        String bus1 = isInService ? connectableBus1 : null;
+        String bus2 = isInService ? connectableBus2 : null;
+        // we might have a matpower branch with a phase shift and a 0 ratio (0 in matpower just means undefined)
+        // we need to create an IIDM transformer but we just in that case fix the ratio to 1
+        double ratio = mBranch.getRatio() == 0 ? 1 : mBranch.getRatio();
+        TwoWindingsTransformer newTwt = voltageLevel2.getSubstation()
+                .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
+                .newTwoWindingsTransformer()
+                .setId(getId(TRANSFORMER_PREFIX, mBranch.getFrom(), mBranch.getTo()))
+                .setEnsureIdUnicity(true)
+                .setBus1(bus1)
+                .setConnectableBus1(connectableBus1)
+                .setVoltageLevel1(voltageLevel1.getId())
+                .setBus2(bus2)
+                .setConnectableBus2(connectableBus2)
+                .setVoltageLevel2(voltageLevel2.getId())
+                .setRatedU1(voltageLevel1.getNominalV() * ratio)
+                .setRatedU2(voltageLevel2.getNominalV())
+                .setR(mBranch.getR() * zb)
+                .setX(mBranch.getX() * zb)
+                .setG(0)
+                .setB(mBranch.getB() / zb)
+                .add();
+        if (mBranch.getPhaseShiftAngle() != 0) {
+            newTwt.newPhaseTapChanger()
+                    .setTapPosition(0)
+                    .beginStep()
+                    .setRho(1)
+                    .setAlpha(-mBranch.getPhaseShiftAngle())
+                    .setR(0)
+                    .setX(0)
+                    .setG(0)
+                    .setB(0)
+                    .endStep()
+                    .add();
+        }
+        branch = newTwt;
+        LOGGER.trace("Created TwoWindingsTransformer {} {} {}", newTwt.getId(), bus1, bus2);
+        return branch;
     }
 
     // avoid NaN when r and x, both are 0.0
@@ -553,7 +575,7 @@ public class MatpowerImporter implements Importer {
 
     @Override
     public List<Parameter> getParameters() {
-        return Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER);
+        return ConfiguredParameter.load(Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER), getFormat(), ParameterDefaultValueConfig.INSTANCE);
     }
 
     @Override

@@ -8,17 +8,18 @@
 package com.powsybl.iidm.network.tck.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.network.extensions.ReferenceTerminalsAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -91,6 +92,9 @@ public abstract class AbstractReferenceTerminalsTest {
                 .withTerminals(Set.of(gh1.getTerminal()))
                 .add();
         ReferenceTerminals ext = network.getExtension(ReferenceTerminals.class);
+        assertEquals(1, gh1.getTerminal().getReferrers().size());
+        assertEquals(0, gh2.getTerminal().getReferrers().size());
+        assertEquals(0, gh3.getTerminal().getReferrers().size());
 
         // create variants
         String variant1 = "variant1";
@@ -101,9 +105,11 @@ public abstract class AbstractReferenceTerminalsTest {
         // add gh2 to variant1
         variantManager.setWorkingVariant(variant1);
         ext.addReferenceTerminal(gh2.getTerminal());
+        assertEquals(1, gh2.getTerminal().getReferrers().size());
         // add gh3 to variant2
         variantManager.setWorkingVariant(variant2);
         ext.addReferenceTerminal(gh3.getTerminal());
+        assertEquals(1, gh3.getTerminal().getReferrers().size());
 
         // initial variant unmodified
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
@@ -123,6 +129,8 @@ public abstract class AbstractReferenceTerminalsTest {
         // clear variant 1
         variantManager.setWorkingVariant(variant1);
         ext.reset();
+        assertEquals(0, gh2.getTerminal().getReferrers().size());
+        assertEquals(1, gh3.getTerminal().getReferrers().size());
 
         // check variant 1 empty
         assertEquals(0, ext.getReferenceTerminals().size());
@@ -281,31 +289,4 @@ public abstract class AbstractReferenceTerminalsTest {
         assertEquals(1, ext.getReferenceTerminals().size());
         assertTrue(ext.getReferenceTerminals().contains(gh2.getTerminal()));
     }
-
-    @Test
-    public void testCleanup() {
-        Network net = Mockito.spy(EurostagTutorialExample1Factory.create());
-
-        net.newExtension(ReferenceTerminalsAdder.class)
-                .withTerminals(Collections.emptySet())
-                .add();
-        // check listener added
-        Mockito.verify(net, Mockito.times(1)).addListener(Mockito.any());
-        Mockito.verify(net, Mockito.times(0)).removeListener(Mockito.any());
-
-        // overwrite existing extension
-        net.newExtension(ReferenceTerminalsAdder.class)
-                .withTerminals(Collections.emptySet())
-                .add();
-        // check old listener removed and new listener added
-        Mockito.verify(net, Mockito.times(2)).addListener(Mockito.any());
-        Mockito.verify(net, Mockito.times(1)).removeListener(Mockito.any());
-
-        // remove extension
-        net.removeExtension(ReferenceTerminals.class);
-        // check all clean
-        Mockito.verify(net, Mockito.times(2)).addListener(Mockito.any());
-        Mockito.verify(net, Mockito.times(2)).removeListener(Mockito.any());
-    }
-
 }

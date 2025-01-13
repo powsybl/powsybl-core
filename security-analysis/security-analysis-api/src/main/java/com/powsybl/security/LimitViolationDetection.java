@@ -11,9 +11,13 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.PermanentLimitCheckResult;
 import com.powsybl.security.detectors.LoadingLimitType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -21,6 +25,8 @@ import java.util.function.Consumer;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public final class LimitViolationDetection {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LimitViolationDetection.class);
 
     private LimitViolationDetection() {
     }
@@ -30,10 +36,10 @@ public final class LimitViolationDetection {
      * of the specified {@link Network} should be considered as {@link LimitViolation}s.
      * In case it should, feeds the consumer with it.
      *
-     * @param network             The network on which physical values must be checked.
-     * @param currentLimitTypes   The current limit type to consider.
-     * @param limitsComputer      The computer of the limit reductions to apply.
-     * @param consumer            Will be fed with possibly created limit violations.
+     * @param network           The network on which physical values must be checked.
+     * @param currentLimitTypes The current limit type to consider.
+     * @param limitsComputer    The computer of the limit reductions to apply.
+     * @param consumer          Will be fed with possibly created limit violations.
      */
     public static void checkAll(Network network, Set<LoadingLimitType> currentLimitTypes,
                                 LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, Consumer<LimitViolation> consumer) {
@@ -207,12 +213,12 @@ public final class LimitViolationDetection {
         VoltageLevel vl = bus.getVoltageLevel();
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
-                    vl.getLowVoltageLimit(), 1., value));
+                    vl.getLowVoltageLimit(), 1., value, createViolationLocation(bus)));
         }
 
         if (!Double.isNaN(vl.getHighVoltageLimit()) && value >= vl.getHighVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.HIGH_VOLTAGE,
-                    vl.getHighVoltageLimit(), 1., value));
+                    vl.getHighVoltageLimit(), 1., value, createViolationLocation(bus)));
         }
     }
 
@@ -261,5 +267,23 @@ public final class LimitViolationDetection {
                                 1., value));
                     }
                 });
+    }
+
+    public static ViolationLocation createViolationLocation(Bus bus) {
+        VoltageLevel vl = bus.getVoltageLevel();
+        if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            List<Integer> nodes = Networks.getNodesByBus(vl).get(bus.getId()).stream().toList();
+            return new NodeBreakerViolationLocation(vl.getId(), nodes);
+        } else {
+            try {
+                List<String> configuredBusIds = vl.getBusBreakerView().getBusStreamFromBusViewBusId(bus.getId())
+                        .map(Identifiable::getId)
+                        .sorted().toList();
+                return new BusBreakerViolationLocation(configuredBusIds);
+            } catch (Exception e) {
+                LOGGER.error("Error generating ViolationLocation", e);
+                return null;
+            }
+        }
     }
 }

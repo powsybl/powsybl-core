@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     private DanglingLine danglingLine;
 
     public SwitchConversion(PropertyBag sw, Context context) {
-        super("Switch", sw, context, 2);
+        super(CgmesNames.SWITCH, sw, context, 2);
     }
 
     @Override
@@ -110,20 +111,17 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     private SwitchKind kind() {
-        String type = p.getLocal("type").toLowerCase();
-        if (type.contains("breaker")) {
-            return SwitchKind.BREAKER;
-        } else if (type.contains("disconnector")) {
-            return SwitchKind.DISCONNECTOR;
-        } else if (type.contains("loadbreak")) {
-            return SwitchKind.LOAD_BREAK_SWITCH;
-        }
-        return SwitchKind.BREAKER;
+        String type = p.getLocal("type");
+        return switch (type) {
+            case "Disconnector", "GroundDisconnector", "Jumper" -> SwitchKind.DISCONNECTOR;
+            case "LoadBreakSwitch" -> SwitchKind.LOAD_BREAK_SWITCH;
+            default -> SwitchKind.BREAKER;  // Breaker, Switch, ProtectedSwitch
+        };
     }
 
     private boolean kindHasDirectMapToIiidm() {
-        String type = p.getLocal("type").toLowerCase();
-        return type.contains("breaker") || type.contains("disconnector") || type.contains("loadbreak");
+        String type = p.getLocal("type");
+        return type.equals("Breaker") || type.equals("Disconnector") || type.equals("LoadBreakSwitch");
     }
 
     private void addTypeAsProperty(Switch s) {

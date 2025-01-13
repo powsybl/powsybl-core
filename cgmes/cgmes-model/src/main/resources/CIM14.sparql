@@ -54,8 +54,8 @@ GRAPH ?graph {
     ?VoltageLevel
         a cim:VoltageLevel ;
         cim:VoltageLevel.MemberOf_Substation ?Substation ;
-        cim:IdentifiedObject.name ?name ;
         cim:VoltageLevel.BaseVoltage ?BaseVoltage .
+    OPTIONAL { ?VoltageLevel cim:IdentifiedObject.name ?name }
 }
 # BaseVoltage may be defined in a different EQ graph
 GRAPH ?graph2 {
@@ -143,6 +143,7 @@ SELECT *
             #    cim:VoltageLimit.value ? value .
             #}
         #}
+    OPTIONAL { ?OperationalLimitSet cim:IdentifiedObject.name ?OperationalLimitSetName }
     ?OperationalLimitType
         cim:IdentifiedObject.name ?operationalLimitTypeName .
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.direction ?direction }
@@ -340,7 +341,41 @@ WHERE {
         a cim:SynchronousMachine ;
         cim:SynchronousMachine.MemberOf_GeneratingUnit ?GeneratingUnit ;
         cim:SynchronousMachine.ratedS ?ratedS ;
-        cim:Equipment.MemberOf_EquipmentContainer ?VoltageLevel .
+        cim:Equipment.MemberOf_EquipmentContainer ?VoltageLevel ;
+        cim:SynchronousMachine.type ?type .
+    VALUES ?type {
+        cim:SynchronousMachineType.generator
+        cim:SynchronousMachineType.generator_or_condenser
+    }
+    OPTIONAL {
+        ?SynchronousMachine
+            cim:SynchronousMachine.minQ ?minQ ;
+            cim:SynchronousMachine.maxQ ?maxQ
+    }
+    ?GeneratingUnit
+        a ?generatingUnitType ;
+        cim:GeneratingUnit.minOperatingP ?minP ;
+        cim:GeneratingUnit.maxOperatingP ?maxP ;
+        cim:IdentifiedObject.name ?name .
+    ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
+    OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
+    BIND ( "true" AS ?controlEnabled )
+}}
+}
+
+# query: synchronousMachinesCondensers
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?SynchronousMachine
+        a cim:SynchronousMachine ;
+        cim:SynchronousMachine.MemberOf_GeneratingUnit ?GeneratingUnit ;
+        cim:SynchronousMachine.ratedS ?ratedS ;
+        cim:Equipment.MemberOf_EquipmentContainer ?VoltageLevel ;
+        cim:SynchronousMachine.type ?type .
+    VALUES ?type {
+        cim:SynchronousMachineType.condenser
+    }
     OPTIONAL {
         ?SynchronousMachine
             cim:SynchronousMachine.minQ ?minQ ;

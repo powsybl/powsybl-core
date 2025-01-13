@@ -61,23 +61,25 @@ class TimeSeriesTest {
 
     @Test
     void testRegularTimeSeriesIndex() {
-        String csv = String.join(System.lineSeparator(),
-                "Time;Version;ts1;ts2",
-                "1970-01-01T01:00:00.000+01:00;1;1.0;",
-                "1970-01-01T02:00:00.000+01:00;1;;a",
-                "1970-01-01T03:00:00.000+01:00;1;3.0;b",
-                "1970-01-01T01:00:00.000+01:00;2;4.0;c",
-                "1970-01-01T02:00:00.000+01:00;2;5.0;",
-                "1970-01-01T03:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
+        String csv = """
+                Time;Version;ts1;ts2
+                1970-01-01T01:00:00.000+01:00;1;1.0;
+                1970-01-01T02:00:00.000+01:00;1;;a
+                1970-01-01T03:00:00.000+01:00;1;3.0;b
+                1970-01-01T01:00:00.000+01:00;2;4.0;c
+                1970-01-01T02:00:00.000+01:00;2;5.0;
+                1970-01-01T03:00:00.000+01:00;2;6.0;d
+                """.replaceAll("\n", System.lineSeparator());
 
-        String csvWithQuotes = String.join(System.lineSeparator(),
-                "\"Time\";\"Version\";\"ts1\";\"ts2\"",
-                "\"1970-01-01T01:00:00.000+01:00\";\"1\";\"1.0\";",
-                "\"1970-01-01T02:00:00.000+01:00\";\"1\";;\"a\"",
-                "\"1970-01-01T03:00:00.000+01:00\";\"1\";\"3.0\";\"b\"",
-                "\"1970-01-01T01:00:00.000+01:00\";\"2\";\"4.0\";\"c\"",
-                "\"1970-01-01T02:00:00.000+01:00\";\"2\";\"5.0\";",
-                "\"1970-01-01T03:00:00.000+01:00\";\"2\";\"6.0\";\"d\"") + System.lineSeparator();
+        String csvWithQuotes = """
+                "Time";"Version";"ts1";"ts2"
+                "1970-01-01T01:00:00.000+01:00";"1";"1.0";
+                "1970-01-01T02:00:00.000+01:00";"1";;"a"
+                "1970-01-01T03:00:00.000+01:00";"1";"3.0";"b"
+                "1970-01-01T01:00:00.000+01:00";"2";"4.0";"c"
+                "1970-01-01T02:00:00.000+01:00";"2";"5.0";
+                "1970-01-01T03:00:00.000+01:00";"2";"6.0";"d"
+                """.replaceAll("\n", System.lineSeparator());
 
         Arrays.asList(csv, csvWithQuotes).forEach(data -> {
             Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(data);
@@ -88,14 +90,15 @@ class TimeSeriesTest {
 
     @Test
     void testIrregularTimeSeriesIndex() {
-        String csv = String.join(System.lineSeparator(),
-                "Time;Version;ts1;ts2",
-                "1970-01-01T01:00:00.000+01:00;1;1.0;",
-                "1970-01-01T02:00:00.000+01:00;1;;a",
-                "1970-01-01T04:00:00.000+01:00;1;3.0;b",
-                "1970-01-01T01:00:00.000+01:00;2;4.0;c",
-                "1970-01-01T02:00:00.000+01:00;2;5.0;",
-                "1970-01-01T04:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
+        String csv = """
+                Time;Version;ts1;ts2
+                1970-01-01T01:00:00.000+01:00;1;1.0;
+                1970-01-01T02:00:00.000+01:00;1;;a
+                1970-01-01T04:00:00.000+01:00;1;3.0;b
+                1970-01-01T01:00:00.000+01:00;2;4.0;c
+                1970-01-01T02:00:00.000+01:00;2;5.0;
+                1970-01-01T04:00:00.000+01:00;2;6.0;d
+                """.replaceAll("\n", System.lineSeparator());
 
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv);
 
@@ -104,14 +107,15 @@ class TimeSeriesTest {
 
     @Test
     void testTimeSeriesNameMissing() {
-        String csv = String.join(System.lineSeparator(),
-            "Time;Version;;ts2",
-            "1970-01-01T01:00:00.000+01:00;1;1.0;",
-            "1970-01-01T02:00:00.000+01:00;1;;a",
-            "1970-01-01T04:00:00.000+01:00;1;3.0;b",
-            "1970-01-01T01:00:00.000+01:00;2;4.0;c",
-            "1970-01-01T02:00:00.000+01:00;2;5.0;",
-            "1970-01-01T04:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
+        String csv = """
+            Time;Version;;ts2
+            1970-01-01T01:00:00.000+01:00;1;1.0;
+            1970-01-01T02:00:00.000+01:00;1;;a
+            1970-01-01T04:00:00.000+01:00;1;3.0;b
+            1970-01-01T01:00:00.000+01:00;2;4.0;c
+            1970-01-01T02:00:00.000+01:00;2;5.0;
+            1970-01-01T04:00:00.000+01:00;2;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
 
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv);
 
@@ -123,14 +127,35 @@ class TimeSeriesTest {
 
     @Test
     void testFractionsOfSecondsRegularTimeSeriesIndex() {
-        String csv = String.join(System.lineSeparator(),
-                "Time;Version;ts1;ts2",
-                "0.000;1;1.0;",
-                "0.001;1;;a",
-                "0.002;1;3.0;b",
-                "0.000;2;4.0;c",
-                "0.001;2;5.0;",
-                "0.002;2;6.0;d") + System.lineSeparator();
+        String csv = """
+                Time;Version;ts1;ts2
+                0.000;1;1.0;
+                0.001;1;;a
+                0.002;1;3.0;b
+                0.000;2;4.0;c
+                0.001;2;5.0;
+                0.002;2;6.0;d
+                """.replaceAll("\n", System.lineSeparator());
+
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
+
+        assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
+    }
+
+    @Test
+    void testFractionsOfSecondsRegularTimeSeriesIndexWithDuplicateTime() {
+        String csv = """
+                Time;Version;ts1;ts2
+                0.000;1;1.0;
+                0.001;1;;a
+                0.0015;1;;b
+                0.002;1;3.0;b
+                0.000;2;4.0;c
+                0.0002;2;4.5;c
+                0.001;2;5.0;
+                0.002;2;6.0;d
+                """.replaceAll("\n", System.lineSeparator());
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
@@ -140,14 +165,15 @@ class TimeSeriesTest {
 
     @Test
     void testParseCsvBuffered() {
-        String csv = String.join(System.lineSeparator(),
-            "Time;Version;ts1;ts2",
-            "0.000;1;1.0;",
-            "0.001;1;;a",
-            "0.002;1;3.0;b",
-            "0.000;2;4.0;c",
-            "0.001;2;5.0;",
-            "0.002;2;6.0;d") + System.lineSeparator();
+        String csv = """
+                Time;Version;ts1;ts2
+                0.000;1;1.0;
+                0.001;1;;a
+                0.002;1;3.0;b
+                0.000;2;4.0;c
+                0.001;2;5.0;
+                0.002;2;6.0;d
+                """.replaceAll("\n", System.lineSeparator());
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
         try (BufferedReader reader = new BufferedReader(new StringReader(csv))) {
@@ -160,14 +186,15 @@ class TimeSeriesTest {
 
     @Test
     void testMillisIrregularTimeSeriesIndex() {
-        String csv = String.join(System.lineSeparator(),
-                "Time;Version;ts1;ts2",
-                "0;1;1.0;",
-                "1;1;;a",
-                "4;1;3.0;b",
-                "0;2;4.0;c",
-                "1;2;5.0;",
-                "4;2;6.0;d") + System.lineSeparator();
+        String csv = """
+                Time;Version;ts1;ts2
+                0;1;1.0;
+                1;1;;a
+                4;1;3.0;b
+                0;2;4.0;c
+                1;2;5.0;
+                4;2;6.0;d
+                """.replaceAll("\n", System.lineSeparator());
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.MILLIS);
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
@@ -177,14 +204,15 @@ class TimeSeriesTest {
 
     @Test
     void testNoVersion() {
-        String csv = String.join(System.lineSeparator(),
-            "Time;ts1;ts2",
-            "1970-01-01T01:00:00.000+01:00;1.0;",
-            "1970-01-01T02:00:00.000+01:00;;a",
-            "1970-01-01T03:00:00.000+01:00;3.0;b",
-            "1970-01-01T04:00:00.000+01:00;4.0;c",
-            "1970-01-01T05:00:00.000+01:00;5.0;",
-            "1970-01-01T06:00:00.000+01:00;6.0;d") + System.lineSeparator();
+        String csv = """
+            Time;ts1;ts2
+            1970-01-01T01:00:00.000+01:00;1.0;
+            1970-01-01T02:00:00.000+01:00;;a
+            1970-01-01T03:00:00.000+01:00;3.0;b
+            1970-01-01T04:00:00.000+01:00;4.0;c
+            1970-01-01T05:00:00.000+01:00;5.0;
+            1970-01-01T06:00:00.000+01:00;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', false, TimeFormat.DATE_TIME);
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
@@ -206,14 +234,15 @@ class TimeSeriesTest {
 
     @Test
     void testVersionedAtDefaultNumberNotStrictCSV() {
-        String csv = String.join(System.lineSeparator(),
-            "Time;Version;ts1;ts2",
-            "0.000;-1;1.0;",
-            "0.001;-1;;a",
-            "0.002;-1;3.0;b",
-            "0.000;2;4.0;c",
-            "0.001;2;5.0;",
-            "0.002;2;6.0;d") + System.lineSeparator();
+        String csv = """
+            Time;Version;ts1;ts2
+            0.000;-1;1.0;
+            0.001;-1;;a
+            0.002;-1;3.0;b
+            0.000;2;4.0;c
+            0.001;2;5.0;
+            0.002;2;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
 
         // Reporter
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV", "Testing reportNode TimeSeriesImport with wrong version number").build();
@@ -233,14 +262,15 @@ class TimeSeriesTest {
 
     @Test
     void testVersionedAtDefaultNumberStrictCSV() {
-        String csv = String.join(System.lineSeparator(),
-            "Time;Version;ts1;ts2",
-            "0.000;-1;1.0;",
-            "0.001;-1;;a",
-            "0.002;-1;3.0;b",
-            "0.000;2;4.0;c",
-            "0.001;2;5.0;",
-            "0.002;2;6.0;d") + System.lineSeparator();
+        String csv = """
+                Time;Version;ts1;ts2
+                0.000;-1;1.0;
+                0.001;-1;;a
+                0.002;-1;3.0;b
+                0.000;2;4.0;c
+                0.001;2;5.0;
+                0.002;2;6.0;d
+                """.replaceAll("\n", System.lineSeparator());
 
         // Reporter
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV", "Testing reportNode TimeSeriesImport with wrong version number").build();
@@ -272,56 +302,62 @@ class TimeSeriesTest {
         String emptyCsv = "";
         assertThatCode(() -> TimeSeries.parseCsv(emptyCsv)).hasMessage("CSV header is missing").isInstanceOf(TimeSeriesException.class);
 
-        String badHeaderNoTime = String.join(System.lineSeparator(),
-            "NoTime;ts1;ts2",
-            "1970-01-01T01:00:00.000+01:00;1.0;",
-            "1970-01-01T02:00:00.000+01:00;;a",
-            "1970-01-01T03:00:00.000+01:00;3.0;b",
-            "1970-01-01T04:00:00.000+01:00;4.0;c",
-            "1970-01-01T05:00:00.000+01:00;5.0;",
-            "1970-01-01T06:00:00.000+01:00;6.0;d") + System.lineSeparator();
+        String badHeaderNoTime = """
+            NoTime;ts1;ts2
+            1970-01-01T01:00:00.000+01:00;1.0;
+            1970-01-01T02:00:00.000+01:00;;a
+            1970-01-01T03:00:00.000+01:00;3.0;b
+            1970-01-01T04:00:00.000+01:00;4.0;c
+            1970-01-01T05:00:00.000+01:00;5.0;
+            1970-01-01T06:00:00.000+01:00;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
         assertThatCode(() -> TimeSeries.parseCsv(badHeaderNoTime, timeSeriesCsvConfig)).hasMessage("Bad CSV header, should be \ntime;...").isInstanceOf(TimeSeriesException.class);
 
-        String badHeaderNoVersion = String.join(System.lineSeparator(),
-            "Time;NoVersion;ts1;ts2",
-            "1970-01-01T01:00:00.000+01:00;1;1.0;",
-            "1970-01-01T02:00:00.000+01:00;1;;a",
-            "1970-01-01T03:00:00.000+01:00;1;3.0;b",
-            "1970-01-01T01:00:00.000+01:00;2;4.0;c",
-            "1970-01-01T02:00:00.000+01:00;2;5.0;",
-            "1970-01-01T03:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
+        String badHeaderNoVersion = """
+            Time;NoVersion;ts1;ts2
+            1970-01-01T01:00:00.000+01:00;1;1.0;
+            1970-01-01T02:00:00.000+01:00;1;;a
+            1970-01-01T03:00:00.000+01:00;1;3.0;b
+            1970-01-01T01:00:00.000+01:00;2;4.0;c
+            1970-01-01T02:00:00.000+01:00;2;5.0;
+            1970-01-01T03:00:00.000+01:00;2;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
         assertThatCode(() -> TimeSeries.parseCsv(badHeaderNoVersion)).hasMessage("Bad CSV header, should be \ntime;version;...").isInstanceOf(TimeSeriesException.class);
 
-        String duplicates = String.join(System.lineSeparator(),
-            "Time;Version;ts1;ts1",
-            "1970-01-01T01:00:00.000+01:00;1;1.0;",
-            "1970-01-01T02:00:00.000+01:00;1;;a",
-            "1970-01-01T03:00:00.000+01:00;1;3.0;b",
-            "1970-01-01T01:00:00.000+01:00;2;4.0;c",
-            "1970-01-01T02:00:00.000+01:00;2;5.0;",
-            "1970-01-01T03:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
+        String duplicates = """
+            Time;Version;ts1;ts1
+            1970-01-01T01:00:00.000+01:00;1;1.0;
+            1970-01-01T02:00:00.000+01:00;1;;a
+            1970-01-01T03:00:00.000+01:00;1;3.0;b
+            1970-01-01T01:00:00.000+01:00;2;4.0;c
+            1970-01-01T02:00:00.000+01:00;2;5.0;
+            1970-01-01T03:00:00.000+01:00;2;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
         assertThatCode(() -> TimeSeries.parseCsv(duplicates)).hasMessageContaining("Bad CSV header, there are duplicates in time series names").isInstanceOf(TimeSeriesException.class);
 
-        String noData = String.join(System.lineSeparator(),
-            "Time;Version",
-            "1970-01-01T01:00:00.000+01:00;1",
-            "1970-01-01T02:00:00.000+01:00;1",
-            "1970-01-01T03:00:00.000+01:00;1",
-            "1970-01-01T01:00:00.000+01:00;2",
-            "1970-01-01T02:00:00.000+01:00;2",
-            "1970-01-01T03:00:00.000+01:00;2") + System.lineSeparator();
+        String noData = """
+            Time;Version
+            1970-01-01T01:00:00.000+01:00;1
+            1970-01-01T02:00:00.000+01:00;1
+            1970-01-01T03:00:00.000+01:00;1
+            1970-01-01T01:00:00.000+01:00;2
+            1970-01-01T02:00:00.000+01:00;2
+            1970-01-01T03:00:00.000+01:00;2
+            """.replaceAll("\n", System.lineSeparator());
         assertThatCode(() -> TimeSeries.parseCsv(noData)).hasMessageContaining("Bad CSV header, should be \ntime;version;...").isInstanceOf(TimeSeriesException.class);
 
-        String onlyOneTime = String.join(System.lineSeparator(),
-            "Time;ts1",
-            "1970-01-01T03:00:00.000+01:00;2.0") + System.lineSeparator();
+        String onlyOneTime = """
+            Time;ts1
+            1970-01-01T03:00:00.000+01:00;2.0
+            """.replaceAll("\n", System.lineSeparator());
         assertThatCode(() -> TimeSeries.parseCsv(onlyOneTime, timeSeriesCsvConfig)).hasMessageContaining("At least 2 rows are expected").isInstanceOf(TimeSeriesException.class);
 
-        String unexpectedTokens = String.join(System.lineSeparator(),
-            "Time;ts1;ts2",
-            "1970-01-01T01:00:00.000+01:00;1.0;3.2",
-            "1970-01-01T02:00:00.000+01:00;2.0",
-            "1970-01-01T03:00:00.000+01:00;2.0;1.0") + System.lineSeparator();
+        String unexpectedTokens = """
+            Time;ts1;ts2
+            1970-01-01T01:00:00.000+01:00;1.0;3.2
+            1970-01-01T02:00:00.000+01:00;2.0
+            1970-01-01T03:00:00.000+01:00;2.0;1.0
+            """.replaceAll("\n", System.lineSeparator());
         assertThatCode(() -> TimeSeries.parseCsv(unexpectedTokens, timeSeriesCsvConfig)).hasMessageContaining("Columns of line 1 are inconsistent with header").isInstanceOf(TimeSeriesException.class);
 
         Path path = Path.of("wrongPath.csv");

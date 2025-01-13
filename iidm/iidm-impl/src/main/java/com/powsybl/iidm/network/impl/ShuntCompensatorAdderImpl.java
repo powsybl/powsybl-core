@@ -220,12 +220,11 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
         ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(getNetworkRef(),
-                id, getName(), isFictitious(), modelBuilder.build(), sectionCount,
-                regulatingTerminal == null ? terminal : regulatingTerminal,
+                id, getName(), isFictitious(), modelBuilder.build(), sectionCount, regulatingTerminal,
                 voltageRegulatorOn, targetV, targetDeadband);
 
         shunt.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(shunt);
         network.getListeners().notifyCreation(shunt);
         return shunt;
