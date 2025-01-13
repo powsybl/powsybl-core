@@ -84,11 +84,8 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     private static void updateRegulatingControl(StaticVarCompensator staticVarCompensator, double defaultTargetQ, boolean controlEnabled, Context context) {
         String defaultRegulationMode = staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "defaultRegulationMode");
         String mode = staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE);
-        String selectedMode = mode != null ? mode : defaultRegulationMode;
 
-        String regulatingControlId = staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL);
-        Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(regulatingControlId, context);
-
+        Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(staticVarCompensator, context);
         double defaultTargetV = findDefaultTargetV(staticVarCompensator);
 
         if (cgmesRegulatingControl.isEmpty() && controlEnabled && defaultRegulationMode != null && RegulatingControlMapping.isControlModeVoltage(defaultRegulationMode.toLowerCase()) && isValidTargetV(defaultTargetV)) {
@@ -107,6 +104,7 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             return;
         }
 
+        String selectedMode = mode != null ? mode : defaultRegulationMode;
         if (selectedMode != null && RegulatingControlMapping.isControlModeVoltage(selectedMode.toLowerCase())) {
             double targetV = cgmesRegulatingControl.map(StaticVarCompensatorConversion::findTargetV).orElseGet(() -> findDefaultTargetV(staticVarCompensator, defaultTargetV, context));
             StaticVarCompensator.RegulationMode regulationMode = controlEnabled && regulatingOn && isValidTargetV(targetV) ? StaticVarCompensator.RegulationMode.VOLTAGE : StaticVarCompensator.RegulationMode.OFF;
@@ -120,7 +118,8 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
         }
     }
 
-    private static Optional<PropertyBag> findCgmesRegulatingControl(String regulatingControlId, Context context) {
+    private static Optional<PropertyBag> findCgmesRegulatingControl(StaticVarCompensator staticVarCompensator, Context context) {
+        String regulatingControlId = staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL);
         return regulatingControlId != null ? Optional.ofNullable(context.regulatingControl(regulatingControlId)) : Optional.empty();
     }
 
