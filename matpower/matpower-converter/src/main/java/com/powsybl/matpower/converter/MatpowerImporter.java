@@ -53,6 +53,7 @@ public class MatpowerImporter implements Importer {
     private static final String CONVERTER_STATION_1_PREFIX = "CS1";
     private static final String CONVERTER_STATION_2_PREFIX = "CS2";
     private static final String HVDC_LINE_PREFIX = "HL";
+    private static final String SWITCH_PREFIX = "SW";
 
     private static final Parameter IGNORE_BASE_VOLTAGE_PARAMETER = new Parameter("matpower.import.ignore-base-voltage",
             ParameterType.BOOLEAN,
@@ -317,6 +318,14 @@ public class MatpowerImporter implements Importer {
         return generator.getStatus() > 0;
     }
 
+    private static boolean isInService(MSwitch mSwitch) {
+        return Math.abs(mSwitch.getStatus()) > 0;
+    }
+
+    private static boolean isSwitchClosed(MSwitch mSwitch) {
+        return Math.abs(mSwitch.getState()) > 0;
+    }
+
     private static void createApparentPowerLimits(MBranch mBranch, ApparentPowerLimitsAdder limitsAdder) {
         limitsAdder.setPermanentLimit(mBranch.getRateA()); // long term rating
         if (mBranch.getRateB() != 0) {
@@ -333,6 +342,11 @@ public class MatpowerImporter implements Importer {
                     .setAcceptableDuration(60) // 1' for emergency rating
                     .endTemporaryLimit();
         }
+        limitsAdder.add();
+    }
+
+    private static void createApparentPowerLimits(MSwitch mSwitch, ApparentPowerLimitsAdder limitsAdder) {
+        limitsAdder.setPermanentLimit(mSwitch.getThermalRating());
         limitsAdder.add();
     }
 
@@ -535,6 +549,51 @@ public class MatpowerImporter implements Importer {
         return Double.isFinite(minQ) && Double.isFinite(maxQ) && minQ <= maxQ;
     }
 
+    private static void createSwitches(MatpowerModel model, ContainersMapping containerMapping, Network network) {
+        // Note that MATPOWER switches are Powsybl non impedant lines
+        for (MSwitch mSwitch : model.getSwitches()) {
+            String id = getId(SWITCH_PREFIX, mSwitch.getFrom(), mSwitch.getTo());
+            String bus1Id = getId(BUS_PREFIX, mSwitch.getFrom());
+            String bus2Id = getId(BUS_PREFIX, mSwitch.getTo());
+            String voltageLevel1Id = containerMapping.getVoltageLevelId(mSwitch.getFrom());
+            String voltageLevel2Id = containerMapping.getVoltageLevelId(mSwitch.getTo());
+            VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
+            VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
+            boolean isInService = isInService(mSwitch);
+            boolean isSwitchClosed = isSwitchClosed(mSwitch);
+            String connectedBus1Id = isInService && isSwitchClosed ? bus1Id : null;
+            String connectedBus2Id = isInService && isSwitchClosed ? bus2Id : null;
+
+            Line nonImpedantLine = network.newLine()
+                    .setId(id)
+                    .setEnsureIdUnicity(true)
+                    .setBus1(bus1Id)
+                    .setConnectableBus1(connectedBus1Id)
+                    .setVoltageLevel1(voltageLevel1.getId())
+                    .setBus2(bus2Id)
+                    .setConnectableBus2(connectedBus2Id)
+                    .setVoltageLevel2(voltageLevel2.getId())
+                    .setR(0.0)
+                    .setX(0.0)
+                    .setG1(0.0)
+                    .setB1(0.0)
+                    .setG2(0.0)
+                    .setB2(0.0)
+                    .add();
+
+            LOGGER.trace("Created non impedant line {} {} {}", id, bus1Id, bus2Id);
+
+            if (mSwitch.getThermalRating() != 0) {
+                // we create the apparent power limit arbitrary on both sides
+                // there is probably something to fix on IIDM API to not have sided apparent
+                // power limits. Apparent power does not depend on voltage so it does not make
+                // sens to associate the limit to a branch side.
+                createApparentPowerLimits(mSwitch, nonImpedantLine.newApparentPowerLimits1());
+                createApparentPowerLimits(mSwitch, nonImpedantLine.newApparentPowerLimits2());
+            }
+        }
+    }
+
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
@@ -615,6 +674,8 @@ public class MatpowerImporter implements Importer {
                 createBranches(model, containerMapping, network, context);
 
                 createDcLines(model, containerMapping, network);
+
+                createSwitches(model, containerMapping, network);
 
                 for (Bus slackBus : context.getSlackBuses()) {
                     SlackTerminal.attach(slackBus);

@@ -34,6 +34,7 @@ public final class MatpowerReader {
     public static final int MATPOWER_BUSES_COLUMNS = 13;
     public static final int MATPOWER_BRANCHES_COLUMNS = 13;
     public static final int MATPOWER_DCLINES_COLUMNS = 17;
+    public static final int MATPOWER_SWITCHES_COLUMNS = 7;
 
     private MatpowerReader() {
     }
@@ -75,12 +76,17 @@ public final class MatpowerReader {
             if (fieldNames.contains("dcline")) {
                 dcLines = mpcStruct.getMatrix("dcline");
             }
+            Matrix switches = null;
+            if (fieldNames.contains("switch")) {
+                switches = mpcStruct.getMatrix("switch");
+            }
 
             int busColumns = buses.getDimensions()[1];
             int generatorColumns = generators.getDimensions()[1];
             int branchColumns = branches.getDimensions()[1];
             Integer dcLineColumns = dcLines != null ? dcLines.getDimensions()[1] : null;
-            VersionToRead versionToRead = checkNumberOfColumns(busColumns, generatorColumns, branchColumns, dcLineColumns);
+            Integer switchesColumns = switches != null ? switches.getDimensions()[1] : null;
+            VersionToRead versionToRead = checkNumberOfColumns(busColumns, generatorColumns, branchColumns, dcLineColumns, switchesColumns);
 
             model = new MatpowerModel(caseName);
             model.setVersion(version);
@@ -90,6 +96,7 @@ public final class MatpowerReader {
             readGenerators(generators, versionToRead.generatorVersion, model);
             readBranches(branches, model);
             readDcLines(dcLines, model);
+            readSwitches(switches, model);
         }
 
         return model;
@@ -98,7 +105,7 @@ public final class MatpowerReader {
     record VersionToRead(MatpowerFormatVersion generatorVersion) {
     }
 
-    static VersionToRead checkNumberOfColumns(int busColumns, int generatorColumns, int branchColumns, Integer dcLineColumns) {
+    static VersionToRead checkNumberOfColumns(int busColumns, int generatorColumns, int branchColumns, Integer dcLineColumns, Integer switchesColumns) {
         if (busColumns < MATPOWER_BUSES_COLUMNS) {
             throw new PowsyblException("Unexpected number of columns for buses, expected at least " + MATPOWER_BUSES_COLUMNS + " columns, but got " + busColumns);
         }
@@ -118,6 +125,9 @@ public final class MatpowerReader {
         }
         if (dcLineColumns != null && dcLineColumns < MATPOWER_DCLINES_COLUMNS) {
             throw new PowsyblException("Unexpected number of columns for DC lines, expected at least " + MATPOWER_DCLINES_COLUMNS + " columns, but got " + dcLineColumns);
+        }
+        if (switchesColumns != null && switchesColumns < MATPOWER_SWITCHES_COLUMNS) {
+            throw new PowsyblException("Unexpected number of columns for switches, expected at least " + MATPOWER_SWITCHES_COLUMNS + " columns, but got " + switchesColumns);
         }
         return new VersionToRead(generatorVersionToRead);
     }
@@ -224,6 +234,25 @@ public final class MatpowerReader {
             dcLine.setLoss1(dcLines.getDouble(row, 16));
 
             model.addDcLine(dcLine);
+        }
+    }
+
+    private static void readSwitches(Matrix switches, MatpowerModel model) {
+        if (switches == null) {
+            return;
+        }
+        for (int row = 0; row < switches.getDimensions()[0]; row++) {
+            MSwitch mSwitch = new MSwitch();
+
+            mSwitch.setFrom(switches.getInt(row, 0));
+            mSwitch.setTo(switches.getInt(row, 1));
+            mSwitch.setPsw(switches.getDouble(row, 2));
+            mSwitch.setQsw(switches.getDouble(row, 3));
+            mSwitch.setState(switches.getInt(row, 4));
+            mSwitch.setThermalRating(switches.getDouble(row, 5));
+            mSwitch.setStatus(switches.getInt(row, 6));
+
+            model.addSwitch(mSwitch);
         }
     }
 }

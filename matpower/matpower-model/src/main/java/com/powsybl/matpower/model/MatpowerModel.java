@@ -34,6 +34,8 @@ public class MatpowerModel {
 
     private final List<MDcLine> dcLines = new ArrayList<>();
 
+    private final List<MSwitch> switches = new ArrayList<>();
+
     @JsonCreator
     public MatpowerModel(@JsonProperty("caseName") String caseName) {
         this.caseName = Objects.requireNonNull(caseName);
@@ -132,5 +134,14 @@ public class MatpowerModel {
     public void addDcLine(MDcLine dcLine) {
         Objects.requireNonNull(dcLine);
         dcLines.add(dcLine);
+    }
+
+    public List<MSwitch> getSwitches() {
+        return switches;
+    }
+
+    public void addSwitch(MSwitch mSwitch) {
+        Objects.requireNonNull(mSwitch);
+        switches.add(mSwitch);
     }
 }
