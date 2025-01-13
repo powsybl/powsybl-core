@@ -48,8 +48,6 @@ public abstract class AbstractStandbyAutomatonTest {
         assertEquals(405, standbyAutomaton.getHighVoltageThreshold(), 0.0);
         standbyAutomaton.setB0(0.0002f);
         assertEquals(0.0002f, standbyAutomaton.getB0(), 0.0);
-        standbyAutomaton.setStandby(false);
-        assertFalse(standbyAutomaton.isStandby());
         standbyAutomaton.setLowVoltageSetpoint(391f);
         assertEquals(391, standbyAutomaton.getLowVoltageSetpoint(), 0.0);
         standbyAutomaton.setHighVoltageSetpoint(401f);
@@ -68,6 +66,12 @@ public abstract class AbstractStandbyAutomatonTest {
             fail();
         } catch (Exception ignored) {
         }
+
+        // when standby is false do not throw error on inconsistent low and high voltage thresholds use case
+        standbyAutomaton.setStandby(false);
+        assertFalse(standbyAutomaton.isStandby());
+        standbyAutomaton.setHighVoltageThreshold(200f);
+        assertEquals(200f, standbyAutomaton.getHighVoltageThreshold(), 0.0);
     }
 
     @Test
