@@ -827,29 +827,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void miniNodeBreakerLoadBreakSwitch() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerLoadBreakSwitch().dataSource(),
-                        NetworkFactory.findDefault(), importParams);
-
-        Switch sw = network.getSwitch("fbdcf00d-8a07-4c62-9e39-86f459bea2be");
-        assertNotNull(sw);
-        assertEquals(SwitchKind.LOAD_BREAK_SWITCH, sw.getKind());
-    }
-
-    @Test
-    void miniNodeBreakerProtectedSwitch() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerProtectedSwitch().dataSource(),
-                        NetworkFactory.findDefault(), importParams);
-
-        Switch sw = network.getSwitch("fbdcf00d-8a07-4c62-9e39-86f459bea2be");
-        assertNotNull(sw);
-        // By default, a switch not specifically assigned to a given kid should be considered BREAKER
-        assertEquals(SwitchKind.BREAKER, sw.getKind());
-    }
-
-    @Test
     void miniNodeBreakerMissingSubstationRegion() {
         // Check that we fail with a powsybl exception instead of a NPE
         CgmesImport importer = new CgmesImport();

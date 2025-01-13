@@ -29,25 +29,43 @@ class SwitchConversionTest extends AbstractSerDeTest {
     private static final String DIR = "/issues/switches/";
 
     @Test
-    void jumperImportTest() {
-        Network network = Network.read("jumperTest.xml", getClass().getResourceAsStream("/jumperTest.xml"));
+    void switchKindTest() throws IOException {
+        // CGMES network:
+        //   A Breaker BR, Disconnector DIS, LoadBreakSwitch LBS (direct map to IIDM),
+        //   Switch SW, ProtectedSwitch PSW, GroundDisconnector GRD, Jumper JUM (indirect map to IIDM).
+        // IIDM network:
+        //   All Switch are imported.
+        //   If the CGMES original class doesn't correspond to an IIDM kind, it is saved in a property.
+        Network network = readCgmesResources(DIR, "switch_kind.xml");
+        assertNotNull(network);
 
-        Switch aswitch = network.getSwitch("Jumper");
-        assertEquals(SwitchKind.DISCONNECTOR, aswitch.getKind());
-        assertEquals("Jumper", aswitch.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
-        assertEquals("opened jumper", aswitch.getNameOrId());
-        assertTrue(aswitch.isOpen());
-        assertFalse(aswitch.isRetained());
-    }
+        // Check that the switch kind is correct.
+        assertEquals(SwitchKind.BREAKER, network.getSwitch("BR").getKind());
+        assertEquals(SwitchKind.DISCONNECTOR, network.getSwitch("DIS").getKind());
+        assertEquals(SwitchKind.LOAD_BREAK_SWITCH, network.getSwitch("LBS").getKind());
+        assertEquals(SwitchKind.BREAKER, network.getSwitch("SW").getKind());
+        assertEquals(SwitchKind.BREAKER, network.getSwitch("PSW").getKind());
+        assertEquals(SwitchKind.DISCONNECTOR, network.getSwitch("GRD").getKind());
+        assertEquals(SwitchKind.DISCONNECTOR, network.getSwitch("JUM").getKind());
 
-    @Test
-    void groundDisconnectorTest() throws IOException {
-        Network network = ConversionUtil.readCgmesResources("/", "groundTest.xml");
-        assertEquals("GroundDisconnector", network.getSwitch("CO").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        // For Switch, ProtectedSwitch, GroundDisconnector, Jumper (indirect mapping), the CGMES original class is stored.
+        assertNull(network.getSwitch("BR").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertNull(network.getSwitch("DIS").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertNull(network.getSwitch("LBS").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertEquals("Switch", network.getSwitch("SW").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertEquals("ProtectedSwitch", network.getSwitch("PSW").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertEquals("GroundDisconnector", network.getSwitch("GRD").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertEquals("Jumper", network.getSwitch("JUM").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
 
-        String eqFile = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir);
-        Pattern pattern = Pattern.compile("(<cim:GroundDisconnector rdf:ID=\"_CO\">)");
-        assertEquals(1, getUniqueMatches(eqFile, pattern).size());
+        // Correct class is restored in CGMES export.
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        assertEquals("Breaker", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_BR\">")));
+        assertEquals("Disconnector", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_DIS\">")));
+        assertEquals("LoadBreakSwitch", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_LBS\">")));
+        assertEquals("Switch", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_SW\">")));
+        assertEquals("ProtectedSwitch", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_PSW\">")));
+        assertEquals("GroundDisconnector", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_GRD\">")));
+        assertEquals("Jumper", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_JUM\">")));
     }
 
     @Test

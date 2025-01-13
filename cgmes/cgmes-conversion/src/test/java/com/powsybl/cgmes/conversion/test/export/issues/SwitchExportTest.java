@@ -56,24 +56,6 @@ class SwitchExportTest extends AbstractSerDeTest {
         assertEquals("#_" + switchId, switchIdSsh);
     }
 
-    @Test
-    void testSwitchTypePreservedNodeBreaker() {
-        // Load a node/branch network containing a "ProtectedSwitch"
-        Network network = Network.read(CgmesConformity1ModifiedCatalog.miniGridNodeBreakerSwitchTypePreserved().dataSource(), importParams);
-        String basename = "mini";
-        network.write("CGMES", null, tmpDir.resolve(basename));
-
-        // In IIDM the switch has been created of kind "Breaker", the default when the type read is not supported
-        String switchId = "5e9f0079-647e-46da-b0ee-f5f24e127602";
-        assertEquals(SwitchKind.BREAKER, network.getSwitch(switchId).getKind());
-
-        // Check that the "ProtectedSwitch" type has been preserved in EQ and SSH when we export
-        String switchIdEq = readId("ProtectedSwitch", "ID", tmpDir.resolve(basename + "_EQ.xml"));
-        String switchIdSsh = readId("ProtectedSwitch", "about", tmpDir.resolve(basename + "_SSH.xml"));
-        assertEquals("_" + switchId, switchIdEq);
-        assertEquals("#_" + switchId, switchIdSsh);
-    }
-
     private static String readId(String elementName, String rdfIdAttrName, Path ssh) {
         String id;
         try (InputStream is = Files.newInputStream(ssh)) {
