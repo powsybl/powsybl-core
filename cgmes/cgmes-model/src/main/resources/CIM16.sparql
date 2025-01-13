@@ -964,11 +964,6 @@ WHERE {
         ?StaticVarCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl
     }
 }}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?StaticVarCompensator
-        cim:StaticVarCompensator.q ?q ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled
-}}
 }
 
 # query: asynchronousMachines

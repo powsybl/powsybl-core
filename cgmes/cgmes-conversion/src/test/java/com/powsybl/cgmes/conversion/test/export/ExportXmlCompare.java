@@ -607,7 +607,12 @@ final class ExportXmlCompare {
     }
 
     static ComparisonResult ignoringRdfChildLookupStaticVarCompensator(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("StaticVarCompensator")) {
+                return ComparisonResult.EQUAL;
+            }
+        } else if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
             String cxpath = comparison.getControlDetails().getXPath();
             if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("StaticVarCompensator")) {
                 return ComparisonResult.EQUAL;

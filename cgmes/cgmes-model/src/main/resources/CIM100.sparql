@@ -98,6 +98,24 @@ WHERE {
 }}
 }
 
+# query: staticVarCompensators
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?StaticVarCompensator
+        a cim:StaticVarCompensator ;
+        cim:IdentifiedObject.name ?name ;
+        cim:StaticVarCompensator.capacitiveRating ?capacitiveRating ;
+        cim:StaticVarCompensator.inductiveRating ?inductiveRating ;
+        cim:StaticVarCompensator.slope ?slope .
+    ?Terminal cim:Terminal.ConductingEquipment ?StaticVarCompensator .
+
+    OPTIONAL { ?StaticVarCompensator cim:StaticVarCompensator.sVCControlMode ?controlMode }
+    OPTIONAL { ?StaticVarCompensator cim:StaticVarCompensator.voltageSetPoint ?voltageSetPoint }
+    OPTIONAL { ?StaticVarCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
+}}
+}
+
 # query: operationalLimits
 SELECT *
 WHERE {

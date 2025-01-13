@@ -213,6 +213,14 @@ SELECT *
         cim:RegulatingCondEq.controlEnabled ?controlEnabled
 }
 
+# query: staticVarCompensators
+SELECT *
+{
+    ?StaticVarCompensator a cim:StaticVarCompensator ;
+        cim:StaticVarCompensator.q ?q ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled
+}
+
 # query: boundaryNodes
 # All pairs (Connectivity Node, Topological Node) from instance files that have boundary profile and attribute boundaryPoint set to true
 # We expect all Connectivity Nodes have 1 and only one corresponding TopologicalNode
