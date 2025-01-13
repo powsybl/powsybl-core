@@ -337,12 +337,14 @@ public class MatpowerExporter implements Exporter {
                 }
                 mBus.setRealPowerDemand(pDemand);
                 mBus.setReactivePowerDemand(qDemand);
+                double gSum = 0;
                 double bSum = 0;
                 double zb = vl.getNominalV() * vl.getNominalV() / BASE_MVA;
                 for (ShuntCompensator sc : bus.getShuntCompensators()) {
+                    gSum += sc.getG() * zb * BASE_MVA;
                     bSum += sc.getB() * zb * BASE_MVA;
                 }
-                mBus.setShuntConductance(0d);
+                mBus.setShuntConductance(gSum);
                 mBus.setShuntSusceptance(bSum);
                 mBus.setVoltageMagnitude(checkAndFixVoltageMagnitude(bus.getV() / vl.getNominalV()));
                 mBus.setVoltageAngle(checkAndFixVoltageAngle(bus.getAngle()));
