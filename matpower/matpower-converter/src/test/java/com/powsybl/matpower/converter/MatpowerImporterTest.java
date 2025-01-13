@@ -156,6 +156,11 @@ class MatpowerImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testCase5Switch() throws IOException {
+        testCase(MatpowerModelFactory.create5Switch());
+    }
+
+    @Test
     void testNonexistentCase() {
         assertThrows(UncheckedIOException.class, () -> testNetwork(new MatpowerImporter().importData(new DirectoryDataSource(tmpDir, "unknown"), NetworkFactory.findDefault(), null)));
     }

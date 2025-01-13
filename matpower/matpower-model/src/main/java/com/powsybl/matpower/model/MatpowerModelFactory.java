@@ -74,4 +74,8 @@ public final class MatpowerModelFactory {
     public static MatpowerModel create9Dcline() {
         return readModelJsonFromResources("t_case9_dcline.json");
     }
+
+    public static MatpowerModel create5Switch() {
+        return readModelJsonFromResources("t_case5_switch.json");
+    }
 }
