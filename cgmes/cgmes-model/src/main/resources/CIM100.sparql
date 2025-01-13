@@ -96,17 +96,6 @@ WHERE {
     OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.qPercent ?qPercent }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?SynchronousMachine
-        cim:RotatingMachine.p ?p ;
-        cim:RotatingMachine.q ?q ;
-        cim:SynchronousMachine.referencePriority ?referencePriority ;
-        cim:SynchronousMachine.operatingMode ?operatingMode ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled .
-}}
-OPTIONAL { GRAPH ?graphSSH2 {
-    ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF
-}}
 }
 
 # query: operationalLimits
