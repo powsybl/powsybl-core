@@ -180,7 +180,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
     // SVCControlMode and voltageSetPoint are optional in Cgmes 3.0
     private static boolean defaultRegulatingControlIsWellDefined(CgmesRegulatingControlForStaticVarCompensator rc) {
         return rc.defaultRegulationMode != null
-                && (RegulatingControlMapping.isControlModeVoltage(rc.defaultRegulationMode.toLowerCase()) && Double.isFinite(rc.defaultTargetVoltage) && rc.defaultTargetVoltage > 0.0
+                && (RegulatingControlMapping.isControlModeVoltage(rc.defaultRegulationMode.toLowerCase()) && rc.defaultTargetVoltage > 0.0
                 || isControlModeReactivePower(rc.defaultRegulationMode.toLowerCase()) && Double.isFinite(rc.defaultTargetReactivePower));
     }
 
