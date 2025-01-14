@@ -18,7 +18,7 @@ import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
-import com.powsybl.ucte.converter.util.UcteConstants;
+import com.powsybl.ucte.converter.util.UcteConverterConstants;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -271,7 +271,7 @@ class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
         Line l = network.getLine("F_SU1_12 F_SU1_11 1");
         assertNotNull(l);
-        assertFalse(l.hasProperty(UcteConstants.ELEMENT_NAME_PROPERTY_KEY));
+        assertFalse(l.hasProperty(UcteConverterConstants.ELEMENT_NAME_PROPERTY_KEY));
     }
 
     @Test
