@@ -1174,7 +1174,7 @@ WHERE {
 { GRAPH ?graph {
     ?TieFlow
         a cim:TieFlow ;
-        cim:TieFlow.Terminal ?terminal ;
+        cim:TieFlow.Terminal ?Terminal ;
         cim:TieFlow.ControlArea ?ControlArea
 }}
 }

@@ -326,7 +326,7 @@ class CgmesConformity1ModifiedConversionTest {
             NetworkFactory.findDefault(), importParams);
 
         Area area = network.getArea("BECONTROLAREA");
-        assertEquals("ControlAreaTypeKind.Interchange", area.getAreaType());
+        assertEquals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE, area.getAreaType());
         assertEquals("BE", area.getNameOrId());
         assertEquals("10BE------1", area.getAliasFromType(CgmesNames.ENERGY_IDENT_CODE_EIC).get());
         assertEquals(-205.90011555672567, area.getInterchangeTarget().getAsDouble(), 0.0);

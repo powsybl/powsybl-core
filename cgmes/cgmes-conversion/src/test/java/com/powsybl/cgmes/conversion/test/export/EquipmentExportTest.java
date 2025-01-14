@@ -165,7 +165,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Area area = network.newArea()
                 .setId("controlAreaId")
                 .setName("controlAreaName")
-                .setAreaType("ControlAreaTypeKind.Interchange")
+                .setAreaType(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)
                 .setInterchangeTarget(Double.NaN)
                 .addAreaBoundary(tieLine.getDanglingLine2().getBoundary(), true)
                 .add();

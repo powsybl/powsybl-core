@@ -34,10 +34,10 @@ public class TieFlowConversion extends AbstractIdentifiedObjectConversion {
         String controlAreaId = p.getId(CgmesNames.CONTROL_AREA);
         Area area = context.network().getArea(controlAreaId);
         if (area == null) {
-            context.ignored("Tie Flow", String.format("Tie Flow %s refers to a non-existing control area", p.getId("TieFlow")));
+            context.ignored("Tie Flow", String.format("Tie Flow %s refers to a non-existing control area", p.getId(CgmesNames.TIE_FLOW)));
             return;
         }
-        String terminalId = p.getId("terminal");
+        String terminalId = p.getId(CgmesNames.TERMINAL);
         boolean isAc = isConsideredAcTieFlow(terminalId);
         Boundary boundary = context.terminalMapping().findBoundary(terminalId, context.cgmes());
         if (boundary != null) {

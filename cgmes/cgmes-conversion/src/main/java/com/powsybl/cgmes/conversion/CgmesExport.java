@@ -99,7 +99,7 @@ public class CgmesExport implements Exporter {
 
         String controlAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), CONTROL_AREA);
         Area area = network.newArea()
-                .setAreaType("ControlAreaTypeKind.Interchange")
+                .setAreaType(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)
                 .setId(controlAreaId)
                 .setName("Network")
                 .add();

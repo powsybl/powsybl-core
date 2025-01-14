@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -254,7 +255,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
         // Read network and check control area data
         Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource(), importParams);
-        long numControlAreas = be.getAreaStream().filter(a -> a.getAreaType().equals("ControlAreaTypeKind.Interchange")).count();
+        long numControlAreas = be.getAreaStream().filter(a -> a.getAreaType().equals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)).count();
         assertEquals(1, numControlAreas);
         Area controlArea = be.getAreas().iterator().next();
         assertEquals(236.9798, controlArea.getInterchangeTarget().getAsDouble(), 1e-10);

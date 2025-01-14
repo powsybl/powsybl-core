@@ -850,7 +850,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeControlAreas(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Area area : network.getAreas()) {
-            if (area.getAreaType().equals("ControlAreaTypeKind.Interchange")) {
+            if (area.getAreaType().equals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)) {
                 writeControlArea(area, cimNamespace, writer, context);
             }
         }
@@ -863,9 +863,8 @@ public final class SteadyStateHypothesisExport {
         double netInterchange = controlArea.getInterchangeTarget().orElse(Double.NaN);
         writer.writeCharacters(CgmesExportUtil.format(netInterchange));
         writer.writeEndElement();
-        double pTolerance;
         if (controlArea.hasProperty("pTolerance")) {
-            pTolerance = Double.parseDouble(controlArea.getProperty("pTolerance"));
+            double pTolerance = Double.parseDouble(controlArea.getProperty("pTolerance"));
             writer.writeStartElement(cimNamespace, "ControlArea.pTolerance");
             writer.writeCharacters(CgmesExportUtil.format(pTolerance));
         }
