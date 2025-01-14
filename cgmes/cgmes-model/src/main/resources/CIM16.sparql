@@ -1059,12 +1059,11 @@ WHERE {
         cim:ControlArea.type ?controlAreaType .
         OPTIONAL { ?ControlArea entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic }
     FILTER (regex(STR(?controlAreaType), "Interchange", "i"))
-
 }}
-{ OPTIONAL { GRAPH ?graphSSH {
-    ?ControlArea cim:ControlArea.netInterchange ?netInterchange .
+{ GRAPH ?graphSSH {
+    OPTIONAL { ?ControlArea cim:ControlArea.netInterchange ?netInterchange }
     OPTIONAL { ?ControlArea cim:ControlArea.pTolerance ?pTolerance }
-}}}
+}}
 }
 
 # query: acDcConverters
