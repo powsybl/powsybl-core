@@ -1695,7 +1695,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
         // Export original and only EQ
         ExportOptions exportOptions = new ExportOptions();
-        exportOptions.setExtensions(Set.of("cgmesControlAreas"));
+        // Do not export extensions
+        exportOptions.setExtensions(Collections.emptySet());
         exportOptions.setSorted(true);
 
         Path expectedPath = tmpDir.resolve("expected.xml");
