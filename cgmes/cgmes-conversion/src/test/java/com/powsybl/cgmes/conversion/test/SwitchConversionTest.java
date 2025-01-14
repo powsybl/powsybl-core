@@ -29,6 +29,30 @@ class SwitchConversionTest extends AbstractSerDeTest {
     private static final String DIR = "/issues/switches/";
 
     @Test
+    void basicSwitchTest() {
+        // CGMES network:
+        //   A Breaker with all optional fields defined, and a Disconnector with just the required fields defined.
+        // IIDM network:
+        //   All fields have been correctly read.
+        Network network = readCgmesResources(DIR, "basic_switch.xml");
+        assertNotNull(network);
+
+        // Breaker has all optional fields defined.
+        Switch breaker = network.getSwitch("BR");
+        assertEquals(SwitchKind.BREAKER, breaker.getKind());
+        assertEquals("Breaker", breaker.getNameOrId());
+        assertTrue(breaker.isOpen());
+        assertTrue(breaker.isRetained());
+
+        // Disconnector has only the required fields defined.
+        Switch disconnector = network.getSwitch("DIS");
+        assertEquals(SwitchKind.DISCONNECTOR, disconnector.getKind());
+        assertEquals("DIS", disconnector.getNameOrId());  // Returns ID since name is undefined
+        assertFalse(disconnector.isOpen());  // default value if undefined is false
+        assertFalse(disconnector.isRetained());  // default value if undefined is false
+    }
+
+    @Test
     void switchKindTest() throws IOException {
         // CGMES network:
         //   A Breaker BR, Disconnector DIS, LoadBreakSwitch LBS (direct map to IIDM),
