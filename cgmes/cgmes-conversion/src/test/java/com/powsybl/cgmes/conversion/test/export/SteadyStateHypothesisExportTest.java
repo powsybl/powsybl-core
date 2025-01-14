@@ -109,8 +109,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         assertTrue(test(CgmesConformity1Catalog.smallBusBranch().dataSource(), knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
-                ExportXmlCompare::ignoringCgmesMetadataModels,
-                ExportXmlCompare::ignoringControlAreaNetInterchange)));
+                ExportXmlCompare::ignoringCgmesMetadataModels)));
     }
 
     @Test
@@ -122,7 +121,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
-                ExportXmlCompare::ignoringControlAreaNetInterchange,
                 ExportXmlCompare::ignoringCgmesMetadataModels,
                 ExportXmlCompare::ignoringHvdcLinePmax)));
     }
