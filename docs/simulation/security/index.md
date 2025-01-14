@@ -58,19 +58,22 @@ connected to a given bus bar section.
 
 Remedial actions are actions that are applied when limit violations occur. Supported actions are:
 
-- `LoadAction` Change the relative of absolute `P0` and/or `Q0` of a load
-- `DanglingLineAction` Change the relative of absolute `P0` and/or `Q0` of a dangling line
-- `SwitchAction` Open or close a switch
-- `TerminalsConnectionAction` Open or close a terminal
-- Change the tap of a tap changer (phase `PhaseTapChangerTapPositionAction` or ratio `RatioTapChangerTapPositionAction`)
-- `PercentChangeLoadAction` Change the active and/or reactive power of a load (by setting the values, or defining changes in value or percentage)
-- `ShuntCompensatorPositionAction` Change the section of a shunt compensator
-- Change the regulation status of a tap changer (phase `PhaseTapChangerRegulationAction` or ratio `RatioTapChangerRegulationAction`)
-- `GeneratorAction` Change `targetP`, `targetQ`, regulation status and `targetV` of a generator
-- `StaticVarCompensatorAction` Change the regulation mode of a static var compensator and its associated set point.
-- `HvdcAction` Enabled or disabled AC emulation for HVDC line (with the possibility to change `P0` and `droop` for AC emulation and
-  active power set point and converter mode for set point operating mode)
-- `AreaInterchangeTargetAction` Change the interchange target of an area by specifying a new interchange target in MW.
+| Action                             | Description                                                                                                           |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| `LoadAction`                       | Change the relative of absolute `P0` and/or `Q0` of a load                                                            |
+| `DanglingLineAction`               | Change the relative of absolute `P0` and/or `Q0` of a dangling line                                                   |
+| `SwitchAction`                     | Open or close a switch                                                                                                |
+| `TerminalsConnectionAction`        | Open or close a terminal                                                                                              |
+| `PhaseTapChangerTapPositionAction` | Change the tap of a tap changer phase                                                                                 |
+| `RatioTapChangerTapPositionAction` | Change the tap of a tap changer ratio                                                                                 |
+| `PercentChangeLoadAction`          | Change the active and/or reactive power of a load (by setting the values, or defining changes in value or percentage) |
+| `ShuntCompensatorPositionAction`   | Change the section of a shunt compensator                                                                             |
+| `PhaseTapChangerRegulationAction`  | Change the regulation status of a tap changer phase                                                                   |
+| `RatioTapChangerRegulationAction`  | Change the regulation status of a tap changer ratio                                                                   |
+| `GeneratorAction`                  |              Change `targetP`, `targetQ`, regulation status and `targetV` of a generator                                                                                                        |
+| `StaticVarCompensatorAction`       |   Change the regulation mode of a static var compensator and its associated set point.                                                                                                                   |
+| `HvdcAction`                       |                   Enabled or disabled AC emulation for HVDC line (with the possibility to change `P0` and `droop` for AC emulation and active power set point and converter mode for set point operating mode)                                                                                                   |
+| `AreaInterchangeTargetAction`      | Change the interchange target of an area by specifying a new interchange target in MW.|
 
 Remedial actions can be *preventive* or *curative*:
 
