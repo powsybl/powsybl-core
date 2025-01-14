@@ -1414,7 +1414,7 @@ public final class EquipmentExport {
     private record TieFlow(String id, String terminalId) {
         static Optional<TieFlow> from(AreaBoundary areaBoundary, CgmesExportContext context) {
             return areaBoundary.getTerminal().map(terminal -> from(terminal, context))
-                    .orElse(areaBoundary.getBoundary().flatMap(boundary -> from(boundary, context)));
+                    .orElseGet(() -> areaBoundary.getBoundary().flatMap(boundary -> from(boundary, context)));
         }
 
         static Optional<TieFlow> from(Terminal terminal, CgmesExportContext context) {

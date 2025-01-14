@@ -111,12 +111,16 @@ class TieFlowConversionTest {
     }
 
     private static boolean containsTerminal(Area controlArea, String connectableId, IdentifiableType identifiableType) {
-        boolean ok = controlArea.getAreaBoundaryStream().filter(b -> b.getTerminal().isPresent()).anyMatch(t -> isConnectableOk(connectableId, identifiableType,
-            t.getTerminal().get().getConnectable().getId(), t.getTerminal().get().getConnectable().getType()));
+        boolean ok = controlArea.getAreaBoundaryStream()
+                .filter(b -> b.getTerminal().isPresent())
+                .anyMatch(t -> isConnectableOk(connectableId, identifiableType,
+                    t.getTerminal().get().getConnectable().getId(), t.getTerminal().get().getConnectable().getType()));
         if (!ok) {
             LOG.info("Terminal to find connectableId {} identifiableType {}", connectableId, identifiableType);
-            controlArea.getAreaBoundaryStream().filter(b -> b.getTerminal().isPresent()).forEach(b -> LOG.info("Terminal inside cgmesControlArea connectableId {} identifiableType {}",
-                    b.getTerminal().get().getConnectable().getId(), b.getTerminal().get().getConnectable().getType()));
+            controlArea.getAreaBoundaryStream()
+                    .filter(b -> b.getTerminal().isPresent())
+                    .forEach(b -> LOG.info("Terminal inside cgmesControlArea connectableId {} identifiableType {}",
+                        b.getTerminal().get().getConnectable().getId(), b.getTerminal().get().getConnectable().getType()));
         }
         return ok;
     }
