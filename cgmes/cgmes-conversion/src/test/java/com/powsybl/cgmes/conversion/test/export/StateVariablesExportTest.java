@@ -586,7 +586,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         // Import original
         importParams.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected0 = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
-        boolean originalNetworkHasAreas = expected0.getAreaCount() > 0;
 
         // Ensure all information in IIDM mapping extensions is created
         // Some mappings are not built until export is requested
@@ -640,14 +639,9 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                 .forEach(t -> t.setP(0.0).setQ(0.0));
 
         // Export original and with new SV
-        // comparison without extensions, only Networks, to avoid differences in CgmesControlAreas
+        // comparison without extensions, only Networks
         ExportOptions exportOptions = new ExportOptions().setSorted(true);
         exportOptions.setExtensions(Collections.emptySet());
-        // Also, if a default area was created during export to CGMES, remove it from the expected network
-        // The actual network will not have it, it is the original network directly exported as IIDM
-        if (!originalNetworkHasAreas) {
-            expected.getAreaStream().map(Area::getId).toList().forEach(a -> expected.getArea(a).remove());
-        }
         Path expectedPath = tmpDir.resolve("expected.xml");
         Path actualPath = tmpDir.resolve("actual.xml");
         NetworkSerDe.write(expected, exportOptions, expectedPath);
