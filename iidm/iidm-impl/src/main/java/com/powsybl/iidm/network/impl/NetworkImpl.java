@@ -1238,14 +1238,14 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
                 .withUntypedValue("networkId", id)
                 .add();
         validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),
-                true, throwsException, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
+                true, throwsException ? ValidationUtil.LogLevel.THROW_EXCEPTION : ValidationUtil.LogLevel.LOG_ERROR, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
         return validationLevel;
     }
 
     @Override
     public ValidationLevel getValidationLevel() {
         if (validationLevel == null) {
-            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, minValidationLevel, ReportNode.NO_OP);
+            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, ValidationUtil.LogLevel.SILENT, minValidationLevel, ReportNode.NO_OP);
         }
         return validationLevel;
     }
