@@ -69,6 +69,29 @@ class SwitchConversionTest extends AbstractSerDeTest {
     }
 
     @Test
+    void switchInBusBranchTest() throws IOException {
+        // CGMES network:
+        //   A bus-branch network with a non-retained (doesn't make sense) Disconnector DIS.
+        // IIDM network:
+        //   In bus breaker topology kind, all switches are Breaker and retained.
+        Network network = readCgmesResources(DIR, "switch_in_bus_branch_EQ.xml", "switch_in_bus_branch_TP.xml");
+        assertNotNull(network);
+
+        // The Switch is imported with kind breaker, and its original CGMES class is stored.
+        Switch disconnector = network.getSwitch("DIS");
+        assertEquals(SwitchKind.BREAKER, disconnector.getKind());
+        assertEquals("Disconnector", disconnector.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+
+        // The Switch is retained in IIDM, even though it is not in the original CGMES file.
+        assertTrue(disconnector.isRetained());
+
+        // It is a retained Disconnector in the CGMES export.
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        assertEquals("Disconnector", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_DIS\">")));
+        assertEquals("true", getFirstMatch(eqFile, Pattern.compile("<cim:Switch.retained>(.*?)</cim:Switch.retained>")));
+    }
+
+    @Test
     void lineWithZeroImpedanceTest() {
         // CGMES network:
         //   An ACLineSegment ACL with zero impedance between two nodes of the same voltage level.
