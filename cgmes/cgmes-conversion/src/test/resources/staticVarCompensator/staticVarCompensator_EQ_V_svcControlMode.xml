@@ -1,0 +1,61 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>StaticVarCompensator</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest">
+        <cim:IdentifiedObject.mRID>GeographicalRegionTest</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>GeographicalRegionTest</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest">
+        <cim:IdentifiedObject.mRID>SubGeographicalRegionTest</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>SubGeographicalRegionTest</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest" />
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_Substation1">
+        <cim:IdentifiedObject.mRID>Substation1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage400">
+        <cim:IdentifiedObject.mRID>BaseVoltage400</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.description>Base Voltage Level 400kV</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>400.0 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel1">
+        <cim:IdentifiedObject.mRID>VoltageLevel1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>VoltageLevel1</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.highVoltageLimit>420</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.lowVoltageLimit>380</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode1">
+        <cim:IdentifiedObject.mRID>ConnectivityNode1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Connectivity Node 1</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+
+    <cim:StaticVarCompensator rdf:ID="_StaticVarCompensator">
+        <cim:IdentifiedObject.name>StaticVarCompensator</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+        <cim:StaticVarCompensator.capacitiveRating>5062.5</cim:StaticVarCompensator.capacitiveRating>
+        <cim:StaticVarCompensator.inductiveRating>-5062.5</cim:StaticVarCompensator.inductiveRating>
+        <cim:StaticVarCompensator.slope>0.102</cim:StaticVarCompensator.slope>
+        <cim:StaticVarCompensator.sVCControlMode rdf:resource="http://iec.ch/TC57/CIM100#SVCControlMode.voltage"/>
+    </cim:StaticVarCompensator>
+    <cim:Terminal rdf:ID="_StaticVarCompensator_T">
+        <cim:IdentifiedObject.mRID>StaticVarCompensator_T</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
+        <cim:Terminal.ConductingEquipment rdf:resource="#_StaticVarCompensator" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+</rdf:RDF>
