@@ -24,29 +24,17 @@ class StaticVarCompensatorTest {
 
     @Test
     void importEqTest() {
-        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml");
-        assertEquals(1, network.getStaticVarCompensatorCount());
-
-        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator("StaticVarCompensator");
-        assertTrue(checkControl(staticVarCompensator, StaticVarCompensator.RegulationMode.OFF, Double.NaN, Double.NaN));
+        assertTrue(importEqFileAndVerifyThatTheControlIsOff("staticVarCompensator_EQ.xml"));
     }
 
     @Test
     void importEqWithVoltageSetpointTest() {
-        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ_voltageSetpoint.xml");
-        assertEquals(1, network.getStaticVarCompensatorCount());
-
-        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator("StaticVarCompensator");
-        assertTrue(checkControl(staticVarCompensator, StaticVarCompensator.RegulationMode.OFF, Double.NaN, Double.NaN));
+        assertTrue(importEqFileAndVerifyThatTheControlIsOff("staticVarCompensator_EQ_voltageSetpoint.xml"));
     }
 
     @Test
     void importEqWithVoltageSvcControlModeTest() {
-        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ_V_svcControlMode.xml");
-        assertEquals(1, network.getStaticVarCompensatorCount());
-
-        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator("StaticVarCompensator");
-        assertTrue(checkControl(staticVarCompensator, StaticVarCompensator.RegulationMode.OFF, Double.NaN, Double.NaN));
+        assertTrue(importEqFileAndVerifyThatTheControlIsOff("staticVarCompensator_EQ_V_svcControlMode.xml"));
     }
 
     @Test
@@ -69,11 +57,7 @@ class StaticVarCompensatorTest {
 
     @Test
     void importEqWithReactivePowerSvcControlModeTest() {
-        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ_Q_svcControlMode.xml");
-        assertEquals(1, network.getStaticVarCompensatorCount());
-
-        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator("StaticVarCompensator");
-        assertTrue(checkControl(staticVarCompensator, StaticVarCompensator.RegulationMode.OFF, Double.NaN, Double.NaN));
+        assertTrue(importEqFileAndVerifyThatTheControlIsOff("staticVarCompensator_EQ_Q_svcControlMode.xml"));
     }
 
     @Test
@@ -83,6 +67,15 @@ class StaticVarCompensatorTest {
 
         StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator("StaticVarCompensator");
         assertTrue(checkControl(staticVarCompensator, StaticVarCompensator.RegulationMode.REACTIVE_POWER, Double.NaN, 10.0));
+    }
+
+    private static boolean importEqFileAndVerifyThatTheControlIsOff(String eqFile) {
+        Network network = readCgmesResources(DIR, eqFile);
+        assertEquals(1, network.getStaticVarCompensatorCount());
+
+        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator("StaticVarCompensator");
+        assertTrue(checkControl(staticVarCompensator, StaticVarCompensator.RegulationMode.OFF, Double.NaN, Double.NaN));
+        return true;
     }
 
     private static boolean checkControl(StaticVarCompensator staticVarCompensator, StaticVarCompensator.RegulationMode defaultRegulationMode, double defaultTargetV, double defaultTargetQ) {
