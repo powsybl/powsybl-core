@@ -257,14 +257,12 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertNotNull(limits1);
 
         transformer1.getOperationalLimitsGroup1("group1").get().newActivePowerLimits().setPermanentLimit(220.0).add();
-        transformer1.setSelectedOperationalLimitsGroup1("group1");
         Optional<ActivePowerLimits> optionalActivePowerLimits1 = transformer1.getActivePowerLimits1();
         assertTrue(optionalActivePowerLimits1.isPresent());
         ActivePowerLimits activePowerLimits1 = optionalActivePowerLimits1.get();
         assertNotNull(activePowerLimits1);
 
         transformer1.getOperationalLimitsGroup1("group1").get().newApparentPowerLimits().setPermanentLimit(220.0).add();
-        transformer1.setSelectedOperationalLimitsGroup1("group1");
         Optional<ApparentPowerLimits> optionalApparentPowerLimits1 = transformer1.getApparentPowerLimits1();
         assertTrue(optionalApparentPowerLimits1.isPresent());
         ApparentPowerLimits apparentPowerLimits1 = optionalApparentPowerLimits1.get();

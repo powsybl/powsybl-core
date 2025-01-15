@@ -40,8 +40,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     TwoWindingsTransformerAdderImpl(SubstationImpl substation, TwoWindingsTransformer copiedTwoWindingsTransformer) {
         this.substation = substation;
         this.copiedTwoWindingsTransformer = copiedTwoWindingsTransformer;
-        TwoWindingsTransformerAdderImpl twoWindingsTransformerImpl = this;
-        TwoWindingsTransformerAdder.fillTwoWindingsTransformerAdder(twoWindingsTransformerImpl, copiedTwoWindingsTransformer);
+        TwoWindingsTransformerAdder.fillTwoWindingsTransformerAdder(this, copiedTwoWindingsTransformer);
     }
 
     @Override
@@ -161,7 +160,5 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         getNetwork().getIndex().checkAndAdd(transformer);
         getNetwork().getListeners().notifyCreation(transformer);
         return transformer;
-
     }
-
 }
