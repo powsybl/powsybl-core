@@ -46,7 +46,7 @@ class Adjacency {
                 value.dcNode));
 
         cgmesModel.transformers().stream()
-                .map(t -> context.transformerEnds(t.getId("PowerTransformer")))
+                .map(t -> context.transformerEnds(t.getId(CgmesNames.POWER_TRANSFORMER)))
                 .forEach(ends -> {
                     if (ends.size() == 2) {
                         computeTwoWindingsTransformerAdjacency(cgmesModel, ends);
