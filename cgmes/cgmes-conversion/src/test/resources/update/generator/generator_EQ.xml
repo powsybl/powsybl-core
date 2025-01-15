@@ -56,8 +56,7 @@
         <cim:RotatingMachine.GeneratingUnit rdf:resource="#_SynchronousMachine-GeneratingUnit" />
     </cim:SynchronousMachine>
     <cim:Terminal rdf:ID="_SynchronousMachine_T">
-        <cim:IdentifiedObject.mRID>SynchronousMachine_T</cim:IdentifiedObject.mRID>
-        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.name>SynchronousMachine_T</cim:IdentifiedObject.name>
         <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
         <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_SynchronousMachine" />
@@ -94,8 +93,7 @@
         <cim:EquivalentInjection.x2>0</cim:EquivalentInjection.x2>
     </cim:EquivalentInjection>
     <cim:Terminal rdf:ID="_EquivalentInjection_T">
-        <cim:IdentifiedObject.mRID>EquivalentInjection_T</cim:IdentifiedObject.mRID>
-        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.name>EquivalentInjection_T</cim:IdentifiedObject.name>
         <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
         <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_EquivalentInjection" />
@@ -120,8 +118,7 @@
         <cim:ExternalNetworkInjection.minQ>-66</cim:ExternalNetworkInjection.minQ>
     </cim:ExternalNetworkInjection>
     <cim:Terminal rdf:ID="_ExternalNetworkInjection_T">
-        <cim:IdentifiedObject.mRID>ExternalNetworkInjection_T</cim:IdentifiedObject.mRID>
-        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.name>ExternalNetworkInjection_T</cim:IdentifiedObject.name>
         <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
         <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_ExternalNetworkInjection" />

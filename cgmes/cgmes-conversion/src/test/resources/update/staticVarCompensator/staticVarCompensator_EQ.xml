@@ -51,8 +51,7 @@
         <cim:StaticVarCompensator.slope>0.102</cim:StaticVarCompensator.slope>
     </cim:StaticVarCompensator>
     <cim:Terminal rdf:ID="_StaticVarCompensator_T">
-        <cim:IdentifiedObject.mRID>StaticVarCompensator_T</cim:IdentifiedObject.mRID>
-        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.name>StaticVarCompensator_T</cim:IdentifiedObject.name>
         <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
         <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_StaticVarCompensator" />
