@@ -47,8 +47,7 @@
         <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1"/>
     </cim:EnergyConsumer>
     <cim:Terminal rdf:ID="_EnergyConsumer_T">
-        <cim:IdentifiedObject.mRID>EnergyConsumer_T</cim:IdentifiedObject.mRID>
-        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.name>EnergyConsumer_T</cim:IdentifiedObject.name>
         <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
         <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_EnergyConsumer" />
@@ -59,8 +58,7 @@
         <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1"/>
     </cim:EnergySource>
     <cim:Terminal rdf:ID="_EnergySource_T">
-        <cim:IdentifiedObject.mRID>EnergySource_T</cim:IdentifiedObject.mRID>
-        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.name>EnergySource_T</cim:IdentifiedObject.name>
         <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
         <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_EnergySource" />
@@ -83,8 +81,7 @@
         <cim:IdentifiedObject.mRID>AsynchronousMachine</cim:IdentifiedObject.mRID>
     </cim:AsynchronousMachine>
     <cim:Terminal rdf:ID="_AsynchronousMachine_T">
-        <cim:IdentifiedObject.mRID>synchronousMachine_T</cim:IdentifiedObject.mRID>
-        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.name>AsynchronousMachine_T</cim:IdentifiedObject.name>
         <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
         <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_AsynchronousMachine" />
