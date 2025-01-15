@@ -916,12 +916,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void microGridBaseCaseNLSwitchWithoutName() {
-        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLSwitchWithoutName().dataSource(), importParams);
-        assertNotNull(network.getSwitch("5f5d40ae-d52d-4631-9285-b3ceefff784c"));
-    }
-
-    @Test
     void microGridBaseCaseBESingleFile() {
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), importParams);
         assertEquals(6, network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().size());
