@@ -791,8 +791,12 @@ public final class NetworkSerDe {
     }
 
     public static Network read(Path xmlFile, ImportOptions options) {
+        return read(xmlFile, options, null, NetworkFactory.findDefault(), ReportNode.NO_OP);
+    }
+
+    public static Network read(Path xmlFile, ImportOptions options, Anonymizer anonymizer, NetworkFactory networkFactory, ReportNode reportNode) {
         try (InputStream is = Files.newInputStream(xmlFile)) {
-            return read(is, options, null);
+            return read(is, options, anonymizer, networkFactory, reportNode);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -15,6 +15,8 @@ import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadBarExt;
 
+import java.util.OptionalInt;
+
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
@@ -28,11 +30,15 @@ public class LoadBarSerDe extends AbstractExtensionSerDe<Load, LoadBarExt> {
 
     @Override
     public void write(LoadBarExt loadBar, SerializerContext context) {
+        context.getWriter().writeOptionalIntAttribute("value", loadBar.getValue());
     }
 
     @Override
     public LoadBarExt read(Load load, DeserializerContext context) {
+        OptionalInt value = context.getReader().readOptionalIntAttribute("value");
         context.getReader().readEndNode();
-        return new LoadBarExt(load);
+        LoadBarExt loadBarExt = new LoadBarExt(load);
+        value.ifPresent(loadBarExt::setValue);
+        return loadBarExt;
     }
 }

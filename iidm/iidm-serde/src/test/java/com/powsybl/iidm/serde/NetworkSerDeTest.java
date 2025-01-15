@@ -21,6 +21,8 @@ import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -52,8 +54,56 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
     }
 
+    @ParameterizedTest
+    @EnumSource(value = TreeDataFormat.class, names = {"XML", "JSON"})
+    void testSkippedExtension(TreeDataFormat format) throws IOException {
+        Network network = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"));
+        Path file = tmpDir.resolve("data");
+        NetworkSerDe.write(network, new ExportOptions().setFormat(format), file);
+
+        // Read file with all extensions included (default ImportOptions)
+        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
+        Network networkReadExtensions = NetworkSerDe.read(file,
+                new ImportOptions().setFormat(format), null, NetworkFactory.findDefault(), reportNode1);
+        Load load1 = networkReadExtensions.getLoad("LOAD");
+        assertNotNull(load1.getExtension(LoadBarExt.class));
+        assertNotNull(load1.getExtension(LoadZipModel.class));
+
+        StringWriter sw1 = new StringWriter();
+        reportNode1.print(sw1);
+        assertEquals("""
+                + Root reportNode
+                   Validation warnings
+                   + Imported extensions
+                      Extension loadBar imported.
+                      Extension loadZipModel imported.
+                """, TestUtil.normalizeLineSeparator(sw1.toString()));
+
+        // Read file with only terminalMockNoSerDe and loadZipModel extensions included
+        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
+        ImportOptions notAllExtensions = new ImportOptions()
+                .addExtension("terminalMockNoSerDe").addExtension("loadZipModel")
+                .setFormat(format);
+        Network networkSkippedExtensions = NetworkSerDe.read(file,
+                notAllExtensions, null, NetworkFactory.findDefault(), reportNode2);
+        Load load2 = networkSkippedExtensions.getLoad("LOAD");
+        assertNull(load2.getExtension(LoadBarExt.class));
+        LoadZipModel loadZipModelExt = load2.getExtension(LoadZipModel.class);
+        assertNotNull(loadZipModelExt);
+        assertEquals(3.0, loadZipModelExt.getA3(), 0.001);
+
+        StringWriter sw2 = new StringWriter();
+        reportNode2.print(sw2);
+        assertEquals("""
+                + Root reportNode
+                   Validation warnings
+                   + Imported extensions
+                      Extension loadZipModel imported.
+                """, TestUtil.normalizeLineSeparator(sw2.toString()));
+    }
+
     @Test
-    void testSkippedExtension() throws IOException {
+    void testNotFoundExtension() throws IOException {
         // Read file with all extensions included (default ImportOptions)
         ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
         Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
@@ -73,28 +123,6 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                    + Not found extensions
                       Extension terminalMockNoSerDe not found.
                 """, TestUtil.normalizeLineSeparator(sw1.toString()));
-
-        // Read file with only terminalMockNoSerDe and loadZipModel extensions included
-        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
-        ImportOptions notAllExtensions = new ImportOptions().addExtension("terminalMockNoSerDe").addExtension("loadZipModel");
-        Network networkSkippedExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
-                notAllExtensions, null, NetworkFactory.findDefault(), reportNode2);
-        Load load2 = networkSkippedExtensions.getLoad("LOAD");
-        assertNull(load2.getExtension(LoadBarExt.class));
-        LoadZipModel loadZipModelExt = load2.getExtension(LoadZipModel.class);
-        assertNotNull(loadZipModelExt);
-        assertEquals(3.0, loadZipModelExt.getA3(), 0.001);
-
-        StringWriter sw2 = new StringWriter();
-        reportNode2.print(sw2);
-        assertEquals("""
-                + Root reportNode
-                   Validation warnings
-                   + Imported extensions
-                      Extension loadZipModel imported.
-                   + Not found extensions
-                      Extension terminalMockNoSerDe not found.
-                """, TestUtil.normalizeLineSeparator(sw2.toString()));
     }
 
     @Test

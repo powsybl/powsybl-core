@@ -9,7 +9,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:extension id="LOAD">
-        <bar:loadBar/>
+        <bar:loadBar value="12"/>
         <mockns:terminalMockNoSerDe>
             <mockns:terminal id="LOAD"/>
         </mockns:terminalMockNoSerDe>

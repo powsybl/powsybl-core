@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.Load;
  */
 public class LoadBarExt extends AbstractExtension<Load> {
 
+    private Integer value = null;
+
     public LoadBarExt(Load load) {
         super(load);
     }
@@ -22,5 +24,13 @@ public class LoadBarExt extends AbstractExtension<Load> {
     @Override
     public String getName() {
         return "loadBar";
+    }
+
+    public Integer getValue() {
+        return value;
+    }
+
+    public void setValue(Integer value) {
+        this.value = value;
     }
 }
