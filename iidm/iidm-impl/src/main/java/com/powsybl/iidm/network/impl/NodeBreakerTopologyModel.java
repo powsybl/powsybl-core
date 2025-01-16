@@ -1269,18 +1269,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         if (!pathsFromLine.isEmpty()) {
 
             // Initialise a list of lines connected to the BusbarSection
-            Map<Line, ThreeSides> linesAndSidesConnectedToIncomingLine = new HashMap<>();
-
-            // Each path is visited and for each, we add the line at the end to the list
-            for (TIntArrayList pathFromLine : pathsFromLine) {
-                // Get the terminal at the end of the path
-                Terminal terminalEndOfPathFromBbs = getEndOfPathTerminal(pathFromLine);
-
-                // Connectables should only be lines by now but in case...
-                if (terminalEndOfPathFromBbs.getConnectable() instanceof Line line) {
-                    linesAndSidesConnectedToIncomingLine.putIfAbsent(line, line.getTerminal1() == terminalEndOfPathFromBbs ? ThreeSides.TWO : ThreeSides.ONE);
-                }
-            }
+            Map<Line, ThreeSides> linesAndSidesConnectedToIncomingLine = addOppositeLines(pathsFromLine);
 
             // Initialise a list of lines that might be opened during propagation
             Map<Line, ThreeSides> linesAndSidesDisconnectedDuringPropagation = new HashMap<>();
@@ -1296,6 +1285,24 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             return true;
         }
         return false;
+    }
+
+    private Map<Line, ThreeSides> addOppositeLines(List<TIntArrayList> pathsFromLine) {
+        // Initialise the map
+        Map<Line, ThreeSides> linesAndSidesConnectedToIncomingLine = new HashMap<>();
+
+        // Each path is visited and for each, we add the line at the end to the list
+        for (TIntArrayList pathFromLine : pathsFromLine) {
+            // Get the terminal at the end of the path
+            Terminal terminalEndOfPathFromBbs = getEndOfPathTerminal(pathFromLine);
+
+            // Connectables should only be lines by now but in case...
+            if (terminalEndOfPathFromBbs.getConnectable() instanceof Line line) {
+                linesAndSidesConnectedToIncomingLine.putIfAbsent(line, line.getTerminal1() == terminalEndOfPathFromBbs ? ThreeSides.TWO : ThreeSides.ONE);
+            }
+        }
+
+        return linesAndSidesConnectedToIncomingLine;
     }
 
     private boolean revertConnectionPropagation(Map<Line, ThreeSides> linesAndSidesDisconnectedDuringPropagation) {
@@ -1419,21 +1426,9 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         // Initialise a list of lines connected to the BusbarSection
         Map<Line, ThreeSides> linesAndSidesConnectedToBbs = new HashMap<>();
 
-        // Each path is visited and for each, the first openable switch found is added in the set of switches to open
-        for (TIntArrayList pathFromBbs : pathsFromBbs) {
-            // Get the terminal at the end of the path
-            Terminal terminalEndOfPathFromBbs = getEndOfPathTerminal(pathFromBbs);
-
-            // We filter the incoming terminal
-            if (!terminalEndOfPathFromBbs.equals(incomingTerminal)) {
-                if (terminalEndOfPathFromBbs.getConnectable() instanceof Line line) {
-                    // If we get to another line, add it to the map
-                    linesAndSidesConnectedToBbs.put(line, line.getTerminal1() == terminalEndOfPathFromBbs ? ThreeSides.TWO : ThreeSides.ONE);
-                } else {
-                    // We abort if we get to another type of element
-                    return false;
-                }
-            }
+        // Each path is visited and for each, check if the network element at the end is a line - fails if not
+        if (checkOppositeElement(pathsFromBbs, incomingTerminal, linesAndSidesConnectedToBbs)) {
+            return false;
         }
 
         // We now try to disconnect the other side of each line
@@ -1445,6 +1440,25 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             }
         }
         return true;
+    }
+
+    private boolean checkOppositeElement(List<TIntArrayList> pathsFromBbs, Terminal incomingTerminal, Map<Line, ThreeSides> linesAndSidesConnectedToBbs) {
+        for (TIntArrayList pathFromBbs : pathsFromBbs) {
+            // Get the terminal at the end of the path
+            Terminal terminalEndOfPathFromBbs = getEndOfPathTerminal(pathFromBbs);
+
+            // We filter the incoming terminal
+            if (!terminalEndOfPathFromBbs.equals(incomingTerminal)) {
+                if (terminalEndOfPathFromBbs.getConnectable() instanceof Line line) {
+                    // If we get to another line, add it to the map
+                    linesAndSidesConnectedToBbs.put(line, line.getTerminal1() == terminalEndOfPathFromBbs ? ThreeSides.TWO : ThreeSides.ONE);
+                } else {
+                    // We abort if we get to another type of element
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
