@@ -8,8 +8,13 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.util.SwitchPredicates;
+
+import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -127,4 +132,43 @@ class LineImpl extends AbstractConnectableBranch<Line> implements Line {
         return "AC line";
     }
 
+    @Override
+    public boolean connect(boolean propagateDisconnectionIfNeeded) {
+        return connect(SwitchPredicates.IS_CLOSED_BREAKER, null, propagateDisconnectionIfNeeded);
+    }
+
+    @Override
+    public boolean connect(Predicate<Switch> isSwitchOpenable, boolean propagateDisconnectionIfNeeded) {
+        return connect(isSwitchOpenable, null, propagateDisconnectionIfNeeded);
+    }
+
+    @Override
+    public boolean connect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean propagateDisconnectionIfNeeded) {
+        return ConnectDisconnectUtil.connectAllTerminals(
+            this,
+            getTerminals(side),
+            isSwitchOpenable,
+            propagateDisconnectionIfNeeded,
+            getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    @Override
+    public boolean disconnect(boolean propagateDisconnectionIfNeeded) {
+        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER, null, propagateDisconnectionIfNeeded);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, boolean propagateDisconnectionIfNeeded) {
+        return disconnect(isSwitchOpenable, null, propagateDisconnectionIfNeeded);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean propagateDisconnectionIfNeeded) {
+        return ConnectDisconnectUtil.disconnectAllTerminals(
+            this,
+            getTerminals(side),
+            isSwitchOpenable,
+            propagateDisconnectionIfNeeded,
+            getNetwork().getReportNodeContext().getReportNode());
+    }
 }

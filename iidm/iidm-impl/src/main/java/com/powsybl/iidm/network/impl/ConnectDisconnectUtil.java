@@ -40,7 +40,9 @@ public final class ConnectDisconnectUtil {
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been connected, else {@code false}.
      */
-    static boolean connectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals, Predicate<Switch> isTypeSwitchToOperate, ReportNode reportNode) {
+    static boolean connectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals,
+                                       Predicate<Switch> isTypeSwitchToOperate, boolean propagateDisconnectionIfNeeded,
+                                       ReportNode reportNode) {
 
         // Booleans
         boolean isAlreadyConnected = true;
@@ -52,7 +54,7 @@ public final class ConnectDisconnectUtil {
         // We try to connect each terminal
         for (Terminal terminal : terminals) {
             // Check if the terminal is already connected
-            if (checkCurrentTerminalStatus(terminal, identifiable, reportNode)) {
+            if (checkCurrentTerminalStatus(terminal, identifiable, reportNode, propagateDisconnectionIfNeeded)) {
                 // If the terminal is connected and its voltage level is not fictitious, we skip it
                 continue;
             }
@@ -61,7 +63,7 @@ public final class ConnectDisconnectUtil {
             // If it's a node-breaker terminal, the switches to connect are added to a set
             if (terminal.getVoltageLevel().getTopologyKind() == NODE_BREAKER) {
                 NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) terminal.getVoltageLevel()).getTopologyModel();
-                isNowConnected = topologyModel.getConnectingSwitches(terminal, isTypeSwitchToOperate, switchForDisconnection);
+                isNowConnected = topologyModel.getConnectingSwitches(terminal, isTypeSwitchToOperate, switchForDisconnection, propagateDisconnectionIfNeeded);
             }
             // If it's a bus-breaker terminal, there is nothing to do
 
@@ -90,15 +92,15 @@ public final class ConnectDisconnectUtil {
         return isNowConnected;
     }
 
-    private static boolean checkCurrentTerminalStatus(Terminal terminal, Identifiable<?> identifiable, ReportNode reportNode) {
+    private static boolean checkCurrentTerminalStatus(Terminal terminal, Identifiable<?> identifiable, ReportNode reportNode, boolean propagateDisconnectionIfNeeded) {
         if (terminal.isConnected()) {
             reportNode.newReportNode()
                 .withMessageTemplate("alreadyConnectedTerminal", "A terminal of identifiable ${identifiable} is already connected.")
                 .withUntypedValue("identifiable", identifiable.getId())
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-            // If the voltage level is fictitious, we continue to try to propagate
-            return !terminal.getVoltageLevel().isFictitious();
+            // If asked and if the voltage level is fictitious, we try to propagate the connection
+            return !terminal.getVoltageLevel().isFictitious() || !propagateDisconnectionIfNeeded;
         } else {
             return false;
         }
@@ -115,7 +117,9 @@ public final class ConnectDisconnectUtil {
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been disconnected, else {@code false}.
      */
-    static boolean disconnectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals, Predicate<Switch> isSwitchOpenable, ReportNode reportNode) {
+    static boolean disconnectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals,
+                                          Predicate<Switch> isSwitchOpenable, boolean propagateDisconnectionIfNeeded,
+                                          ReportNode reportNode) {
         // Booleans
         boolean isAlreadyDisconnected = true;
         boolean isNowDisconnected = true;
@@ -140,7 +144,7 @@ public final class ConnectDisconnectUtil {
             // If it's a node-breaker terminal, the switches to disconnect are added to a set
             if (terminal.getVoltageLevel().getTopologyKind() == NODE_BREAKER) {
                 NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) terminal.getVoltageLevel()).getTopologyModel();
-                if (!topologyModel.getDisconnectingSwitches(terminal, isSwitchOpenable, switchForDisconnection)) {
+                if (!topologyModel.getDisconnectingSwitches(terminal, isSwitchOpenable, switchForDisconnection, propagateDisconnectionIfNeeded)) {
                     // Exit if the terminal cannot be disconnected
                     return false;
                 }
