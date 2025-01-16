@@ -305,6 +305,28 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    void disconnectionOnTeePointTestWithNoPropagationButFictitiousSwitchesCanBeOpened() {
+        // Network
+        Network network = createNetworkWithTeePoint();
+
+        // Lines
+        Line line1 = network.getLine("L1_1");
+        Line line2 = network.getLine("L1_2");
+        Line line3 = network.getLine("testLine");
+        List<Line> lines = List.of(line1, line2, line3);
+
+        // Check that the 3 lines are connected on both sides
+        lines.forEach(line -> line.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected())));
+
+        // Try a disconnection without propagation - it should fail because there are no switches in the opposite voltage
+        // level, only internal connections
+        assertFalse(line1.disconnect(false));
+
+        // Line 1 should be disconnected while the other 2 are still connected
+        lines.forEach(line -> line.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected())));
+    }
+
+    @Test
     void disconnectionOnTeePointTestWithPropagationButSomeFictitiousSwitches() {
         // Network
         Network network = createNetworkWithTeePoint();
@@ -532,8 +554,8 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
         assertLineConnection(line1, false, true);
         assertLineConnection(line2, true, false);
 
-        // Try to reconnect the line without propagation - it should fail
-        assertTrue(line1.connect(SwitchPredicates.IS_NONFICTIONAL, false));
+        // Try to reconnect the line without propagation - it should work but only the first line is connected now
+        assertTrue(line1.connect(false));
 
         // Check that only the first line is now fully connected
         assertLineConnection(line1, true, true);

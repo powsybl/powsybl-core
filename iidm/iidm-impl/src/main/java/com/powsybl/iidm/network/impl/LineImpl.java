@@ -134,7 +134,7 @@ class LineImpl extends AbstractConnectableBranch<Line> implements Line {
 
     @Override
     public boolean connect(boolean propagateDisconnectionIfNeeded) {
-        return connect(SwitchPredicates.IS_CLOSED_BREAKER, null, propagateDisconnectionIfNeeded);
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null, propagateDisconnectionIfNeeded);
     }
 
     @Override
