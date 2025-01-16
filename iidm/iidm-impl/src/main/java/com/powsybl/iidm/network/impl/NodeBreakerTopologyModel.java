@@ -1238,16 +1238,20 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             // the shortest path is the best
             TIntArrayList shortestPath = paths.get(0);
 
+            // Were all swiches already closed ?
+            boolean switchesWereAllClosed = true;
+
             // close all open switches on the path
             for (int i = 0; i < shortestPath.size(); i++) {
                 int e = shortestPath.get(i);
                 SwitchImpl sw = graph.getEdgeObject(e);
                 if (SwitchPredicates.IS_OPEN.test(sw)) {
+                    switchesWereAllClosed = false;
                     // Since the paths were constructed using the method checkNonClosableSwitches, only operable switches can be open
                     switchForConnection.add(sw);
                 }
             }
-            return true;
+            return !switchesWereAllClosed || !propagateDisconnectionIfNeeded || propagateConnection(node, isSwitchOperable);
         } else if (propagateDisconnectionIfNeeded) {
             // If no path was found and propagation is asked, try to propagate connection through lines
             return propagateConnection(node, isSwitchOperable);
@@ -1260,55 +1264,33 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     private boolean propagateConnection(int node, Predicate<Switch> isSwitchOperable) {
-//        // Find all paths from the current node to any network element
-//        List<TIntArrayList> pathsFromBbs = graph.findAllPaths(node, Objects::nonNull, SwitchPredicates.IS_OPEN);
-//        // There will be at least one path since we used it before
-//
-//        // If there is only one path, propagation cannot be done
-//        if (pathsFromBbs.size() < 2) {
-//            return false;
-//        }
-//
-//        // Initialise a list of lines connected to the BusbarSection
-//        Map<Line, ThreeSides> linesAndSidesConnectedToBbs = new HashMap<>();
-//
-//        // Each path is visited and for each, the first openable switch found is added in the set of switches to open
-//        for (TIntArrayList pathFromBbs : pathsFromBbs) {
-//            // Get the terminal at the end of the path
-//            Terminal terminalEndOfPathFromBbs = getEndOfPathTerminal(pathFromBbs);
-//
-//            // We filter the incoming terminal
-//            if (!terminalEndOfPathFromBbs.equals(incomingTerminal)) {
-//                if (terminalEndOfPathFromBbs.getConnectable() instanceof Line line) {
-//                    // If we get to another line, add it to the map
-//                    linesAndSidesConnectedToBbs.put(line, line.getTerminal1() == terminalEndOfPathFromBbs ? ThreeSides.TWO : ThreeSides.ONE);
-//                } else {
-//                    // We abort if we get to another type of element
-//                    return false;
-//                }
-//            }
-//        }
-
-
-
-
-
-
-
-
-
-
-
         // If no path was found and the voltage level is fictitious, try to propagate connection
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerTopologyModel::isLine, SwitchPredicates.IS_OPEN);
-        if (!paths.isEmpty()) {
-            List<Terminal> connectedTerminals = new ArrayList<>();
-            // On each path, we try to connect the opposite terminal
-            for (TIntArrayList path : paths) {
-                if (!connectNextLine(path, isSwitchOperable, connectedTerminals)) {
-                    // If a connection failed, disconnect all the connected terminals
-                    connectedTerminals.forEach(t -> t.disconnect(isSwitchOperable));
-                    return false;
+        List<TIntArrayList> pathsFromLine = graph.findAllPaths(node, NodeBreakerTopologyModel::isLine, SwitchPredicates.IS_OPEN);
+        if (!pathsFromLine.isEmpty()) {
+
+            // Initialise a list of lines connected to the BusbarSection
+            Map<Line, ThreeSides> linesAndSidesConnectedToIncomingLine = new HashMap<>();
+
+            // Each path is visited and for each, we add the line at the end to the list
+            for (TIntArrayList pathFromLine : pathsFromLine) {
+                // Get the terminal at the end of the path
+                Terminal terminalEndOfPathFromBbs = getEndOfPathTerminal(pathFromLine);
+
+                // Connectables should only be lines by now but in case...
+                if (terminalEndOfPathFromBbs.getConnectable() instanceof Line line) {
+                    linesAndSidesConnectedToIncomingLine.putIfAbsent(line, line.getTerminal1() == terminalEndOfPathFromBbs ? ThreeSides.TWO : ThreeSides.ONE);
+                }
+            }
+
+            // Initialise a list of lines that might be opened during propagation
+            Map<Line, ThreeSides> linesAndSidesDisconnectedDuringPropagation = new HashMap<>();
+
+            // We try to connect the opposite side of each line
+            for (Map.Entry<Line, ThreeSides> lineAndSide : linesAndSidesConnectedToIncomingLine.entrySet()) {
+                if (lineAndSide.getKey().connect(isSwitchOperable, lineAndSide.getValue(), true)) {
+                    linesAndSidesDisconnectedDuringPropagation.put(lineAndSide.getKey(), lineAndSide.getValue());
+                } else {
+                    return revertConnectionPropagation(linesAndSidesDisconnectedDuringPropagation);
                 }
             }
             return true;
@@ -1316,18 +1298,9 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         return false;
     }
 
-    boolean connectNextLine(TIntArrayList path, Predicate<Switch> isSwitchOpenable, List<Terminal> connectedTerminals) {
-        // Get the terminal at the end of the path
-        Terminal terminalEndOfPath = getEndOfPathTerminal(path);
-
-        // If the connectable at the end of the path is a line, we find the side and disconnect the others
-        if (terminalEndOfPath.getConnectable() instanceof Line line) {
-            Terminal otherTerminal = line.getTerminal1() == terminalEndOfPath ? line.getTerminal2() : line.getTerminal1();
-            if (otherTerminal.connect(isSwitchOpenable)) {
-                connectedTerminals.add(otherTerminal);
-                return true;
-            }
-        }
+    private boolean revertConnectionPropagation(Map<Line, ThreeSides> linesAndSidesDisconnectedDuringPropagation) {
+        // If the disconnection fails, we reconnect the lines we opened during propagation
+        linesAndSidesDisconnectedDuringPropagation.forEach((l, s) -> l.disconnect(SwitchPredicates.IS_NONFICTIONAL, s, true));
         return false;
     }
 
@@ -1421,11 +1394,11 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             return true;
         } else {
             // If the disconnection fails, we reconnect the lines we opened during propagation
-            return revertPropagation(linesAndSidesDisconnectedDuringPropagation);
+            return revertDisconnectionPropagation(linesAndSidesDisconnectedDuringPropagation);
         }
     }
 
-    private boolean revertPropagation(Map<Line, ThreeSides> linesAndSidesDisconnectedDuringPropagation) {
+    private boolean revertDisconnectionPropagation(Map<Line, ThreeSides> linesAndSidesDisconnectedDuringPropagation) {
         // If the disconnection fails, we reconnect the lines we opened during propagation
         linesAndSidesDisconnectedDuringPropagation.forEach((l, s) -> l.connect(SwitchPredicates.IS_OPEN, s, true));
         return false;
@@ -1440,7 +1413,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
         // If there is only one path, propagation cannot be done
         if (pathsFromBbs.size() < 2) {
-            return revertPropagation(linesAndSidesDisconnectedDuringPropagation);
+            return revertDisconnectionPropagation(linesAndSidesDisconnectedDuringPropagation);
         }
 
         // Initialise a list of lines connected to the BusbarSection
@@ -1468,7 +1441,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             if (lineAndSide.getKey().disconnect(isSwitchOpenable, lineAndSide.getValue(), true)) {
                 linesAndSidesDisconnectedDuringPropagation.put(lineAndSide.getKey(), lineAndSide.getValue());
             } else {
-                return revertPropagation(linesAndSidesDisconnectedDuringPropagation);
+                return revertDisconnectionPropagation(linesAndSidesDisconnectedDuringPropagation);
             }
         }
         return true;
