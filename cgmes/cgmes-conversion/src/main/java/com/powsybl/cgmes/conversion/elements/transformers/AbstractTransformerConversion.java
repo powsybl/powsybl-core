@@ -16,6 +16,7 @@ import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversi
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.WindingType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -111,10 +112,8 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     @Override
     protected void addAliasesAndProperties(Identifiable<?> identifiable) {
         super.addAliasesAndProperties(identifiable);
-        int end = 1;
         for (PropertyBag p : ps) {
-            identifiable.addAlias(p.getId("TransformerEnd"), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + end);
-            end++;
+            identifiable.addAlias(p.getId("TransformerEnd"), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + WindingType.endNumber(p));
         }
         List<String> ptcs = context.cgmes().phaseTapChangerListForPowerTransformer(identifiable.getId());
         if (ptcs != null) {
