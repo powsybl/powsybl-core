@@ -20,6 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -40,6 +41,22 @@ public abstract class AbstractLineTest {
     private Network network;
     private VoltageLevel voltageLevelA;
     private VoltageLevel voltageLevelB;
+
+    public static boolean areLinesIdentical(Line line1, Line line2) {
+        boolean areIdentical = false;
+
+        if (line1 != null && line2 != null) {
+            areIdentical = line1.getR() == line2.getR()
+                    && line1.getX() == line2.getX()
+                    && line1.getG1() == line2.getG1()
+                    && line1.getG2() == line2.getG2()
+                    && line1.getB1() == line2.getB1()
+                    && line1.getB2() == line2.getB2()
+                    && Objects.equals(line1.getTerminal1().getVoltageLevel().getId(), line2.getTerminal1().getVoltageLevel().getId())
+                    && Objects.equals(line1.getTerminal2().getVoltageLevel().getId(), line2.getTerminal2().getVoltageLevel().getId());
+        }
+        return areIdentical;
+    }
 
     @BeforeEach
     public void setUp() {
@@ -179,6 +196,81 @@ public abstract class AbstractLineTest {
 
         assertSame(voltageLevelA, acLine.getTerminal1().getVoltageLevel());
         assertSame(voltageLevelB, acLine.getTerminal2().getVoltageLevel());
+    }
+
+    @Test
+    public void testLineCopier() {
+        // First limit normally created
+        LineAdder acLineAdder1 = network.newLine()
+                .setId("line1")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG1(3.0)
+                .setG2(3.5)
+                .setB1(4.0)
+                .setB2(4.5)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB");
+        acLineAdder1.add();
+        Line acLine1 = network.getLine("line1");
+        // Group and limits creation 1
+        acLine1.newOperationalLimitsGroup1("group1").newCurrentLimits().setPermanentLimit(220.0).add();
+        acLine1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<CurrentLimits> optionalLimits1 = acLine1.getCurrentLimits1();
+        assertTrue(optionalLimits1.isPresent());
+        CurrentLimits limits1 = optionalLimits1.get();
+        assertNotNull(limits1);
+
+        acLine1.getOperationalLimitsGroup1("group1").get().newActivePowerLimits().setPermanentLimit(220.0).add();
+        acLine1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<ActivePowerLimits> optionalActivePowerLimits1 = acLine1.getActivePowerLimits1();
+        assertTrue(optionalActivePowerLimits1.isPresent());
+        ActivePowerLimits activePowerLimits1 = optionalActivePowerLimits1.get();
+        assertNotNull(activePowerLimits1);
+
+        acLine1.getOperationalLimitsGroup1("group1").get().newApparentPowerLimits().setPermanentLimit(220.0).add();
+        acLine1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<ApparentPowerLimits> optionalApparentPowerLimits1 = acLine1.getApparentPowerLimits1();
+        assertTrue(optionalApparentPowerLimits1.isPresent());
+        ApparentPowerLimits apparentPowerLimits1 = optionalApparentPowerLimits1.get();
+        assertNotNull(apparentPowerLimits1);
+
+        // Group and limit creation 2
+        acLine1.newOperationalLimitsGroup2("group2").newCurrentLimits().setPermanentLimit(80.0).add();
+        acLine1.setSelectedOperationalLimitsGroup2("group2");
+        Optional<CurrentLimits> optionalLimits2 = acLine1.getCurrentLimits2();
+        assertTrue(optionalLimits2.isPresent());
+        CurrentLimits limits2 = optionalLimits2.get();
+        assertNotNull(limits2);
+
+        // Second limit created by copy
+        LineAdder acLineAdder2 = network.newLine(acLine1);
+        acLineAdder2
+                .setId("line2")
+                .setName(LINE_NAME)
+                .setBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB");
+        acLineAdder2.add();
+        Line acLine2 = network.getLine("line2");
+        // Limits check to set up test
+        Optional<CurrentLimits> optionalLimits3 = acLine2.getCurrentLimits1();
+        assertTrue(optionalLimits3.isPresent());
+        CurrentLimits limits3 = optionalLimits3.get();
+
+        // Tests
+        assertNotNull(acLine2);
+        assertTrue(areLinesIdentical(acLine1, acLine2));
+        assertEquals(limits1.getPermanentLimit(), limits3.getPermanentLimit());
+        assertNotNull(acLine2.getOperationalLimitsGroup2("group2"));
+        assertEquals(acLine1.getSelectedOperationalLimitsGroupId2(), acLine2.getSelectedOperationalLimitsGroupId2());
+
     }
 
     @Test

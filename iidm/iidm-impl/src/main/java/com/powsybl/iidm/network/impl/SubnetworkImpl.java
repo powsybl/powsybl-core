@@ -233,6 +233,11 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
+    public LineAdder newLine(Line line) {
+        return getNetwork().newLine(id, line);
+    }
+
+    @Override
     public Iterable<Line> getLines() {
         return getLineStream().toList();
     }
