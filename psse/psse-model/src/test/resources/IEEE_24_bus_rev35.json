@@ -3138,5 +3138,6 @@
     "s8" : 1
   } ],
   "gneDevice" : [ ],
-  "inductionMachines" : [ ]
+  "inductionMachines" : [ ],
+  "substations" : [ ]
 }
