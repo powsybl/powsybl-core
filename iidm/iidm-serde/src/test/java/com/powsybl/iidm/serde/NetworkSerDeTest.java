@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
@@ -58,6 +59,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     @EnumSource(value = TreeDataFormat.class, names = {"XML", "JSON"})
     void testSkippedExtension(TreeDataFormat format) throws IOException {
         Network network = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"));
+        Path tmpDir = Paths.get("/tmp");
         Path file = tmpDir.resolve("data");
         NetworkSerDe.write(network, new ExportOptions().setFormat(format), file);
 
@@ -65,7 +67,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
         Network networkReadExtensions = NetworkSerDe.read(file,
                 new ImportOptions().setFormat(format), null, NetworkFactory.findDefault(), reportNode1);
-        Load load1 = networkReadExtensions.getLoad("LOAD");
+        Load load1 = networkReadExtensions.getLoad("LOAD1");
         assertNotNull(load1.getExtension(LoadBarExt.class));
         assertNotNull(load1.getExtension(LoadZipModel.class));
 
@@ -86,7 +88,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                 .setFormat(format);
         Network networkSkippedExtensions = NetworkSerDe.read(file,
                 notAllExtensions, null, NetworkFactory.findDefault(), reportNode2);
-        Load load2 = networkSkippedExtensions.getLoad("LOAD");
+        Load load2 = networkSkippedExtensions.getLoad("LOAD1");
         assertNull(load2.getExtension(LoadBarExt.class));
         LoadZipModel loadZipModelExt = load2.getExtension(LoadZipModel.class);
         assertNotNull(loadZipModelExt);
@@ -106,7 +108,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     void testNotFoundExtension() throws IOException {
         // Read file with all extensions included (default ImportOptions)
         ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
-        Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
+        Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/notFoundExtension.xml"),
                 new ImportOptions(), null, NetworkFactory.findDefault(), reportNode1);
         Load load1 = networkReadExtensions.getLoad("LOAD");
         assertNotNull(load1.getExtension(LoadBarExt.class));
