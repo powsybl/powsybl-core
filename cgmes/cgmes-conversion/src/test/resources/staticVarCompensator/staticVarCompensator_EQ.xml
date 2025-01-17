@@ -9,7 +9,6 @@
     </md:FullModel>
 
     <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest">
-        <cim:IdentifiedObject.mRID>GeographicalRegionTest</cim:IdentifiedObject.mRID>
         <cim:IdentifiedObject.name>GeographicalRegionTest</cim:IdentifiedObject.name>
     </cim:GeographicalRegion>
     <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest">
