@@ -17,44 +17,54 @@ import java.time.format.DateTimeFormatter;
  */
 public class TimeSeriesCsvConfig {
     private static final int DEFAULT_MAX_COLUMNS = 20000;
+    private static final boolean DEFAULT_SKIP_DUPLICATE = false;
+
     private final DateTimeFormatter dateTimeFormatter;
     private final boolean versioned;
     private final TimeFormat timeFormat;
     private final char separator;
     private final int maxColumns;
     private final boolean strictVersioningImport;
+    private final boolean skipDuplicateTimeEntry;
 
     public TimeSeriesCsvConfig() {
-        this(ZoneId.systemDefault(), TimeSeriesConstants.DEFAULT_SEPARATOR, true, TimeFormat.DATE_TIME, DEFAULT_MAX_COLUMNS, true);
+        this(ZoneId.systemDefault(), TimeSeriesConstants.DEFAULT_SEPARATOR, true, TimeFormat.DATE_TIME, DEFAULT_MAX_COLUMNS, true, DEFAULT_SKIP_DUPLICATE);
     }
 
     public TimeSeriesCsvConfig(ZoneId zoneId) {
-        this(zoneId, TimeSeriesConstants.DEFAULT_SEPARATOR, true, TimeFormat.DATE_TIME, DEFAULT_MAX_COLUMNS, true);
+        this(zoneId, TimeSeriesConstants.DEFAULT_SEPARATOR, true, TimeFormat.DATE_TIME, DEFAULT_MAX_COLUMNS, true, DEFAULT_SKIP_DUPLICATE);
     }
 
     public TimeSeriesCsvConfig(char separator, boolean versioned, TimeFormat timeFormat) {
-        this(ZoneId.systemDefault(), separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS, true);
+        this(ZoneId.systemDefault(), separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS, true, DEFAULT_SKIP_DUPLICATE);
     }
 
     public TimeSeriesCsvConfig(char separator, boolean versioned, TimeFormat timeFormat, boolean strictVersioningImport) {
-        this(ZoneId.systemDefault(), separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS, strictVersioningImport);
+        this(ZoneId.systemDefault(), separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS, strictVersioningImport, DEFAULT_SKIP_DUPLICATE);
+    }
+
+    public TimeSeriesCsvConfig(char separator, boolean versioned, TimeFormat timeFormat, boolean strictVersioningImport,
+                               boolean skipDuplicateTimeEntry) {
+        this(ZoneId.systemDefault(), separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS, strictVersioningImport, skipDuplicateTimeEntry);
     }
 
     public TimeSeriesCsvConfig(ZoneId zoneId, char separator, boolean versioned, TimeFormat timeFormat) {
-        this(zoneId, separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS, true);
+        this(zoneId, separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS, true, DEFAULT_SKIP_DUPLICATE);
     }
 
     public TimeSeriesCsvConfig(ZoneId zoneId, char separator, boolean versioned, TimeFormat timeFormat, boolean strictVersioningImport) {
-        this(zoneId, separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS, strictVersioningImport);
+        this(zoneId, separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS, strictVersioningImport, DEFAULT_SKIP_DUPLICATE);
     }
 
-    public TimeSeriesCsvConfig(ZoneId zoneId, char separator, boolean versioned, TimeFormat timeFormat, int maxColumns, boolean strictVersioningImport) {
+    public TimeSeriesCsvConfig(ZoneId zoneId, char separator, boolean versioned, TimeFormat timeFormat, int maxColumns,
+                               boolean strictVersioningImport, boolean skipDuplicateTimeEntry) {
         this.dateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(zoneId);
         this.separator = separator;
         this.versioned = versioned;
         this.timeFormat = timeFormat;
         this.maxColumns = maxColumns;
         this.strictVersioningImport = strictVersioningImport;
+        this.skipDuplicateTimeEntry = skipDuplicateTimeEntry;
     }
 
     public char separator() {
@@ -79,5 +89,9 @@ public class TimeSeriesCsvConfig {
 
     public boolean withStrictVersioningImport() {
         return strictVersioningImport;
+    }
+
+    public boolean isSkipDuplicateTimeEntry() {
+        return skipDuplicateTimeEntry;
     }
 }
