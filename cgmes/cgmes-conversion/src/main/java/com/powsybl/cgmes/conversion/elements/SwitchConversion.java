@@ -125,7 +125,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     private void addTypeAsProperty(Switch s) {
-        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "switchType", p.getLocal("type"));
+        s.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, p.getLocal("type"));
     }
 
     private void warnDanglingLineCreated() {
