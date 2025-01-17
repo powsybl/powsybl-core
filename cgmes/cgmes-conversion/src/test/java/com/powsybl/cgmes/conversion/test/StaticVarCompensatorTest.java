@@ -20,10 +20,10 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class StaticVarCompensatorTest {
 
-    private static final String DIR = "/issues/staticVarCompensator/";
+    private static final String DIR = "/issues/staticvarcompensator/";
 
     @Test
-    void staticVarCompensatorTest() {
+    void staticVarCompensatorControlTest() {
         Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml");
         assertEquals(7, network.getStaticVarCompensatorCount());
 
