@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class StaticVarCompensatorTest {
 
-    private static final String DIR = "/staticVarCompensator/";
+    private static final String DIR = "/issues/staticVarCompensator/";
 
     @Test
     void staticVarCompensatorTest() {
