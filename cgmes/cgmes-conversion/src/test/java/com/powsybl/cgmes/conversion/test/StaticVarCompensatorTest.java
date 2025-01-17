@@ -23,59 +23,30 @@ class StaticVarCompensatorTest {
     private static final String DIR = "/staticVarCompensator/";
 
     @Test
-    void importEqTest() {
-        assertTrue(importEqFileAndVerifyThatTheControlIsOff("staticVarCompensator_EQ.xml"));
-    }
-
-    @Test
-    void importEqWithVoltageSetpointTest() {
-        assertTrue(importEqFileAndVerifyThatTheControlIsOff("staticVarCompensator_EQ_voltageSetpoint.xml"));
-    }
-
-    @Test
-    void importEqWithVoltageSvcControlModeTest() {
-        assertTrue(importEqFileAndVerifyThatTheControlIsOff("staticVarCompensator_EQ_V_svcControlMode.xml"));
-    }
-
-    @Test
-    void importEqWithVoltageSvcControlModeAndVoltageSetpointTest() {
-        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ_V_svcControlMode_voltageSetpoint.xml", "staticVarCompensator_SSH.xml");
-        assertEquals(1, network.getStaticVarCompensatorCount());
-
-        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator("StaticVarCompensator");
-        assertTrue(checkControl(staticVarCompensator, StaticVarCompensator.RegulationMode.VOLTAGE, 405.0, Double.NaN));
-    }
-
-    @Test
-    void importEqAndSshTest() {
+    void staticVarCompensatorTest() {
         Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml");
-        assertEquals(1, network.getStaticVarCompensatorCount());
+        assertEquals(7, network.getStaticVarCompensatorCount());
 
         StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator("StaticVarCompensator");
         assertTrue(checkControl(staticVarCompensator, StaticVarCompensator.RegulationMode.OFF, Double.NaN, Double.NaN));
-    }
 
-    @Test
-    void importEqWithReactivePowerSvcControlModeTest() {
-        assertTrue(importEqFileAndVerifyThatTheControlIsOff("staticVarCompensator_EQ_Q_svcControlMode.xml"));
-    }
+        StaticVarCompensator staticVarCompensatorVoltageSetPoint = network.getStaticVarCompensator("StaticVarCompensator-voltageSetPoint");
+        assertTrue(checkControl(staticVarCompensatorVoltageSetPoint, StaticVarCompensator.RegulationMode.OFF, Double.NaN, Double.NaN));
 
-    @Test
-    void importEqWithReactivePowerSvcControlModeAndSshTest() {
-        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ_Q_svcControlMode.xml", "staticVarCompensator_SSH.xml");
-        assertEquals(1, network.getStaticVarCompensatorCount());
+        StaticVarCompensator staticVarCompensatorVoltageSvcControlMode = network.getStaticVarCompensator("StaticVarCompensator-voltage-svcControlMode");
+        assertTrue(checkControl(staticVarCompensatorVoltageSvcControlMode, StaticVarCompensator.RegulationMode.OFF, Double.NaN, Double.NaN));
 
-        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator("StaticVarCompensator");
-        assertTrue(checkControl(staticVarCompensator, StaticVarCompensator.RegulationMode.REACTIVE_POWER, Double.NaN, 10.0));
-    }
+        StaticVarCompensator staticVarCompensatorVoltageSetPointSvcControlMode = network.getStaticVarCompensator("StaticVarCompensator-voltageSetPoint-svcControlMode");
+        assertTrue(checkControl(staticVarCompensatorVoltageSetPointSvcControlMode, StaticVarCompensator.RegulationMode.OFF, 405.0, Double.NaN));
 
-    private static boolean importEqFileAndVerifyThatTheControlIsOff(String eqFile) {
-        Network network = readCgmesResources(DIR, eqFile);
-        assertEquals(1, network.getStaticVarCompensatorCount());
+        StaticVarCompensator staticVarCompensatorVoltageSetPointSvcControlModeOn = network.getStaticVarCompensator("StaticVarCompensator-voltageSetPoint-svcControlMode-on");
+        assertTrue(checkControl(staticVarCompensatorVoltageSetPointSvcControlModeOn, StaticVarCompensator.RegulationMode.VOLTAGE, 405.0, Double.NaN));
 
-        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator("StaticVarCompensator");
-        assertTrue(checkControl(staticVarCompensator, StaticVarCompensator.RegulationMode.OFF, Double.NaN, Double.NaN));
-        return true;
+        StaticVarCompensator staticVarCompensatorReactivePowerSvcControlMode = network.getStaticVarCompensator("StaticVarCompensator-reactivePower-svcControlMode");
+        assertTrue(checkControl(staticVarCompensatorReactivePowerSvcControlMode, StaticVarCompensator.RegulationMode.OFF, Double.NaN, Double.NaN));
+
+        StaticVarCompensator staticVarCompensatorReactivePowerSvcControlModeOn = network.getStaticVarCompensator("StaticVarCompensator-reactivePower-svcControlMode-on");
+        assertTrue(checkControl(staticVarCompensatorReactivePowerSvcControlModeOn, StaticVarCompensator.RegulationMode.REACTIVE_POWER, Double.NaN, 10.0));
     }
 
     private static boolean checkControl(StaticVarCompensator staticVarCompensator, StaticVarCompensator.RegulationMode defaultRegulationMode, double defaultTargetV, double defaultTargetQ) {

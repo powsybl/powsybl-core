@@ -8,12 +8,38 @@
         <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
     </md:FullModel>
 
-    <cim:StaticVarCompensator rdf:about="#_StaticVarCompensator">
+    <cim:Terminal rdf:about="#_StaticVarCompensator_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_StaticVarCompensator-voltageSetPoint_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_StaticVarCompensator-voltage-svcControlMode_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_StaticVarCompensator-voltageSetPoint-svcControlMode_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+
+    <cim:StaticVarCompensator rdf:about="#_StaticVarCompensator-voltageSetPoint-svcControlMode-on">
         <cim:Equipment.inService>true</cim:Equipment.inService>
         <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
         <cim:StaticVarCompensator.q>10.0</cim:StaticVarCompensator.q>
     </cim:StaticVarCompensator>
-    <cim:Terminal rdf:about="#_StaticVarCompensator_T">
+    <cim:Terminal rdf:about="#_StaticVarCompensator-voltageSetPoint-svcControlMode-on_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+
+    <cim:Terminal rdf:about="#_StaticVarCompensator-reactivePower-svcControlMode_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+
+    <cim:StaticVarCompensator rdf:about="#_StaticVarCompensator-reactivePower-svcControlMode-on">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+        <cim:StaticVarCompensator.q>10.0</cim:StaticVarCompensator.q>
+    </cim:StaticVarCompensator>
+    <cim:Terminal rdf:about="#_StaticVarCompensator-reactivePower-svcControlMode_T-on">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
 </rdf:RDF>
