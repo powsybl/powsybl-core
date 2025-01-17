@@ -42,8 +42,6 @@
     </cim:StaticVarCompensator>
     <cim:Terminal rdf:ID="_StaticVarCompensator_T">
         <cim:IdentifiedObject.name>StaticVarCompensator_T</cim:IdentifiedObject.name>
-        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_StaticVarCompensator" />
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
     </cim:Terminal>
@@ -58,8 +56,6 @@
     </cim:StaticVarCompensator>
     <cim:Terminal rdf:ID="_StaticVarCompensator-voltageSetPoint_T">
         <cim:IdentifiedObject.name>StaticVarCompensator-voltageSetPoint_T</cim:IdentifiedObject.name>
-        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_StaticVarCompensator-voltageSetPoint" />
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
     </cim:Terminal>
@@ -74,8 +70,6 @@
     </cim:StaticVarCompensator>
     <cim:Terminal rdf:ID="_StaticVarCompensator-voltage-svcControlMode_T">
         <cim:IdentifiedObject.name>StaticVarCompensator-voltage-svcControlMode_T</cim:IdentifiedObject.name>
-        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_StaticVarCompensator-voltage-svcControlMode" />
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
     </cim:Terminal>
@@ -91,8 +85,6 @@
     </cim:StaticVarCompensator>
     <cim:Terminal rdf:ID="_StaticVarCompensator-voltageSetPoint-svcControlMode_T">
         <cim:IdentifiedObject.name>StaticVarCompensator-voltageSetPoint-svcControlMode_T</cim:IdentifiedObject.name>
-        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_StaticVarCompensator-voltageSetPoint-svcControlMode" />
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
     </cim:Terminal>
@@ -108,8 +100,6 @@
     </cim:StaticVarCompensator>
     <cim:Terminal rdf:ID="_StaticVarCompensator-voltageSetPoint-svcControlMode-on_T">
         <cim:IdentifiedObject.name>StaticVarCompensator-voltageSetPoint-svcControlMode-on_T</cim:IdentifiedObject.name>
-        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_StaticVarCompensator-voltageSetPoint-svcControlMode-on" />
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
     </cim:Terminal>
@@ -124,8 +114,6 @@
     </cim:StaticVarCompensator>
     <cim:Terminal rdf:ID="_StaticVarCompensator-reactivePower-svcControlMode_T">
         <cim:IdentifiedObject.name>StaticVarCompensator-reactivePower-svcControlMode_T</cim:IdentifiedObject.name>
-        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_StaticVarCompensator-reactivePower-svcControlMode" />
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
     </cim:Terminal>
@@ -140,8 +128,6 @@
     </cim:StaticVarCompensator>
     <cim:Terminal rdf:ID="_StaticVarCompensator-reactivePower-svcControlMode-on_T">
         <cim:IdentifiedObject.name>StaticVarCompensator-reactivePower-svcControlMode-on_T</cim:IdentifiedObject.name>
-        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
         <cim:Terminal.ConductingEquipment rdf:resource="#_StaticVarCompensator-reactivePower-svcControlMode-on" />
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
     </cim:Terminal>
