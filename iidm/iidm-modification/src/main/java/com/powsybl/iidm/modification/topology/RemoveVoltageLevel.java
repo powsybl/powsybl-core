@@ -55,15 +55,18 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
             }
         });
 
+        voltageLevel.getLines().forEach(line ->
+                new RemoveFeederBayBuilder().withConnectableId(line.getId()).build().apply(network, throwException, computationManager, reportNode));
+        voltageLevel.getTwoWindingsTransformers().forEach(transformer ->
+                new RemoveFeederBayBuilder().withConnectableId(transformer.getId()).build().apply(network, throwException, computationManager, reportNode));
+        voltageLevel.getThreeWindingsTransformers().forEach(transformer ->
+                new RemoveFeederBayBuilder().withConnectableId(transformer.getId()).build().apply(network, throwException, computationManager, reportNode));
+
         voltageLevel.getConnectables().forEach(connectable -> {
-            if (connectable instanceof Injection) {
-                String connectableId = connectable.getId();
-                connectable.remove();
-                removedConnectableReport(reportNode, connectableId);
-                LOGGER.info("Connectable {} removed", connectableId);
-            } else {
-                new RemoveFeederBayBuilder().withConnectableId(connectable.getId()).build().apply(network, throwException, computationManager, reportNode);
-            }
+            String connectableId = connectable.getId();
+            connectable.remove();
+            removedConnectableReport(reportNode, connectableId);
+            LOGGER.info("Connectable {} removed", connectableId);
         });
 
         voltageLevel.remove();
