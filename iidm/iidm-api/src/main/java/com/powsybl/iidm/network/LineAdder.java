@@ -26,6 +26,17 @@ package com.powsybl.iidm.network;
  */
 public interface LineAdder extends BranchAdder<Line, LineAdder> {
 
+    static LineAdder fillLineAdder(LineAdder adder, Line line) {
+        return adder.setR(line.getR())
+                .setX(line.getX())
+                .setG1(line.getG1())
+                .setG2(line.getG2())
+                .setB1(line.getB1())
+                .setB2(line.getB2())
+                .setVoltageLevel1(line.getTerminal1().getVoltageLevel().getId())
+                .setVoltageLevel2(line.getTerminal2().getVoltageLevel().getId());
+    }
+
     LineAdder setR(double r);
 
     LineAdder setX(double x);
