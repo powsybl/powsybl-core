@@ -1,0 +1,109 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>All type of ShuntCompensators</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest">
+        <cim:IdentifiedObject.name>GeographicalRegionTest</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest">
+        <cim:IdentifiedObject.name>SubGeographicalRegionTest</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest" />
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_Substation1">
+        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage400">
+        <cim:IdentifiedObject.name>400.0 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel1">
+        <cim:IdentifiedObject.name>VoltageLevel1</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode1">
+        <cim:IdentifiedObject.name>Connectivity Node 1</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+
+    <cim:LinearShuntCompensator rdf:ID="_LinearShuntCompensator">
+        <cim:IdentifiedObject.name>LinearShuntCompensator</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_LinearShuntCompensator-RegulatingControl" />
+        <cim:ShuntCompensator.grounded>true</cim:ShuntCompensator.grounded>
+        <cim:ShuntCompensator.maximumSections>1</cim:ShuntCompensator.maximumSections>
+        <cim:ShuntCompensator.nomU>400</cim:ShuntCompensator.nomU>
+        <cim:ShuntCompensator.normalSections>1</cim:ShuntCompensator.normalSections>
+        <cim:LinearShuntCompensator.b0PerSection>0</cim:LinearShuntCompensator.b0PerSection>
+        <cim:LinearShuntCompensator.bPerSection>0.02479339</cim:LinearShuntCompensator.bPerSection>
+        <cim:LinearShuntCompensator.g0PerSection>0</cim:LinearShuntCompensator.g0PerSection>
+        <cim:LinearShuntCompensator.gPerSection>0</cim:LinearShuntCompensator.gPerSection>
+    </cim:LinearShuntCompensator>
+    <cim:Terminal rdf:ID="_LinearShuntCompensator_T">
+        <cim:IdentifiedObject.name>LinearShuntCompensator_T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_LinearShuntCompensator" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:ID="_LinearShuntCompensator-RegulatingControl">
+        <cim:IdentifiedObject.name>SynchronousMachine-RegulatingControl</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.voltage" />
+        <cim:RegulatingControl.Terminal rdf:resource="#_LinearShuntCompensator_T" />
+    </cim:RegulatingControl>
+
+    <cim:NonlinearShuntCompensator rdf:ID="_NonLinearShuntCompensator">
+        <cim:IdentifiedObject.name>BE_S2</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_NonLinearShuntCompensator-RegulatingControl" />
+        <cim:ShuntCompensator.grounded>true</cim:ShuntCompensator.grounded>
+        <cim:ShuntCompensator.maximumSections>2</cim:ShuntCompensator.maximumSections>
+        <cim:ShuntCompensator.nomU>380</cim:ShuntCompensator.nomU>
+        <cim:ShuntCompensator.normalSections>1</cim:ShuntCompensator.normalSections>
+    </cim:NonlinearShuntCompensator>
+    <cim:NonlinearShuntCompensatorPoint rdf:ID="_NonLinearShuntCompensator-Point-1">
+        <cim:NonlinearShuntCompensatorPoint.b>0.0003459834</cim:NonlinearShuntCompensatorPoint.b>
+        <cim:NonlinearShuntCompensatorPoint.b0>0</cim:NonlinearShuntCompensatorPoint.b0>
+        <cim:NonlinearShuntCompensatorPoint.g>2.18E-06</cim:NonlinearShuntCompensatorPoint.g>
+        <cim:NonlinearShuntCompensatorPoint.g0>2.18E-06</cim:NonlinearShuntCompensatorPoint.g0>
+        <cim:NonlinearShuntCompensatorPoint.sectionNumber>1</cim:NonlinearShuntCompensatorPoint.sectionNumber>
+        <cim:NonlinearShuntCompensatorPoint.NonlinearShuntCompensator rdf:resource="#_NonLinearShuntCompensator" />
+    </cim:NonlinearShuntCompensatorPoint>
+    <cim:NonlinearShuntCompensatorPoint rdf:ID="_NonLinearShuntCompensator-Point-2">
+        <cim:NonlinearShuntCompensatorPoint.b>0.0001729917</cim:NonlinearShuntCompensatorPoint.b>
+        <cim:NonlinearShuntCompensatorPoint.b0>0</cim:NonlinearShuntCompensatorPoint.b0>
+        <cim:NonlinearShuntCompensatorPoint.g>2.18E-06</cim:NonlinearShuntCompensatorPoint.g>
+        <cim:NonlinearShuntCompensatorPoint.g0>2.18E-06</cim:NonlinearShuntCompensatorPoint.g0>
+        <cim:NonlinearShuntCompensatorPoint.sectionNumber>2</cim:NonlinearShuntCompensatorPoint.sectionNumber>
+        <cim:NonlinearShuntCompensatorPoint.NonlinearShuntCompensator rdf:resource="#_NonLinearShuntCompensator" />
+    </cim:NonlinearShuntCompensatorPoint>
+    <cim:Terminal rdf:ID="_NonLinearShuntCompensator_T">
+        <cim:IdentifiedObject.name>NonLinearShuntCompensator_T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_NonLinearShuntCompensator" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:ID="_NonLinearShuntCompensator-RegulatingControl">
+        <cim:IdentifiedObject.name>SynchronousMachine-RegulatingControl</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.voltage" />
+        <cim:RegulatingControl.Terminal rdf:resource="#_NonLinearShuntCompensator_T" />
+    </cim:RegulatingControl>
+
+    <cim:EquivalentShunt rdf:ID="_EquivalentShunt">
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1"/>
+        <cim:EquivalentShunt.b>0.000518017</cim:EquivalentShunt.b>
+        <cim:EquivalentShunt.g>1.57025e-06</cim:EquivalentShunt.g>
+        <cim:IdentifiedObject.name>EquivalentShunt</cim:IdentifiedObject.name>
+    </cim:EquivalentShunt>
+    <cim:Terminal rdf:ID="_EquivalentShunt_T">
+        <cim:IdentifiedObject.name>EquivalentShunt_T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_EquivalentShunt" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+</rdf:RDF>

@@ -155,6 +155,7 @@ public final class CgmesNames {
     public static final String REGULATION_STATUS = "regulationStatus";
     public static final String MODE = "mode";
     public static final String INITIAL_P = "initialP";
+    public static final String NORMAL_SECTIONS = "normalSections";
 
     private CgmesNames() {
     }

@@ -45,4 +45,5 @@
       Updating TWO_WINDINGS_TRANSFORMER.
       Updating THREE_WINDINGS_TRANSFORMER.
       Updating STATIC_VAR_COMPENSATOR.
+      Updating SHUNT_COMPENSATOR.
       Running validation checks on IIDM network urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66

@@ -94,3 +94,14 @@ WHERE {
     BIND ( "true" AS ?enabled )
 }}
 }
+
+# query: shuntCompensators
+SELECT *
+WHERE {
+GRAPH ?graphSV {
+    ?SvShuntCompensatorSections
+        a cim:SvShuntCompensatorSections ;
+        cim:SvShuntCompensatorSections.ShuntCompensator ?ShuntCompensator ;
+        cim:SvShuntCompensatorSections.continuousSections ?SVsections
+}
+}

@@ -324,12 +324,6 @@ GRAPH ?graph {
         cim:Equipment.MemberOf_EquipmentContainer ?VoltageLevel .
     ?Terminal cim:Terminal.ConductingEquipment ?ShuntCompensator .
 }
-OPTIONAL { GRAPH ?graphSV  {
-    ?SvShuntCompensatorSections
-        a cim:SvShuntCompensatorSections ;
-        cim:SvShuntCompensatorSections.ShuntCompensator ?ShuntCompensator ;
-        cim:SvShuntCompensatorSections.continuousSections ?SVsections
-}}
 BIND ( "LinearShuntCompensator" AS ?type )
 }
 
