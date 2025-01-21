@@ -12,9 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.network.DefaultNetworkListener;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -52,6 +50,40 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
                 removedObjects.add(id);
             }
         });
+    }
+
+    @Test
+    void testFaultyRemoveVoltageLevel() {
+        Network network = Network.create("test", "test");
+        var s = network.newSubstation().setId("s").add();
+
+        // First voltage level (which will be removed)
+        var vl1 = s.newVoltageLevel().setId("vl1").setTopologyKind(TopologyKind.NODE_BREAKER).setNominalV(225).add();
+        vl1.getNodeBreakerView().newBusbarSection().setId("bbs1").setNode(0).add();
+        vl1.getNodeBreakerView().newBusbarSection().setId("bbs2").setNode(1).add();
+        vl1.getNodeBreakerView().newSwitch().setId("Coupler").setNode1(0).setNode2(1).setKind(SwitchKind.BREAKER).add();
+        vl1.getNodeBreakerView().newSwitch().setId("d_l1_bbs1").setNode1(0).setNode2(2).setKind(SwitchKind.DISCONNECTOR).add();
+        vl1.getNodeBreakerView().newSwitch().setId("d_l2_bbs1").setNode1(0).setNode2(3).setKind(SwitchKind.DISCONNECTOR).add();
+        vl1.getNodeBreakerView().newSwitch().setId("d_l1_bbs2").setNode1(1).setNode2(2).setKind(SwitchKind.DISCONNECTOR).add();
+        vl1.getNodeBreakerView().newSwitch().setId("d_l2_bbs2").setNode1(1).setNode2(3).setKind(SwitchKind.DISCONNECTOR).add();
+
+        // Second voltage level
+        var vl2 = s.newVoltageLevel().setId("vl2").setTopologyKind(TopologyKind.NODE_BREAKER).setNominalV(225).add();
+        vl2.getNodeBreakerView().newBusbarSection().setId("bbs").setNode(0).add();
+        vl2.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(1).add();
+        vl2.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(2).add();
+
+        // Parallel lines between voltage levels
+        var line1 = network.newLine().setId("line1").setVoltageLevel1(vl1.getId()).setVoltageLevel2(vl2.getId()).setNode1(2).setNode2(1)
+                .setR(0.01).setX(20.0).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).add();
+        network.newLine(line1).setId("line2").setNode1(3).setNode2(2).add();
+
+        addListener(network);
+
+        new RemoveVoltageLevelBuilder().withVoltageLevelId(vl1.getId()).build().apply(network);
+
+        assertEquals(Set.of("bbs1", "bbs2", "Coupler", "d_l2_bbs2", "vl1", "d_l2_bbs1", "d_l1_bbs2", "line2", "line1", "d_l1_bbs1"), removedObjects);
+        assertNull(network.getVoltageLevel("vl1"));
     }
 
     @Test
