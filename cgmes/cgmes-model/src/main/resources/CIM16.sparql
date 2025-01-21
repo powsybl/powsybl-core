@@ -1060,8 +1060,8 @@ WHERE {
         OPTIONAL { ?ControlArea entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic }
     FILTER (regex(STR(?controlAreaType), "Interchange", "i"))
 }}
-{ GRAPH ?graphSSH {
-    OPTIONAL { ?ControlArea cim:ControlArea.netInterchange ?netInterchange }
+OPTIONAL { GRAPH ?graphSSH {
+    ?ControlArea cim:ControlArea.netInterchange ?netInterchange
     OPTIONAL { ?ControlArea cim:ControlArea.pTolerance ?pTolerance }
 }}
 }
