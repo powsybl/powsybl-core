@@ -26,11 +26,27 @@ import static org.junit.jupiter.api.Assertions.*;
 class ValidationLevelLogsTest {
 
     @Test
-    void equipmentTest() throws IOException {
-        Network network = networkAssociatedWithReportNode();
+    void equipmentAndSteadyStateTest() throws IOException {
+        // create a network associated with a reportNode
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withMessageTemplate("testValidationLevelLogs", "Test validationLevel Logs")
+                .withUntypedValue("name", "test")
+                .build();
 
+        Network network = NetworkFactory.findDefault().createNetwork("oneLoad", "test");
+        ReportNodeContext reportNodeContext = network.getReportNodeContext();
+        reportNodeContext.pushReportNode(reportNode);
+
+        // Define the network model
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         createNetworkWithEquipmentValidationLevel(network);
+
+        // We check that the SILENT option for action on error works
+        // While creating only network equipment if we have established validation level to EQUIPMENT,
+        // We should not see anything reported
+        assertTrue(checkReportNode("""
+                Test validationLevel Logs
+                """, network.getReportNodeContext().getReportNode()));
 
         network.runValidationChecks(false, network.getReportNodeContext().getReportNode());
 
@@ -43,24 +59,8 @@ class ValidationLevelLogsTest {
 
         ValidationException e = assertThrows(ValidationException.class, () -> network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS));
         assertTrue(e.getMessage().contains("Network 'oneLoad': Network should be corrected in order to correspond to validation level STEADY_STATE_HYPOTHESIS"));
-    }
 
-    @Test
-    void steadyStateTest() throws IOException {
-        Network network = networkAssociatedWithReportNode();
-
-        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        createNetworkWithEquipmentValidationLevel(network);
-
-        network.runValidationChecks(false, network.getReportNodeContext().getReportNode());
-
-        assertTrue(checkReportNode("""
-                + Test validationLevel Logs
-                   + Running validation checks on IIDM network oneLoad
-                      p0 is invalid
-                      p0 is invalid
-                """, network.getReportNodeContext().getReportNode()));
-
+        // Define the steady-state attributes
         network.getLoads().iterator().next().setP0(10.0).setQ0(-5.0);
         network.runValidationChecks(false, network.getReportNodeContext().getReportNode());
 
@@ -73,19 +73,6 @@ class ValidationLevelLogsTest {
                 """, network.getReportNodeContext().getReportNode()));
 
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
-    }
-
-    private static Network networkAssociatedWithReportNode() {
-        ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("testValidationLevelLogs", "Test validationLevel Logs")
-                .withUntypedValue("name", "test")
-                .build();
-
-        Network network = NetworkFactory.findDefault().createNetwork("oneLoad", "test");
-        ReportNodeContext reportNodeContext = network.getReportNodeContext();
-        reportNodeContext.pushReportNode(reportNode);
-
-        return network;
     }
 
     private static boolean checkReportNode(String expected, ReportNode reportNode) throws IOException {
