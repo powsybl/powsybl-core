@@ -19,6 +19,7 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.net.URLEncoder;
@@ -392,17 +393,19 @@ public class CgmesExportContext {
     }
 
     private static boolean hasVoltageControlCapability(Generator generator) {
-        if (generator.getReactiveLimits() == null) {
-            return false;
-        }
+        return generator.getExtension(RemoteReactivePowerControl.class) != null
+                || !Double.isNaN(generator.getTargetV()) && hasReactiveCapability(generator);
+    }
 
+    private static boolean hasReactiveCapability(Generator generator) {
         ReactiveLimits reactiveLimits = generator.getReactiveLimits();
-        if (reactiveLimits.getKind() == ReactiveLimitsKind.CURVE) {
+        if (reactiveLimits == null) {
+            return false;
+        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.CURVE) {
             return hasReactiveCapability((ReactiveCapabilityCurve) reactiveLimits);
         } else if (reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
             return hasReactiveCapability((MinMaxReactiveLimits) reactiveLimits);
         }
-
         return false;
     }
 

@@ -646,15 +646,15 @@ class CgmesExportTest {
             generatorNoRcc.setTargetV(Double.NaN);
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
-            assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
-            assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+            assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
 
             generatorRcc.setTargetV(rccTargetV);
             generatorRcc.setVoltageRegulatorOn(true);
             generatorNoRcc.setTargetV(noRccTargetV);
             generatorNoRcc.setVoltageRegulatorOn(true);
 
-            // RC shouldn't be exported when Qmin and Qmax are the same, but it exists when it was already imported
+            // RC shouldn't be exported when Qmin and Qmax are the same
             ReactiveCapabilityCurveAdder rccAdder = generatorRcc.newReactiveCapabilityCurve();
             ReactiveCapabilityCurve rcc = (ReactiveCapabilityCurve) generatorRcc.getReactiveLimits();
             rcc.getPoints().forEach(point -> rccAdder.beginPoint().setP(point.getP()).setMaxQ(point.getMaxQ()).setMinQ(point.getMaxQ()).endPoint());
@@ -667,8 +667,8 @@ class CgmesExportTest {
 
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
-            assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
-            assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+            assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
         }
     }
 

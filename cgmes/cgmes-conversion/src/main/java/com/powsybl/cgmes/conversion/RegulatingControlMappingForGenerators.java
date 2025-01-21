@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
@@ -124,7 +125,7 @@ public class RegulatingControlMappingForGenerators {
                     .withQPercent(qPercent)
                     .add();
         }
-        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", controlId);
+        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL, controlId);
 
         return true;
     }
