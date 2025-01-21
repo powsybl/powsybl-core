@@ -56,6 +56,10 @@ public class TimeSeriesCsvConfig {
         this(zoneId, separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS, strictVersioningImport, DEFAULT_SKIP_DUPLICATE);
     }
 
+    public TimeSeriesCsvConfig(ZoneId zoneId, char separator, boolean versioned, TimeFormat timeFormat, int maxColumns, boolean strictVersioningImport) {
+        this(zoneId, separator, versioned, timeFormat, maxColumns, strictVersioningImport, DEFAULT_SKIP_DUPLICATE);
+    }
+
     public TimeSeriesCsvConfig(ZoneId zoneId, char separator, boolean versioned, TimeFormat timeFormat, int maxColumns,
                                boolean strictVersioningImport, boolean skipDuplicateTimeEntry) {
         this.dateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(zoneId);
