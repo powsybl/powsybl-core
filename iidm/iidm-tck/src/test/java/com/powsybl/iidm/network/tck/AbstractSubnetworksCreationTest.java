@@ -18,6 +18,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
 import java.util.stream.Stream;
+import static com.powsybl.iidm.network.tck.AbstractLineTest.areLinesIdentical;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -138,6 +139,17 @@ public abstract class AbstractSubnetworksCreationTest {
         // On root network, voltage levels in root network and subnetwork2
         Line l4 = addLine(network, "l4", "vl0_0", "vl2_0");
 
+        // New lines creation using the copying adder
+        Line l5 = subnetwork2.newLine(l2)
+                .setId("l5")
+                .setBus1(getBusId("vl2_0"))
+                .setBus2(getBusId("vl2_1"))
+                .add();
+
+        // Tests if copy proceeds
+        assertNotNull(l5);
+        assertTrue(areLinesIdentical(l2, l5));
+
         // Try to detach all. Some elements prevent it.
         assertFalse(subnetwork1.isDetachable());
         assertFalse(subnetwork2.isDetachable());
@@ -161,7 +173,7 @@ public abstract class AbstractSubnetworksCreationTest {
         // - Check Lines
         assertEquals(1, network.getLineCount());
         assertEquals(1, n1.getLineCount());
-        assertEquals(1, n2.getLineCount());
+        assertEquals(2, n2.getLineCount());
         assertNetworks(network, network, network.getLine("l0"));
         assertNetworks(n1, n1, n1.getLine("l1"));
         assertNetworks(n2, n2, n2.getLine("l2"));
