@@ -8,10 +8,14 @@
 package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
-import com.powsybl.iidm.serde.LoadMockSerDe;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.LoadMockExt;
+import com.powsybl.iidm.serde.*;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionSerDe;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,13 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class SerializationNamesTest {
+class SerializationNamesTest extends AbstractIidmSerDeTest {
 
     public static final String LOAD_MOCK = "loadMock";
     public static final String LOAD_ELEMENT_MOCK = "loadElementMock";
 
     @Test
-    void unversionedExtension() {
+    void unversionedExtensionTest() {
         AbstractExtensionSerDe<?, ?> serde = new NetworkSourceExtensionSerDe();
         assertEquals(serde.getExtensionName(), serde.getSerializationName(serde.getVersion()));
         Set<String> serializationNames = serde.getSerializationNames();
@@ -35,7 +39,7 @@ class SerializationNamesTest {
     }
 
     @Test
-    void getSerializationName() {
+    void getSerializationNameTest() {
         LoadMockSerDe serde = new LoadMockSerDe();
         assertEquals(LOAD_MOCK, serde.getExtensionName());
         assertEquals(LOAD_MOCK, serde.getSerializationName(serde.getVersion()));
@@ -43,6 +47,29 @@ class SerializationNamesTest {
         Set<String> serializationNames = serde.getSerializationNames();
         assertEquals(2, serializationNames.size());
         assertTrue(serializationNames.containsAll(Set.of(LOAD_MOCK, LOAD_ELEMENT_MOCK)));
+    }
+
+    @Test
+    void realExtensionNameRoundTripTest() throws IOException {
+        allFormatsRoundTripTest(getNetwork(), "/extensionName_1_2.xml", new ExportOptions().setVersion(IidmVersion.V_1_1.toString(".")));
+    }
+
+    @Test
+    void oldNameRoundTripTest() throws IOException {
+        ExportOptions exportOptions = new ExportOptions()
+                .setVersion(IidmVersion.V_1_0.toString("."))
+                .addExtensionVersion("loadMock", "0.1");
+        allFormatsRoundTripTest(getNetwork(), "/extensionName_0_1.xml", exportOptions);
+    }
+
+    private static Network getNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("test", "test");
+        network.setCaseDate(ZonedDateTime.parse("2024-09-17T13:36:37.831Z"));
+        Substation s1 = network.newSubstation().setId("S1").add();
+        VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(450).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        Load load1 = vl1.newLoad().setId("Load1").setNode(0).setP0(10.).setQ0(20.).add();
+        load1.addExtension(LoadMockExt.class, new LoadMockExt(load1));
+        return network;
     }
 
     //TODO namespacePrefixes by serializationName or version
