@@ -85,7 +85,7 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId(vl1.getId()).build().apply(network);
 
-        assertEquals(Set.of("bbs1", "bbs2", "Coupler", "d_l2_bbs2", "vl1", "d_l2_bbs1", "d_l1_bbs2", "line2", "line1", "d_l1_bbs1"), removedObjects);
+        assertEquals(Set.of("bbs1", "bbs2", "Coupler", "b_l2_bbs2_B", "b_l2_bbs2_A", "d_l2_bbs2", "vl1", "d_l2_bbs1", "d_l1_bbs2", "line2", "line1", "d_l1_bbs1"), removedObjects);
         assertNull(network.getVoltageLevel("vl1"));
     }
 
