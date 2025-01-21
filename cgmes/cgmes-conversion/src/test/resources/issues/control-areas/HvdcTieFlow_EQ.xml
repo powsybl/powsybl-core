@@ -9,30 +9,24 @@
     <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
 </md:FullModel>
 <cim:ACLineSegment rdf:ID="_ACLS">
-    <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
     <cim:ACLineSegment.b0ch>0</cim:ACLineSegment.b0ch>
     <cim:ACLineSegment.bch>0</cim:ACLineSegment.bch>
-    <cim:IdentifiedObject.description>Line</cim:IdentifiedObject.description>
     <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
     <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
-    <cim:Conductor.length>1</cim:Conductor.length>
     <cim:IdentifiedObject.name>Line</cim:IdentifiedObject.name>
     <cim:ACLineSegment.r>0.1</cim:ACLineSegment.r>
     <cim:ACLineSegment.r0>0.1</cim:ACLineSegment.r0>
-    <cim:ACLineSegment.shortCircuitEndTemperature>0</cim:ACLineSegment.shortCircuitEndTemperature>
     <cim:ACLineSegment.x>1</cim:ACLineSegment.x>
     <cim:ACLineSegment.x0>0.1</cim:ACLineSegment.x0>
     <cim:ConductingEquipment.BaseVoltage rdf:resource="#_Base_Voltage"/>
 </cim:ACLineSegment>
 <cim:Terminal rdf:ID="_Terminal_1">
     <cim:IdentifiedObject.name>Terminal 1</cim:IdentifiedObject.name>
-    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
     <cim:Terminal.ConductingEquipment rdf:resource="#_ACLS"/>
     <cim:Terminal.ConnectivityNode rdf:resource="#_Node_Boundary"/>
 </cim:Terminal>
 <cim:Terminal rdf:ID="_Terminal_2">
     <cim:IdentifiedObject.name>Terminal 2</cim:IdentifiedObject.name>
-    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
     <cim:Terminal.ConductingEquipment rdf:resource="#_ACLS"/>
     <cim:Terminal.ConnectivityNode rdf:resource="#_Node_Network"/>
 </cim:Terminal>
@@ -46,7 +40,6 @@
     <cim:VoltageLevel.Substation rdf:resource="#_Substation_1"/>
 </cim:VoltageLevel>
 <cim:Substation rdf:ID="_Substation_1">
-    <cim:IdentifiedObject.description>Substation1</cim:IdentifiedObject.description>
     <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
     <cim:Substation.Region rdf:resource="#_SubRegion_1"/>
 </cim:Substation>

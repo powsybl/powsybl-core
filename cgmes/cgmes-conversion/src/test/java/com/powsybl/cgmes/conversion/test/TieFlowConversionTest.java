@@ -9,8 +9,6 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Area;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -87,8 +85,7 @@ class TieFlowConversionTest {
 
     @Test
     void testHvdcTieFlow() {
-        Network n = Network.read(new ResourceDataSource("HvdcTieFlow",
-                new ResourceSet("/", "HvdcTieFlow_EQ.xml", "HvdcTieFlow_EQBD.xml", "HvdcTieFlow_TPBD.xml")));
+        Network n = ConversionUtil.readCgmesResources("/issues/control-areas", "HvdcTieFlow_EQ.xml", "HvdcTieFlow_EQBD.xml", "HvdcTieFlow_TPBD.xml");
         assertNotNull(n);
         // The first and only boundary inside the control area must be boundary and HVDC
         assertTrue(n.getArea("Control_Area").getAreaBoundaries().iterator().next().getBoundary().isPresent());
@@ -96,9 +93,7 @@ class TieFlowConversionTest {
 
         Properties importConvertingBoundary = new Properties();
         importConvertingBoundary.put(CgmesImport.CONVERT_BOUNDARY, "true");
-        Network n2 = Network.read(new ResourceDataSource("TieFlows",
-                new ResourceSet("/", "HvdcTieFlow_EQ.xml", "HvdcTieFlow_EQBD.xml", "HvdcTieFlow_TPBD.xml")),
-                importConvertingBoundary);
+        Network n2 = ConversionUtil.readCgmesResources(importConvertingBoundary, "/issues/control-areas", "HvdcTieFlow_EQ.xml", "HvdcTieFlow_EQBD.xml", "HvdcTieFlow_TPBD.xml");
         assertNotNull(n2);
         // The first and only boundary inside the control area must be a terminal and HVDC
         assertTrue(n2.getArea("Control_Area").getAreaBoundaries().iterator().next().getTerminal().isPresent());
