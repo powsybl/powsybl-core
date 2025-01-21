@@ -759,7 +759,7 @@ public final class NetworkSerDe {
         }
         if (!extensionNamesNotFound.isEmpty()) {
             ReportNode extensionsNotFoundReportNode = reportNode.newReportNode().withMessageTemplate("extensionsNotFound", "Not found extensions").add();
-            throwExceptionIfOption(context.getOptions(), "Extensions " + extensionNamesNotFound + " " + "not found !");
+            throwExceptionIfOption(context.getOptions(), "Extensions " + extensionNamesNotFound + " " + "not found!");
             logExtensionsNotFound(extensionsNotFoundReportNode, extensionNamesNotFound);
         }
 
@@ -820,10 +820,10 @@ public final class NetworkSerDe {
             // to check for an extension to exist if depth is greater than zero. Furthermore, in case of
             // missing extension serializer, we must not check for an extension in sub elements.
             if (context.getOptions().withExtension(extensionName)) {
-                ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
-                if (extensionXmlSerializer != null) {
-                    Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
-                    identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+                ExtensionSerDe extensionSerde = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+                if (extensionSerde != null) {
+                    Extension<? extends Identifiable<?>> extension = extensionSerde.read(identifiable, context);
+                    identifiable.addExtension(extensionSerde.getExtensionClass(), extension);
                     extensionNamesImported.add(extensionName);
                 } else {
                     extensionNamesNotFound.add(extensionName);

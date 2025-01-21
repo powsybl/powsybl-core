@@ -72,5 +72,8 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
         return network;
     }
 
-    //TODO namespacePrefixes by serializationName or version
+    //TODO list:
+    // - namespacePrefixes by serializationName or version
+    // - handle serialization names collision
+    // - test specifying the extensions to load
 }

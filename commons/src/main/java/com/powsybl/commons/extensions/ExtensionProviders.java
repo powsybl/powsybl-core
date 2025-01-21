@@ -11,7 +11,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -34,8 +36,7 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
 
     private ExtensionProviders(Class<T> clazz) {
         Objects.requireNonNull(clazz);
-        providers = new ServiceLoaderCache<>(clazz).getServices().stream()
-                .collect(Collectors.toMap(T::getExtensionName, e -> e));
+        providers = loadProviders(clazz, null, null);
     }
 
     private ExtensionProviders(Class<T> clazz, String categoryName) {
@@ -46,10 +47,31 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(categoryName);
 
-        List<T> services = new ServiceLoaderCache<>(clazz).getServices();
-        providers = services.stream()
-                .filter(s -> s.getCategoryName().equals(categoryName) && (extensionNames == null || extensionNames.contains(s.getExtensionName())))
-                .collect(Collectors.toMap(T::getExtensionName, e -> e));
+        providers = loadProviders(clazz, categoryName, extensionNames);
+    }
+
+    private Map<String, T> loadProviders(Class<T> clazz, String categoryName, Set<String> extensionNames) {
+        final Map<String, T> providersMap = new HashMap<>();
+        Predicate<String> validateName = extensionNames == null ? n -> true : extensionNames::contains;
+
+        Stream<T> stream = new ServiceLoaderCache<>(clazz).getServices().stream();
+        if (categoryName != null) {
+            stream = stream.filter(s -> s.getCategoryName().equals(categoryName));
+        }
+        if (clazz.equals(ExtensionSerDe.class)) {
+            stream.forEach(service ->
+                ((ExtensionSerDe<?, ?>) service).getSerializationNames().forEach(name -> addService(providersMap, name, service, validateName))
+            );
+        } else {
+            stream.forEach(service -> addService(providersMap, service.getExtensionName(), service, validateName));
+        }
+        return providersMap;
+    }
+
+    private void addService(Map<String, T> providersMap, String name, T service, Predicate<String> validateName) {
+        if (validateName.test(name)) {
+            providersMap.put(name, service);
+        }
     }
 
     public T findProvider(String name) {
@@ -66,7 +88,7 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
     }
 
     public Collection<T> getProviders() {
-        return providers.values();
+        return providers.values().stream().distinct().collect(Collectors.toList());
     }
 
     public <T> void addExtensions(Extendable<T> extendable, Collection<Extension<T>> extensions) {
