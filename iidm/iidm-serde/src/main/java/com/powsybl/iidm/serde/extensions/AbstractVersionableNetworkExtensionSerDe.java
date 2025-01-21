@@ -32,19 +32,48 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
     private final String namespacePrefix;
     private final Map<IidmVersion, ImmutableSortedSet<String>> extensionVersions = new EnumMap<>(IidmVersion.class);
     private final BiMap<String, String> namespaceUris = HashBiMap.create();
+    private final Map<String, String> serializationNameByVersion = new HashMap<>();
 
     protected AbstractVersionableNetworkExtensionSerDe(String extensionName, Class<? super E> extensionClass, String namespacePrefix,
                                                        Map<IidmVersion, ImmutableSortedSet<String>> extensionVersions, Map<String, String> namespaceUris) {
+        this(extensionName, extensionClass, namespacePrefix, extensionVersions, namespaceUris, null);
+    }
+
+    protected AbstractVersionableNetworkExtensionSerDe(String extensionName, Class<? super E> extensionClass, String namespacePrefix,
+                                                       Map<IidmVersion, ImmutableSortedSet<String>> extensionVersions,
+                                                       Map<String, String> namespaceUris,
+                                                       Map<String, Set<String>> versionsBySerializationName) {
         this.extensionName = Objects.requireNonNull(extensionName);
         this.extensionClass = Objects.requireNonNull(extensionClass);
         this.namespacePrefix = Objects.requireNonNull(namespacePrefix);
         this.extensionVersions.putAll(Objects.requireNonNull(extensionVersions));
         this.namespaceUris.putAll(Objects.requireNonNull(namespaceUris));
+        if (versionsBySerializationName == null) {
+            extensionVersions.values().stream()
+                    .flatMap(Collection::stream)
+                    .forEach(version -> this.serializationNameByVersion.put(version, this.extensionName));
+        } else {
+            for (Map.Entry<String, Set<String>> entry : versionsBySerializationName.entrySet()) {
+                entry.getValue().forEach(version -> this.serializationNameByVersion.put(version, entry.getKey()));
+            }
+        }
     }
 
     @Override
     public String getExtensionName() {
         return extensionName;
+    }
+
+    @Override
+    public String getSerializationName(String extensionVersion) {
+        return Optional.ofNullable(serializationNameByVersion.get(extensionVersion))
+                .orElseThrow(() -> new PowsyblException("Serialization name null for " + getExtensionName() +
+                        " extension's version " + extensionVersion));
+    }
+
+    @Override
+    public Set<String> getSerializationNames() {
+        return Set.copyOf(serializationNameByVersion.values());
     }
 
     @Override

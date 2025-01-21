@@ -9,6 +9,7 @@ package com.powsybl.commons.extensions;
 
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -40,6 +41,16 @@ public abstract class AbstractExtensionSerDe<T extends Extendable, E extends Ext
     @Override
     public String getExtensionName() {
         return extensionName;
+    }
+
+    @Override
+    public final String getSerializationName(String extensionVersion) {
+        return getExtensionName();
+    }
+
+    @Override
+    public final Set<String> getSerializationNames() {
+        return Set.of(getExtensionName());
     }
 
     @Override

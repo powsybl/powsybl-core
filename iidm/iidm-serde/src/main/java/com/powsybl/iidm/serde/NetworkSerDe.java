@@ -158,8 +158,9 @@ public final class NetworkSerDe {
             throw new IllegalStateException("Extension Serializer of " + extension.getName() + " should not be null");
         }
         String namespaceUri = getNamespaceUri(extensionSerDe, context.getOptions());
-        writer.writeStartNode(namespaceUri, extension.getName());
         context.getExtensionVersion(extension.getName()).ifPresent(extensionSerDe::checkExtensionVersionSupported);
+        String exportName = extensionSerDe.getSerializationName(getExtensionVersion(extensionSerDe, context.getOptions()));
+        writer.writeStartNode(namespaceUri, exportName);
         extensionSerDe.write(extension, context);
         writer.writeEndNode();
     }
