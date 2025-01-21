@@ -48,11 +48,7 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
         this.namespacePrefix = Objects.requireNonNull(namespacePrefix);
         this.extensionVersions.putAll(Objects.requireNonNull(extensionVersions));
         this.namespaceUris.putAll(Objects.requireNonNull(namespaceUris));
-        if (versionsBySerializationName == null) {
-            extensionVersions.values().stream()
-                    .flatMap(Collection::stream)
-                    .forEach(version -> this.serializationNameByVersion.put(version, this.extensionName));
-        } else {
+        if (versionsBySerializationName != null) {
             for (Map.Entry<String, Set<String>> entry : versionsBySerializationName.entrySet()) {
                 entry.getValue().forEach(version -> this.serializationNameByVersion.put(version, entry.getKey()));
             }
@@ -66,14 +62,14 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
 
     @Override
     public String getSerializationName(String extensionVersion) {
-        return Optional.ofNullable(serializationNameByVersion.get(extensionVersion))
-                .orElseThrow(() -> new PowsyblException("Serialization name null for " + getExtensionName() +
-                        " extension's version " + extensionVersion));
+        return serializationNameByVersion.getOrDefault(extensionVersion, extensionName);
     }
 
     @Override
     public Set<String> getSerializationNames() {
-        return Set.copyOf(serializationNameByVersion.values());
+        Set<String> versions = new HashSet<>(serializationNameByVersion.values());
+        versions.add(extensionName); // The extension name may not be stored in serializationNameByVersion since it's the default name
+        return versions;
     }
 
     @Override

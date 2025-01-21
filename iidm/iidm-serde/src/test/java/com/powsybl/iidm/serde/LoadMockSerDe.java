@@ -20,6 +20,7 @@ import com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtensionSerD
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -30,13 +31,18 @@ public class LoadMockSerDe extends AbstractVersionableNetworkExtensionSerDe<Load
     public LoadMockSerDe() {
         super("loadMock", LoadMockExt.class, "lmock",
                 ImmutableMap.<IidmVersion, ImmutableSortedSet<String>>builder()
-                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of("1.0"))
+                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of("0.1", "1.0"))
                         .put(IidmVersion.V_1_1, ImmutableSortedSet.of("1.1", "1.2"))
+                        .put(IidmSerDeConstants.CURRENT_IIDM_VERSION, ImmutableSortedSet.of("1.1", "1.2"))
                         .build(),
                 ImmutableMap.<String, String>builder()
+                        .put("0.1", "http://www.powsybl.org/schema/iidm/ext/load_element_mock/1_0")
                         .put("1.0", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_0")
                         .put("1.1", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_1")
                         .put("1.2", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_2")
+                        .build(),
+                ImmutableMap.<String, Set<String>>builder()
+                        .put("loadElementMock", Set.of("0.1"))
                         .build());
     }
 
@@ -47,7 +53,8 @@ public class LoadMockSerDe extends AbstractVersionableNetworkExtensionSerDe<Load
 
     @Override
     public List<InputStream> getXsdAsStreamList() {
-        return ImmutableList.of(getClass().getResourceAsStream("/V1_0/xsd/loadMock_V1_0.xsd"),
+        return ImmutableList.of(getClass().getResourceAsStream("/V1_0/xsd/loadMock_V0_1.xsd"),
+                getClass().getResourceAsStream("/V1_0/xsd/loadMock_V1_0.xsd"),
                 getClass().getResourceAsStream("/V1_1/xsd/loadMock_V1_1.xsd"),
                 getClass().getResourceAsStream("/V1_1/xsd/loadMock_V1_2.xsd"));
     }
