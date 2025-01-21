@@ -31,8 +31,8 @@ class IrregularTimeSeriesIndexTest {
         assertEquals(IrregularTimeSeriesIndex.TYPE, index.getType());
 
         // test getters
-        assertEquals("2015-01-01T00:00:00Z", Instant.ofEpochMilli(index.getTimeAt(0)).toString());
-        assertEquals("2015-01-01T01:00:00Z", Instant.ofEpochMilli(index.getTimeAt(1)).toString());
+        assertEquals("2015-01-01T00:00:00Z", index.getInstantAt(0).toString());
+        assertEquals("2015-01-01T01:00:00Z", index.getInstantAt(1).toString());
         assertEquals(2, index.getPointCount());
 
         // test iterator and stream
@@ -44,12 +44,18 @@ class IrregularTimeSeriesIndexTest {
                      index.toString());
 
         // test json
-        String jsonRef = "[ 1420070400000, 1420074000000 ]";
-        String json = index.toJson();
+        String jsonRefMillis = "[ 1420070400000, 1420074000000 ]";
+        String jsonRef = "[ 1420070400000000000, 1420074000000000000 ]";
+        String jsonMillis = index.toJson();
+        String json = index.toJson(TimeSeries.TimeFormat.NANO);
+        assertEquals(jsonRefMillis, jsonMillis);
         assertEquals(jsonRef, json);
-        IrregularTimeSeriesIndex index2 = JsonUtil.parseJson(json, IrregularTimeSeriesIndex::parseJson);
+        IrregularTimeSeriesIndex index2 = JsonUtil.parseJson(json, jsonParser -> IrregularTimeSeriesIndex.parseJson(jsonParser, TimeSeries.TimeFormat.NANO));
         assertNotNull(index2);
         assertEquals(index, index2);
+        IrregularTimeSeriesIndex index3 = JsonUtil.parseJson(jsonMillis, IrregularTimeSeriesIndex::parseJson);
+        assertNotNull(index3);
+        assertEquals(index, index3);
     }
 
     @Test

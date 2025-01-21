@@ -9,6 +9,8 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.stream.Stream;
@@ -20,6 +22,10 @@ public interface TimeSeriesIndex extends Iterable<Instant> {
 
     int getPointCount();
 
+    /**
+     * @deprecated Replaced by {@link TimeSeriesIndex#getInstantAt(int)}}
+     */
+    @Deprecated(since = "6.7.0")
     long getTimeAt(int point);
 
     Instant getInstantAt(int point);
@@ -28,9 +34,45 @@ public interface TimeSeriesIndex extends Iterable<Instant> {
 
     void writeJson(JsonGenerator generator);
 
+    void writeJson(JsonGenerator generator, TimeSeries.TimeFormat format);
+
     String toJson();
+
+    String toJson(TimeSeries.TimeFormat format);
 
     Stream<Instant> stream();
 
     Iterator<Instant> iterator();
+
+    static long instantToNanos(Instant instant) {
+        return instant.getEpochSecond() * 1_000_000_000L + instant.getNano();
+    }
+
+    static long dateParsedToNano(String date) {
+        return instantToNanos(Instant.parse(date));
+    }
+
+    static Instant parseDoubleToInstant(String doubleString) {
+        BigDecimal bd = new BigDecimal(doubleString);
+        BigDecimal seconds = bd.setScale(0, RoundingMode.DOWN);
+        BigDecimal nanos = bd.subtract(seconds).multiply(BigDecimal.valueOf(1_000_000_000));
+
+        return Instant.ofEpochSecond(
+            seconds.longValue(),
+            nanos.longValue()
+        );
+    }
+
+    static Instant parseLongToInstant(String token, long conversionToSeconds) {
+        long dateAsLong = Long.parseLong(token);
+        return longToInstant(dateAsLong, conversionToSeconds);
+    }
+
+    static Instant longToInstant(long dateAsLong, long conversionToSeconds) {
+        return Instant.ofEpochSecond(dateAsLong / conversionToSeconds, (dateAsLong % conversionToSeconds) * 1_000_000_000L / conversionToSeconds);
+    }
+
+    static long instantToLong(Instant instant, long conversionToSeconds) {
+        return instant.getEpochSecond() * conversionToSeconds + instant.getNano() * conversionToSeconds / 1_000_000_000L;
+    }
 }

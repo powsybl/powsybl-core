@@ -69,7 +69,12 @@ class CalculatedTimeSeriesGroovyDslTest {
 
                 @Override
                 public long getTime() {
-                    return index.getTimeAt(finalPoint);
+                    return index.getInstantAt(finalPoint).toEpochMilli();
+                }
+
+                @Override
+                public Instant getInstant() {
+                    return index.getInstantAt(finalPoint);
                 }
 
                 @Override

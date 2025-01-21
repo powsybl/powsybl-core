@@ -16,7 +16,11 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -27,11 +31,9 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     public static final String TYPE = "regularIndex";
 
-    private final long startTime; // in ms from epoch
-
-    private final long endTime; // in ms from epoch
-
-    private final long spacing; // in ms
+    private final Instant startInstant;
+    private final Instant endInstant;
+    private final Duration deltaT;
 
     // computed from the previous fields; startTime and endTime are inclusive,
     // with rounding to have easier interactions with calendar dates (the
@@ -41,34 +43,58 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     // between 2 calendar dates.
     private final int pointCount;
 
-    public RegularTimeSeriesIndex(long startTime, long endTime, long spacing) {
-        if (startTime < 0) {
-            throw new IllegalArgumentException("Bad start time value " + startTime);
+    public RegularTimeSeriesIndex(Instant startInstant, Instant endInstant, Duration deltaT) {
+        if (deltaT.isNegative()) {
+            throw new IllegalArgumentException("Bad spacing value " + deltaT);
         }
-        if (endTime < 0) {
-            throw new IllegalArgumentException("Bad end time value " + endTime);
+        if (deltaT.compareTo(Duration.between(startInstant, endInstant)) > 0) {
+            throw new IllegalArgumentException("Spacing " + deltaT + " is longer than interval " + (Duration.between(startInstant, endInstant)));
         }
-        if (spacing < 0) {
-            throw new IllegalArgumentException("Bad spacing value " + spacing);
-        }
-        if (spacing > endTime - startTime) {
-            throw new IllegalArgumentException("Spacing " + spacing + " is longer than interval " + (endTime - startTime));
-        }
-        long computedPointCount = computePointCount(startTime, endTime, spacing);
+        long computedPointCount = computePointCount(startInstant, endInstant, deltaT);
         if (computedPointCount > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Point Count " + computedPointCount + " is bigger than max allowed value " + Integer.MAX_VALUE);
         }
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.spacing = spacing;
+        this.startInstant = startInstant;
+        this.endInstant = endInstant;
+        this.deltaT = deltaT;
         this.pointCount = (int) computedPointCount;
+    }
+
+    /**
+     * @deprecated Replaced by {@link RegularTimeSeriesIndex#RegularTimeSeriesIndex(Instant, Instant, Duration)}
+     */
+    @Deprecated(since = "6.7.0")
+    public RegularTimeSeriesIndex(long startTime, long endTime, long spacing) {
+        this(TimeSeriesIndex.longToInstant(startTime, 1_000L),
+            TimeSeriesIndex.longToInstant(endTime, 1_000L),
+            Duration.ofMillis(spacing));
+//        if (startTime < 0) {
+//            throw new IllegalArgumentException("Bad start time value " + startTime);
+//        }
+//        if (endTime < 0) {
+//            throw new IllegalArgumentException("Bad end time value " + endTime);
+//        }
+//        if (spacing < 0) {
+//            throw new IllegalArgumentException("Bad spacing value " + spacing);
+//        }
+//        if (spacing > endTime - startTime) {
+//            throw new IllegalArgumentException("Spacing " + spacing + " is longer than interval " + (endTime - startTime));
+//        }
+//        long computedPointCount = computePointCount(startTime, endTime, spacing);
+//        if (computedPointCount > Integer.MAX_VALUE) {
+//            throw new IllegalArgumentException("Point Count " + computedPointCount + " is bigger than max allowed value " + Integer.MAX_VALUE);
+//        }
+//        this.startInstant = TimeSeriesIndex.longToInstant(startTime, 1_000L);
+//        this.endInstant = TimeSeriesIndex.longToInstant(endTime, 1_000L);
+//        this.deltaT = Duration.ofMillis(spacing);
+//        this.pointCount = (int) computedPointCount;
     }
 
     public static RegularTimeSeriesIndex create(Instant start, Instant end, Duration spacing) {
         Objects.requireNonNull(start);
         Objects.requireNonNull(end);
         Objects.requireNonNull(spacing);
-        return new RegularTimeSeriesIndex(start.toEpochMilli(), end.toEpochMilli(), spacing.toMillis());
+        return new RegularTimeSeriesIndex(start, end, spacing);
     }
 
     public static RegularTimeSeriesIndex create(Interval interval, Duration spacing) {
@@ -80,25 +106,32 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         Objects.requireNonNull(parser);
         JsonToken token;
         try {
-            long startTime = -1;
-            long endTime = -1;
-            long spacing = -1;
+            Instant startInstant = Instant.ofEpochMilli(Long.MIN_VALUE);
+            Instant endInstant = Instant.ofEpochMilli(Long.MIN_VALUE);
+            Duration deltaT = Duration.ofNanos(Long.MIN_VALUE);
             while ((token = parser.nextToken()) != null) {
                 switch (token) {
                     case FIELD_NAME -> {
                         String fieldName = parser.currentName();
                         switch (fieldName) {
-                            case "startTime" -> startTime = parser.nextLongValue(-1);
-                            case "endTime" -> endTime = parser.nextLongValue(-1);
-                            case "spacing" -> spacing = parser.nextLongValue(-1);
+                            // Precision in ms
+                            case "startTime" -> startInstant = TimeSeriesIndex.longToInstant(parser.nextLongValue(-1), 1_000L);
+                            case "endTime" -> endInstant = TimeSeriesIndex.longToInstant(parser.nextLongValue(-1), 1_000L);
+                            case "spacing" -> deltaT = Duration.ofMillis(parser.nextLongValue(-1));
+                            // Precision in ns
+                            case "startInstant" -> startInstant = TimeSeriesIndex.longToInstant(parser.nextLongValue(-1), 1_000_000_000L);
+                            case "endInstant" -> endInstant = TimeSeriesIndex.longToInstant(parser.nextLongValue(-1), 1_000_000_000L);
+                            case "deltaT" -> deltaT = Duration.ofNanos(parser.nextLongValue(-1));
                             default -> throw new IllegalStateException("Unexpected field " + fieldName);
                         }
                     }
                     case END_OBJECT -> {
-                        if (startTime == -1 || endTime == -1 || spacing == -1) {
+                        if (startInstant.equals(Instant.ofEpochMilli(Long.MIN_VALUE)) ||
+                            endInstant.equals(Instant.ofEpochMilli(Long.MIN_VALUE)) ||
+                            deltaT.equals(Duration.ofNanos(Long.MIN_VALUE))) {
                             throw new IllegalStateException("Incomplete regular time series index json");
                         }
-                        return new RegularTimeSeriesIndex(startTime, endTime, spacing);
+                        return new RegularTimeSeriesIndex(startInstant, endInstant, deltaT);
                     }
                     default -> {
                         // Do nothing
@@ -111,20 +144,48 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         }
     }
 
+    /**
+     * @deprecated Replaced by {@link RegularTimeSeriesIndex#getStartInstant()}
+     */
+    @Deprecated(since = "6.7.0")
     public long getStartTime() {
-        return startTime;
+        return TimeSeriesIndex.instantToLong(startInstant, 1_000L);
     }
 
+    public Instant getStartInstant() {
+        return startInstant;
+    }
+
+    /**
+     * @deprecated Replaced by {@link RegularTimeSeriesIndex#getEndInstant()}
+     */
+    @Deprecated(since = "6.7.0")
     public long getEndTime() {
-        return endTime;
+        return TimeSeriesIndex.instantToLong(endInstant, 1_000L);
     }
 
+    public Instant getEndInstant() {
+        return endInstant;
+    }
+
+    /**
+     * @deprecated Replaced by {@link RegularTimeSeriesIndex#getDeltaT()}
+     */
+    @Deprecated(since = "6.7.0")
     public long getSpacing() {
-        return spacing;
+        return deltaT.toMillis();
+    }
+
+    public Duration getDeltaT() {
+        return deltaT;
     }
 
     private static long computePointCount(long startTime, long endTime, long spacing) {
         return Math.round(((double) (endTime - startTime)) / spacing) + 1;
+    }
+
+    private static long computePointCount(Instant startTime, Instant endTime, Duration spacing) {
+        return Math.round(((double) (Duration.between(startTime, endTime).toNanos())) / spacing.toNanos()) + 1;
     }
 
     @Override
@@ -133,22 +194,22 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     }
 
     @Override
-    public long getTimeAt(int point) {
-        return startTime + point * spacing;
+    public Instant getInstantAt(int point) {
+        return startInstant.plus(deltaT.multipliedBy(point));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(startTime, endTime, spacing);
+        return Objects.hash(startInstant, endInstant, deltaT);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof TimeSeriesIndex) {
             RegularTimeSeriesIndex otherIndex = (RegularTimeSeriesIndex) obj;
-            return startTime == otherIndex.startTime &&
-                    endTime == otherIndex.endTime &&
-                    spacing == otherIndex.spacing;
+            return startInstant.equals(otherIndex.startInstant) &&
+                endInstant.equals(otherIndex.endInstant) &&
+                deltaT.equals(otherIndex.deltaT);
         }
         return false;
     }
@@ -159,13 +220,19 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     }
 
     @Override
-    public void writeJson(JsonGenerator generator) {
+    public void writeJson(JsonGenerator generator, TimeSeries.TimeFormat timeFormat) {
         Objects.requireNonNull(generator);
         try {
             generator.writeStartObject();
-            generator.writeNumberField("startTime", startTime);
-            generator.writeNumberField("endTime", endTime);
-            generator.writeNumberField("spacing", spacing);
+            if (timeFormat == TimeSeries.TimeFormat.MILLIS) {
+                generator.writeNumberField("startTime", TimeSeriesIndex.instantToLong(startInstant, 1_000L));
+                generator.writeNumberField("endTime", TimeSeriesIndex.instantToLong(endInstant, 1_000L));
+                generator.writeNumberField("spacing", deltaT.toMillis());
+            } else {
+                generator.writeNumberField("startInstant", TimeSeriesIndex.instantToLong(startInstant, 1_000_000_000L));
+                generator.writeNumberField("endInstant", TimeSeriesIndex.instantToLong(endInstant, 1_000_000_000L));
+                generator.writeNumberField("deltaT", deltaT.toNanos());
+            }
             generator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -174,13 +241,13 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     @Override
     public Iterator<Instant> iterator() {
-        return new Iterator<Instant>() {
+        return new Iterator<>() {
 
-            long time = startTime;
+            Instant time = startInstant;
 
             @Override
             public boolean hasNext() {
-                return time <= endTime;
+                return time.compareTo(endInstant) <= 0;
             }
 
             @Override
@@ -188,8 +255,8 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                Instant instant = Instant.ofEpochMilli(time);
-                time += spacing;
+                Instant instant = Instant.ofEpochSecond(time.getEpochSecond(), time.getNano());
+                time = time.plus(deltaT);
                 return instant;
             }
         };
@@ -204,7 +271,6 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     @Override
     public String toString() {
-        return "RegularTimeSeriesIndex(startTime=" + Instant.ofEpochMilli(startTime) + ", endTime=" + Instant.ofEpochMilli(endTime) +
-                ", spacing=" + Duration.ofMillis(spacing) + ")";
+        return "RegularTimeSeriesIndex(startInstant=" + startInstant + ", endInstant=" + endInstant + ", deltaT=" + deltaT + ")";
     }
 }

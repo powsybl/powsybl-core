@@ -7,22 +7,35 @@
  */
 package com.powsybl.timeseries;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.json.JsonUtil;
-
-import java.time.Instant;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractTimeSeriesIndex implements TimeSeriesIndex {
 
+    /**
+     * @deprecated Replaced by {@link #getInstantAt(int)}}
+     */
+    @Deprecated(since = "6.7.0")
     @Override
-    public Instant getInstantAt(int point) {
-        return Instant.ofEpochMilli(getTimeAt(point));
+    public long getTimeAt(int point) {
+        return getInstantAt(point).toEpochMilli();
     }
 
     @Override
     public String toJson() {
-        return JsonUtil.toJson(this::writeJson);
+        return toJson(TimeSeries.TimeFormat.MILLIS);
+    }
+
+    @Override
+    public String toJson(TimeSeries.TimeFormat format) {
+        return JsonUtil.toJson(generator -> this.writeJson(generator, format));
+    }
+
+    @Override
+    public void writeJson(JsonGenerator generator) {
+        writeJson(generator, TimeSeries.TimeFormat.MILLIS);
     }
 }

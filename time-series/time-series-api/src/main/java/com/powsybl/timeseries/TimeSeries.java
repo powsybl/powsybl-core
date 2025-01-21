@@ -24,15 +24,33 @@ import gnu.trove.list.array.TDoubleArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.powsybl.timeseries.TimeSeriesIndex.parseDoubleToInstant;
+import static com.powsybl.timeseries.TimeSeriesIndex.parseLongToInstant;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -46,6 +64,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     enum TimeFormat {
         DATE_TIME,
         MILLIS,
+        MICRO,
+        NANO,
         FRACTIONS_OF_SECOND;
     }
 
@@ -188,7 +208,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         private final TimeSeriesDataType[] dataTypes;
         private final Object[] values;
 
-        private final List<Long> times = new ArrayList<>();
+        private final List<Instant> instants = new ArrayList<>();
 
         private TimeSeriesIndex refIndex;
 
@@ -210,16 +230,16 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
         private TDoubleArrayList createDoubleValues() {
             TDoubleArrayList doubleValues = new TDoubleArrayList();
-            if (!times.isEmpty()) {
-                doubleValues.fill(0, times.size(), Double.NaN);
+            if (!instants.isEmpty()) {
+                doubleValues.fill(0, instants.size(), Double.NaN);
             }
             return doubleValues;
         }
 
         private List<String> createStringValues() {
             List<String> stringValues = new ArrayList<>();
-            if (!times.isEmpty()) {
-                for (int j = 0; j < times.size(); j++) {
+            if (!instants.isEmpty()) {
+                for (int j = 0; j < instants.size(); j++) {
                     stringValues.add(null);
                 }
             }
@@ -258,7 +278,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
 
         int timesSize() {
-            return times.size();
+            return instants.size();
         }
 
         int expectedTokens() {
@@ -291,30 +311,32 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
 
         void parseLine(String[] tokens) {
-            long time = parseTokenTime(tokens[0]);
-            if (times.isEmpty() || times.get(times.size() - 1) != time) {
+            Instant time = parseTokenTime(tokens[0]);
+            if (instants.isEmpty() || !instants.get(instants.size() - 1).equals(time)) {
                 for (int i = fixedColumns; i < tokens.length; i++) {
                     String token = tokens[i] != null ? tokens[i].trim() : "";
                     parseToken(i, token);
                 }
-                times.add(time);
+                instants.add(time);
             } else {
                 LOGGER.warn("Row with the same time have already been read, the row will be skipped");
             }
         }
 
-        long parseTokenTime(String token) {
+        Instant parseTokenTime(String token) {
             TimeFormat timeFormat = timeSeriesCsvConfig.timeFormat();
             return switch (timeFormat) {
-                case DATE_TIME -> ZonedDateTime.parse(token).toInstant().toEpochMilli();
-                case FRACTIONS_OF_SECOND -> (long) (Double.parseDouble(token) * 1000);
-                case MILLIS -> (long) Double.parseDouble(token);
+                case DATE_TIME -> ZonedDateTime.parse(token).toInstant();
+                case FRACTIONS_OF_SECOND -> parseDoubleToInstant(token);
+                case MILLIS -> parseLongToInstant(token, 1_000L);
+                case MICRO -> parseLongToInstant(token, 1_000_000L);
+                case NANO -> parseLongToInstant(token, 1_000_000_000L);
             };
         }
 
         void reInit() {
             // re-init
-            times.clear();
+            instants.clear();
             for (int i = 0; i < dataTypes.length; i++) {
                 if (dataTypes[i] == TimeSeriesDataType.DOUBLE) {
                     ((TDoubleArrayList) values[i]).clear();
@@ -360,27 +382,27 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
 
         private TimeSeriesIndex getTimeSeriesIndex() {
-            long spacing = checkRegularSpacing();
-            if (spacing != Long.MIN_VALUE) {
-                return new RegularTimeSeriesIndex(times.get(0), times.get(times.size() - 1), spacing);
+            Duration spacing = checkRegularSpacing();
+            if (spacing.toNanos() != Long.MIN_VALUE) {
+                return new RegularTimeSeriesIndex(instants.get(0), instants.get(instants.size() - 1), spacing);
             } else {
-                return new IrregularTimeSeriesIndex(times.stream().mapToLong(l -> l).toArray());
+                return new IrregularTimeSeriesIndex(instants.toArray(new Instant[0]));
             }
         }
 
-        private long checkRegularSpacing() {
-            if (times.size() < 2) {
+        private Duration checkRegularSpacing() {
+            if (instants.size() < 2) {
                 throw new TimeSeriesException("At least 2 rows are expected");
             }
 
-            long spacing = Long.MIN_VALUE;
-            for (int i = 1; i < times.size(); i++) {
-                long duration = times.get(i) - times.get(i - 1);
-                if (spacing == Long.MIN_VALUE) {
+            Duration spacing = Duration.ofNanos(Long.MIN_VALUE);
+            for (int i = 1; i < instants.size(); i++) {
+                Duration duration = Duration.between(instants.get(i - 1), instants.get(i));
+                if (spacing.toNanos() == Long.MIN_VALUE) {
                     spacing = duration;
                 } else {
-                    if (duration != spacing) {
-                        return Long.MIN_VALUE;
+                    if (!duration.equals(spacing)) {
+                        return Duration.ofNanos(Long.MIN_VALUE);
                     }
                 }
             }

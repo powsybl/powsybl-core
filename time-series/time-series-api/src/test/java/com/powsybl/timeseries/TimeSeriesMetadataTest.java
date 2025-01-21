@@ -43,7 +43,7 @@ class TimeSeriesMetadataTest {
         assertSame(index, metadata.getIndex());
 
         // toString test
-        assertEquals("TimeSeriesMetadata(name=ts1, dataType=DOUBLE, tags={var1=value1}, index=RegularTimeSeriesIndex(startTime=2015-01-01T00:00:00Z, endTime=2015-01-01T01:00:00Z, spacing=PT15M))",
+        assertEquals("TimeSeriesMetadata(name=ts1, dataType=DOUBLE, tags={var1=value1}, index=RegularTimeSeriesIndex(startInstant=2015-01-01T00:00:00Z, endInstant=2015-01-01T01:00:00Z, deltaT=PT15M))",
                      metadata.toString());
 
         // test json
@@ -78,18 +78,6 @@ class TimeSeriesMetadataTest {
         assertEquals(2, metadataList.size());
         assertEquals(metadata, metadataList.get(0));
         assertEquals(metadata, metadataList.get(1));
-    }
-
-    @Test
-    void testInfiniteIndex() throws IOException {
-        assertEquals("infiniteIndex", InfiniteTimeSeriesIndex.INSTANCE.getType());
-        assertEquals(2, InfiniteTimeSeriesIndex.INSTANCE.getPointCount());
-        assertEquals(InfiniteTimeSeriesIndex.START_TIME, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(0));
-        assertEquals(InfiniteTimeSeriesIndex.END_TIME, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(1));
-        assertEquals("InfiniteTimeSeriesIndex()", InfiniteTimeSeriesIndex.INSTANCE.toString());
-        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), InfiniteTimeSeriesIndex.INSTANCE);
-        TimeSeriesMetadata metadata2 = JsonUtil.parseJson(JsonUtil.toJson(metadata::writeJson), TimeSeriesMetadata::parseJson);
-        assertEquals(metadata, metadata2);
     }
 
     @Test

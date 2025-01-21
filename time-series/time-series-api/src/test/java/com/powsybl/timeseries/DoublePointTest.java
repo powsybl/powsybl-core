@@ -21,21 +21,22 @@ class DoublePointTest {
 
     @Test
     void testGetters() {
-        DoublePoint point = new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), 10d);
+        DoublePoint point = new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z"), 10d);
         assertEquals(0, point.getIndex());
+        assertEquals(Instant.parse("2015-01-01T00:00:00Z"), point.getInstant());
         assertEquals(Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), point.getTime());
         assertEquals(10d, point.getValue(), 0d);
-        assertEquals("DoublePoint(index=0, time=2015-01-01T00:00:00Z, value=10.0)", point.toString());
+        assertEquals("DoublePoint(index=0, instant=2015-01-01T00:00:00Z, value=10.0)", point.toString());
     }
 
     @Test
     void testEquals() {
         new EqualsTester()
-                .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), 10d),
-                        new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), 10d))
-                .addEqualityGroup(new DoublePoint(1, Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), 10d))
-                .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T11:11:11Z").toEpochMilli(), 10d))
-                .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), 8d))
+                .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z"), 10d),
+                        new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z"), 10d))
+                .addEqualityGroup(new DoublePoint(1, Instant.parse("2015-01-01T00:00:00Z"), 10d))
+                .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T11:11:11Z"), 10d))
+                .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z"), 8d))
                 .testEquals();
     }
 }

@@ -27,20 +27,29 @@ public class InfiniteTimeSeriesIndex extends AbstractTimeSeriesIndex {
     public static final InfiniteTimeSeriesIndex INSTANCE = new InfiniteTimeSeriesIndex();
 
     public static final String TYPE = "infiniteIndex";
-    public static final long START_TIME = 0L;
-    public static final long END_TIME = Long.MAX_VALUE;
+    public static final Instant START_INSTANT = Instant.MIN;
+    public static final Instant END_INSTANT = Instant.MAX;
 
     @Override
     public int getPointCount() {
         return 2;
     }
 
+    /**
+     * @deprecated Replaced by {@link #getInstantAt(int)}}
+     */
+    @Deprecated(since = "6.7.0")
     @Override
     public long getTimeAt(int point) {
+        return TimeSeriesIndex.instantToLong(getInstantAt(point), 1L);
+    }
+
+    @Override
+    public Instant getInstantAt(int point) {
         if (point == 0) {
-            return START_TIME;
+            return START_INSTANT;
         } else if (point == 1) {
-            return END_TIME;
+            return END_INSTANT;
         } else {
             throw new TimeSeriesException("Point " + point + " not found");
         }
@@ -52,7 +61,7 @@ public class InfiniteTimeSeriesIndex extends AbstractTimeSeriesIndex {
     }
 
     @Override
-    public void writeJson(JsonGenerator generator) {
+    public void writeJson(JsonGenerator generator, TimeSeries.TimeFormat timeFormat) {
         Objects.requireNonNull(generator);
         try {
             generator.writeStartObject();
@@ -79,12 +88,12 @@ public class InfiniteTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     @Override
     public Iterator<Instant> iterator() {
-        return Arrays.asList(Instant.ofEpochMilli(START_TIME), Instant.ofEpochMilli(END_TIME)).iterator();
+        return Arrays.asList(START_INSTANT, END_INSTANT).iterator();
     }
 
     @Override
     public Stream<Instant> stream() {
-        return Stream.of(Instant.ofEpochMilli(START_TIME), Instant.ofEpochMilli(END_TIME));
+        return Stream.of(START_INSTANT, END_INSTANT);
     }
 
     @Override
