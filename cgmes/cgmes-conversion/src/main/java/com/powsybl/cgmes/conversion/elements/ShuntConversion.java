@@ -65,7 +65,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
             throw new IllegalStateException("Unexpected shunt type: " + shuntType);
         }
         identify(adder);
-        connect(adder);
+        connectWithOnlyEq(adder);
         ShuntCompensator shunt = adder.add();
         addAliasesAndProperties(shunt);
 
