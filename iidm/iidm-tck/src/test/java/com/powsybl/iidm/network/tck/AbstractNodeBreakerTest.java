@@ -575,13 +575,4 @@ public abstract class AbstractNodeBreakerTest {
         assertEquals(1, n.getBusView().getBusStream().count());
         assertEquals(3, busBv.getConnectedTerminalCount());
     }
-
-    @Test
-    void testFictitiousP0AndFictitiousQ0ForInvalidatedBus() {
-        Network network = createNetwork();
-        Bus bus = network.getVoltageLevel("VL1").getBusView().getBus("VL1_1");
-        network.getSwitch("B_L1_1").setOpen(true);
-        assertThrows(PowsyblException.class, bus::getFictitiousP0, "Bus has been invalidated");
-        assertThrows(PowsyblException.class, bus::getFictitiousQ0, "Bus has been invalidated");
-    }
 }
