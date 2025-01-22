@@ -243,7 +243,7 @@ class CalculatedTimeSeriesGroovyDslTest {
 
     @Test
     void splitWithCalcTest() {
-        TimeSeriesIndex index = new RegularTimeSeriesIndex(10000, 10002, 1);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(10000), Instant.ofEpochMilli(10002), Duration.ofMillis(1));
         DoubleTimeSeries a = TimeSeries.createDouble("a", index, 1d, 2d, 3d);
         DoubleTimeSeries b = DoubleTimeSeries.fromTimeSeries(a).build("ts['b'] = ts['a'] + 1").get(0);
         List<DoubleTimeSeries> timeSeriesList = Arrays.asList(a, b);

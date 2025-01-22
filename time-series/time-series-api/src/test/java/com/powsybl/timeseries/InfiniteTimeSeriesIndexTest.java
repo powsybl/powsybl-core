@@ -7,12 +7,17 @@
  */
 package com.powsybl.timeseries;
 
+import com.google.common.collect.Lists;
 import com.powsybl.commons.json.JsonUtil;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -23,13 +28,26 @@ class InfiniteTimeSeriesIndexTest {
     void testInfiniteIndex() {
         assertEquals("infiniteIndex", InfiniteTimeSeriesIndex.INSTANCE.getType());
         assertEquals(2, InfiniteTimeSeriesIndex.INSTANCE.getPointCount());
+
+        // Time and instants
         assertEquals(-31557014167219200L, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(0));
         assertEquals(31556889864403199L, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(1));
         assertEquals(InfiniteTimeSeriesIndex.START_INSTANT, InfiniteTimeSeriesIndex.INSTANCE.getInstantAt(0));
         assertEquals(InfiniteTimeSeriesIndex.END_INSTANT, InfiniteTimeSeriesIndex.INSTANCE.getInstantAt(1));
+        TimeSeriesException exception = assertThrows(TimeSeriesException.class, () -> InfiniteTimeSeriesIndex.INSTANCE.getInstantAt(2));
+        assertEquals("Point 2 not found", exception.getMessage());
+
+        // String export
         assertEquals("InfiniteTimeSeriesIndex()", InfiniteTimeSeriesIndex.INSTANCE.toString());
+
+        // Metadata
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), InfiniteTimeSeriesIndex.INSTANCE);
         TimeSeriesMetadata metadata2 = JsonUtil.parseJson(JsonUtil.toJson(metadata::writeJson), TimeSeriesMetadata::parseJson);
         assertEquals(metadata, metadata2);
+
+        // Stream and iterator
+        List<Instant> instants = Arrays.asList(InfiniteTimeSeriesIndex.START_INSTANT, InfiniteTimeSeriesIndex.END_INSTANT);
+        assertEquals(instants, InfiniteTimeSeriesIndex.INSTANCE.stream().toList());
+        assertEquals(instants, Lists.newArrayList(InfiniteTimeSeriesIndex.INSTANCE.iterator()));
     }
 }

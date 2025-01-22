@@ -33,7 +33,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     private final Instant startInstant;
     private final Instant endInstant;
-    private final Duration deltaT;
+    private final Duration timeStep;
 
     // computed from the previous fields; startTime and endTime are inclusive,
     // with rounding to have easier interactions with calendar dates (the
@@ -43,20 +43,20 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     // between 2 calendar dates.
     private final int pointCount;
 
-    public RegularTimeSeriesIndex(Instant startInstant, Instant endInstant, Duration deltaT) {
-        if (deltaT.isNegative()) {
-            throw new IllegalArgumentException("Bad spacing value " + deltaT);
+    public RegularTimeSeriesIndex(Instant startInstant, Instant endInstant, Duration timeStep) {
+        if (timeStep.isNegative()) {
+            throw new IllegalArgumentException("Bad timeStep value " + timeStep);
         }
-        if (deltaT.compareTo(Duration.between(startInstant, endInstant)) > 0) {
-            throw new IllegalArgumentException("Spacing " + deltaT + " is longer than interval " + (Duration.between(startInstant, endInstant)));
+        if (timeStep.compareTo(Duration.between(startInstant, endInstant)) > 0) {
+            throw new IllegalArgumentException("TimeStep " + timeStep + " is longer than interval " + (Duration.between(startInstant, endInstant)));
         }
-        long computedPointCount = computePointCount(startInstant, endInstant, deltaT);
+        long computedPointCount = computePointCount(startInstant, endInstant, timeStep);
         if (computedPointCount > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Point Count " + computedPointCount + " is bigger than max allowed value " + Integer.MAX_VALUE);
         }
         this.startInstant = startInstant;
         this.endInstant = endInstant;
-        this.deltaT = deltaT;
+        this.timeStep = timeStep;
         this.pointCount = (int) computedPointCount;
     }
 
@@ -88,7 +88,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         try {
             Instant startInstant = Instant.ofEpochMilli(Long.MIN_VALUE);
             Instant endInstant = Instant.ofEpochMilli(Long.MIN_VALUE);
-            Duration deltaT = Duration.ofNanos(Long.MIN_VALUE);
+            Duration timeStep = Duration.ofNanos(Long.MIN_VALUE);
             while ((token = parser.nextToken()) != null) {
                 switch (token) {
                     case FIELD_NAME -> {
@@ -97,21 +97,21 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
                             // Precision in ms
                             case "startTime" -> startInstant = TimeSeriesIndex.longToInstant(parser.nextLongValue(-1), 1_000L);
                             case "endTime" -> endInstant = TimeSeriesIndex.longToInstant(parser.nextLongValue(-1), 1_000L);
-                            case "spacing" -> deltaT = Duration.ofMillis(parser.nextLongValue(-1));
+                            case "spacing" -> timeStep = Duration.ofMillis(parser.nextLongValue(-1));
                             // Precision in ns
                             case "startInstant" -> startInstant = TimeSeriesIndex.longToInstant(parser.nextLongValue(-1), 1_000_000_000L);
                             case "endInstant" -> endInstant = TimeSeriesIndex.longToInstant(parser.nextLongValue(-1), 1_000_000_000L);
-                            case "deltaT" -> deltaT = Duration.ofNanos(parser.nextLongValue(-1));
+                            case "timeStep" -> timeStep = Duration.ofNanos(parser.nextLongValue(-1));
                             default -> throw new IllegalStateException("Unexpected field " + fieldName);
                         }
                     }
                     case END_OBJECT -> {
                         if (startInstant.equals(Instant.ofEpochMilli(Long.MIN_VALUE)) ||
                             endInstant.equals(Instant.ofEpochMilli(Long.MIN_VALUE)) ||
-                            deltaT.equals(Duration.ofNanos(Long.MIN_VALUE))) {
+                            timeStep.equals(Duration.ofNanos(Long.MIN_VALUE))) {
                             throw new IllegalStateException("Incomplete regular time series index json");
                         }
-                        return new RegularTimeSeriesIndex(startInstant, endInstant, deltaT);
+                        return new RegularTimeSeriesIndex(startInstant, endInstant, timeStep);
                     }
                     default -> {
                         // Do nothing
@@ -129,7 +129,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
      */
     @Deprecated(since = "6.7.0")
     public long getStartTime() {
-        return TimeSeriesIndex.instantToLong(startInstant, 1_000L);
+        return startInstant.toEpochMilli();
     }
 
     public Instant getStartInstant() {
@@ -141,7 +141,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
      */
     @Deprecated(since = "6.7.0")
     public long getEndTime() {
-        return TimeSeriesIndex.instantToLong(endInstant, 1_000L);
+        return endInstant.toEpochMilli();
     }
 
     public Instant getEndInstant() {
@@ -149,15 +149,15 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     }
 
     /**
-     * @deprecated Replaced by {@link RegularTimeSeriesIndex#getDeltaT()}
+     * @deprecated Replaced by {@link RegularTimeSeriesIndex#getTimeStep()}
      */
     @Deprecated(since = "6.7.0")
     public long getSpacing() {
-        return deltaT.toMillis();
+        return timeStep.toMillis();
     }
 
-    public Duration getDeltaT() {
-        return deltaT;
+    public Duration getTimeStep() {
+        return timeStep;
     }
 
     private static long computePointCount(long startTime, long endTime, long spacing) {
@@ -175,12 +175,12 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     @Override
     public Instant getInstantAt(int point) {
-        return startInstant.plus(deltaT.multipliedBy(point));
+        return startInstant.plus(timeStep.multipliedBy(point));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(startInstant, endInstant, deltaT);
+        return Objects.hash(startInstant, endInstant, timeStep);
     }
 
     @Override
@@ -189,7 +189,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
             RegularTimeSeriesIndex otherIndex = (RegularTimeSeriesIndex) obj;
             return startInstant.equals(otherIndex.startInstant) &&
                 endInstant.equals(otherIndex.endInstant) &&
-                deltaT.equals(otherIndex.deltaT);
+                timeStep.equals(otherIndex.timeStep);
         }
         return false;
     }
@@ -212,11 +212,11 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
             if (timeFormat == TimeSeries.TimeFormat.MILLIS) {
                 generator.writeNumberField("startTime", TimeSeriesIndex.instantToLong(startInstant, 1_000L));
                 generator.writeNumberField("endTime", TimeSeriesIndex.instantToLong(endInstant, 1_000L));
-                generator.writeNumberField("spacing", deltaT.toMillis());
+                generator.writeNumberField("spacing", timeStep.toMillis());
             } else {
                 generator.writeNumberField("startInstant", TimeSeriesIndex.instantToLong(startInstant, 1_000_000_000L));
                 generator.writeNumberField("endInstant", TimeSeriesIndex.instantToLong(endInstant, 1_000_000_000L));
-                generator.writeNumberField("deltaT", deltaT.toNanos());
+                generator.writeNumberField("timeStep", timeStep.toNanos());
             }
             generator.writeEndObject();
         } catch (IOException e) {
@@ -241,7 +241,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
                     throw new NoSuchElementException();
                 }
                 Instant instant = Instant.ofEpochSecond(time.getEpochSecond(), time.getNano());
-                time = time.plus(deltaT);
+                time = time.plus(timeStep);
                 return instant;
             }
         };
@@ -256,6 +256,6 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     @Override
     public String toString() {
-        return "RegularTimeSeriesIndex(startInstant=" + startInstant + ", endInstant=" + endInstant + ", deltaT=" + deltaT + ")";
+        return "RegularTimeSeriesIndex(startInstant=" + startInstant + ", endInstant=" + endInstant + ", timeStep=" + timeStep + ")";
     }
 }

@@ -43,7 +43,7 @@ class TimeSeriesMetadataTest {
         assertSame(index, metadata.getIndex());
 
         // toString test
-        assertEquals("TimeSeriesMetadata(name=ts1, dataType=DOUBLE, tags={var1=value1}, index=RegularTimeSeriesIndex(startInstant=2015-01-01T00:00:00Z, endInstant=2015-01-01T01:00:00Z, deltaT=PT15M))",
+        assertEquals("TimeSeriesMetadata(name=ts1, dataType=DOUBLE, tags={var1=value1}, index=RegularTimeSeriesIndex(startInstant=2015-01-01T00:00:00Z, endInstant=2015-01-01T01:00:00Z, timeStep=PT15M))",
                      metadata.toString());
 
         // test json

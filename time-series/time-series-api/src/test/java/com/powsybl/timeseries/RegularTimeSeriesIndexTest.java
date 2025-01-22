@@ -11,12 +11,15 @@ import com.google.common.collect.Lists;
 import com.google.common.testing.EqualsTester;
 import com.powsybl.commons.json.JsonUtil;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.threeten.extra.Interval;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -33,13 +36,17 @@ class RegularTimeSeriesIndexTest {
             Duration.ofMinutes(15));
 
         // test getters
-        assertEquals("2015-01-01T00:00:00Z", index.getStartInstant().toString());
-        assertEquals("2015-01-01T01:00:00Z", index.getEndInstant().toString());
-        assertEquals(15 * 60 * 1_000_000_000L, index.getDeltaT().toNanos());
+        assertEquals(Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), index.getStartTime());
+        assertEquals(Instant.parse("2015-01-01T01:00:00Z").toEpochMilli(), index.getEndTime());
+        assertEquals(Duration.ofMinutes(15).toMillis(), index.getSpacing());
+        assertEquals(Instant.parse("2015-01-01T00:00:00Z"), index.getStartInstant());
+        assertEquals(Instant.parse("2015-01-01T01:00:00Z"), index.getEndInstant());
+        assertEquals(Duration.ofMinutes(15), index.getTimeStep());
         assertEquals(5, index.getPointCount());
-        Instant secondInstant = index.getStartInstant().plus(index.getDeltaT());
+        Instant secondInstant = index.getStartInstant().plus(index.getTimeStep());
         assertEquals(secondInstant, index.getInstantAt(1));
-        assertEquals("2015-01-01T00:15:00Z", index.getInstantAt(1).toString());
+        assertEquals(Instant.parse("2015-01-01T00:15:00Z"), index.getInstantAt(1));
+        assertEquals(Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), index.getTimeAt(1));
 
         // test iterator and stream
         List<Instant> instants = Arrays.asList(Instant.parse("2015-01-01T00:00:00Z"),
@@ -51,21 +58,38 @@ class RegularTimeSeriesIndexTest {
         assertEquals(instants, Lists.newArrayList(index.iterator()));
 
         // test to string
-        assertEquals("RegularTimeSeriesIndex(startInstant=2015-01-01T00:00:00Z, endInstant=2015-01-01T01:00:00Z, deltaT=PT15M)",
+        assertEquals("RegularTimeSeriesIndex(startInstant=2015-01-01T00:00:00Z, endInstant=2015-01-01T01:00:00Z, timeStep=PT15M)",
             index.toString());
 
         // test json
-        String jsonRef = String.join(System.lineSeparator(),
+        String jsonRefMillis = String.join(System.lineSeparator(),
             "{",
             "  \"startTime\" : 1420070400000,",
             "  \"endTime\" : 1420074000000,",
             "  \"spacing\" : 900000",
             "}");
-        String json = index.toJson();
+        String jsonRef = String.join(System.lineSeparator(),
+            "{",
+            "  \"startInstant\" : 1420070400000000000,",
+            "  \"endInstant\" : 1420074000000000000,",
+            "  \"timeStep\" : 900000000000",
+            "}");
+        String jsonMillis = index.toJson();
+        String json = index.toJson(TimeSeries.TimeFormat.NANO);
+        assertEquals(jsonRefMillis, jsonMillis);
         assertEquals(jsonRef, json);
         RegularTimeSeriesIndex index2 = JsonUtil.parseJson(json, RegularTimeSeriesIndex::parseJson);
         assertNotNull(index2);
         assertEquals(index, index2);
+        RegularTimeSeriesIndex index3 = JsonUtil.parseJson(jsonMillis, RegularTimeSeriesIndex::parseJson);
+        assertNotNull(index3);
+        assertEquals(index, index3);
+
+        // Deprecated contructor
+        RegularTimeSeriesIndex index4 = new RegularTimeSeriesIndex(Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(),
+            Instant.parse("2015-01-01T01:00:00Z").toEpochMilli(),
+            Duration.ofMinutes(15).toMillis());
+        assertEquals(index, index4);
     }
 
     @Test
@@ -79,17 +103,27 @@ class RegularTimeSeriesIndexTest {
     }
 
     @Test
-    void testContructorError() {
+    void testContructorErrorDuration() {
+        Interval interval = Interval.parse("2000-01-01T00:00:00Z/2100-01-01T00:10:00Z");
+        Duration duration = Duration.ofSeconds(-1);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> RegularTimeSeriesIndex.create(interval, duration));
+        assertEquals("Bad timeStep value PT-1S", exception.getMessage());
+    }
+
+    @Test
+    void testContructorErrorTimeStep() {
         Interval interval = Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:10:00Z");
         Duration duration = Duration.ofMinutes(15);
-        assertThrows(IllegalArgumentException.class, () -> RegularTimeSeriesIndex.create(interval, duration));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> RegularTimeSeriesIndex.create(interval, duration));
+        assertEquals("TimeStep PT15M is longer than interval PT10M", exception.getMessage());
     }
 
     @Test
     void testContructorErrorPointCount() {
         Interval interval = Interval.parse("2000-01-01T00:00:00Z/2100-01-01T00:10:00Z");
         Duration duration = Duration.ofSeconds(1);
-        assertThrows(IllegalArgumentException.class, () -> RegularTimeSeriesIndex.create(interval, duration));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> RegularTimeSeriesIndex.create(interval, duration));
+        assertEquals("Point Count 3155760601 is bigger than max allowed value 2147483647", exception.getMessage());
     }
 
     @Test
@@ -122,5 +156,34 @@ class RegularTimeSeriesIndexTest {
         assertEquals(30 * 365 * 24 * 120 + 1, new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(30L * 365 * 24 * 60 * 60 * 1000), Duration.ofMillis(30 * 1000)).getPointCount());
         assertEquals(30 * 365 * 24 * 120 + 2, new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(30L * 365 * 24 * 60 * 60 * 1000 + 30 * 1000), Duration.ofMillis(30 * 1000)).getPointCount());
         assertEquals(30 * 365 * 24 * 120 + 3, new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(30L * 365 * 24 * 60 * 60 * 1000 + 2 * 30 * 1000), Duration.ofMillis(30 * 1000)).getPointCount());
+    }
+
+    private static Stream<String> provideWrongJson() {
+        String jsonException1 = String.join(System.lineSeparator(),
+            "{",
+            "  \"startInstant\" : 1420070400000000000,",
+            "  \"endInstant\" : 1420074000000000000",
+            "}");
+
+        String jsonException2 = String.join(System.lineSeparator(),
+            "{",
+            "  \"endInstant\" : 1420074000000000000,",
+            "  \"timeStep\" : 900000000000",
+            "}");
+
+        String jsonException3 = String.join(System.lineSeparator(),
+            "{",
+            "  \"startInstant\" : 1420070400000000000,",
+            "  \"timeStep\" : 900000000000",
+            "}");
+
+        return Stream.of(jsonException1, jsonException2, jsonException3);
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideWrongJson")
+    void testParsingError(String json) {
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> JsonUtil.parseJson(json, RegularTimeSeriesIndex::parseJson));
+        assertEquals("Incomplete regular time series index json", exception.getMessage());
     }
 }

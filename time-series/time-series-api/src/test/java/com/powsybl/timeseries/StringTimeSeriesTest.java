@@ -92,7 +92,7 @@ class StringTimeSeriesTest {
 
     @Test
     void testCreate() {
-        TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 2, 1);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(2), Duration.ofMillis(1));
         StringTimeSeries ts1 = TimeSeries.createString("ts1", index, "a", "b", "c");
         assertEquals("ts1", ts1.getMetadata().getName());
         assertEquals(TimeSeriesDataType.STRING, ts1.getMetadata().getDataType());
@@ -101,7 +101,8 @@ class StringTimeSeriesTest {
 
     @Test
     void testCreateError() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createString("ts1", new RegularTimeSeriesIndex(0, 2, 1), "a", "b"));
+        RegularTimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(2), Duration.ofMillis(1));
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createString("ts1", index, "a", "b"));
         assertTrue(e.getMessage().contains("Bad number of values 2, expected 3"));
     }
 }

@@ -16,7 +16,9 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -56,6 +58,10 @@ class IrregularTimeSeriesIndexTest {
         IrregularTimeSeriesIndex index3 = JsonUtil.parseJson(jsonMillis, IrregularTimeSeriesIndex::parseJson);
         assertNotNull(index3);
         assertEquals(index, index3);
+
+        // Deprecated contructor
+        IrregularTimeSeriesIndex index4 = new IrregularTimeSeriesIndex(instants.stream().mapToLong(Instant::toEpochMilli).toArray());
+        assertEquals(index, index4);
     }
 
     @Test

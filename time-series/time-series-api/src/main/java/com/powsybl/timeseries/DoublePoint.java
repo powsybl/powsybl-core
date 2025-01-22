@@ -10,6 +10,8 @@ package com.powsybl.timeseries;
 import java.time.Instant;
 import java.util.Objects;
 
+import static com.powsybl.timeseries.TimeSeriesIndex.longToInstant;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -22,8 +24,7 @@ public class DoublePoint extends AbstractPoint {
      */
     @Deprecated(since = "6.7.0")
     public DoublePoint(int index, long time, double value) {
-        super(index, time);
-        this.value = value;
+        this(index, longToInstant(time, 1_000L), value);
     }
 
     public DoublePoint(int index, Instant instant, double value) {

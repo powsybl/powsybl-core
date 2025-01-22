@@ -9,8 +9,6 @@ package com.powsybl.timeseries;
 
 import java.time.Instant;
 
-import static com.powsybl.timeseries.TimeSeriesIndex.longToInstant;
-
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -19,10 +17,6 @@ public abstract class AbstractPoint {
     protected final int index;
 
     protected final Instant instant;
-
-    protected AbstractPoint(int index, long time) {
-        this(index, longToInstant(time, 1_000L));
-    }
 
     protected AbstractPoint(int index, Instant instant) {
         if (index < 0) {

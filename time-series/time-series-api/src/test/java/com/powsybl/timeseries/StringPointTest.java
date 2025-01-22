@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -37,5 +38,12 @@ class StringPointTest {
                 .addEqualityGroup(new StringPoint(1, Instant.parse("2015-01-01T00:15:00Z"), "b"),
                                   new StringPoint(1, Instant.parse("2015-01-01T00:15:00Z"), "b"))
                 .testEquals();
+
+        // Differences
+        Instant instantA = Instant.parse("2015-01-01T00:00:00Z");
+        Instant instantB = Instant.parse("2015-01-01T01:00:00Z");
+        assertNotEquals(new StringPoint(0, instantA, "a"), new StringPoint(0, instantA, "b"));
+        assertNotEquals(new StringPoint(0, instantA, "a"), new StringPoint(1, instantA, "a"));
+        assertNotEquals(new StringPoint(0, instantA, "a"), new StringPoint(0, instantB, "a"));
     }
 }

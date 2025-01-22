@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -39,5 +40,12 @@ class DoublePointTest {
                 .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T11:11:11Z"), 10d))
                 .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z"), 8d))
                 .testEquals();
+    }
+
+    @Test
+    void testConstructorExceptions() {
+        Instant instant = Instant.parse("2015-01-01T00:00:00Z");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new DoublePoint(-1, instant, 10d));
+        assertEquals("Bad index value -1", exception.getMessage());
     }
 }

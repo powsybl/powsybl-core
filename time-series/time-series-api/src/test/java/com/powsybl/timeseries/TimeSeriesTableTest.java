@@ -148,6 +148,22 @@ class TimeSeriesTableTest {
     }
 
     @Test
+    void testMicrosCSV() {
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(0).plus(Duration.ofMillis(3)), Duration.ofMillis(1));
+        TimeSeriesTable table = createTimeSeriesTable(index);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MICRO, false);
+
+        // test CSV export
+        assertEquals(String.join(System.lineSeparator(),
+            "Time;ts1;ts2;ts3",
+            "0;1.0;5.0;",
+            "1000;2.0;6.0;a",
+            "2000;3.0;7.0;b",
+            "3000;4.0;8.0;c") + System.lineSeparator(),
+            table.toCsvString(timeSeriesCsvConfig));
+    }
+
+    @Test
     void testNanosCSV() {
         TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(0).plus(Duration.ofNanos(3)), Duration.ofNanos(1));
         TimeSeriesTable table = createTimeSeriesTable(index);
@@ -255,7 +271,7 @@ class TimeSeriesTableTest {
 
     @Test
     void testVersionError() {
-        TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 3, 1);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(3), Duration.ofMillis(1));
         // load time series in the table
         TimeSeriesException e = assertThrows(TimeSeriesException.class, () -> new TimeSeriesTable(1, 0, index));
         assertTrue(e.getMessage().contains("toVersion (0) is expected to be greater than fromVersion (1)"));
