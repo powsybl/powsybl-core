@@ -44,14 +44,6 @@ public interface TimeSeriesIndex extends Iterable<Instant> {
 
     Iterator<Instant> iterator();
 
-    static long instantToNanos(Instant instant) {
-        return instant.getEpochSecond() * 1_000_000_000L + instant.getNano();
-    }
-
-    static long dateParsedToNano(String date) {
-        return instantToNanos(Instant.parse(date));
-    }
-
     static Instant parseDoubleToInstant(String doubleString) {
         BigDecimal bd = new BigDecimal(doubleString);
         BigDecimal seconds = bd.setScale(0, RoundingMode.DOWN);
