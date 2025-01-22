@@ -76,17 +76,18 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
         vl2.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(1).add();
         vl2.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(2).add();
 
-        // Parallel lines between voltage levels
-        var line1 = network.newLine().setId("line1").setVoltageLevel1(vl1.getId()).setVoltageLevel2(vl2.getId()).setNode1(2).setNode2(1)
+        // "Parallel lines" between voltage levels: a tie line and a line
+        DanglingLine dl1 = vl1.newDanglingLine().setId("DL1").setNode(2).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        DanglingLine dl2 = vl2.newDanglingLine().setId("DL2").setNode(1).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        network.newTieLine().setId("TL").setDanglingLine1(dl1.getId()).setDanglingLine2(dl2.getId()).add();
+        network.newLine().setId("line").setVoltageLevel1(vl1.getId()).setVoltageLevel2(vl2.getId()).setNode1(4).setNode2(2)
                 .setR(0.01).setX(20.0).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).add();
-        network.newLine(line1).setId("line2").setNode1(4).setNode2(2).add();
-
         addListener(network);
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId(vl1.getId()).build().apply(network);
 
-        assertEquals(Set.of("bbs1", "bbs2", "Coupler", "b_l2_bbs2_B", "b_l2_bbs2_A", "d_l2_bbs2", "vl1", "d_l2_bbs1", "d_l1_bbs2", "line2", "line1", "d_l1_bbs1"), removedObjects);
-        assertNull(network.getVoltageLevel("vl1"));
+        assertEquals(Set.of("bbs1", "bbs2", "Coupler", "b_l2_bbs2_B", "b_l2_bbs2_A", "d_l2_bbs2", "vl1", "d_l2_bbs1", "d_l1_bbs2", "line", "TL", "DL1", "d_l1_bbs1"), removedObjects);
+        assertNull(network.getVoltageLevel("TL"));
     }
 
     @Test

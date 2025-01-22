@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
@@ -55,12 +56,22 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
             }
         });
 
-        voltageLevel.getLines().forEach(line ->
-                new RemoveFeederBayBuilder().withConnectableId(line.getId()).build().apply(network, throwException, computationManager, reportNode));
-        voltageLevel.getTwoWindingsTransformers().forEach(transformer ->
-                new RemoveFeederBayBuilder().withConnectableId(transformer.getId()).build().apply(network, throwException, computationManager, reportNode));
-        voltageLevel.getThreeWindingsTransformers().forEach(transformer ->
-                new RemoveFeederBayBuilder().withConnectableId(transformer.getId()).build().apply(network, throwException, computationManager, reportNode));
+        voltageLevel.getDanglingLines().forEach(dl -> {
+            if (dl.getTieLine().isPresent()) {
+                TieLine tieLine = dl.getTieLine().get();
+                var tlId = tieLine.getId();
+                var pairingKey = tieLine.getPairingKey();
+                tieLine.remove();
+                removedTieLineReport(reportNode, tlId, pairingKey);
+                LOGGER.info("Tie line {} removed", tlId);
+            }
+        });
+
+        Consumer<String> removeConnectableFeederBay = id -> new RemoveFeederBayBuilder().withConnectableId(id).build()
+                .apply(network, throwException, computationManager, reportNode);
+        voltageLevel.getLines().forEach(line -> removeConnectableFeederBay.accept(line.getId()));
+        voltageLevel.getTwoWindingsTransformers().forEach(transformer -> removeConnectableFeederBay.accept(transformer.getId()));
+        voltageLevel.getThreeWindingsTransformers().forEach(transformer -> removeConnectableFeederBay.accept(transformer.getId()));
 
         voltageLevel.getConnectables().forEach(connectable -> {
             String connectableId = connectable.getId();
