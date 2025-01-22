@@ -34,6 +34,7 @@ import java.util.function.Supplier;
 
 import static com.powsybl.ucte.converter.util.UcteConverterConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
+import static java.lang.Math.abs;
 
 /**
  * @author Abdelsalem HEDHILI  {@literal <abdelsalem.hedhili at rte-france.com>}
@@ -282,10 +283,10 @@ public class UcteExporter implements Exporter {
         if (maxP != DEFAULT_POWER_LIMIT) {
             ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
         }
-        if (minQ != -DEFAULT_POWER_LIMIT) {
+        if (minQ != -DEFAULT_POWER_LIMIT && minQ != -Double.MAX_VALUE) {
             ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
         }
-        if (maxQ != DEFAULT_POWER_LIMIT) {
+        if (maxQ != DEFAULT_POWER_LIMIT && maxQ != Double.MAX_VALUE) {
             ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
         }
     }
