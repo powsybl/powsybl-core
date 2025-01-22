@@ -37,10 +37,16 @@ public interface TimeSeriesIndex extends Iterable<Instant> {
 
     String getType();
 
+    /**
+     * Write the TimeSeriesIndex as JSON using {@code ExportFormat.MILLISECONDS} format
+     */
     void writeJson(JsonGenerator generator);
 
     void writeJson(JsonGenerator generator, ExportFormat format);
 
+    /**
+     * Export the TimeSeriesIndex as JSON using {@code ExportFormat.MILLISECONDS} format
+     */
     String toJson();
 
     String toJson(ExportFormat format);
