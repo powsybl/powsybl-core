@@ -3,7 +3,7 @@
         <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
         <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
         <md:Model.version>1</md:Model.version>
-        <md:Model.description>All type of Loads</md:Model.description>
+        <md:Model.description>All types of Transformers</md:Model.description>
         <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
         <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
     </md:FullModel>

@@ -55,25 +55,6 @@ class LoadUpdateTest {
     }
 
     @Test
-    void importEqAndSshSeparatelyTest() {
-        Network network = readCgmesResources(DIR, "load_EQ.xml");
-        assertEquals(3, network.getLoadCount());
-
-        Load loadEnergyConsumer = network.getLoad("EnergyConsumer");
-        assertTrue(checkEq(loadEnergyConsumer));
-        Load loadEnergySource = network.getLoad("EnergySource");
-        assertTrue(checkEq(loadEnergySource));
-        Load loadAsynchronousMachine = network.getLoad("AsynchronousMachine");
-        assertTrue(checkEq(loadAsynchronousMachine));
-
-        readCgmesResources(network, DIR, "load_SSH.xml");
-
-        assertTrue(checkSsh(loadEnergyConsumer, 10.0, 5.0));
-        assertTrue(checkSsh(loadEnergySource, -200.0, -90.0));
-        assertTrue(checkSsh(loadAsynchronousMachine, 200.0, 50.0));
-    }
-
-    @Test
     void importEqAndTwoSshsTest() {
         Network network = readCgmesResources(DIR, "load_EQ.xml");
         assertEquals(3, network.getLoadCount());
