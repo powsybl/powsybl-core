@@ -106,12 +106,12 @@ class TimeSeriesTableTest {
 
         // test CSV export
         assertEquals(String.join(System.lineSeparator(),
-                                 "Time;Version;ts1;ts2;ts3",
-                                 "1970-01-01T00:00:00Z;1;1.0;5.0;",
-                                 "1970-01-01T00:00:00.000000001Z;1;2.0;6.0;a",
-                                 "1970-01-01T00:00:00.000000002Z;1;3.0;7.0;b",
-                                 "1970-01-01T00:00:00.000000003Z;1;4.0;8.0;c") + System.lineSeparator(),
-                     table.toCsvString(timeSeriesCsvConfig));
+            "Time;Version;ts1;ts2;ts3",
+            "1970-01-01T00:00:00Z;1;1.0;5.0;",
+            "1970-01-01T00:00:00.000000001Z;1;2.0;6.0;a",
+            "1970-01-01T00:00:00.000000002Z;1;3.0;7.0;b",
+            "1970-01-01T00:00:00.000000003Z;1;4.0;8.0;c") + System.lineSeparator(),
+            table.toCsvString(timeSeriesCsvConfig));
 
     }
 
@@ -155,11 +155,11 @@ class TimeSeriesTableTest {
 
         // test CSV export
         assertEquals(String.join(System.lineSeparator(),
-                "Time;ts1;ts2;ts3",
-                "0;1.0;5.0;",
-                "1;2.0;6.0;a",
-                "2;3.0;7.0;b",
-                "3;4.0;8.0;c") + System.lineSeparator(),
+            "Time;ts1;ts2;ts3",
+            "0;1.0;5.0;",
+            "1;2.0;6.0;a",
+            "2;3.0;7.0;b",
+            "3;4.0;8.0;c") + System.lineSeparator(),
             table.toCsvString(timeSeriesCsvConfig));
     }
 
@@ -176,7 +176,7 @@ class TimeSeriesTableTest {
         int threadCount = 16;
         int padLeftCount = (int) Math.floor(Math.log10(threadCount)) + 1;
         int timeSeriesLength = 100000;
-        TimeSeriesIndex index = new RegularTimeSeriesIndex(0, timeSeriesLength - 1, 1);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(timeSeriesLength - 1), Duration.ofMillis(1));
         TimeSeriesTable table = new TimeSeriesTable(1, 1, index);
         List<TimeSeries<?, ?>> list = new ArrayList<>();
         for (int i = 0; i < threadCount; i++) {

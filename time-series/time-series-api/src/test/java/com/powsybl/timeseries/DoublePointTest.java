@@ -32,8 +32,9 @@ class DoublePointTest {
     @Test
     void testEquals() {
         new EqualsTester()
-                .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z"), 10d),
-                        new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z"), 10d))
+                .addEqualityGroup(
+                    new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z"), 10d),
+                    new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z"), 10d))
                 .addEqualityGroup(new DoublePoint(1, Instant.parse("2015-01-01T00:00:00Z"), 10d))
                 .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T11:11:11Z"), 10d))
                 .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z"), 8d))

@@ -21,11 +21,19 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -84,24 +92,24 @@ class TimeSeriesTest {
                 """.replaceAll("\n", System.lineSeparator());
 
         String csvMicroseconds = """
-                Time;Version;ts1;ts2
-                1970-01-01T01:00:00.000000+01:00;1;1.0;
-                1970-01-01T02:00:00.000000+01:00;1;;a
-                1970-01-01T03:00:00.000000+01:00;1;3.0;b
-                1970-01-01T01:00:00.000000+01:00;2;4.0;c
-                1970-01-01T02:00:00.000000+01:00;2;5.0;
-                1970-01-01T03:00:00.000000+01:00;2;6.0;d
-                """.replaceAll("\n", System.lineSeparator());
+            Time;Version;ts1;ts2
+            1970-01-01T01:00:00.000000+01:00;1;1.0;
+            1970-01-01T02:00:00.000000+01:00;1;;a
+            1970-01-01T03:00:00.000000+01:00;1;3.0;b
+            1970-01-01T01:00:00.000000+01:00;2;4.0;c
+            1970-01-01T02:00:00.000000+01:00;2;5.0;
+            1970-01-01T03:00:00.000000+01:00;2;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
 
         String csvNanoseconds = """
-                Time;Version;ts1;ts2
-                1970-01-01T01:00:00.000000000+01:00;1;1.0;
-                1970-01-01T02:00:00.000000000+01:00;1;;a
-                1970-01-01T03:00:00.000000000+01:00;1;3.0;b
-                1970-01-01T01:00:00.000000000+01:00;2;4.0;c
-                1970-01-01T02:00:00.000000000+01:00;2;5.0;
-                1970-01-01T03:00:00.000000000+01:00;2;6.0;d
-                """.replaceAll("\n", System.lineSeparator());
+            Time;Version;ts1;ts2
+            1970-01-01T01:00:00.000000000+01:00;1;1.0;
+            1970-01-01T02:00:00.000000000+01:00;1;;a
+            1970-01-01T03:00:00.000000000+01:00;1;3.0;b
+            1970-01-01T01:00:00.000000000+01:00;2;4.0;c
+            1970-01-01T02:00:00.000000000+01:00;2;5.0;
+            1970-01-01T03:00:00.000000000+01:00;2;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
 
         Arrays.asList(csv, csvWithQuotes, csvMicroseconds, csvNanoseconds).forEach(data -> {
             Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(data);
@@ -246,14 +254,14 @@ class TimeSeriesTest {
     @Test
     void testMilliRegularTimeSeriesIndex() {
         String csv = """
-                Time;Version;ts1;ts2
-                1737377647003;1;1.0;
-                1737377647004;1;;a
-                1737377647005;1;3.0;b
-                1737377647003;2;4.0;c
-                1737377647004;2;5.0;
-                1737377647005;2;6.0;d
-                """.replaceAll("\n", System.lineSeparator());
+            Time;Version;ts1;ts2
+            1737377647003;1;1.0;
+            1737377647004;1;;a
+            1737377647005;1;3.0;b
+            1737377647003;2;4.0;c
+            1737377647004;2;5.0;
+            1737377647005;2;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.MILLIS, true);
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
@@ -264,14 +272,14 @@ class TimeSeriesTest {
     @Test
     void testMicroRegularTimeSeriesIndex() {
         String csv = """
-                Time;Version;ts1;ts2
-                1737377647000004;1;1.0;
-                1737377647000005;1;;a
-                1737377647000006;1;3.0;b
-                1737377647000004;2;4.0;c
-                1737377647000005;2;5.0;
-                1737377647000006;2;6.0;d
-                """.replaceAll("\n", System.lineSeparator());
+            Time;Version;ts1;ts2
+            1737377647000004;1;1.0;
+            1737377647000005;1;;a
+            1737377647000006;1;3.0;b
+            1737377647000004;2;4.0;c
+            1737377647000005;2;5.0;
+            1737377647000006;2;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.MICRO, true);
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
@@ -282,14 +290,14 @@ class TimeSeriesTest {
     @Test
     void testNanoRegularTimeSeriesIndex() {
         String csv = """
-                Time;Version;ts1;ts2
-                1737377647000000001;1;1.0;
-                1737377647000000002;1;;a
-                1737377647000000003;1;3.0;b
-                1737377647000000001;2;4.0;c
-                1737377647000000002;2;5.0;
-                1737377647000000003;2;6.0;d
-                """.replaceAll("\n", System.lineSeparator());
+            Time;Version;ts1;ts2
+            1737377647000000001;1;1.0;
+            1737377647000000002;1;;a
+            1737377647000000003;1;3.0;b
+            1737377647000000001;2;4.0;c
+            1737377647000000002;2;5.0;
+            1737377647000000003;2;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.NANO, true);
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
