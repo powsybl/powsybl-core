@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -290,16 +291,25 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             }
         }
 
-        void parseLine(String[] tokens) {
+        void parseLineDuplicate(String[] tokens) {
             long time = parseTokenTime(tokens[0]);
             if (times.isEmpty() || times.get(times.size() - 1) != time) {
-                for (int i = fixedColumns; i < tokens.length; i++) {
-                    String token = tokens[i] != null ? tokens[i].trim() : "";
-                    parseToken(i, token);
-                }
+                parseTokenData(tokens);
                 times.add(time);
             } else {
                 LOGGER.warn("Row with the same time have already been read, the row will be skipped");
+            }
+        }
+
+        void parseLine(String[] tokens) {
+            parseTokenData(tokens);
+            times.add(parseTokenTime(tokens[0]));
+        }
+
+        void parseTokenData(String[] tokens) {
+            for (int i = fixedColumns; i < tokens.length; i++) {
+                String token = tokens[i] != null ? tokens[i].trim() : "";
+                parseToken(i, token);
             }
         }
 
@@ -392,6 +402,9 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     static void readCsvValues(ResultIterator<String[], ParsingContext> iterator, CsvParsingContext context,
                               Map<Integer, List<TimeSeries>> timeSeriesPerVersion, ReportNode reportNode) {
         int currentVersion = Integer.MIN_VALUE;
+        Consumer<String[]> lineparser = context.timeSeriesCsvConfig.isSkipDuplicateTimeEntry()
+                ? context::parseLineDuplicate
+                : context::parseLine;
         while (iterator.hasNext()) {
             String[] tokens = iterator.next();
 
@@ -407,8 +420,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 context.reInit();
                 currentVersion = version;
             }
-
-            context.parseLine(tokens);
+            lineparser.accept(tokens);
         }
         timeSeriesPerVersion.put(currentVersion, context.createTimeSeries());
     }
