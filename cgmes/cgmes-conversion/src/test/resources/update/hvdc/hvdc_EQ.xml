@@ -1,0 +1,237 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>All types of HvdcLines</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest">
+        <cim:IdentifiedObject.name>GeographicalRegionTest</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest">
+        <cim:IdentifiedObject.name>SubGeographicalRegionTest</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest" />
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_Substation1">
+        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:Substation rdf:ID="_Substation2">
+        <cim:IdentifiedObject.name>Substation2</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage400">
+        <cim:IdentifiedObject.name>400.0 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel1">
+        <cim:IdentifiedObject.name>VoltageLevel1</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel2">
+        <cim:IdentifiedObject.name>VoltageLevel2</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation2"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode1">
+        <cim:IdentifiedObject.name>Connectivity Node 1</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode10">
+        <cim:IdentifiedObject.name>Connectivity Node 10</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode2">
+        <cim:IdentifiedObject.name>Connectivity Node 2</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel2" />
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode20">
+        <cim:IdentifiedObject.name>Connectivity Node 20</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel2" />
+    </cim:ConnectivityNode>
+
+    <cim:DCLine rdf:ID="_DCLine-Lcc">
+        <cim:IdentifiedObject.name>DCLine-Lcc</cim:IdentifiedObject.name>
+    </cim:DCLine>
+    <cim:DCLineSegment rdf:ID="_DCLineSegment-Lcc">
+        <cim:IdentifiedObject.name>DCLineSegment-Lcc</cim:IdentifiedObject.name>
+        <cim:DCLineSegment.resistance>2.5</cim:DCLineSegment.resistance>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_DCLine-Lcc"/>
+    </cim:DCLineSegment>
+    <cim:DCTerminal rdf:ID="_DCLineSegment-Lcc-DcT1">
+        <cim:IdentifiedObject.name>DCLineSegment-Lcc-DcT1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCLineSegment-Lcc"/>
+        <cim:DCBaseTerminal.DCNode rdf:resource="#_DCLineSegment-Lcc-DcNode1"/>
+    </cim:DCTerminal>
+    <cim:DCTerminal rdf:ID="_DCLineSegment-Lcc-DcT2">
+        <cim:IdentifiedObject.name>DCLineSegment-Lcc-DcT2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCLineSegment-Lcc"/>
+        <cim:DCBaseTerminal.DCNode rdf:resource="#_DCLineSegment-Lcc-DcNode2"/>
+    </cim:DCTerminal>
+    <cim:DCConverterUnit rdf:ID="_DCConvertUnit-Lcc-1">
+        <cim:IdentifiedObject.name>DCConvertUnit-Lcc-1</cim:IdentifiedObject.name>
+        <cim:DCConverterUnit.operationMode rdf:resource="http://iec.ch/TC57/CIM100#DCConverterOperatingModeKind.bipolar"/>
+        <cim:DCConverterUnit.Substation rdf:resource="#_Substation1"/>
+    </cim:DCConverterUnit>
+    <cim:DCNode rdf:ID="_DCLineSegment-Lcc-DcNode1">
+        <cim:IdentifiedObject.name>DCLineSegment-Lcc-DcNode1</cim:IdentifiedObject.name>
+        <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCConvertUnit-Lcc-1"/>
+    </cim:DCNode>
+    <cim:DCConverterUnit rdf:ID="_DCConvertUnit-Lcc-2">
+        <cim:IdentifiedObject.name>DCConvertUnit-Lcc-2</cim:IdentifiedObject.name>
+        <cim:DCConverterUnit.operationMode rdf:resource="http://iec.ch/TC57/CIM100#DCConverterOperatingModeKind.bipolar"/>
+        <cim:DCConverterUnit.Substation rdf:resource="#_Substation2"/>
+    </cim:DCConverterUnit>
+    <cim:DCNode rdf:ID="_DCLineSegment-Lcc-DcNode2">
+        <cim:IdentifiedObject.name>DCLineSegment-Lcc-DcNode2</cim:IdentifiedObject.name>
+        <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCConvertUnit-Lcc-2"/>
+    </cim:DCNode>
+    <cim:ACDCConverterDCTerminal rdf:ID="_DCLineSegment-Lcc-ConverterDCTerminal-1">
+        <cim:IdentifiedObject.name>DCLineSegment-Lcc-ConverterDCTerminal-1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_DCLineSegment-Lcc-CsConverter-1"/>
+        <cim:DCBaseTerminal.DCNode rdf:resource="#_DCLineSegment-Lcc-DcNode1"/>
+    </cim:ACDCConverterDCTerminal>
+    <cim:CsConverter rdf:ID="_DCLineSegment-Lcc-CsConverter-1">
+        <cim:IdentifiedObject.name>DCLineSegment-Lcc-CsConverter-1</cim:IdentifiedObject.name>
+        <cim:ACDCConverter.baseS>300</cim:ACDCConverter.baseS>
+        <cim:ACDCConverter.idleLoss>0.001</cim:ACDCConverter.idleLoss>
+        <cim:CsConverter.maxAlpha>17.5</cim:CsConverter.maxAlpha>
+        <cim:CsConverter.maxGamma>18</cim:CsConverter.maxGamma>
+        <cim:ACDCConverter.maxUdc>300</cim:ACDCConverter.maxUdc>
+        <cim:CsConverter.minAlpha>12.5</cim:CsConverter.minAlpha>
+        <cim:CsConverter.minGamma>17</cim:CsConverter.minGamma>
+        <cim:ACDCConverter.minUdc>100</cim:ACDCConverter.minUdc>
+        <cim:CsConverter.ratedIdc>1500</cim:CsConverter.ratedIdc>
+        <cim:ACDCConverter.ratedUdc>200</cim:ACDCConverter.ratedUdc>
+        <cim:ACDCConverter.resistiveLoss>0.001</cim:ACDCConverter.resistiveLoss>
+        <cim:ACDCConverter.switchingLoss>0.001</cim:ACDCConverter.switchingLoss>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_DCConvertUnit-Lcc-1"/>
+    </cim:CsConverter>
+    <cim:ACDCConverterDCTerminal rdf:ID="_DCLineSegment-Lcc-ConverterDCTerminal-2">
+        <cim:IdentifiedObject.name>DCLineSegment-Lcc-ConverterDCTerminal-2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_DCLineSegment-Lcc-CsConverter-2"/>
+        <cim:DCBaseTerminal.DCNode rdf:resource="#_DCLineSegment-Lcc-DcNode2"/>
+    </cim:ACDCConverterDCTerminal>
+    <cim:CsConverter rdf:ID="_DCLineSegment-Lcc-CsConverter-2">
+        <cim:IdentifiedObject.name>DCLineSegment-Lcc-CsConverter-2</cim:IdentifiedObject.name>
+        <cim:ACDCConverter.baseS>300</cim:ACDCConverter.baseS>
+        <cim:ACDCConverter.idleLoss>0.001</cim:ACDCConverter.idleLoss>
+        <cim:CsConverter.maxAlpha>17.5</cim:CsConverter.maxAlpha>
+        <cim:CsConverter.maxGamma>18</cim:CsConverter.maxGamma>
+        <cim:ACDCConverter.maxUdc>300</cim:ACDCConverter.maxUdc>
+        <cim:CsConverter.minAlpha>12.5</cim:CsConverter.minAlpha>
+        <cim:CsConverter.minGamma>17</cim:CsConverter.minGamma>
+        <cim:ACDCConverter.minUdc>100</cim:ACDCConverter.minUdc>
+        <cim:CsConverter.ratedIdc>1500</cim:CsConverter.ratedIdc>
+        <cim:ACDCConverter.ratedUdc>200</cim:ACDCConverter.ratedUdc>
+        <cim:ACDCConverter.resistiveLoss>0.001</cim:ACDCConverter.resistiveLoss>
+        <cim:ACDCConverter.switchingLoss>0.001</cim:ACDCConverter.switchingLoss>
+        <cim:Equipment.EquipmentContainer rdf:resource="#__DCConvertUnit-Lcc-2"/>
+    </cim:CsConverter>
+    <cim:Terminal rdf:ID="_DCLineSegment-Lcc-Terminal-1">
+        <cim:IdentifiedObject.name>DCLineSegment-Lcc-Terminal-1</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_DCLineSegment-Lcc-CsConverter-1" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_DCLineSegment-Lcc-Terminal-2">
+        <cim:IdentifiedObject.name>DCLineSegment-Lcc-Terminal-2</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_DCLineSegment-Lcc-CsConverter-2" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2" />
+    </cim:Terminal>
+
+    <cim:DCLine rdf:ID="_DCLine-Vsc">
+        <cim:IdentifiedObject.name>DCLine-Vsc</cim:IdentifiedObject.name>
+    </cim:DCLine>
+    <cim:DCLineSegment rdf:ID="_DCLineSegment-Vsc">
+        <cim:IdentifiedObject.name>DCLineSegment-Vsc</cim:IdentifiedObject.name>
+        <cim:DCLineSegment.resistance>3.8</cim:DCLineSegment.resistance>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_DCLine-Vsc"/>
+    </cim:DCLineSegment>
+    <cim:DCTerminal rdf:ID="_DCLineSegment-Vsc-DcT1">
+        <cim:IdentifiedObject.name>DCLineSegment-Vsc-DcT1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCLineSegment-Vsc"/>
+        <cim:DCBaseTerminal.DCNode rdf:resource="#_DCLineSegment-Vsc-DcNode1"/>
+    </cim:DCTerminal>
+    <cim:DCTerminal rdf:ID="_DCLineSegment-Vsc-DcT2">
+        <cim:IdentifiedObject.name>DCLineSegment-Vsc-DcT2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCLineSegment-Vsc"/>
+        <cim:DCBaseTerminal.DCNode rdf:resource="#_DCLineSegment-Vsc-DcNode2"/>
+    </cim:DCTerminal>
+    <cim:DCConverterUnit rdf:ID="_DCConvertUnit-Vsc-1">
+        <cim:IdentifiedObject.name>DCConvertUnit-Vsc-1</cim:IdentifiedObject.name>
+        <cim:DCConverterUnit.operationMode rdf:resource="http://iec.ch/TC57/CIM100#DCConverterOperatingModeKind.bipolar"/>
+        <cim:DCConverterUnit.Substation rdf:resource="#_Substation1"/>
+    </cim:DCConverterUnit>
+    <cim:DCNode rdf:ID="_DCLineSegment-Vsc-DcNode1">
+        <cim:IdentifiedObject.name>DCLineSegment-Vsc-DcNode1</cim:IdentifiedObject.name>
+        <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCConvertUnit-Vsc-1"/>
+    </cim:DCNode>
+    <cim:DCConverterUnit rdf:ID="_DCConvertUnit-Vsc-2">
+        <cim:IdentifiedObject.name>DCConvertUnit-Vsc-2</cim:IdentifiedObject.name>
+        <cim:DCConverterUnit.operationMode rdf:resource="http://iec.ch/TC57/CIM100#DCConverterOperatingModeKind.bipolar"/>
+        <cim:DCConverterUnit.Substation rdf:resource="#_Substation2"/>
+    </cim:DCConverterUnit>
+    <cim:DCNode rdf:ID="_DCLineSegment-Vsc-DcNode2">
+        <cim:IdentifiedObject.name>DCLineSegment-Vsc-DcNode2</cim:IdentifiedObject.name>
+        <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCConvertUnit-Vsc-2"/>
+    </cim:DCNode>
+    <cim:ACDCConverterDCTerminal rdf:ID="_DCLineSegment-Vsc-ConverterDCTerminal-1">
+        <cim:IdentifiedObject.name>DCLineSegment-Vsc-ConverterDCTerminal-1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_DCLineSegment-Vsc-VsConverter-1"/>
+        <cim:DCBaseTerminal.DCNode rdf:resource="#_DCLineSegment-Vsc-DcNode1"/>
+    </cim:ACDCConverterDCTerminal>
+    <cim:VsConverter rdf:ID="_DCLineSegment-Vsc-VsConverter-1">
+        <cim:IdentifiedObject.name>DCLineSegment-Vsc-VsConverter-1</cim:IdentifiedObject.name>
+        <cim:ACDCConverter.baseS>716.80</cim:ACDCConverter.baseS>
+        <cim:ACDCConverter.idleLoss>0.55</cim:ACDCConverter.idleLoss>
+        <cim:VsConverter.maxModulationIndex>0</cim:VsConverter.maxModulationIndex>
+        <cim:ACDCConverter.maxUdc>960</cim:ACDCConverter.maxUdc>
+        <cim:VsConverter.maxValveCurrent>1094</cim:VsConverter.maxValveCurrent>
+        <cim:ACDCConverter.minUdc>320</cim:ACDCConverter.minUdc>
+        <cim:ACDCConverter.ratedUdc>640</cim:ACDCConverter.ratedUdc>
+        <cim:ACDCConverter.resistiveLoss>0</cim:ACDCConverter.resistiveLoss>
+        <cim:ACDCConverter.switchingLoss>0.0033</cim:ACDCConverter.switchingLoss>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_DCConvertUnit-Vsc-1"/>
+    </cim:VsConverter>
+    <cim:ACDCConverterDCTerminal rdf:ID="_DCLineSegment-Vsc-ConverterDCTerminal-2">
+        <cim:IdentifiedObject.name>DCLineSegment-Vsc-ConverterDCTerminal-2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_DCLineSegment-Vsc-VsConverter-2"/>
+        <cim:DCBaseTerminal.DCNode rdf:resource="#_DCLineSegment-Vsc-DcNode2"/>
+    </cim:ACDCConverterDCTerminal>
+    <cim:VsConverter rdf:ID="_DCLineSegment-Vsc-VsConverter-2">
+        <cim:IdentifiedObject.name>DCLineSegment-Vsc-VsConverter-2</cim:IdentifiedObject.name>
+        <cim:ACDCConverter.baseS>700.15</cim:ACDCConverter.baseS>
+        <cim:ACDCConverter.idleLoss>0.55</cim:ACDCConverter.idleLoss>
+        <cim:VsConverter.maxModulationIndex>0</cim:VsConverter.maxModulationIndex>
+        <cim:ACDCConverter.maxUdc>960</cim:ACDCConverter.maxUdc>
+        <cim:VsConverter.maxValveCurrent>1120</cim:VsConverter.maxValveCurrent>
+        <cim:ACDCConverter.minUdc>320</cim:ACDCConverter.minUdc>
+        <cim:ACDCConverter.ratedUdc>640</cim:ACDCConverter.ratedUdc>
+        <cim:ACDCConverter.resistiveLoss>0</cim:ACDCConverter.resistiveLoss>
+        <cim:ACDCConverter.switchingLoss>0.0033</cim:ACDCConverter.switchingLoss>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_DCConvertUnit-Vsc-2"/>
+    </cim:VsConverter>
+    <cim:Terminal rdf:ID="_DCLineSegment-Vsc-Terminal-1">
+        <cim:IdentifiedObject.name>DCLineSegment-Vsc-Terminal-1</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_DCLineSegment-Vsc-VsConverter-1" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode10" />
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_DCLineSegment-Vsc-Terminal-2">
+        <cim:IdentifiedObject.name>DCLineSegment-Vsc-Terminal-2</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_DCLineSegment-Vsc-VsConverter-2" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode20" />
+    </cim:Terminal>
+
+</rdf:RDF>

@@ -510,7 +510,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    protected static void updateTerminals(Connectable<?> connectable, Context context, Terminal... ts) {
+    public static void updateTerminals(Connectable<?> connectable, Context context, Terminal... ts) {
         PropertyBags cgmesTerminals = getCgmesTerminals(connectable, context, ts.length);
         for (int k = 0; k < ts.length; k++) {
             updateTerminal(cgmesTerminals.get(k), ts[k], context);

@@ -47,4 +47,5 @@
          Equipment fe25f43a-7341-446e-a71a-8ab7119ba806 has a regulating control with bad target value for voltage: 0.0.
       Updating STATIC_VAR_COMPENSATOR.
       Updating SHUNT_COMPENSATOR.
+      Updating HVDC_LINE.
       Running validation checks on IIDM network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73

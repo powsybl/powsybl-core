@@ -335,6 +335,7 @@ public class Conversion {
         updateTransformers(network, updateContext);
         updateStaticVarCompensators(network, cgmes, updateContext);
         updateShuntCompensators(network, cgmes, updateContext);
+        updateHvdcLines(network, cgmes, updateContext);
 
         completeVoltagesAndAngles(network);
 

@@ -1002,15 +1002,6 @@ WHERE {
         ?ACDCConverter cim:VsConverter.CapabilityCurve ?ReactiveCapabilityCurve
     }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?ACDCConverter
-        cim:ACDCConverter.targetPpcc ?targetPpcc ;
-        cim:ACDCConverter.p ?p ;
-        cim:ACDCConverter.q ?q .
-}}
-OPTIONAL { GRAPH ?graphSV {
-    ?ACDCConverter cim:ACDCConverter.poleLossP ?poleLossP
-}}
 # For Current Source Converter
 OPTIONAL {
     ?ACDCConverter a cim:CsConverter .
@@ -1051,9 +1042,6 @@ UNION
 }}
 }
 OPTIONAL { ?DCTerminal cim:IdentifiedObject.name ?name }
-OPTIONAL { GRAPH ?graphSSH {
-    ?DCTerminal cim:ACDCTerminal.connected ?connected
-}}
 OPTIONAL { GRAPH ?graphCN {
 ?DCTerminal cim:DCBaseTerminal.DCNode ?DCNode .
 }}

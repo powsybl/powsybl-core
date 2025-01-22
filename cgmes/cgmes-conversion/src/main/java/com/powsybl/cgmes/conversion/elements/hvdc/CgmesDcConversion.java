@@ -10,17 +10,14 @@ package com.powsybl.cgmes.conversion.elements.hvdc;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.elements.hvdc.DcLineSegmentConversion.DcLineSegmentConverter;
 import com.powsybl.cgmes.conversion.elements.hvdc.Hvdc.HvdcConverter;
 import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +33,6 @@ import java.util.Optional;
 public class CgmesDcConversion {
 
     private static final String TYPE = "type";
-    private static final String TARGET_PPCC = "targetPpcc";
-    private static final String POLE_LOSS_P = "poleLossP";
-    private static final String OPERATING_MODE = "operatingMode";
 
     public CgmesDcConversion(CgmesModel cgmes, Context context) {
 
@@ -232,7 +226,7 @@ public class CgmesDcConversion {
         if (this.converterType == null || converterType != decodeType(this.cconverter2.getLocal(TYPE))) {
             return false;
         }
-        this.operatingMode = decodeMode(this.converterType, this.cconverter1, this.cconverter2);
+        this.operatingMode = HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
         this.ratedUdc = computeRatedUdc(this.cconverter1, this.cconverter2);
 
         return true;
@@ -245,39 +239,6 @@ public class CgmesDcConversion {
             return HvdcType.LCC;
         }
         throw new PowsyblException("Unexpected HVDC type: " + stype);
-    }
-
-    private static HvdcLine.ConvertersMode decodeMode(HvdcType converterType, PropertyBag cconverter1, PropertyBag cconverter2) {
-        String mode1 = cconverter1.getLocal(OPERATING_MODE);
-        String mode2 = cconverter2.getLocal(OPERATING_MODE);
-
-        if (converterType.equals(HvdcConverterStation.HvdcType.LCC)) {
-            if (inverter(mode1) && rectifier(mode2)) {
-                return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
-            } else if (rectifier(mode1) && inverter(mode2)) {
-                return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
-            } else if (cconverter1.asDouble(TARGET_PPCC) == 0 && cconverter2.asDouble(TARGET_PPCC) == 0) {
-                // Both ends are rectifier or inverter
-                return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
-            } else {
-                LOG.warn("Undefined converter mode for the HVDC, assumed to be of type \"Side1 Rectifier - Side2 Inverter\"");
-                return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
-            }
-        } else {
-            if (cconverter1.asDouble(TARGET_PPCC) > 0 || cconverter2.asDouble(TARGET_PPCC) < 0) {
-                return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
-            } else {
-                return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
-            }
-        }
-    }
-
-    private static boolean inverter(String operatingMode) {
-        return operatingMode != null && operatingMode.toLowerCase().endsWith("inverter");
-    }
-
-    private static boolean rectifier(String operatingMode) {
-        return operatingMode != null && operatingMode.toLowerCase().endsWith("rectifier");
     }
 
     private double computeR(PropertyBag dcLs) {
@@ -306,7 +267,7 @@ public class CgmesDcConversion {
                 .filter(t -> acDcConverterId.equals(t.getId("DCConductingEquipment")))
                 // The equipment type of the terminal must be a converter (redundant, but safer)
                 .filter(t -> isAcDcConverter(t.getId("dcConductingEquipmentType")))
-                // The terminal is connectd to the node we are looking for
+                // The terminal is connected to the node we are looking for
                 .filter(t -> dcNodeId.equals(t.getId(terminalNodeProperty)))
                 .findFirst()
                 .map(t -> t.getId("DCTerminal"))
@@ -323,73 +284,19 @@ public class CgmesDcConversion {
 
     private boolean createHvdc(boolean isDuplicated) {
 
-        // poleLossP is the active power loss at a DC Pole
-        // for lossless operation: P(DC) = P(AC) => lossFactor = 0
-        // for rectifier operation (conversion from AC to DC) with losses: P(DC) = P(AC) - poleLossP
-        // In IIDM, for rectifier operation P(DC) / P(AC) = 1 - lossFactor / 100
-        // => P(DC) / P(AC) = 1 - poleLossP / P(AC) = 1 - lossFactor / 100
-        // for inverter operation (conversion from DC to AC) with losses: P(DC) = P(AC) + poleLossP
-        // In IIDM, for inverter operation P(AC) / P(DC) = 1 - lossFactor / 100
-        // => P(AC) / P(DC) = 1 - poleLossP / P(DC) = 1 - poleLossP / (P(AC) + poleLossP) = 1 - lossFactor / 100
-
-        double poleLossP1 = cconverter1.asDouble(POLE_LOSS_P, 0.0);
-        double poleLossP2 = cconverter2.asDouble(POLE_LOSS_P, 0.0);
-
-        // load sign convention is used i.e. positive sign means flow out from a node
-        // i.e. pACx >= 0 if converterx is rectifier and pACx <= 0 if converterx is
-        // inverter
-
-        double pAC1 = getPAc(cconverter1);
-        double pAC2 = getPAc(cconverter2);
-
-        LossFactor lossFactor = new LossFactor(context, operatingMode, pAC1, pAC2, poleLossP1, poleLossP2);
-        lossFactor.compute();
-
-        AcDcConverterConversion acDcConverterConversion1 = new AcDcConverterConversion(cconverter1, converterType, lossFactor.getLossFactor1(), acDcConverterDcTerminal1Id, context);
-        AcDcConverterConversion acDcConverterConversion2 = new AcDcConverterConversion(cconverter2, converterType, lossFactor.getLossFactor2(), acDcConverterDcTerminal2Id, context);
-        DcLineSegmentConverter converter1 = new DcLineSegmentConverter(converter1Id, poleLossP1, pAC1);
-        DcLineSegmentConverter converter2 = new DcLineSegmentConverter(converter2Id, poleLossP2, pAC2);
-        DcLineSegmentConversion dcLineSegmentConversion = new DcLineSegmentConversion(dcLineSegment, operatingMode, r, ratedUdc, converter1, converter2, isDuplicated, context);
+        AcDcConverterConversion acDcConverterConversion1 = new AcDcConverterConversion(cconverter1, converterType, acDcConverterDcTerminal1Id, context);
+        AcDcConverterConversion acDcConverterConversion2 = new AcDcConverterConversion(cconverter2, converterType, acDcConverterDcTerminal2Id, context);
+        DcLineSegmentConversion dcLineSegmentConversion = new DcLineSegmentConversion(dcLineSegment, operatingMode, r, ratedUdc, converter1Id, converter2Id, isDuplicated, context);
 
         if (!acDcConverterConversion1.valid() || !acDcConverterConversion2.valid() || !dcLineSegmentConversion.valid()) {
             return false;
         }
 
-        if (converterType == HvdcType.VSC) {
-            acDcConverterConversion1.convert();
-            acDcConverterConversion2.convert();
-            dcLineSegmentConversion.convert();
+        acDcConverterConversion1.convert();
+        acDcConverterConversion2.convert();
+        dcLineSegmentConversion.convert();
 
-        } else { // LCC
-            acDcConverterConversion1.convert();
-            acDcConverterConversion2.convert();
-            dcLineSegmentConversion.convert();
-
-            updatePowerFactor(acDcConverterConversion1);
-            updatePowerFactor(acDcConverterConversion2);
-        }
         return true;
-    }
-
-    private static double getPAc(PropertyBag p) {
-        // targetPpcc is the real power injection target in the AC grid in CGMES
-        return Double.isNaN(p.asDouble(TARGET_PPCC)) ? 0 : p.asDouble(TARGET_PPCC);
-    }
-
-    private static void updatePowerFactor(AcDcConverterConversion acDcConverterConversion) {
-        if (acDcConverterConversion == null) {
-            return;
-        }
-        LccConverterStation iconverter = acDcConverterConversion.getLccConverter();
-        double powerFactor = getPowerFactor(iconverter);
-        if (!Double.isNaN(powerFactor)) {
-            acDcConverterConversion.setLccPowerFactor(powerFactor);
-        }
-    }
-
-    private static double getPowerFactor(LccConverterStation iconverter) {
-        return iconverter.getTerminal().getP()
-            / Math.hypot(iconverter.getTerminal().getP(), iconverter.getTerminal().getQ());
     }
 
     static String getAcNode(CgmesModel cgmesModel, CgmesTerminal terminal) {

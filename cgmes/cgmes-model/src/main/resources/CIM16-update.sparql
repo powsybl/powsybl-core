@@ -241,6 +241,46 @@ SELECT *
     }
 }
 
+# query: acDcConverters
+SELECT *
+{
+    ?ACDCConverter a ?type .
+    VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter }
+    ?ACDCConverter
+        cim:ACDCConverter.targetPpcc ?targetPpcc ;
+        cim:ACDCConverter.p ?p ;
+        cim:ACDCConverter.q ?q .
+    # From SV, for all converters
+    OPTIONAL {
+        ?ACDCConverter cim:ACDCConverter.poleLossP ?poleLossP
+    }
+    # For Current Source Converter
+    OPTIONAL {
+        ?ACDCConverter a cim:CsConverter ;
+            cim:CsConverter.operatingMode ?operatingMode ;
+            cim:CsConverter.pPccControl ?controlMode .
+        OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
+    }
+    # For Voltage Source Converter
+    OPTIONAL {
+        ?ACDCConverter a cim:VsConverter ;
+           cim:VsConverter.qPccControl ?qPccControl ;
+           cim:VsConverter.pPccControl ?pPccControl .
+        OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
+        OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
+    }
+}
+
+# query: dcTerminals
+SELECT *
+{
+    ?DCTerminal a cim:DCTerminal ;
+        cim:ACDCTerminal.connected ?connected
+    OPTIONAL {
+        ?DCTerminal cim:DCBaseTerminal.DCTopologicalNode ?DCTopologicalNode .
+    }
+}
+
 # query: boundaryNodes
 # All pairs (Connectivity Node, Topological Node) from instance files that have boundary profile and attribute boundaryPoint set to true
 # We expect all Connectivity Nodes have 1 and only one corresponding TopologicalNode
