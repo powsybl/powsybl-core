@@ -58,15 +58,15 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
             }
         });
 
-        voltageLevel.getDanglingLines().forEach(dl -> {
+        voltageLevel.getDanglingLines().forEach(dl ->
             dl.getTieLine().ifPresent(tieLine -> {
-                var tlId = tieLine.getId();
-                var pairingKey = tieLine.getPairingKey();
+                String tlId = tieLine.getId();
+                String pairingKey = tieLine.getPairingKey();
                 tieLine.remove();
                 removedTieLineReport(reportNode, tlId, pairingKey);
                 LOGGER.info("Tie line {} removed", tlId);
-            });
-        });
+            })
+        );
 
         Consumer<String> removeConnectableFeederBay = id -> new RemoveFeederBayBuilder().withConnectableId(id).build()
                 .apply(network, throwException, computationManager, reportNode);
