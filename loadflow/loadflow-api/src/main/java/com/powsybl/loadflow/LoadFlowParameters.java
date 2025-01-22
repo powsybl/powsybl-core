@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
@@ -459,10 +460,16 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return toMap().toString();
     }
 
-    private void loadExtensions(PlatformConfig platformConfig) {
+    protected void loadExtensions(PlatformConfig platformConfig) {
         for (LoadFlowProvider provider : new ServiceLoaderCache<>(LoadFlowProvider.class).getServices()) {
-            provider.loadSpecificParameters(platformConfig).ifPresent(extension ->
-                    addExtension((Class) extension.getClass(), extension));
+            if (provider.getSpecificParametersClass().isEmpty()) {
+                continue;
+            }
+            Class<? extends Extension<LoadFlowParameters>> clazz = provider.getSpecificParametersClass().get();
+            Optional<Extension<LoadFlowParameters>> extension = Optional.ofNullable(getExtension(clazz));
+            extension.ifPresentOrElse(ext -> provider.updateSpecificParameters(ext, platformConfig),
+                    () -> provider.loadSpecificParameters(platformConfig)
+                            .ifPresent(ext -> addExtension((Class) ext.getClass(), ext)));
         }
     }
 }

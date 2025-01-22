@@ -68,11 +68,7 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     @Override
     public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(PlatformConfig config) {
         DummyExtension extension = new DummyExtension();
-        config.getOptionalModuleConfig("dummy-extension").ifPresent(moduleConfig -> {
-            extension.setParameterDouble(moduleConfig.getDoubleProperty(DOUBLE_PARAMETER_NAME, DummyExtension.PARAMETER_DOUBLE_DEFAULT_VALUE));
-            extension.setParameterBoolean(moduleConfig.getBooleanProperty(BOOLEAN_PARAMETER_NAME, DummyExtension.PARAMETER_BOOLEAN_DEFAULT_VALUE));
-            extension.setParameterString(moduleConfig.getStringProperty(STRING_PARAMETER_NAME, DummyExtension.PARAMETER_STRING_DEFAULT_VALUE));
-        });
+        updateSpecificParameters(extension, config);
         return Optional.of(extension);
     }
 
@@ -98,6 +94,18 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
                 .ifPresent(prop -> ((DummyExtension) extension).setParameterBoolean(Boolean.parseBoolean(prop)));
         Optional.ofNullable(properties.get(STRING_PARAMETER_NAME))
                 .ifPresent(prop -> ((DummyExtension) extension).setParameterString(prop));
+    }
+
+    @Override
+    public void updateSpecificParameters(Extension<LoadFlowParameters> extension, PlatformConfig config) {
+        config.getOptionalModuleConfig("dummy-extension").ifPresent(moduleConfig -> {
+            moduleConfig.getOptionalDoubleProperty(DOUBLE_PARAMETER_NAME)
+                    .ifPresent(prop -> ((DummyExtension) extension).setParameterDouble(prop));
+            moduleConfig.getOptionalBooleanProperty(BOOLEAN_PARAMETER_NAME)
+                    .ifPresent(prop -> ((DummyExtension) extension).setParameterBoolean(prop));
+            moduleConfig.getOptionalStringProperty(STRING_PARAMETER_NAME)
+                    .ifPresent(prop -> ((DummyExtension) extension).setParameterString(prop));
+        });
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest;
 import org.junit.jupiter.api.Test;
@@ -19,8 +20,7 @@ import java.nio.file.FileSystem;
 import java.util.List;
 
 import static com.powsybl.loadflow.LoadFlowParameters.load;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
@@ -64,5 +64,18 @@ class LoadFlowDefaultParametersLoaderTest {
         load(parameters, platformConfig);
         assertFalse(parameters.isUseReactiveLimits());
         assertEquals(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES, parameters.getVoltageInitMode());
+    }
+
+    @Test
+    void testProviderParameters() {
+        LoadFlowDefaultParametersLoaderMock loader = new LoadFlowDefaultParametersLoaderMock("test");
+        LoadFlowParameters parameters = new LoadFlowParameters(List.of(loader));
+        load(parameters);
+        parameters.loadExtensions(PlatformConfig.defaultConfig());
+
+        JsonLoadFlowParametersTest.DummyExtension extension = parameters.getExtension(JsonLoadFlowParametersTest.DummyExtension.class);
+        assertNotNull(extension);
+        assertEquals(5, extension.getParameterDouble());
+
     }
 }
