@@ -616,8 +616,8 @@ class CgmesExportTest {
         Generator generatorNoRcc = network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
         Generator generatorRcc = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
 
-        generatorNoRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
-        generatorRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+        generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+        generatorRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
 
         String exportFolder = "/test-generator-control";
         String baseName = "testGeneratorControl";
@@ -633,8 +633,8 @@ class CgmesExportTest {
             // Check that RC are exported properly
             assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
-            generatorRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
-            generatorNoRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+            generatorRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+            generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
 
             // RC is exported without targetV, if reactive capability is, or it was imported
             double rccTargetV = generatorRcc.getTargetV();
