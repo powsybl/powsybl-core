@@ -19,8 +19,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.triplestore.api.PropertyBag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
@@ -365,6 +363,4 @@ public class CgmesDcConversion {
     private PropertyBag dcLineSegment;
     private double r;
     private double ratedUdc;
-
-    private static final Logger LOG = LoggerFactory.getLogger(CgmesDcConversion.class);
 }
