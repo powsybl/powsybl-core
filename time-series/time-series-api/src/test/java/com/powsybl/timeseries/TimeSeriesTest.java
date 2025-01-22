@@ -18,6 +18,8 @@ import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -445,7 +447,7 @@ class TimeSeriesTest {
             fail();
         } catch (IllegalArgumentException ignored) {
         }
-        TimeSeriesIndex index = new RegularTimeSeriesIndex(10000, 10002, 1);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(10000), Instant.ofEpochMilli(10002), Duration.ofMillis(1));
         List<DoubleTimeSeries> timeSeriesList = Arrays.asList(TimeSeries.createDouble("ts1", index, 1d, 2d, 3d),
                                                               TimeSeries.createDouble("ts1", index, 4d, 5d, 6d));
         try {
