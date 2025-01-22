@@ -20,7 +20,7 @@
     </parent>
 
     <artifactId>powsybl-core</artifactId>
-    <version>6.6.0</version>
+    <version>6.6.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
