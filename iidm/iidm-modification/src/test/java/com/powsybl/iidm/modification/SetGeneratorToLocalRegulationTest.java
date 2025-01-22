@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024-2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -43,7 +43,7 @@ class SetGeneratorToLocalRegulationTest {
         assertNotEquals(gen1.getId(), gen1.getRegulatingTerminal().getConnectable().getId());
         assertEquals(420.0, gen1.getTargetV());
         assertEquals(gen2.getId(), gen2.getRegulatingTerminal().getConnectable().getId());
-        assertEquals(21.0, gen2.getTargetV());
+        assertEquals(220.0, gen2.getTargetV());
 
         ReportNode reportNode = ReportNode.newRootReportNode()
                 .withMessageTemplate("rootReportNode", "Set generators to local regulation").build();
@@ -111,6 +111,10 @@ class SetGeneratorToLocalRegulationTest {
                 .setNominalV(20)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
+        vl20.getNodeBreakerView().newBusbarSection()
+                .setId("BBS20")
+                .setNode(0)
+                .add();
         vl20.newGenerator()
                 .setId("GEN1")
                 .setNode(3)
@@ -130,7 +134,7 @@ class SetGeneratorToLocalRegulationTest {
                 .setMaxP(200)
                 .setTargetP(200)
                 .setVoltageRegulatorOn(true)
-                .setTargetV(21)
+                .setTargetV(220)
                 // No regulatingTerminal set == use its own terminal for regulation
                 .add();
 
@@ -150,10 +154,38 @@ class SetGeneratorToLocalRegulationTest {
                 .setNode2(2)
                 .add();
 
-        vl400.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(1);
-        vl20.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(3);
-        vl20.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(4);
+        createSwitch(vl20, "BBS20_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 1);
+        createSwitch(vl20, "BBS20_BREAKER_1_2", SwitchKind.BREAKER, false, 1, 2);
+        createSwitch(vl20, "BBS20_BREAKER_2_3", SwitchKind.BREAKER, false, 2, 3);
+        createSwitch(vl20, "BBS20_BREAKER_3_4", SwitchKind.BREAKER, false, 3, 4);
+        createSwitch(vl20, "BBS20_BREAKER_1_4", SwitchKind.BREAKER, false, 1, 4);
+
+        Load load1 = vl20.newLoad()
+                .setId("LD1")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(80)
+                .setQ0(10)
+                .setNode(5)
+                .add();
+        load1.getTerminal().setP(80.0).setQ(10.0);
+
+        vl20.getNodeBreakerView().getBusbarSection("BBS20").getTerminal().getBusView().getBus()
+                .setV(224.6139)
+                .setAngle(2.2822);
 
         return n;
+    }
+
+    private void createSwitch(VoltageLevel vl, String id, SwitchKind kind, boolean open, int node1, int node2) {
+        vl.getNodeBreakerView().newSwitch()
+                .setId(id)
+                .setName(id)
+                .setKind(kind)
+                .setRetained(kind.equals(SwitchKind.BREAKER))
+                .setOpen(open)
+                .setFictitious(false)
+                .setNode1(node1)
+                .setNode2(node2)
+                .add();
     }
 }

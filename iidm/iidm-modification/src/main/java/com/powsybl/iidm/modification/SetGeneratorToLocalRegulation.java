@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024-2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -47,7 +47,7 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
         Generator generator = network.getGenerator(generatorId);
         if (generator == null) {
             logOrThrow(throwException, "Generator '" + generatorId + "' not found");
-        } else if (!generator.getId().equals(generator.getRegulatingTerminal().getConnectable().getId())) {
+        } else if (!isGeneratorRegulatingLocally(generator)) {
             setLocalRegulation(generator, reportNode);
         }
     }
@@ -66,11 +66,23 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
 
         // Change the regulation (local instead of remote)
         generator.setRegulatingTerminal(generator.getTerminal());
-        generator.setTargetV(localTargetV);
+
+        com.powsybl.iidm.network.Bus bus = generator.getTerminal().getVoltageLevel().getBusView().getBus("VL20_0");
+        if (bus != null) {
+            bus.getGeneratorStream().forEach(g -> {
+                if (isGeneratorRegulatingLocally(g)) {
+                    g.setTargetV(localTargetV);
+                }
+            });
+        }
 
         // Notify the change
         LOG.info("Changed regulation for generator: {} to local instead of remote", generator.getId());
         generatorLocalRegulationReport(reportNode, generator.getId());
+    }
+
+    private boolean isGeneratorRegulatingLocally(Generator generator) {
+        return generator.getId().equals(generator.getRegulatingTerminal().getConnectable().getId());
     }
 
     @Override
@@ -78,7 +90,7 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
         Generator generator = network.getGenerator(generatorId);
         if (generator == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (generator.getId().equals(generator.getRegulatingTerminal().getConnectable().getId())) {
+        } else if (isGeneratorRegulatingLocally(generator)) {
             impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         } else {
             impact = DEFAULT_IMPACT;
