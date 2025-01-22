@@ -57,25 +57,6 @@ class GeneratorUpdateTest {
     }
 
     @Test
-    void importEqAndSshSeparatelyTest() {
-        Network network = readCgmesResources(DIR, "generator_EQ.xml");
-        assertEquals(3, network.getGeneratorCount());
-
-        Generator synchronousMachine = network.getGenerator("SynchronousMachine");
-        assertTrue(checkEq(synchronousMachine));
-        Generator externalNetworkInjection = network.getGenerator("ExternalNetworkInjection");
-        assertTrue(checkEq(externalNetworkInjection));
-        Generator equivalentInjection = network.getGenerator("EquivalentInjection");
-        assertTrue(checkEq(equivalentInjection));
-
-        readCgmesResources(network, DIR, "generator_SSH.xml");
-
-        assertTrue(checkSsh(synchronousMachine, 160.0, 0.0, 405.0, true, 0.0, 0));
-        assertTrue(checkSsh(externalNetworkInjection, -0.0, -0.0, Double.NaN, false, 0.0, 0));
-        assertTrue(checkSsh(equivalentInjection, -184.0, 0.0, Double.NaN, false, 0.0, 0));
-    }
-
-    @Test
     void importEqAndTwoSshsTest() {
         Network network = readCgmesResources(DIR, "generator_EQ.xml");
         assertEquals(3, network.getGeneratorCount());
