@@ -129,9 +129,9 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         }
         VscRegulation vscRegulation = decodeVscRegulation(rc.vscRegulation);
         if (vscRegulation == VscRegulation.VOLTAGE) {
-            setRegulatingControlVoltage(rc, vscConverter, context);
+            setRegulatingControlVoltage(rc, vscConverter);
         } else if (vscRegulation == VscRegulation.REACTIVE_POWER) {
-            setRegulatingControlReactivePower(rc, vscConverter, context);
+            setRegulatingControlReactivePower(rc, vscConverter);
         } else {
             String what = rc.vscRegulation;
             if (rc.vscRegulation == null) {
@@ -141,14 +141,14 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         }
     }
 
-    private static void setRegulatingControlVoltage(RC rc, VscConverterStation vscConverter, Context context) {
+    private static void setRegulatingControlVoltage(RC rc, VscConverterStation vscConverter) {
         vscConverter
                 .setVoltageSetpoint(rc.voltageSetpoint)
                 .setReactivePowerSetpoint(0.0)
                 .setVoltageRegulatorOn(true);
     }
 
-    private static void setRegulatingControlReactivePower(RC rc, VscConverterStation vscConverter, Context context) {
+    private static void setRegulatingControlReactivePower(RC rc, VscConverterStation vscConverter) {
         vscConverter
                 .setVoltageRegulatorOn(false) // Turn off before modifying the targetV
                 .setVoltageSetpoint(0.0)
