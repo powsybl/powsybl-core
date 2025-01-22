@@ -47,6 +47,8 @@ public class LoadZipModelSerDe extends AbstractExtensionSerDe<Load, LoadZipModel
         double a6 = context.getReader().readDoubleAttribute("a6");
         double v0 = context.getReader().readDoubleAttribute("v0");
         context.getReader().readEndNode();
-        return new LoadZipModel(load, a1, a2, a3, a4, a5, a6, v0);
+        var zipModel = new LoadZipModel(load, a1, a2, a3, a4, a5, a6, v0);
+        load.addExtension(LoadZipModel.class, zipModel);
+        return zipModel;
     }
 }

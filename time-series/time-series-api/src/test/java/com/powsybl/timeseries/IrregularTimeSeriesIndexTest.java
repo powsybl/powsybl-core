@@ -69,11 +69,7 @@ class IrregularTimeSeriesIndexTest {
     }
 
     @Test
-    void testContructorError() {
+    void testConstructorError() {
         assertThrows(IllegalArgumentException.class, IrregularTimeSeriesIndex::create);
-        long[] duplicates = {0L, 1L, 1L};
-        assertThrows(IllegalArgumentException.class, () -> new IrregularTimeSeriesIndex(duplicates));
-        long[] unordered = {0L, 2L, 1L};
-        assertThrows(IllegalArgumentException.class, () -> new IrregularTimeSeriesIndex(unordered));
     }
 }

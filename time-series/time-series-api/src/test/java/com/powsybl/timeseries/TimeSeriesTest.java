@@ -171,6 +171,24 @@ class TimeSeriesTest {
                 Time;Version;ts1;ts2
                 0.000000000;1;1.0;
                 0.000000001;1;;a
+                0.0000000012;1;3.0;b
+                0.000000000;2;4.0;c
+                0.000000001;2;5.0;
+                0.0000000012;2;6.0;d
+                """.replaceAll("\n", System.lineSeparator());
+
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
+
+        assertOnParsedTimeSeries(timeSeriesPerVersion, IrregularTimeSeriesIndex.class);
+    }
+
+    @Test
+    void testFractionsOfSecondsRegularTimeSeriesIndexWithSkippedDuplicateTime() {
+        String csv = """
+                Time;Version;ts1;ts2
+                0.000000000;1;1.0;
+                0.000000001;1;;a
                 0.0000000015;1;;b
                 0.000000002;1;3.0;b
                 0.000000000;2;4.0;c
@@ -179,7 +197,8 @@ class TimeSeriesTest {
                 0.000000002;2;6.0;d
                 """.replaceAll("\n", System.lineSeparator());
 
-        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true,
+                TimeFormat.FRACTIONS_OF_SECOND, true, true);
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
         assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
