@@ -68,26 +68,6 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         this(TimeSeriesIndex.longToInstant(startTime, 1_000L),
             TimeSeriesIndex.longToInstant(endTime, 1_000L),
             Duration.ofMillis(spacing));
-//        if (startTime < 0) {
-//            throw new IllegalArgumentException("Bad start time value " + startTime);
-//        }
-//        if (endTime < 0) {
-//            throw new IllegalArgumentException("Bad end time value " + endTime);
-//        }
-//        if (spacing < 0) {
-//            throw new IllegalArgumentException("Bad spacing value " + spacing);
-//        }
-//        if (spacing > endTime - startTime) {
-//            throw new IllegalArgumentException("Spacing " + spacing + " is longer than interval " + (endTime - startTime));
-//        }
-//        long computedPointCount = computePointCount(startTime, endTime, spacing);
-//        if (computedPointCount > Integer.MAX_VALUE) {
-//            throw new IllegalArgumentException("Point Count " + computedPointCount + " is bigger than max allowed value " + Integer.MAX_VALUE);
-//        }
-//        this.startInstant = TimeSeriesIndex.longToInstant(startTime, 1_000L);
-//        this.endInstant = TimeSeriesIndex.longToInstant(endTime, 1_000L);
-//        this.deltaT = Duration.ofMillis(spacing);
-//        this.pointCount = (int) computedPointCount;
     }
 
     public static RegularTimeSeriesIndex create(Instant start, Instant end, Duration spacing) {
@@ -219,6 +199,11 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         return TYPE;
     }
 
+    /**
+     * <p>Writes the index in a JSON format.</p>
+     * <p>WARNING: if {@code timeFormat = TimeFormat.MILLIS}, values are written in millisecond precision but for every
+     * other {@code timeFormat} value, values will be written in nanosecond precision</p>
+     */
     @Override
     public void writeJson(JsonGenerator generator, TimeSeries.TimeFormat timeFormat) {
         Objects.requireNonNull(generator);
