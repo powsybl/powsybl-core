@@ -161,6 +161,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
             for (Terminal terminal : terminals) {
                 ((TerminalExt) terminal).getReferrerManager().unregister(this);
             }
+            terminals.clear();
         }
     }
 }
