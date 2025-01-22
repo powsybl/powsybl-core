@@ -26,16 +26,16 @@ public abstract class AbstractTimeSeriesIndex implements TimeSeriesIndex {
 
     @Override
     public String toJson() {
-        return toJson(TimeSeries.TimeFormat.MILLIS);
+        return toJson(ExportFormat.MILLISECONDS);
     }
 
     @Override
-    public String toJson(TimeSeries.TimeFormat format) {
+    public String toJson(ExportFormat format) {
         return JsonUtil.toJson(generator -> this.writeJson(generator, format));
     }
 
     @Override
     public void writeJson(JsonGenerator generator) {
-        writeJson(generator, TimeSeries.TimeFormat.MILLIS);
+        writeJson(generator, ExportFormat.MILLISECONDS);
     }
 }

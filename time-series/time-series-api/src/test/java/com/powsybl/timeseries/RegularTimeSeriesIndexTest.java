@@ -75,7 +75,7 @@ class RegularTimeSeriesIndexTest {
             "  \"timeStep\" : 900000000000",
             "}");
         String jsonMillis = index.toJson();
-        String json = index.toJson(TimeSeries.TimeFormat.NANO);
+        String json = index.toJson(TimeSeriesIndex.ExportFormat.NANOSECONDS);
         assertEquals(jsonRefMillis, jsonMillis);
         assertEquals(jsonRef, json);
         RegularTimeSeriesIndex index2 = JsonUtil.parseJson(json, RegularTimeSeriesIndex::parseJson);

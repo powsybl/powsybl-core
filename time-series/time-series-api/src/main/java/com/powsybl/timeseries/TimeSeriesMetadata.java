@@ -109,7 +109,8 @@ public class TimeSeriesMetadata {
                 case "dataType" -> context.dataType = TimeSeriesDataType.valueOf(parser.nextTextValue());
                 case "tags" -> context.insideTags = true;
                 case RegularTimeSeriesIndex.TYPE -> context.index = RegularTimeSeriesIndex.parseJson(parser);
-                case IrregularTimeSeriesIndex.TYPE -> context.index = IrregularTimeSeriesIndex.parseJson(parser, timeFormat);
+                case IrregularTimeSeriesIndex.TYPE -> context.index = IrregularTimeSeriesIndex.parseJson(parser,
+                    timeFormat == TimeSeries.TimeFormat.MILLIS ? TimeSeriesIndex.ExportFormat.MILLISECONDS : TimeSeriesIndex.ExportFormat.NANOSECONDS);
                 case InfiniteTimeSeriesIndex.TYPE -> context.index = InfiniteTimeSeriesIndex.parseJson(parser);
                 default -> throw new IllegalStateException("Unexpected field name " + fieldName);
             }

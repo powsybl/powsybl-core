@@ -201,15 +201,15 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     /**
      * <p>Writes the index in a JSON format.</p>
-     * <p>WARNING: if {@code timeFormat = TimeFormat.MILLIS}, values are written in millisecond precision but for every
-     * other {@code timeFormat} value, values will be written in nanosecond precision</p>
+     * <p>If {@code timeFormat = ExportFormat.MILLISECONDS}, values are written in millisecond precision. Else, if
+     * {@code timeFormat = ExportFormat.NANOSECONDS}, values are written in nanosecond precision</p>
      */
     @Override
-    public void writeJson(JsonGenerator generator, TimeSeries.TimeFormat timeFormat) {
+    public void writeJson(JsonGenerator generator, ExportFormat timeFormat) {
         Objects.requireNonNull(generator);
         try {
             generator.writeStartObject();
-            if (timeFormat == TimeSeries.TimeFormat.MILLIS) {
+            if (timeFormat == ExportFormat.MILLISECONDS) {
                 generator.writeNumberField("startTime", TimeSeriesIndex.instantToLong(startInstant, 1_000L));
                 generator.writeNumberField("endTime", TimeSeriesIndex.instantToLong(endInstant, 1_000L));
                 generator.writeNumberField("spacing", timeStep.toMillis());

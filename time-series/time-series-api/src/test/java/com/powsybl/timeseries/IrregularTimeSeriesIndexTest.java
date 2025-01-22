@@ -49,10 +49,10 @@ class IrregularTimeSeriesIndexTest {
         String jsonRefMillis = "[ 1420070400000, 1420074000000 ]";
         String jsonRef = "[ 1420070400000000000, 1420074000000000000 ]";
         String jsonMillis = index.toJson();
-        String json = index.toJson(TimeSeries.TimeFormat.NANO);
+        String json = index.toJson(TimeSeriesIndex.ExportFormat.NANOSECONDS);
         assertEquals(jsonRefMillis, jsonMillis);
         assertEquals(jsonRef, json);
-        IrregularTimeSeriesIndex index2 = JsonUtil.parseJson(json, jsonParser -> IrregularTimeSeriesIndex.parseJson(jsonParser, TimeSeries.TimeFormat.NANO));
+        IrregularTimeSeriesIndex index2 = JsonUtil.parseJson(json, jsonParser -> IrregularTimeSeriesIndex.parseJson(jsonParser, TimeSeriesIndex.ExportFormat.NANOSECONDS));
         assertNotNull(index2);
         assertEquals(index, index2);
         IrregularTimeSeriesIndex index3 = JsonUtil.parseJson(jsonMillis, IrregularTimeSeriesIndex::parseJson);

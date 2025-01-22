@@ -61,7 +61,7 @@ public class InfiniteTimeSeriesIndex extends AbstractTimeSeriesIndex {
     }
 
     @Override
-    public void writeJson(JsonGenerator generator, TimeSeries.TimeFormat timeFormat) {
+    public void writeJson(JsonGenerator generator, ExportFormat timeFormat) {
         Objects.requireNonNull(generator);
         try {
             generator.writeStartObject();

@@ -56,10 +56,10 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     }
 
     public static IrregularTimeSeriesIndex parseJson(JsonParser parser) {
-        return parseJson(parser, TimeSeries.TimeFormat.MILLIS);
+        return parseJson(parser, ExportFormat.MILLISECONDS);
     }
 
-    public static IrregularTimeSeriesIndex parseJson(JsonParser parser, TimeSeries.TimeFormat timeFormat) {
+    public static IrregularTimeSeriesIndex parseJson(JsonParser parser, ExportFormat timeFormat) {
         Objects.requireNonNull(parser);
         JsonToken token;
         try {
@@ -67,7 +67,7 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
             TLongArrayList times = new TLongArrayList();
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.VALUE_NUMBER_INT) {
-                    times.add(parser.getLongValue() * (timeFormat == TimeSeries.TimeFormat.MILLIS ? 1_000_000L : 1L));
+                    times.add(parser.getLongValue() * (timeFormat == ExportFormat.MILLISECONDS ? 1_000_000L : 1L));
                 } else if (token == JsonToken.END_ARRAY) {
                     return new IrregularTimeSeriesIndex(Arrays.stream(times.toArray())
                         .mapToObj(time -> TimeSeriesIndex.longToInstant(time, 1_000_000_000L))
@@ -109,11 +109,11 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     }
 
     @Override
-    public void writeJson(JsonGenerator generator, TimeSeries.TimeFormat timeFormat) {
+    public void writeJson(JsonGenerator generator, ExportFormat timeFormat) {
         Objects.requireNonNull(generator);
         try {
             generator.writeArray(Arrays.stream(instants)
-                .mapToLong(instant -> TimeSeriesIndex.instantToLong(instant, timeFormat == TimeSeries.TimeFormat.MILLIS ? 1_000L : 1_000_000_000L))
+                .mapToLong(instant -> TimeSeriesIndex.instantToLong(instant, timeFormat == ExportFormat.MILLISECONDS ? 1_000L : 1_000_000_000L))
                 .toArray(), 0, instants.length);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
