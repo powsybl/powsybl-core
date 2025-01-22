@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class BusTest extends AbstractBusBreakerTest {
 
     @Test
-    void testFictitiousP0AndFictitiousQ0ForInvalidatedBusInBusBreaker() {
+    void testFictitiousP0AndFictitiousQ0ForInvalidatedBus() {
         Network network = createTestNetwork();
         Bus bus = network.getVoltageLevel("VL1").getBusView().getBus("VL1_0");
         network.getSwitch("BR1").setOpen(true);
