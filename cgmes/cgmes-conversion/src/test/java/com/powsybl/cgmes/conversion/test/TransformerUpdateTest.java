@@ -51,23 +51,6 @@ class TransformerUpdateTest {
     }
 
     @Test
-    void importEqAndSshSeparatelyTest() {
-        Network network = readCgmesResources(DIR, "transformer_EQ.xml");
-        assertEquals(1, network.getTwoWindingsTransformerCount());
-        assertEquals(1, network.getThreeWindingsTransformerCount());
-
-        TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
-        assertTrue(checkEq(t2w));
-        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
-        assertTrue(checkEq(t3w));
-
-        readCgmesResources(network, DIR, "transformer_SSH.xml");
-
-        assertTrue(checkSsh(t2w, -2, 100.0, 0.2, true));
-        assertTrue(checkSsh(t3w, 8, 225.0, 2.0, true));
-    }
-
-    @Test
     void importEqAndTwoSshsTest() {
         Network network = readCgmesResources(DIR, "transformer_EQ.xml");
         assertEquals(1, network.getTwoWindingsTransformerCount());

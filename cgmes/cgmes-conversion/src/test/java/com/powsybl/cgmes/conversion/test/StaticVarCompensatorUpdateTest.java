@@ -43,18 +43,6 @@ class StaticVarCompensatorUpdateTest {
     }
 
     @Test
-    void importEqAndSshSeparatelyTest() {
-        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml");
-        assertEquals(1, network.getStaticVarCompensatorCount());
-
-        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator("StaticVarCompensator");
-        assertTrue(checkEq(staticVarCompensator));
-
-        readCgmesResources(network, DIR, "staticVarCompensator_SSH.xml");
-        assertTrue(checkSsh(staticVarCompensator, Double.NaN, 405.0, StaticVarCompensator.RegulationMode.VOLTAGE));
-    }
-
-    @Test
     void importEqAndTwoSshsTest() {
         Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml");
         assertEquals(1, network.getStaticVarCompensatorCount());
