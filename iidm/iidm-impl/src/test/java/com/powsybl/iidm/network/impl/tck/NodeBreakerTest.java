@@ -7,6 +7,22 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractNodeBreakerTest;
+import org.junit.jupiter.api.Test;
 
-class NodeBreakerTest extends AbstractNodeBreakerTest { }
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+class NodeBreakerTest extends AbstractNodeBreakerTest {
+
+    @Test
+    void testFictitiousP0AndFictitiousQ0ForInvalidatedBusInNodeBreaker() {
+        Network network = createNetwork();
+        Bus bus = network.getVoltageLevel("VL1").getBusView().getBus("VL1_1");
+        network.getSwitch("B_L1_1").setOpen(true);
+        assertThrows(PowsyblException.class, bus::getFictitiousP0, "Bus has been invalidated");
+        assertThrows(PowsyblException.class, bus::getFictitiousQ0, "Bus has been invalidated");
+    }
+}
