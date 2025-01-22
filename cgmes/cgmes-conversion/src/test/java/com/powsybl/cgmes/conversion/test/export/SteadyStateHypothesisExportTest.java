@@ -741,12 +741,12 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // Generator without control
             network = EurostagTutorialExample1Factory.createWithoutControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "0", "k");
+            testRcEqRCWithoutAttribute(ssh, "_GEN_RC");
 
             // Generator with remote terminal without control
             network = EurostagTutorialExample1Factory.createRemoteWithoutControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "0", "k");
+            testRcEqRCWithoutAttribute(ssh, "_GEN_RC");
 
             // Generator without control capability
             network = EurostagTutorialExample1Factory.create();
