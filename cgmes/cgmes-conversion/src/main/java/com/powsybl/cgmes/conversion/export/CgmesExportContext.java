@@ -384,14 +384,14 @@ public class CgmesExportContext {
                 }
             }
             String regulatingControlId = generator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            if (regulatingControlId == null && hasVoltageControlCapability(generator)) {
+            if (regulatingControlId == null && hasRegulatingControlCapability(generator)) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(generator), Part.REGULATING_CONTROL);
                 generator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
             }
         }
     }
 
-    private static boolean hasVoltageControlCapability(Generator generator) {
+    private static boolean hasRegulatingControlCapability(Generator generator) {
         return generator.getExtension(RemoteReactivePowerControl.class) != null
                 || !Double.isNaN(generator.getTargetV()) && hasReactiveCapability(generator);
     }
