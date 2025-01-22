@@ -22,6 +22,8 @@ import java.util.function.Consumer;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
+ * Removes a voltage level and the feeder bays connected to that voltage level. Note that dangling lines connected to
+ * this voltage level (hence paired) are not removed but unpaired.
  * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
 public class RemoveVoltageLevel extends AbstractNetworkModification {
@@ -57,14 +59,13 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
         });
 
         voltageLevel.getDanglingLines().forEach(dl -> {
-            if (dl.getTieLine().isPresent()) {
-                TieLine tieLine = dl.getTieLine().get();
+            dl.getTieLine().ifPresent(tieLine -> {
                 var tlId = tieLine.getId();
                 var pairingKey = tieLine.getPairingKey();
                 tieLine.remove();
                 removedTieLineReport(reportNode, tlId, pairingKey);
                 LOGGER.info("Tie line {} removed", tlId);
-            }
+            });
         });
 
         Consumer<String> removeConnectableFeederBay = id -> new RemoveFeederBayBuilder().withConnectableId(id).build()

@@ -66,7 +66,7 @@ public final class ModificationReports {
     public static void removedTieLineReport(ReportNode reportNode, String tieLineId, String pairingKey) {
         reportNode.newReportNode()
                 .withMessageTemplate("removedTieLine", "Removed tie line ${tieLineId} with pairing key ${pairingKey}")
-                .withUntypedValue(TIE_LINE_ID, tieLineId)
+                .withTypedValue(TIE_LINE_ID, tieLineId, TypedValue.ID)
                 .withUntypedValue("pairingKey", pairingKey == null ? "" : pairingKey)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -75,7 +75,7 @@ public final class ModificationReports {
     public static void removedTieLineAndAssociatedDanglingLines(ReportNode reportNode, String tieLineId, String danglingLineId1, String danglingLineId2, String pairingKey) {
         reportNode.newReportNode()
                 .withMessageTemplate("removedTieLineAndAssociatedDanglingLines", "Removed tie line ${tieLineId} and associated dangling lines ${danglingLineId1} and ${danglingLineId2} with pairing key ${pairingKey}")
-                .withUntypedValue(TIE_LINE_ID, tieLineId)
+                .withTypedValue(TIE_LINE_ID, tieLineId, TypedValue.ID)
                 .withUntypedValue("danglingLineId1", danglingLineId1)
                 .withUntypedValue("danglingLineId2", danglingLineId2)
                 .withUntypedValue("pairingKey", pairingKey == null ? "" : pairingKey)
@@ -365,7 +365,7 @@ public final class ModificationReports {
         reportNode.newReportNode()
                 .withMessageTemplate("lostTieLineExtensions", "Extension [${extensions}] of tie line ${tieLineId} will be lost")
                 .withUntypedValue(EXTENSIONS, extensions)
-                .withUntypedValue(TIE_LINE_ID, tieLineId)
+                .withTypedValue(TIE_LINE_ID, tieLineId, TypedValue.ID)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
