@@ -162,10 +162,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         Network actual = Network.read(repackaged,
                 DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), importParams);
 
-        // Remove Areas
-        expected.getAreaStream().map(Area::getId).toList().forEach(a -> expected.getArea(a).remove());
-        actual.getAreaStream().map(Area::getId).toList().forEach(a -> actual.getArea(a).remove());
-
         // Export original and with new SSH
         Path expectedPath = tmpDir.resolve("expected.xml");
         Path actualPath = tmpDir.resolve("actual.xml");
