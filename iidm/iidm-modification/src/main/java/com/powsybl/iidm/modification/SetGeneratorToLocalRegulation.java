@@ -67,7 +67,7 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
         // Change the regulation (local instead of remote)
         generator.setRegulatingTerminal(generator.getTerminal());
 
-        com.powsybl.iidm.network.Bus bus = generator.getTerminal().getVoltageLevel().getBusView().getBus("VL20_0");
+        com.powsybl.iidm.network.Bus bus = generator.getTerminal().getBusView().getBus();
         if (bus != null) {
             bus.getGeneratorStream().forEach(g -> {
                 if (isGeneratorRegulatingLocally(g)) {
