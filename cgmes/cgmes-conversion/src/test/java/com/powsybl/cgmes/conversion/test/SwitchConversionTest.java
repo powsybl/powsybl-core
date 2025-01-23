@@ -81,15 +81,21 @@ class SwitchConversionTest extends AbstractSerDeTest {
         assertEquals("GroundDisconnector", network.getSwitch("GRD").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
         assertEquals("Jumper", network.getSwitch("JUM").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
 
-        // Correct class is restored in CGMES export.
+        // Correct class is restored in CGMES EQ and SSH export.
         String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
-        assertEquals("Breaker", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_BR\">")));
-        assertEquals("Disconnector", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_DIS\">")));
-        assertEquals("LoadBreakSwitch", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_LBS\">")));
-        assertEquals("Switch", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_SW\">")));
-        assertEquals("ProtectedSwitch", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_PSW\">")));
-        assertEquals("GroundDisconnector", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_GRD\">")));
-        assertEquals("Jumper", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_JUM\">")));
+        String sshFile = writeCgmesProfile(network, "SSH", tmpDir);
+        assertTrue(containsObject(eqFile, sshFile, "Breaker", "BR"));
+        assertTrue(containsObject(eqFile, sshFile, "Disconnector", "DIS"));
+        assertTrue(containsObject(eqFile, sshFile, "LoadBreakSwitch", "LBS"));
+        assertTrue(containsObject(eqFile, sshFile, "Switch", "SW"));
+        assertTrue(containsObject(eqFile, sshFile, "ProtectedSwitch", "PSW"));
+        assertTrue(containsObject(eqFile, sshFile, "GroundDisconnector", "GRD"));
+        assertTrue(containsObject(eqFile, sshFile, "Jumper", "JUM"));
+    }
+
+    private boolean containsObject(String eqFile, String sshFile, String className, String rdfId) {
+        return eqFile.contains("<cim:" + className + " rdf:ID=\"_" + rdfId + "\">")
+                && sshFile.contains("<cim:" + className + " rdf:about=\"#_" + rdfId + "\">");
     }
 
     @Test
