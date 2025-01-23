@@ -704,6 +704,18 @@ class CgmesExportTest {
             // Explicit creation of a default control area
             new CgmesExport().createDefaultControlAreaInterchange(network);
 
+            // Check that a control area definition has been created before export
+            assertEquals(1, network.getAreaCount());
+            Area defaultControlArea = network.getAreas().iterator().next();
+            assertEquals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE, defaultControlArea.getAreaType());
+            assertEquals(1, defaultControlArea.getAreaBoundaryStream().count());
+            assertEquals(-50, defaultControlArea.getInterchangeTarget().orElse(Double.NaN));
+            assertEquals("DL", defaultControlArea.getAreaBoundaryStream().findFirst()
+                    .flatMap(AreaBoundary::getBoundary)
+                    .map(Boundary::getDanglingLine)
+                    .map(DanglingLine::getId)
+                    .orElse(null));
+
             // Check that exported files now have a control area definition
             // No default value for tolerance
             Path tmpDirWithCA = tmpDir.resolve("network-with-ca");
@@ -714,6 +726,11 @@ class CgmesExportTest {
             Area areaExported = networkWithCA.getAreas().iterator().next();
             assertEquals(1, areaExported.getAreaBoundaryStream().count());
             assertEquals(-50, areaExported.getInterchangeTarget().orElse(Double.NaN));
+            assertEquals("DL", areaExported.getAreaBoundaryStream().findFirst()
+                    .flatMap(AreaBoundary::getBoundary)
+                    .map(Boundary::getDanglingLine)
+                    .map(DanglingLine::getId)
+                    .orElse(null));
             // No default value for tolerance
             assertNull(areaExported.getProperty(CgmesNames.P_TOLERANCE));
 
