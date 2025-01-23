@@ -616,8 +616,8 @@ class CgmesExportTest {
         Generator generatorNoRcc = network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
         Generator generatorRcc = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
 
-        generatorNoRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
-        generatorRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+        generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+        generatorRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
 
         String exportFolder = "/test-generator-control";
         String baseName = "testGeneratorControl";
@@ -626,35 +626,40 @@ class CgmesExportTest {
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
             Properties exportParams = new Properties();
             exportParams.put(CgmesExport.PROFILES, "EQ");
-            // network.write("CGMES", null, tmpDir.resolve(baseName));
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             String eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
 
-            // Check that RC are exported properly
+            // Check that RegulatingControl is properly exported
             assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
-            generatorRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
-            generatorNoRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+            generatorRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+            generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
 
-            // RC is exported without targetV, if reactive capability is, or it was imported
-            double rccTargetV = generatorRcc.getTargetV();
+            // RegulatingControl is exported when targetV is not NaN, even if voltage regulation is disabled
             generatorRcc.setVoltageRegulatorOn(false);
-            generatorRcc.setTargetV(Double.NaN);
-
-            double noRccTargetV = generatorNoRcc.getTargetV();
             generatorNoRcc.setVoltageRegulatorOn(false);
-            generatorNoRcc.setTargetV(Double.NaN);
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+            generatorRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+            generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
 
+            // RegulatingControl isn't exported when targetV is NaN
+            double rccTargetV = generatorRcc.getTargetV();
+            generatorRcc.setTargetV(Double.NaN);
+            double noRccTargetV = generatorNoRcc.getTargetV();
+            generatorNoRcc.setTargetV(Double.NaN);
+            new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
+            eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
+            assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
             generatorRcc.setTargetV(rccTargetV);
             generatorRcc.setVoltageRegulatorOn(true);
             generatorNoRcc.setTargetV(noRccTargetV);
             generatorNoRcc.setVoltageRegulatorOn(true);
 
-            // RC shouldn't be exported when Qmin and Qmax are the same, but it exists when it was already imported
+            // RegulatingControl isn't exported when Qmin and Qmax are the same
             ReactiveCapabilityCurveAdder rccAdder = generatorRcc.newReactiveCapabilityCurve();
             ReactiveCapabilityCurve rcc = (ReactiveCapabilityCurve) generatorRcc.getReactiveLimits();
             rcc.getPoints().forEach(point -> rccAdder.beginPoint().setP(point.getP()).setMaxQ(point.getMaxQ()).setMinQ(point.getMaxQ()).endPoint());
@@ -664,11 +669,19 @@ class CgmesExportTest {
             mmrlAdder.setMinQ(mmrl.getMinQ());
             mmrlAdder.setMaxQ(mmrl.getMinQ());
             mmrlAdder.add();
+            new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
+            eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
+            assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
 
+            // RegulatingControl is however exported when the corresponding CGMES property is present
+            generatorRcc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, "3a3b27be-b18b-4385-b557-6735d733baf0_RC");
+            generatorNoRcc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, "550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC");
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+
         }
     }
 

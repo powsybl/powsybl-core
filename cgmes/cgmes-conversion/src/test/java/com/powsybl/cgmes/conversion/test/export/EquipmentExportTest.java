@@ -1371,12 +1371,12 @@ class EquipmentExportTest extends AbstractSerDeTest {
             // Generator without control
             network = EurostagTutorialExample1Factory.createWithoutControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "_GEN_RC", "", "dummy");
 
             // Generator with remote terminal without control
             network = EurostagTutorialExample1Factory.createRemoteWithoutControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "_GEN_RC", "", "dummy");
 
             // Generator without control capability
             network = EurostagTutorialExample1Factory.create();

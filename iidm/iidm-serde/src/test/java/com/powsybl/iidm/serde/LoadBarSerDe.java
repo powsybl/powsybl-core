@@ -33,6 +33,8 @@ public class LoadBarSerDe extends AbstractExtensionSerDe<Load, LoadBarExt> {
     @Override
     public LoadBarExt read(Load load, DeserializerContext context) {
         context.getReader().readEndNode();
-        return new LoadBarExt(load);
+        var ext = new LoadBarExt(load);
+        load.addExtension(LoadBarExt.class, ext);
+        return ext;
     }
 }
