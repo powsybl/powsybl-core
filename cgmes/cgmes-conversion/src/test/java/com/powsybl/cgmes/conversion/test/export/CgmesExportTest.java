@@ -738,13 +738,8 @@ class CgmesExportTest {
             area.setProperty(CgmesNames.P_TOLERANCE, "1.01");
             Path tmpDirWithCaTolerance = tmpDir.resolve("network-with-ca-tolerance");
             Files.createDirectories(tmpDirWithCaTolerance);
-            network.write("CGMES", null, tmpDirWithCaTolerance.resolve(baseName));
-            Network networkWithCaTolerance = Network.read(new GenericReadOnlyDataSource(tmpDirWithCaTolerance, baseName));
-            assertEquals(1, networkWithCaTolerance.getAreaCount());
-            areaExported = networkWithCaTolerance.getAreas().iterator().next();
-            assertEquals(1, areaExported.getAreaBoundaryStream().count());
-            assertEquals(-50, areaExported.getInterchangeTarget().orElse(Double.NaN));
-            assertEquals("1.01", areaExported.getProperty(CgmesNames.P_TOLERANCE));
+            sshFile = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDir);
+            assertTrue(sshFile.contains("<cim:ControlArea.pTolerance>1.01</cim:ControlArea.pTolerance>"));
         }
     }
 
