@@ -16,6 +16,7 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
@@ -692,12 +693,11 @@ class CgmesExportTest {
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/temp"));
-            String baseName = "dl-net";
 
             // Exporting with default behaviour, no default control area is written
             Path tmpDirNoCA = tmpDir.resolve("network-no-ca");
             Files.createDirectories(tmpDirNoCA);
-            String eqFile = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir);
+            String eqFile = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDirNoCA);
             assertFalse(eqFile.contains("cim:ControlArea"));
 
             // Explicit creation of a default control area
@@ -719,26 +719,19 @@ class CgmesExportTest {
             // No default value for tolerance
             Path tmpDirWithCA = tmpDir.resolve("network-with-ca");
             Files.createDirectories(tmpDirWithCA);
-            network.write("CGMES", null, tmpDirWithCA.resolve(baseName));
-            Network networkWithCA = Network.read(new GenericReadOnlyDataSource(tmpDirWithCA, baseName));
-            assertEquals(1, networkWithCA.getAreaCount());
-            Area areaExported = networkWithCA.getAreas().iterator().next();
-            assertEquals(1, areaExported.getAreaBoundaryStream().count());
-            assertEquals(-50, areaExported.getInterchangeTarget().orElse(Double.NaN));
-            assertEquals("DL", areaExported.getAreaBoundaryStream().findFirst()
-                    .flatMap(AreaBoundary::getBoundary)
-                    .map(Boundary::getDanglingLine)
-                    .map(DanglingLine::getId)
-                    .orElse(null));
+            eqFile = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDirWithCA);
+            String sshFile = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDirWithCA);
+            assertTrue(eqFile.contains("<cim:ControlArea rdf:ID=\"_dangling-line_N_CA\">"));
+            assertTrue(sshFile.contains("<cim:ControlArea.netInterchange>-50</cim:ControlArea.netInterchange>"));
             // No default value for tolerance
-            assertNull(areaExported.getProperty(CgmesNames.P_TOLERANCE));
+            assertFalse(sshFile.contains("cim:ControlArea.pTolerance"));
 
             // Check that tolerance is exported only if explicitly defined
             Area area = network.getAreas().iterator().next();
             area.setProperty(CgmesNames.P_TOLERANCE, "1.01");
             Path tmpDirWithCaTolerance = tmpDir.resolve("network-with-ca-tolerance");
             Files.createDirectories(tmpDirWithCaTolerance);
-            sshFile = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDir);
+            sshFile = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDirWithCaTolerance);
             assertTrue(sshFile.contains("<cim:ControlArea.pTolerance>1.01</cim:ControlArea.pTolerance>"));
         }
     }
