@@ -697,9 +697,8 @@ class CgmesExportTest {
             // Exporting with default behaviour, no default control area is written
             Path tmpDirNoCA = tmpDir.resolve("network-no-ca");
             Files.createDirectories(tmpDirNoCA);
-            network.write("CGMES", null, tmpDirNoCA.resolve(baseName));
-            Network networkNoCA = Network.read(new GenericReadOnlyDataSource(tmpDirNoCA, baseName));
-            assertEquals(0, networkNoCA.getAreaCount());
+            String eqFile = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir);
+            assertFalse(eqFile.contains("cim:ControlArea"));
 
             // Explicit creation of a default control area
             new CgmesExport().createDefaultControlAreaInterchange(network);
