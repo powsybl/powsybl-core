@@ -462,10 +462,11 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     protected void loadExtensions(PlatformConfig platformConfig) {
         for (LoadFlowProvider provider : new ServiceLoaderCache<>(LoadFlowProvider.class).getServices()) {
-            if (provider.getSpecificParametersClass().isEmpty()) {
+            Optional<Class<? extends Extension<LoadFlowParameters>>> optionalClass = provider.getSpecificParametersClass();
+            if (optionalClass.isEmpty()) {
                 continue;
             }
-            Class<? extends Extension<LoadFlowParameters>> clazz = provider.getSpecificParametersClass().get();
+            Class<? extends Extension<LoadFlowParameters>> clazz = optionalClass.get();
             Optional<Extension<LoadFlowParameters>> extension = Optional.ofNullable(getExtension(clazz));
             extension.ifPresentOrElse(ext -> provider.updateSpecificParameters(ext, platformConfig),
                     () -> provider.loadSpecificParameters(platformConfig)
