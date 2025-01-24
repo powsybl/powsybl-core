@@ -86,9 +86,7 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
         // as the (old) remote targetV
         double remoteTargetV = generator.getTargetV();
         double remoteNominalV = generator.getRegulatingTerminal().getVoltageLevel().getNominalV();
-        double localTargetV = localNominalV * remoteTargetV / remoteNominalV;
-
-        return localTargetV;
+        return localNominalV * remoteTargetV / remoteNominalV;
     }
 
     private boolean isGeneratorRegulatingLocally(Generator generator) {
