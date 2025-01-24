@@ -19,6 +19,7 @@ import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -85,6 +86,11 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
     @Override
     public String getNamespaceUri() {
         return getNamespaceUri(getVersion());
+    }
+
+    @Override
+    public Stream<String> getNamespaceUriStream() {
+        return namespaceUris.values().stream().distinct();
     }
 
     @Override

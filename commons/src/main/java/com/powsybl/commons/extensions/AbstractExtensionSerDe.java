@@ -10,6 +10,7 @@ package com.powsybl.commons.extensions;
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -71,6 +72,11 @@ public abstract class AbstractExtensionSerDe<T extends Extendable, E extends Ext
     @Override
     public String getNamespaceUri() {
         return namespaceUri;
+    }
+
+    @Override
+    public Stream<String> getNamespaceUriStream() {
+        return Stream.of(namespaceUri);
     }
 
     @Override

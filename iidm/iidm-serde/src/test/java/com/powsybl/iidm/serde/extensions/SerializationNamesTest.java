@@ -15,11 +15,13 @@ import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -31,6 +33,7 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
 
     @Test
     void unversionedExtensionTest() {
+        // Use the default extension version => also the default serialization name
         AbstractExtensionSerDe<?, ?> serde = new NetworkSourceExtensionSerDe();
         assertEquals(serde.getExtensionName(), serde.getSerializationName(serde.getVersion()));
         Set<String> serializationNames = serde.getSerializationNames();
@@ -40,6 +43,7 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
 
     @Test
     void getSerializationNameTest() {
+        // Use an extension version which serialization name is not the default
         LoadMockSerDe serde = new LoadMockSerDe();
         assertEquals(LOAD_MOCK, serde.getExtensionName());
         assertEquals(LOAD_MOCK, serde.getSerializationName(serde.getVersion()));
@@ -51,15 +55,25 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
 
     @Test
     void realExtensionNameRoundTripTest() throws IOException {
+        // Use the default extension version => also the default serialization name
         allFormatsRoundTripTest(getNetwork(), "/extensionName_1_2.xml", new ExportOptions().setVersion(IidmVersion.V_1_1.toString(".")));
     }
 
     @Test
     void oldNameRoundTripTest() throws IOException {
+        // Use an extension version which serialization name is not the default
         ExportOptions exportOptions = new ExportOptions()
                 .setVersion(IidmVersion.V_1_0.toString("."))
                 .addExtensionVersion("loadMock", "0.1");
         allFormatsRoundTripTest(getNetwork(), "/extensionName_0_1.xml", exportOptions);
+    }
+
+    @Test
+    void importXiidmWithAnotherPrefixTest() throws URISyntaxException {
+        // Read a network with an old extension serialization name + a non-standard namespace prefix.
+        Network network = NetworkSerDe.validateAndRead(Paths.get(
+                Objects.requireNonNull(getClass().getResource("/extensionName_0_1_otherPrefix.xml")).toURI()));
+        assertNotNull(network.getLoad("Load1").getExtension(LoadMockExt.class));
     }
 
     private static Network getNetwork() {
@@ -73,7 +87,6 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
     }
 
     //TODO list:
-    // - namespacePrefixes by serializationName or version
     // - handle serialization names collision
     // - test specifying the extensions to load
 }
