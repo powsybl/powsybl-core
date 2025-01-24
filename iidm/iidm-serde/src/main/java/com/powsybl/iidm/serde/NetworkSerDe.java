@@ -90,7 +90,6 @@ public final class NetworkSerDe {
     private static final Supplier<Schema> SCHEMA_SUPPLIER = Suppliers.memoize(NetworkSerDe::createSchema);
 
     private NetworkSerDe() {
-        ExtensionProviders.createProvider(ExtensionSerDe.class, EXTENSION_CATEGORY_NAME);
     }
 
     public static void validate(InputStream is) {
