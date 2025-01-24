@@ -822,8 +822,7 @@ public final class NetworkSerDe {
             if (context.getOptions().withExtension(extensionName)) {
                 ExtensionSerDe extensionSerde = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
                 if (extensionSerde != null) {
-                    Extension<? extends Identifiable<?>> extension = extensionSerde.read(identifiable, context);
-                    identifiable.addExtension(extensionSerde.getExtensionClass(), extension);
+                    extensionSerde.read(identifiable, context);
                     extensionNamesImported.add(extensionName);
                 } else {
                     extensionNamesNotFound.add(extensionName);
