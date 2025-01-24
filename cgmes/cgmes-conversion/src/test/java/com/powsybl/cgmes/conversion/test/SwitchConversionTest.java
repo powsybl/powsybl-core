@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -117,8 +116,8 @@ class SwitchConversionTest extends AbstractSerDeTest {
 
         // It is a retained Disconnector in the CGMES export.
         String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
-        assertEquals("Disconnector", getFirstMatch(eqFile, Pattern.compile("<cim:(.*?) rdf:ID=\"_DIS\">")));
-        assertEquals("true", getFirstMatch(eqFile, Pattern.compile("<cim:Switch.retained>(.*?)</cim:Switch.retained>")));
+        String xmlDisconnector = getElement(eqFile, "Disconnector", "DIS");
+        assertTrue(xmlDisconnector.contains("<cim:Switch.retained>true</cim:Switch.retained>"));
     }
 
     @Test
@@ -153,20 +152,19 @@ class SwitchConversionTest extends AbstractSerDeTest {
         assertEquals("true", fictitiousSwitch.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL));
 
         // The fictitious switch isn't present in the EQ export and the terminal is disconnected in the SSH.
-        String eqExport = writeCgmesProfile(network, "EQ", tmpDir);
-        String sshExport = writeCgmesProfile(network, "SSH", tmpDir);
-        Pattern switchPattern = Pattern.compile("<cim:Breaker rdf:ID=\"(.*?)\">");
-        Pattern terminalPattern = Pattern.compile("<cim:Terminal rdf:about=\"#_T_LD\">.*?" +
-                "<cim:ACDCTerminal.connected>(.*?)</cim:ACDCTerminal.connected>.*?</cim:Terminal>", Pattern.DOTALL);
-        assertNull(getFirstMatch(eqExport, switchPattern));
-        assertEquals("false", getFirstMatch(sshExport, terminalPattern));
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        String sshFile = writeCgmesProfile(network, "SSH", tmpDir);
+        assertFalse(eqFile.contains("<cim:Breaker rdf:ID="));
+        String xmlLoadTerminal = getElement(sshFile, "Terminal", "T_LD");
+        assertTrue(xmlLoadTerminal.contains("<cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>"));
 
         // If the fictitious switch gets closed, it still isn't exported but the terminal now gets connected.
         fictitiousSwitch.setOpen(false);
-        eqExport = writeCgmesProfile(network, "EQ", tmpDir);
-        sshExport = writeCgmesProfile(network, "SSH", tmpDir);
-        assertNull(getFirstMatch(eqExport, switchPattern));
-        assertEquals("true", getFirstMatch(sshExport, terminalPattern));
+        eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        sshFile = writeCgmesProfile(network, "SSH", tmpDir);
+        assertFalse(eqFile.contains("<cim:Breaker rdf:ID="));
+        xmlLoadTerminal = getElement(sshFile, "Terminal", "T_LD");
+        assertTrue(xmlLoadTerminal.contains("<cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>"));
     }
 
     @Test
@@ -185,9 +183,8 @@ class SwitchConversionTest extends AbstractSerDeTest {
 
         // The retained switch can be exported as such.
         String eqExport = writeCgmesProfile(network, "EQ", tmpDir);
-        Pattern couplerRetainedPattern = Pattern.compile("<cim:Breaker rdf:ID=\"_COUPLER\">.*?" +
-                "<cim:Switch.retained>(.*?)</cim:Switch.retained>", Pattern.DOTALL);
-        assertEquals("true", getFirstMatch(eqExport, couplerRetainedPattern));
+        String xmlCoupler = getElement(eqExport, "Breaker", "COUPLER");
+        assertTrue(xmlCoupler.contains("<cim:Switch.retained>true</cim:Switch.retained>"));
 
         // Now close the disconnector so that the 2 ends of the retained switch are on the same bus/topological node.
         network.getSwitch("DIS_1").setOpen(false);
@@ -195,6 +192,7 @@ class SwitchConversionTest extends AbstractSerDeTest {
 
         // The retained switch can't be exported as such.
         eqExport = writeCgmesProfile(network, "EQ", tmpDir);
-        assertEquals("false", getFirstMatch(eqExport, couplerRetainedPattern));
+        xmlCoupler = getElement(eqExport, "Breaker", "COUPLER");
+        assertTrue(xmlCoupler.contains("<cim:Switch.retained>false</cim:Switch.retained>"));
     }
 }
