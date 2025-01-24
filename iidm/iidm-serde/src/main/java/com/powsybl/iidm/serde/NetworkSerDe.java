@@ -815,12 +815,13 @@ public final class NetworkSerDe {
     private static void readExtensions(Identifiable identifiable, NetworkDeserializerContext context,
                                        Set<String> extensionNamesImported, Set<String> extensionNamesNotFound) {
 
-        context.getReader().readChildNodes(extensionName -> {
+        context.getReader().readChildNodes(extensionSerializationName -> {
             // extensions root elements are nested directly in 'extension' element, so there is no need
             // to check for an extension to exist if depth is greater than zero. Furthermore, in case of
             // missing extension serializer, we must not check for an extension in sub elements.
-            if (context.getOptions().withExtension(extensionName)) {
-                ExtensionSerDe extensionSerde = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+            ExtensionSerDe extensionSerde = EXTENSIONS_SUPPLIER.get().findProvider(extensionSerializationName);
+            String extensionName = extensionSerde != null ? extensionSerde.getExtensionName() : extensionSerializationName;
+            if (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName)) {
                 if (extensionSerde != null) {
                     extensionSerde.read(identifiable, context);
                     extensionNamesImported.add(extensionName);

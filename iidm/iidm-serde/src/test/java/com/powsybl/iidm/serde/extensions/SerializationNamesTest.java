@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -76,6 +77,22 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
         assertNotNull(network.getLoad("Load1").getExtension(LoadMockExt.class));
     }
 
+    @Test
+    void indicateExtensionAtImportTest() throws URISyntaxException {
+        // Read a network with an old extension serialization name
+        // To specify the extension to import, both the real extension name or the serialization name can be used.
+        Path file = Paths.get(Objects.requireNonNull(getClass().getResource("/extensionName_0_1_otherPrefix.xml")).toURI());
+        ImportOptions importOptions = new ImportOptions().addExtension("loadElementMock");
+        Network network = NetworkSerDe.read(file, importOptions);
+        assertNotNull(network.getLoad("Load1").getExtension(LoadMockExt.class),
+                "Using the serialization name as extension to load should work.");
+
+        importOptions = new ImportOptions().addExtension("loadMock");
+        network = NetworkSerDe.read(file, importOptions);
+        assertNotNull(network.getLoad("Load1").getExtension(LoadMockExt.class),
+                "Using the real extension name as extension to load should work.");
+    }
+
     private static Network getNetwork() {
         Network network = NetworkFactory.findDefault().createNetwork("test", "test");
         network.setCaseDate(ZonedDateTime.parse("2024-09-17T13:36:37.831Z"));
@@ -88,5 +105,4 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
 
     //TODO list:
     // - handle serialization names collision
-    // - test specifying the extensions to load
 }
