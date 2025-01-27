@@ -248,13 +248,35 @@ public final class NetworkSerDe {
             XmlWriter xmlWriter = new XmlWriter(os, indent, options.getCharset(), iidmNamespace, IIDM_PREFIX);
 
             Set<ExtensionSerDe<?, ?>> serializers = getExtensionSerializers(n, options);
+            Set<String> extensionUris = new HashSet<>();
+            Set<String> extensionPrefixes = new HashSet<>();
             for (ExtensionSerDe<?, ?> extensionSerDe : serializers) {
                 String extensionVersion = getExtensionVersion(extensionSerDe, options);
-                xmlWriter.setExtensionNamespace(extensionSerDe.getName(), extensionSerDe.getNamespaceUri(extensionVersion), extensionSerDe.getNamespacePrefix());
-            }
+                String namespaceUri = extensionSerDe.getNamespaceUri(extensionVersion);
+                String realNamespacePrefix = extensionSerDe.getNamespacePrefix();
+                String fixedNamespacePrefix = realNamespacePrefix;
 
-            // Ensure that there is no conflict in namespace prefixes and URIs
-            checkNamespaceCollisions(options, serializers);
+                // Throw an exception if a namespace URI collision is detected
+                if (extensionUris.contains(namespaceUri)) {
+                    throw new PowsyblException("Extension namespace URI collision");
+                } else {
+                    extensionUris.add(namespaceUri);
+                }
+
+                // Try to compute another namespace prefix if a collision is detected
+                int i = 1;
+                while (i < 100 && extensionPrefixes.contains(fixedNamespacePrefix)) {
+                    fixedNamespacePrefix = realNamespacePrefix + i;
+                    i++;
+                }
+                if (i >= 100) {
+                    throw new PowsyblException("Cannot compute a unique extension namespace prefix: " + realNamespacePrefix);
+                } else {
+                    extensionPrefixes.add(fixedNamespacePrefix);
+                }
+
+                xmlWriter.setExtensionNamespace(extensionSerDe.getName(), namespaceUri, fixedNamespacePrefix);
+            }
 
             return xmlWriter;
         } catch (XMLStreamException e) {
@@ -316,25 +338,6 @@ public final class NetworkSerDe {
                         .map(extension -> (ExtensionSerDe<?, ?>) getExtensionSerializer(options, extension))
                         .filter(exs -> canTheExtensionBeWritten(exs, networkVersion, options)))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
-
-    private static void checkNamespaceCollisions(ExportOptions options, Set<ExtensionSerDe<?, ?>> serializers) {
-        Set<String> extensionUris = new HashSet<>();
-        Set<String> extensionPrefixes = new HashSet<>();
-        for (ExtensionSerDe<?, ?> extensionSerDe : serializers) {
-            String namespaceUri = getNamespaceUri(extensionSerDe, options);
-            if (extensionUris.contains(namespaceUri)) {
-                throw new PowsyblException("Extension namespace URI collision");
-            } else {
-                extensionUris.add(namespaceUri);
-            }
-
-            if (extensionPrefixes.contains(extensionSerDe.getNamespacePrefix())) {
-                throw new PowsyblException("Extension namespace prefix collision");
-            } else {
-                extensionPrefixes.add(extensionSerDe.getNamespacePrefix());
-            }
-        }
     }
 
     private static void writeBaseNetwork(Network n, NetworkSerializerContext context) {

@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
+import com.powsybl.iidm.network.test.VoltageLevelFooExt;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -27,6 +28,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -40,18 +42,30 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
     private FileSystem fileSystem;
 
     void exporterTest(Network network, IidmVersion version, String xmlFileName, Properties properties) throws IOException {
+        exporterTest(network, () -> getVersionedNetworkAsStream(xmlFileName, version), properties);
+    }
+
+    void exporterTest(Network network, Supplier<InputStream> refFileIs, Properties properties) throws IOException {
         properties.put(XMLExporter.ANONYMISED, "false");
         MemDataSource dataSource = new MemDataSource();
         new XMLExporter().export(network, properties, dataSource);
         // check the exported file and compare it to iidm reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
-            assertXmlEquals(getVersionedNetworkAsStream(xmlFileName, version), is);
+            assertXmlEquals(refFileIs.get(), is);
         }
     }
 
     @Test
     void exportTest() throws IOException {
         exporterTest(MultipleExtensionsTestNetworkFactory.create(), CURRENT_IIDM_VERSION, "multiple-extensions.xml", new Properties());
+    }
+
+    @Test
+    void exportWithNamespacePrefixCollisionTest() throws IOException {
+        Network network = MultipleExtensionsTestNetworkFactory.create();
+        VoltageLevel vl = network.getVoltageLevel("VL");
+        vl.addExtension(VoltageLevelFooExt.class, new VoltageLevelFooExt(vl));
+        exporterTest(network, () -> getClass().getResourceAsStream("/namespace-prefix-collision.xml"), new Properties());
     }
 
     @Test
