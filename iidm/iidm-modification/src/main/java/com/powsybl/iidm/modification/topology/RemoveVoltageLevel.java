@@ -17,10 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
+ * Removes a voltage level and the feeder bays connected to that voltage level. Note that dangling lines connected to
+ * this voltage level (hence paired) are not removed but unpaired.
  * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
 public class RemoveVoltageLevel extends AbstractNetworkModification {
@@ -55,15 +58,27 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
             }
         });
 
+        voltageLevel.getDanglingLines().forEach(dl ->
+            dl.getTieLine().ifPresent(tieLine -> {
+                String tlId = tieLine.getId();
+                String pairingKey = tieLine.getPairingKey();
+                tieLine.remove();
+                removedTieLineReport(reportNode, tlId, pairingKey);
+                LOGGER.info("Tie line {} removed", tlId);
+            })
+        );
+
+        Consumer<String> removeConnectableFeederBay = id -> new RemoveFeederBayBuilder().withConnectableId(id).build()
+                .apply(network, throwException, computationManager, reportNode);
+        voltageLevel.getLines().forEach(line -> removeConnectableFeederBay.accept(line.getId()));
+        voltageLevel.getTwoWindingsTransformers().forEach(transformer -> removeConnectableFeederBay.accept(transformer.getId()));
+        voltageLevel.getThreeWindingsTransformers().forEach(transformer -> removeConnectableFeederBay.accept(transformer.getId()));
+
         voltageLevel.getConnectables().forEach(connectable -> {
-            if (connectable instanceof Injection) {
-                String connectableId = connectable.getId();
-                connectable.remove();
-                removedConnectableReport(reportNode, connectableId);
-                LOGGER.info("Connectable {} removed", connectableId);
-            } else {
-                new RemoveFeederBayBuilder().withConnectableId(connectable.getId()).build().apply(network, throwException, computationManager, reportNode);
-            }
+            String connectableId = connectable.getId();
+            connectable.remove();
+            removedConnectableReport(reportNode, connectableId);
+            LOGGER.info("Connectable {} removed", connectableId);
         });
 
         voltageLevel.remove();

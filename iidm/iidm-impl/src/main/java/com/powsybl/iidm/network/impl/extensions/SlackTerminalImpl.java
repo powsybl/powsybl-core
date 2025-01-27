@@ -127,9 +127,11 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
 
     @Override
     public void cleanup() {
-        for (Terminal terminal : terminals) {
+        for (int i = 0; i < terminals.size(); i++) {
+            Terminal terminal = terminals.get(i);
             if (terminal != null) {
                 ((TerminalExt) terminal).getReferrerManager().unregister(this);
+                terminals.set(i, null);
             }
         }
     }

@@ -83,7 +83,7 @@
     "name" : "380.0_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
-    "shuntConductance" : 0.0,
+    "shuntConductance" : 1.0108000000000001,
     "shuntSusceptance" : 49.9624,
     "areaNumber" : 1,
     "voltageMagnitude" : 1.0868131605263158,
