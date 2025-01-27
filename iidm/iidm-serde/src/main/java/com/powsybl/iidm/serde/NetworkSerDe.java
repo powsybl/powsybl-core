@@ -253,7 +253,7 @@ public final class NetworkSerDe {
             for (ExtensionSerDe<?, ?> extensionSerDe : serializers) {
                 String extensionVersion = getExtensionVersion(extensionSerDe, options);
                 String namespaceUri = extensionSerDe.getNamespaceUri(extensionVersion);
-                String realNamespacePrefix = extensionSerDe.getNamespacePrefix();
+                String realNamespacePrefix = extensionSerDe.getNamespacePrefix(extensionVersion);
                 String fixedNamespacePrefix = realNamespacePrefix;
 
                 // Throw an exception if a namespace URI collision is detected

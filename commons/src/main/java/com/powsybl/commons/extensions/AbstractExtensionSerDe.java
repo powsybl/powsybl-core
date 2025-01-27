@@ -85,6 +85,11 @@ public abstract class AbstractExtensionSerDe<T extends Extendable, E extends Ext
     }
 
     @Override
+    public String getNamespacePrefix(String extensionVersion) {
+        return getNamespacePrefix();
+    }
+
+    @Override
     public String getVersion(String namespaceUri) {
         return this.namespaceUri.equals(namespaceUri) ? getVersion() : null;
     }

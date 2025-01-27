@@ -50,7 +50,7 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
         assertEquals(LOAD_MOCK, serde.getSerializationName(serde.getVersion()));
         assertEquals(LOAD_ELEMENT_MOCK, serde.getSerializationName("0.1"));
         Set<String> serializationNames = serde.getSerializationNames();
-        assertEquals(2, serializationNames.size());
+        assertEquals(3, serializationNames.size());
         assertTrue(serializationNames.containsAll(Set.of(LOAD_MOCK, LOAD_ELEMENT_MOCK)));
     }
 

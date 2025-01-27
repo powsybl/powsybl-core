@@ -59,6 +59,8 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
 
     String getNamespacePrefix();
 
+    String getNamespacePrefix(String extensionVersion);
+
     void write(E extension, SerializerContext context);
 
     E read(T extendable, DeserializerContext context);
