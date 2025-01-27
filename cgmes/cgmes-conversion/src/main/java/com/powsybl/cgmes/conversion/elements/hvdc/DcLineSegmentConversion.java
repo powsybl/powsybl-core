@@ -105,8 +105,8 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         LossFactor lossFactor = updateHvdcLine(hvdcLine, hvdcType, cgmesDataAcDcConverter1, cgmesDataAcDcConverter2, context);
 
         if (hvdcType.equals(HvdcConverterStation.HvdcType.LCC)) {
-            AcDcConverterConversion.update((LccConverterStation) hvdcLine.getConverterStation1(), cgmesDataAcDcConverter1, lossFactor.getLossFactor1());
-            AcDcConverterConversion.update((LccConverterStation) hvdcLine.getConverterStation2(), cgmesDataAcDcConverter2, lossFactor.getLossFactor2());
+            AcDcConverterConversion.update((LccConverterStation) hvdcLine.getConverterStation1(), cgmesDataAcDcConverter1, lossFactor.getLossFactor1(), context);
+            AcDcConverterConversion.update((LccConverterStation) hvdcLine.getConverterStation2(), cgmesDataAcDcConverter2, lossFactor.getLossFactor2(), context);
         } else {
             AcDcConverterConversion.update((VscConverterStation) hvdcLine.getConverterStation1(), cgmesDataAcDcConverter1, lossFactor.getLossFactor1(), context);
             AcDcConverterConversion.update((VscConverterStation) hvdcLine.getConverterStation2(), cgmesDataAcDcConverter2, lossFactor.getLossFactor2(), context);
