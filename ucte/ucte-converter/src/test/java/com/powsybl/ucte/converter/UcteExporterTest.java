@@ -269,8 +269,8 @@ class UcteExporterTest extends AbstractSerDeTest {
             .setId("GEN2")
             .setBus("NGEN")
             .setConnectableBus("NGEN")
-            .setMinP(-Double.MAX_VALUE)
-            .setMaxP(9999.99)
+            .setMinP(-9999)
+            .setMaxP(9999)
             .setVoltageRegulatorOn(true)
             .setTargetV(24.5)
             .setTargetP(607.0)
@@ -283,7 +283,6 @@ class UcteExporterTest extends AbstractSerDeTest {
             .setP0(600.0)
             .setQ0(200.0)
             .add();
-        network.getGenerator("GEN").setMinP(-Double.MAX_VALUE);
         Properties p = new Properties();
         p.put(UcteExporter.NAMING_STRATEGY, "Counter");
         testExporter(network, "/eurostagMultipleGeneratorAndLoad.uct", p);
