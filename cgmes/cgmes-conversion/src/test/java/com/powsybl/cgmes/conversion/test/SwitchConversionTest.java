@@ -15,6 +15,10 @@ import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.util.regex.Pattern;
+
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.getUniqueMatches;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -29,9 +33,19 @@ class SwitchConversionTest extends AbstractSerDeTest {
 
         Switch aswitch = network.getSwitch("Jumper");
         assertEquals(SwitchKind.DISCONNECTOR, aswitch.getKind());
-        assertEquals("Jumper", aswitch.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "switchType"));
+        assertEquals("Jumper", aswitch.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
         assertEquals("opened jumper", aswitch.getNameOrId());
         assertTrue(aswitch.isOpen());
         assertFalse(aswitch.isRetained());
+    }
+
+    @Test
+    void groundDisconnectorTest() throws IOException {
+        Network network = ConversionUtil.readCgmesResources("/", "groundTest.xml");
+        assertEquals("GroundDisconnector", network.getSwitch("CO").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+
+        String eqFile = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir);
+        Pattern pattern = Pattern.compile("(<cim:GroundDisconnector rdf:ID=\"_CO\">)");
+        assertEquals(1, getUniqueMatches(eqFile, pattern).size());
     }
 }

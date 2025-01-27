@@ -785,6 +785,12 @@ public interface Network extends Container<Network> {
     LineAdder newLine();
 
     /**
+     * Get a builder to create a new AC line by copying an existing one.
+     * @return a builder to create a new line
+     */
+    LineAdder newLine(Line line);
+
+    /**
      * Get all AC lines.
      */
     Iterable<Line> getLines();
