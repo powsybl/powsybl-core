@@ -15,27 +15,39 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public enum WindingType {
 
-    PRIMARY, SECONDARY, TERTIARY;
+    UNKNOWN, PRIMARY, SECONDARY, TERTIARY;
 
-    public static WindingType fromTransformerEnd(PropertyBag end) {
-        // For CIM14 (CIM ENTSOE Profile1) primary is determined by windingType
-        // For CIM16 (CGMES) primary is defined by the corresponding terminal sequence number:
-        // "The Terminal.sequenceNumber distinguishes the terminals much as previously done by
-        // TransformerWinding.windingType:WindingType"
-
+    /**
+     * Retrieve the WindingType for the given transformer winding/end.
+     * @param end A PropertyBag with the transformer winding/end properties.
+     * @return The WindingType (PRIMARY/SECONDARY/TERTIARY) corresponding to the given transformer winding/end.
+     */
+    public static WindingType windingType(PropertyBag end) {
         if (end.containsKey("windingType")) {
-            String wtype = end.getLocal("windingType");
-            if (wtype.endsWith("WindingType.primary")) {
-                return WindingType.PRIMARY;
-            } else if (wtype.endsWith("WindingType.secondary")) {
-                return WindingType.SECONDARY;
-            } else if (wtype.endsWith("WindingType.tertiary")) {
-                return WindingType.TERTIARY;
+            // For CIM14 (CIM ENTSOE Profile1) primary is determined by TransformerWinding.windingType
+            return switch (end.getLocal("windingType")) {
+                case "WindingType.primary" -> WindingType.PRIMARY;
+                case "WindingType.secondary" -> WindingType.SECONDARY;
+                case "WindingType.tertiary" -> WindingType.TERTIARY;
+                default -> WindingType.UNKNOWN;
+            };
+        } else if (end.containsKey("endNumber")) {
+            // For CIM16 (CGMES 2.4.15) primary is defined by TransformerEnd.endNumber
+            try {
+                return WindingType.values()[end.asInt("endNumber")];
+            } catch (Exception e) {
+                return WindingType.UNKNOWN;
             }
-        } else if (end.containsKey("terminalSequenceNumber")) {
-            // Terminal.sequenceNumber := 1, 2 ,3 ...
-            return WindingType.values()[end.asInt("terminalSequenceNumber") - 1];
         }
-        return WindingType.PRIMARY;
+        return WindingType.UNKNOWN;
+    }
+
+    /**
+     * Retrieve the endNumber for the given transformer winding/end.
+     * @param end A PropertyBag with the transformer winding/end properties.
+     * @return The endNumber value (1/2/3) corresponding to the given transformer winding/end.
+     */
+    public static int endNumber(PropertyBag end) {
+        return windingType(end).ordinal();
     }
 }
