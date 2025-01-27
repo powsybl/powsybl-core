@@ -97,7 +97,6 @@ import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoad
  *         </tr>
  *     </tbody>
  * </table>
- *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Branch<I extends Branch<I>> extends Identifiable<I> {
