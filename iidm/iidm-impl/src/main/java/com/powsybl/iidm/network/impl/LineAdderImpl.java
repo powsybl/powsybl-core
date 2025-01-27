@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
 
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyBranchOperationalLimits;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -117,24 +119,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         line.addTerminal(terminal1);
         line.addTerminal(terminal2);
 
-        if (copiedLine != null) {
-            copiedLine.getOperationalLimitsGroups1().forEach(groupToCopy -> {
-                OperationalLimitsGroup copy1 = line.newOperationalLimitsGroup1(groupToCopy.getId());
-                groupToCopy.getCurrentLimits().ifPresent(limit -> copy1.newCurrentLimits(limit).add());
-                groupToCopy.getActivePowerLimits().ifPresent(limit -> copy1.newActivePowerLimits(limit).add());
-                groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy1.newApparentPowerLimits(limit).add());
-            });
-
-            copiedLine.getOperationalLimitsGroups2().forEach(groupToCopy -> {
-                OperationalLimitsGroup copy2 = line.newOperationalLimitsGroup2(groupToCopy.getId());
-                groupToCopy.getCurrentLimits().ifPresent(limit -> copy2.newCurrentLimits(limit).add());
-                groupToCopy.getActivePowerLimits().ifPresent(limit -> copy2.newActivePowerLimits(limit).add());
-                groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy2.newApparentPowerLimits(limit).add());
-            });
-
-            copiedLine.getSelectedOperationalLimitsGroupId1().ifPresent(line::setSelectedOperationalLimitsGroup1);
-            copiedLine.getSelectedOperationalLimitsGroupId2().ifPresent(line::setSelectedOperationalLimitsGroup2);
-        }
+        copyBranchOperationalLimits(copiedLine, line);
 
         // check that the line is attachable on both side
         voltageLevel1.getTopologyModel().attach(terminal1, true);

@@ -30,7 +30,8 @@ public final class LoadingLimitsUtil {
      * {@link #fixMissingPermanentLimit(LoadingLimitsAdder, double, String, LimitFixLogger)}.
      */
     public interface LimitFixLogger {
-        LimitFixLogger NO_OP = (what, reason, wrongValue, fixedValue) -> { };
+        LimitFixLogger NO_OP = (what, reason, wrongValue, fixedValue) -> {
+        };
 
         void log(String what, String reason, double wrongValue, double fixedValue);
     }
@@ -43,7 +44,8 @@ public final class LoadingLimitsUtil {
 
     /**
      * <p>Compute a missing permanent limit accordingly to the temporary limits and to a given percentage.</p>
-     * @param limitsAdder the LoadingLimitsAdder which permanent limit should be fixed
+     *
+     * @param limitsAdder                     the LoadingLimitsAdder which permanent limit should be fixed
      * @param missingPermanentLimitPercentage The percentage to apply
      */
     public static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void fixMissingPermanentLimit(LoadingLimitsAdder<L, A> limitsAdder,
@@ -53,10 +55,11 @@ public final class LoadingLimitsUtil {
 
     /**
      * <p>Compute a missing permanent limit accordingly to the temporary limits and to a given percentage.</p>
-     * @param adder the LoadingLimitsAdder which permanent limit should be fixed
+     *
+     * @param adder                           the LoadingLimitsAdder which permanent limit should be fixed
      * @param missingPermanentLimitPercentage The percentage to apply
-     * @param ownerId id of the limits' network element. It is only used for reporting purposes.
-     * @param limitFixLogger the object used to report the performed operation on the permanent limit.
+     * @param ownerId                         id of the limits' network element. It is only used for reporting purposes.
+     * @param limitFixLogger                  the object used to report the performed operation on the permanent limit.
      */
     public static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void fixMissingPermanentLimit(LoadingLimitsAdder<L, A> adder, double missingPermanentLimitPercentage,
                                                                                                               String ownerId, LimitFixLogger limitFixLogger) {
@@ -93,11 +96,12 @@ public final class LoadingLimitsUtil {
         }
     }
 
-     /**
-      * <p>Initialize an adder filled with a copy of an existing limits set</p>
-      * @param adder the empty adder in which we initialize the new limits
-      * @param limits the limits to copy
-      */
+    /**
+     * <p>Initialize an adder filled with a copy of an existing limits set</p>
+     *
+     * @param adder  the empty adder in which we initialize the new limits
+     * @param limits the limits to copy
+     */
     public static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> A initializeFromLoadingLimits(A adder, L limits) {
         if (limits == null) {
             LOGGER.warn("Created adder is empty");
@@ -112,5 +116,34 @@ public final class LoadingLimitsUtil {
                         .setFictitious(limit.isFictitious())
                         .endTemporaryLimit());
         return adder;
+    }
+
+    /**
+     * <p>Copies every limit from each operational limits group.</p>
+     *
+     * @param copiedBranch the copied object
+     * @param branch the object on which the copied object attributes are copied
+     */
+    public static <I extends Branch<I>> Branch<I> copyBranchOperationalLimits(I copiedBranch, I branch) {
+        if (copiedBranch != null) {
+            copiedBranch.getOperationalLimitsGroups1().forEach(groupToCopy -> {
+                OperationalLimitsGroup copy1 = branch.newOperationalLimitsGroup1(groupToCopy.getId());
+                groupToCopy.getCurrentLimits().ifPresent(limit -> copy1.newCurrentLimits(limit).add());
+                groupToCopy.getActivePowerLimits().ifPresent(limit -> copy1.newActivePowerLimits(limit).add());
+                groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy1.newApparentPowerLimits(limit).add());
+            });
+
+            copiedBranch.getOperationalLimitsGroups2().forEach(groupToCopy -> {
+                OperationalLimitsGroup copy2 = branch.newOperationalLimitsGroup2(groupToCopy.getId());
+                groupToCopy.getCurrentLimits().ifPresent(limit -> copy2.newCurrentLimits(limit).add());
+                groupToCopy.getActivePowerLimits().ifPresent(limit -> copy2.newActivePowerLimits(limit).add());
+                groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy2.newApparentPowerLimits(limit).add());
+            });
+
+            copiedBranch.getSelectedOperationalLimitsGroupId1().ifPresent(branch::setSelectedOperationalLimitsGroup1);
+            copiedBranch.getSelectedOperationalLimitsGroupId2().ifPresent(branch::setSelectedOperationalLimitsGroup2);
+
+        }
+        return copiedBranch;
     }
 }

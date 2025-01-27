@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyBranchOperationalLimits;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -132,24 +134,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         transformer.addTerminal(terminal1);
         transformer.addTerminal(terminal2);
 
-        if (copiedTwoWindingsTransformer != null) {
-            copiedTwoWindingsTransformer.getOperationalLimitsGroups1().forEach(groupToCopy -> {
-                OperationalLimitsGroup copy1 = transformer.newOperationalLimitsGroup1(groupToCopy.getId());
-                groupToCopy.getCurrentLimits().ifPresent(limit -> copy1.newCurrentLimits(limit).add());
-                groupToCopy.getActivePowerLimits().ifPresent(limit -> copy1.newActivePowerLimits(limit).add());
-                groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy1.newApparentPowerLimits(limit).add());
-            });
-
-            copiedTwoWindingsTransformer.getOperationalLimitsGroups2().forEach(groupToCopy -> {
-                OperationalLimitsGroup copy2 = transformer.newOperationalLimitsGroup2(groupToCopy.getId());
-                groupToCopy.getCurrentLimits().ifPresent(limit -> copy2.newCurrentLimits(limit).add());
-                groupToCopy.getActivePowerLimits().ifPresent(limit -> copy2.newActivePowerLimits(limit).add());
-                groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy2.newApparentPowerLimits(limit).add());
-            });
-
-            copiedTwoWindingsTransformer.getSelectedOperationalLimitsGroupId1().ifPresent(transformer::setSelectedOperationalLimitsGroup1);
-            copiedTwoWindingsTransformer.getSelectedOperationalLimitsGroupId2().ifPresent(transformer::setSelectedOperationalLimitsGroup2);
-        }
+        copyBranchOperationalLimits(copiedTwoWindingsTransformer, transformer);
 
         // check that the two windings transformer is attachable on both side
         voltageLevel1.getTopologyModel().attach(terminal1, true);
