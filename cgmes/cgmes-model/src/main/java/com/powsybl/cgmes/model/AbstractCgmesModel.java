@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -202,16 +201,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
                     powerTransformerRatioTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("RatioTapChanger");
                 }
             });
-        gends.entrySet()
-            .forEach(tends -> {
-                PropertyBags tends1 = new PropertyBags(
-                    tends.getValue().stream()
-                        .sorted(Comparator
-                            .comparing(WindingType::fromTransformerEnd)
-                            .thenComparing(end -> end.asInt(endNumber, -1)))
-                        .collect(Collectors.toList()));
-                tends.setValue(tends1);
-            });
+        gends.values().forEach(tends -> tends.sort(Comparator.comparing(WindingType::endNumber)));
         return gends;
     }
 

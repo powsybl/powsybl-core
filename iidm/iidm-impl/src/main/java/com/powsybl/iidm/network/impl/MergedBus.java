@@ -151,6 +151,7 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
 
     @Override
     public double getFictitiousP0() {
+        checkValidity();
         return buses.stream().map(Bus::getFictitiousP0).reduce(0.0, Double::sum);
     }
 
@@ -163,6 +164,7 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
 
     @Override
     public double getFictitiousQ0() {
+        checkValidity();
         return buses.stream().map(Bus::getFictitiousQ0).reduce(0.0, Double::sum);
     }
 

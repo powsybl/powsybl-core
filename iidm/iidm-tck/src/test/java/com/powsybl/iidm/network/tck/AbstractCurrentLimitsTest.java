@@ -738,6 +738,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
         adder.add();
 
         assertTrue(areLimitsIdentical(limits1, limits2));
+        assertFalse(line.newCurrentLimits1(null).hasTemporaryLimits());
     }
 
     @Test

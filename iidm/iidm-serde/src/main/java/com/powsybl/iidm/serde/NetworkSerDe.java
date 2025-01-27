@@ -821,8 +821,7 @@ public final class NetworkSerDe {
             if (context.getOptions().withExtension(extensionName)) {
                 ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
                 if (extensionXmlSerializer != null) {
-                    Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
-                    identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+                    extensionXmlSerializer.read(identifiable, context);
                     extensionNamesImported.add(extensionName);
                 } else {
                     extensionNamesNotFound.add(extensionName);
