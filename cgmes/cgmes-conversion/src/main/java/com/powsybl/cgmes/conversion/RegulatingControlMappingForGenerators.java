@@ -109,7 +109,7 @@ public class RegulatingControlMappingForGenerators {
                     .withQPercent(qPercent)
                     .add();
         }
-        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", controlId);
+        gen.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, controlId);
         gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "mode", control.mode);
 
         return true;
@@ -138,7 +138,7 @@ public class RegulatingControlMappingForGenerators {
                     .add();
         }
 
-        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL, controlId);
+        gen.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, controlId);
         gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE, control.mode);
         gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
 
