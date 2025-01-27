@@ -265,6 +265,8 @@ class UcteExporterTest extends AbstractSerDeTest {
     @Test
     void testMultipleGeneratorsAndLoads() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
+
+        // Splits generation on two generators
         network.getVoltageLevel("VLGEN").newGenerator()
             .setId("GEN2")
             .setBus("NGEN")
@@ -275,13 +277,6 @@ class UcteExporterTest extends AbstractSerDeTest {
             .setTargetV(24.5)
             .setTargetP(607.0)
             .setTargetQ(301.0)
-            .add();
-        network.getVoltageLevel("VLLOAD").newLoad()
-            .setId("LOAD2")
-            .setBus("NLOAD")
-            .setConnectableBus("NLOAD")
-            .setP0(600.0)
-            .setQ0(200.0)
             .add();
         Properties p = new Properties();
         p.put(UcteExporter.NAMING_STRATEGY, "Counter");
