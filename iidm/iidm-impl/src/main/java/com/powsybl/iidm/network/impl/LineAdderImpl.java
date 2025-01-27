@@ -7,9 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
 
 /**
@@ -20,6 +18,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
     private final NetworkImpl network;
     private final String subnetwork;
+    private final Line copiedLine;
 
     private double r = Double.NaN;
 
@@ -36,6 +35,14 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
     LineAdderImpl(NetworkImpl network, String subnetwork) {
         this.network = network;
         this.subnetwork = subnetwork;
+        this.copiedLine = null;
+    }
+
+    LineAdderImpl(NetworkImpl network, String subnetwork, Line copiedLine) {
+        this.network = network;
+        this.subnetwork = subnetwork;
+        this.copiedLine = copiedLine;
+        LineAdder.fillLineAdder(this, copiedLine);
     }
 
     @Override
@@ -109,6 +116,25 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         LineImpl line = new LineImpl(networkRef, id, getName(), isFictitious(), r, x, g1, b1, g2, b2);
         line.addTerminal(terminal1);
         line.addTerminal(terminal2);
+
+        if (copiedLine != null) {
+            copiedLine.getOperationalLimitsGroups1().forEach(groupToCopy -> {
+                OperationalLimitsGroup copy1 = line.newOperationalLimitsGroup1(groupToCopy.getId());
+                groupToCopy.getCurrentLimits().ifPresent(limit -> copy1.newCurrentLimits(limit).add());
+                groupToCopy.getActivePowerLimits().ifPresent(limit -> copy1.newActivePowerLimits(limit).add());
+                groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy1.newApparentPowerLimits(limit).add());
+            });
+
+            copiedLine.getOperationalLimitsGroups2().forEach(groupToCopy -> {
+                OperationalLimitsGroup copy2 = line.newOperationalLimitsGroup2(groupToCopy.getId());
+                groupToCopy.getCurrentLimits().ifPresent(limit -> copy2.newCurrentLimits(limit).add());
+                groupToCopy.getActivePowerLimits().ifPresent(limit -> copy2.newActivePowerLimits(limit).add());
+                groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy2.newApparentPowerLimits(limit).add());
+            });
+
+            copiedLine.getSelectedOperationalLimitsGroupId1().ifPresent(line::setSelectedOperationalLimitsGroup1);
+            copiedLine.getSelectedOperationalLimitsGroupId2().ifPresent(line::setSelectedOperationalLimitsGroup2);
+        }
 
         // check that the line is attachable on both side
         voltageLevel1.getTopologyModel().attach(terminal1, true);
