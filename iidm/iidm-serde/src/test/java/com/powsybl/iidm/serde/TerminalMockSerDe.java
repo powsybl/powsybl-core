@@ -88,18 +88,19 @@ public class TerminalMockSerDe extends AbstractVersionableNetworkExtensionSerDe<
     }
 
     @Override
-    public TerminalMockExt read(Load extendable, DeserializerContext context) {
+    public TerminalMockExt read(Load load, DeserializerContext context) {
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         checkReadingCompatibility(networkContext);
 
-        TerminalMockExt terminalMockExt = new TerminalMockExt(extendable);
+        TerminalMockExt terminalMockExt = new TerminalMockExt(load);
         context.getReader().readChildNodes(elementName -> {
             if (elementName.equals("terminal")) {
-                TerminalRefSerDe.readTerminalRef(networkContext, extendable.getNetwork(), terminalMockExt::setTerminal);
+                TerminalRefSerDe.readTerminalRef(networkContext, load.getNetwork(), terminalMockExt::setTerminal);
             } else {
                 throw new IllegalStateException("Unexpected element: " + elementName);
             }
         });
+        load.addExtension(TerminalMockExt.class, terminalMockExt);
         return terminalMockExt;
     }
 }
