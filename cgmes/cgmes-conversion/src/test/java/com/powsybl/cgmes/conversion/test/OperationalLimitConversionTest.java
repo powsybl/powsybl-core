@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
@@ -174,6 +175,31 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertNotNull(vl2);
         assertEquals(420.0, vl2.getHighVoltageLimit());
         assertEquals(380.0, vl2.getLowVoltageLimit());
+    }
+
+    @Test
+    void missingLimitsTest() {
+        // CGMES network:
+        //   An ACLineSegment ACL with 1 OperationalLimitSet on each side.
+        //   On side 1, the limit set is missing the PATL. On side 2, the limit set is missing the TATL value for 1200s.
+        // IIDM network:
+        //   PATL are computed when missing as percentage * lowest tatl value.
+        //   TATL are discarded when value is missing.
+        Properties importParams = new Properties();
+        importParams.setProperty(CgmesImport.MISSING_PERMANENT_LIMIT_PERCENTAGE, "80");
+        Network network = readCgmesResources(importParams, DIR, "missing_limits.xml");
+        Line line = network.getLine("ACL");
+
+        // Missing PATL in CGMES is calculated as percentage (0.80) * lowest tatl value (125) = 100.
+        assertTrue(line.getCurrentLimits1().isPresent());
+        CurrentLimits limits1 = line.getCurrentLimits1().get();
+        assertEquals(125, limits1.getTemporaryLimits().iterator().next().getValue());
+        assertEquals(100, limits1.getPermanentLimit());
+
+        // TATL for 1200s has no value, the limit is discarded.
+        assertTrue(line.getCurrentLimits2().isPresent());
+        CurrentLimits limits2 = line.getCurrentLimits2().get();
+        assertNull(limits2.getTemporaryLimit(1200));
     }
 
 }
