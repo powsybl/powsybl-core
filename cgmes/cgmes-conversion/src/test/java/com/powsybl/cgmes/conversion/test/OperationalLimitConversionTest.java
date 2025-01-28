@@ -152,4 +152,28 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertNotNull(network.getSwitch("SW"));
     }
 
+    @Test
+    void voltageLimitTest() {
+        // CGMES network:
+        //   2 BusbarSection BBS_1, BBS_2 in 400 kV VoltageLevel VL_1, VL_2, with high/lowVoltageLimit 420/380 kV.
+        //   BBS_1 has an OperationalLimitSet with 2 VoltageLimits 410/390 kV.
+        //   BBS_2 has an OperationalLimitSet with 2 VoltageLimits 430/370 kV.
+        // IIDM network:
+        //   The IIDM VoltageLevel's limit is the most restrictive one between
+        //   the CGMES VoltageLevel's limit and the CGMES OperationalLimit value.
+        Network network = readCgmesResources(DIR, "voltage_limits.xml");
+
+        // The most restrictive limits for VL_1 are the OperationalLimit (VoltageLimit) values.
+        VoltageLevel vl1 = network.getVoltageLevel("VL_1");
+        assertNotNull(vl1);
+        assertEquals(410.0, vl1.getHighVoltageLimit());
+        assertEquals(390.0, vl1.getLowVoltageLimit());
+
+        // The most restrictive limits for VL_2 are the VoltageLevel's high/lowVoltageLimit.
+        VoltageLevel vl2 = network.getVoltageLevel("VL_2");
+        assertNotNull(vl2);
+        assertEquals(420.0, vl2.getHighVoltageLimit());
+        assertEquals(380.0, vl2.getLowVoltageLimit());
+    }
+
 }
