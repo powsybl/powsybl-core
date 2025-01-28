@@ -28,6 +28,7 @@ public class VoltageLevelFooSerDe extends AbstractExtensionSerDe<VoltageLevel, V
 
     @Override
     public void write(VoltageLevelFooExt voltageLevelFoo, SerializerContext context) {
+        // empty extension
     }
 
     @Override

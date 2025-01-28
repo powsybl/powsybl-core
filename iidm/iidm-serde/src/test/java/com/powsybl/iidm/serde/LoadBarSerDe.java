@@ -28,6 +28,7 @@ public class LoadBarSerDe extends AbstractExtensionSerDe<Load, LoadBarExt> {
 
     @Override
     public void write(LoadBarExt loadBar, SerializerContext context) {
+        // empty extension
     }
 
     @Override
