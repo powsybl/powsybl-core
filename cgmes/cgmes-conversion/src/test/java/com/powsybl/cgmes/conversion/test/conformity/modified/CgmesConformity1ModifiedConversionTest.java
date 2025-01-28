@@ -744,58 +744,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void miniNodeBreakerTestLimits() {
-        // Original test case
-        Network network0 = new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreaker().dataSource(), NetworkFactory.findDefault(), importParams);
-        // The case has been manually modified to have OperationalLimits
-        // defined for Equipment
-        Network network1 = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerLimitsforEquipment().dataSource(), NetworkFactory.findDefault(), importParams);
-
-        double tol = 0;
-
-        // 1 - PATL Current defined for an Equipment ACTransmissionLine
-        // Previous limit for one terminal has been modified to refer to the Equipment
-        // In the modified case both ends have to see the same value
-        Line l0 = network0.getLine("1e7f52a9-21d0-4ebe-9a8a-b29281d5bfc9");
-        Line l1 = network1.getLine("1e7f52a9-21d0-4ebe-9a8a-b29281d5bfc9");
-        assertEquals(525, l0.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-        assertTrue(l0.getCurrentLimits2().isEmpty());
-        assertEquals(525, l1.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-        assertEquals(525, l1.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-
-        // 2 - PATL Current defined for an ACTransmissionLine
-        // that will be mapped to a DanglingLine in IIDM
-        DanglingLine dl0 = network0.getDanglingLine("f32baf36-7ea3-4b6a-9452-71e7f18779f8");
-        DanglingLine dl1 = network1.getDanglingLine("f32baf36-7ea3-4b6a-9452-71e7f18779f8");
-        // In network0 limit is defined for the Terminal
-        // In network1 limit is defined for the Equipment
-        // In both cases the limit should be mapped to IIDM
-        assertEquals(1000, dl0.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-        assertEquals(1000, dl1.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-
-        // 3 - PATL Current defined for a PowerTransformer, should be rejected
-        TwoWindingsTransformer tx0 = network0.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
-        TwoWindingsTransformer tx1 = network1.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
-        assertEquals(158, tx0.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-        assertEquals(1732, tx0.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-        assertTrue(tx1.getCurrentLimits1().isEmpty());
-        assertEquals(1732, tx1.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-
-        // 4 - PATL Current defined for Switch, will be ignored
-        // The transformer that had the original limit will lose it
-        // Switches in IIDM do not have limits, so simply check that switch that receives the limit exists in both Networks
-        TwoWindingsTransformer tx0s = network0.getTwoWindingsTransformer("6c89588b-3df5-4120-88e5-26164afb43e9");
-        TwoWindingsTransformer tx1s = network1.getTwoWindingsTransformer("6c89588b-3df5-4120-88e5-26164afb43e9");
-        Switch sw0 = network0.getSwitch("d0119330-220f-4ed3-ad3c-f893ad0534fb");
-        Switch sw1 = network0.getSwitch("d0119330-220f-4ed3-ad3c-f893ad0534fb");
-        assertEquals(1732, tx0s.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-        assertTrue(tx1s.getCurrentLimits2().isEmpty());
-        assertNotNull(sw0);
-        assertNotNull(sw1);
-    }
-
-    @Test
     void miniNodeBreakerInvalidT2w() {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         platformConfig.createModuleConfig("import-export-parameters-default-value")

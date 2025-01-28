@@ -1,0 +1,223 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:ModelID_EQ">
+    <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+    <md:Model.description>Limitsets refering equipments</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:GeographicalRegion rdf:ID="_GR">
+    <cim:IdentifiedObject.name>Geographical region</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:SubGeographicalRegion rdf:ID="_SGR">
+    <cim:IdentifiedObject.name>Subgeographical region</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_GR"/>
+</cim:SubGeographicalRegion>
+<cim:Substation rdf:ID="_ST_1">
+    <cim:IdentifiedObject.name>Substation 1</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SGR"/>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_VL_1">
+    <cim:IdentifiedObject.name>Voltage level 1</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_1"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_1">
+    <cim:IdentifiedObject.name>Node 1</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1"/>
+</cim:ConnectivityNode>
+<cim:Substation rdf:ID="_ST_2">
+    <cim:IdentifiedObject.name>Substation 2</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SGR"/>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_VL_2">
+    <cim:IdentifiedObject.name>Voltage level 2</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_2"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_2">
+    <cim:IdentifiedObject.name>Node 2</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2"/>
+</cim:ConnectivityNode>
+<cim:VoltageLevel rdf:ID="_VL_3">
+    <cim:IdentifiedObject.name>Voltage level 3</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_2"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_3">
+    <cim:IdentifiedObject.name>Node 3</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_3"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_CN_4">
+    <cim:IdentifiedObject.name>Node 4</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_3"/>
+</cim:ConnectivityNode>
+<cim:ACLineSegment rdf:ID="_DL">
+    <cim:IdentifiedObject.name>Dangling Line</cim:IdentifiedObject.name>
+    <cim:ACLineSegment.b0ch>0</cim:ACLineSegment.b0ch>
+    <cim:ACLineSegment.bch>0</cim:ACLineSegment.bch>
+    <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+    <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+    <cim:ACLineSegment.r>0.1</cim:ACLineSegment.r>
+    <cim:ACLineSegment.r0>0.1</cim:ACLineSegment.r0>
+    <cim:ACLineSegment.x>1</cim:ACLineSegment.x>
+    <cim:ACLineSegment.x0>0.1</cim:ACLineSegment.x0>
+    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV"/>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_LN"/>
+</cim:ACLineSegment>
+<cim:OperationalLimitSet rdf:ID="_OLS_DL">
+    <cim:IdentifiedObject.name>Limit set</cim:IdentifiedObject.name>
+    <cim:OperationalLimitSet.Equipment rdf:resource="#_DL"/>
+</cim:OperationalLimitSet>
+<cim:CurrentLimit rdf:ID="_CL_DL">
+    <cim:IdentifiedObject.name>Current limit</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>100</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_DL"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_PATL"/>
+</cim:CurrentLimit>
+<cim:Terminal rdf:ID="_T_DL_1">
+    <cim:IdentifiedObject.name>Terminal DL 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_DL"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_X"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_DL_2">
+    <cim:IdentifiedObject.name>Terminal DL 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_DL"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+</cim:Terminal>
+<cim:ACLineSegment rdf:ID="_ACL">
+    <cim:IdentifiedObject.name>Line 12</cim:IdentifiedObject.name>
+    <cim:ACLineSegment.b0ch>0</cim:ACLineSegment.b0ch>
+    <cim:ACLineSegment.bch>0</cim:ACLineSegment.bch>
+    <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+    <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+    <cim:ACLineSegment.r>0.1</cim:ACLineSegment.r>
+    <cim:ACLineSegment.r0>0.1</cim:ACLineSegment.r0>
+    <cim:ACLineSegment.x>1</cim:ACLineSegment.x>
+    <cim:ACLineSegment.x0>0.1</cim:ACLineSegment.x0>
+    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV"/>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_LN"/>
+</cim:ACLineSegment>
+<cim:OperationalLimitSet rdf:ID="_OLS_ACL">
+    <cim:IdentifiedObject.name>Limit set</cim:IdentifiedObject.name>
+    <cim:OperationalLimitSet.Equipment rdf:resource="#_ACL"/>
+</cim:OperationalLimitSet>
+<cim:CurrentLimit rdf:ID="_CL_ACL">
+    <cim:IdentifiedObject.name>Current limit</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>100</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_ACL"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_PATL"/>
+</cim:CurrentLimit>
+<cim:Terminal rdf:ID="_T_ACL_1">
+    <cim:IdentifiedObject.name>Terminal ACL 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_ACL"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_ACL_2">
+    <cim:IdentifiedObject.name>Terminal ACL 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_ACL"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2"/>
+</cim:Terminal>
+<cim:PowerTransformer rdf:ID="_PT">
+    <cim:IdentifiedObject.name>PowerTransformer</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_ST_2" />
+</cim:PowerTransformer>
+<cim:OperationalLimitSet rdf:ID="_OLS_PT">
+    <cim:IdentifiedObject.name>Limit set</cim:IdentifiedObject.name>
+    <cim:OperationalLimitSet.Equipment rdf:resource="#_PT"/>
+</cim:OperationalLimitSet>
+<cim:CurrentLimit rdf:ID="_CL_PT">
+    <cim:IdentifiedObject.name>Current limit</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>100</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_PT"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_PATL"/>
+</cim:CurrentLimit>
+<cim:PowerTransformerEnd rdf:ID="_TE_1">
+    <cim:IdentifiedObject.name>TransformerEnd 1</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.r0>0.1</cim:PowerTransformerEnd.r0>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.x0>1</cim:PowerTransformerEnd.x0>
+    <cim:PowerTransformerEnd.ratedU>100</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PT_1"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_TE_2">
+    <cim:IdentifiedObject.name>TransformerEnd 2</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+    <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.r0>0.1</cim:PowerTransformerEnd.r0>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.x0>1</cim:PowerTransformerEnd.x0>
+    <cim:PowerTransformerEnd.ratedU>100</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PT_2"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_PT_1">
+    <cim:IdentifiedObject.name>Terminal PT 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PT"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PT_2">
+    <cim:IdentifiedObject.name>Terminal PT 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PT"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_3"/>
+</cim:Terminal>
+<cim:Breaker rdf:ID="_SW">
+    <cim:IdentifiedObject.name>Switch</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VL_3"/>
+    <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+    <cim:Switch.retained>false</cim:Switch.retained>
+</cim:Breaker>
+<cim:OperationalLimitSet rdf:ID="_OLS_SW">
+    <cim:IdentifiedObject.name>Limit set</cim:IdentifiedObject.name>
+    <cim:OperationalLimitSet.Equipment rdf:resource="#_SW"/>
+</cim:OperationalLimitSet>
+<cim:CurrentLimit rdf:ID="_CL_SW">
+    <cim:IdentifiedObject.name>Current limit</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>100</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_SW"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_PATL"/>
+</cim:CurrentLimit>
+<cim:Terminal rdf:ID="_T_SW_1">
+    <cim:IdentifiedObject.name>Terminal SW 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_SW"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_3"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_SW_2">
+    <cim:IdentifiedObject.name>Terminal SW 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_SW"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_4"/>
+</cim:Terminal>
+<cim:OperationalLimitType rdf:ID="_PATL">
+    <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#OperationalLimitDirectionKind.absoluteValue" />
+    <entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.patl" />
+    <cim:IdentifiedObject.name>PATL</cim:IdentifiedObject.name>
+</cim:OperationalLimitType>
+<cim:BaseVoltage rdf:ID="_BV">
+    <cim:IdentifiedObject.name>110 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+</rdf:RDF>

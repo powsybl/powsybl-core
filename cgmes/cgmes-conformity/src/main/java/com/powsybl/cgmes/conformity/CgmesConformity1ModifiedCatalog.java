@@ -918,23 +918,6 @@ public final class CgmesConformity1ModifiedCatalog {
 
     }
 
-    public static GridModelReferenceResources miniNodeBreakerLimitsforEquipment() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_limits/";
-        return new GridModelReferenceResources(
-                "MiniGrid-NodeBreaker-LimistForEquipment",
-                null,
-                new ResourceSet(base,
-                        MINI_GRID_EQ),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BASE,
-                        MINI_GRID_DL,
-                        MINI_GRID_SSH,
-                        MINI_GRID_SV,
-                        MINI_GRID_TP),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BD_BASE, MINI_GRID_BD_EQ,
-                        MINI_GRID_BD_TP));
-    }
-
     public static GridModelReferenceResources miniNodeBreakerInvalidT2w() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_invalid_t2w/";
