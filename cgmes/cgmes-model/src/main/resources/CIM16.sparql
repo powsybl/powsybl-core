@@ -553,10 +553,8 @@ WHERE {
     OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.phaseAngleClock ?phaseAngleClock }
     OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.g ?g }
     OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.ratedS ?ratedS }
-    OPTIONAL { ?RatioTapChanger cim:RatioTapChanger.TransformerEnd ?TransformerEnd }
-    OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.TransformerEnd ?TransformerEnd }
 }}
-}
+} ORDER BY ?PowerTransformer ?endNumber
 
 # query: ratioTapChangers
 SELECT *
@@ -573,6 +571,10 @@ WHERE {
         cim:RatioTapChanger.stepVoltageIncrement ?stepVoltageIncrement ;
         cim:TapChanger.ltcFlag ?ltcFlag ;
         cim:RatioTapChanger.TransformerEnd ?TransformerEnd .
+    ?TransformerEnd
+        a cim:PowerTransformerEnd ;
+        cim:TransformerEnd.endNumber ?endNumber ;
+        cim:PowerTransformerEnd.PowerTransformer ?PowerTransformer .
     OPTIONAL {
         ?RatioTapChanger cim:TapChanger.TapChangerControl ?TapChangerControl .
         OPTIONAL {
@@ -596,22 +598,7 @@ OPTIONAL { GRAPH ?graphSV {
 }}
 }
 
-# query: ratioTapChangerTable
-SELECT *
-WHERE {
-    ?RatioTapChangerTablePoint
-        a cim:RatioTapChangerTablePoint ;
-        cim:RatioTapChangerTablePoint.RatioTapChangerTable ?Table ;
-        cim:TapChangerTablePoint.step ?step .
-    FILTER regex(str(?Table), "{0}")
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.ratio ?ratio }
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.r ?r }
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.x ?x }
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.g ?g }
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.b ?b }
-}
-
-# query: ratioTapChangerTablesPoints
+# query: ratioTapChangerTablePoints
 SELECT *
 WHERE {
     ?RatioTapChangerTablePoint
@@ -641,6 +628,8 @@ WHERE {
         cim:PhaseTapChanger.TransformerEnd ?TransformerEnd .
     ?TransformerEnd
         a cim:PowerTransformerEnd ;
+        cim:TransformerEnd.endNumber ?endNumber ;
+        cim:PowerTransformerEnd.PowerTransformer ?PowerTransformer ;
         cim:PowerTransformerEnd.ratedU ?transformerWindingRatedU .
     OPTIONAL {
         ?PhaseTapChanger
@@ -680,23 +669,7 @@ OPTIONAL { GRAPH ?graphSV {
 }}
 }
 
-# query: phaseTapChangerTable
-SELECT *
-WHERE {
-    ?PhaseTapChangerTablePoint
-        a cim:PhaseTapChangerTablePoint ;
-        cim:PhaseTapChangerTablePoint.PhaseTapChangerTable ?Table ;
-        cim:PhaseTapChangerTablePoint.angle ?angle ;
-        cim:TapChangerTablePoint.step ?step .
-    FILTER regex(str(?Table), "{0}")
-    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.ratio ?ratio }
-    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.r ?r }
-    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.x ?x }
-    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.g ?g }
-    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.b ?b }
-}
-
-# query: phaseTapChangerTablesPoints
+# query: phaseTapChangerTablePoints
 SELECT *
 WHERE {
     ?PhaseTapChangerTablePoint
