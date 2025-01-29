@@ -47,12 +47,12 @@ public final class GeneratorUcteExport {
             if (!Double.isNaN(generator.getTargetQ())) {
                 reactivePowerGeneration += generator.getTargetQ();
             }
+            if (!Double.isNaN(generator.getTargetV())) {
+                voltageReferences.add(getTargetV(generator));
+            }
             if (generator.isVoltageRegulatorOn()) {
                 // If one of the generators regulates voltage, then the node is a PU node.
                 nodeType = UcteNodeTypeCode.PU;
-                if (!Double.isNaN(generator.getTargetV())) {
-                    voltageReferences.add(getTargetV(generator));
-                }
             }
             minPs.add(generator.getMinP());
             maxPs.add(generator.getMaxP());
