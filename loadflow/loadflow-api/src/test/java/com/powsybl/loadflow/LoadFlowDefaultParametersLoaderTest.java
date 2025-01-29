@@ -11,7 +11,6 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest;
 import org.junit.jupiter.api.Test;
@@ -70,12 +69,25 @@ class LoadFlowDefaultParametersLoaderTest {
     void testProviderParameters() {
         LoadFlowDefaultParametersLoaderMock loader = new LoadFlowDefaultParametersLoaderMock("test");
         LoadFlowParameters parameters = new LoadFlowParameters(List.of(loader));
-        load(parameters);
-        parameters.loadExtensions(PlatformConfig.defaultConfig());
 
-        JsonLoadFlowParametersTest.DummyExtension extension = parameters.getExtension(JsonLoadFlowParametersTest.DummyExtension.class);
-        assertNotNull(extension);
-        assertEquals(5, extension.getParameterDouble());
+        // LoadFlowDefaultParametersLoaderMock creates provider parameters extensions
+        JsonLoadFlowParametersTest.DummyExtension beforePlatformConfig = parameters.getExtension(JsonLoadFlowParametersTest.DummyExtension.class);
+        assertNotNull(beforePlatformConfig);
+        assertEquals(5, beforePlatformConfig.getParameterDouble());
+        assertEquals("Hello", beforePlatformConfig.getParameterString());
 
+        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("dummy-extension");
+        moduleConfig.setStringProperty("parameterString", "modified");
+
+        load(parameters, platformConfig);
+        parameters.loadExtensions(platformConfig);
+
+        // loadExtensions only override values that are present in PlatformConfig
+        JsonLoadFlowParametersTest.DummyExtension afterPlatformConfig = parameters.getExtension(JsonLoadFlowParametersTest.DummyExtension.class);
+        assertNotNull(afterPlatformConfig);
+        assertEquals(5, afterPlatformConfig.getParameterDouble());
+        assertEquals("modified", afterPlatformConfig.getParameterString());
     }
 }
