@@ -113,6 +113,40 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
     }
 
     @Test
+    void limitSetsAssociatedToTerminalsTest() {
+        // CGMES network:
+        //   OperationalLimitSet with CurrentLimit associated to the Terminal of:
+        //   a DanglingLine DL, a Line ACL, a Switch SW, a TwoWindingTransformer PT2, a ThreeWindingTransformer PT3.
+        // IIDM network:
+        //   Limits associated to terminals of lines or transformers are imported,
+        //   limits associated to terminals of switch are discarded.
+        Network network = readCgmesResources(DIR, "limitsets_associated_to_terminals_EQ.xml",
+                "limitsets_EQBD.xml", "limitsets_TPBD.xml");
+
+        // OperationalLimitSet on dangling line terminal is imported smoothly.
+        assertNotNull(network.getDanglingLine("DL"));
+        assertTrue(network.getDanglingLine("DL").getCurrentLimits().isPresent());
+
+        // OperationalLimitSet on ACLineSegment terminals are imported smoothly.
+        assertNotNull(network.getLine("ACL"));
+        assertTrue(network.getLine("ACL").getCurrentLimits1().isPresent());
+        assertTrue(network.getLine("ACL").getCurrentLimits2().isPresent());
+
+        // OperationalLimitSet on PowerTransformers terminals are imported smoothly.
+        assertNotNull(network.getTwoWindingsTransformer("PT2"));
+        assertTrue(network.getTwoWindingsTransformer("PT2").getCurrentLimits1().isPresent());
+        assertTrue(network.getTwoWindingsTransformer("PT2").getCurrentLimits2().isPresent());
+
+        assertNotNull(network.getThreeWindingsTransformer("PT3"));
+        assertTrue(network.getThreeWindingsTransformer("PT3").getLeg1().getCurrentLimits().isPresent());
+        assertTrue(network.getThreeWindingsTransformer("PT3").getLeg2().getCurrentLimits().isPresent());
+        assertTrue(network.getThreeWindingsTransformer("PT3").getLeg3().getCurrentLimits().isPresent());
+
+        // There can't be any limit associated to switches in IIDM, but check anyway that the switch has been imported.
+        assertNotNull(network.getSwitch("SW"));
+    }
+
+    @Test
     void limitSetsAssociatedToEquipmentsTest() {
         // CGMES network:
         //   OperationalLimitSet with CurrentLimit associated to:
