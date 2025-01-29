@@ -77,6 +77,7 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         //   - On side 2, 2 (not selected) OperationalLimitsGroup.
         // CGMES export:
         //   When the parameter to export all limits group is set to false, only the selected groups are exported.
+        //   When it is set to true, all limits group are exported, whether selected or not.
         Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, false);
@@ -88,29 +89,17 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertEquals(0, getUniqueMatches(eqFile, ACTIVE_POWER_LIMIT).size());
         assertEquals(3, getUniqueMatches(eqFile, CURRENT_LIMIT).size());
 
-        // Manually select one of the limits group on side 2 and export again.
+        // Manually select one of the limits group on side 2 and check that 2 OperationalLimitsGroup are now exported.
         network.getLine("LN").setSelectedOperationalLimitsGroup2("OLS_2");
         eqFile = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
-
-        // Now 2 OperationalLimitsGroup are exported since 2 are selected.
         assertEquals(2, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_SET).size());
         assertEquals(3, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_TYPE).size());
         assertEquals(0, getUniqueMatches(eqFile, ACTIVE_POWER_LIMIT).size());
         assertEquals(6, getUniqueMatches(eqFile, CURRENT_LIMIT).size());
-    }
 
-    @Test
-    void exportAllLimitsGroupTest() throws IOException {
-        // IIDM network:
-        //   A Line LN with:
-        //   - On side 1, 1 (selected) OperationalLimitsGroup.
-        //   - On side 2, 2 (not selected) OperationalLimitsGroup.
-        // CGMES export:
-        //   When the parameter to export all limits group is set to true, all limits groups are exported, whether selected or not.
-        Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
-        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
-
-        // All 3 OperationalLimitsGroup are exported, even though only 2 are selected.
+        // Export all 3 limits groups, regardless of selected.
+        exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, true);
+        eqFile = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
         assertEquals(3, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_SET).size());
         assertEquals(3, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_TYPE).size());
         assertEquals(3, getUniqueMatches(eqFile, ACTIVE_POWER_LIMIT).size());
