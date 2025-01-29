@@ -537,8 +537,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     private record DirectedEdge(int index, boolean flippedDirection) {
     }
 
-    @Override
-    public boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encounteredVertices) {
+    private boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encounteredVertices) {
         checkVertex(v);
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(encounteredVertices);

@@ -16,10 +16,7 @@ import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -497,35 +494,31 @@ class UndirectedGraphImplTest {
         Mockito.when(traverser.traverse(4, 3, 1)).thenReturn(TraverseResult.TERMINATE_PATH);
         Mockito.when(traverser.traverse(4, 4, 2)).thenReturn(TraverseResult.TERMINATE_PATH);
         Mockito.when(traverser.traverse(5, 6, 3)).thenReturn(TraverseResult.TERMINATE_PATH);
-        boolean[] vEncountered = new boolean[graph.getVertexCount()];
-        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser, vEncountered);
+        EncounteredTraverser encounteredTraverser = new EncounteredTraverser(traverser);
+        graph.traverse(5, TraversalType.DEPTH_FIRST, encounteredTraverser);
         // Only vertex 4 and 5 encountered
-        assertArrayEquals(new boolean[] {false, false, false, false, true, true}, vEncountered);
+        assertEquals(Set.of(4, 5), encounteredTraverser.startVertices);
 
-        Arrays.fill(vEncountered, false);
-        Traverser traverser2 = (v1, e, v2) -> {
-            vEncountered[v1] = true;
-            return v2 == 1 || v2 == 2 || v2 == 3 ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;
-        };
-
-        graph.traverse(4, TraversalType.DEPTH_FIRST, traverser2);
+        Traverser traverser2 = (v1, e, v2) -> v2 == 1 || v2 == 2 || v2 == 3 ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;
+        EncounteredTraverser encounteredTraverser2 = new EncounteredTraverser(traverser2);
+        graph.traverse(4, TraversalType.DEPTH_FIRST, encounteredTraverser2);
         // Only vertex 4 and 5 encountered
-        assertArrayEquals(new boolean[] {false, false, false, false, true, true}, vEncountered);
+        assertEquals(Set.of(4, 5), encounteredTraverser2.startVertices);
 
-        Arrays.fill(vEncountered, false);
         Traverser traverser3 = (v1, e, v2) -> v2 == 0 ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE;
-
-        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser3, vEncountered);
+        EncounteredTraverser encounteredTraverser3 = new EncounteredTraverser(traverser3);
+        graph.traverse(5, TraversalType.DEPTH_FIRST, encounteredTraverser3);
         // Only vertices on first path encountering 0 are encountered
-        assertArrayEquals(new boolean[] {false, true, false, false, true, true}, vEncountered);
+        assertEquals(Set.of(1, 4, 5), encounteredTraverser3.startVertices);
 
-        Arrays.fill(vEncountered, false);
+        boolean[] vEncountered = new boolean[graph.getVertexCount()];
         boolean[] eEncountered = new boolean[graph.getEdgeCount()];
         Traverser traverser4 = (v1, e, v2) -> {
+            vEncountered[v1] = true;
             eEncountered[e] = true;
             return TraverseResult.CONTINUE;
         };
-        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser4, vEncountered);
+        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser4);
         // All vertices and edges are encountered
         assertArrayEquals(new boolean[] {true, true, true, true, true, true}, vEncountered);
         assertArrayEquals(new boolean[] {true, true, true, true, true, true, true}, eEncountered);
@@ -664,5 +657,20 @@ class UndirectedGraphImplTest {
     }
 
     private record GraphPath(int v1, int e, int v2) {
+    }
+
+    private static class EncounteredTraverser implements Traverser {
+        private final Traverser traverser;
+        private final Set<Integer> startVertices = new HashSet<>();
+
+        public EncounteredTraverser(Traverser traverser) {
+            this.traverser = traverser;
+        }
+
+        @Override
+        public TraverseResult traverse(int v1, int e, int v2) {
+            startVertices.add(v1);
+            return traverser.traverse(v1, e, v2);
+        }
     }
 }
