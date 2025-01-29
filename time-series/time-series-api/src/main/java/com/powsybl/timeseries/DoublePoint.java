@@ -10,8 +10,6 @@ package com.powsybl.timeseries;
 import java.time.Instant;
 import java.util.Objects;
 
-import static com.powsybl.timeseries.TimeSeriesIndex.longToInstant;
-
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
