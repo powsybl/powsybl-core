@@ -114,13 +114,11 @@ SELECT *
 WHERE {
 { GRAPH ?graph {
     ?OperationalLimit
-        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType ;
-        cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
+        a ?OperationalLimitSubclass ;
         cim:IdentifiedObject.name ?name ;
-        a ?OperationalLimitSubclass .
-    ?OperationalLimitType
-        a cim:OperationalLimitType ;
-        cim:IdentifiedObject.name ?operationalLimitTypeName .
+        cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
+        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
+    OPTIONAL { ?OperationalLimit eu:IdentifiedObject.shortName ?shortName }
     OPTIONAL { ?OperationalLimit cim:CurrentLimit.normalValue ?normalValue }
     OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.normalValue ?normalValue }
     OPTIONAL { ?OperationalLimit cim:VoltageLimit.normalValue ?normalValue }
@@ -131,14 +129,17 @@ WHERE {
         ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
         ?Equipment cim:Equipment.EquipmentContainer ?EquipmentContainer
     }}
+    ?OperationalLimitType
+        a cim:OperationalLimitType ;
+        cim:IdentifiedObject.name ?operationalLimitTypeName .
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.direction ?direction }
     OPTIONAL { ?OperationalLimitType eu:OperationalLimitType.kind ?limitType }
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
 }}
-{ GRAPH ?graphSSH {
-   OPTIONAL {?OperationalLimit cim:CurrentLimit.value ?value }
-   OPTIONAL {?OperationalLimit cim:ApparentPowerLimit.value ?value }
-   OPTIONAL {?OperationalLimit cim:VoltageLimit.value ?value }
+OPTIONAL { GRAPH ?graphSSH {
+    { ?OperationalLimit cim:CurrentLimit.value ?value }
+    { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
+    { ?OperationalLimit cim:VoltageLimit.value ?value }
 }}
 }
 

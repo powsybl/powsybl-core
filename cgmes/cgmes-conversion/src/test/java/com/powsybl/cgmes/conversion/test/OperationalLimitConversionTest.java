@@ -253,4 +253,22 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertNull(limits2.getTemporaryLimit(1200));
     }
 
+    @Test
+    void limitsCim100Test() {
+        // CGMES network:
+        //   An ACLineSegment ACL with CurrentLimit and ApparentPowerLimit (each time patl and tatl) on side 1.
+        // IIDM network:
+        //   Limits are imported smoothly.
+        Network network = readCgmesResources(DIR, "limits_cim100.xml");
+
+        // Loading limits have been imported smoothly.
+        Line line = network.getLine("ACL");
+        assertTrue(line.getCurrentLimits1().isPresent());
+        assertEquals(100.0, line.getCurrentLimits1().get().getPermanentLimit());
+        assertEquals(200.0, line.getCurrentLimits1().get().getTemporaryLimit(600).getValue());
+        assertTrue(line.getApparentPowerLimits1().isPresent());
+        assertEquals(102.0, line.getApparentPowerLimits1().get().getPermanentLimit());
+        assertEquals(202.0, line.getApparentPowerLimits1().get().getTemporaryLimit(600).getValue());
+    }
+
 }
