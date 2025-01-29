@@ -158,10 +158,6 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         return timeStep;
     }
 
-    private static long computePointCount(long startTime, long endTime, long spacing) {
-        return Math.round(((double) (endTime - startTime)) / spacing) + 1;
-    }
-
     private static long computePointCount(Instant startTime, Instant endTime, Duration spacing) {
         return Math.round(((double) (Duration.between(startTime, endTime).toNanos())) / spacing.toNanos()) + 1;
     }
