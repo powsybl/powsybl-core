@@ -11,7 +11,9 @@ import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.function.Function;
 
 import static java.lang.Integer.MAX_VALUE;
 
@@ -124,26 +126,23 @@ public final class LoadingLimitsUtil {
      * @param copiedBranch the copied object
      * @param branch the object on which the copied object attributes are copied
      */
-    public static <I extends Branch<I>> Branch<I> copyBranchOperationalLimits(I copiedBranch, I branch) {
+    public static <I extends Branch<I>> void copyBranchOperationalLimits(I copiedBranch, I branch) {
         if (copiedBranch != null) {
-            copiedBranch.getOperationalLimitsGroups1().forEach(groupToCopy -> {
-                OperationalLimitsGroup copy1 = branch.newOperationalLimitsGroup1(groupToCopy.getId());
-                groupToCopy.getCurrentLimits().ifPresent(limit -> copy1.newCurrentLimits(limit).add());
-                groupToCopy.getActivePowerLimits().ifPresent(limit -> copy1.newActivePowerLimits(limit).add());
-                groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy1.newApparentPowerLimits(limit).add());
-            });
-
-            copiedBranch.getOperationalLimitsGroups2().forEach(groupToCopy -> {
-                OperationalLimitsGroup copy2 = branch.newOperationalLimitsGroup2(groupToCopy.getId());
-                groupToCopy.getCurrentLimits().ifPresent(limit -> copy2.newCurrentLimits(limit).add());
-                groupToCopy.getActivePowerLimits().ifPresent(limit -> copy2.newActivePowerLimits(limit).add());
-                groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy2.newApparentPowerLimits(limit).add());
-            });
-
+            copyOperationalLimits(copiedBranch.getOperationalLimitsGroups1(), branch::newOperationalLimitsGroup1);
             copiedBranch.getSelectedOperationalLimitsGroupId1().ifPresent(branch::setSelectedOperationalLimitsGroup1);
-            copiedBranch.getSelectedOperationalLimitsGroupId2().ifPresent(branch::setSelectedOperationalLimitsGroup2);
 
+            copyOperationalLimits(copiedBranch.getOperationalLimitsGroups2(), branch::newOperationalLimitsGroup2);
+            copiedBranch.getSelectedOperationalLimitsGroupId2().ifPresent(branch::setSelectedOperationalLimitsGroup2);
         }
-        return copiedBranch;
+    }
+
+    private static void copyOperationalLimits(Collection<OperationalLimitsGroup> from,
+                                              Function<String, OperationalLimitsGroup> createGroup) {
+        from.forEach(groupToCopy -> {
+            OperationalLimitsGroup copy = createGroup.apply(groupToCopy.getId());
+            groupToCopy.getCurrentLimits().ifPresent(limit -> copy.newCurrentLimits(limit).add());
+            groupToCopy.getActivePowerLimits().ifPresent(limit -> copy.newActivePowerLimits(limit).add());
+            groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy.newApparentPowerLimits(limit).add());
+        });
     }
 }
