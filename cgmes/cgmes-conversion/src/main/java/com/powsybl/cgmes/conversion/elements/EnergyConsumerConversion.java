@@ -17,10 +17,6 @@ import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
-import java.util.List;
-
-import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
-
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
@@ -146,14 +142,18 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         double qFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.Q_FIXED));
 
         PowerFlow updatedPowerFlow = updatedPowerFlow(load, cgmesData, context);
-        load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : defaultValue(pFixed, load.getP0(), 0.0, Double.NaN, getDefaultValueSelector(context)));
-        load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : defaultValue(qFixed, load.getQ0(), 0.0, Double.NaN, getDefaultValueSelector(context)));
+        load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : defaultValue(getDefaultP(load, pFixed), context));
+        load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : defaultValue(getDefaultQ(load, qFixed), context));
 
         updateLoadDetail(load, load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS), pFixed, qFixed);
     }
 
-    private static Conversion.Config.DefaultValue getDefaultValueSelector(Context context) {
-        return getDefaultValueSelector(List.of(EQ, PREVIOUS, DEFAULT, EMPTY), context);
+    private static DefaultValueDouble getDefaultP(Load load, double pFixed) {
+        return new DefaultValueDouble(pFixed, load.getP0(), 0.0, Double.NaN);
+    }
+
+    private static DefaultValueDouble getDefaultQ(Load load, double qFixed) {
+        return new DefaultValueDouble(qFixed, load.getQ0(), 0.0, Double.NaN);
     }
 
     private static void updateLoadDetail(Load load, String type, double pFixed, double qFixed) {

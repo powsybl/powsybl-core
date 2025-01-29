@@ -18,10 +18,6 @@ import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
-
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
@@ -171,8 +167,10 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             targetQ = -updatedPowerFlow.q();
         }
 
-        double targetV = findTargetV(cgmesData, generator, context);
-        boolean regulatingOn = findRegulatingOn(cgmesData, generator, context);
+        DefaultValueDouble defaultTargetV = getDefaultTargetV(generator);
+        double targetV = findTargetV(cgmesData, CgmesNames.REGULATION_TARGET, defaultTargetV, DefaultValueUse.NOT_DEFINED, context);
+        DefaultValueBoolean defaultRegulatingOn = getDefaultRegulatingOn(generator);
+        boolean regulatingOn = findRegulatingOn(cgmesData, CgmesNames.REGULATION_STATUS, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context);
 
         generator.setTargetP(targetP)
                 .setTargetQ(targetQ)
@@ -180,28 +178,12 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
                 .setVoltageRegulatorOn(regulatingOn && regulationCapability && isValidTargetV(targetV));
     }
 
-    private static double findTargetV(PropertyBag cgmesData, Generator generator, Context context) {
-        return cgmesData.containsKey(CgmesNames.REGULATION_TARGET) ? cgmesData.asDouble(CgmesNames.REGULATION_TARGET) : findDefaultTargetV(generator, context);
+    private static DefaultValueDouble getDefaultTargetV(Generator generator) {
+        return new DefaultValueDouble(null, generator.getTargetV(), Double.NaN, Double.NaN);
     }
 
-    private static double findDefaultTargetV(Generator generator, Context context) {
-        return defaultValue(Double.NaN, generator.getTargetV(), Double.NaN, Double.NaN, getDefaultValueSelector(context));
-    }
-
-    private static boolean findRegulatingOn(PropertyBag cgmesData, Generator generator, Context context) {
-        return cgmesData.asBoolean(CgmesNames.REGULATION_STATUS).orElse(findDefaultRegulatingOn(generator, context));
-    }
-
-    private static boolean findDefaultRegulatingOn(Generator generator, Context context) {
-        return defaultValue(false, generator.isVoltageRegulatorOn(), false, false, getDefaultValueSelector(context));
-    }
-
-    private static boolean isValidTargetV(double targetV) {
-        return Double.isFinite(targetV) && targetV > 0.0;
-    }
-
-    private static Conversion.Config.DefaultValue getDefaultValueSelector(Context context) {
-        return getDefaultValueSelector(List.of(PREVIOUS, DEFAULT, EMPTY), context);
+    private static DefaultValueBoolean getDefaultRegulatingOn(Generator generator) {
+        return new DefaultValueBoolean(false, generator.isVoltageRegulatorOn(), false, false);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(EquivalentInjectionConversion.class);

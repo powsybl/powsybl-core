@@ -17,10 +17,6 @@ import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.triplestore.api.PropertyBag;
 
-import java.util.List;
-
-import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
-
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
@@ -54,12 +50,16 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
         updateTerminals(load, context, load.getTerminal());
 
         PowerFlow updatedPowerFlow = updatedPowerFlow(load, cgmesData, context);
-        load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : defaultValue(Double.NaN, load.getP0(), 0.0, Double.NaN, gettDefaultValueSelector(context)));
-        load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : defaultValue(Double.NaN, load.getQ0(), 0.0, Double.NaN, gettDefaultValueSelector(context)));
+        load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : defaultValue(getDefaultP(load), context));
+        load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : defaultValue(getDefaultQ(load), context));
     }
 
-    private static Conversion.Config.DefaultValue gettDefaultValueSelector(Context context) {
-        return getDefaultValueSelector(List.of(PREVIOUS, DEFAULT, EMPTY), context);
+    private static DefaultValueDouble getDefaultP(Load load) {
+        return new DefaultValueDouble(null, load.getP0(), 0.0, Double.NaN);
+    }
+
+    private static DefaultValueDouble getDefaultQ(Load load) {
+        return new DefaultValueDouble(null, load.getQ0(), 0.0, Double.NaN);
     }
 }
 
