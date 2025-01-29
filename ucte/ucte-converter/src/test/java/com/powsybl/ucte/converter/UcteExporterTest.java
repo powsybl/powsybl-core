@@ -15,7 +15,6 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
@@ -52,7 +51,7 @@ class UcteExporterTest extends AbstractSerDeTest {
         testExporter(network, reference, new Properties());
     }
 
-    private static void testExporter(Network network, String reference, Properties parameters) throws IOException {
+    public static void testExporter(Network network, String reference, Properties parameters) throws IOException {
         MemDataSource dataSource = new MemDataSource();
 
         UcteExporter exporter = new UcteExporter();
@@ -260,26 +259,5 @@ class UcteExporterTest extends AbstractSerDeTest {
         parameters.put("ucte.export.combine-phase-angle-regulation", "true");
         Network network = loadNetworkFromResourceFile("/expectedExport5.uct", parameters);
         testExporter(network, "/expectedExport5.uct", parameters);
-    }
-
-    @Test
-    void testMultipleGeneratorsAndLoads() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create();
-
-        // Splits generation on two generators
-        network.getVoltageLevel("VLGEN").newGenerator()
-            .setId("GEN2")
-            .setBus("NGEN")
-            .setConnectableBus("NGEN")
-            .setMinP(-9999)
-            .setMaxP(9999)
-            .setVoltageRegulatorOn(true)
-            .setTargetV(24.5)
-            .setTargetP(607.0)
-            .setTargetQ(301.0)
-            .add();
-        Properties p = new Properties();
-        p.put(UcteExporter.NAMING_STRATEGY, "Counter");
-        testExporter(network, "/eurostagMultipleGeneratorAndLoad.uct", p);
     }
 }
