@@ -115,14 +115,12 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
     @Test
     void limitSetsAssociatedToEquipmentsTest() {
         // CGMES network:
-        //   An OperationalLimitSet with a CurrentLimit associated to a boundary ACLineSegment (Dangling Line in IIDM).
-        //   An OperationalLimitSet with a CurrentLimit associated to a normal ACLineSegment.
-        //   An OperationalLimitSet with a CurrentLimit associated to a 2-windings PowerTransformer.
-        //   An OperationalLimitSet with a CurrentLimit associated to a Switch.
+        //   OperationalLimitSet with CurrentLimit associated to:
+        //   a DanglingLine DL, a Line ACL, a Switch SW, a TwoWindingTransformer PT2, a ThreeWindingTransformer PT3.
         // IIDM network:
         //   Limits associated to lines are imported, limits associated to transformers or switches are discarded.
         Network network = readCgmesResources(DIR, "limitsets_associated_to_equipments_EQ.xml",
-                "limitsets_associated_to_equipments_EQBD.xml", "limitsets_associated_to_equipments_TPBD.xml");
+                "limitsets_EQBD.xml", "limitsets_TPBD.xml");
 
         // OperationalLimitSet on dangling line is imported on its single extremity.
         assertNotNull(network.getDanglingLine("DL"));
@@ -133,10 +131,15 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertTrue(network.getLine("ACL").getCurrentLimits1().isPresent());
         assertTrue(network.getLine("ACL").getCurrentLimits2().isPresent());
 
-        // OperationalLimitSet on PowerTransformer is discarded.
-        assertNotNull(network.getTwoWindingsTransformer("PT"));
-        assertFalse(network.getTwoWindingsTransformer("PT").getCurrentLimits1().isPresent());
-        assertFalse(network.getTwoWindingsTransformer("PT").getCurrentLimits2().isPresent());
+        // OperationalLimitSet on PowerTransformers are discarded.
+        assertNotNull(network.getTwoWindingsTransformer("PT2"));
+        assertFalse(network.getTwoWindingsTransformer("PT2").getCurrentLimits1().isPresent());
+        assertFalse(network.getTwoWindingsTransformer("PT2").getCurrentLimits2().isPresent());
+
+        assertNotNull(network.getThreeWindingsTransformer("PT3"));
+        assertFalse(network.getThreeWindingsTransformer("PT3").getLeg1().getCurrentLimits().isPresent());
+        assertFalse(network.getThreeWindingsTransformer("PT3").getLeg2().getCurrentLimits().isPresent());
+        assertFalse(network.getThreeWindingsTransformer("PT3").getLeg3().getCurrentLimits().isPresent());
 
         // There can't be any limit associated to switches in IIDM, but check anyway that the switch has been imported.
         assertNotNull(network.getSwitch("SW"));
