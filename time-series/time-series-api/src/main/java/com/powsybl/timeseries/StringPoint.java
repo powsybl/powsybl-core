@@ -24,7 +24,7 @@ public class StringPoint extends AbstractPoint {
      */
     @Deprecated(since = "6.7.0")
     public StringPoint(int index, long time, String value) {
-        this(index, longToInstant(time, 1_000L), value);
+        this(index, Instant.ofEpochMilli(time), value);
     }
 
     public StringPoint(int index, Instant instant, String value) {

@@ -24,7 +24,7 @@ public class DoublePoint extends AbstractPoint {
      */
     @Deprecated(since = "6.7.0")
     public DoublePoint(int index, long time, double value) {
-        this(index, longToInstant(time, 1_000L), value);
+        this(index, Instant.ofEpochMilli(time), value);
     }
 
     public DoublePoint(int index, Instant instant, double value) {
