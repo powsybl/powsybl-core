@@ -16,11 +16,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
-
-import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -78,13 +75,14 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         updateTerminals(shuntCompensator, context, shuntCompensator.getTerminal());
         updateSections(shuntCompensator, cgmesData, context);
 
-        boolean controlEnabled = cgmesData.asBoolean("controlEnabled", false);
+        boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED, false);
         updateRegulatingControl(shuntCompensator, controlEnabled, context);
     }
 
     private static void updateSections(ShuntCompensator shuntCompensator, PropertyBag cgmesData, Context context) {
         int normalSections = Integer.parseInt(shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_SECTIONS));
-        int sections = getSections(cgmesData, context).orElse(findDefaultSections(shuntCompensator, normalSections, context));
+        DefaultValueInteger defaultSections = getDefaultSections(shuntCompensator, normalSections);
+        int sections = getSections(cgmesData, context).orElse(defaultValue(defaultSections, context));
         shuntCompensator.setSectionCount(Math.min(sections, shuntCompensator.getMaximumSectionCount()));
     }
 
@@ -96,12 +94,8 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         return Double.isFinite(sections) ? OptionalInt.of(Math.abs(fromContinuous(sections))) : OptionalInt.empty();
     }
 
-    private static int findDefaultSections(ShuntCompensator shuntCompensator, int normalSections, Context context) {
-        return defaultValue(normalSections, shuntCompensator.getSectionCount(), 0, 0, getDefaultValueSelectorForSections(context));
-    }
-
-    private static Conversion.Config.DefaultValue getDefaultValueSelectorForSections(Context context) {
-        return getDefaultValueSelector(List.of(EQ, PREVIOUS, DEFAULT), context);
+    private static DefaultValueInteger getDefaultSections(ShuntCompensator shuntCompensator, int normalSections) {
+        return new DefaultValueInteger(normalSections, shuntCompensator.getSectionCount(), 0, 0);
     }
 
     private static void updateRegulatingControl(ShuntCompensator shuntCompensator, boolean controlEnabled, Context context) {
@@ -110,14 +104,30 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
             return;
         }
 
+        DefaultValueDouble defaultTargetV = getDefaultTargetV(shuntCompensator);
+        DefaultValueDouble defaultTargetDeadband = getDefaultTargetDeadband(shuntCompensator);
+        DefaultValueBoolean defaultRegulatingOn = getDefaultRegulatingOn(shuntCompensator);
+
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(shuntCompensator, context);
-        double targetV = cgmesRegulatingControl.map(ShuntConversion::findTargetV).orElseGet(() -> findDefaultTargetV(shuntCompensator, context));
-        double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, shuntCompensator, context)).orElseGet(() -> findDefaultTargetDeadband(shuntCompensator, context));
-        boolean enabled = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, shuntCompensator, context)).orElse(findDefaultRegulatingOn(shuntCompensator, context));
+        double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetV, context));
+        double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetDeadband, context));
+        boolean enabled = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultRegulatingOn, context));
 
         shuntCompensator.setTargetV(targetV)
                 .setTargetDeadband(targetDeadband)
                 .setVoltageRegulatorOn(controlEnabled && enabled && isValidTargetV(targetV) && isValidTargetDeadband(targetDeadband));
+    }
+
+    private static DefaultValueDouble getDefaultTargetV(ShuntCompensator shuntCompensator) {
+        return new DefaultValueDouble(null, shuntCompensator.getTargetV(), Double.NaN, Double.NaN);
+    }
+
+    private static DefaultValueDouble getDefaultTargetDeadband(ShuntCompensator shuntCompensator) {
+        return new DefaultValueDouble(null, shuntCompensator.getTargetDeadband(), 0.0, 0.0);
+    }
+
+    private static DefaultValueBoolean getDefaultRegulatingOn(ShuntCompensator shuntCompensator) {
+        return new DefaultValueBoolean(null, shuntCompensator.isVoltageRegulatorOn(), false, false);
     }
 
     private static boolean isDefaultRegulatingControl(ShuntCompensator shuntCompensator, boolean controlEnabled) {
@@ -125,53 +135,12 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         return regulatingControlId == null && controlEnabled;
     }
 
-    private static Optional<PropertyBag> findCgmesRegulatingControl(ShuntCompensator shuntCompensator, Context context) {
-        String regulatingControlId = shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL);
-        return regulatingControlId != null ? Optional.ofNullable(context.regulatingControl(regulatingControlId)) : Optional.empty();
-    }
-
     private static void setDefaultRegulatingControl(ShuntCompensator shuntCompensator) {
         shuntCompensator.setTargetV(Optional.ofNullable(shuntCompensator.getRegulatingTerminal().getBusView().getBus())
                         .map(Bus::getV)
                         .filter(v -> !Double.isNaN(v))
-                        .orElseGet(() -> shuntCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV()))
+                        .orElse(shuntCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV()))
                 .setTargetDeadband(0.0)
                 .setVoltageRegulatorOn(true); // SSH controlEnabled attribute is true when this method is called
-    }
-
-    private static double findTargetV(PropertyBag regulatingControl) {
-        return regulatingControl.asDouble("targetValue");
-    }
-
-    private static double findDefaultTargetV(ShuntCompensator shuntCompensator, Context context) {
-        return defaultValue(Double.NaN, shuntCompensator.getTargetV(), Double.NaN, Double.NaN, getDefaultValueSelector(context));
-    }
-
-    private static boolean isValidTargetV(double targetV) {
-        return Double.isFinite(targetV) && targetV > 0.0;
-    }
-
-    private static double findTargetDeadband(PropertyBag regulatingControl, ShuntCompensator shuntCompensator, Context context) {
-        return regulatingControl.containsKey("targetDeadband") ? regulatingControl.asDouble("targetDeadband") : findDefaultTargetDeadband(shuntCompensator, context);
-    }
-
-    private static double findDefaultTargetDeadband(ShuntCompensator shuntCompensator, Context context) {
-        return defaultValue(Double.NaN, shuntCompensator.getTargetDeadband(), 0.0, 0.0, getDefaultValueSelector(context));
-    }
-
-    private static boolean isValidTargetDeadband(double targetDeadband) {
-        return Double.isFinite(targetDeadband);
-    }
-
-    private static boolean findRegulatingOn(PropertyBag regulatingControl, ShuntCompensator shuntCompensator, Context context) {
-        return regulatingControl.asBoolean("enabled").orElse(findDefaultRegulatingOn(shuntCompensator, context));
-    }
-
-    private static boolean findDefaultRegulatingOn(ShuntCompensator shuntCompensator, Context context) {
-        return defaultValue(false, shuntCompensator.isVoltageRegulatorOn(), false, false, getDefaultValueSelector(context));
-    }
-
-    private static Conversion.Config.DefaultValue getDefaultValueSelector(Context context) {
-        return getDefaultValueSelector(List.of(PREVIOUS, DEFAULT, EMPTY), context);
     }
 }

@@ -14,8 +14,10 @@ import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
 import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.EMPTY;
 
 /**
@@ -98,8 +100,89 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         }
     }
 
-    protected static Conversion.Config.DefaultValue getDefaultValueSelector(List<Conversion.Config.DefaultValue> validDefaultValues, Context context) {
+    protected static double defaultValue(DefaultValueDouble defaultValue, Context context) {
+        List<Conversion.Config.DefaultValue> validDefaultValues = new ArrayList<>();
+        if (defaultValue.equipmentValue != null) {
+            validDefaultValues.add(EQ);
+        }
+        if (defaultValue.previousValue != null) {
+            validDefaultValues.add(PREVIOUS);
+        }
+        if (defaultValue.defaultValue != null) {
+            validDefaultValues.add(DEFAULT);
+        }
+        validDefaultValues.add(EMPTY);
+        return defaultValue(defaultValue, getDefaultValueSelector(validDefaultValues, context));
+    }
+
+    private static double defaultValue(DefaultValueDouble defaultValue, Conversion.Config.DefaultValue defaultValueSelector) {
+        return switch (defaultValueSelector) {
+            case EQ -> defaultValue.equipmentValue;
+            case PREVIOUS -> defaultValue.previousValue;
+            case DEFAULT -> defaultValue.defaultValue;
+            case EMPTY -> defaultValue.emptyValue;
+        };
+    }
+
+    protected static int defaultValue(DefaultValueInteger defaultValue, Context context) {
+        List<Conversion.Config.DefaultValue> validDefaultValues = new ArrayList<>();
+        if (defaultValue.equipmentValue != null) {
+            validDefaultValues.add(EQ);
+        }
+        if (defaultValue.previousValue != null) {
+            validDefaultValues.add(PREVIOUS);
+        }
+        if (defaultValue.defaultValue != null) {
+            validDefaultValues.add(DEFAULT);
+        }
+        validDefaultValues.add(EMPTY);
+        return defaultValue(defaultValue, getDefaultValueSelector(validDefaultValues, context));
+    }
+
+    private static int defaultValue(DefaultValueInteger defaultValue, Conversion.Config.DefaultValue defaultValueSelector) {
+        return switch (defaultValueSelector) {
+            case EQ -> defaultValue.equipmentValue;
+            case PREVIOUS -> defaultValue.previousValue;
+            case DEFAULT -> defaultValue.defaultValue;
+            case EMPTY -> defaultValue.emptyValue;
+        };
+    }
+
+    protected static boolean defaultValue(DefaultValueBoolean defaultValue, Context context) {
+        List<Conversion.Config.DefaultValue> validDefaultValues = new ArrayList<>();
+        if (defaultValue.equipmentValue != null) {
+            validDefaultValues.add(EQ);
+        }
+        if (defaultValue.previousValue != null) {
+            validDefaultValues.add(PREVIOUS);
+        }
+        if (defaultValue.defaultValue != null) {
+            validDefaultValues.add(DEFAULT);
+        }
+        validDefaultValues.add(EMPTY);
+        return defaultValue(defaultValue, getDefaultValueSelector(validDefaultValues, context));
+    }
+
+    private static boolean defaultValue(DefaultValueBoolean defaultValue, Conversion.Config.DefaultValue defaultValueSelector) {
+        return switch (defaultValueSelector) {
+            case EQ -> defaultValue.equipmentValue;
+            case PREVIOUS -> defaultValue.previousValue;
+            case DEFAULT -> defaultValue.defaultValue;
+            case EMPTY -> defaultValue.emptyValue;
+        };
+    }
+
+    private static Conversion.Config.DefaultValue getDefaultValueSelector(List<Conversion.Config.DefaultValue> validDefaultValues, Context context) {
         return context.config().updateDefaultValuesPriority().stream().filter(validDefaultValues::contains).findFirst().orElse(EMPTY);
+    }
+
+    public record DefaultValueDouble(Double equipmentValue, Double previousValue, Double defaultValue, double emptyValue) {
+    }
+
+    public record DefaultValueInteger(Integer equipmentValue, Integer previousValue, Integer defaultValue, int emptyValue) {
+    }
+
+    public record DefaultValueBoolean(Boolean equipmentValue, Boolean previousValue, Boolean defaultValue, boolean emptyValue) {
     }
 
     protected final String id;

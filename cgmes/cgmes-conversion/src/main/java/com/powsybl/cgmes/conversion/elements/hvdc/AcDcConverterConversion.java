@@ -8,7 +8,6 @@
 
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
-import java.util.List;
 import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
@@ -19,8 +18,6 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.triplestore.api.PropertyBag;
-
-import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -101,18 +98,20 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     }
 
     private static double getPowerFactor(PropertyBag cgmesDataConverter, LccConverterStation lccConverter, Context context) {
+        DefaultValueDouble defaultPowerFactor = getDefaultPowerFactor(lccConverter);
+
         double p = cgmesDataConverter.asDouble("p");
         double q = cgmesDataConverter.asDouble("q");
         if (Double.isFinite(p) && Double.isFinite(q)) {
             double hypot = Math.hypot(p, q);
-            return hypot != 0.0 ? p / hypot : getDefaultPowerFactor(lccConverter, context);
+            return hypot != 0.0 ? p / hypot : defaultValue(defaultPowerFactor, context);
         } else {
-            return getDefaultPowerFactor(lccConverter, context);
+            return defaultValue(defaultPowerFactor, context);
         }
     }
 
-    private static double getDefaultPowerFactor(LccConverterStation lccConverter, Context context) {
-        return defaultValue(Double.NaN, lccConverter.getPowerFactor(), DEFAULT_POWER_FACTOR, DEFAULT_POWER_FACTOR, getDefaultValueSelector(context));
+    private static DefaultValueDouble getDefaultPowerFactor(LccConverterStation lccConverter) {
+        return new DefaultValueDouble(null, (double) lccConverter.getPowerFactor(), DEFAULT_POWER_FACTOR, DEFAULT_POWER_FACTOR);
     }
 
     static void update(VscConverterStation vscConverter, PropertyBag cgmesDataConverter, double lossFactor, Context context) {
@@ -120,7 +119,8 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
         VscRegulation vscRegulation = getVscRegulation(cgmesDataConverter, vscConverter, context);
         if (vscRegulation == VscRegulation.VOLTAGE) {
-            double targetV = getTargetV(cgmesDataConverter, vscConverter, context);
+            DefaultValueDouble defaultTargetV = getDefaultTargetV(vscConverter);
+            double targetV = findTargetV(cgmesDataConverter, "targetUpcc", defaultTargetV, DefaultValueUse.NOT_DEFINED, context);
             if (isValidTargetV(targetV)) {
                 vscConverter.setVoltageSetpoint(targetV).setReactivePowerSetpoint(0.0).setVoltageRegulatorOn(true);
                 return;
@@ -145,46 +145,27 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     }
 
     private static VscRegulation getDefaultVscRegulation(VscConverterStation vscConverter, Context context) {
-        return switch (getDefaultValueSelectorForVscRegulation(context)) {
-            case EQ, DEFAULT, EMPTY -> VscRegulation.REACTIVE_POWER;
-            case PREVIOUS -> vscConverter.isVoltageRegulatorOn() ? VscRegulation.VOLTAGE : VscRegulation.REACTIVE_POWER;
-        };
+        DefaultValueBoolean defaultVoltageRegulationOn = getDefaultVoltageRegulationOn(vscConverter);
+        return defaultValue(defaultVoltageRegulationOn, context) ? VscRegulation.VOLTAGE : VscRegulation.REACTIVE_POWER;
     }
 
-    private static Conversion.Config.DefaultValue getDefaultValueSelectorForVscRegulation(Context context) {
-        return getDefaultValueSelector(List.of(PREVIOUS, DEFAULT), context);
+    private static DefaultValueBoolean getDefaultVoltageRegulationOn(VscConverterStation vscConverter) {
+        return new DefaultValueBoolean(false, vscConverter.isVoltageRegulatorOn(), false, false);
     }
 
-    private static double getTargetV(PropertyBag cgmesDataConverter, VscConverterStation vscConverter, Context context) {
-        double targetV = cgmesDataConverter.asDouble("targetUpcc");
-        return Double.isFinite(targetV) ? targetV : getDefaultTargetV(vscConverter, context);
+    private static DefaultValueDouble getDefaultTargetV(VscConverterStation vscConverter) {
+        return new DefaultValueDouble(null, vscConverter.getVoltageSetpoint(), Double.NaN, Double.NaN);
     }
 
-    private static double getDefaultTargetV(VscConverterStation vscConverter, Context context) {
-        return defaultValue(Double.NaN, vscConverter.getVoltageSetpoint(), Double.NaN, Double.NaN, getDefaultValueSelector(context));
-    }
-
-    private static boolean isValidTargetV(double targetV) {
-        return Double.isFinite(targetV) && targetV > 0.0;
-    }
-
+    // targetQ = - targetQpcc then we considered - terminalSign
     private static double getValidTargetQ(PropertyBag cgmesDataConverter, VscConverterStation vscConverter, Context context) {
-        double targetQ = -cgmesDataConverter.asDouble("targetQpcc");
-        return Double.isFinite(targetQ) ? targetQ * getTerminalSign(vscConverter) : getDefaultValidTargetQ(vscConverter, context);
+        DefaultValueDouble defaultTargetQ = getDefaultTargetQ(vscConverter);
+        return findTargetQ(cgmesDataConverter, "targetQpcc", -findTerminalSign(vscConverter), defaultTargetQ, DefaultValueUse.NOT_VALID, context);
     }
 
-    private static int getTerminalSign(VscConverterStation vscConverter) {
-        String terminalSign = vscConverter.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN);
-        return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
-    }
-
-    private static double getDefaultValidTargetQ(VscConverterStation vscConverter, Context context) {
+    private static DefaultValueDouble getDefaultTargetQ(VscConverterStation vscConverter) {
         double previousTargetQ = Double.isFinite(vscConverter.getReactivePowerSetpoint()) ? vscConverter.getReactivePowerSetpoint() : 0.0;
-        return defaultValue(0.0, previousTargetQ, 0.0, 0.0, getDefaultValueSelector(context));
-    }
-
-    private static Conversion.Config.DefaultValue getDefaultValueSelector(Context context) {
-        return getDefaultValueSelector(List.of(PREVIOUS, DEFAULT, EMPTY), context);
+        return new DefaultValueDouble(0.0, previousTargetQ, 0.0, 0.0);
     }
 
     private final HvdcType converterType;
