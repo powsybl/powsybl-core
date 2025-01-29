@@ -154,7 +154,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         if (operatingMode != null) {
             generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, operatingMode.replace("SynchronousMachineOperatingMode.", ""));
         }
-        boolean controlEnabled = cgmesData.asBoolean("controlEnabled", false);
+        boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED, false);
         updateRegulatingControl(generator, controlEnabled, context);
     }
 

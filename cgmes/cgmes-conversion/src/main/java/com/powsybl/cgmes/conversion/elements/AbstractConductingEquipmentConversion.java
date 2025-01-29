@@ -12,6 +12,8 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNodeAdder;
+import com.powsybl.cgmes.extensions.CgmesTapChanger;
+import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
@@ -510,7 +512,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    protected static void updateTerminals(Connectable<?> connectable, Context context, Terminal... ts) {
+    public static void updateTerminals(Connectable<?> connectable, Context context, Terminal... ts) {
         PropertyBags cgmesTerminals = getCgmesTerminals(connectable, context, ts.length);
         for (int k = 0; k < ts.length; k++) {
             updateTerminal(cgmesTerminals.get(k), ts[k], context);
@@ -806,31 +808,109 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return PowerFlow.UNDEFINED;
     }
 
-    protected static double defaultValue(double eq, double previous, double defaultValue, double emptyValue, Conversion.Config.DefaultValue defaultValueSelector) {
-        return switch (defaultValueSelector) {
-            case EQ -> eq;
-            case PREVIOUS -> previous;
-            case DEFAULT -> defaultValue;
-            case EMPTY -> emptyValue;
-        };
+    protected static boolean isControlModeVoltage(String controlMode) {
+        return controlMode != null && controlMode.endsWith("voltage");
     }
 
-    protected static int defaultValue(int eq, int previous, int defaultValue, int emptyValue, Conversion.Config.DefaultValue defaultValueSelector) {
-        return switch (defaultValueSelector) {
-            case EQ -> eq;
-            case PREVIOUS -> previous;
-            case DEFAULT -> defaultValue;
-            case EMPTY -> emptyValue;
-        };
+    protected static boolean isControlModeReactivePower(String controlMode) {
+        return controlMode != null && controlMode.toLowerCase().endsWith("reactivepower");
     }
 
-    protected static boolean defaultValue(boolean eq, boolean previous, boolean defaultValue, boolean emptyValue, Conversion.Config.DefaultValue defaultValueSelector) {
-        return switch (defaultValueSelector) {
-            case EQ -> eq;
-            case PREVIOUS -> previous;
-            case DEFAULT -> defaultValue;
-            case EMPTY -> emptyValue;
-        };
+    protected static String getRegulatingControlId(PropertyBag p) {
+        return p.getId(CgmesNames.REGULATING_CONTROL);
+    }
+
+    protected static Optional<PropertyBag> findCgmesRegulatingControl(Connectable<?> connectable, Context context) {
+        String regulatingControlId = connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL);
+        return regulatingControlId != null ? Optional.ofNullable(context.regulatingControl(regulatingControlId)) : Optional.empty();
+    }
+
+    protected static <C extends Connectable<C>> Optional<PropertyBag> findCgmesRegulatingControl(Connectable<C> tw, String tapChangerId, Context context) {
+        CgmesTapChangers<C> cgmesTcs = tw.getExtension(CgmesTapChangers.class);
+        if (cgmesTcs != null && tapChangerId != null) {
+            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tapChangerId);
+            return cgmesTc != null ? Optional.ofNullable(context.regulatingControl(cgmesTc.getControlId())) : Optional.empty();
+        }
+        return Optional.empty();
+    }
+
+    protected static int findTerminalSign(Connectable<?> connectable) {
+        String terminalSign = connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN);
+        return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
+    }
+
+    protected static int findTerminalSign(Connectable<?> connectable, String end) {
+        String terminalSign = connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN + end);
+        return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
+    }
+
+    protected static double findTargetV(PropertyBag regulatingControl, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
+        return findTargetV(regulatingControl, CgmesNames.TARGET_VALUE, defaultValue, use, context);
+    }
+
+    protected static double findTargetV(PropertyBag regulatingControl, String propertyTag, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
+        double targetV = regulatingControl.asDouble(propertyTag);
+        return useDefaultValue(regulatingControl.containsKey(propertyTag), isValidTargetV(targetV), use) ? defaultValue(defaultValue, context) : targetV;
+    }
+
+    protected static double findTargetQ(PropertyBag regulatingControl, int terminalSign, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
+        return findTargetValue(regulatingControl, terminalSign, defaultValue, use, context);
+    }
+
+    protected static double findTargetQ(PropertyBag regulatingControl, String propertyTag, int terminalSign, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
+        return findTargetValue(regulatingControl, propertyTag, terminalSign, defaultValue, use, context);
+    }
+
+    protected static double findTargetValue(PropertyBag regulatingControl, int terminalSign, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
+        return findTargetValue(regulatingControl, CgmesNames.TARGET_VALUE, terminalSign, defaultValue, use, context);
+    }
+
+    protected static double findTargetValue(PropertyBag regulatingControl, String propertyTag, int terminalSign, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
+        double targetValue = regulatingControl.asDouble(propertyTag);
+        return useDefaultValue(regulatingControl.containsKey(propertyTag), isValidTargetValue(targetValue), use) ? defaultValue(defaultValue, context) : targetValue * terminalSign;
+    }
+
+    protected static double findTargetDeadband(PropertyBag regulatingControl, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
+        double targetDeadband = regulatingControl.asDouble(CgmesNames.TARGET_DEADBAND);
+        return useDefaultValue(regulatingControl.containsKey(CgmesNames.TARGET_DEADBAND), isValidTargetDeadband(targetDeadband), use) ? defaultValue(defaultValue, context) : targetDeadband;
+    }
+
+    protected static boolean findRegulatingOn(PropertyBag regulatingControl, DefaultValueBoolean defaultValue, DefaultValueUse use, Context context) {
+        return findRegulatingOn(regulatingControl, CgmesNames.ENABLED, defaultValue, use, context);
+    }
+
+    protected static boolean findRegulatingOn(PropertyBag regulatingControl, String propertyTag, DefaultValueBoolean defaultValue, DefaultValueUse use, Context context) {
+        Optional<Boolean> isRegulatingOn = regulatingControl.asBoolean(propertyTag);
+        return useDefaultValue(isRegulatingOn.isPresent(), true, use) ? defaultValue(defaultValue, context) : isRegulatingOn.orElse(false);
+    }
+
+    private static boolean useDefaultValue(boolean isDefined, boolean isValid, DefaultValueUse use) {
+        return use == DefaultValueUse.ALWAYS
+                || use == DefaultValueUse.NOT_DEFINED && !isDefined
+                || use == DefaultValueUse.NOT_VALID && !isValid;
+    }
+
+    protected static boolean isValidTargetV(double targetV) {
+        return targetV > 0.0;
+    }
+
+    protected static boolean isValidTargetQ(double targetQ) {
+        return isValidTargetValue(targetQ);
+    }
+
+    protected static boolean isValidTargetValue(double targetValue) {
+        return Double.isFinite(targetValue);
+    }
+
+    protected static boolean isValidTargetDeadband(double targetDeadband) {
+        return targetDeadband >= 0.0;
+    }
+
+    protected enum DefaultValueUse {
+        NEVER,
+        NOT_DEFINED,
+        NOT_VALID,
+        ALWAYS
     }
 
     private final TerminalData[] terminals;
