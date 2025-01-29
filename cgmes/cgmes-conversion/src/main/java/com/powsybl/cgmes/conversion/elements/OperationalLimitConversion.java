@@ -19,14 +19,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.Supplier;
 
-import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.EQ;
-import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.PREVIOUS;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS;
 
 /**
@@ -524,14 +521,14 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private static double getValue(PR propertyNameData, Identifiable<?> identifiable, double previousValue, Context context) {
         String operationalLimitId = getOperationalLimitId(getPropertyName(propertyNameData, CgmesNames.OPERATIONAL_LIMIT_SET), identifiable);
-        return updatedValue(operationalLimitId, context)
-                .orElse(defaultValue(getNormalValue(getPropertyName(propertyNameData, CgmesNames.NORMAL_VALUE), identifiable), previousValue, getDefaultValue(context)));
+        DefaultValueDouble defaultLimitValue = getDefaultValue(getNormalValue(getPropertyName(propertyNameData, CgmesNames.NORMAL_VALUE), identifiable), previousValue);
+        return updatedValue(operationalLimitId, context).orElse(defaultValue(defaultLimitValue, context));
     }
 
     private static double getValue(TPR temporaryPropertyNameData, Identifiable<?> identifiable, double previousValue, Context context) {
         String operationalLimitId = getOperationalLimitId(getPropertyName(temporaryPropertyNameData, CgmesNames.OPERATIONAL_LIMIT_SET), identifiable);
-        return updatedValue(operationalLimitId, context)
-                .orElse(defaultValue(getNormalValue(getPropertyName(temporaryPropertyNameData, CgmesNames.NORMAL_VALUE), identifiable), previousValue, getDefaultValue(context)));
+        DefaultValueDouble defaultLimitValue = getDefaultValue(getNormalValue(getPropertyName(temporaryPropertyNameData, CgmesNames.NORMAL_VALUE), identifiable), previousValue);
+        return updatedValue(operationalLimitId, context).orElse(defaultValue(defaultLimitValue, context));
     }
 
     private static OptionalDouble updatedValue(String operationalLimitId, Context context) {
@@ -567,15 +564,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 + tpr.duration;
     }
 
-    protected static double defaultValue(double normalValue, double previousValue, Conversion.Config.DefaultValue defaultValue) {
-        return switch (defaultValue) {
-            case EQ, DEFAULT, EMPTY -> normalValue;
-            case PREVIOUS -> previousValue;
-        };
-    }
-
-    private static Conversion.Config.DefaultValue getDefaultValue(Context context) {
-        return getDefaultValueSelector(List.of(EQ, PREVIOUS), context);
+    private static DefaultValueDouble getDefaultValue(double normalValue, double previousValue) {
+        return new DefaultValueDouble(normalValue, previousValue, normalValue, normalValue);
     }
 
     private record PR(String operationalLimitSetId, String limitSubclass, String end) {
