@@ -87,14 +87,14 @@ public final class GeneratorUcteExport {
         } else if (powerPlantTypes.stream().distinct().count() == 1) {
             return powerPlantTypes.get(0);
         }
-        // If powerPlantTypes is empty, it means that no generator was found on the bus so we don't fill this field out
+        // If powerPlantTypes is empty, it means that no generator was found on the bus, so we don't fill this field out
         return null;
     }
 
     private static double getVoltageReference(List<Double> voltageReferences, double nominalV) {
         return voltageReferences.stream().filter(v -> !Double.isNaN(v))
             .distinct()
-            .min(Comparator.comparingDouble(v -> Math.abs(v - nominalV))) // If all generators do not have the same targetV, take the one closest to nominalV
+            .min(Comparator.comparingDouble(v -> Math.abs(v - nominalV))) // If all generators do not have the same targetV, take the one closest to the nominalV of the VL
             .orElse(Double.NaN);
     }
 
