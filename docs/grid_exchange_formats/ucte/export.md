@@ -9,7 +9,7 @@ Each bus in the network is exported as a UCTE node. The generation fields of thi
 the generators connected to the associated bus:
 - The node type code of the UCTE node is 2 (PU node) in the case of one generator regulating voltage connected to the bus, 
 3 if the bus is the slack node and 0 (PQ node) by default.
-- The voltage reference of the UCTE node is obtained from the `TargetV` of the regulating generators connected to the bus.
+- The voltage reference of the UCTE node is obtained from the `TargetV` of the generators connected to the bus.
 If multiple generators are regulating voltage with a different `TargetV`, then the `TargetV` that is the closest to the
 `nominalV` of the `VoltageLevel` is kept. 
 - The active power generation of the UCTE node is the sum of the `TargetP` of every connected generator that are not `NaN`.
