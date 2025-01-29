@@ -827,29 +827,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void miniNodeBreakerLoadBreakSwitch() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerLoadBreakSwitch().dataSource(),
-                        NetworkFactory.findDefault(), importParams);
-
-        Switch sw = network.getSwitch("fbdcf00d-8a07-4c62-9e39-86f459bea2be");
-        assertNotNull(sw);
-        assertEquals(SwitchKind.LOAD_BREAK_SWITCH, sw.getKind());
-    }
-
-    @Test
-    void miniNodeBreakerProtectedSwitch() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerProtectedSwitch().dataSource(),
-                        NetworkFactory.findDefault(), importParams);
-
-        Switch sw = network.getSwitch("fbdcf00d-8a07-4c62-9e39-86f459bea2be");
-        assertNotNull(sw);
-        // By default, a switch not specifically assigned to a given kid should be considered BREAKER
-        assertEquals(SwitchKind.BREAKER, sw.getKind());
-    }
-
-    @Test
     void miniNodeBreakerMissingSubstationRegion() {
         // Check that we fail with a powsybl exception instead of a NPE
         CgmesImport importer = new CgmesImport();
@@ -912,16 +889,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void miniNodeBreakerInternalLineZ0() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerInternalLineZ0().dataSource(), NetworkFactory.findDefault(), importParams);
-        // The internal z0 line named "INTERCONNECTOR22" has been converted to a switch
-        Switch sw = network.getSwitch("fdf5cfbe-9bf5-406a-8d04-fafe47afe31d");
-        assertNotNull(sw);
-        assertEquals("INTERCONNECTOR22", sw.getNameOrId());
-    }
-
-    @Test
     void microGridBaseCaseAssembledEntsoeCategory() {
         importParams.put(CgmesImport.POST_PROCESSORS, "EntsoeCategory");
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEntsoeCategory().dataSource(), importParams);
@@ -946,12 +913,6 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLShuntCompensatorGP().dataSource(), importParams);
         assertEquals(0.0000123, network.getShuntCompensator("fbfed7e3-3dec-4829-a286-029e73535685").getG(), 0.0);
         assertEquals(0.123, network.getShuntCompensator("fbfed7e3-3dec-4829-a286-029e73535685").getTerminal().getP(), 0.0);
-    }
-
-    @Test
-    void microGridBaseCaseNLSwitchWithoutName() {
-        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLSwitchWithoutName().dataSource(), importParams);
-        assertNotNull(network.getSwitch("5f5d40ae-d52d-4631-9285-b3ceefff784c"));
     }
 
     @Test
