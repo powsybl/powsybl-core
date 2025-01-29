@@ -151,7 +151,7 @@ class TimeSeriesTableTest {
     void testMicrosCSV() {
         TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(0).plus(Duration.ofMillis(3)), Duration.ofMillis(1));
         TimeSeriesTable table = createTimeSeriesTable(index);
-        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MICRO, false);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MICROS, false);
 
         // test CSV export
         assertEquals(String.join(System.lineSeparator(),
@@ -167,7 +167,7 @@ class TimeSeriesTableTest {
     void testNanosCSV() {
         TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(0).plus(Duration.ofNanos(3)), Duration.ofNanos(1));
         TimeSeriesTable table = createTimeSeriesTable(index);
-        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.NANO, false);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.NANOS, false);
 
         // test CSV export
         assertEquals(String.join(System.lineSeparator(),

@@ -159,23 +159,26 @@ class RegularTimeSeriesIndexTest {
     }
 
     private static Stream<String> provideWrongJson() {
-        String jsonException1 = String.join(System.lineSeparator(),
-            "{",
-            "  \"startInstant\" : 1420070400000000000,",
-            "  \"endInstant\" : 1420074000000000000",
-            "}");
+        String jsonException1 = """
+            {
+                "startInstant" : 1420070400000000000,
+                "endInstant" : 1420074000000000000
+            }
+            """.replaceAll("\n", System.lineSeparator());
 
-        String jsonException2 = String.join(System.lineSeparator(),
-            "{",
-            "  \"endInstant\" : 1420074000000000000,",
-            "  \"timeStep\" : 900000000000",
-            "}");
+        String jsonException2 = """
+            {
+              "endInstant" : 1420074000000000000,
+              "timeStep" : 900000000000
+            }
+            """.replaceAll("\n", System.lineSeparator());
 
-        String jsonException3 = String.join(System.lineSeparator(),
-            "{",
-            "  \"startInstant\" : 1420070400000000000,",
-            "  \"timeStep\" : 900000000000",
-            "}");
+        String jsonException3 = """
+            {
+              "startInstant" : 1420070400000000000,
+              "timeStep" : 900000000000
+            }
+            """.replaceAll("\n", System.lineSeparator());
 
         return Stream.of(jsonException1, jsonException2, jsonException3);
     }

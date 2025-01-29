@@ -65,8 +65,8 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
      */
     @Deprecated(since = "6.7.0")
     public RegularTimeSeriesIndex(long startTime, long endTime, long spacing) {
-        this(TimeSeriesIndex.longToInstant(startTime, 1_000L),
-            TimeSeriesIndex.longToInstant(endTime, 1_000L),
+        this(Instant.ofEpochMilli(startTime),
+            Instant.ofEpochMilli(endTime),
             Duration.ofMillis(spacing));
     }
 
@@ -86,17 +86,17 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         Objects.requireNonNull(parser);
         JsonToken token;
         try {
-            Instant startInstant = Instant.ofEpochMilli(Long.MIN_VALUE);
-            Instant endInstant = Instant.ofEpochMilli(Long.MIN_VALUE);
-            Duration timeStep = Duration.ofNanos(Long.MIN_VALUE);
+            Instant startInstant = null;
+            Instant endInstant = null;
+            Duration timeStep = null;
             while ((token = parser.nextToken()) != null) {
                 switch (token) {
                     case FIELD_NAME -> {
                         String fieldName = parser.currentName();
                         switch (fieldName) {
                             // Precision in ms
-                            case "startTime" -> startInstant = TimeSeriesIndex.longToInstant(parser.nextLongValue(-1), 1_000L);
-                            case "endTime" -> endInstant = TimeSeriesIndex.longToInstant(parser.nextLongValue(-1), 1_000L);
+                            case "startTime" -> startInstant = Instant.ofEpochMilli(parser.nextLongValue(-1));
+                            case "endTime" -> endInstant = Instant.ofEpochMilli(parser.nextLongValue(-1));
                             case "spacing" -> timeStep = Duration.ofMillis(parser.nextLongValue(-1));
                             // Precision in ns
                             case "startInstant" -> startInstant = TimeSeriesIndex.longToInstant(parser.nextLongValue(-1), 1_000_000_000L);
@@ -106,9 +106,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
                         }
                     }
                     case END_OBJECT -> {
-                        if (startInstant.equals(Instant.ofEpochMilli(Long.MIN_VALUE)) ||
-                            endInstant.equals(Instant.ofEpochMilli(Long.MIN_VALUE)) ||
-                            timeStep.equals(Duration.ofNanos(Long.MIN_VALUE))) {
+                        if (startInstant == null || endInstant == null || timeStep == null) {
                             throw new IllegalStateException("Incomplete regular time series index json");
                         }
                         return new RegularTimeSeriesIndex(startInstant, endInstant, timeStep);
@@ -240,7 +238,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                Instant instant = Instant.ofEpochSecond(time.getEpochSecond(), time.getNano());
+                Instant instant = time;
                 time = time.plus(timeStep);
                 return instant;
             }

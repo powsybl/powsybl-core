@@ -30,8 +30,8 @@ class InfiniteTimeSeriesIndexTest {
         assertEquals(2, InfiniteTimeSeriesIndex.INSTANCE.getPointCount());
 
         // Time and instants
-        assertEquals(-31557014167219200L, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(0));
-        assertEquals(31556889864403199L, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(1));
+        assertEquals(0L, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(0));
+        assertEquals(9223372036854775807L, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(1));
         assertEquals(InfiniteTimeSeriesIndex.START_INSTANT, InfiniteTimeSeriesIndex.INSTANCE.getInstantAt(0));
         assertEquals(InfiniteTimeSeriesIndex.END_INSTANT, InfiniteTimeSeriesIndex.INSTANCE.getInstantAt(1));
         TimeSeriesException exception = assertThrows(TimeSeriesException.class, () -> InfiniteTimeSeriesIndex.INSTANCE.getInstantAt(2));

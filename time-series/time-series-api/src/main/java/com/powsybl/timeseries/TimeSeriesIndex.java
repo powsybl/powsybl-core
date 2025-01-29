@@ -75,7 +75,15 @@ public interface TimeSeriesIndex extends Iterable<Instant> {
         return Instant.ofEpochSecond(dateAsLong / conversionToSeconds, (dateAsLong % conversionToSeconds) * 1_000_000_000L / conversionToSeconds);
     }
 
+    static Instant longToInstant(long dateAsLong, ExportFormat exportFormat) {
+        return longToInstant(dateAsLong, exportFormat == ExportFormat.MILLISECONDS ? 1_000L : 1_000_000_000L);
+    }
+
     static long instantToLong(Instant instant, long conversionToSeconds) {
         return instant.getEpochSecond() * conversionToSeconds + instant.getNano() * conversionToSeconds / 1_000_000_000L;
+    }
+
+    static long instantToLong(Instant instant, ExportFormat exportFormat) {
+        return instantToLong(instant, exportFormat == ExportFormat.MILLISECONDS ? 1_000L : 1_000_000_000L);
     }
 }

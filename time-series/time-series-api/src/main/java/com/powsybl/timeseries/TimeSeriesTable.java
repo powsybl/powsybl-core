@@ -31,8 +31,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.GZIPOutputStream;
 
-import static com.powsybl.timeseries.TimeSeriesIndex.instantToLong;
-
 /**
  * Utility class to load time series into a table and then:
  *
@@ -655,9 +653,9 @@ public class TimeSeriesTable {
         switch (timeSeriesCsvConfig.timeFormat()) {
             case DATE_TIME -> writer.write(ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()).format(timeSeriesCsvConfig.dateTimeFormatter()));
             case FRACTIONS_OF_SECOND -> writer.write(Double.toString(instant.getEpochSecond() + instant.getNano() / 1e9));
-            case MILLIS -> writer.write(Long.toString(instantToLong(instant, 1_000L)));
-            case MICRO -> writer.write(Long.toString(instantToLong(instant, 1_000_000L)));
-            case NANO -> writer.write(Long.toString(instantToLong(instant, 1_000_000_000L)));
+            case MILLIS -> writer.write(Long.toString(instant.toEpochMilli()));
+            case MICROS -> writer.write((instant.getEpochSecond() > 0 ? Long.toString(instant.getEpochSecond()) : "") + instant.getNano() / 1000);
+            case NANOS -> writer.write((instant.getEpochSecond() > 0 ? Long.toString(instant.getEpochSecond()) : "") + instant.getNano());
             default -> throw new IllegalStateException("Unknown time format " + timeSeriesCsvConfig.timeFormat());
         }
     }

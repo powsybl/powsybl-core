@@ -51,7 +51,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.timeseries.TimeSeriesIndex.parseDoubleToInstant;
-import static com.powsybl.timeseries.TimeSeriesIndex.parseLongToInstant;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -65,8 +64,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     enum TimeFormat {
         DATE_TIME,
         MILLIS,
-        MICRO,
-        NANO,
+        MICROS,
+        NANOS,
         FRACTIONS_OF_SECOND;
     }
 
@@ -338,10 +337,25 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             return switch (timeFormat) {
                 case DATE_TIME -> ZonedDateTime.parse(token).toInstant();
                 case FRACTIONS_OF_SECOND -> parseDoubleToInstant(token);
-                case MILLIS -> parseLongToInstant(token, 1_000L);
-                case MICRO -> parseLongToInstant(token, 1_000_000L);
-                case NANO -> parseLongToInstant(token, 1_000_000_000L);
+                case MILLIS -> Instant.ofEpochMilli(Long.parseLong(token));
+                case MICROS -> parseMicrosToInstant(token);
+                case NANOS -> parseNanosToInstant(token);
             };
+        }
+
+        private Instant parseMicrosToInstant(String token) {
+            return parsePreciseDateToInstant(token, 6);
+        }
+
+        private Instant parseNanosToInstant(String token) {
+            return parsePreciseDateToInstant(token, 9);
+        }
+
+        private Instant parsePreciseDateToInstant(String token, int precision) {
+            return token.length() > precision ? Instant.ofEpochSecond(Long.parseLong(token.substring(0, token.length() - precision)),
+                Long.parseLong(token.substring(token.length() - precision))) :
+                Instant.ofEpochSecond(0,
+                    Long.parseLong(token));
         }
 
         void reInit() {
@@ -393,10 +407,10 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
         private TimeSeriesIndex getTimeSeriesIndex() {
             Duration spacing = checkRegularSpacing();
-            if (spacing.toNanos() != Long.MIN_VALUE) {
+            if (spacing != null) {
                 return new RegularTimeSeriesIndex(instants.get(0), instants.get(instants.size() - 1), spacing);
             } else {
-                return new IrregularTimeSeriesIndex(instants.toArray(new Instant[0]));
+                return IrregularTimeSeriesIndex.create(instants);
             }
         }
 
@@ -405,14 +419,14 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 throw new TimeSeriesException("At least 2 rows are expected");
             }
 
-            Duration spacing = Duration.ofNanos(Long.MIN_VALUE);
+            Duration spacing = null;
             for (int i = 1; i < instants.size(); i++) {
                 Duration duration = Duration.between(instants.get(i - 1), instants.get(i));
-                if (spacing.toNanos() == Long.MIN_VALUE) {
+                if (spacing == null) {
                     spacing = duration;
                 } else {
                     if (!duration.equals(spacing)) {
-                        return Duration.ofNanos(Long.MIN_VALUE);
+                        return null;
                     }
                 }
             }

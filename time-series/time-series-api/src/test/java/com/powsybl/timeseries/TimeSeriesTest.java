@@ -281,7 +281,7 @@ class TimeSeriesTest {
             1737377647000006;2;6.0;d
             """.replaceAll("\n", System.lineSeparator());
 
-        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.MICRO, true);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.MICROS, true);
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
         assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
@@ -299,7 +299,7 @@ class TimeSeriesTest {
             1737377647000000003;2;6.0;d
             """.replaceAll("\n", System.lineSeparator());
 
-        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.NANO, true);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.NANOS, true);
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
         assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);

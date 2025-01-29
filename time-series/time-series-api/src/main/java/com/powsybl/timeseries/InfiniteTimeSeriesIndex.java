@@ -27,8 +27,8 @@ public class InfiniteTimeSeriesIndex extends AbstractTimeSeriesIndex {
     public static final InfiniteTimeSeriesIndex INSTANCE = new InfiniteTimeSeriesIndex();
 
     public static final String TYPE = "infiniteIndex";
-    public static final Instant START_INSTANT = Instant.MIN;
-    public static final Instant END_INSTANT = Instant.MAX;
+    public static final Instant START_INSTANT = Instant.ofEpochMilli(0L);
+    public static final Instant END_INSTANT = Instant.ofEpochMilli(Long.MAX_VALUE);
 
     @Override
     public int getPointCount() {
@@ -41,7 +41,7 @@ public class InfiniteTimeSeriesIndex extends AbstractTimeSeriesIndex {
     @Deprecated(since = "6.7.0")
     @Override
     public long getTimeAt(int point) {
-        return TimeSeriesIndex.instantToLong(getInstantAt(point), 1L);
+        return getInstantAt(point).toEpochMilli();
     }
 
     @Override
