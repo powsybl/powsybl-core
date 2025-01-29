@@ -180,6 +180,31 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
     }
 
     @Test
+    void loadingLimitTest() {
+        // CGMES network:
+        //   An ACLineSegment ACL with:
+        //   - on side 1: CurrentLimit and ApparentPowerLimit (each time patl and tatl).
+        //   - on side 2: CurrentLimit (2 patl and 2 tatl of same duration).
+        // IIDM network:
+        //   Limits are imported. In case of multiple limits with same terminal/kind/duration, the lowest value is kept.
+        Network network = readCgmesResources(DIR, "loading_limits.xml");
+
+        // Loading limits on side 1 have been imported smoothly.
+        Line line = network.getLine("ACL");
+        assertTrue(line.getCurrentLimits1().isPresent());
+        assertEquals(100.0, line.getCurrentLimits1().get().getPermanentLimit());
+        assertEquals(200.0, line.getCurrentLimits1().get().getTemporaryLimit(600).getValue());
+        assertTrue(line.getApparentPowerLimits1().isPresent());
+        assertEquals(102.0, line.getApparentPowerLimits1().get().getPermanentLimit());
+        assertEquals(202.0, line.getApparentPowerLimits1().get().getTemporaryLimit(600).getValue());
+
+        // When several limits of same kind and duration are defined on the same terminal, only the lowest is kept.
+        assertTrue(line.getCurrentLimits2().isPresent());
+        assertEquals(99.0, line.getCurrentLimits2().get().getPermanentLimit());
+        assertEquals(199.0, line.getCurrentLimits2().get().getTemporaryLimit(600).getValue());
+    }
+
+    @Test
     void voltageLimitTest() {
         // CGMES network:
         //   2 BusbarSection BBS_1, BBS_2 in 400 kV VoltageLevel VL_1, VL_2, with high/lowVoltageLimit 420/380 kV.
