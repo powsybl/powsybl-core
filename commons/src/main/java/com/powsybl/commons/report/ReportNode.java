@@ -109,10 +109,10 @@ public interface ReportNode {
     /**
      * Get the value corresponding to the given key
      *
-     * @param valueKey the key to request
+     * @param key the key to request
      * @return the value
      */
-    Optional<TypedValue> getValue(String valueKey);
+    Optional<TypedValue> getValue(String key);
 
     /**
      * Get the children of current node
@@ -145,6 +145,42 @@ public interface ReportNode {
      * @param generator the jsonGenerator to use for serialization
      */
     void writeJson(JsonGenerator generator) throws IOException;
+
+    /** Add one typed String value */
+    ReportNode addTypedValue(String key, String value, String type);
+
+    /** Add one untyped String value */
+    ReportNode addUntypedValue(String key, String value);
+
+    /** Add one typed double value */
+    ReportNode addTypedValue(String key, double value, String type);
+
+    /** Add one untyped double value */
+    ReportNode addUntypedValue(String key, double value);
+
+    /** Add one typed float value */
+    ReportNode addTypedValue(String key, float value, String type);
+
+    /** Add one untyped float value */
+    ReportNode addUntypedValue(String key, float value);
+
+    /** Add one typed int value */
+    ReportNode addTypedValue(String key, int value, String type);
+
+    /** Add one untyped int value */
+    ReportNode addUntypedValue(String key, int value);
+
+    /** Add one typed long value */
+    ReportNode addTypedValue(String key, long value, String type);
+
+    /** Add one untyped long value */
+    ReportNode addUntypedValue(String key, long value);
+
+    /** Add one typed boolean value */
+    ReportNode addTypedValue(String key, boolean value, String type);
+
+    /** Add one untyped boolean value */
+    ReportNode addUntypedValue(String key, boolean value);
 
     /**
      * Print to given path the current report node and its descendants
