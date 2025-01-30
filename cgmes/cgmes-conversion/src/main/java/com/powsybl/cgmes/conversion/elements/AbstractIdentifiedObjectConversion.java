@@ -14,9 +14,6 @@ import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
 import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.EMPTY;
 
@@ -101,79 +98,48 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
     }
 
     protected static double defaultValue(DefaultValueDouble defaultValue, Context context) {
-        List<Conversion.Config.DefaultValue> validDefaultValues = new ArrayList<>();
-        if (defaultValue.equipmentValue != null) {
-            validDefaultValues.add(EQ);
+        for (Conversion.Config.DefaultValue defaultValueSelector : context.config().updateDefaultValuesPriority()) {
+            if (defaultValueSelector == EQ && defaultValue.equipmentValue != null) {
+                return defaultValue.equipmentValue;
+            } else if (defaultValueSelector == PREVIOUS && defaultValue.previousValue != null) {
+                return defaultValue.previousValue;
+            } else if (defaultValueSelector == DEFAULT && defaultValue.defaultValue != null) {
+                return defaultValue.defaultValue;
+            } else if (defaultValueSelector == EMPTY) {
+                return defaultValue.emptyValue;
+            }
         }
-        if (defaultValue.previousValue != null) {
-            validDefaultValues.add(PREVIOUS);
-        }
-        if (defaultValue.defaultValue != null) {
-            validDefaultValues.add(DEFAULT);
-        }
-        validDefaultValues.add(EMPTY);
-        return defaultValue(defaultValue, getDefaultValueSelector(validDefaultValues, context));
-    }
-
-    private static double defaultValue(DefaultValueDouble defaultValue, Conversion.Config.DefaultValue defaultValueSelector) {
-        return switch (defaultValueSelector) {
-            case EQ -> defaultValue.equipmentValue;
-            case PREVIOUS -> defaultValue.previousValue;
-            case DEFAULT -> defaultValue.defaultValue;
-            case EMPTY -> defaultValue.emptyValue;
-        };
+        return defaultValue.emptyValue;
     }
 
     protected static int defaultValue(DefaultValueInteger defaultValue, Context context) {
-        List<Conversion.Config.DefaultValue> validDefaultValues = new ArrayList<>();
-        if (defaultValue.equipmentValue != null) {
-            validDefaultValues.add(EQ);
+        for (Conversion.Config.DefaultValue defaultValueSelector : context.config().updateDefaultValuesPriority()) {
+            if (defaultValueSelector == EQ && defaultValue.equipmentValue != null) {
+                return defaultValue.equipmentValue;
+            } else if (defaultValueSelector == PREVIOUS && defaultValue.previousValue != null) {
+                return defaultValue.previousValue;
+            } else if (defaultValueSelector == DEFAULT && defaultValue.defaultValue != null) {
+                return defaultValue.defaultValue;
+            } else if (defaultValueSelector == EMPTY) {
+                return defaultValue.emptyValue;
+            }
         }
-        if (defaultValue.previousValue != null) {
-            validDefaultValues.add(PREVIOUS);
-        }
-        if (defaultValue.defaultValue != null) {
-            validDefaultValues.add(DEFAULT);
-        }
-        validDefaultValues.add(EMPTY);
-        return defaultValue(defaultValue, getDefaultValueSelector(validDefaultValues, context));
-    }
-
-    private static int defaultValue(DefaultValueInteger defaultValue, Conversion.Config.DefaultValue defaultValueSelector) {
-        return switch (defaultValueSelector) {
-            case EQ -> defaultValue.equipmentValue;
-            case PREVIOUS -> defaultValue.previousValue;
-            case DEFAULT -> defaultValue.defaultValue;
-            case EMPTY -> defaultValue.emptyValue;
-        };
+        return defaultValue.emptyValue;
     }
 
     protected static boolean defaultValue(DefaultValueBoolean defaultValue, Context context) {
-        List<Conversion.Config.DefaultValue> validDefaultValues = new ArrayList<>();
-        if (defaultValue.equipmentValue != null) {
-            validDefaultValues.add(EQ);
+        for (Conversion.Config.DefaultValue defaultValueSelector : context.config().updateDefaultValuesPriority()) {
+            if (defaultValueSelector == EQ && defaultValue.equipmentValue != null) {
+                return defaultValue.equipmentValue;
+            } else if (defaultValueSelector == PREVIOUS && defaultValue.previousValue != null) {
+                return defaultValue.previousValue;
+            } else if (defaultValueSelector == DEFAULT && defaultValue.defaultValue != null) {
+                return defaultValue.defaultValue;
+            } else if (defaultValueSelector == EMPTY) {
+                return defaultValue.emptyValue;
+            }
         }
-        if (defaultValue.previousValue != null) {
-            validDefaultValues.add(PREVIOUS);
-        }
-        if (defaultValue.defaultValue != null) {
-            validDefaultValues.add(DEFAULT);
-        }
-        validDefaultValues.add(EMPTY);
-        return defaultValue(defaultValue, getDefaultValueSelector(validDefaultValues, context));
-    }
-
-    private static boolean defaultValue(DefaultValueBoolean defaultValue, Conversion.Config.DefaultValue defaultValueSelector) {
-        return switch (defaultValueSelector) {
-            case EQ -> defaultValue.equipmentValue;
-            case PREVIOUS -> defaultValue.previousValue;
-            case DEFAULT -> defaultValue.defaultValue;
-            case EMPTY -> defaultValue.emptyValue;
-        };
-    }
-
-    private static Conversion.Config.DefaultValue getDefaultValueSelector(List<Conversion.Config.DefaultValue> validDefaultValues, Context context) {
-        return context.config().updateDefaultValuesPriority().stream().filter(validDefaultValues::contains).findFirst().orElse(EMPTY);
+        return defaultValue.emptyValue;
     }
 
     public record DefaultValueDouble(Double equipmentValue, Double previousValue, Double defaultValue, double emptyValue) {
