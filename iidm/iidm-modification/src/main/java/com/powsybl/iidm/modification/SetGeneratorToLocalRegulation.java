@@ -73,7 +73,7 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
 
     private double calculateTargetVoltage(Generator generator) {
         double localNominalV = generator.getTerminal().getVoltageLevel().getNominalV();
-        com.powsybl.iidm.network.Bus bus = generator.getTerminal().getBusView().getBus();
+        Bus bus = generator.getTerminal().getBusView().getBus();
         if (bus != null) {
             Optional<Generator> referenceGenerator = getReferenceGenerator(bus, localNominalV);
             if (referenceGenerator.isPresent()) {
