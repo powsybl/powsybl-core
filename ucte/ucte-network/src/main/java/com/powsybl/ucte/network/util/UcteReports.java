@@ -11,38 +11,32 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.ucte.network.UcteLine;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
-
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public final class UcteReports {
 
     public static final String LINE_ID_KEY = "lineId";
-
-    private static ResourceBundle bundle(Locale locale) {
-        return ResourceBundle.getBundle("com.powsybl.commons.reports", locale);
-    }
+    public static final String BUNDLE_BASE_NAME = "com.powsybl.commons.reports";
 
     private UcteReports() {
     }
 
     public static ReportNode fixUcteTransformers(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("fixUcteTransformers", bundle(reportNode.getTreeContext().getLocale()).getString("fixUcteTransformers"))
+                .withLocaleMessageTemplate("fixUcteTransformer", BUNDLE_BASE_NAME)
                 .add();
     }
 
     public static ReportNode fixUcteRegulations(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("fixUcteRegulations", bundle(reportNode.getTreeContext().getLocale()).getString("fixUcteRegulations"))
+                .withLocaleMessageTemplate("fixUcteRegulations", BUNDLE_BASE_NAME)
                 .add();
     }
 
     public static void negativeLineResistance(UcteLine line, ReportNode reportNode, String lineId) {
         reportNode.newReportNode()
-                .withMessageTemplate("negativeLineResistance", bundle(reportNode.getTreeContext().getLocale()).getString("negativeLineResistance"))
+                .withLocaleMessageTemplate("negativeLineResistance", BUNDLE_BASE_NAME)
                 .withUntypedValue(LINE_ID_KEY, lineId)
                 .withTypedValue("resistance", line.getResistance(), TypedValue.RESISTANCE)
                 .withSeverity(TypedValue.ERROR_SEVERITY)

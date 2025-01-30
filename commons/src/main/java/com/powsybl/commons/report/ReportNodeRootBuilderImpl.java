@@ -36,7 +36,9 @@ public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<
 
     @Override
     public ReportNode build() {
-        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, timestamps, createDateTimeFormatter(timestampPattern, timestampLocale));
+        TreeContextImpl treeContext = new TreeContextImpl(timestamps, createDateTimeFormatter(timestampPattern, timestampLocale));
+        String messageTemplate = getMessageTemplate(treeContext);
+        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, treeContext);
     }
 
     private static DateTimeFormatter createDateTimeFormatter(String timestampPattern, Locale timestampLocale) {
