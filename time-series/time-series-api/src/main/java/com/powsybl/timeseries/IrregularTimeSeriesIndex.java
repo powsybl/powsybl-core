@@ -29,11 +29,6 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     public IrregularTimeSeriesIndex(long[] times) {
         this.times = Objects.requireNonNull(times);
-        for (int i = 1; i < times.length; i++) {
-            if (times[i] <= times[i - 1]) {
-                throw new IllegalArgumentException("Time list should be sorted and without duplicate values");
-            }
-        }
         if (times.length == 0) {
             throw new IllegalArgumentException("Empty time list");
         }

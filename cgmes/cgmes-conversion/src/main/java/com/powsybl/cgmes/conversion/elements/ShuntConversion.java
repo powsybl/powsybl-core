@@ -61,7 +61,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
                     .add();
         } else if ("NonlinearShuntCompensator".equals(shuntType)) {
             ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
-            PropertyBags ss = context.cgmes().nonlinearShuntCompensatorPoints(id);
+            PropertyBags ss = context.nonlinearShuntCompensatorPoints(id);
             ss.stream()
                     .filter(s -> s.asInt(SECTION_NUMBER) > 0)
                     .sorted(Comparator.comparing(s -> s.asInt(SECTION_NUMBER)))
