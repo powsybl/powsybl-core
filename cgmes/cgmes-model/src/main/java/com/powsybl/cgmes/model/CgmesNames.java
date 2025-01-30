@@ -160,6 +160,8 @@ public final class CgmesNames {
     public static final String TARGET_DEADBAND = "targetDeadband";
     public static final String ENABLED = "enabled";
     public static final String CONTROL_ENABLED = "controlEnabled";
+    public static final String REACTIVE_POWER = "reactivepower";
+    public static final String VOLTAGE_TAG = "voltage";
 
     private CgmesNames() {
     }
