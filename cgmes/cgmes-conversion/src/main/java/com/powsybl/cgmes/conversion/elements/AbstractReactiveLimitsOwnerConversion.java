@@ -145,9 +145,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     }
 
     protected static void updateRegulatingControl(Generator generator, boolean controlEnabled, Context context) {
-        //String controlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL);
         String mode = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE);
-        //int terminalSign = findTerminalSign(generator);
 
         if (isControlModeVoltage(mode)) {
             updateRegulatingControlVoltage(generator, controlEnabled, context);
