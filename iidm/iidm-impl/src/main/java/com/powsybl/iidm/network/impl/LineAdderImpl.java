@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
 
-import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyBranchOperationalLimits;
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLimits;
 
 /**
  *
@@ -119,7 +119,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         line.addTerminal(terminal1);
         line.addTerminal(terminal2);
 
-        copyBranchOperationalLimits(copiedLine, line);
+        copyOperationalLimits(copiedLine, line);
 
         // check that the line is attachable on both side
         voltageLevel1.getTopologyModel().attach(terminal1, true);

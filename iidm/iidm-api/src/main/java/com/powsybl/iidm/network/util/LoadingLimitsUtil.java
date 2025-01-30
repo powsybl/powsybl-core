@@ -126,7 +126,7 @@ public final class LoadingLimitsUtil {
      * @param copiedBranch the copied object
      * @param branch the object on which the copied object attributes are copied
      */
-    public static <I extends Branch<I>> void copyBranchOperationalLimits(I copiedBranch, I branch) {
+    public static <I extends Branch<I>> void copyOperationalLimits(I copiedBranch, I branch) {
         if (copiedBranch != null) {
             copyOperationalLimits(copiedBranch.getOperationalLimitsGroups1(), branch::newOperationalLimitsGroup1);
             copiedBranch.getSelectedOperationalLimitsGroupId1().ifPresent(branch::setSelectedOperationalLimitsGroup1);

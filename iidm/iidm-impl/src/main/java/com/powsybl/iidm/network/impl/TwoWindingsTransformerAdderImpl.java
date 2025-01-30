@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 
-import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyBranchOperationalLimits;
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLimits;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -134,7 +134,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         transformer.addTerminal(terminal1);
         transformer.addTerminal(terminal2);
 
-        copyBranchOperationalLimits(copiedTwoWindingsTransformer, transformer);
+        copyOperationalLimits(copiedTwoWindingsTransformer, transformer);
 
         // check that the two windings transformer is attachable on both side
         voltageLevel1.getTopologyModel().attach(terminal1, true);
