@@ -8,6 +8,7 @@
 package com.powsybl.commons.report;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -18,6 +19,8 @@ import java.util.Map;
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public interface TreeContext {
+
+    TreeContext NO_OP = new TreeContextNoOp();
 
     /**
      * Get the dictionary of message templates indexed by their key.
@@ -38,4 +41,6 @@ public interface TreeContext {
      * Merge given {@link TreeContext} with current one.
      */
     void merge(TreeContext treeContext);
+
+    Locale getLocale();
 }

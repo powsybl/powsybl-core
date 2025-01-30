@@ -55,6 +55,11 @@ public class TreeContextImpl implements TreeContext {
         otherContext.getDictionary().forEach(this::addDictionaryEntry);
     }
 
+    @Override
+    public Locale getLocale() {
+        return timestampFormatter.getLocale();
+    }
+
     public synchronized void addDictionaryEntry(String key, String messageTemplate) {
         dictionary.merge(key, messageTemplate, (prevMsg, newMsg) -> mergeEntries(key, prevMsg, newMsg));
     }
