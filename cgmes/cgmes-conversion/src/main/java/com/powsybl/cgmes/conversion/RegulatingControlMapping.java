@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -19,11 +20,7 @@ import java.util.Map;
 public class RegulatingControlMapping {
 
     static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES terminal: %s";
-
     private static final String REGULATING_TERMINAL = "Regulating Terminal";
-    private static final String REGULATING_CONTROL = "RegulatingControl";
-    private static final String TERMINAL = "Terminal";
-    private static final String VOLTAGE = "voltage";
 
     private final Context context;
     private final RegulatingControlMappingForGenerators regulatingControlMappingForGenerators;
@@ -71,7 +68,7 @@ public class RegulatingControlMapping {
 
         RegulatingControl(PropertyBag p) {
             this.mode = p.get("mode").toLowerCase();
-            this.cgmesTerminal = p.getId(TERMINAL);
+            this.cgmesTerminal = p.getId(CgmesNames.TERMINAL);
             this.enabled = p.asBoolean("enabled", true);
             this.targetValue = p.asDouble("targetValue");
             // targetDeadband is optional in CGMES,
@@ -106,7 +103,7 @@ public class RegulatingControlMapping {
     }
 
     void cacheRegulatingControls(PropertyBag p) {
-        cachedRegulatingControls.put(p.getId(REGULATING_CONTROL), new RegulatingControl(p));
+        cachedRegulatingControls.put(p.getId(CgmesNames.REGULATING_CONTROL), new RegulatingControl(p));
     }
 
     void setAllRegulatingControls(Network network) {
@@ -126,15 +123,15 @@ public class RegulatingControlMapping {
         cachedRegulatingControls.clear();
     }
 
-    static boolean isControlModeVoltage(String controlMode) {
-        return controlMode != null && controlMode.endsWith(VOLTAGE);
+    protected static boolean isControlModeVoltage(String controlMode) {
+        return controlMode != null && controlMode.endsWith(CgmesNames.VOLTAGE_TAG);
     }
 
-    static boolean isControlModeReactivePower(String controlMode) {
-        return controlMode != null && controlMode.toLowerCase().endsWith("reactivepower");
+    protected static boolean isControlModeReactivePower(String controlMode) {
+        return controlMode != null && controlMode.toLowerCase().endsWith(CgmesNames.REACTIVE_POWER);
     }
 
-    static String getRegulatingControlId(PropertyBag p) {
-        return p.getId(REGULATING_CONTROL);
+    protected static String getRegulatingControlId(PropertyBag p) {
+        return p.getId(CgmesNames.REGULATING_CONTROL);
     }
 }
