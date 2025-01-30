@@ -59,7 +59,10 @@ The following default severity values are provided:
 - `TypedValue.ERROR_SEVERITY`, for reports about a requested operation that has not been completed,
 - `TypedValue.DETAIL_SEVERITY`, for reports which are children of a `ReportNode` of severity `WARN` or `ERROR`.
 
-The `DETAIL` severity is for end users which may want several fine-grained messages when a `WARN` or `ERROR` occurs, but do want as few `WARN` and `ERROR` messages as possible.
+The number of `WARN` and `ERROR` reports should be as small as possible.
+That is, similar detailed reports about an unwanted state should be grouped, if possible, as children of the same `ReportNode`.
+This father `ReportNode` should carry the `WARN` or `ERROR` severity, whereas these `ReportNode` children should have a `DETAIL` severity.
+This allows to give fine-grained information about an unwanted state, without overwhelming the end-user with numerous `WARN` or `ERROR` reports and while keeping a succinct message for each report.
 
 ## Builders / adders
 The builder API is accessed from a call to `ReportNode.newRootReportNode`.
