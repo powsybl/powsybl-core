@@ -141,11 +141,27 @@ public final class CgmesNames {
 
     public static final String OPERATIONAL_LIMIT = "OperationalLimit";
     public static final String OPERATIONAL_LIMIT_SET = "OperationalLimitSet";
+    public static final String NORMAL_VALUE = "normalValue";
     public static final String CURRENT_LIMIT = "CurrentLimit";
     public static final String ACTIVE_POWER_LIMIT = "ActivePowerLimit";
     public static final String APPARENT_POWER_LIMIT = "ApparentPowerLimit";
     public static final String P_FIXED = "pFixed";
     public static final String Q_FIXED = "qFixed";
+    public static final String TERMINAL_SIGN = "terminalSign";
+    public static final String GENERATING_UNIT = "GeneratingUnit";
+    public static final String NORMAL_PF = "normalPF";
+    public static final String REGULATION_CAPABILITY = "regulationCapability";
+    public static final String REGULATION_TARGET = "regulationTarget";
+    public static final String REGULATION_STATUS = "regulationStatus";
+    public static final String MODE = "mode";
+    public static final String INITIAL_P = "initialP";
+    public static final String NORMAL_SECTIONS = "normalSections";
+    public static final String TARGET_VALUE = "targetValue";
+    public static final String TARGET_DEADBAND = "targetDeadband";
+    public static final String ENABLED = "enabled";
+    public static final String CONTROL_ENABLED = "controlEnabled";
+    public static final String REACTIVE_POWER = "reactivepower";
+    public static final String VOLTAGE_TAG = "voltage";
 
     private CgmesNames() {
     }
