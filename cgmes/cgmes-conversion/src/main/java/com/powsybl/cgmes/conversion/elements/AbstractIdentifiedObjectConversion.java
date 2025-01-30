@@ -98,48 +98,33 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
     }
 
     protected static double defaultValue(DefaultValueDouble defaultValue, Context context) {
-        for (Conversion.Config.DefaultValue defaultValueSelector : context.config().updateDefaultValuesPriority()) {
-            if (defaultValueSelector == EQ && defaultValue.equipmentValue != null) {
-                return defaultValue.equipmentValue;
-            } else if (defaultValueSelector == PREVIOUS && defaultValue.previousValue != null) {
-                return defaultValue.previousValue;
-            } else if (defaultValueSelector == DEFAULT && defaultValue.defaultValue != null) {
-                return defaultValue.defaultValue;
-            } else if (defaultValueSelector == EMPTY) {
-                return defaultValue.emptyValue;
-            }
-        }
-        return defaultValue.emptyValue;
+        Double result = defaultValue(defaultValue.equipmentValue, defaultValue.previousValue, defaultValue.defaultValue, defaultValue.emptyValue, context);
+        return result != null ? result : defaultValue.emptyValue;
     }
 
     protected static int defaultValue(DefaultValueInteger defaultValue, Context context) {
-        for (Conversion.Config.DefaultValue defaultValueSelector : context.config().updateDefaultValuesPriority()) {
-            if (defaultValueSelector == EQ && defaultValue.equipmentValue != null) {
-                return defaultValue.equipmentValue;
-            } else if (defaultValueSelector == PREVIOUS && defaultValue.previousValue != null) {
-                return defaultValue.previousValue;
-            } else if (defaultValueSelector == DEFAULT && defaultValue.defaultValue != null) {
-                return defaultValue.defaultValue;
-            } else if (defaultValueSelector == EMPTY) {
-                return defaultValue.emptyValue;
-            }
-        }
-        return defaultValue.emptyValue;
+        Integer result = defaultValue(defaultValue.equipmentValue, defaultValue.previousValue, defaultValue.defaultValue, defaultValue.emptyValue, context);
+        return result != null ? result : defaultValue.emptyValue;
     }
 
     protected static boolean defaultValue(DefaultValueBoolean defaultValue, Context context) {
+        Boolean result = defaultValue(defaultValue.equipmentValue, defaultValue.previousValue, defaultValue.defaultValue, defaultValue.emptyValue, context);
+        return result != null ? result : defaultValue.emptyValue;
+    }
+
+    private static <T> T defaultValue(T equipmentValue, T previousValue, T defaultValue, T emptyValue, Context context) {
         for (Conversion.Config.DefaultValue defaultValueSelector : context.config().updateDefaultValuesPriority()) {
-            if (defaultValueSelector == EQ && defaultValue.equipmentValue != null) {
-                return defaultValue.equipmentValue;
-            } else if (defaultValueSelector == PREVIOUS && defaultValue.previousValue != null) {
-                return defaultValue.previousValue;
-            } else if (defaultValueSelector == DEFAULT && defaultValue.defaultValue != null) {
-                return defaultValue.defaultValue;
-            } else if (defaultValueSelector == EMPTY) {
-                return defaultValue.emptyValue;
+            if (defaultValueSelector == EQ && equipmentValue != null) {
+                return equipmentValue;
+            } else if (defaultValueSelector == PREVIOUS && previousValue != null) {
+                return previousValue;
+            } else if (defaultValueSelector == DEFAULT && defaultValue != null) {
+                return defaultValue;
+            } else if (defaultValueSelector == EMPTY && emptyValue != null) {
+                return emptyValue;
             }
         }
-        return defaultValue.emptyValue;
+        return emptyValue;
     }
 
     public record DefaultValueDouble(Double equipmentValue, Double previousValue, Double defaultValue, double emptyValue) {
