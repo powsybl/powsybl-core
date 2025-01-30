@@ -7,8 +7,6 @@
  */
 package com.powsybl.commons.report;
 
-import com.powsybl.commons.PowsyblException;
-
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -190,5 +188,4 @@ public final class TypedValue {
             throw new IllegalArgumentException("Expected a " + TypedValue.SEVERITY + " but received " + severity.getType());
         }
     }
-
 }

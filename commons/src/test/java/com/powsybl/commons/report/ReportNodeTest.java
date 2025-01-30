@@ -92,7 +92,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         ReportNode root = ReportNode.newRootReportNode()
                 .withMessageTemplate("rootTemplate", ALL_VALUES_MESSAGE_TEMPLATE)
                 .build();
-        
+
         root.addUntypedValue("doubleUntyped", 4.3)
                 .addTypedValue("doubleTyped", 4.4, TypedValue.ACTIVE_POWER)
                 .addUntypedValue("floatUntyped", -1.5f)
