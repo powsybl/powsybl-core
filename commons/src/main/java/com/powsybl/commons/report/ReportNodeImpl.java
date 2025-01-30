@@ -53,9 +53,9 @@ public final class ReportNodeImpl implements ReportNode {
         return createReportNode(messageKey, messageTemplate, values, parent.getValuesMapsInheritance(), parent.getTreeContextRef(), false);
     }
 
-    static ReportNodeImpl createRootReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values, boolean timestamps, DateTimeFormatter timestampPattern) {
-        RefChain<TreeContextImpl> treeContext = new RefChain<>(new RefObj<>(new TreeContextImpl(timestamps, timestampPattern)));
-        return createReportNode(messageKey, messageTemplate, values, Collections.emptyList(), treeContext, true);
+    static ReportNodeImpl createRootReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values, TreeContextImpl treeContext) {
+        RefChain<TreeContextImpl> treeContextRef = new RefChain<>(new RefObj<>(treeContext));
+        return createReportNode(messageKey, messageTemplate, values, Collections.emptyList(), treeContextRef, true);
     }
 
     private static ReportNodeImpl createReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values,
