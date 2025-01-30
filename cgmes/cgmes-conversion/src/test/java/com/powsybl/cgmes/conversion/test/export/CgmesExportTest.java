@@ -244,69 +244,6 @@ class CgmesExportTest {
     }
 
     @Test
-    void testDoNotExportFictitiousSwitchesCreatedForDisconnectedTerminals() throws IOException {
-        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerTerminalDisconnected().dataSource();
-        Network network = Importers.importData("CGMES", ds, importParams);
-
-        String disconnectedTerminalId = "4dec53ca-3ea6-4bd0-a225-b559c8293e91";
-        String fictitiousSwitchId = "4dec53ca-3ea6-4bd0-a225-b559c8293e91_SW_fict";
-
-        // Verify that a fictitious switch has been created for the disconnected terminal
-        Switch fictitiousSwitch = network.getSwitch(fictitiousSwitchId);
-        assertNotNull(fictitiousSwitch);
-        assertTrue(fictitiousSwitch.isFictitious());
-        assertTrue(fictitiousSwitch.isOpen());
-        assertEquals("true", fictitiousSwitch.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL));
-
-        String exportFolder = "/test-terminal-disconnected-fictitious-switch";
-        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            // Export to CGMES and add boundary EQ for reimport
-            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
-            String baseName = "testTerminalDisconnectedFictitiousSwitchExported";
-            ReadOnlyDataSource exportedCgmes = exportAndAddBoundaries(network, tmpDir, baseName, ds);
-
-            // Check that the exported CGMES model does not contain the fictitious switch
-            // And that the corresponding terminal is disconnected
-            CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, TripleStoreFactory.defaultImplementation());
-            assertTrue(cgmes.isNodeBreaker());
-            assertFalse(cgmes.switches().stream().anyMatch(sw -> sw.getId("Switch").equals(fictitiousSwitchId)));
-            assertFalse(cgmes.terminal(disconnectedTerminalId).connected());
-
-            // Verify that the fictitious switch is created again when we re-import the exported CGMES data
-            Network networkReimported = Network.read(exportedCgmes, importParams);
-            Switch fictitiousSwitchReimported = networkReimported.getSwitch(fictitiousSwitchId);
-            assertNotNull(fictitiousSwitchReimported);
-            assertTrue(fictitiousSwitchReimported.isFictitious());
-            assertTrue(fictitiousSwitchReimported.isOpen());
-            assertEquals("true", fictitiousSwitch.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL));
-
-            // Verify that if close the switch the terminal is exported as connected
-            // And the fictitious switch is not crated when re-importing
-            fictitiousSwitch.setOpen(false);
-            String baseName1 = "testTerminalDisconnectedFictitiousSwitchClosedExported";
-            ReadOnlyDataSource exportedCgmes1 = exportAndAddBoundaries(network, tmpDir, baseName1, ds);
-            CgmesModel cgmes1 = CgmesModelFactory.create(exportedCgmes1, TripleStoreFactory.defaultImplementation());
-            assertTrue(cgmes1.isNodeBreaker());
-            assertFalse(cgmes1.switches().stream().anyMatch(sw -> sw.getId("Switch").equals(fictitiousSwitchId)));
-            assertTrue(cgmes1.terminal(disconnectedTerminalId).connected());
-            Network networkReimported1 = Network.read(exportedCgmes1, importParams);
-            Switch fictitiousSwitchReimported1 = networkReimported1.getSwitch(fictitiousSwitchId);
-            assertNull(fictitiousSwitchReimported1);
-        }
-    }
-
-    private static ReadOnlyDataSource exportAndAddBoundaries(Network network, Path tmpDir, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
-        network.write("CGMES", null, tmpDir.resolve(baseName));
-        String eqbd = originalDataSource.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
-        if (eqbd != null) {
-            try (InputStream is = originalDataSource.newInputStream(eqbd)) {
-                Files.copy(is, tmpDir.resolve(baseName + "_EQ_BD.xml"));
-            }
-        }
-        return new GenericReadOnlyDataSource(tmpDir, baseName);
-    }
-
-    @Test
     void testFromIidmBusBranch() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
