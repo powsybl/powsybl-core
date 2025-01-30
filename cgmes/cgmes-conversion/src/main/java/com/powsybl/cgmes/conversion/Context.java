@@ -59,12 +59,19 @@ public class Context {
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping(this);
 
-        ratioTapChangerTables = new HashMap<>();
-        phaseTapChangerTables = new HashMap<>();
-        reactiveCapabilityCurveData = new HashMap<>();
-        powerTransformerRatioTapChangers = new HashMap<>();
-        powerTransformerPhaseTapChangers = new HashMap<>();
+        cachedGroupedTransformerEnds = new HashMap<>();
+        cachedGroupedRatioTapChangers = new HashMap<>();
+        cachedGroupedRatioTapChangerTablePoints = new HashMap<>();
+        cachedGroupedPhaseTapChangers = new HashMap<>();
+        cachedGroupedPhaseTapChangerTablePoints = new HashMap<>();
+        cachedGroupedShuntCompensatorPoints = new HashMap<>();
+        cachedGroupedReactiveCapabilityCurveData = new HashMap<>();
+
+        buildCaches();
+
         cgmesTerminals = new HashMap<>();
+        ratioTapChangers = new HashMap<>();
+        phaseTapChangers = new HashMap<>();
         regulatingControls = new HashMap<>();
         operationalLimits = new HashMap<>();
         generatingUnits = new HashMap<>();
@@ -147,71 +154,49 @@ public class Context {
         return nodeId + "_S";
     }
 
-    public void loadReactiveCapabilityCurveData() {
-        PropertyBags rccdata = cgmes.reactiveCapabilityCurveData();
-        if (rccdata == null) {
-            return;
-        }
-        rccdata.forEach(p -> {
-            String curveId = p.getId("ReactiveCapabilityCurve");
-            reactiveCapabilityCurveData.computeIfAbsent(curveId, cid -> new PropertyBags()).add(p);
+    private void buildCaches() {
+        buildCache(cachedGroupedTransformerEnds, cgmes().transformerEnds(), CgmesNames.POWER_TRANSFORMER);
+        buildCache(cachedGroupedRatioTapChangers, cgmes().ratioTapChangers(), CgmesNames.POWER_TRANSFORMER);
+        buildCache(cachedGroupedRatioTapChangerTablePoints, cgmes().ratioTapChangerTablePoints(), CgmesNames.RATIO_TAP_CHANGER_TABLE);
+        buildCache(cachedGroupedPhaseTapChangers, cgmes().phaseTapChangers(), CgmesNames.POWER_TRANSFORMER);
+        buildCache(cachedGroupedPhaseTapChangerTablePoints, cgmes().phaseTapChangerTablePoints(), CgmesNames.PHASE_TAP_CHANGER_TABLE);
+        buildCache(cachedGroupedShuntCompensatorPoints, cgmes().nonlinearShuntCompensatorPoints(), "Shunt");
+        buildCache(cachedGroupedReactiveCapabilityCurveData, cgmes().reactiveCapabilityCurveData(), "ReactiveCapabilityCurve");
+    }
+
+    private void buildCache(Map<String, PropertyBags> cache, PropertyBags ps, String groupName) {
+        ps.forEach(p -> {
+            String groupId = p.getId(groupName);
+            cache.computeIfAbsent(groupId, b -> new PropertyBags()).add(p);
         });
+    }
+
+    public PropertyBags transformerEnds(String transformerId) {
+        return cachedGroupedTransformerEnds.getOrDefault(transformerId, new PropertyBags());
+    }
+
+    public PropertyBags ratioTapChangers(String transformerId) {
+        return cachedGroupedRatioTapChangers.getOrDefault(transformerId, new PropertyBags());
+    }
+
+    public PropertyBags ratioTapChangerTablePoints(String tableId) {
+        return cachedGroupedRatioTapChangerTablePoints.getOrDefault(tableId, new PropertyBags());
+    }
+
+    public PropertyBags phaseTapChangers(String transformerId) {
+        return cachedGroupedPhaseTapChangers.getOrDefault(transformerId, new PropertyBags());
+    }
+
+    public PropertyBags phaseTapChangerTablePoints(String tableId) {
+        return cachedGroupedPhaseTapChangerTablePoints.getOrDefault(tableId, new PropertyBags());
+    }
+
+    public PropertyBags nonlinearShuntCompensatorPoints(String shuntId) {
+        return cachedGroupedShuntCompensatorPoints.getOrDefault(shuntId, new PropertyBags());
     }
 
     public PropertyBags reactiveCapabilityCurveData(String curveId) {
-        return reactiveCapabilityCurveData.get(curveId);
-    }
-
-    public void loadRatioTapChangers() {
-        cgmes.ratioTapChangers().forEach(ratio -> {
-            String id = ratio.getId(CgmesNames.RATIO_TAP_CHANGER);
-            powerTransformerRatioTapChangers.put(id, ratio);
-        });
-    }
-
-    public PropertyBag ratioTapChanger(String id) {
-        return powerTransformerRatioTapChangers.get(id);
-    }
-
-    public void loadPhaseTapChangers() {
-        cgmes.phaseTapChangers().forEach(phase -> {
-            String id = phase.getId(CgmesNames.PHASE_TAP_CHANGER);
-            powerTransformerPhaseTapChangers.put(id, phase);
-        });
-    }
-
-    public PropertyBag phaseTapChanger(String id) {
-        return powerTransformerPhaseTapChangers.get(id);
-    }
-
-    public void loadRatioTapChangerTables() {
-        PropertyBags rtcpoints = cgmes.ratioTapChangerTablesPoints();
-        if (rtcpoints == null) {
-            return;
-        }
-        rtcpoints.forEach(p -> {
-            String tableId = p.getId("RatioTapChangerTable");
-            ratioTapChangerTables.computeIfAbsent(tableId, tid -> new PropertyBags()).add(p);
-        });
-    }
-
-    public void loadPhaseTapChangerTables() {
-        PropertyBags ptcpoints = cgmes.phaseTapChangerTablesPoints();
-        if (ptcpoints == null) {
-            return;
-        }
-        ptcpoints.forEach(p -> {
-            String tableId = p.getId("PhaseTapChangerTable");
-            phaseTapChangerTables.computeIfAbsent(tableId, tid -> new PropertyBags()).add(p);
-        });
-    }
-
-    public PropertyBags ratioTapChangerTable(String tableId) {
-        return ratioTapChangerTables.get(tableId);
-    }
-
-    public PropertyBags phaseTapChangerTable(String tableId) {
-        return phaseTapChangerTables.get(tableId);
+        return cachedGroupedReactiveCapabilityCurveData.getOrDefault(curveId, new PropertyBags());
     }
 
     public void loadCgmesTerminals() {
@@ -224,6 +209,28 @@ public class Context {
 
     public PropertyBag cgmesTerminal(String id) {
         return cgmesTerminals.get(id);
+    }
+
+    public void loadRatioTapChangers() {
+        cgmes.ratioTapChangers().forEach(p -> {
+            String id = p.getId(CgmesNames.RATIO_TAP_CHANGER);
+            ratioTapChangers.put(id, p);
+        });
+    }
+
+    public PropertyBag ratioTapChanger(String id) {
+        return ratioTapChangers.get(id);
+    }
+
+    public void loadPhaseTapChangers() {
+        cgmes.phaseTapChangers().forEach(p -> {
+            String id = p.getId(CgmesNames.PHASE_TAP_CHANGER);
+            phaseTapChangers.put(id, p);
+        });
+    }
+
+    public PropertyBag phaseTapChanger(String id) {
+        return phaseTapChangers.get(id);
     }
 
     public void loadRegulatingControls() {
@@ -367,12 +374,17 @@ public class Context {
     private final LoadingLimitsMapping loadingLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
 
-    private final Map<String, PropertyBags> ratioTapChangerTables;
-    private final Map<String, PropertyBags> phaseTapChangerTables;
-    private final Map<String, PropertyBags> reactiveCapabilityCurveData;
-    private final Map<String, PropertyBag> powerTransformerRatioTapChangers;
-    private final Map<String, PropertyBag> powerTransformerPhaseTapChangers;
+    private final Map<String, PropertyBags> cachedGroupedTransformerEnds;
+    private final Map<String, PropertyBags> cachedGroupedRatioTapChangers;
+    private final Map<String, PropertyBags> cachedGroupedRatioTapChangerTablePoints;
+    private final Map<String, PropertyBags> cachedGroupedPhaseTapChangers;
+    private final Map<String, PropertyBags> cachedGroupedPhaseTapChangerTablePoints;
+    private final Map<String, PropertyBags> cachedGroupedShuntCompensatorPoints;
+    private final Map<String, PropertyBags> cachedGroupedReactiveCapabilityCurveData;
+
     private final Map<String, PropertyBag> cgmesTerminals;
+    private final Map<String, PropertyBag> ratioTapChangers;
+    private final Map<String, PropertyBag> phaseTapChangers;
     private final Map<String, PropertyBag> regulatingControls;
     private final Map<String, PropertyBag> operationalLimits;
     private final Map<String, PropertyBag> generatingUnits;
