@@ -8,6 +8,7 @@
 package com.powsybl.commons.report;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -40,4 +41,6 @@ public interface TreeContext {
      * Merge given {@link TreeContext} with current one.
      */
     void merge(TreeContext treeContext);
+
+    Locale getLocale();
 }
