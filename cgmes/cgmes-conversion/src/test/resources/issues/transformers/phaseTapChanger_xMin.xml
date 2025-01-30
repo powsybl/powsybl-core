@@ -1,0 +1,285 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:ModelID">
+    <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+    <md:Model.description>Phase tap changer incorrect xmin</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:GeographicalRegion rdf:ID="_GR">
+    <cim:IdentifiedObject.name>Geographical region</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:SubGeographicalRegion rdf:ID="_SGR">
+    <cim:IdentifiedObject.name>Subgeographical region</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_GR"/>
+</cim:SubGeographicalRegion>
+<cim:Substation rdf:ID="_ST">
+    <cim:IdentifiedObject.name>Substation</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SGR"/>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_VL_400">
+    <cim:IdentifiedObject.name>Voltage level 400 kV</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_400"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST"/>
+</cim:VoltageLevel>
+<cim:VoltageLevel rdf:ID="_VL_110">
+    <cim:IdentifiedObject.name>Voltage level 110 kV</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_110"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST"/>
+</cim:VoltageLevel>
+<cim:PowerTransformer rdf:ID="_LINEAR">
+    <cim:IdentifiedObject.name>Linear phase shifter</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_ST"/>
+</cim:PowerTransformer>
+<cim:PowerTransformerEnd rdf:ID="_LINEAR_E1">
+    <cim:IdentifiedObject.name>Linear phase shifter end 1</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+    <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+    <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+    <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_LINEAR_E1"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_400"/>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+    <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/CIM100#WindingConnection.Y"/>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+    <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+    <cim:PowerTransformerEnd.r>1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.r0>1</cim:PowerTransformerEnd.r0>
+    <cim:PowerTransformerEnd.ratedS>1000</cim:PowerTransformerEnd.ratedS>
+    <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.x>10</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.x0>10</cim:PowerTransformerEnd.x0>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_LINEAR"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_LINEAR_E1">
+    <cim:IdentifiedObject.name>Terminal LINEAR_E1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_LINEAR"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+</cim:Terminal>
+<cim:PowerTransformerEnd rdf:ID="_LINEAR_E2">
+    <cim:IdentifiedObject.name>Linear phase shifter end 2</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+    <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+    <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+    <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_LINEAR_E2"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110"/>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+    <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/CIM100#WindingConnection.Y"/>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+    <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+    <cim:PowerTransformerEnd.r>0</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.r0>0</cim:PowerTransformerEnd.r0>
+    <cim:PowerTransformerEnd.ratedS>1000</cim:PowerTransformerEnd.ratedS>
+    <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.x>0</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.x0>0</cim:PowerTransformerEnd.x0>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_LINEAR"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_LINEAR_E2">
+    <cim:IdentifiedObject.name>Terminal LINEAR_E2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_LINEAR"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2"/>
+</cim:Terminal>
+<cim:PhaseTapChangerLinear rdf:ID="_PTC_LINEAR">
+    <cim:IdentifiedObject.name>Phase tap changer linear</cim:IdentifiedObject.name>
+    <cim:TapChanger.highStep>25</cim:TapChanger.highStep>
+    <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+    <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+    <cim:TapChanger.neutralStep>13</cim:TapChanger.neutralStep>
+    <cim:TapChanger.neutralU>400</cim:TapChanger.neutralU>
+    <cim:TapChanger.normalStep>13</cim:TapChanger.normalStep>
+    <cim:PhaseTapChanger.TransformerEnd rdf:resource="#_LINEAR_E1" />
+    <cim:PhaseTapChangerLinear.stepPhaseShiftIncrement>1</cim:PhaseTapChangerLinear.stepPhaseShiftIncrement>
+    <cim:PhaseTapChangerLinear.xMax>20</cim:PhaseTapChangerLinear.xMax>
+    <cim:PhaseTapChangerLinear.xMin>0</cim:PhaseTapChangerLinear.xMin><!-- incorrect xMin value: should be greater than 0 -->
+</cim:PhaseTapChangerLinear>
+<cim:TapChangerControl rdf:ID="_TCC_LINEAR">
+    <cim:IdentifiedObject.name>Tap changer control linear</cim:IdentifiedObject.name>
+    <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.activePower"/>
+    <cim:RegulatingControl.Terminal rdf:resource="#_T_LINEAR_E1"/>
+</cim:TapChangerControl>
+<cim:PowerTransformer rdf:ID="_SYMMETRICAL">
+    <cim:IdentifiedObject.name>Symmetrical phase shifter</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_ST"/>
+</cim:PowerTransformer>
+<cim:PowerTransformerEnd rdf:ID="_SYMMETRICAL_E1">
+    <cim:IdentifiedObject.name>Symmetrical phase shifter end 1</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+    <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+    <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+    <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_SYMMETRICAL_E1"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_400"/>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+    <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/CIM100#WindingConnection.Y"/>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+    <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+    <cim:PowerTransformerEnd.r>1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.r0>1</cim:PowerTransformerEnd.r0>
+    <cim:PowerTransformerEnd.ratedS>1000</cim:PowerTransformerEnd.ratedS>
+    <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.x>10</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.x0>10</cim:PowerTransformerEnd.x0>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_SYMMETRICAL"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_SYMMETRICAL_E1">
+    <cim:IdentifiedObject.name>Terminal SYMMETRICAL_E1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_SYMMETRICAL"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+</cim:Terminal>
+<cim:PowerTransformerEnd rdf:ID="_SYMMETRICAL_E2">
+    <cim:IdentifiedObject.name>Symmetrical phase shifter end 2</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+    <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+    <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+    <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_SYMMETRICAL_E2"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110"/>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+    <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/CIM100#WindingConnection.Y"/>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+    <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+    <cim:PowerTransformerEnd.r>0</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.r0>0</cim:PowerTransformerEnd.r0>
+    <cim:PowerTransformerEnd.ratedS>1000</cim:PowerTransformerEnd.ratedS>
+    <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.x>0</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.x0>0</cim:PowerTransformerEnd.x0>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_SYMMETRICAL"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_SYMMETRICAL_E2">
+    <cim:IdentifiedObject.name>Terminal SYMMETRICAL_E2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_SYMMETRICAL"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2"/>
+</cim:Terminal>
+<cim:PhaseTapChangerSymmetrical rdf:ID="_PTC_SYMMETRICAL">
+    <cim:IdentifiedObject.name>Phase tap changer symmetrical</cim:IdentifiedObject.name>
+    <cim:TapChanger.highStep>25</cim:TapChanger.highStep>
+    <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+    <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+    <cim:TapChanger.neutralStep>13</cim:TapChanger.neutralStep>
+    <cim:TapChanger.neutralU>400</cim:TapChanger.neutralU>
+    <cim:TapChanger.normalStep>13</cim:TapChanger.normalStep>
+    <cim:TapChanger.TapChangerControl rdf:resource="#_TCC_SYMMETRICAL"/>
+    <cim:PhaseTapChanger.TransformerEnd rdf:resource="#_SYMMETRICAL_E1"/>
+    <cim:PhaseTapChangerNonLinear.voltageStepIncrement>1.25</cim:PhaseTapChangerNonLinear.voltageStepIncrement>
+    <cim:PhaseTapChangerNonLinear.xMax>20</cim:PhaseTapChangerNonLinear.xMax>
+    <cim:PhaseTapChangerNonLinear.xMin>0</cim:PhaseTapChangerNonLinear.xMin><!-- incorrect xMin value: should be greater than 0 -->
+</cim:PhaseTapChangerSymmetrical>
+<cim:TapChangerControl rdf:ID="_TCC_SYMMETRICAL">
+    <cim:IdentifiedObject.name>Tap changer control symmetrical</cim:IdentifiedObject.name>
+    <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.activePower"/>
+    <cim:RegulatingControl.Terminal rdf:resource="#_T_SYMMETRICAL_E1"/>
+</cim:TapChangerControl>
+<cim:PowerTransformer rdf:ID="_ASYMMETRICAL">
+    <cim:IdentifiedObject.name>Asymmetrical phase shifter</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_ST"/>
+</cim:PowerTransformer>
+<cim:PowerTransformerEnd rdf:ID="_ASYMMETRICAL_E1">
+    <cim:IdentifiedObject.name>Aymmetrical phase shifter end 1</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+    <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+    <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+    <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_ASYMMETRICAL_E1"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_400"/>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+    <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/CIM100#WindingConnection.Y"/>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+    <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+    <cim:PowerTransformerEnd.r>1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.r0>1</cim:PowerTransformerEnd.r0>
+    <cim:PowerTransformerEnd.ratedS>1000</cim:PowerTransformerEnd.ratedS>
+    <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.x>10</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.x0>10</cim:PowerTransformerEnd.x0>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_ASYMMETRICAL"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_ASYMMETRICAL_E1">
+    <cim:IdentifiedObject.name>Terminal ASYMMETRICAL_E1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_ASYMMETRICAL"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+</cim:Terminal>
+<cim:PowerTransformerEnd rdf:ID="_ASYMMETRICAL_E2">
+    <cim:IdentifiedObject.name>Asymmetrical phase shifter end 2</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+    <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+    <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+    <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_ASYMMETRICAL_E2"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110"/>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+    <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/CIM100#WindingConnection.Y"/>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+    <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+    <cim:PowerTransformerEnd.r>0</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.r0>0</cim:PowerTransformerEnd.r0>
+    <cim:PowerTransformerEnd.ratedS>1000</cim:PowerTransformerEnd.ratedS>
+    <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.x>0</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.x0>0</cim:PowerTransformerEnd.x0>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_ASYMMETRICAL"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_ASYMMETRICAL_E2">
+    <cim:IdentifiedObject.name>Terminal ASYMMETRICAL_E2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_ASYMMETRICAL"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2"/>
+</cim:Terminal>
+<cim:PhaseTapChangerAsymmetrical rdf:ID="_PTC_ASYMMETRICAL">
+    <cim:IdentifiedObject.name>Phase tap changer asymmetrical</cim:IdentifiedObject.name>
+    <cim:TapChanger.highStep>25</cim:TapChanger.highStep>
+    <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+    <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+    <cim:TapChanger.neutralStep>13</cim:TapChanger.neutralStep>
+    <cim:TapChanger.neutralU>400</cim:TapChanger.neutralU>
+    <cim:TapChanger.normalStep>13</cim:TapChanger.normalStep>
+    <cim:TapChanger.TapChangerControl rdf:resource="#_TCC_ASYMMETRICAL"/>
+    <cim:PhaseTapChanger.TransformerEnd rdf:resource="#_ASYMMETRICAL_E1"/>
+    <cim:PhaseTapChangerAsymmetrical.windingConnectionAngle>90.000000</cim:PhaseTapChangerAsymmetrical.windingConnectionAngle>
+    <cim:PhaseTapChangerNonLinear.voltageStepIncrement>1.25</cim:PhaseTapChangerNonLinear.voltageStepIncrement>
+    <cim:PhaseTapChangerNonLinear.xMax>20</cim:PhaseTapChangerNonLinear.xMax>
+    <cim:PhaseTapChangerNonLinear.xMin>0</cim:PhaseTapChangerNonLinear.xMin><!-- incorrect xMin value: should be greater than 0 -->
+</cim:PhaseTapChangerAsymmetrical>
+<cim:TapChangerControl rdf:ID="_TCC_ASYMMETRICAL">
+    <cim:IdentifiedObject.name>Tap changer control asymmetrical</cim:IdentifiedObject.name>
+    <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.activePower"/>
+    <cim:RegulatingControl.Terminal rdf:resource="#_T_ASYMMETRICAL_E1"/>
+</cim:TapChangerControl>
+<cim:ConnectivityNode rdf:ID="_CN_1">
+    <cim:IdentifiedObject.name>Node 1</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_400"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_CN_2">
+    <cim:IdentifiedObject.name>Node 2</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_110"/>
+</cim:ConnectivityNode>
+<cim:BaseVoltage rdf:ID="_BV_400">
+    <cim:IdentifiedObject.name>400 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>400</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_110">
+    <cim:IdentifiedObject.name>110 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+</rdf:RDF>

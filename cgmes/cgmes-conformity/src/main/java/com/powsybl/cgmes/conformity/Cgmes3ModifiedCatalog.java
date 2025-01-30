@@ -97,25 +97,6 @@ public final class Cgmes3ModifiedCatalog {
                 new ResourceSet(base, CGMES_3_MICRO_GRID_EQ_BD));
     }
 
-    public static GridModelReferenceResources microGridBaseCasePhaseTapChangerXMin() {
-        String base = CGMES_3_MODIFIED_TEST_MODELS
-                + "/MicroGrid/phaseTapChangerXMin/";
-        return new GridModelReferenceResources(
-                "MicroGrid-phaseTapChanger-xMin",
-                null,
-                new ResourceSet(base, CGMES_3_MICRO_GRID_BE_EQ),
-                new ResourceSet(CGMES_3_MICRO_GRID_BASE,
-                        CGMES_3_MICRO_GRID_ASSEMBLED_DL,
-                        CGMES_3_MICRO_GRID_ASSEMBLED_SV,
-                        CGMES_3_MICRO_GRID_BE_GL,
-                        CGMES_3_MICRO_GRID_BE_SSH,
-                        CGMES_3_MICRO_GRID_NL_EQ,
-                        CGMES_3_MICRO_GRID_NL_GL,
-                        CGMES_3_MICRO_GRID_NL_SSH,
-                        CGMES_3_MICRO_GRID_ASSEMBLED_TP),
-                new ResourceSet(CGMES_3_MICRO_GRID_BASE, CGMES_3_MICRO_GRID_EQ_BD));
-    }
-
     public static GridModelReferenceResources microGridBaseCaseAllTypesOfLoads() {
         String base = CGMES_3_MODIFIED_TEST_MODELS
                 + "/MicroGrid/allTypesOfLoads/";
