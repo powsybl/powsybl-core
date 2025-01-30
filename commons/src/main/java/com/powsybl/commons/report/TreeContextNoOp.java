@@ -9,7 +9,6 @@ package com.powsybl.commons.report;
 
 import com.powsybl.commons.PowsyblException;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 
@@ -21,16 +20,6 @@ public class TreeContextNoOp implements TreeContext {
     @Override
     public Map<String, String> getDictionary() {
         return Map.of();
-    }
-
-    @Override
-    public DateTimeFormatter getTimestampFormatter() {
-        return null;
-    }
-
-    @Override
-    public boolean isTimestampAdded() {
-        return false;
     }
 
     @Override

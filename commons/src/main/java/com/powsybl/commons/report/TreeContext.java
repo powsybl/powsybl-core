@@ -7,7 +7,6 @@
  */
 package com.powsybl.commons.report;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 
@@ -26,16 +25,6 @@ public interface TreeContext {
      * Get the dictionary of message templates indexed by their key.
      */
     Map<String, String> getDictionary();
-
-    /**
-     * Get the {@link DateTimeFormatter} to use for timestamps, if enabled.
-     */
-    DateTimeFormatter getTimestampFormatter();
-
-    /**
-     * Return whether a timestamp is added at each {@link ReportNode} creation.
-     */
-    boolean isTimestampAdded();
 
     /**
      * Merge given {@link TreeContext} with current one.

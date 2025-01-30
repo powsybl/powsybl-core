@@ -58,9 +58,6 @@ public final class ReportNodeImpl implements ReportNode {
                                                    boolean isRoot) {
         TreeContextImpl treeContext = treeContextRef.get();
         treeContext.addDictionaryEntry(Objects.requireNonNull(messageKey), Objects.requireNonNull(messageTemplate));
-        if (treeContext.isTimestampAdded()) {
-            values.put(ReportConstants.TIMESTAMP_KEY, TypedValue.getTimestamp(treeContext.getTimestampFormatter()));
-        }
         return new ReportNodeImpl(messageKey, values, inheritedValuesMaps, treeContextRef, isRoot);
     }
 
