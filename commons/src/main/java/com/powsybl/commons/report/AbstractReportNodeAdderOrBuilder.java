@@ -100,9 +100,7 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
 
     @Override
     public T withSeverity(TypedValue severity) {
-        if (!severity.getType().equals(TypedValue.SEVERITY)) {
-            throw new IllegalArgumentException("Expected a " + TypedValue.SEVERITY + " but received " + severity.getType());
-        }
+        TypedValue.checkSeverityType(severity);
         values.put(ReportConstants.SEVERITY_KEY, severity);
         return self();
     }

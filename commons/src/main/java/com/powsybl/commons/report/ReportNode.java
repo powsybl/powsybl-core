@@ -183,6 +183,12 @@ public interface ReportNode {
     /** Add one untyped boolean value */
     ReportNode addUntypedValue(String key, boolean value);
 
+    /** Add the {@link TypedValue#SEVERITY} typed value associated to {@link ReportConstants#SEVERITY_KEY} key */
+    ReportNode addSeverity(TypedValue severity);
+
+    /** Add the {@link String} value for the {@link TypedValue#SEVERITY} type associated to {@link ReportConstants#SEVERITY_KEY} key */
+    ReportNode addSeverity(String severity);
+
     /**
      * Print to given path the current report node and its descendants
      * @param path the path to write to

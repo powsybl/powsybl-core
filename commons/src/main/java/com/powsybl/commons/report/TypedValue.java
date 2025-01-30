@@ -163,7 +163,7 @@ public final class TypedValue {
         return new TypedValue(value, TypedValue.UNTYPED_TYPE);
     }
 
-    private TypedValue(Object value, String type) {
+    TypedValue(Object value, String type) {
         this.value = Objects.requireNonNull(value);
         this.type = Objects.requireNonNull(type);
     }
@@ -184,4 +184,11 @@ public final class TypedValue {
     public static TypedValue getTimestamp(DateTimeFormatter timestampFormatter) {
         return TypedValue.of(timestampFormatter.format(ZonedDateTime.now()), TypedValue.TIMESTAMP);
     }
+
+    static void checkSeverityType(TypedValue severity) {
+        if (!severity.getType().equals(TypedValue.SEVERITY)) {
+            throw new IllegalArgumentException("Expected a " + TypedValue.SEVERITY + " but received " + severity.getType());
+        }
+    }
+
 }

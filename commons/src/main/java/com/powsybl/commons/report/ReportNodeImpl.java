@@ -255,6 +255,19 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
+    public ReportNode addSeverity(TypedValue severity) {
+        TypedValue.checkSeverityType(severity);
+        values.put(ReportConstants.SEVERITY_KEY, severity);
+        return this;
+    }
+
+    @Override
+    public ReportNode addSeverity(String severity) {
+        values.put(ReportConstants.SEVERITY_KEY, TypedValue.of(severity, TypedValue.SEVERITY));
+        return this;
+    }
+
+    @Override
     public void print(Writer writer, ReportFormatter formatter) throws IOException {
         print(writer, "", formatter);
     }
