@@ -194,12 +194,15 @@ public class Context {
         return cachedGroupedReactiveCapabilityCurveData.getOrDefault(curveId, new PropertyBags());
     }
 
-    public void loadCgmesTerminals() {
-        cgmes.terminals().forEach(p -> {
-            String id = p.getId(CgmesNames.TERMINAL);
-            cgmesTerminals.put(id, p);
-        });
+    public void buildUpdateCache() {
+        buildUpdateCache(cgmesTerminals, cgmes.terminals(), CgmesNames.TERMINAL);
+    }
 
+    private static void buildUpdateCache(Map<String, PropertyBag> cache, PropertyBags cgmesPropertyBags, String tagId) {
+        cgmesPropertyBags.forEach(p -> {
+            String id = p.getId(tagId);
+            cache.put(id, p);
+        });
     }
 
     public PropertyBag cgmesTerminal(String id) {

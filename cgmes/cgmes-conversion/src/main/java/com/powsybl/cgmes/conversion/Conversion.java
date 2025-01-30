@@ -533,7 +533,7 @@ public class Conversion {
 
     private Context createUpdateContext(Network network, ReportNode reportNode) {
         Context context = new Context(cgmes, config, network, reportNode);
-        context.loadCgmesTerminals();
+        context.buildUpdateCache();
         return context;
     }
 

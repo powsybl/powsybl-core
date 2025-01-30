@@ -24,7 +24,6 @@ import com.powsybl.triplestore.api.PropertyBags;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.EMPTY;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -785,19 +784,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             return stateVariablesPowerFlow;
         }
         return PowerFlow.UNDEFINED;
-    }
-
-    protected static double defaultValue(double eq, double previous, double defaultValue, double emptyValue, Conversion.Config.DefaultValue defaultValueSelector) {
-        return switch (defaultValueSelector) {
-            case EQ -> eq;
-            case PREVIOUS -> previous;
-            case DEFAULT -> defaultValue;
-            case EMPTY -> emptyValue;
-        };
-    }
-
-    protected static Conversion.Config.DefaultValue getDefaultValueSelector(List<Conversion.Config.DefaultValue> validDefaultValues, Context context) {
-        return context.config().updateDefaultValuesPriority().stream().filter(validDefaultValues::contains).findFirst().orElse(EMPTY);
     }
 
     private final TerminalData[] terminals;
