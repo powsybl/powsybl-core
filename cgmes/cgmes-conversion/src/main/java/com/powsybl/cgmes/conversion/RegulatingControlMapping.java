@@ -61,19 +61,11 @@ public class RegulatingControlMapping {
     public static class RegulatingControl {
         final String mode;
         final String cgmesTerminal;
-        final boolean enabled;
-        final double targetValue;
-        final double targetDeadband;
         private Boolean correctlySet;
 
         RegulatingControl(PropertyBag p) {
             this.mode = p.get("mode").toLowerCase();
             this.cgmesTerminal = p.getId(CgmesNames.TERMINAL);
-            this.enabled = p.asBoolean("enabled", true);
-            this.targetValue = p.asDouble("targetValue");
-            // targetDeadband is optional in CGMES,
-            // If not explicitly given it should be interpreted as zero
-            this.targetDeadband = p.asDouble("targetDeadband", 0);
         }
 
         void setCorrectlySet(boolean okSet) {
@@ -86,17 +78,9 @@ public class RegulatingControlMapping {
                 correctlySet = false;
             }
         }
-
-        public double getTargetValue() {
-            return targetValue;
-        }
-
-        public double getTargetDeadBand() {
-            return targetDeadband;
-        }
     }
 
-    private Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
+    private final Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
 
     public Map<String, RegulatingControl> cachedRegulatingControls() {
         return cachedRegulatingControls;

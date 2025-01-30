@@ -675,14 +675,6 @@ WHERE {
         cim:RegulatingControl.mode ?mode ;
         cim:RegulatingControl.Terminal ?Terminal .
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?RegulatingControl
-        cim:RegulatingControl.enabled ?enabled ;
-        cim:RegulatingControl.targetValue ?targetValue ;
-        cim:RegulatingControl.targetValueUnitMultiplier ?targetValueUnitMultiplier ;
-        cim:RegulatingControl.discrete ?discrete .
-    OPTIONAL { ?RegulatingControl cim:RegulatingControl.targetDeadband ?targetDeadband }
-}}
 }
 
 # query: energyConsumers
