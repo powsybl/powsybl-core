@@ -1,5 +1,6 @@
 package com.powsybl.ucte.converter;
 
+import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
@@ -8,13 +9,14 @@ import java.io.IOException;
 import java.util.Properties;
 
 import static com.powsybl.ucte.converter.UcteExporterTest.testExporter;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class UcteExporterGeneratorTest {
 
+    Network network = EurostagTutorialExample1Factory.create();
+
     @Test
     void testGenerator() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create();
-
         Properties p = new Properties();
         p.put(UcteExporter.NAMING_STRATEGY, "Counter");
         testExporter(network, "/eurostag.uct", p);
@@ -22,8 +24,59 @@ class UcteExporterGeneratorTest {
 
     @Test
     void testMultipleGeneratorsAndLoads() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create();
+        createGen2AndSplitGeneration();
 
+        Properties p = new Properties();
+        p.put(UcteExporter.NAMING_STRATEGY, "Counter");
+        testExporter(network, "/eurostag.uct", p);
+    }
+
+    @Test
+    void testMultipleGeneratorDifferentTargetV() throws IOException {
+        createGen2AndSplitGeneration();
+
+        network.getGenerator("GEN2").setTargetV(30);
+
+        assertNotEquals(network.getGenerator("GEN").getTargetV(), network.getGenerator("GEN2").getTargetV());
+
+        Properties p = new Properties();
+        p.put(UcteExporter.NAMING_STRATEGY, "Counter");
+        // TargetV kept is the one of GEN, so the export doesn't change
+        testExporter(network, "/eurostag.uct", p);
+    }
+
+    @Test
+    void testGeneratorNotRegulatingVoltage() throws IOException {
+        network.getGenerator("GEN").setVoltageRegulatorOn(false);
+
+        Properties p = new Properties();
+        p.put(UcteExporter.NAMING_STRATEGY, "Counter");
+        // The UCTE node associated to NGEN is now PQ and not PV
+        testExporter(network, "/eurostagGeneratorNotRegulating.uct", p);
+    }
+
+    @Test
+    void testHydroGenerator() throws IOException {
+        network.getGenerator("GEN").setEnergySource(EnergySource.HYDRO);
+
+        Properties p = new Properties();
+        p.put(UcteExporter.NAMING_STRATEGY, "Counter");
+        // The UCTE node associated to NGEN is now H and not F
+        testExporter(network, "/eurostagHydroGen.uct", p);
+    }
+
+    @Test
+    void testMultipleGeneratorWithDifferentEnergySource() throws IOException {
+        createGen2AndSplitGeneration();
+        network.getGenerator("GEN2").setEnergySource(EnergySource.HYDRO);
+
+        Properties p = new Properties();
+        p.put(UcteExporter.NAMING_STRATEGY, "Counter");
+        // The UCTE node associated to NGEN is F as GEN and GEN2 do not have the same EnergySource
+        testExporter(network, "/eurostag.uct", p);
+    }
+
+    private void createGen2AndSplitGeneration() {
         // Splits generation on two generators
         network.getVoltageLevel("VLGEN").newGenerator()
             .setId("GEN2")
@@ -38,8 +91,6 @@ class UcteExporterGeneratorTest {
             .add();
 
         network.getGenerator("GEN").setTargetP(303.5).setTargetQ(150.5);
-        Properties p = new Properties();
-        p.put(UcteExporter.NAMING_STRATEGY, "Counter");
-        testExporter(network, "/eurostag.uct", p);
     }
+
 }
