@@ -155,7 +155,6 @@ public final class CgmesNames {
     public static final String REGULATION_STATUS = "regulationStatus";
     public static final String MODE = "mode";
     public static final String INITIAL_P = "initialP";
-    public static final String NORMAL_SECTIONS = "normalSections";
     public static final String TARGET_VALUE = "targetValue";
     public static final String TARGET_DEADBAND = "targetDeadband";
     public static final String ENABLED = "enabled";
