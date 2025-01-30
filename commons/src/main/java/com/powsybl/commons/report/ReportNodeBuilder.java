@@ -40,6 +40,12 @@ public interface ReportNodeBuilder extends ReportNodeAdderOrBuilder<ReportNodeBu
     }
 
     /**
+     * Choose which {@link Locale} to use for formatting all the `ReportNode` messages of the tree.
+     * @return a reference to this object
+     */
+    ReportNodeBuilder withLocale(Locale locale);
+
+    /**
      * Enable timestamps on build ReportNode and all descendants.
      * @return a reference to this object
      */

@@ -19,6 +19,7 @@ public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<
 
     private String timestampPattern;
     private Locale timestampLocale;
+    private Locale locale;
     private boolean timestamps;
 
     @Override
@@ -35,8 +36,15 @@ public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<
     }
 
     @Override
+    public ReportNodeBuilder withLocale(Locale locale) {
+        this.locale = locale;
+        return this;
+    }
+
+    @Override
     public ReportNode build() {
-        TreeContextImpl treeContext = new TreeContextImpl(timestamps, createDateTimeFormatter(timestampPattern, timestampLocale));
+        Locale localeSetOrDefault = this.locale != null ? this.locale : ReportConstants.DEFAULT_LOCALE;
+        TreeContextImpl treeContext = new TreeContextImpl(timestamps, createDateTimeFormatter(timestampPattern, timestampLocale), localeSetOrDefault);
         String messageTemplate = getMessageTemplate(treeContext);
         return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, treeContext);
     }

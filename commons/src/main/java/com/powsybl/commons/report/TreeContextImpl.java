@@ -21,18 +21,20 @@ public class TreeContextImpl implements TreeContext {
     private final SortedMap<String, String> dictionary = new TreeMap<>();
     private final boolean timestamps;
     private final DateTimeFormatter timestampFormatter;
+    private final Locale locale;
 
     public TreeContextImpl() {
         this(false);
     }
 
     public TreeContextImpl(boolean timestamps) {
-        this(timestamps, ReportConstants.DEFAULT_TIMESTAMP_FORMATTER);
+        this(timestamps, ReportConstants.DEFAULT_TIMESTAMP_FORMATTER, ReportConstants.DEFAULT_LOCALE);
     }
 
-    public TreeContextImpl(boolean timestamps, DateTimeFormatter dateTimeFormatter) {
+    public TreeContextImpl(boolean timestamps, DateTimeFormatter dateTimeFormatter, Locale locale) {
         this.timestamps = timestamps;
         this.timestampFormatter = Objects.requireNonNull(dateTimeFormatter);
+        this.locale = locale;
     }
 
     @Override
@@ -57,7 +59,7 @@ public class TreeContextImpl implements TreeContext {
 
     @Override
     public Locale getLocale() {
-        return timestampFormatter.getLocale();
+        return locale;
     }
 
     public synchronized void addDictionaryEntry(String key, String messageTemplate) {
