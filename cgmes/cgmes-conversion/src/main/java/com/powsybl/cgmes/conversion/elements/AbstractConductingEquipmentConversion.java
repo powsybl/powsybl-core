@@ -816,11 +816,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return controlMode != null && controlMode.toLowerCase().endsWith(CgmesNames.REACTIVE_POWER);
     }
 
-    protected static Optional<PropertyBag> findCgmesRegulatingControl(Connectable<?> connectable, Context context) {
-        String regulatingControlId = connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL);
-        return regulatingControlId != null ? Optional.ofNullable(context.regulatingControl(regulatingControlId)) : Optional.empty();
-    }
-
     protected static <C extends Connectable<C>> Optional<PropertyBag> findCgmesRegulatingControl(Connectable<C> tw, String tapChangerId, Context context) {
         CgmesTapChangers<C> cgmesTcs = tw.getExtension(CgmesTapChangers.class);
         if (cgmesTcs != null && tapChangerId != null) {
@@ -828,11 +823,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             return cgmesTc != null ? Optional.ofNullable(context.regulatingControl(cgmesTc.getControlId())) : Optional.empty();
         }
         return Optional.empty();
-    }
-
-    protected static int findTerminalSign(Connectable<?> connectable) {
-        String terminalSign = connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN);
-        return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
     }
 
     protected static int findTerminalSign(Connectable<?> connectable, String end) {
@@ -847,10 +837,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     protected static double findTargetV(PropertyBag regulatingControl, String propertyTag, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
         double targetV = regulatingControl.asDouble(propertyTag);
         return useDefaultValue(regulatingControl.containsKey(propertyTag), isValidTargetV(targetV), use) ? defaultValue(defaultValue, context) : targetV;
-    }
-
-    protected static double findTargetQ(PropertyBag regulatingControl, int terminalSign, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
-        return findTargetValue(regulatingControl, terminalSign, defaultValue, use, context);
     }
 
     protected static double findTargetValue(PropertyBag regulatingControl, int terminalSign, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
