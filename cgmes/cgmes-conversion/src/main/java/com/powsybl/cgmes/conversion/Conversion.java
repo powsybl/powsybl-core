@@ -542,12 +542,7 @@ public class Conversion {
 
     private Context createUpdateContext(Network network, ReportNode reportNode) {
         Context context = new Context(cgmes, config, network, reportNode);
-        context.loadCgmesTerminals();
-        context.loadRatioTapChangers();
-        context.loadPhaseTapChangers();
-        context.loadRegulatingControls();
-        context.loadOperationalLimits();
-        context.loadGeneratingUnits();
+        context.buildUpdateCache();
         return context;
     }
 
