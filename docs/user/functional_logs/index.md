@@ -107,5 +107,5 @@ for (ProblematicElement element : problematicElements) {
 
 // Putting a value afterwards in a given reportNode
 long t1 = System.currentTimeMillis();
-root.getValues().put("time", t1 - t0);
+root.getValues().put("time", new TypedValue(t1 - t0, "ELAPSED_TIME"));
 ```
