@@ -23,6 +23,8 @@ import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.TerminalRefSerDe;
 import com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtensionSerDe;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.List;
@@ -35,6 +37,8 @@ import java.util.OptionalDouble;
  */
 @AutoService(ExtensionSerDe.class)
 public class CgmesControlAreasSerDe extends AbstractVersionableNetworkExtensionSerDe<Network, CgmesControlAreasSerDe.DummyExt> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CgmesControlAreasSerDe.class);
 
     private static final String CONTROL_AREA_ROOT_ELEMENT = "controlArea";
     private static final String CONTROL_AREA_ARRAY_ELEMENT = "controlAreas";
@@ -94,21 +98,27 @@ public class CgmesControlAreasSerDe extends AbstractVersionableNetworkExtensionS
         TreeDataReader reader = networkContext.getReader();
         reader.readChildNodes(elementName -> {
             if (elementName.equals(CONTROL_AREA_ROOT_ELEMENT)) {
-                Area area = extendable.newArea()
-                        .setAreaType(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)
-                        .setId(reader.readStringAttribute("id"))
-                        .setName(reader.readStringAttribute("name"))
-                        .setInterchangeTarget(reader.readDoubleAttribute("netInterchange"))
-                        .add();
+                String id = reader.readStringAttribute("id");
+                if (extendable.getArea(id) == null) {
+                    Area area = extendable.newArea()
+                            .setAreaType(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)
+                            .setId(id)
+                            .setName(reader.readStringAttribute("name"))
+                            .setInterchangeTarget(reader.readDoubleAttribute("netInterchange"))
+                            .add();
 
-                OptionalDouble pTolerance = reader.readOptionalDoubleAttribute("pTolerance");
-                pTolerance.ifPresent(t -> area.setProperty(CgmesNames.P_TOLERANCE, Double.toString(t)));
+                    OptionalDouble pTolerance = reader.readOptionalDoubleAttribute("pTolerance");
+                    pTolerance.ifPresent(t -> area.setProperty(CgmesNames.P_TOLERANCE, Double.toString(t)));
 
-                String energyIdentificationCodeEic = reader.readStringAttribute("energyIdentificationCodeEic");
-                if (!Strings.isNullOrEmpty(energyIdentificationCodeEic)) {
-                    area.addAlias(energyIdentificationCodeEic, CgmesNames.ENERGY_IDENT_CODE_EIC);
+                    String energyIdentificationCodeEic = reader.readStringAttribute("energyIdentificationCodeEic");
+                    if (!Strings.isNullOrEmpty(energyIdentificationCodeEic)) {
+                        area.addAlias(energyIdentificationCodeEic, CgmesNames.ENERGY_IDENT_CODE_EIC);
+                    }
+                    readBoundariesAndTerminals(networkContext, area, extendable);
+                } else {
+                    LOGGER.warn("Area with id {} already exists. Skipping this CgmesControlArea.", id);
+                    reader.skipChildNodes();
                 }
-                readBoundariesAndTerminals(networkContext, area, extendable);
             } else {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in 'cgmesControlArea'");
             }
