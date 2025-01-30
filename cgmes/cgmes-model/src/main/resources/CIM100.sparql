@@ -120,6 +120,7 @@ WHERE {
         cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
     OPTIONAL { ?OperationalLimit eu:IdentifiedObject.shortName ?shortName }
     OPTIONAL { ?OperationalLimit cim:CurrentLimit.normalValue ?normalValue }
+    OPTIONAL { ?OperationalLimit cim:ActivePowerLimit.normalValue ?normalValue }
     OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.normalValue ?normalValue }
     OPTIONAL { ?OperationalLimit cim:VoltageLimit.normalValue ?normalValue }
     OPTIONAL { ?OperationalLimitSet cim:IdentifiedObject.name ?OperationalLimitSetName }
@@ -138,6 +139,7 @@ WHERE {
 }}
 OPTIONAL { GRAPH ?graphSSH {
     OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
+    OPTIONAL { ?OperationalLimit cim:ActivePowerLimit.value ?value }
     OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
     OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
 }}
