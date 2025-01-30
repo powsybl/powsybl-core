@@ -32,11 +32,6 @@ public interface TreeContext {
     DateTimeFormatter getTimestampFormatter();
 
     /**
-     * Return whether a timestamp is added at each {@link ReportNode} creation.
-     */
-    boolean isTimestampAdded();
-
-    /**
      * Merge given {@link TreeContext} with current one.
      */
     void merge(TreeContext treeContext);

@@ -19,20 +19,27 @@ import java.util.*;
 public class TreeContextImpl implements TreeContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(TreeContextImpl.class);
     private final SortedMap<String, String> dictionary = new TreeMap<>();
-    private final boolean timestamps;
     private final DateTimeFormatter timestampFormatter;
 
     public TreeContextImpl() {
-        this(false);
+        this(ReportConstants.DEFAULT_TIMESTAMP_PATTERN, ReportConstants.DEFAULT_LOCALE);
     }
 
-    public TreeContextImpl(boolean timestamps) {
-        this(timestamps, ReportConstants.DEFAULT_TIMESTAMP_FORMATTER);
+    public TreeContextImpl(String timestampPattern, Locale locale) {
+        this.timestampFormatter = createDateTimeFormatter(timestampPattern, locale);
     }
 
-    public TreeContextImpl(boolean timestamps, DateTimeFormatter dateTimeFormatter) {
-        this.timestamps = timestamps;
-        this.timestampFormatter = Objects.requireNonNull(dateTimeFormatter);
+    private static DateTimeFormatter createDateTimeFormatter(String timestampPattern, Locale locale) {
+        if (timestampPattern == null && locale == null) {
+            return ReportConstants.DEFAULT_TIMESTAMP_FORMATTER;
+        }
+        if (timestampPattern == null) {
+            return DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN, locale);
+        }
+        if (locale == null) {
+            return DateTimeFormatter.ofPattern(timestampPattern, ReportConstants.DEFAULT_LOCALE);
+        }
+        return DateTimeFormatter.ofPattern(timestampPattern, locale);
     }
 
     @Override
@@ -43,11 +50,6 @@ public class TreeContextImpl implements TreeContext {
     @Override
     public DateTimeFormatter getTimestampFormatter() {
         return timestampFormatter;
-    }
-
-    @Override
-    public boolean isTimestampAdded() {
-        return timestamps;
     }
 
     @Override

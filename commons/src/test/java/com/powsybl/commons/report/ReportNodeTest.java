@@ -264,26 +264,26 @@ class ReportNodeTest extends AbstractSerDeTest {
         DateTimeFormatter defaultDateTimeFormatter = DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN);
 
         ReportNode root1 = ReportNode.newRootReportNode()
-                .withTimestamps(true)
                 .withMessageTemplate("rootTemplate", "Root message")
                 .build();
-        assertHasTimeStamp(root1, defaultDateTimeFormatter);
+        assertHasNoTimeStamp(root1);
 
         ReportNode child = root1.newReportNode()
                 .withMessageTemplate("child", "Child message")
+                .withTimestamp()
                 .add();
         assertHasTimeStamp(child, defaultDateTimeFormatter);
 
         Path report = tmpDir.resolve("report");
         ReportNodeSerializer.write(root1, report);
         ReportNode rootRead = ReportNodeDeserializer.read(report);
-        assertHasTimeStamp(rootRead, defaultDateTimeFormatter);
+        assertHasNoTimeStamp(rootRead);
         assertHasTimeStamp(rootRead.getChildren().get(0), defaultDateTimeFormatter);
 
         String customPattern = "dd MMMM yyyy HH:mm:ss XXX";
-        DateTimeFormatter customPatternFormatter = DateTimeFormatter.ofPattern(customPattern, ReportConstants.DEFAULT_TIMESTAMP_LOCALE);
+        DateTimeFormatter customPatternFormatter = DateTimeFormatter.ofPattern(customPattern, ReportConstants.DEFAULT_LOCALE);
         ReportNode root2 = ReportNode.newRootReportNode()
-                .withTimestamps(true)
+                .withTimestamp()
                 .withTimestampPattern(customPattern)
                 .withMessageTemplate("rootTemplate", "Root message")
                 .build();
@@ -292,12 +292,17 @@ class ReportNodeTest extends AbstractSerDeTest {
         Locale customLocale = Locale.ITALIAN;
         DateTimeFormatter customPatternAndLocaleFormatter = DateTimeFormatter.ofPattern(customPattern, customLocale);
         ReportNode root3 = ReportNode.newRootReportNode()
-                .withTimestamps(true)
-                .withTimestampPattern(customPattern, customLocale)
+                .withTimestamp()
+                .withTimestampPattern(customPattern)
+                .withLocale(customLocale)
                 .withMessageTemplate("rootTemplate", "Root message")
                 .build();
         assertHasTimeStamp(root3, customPatternAndLocaleFormatter);
 
+    }
+
+    private static void assertHasNoTimeStamp(ReportNode root1) {
+        assertTrue(root1.getValue(ReportConstants.TIMESTAMP_KEY).isEmpty());
     }
 
     private static void assertHasTimeStamp(ReportNode root, DateTimeFormatter dateTimeFormatter) {

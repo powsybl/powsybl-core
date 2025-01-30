@@ -18,38 +18,25 @@ import java.util.Locale;
 public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeBuilder> implements ReportNodeBuilder {
 
     private String timestampPattern;
-    private Locale timestampLocale;
-    private boolean timestamps;
+    private Locale locale;
 
     @Override
-    public ReportNodeBuilder withTimestampPattern(String timestampPattern, Locale locale) {
+    public ReportNodeBuilder withTimestampPattern(String timestampPattern) {
         this.timestampPattern = timestampPattern;
-        this.timestampLocale = locale;
         return this;
     }
 
     @Override
-    public ReportNodeBuilder withTimestamps(boolean enabled) {
-        this.timestamps = true;
+    public ReportNodeBuilder withLocale(Locale locale) {
+        this.locale = locale;
         return this;
     }
 
     @Override
     public ReportNode build() {
-        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, timestamps, createDateTimeFormatter(timestampPattern, timestampLocale));
-    }
-
-    private static DateTimeFormatter createDateTimeFormatter(String timestampPattern, Locale timestampLocale) {
-        if (timestampPattern == null && timestampLocale == null) {
-            return ReportConstants.DEFAULT_TIMESTAMP_FORMATTER;
-        }
-        if (timestampPattern == null) {
-            return DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN, timestampLocale);
-        }
-        if (timestampLocale == null) {
-            return DateTimeFormatter.ofPattern(timestampPattern, ReportConstants.DEFAULT_TIMESTAMP_LOCALE);
-        }
-        return DateTimeFormatter.ofPattern(timestampPattern, timestampLocale);
+        Locale localeSetOrDefault = this.locale != null ? this.locale : ReportConstants.DEFAULT_LOCALE;
+        TreeContextImpl treeContext = new TreeContextImpl(timestampPattern, localeSetOrDefault);
+        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, withTimestamp, treeContext);
     }
 
     @Override

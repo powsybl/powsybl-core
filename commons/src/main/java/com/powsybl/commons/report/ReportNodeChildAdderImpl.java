@@ -24,7 +24,7 @@ public class ReportNodeChildAdderImpl extends AbstractReportNodeAdderOrBuilder<R
 
     @Override
     public ReportNode add() {
-        ReportNodeImpl node = ReportNodeImpl.createChildReportNode(key, messageTemplate, values, parent);
+        ReportNodeImpl node = ReportNodeImpl.createChildReportNode(key, messageTemplate, values, withTimestamp, parent);
         parent.addChild(node);
         return node;
     }

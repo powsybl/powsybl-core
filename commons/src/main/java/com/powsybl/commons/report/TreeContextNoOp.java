@@ -26,11 +26,6 @@ public class TreeContextNoOp implements TreeContext {
     }
 
     @Override
-    public boolean isTimestampAdded() {
-        return false;
-    }
-
-    @Override
     public void merge(TreeContext treeContext) {
         // no-op
     }
