@@ -40,7 +40,7 @@ class SvcExportTest extends AbstractSerDeTest {
         StaticVarCompensator svc = network.getStaticVarCompensator(svcId);
         assertNotNull(svc);
         assertEquals(OFF, svc.getRegulationMode());
-        assertEquals(rcId, svc.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl"));
+        assertEquals(rcId, svc.getProperty(Conversion.PROPERTY_REGULATING_CONTROL));
         assertEquals(231.123, svc.getVoltageSetpoint(), 0.0);
 
         // Do a full export and check that output files contain the reference to the RC

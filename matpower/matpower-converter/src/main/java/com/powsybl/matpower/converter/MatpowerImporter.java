@@ -297,6 +297,7 @@ public class MatpowerImporter implements Importer {
                     .setVoltageRegulatorOn(false)
                     .setSectionCount(1);
             adder.newLinearModel()
+                    .setGPerSection(mBus.getShuntConductance() / context.getBaseMva() / zb)
                     .setBPerSection(mBus.getShuntSusceptance() / context.getBaseMva() / zb)
                     .setMaximumSectionCount(1)
                     .add();
