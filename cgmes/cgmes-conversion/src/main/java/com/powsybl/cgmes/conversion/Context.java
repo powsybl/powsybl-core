@@ -198,56 +198,35 @@ public class Context {
         return cachedGroupedReactiveCapabilityCurveData.getOrDefault(curveId, new PropertyBags());
     }
 
-    public void loadCgmesTerminals() {
-        cgmes.terminals().forEach(p -> {
-            String id = p.getId(CgmesNames.TERMINAL);
-            cgmesTerminals.put(id, p);
-        });
+    public void buildUpdateCache() {
+        buildUpdateCache(cgmesTerminals, cgmes.terminals(), CgmesNames.TERMINAL);
+        buildUpdateCache(ratioTapChangers, cgmes.ratioTapChangers(), CgmesNames.RATIO_TAP_CHANGER);
+        buildUpdateCache(phaseTapChangers, cgmes.phaseTapChangers(), CgmesNames.PHASE_TAP_CHANGER);
+        buildUpdateCache(regulatingControls, cgmes.regulatingControls(), CgmesNames.REGULATING_CONTROL);
+        buildUpdateCache(operationalLimits, cgmes.operationalLimits(), CgmesNames.OPERATIONAL_LIMIT);
+    }
 
+    private static void buildUpdateCache(Map<String, PropertyBag> cache, PropertyBags cgmesPropertyBags, String tagId) {
+        cgmesPropertyBags.forEach(p -> {
+            String id = p.getId(tagId);
+            cache.put(id, p);
+        });
     }
 
     public PropertyBag cgmesTerminal(String id) {
         return cgmesTerminals.get(id);
     }
 
-    public void loadRatioTapChangers() {
-        cgmes.ratioTapChangers().forEach(p -> {
-            String id = p.getId(CgmesNames.RATIO_TAP_CHANGER);
-            ratioTapChangers.put(id, p);
-        });
-    }
-
     public PropertyBag ratioTapChanger(String id) {
         return ratioTapChangers.get(id);
-    }
-
-    public void loadPhaseTapChangers() {
-        cgmes.phaseTapChangers().forEach(p -> {
-            String id = p.getId(CgmesNames.PHASE_TAP_CHANGER);
-            phaseTapChangers.put(id, p);
-        });
     }
 
     public PropertyBag phaseTapChanger(String id) {
         return phaseTapChangers.get(id);
     }
 
-    public void loadRegulatingControls() {
-        cgmes.regulatingControls().forEach(p -> {
-            String id = p.getId(CgmesNames.REGULATING_CONTROL);
-            regulatingControls.put(id, p);
-        });
-    }
-
     public PropertyBag regulatingControl(String id) {
         return regulatingControls.get(id);
-    }
-
-    public void loadOperationalLimits() {
-        cgmes.operationalLimits().forEach(op -> {
-            String id = op.getId(CgmesNames.OPERATIONAL_LIMIT);
-            operationalLimits.put(id, op);
-        });
     }
 
     public PropertyBag operationalLimit(String id) {

@@ -10,19 +10,13 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.google.common.collect.Range;
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
-
-import static com.powsybl.cgmes.conversion.CgmesReports.badVoltageTargetValueRegulatingControlReport;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -142,70 +136,5 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
             return;
         }
         adder.setMinP(minP).setMaxP(maxP);
-    }
-
-    protected static void updateRegulatingControl(Generator generator, boolean controlEnabled, Context context) {
-        String mode = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE);
-
-        if (isControlModeVoltage(mode)) {
-            updateRegulatingControlVoltage(generator, controlEnabled, context);
-        } else if (isControlModeReactivePower(mode)) {
-            updateRegulatingControlReactivePower(generator, controlEnabled, context);
-        } else {
-            context.ignored(mode, "Unsupported regulation mode for generator " + generator.getId());
-        }
-    }
-
-    private static void updateRegulatingControlVoltage(Generator generator, boolean controlEnabled, Context context) {
-        Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(generator, context);
-
-        DefaultValueDouble defaultTargetV = getDefaultTargetV(generator);
-        double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_VALID, context)).orElse(defaultValue(defaultTargetV, context));
-        DefaultValueBoolean defaultRegulatingOn = getDefaultRegulatingOn(generator);
-        boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultRegulatingOn, context));
-
-        boolean validTargetV = isValidTargetV(targetV);
-        if (!validTargetV) {
-            context.invalid(generator.getId(), "Regulating control has a bad target voltage " + targetV);
-            badVoltageTargetValueRegulatingControlReport(context.getReportNode(), generator.getId(), targetV);
-        }
-
-        // Regulating control is enabled AND this equipment participates in regulating control
-        generator.setTargetV(targetV).setVoltageRegulatorOn(regulatingOn && controlEnabled && validTargetV);
-    }
-
-    private static void updateRegulatingControlReactivePower(Generator generator, boolean controlEnabled, Context context) {
-        RemoteReactivePowerControl remoteReactivePowerControl = generator.getExtension(RemoteReactivePowerControl.class);
-        if (remoteReactivePowerControl == null || remoteReactivePowerControl.getRegulatingTerminal() == null) {
-            return;
-        }
-        Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(generator, context);
-        int terminalSign = findTerminalSign(generator);
-        DefaultValueDouble defaultTargetQ = getDefaultTargetQ(remoteReactivePowerControl);
-        DefaultValueBoolean defaultRegulatingOn = getDefaultRegulatingOn(remoteReactivePowerControl);
-
-        double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetQ, context));
-        boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultRegulatingOn, context));
-
-        remoteReactivePowerControl.setTargetQ(targetQ).setEnabled(regulatingOn && controlEnabled && isValidTargetQ(targetQ));
-    }
-
-    private static DefaultValueDouble getDefaultTargetV(Generator generator) {
-        double defaultTargetV = generator.getRegulatingTerminal() != null
-                ? generator.getRegulatingTerminal().getVoltageLevel().getNominalV()
-                : generator.getTerminal().getVoltageLevel().getNominalV();
-        return new DefaultValueDouble(null, generator.getTargetV(), defaultTargetV, Double.NaN);
-    }
-
-    private static DefaultValueBoolean getDefaultRegulatingOn(Generator generator) {
-        return new DefaultValueBoolean(false, generator.isVoltageRegulatorOn(), false, false);
-    }
-
-    private static DefaultValueDouble getDefaultTargetQ(RemoteReactivePowerControl remoteReactivePowerControl) {
-        return new DefaultValueDouble(null, remoteReactivePowerControl.getTargetQ(), Double.NaN, Double.NaN);
-    }
-
-    private static DefaultValueBoolean getDefaultRegulatingOn(RemoteReactivePowerControl remoteReactivePowerControl) {
-        return new DefaultValueBoolean(false, remoteReactivePowerControl.isEnabled(), false, false);
     }
 }
