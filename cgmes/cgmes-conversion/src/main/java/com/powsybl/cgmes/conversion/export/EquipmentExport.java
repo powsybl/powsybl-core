@@ -1405,9 +1405,10 @@ public final class EquipmentExport {
         String energyIdentCodeEic = controlArea.getAliasFromType(CgmesNames.ENERGY_IDENT_CODE_EIC).orElse("");
         ControlAreaEq.write(controlAreaCgmesId, controlArea.getNameOrId(), energyIdentCodeEic, energyAreaId, cimNamespace, euNamespace, writer, context);
         for (AreaBoundary areaBoundary : controlArea.getAreaBoundaries()) {
-            TieFlow.from(areaBoundary, context).ifPresent(tieFlow ->
-                TieFlowEq.write(tieFlow.id(), controlAreaCgmesId, tieFlow.terminalId(), cimNamespace, writer, context)
-            );
+            Optional<TieFlow> tieFlow = TieFlow.from(areaBoundary, context);
+            if (tieFlow.isPresent()) {
+                TieFlowEq.write(tieFlow.get().id(), controlAreaCgmesId, tieFlow.get().terminalId(), cimNamespace, writer, context);
+            }
         }
     }
 
