@@ -236,21 +236,26 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         // IIDM network:
         //   PATL are computed when missing as percentage * lowest tatl value.
         //   TATL are discarded when value is missing.
+        Network network = readCgmesResources(DIR, "missing_limits.xml");
+
+        // By default, if PATL is missing, it is set to the lowest TATL value.
+        Line line = network.getLine("ACL");
+        assertTrue(line.getCurrentLimits1().isPresent());
+        assertEquals(125, line.getCurrentLimits1().get().getTemporaryLimits().iterator().next().getValue());
+        assertEquals(125, line.getCurrentLimits1().get().getPermanentLimit());
+
+        // It the parameter is set, the missing PATL is calculated as percentage (0.80) * lowest tatl value (125) = 100.
         Properties importParams = new Properties();
         importParams.setProperty(CgmesImport.MISSING_PERMANENT_LIMIT_PERCENTAGE, "80");
-        Network network = readCgmesResources(importParams, DIR, "missing_limits.xml");
-        Line line = network.getLine("ACL");
-
-        // Missing PATL in CGMES is calculated as percentage (0.80) * lowest tatl value (125) = 100.
+        network = readCgmesResources(importParams, DIR, "missing_limits.xml");
+        line = network.getLine("ACL");
         assertTrue(line.getCurrentLimits1().isPresent());
-        CurrentLimits limits1 = line.getCurrentLimits1().get();
-        assertEquals(125, limits1.getTemporaryLimits().iterator().next().getValue());
-        assertEquals(100, limits1.getPermanentLimit());
+        assertEquals(125, line.getCurrentLimits1().get().getTemporaryLimits().iterator().next().getValue());
+        assertEquals(100, line.getCurrentLimits1().get().getPermanentLimit());
 
         // TATL for 1200s has no value, the limit is discarded.
         assertTrue(line.getCurrentLimits2().isPresent());
-        CurrentLimits limits2 = line.getCurrentLimits2().get();
-        assertNull(limits2.getTemporaryLimit(1200));
+        assertNull(line.getCurrentLimits2().get().getTemporaryLimit(1200));
     }
 
     @Test
