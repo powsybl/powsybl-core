@@ -17,6 +17,11 @@ import com.powsybl.iidm.network.Substation;
  */
 public final class CgmesReports {
 
+    public static final String REPORT_NODE_KEY_EXPORTED_CGMES_ID = "ExportedCgmesId";
+    public static final String REPORT_VALUE_EXPORTED_CGMES_ID = "cgmesId";
+    public static final String REPORT_VALUE_EXPORTED_CGMES_SUBSET = "cgmesSubset";
+    public static final String REPORT_VALUE_EXPORTED_CGMES_NETWORK_ID = "networkId";
+
     private CgmesReports() {
     }
 
@@ -192,6 +197,27 @@ public final class CgmesReports {
                 .withUntypedValue("objectClass", objectClass)
                 .withUntypedValue("objectId", objectId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode importingCgmesFileReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("CGMESConversion", "Importing CGMES file(s)")
+                .add();
+    }
+
+    public static ReportNode readingCgmesTriplestoreReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("CGMESTriplestore", "Reading CGMES Triplestore")
+                .add();
+    }
+
+    public static void exportedModelIdentifierReport(ReportNode reportNode, String description, String identifier, String networkId) {
+        reportNode.newReportNode()
+                .withMessageTemplate(REPORT_NODE_KEY_EXPORTED_CGMES_ID, "CGMES exported model identifier: ${cgmesId} for subset ${cgmesSubset} of network ${networkId}")
+                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_ID, description, TypedValue.URN_UUID)
+                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_SUBSET, identifier, TypedValue.CGMES_SUBSET)
+                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_NETWORK_ID, networkId, TypedValue.ID)
                 .add();
     }
 }
