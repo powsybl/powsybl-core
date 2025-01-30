@@ -26,24 +26,41 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ReportNodeTest extends AbstractSerDeTest {
 
+    private static final String ALL_VALUES_MESSAGE_TEMPLATE = """
+            Root message
+            doubleUntyped: ${doubleUntyped}
+            doubleTyped: ${doubleTyped}
+            floatUntyped: ${floatUntyped}
+            floatTyped: ${floatTyped}
+            intUntyped: ${intUntyped}
+            intTyped: ${intTyped}
+            longUntyped: ${longUntyped}
+            longTyped: ${longTyped}
+            booleanUntyped: ${booleanUntyped}
+            booleanTyped: ${booleanTyped}
+            stringUntyped: ${stringUntyped}
+            stringTyped: ${stringTyped}
+            severity: ${reportSeverity}""";
+    private static final String ALL_VALUES_MESSAGE_FORMATTED = """
+            Root message
+            doubleUntyped: 4.3
+            doubleTyped: 4.4
+            floatUntyped: -1.5
+            floatTyped: 0.6
+            intUntyped: 4
+            intTyped: -2
+            longUntyped: 5
+            longTyped: -3
+            booleanUntyped: true
+            booleanTyped: false
+            stringUntyped: value
+            stringTyped: filename
+            severity: INFO""";
+
     @Test
     void testValues() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
-                .withMessageTemplate("rootTemplate", """
-                        Root message
-                        doubleUntyped: ${doubleUntyped}
-                        doubleTyped: ${doubleTyped}
-                        floatUntyped: ${floatUntyped}
-                        floatTyped: ${floatTyped}
-                        intUntyped: ${intUntyped}
-                        intTyped: ${intTyped}
-                        longUntyped: ${longUntyped}
-                        longTyped: ${longTyped}
-                        booleanUntyped: ${booleanUntyped}
-                        booleanTyped: ${booleanTyped}
-                        stringUntyped: ${stringUntyped}
-                        stringTyped: ${stringTyped}
-                        severity: ${reportSeverity}""")
+                .withMessageTemplate("rootTemplate", ALL_VALUES_MESSAGE_TEMPLATE)
                 .withUntypedValue("doubleUntyped", 4.3)
                 .withTypedValue("doubleTyped", 4.4, TypedValue.ACTIVE_POWER)
                 .withUntypedValue("floatUntyped", -1.5f)
@@ -58,21 +75,7 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .withTypedValue("stringTyped", "filename", TypedValue.FILENAME)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build();
-        assertEquals("""
-                        Root message
-                        doubleUntyped: 4.3
-                        doubleTyped: 4.4
-                        floatUntyped: -1.5
-                        floatTyped: 0.6
-                        intUntyped: 4
-                        intTyped: -2
-                        longUntyped: 5
-                        longTyped: -3
-                        booleanUntyped: true
-                        booleanTyped: false
-                        stringUntyped: value
-                        stringTyped: filename
-                        severity: INFO""", root.getMessage());
+        assertEquals(ALL_VALUES_MESSAGE_FORMATTED, root.getMessage());
 
         ReportNode child = root.newReportNode()
                 .withMessageTemplate("child", "Child message with parent value ${stringTyped} and own severity '${reportSeverity}'")
@@ -87,21 +90,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testPostponedValues() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
-                .withMessageTemplate("rootTemplate", """
-                        Root message
-                        doubleUntyped: ${doubleUntyped}
-                        doubleTyped: ${doubleTyped}
-                        floatUntyped: ${floatUntyped}
-                        floatTyped: ${floatTyped}
-                        intUntyped: ${intUntyped}
-                        intTyped: ${intTyped}
-                        longUntyped: ${longUntyped}
-                        longTyped: ${longTyped}
-                        booleanUntyped: ${booleanUntyped}
-                        booleanTyped: ${booleanTyped}
-                        stringUntyped: ${stringUntyped}
-                        stringTyped: ${stringTyped}
-                        severity: ${reportSeverity}""")
+                .withMessageTemplate("rootTemplate", ALL_VALUES_MESSAGE_TEMPLATE)
                 .build();
         
         root.addUntypedValue("doubleUntyped", 4.3)
@@ -117,21 +106,7 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .addUntypedValue("stringUntyped", "value")
                 .addTypedValue("stringTyped", "filename", TypedValue.FILENAME)
                 .addSeverity(TypedValue.INFO_SEVERITY);
-        assertEquals("""
-                        Root message
-                        doubleUntyped: 4.3
-                        doubleTyped: 4.4
-                        floatUntyped: -1.5
-                        floatTyped: 0.6
-                        intUntyped: 4
-                        intTyped: -2
-                        longUntyped: 5
-                        longTyped: -3
-                        booleanUntyped: true
-                        booleanTyped: false
-                        stringUntyped: value
-                        stringTyped: filename
-                        severity: INFO""", root.getMessage());
+        assertEquals(ALL_VALUES_MESSAGE_FORMATTED, root.getMessage());
 
         ReportNode child = root.newReportNode()
                 .withMessageTemplate("child", "Child message with parent value ${stringTyped} and own severity '${reportSeverity}'")
