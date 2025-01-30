@@ -809,15 +809,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected static boolean isControlModeVoltage(String controlMode) {
-        return controlMode != null && controlMode.endsWith("voltage");
+        return controlMode != null && controlMode.endsWith(CgmesNames.VOLTAGE_TAG);
     }
 
     protected static boolean isControlModeReactivePower(String controlMode) {
-        return controlMode != null && controlMode.toLowerCase().endsWith("reactivepower");
-    }
-
-    protected static String getRegulatingControlId(PropertyBag p) {
-        return p.getId(CgmesNames.REGULATING_CONTROL);
+        return controlMode != null && controlMode.toLowerCase().endsWith(CgmesNames.REACTIVE_POWER);
     }
 
     protected static Optional<PropertyBag> findCgmesRegulatingControl(Connectable<?> connectable, Context context) {

@@ -21,7 +21,6 @@ public class RegulatingControlMapping {
 
     static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES terminal: %s";
     private static final String REGULATING_TERMINAL = "Regulating Terminal";
-    private static final String VOLTAGE = "voltage";
 
     private final Context context;
     private final RegulatingControlMappingForGenerators regulatingControlMappingForGenerators;
@@ -125,11 +124,11 @@ public class RegulatingControlMapping {
     }
 
     protected static boolean isControlModeVoltage(String controlMode) {
-        return controlMode != null && controlMode.endsWith(VOLTAGE);
+        return controlMode != null && controlMode.endsWith(CgmesNames.VOLTAGE_TAG);
     }
 
     protected static boolean isControlModeReactivePower(String controlMode) {
-        return controlMode != null && controlMode.toLowerCase().endsWith("reactivepower");
+        return controlMode != null && controlMode.toLowerCase().endsWith(CgmesNames.REACTIVE_POWER);
     }
 
     protected static String getRegulatingControlId(PropertyBag p) {
