@@ -47,6 +47,9 @@
                 <cca:terminal id="NHV1_NHV2_1" side="ONE"/>
                 <cca:boundary id="DL"/>
             </cca:controlArea>
+            <cca:controlArea id="areaId-2" name="area-2" pTolerance="0.024" netInterchange="90.0">
+                <cca:terminal id="NHV1_NHV2_2" side="TWO"/>
+            </cca:controlArea>
         </cca:cgmesControlAreas>
     </iidm:extension>
 </iidm:network>
