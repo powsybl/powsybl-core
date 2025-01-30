@@ -85,6 +85,67 @@ class ReportNodeTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testPostponedValues() throws IOException {
+        ReportNode root = ReportNode.newRootReportNode()
+                .withMessageTemplate("rootTemplate", """
+                        Root message
+                        doubleUntyped: ${doubleUntyped}
+                        doubleTyped: ${doubleTyped}
+                        floatUntyped: ${floatUntyped}
+                        floatTyped: ${floatTyped}
+                        intUntyped: ${intUntyped}
+                        intTyped: ${intTyped}
+                        longUntyped: ${longUntyped}
+                        longTyped: ${longTyped}
+                        booleanUntyped: ${booleanUntyped}
+                        booleanTyped: ${booleanTyped}
+                        stringUntyped: ${stringUntyped}
+                        stringTyped: ${stringTyped}
+                        severity: ${reportSeverity}""")
+                .build();
+        
+        root.addUntypedValue("doubleUntyped", 4.3)
+                .addTypedValue("doubleTyped", 4.4, TypedValue.ACTIVE_POWER)
+                .addUntypedValue("floatUntyped", -1.5f)
+                .addTypedValue("floatTyped", 0.6f, TypedValue.IMPEDANCE)
+                .addUntypedValue("intUntyped", 4)
+                .addTypedValue("intTyped", -2, "count")
+                .addUntypedValue("longUntyped", 5L)
+                .addTypedValue("longTyped", -3L, "count")
+                .addUntypedValue("booleanUntyped", true)
+                .addTypedValue("booleanTyped", false, "protected")
+                .addUntypedValue("stringUntyped", "value")
+                .addTypedValue("stringTyped", "filename", TypedValue.FILENAME)
+                .addSeverity(TypedValue.INFO_SEVERITY);
+        assertEquals("""
+                        Root message
+                        doubleUntyped: 4.3
+                        doubleTyped: 4.4
+                        floatUntyped: -1.5
+                        floatTyped: 0.6
+                        intUntyped: 4
+                        intTyped: -2
+                        longUntyped: 5
+                        longTyped: -3
+                        booleanUntyped: true
+                        booleanTyped: false
+                        stringUntyped: value
+                        stringTyped: filename
+                        severity: INFO""", root.getMessage());
+
+        ReportNode child = root.newReportNode()
+                .withMessageTemplate("child", "Child message with parent value ${stringTyped} and own severity '${reportSeverity}'")
+                .withSeverity("Overridden custom severity")
+                .add();
+        assertEquals("Child message with parent value filename and own severity 'Overridden custom severity'", child.getMessage());
+
+        child.addSeverity("Very important custom severity");
+        assertEquals("Child message with parent value filename and own severity 'Very important custom severity'", child.getMessage());
+
+        roundTripTest(root, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/testValuesReportNode.json");
+    }
+
+    @Test
     void testInclude() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
                 .withMessageTemplate("rootTemplate", "Root message")
