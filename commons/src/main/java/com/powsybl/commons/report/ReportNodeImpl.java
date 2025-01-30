@@ -15,10 +15,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.commons.ref.RefObj;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringSubstitutor;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
@@ -151,14 +155,14 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public void include(ReportNode reportNode) {
-        if (!(reportNode instanceof ReportNodeImpl reportNodeImpl)) {
+    public void include(ReportNode reportRoot) {
+        if (!(reportRoot instanceof ReportNodeImpl reportNodeImpl)) {
             throw new PowsyblException("Cannot mix implementations of ReportNode, included reportNode should be/extend ReportNodeImpl");
         }
         if (!reportNodeImpl.isRoot) {
             throw new PowsyblException("Cannot include non-root reportNode");
         }
-        if (reportNode == this) {
+        if (reportRoot == this) {
             throw new PowsyblException("Cannot add a reportNode in itself");
         }
 
@@ -167,6 +171,21 @@ public final class ReportNodeImpl implements ReportNode {
 
         getTreeContext().merge(reportNodeImpl.getTreeContext());
         reportNodeImpl.treeContext.setRef(treeContext);
+    }
+
+    @Override
+    public void copy(ReportNode reportNode) {
+        var om = new ObjectMapper().registerModule(new ReportNodeJsonModule());
+        var sw = new StringWriter();
+
+        try {
+            om.writeValue(sw, reportNode);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        ReportNodeImpl copiedReportNode = (ReportNodeImpl) ReportNodeDeserializer.read(IOUtils.toInputStream(sw.toString(), StandardCharsets.UTF_8));
+        children.add(copiedReportNode);
     }
 
     private void unroot() {

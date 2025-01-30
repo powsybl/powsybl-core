@@ -35,6 +35,11 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
+    public void copy(ReportNode reportNode) {
+        // No-op
+    }
+
+    @Override
     public String getMessageKey() {
         return null;
     }
