@@ -849,7 +849,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeControlAreas(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Area area : network.getAreas()) {
-            if (area.getAreaType().equals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)) {
+            if (CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE.equals(area.getAreaType())) {
                 writeControlArea(area, cimNamespace, writer, context);
             }
         }
