@@ -88,10 +88,42 @@ public class CgmesExport implements Exporter {
         }
     }
 
+    /**
+     * <p>Create a default control area of type interchange.</p>
+     *
+     * <p>Assuming the given network is an IGM (Individual Grid Model),
+     * create a control area of type interchange from its current boundaries.</p>
+     *
+     * <p>An area boundary is created for each dangling line in the model.
+     * The interchange target of the area is set to the sum of flows at boundary side of dangling lines.</p>
+     *
+     * <p>The location of reference data (boundaries files) is determined based on the configuration for the CGMES export module.
+     * The reference data may provide the area EIC code and additional characteristics for the boundaries: if it is AC or DC.
+     * </p>
+     *
+     * @param network The network for which a default control area of type interchange will be created.
+     */
     public void createDefaultControlAreaInterchange(Network network) {
         createDefaultControlAreaInterchange(network, null);
     }
 
+    /**
+     * <p>Create a default control area of type interchange.</p>
+     *
+     * <p>Assuming the given network is an IGM (Individual Grid Model),
+     * create a control area of type interchange from its current boundaries.</p>
+     *
+     * <p>An area boundary is created for each dangling line in the model.
+     * The interchange target of the area is set to the sum of flows at boundary side of dangling lines.</p>
+     *
+     * <p>The location of reference data (boundaries files) is determined based on the based on the parameters passed
+     * and the configuration for the CGMES export module.
+     * The reference data may provide the area EIC code and additional characteristics for the boundaries: if it is AC or DC.
+     * </p>
+     *
+     * @param network The network for which a default control area of type interchange will be created.
+     * @param parameters Optional parameters that influence the creation of default control area.
+     */
     public void createDefaultControlAreaInterchange(Network network, Properties parameters) {
         Objects.requireNonNull(network);
 
