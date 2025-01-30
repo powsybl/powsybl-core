@@ -145,14 +145,22 @@ public class CgmesExport implements Exporter {
             return Collections.emptySet();
         } else {
             return boundaryNodes.stream()
-                    .filter(node -> node.containsKey("topologicalNodeDescription") && node.get("topologicalNodeDescription").startsWith("HVDC"))
-                    .map(node -> node.getId(CgmesNames.TOPOLOGICAL_NODE))
+                    .filter(CgmesBoundary::isDcNode)
+                    .map(node -> {
+                        List<String> nodeIds = new ArrayList<>();
+                        nodeIds.add(node.getId(CgmesNames.CONNECTIVITY_NODE));
+                        if (node.containsKey(CgmesNames.TOPOLOGICAL_NODE)) {
+                            nodeIds.add(node.getId(CgmesNames.TOPOLOGICAL_NODE));
+                        }
+                        return nodeIds;
+                    })
+                    .flatMap(List::stream)
                     .collect(Collectors.toSet());
         }
     }
 
     private boolean isAcBoundary(DanglingLine danglingLine, Set<String> boundaryDcNodes) {
-        String dlBoundaryNode = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        String dlBoundaryNode = Conversion.getDanglingLineBoundaryNode(danglingLine);
         if (dlBoundaryNode != null) {
             return !boundaryDcNodes.contains(dlBoundaryNode);
         }
