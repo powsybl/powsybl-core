@@ -22,7 +22,10 @@ import java.util.Objects;
 public class TypedValue {
 
     public static final String UNTYPED = "UNTYPED";
+
+    /** Type used for the severity level of the corresponding {@link ReportNode} */
     public static final String SEVERITY = "SEVERITY";
+
     public static final String ACTIVE_POWER = "ACTIVE_POWER";
     public static final String REACTIVE_POWER = "REACTIVE_POWER";
     public static final String RESISTANCE = "RESISTANCE";
@@ -39,11 +42,27 @@ public class TypedValue {
     public static final String CGMES_SUBSET = "CGMES_SUBSET";
     public static final String ID = "ID";
 
+    /** Used for a severity level of TRACE level */
     public static final TypedValue TRACE_SEVERITY = new TypedValue("TRACE", TypedValue.SEVERITY);
+
+    /** Used for a severity level of DEBUG level */
     public static final TypedValue DEBUG_SEVERITY = new TypedValue("DEBUG", TypedValue.SEVERITY);
+
+    /** Used for a severity level of INFO level, that is a functional state which may be of interest for the end user */
     public static final TypedValue INFO_SEVERITY = new TypedValue("INFO", TypedValue.SEVERITY);
+
+    /** Used for a severity level of WARN level, that is, an unwanted state that can be recovered from */
     public static final TypedValue WARN_SEVERITY = new TypedValue("WARN", TypedValue.SEVERITY);
+
+    /** Used for a severity level of ERROR level, that is, a requested operation has not been completed */
     public static final TypedValue ERROR_SEVERITY = new TypedValue("ERROR", TypedValue.SEVERITY);
+
+    /**
+     * Used for a severity level of DETAIL level, that is, the severity for children of a {@link ReportNode} of
+     * severity WARN or ERROR. Indeed, end users may want several fine-grained messages when a WARN or ERROR occurs, but
+     * they want as few WARN / ERROR messages as possible.
+     */
+    public static final TypedValue DETAIL_SEVERITY = new TypedValue("DETAIL", TypedValue.SEVERITY);
 
     private final Object value;
     private final String type;
