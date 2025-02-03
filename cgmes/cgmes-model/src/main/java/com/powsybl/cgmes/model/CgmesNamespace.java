@@ -23,10 +23,10 @@ import java.util.regex.Pattern;
  */
 public final class CgmesNamespace {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CgmesNamespace.class);
-
     private CgmesNamespace() {
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesNamespace.class);
 
     // cim14 is the CIM version corresponding to ENTSO-E Profile 1
     // It is used in this project to explore how to support future CGMES versions
@@ -66,13 +66,8 @@ public final class CgmesNamespace {
 
     public static final List<Cim> CIM_LIST = List.of(CIM_14, CIM_16, CIM_100);
 
-    public static boolean isValid(String ns) {
-        // Until CIM16 the CIM namespace contained the string "CIM-schema-cim<versionNumber>#"
-        // Since CIM100 the namespace seems to follow the pattern "/CIM<versionNumber>#"
-        return VALID_CIM_NAMESPACES.contains(ns) || CIM_100_PLUS_NAMESPACE_PATTERN.matcher(ns).matches();
-    }
-
     public interface Cim {
+
         int getVersion();
 
         String getNamespace();
@@ -91,8 +86,14 @@ public final class CgmesNamespace {
     }
 
     private abstract static class AbstractCim implements Cim {
+
         private final int version;
         private final String namespace;
+
+        private AbstractCim(int version, String namespace) {
+            this.version = version;
+            this.namespace = namespace;
+        }
 
         @Override
         public int getVersion() {
@@ -103,14 +104,13 @@ public final class CgmesNamespace {
         public String getNamespace() {
             return namespace;
         }
-
-        private AbstractCim(int version, String namespace) {
-            this.version = version;
-            this.namespace = namespace;
-        }
     }
 
     private static final class Cim14 extends AbstractCim {
+
+        private Cim14() {
+            super(14, CIM_14_NAMESPACE);
+        }
 
         @Override
         public boolean hasProfiles() {
@@ -141,10 +141,6 @@ public final class CgmesNamespace {
         public String getEuNamespace() {
             throw new PowsyblException("Undefined EU namespace for version 14");
         }
-
-        private Cim14() {
-            super(14, CIM_14_NAMESPACE);
-        }
     }
 
     private abstract static class AbstractCim16AndAbove extends AbstractCim {
@@ -152,6 +148,13 @@ public final class CgmesNamespace {
         private final String euPrefix;
         private final String euNamespace;
         private final BiMap<String, String> profiles = HashBiMap.create();
+
+        private AbstractCim16AndAbove(int version, String namespace, String euPrefix, String euNamespace, Map<String, String> profiles) {
+            super(version, namespace);
+            this.euPrefix = euPrefix;
+            this.euNamespace = euNamespace;
+            this.profiles.putAll(profiles);
+        }
 
         @Override
         public String getEuPrefix() {
@@ -182,23 +185,19 @@ public final class CgmesNamespace {
         public String getProfile(String profileUri) {
             return profiles.inverse().get(profileUri);
         }
-
-        private AbstractCim16AndAbove(int version, String namespace, String euPrefix, String euNamespace, Map<String, String> profiles) {
-            super(version, namespace);
-            this.euPrefix = euPrefix;
-            this.euNamespace = euNamespace;
-            this.profiles.putAll(profiles);
-        }
     }
 
     private static final class Cim16 extends AbstractCim16AndAbove {
 
         private Cim16() {
             super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE,
-                    Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP",
-                    CIM_16_EQ_OPERATION_PROFILE, "SSH", CIM_16_SSH_PROFILE, "SV",
-                    CIM_16_SV_PROFILE, "TP", CIM_16_TP_PROFILE,
-                    "EQ_BD", CIM_16_EQ_BD_PROFILE, "TP_BD", CIM_16_TP_BD_PROFILE));
+                    Map.of("EQ", CIM_16_EQ_PROFILE,
+                            "EQ_OP", CIM_16_EQ_OPERATION_PROFILE,
+                            "SSH", CIM_16_SSH_PROFILE,
+                            "SV", CIM_16_SV_PROFILE,
+                            "TP", CIM_16_TP_PROFILE,
+                            "EQ_BD", CIM_16_EQ_BD_PROFILE,
+                            "TP_BD", CIM_16_TP_BD_PROFILE));
         }
     }
 
@@ -206,10 +205,19 @@ public final class CgmesNamespace {
 
         private Cim100() {
             super(100, CIM_100_NAMESPACE, "eu", EU_NAMESPACE,
-                    Map.of("EQ", CIM_100_EQ_PROFILE, "EQ_OP", CIM_100_EQ_OPERATION_PROFILE,
-                    "SSH", CIM_100_SSH_PROFILE, "SV", CIM_100_SV_PROFILE, "TP", CIM_100_TP_PROFILE,
-                    "EQ_BD", CIM_100_EQ_BD_PROFILE));
+                    Map.of("EQ", CIM_100_EQ_PROFILE,
+                            "EQ_OP", CIM_100_EQ_OPERATION_PROFILE,
+                            "SSH", CIM_100_SSH_PROFILE,
+                            "SV", CIM_100_SV_PROFILE,
+                            "TP", CIM_100_TP_PROFILE,
+                            "EQ_BD", CIM_100_EQ_BD_PROFILE));
         }
+    }
+
+    public static boolean isValid(String ns) {
+        // Until CIM16 the CIM namespace contained the string "CIM-schema-cim<versionNumber>#"
+        // Since CIM100 the namespace seems to follow the pattern "/CIM<versionNumber>#"
+        return VALID_CIM_NAMESPACES.contains(ns) || CIM_100_PLUS_NAMESPACE_PATTERN.matcher(ns).matches();
     }
 
     public static Cim getCim(int cimVersion) {
