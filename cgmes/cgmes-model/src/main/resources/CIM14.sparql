@@ -54,8 +54,8 @@ GRAPH ?graph {
     ?VoltageLevel
         a cim:VoltageLevel ;
         cim:VoltageLevel.MemberOf_Substation ?Substation ;
-        cim:IdentifiedObject.name ?name ;
         cim:VoltageLevel.BaseVoltage ?BaseVoltage .
+    OPTIONAL { ?VoltageLevel cim:IdentifiedObject.name ?name }
 }
 # BaseVoltage may be defined in a different EQ graph
 GRAPH ?graph2 {
@@ -226,11 +226,9 @@ WHERE {
         cim:TransformerWinding.x ?x ;
         cim:TransformerWinding.ratedU ?ratedU .
     ?Terminal cim:Terminal.ConductingEquipment ?TransformerWinding .
-    OPTIONAL { ?RatioTapChanger cim:RatioTapChanger.TransformerWinding ?TransformerWinding }
-    OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.TransformerWinding ?TransformerWinding }
 }}
 BIND ( ?TransformerWinding AS ?TransformerEnd )
-}
+} ORDER BY ?PowerTransformer ?windingType
 
 # query: ratioTapChangers
 SELECT *
@@ -244,6 +242,10 @@ WHERE {
         cim:TapChanger.neutralU ?neutralU ;
         cim:TapChanger.stepVoltageIncrement ?stepVoltageIncrement ;
         cim:RatioTapChanger.TransformerWinding ?TransformerWinding .
+    ?TransformerWinding
+        a cim:TransformerWinding ;
+        cim:TransformerWinding.windingType ?windingType ;
+        cim:TransformerWinding.MemberOf_PowerTransformer ?PowerTransformer .
     ?Terminal cim:Terminal.ConductingEquipment ?TransformerWinding .
     OPTIONAL { ?RatioTapChanger cim:TapChanger.RegulatingControl ?TapChangerControl }
 }}
@@ -268,7 +270,11 @@ WHERE {
         cim:TapChanger.neutralU ?neutralU ;
         cim:PhaseTapChanger.phaseTapChangerType ?phaseTapChangerType ;
         cim:PhaseTapChanger.TransformerWinding ?TransformerWinding .
-    ?TransformerWinding cim:TransformerWinding.ratedU ?transformerWindingRatedU .
+    ?TransformerWinding
+        a cim:TransformerWinding ;
+        cim:TransformerWinding.ratedU ?transformerWindingRatedU ;
+        cim:TransformerWinding.windingType ?windingType ;
+        cim:TransformerWinding.MemberOf_PowerTransformer ?PowerTransformer .
     ?Terminal cim:Terminal.ConductingEquipment ?TransformerWinding .
     OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.voltageStepIncrementOutOfPhase ?voltageStepIncrementOutOfPhase }
     OPTIONAL { ?PhaseTapChanger cim:TapChanger.stepVoltageIncrement ?voltageStepIncrement }
