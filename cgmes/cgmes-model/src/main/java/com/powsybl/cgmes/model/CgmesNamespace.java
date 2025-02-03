@@ -89,8 +89,6 @@ public final class CgmesNamespace {
 
         String getEuNamespace();
 
-        boolean writeLimitInfiniteDuration();
-
         boolean writeConnectivityNodes();
 
         boolean writeTculControlMode();
@@ -146,11 +144,6 @@ public final class CgmesNamespace {
         @Override
         public String getEuNamespace() {
             throw new PowsyblException("Undefined EU namespace for version 14");
-        }
-
-        @Override
-        public boolean writeLimitInfiniteDuration() {
-            return false;
         }
 
         @Override
@@ -215,11 +208,6 @@ public final class CgmesNamespace {
     private static final class Cim16 extends AbstractCim16AndAbove {
 
         @Override
-        public boolean writeLimitInfiniteDuration() {
-            return false;
-        }
-
-        @Override
         public boolean writeConnectivityNodes() {
             return false;
         }
@@ -239,11 +227,6 @@ public final class CgmesNamespace {
     }
 
     private static final class Cim100 extends AbstractCim16AndAbove {
-
-        @Override
-        public boolean writeLimitInfiniteDuration() {
-            return true;
-        }
 
         @Override
         public boolean writeConnectivityNodes() {
