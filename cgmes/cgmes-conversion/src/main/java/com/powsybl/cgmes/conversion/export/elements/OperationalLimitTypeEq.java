@@ -25,22 +25,22 @@ public final class OperationalLimitTypeEq {
     private static final String PATL = "patl";
     private static final String TATL = "tatl";
 
-    public static void writePatl(String id, String cimNamespace, String euNamespace, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void writePatl(String id, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("OperationalLimitType", id, "PATL", cimNamespace, writer, context);
         writeDirection(cimNamespace, writer);
         writeKind(PATL, euNamespace, writer, context);
-        if (writeInfiniteDuration) {
+        if (context.getCimVersion() == 100) {
             writeInfiniteDuration(true, cimNamespace, writer);
         }
         writer.writeEndElement();
     }
 
     public static void writeTatl(String id, int acceptableDuration, String cimNamespace, String euNamespace,
-                                 boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                                 XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("OperationalLimitType", id, "TATL " + acceptableDuration, cimNamespace, writer, context);
         writeDirection(cimNamespace, writer);
         writeKind(TATL, euNamespace, writer, context);
-        if (writeInfiniteDuration) {
+        if (context.getCimVersion() == 100) {
             writeInfiniteDuration(false, cimNamespace, writer);
         }
         writer.writeStartElement(cimNamespace, "OperationalLimitType.acceptableDuration");
