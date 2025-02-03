@@ -97,8 +97,6 @@ public final class CgmesNamespace {
 
         boolean writeLimitInfiniteDuration();
 
-        boolean writeGeneratingUnitInitialP();
-
         boolean writeConnectivityNodes();
 
         boolean writeTculControlMode();
@@ -173,11 +171,6 @@ public final class CgmesNamespace {
 
         @Override
         public boolean writeLimitInfiniteDuration() {
-            return false;
-        }
-
-        @Override
-        public boolean writeGeneratingUnitInitialP() {
             return false;
         }
 
@@ -271,11 +264,6 @@ public final class CgmesNamespace {
         }
 
         @Override
-        public boolean writeGeneratingUnitInitialP() {
-            return true;
-        }
-
-        @Override
         public boolean writeConnectivityNodes() {
             return false;
         }
@@ -301,11 +289,6 @@ public final class CgmesNamespace {
         @Override
         public boolean writeLimitInfiniteDuration() {
             return true;
-        }
-
-        @Override
-        public boolean writeGeneratingUnitInitialP() {
-            return false;
         }
 
         @Override

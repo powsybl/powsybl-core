@@ -71,7 +71,6 @@ public final class EquipmentExport {
             String limitTypeAttributeName = context.getCim().getLimitTypeAttributeName();
             String limitKindClassName = context.getCim().getLimitKindClassName();
             boolean writeInfiniteDuration = context.getCim().writeLimitInfiniteDuration();
-            boolean writeInitialP = context.getCim().writeGeneratingUnitInitialP();
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), euNamespace, writer);
 
             if (context.getCimVersion() >= 16) {
@@ -96,8 +95,8 @@ public final class EquipmentExport {
             writeBusbarSections(network, cimNamespace, writer, context);
             writeLoads(network, loadGroups, cimNamespace, writer, context);
             String loadAreaId = writeLoadGroups(network, loadGroups.found(), cimNamespace, writer, context);
-            writeGenerators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writeInitialP, writer, context);
-            writeBatteries(network, cimNamespace, writeInitialP, writer, context);
+            writeGenerators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writer, context);
+            writeBatteries(network, cimNamespace, writer, context);
             writeShuntCompensators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writer, context);
             writeStaticVarCompensators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writer, context);
             writeLines(network, mapTerminal2Id, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, exportedLimitTypes, writeInfiniteDuration, writer, context);
@@ -376,7 +375,7 @@ public final class EquipmentExport {
         writer.writeEndElement();
     }
 
-    private static void writeGenerators(Network network, Map<Terminal, String> mapTerminal2Id, Set<String> regulatingControlsWritten, String cimNamespace, boolean writeInitialP,
+    private static void writeGenerators(Network network, Map<Terminal, String> mapTerminal2Id, Set<String> regulatingControlsWritten, String cimNamespace,
                                         XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // Multiple synchronous machines may be grouped in the same generating unit
         // We have to write each generating unit only once
@@ -412,7 +411,7 @@ public final class EquipmentExport {
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
                     regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(generator, exportedTerminalId(mapTerminal2Id, regulatingTerminal), regulatingControlsWritten, mode, cimNamespace, writer, context);
-                    writeSynchronousMachine(generator, cimNamespace, writeInitialP,
+                    writeSynchronousMachine(generator, cimNamespace,
                             generator.getMinP(), generator.getMaxP(), generator.getTargetP(), generator.getRatedS(), generator.getEnergySource(),
                             regulatingControlId, writer, context, generatingUnitsWritten);
                     break;
@@ -427,19 +426,19 @@ public final class EquipmentExport {
         return governorScd == null ? 0.0 : Double.parseDouble(governorScd);
     }
 
-    private static void writeBatteries(Network network, String cimNamespace, boolean writeInitialP,
+    private static void writeBatteries(Network network, String cimNamespace,
                                         XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // Multiple synchronous machines may be grouped in the same generating unit
         // We have to write each generating unit only once
         Set<String> generatingUnitsWritten = new HashSet<>();
         for (Battery battery : network.getBatteries()) {
-            writeSynchronousMachine(battery, cimNamespace, writeInitialP,
+            writeSynchronousMachine(battery, cimNamespace,
                     battery.getMinP(), battery.getMaxP(), battery.getTargetP(), Double.NaN, EnergySource.HYDRO, null,
                     writer, context, generatingUnitsWritten);
         }
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> void writeSynchronousMachine(I i, String cimNamespace, boolean writeInitialP,
+    private static <I extends ReactiveLimitsHolder & Injection<I>> void writeSynchronousMachine(I i, String cimNamespace,
                                                                                                 double minP, double maxP, double targetP, double ratedS, EnergySource energySource, String regulatingControlId,
                                                                                                 XMLStreamWriter writer, CgmesExportContext context, Set<String> generatingUnitsWritten) throws XMLStreamException {
 
@@ -464,7 +463,7 @@ public final class EquipmentExport {
             // We have not preserved the names of generating units
             // We name generating units based on the first machine found
             String generatingUnitName = "GU_" + i.getNameOrId();
-            GeneratingUnitEq.write(generatingUnit, generatingUnitName, energySource, minP, maxP, targetP, cimNamespace, writeInitialP,
+            GeneratingUnitEq.write(generatingUnit, generatingUnitName, energySource, minP, maxP, targetP, cimNamespace,
                     i.getTerminal().getVoltageLevel().getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null),
                     hydroPowerPlantId, windGenUnitType, writer, context);
             generatingUnitsWritten.add(generatingUnit);
