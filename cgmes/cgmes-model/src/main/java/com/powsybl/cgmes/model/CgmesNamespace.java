@@ -89,12 +89,6 @@ public final class CgmesNamespace {
 
         String getEuNamespace();
 
-        String getLimitValueAttributeName();
-
-        String getLimitTypeAttributeName();
-
-        String getLimitKindClassName();
-
         boolean writeLimitInfiniteDuration();
 
         boolean writeConnectivityNodes();
@@ -155,21 +149,6 @@ public final class CgmesNamespace {
         }
 
         @Override
-        public String getLimitValueAttributeName() {
-            throw new PowsyblException("Undefined limit value attribute name for version 14");
-        }
-
-        @Override
-        public String getLimitTypeAttributeName() {
-            throw new PowsyblException("Undefined limit type attribute name for version 14");
-        }
-
-        @Override
-        public String getLimitKindClassName() {
-            throw new PowsyblException("Undefined limit kind class name for version 14");
-        }
-
-        @Override
         public boolean writeLimitInfiniteDuration() {
             return false;
         }
@@ -193,9 +172,6 @@ public final class CgmesNamespace {
 
         private final String euPrefix;
         private final String euNamespace;
-        private final String limitValueAttributeName;
-        private final String limitTypeAttributeName;
-        private final String limitKindClassName;
         private final BiMap<String, String> profiles = HashBiMap.create();
 
         @Override
@@ -206,21 +182,6 @@ public final class CgmesNamespace {
         @Override
         public String getEuNamespace() {
             return euNamespace;
-        }
-
-        @Override
-        public String getLimitValueAttributeName() {
-            return limitValueAttributeName;
-        }
-
-        @Override
-        public String getLimitTypeAttributeName() {
-            return limitTypeAttributeName;
-        }
-
-        @Override
-        public String getLimitKindClassName() {
-            return limitKindClassName;
         }
 
         @Override
@@ -243,15 +204,10 @@ public final class CgmesNamespace {
             return profiles.inverse().get(profileUri);
         }
 
-        private AbstractCim16AndAbove(int version, String namespace, String euPrefix, String euNamespace,
-                                      String limitValueAttributeName, String limitTypeAttributeName,
-                                      String limitKindClassName, Map<String, String> profiles) {
+        private AbstractCim16AndAbove(int version, String namespace, String euPrefix, String euNamespace, Map<String, String> profiles) {
             super(version, namespace);
             this.euPrefix = euPrefix;
             this.euNamespace = euNamespace;
-            this.limitValueAttributeName = limitValueAttributeName;
-            this.limitTypeAttributeName = limitTypeAttributeName;
-            this.limitKindClassName = limitKindClassName;
             this.profiles.putAll(profiles);
         }
     }
@@ -275,8 +231,6 @@ public final class CgmesNamespace {
 
         private Cim16() {
             super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE,
-                    "value",
-                    "OperationalLimitType.limitType", "LimitTypeKind",
                     Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP",
                     CIM_16_EQ_OPERATION_PROFILE, "SSH", CIM_16_SSH_PROFILE, "SV",
                     CIM_16_SV_PROFILE, "TP", CIM_16_TP_PROFILE,
@@ -303,8 +257,6 @@ public final class CgmesNamespace {
 
         private Cim100() {
             super(100, CIM_100_NAMESPACE, "eu", EU_NAMESPACE,
-                    "normalValue",
-                    "OperationalLimitType.kind", "LimitKind",
                     Map.of("EQ", CIM_100_EQ_PROFILE, "EQ_OP", CIM_100_EQ_OPERATION_PROFILE,
                     "SSH", CIM_100_SSH_PROFILE, "SV", CIM_100_SV_PROFILE, "TP", CIM_100_TP_PROFILE,
                     "EQ_BD", CIM_100_EQ_BD_PROFILE));

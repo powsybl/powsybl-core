@@ -25,10 +25,10 @@ public final class OperationalLimitTypeEq {
     private static final String PATL = "patl";
     private static final String TATL = "tatl";
 
-    public static void writePatl(String id, String cimNamespace, String euNamespace, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void writePatl(String id, String cimNamespace, String euNamespace, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("OperationalLimitType", id, "PATL", cimNamespace, writer, context);
         writeDirection(cimNamespace, writer);
-        writeKind(PATL, euNamespace, limitTypeAttributeName, limitKindClassName, writer);
+        writeKind(PATL, euNamespace, writer, context);
         if (writeInfiniteDuration) {
             writeInfiniteDuration(true, cimNamespace, writer);
         }
@@ -36,10 +36,10 @@ public final class OperationalLimitTypeEq {
     }
 
     public static void writeTatl(String id, int acceptableDuration, String cimNamespace, String euNamespace,
-                                 String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                                 boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("OperationalLimitType", id, "TATL " + acceptableDuration, cimNamespace, writer, context);
         writeDirection(cimNamespace, writer);
-        writeKind(TATL, euNamespace, limitTypeAttributeName, limitKindClassName, writer);
+        writeKind(TATL, euNamespace, writer, context);
         if (writeInfiniteDuration) {
             writeInfiniteDuration(false, cimNamespace, writer);
         }
@@ -54,9 +54,15 @@ public final class OperationalLimitTypeEq {
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + ABSOLUTEVALUE_LIMITDIRECTION);
     }
 
-    private static void writeKind(String kind, String euNamespace, String limitTypeAttributeName, String limitKindClassName, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeEmptyElement(euNamespace, limitTypeAttributeName);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", euNamespace, limitKindClassName, kind));
+    private static void writeKind(String kind, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        // Kind doesn't exist in CIM14
+        if (context.getCimVersion() == 16) {
+            writer.writeEmptyElement(euNamespace, "OperationalLimitType.limitType");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", euNamespace, "LimitTypeKind", kind));
+        } else if (context.getCimVersion() == 100) {
+            writer.writeEmptyElement(euNamespace, "OperationalLimitType.kind");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", euNamespace, "LimitKind", kind));
+        }
     }
 
     private static void writeInfiniteDuration(boolean infiniteDuration, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
