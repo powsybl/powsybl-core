@@ -19,13 +19,7 @@ public final class LoadUcteExport {
      * @param bus The bus the loads are connected to
      */
     public static void convertLoads(UcteNode ucteNode, Bus bus) {
-        double activeLoad = 0.0;
-        double reactiveLoad = 0.0;
-        for (Load load : bus.getLoads()) {
-            activeLoad += load.getP0();
-            reactiveLoad += load.getQ0();
-        }
-        ucteNode.setActiveLoad(activeLoad);
-        ucteNode.setReactiveLoad(reactiveLoad);
+        ucteNode.setActiveLoad(bus.getLoadStream().mapToDouble(Load::getP0).sum());
+        ucteNode.setReactiveLoad(bus.getLoadStream().mapToDouble(Load::getQ0).sum());
     }
 }
