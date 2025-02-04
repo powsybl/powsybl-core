@@ -200,9 +200,11 @@ public final class CgmesReports {
                 .add();
     }
 
-    public static ReportNode importingCgmesFileReport(ReportNode reportNode) {
+    public static ReportNode importingCgmesFileReport(ReportNode reportNode, String basename, String extension) {
         return reportNode.newReportNode()
-                .withMessageTemplate("CGMESConversion", "Importing CGMES file(s)")
+                .withMessageTemplate("CGMESConversion", "Importing CGMES file(s) with basename '${basename}' and extension '${extension}'")
+                .withUntypedValue("basename", basename)
+                .withUntypedValue("extension", extension)
                 .add();
     }
 
