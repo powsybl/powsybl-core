@@ -14,16 +14,16 @@ If multiple generators are regulating voltage with a different `TargetV`, then t
 `nominalV` of the `VoltageLevel` is kept. 
 - The active power generation of the UCTE node is the negated sum of the `TargetP` of every connected generator that are not `NaN`.
 - The reactive power generation of the UCTE node is the negated sum of the `TargetQ` of every connected generator that are not `NaN`.
-- The minimum permissible generation in active power of the UCTE node is the sum of the `minP` of every connected generator 
-that are not `NaN` or `-9999`. This field being optional in UCTE but compulsory in IIDM, during the import of a UCTE network, 
+- The minimum permissible generation in active power of the UCTE node is the sum of the `minP` of every connected generator
+if none are `-Double.MAX_VALUE` or `-9999`. This field being optional in UCTE but compulsory in IIDM, during the import of a UCTE network, 
 it is set to `-9999`. This value is thus ignored during export to stay consistent with the import.
-- The maximum permissible generation in active power of the UCTE node is the sum of the `maxP` of every connected generator
-that are not `NaN` or `9999`. This field being optional in UCTE but compulsory in IIDM, during the import of a UCTE network,
-it is set to `9999`. This value is thus ignored during export to stay consistent with the import.
+- The maximum permissible generation in active power of the UCTE node is the sum of the `maxP` of every connected generator 
+if none are `Double.MAX_VALUE` or `9999`. This field being optional in UCTE but compulsory in IIDM, during the import of a UCTE network,
+it is set to `9999`. This value is thus ignored during export to stay consistent with the import. 
 - The minimum permissible generation in reactive power of the UCTE node is obtained by summing the `minQ` of the reactive
-limits of each generator at their `TargetP`. The `minQ` that are `NaN` or `-9999` are filtered out of the sum.
-- The maximum permissible generation in reactive power of the UCTE node is is obtained by summing the `maxQ` of the reactive
-limits of each generator at their `TargetP`. The `maxQ` that are `NaN` or `9999` are filtered out of the sum.
+limits of each generator at their `TargetP` if none are `-Double.MAX_VALUE` or `-9999`.
+- The maximum permissible generation in reactive power of the UCTE node is obtained by summing the `maxQ` of the reactive
+limits of each generator at their `TargetP` if none are `Double.MAX_VALUE` or `9999`.
 - The power plant type of the UCTE node depends on the power plant type of the connected generators. If they all have the
 same type, then this type is used for the UCTE node. Otherwise, it is `F`.
 

@@ -75,12 +75,12 @@ public final class GeneratorUcteExport {
         ucteNode.setPowerPlantType(getUctePowerPlantType(powerPlantTypes, bus));
         ucteNode.setTypeCode(nodeType);
         // for minP, maxP, minQ, maxQ, sum the values on each generator unless it is equal to Double.MAX_VALUE or DEFAULT_POWER_LIMIT (equivalent to undefined)
-        // Default value if all limits are undefined is Double.NaN because these fields are optional in UCTE
+        // Default value if one limit is undefined (MAX_VALUE or DEFAULT_POWER_LIMIT) is Double.NaN because these fields are optional in UCTE
         // TODO: remove the DEFAULT_POWER_LIMIT in UCTEImporter
-        Double minP = minPs.stream().filter(minp -> minp != -Double.MAX_VALUE && minp != -DEFAULT_POWER_LIMIT).reduce(Double::sum).orElse(Double.NaN);
-        Double maxP = maxPs.stream().filter(maxp -> maxp != Double.MAX_VALUE && maxp != DEFAULT_POWER_LIMIT).reduce(Double::sum).orElse(Double.NaN);
-        Double minQ = minQs.stream().filter(minq -> minq != -Double.MAX_VALUE && minq != -DEFAULT_POWER_LIMIT).reduce(Double::sum).orElse(Double.NaN);
-        Double maxQ = maxQs.stream().filter(maxq -> maxq != Double.MAX_VALUE && maxq != DEFAULT_POWER_LIMIT).reduce(Double::sum).orElse(Double.NaN);
+        double minP = minPs.isEmpty() || minPs.contains(-Double.MAX_VALUE) || minPs.contains((double) -DEFAULT_POWER_LIMIT) ? Double.NaN : minPs.stream().reduce(Double::sum).orElse(Double.NaN);
+        double maxP = maxPs.isEmpty() || maxPs.contains(Double.MAX_VALUE) || maxPs.contains((double) DEFAULT_POWER_LIMIT) ? Double.NaN : maxPs.stream().reduce(Double::sum).orElse(Double.NaN);
+        double minQ = minQs.isEmpty() || minQs.contains(-Double.MAX_VALUE) || minQs.contains((double) -DEFAULT_POWER_LIMIT) ? Double.NaN : minQs.stream().reduce(Double::sum).orElse(Double.NaN);
+        double maxQ = maxQs.isEmpty() || maxQs.contains(Double.MAX_VALUE) || maxQs.contains((double) DEFAULT_POWER_LIMIT) ? Double.NaN : maxQs.stream().reduce(Double::sum).orElse(Double.NaN);
         ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
         ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
         ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);

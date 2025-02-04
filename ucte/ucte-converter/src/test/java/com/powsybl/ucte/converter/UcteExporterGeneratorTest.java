@@ -82,15 +82,25 @@ class UcteExporterGeneratorTest {
             .setId("GEN2")
             .setBus("NGEN")
             .setConnectableBus("NGEN")
-            .setMinP(-9999)
-            .setMaxP(9999)
+            .setMinP(-9999.99 / 2)
+            .setMaxP(9999.99 / 2)
             .setVoltageRegulatorOn(true)
             .setTargetV(24.5)
             .setTargetP(303.5)
             .setTargetQ(150.5)
             .add();
 
-        network.getGenerator("GEN").setTargetP(303.5).setTargetQ(150.5);
+        network.getGenerator("GEN").setTargetP(303.5).setTargetQ(150.5).setMinP(-9999.99 / 2).setMaxP(9999.99 / 2);
+
+        network.getGenerator("GEN").newMinMaxReactiveLimits()
+            .setMinQ(-9999.99 / 2)
+            .setMaxQ(9999.99 / 2)
+            .add();
+
+        network.getGenerator("GEN2").newMinMaxReactiveLimits()
+            .setMinQ(-9999.99 / 2)
+            .setMaxQ(9999.99 / 2)
+            .add();
     }
 
 }
