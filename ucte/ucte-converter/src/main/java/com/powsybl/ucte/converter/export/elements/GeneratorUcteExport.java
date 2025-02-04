@@ -33,7 +33,8 @@ public final class GeneratorUcteExport {
     public static void convertGenerators(UcteNode ucteNode, Bus bus) {
         double activePowerGeneration = 0;
         double reactivePowerGeneration = 0;
-        List<Double> voltageReferences = new ArrayList<>();
+        List<Double> localVoltageReferences = new ArrayList<>();
+        List<Double> remoteVoltageReferences = new ArrayList<>();
         List<Double> minPs = new ArrayList<>();
         List<Double> maxPs = new ArrayList<>();
         List<Double> minQs = new ArrayList<>();
@@ -53,7 +54,11 @@ public final class GeneratorUcteExport {
                 reactivePowerGeneration -= generator.getTargetQ();
             }
             if (!Double.isNaN(generator.getTargetV())) {
-                voltageReferences.add(getTargetV(generator));
+                if (generator.getRegulatingTerminal().getConnectable().getId().equals(generator.getId())) {
+                    localVoltageReferences.add(generator.getTargetV());
+                } else {
+                    remoteVoltageReferences.add(getTargetV(generator));
+                }
             }
             if (generator.isVoltageRegulatorOn() && generator.getRegulatingTerminal().getConnectable().getId().equals(generator.getId())) {
                 // If one of the generators regulates voltage, then the node is a PU node.
@@ -66,7 +71,7 @@ public final class GeneratorUcteExport {
 
         ucteNode.setActivePowerGeneration(activePowerGeneration);
         ucteNode.setReactivePowerGeneration(reactivePowerGeneration);
-        ucteNode.setVoltageReference(getVoltageReference(voltageReferences, bus.getVoltageLevel().getNominalV()));
+        ucteNode.setVoltageReference(getVoltageReference(localVoltageReferences, remoteVoltageReferences, bus.getVoltageLevel().getNominalV()));
         ucteNode.setPowerPlantType(getUctePowerPlantType(powerPlantTypes, bus));
         ucteNode.setTypeCode(nodeType);
         // for minP, maxP, minQ, maxQ, sum the values on each generator unless it is equal to Double.MAX_VALUE or DEFAULT_POWER_LIMIT (equivalent to undefined)
@@ -97,11 +102,16 @@ public final class GeneratorUcteExport {
         return UctePowerPlantType.F;
     }
 
-    private static double getVoltageReference(List<Double> voltageReferences, double nominalV) {
-        return voltageReferences.stream().filter(v -> !Double.isNaN(v))
+    private static double getVoltageReference(List<Double> localVoltageReferences, List<Double> remoteVoltageReferences, double nominalV) {
+        return findClosestVoltageToNominalV(localVoltageReferences, nominalV)
+            .orElseGet(() -> findClosestVoltageToNominalV(remoteVoltageReferences, nominalV).orElse(Double.NaN));
+    }
+
+    private static Optional<Double> findClosestVoltageToNominalV(List<Double> voltageReferences, double nominalV) {
+        return voltageReferences.stream()
+            .filter(v -> !Double.isNaN(v))
             .distinct()
-            .min(Comparator.comparingDouble(v -> Math.abs(v - nominalV))) // If all generators do not have the same targetV, take the one closest to the nominalV of the VL
-            .orElse(Double.NaN);
+            .min(Comparator.comparingDouble(v -> Math.abs(v - nominalV))); // If all generators do not have the same targetV, take the one closest to the nominalV of the VL
     }
 
     private static double getTargetV(Generator generator) {
