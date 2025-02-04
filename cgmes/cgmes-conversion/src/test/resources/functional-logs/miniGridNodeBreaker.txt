@@ -6,7 +6,7 @@
       Instance file MiniGridTestConfiguration_BC_EQ_v3.0.0.xml
       Instance file MiniGridTestConfiguration_BC_SV_v3.0.0.xml
       Instance file MiniGridTestConfiguration_BC_TP_v3.0.0.xml
-   + Importing CGMES file(s) with basename 'MiniGridTestConfiguration_BC' and extension ''
+   + Importing CGMES file(s) with basename 'MiniGridTestConfiguration_BC'
       Applying preprocessors.
       Building mappings.
       Converting Substation.

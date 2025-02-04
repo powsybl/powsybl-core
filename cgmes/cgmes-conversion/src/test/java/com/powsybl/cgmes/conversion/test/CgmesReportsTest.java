@@ -14,7 +14,7 @@ class CgmesReportsTest {
     void importingCgmesFileReportTest() {
         ReportNode reportRoot = ReportNode.newRootReportNode().withMessageTemplate("test", "Test reports").build();
         ReadOnlyDataSource ds = new ResourceDataSource("CGMES import file(s)", new ResourceSet("/", "GeneratingUnitTypes.xml", "groundTest.xml"));
-        ReportNode reportNode = CgmesReports.importingCgmesFileReport(reportRoot, ds.getBaseName(), ds.getDataExtension());
-        assertEquals("Importing CGMES file(s) with basename 'CGMES import file(s)' and extension ''", reportNode.getMessage());
+        ReportNode reportNode = CgmesReports.importingCgmesFileReport(reportRoot, ds.getBaseName());
+        assertEquals("Importing CGMES file(s) with basename 'CGMES import file(s)'", reportNode.getMessage());
     }
 }

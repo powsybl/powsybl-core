@@ -54,9 +54,9 @@ public class TypedValue {
      * @param type a string representing the value type (see the public constants for some generic types)
      */
     public TypedValue(Object value, String type) {
-        this.value = null == value ? "" : value;
+        this.value = Objects.requireNonNull(value);
         this.type = Objects.requireNonNull(type);
-        if (!(this.value instanceof Float || this.value instanceof Double || this.value instanceof Integer || this.value instanceof Long || this.value instanceof Boolean || this.value instanceof String)) {
+        if (!(value instanceof Float || value instanceof Double || value instanceof Integer || value instanceof Long || value instanceof Boolean || value instanceof String)) {
             throw new PowsyblException("TypedValue expects only Float, Double, Integer, Long and String values (value is an instance of " + value.getClass() + ")");
         }
     }
