@@ -63,8 +63,6 @@ public final class EquipmentExport {
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context, CgmesMetadataModel model) {
         try {
-            boolean writeConnectivityNodes = context.writeConnectivityNodes();
-
             String cimNamespace = context.getCim().getNamespace();
             String euNamespace = context.getCim().getEuNamespace();
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), euNamespace, writer);
@@ -80,7 +78,7 @@ public final class EquipmentExport {
             Set<String> exportedLimitTypes = new HashSet<>();
             LoadGroups loadGroups = new LoadGroups();
 
-            if (writeConnectivityNodes) {
+            if (context.writeConnectivityNodes()) {
                 writeConnectivityNodes(network, mapNodeKey2NodeId, cimNamespace, writer, context);
             }
             writeTerminals(network, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);

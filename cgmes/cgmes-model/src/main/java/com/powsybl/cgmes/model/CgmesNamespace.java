@@ -88,8 +88,6 @@ public final class CgmesNamespace {
         String getEuPrefix();
 
         String getEuNamespace();
-
-        boolean writeConnectivityNodes();
     }
 
     private abstract static class AbstractCim implements Cim {
@@ -144,11 +142,6 @@ public final class CgmesNamespace {
             throw new PowsyblException("Undefined EU namespace for version 14");
         }
 
-        @Override
-        public boolean writeConnectivityNodes() {
-            return false;
-        }
-
         private Cim14() {
             super(14, CIM_14_NAMESPACE);
         }
@@ -200,11 +193,6 @@ public final class CgmesNamespace {
 
     private static final class Cim16 extends AbstractCim16AndAbove {
 
-        @Override
-        public boolean writeConnectivityNodes() {
-            return false;
-        }
-
         private Cim16() {
             super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE,
                     Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP",
@@ -215,11 +203,6 @@ public final class CgmesNamespace {
     }
 
     private static final class Cim100 extends AbstractCim16AndAbove {
-
-        @Override
-        public boolean writeConnectivityNodes() {
-            return true;
-        }
 
         private Cim100() {
             super(100, CIM_100_NAMESPACE, "eu", EU_NAMESPACE,
