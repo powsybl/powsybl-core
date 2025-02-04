@@ -6,6 +6,8 @@ import com.powsybl.iidm.network.ReactiveLimits;
 import com.powsybl.ucte.network.UcteNode;
 import com.powsybl.ucte.network.UcteNodeTypeCode;
 import com.powsybl.ucte.network.UctePowerPlantType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,6 +20,8 @@ import static com.powsybl.ucte.converter.util.UcteConverterConstants.POWER_PLANT
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public final class GeneratorUcteExport {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorUcteExport.class);
 
     private GeneratorUcteExport() {
     }
@@ -65,7 +69,7 @@ public final class GeneratorUcteExport {
         ucteNode.setActivePowerGeneration(activePowerGeneration != 0 ? -activePowerGeneration : 0);
         ucteNode.setReactivePowerGeneration(reactivePowerGeneration != 0 ? -reactivePowerGeneration : 0);
         ucteNode.setVoltageReference(getVoltageReference(voltageReferences, bus.getVoltageLevel().getNominalV()));
-        ucteNode.setPowerPlantType(getUctePowerPlantType(powerPlantTypes));
+        ucteNode.setPowerPlantType(getUctePowerPlantType(powerPlantTypes, bus));
         ucteNode.setTypeCode(nodeType);
         // for minP, maxP, minQ, maxQ, sum the values on each generator unless it is equal to Double.MAX_VALUE or DEFAULT_POWER_LIMIT (equivalent to undefined)
         // Default value if all limits are undefined is Double.NaN because these fields are optional in UCTE
@@ -80,9 +84,10 @@ public final class GeneratorUcteExport {
         ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
     }
 
-    private static UctePowerPlantType getUctePowerPlantType(List<UctePowerPlantType> powerPlantTypes) {
+    private static UctePowerPlantType getUctePowerPlantType(List<UctePowerPlantType> powerPlantTypes, Bus bus) {
         if (powerPlantTypes.stream().distinct().count() > 1) {
             // If all generators do not have the same UctePowerPlantType, then set it to F.
+            LOGGER.info("All the generators connected to bus {} do not have the same EnergySource: UctePowerPlantType of the node is set to 'F'.", bus.getId());
             return UctePowerPlantType.F;
         } else if (powerPlantTypes.stream().distinct().count() == 1) {
             return powerPlantTypes.get(0);
