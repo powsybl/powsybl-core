@@ -9,12 +9,16 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLimits;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTransformerAdderImpl> implements TwoWindingsTransformerAdder {
 
     private final SubstationImpl substation;
+
+    private final TwoWindingsTransformer copiedTwoWindingsTransformer;
 
     private double r = Double.NaN;
 
@@ -32,6 +36,13 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     TwoWindingsTransformerAdderImpl(SubstationImpl substation) {
         this.substation = substation;
+        this.copiedTwoWindingsTransformer = null;
+    }
+
+    TwoWindingsTransformerAdderImpl(SubstationImpl substation, TwoWindingsTransformer copiedTwoWindingsTransformer) {
+        this.substation = substation;
+        this.copiedTwoWindingsTransformer = copiedTwoWindingsTransformer;
+        TwoWindingsTransformerAdder.fillTwoWindingsTransformerAdder(this, copiedTwoWindingsTransformer);
     }
 
     @Override
@@ -123,6 +134,8 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         transformer.addTerminal(terminal1);
         transformer.addTerminal(terminal2);
 
+        copyOperationalLimits(copiedTwoWindingsTransformer, transformer);
+
         // check that the two windings transformer is attachable on both side
         voltageLevel1.getTopologyModel().attach(terminal1, true);
         voltageLevel2.getTopologyModel().attach(terminal2, true);
@@ -132,7 +145,5 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         getNetwork().getIndex().checkAndAdd(transformer);
         getNetwork().getListeners().notifyCreation(transformer);
         return transformer;
-
     }
-
 }
