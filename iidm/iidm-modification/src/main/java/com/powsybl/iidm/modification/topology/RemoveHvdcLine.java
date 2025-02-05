@@ -12,6 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
+import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,10 +89,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         ShuntCompensator sc = network.getShuntCompensator(id);
         if (sc == null) {
             notFoundShuntReport(reportNode, id);
-            LOGGER.error("Shunt {} not found", id);
-            if (throwException) {
-                throw new PowsyblException("Shunt " + id + " not found");
-            }
+            ModificationLogs.logOrThrow(throwException, "Shunt " + id + " not found");
         }
         return sc;
     }

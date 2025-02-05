@@ -33,42 +33,42 @@ public abstract class AbstractNetworkModification implements NetworkModification
 
     @Override
     public void apply(Network network) {
-        apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), ReportNode.NO_OP);
+        apply(network, new DefaultNamingStrategy(), true, LocalComputationManager.getDefault(), ReportNode.NO_OP);
     }
 
     @Override
     public boolean apply(Network network, boolean dryRun) {
-        return apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), ReportNode.NO_OP, dryRun);
+        return apply(network, new DefaultNamingStrategy(), true, LocalComputationManager.getDefault(), ReportNode.NO_OP, dryRun);
     }
 
     @Override
     public void apply(Network network, ComputationManager computationManager) {
-        apply(network, new DefaultNamingStrategy(), false, computationManager, ReportNode.NO_OP);
+        apply(network, new DefaultNamingStrategy(), true, computationManager, ReportNode.NO_OP);
     }
 
     @Override
     public boolean apply(Network network, ComputationManager computationManager, boolean dryRun) {
-        return apply(network, new DefaultNamingStrategy(), false, computationManager, ReportNode.NO_OP, dryRun);
+        return apply(network, new DefaultNamingStrategy(), true, computationManager, ReportNode.NO_OP, dryRun);
     }
 
     @Override
     public void apply(Network network, ComputationManager computationManager, ReportNode reportNode) {
-        apply(network, new DefaultNamingStrategy(), false, computationManager, reportNode);
+        apply(network, new DefaultNamingStrategy(), true, computationManager, reportNode);
     }
 
     @Override
     public boolean apply(Network network, ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
-        return apply(network, new DefaultNamingStrategy(), false, computationManager, reportNode, dryRun);
+        return apply(network, new DefaultNamingStrategy(), true, computationManager, reportNode, dryRun);
     }
 
     @Override
     public void apply(Network network, ReportNode reportNode) {
-        apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), reportNode);
+        apply(network, new DefaultNamingStrategy(), true, LocalComputationManager.getDefault(), reportNode);
     }
 
     @Override
     public boolean apply(Network network, ReportNode reportNode, boolean dryRun) {
-        return apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), reportNode, dryRun);
+        return apply(network, new DefaultNamingStrategy(), true, LocalComputationManager.getDefault(), reportNode, dryRun);
     }
 
     @Override
@@ -93,42 +93,42 @@ public abstract class AbstractNetworkModification implements NetworkModification
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy) {
-        apply(network, namingStrategy, false, LocalComputationManager.getDefault(), ReportNode.NO_OP);
+        apply(network, namingStrategy, true, LocalComputationManager.getDefault(), ReportNode.NO_OP);
     }
 
     @Override
     public boolean apply(Network network, NamingStrategy namingStrategy, boolean dryRun) {
-        return apply(network, namingStrategy, false, LocalComputationManager.getDefault(), ReportNode.NO_OP, dryRun);
+        return apply(network, namingStrategy, true, LocalComputationManager.getDefault(), ReportNode.NO_OP, dryRun);
     }
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager) {
-        apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP);
+        apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP);
     }
 
     @Override
     public boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, boolean dryRun) {
-        return apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP, dryRun);
+        return apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP, dryRun);
     }
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        apply(network, namingStrategy, false, computationManager, reportNode);
+        apply(network, namingStrategy, true, computationManager, reportNode);
     }
 
     @Override
     public boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
-        return apply(network, namingStrategy, false, computationManager, reportNode, dryRun);
+        return apply(network, namingStrategy, true, computationManager, reportNode, dryRun);
     }
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode) {
-        apply(network, namingStrategy, false, LocalComputationManager.getDefault(), reportNode);
+        apply(network, namingStrategy, true, LocalComputationManager.getDefault(), reportNode);
     }
 
     @Override
     public boolean apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode, boolean dryRun) {
-        return apply(network, namingStrategy, false, LocalComputationManager.getDefault(), reportNode, dryRun);
+        return apply(network, namingStrategy, true, LocalComputationManager.getDefault(), reportNode, dryRun);
     }
 
     @Override
@@ -163,19 +163,6 @@ public abstract class AbstractNetworkModification implements NetworkModification
             apply(network, namingStrategy, throwException, computationManager, reportNode);
         }
         return true;
-    }
-
-    /**
-     * Utility during apply functions, logs or throw the message.
-     *
-     * @param throwException if true will throw {@link com.powsybl.commons.PowsyblException} with the given message
-     */
-    protected void logOrThrow(boolean throwException, String message) {
-        if (throwException) {
-            throw new PowsyblException(message);
-        } else {
-            LOGGER.warn("Error while applying modification : {}", message);
-        }
     }
 
     /**

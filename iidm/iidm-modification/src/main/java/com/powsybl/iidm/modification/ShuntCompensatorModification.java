@@ -10,6 +10,7 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
+import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
 import com.powsybl.iidm.network.*;
 
@@ -43,7 +44,7 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
 
         if (shuntCompensator == null) {
-            logOrThrow(throwException, "Shunt Compensator '" + shuntCompensatorId + "' not found");
+            ModificationLogs.logOrThrow(throwException, "Shunt Compensator '" + shuntCompensatorId + "' not found");
             return;
         }
 

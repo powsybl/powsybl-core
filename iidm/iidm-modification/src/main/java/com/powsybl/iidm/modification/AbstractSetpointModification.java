@@ -13,6 +13,7 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.modification.util.ModificationLogs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +50,7 @@ public abstract class AbstractSetpointModification<T> extends AbstractNetworkMod
         T networkElement = getNetworkElement(network, elementId);
 
         if (networkElement == null) {
-            logOrThrow(throwException, getElementName() + " '" + elementId + "' not found");
+            ModificationLogs.logOrThrow(throwException, getElementName() + " '" + elementId + "' not found");
             return;
         }
         if (voltageSetpoint != null) {

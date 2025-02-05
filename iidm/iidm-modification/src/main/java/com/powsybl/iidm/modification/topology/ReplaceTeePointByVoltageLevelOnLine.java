@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
@@ -137,84 +137,82 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
 
         // tee point is the voltage level in common with tpLine1, tpLine2 and tpLineToRemove
         VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(tpLine1, tpLine2, tpLineToRemove);
-        if (teePoint == null) {
-            noTeePointAndOrTappedVoltageLevelReport(reportNode, oldLine1Id, oldLine2Id, lineToRemoveId);
-            LOGGER.error("Unable to find the tee point and the tapped voltage level from lines {}, {} and {}", oldLine1Id, oldLine2Id, lineToRemoveId);
-            if (throwException) {
-                throw new PowsyblException(String.format("Unable to find the tee point and the tapped voltage level from lines %s, %s and %s", oldLine1Id, oldLine2Id, lineToRemoveId));
-            } else {
+
+        if (teePoint != null) {
+
+            // tapped voltage level is the voltage level of tpLineToRemove, at the opposite side of the tee point
+            VoltageLevel tappedVoltageLevel = tpLineToRemove.getTerminal1().getVoltageLevel() == teePoint
+                    ? tpLineToRemove.getTerminal2().getVoltageLevel()
+                    : tpLineToRemove.getTerminal1().getVoltageLevel();
+
+            TwoSides tpLine1OtherVlSide = tpLine1.getTerminal1().getVoltageLevel() == teePoint ? TwoSides.TWO : TwoSides.ONE;
+            TwoSides tpLine2OtherVlSide = tpLine2.getTerminal1().getVoltageLevel() == teePoint ? TwoSides.TWO : TwoSides.ONE;
+
+            // Set parameters of the new lines newLine1 and newLine2
+            LineAdder newLine1Adder = createLineAdder(newLine1Id, newLine1Name, tpLine1.getTerminal(tpLine1OtherVlSide).getVoltageLevel().getId(), tappedVoltageLevel.getId(), network, tpLine1, tpLineToRemove);
+            LineAdder newLine2Adder = createLineAdder(newLine2Id, newLine2Name, tappedVoltageLevel.getId(), tpLine2.getTerminal(tpLine2OtherVlSide).getVoltageLevel().getId(), network, tpLine2, tpLineToRemove);
+
+            // Create the topology inside the existing tapped voltage level and attach lines newLine1 and newLine2
+            attachLine(tpLine1.getTerminal(tpLine1OtherVlSide), newLine1Adder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
+            attachLine(tpLine2.getTerminal(tpLine2OtherVlSide), newLine2Adder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
+
+            // Create the breaker topology
+            if (!createTopology(newLine1Adder, newLine2Adder, tappedVoltageLevel, namingStrategy, reportNode, throwException)) {
                 return;
             }
+
+            // get line tpLine1 limits
+            TwoSides tpLine1Limits1Side = tpLine1OtherVlSide;
+            TwoSides tpLine1Limits2Side = tpLine1OtherVlSide == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
+            LoadingLimitsBags limits1TpLine1 = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits1Side),
+                    () -> tpLine1.getApparentPowerLimits(tpLine1Limits1Side),
+                    () -> tpLine1.getCurrentLimits(tpLine1Limits1Side));
+            LoadingLimitsBags limits2TpLine1 = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits2Side),
+                    () -> tpLine1.getApparentPowerLimits(tpLine1Limits2Side),
+                    () -> tpLine1.getCurrentLimits(tpLine1Limits2Side));
+
+            // get line tpLine2 limits
+            TwoSides tpLine2Limits1Side = tpLine2OtherVlSide == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
+            TwoSides tpLine2Limits2Side = tpLine2OtherVlSide;
+
+            LoadingLimitsBags limits1TpLine2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits1Side),
+                    () -> tpLine2.getApparentPowerLimits(tpLine2Limits1Side),
+                    () -> tpLine2.getCurrentLimits(tpLine2Limits1Side));
+            LoadingLimitsBags limits2TpLine2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits2Side),
+                    () -> tpLine2.getApparentPowerLimits(tpLine2Limits2Side),
+                    () -> tpLine2.getCurrentLimits(tpLine2Limits2Side));
+
+            // Remove the three existing lines
+            tpLine1.remove();
+            removedLineReport(reportNode, oldLine1Id);
+            LOGGER.info(LINE_REMOVED_LOG_MESSAGE, oldLine1Id);
+            tpLine2.remove();
+            removedLineReport(reportNode, oldLine2Id);
+            LOGGER.info(LINE_REMOVED_LOG_MESSAGE, oldLine2Id);
+            new RemoveFeederBay(tpLineToRemove.getId()).apply(network, namingStrategy, throwException, computationManager, reportNode);
+            removedLineReport(reportNode, lineToRemoveId);
+            LOGGER.info(LINE_REMOVED_LOG_MESSAGE, lineToRemoveId);
+
+            // Create the two new lines
+            Line newLine1 = newLine1Adder.add();
+            addLoadingLimits(newLine1, limits1TpLine1, TwoSides.ONE);
+            addLoadingLimits(newLine1, limits2TpLine1, TwoSides.TWO);
+            createdLineReport(reportNode, newLine1Id);
+            LOGGER.info("Line {} created", newLine1Id);
+
+            Line newLine2 = newLine2Adder.add();
+            addLoadingLimits(newLine2, limits1TpLine2, TwoSides.ONE);
+            addLoadingLimits(newLine2, limits2TpLine2, TwoSides.TWO);
+            createdLineReport(reportNode, newLine2Id);
+            LOGGER.info("Line {} created", newLine2Id);
+
+            // remove tee point
+            removeVoltageLevelAndSubstation(teePoint, reportNode);
+        } else {
+            noTeePointAndOrTappedVoltageLevelReport(reportNode, oldLine1Id, oldLine2Id, lineToRemoveId);
+            ModificationLogs.logOrThrow(throwException, String.format("Unable to find the tee point and the tapped voltage level from lines %s, %s and %s", oldLine1Id, oldLine2Id, lineToRemoveId));
         }
 
-        // tapped voltage level is the voltage level of tpLineToRemove, at the opposite side of the tee point
-        VoltageLevel tappedVoltageLevel = tpLineToRemove.getTerminal1().getVoltageLevel() == teePoint
-                ? tpLineToRemove.getTerminal2().getVoltageLevel()
-                : tpLineToRemove.getTerminal1().getVoltageLevel();
-
-        TwoSides tpLine1OtherVlSide = tpLine1.getTerminal1().getVoltageLevel() == teePoint ? TwoSides.TWO : TwoSides.ONE;
-        TwoSides tpLine2OtherVlSide = tpLine2.getTerminal1().getVoltageLevel() == teePoint ? TwoSides.TWO : TwoSides.ONE;
-
-        // Set parameters of the new lines newLine1 and newLine2
-        LineAdder newLine1Adder = createLineAdder(newLine1Id, newLine1Name, tpLine1.getTerminal(tpLine1OtherVlSide).getVoltageLevel().getId(), tappedVoltageLevel.getId(), network, tpLine1, tpLineToRemove);
-        LineAdder newLine2Adder = createLineAdder(newLine2Id, newLine2Name, tappedVoltageLevel.getId(), tpLine2.getTerminal(tpLine2OtherVlSide).getVoltageLevel().getId(), network, tpLine2, tpLineToRemove);
-
-        // Create the topology inside the existing tapped voltage level and attach lines newLine1 and newLine2
-        attachLine(tpLine1.getTerminal(tpLine1OtherVlSide), newLine1Adder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
-        attachLine(tpLine2.getTerminal(tpLine2OtherVlSide), newLine2Adder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
-
-        // Create the breaker topology
-        if (!createTopology(newLine1Adder, newLine2Adder, tappedVoltageLevel, namingStrategy, reportNode, throwException)) {
-            return;
-        }
-
-        // get line tpLine1 limits
-        TwoSides tpLine1Limits1Side = tpLine1OtherVlSide;
-        TwoSides tpLine1Limits2Side = tpLine1OtherVlSide == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
-        LoadingLimitsBags limits1TpLine1 = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits1Side),
-            () -> tpLine1.getApparentPowerLimits(tpLine1Limits1Side),
-            () -> tpLine1.getCurrentLimits(tpLine1Limits1Side));
-        LoadingLimitsBags limits2TpLine1 = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits2Side),
-            () -> tpLine1.getApparentPowerLimits(tpLine1Limits2Side),
-            () -> tpLine1.getCurrentLimits(tpLine1Limits2Side));
-
-        // get line tpLine2 limits
-        TwoSides tpLine2Limits1Side = tpLine2OtherVlSide == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
-        TwoSides tpLine2Limits2Side = tpLine2OtherVlSide;
-
-        LoadingLimitsBags limits1TpLine2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits1Side),
-            () -> tpLine2.getApparentPowerLimits(tpLine2Limits1Side),
-            () -> tpLine2.getCurrentLimits(tpLine2Limits1Side));
-        LoadingLimitsBags limits2TpLine2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits2Side),
-            () -> tpLine2.getApparentPowerLimits(tpLine2Limits2Side),
-            () -> tpLine2.getCurrentLimits(tpLine2Limits2Side));
-
-        // Remove the three existing lines
-        tpLine1.remove();
-        removedLineReport(reportNode, oldLine1Id);
-        LOGGER.info(LINE_REMOVED_LOG_MESSAGE, oldLine1Id);
-        tpLine2.remove();
-        removedLineReport(reportNode, oldLine2Id);
-        LOGGER.info(LINE_REMOVED_LOG_MESSAGE, oldLine2Id);
-        new RemoveFeederBay(tpLineToRemove.getId()).apply(network, namingStrategy, throwException, computationManager, reportNode);
-        removedLineReport(reportNode, lineToRemoveId);
-        LOGGER.info(LINE_REMOVED_LOG_MESSAGE, lineToRemoveId);
-
-        // Create the two new lines
-        Line newLine1 = newLine1Adder.add();
-        addLoadingLimits(newLine1, limits1TpLine1, TwoSides.ONE);
-        addLoadingLimits(newLine1, limits2TpLine1, TwoSides.TWO);
-        createdLineReport(reportNode, newLine1Id);
-        LOGGER.info("Line {} created", newLine1Id);
-
-        Line newLine2 = newLine2Adder.add();
-        addLoadingLimits(newLine2, limits1TpLine2, TwoSides.ONE);
-        addLoadingLimits(newLine2, limits2TpLine2, TwoSides.TWO);
-        createdLineReport(reportNode, newLine2Id);
-        LOGGER.info("Line {} created", newLine2Id);
-
-        // remove tee point
-        removeVoltageLevelAndSubstation(teePoint, reportNode);
     }
 
     private boolean createTopology(LineAdder newLine1Adder, LineAdder newLine2Adder, VoltageLevel tappedVoltageLevel, NamingStrategy namingStrategy, ReportNode reportNode, boolean throwException) {
@@ -271,31 +269,20 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
         Line line = network.getLine(lineId);
         if (line == null) {
             notFoundLineReport(reportNode, lineId);
-            LOGGER.error(LINE_NOT_FOUND_LOG_MESSAGE, lineId);
-            if (throwException) {
-                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
-            }
+            ModificationLogs.logOrThrow(throwException, String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
         }
         return line;
     }
 
     private boolean errorWhenBusNull(ReportNode reportNode, VoltageLevel voltageLevel, boolean throwException) {
         notFoundBusInVoltageLevelReport(reportNode, bbsOrBusId, voltageLevel.getId());
-        LOGGER.error("Bus {} is not found in voltage level {}", bbsOrBusId, voltageLevel.getId());
-        if (throwException) {
-            throw new PowsyblException(String.format("Bus %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
-        } else {
-            return false;
-        }
+        ModificationLogs.logOrThrow(throwException, String.format("Bus %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
+        return false;
     }
 
     private boolean errorWhenBusbarSectionNull(ReportNode reportNode, VoltageLevel voltageLevel, boolean throwException) {
         notFoundBusbarSectionInVoltageLevelReport(reportNode, bbsOrBusId, voltageLevel.getId());
-        LOGGER.error("Busbar section {} is not found in voltage level {}", bbsOrBusId, voltageLevel.getId());
-        if (throwException) {
-            throw new PowsyblException(String.format("Busbar section %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
-        } else {
-            return false;
-        }
+        ModificationLogs.logOrThrow(throwException, String.format("Busbar section %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
+        return false;
     }
 }

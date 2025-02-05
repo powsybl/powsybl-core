@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.tapchanger;
 
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.modification.util.ModificationLogs;
 
 import java.util.Objects;
 
@@ -85,18 +86,18 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
 
     public void apply(PhaseTapChangerHolder ptcHolder, boolean throwException) {
         if (ptcHolder == null) {
-            logOrThrow(throwException, "Failed to apply : " + TRANSFORMER_STR + getTransformerId());
+            ModificationLogs.logOrThrow(throwException, "Failed to apply : " + TRANSFORMER_STR + getTransformerId());
             return;
         }
         if (!ptcHolder.hasPhaseTapChanger()) {
-            logOrThrow(throwException, TRANSFORMER_STR + getTransformerId() + "' does not have a PhaseTapChanger");
+            ModificationLogs.logOrThrow(throwException, TRANSFORMER_STR + getTransformerId() + "' does not have a PhaseTapChanger");
             return;
         }
         try {
             int newTapPosition = (isRelative ? ptcHolder.getPhaseTapChanger().getTapPosition() : 0) + getTapPosition();
             ptcHolder.getPhaseTapChanger().setTapPosition(newTapPosition);
         } catch (ValidationException e) {
-            logOrThrow(throwException, e.getMessage());
+            ModificationLogs.logOrThrow(throwException, e.getMessage());
         }
     }
 

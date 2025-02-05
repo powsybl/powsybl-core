@@ -12,6 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
+import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
@@ -249,9 +250,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         if (bbs1 == bbs2) {
             LOGGER.error("No coupling device can be created on a same busbar section or bus ({})", busOrBbsId1);
             noCouplingDeviceOnSameBusOrBusbarSection(reportNode, busOrBbsId1);
-            if (throwException) {
-                throw new PowsyblException(String.format("No coupling device can be created on a same bus or busbar section (%s)", busOrBbsId1));
-            }
+            ModificationLogs.logOrThrow(throwException, String.format("No coupling device can be created on a same bus or busbar section (%s)", busOrBbsId1));
             return true;
         }
         return false;

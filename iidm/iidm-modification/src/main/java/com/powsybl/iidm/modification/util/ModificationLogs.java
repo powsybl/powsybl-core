@@ -19,14 +19,20 @@ public final class ModificationLogs {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModificationLogs.class);
 
+    public static void logOrThrow(boolean throwException, String message) {
+        if (throwException) {
+            throw new PowsyblException(message);
+        } else {
+            LOGGER.warn("Error while applying modification : {}", message);
+        }
+    }
+
     private ModificationLogs() {
     }
 
     public static void busOrBbsDoesNotExist(String bbsId, ReportNode reportNode, boolean throwException) {
         LOGGER.error("Bus or busbar section {} not found.", bbsId);
         ModificationReports.notFoundBusOrBusbarSectionReport(reportNode, bbsId);
-        if (throwException) {
-            throw new PowsyblException(String.format("Bus or busbar section %s not found", bbsId));
-        }
+        logOrThrow(throwException, String.format("Bus or busbar section %s not found", bbsId));
     }
 }
