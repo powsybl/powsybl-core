@@ -77,14 +77,18 @@ public final class GeneratorUcteExport {
         // for minP, maxP, minQ, maxQ, sum the values on each generator unless it is equal to Double.MAX_VALUE or DEFAULT_POWER_LIMIT (equivalent to undefined)
         // Default value if one limit is undefined (MAX_VALUE or DEFAULT_POWER_LIMIT) is Double.NaN because these fields are optional in UCTE
         // TODO: remove the DEFAULT_POWER_LIMIT in UCTEImporter
-        double minP = minPs.isEmpty() || minPs.contains(-Double.MAX_VALUE) || minPs.contains((double) -DEFAULT_POWER_LIMIT) ? Double.NaN : minPs.stream().reduce(Double::sum).orElse(Double.NaN);
-        double maxP = maxPs.isEmpty() || maxPs.contains(Double.MAX_VALUE) || maxPs.contains((double) DEFAULT_POWER_LIMIT) ? Double.NaN : maxPs.stream().reduce(Double::sum).orElse(Double.NaN);
-        double minQ = minQs.isEmpty() || minQs.contains(-Double.MAX_VALUE) || minQs.contains((double) -DEFAULT_POWER_LIMIT) ? Double.NaN : minQs.stream().reduce(Double::sum).orElse(Double.NaN);
-        double maxQ = maxQs.isEmpty() || maxQs.contains(Double.MAX_VALUE) || maxQs.contains((double) DEFAULT_POWER_LIMIT) ? Double.NaN : maxQs.stream().reduce(Double::sum).orElse(Double.NaN);
-        ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
-        ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
-        ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
-        ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
+        ucteNode.setMinimumPermissibleActivePowerGeneration(-computeMinPower(minPs));
+        ucteNode.setMaximumPermissibleActivePowerGeneration(-computeMaxPower(maxPs));
+        ucteNode.setMinimumPermissibleReactivePowerGeneration(-computeMinPower(minQs));
+        ucteNode.setMaximumPermissibleReactivePowerGeneration(-computeMaxPower(maxQs));
+    }
+
+    private static double computeMaxPower(List<Double> powers) {
+        return powers.isEmpty() || powers.contains(Double.MAX_VALUE) || powers.contains((double) DEFAULT_POWER_LIMIT) ? Double.NaN : powers.stream().reduce(Double::sum).orElse(Double.NaN);
+    }
+
+    private static double computeMinPower(List<Double> powers) {
+        return powers.isEmpty() || powers.contains(-Double.MAX_VALUE) || powers.contains((double) -DEFAULT_POWER_LIMIT) ? Double.NaN : powers.stream().reduce(Double::sum).orElse(Double.NaN);
     }
 
     private static UctePowerPlantType getUctePowerPlantType(Set<UctePowerPlantType> powerPlantTypes, Bus bus) {
