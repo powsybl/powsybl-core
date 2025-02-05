@@ -7,12 +7,16 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -42,12 +46,14 @@ class SwitchModificationsTest {
 
     @Test
     void testInvalidOpenSwitch() {
-        assertThrows(RuntimeException.class, () -> new OpenSwitch("dummy").apply(network));
+        assertDoesNotThrow(() -> new OpenSwitch("dummy").apply(network));
+        assertThrows(RuntimeException.class, () -> new OpenSwitch("dummy").apply(network, new DefaultNamingStrategy(), true, LocalComputationManager.getDefault(), ReportNode.NO_OP));
     }
 
     @Test
     void testInvalidCloseSwitch() {
-        assertThrows(RuntimeException.class, () -> new CloseSwitch("dummy").apply(network));
+        assertDoesNotThrow(() -> new CloseSwitch("dummy").apply(network));
+        assertThrows(RuntimeException.class, () -> new CloseSwitch("dummy").apply(network, new DefaultNamingStrategy(), true, LocalComputationManager.getDefault(), ReportNode.NO_OP));
     }
 
     @Test
