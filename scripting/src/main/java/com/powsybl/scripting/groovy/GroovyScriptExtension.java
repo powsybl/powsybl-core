@@ -7,15 +7,16 @@
  */
 package com.powsybl.scripting.groovy;
 
-import com.powsybl.computation.ComputationManager;
 import groovy.lang.Binding;
+
+import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface GroovyScriptExtension {
 
-    void load(Binding binding, ComputationManager computationManager);
+    void load(Binding binding, Map<Class<?>, Object> contextObjects);
 
     void unload();
 
