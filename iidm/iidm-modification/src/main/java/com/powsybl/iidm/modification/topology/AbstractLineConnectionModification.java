@@ -105,9 +105,7 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         if (Double.isNaN(positionPercent)) {
             logger.error("Percent should not be undefined");
             undefinedPercent(reportNode);
-            if (throwException) {
-                throw new PowsyblException("Percent should not be undefined");
-            }
+            ModificationLogs.logOrThrow(throwException, "Percent should not be undefined");
             return false;
         }
         return true;

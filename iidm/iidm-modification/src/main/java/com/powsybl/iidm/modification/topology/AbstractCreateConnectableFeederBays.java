@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
@@ -104,18 +103,12 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         if (topologyKind == TopologyKind.NODE_BREAKER) {
             if (positionOrder == null) {
                 unexpectedNullPositionOrder(reportNode, voltageLevel.getId());
-                LOGGER.error("Position order is null for attachment in node-breaker voltage level {}", voltageLevel.getId());
-                if (throwException) {
-                    throw new PowsyblException("Position order is null for attachment in node-breaker voltage level " + voltageLevel.getId());
-                }
+                ModificationLogs.logOrThrow(throwException, "Position order is null for attachment in node-breaker voltage level " + voltageLevel.getId());
                 return false;
             }
             if (positionOrder < 0) {
                 unexpectedNegativePositionOrder(reportNode, positionOrder, voltageLevel.getId());
-                LOGGER.error("Position order is negative ({}) for attachment in node-breaker voltage level {}", positionOrder, voltageLevel.getId());
-                if (throwException) {
-                    throw new PowsyblException("Position order is negative for attachment in node-breaker voltage level " + voltageLevel.getId() + ": " + positionOrder);
-                }
+                ModificationLogs.logOrThrow(throwException, "Position order is negative for attachment in node-breaker voltage level " + voltageLevel.getId() + ": " + positionOrder);
                 return false;
             }
         }
@@ -191,9 +184,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             } else {
                 LOGGER.error("Unsupported type {} for identifiable {}", busOrBusbarSection.getType(), busOrBusbarSectionId);
                 unsupportedIdentifiableType(reportNode, busOrBusbarSection.getType(), busOrBusbarSectionId);
-                if (throwException) {
-                    throw new PowsyblException(String.format("Unsupported type %s for identifiable %s", busOrBusbarSection.getType(), busOrBusbarSectionId));
-                }
+                ModificationLogs.logOrThrow(throwException, String.format("Unsupported type %s for identifiable %s", busOrBusbarSection.getType(), busOrBusbarSectionId));
                 return false;
             }
         }
@@ -210,9 +201,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             LOGGER.error("Network given in parameters and in connectableAdder are different. Connectable '{}' of type {} was added then removed",
                     connectable.getId(), connectable.getType());
             networkMismatchReport(reportNode, connectable.getId(), connectable.getType());
-            if (throwException) {
-                throw new PowsyblException("Network given in parameters and in connectableAdder are different. Connectable was added then removed");
-            }
+            ModificationLogs.logOrThrow(throwException, "Network given in parameters and in connectableAdder are different. Connectable was added then removed");
             return false;
         }
         return true;

@@ -7,10 +7,10 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
+import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 
@@ -27,13 +27,13 @@ public class PercentChangeLoadModification extends AbstractNetworkModification {
     private double q0PercentChange;
     private double p0PercentChange;
 
-    public PercentChangeLoadModification(String loadId, double p0PercentChange, double q0PercentChange) {
+    public PercentChangeLoadModification(String loadId, double p0PercentChange, double q0PercentChange, boolean throwException) {
         this.loadId = Objects.requireNonNull(loadId);
         if (p0PercentChange < -100) {
-            throw new PowsyblException("The active power of " + loadId + " cannot decrease by more than 100% (current value: " + p0PercentChange + ")");
+            ModificationLogs.logOrThrow(throwException, "The active power of " + loadId + " cannot decrease by more than 100% (current value: " + p0PercentChange + ")");
         }
         if (q0PercentChange < -100) {
-            throw new PowsyblException("The reactive power of " + loadId + " cannot decrease by more than 100% (current value: " + q0PercentChange + ")");
+            ModificationLogs.logOrThrow(throwException, "The reactive power of " + loadId + " cannot decrease by more than 100% (current value: " + q0PercentChange + ")");
         }
         this.p0PercentChange = p0PercentChange;
         this.q0PercentChange = q0PercentChange;
@@ -48,7 +48,7 @@ public class PercentChangeLoadModification extends AbstractNetworkModification {
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         Load load = network.getLoad(loadId);
         if (load == null) {
-            logOrThrow(throwException, "Load '" + loadId + "' not found");
+            ModificationLogs.logOrThrow(throwException, "Load '" + loadId + "' not found");
         } else {
             double p0 = load.getP0();
             load.setP0(p0 + (p0 * p0PercentChange / 100));

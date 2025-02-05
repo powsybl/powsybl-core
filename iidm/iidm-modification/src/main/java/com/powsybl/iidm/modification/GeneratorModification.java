@@ -10,6 +10,7 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
+import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.IdentifiableType;
@@ -40,7 +41,7 @@ public class GeneratorModification extends AbstractNetworkModification {
                       ComputationManager computationManager, ReportNode reportNode) {
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
-            logOrThrow(throwException, "Generator '" + generatorId + "' not found");
+            ModificationLogs.logOrThrow(throwException, "Generator '" + generatorId + "' not found");
             return;
         }
         if (modifs.getMinP() != null) {

@@ -7,10 +7,10 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
+import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 
@@ -37,9 +37,10 @@ public class OpenSwitch extends AbstractNetworkModification {
                       ComputationManager computationManager, ReportNode reportNode) {
         Switch sw = network.getSwitch(switchId);
         if (sw == null) {
-            throw new PowsyblException("Switch '" + switchId + "' not found");
+            ModificationLogs.logOrThrow(throwException, "Switch '" + switchId + "' not found");
+        } else {
+            sw.setOpen(true);
         }
-        sw.setOpen(true);
     }
 
     @Override

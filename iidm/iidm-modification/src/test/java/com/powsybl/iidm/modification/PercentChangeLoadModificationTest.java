@@ -27,7 +27,7 @@ class PercentChangeLoadModificationTest {
         Network network = EurostagTutorialExample1Factory.create();
         Load load = network.getLoad("LOAD");
         assertEquals(600.0, load.getP0());
-        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", 3.51, 0);
+        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", 3.51, 0, true);
         modification.apply(network);
         assertEquals(621.06, load.getP0(), 0.001);
     }
@@ -37,7 +37,7 @@ class PercentChangeLoadModificationTest {
         Network network = EurostagTutorialExample1Factory.create();
         Load load = network.getLoad("LOAD");
         assertEquals(600.0, load.getP0());
-        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", -3.5, 0);
+        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", -3.5, 0, true);
         modification.apply(network);
         assertEquals(579.0, load.getP0());
     }
@@ -47,7 +47,7 @@ class PercentChangeLoadModificationTest {
         Network network = EurostagTutorialExample1Factory.create();
         Load load = network.getLoad("LOAD");
         assertEquals(200.0, load.getQ0());
-        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", 0, 2.5);
+        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", 0, 2.5, true);
         modification.apply(network);
         assertEquals(205.0, load.getQ0());
     }
@@ -57,42 +57,42 @@ class PercentChangeLoadModificationTest {
         Network network = EurostagTutorialExample1Factory.create();
         Load load = network.getLoad("LOAD");
         assertEquals(200.0, load.getQ0());
-        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", 0, -2.5);
+        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", 0, -2.5, true);
         modification.apply(network);
         assertEquals(195.0, load.getQ0());
     }
 
     @Test
     void shouldCreatePercentChangeLoadModificationAtLimit() {
-        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", -100, -100);
+        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", -100, -100, true);
         assertEquals("PercentChangeLoadModification", modification.getName());
     }
 
     @Test
     void shouldThrowWhenLoadDecreasesTooMuch() {
-        assertThrows(PowsyblException.class, () -> new PercentChangeLoadModification("LOAD", -101, 0));
-        assertThrows(PowsyblException.class, () -> new PercentChangeLoadModification("LOAD", 0, -101));
+        assertThrows(PowsyblException.class, () -> new PercentChangeLoadModification("LOAD", -101, 0, true));
+        assertThrows(PowsyblException.class, () -> new PercentChangeLoadModification("LOAD", 0, -101, true));
     }
 
     @Test
     void shouldThrowWhenLoadNotFound() {
         Network network = EurostagTutorialExample1Factory.create();
-        PercentChangeLoadModification modification = new PercentChangeLoadModification("LoadNotFound", 2.5, 2.5);
+        PercentChangeLoadModification modification = new PercentChangeLoadModification("LoadNotFound", 2.5, 2.5, true);
         assertThrows(PowsyblException.class, () -> modification.apply(network, true, null));
     }
 
     @Test
     void impactOnNetwork() {
         Network network = EurostagTutorialExample1Factory.create();
-        assertEquals(NO_IMPACT_ON_NETWORK, new PercentChangeLoadModification("LOAD", 0, 0).hasImpactOnNetwork(network));
-        assertEquals(HAS_IMPACT_ON_NETWORK, new PercentChangeLoadModification("LOAD", 3, 0).hasImpactOnNetwork(network));
-        assertEquals(HAS_IMPACT_ON_NETWORK, new PercentChangeLoadModification("LOAD", 0, 3).hasImpactOnNetwork(network));
-        assertEquals(CANNOT_BE_APPLIED, new PercentChangeLoadModification("LoadNotFound", 3, 2).hasImpactOnNetwork(network));
+        assertEquals(NO_IMPACT_ON_NETWORK, new PercentChangeLoadModification("LOAD", 0, 0, true).hasImpactOnNetwork(network));
+        assertEquals(HAS_IMPACT_ON_NETWORK, new PercentChangeLoadModification("LOAD", 3, 0, true).hasImpactOnNetwork(network));
+        assertEquals(HAS_IMPACT_ON_NETWORK, new PercentChangeLoadModification("LOAD", 0, 3, true).hasImpactOnNetwork(network));
+        assertEquals(CANNOT_BE_APPLIED, new PercentChangeLoadModification("LoadNotFound", 3, 2, true).hasImpactOnNetwork(network));
     }
 
     @Test
     void pctLoadModificationName() {
-        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", 3.5, 0);
+        PercentChangeLoadModification modification = new PercentChangeLoadModification("LOAD", 3.5, 0, true);
         assertEquals("PercentChangeLoadModification", modification.getName());
     }
 

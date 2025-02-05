@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,10 +93,7 @@ public class RevertCreateLineOnLine extends AbstractLineDisconnectionModificatio
         Line line = network.getLine(lineId);
         if (line == null) {
             notFoundLineReport(reportNode, lineId);
-            LOG.error("Line {} is not found", lineId);
-            if (throwException) {
-                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
-            }
+            ModificationLogs.logOrThrow(throwException, String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
         }
         return line;
     }
@@ -115,12 +112,8 @@ public class RevertCreateLineOnLine extends AbstractLineDisconnectionModificatio
         VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(lineToBeMerged1, lineToBeMerged2, lineToBeDeleted);
         if (teePoint == null) {
             noTeePointAndOrTappedVoltageLevelReport(reportNode, oldLine1Id, oldLine2Id, lineToRemoveId);
-            LOG.error("Unable to find the tee point and the tapped voltage level from lines {}, {} and {}", oldLine1Id, oldLine2Id, lineToRemoveId);
-            if (throwException) {
-                throw new PowsyblException(String.format("Unable to find the attachment point and the tapped voltage level from lines %s, %s and %s", oldLine1Id, oldLine2Id, lineToRemoveId));
-            } else {
-                return;
-            }
+            ModificationLogs.logOrThrow(throwException, String.format("Unable to find the attachment point and the tapped voltage level from lines %s, %s and %s", oldLine1Id, oldLine2Id, lineToRemoveId));
+            return;
         }
 
         // tapped voltage level is the voltage level of lineToBeDeleted, at the opposite side of the tee point
