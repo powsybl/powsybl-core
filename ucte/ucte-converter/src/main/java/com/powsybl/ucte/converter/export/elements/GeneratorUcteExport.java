@@ -60,7 +60,7 @@ public final class GeneratorUcteExport {
                     remoteVoltageReferences.add(getTargetV(generator));
                 }
             }
-            if (generator.isVoltageRegulatorOn() && generator.getRegulatingTerminal().getConnectable().getId().equals(generator.getId())) {
+            if (generator.isVoltageRegulatorOn()) {
                 // If one of the generators regulates voltage, then the node is a PU node.
                 nodeType = UcteNodeTypeCode.PU;
             }
