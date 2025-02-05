@@ -29,7 +29,14 @@ import java.util.*;
  *     <li>a collection of <code>ReportNode</code> children, possibly empty.</li>
  * </ul>
  *
- * The values {@link TypedValue} values should be referred to by their key in the message template, using the <code>${key}</code>
+ * <p>When the collection of children of a <code>ReportNode</code> is non-empty, the message of the corresponding
+ * <code>ReportNode</code> is expected to summarize the children content. Note that the summarizing
+ * template should be succinct: 120 characters is a good limit for the message string length (once formatted).
+ *
+ * <p>The {@link TypedValue} values should have a meaningful type to possibly enrich the message content. Please reuse
+ * the generic types provided in {@link TypedValue} when possible.
+ *
+ * <p>The values {@link TypedValue} values should be referred to by their key in the message template, using the <code>${key}</code>
  * syntax, in order to be later replaced by {@link org.apache.commons.text.StringSubstitutor} for instance when formatting
  * the string for the end user.
  * The <code>ReportNode</code> values may be referred to within the corresponding messageTemplate, or within any of its
