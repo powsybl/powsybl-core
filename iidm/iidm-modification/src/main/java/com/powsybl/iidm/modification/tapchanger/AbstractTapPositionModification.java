@@ -67,6 +67,7 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
             applyTwoWindingsTransformer(network, twoWindingsTransformer, throwException);
         } else {
             ModificationLogs.logOrThrow(throwException, "No matching transformer found with ID:" + getTransformerId());
+            return;
         }
     }
 

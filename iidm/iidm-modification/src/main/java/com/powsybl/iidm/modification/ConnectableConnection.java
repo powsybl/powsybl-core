@@ -74,6 +74,7 @@ public class ConnectableConnection extends AbstractConnectDisconnectModification
         // Connect the element if it exists
         if (identifiable == null) {
             ModificationLogs.logOrThrow(throwException, "Identifiable '" + identifiableId + "' not found");
+            return;
         } else {
             connectIdentifiable(identifiable, network, throwException, reportNode);
         }
@@ -90,6 +91,7 @@ public class ConnectableConnection extends AbstractConnectDisconnectModification
                 hasBeenConnected = hvdcLine.connectConverterStations(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
             } else {
                 ModificationLogs.logOrThrow(throwException, String.format("Connection not implemented for identifiable '%s'", identifiableId));
+                return;
             }
         } finally {
             network.getReportNodeContext().popReportNode();

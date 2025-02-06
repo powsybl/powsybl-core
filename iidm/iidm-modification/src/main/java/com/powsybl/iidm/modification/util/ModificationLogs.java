@@ -19,6 +19,9 @@ public final class ModificationLogs {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModificationLogs.class);
 
+    private ModificationLogs() {
+    }
+
     public static void logOrThrow(boolean throwException, String message) {
         if (throwException) {
             throw new PowsyblException(message);
@@ -27,12 +30,10 @@ public final class ModificationLogs {
         }
     }
 
-    private ModificationLogs() {
-    }
-
     public static void busOrBbsDoesNotExist(String bbsId, ReportNode reportNode, boolean throwException) {
         LOGGER.error("Bus or busbar section {} not found.", bbsId);
         ModificationReports.notFoundBusOrBusbarSectionReport(reportNode, bbsId);
         logOrThrow(throwException, String.format("Bus or busbar section %s not found", bbsId));
+        return;
     }
 }

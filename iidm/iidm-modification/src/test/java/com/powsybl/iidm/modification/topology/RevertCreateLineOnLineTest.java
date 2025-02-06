@@ -50,6 +50,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .build();
         ReportNode subReportNode1 = reportNode1.newReportNode().withMessageTemplate("withThrowException", "throwException = true").add();
         ReportNode reportNodeChild1a = reportNode1.getChildren().get(0);
+        assertDoesNotThrow(() -> modificationWithError1.apply(network, false, subReportNode1));
         assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, subReportNode1), "Line line1NotFound is not found");
         assertEquals("lineNotFound", reportNodeChild1a.getChildren().get(0).getMessageKey());
         final NetworkModification modificationWithError11 = new RevertCreateLineOnLineBuilder()
@@ -71,6 +72,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withMergedLineId("CJ")
                 .build();
         ReportNode subReportNode2 = reportNode2.newReportNode().withMessageTemplate("withThrowException", "throwException = true").add();
+        assertDoesNotThrow(() -> modificationWithError2.apply(network, false, subReportNode2));
         assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, subReportNode2), "Line line2NotFound is not found");
         ReportNode reportNodeChild2a = reportNode2.getChildren().get(0);
         assertEquals("lineNotFound", reportNodeChild2a.getChildren().get(0).getMessageKey());
@@ -93,6 +95,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withMergedLineId("CJ")
                 .build();
         ReportNode subReportNode3 = reportNode3.newReportNode().withMessageTemplate("withThrowException", "throwException = true").add();
+        assertDoesNotThrow(() -> modificationWithError3.apply(network, false, subReportNode3));
         assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, subReportNode3), "Line line3NotFound is not found");
         ReportNode reportNodeChild3a = reportNode3.getChildren().get(0);
         assertEquals("lineNotFound", reportNodeChild3a.getChildren().get(0).getMessageKey());
@@ -115,6 +118,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withMergedLineId("CJ")
                 .build();
         ReportNode subReportNode4 = reportNode4.newReportNode().withMessageTemplate("withThrowException", "throwException = true").add();
+        assertDoesNotThrow(() -> modificationWithError4.apply(network, false, subReportNode4));
         assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network, true, subReportNode4), "Unable to find the attachment point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34");
         ReportNode reportNodeChild4a = reportNode4.getChildren().get(0);
         assertEquals("noTeePointAndOrTappedVoltageLevel", reportNodeChild4a.getChildren().get(0).getMessageKey());

@@ -94,6 +94,7 @@ public class RevertCreateLineOnLine extends AbstractLineDisconnectionModificatio
         if (line == null) {
             notFoundLineReport(reportNode, lineId);
             ModificationLogs.logOrThrow(throwException, String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
+            return null;
         }
         return line;
     }

@@ -72,7 +72,7 @@ public class PercentChangeLoadAction extends AbstractAction {
             case CONSTANT_Q -> 0d;
             case CONSTANT_PQ_RATIO -> p0PercentChange;
         };
-        return new PercentChangeLoadModification(loadId, p0PercentChange, q0PercentChange, true);
+        return new PercentChangeLoadModification(loadId, p0PercentChange, q0PercentChange);
     }
 
     @Override

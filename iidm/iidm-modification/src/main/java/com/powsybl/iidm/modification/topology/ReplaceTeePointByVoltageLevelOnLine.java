@@ -138,8 +138,11 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
         // tee point is the voltage level in common with tpLine1, tpLine2 and tpLineToRemove
         VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(tpLine1, tpLine2, tpLineToRemove);
 
-        if (teePoint != null) {
-
+        if (teePoint == null) {
+            noTeePointAndOrTappedVoltageLevelReport(reportNode, oldLine1Id, oldLine2Id, lineToRemoveId);
+            ModificationLogs.logOrThrow(throwException, String.format("Unable to find the tee point and the tapped voltage level from lines %s, %s and %s", oldLine1Id, oldLine2Id, lineToRemoveId));
+            return;
+        } else {
             // tapped voltage level is the voltage level of tpLineToRemove, at the opposite side of the tee point
             VoltageLevel tappedVoltageLevel = tpLineToRemove.getTerminal1().getVoltageLevel() == teePoint
                     ? tpLineToRemove.getTerminal2().getVoltageLevel()
@@ -208,9 +211,6 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
 
             // remove tee point
             removeVoltageLevelAndSubstation(teePoint, reportNode);
-        } else {
-            noTeePointAndOrTappedVoltageLevelReport(reportNode, oldLine1Id, oldLine2Id, lineToRemoveId);
-            ModificationLogs.logOrThrow(throwException, String.format("Unable to find the tee point and the tapped voltage level from lines %s, %s and %s", oldLine1Id, oldLine2Id, lineToRemoveId));
         }
 
     }
@@ -270,6 +270,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
         if (line == null) {
             notFoundLineReport(reportNode, lineId);
             ModificationLogs.logOrThrow(throwException, String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
+            return null;
         }
         return line;
     }

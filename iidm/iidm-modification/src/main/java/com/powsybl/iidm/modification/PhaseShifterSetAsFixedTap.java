@@ -39,9 +39,11 @@ public class PhaseShifterSetAsFixedTap extends AbstractNetworkModification {
         TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
         if (phaseShifter == null) {
             ModificationLogs.logOrThrow(throwException, "Transformer '" + phaseShifterId + "' not found");
+            return;
         }
         if (!phaseShifter.hasPhaseTapChanger()) {
             ModificationLogs.logOrThrow(throwException, "Transformer '" + phaseShifterId + "' is not a phase shifter");
+            return;
         }
         phaseShifter.getPhaseTapChanger().setTapPosition(tapPosition);
         phaseShifter.getPhaseTapChanger().setRegulating(false);
