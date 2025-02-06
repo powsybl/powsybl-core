@@ -362,16 +362,6 @@ WHERE {
     }
 }
 
-# query: voltages
-SELECT *
-{ GRAPH ?graphSV {
-    ?SvVoltage
-        a cim:SvVoltage ;
-        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-        cim:SvVoltage.v ?v ;
-        cim:SvVoltage.angle ?angle
-}}
-
 # query: operationalLimits
 SELECT *
 WHERE
@@ -832,13 +822,6 @@ WHERE {
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.maxQ ?maxQ }
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationCapability ?regulationCapability }
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.ReactiveCapabilityCurve ?ReactiveCapabilityCurve }
-}}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?EquivalentInjection
-        cim:EquivalentInjection.p ?p ;
-        cim:EquivalentInjection.q ?q .
-    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationStatus ?regulationStatus }
-    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationTarget ?regulationTarget }
 }}
 }
 

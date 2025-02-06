@@ -12,7 +12,6 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
@@ -880,7 +879,7 @@ class CgmesConformity1ModifiedConversionTest {
 
     @Test
     void smallNodeBreakerHvdcMissingDCLineSegment() {
-        // Small Grid Node Breaker HVDC modified so there is not DC Line Segment
+        // Small Grid Node Breaker HVDC modified so there is no DC Line Segment
         assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcMissingDCLineSegment().dataSource(), NetworkFactory.findDefault(), importParams));
     }
 
@@ -919,7 +918,7 @@ class CgmesConformity1ModifiedConversionTest {
     @Test
     void microGridBaseCaseBESingleFile() {
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), importParams);
-        assertEquals(6, network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().size());
+        assertEquals(6, network.getVoltageLevelStream().mapToInt(voltageLevel -> voltageLevel.getBusBreakerView().getBusCount()).sum());
         assertEquals(5, network.getDanglingLineCount());
     }
 

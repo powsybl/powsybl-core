@@ -126,7 +126,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         // (getRatio(convertedT2xModel), getAngle(convertedT2xModel)) is not (1.0, 0.0)
         // we will have differences in the LF computation.
         // TODO support in the danglingLine the complete twoWindingsTransformer model (transformer + tapChangers)
-        danglingLine = convertToDanglingLine(eqInstance, boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel));
+        danglingLine = convertToDanglingLine(eqInstance, boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel), CgmesNames.POWER_TRANSFORMER);
     }
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
@@ -254,5 +254,11 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
         t2w.getOperationalLimitsGroups1().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(t2w, operationalLimitsGroup, TwoSides.ONE, context));
         t2w.getOperationalLimitsGroups2().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(t2w, operationalLimitsGroup, TwoSides.TWO, context));
+    }
+
+    public static void update(DanglingLine danglingLine, Context context) {
+        updateTerminals(danglingLine, context, danglingLine.getTerminal());
+        updateTargetsAndRegulation(danglingLine, isBoundaryTerminalConnected(danglingLine, context), context);
+        computeFlowsOnModelSide(danglingLine, context);
     }
 }

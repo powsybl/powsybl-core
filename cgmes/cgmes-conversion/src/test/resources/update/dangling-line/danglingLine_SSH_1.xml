@@ -1,0 +1,79 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>All types of DanglingLines</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:Terminal rdf:about="#_ACLineSegment-T1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_ACLineSegment-T2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_ACLineSegment-EquivalentInjection-T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:about="#_ACLineSegment-EquivalentInjection">
+        <cim:EquivalentInjection.p>280.0</cim:EquivalentInjection.p>
+        <cim:EquivalentInjection.q>70.0</cim:EquivalentInjection.q>
+        <cim:EquivalentInjection.regulationStatus>false</cim:EquivalentInjection.regulationStatus>
+        <cim:EquivalentInjection.regulationTarget>409.0</cim:EquivalentInjection.regulationTarget>
+    </cim:EquivalentInjection>
+
+    <cim:Terminal rdf:about="#_EquivalentBranch-T1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_EquivalentBranch-T2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_EquivalentBranch-EquivalentInjection-T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:about="#_EquivalentBranch-EquivalentInjection">
+        <cim:EquivalentInjection.p>270.0</cim:EquivalentInjection.p>
+        <cim:EquivalentInjection.q>55.0</cim:EquivalentInjection.q>
+        <cim:EquivalentInjection.regulationStatus>false</cim:EquivalentInjection.regulationStatus>
+        <cim:EquivalentInjection.regulationTarget>410.0</cim:EquivalentInjection.regulationTarget>
+    </cim:EquivalentInjection>
+
+    <cim:Terminal rdf:about="#_PowerTransformer-End1-T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_PowerTransformer-End2-T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_PowerTransformer-EquivalentInjection-T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:about="#_PowerTransformer-EquivalentInjection">
+        <cim:EquivalentInjection.p>105.0</cim:EquivalentInjection.p>
+        <cim:EquivalentInjection.q>20.0</cim:EquivalentInjection.q>
+        <cim:EquivalentInjection.regulationStatus>true</cim:EquivalentInjection.regulationStatus>
+        <cim:EquivalentInjection.regulationTarget>227.0</cim:EquivalentInjection.regulationTarget>
+    </cim:EquivalentInjection>
+
+    <cim:Terminal rdf:about="#_Breaker-T1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_Breaker-T2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Breaker rdf:about="#_Breaker">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:Switch.open>false</cim:Switch.open>
+        <cim:Switch.locked>false</cim:Switch.locked>
+    </cim:Breaker>
+    <cim:Terminal rdf:about="#_Breaker-EquivalentInjection-T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:about="#_Breaker-EquivalentInjection">
+        <cim:EquivalentInjection.p>15.0</cim:EquivalentInjection.p>
+        <cim:EquivalentInjection.q>3.0</cim:EquivalentInjection.q>
+        <cim:EquivalentInjection.regulationStatus>true</cim:EquivalentInjection.regulationStatus>
+        <cim:EquivalentInjection.regulationTarget>403.0</cim:EquivalentInjection.regulationTarget>
+    </cim:EquivalentInjection>
+</rdf:RDF>

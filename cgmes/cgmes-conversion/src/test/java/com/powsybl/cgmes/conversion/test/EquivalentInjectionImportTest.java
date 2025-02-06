@@ -45,8 +45,10 @@ class EquivalentInjectionImportTest extends AbstractSerDeTest {
                         "ei_regulation_missing_target_SSH.xml",
                         "ei_regulation_EQ_BD.xml")));
         DanglingLine dl = network.getDanglingLine("ACLS1");
-        // No generation data has been created for the dangling line
-        assertNull(dl.getGeneration());
+        // Generation data has been created for the dangling line but regulation is off
+        assertNotNull(dl.getGeneration());
+        assertTrue(Double.isNaN(dl.getGeneration().getTargetV()));
+        assertFalse(dl.getGeneration().isVoltageRegulationOn());
     }
 
     @Test
@@ -58,7 +60,9 @@ class EquivalentInjectionImportTest extends AbstractSerDeTest {
                         "ei_regulation_with_target_zero_SSH.xml",
                         "ei_regulation_EQ_BD.xml")));
         DanglingLine dl = network.getDanglingLine("ACLS1");
-        // Zero is an invalid value, no generation data has been created for the dangling line
-        assertNull(dl.getGeneration());
+        // Zero is an invalid value, generation data has been created for the dangling line but regulation is off
+        assertNotNull(dl.getGeneration());
+        assertEquals(0.0, dl.getGeneration().getTargetV());
+        assertFalse(dl.getGeneration().isVoltageRegulationOn());
     }
 }

@@ -75,6 +75,8 @@ public class Context {
         regulatingControls = new HashMap<>();
         operationalLimits = new HashMap<>();
         generatingUnits = new HashMap<>();
+        equivalentInjections = new HashMap<>();
+        svVoltages = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -206,12 +208,27 @@ public class Context {
         buildUpdateCache(regulatingControls, cgmes.regulatingControls(), CgmesNames.REGULATING_CONTROL);
         buildUpdateCache(operationalLimits, cgmes.operationalLimits(), CgmesNames.OPERATIONAL_LIMIT);
         buildUpdateCache(generatingUnits, cgmes.generatingUnits(), CgmesNames.GENERATING_UNIT);
+        buildUpdateCache(equivalentInjections, cgmes.equivalentInjections(), CgmesNames.EQUIVALENT_INJECTION);
+        buildUpdateSvVoltagesCache(svVoltages, cgmes.svVoltages());
     }
 
     private static void buildUpdateCache(Map<String, PropertyBag> cache, PropertyBags cgmesPropertyBags, String tagId) {
         cgmesPropertyBags.forEach(p -> {
             String id = p.getId(tagId);
             cache.put(id, p);
+        });
+    }
+
+    private static void buildUpdateSvVoltagesCache(Map<String, PropertyBag> cache, PropertyBags cgmesPropertyBags) {
+        cgmesPropertyBags.forEach(p -> {
+            String topologicalNodeId = p.getId("TopologicalNode");
+            if (topologicalNodeId != null) {
+                cache.put(topologicalNodeId, p);
+            }
+            String connectivityNodeId = p.getId("ConnectivityNode");
+            if (connectivityNodeId != null) {
+                cache.put(connectivityNodeId, p);
+            }
         });
     }
 
@@ -237,6 +254,14 @@ public class Context {
 
     public PropertyBag generatingUnit(String id) {
         return generatingUnits.get(id);
+    }
+
+    public PropertyBag equivalentInjection(String id) {
+        return equivalentInjections.get(id);
+    }
+
+    public PropertyBag svVoltage(String id) {
+        return svVoltages.get(id);
     }
 
     // Handling issues found during conversion
@@ -361,6 +386,7 @@ public class Context {
     private final Map<String, PropertyBag> regulatingControls;
     private final Map<String, PropertyBag> operationalLimits;
     private final Map<String, PropertyBag> generatingUnits;
-
+    private final Map<String, PropertyBag> equivalentInjections;
+    private final Map<String, PropertyBag> svVoltages;
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }

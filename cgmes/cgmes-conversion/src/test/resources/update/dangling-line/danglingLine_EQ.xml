@@ -1,0 +1,250 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>All types of DanglingLines</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest">
+        <cim:IdentifiedObject.name>GeographicalRegionTest</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest">
+        <cim:IdentifiedObject.name>SubGeographicalRegionTest</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest" />
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_Substation1">
+        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage400">
+        <cim:IdentifiedObject.name>400.0 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage220">
+        <cim:IdentifiedObject.name>220.0 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>220.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel1">
+        <cim:IdentifiedObject.name>VoltageLevel1</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode1">
+        <cim:IdentifiedObject.name>Connectivity Node 1</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode2">
+        <cim:IdentifiedObject.name>Connectivity Node 2</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode3">
+        <cim:IdentifiedObject.name>Connectivity Node 3</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode4">
+        <cim:IdentifiedObject.name>Connectivity Node 4</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+    <cim:Line rdf:ID="_LineContainer1">
+        <cim:IdentifiedObject.name>LineContainer1</cim:IdentifiedObject.name>
+        <cim:Line.Region rdf:resource="#_SubGeographicalRegionTest"/>
+    </cim:Line>
+
+    <cim:ACLineSegment rdf:ID="_ACLineSegment">
+        <cim:IdentifiedObject.name>ACLineSegment</cim:IdentifiedObject.name>
+        <cim:ACLineSegment.b0ch>0.0008</cim:ACLineSegment.b0ch>
+        <cim:ACLineSegment.bch>0.00091</cim:ACLineSegment.bch>
+        <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+        <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+        <cim:ACLineSegment.r>1.50</cim:ACLineSegment.r>
+        <cim:ACLineSegment.r0>7.43</cim:ACLineSegment.r0>
+        <cim:ACLineSegment.shortCircuitEndTemperature>0</cim:ACLineSegment.shortCircuitEndTemperature>
+        <cim:ACLineSegment.x>18.35</cim:ACLineSegment.x>
+        <cim:ACLineSegment.x0>45.59</cim:ACLineSegment.x0>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_b613d79c-1d3a-4f8c-b312-f000d3df0e73"/>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_ACLineSegment-T1">
+        <cim:IdentifiedObject.name>ACLineSegment-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ACLineSegment-T2">
+        <cim:IdentifiedObject.name>ACLineSegment-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1-BD"/>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:ID="_ACLineSegment-EquivalentInjection">
+        <cim:IdentifiedObject.name>ACLineSegment-EquivalentInjection</cim:IdentifiedObject.name>
+        <cim:EquivalentInjection.r>0</cim:EquivalentInjection.r>
+        <cim:EquivalentInjection.r0>0</cim:EquivalentInjection.r0>
+        <cim:EquivalentInjection.r2>0</cim:EquivalentInjection.r2>
+        <cim:EquivalentInjection.regulationCapability>false</cim:EquivalentInjection.regulationCapability>
+        <cim:EquivalentInjection.x>0</cim:EquivalentInjection.x>
+        <cim:EquivalentInjection.x0>0</cim:EquivalentInjection.x0>
+        <cim:EquivalentInjection.x2>0</cim:EquivalentInjection.x2>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_ACLineSegment-EquivalentInjection-T">
+        <cim:IdentifiedObject.name>ACLineSegment-EquivalentInjection-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment-EquivalentInjection"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1-BD"/>
+    </cim:Terminal>
+
+    <cim:EquivalentBranch rdf:ID="_EquivalentBranch">
+        <cim:IdentifiedObject.name>EquivalentBranch</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1"/>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+        <cim:EquivalentBranch.negativeR12>0</cim:EquivalentBranch.negativeR12>
+        <cim:EquivalentBranch.negativeR21>0</cim:EquivalentBranch.negativeR21>
+        <cim:EquivalentBranch.negativeX12>0</cim:EquivalentBranch.negativeX12>
+        <cim:EquivalentBranch.negativeX21>0</cim:EquivalentBranch.negativeX21>
+        <cim:EquivalentBranch.positiveR12>0</cim:EquivalentBranch.positiveR12>
+        <cim:EquivalentBranch.positiveR21>0</cim:EquivalentBranch.positiveR21>
+        <cim:EquivalentBranch.positiveX12>0</cim:EquivalentBranch.positiveX12>
+        <cim:EquivalentBranch.positiveX21>0</cim:EquivalentBranch.positiveX21>
+        <cim:EquivalentBranch.r>13.085</cim:EquivalentBranch.r>
+        <cim:EquivalentBranch.x>31.151</cim:EquivalentBranch.x>
+        <cim:EquivalentBranch.zeroR12>0</cim:EquivalentBranch.zeroR12>
+        <cim:EquivalentBranch.zeroR21>0</cim:EquivalentBranch.zeroR21>
+        <cim:EquivalentBranch.zeroX12>0</cim:EquivalentBranch.zeroX12>
+        <cim:EquivalentBranch.zeroX21>0</cim:EquivalentBranch.zeroX21>
+    </cim:EquivalentBranch>
+    <cim:Terminal rdf:ID="_EquivalentBranch-T1">
+        <cim:IdentifiedObject.name>EquivalentBranch-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_EquivalentBranch"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_EquivalentBranch-T2">
+        <cim:IdentifiedObject.name>EquivalentBranch-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_EquivalentBranch"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2-BD"/>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:ID="_EquivalentBranch-EquivalentInjection">
+        <cim:IdentifiedObject.name>EquivalentBranch-EquivalentInjection</cim:IdentifiedObject.name>
+        <cim:EquivalentInjection.r>0</cim:EquivalentInjection.r>
+        <cim:EquivalentInjection.r0>0</cim:EquivalentInjection.r0>
+        <cim:EquivalentInjection.r2>0</cim:EquivalentInjection.r2>
+        <cim:EquivalentInjection.regulationCapability>true</cim:EquivalentInjection.regulationCapability>
+        <cim:EquivalentInjection.x>0</cim:EquivalentInjection.x>
+        <cim:EquivalentInjection.x0>0</cim:EquivalentInjection.x0>
+        <cim:EquivalentInjection.x2>0</cim:EquivalentInjection.x2>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_EquivalentBranch-EquivalentInjection-T">
+        <cim:IdentifiedObject.name>EquivalentBranch-EquivalentInjection-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_EquivalentBranch-EquivalentInjection"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2-BD"/>
+    </cim:Terminal>
+
+    <cim:PowerTransformer rdf:ID="_PowerTransformer">
+        <cim:IdentifiedObject.name>PowerTransformer</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_Substation1"/>
+    </cim:PowerTransformer>
+    <cim:PowerTransformerEnd rdf:ID="_PowerTransformer-End1">
+        <cim:IdentifiedObject.name>PowerTransformer-End1</cim:IdentifiedObject.name>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.Terminal rdf:resource="#_PowerTransformer-End1-T"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+        <cim:PowerTransformerEnd.b>-0.000003</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+        <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+        <cim:PowerTransformerEnd.ratedS>109.0</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.g>0.000001</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.ratedU>400.0</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+        <cim:PowerTransformerEnd.r>1.7</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.r0>0</cim:PowerTransformerEnd.r0>
+        <cim:PowerTransformerEnd.x>57.5</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.x0>0</cim:PowerTransformerEnd.x0>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PowerTransformer"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformerEnd rdf:ID="_PowerTransformer-End2">
+        <cim:IdentifiedObject.name>PowerTransformer-End2</cim:IdentifiedObject.name>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.Terminal rdf:resource="#_PowerTransformer-End2-T"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BaseVoltage220"/>
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+        <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+        <cim:PowerTransformerEnd.ratedS>109.0</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.ratedU>225.0</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+        <cim:PowerTransformerEnd.r>0</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.r0>0</cim:PowerTransformerEnd.r0>
+        <cim:PowerTransformerEnd.x>0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.x0>0</cim:PowerTransformerEnd.x0>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PowerTransformer"/>
+    </cim:PowerTransformerEnd>
+    <cim:Terminal rdf:ID="_PowerTransformer-End1-T">
+        <cim:IdentifiedObject.name>_PowerTransformer-End1-T</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_PowerTransformer"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode3"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_PowerTransformer-End2-T">
+        <cim:IdentifiedObject.name>_PowerTransformer-End2-T</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_PowerTransformer"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode3-BD"/>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:ID="_PowerTransformer-EquivalentInjection">
+        <cim:IdentifiedObject.name>PowerTransformer-EquivalentInjection</cim:IdentifiedObject.name>
+        <cim:EquivalentInjection.r>0</cim:EquivalentInjection.r>
+        <cim:EquivalentInjection.r0>0</cim:EquivalentInjection.r0>
+        <cim:EquivalentInjection.r2>0</cim:EquivalentInjection.r2>
+        <cim:EquivalentInjection.regulationCapability>true</cim:EquivalentInjection.regulationCapability>
+        <cim:EquivalentInjection.x>0</cim:EquivalentInjection.x>
+        <cim:EquivalentInjection.x0>0</cim:EquivalentInjection.x0>
+        <cim:EquivalentInjection.x2>0</cim:EquivalentInjection.x2>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage220"/>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_PowerTransformer-EquivalentInjection-T">
+        <cim:IdentifiedObject.name>PowerTransformer-EquivalentInjection-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_PowerTransformer-EquivalentInjection"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode3-BD"/>
+    </cim:Terminal>
+
+    <cim:Breaker rdf:ID="_Breaker">
+        <cim:IdentifiedObject.name>Breaker</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+        <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+        <cim:Switch.retained>false</cim:Switch.retained>
+    </cim:Breaker>
+    <cim:Terminal rdf:ID="_Breaker-T1">
+        <cim:IdentifiedObject.name>_Breaker-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Breaker"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode4"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Breaker-T2">
+        <cim:IdentifiedObject.name>_Breaker-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Breaker"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode4-BD"/>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:ID="_Breaker-EquivalentInjection">
+        <cim:IdentifiedObject.name>Breaker-EquivalentInjection</cim:IdentifiedObject.name>
+        <cim:EquivalentInjection.r>0</cim:EquivalentInjection.r>
+        <cim:EquivalentInjection.r0>0</cim:EquivalentInjection.r0>
+        <cim:EquivalentInjection.r2>0</cim:EquivalentInjection.r2>
+        <cim:EquivalentInjection.regulationCapability>true</cim:EquivalentInjection.regulationCapability>
+        <cim:EquivalentInjection.x>0</cim:EquivalentInjection.x>
+        <cim:EquivalentInjection.x0>0</cim:EquivalentInjection.x0>
+        <cim:EquivalentInjection.x2>0</cim:EquivalentInjection.x2>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_Breaker-EquivalentInjection-T">
+        <cim:IdentifiedObject.name>Breaker-EquivalentInjection-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Breaker-EquivalentInjection"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode4-BD"/>
+    </cim:Terminal>
+
+</rdf:RDF>
