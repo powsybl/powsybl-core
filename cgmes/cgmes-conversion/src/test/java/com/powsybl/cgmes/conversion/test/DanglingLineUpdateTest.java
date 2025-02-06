@@ -25,7 +25,7 @@ class DanglingLineUpdateTest {
 
     @Test
     void importEqTest() {
-        Network network = readCgmesResources(DIR, "DanglingLine_EQ.xml", "DanglingLine_EQ_BD.xml");
+        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml");
         assertEquals(4, network.getDanglingLineCount());
 
         DanglingLine acLineSegment = network.getDanglingLine("ACLineSegment");
