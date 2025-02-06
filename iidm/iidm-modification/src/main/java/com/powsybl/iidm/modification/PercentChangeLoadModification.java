@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
@@ -27,13 +28,13 @@ public class PercentChangeLoadModification extends AbstractNetworkModification {
     private double q0PercentChange;
     private double p0PercentChange;
 
-    public PercentChangeLoadModification(String loadId, double p0PercentChange, double q0PercentChange, boolean throwException) {
+    public PercentChangeLoadModification(String loadId, double p0PercentChange, double q0PercentChange) {
         this.loadId = Objects.requireNonNull(loadId);
         if (p0PercentChange < -100) {
-            ModificationLogs.logOrThrow(throwException, "The active power of " + loadId + " cannot decrease by more than 100% (current value: " + p0PercentChange + ")");
+            throw new PowsyblException("The active power of " + loadId + " cannot decrease by more than 100% (current value: " + p0PercentChange + ")");
         }
         if (q0PercentChange < -100) {
-            ModificationLogs.logOrThrow(throwException, "The reactive power of " + loadId + " cannot decrease by more than 100% (current value: " + q0PercentChange + ")");
+            throw new PowsyblException("The reactive power of " + loadId + " cannot decrease by more than 100% (current value: " + q0PercentChange + ")");
         }
         this.p0PercentChange = p0PercentChange;
         this.q0PercentChange = q0PercentChange;
@@ -49,6 +50,7 @@ public class PercentChangeLoadModification extends AbstractNetworkModification {
         Load load = network.getLoad(loadId);
         if (load == null) {
             ModificationLogs.logOrThrow(throwException, "Load '" + loadId + "' not found");
+            return;
         } else {
             double p0 = load.getP0();
             load.setP0(p0 + (p0 * p0PercentChange / 100));

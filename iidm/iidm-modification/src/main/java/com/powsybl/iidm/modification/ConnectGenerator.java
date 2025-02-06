@@ -42,6 +42,7 @@ public final class ConnectGenerator extends AbstractNetworkModification {
 
         if (g == null) {
             ModificationLogs.logOrThrow(throwException, "Generator '" + generatorId + "' not found");
+            return;
         } else {
             connect(g);
         }

@@ -46,10 +46,12 @@ public class PhaseShifterShiftTap extends AbstractNetworkModification {
         TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
         if (phaseShifter == null) {
             ModificationLogs.logOrThrow(throwException, "Transformer '" + phaseShifterId + "' not found");
+            return;
         }
         PhaseTapChanger phaseTapChanger = phaseShifter.getPhaseTapChanger();
         if (phaseTapChanger == null) {
             ModificationLogs.logOrThrow(throwException, "Transformer '" + phaseShifterId + "' is not a phase shifter");
+            return;
         }
         adjustTapPosition(phaseTapChanger);
         phaseTapChanger.setRegulating(false);

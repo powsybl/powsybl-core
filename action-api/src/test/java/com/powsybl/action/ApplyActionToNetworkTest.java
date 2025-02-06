@@ -185,8 +185,9 @@ class ApplyActionToNetworkTest {
                 .withSectionCount(2)
                 .build();
         NetworkModification modif = action2.toModification();
-        ValidationException e = assertThrows(ValidationException.class, () -> modif.apply(network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modif.apply(network, new DefaultNamingStrategy(), true, LocalComputationManager.getDefault(), ReportNode.NO_OP));
         assertEquals("Shunt compensator 'SHUNT': the current number (2) of section should be lesser than the maximum number of section (1)", e.getMessage());
+        assertDoesNotThrow(() -> modif.apply(network));
     }
 
     @Test

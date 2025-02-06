@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
@@ -65,6 +65,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .withBusOrBusbarSectionId1("bbs")
                 .withBusOrBusbarSectionId2("bbs2")
                 .build();
+        assertDoesNotThrow(() -> couplingDeviceModifWrongBbs.apply(network, false, reportNode1));
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> couplingDeviceModifWrongBbs.apply(network, true, reportNode1));
         assertEquals("Bus or busbar section bbs not found", e0.getMessage());
         assertEquals("notFoundBusOrBusbarSection", reportNode1.getChildren().get(0).getMessageKey());
@@ -74,6 +75,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs5")
                 .build();
+        assertDoesNotThrow(() -> couplingDeviceModifBbsInDifferentVl.apply(network, false, reportNode2));
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> couplingDeviceModifBbsInDifferentVl.apply(network, true, reportNode2));
         assertEquals("bbs1 and bbs5 are in two different voltage levels.", e1.getMessage());
         assertEquals("unexpectedDifferentVoltageLevels", reportNode2.getChildren().get(0).getMessageKey());
@@ -83,6 +85,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs1")
                 .build();
+        assertDoesNotThrow(() -> sameBusbarSection.apply(network, false, reportNode3));
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> sameBusbarSection.apply(network, true, reportNode3));
         assertEquals("No coupling device can be created on a same bus or busbar section (bbs1)", e2.getMessage());
         assertEquals("noCouplingDeviceOnSameBusOrBusbarSection", reportNode3.getChildren().get(0).getMessageKey());
@@ -143,6 +146,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .withBusOrBusbarSectionId1(bbs1)
                 .withBusOrBusbarSectionId2(bbs2)
                 .build();
+        assertDoesNotThrow(() -> modification.apply(network, false, reportNode));
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals(message, e2.getMessage());
         assertEquals(messageKey, reportNode.getChildren().get(0).getMessageKey());

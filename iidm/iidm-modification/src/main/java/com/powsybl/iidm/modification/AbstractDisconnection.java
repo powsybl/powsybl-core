@@ -49,6 +49,7 @@ public abstract class AbstractDisconnection extends AbstractConnectDisconnectMod
         // Disconnect the identifiable if it exists
         if (identifiable == null) {
             ModificationLogs.logOrThrow(throwException, "Identifiable '" + identifiableId + "' not found");
+            return;
         } else {
             disconnectIdentifiable(identifiable, network, isPlanned, throwException, reportNode);
         }

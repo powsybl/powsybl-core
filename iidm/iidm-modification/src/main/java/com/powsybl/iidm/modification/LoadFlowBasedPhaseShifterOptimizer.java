@@ -8,7 +8,6 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
@@ -42,13 +41,16 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
         this(computationManager, LoadFlowBasedPhaseShifterOptimizerConfig.load());
     }
 
-    private void runLoadFlow(Network network, String workingStateId, boolean throwException) {
-
-        String loadFlowName = config.getLoadFlowName().orElse(null);
-        LoadFlowResult result = LoadFlow.find(loadFlowName)
-                                        .run(network, workingStateId, computationManager, LoadFlowParameters.load());
-        if (!result.isOk()) {
-            ModificationLogs.logOrThrow(throwException, "Load flow diverged during phase shifter optimization");
+    private void runLoadFlow(Network network, String workingStateId) {
+        try {
+            String loadFlowName = config.getLoadFlowName().orElse(null);
+            LoadFlowResult result = LoadFlow.find(loadFlowName)
+                                            .run(network, workingStateId, computationManager, LoadFlowParameters.load());
+            if (!result.isOk()) {
+                throw new PowsyblException("Load flow diverged during phase shifter optimization");
+            }
+        } catch (Exception e) {
+            throw new PowsyblException(e);
         }
     }
 
@@ -61,14 +63,13 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
     }
 
     @Override
-    public void findMaximalFlowTap(Network network, String phaseShifterId, boolean throwException) {
-
+    public void findMaximalFlowTap(Network network, String phaseShifterId) {
         TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
         if (phaseShifter == null) {
-            ModificationLogs.logOrThrow(throwException, "Phase shifter '" + phaseShifterId + "' not found");
+            throw new PowsyblException("Phase shifter '" + phaseShifterId + "' not found");
         }
         if (!phaseShifter.hasPhaseTapChanger()) {
-            ModificationLogs.logOrThrow(throwException, "Transformer '" + phaseShifterId + "' is not a phase shifter");
+            throw new PowsyblException("Transformer '" + phaseShifterId + "' is not a phase shifter");
         }
 
         int optimalTap;
@@ -77,12 +78,11 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
         String stateId = network.getVariantManager().getWorkingVariantId();
         String tmpStateId = "phase-shifter-optim-" + UUID.randomUUID();
         network.getVariantManager().cloneVariant(stateId, tmpStateId);
-
         try {
             network.getVariantManager().setWorkingVariant(tmpStateId);
-            runLoadFlow(network, tmpStateId, throwException);
+            runLoadFlow(network, tmpStateId);
             if (phaseShifter.getTerminal1().getI() >= phaseShifter.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new)) {
-                ModificationLogs.logOrThrow(throwException, "Phase shifter already overloaded");
+                throw new PowsyblException("Phase shifter already overloaded");
             }
             int tapPosInc = 1; // start by incrementing tap +1
             double i;
@@ -97,7 +97,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                 phaseShifter.getPhaseTapChanger().setTapPosition(tapPos);
 
                 // run load flow
-                runLoadFlow(network, tmpStateId, throwException);
+                runLoadFlow(network, tmpStateId);
 
                 // wrong direction, negate the increment
                 if (getI(phaseShifter) < i) {
@@ -115,7 +115,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                 phaseShifter.getPhaseTapChanger().setTapPosition(optimalTap);
 
                 // just to be sure, check that with the previous tap, phase shifter is not overloaded...
-                runLoadFlow(network, tmpStateId, throwException);
+                runLoadFlow(network, tmpStateId);
                 // check there phase shifter is not overloaded
                 if (getI(phaseShifter) >= limit) {
                     throw new IllegalStateException("Phase shifter should not be overload");

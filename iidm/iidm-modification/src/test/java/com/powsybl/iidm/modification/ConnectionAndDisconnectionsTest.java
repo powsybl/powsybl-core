@@ -25,6 +25,7 @@ import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -577,6 +578,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
         ComputationManager computationManager = LocalComputationManager.getDefault();
+        assertDoesNotThrow(() -> disconnection.apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP));
         PowsyblException disconnectionException = assertThrows(PowsyblException.class, () -> disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
         assertEquals("Identifiable 'ELEMENT_NOT_PRESENT' not found", disconnectionException.getMessage());
 
@@ -585,6 +587,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
+        assertDoesNotThrow(() -> connection.apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP));
         PowsyblException connectionException = assertThrows(PowsyblException.class, () -> connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
         assertEquals("Identifiable 'ELEMENT_NOT_PRESENT' not found", connectionException.getMessage());
     }
@@ -599,6 +602,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
         ComputationManager computationManager = LocalComputationManager.getDefault();
+        assertDoesNotThrow(() -> disconnection.apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP));
         PowsyblException disconnectionException = assertThrows(PowsyblException.class, () -> disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
         assertEquals("Disconnection not implemented for identifiable 'S1'", disconnectionException.getMessage());
 
@@ -607,6 +611,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
+
+        assertDoesNotThrow(() -> connection.apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP));
         PowsyblException connectionException = assertThrows(PowsyblException.class, () -> connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
         assertEquals("Connection not implemented for identifiable 'S1'", connectionException.getMessage());
     }

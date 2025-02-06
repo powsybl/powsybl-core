@@ -70,6 +70,7 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         if (line == null) {
             notFoundLineReport(reportNode, lineId);
             ModificationLogs.logOrThrow(throwException, String.format("Line %s is not found", lineId));
+            return null;
         }
 
         return line;

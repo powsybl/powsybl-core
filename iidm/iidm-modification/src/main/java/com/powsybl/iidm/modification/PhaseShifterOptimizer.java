@@ -14,6 +14,6 @@ import com.powsybl.iidm.network.Network;
  */
 public interface PhaseShifterOptimizer {
 
-    void findMaximalFlowTap(Network network, String phaseShifterId, boolean throwException);
+    void findMaximalFlowTap(Network network, String phaseShifterId);
 
 }

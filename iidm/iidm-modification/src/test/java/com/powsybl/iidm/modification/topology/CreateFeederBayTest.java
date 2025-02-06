@@ -32,6 +32,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.g
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
@@ -148,6 +149,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification0.apply(network1, false, reportNode1));
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, reportNode1));
         assertEquals("Network given in parameters and in connectableAdder are different. Connectable was added then removed", e0.getMessage());
         assertEquals("networkMismatch", reportNode1.getChildren().get(0).getMessageKey());
@@ -160,6 +162,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification1.apply(network, false, reportNode2));
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(network, true, reportNode2));
         assertEquals("Bus or busbar section bbs not found", e1.getMessage());
         assertEquals("notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
@@ -172,6 +175,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification2.apply(network, false, reportNode3));
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true, reportNode3));
         assertEquals("Unsupported type GENERATOR for identifiable gen1", e2.getMessage());
         assertEquals("unsupportedIdentifiableType", reportNode3.getChildren().get(0).getMessageKey());
@@ -447,6 +451,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withBusOrBusbarSectionId(bbs.getId())
                 .withInjectionPositionOrder(-2)
                 .build();
+        assertDoesNotThrow(() -> negativeOrderCreate.apply(network, false, computationManager, reportNode1));
         PowsyblException eNeg = assertThrows(PowsyblException.class, () -> negativeOrderCreate.apply(network, true, computationManager, reportNode1));
         assertEquals("Position order is negative for attachment in node-breaker voltage level vl: -2", eNeg.getMessage());
         assertEquals("unexpectedNegativePositionOrder", reportNode1.getChildren().get(0).getMessageKey());
@@ -457,6 +462,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId(bbs.getId())
                 .build();
+        assertDoesNotThrow(() -> nullOrderCreate.apply(network, false, computationManager, reportNode2));
         PowsyblException eNull = assertThrows(PowsyblException.class, () -> nullOrderCreate.apply(network, true, computationManager, reportNode2));
         assertEquals("Position order is null for attachment in node-breaker voltage level vl", eNull.getMessage());
         assertEquals("unexpectedNullPositionOrder", reportNode2.getChildren().get(0).getMessageKey());

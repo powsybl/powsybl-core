@@ -13,6 +13,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
+import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -42,10 +43,13 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
 
-        traverse(network, switchesToOpen, terminalsToDisconnect);
-
-        switchesToOpen.forEach(s -> s.setOpen(true));
-        terminalsToDisconnect.forEach(Terminal::disconnect);
+        try {
+            traverse(network, switchesToOpen, terminalsToDisconnect);
+            switchesToOpen.forEach(s -> s.setOpen(true));
+            terminalsToDisconnect.forEach(Terminal::disconnect);
+        } catch (PowsyblException powsyblException) {
+            ModificationLogs.logOrThrow(throwException, powsyblException.getMessage());
+        }
     }
 
     @Override

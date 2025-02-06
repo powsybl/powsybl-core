@@ -71,6 +71,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, null, SwitchKind.DISCONNECTOR)
                 .build();
+        assertDoesNotThrow(() -> modification.apply(network, false, reportNode));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals("All switch kinds must be defined", e.getMessage());
         assertEquals("undefinedSwitchKind", reportNode.getChildren().get(0).getMessageKey());
@@ -90,6 +91,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.LOAD_BREAK_SWITCH, SwitchKind.DISCONNECTOR)
                 .build();
+        assertDoesNotThrow(() -> modification.apply(network, false, reportNode));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals("Switch kinds must be DISCONNECTOR or BREAKER", e.getMessage());
         assertEquals("wrongSwitchKind", reportNode.getChildren().get(0).getMessageKey());
@@ -109,6 +111,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
+        assertDoesNotThrow(() -> modification.apply(network, false, reportNode));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals("busbar count must be >= 1", e.getMessage());
         assertEquals("countLowerThanMin", reportNode.getChildren().get(0).getMessageKey());
@@ -155,6 +158,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER)
                 .build();
+        assertDoesNotThrow(() -> modification.apply(network, false, reportNode));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals("Unexpected switch kinds count (1). Should be 3", e.getMessage());
         assertEquals("unexpectedSwitchKindsCount", reportNode.getChildren().get(0).getMessageKey());
@@ -174,6 +178,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
+        assertDoesNotThrow(() -> modification.apply(network, false, reportNode));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals("Voltage level NOT_EXISTING is not found", e.getMessage());
         assertEquals("voltageLevelNotFound", reportNode.getChildren().get(0).getMessageKey());
@@ -205,6 +210,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(4)
                 .build();
+        assertDoesNotThrow(() -> modification.apply(network, false, reportNode));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals("Unexpected switch kinds count (0). Should be 3", e.getMessage());
         assertEquals("unexpectedSwitchKindsCount", reportNode.getChildren().get(0).getMessageKey());

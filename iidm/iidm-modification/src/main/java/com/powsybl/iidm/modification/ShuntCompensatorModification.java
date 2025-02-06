@@ -7,12 +7,16 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
 
@@ -48,17 +52,21 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
             return;
         }
 
-        if (connect != null) {
-            Terminal t = shuntCompensator.getTerminal();
-            if (connect.booleanValue()) {
-                t.connect();
-                setTargetV(shuntCompensator);
-            } else {
-                t.disconnect();
+        try {
+            if (connect != null) {
+                Terminal t = shuntCompensator.getTerminal();
+                if (connect.booleanValue()) {
+                    t.connect();
+                    setTargetV(shuntCompensator);
+                } else {
+                    t.disconnect();
+                }
             }
-        }
-        if (sectionCount != null) {
-            shuntCompensator.setSectionCount(sectionCount);
+            if (sectionCount != null) {
+                shuntCompensator.setSectionCount(sectionCount);
+            }
+        } catch (PowsyblException powsyblException) {
+            ModificationLogs.logOrThrow(throwException, powsyblException.getMessage());
         }
     }
 

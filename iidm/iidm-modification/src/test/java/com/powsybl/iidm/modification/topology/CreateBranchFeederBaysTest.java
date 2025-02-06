@@ -220,6 +220,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification0.apply(network1, false, reportNode1));
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, reportNode1));
         assertEquals("Network given in parameters and in connectableAdder are different. Connectable was added then removed", e0.getMessage());
         assertEquals("networkMismatch", reportNode1.getChildren().get(0).getMessageKey());
@@ -235,6 +236,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification1.apply(nbNetwork, false, reportNode2));
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(nbNetwork, true, reportNode2));
         assertEquals("Bus or busbar section bbs not found", e1.getMessage());
         assertEquals("notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
@@ -250,6 +252,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification2.apply(nbNetwork, false, reportNode3));
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(nbNetwork, true, reportNode3));
         assertEquals("Unsupported type GENERATOR for identifiable gen1", e2.getMessage());
         assertEquals("unsupportedIdentifiableType", reportNode3.getChildren().get(0).getMessageKey());
