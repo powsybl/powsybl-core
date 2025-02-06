@@ -200,6 +200,11 @@ public class RemoveFeederBay extends AbstractNetworkModification {
      */
     private void removeAllSwitchesAndInternalConnections(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph,
                                                          int originNode, Object edge, ReportNode reportNode) {
+        // in case of loops inside the traversed bay, the edge might have been already removed
+        if (!graph.containsEdge(edge)) {
+            return;
+        }
+
         Integer oppositeNode = getOppositeNode(graph, originNode, edge);
         removeSwitchOrInternalConnection(nbv, graph, edge, reportNode);
         if (!isBusbarSection(nbv, oppositeNode)) {

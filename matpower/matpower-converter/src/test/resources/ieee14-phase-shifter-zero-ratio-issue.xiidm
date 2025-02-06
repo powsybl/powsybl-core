@@ -42,7 +42,7 @@
             <iidm:load id="LOAD-4" loadType="UNDEFINED" p0="47.8" q0="-3.9" bus="BUS-4" connectableBus="BUS-4"/>
             <iidm:load id="LOAD-9" loadType="UNDEFINED" p0="29.5" q0="16.6" bus="BUS-9" connectableBus="BUS-9"/>
             <iidm:shunt id="SHUNT-9" sectionCount="1" voltageRegulatorOn="false" bus="BUS-9" connectableBus="BUS-9">
-                <iidm:shuntLinearModel bPerSection="19.0" maximumSectionCount="1"/>
+                <iidm:shuntLinearModel bPerSection="19.0" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-4-7" r="0.0" x="0.0020912" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-4" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId2="VL-4" bus2="BUS-7" connectableBus2="BUS-7">
