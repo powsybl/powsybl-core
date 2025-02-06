@@ -11,7 +11,6 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.modification.util.RegulatedTerminalControllers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
@@ -21,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.modification.util.TransformerUtils.*;
 import static com.powsybl.iidm.modification.util.TransformerUtils.copyAndAddPhaseAngleClock;
@@ -159,7 +159,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     private VoltageLevel createStarVoltageLevel(ThreeWindingsTransformer t3w, boolean throwException) {
         Optional<Substation> substation = t3w.getSubstation();
         if (substation.isEmpty()) {
-            ModificationLogs.logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3w.getId() + "' without substation");
+            logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3w.getId() + "' without substation");
             return null;
         }
         TopologyKind topologykind = t3w.getLeg1().getTerminal().getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER

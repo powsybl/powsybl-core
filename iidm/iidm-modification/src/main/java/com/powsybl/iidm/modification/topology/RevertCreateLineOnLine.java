@@ -9,7 +9,6 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
@@ -93,7 +93,7 @@ public class RevertCreateLineOnLine extends AbstractLineDisconnectionModificatio
         Line line = network.getLine(lineId);
         if (line == null) {
             notFoundLineReport(reportNode, lineId);
-            ModificationLogs.logOrThrow(throwException, String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
+            logOrThrow(throwException, String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
             return null;
         }
         return line;
@@ -113,7 +113,7 @@ public class RevertCreateLineOnLine extends AbstractLineDisconnectionModificatio
         VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(lineToBeMerged1, lineToBeMerged2, lineToBeDeleted);
         if (teePoint == null) {
             noTeePointAndOrTappedVoltageLevelReport(reportNode, oldLine1Id, oldLine2Id, lineToRemoveId);
-            ModificationLogs.logOrThrow(throwException, String.format("Unable to find the attachment point and the tapped voltage level from lines %s, %s and %s", oldLine1Id, oldLine2Id, lineToRemoveId));
+            logOrThrow(throwException, String.format("Unable to find the attachment point and the tapped voltage level from lines %s, %s and %s", oldLine1Id, oldLine2Id, lineToRemoveId));
             return;
         }
 

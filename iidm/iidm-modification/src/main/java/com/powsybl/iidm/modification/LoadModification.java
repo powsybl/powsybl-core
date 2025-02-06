@@ -9,12 +9,13 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
  * Simple {@link NetworkModification} for a load.
@@ -54,7 +55,7 @@ public class LoadModification extends AbstractLoadModification {
                       ReportNode reportNode) {
         Load load = network.getLoad(getLoadId());
         if (load == null) {
-            ModificationLogs.logOrThrow(throwException, "Load '" + getLoadId() + "' not found");
+            logOrThrow(throwException, "Load '" + getLoadId() + "' not found");
             return;
         }
         getP0().ifPresent(value -> load.setP0((isRelativeValue() ? load.getP0() : 0) + value));

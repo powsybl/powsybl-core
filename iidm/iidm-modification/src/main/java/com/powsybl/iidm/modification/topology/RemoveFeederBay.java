@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
 import org.jgrapht.Graph;
@@ -22,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
@@ -243,12 +243,12 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     private boolean checkConnectable(boolean throwException, ReportNode reportNode, Connectable<?> connectable) {
         if (connectable instanceof BusbarSection) {
             removeFeederBayBusbarSectionReport(reportNode, connectableId);
-            ModificationLogs.logOrThrow(throwException, "BusbarSection connectables are not allowed as RemoveFeederBay input: " + connectableId);
+            logOrThrow(throwException, "BusbarSection connectables are not allowed as RemoveFeederBay input: " + connectableId);
             return false;
         }
         if (connectable == null) {
             notFoundConnectableReport(reportNode, connectableId);
-            ModificationLogs.logOrThrow(throwException, "Connectable not found: " + connectableId);
+            logOrThrow(throwException, "Connectable not found: " + connectableId);
             return false;
         }
         return true;

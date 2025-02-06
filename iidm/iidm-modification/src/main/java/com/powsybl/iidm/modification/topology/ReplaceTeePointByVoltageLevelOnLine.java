@@ -9,7 +9,6 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
@@ -140,7 +140,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
 
         if (teePoint == null) {
             noTeePointAndOrTappedVoltageLevelReport(reportNode, oldLine1Id, oldLine2Id, lineToRemoveId);
-            ModificationLogs.logOrThrow(throwException, String.format("Unable to find the tee point and the tapped voltage level from lines %s, %s and %s", oldLine1Id, oldLine2Id, lineToRemoveId));
+            logOrThrow(throwException, String.format("Unable to find the tee point and the tapped voltage level from lines %s, %s and %s", oldLine1Id, oldLine2Id, lineToRemoveId));
             return;
         } else {
             // tapped voltage level is the voltage level of tpLineToRemove, at the opposite side of the tee point
@@ -269,7 +269,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
         Line line = network.getLine(lineId);
         if (line == null) {
             notFoundLineReport(reportNode, lineId);
-            ModificationLogs.logOrThrow(throwException, String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
+            logOrThrow(throwException, String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
             return null;
         }
         return line;
@@ -277,13 +277,13 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
 
     private boolean errorWhenBusNull(ReportNode reportNode, VoltageLevel voltageLevel, boolean throwException) {
         notFoundBusInVoltageLevelReport(reportNode, bbsOrBusId, voltageLevel.getId());
-        ModificationLogs.logOrThrow(throwException, String.format("Bus %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
+        logOrThrow(throwException, String.format("Bus %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
         return false;
     }
 
     private boolean errorWhenBusbarSectionNull(ReportNode reportNode, VoltageLevel voltageLevel, boolean throwException) {
         notFoundBusbarSectionInVoltageLevelReport(reportNode, bbsOrBusId, voltageLevel.getId());
-        ModificationLogs.logOrThrow(throwException, String.format("Busbar section %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
+        logOrThrow(throwException, String.format("Busbar section %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
         return false;
     }
 }

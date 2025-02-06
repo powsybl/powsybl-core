@@ -10,7 +10,6 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
@@ -20,6 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.noBusbarSectionPositionExtensionReport;
 import static com.powsybl.iidm.modification.util.ModificationReports.undefinedFictitiousSubstationId;
 
@@ -89,7 +89,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     private static boolean checkFictitiousSubstationId(boolean createFictSubstation, String fictitiousSubstationId, boolean throwException, ReportNode reportNode) {
         if (createFictSubstation && fictitiousSubstationId == null) {
             undefinedFictitiousSubstationId(reportNode);
-            ModificationLogs.logOrThrow(throwException, "Fictitious substation ID must be defined if a fictitious substation is to be created");
+            logOrThrow(throwException, "Fictitious substation ID must be defined if a fictitious substation is to be created");
             return false;
         }
         return true;

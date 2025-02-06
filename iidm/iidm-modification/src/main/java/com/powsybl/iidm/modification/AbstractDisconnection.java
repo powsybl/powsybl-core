@@ -8,13 +8,13 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.function.Predicate;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.identifiableDisconnectionReport;
 
 /**
@@ -48,7 +48,7 @@ public abstract class AbstractDisconnection extends AbstractConnectDisconnectMod
 
         // Disconnect the identifiable if it exists
         if (identifiable == null) {
-            ModificationLogs.logOrThrow(throwException, "Identifiable '" + identifiableId + "' not found");
+            logOrThrow(throwException, "Identifiable '" + identifiableId + "' not found");
             return;
         } else {
             disconnectIdentifiable(identifiable, network, isPlanned, throwException, reportNode);
@@ -80,7 +80,7 @@ public abstract class AbstractDisconnection extends AbstractConnectDisconnectMod
         } else if (identifiable instanceof HvdcLine hvdcLine) {
             hasBeenDisconnected = hvdcLine.disconnectConverterStations(openableSwitches, side == null ? null : side.toTwoSides());
         } else {
-            ModificationLogs.logOrThrow(throwException, String.format("Disconnection not implemented for identifiable '%s'", identifiableId));
+            logOrThrow(throwException, String.format("Disconnection not implemented for identifiable '%s'", identifiableId));
         }
         return hasBeenDisconnected;
     }

@@ -8,9 +8,10 @@
 package com.powsybl.iidm.modification.tapchanger;
 
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
@@ -58,17 +59,17 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
 
     public void apply(RatioTapChangerHolder rtcHolder, boolean throwException) {
         if (rtcHolder == null) {
-            ModificationLogs.logOrThrow(throwException, "Failed to apply : " + TRANSFORMER_STR + getTransformerId());
+            logOrThrow(throwException, "Failed to apply : " + TRANSFORMER_STR + getTransformerId());
             return;
         }
         if (!rtcHolder.hasRatioTapChanger()) {
-            ModificationLogs.logOrThrow(throwException, TRANSFORMER_STR + getTransformerId() + "' does not have a RatioTapChanger");
+            logOrThrow(throwException, TRANSFORMER_STR + getTransformerId() + "' does not have a RatioTapChanger");
             return;
         }
         try {
             rtcHolder.getRatioTapChanger().setTapPosition(getTapPosition());
         } catch (ValidationException e) {
-            ModificationLogs.logOrThrow(throwException, e.getMessage());
+            logOrThrow(throwException, e.getMessage());
             return;
         }
     }

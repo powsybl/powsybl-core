@@ -13,7 +13,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -21,6 +20,8 @@ import com.powsybl.iidm.network.Terminal;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -48,7 +49,7 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
             switchesToOpen.forEach(s -> s.setOpen(true));
             terminalsToDisconnect.forEach(Terminal::disconnect);
         } catch (PowsyblException powsyblException) {
-            ModificationLogs.logOrThrow(throwException, powsyblException.getMessage());
+            logOrThrow(throwException, powsyblException.getMessage());
         }
     }
 

@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +20,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
@@ -69,7 +69,7 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         Line line = network.getLine(lineId);
         if (line == null) {
             notFoundLineReport(reportNode, lineId);
-            ModificationLogs.logOrThrow(throwException, String.format("Line %s is not found", lineId));
+            logOrThrow(throwException, String.format("Line %s is not found", lineId));
             return null;
         }
 
@@ -106,7 +106,7 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
         if (vlIds.size() != 3) {
             noVoltageLevelInCommonReport(reportNode, line1Id, line2Id);
-            ModificationLogs.logOrThrow(throwException, String.format("Lines %s and %s should have one and only one voltage level in common at their extremities", line1Id, line2Id));
+            logOrThrow(throwException, String.format("Lines %s and %s should have one and only one voltage level in common at their extremities", line1Id, line2Id));
             return;
         }
 

@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.slf4j.Logger;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
@@ -69,7 +69,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         if (count < min) {
             LOG.error("{} must be >= {}", type, min);
             countLowerThanMin(reportNode, type, min);
-            ModificationLogs.logOrThrow(throwException, type + " must be >= " + min);
+            logOrThrow(throwException, type + " must be >= " + min);
             return false;
         }
         return true;
@@ -87,17 +87,17 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         Objects.requireNonNull(switchKinds, "Undefined switch kinds");
         if (switchKinds.size() != sectionCount - 1) {
             unexpectedSwitchKindsCount(reportNode, switchKinds.size(), sectionCount - 1);
-            ModificationLogs.logOrThrow(throwException, "Unexpected switch kinds count (" + switchKinds.size() + "). Should be " + (sectionCount - 1));
+            logOrThrow(throwException, "Unexpected switch kinds count (" + switchKinds.size() + "). Should be " + (sectionCount - 1));
             return false;
         }
         if (switchKinds.contains(null)) {
             undefinedSwitchKind(reportNode);
-            ModificationLogs.logOrThrow(throwException, "All switch kinds must be defined");
+            logOrThrow(throwException, "All switch kinds must be defined");
             return false;
         }
         if (switchKinds.stream().anyMatch(kind -> kind != SwitchKind.DISCONNECTOR && kind != SwitchKind.BREAKER)) {
             wrongSwitchKind(reportNode);
-            ModificationLogs.logOrThrow(throwException, "Switch kinds must be DISCONNECTOR or BREAKER");
+            logOrThrow(throwException, "Switch kinds must be DISCONNECTOR or BREAKER");
             return false;
         }
         return true;
@@ -139,7 +139,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         if (voltageLevel == null) {
             LOG.error("Voltage level {} is not found", voltageLevelId);
             notFoundVoltageLevelReport(reportNode, voltageLevelId);
-            ModificationLogs.logOrThrow(throwException, String.format("Voltage level %s is not found", voltageLevelId));
+            logOrThrow(throwException, String.format("Voltage level %s is not found", voltageLevelId));
             return;
         }
         TopologyKind topologyKind = voltageLevel.getTopologyKind();

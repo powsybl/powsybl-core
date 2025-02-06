@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -21,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.notFoundSubstationReport;
 import static com.powsybl.iidm.modification.util.ModificationReports.removedSubstationReport;
 
@@ -46,7 +46,7 @@ public class RemoveSubstation extends AbstractNetworkModification {
         Substation substation = network.getSubstation(substationId);
         if (substation == null) {
             notFoundSubstationReport(reportNode, substationId);
-            ModificationLogs.logOrThrow(throwException, "Substation not found: " + substationId);
+            logOrThrow(throwException, "Substation not found: " + substationId);
             return;
         }
         List<String> vlIds = substation.getVoltageLevelStream().map(VoltageLevel::getId).toList();

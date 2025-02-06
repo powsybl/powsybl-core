@@ -11,11 +11,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
  * {@link NetworkModification} changing the active and reactive powers of a load by defining percentage changes (which could be positive or negative).
@@ -49,7 +50,7 @@ public class PercentChangeLoadModification extends AbstractNetworkModification {
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         Load load = network.getLoad(loadId);
         if (load == null) {
-            ModificationLogs.logOrThrow(throwException, "Load '" + loadId + "' not found");
+            logOrThrow(throwException, "Load '" + loadId + "' not found");
             return;
         } else {
             double p0 = load.getP0();

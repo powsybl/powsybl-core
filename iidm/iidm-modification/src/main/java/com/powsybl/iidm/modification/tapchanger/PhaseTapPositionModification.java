@@ -9,9 +9,10 @@ package com.powsybl.iidm.modification.tapchanger;
 
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
@@ -86,18 +87,18 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
 
     public void apply(PhaseTapChangerHolder ptcHolder, boolean throwException) {
         if (ptcHolder == null) {
-            ModificationLogs.logOrThrow(throwException, "Failed to apply : " + TRANSFORMER_STR + getTransformerId());
+            logOrThrow(throwException, "Failed to apply : " + TRANSFORMER_STR + getTransformerId());
             return;
         }
         if (!ptcHolder.hasPhaseTapChanger()) {
-            ModificationLogs.logOrThrow(throwException, TRANSFORMER_STR + getTransformerId() + "' does not have a PhaseTapChanger");
+            logOrThrow(throwException, TRANSFORMER_STR + getTransformerId() + "' does not have a PhaseTapChanger");
             return;
         }
         try {
             int newTapPosition = (isRelative ? ptcHolder.getPhaseTapChanger().getTapPosition() : 0) + getTapPosition();
             ptcHolder.getPhaseTapChanger().setTapPosition(newTapPosition);
         } catch (ValidationException e) {
-            ModificationLogs.logOrThrow(throwException, e.getMessage());
+            logOrThrow(throwException, e.getMessage());
             return;
         }
     }

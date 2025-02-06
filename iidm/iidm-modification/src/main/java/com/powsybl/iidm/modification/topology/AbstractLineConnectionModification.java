@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
@@ -105,7 +106,7 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         if (Double.isNaN(positionPercent)) {
             logger.error("Percent should not be undefined");
             undefinedPercent(reportNode);
-            ModificationLogs.logOrThrow(throwException, "Percent should not be undefined");
+            logOrThrow(throwException, "Percent should not be undefined");
             return false;
         }
         return true;
