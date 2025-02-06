@@ -267,6 +267,10 @@ class TimeSeriesTest {
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
         assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
+        RegularTimeSeriesIndex timeSeriesIndex = RegularTimeSeriesIndex.create(Instant.ofEpochMilli(1737377647003L),
+            Instant.ofEpochMilli(1737377647005L),
+            Duration.ofMillis(1));
+        assertEquals(timeSeriesIndex, timeSeriesPerVersion.get(1).get(0).getMetadata().getIndex());
     }
 
     @Test
@@ -285,6 +289,10 @@ class TimeSeriesTest {
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
         assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
+        RegularTimeSeriesIndex timeSeriesIndex = RegularTimeSeriesIndex.create(Instant.ofEpochSecond(1737377647, 4000),
+            Instant.ofEpochSecond(1737377647, 6000),
+            Duration.ofNanos(1000));
+        assertEquals(timeSeriesIndex, timeSeriesPerVersion.get(1).get(0).getMetadata().getIndex());
     }
 
     @Test
@@ -303,6 +311,10 @@ class TimeSeriesTest {
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
         assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
+        RegularTimeSeriesIndex timeSeriesIndex = RegularTimeSeriesIndex.create(Instant.ofEpochSecond(1737377647, 1),
+            Instant.ofEpochSecond(1737377647, 3),
+            Duration.ofNanos(1));
+        assertEquals(timeSeriesIndex, timeSeriesPerVersion.get(1).get(0).getMetadata().getIndex());
     }
 
     @Test

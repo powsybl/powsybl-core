@@ -343,21 +343,6 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             };
         }
 
-        private Instant parseMicrosToInstant(String token) {
-            return parsePreciseDateToInstant(token, 6);
-        }
-
-        private Instant parseNanosToInstant(String token) {
-            return parsePreciseDateToInstant(token, 9);
-        }
-
-        private Instant parsePreciseDateToInstant(String token, int precision) {
-            return token.length() > precision ? Instant.ofEpochSecond(Long.parseLong(token.substring(0, token.length() - precision)),
-                Long.parseLong(token.substring(token.length() - precision))) :
-                Instant.ofEpochSecond(0,
-                    Long.parseLong(token));
-        }
-
         void reInit() {
             // re-init
             instants.clear();
@@ -629,5 +614,20 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     static List<TimeSeries> parseJson(Path file) {
         return JsonUtil.parseJson(file, TimeSeries::parseJson);
+    }
+
+    static Instant parseMicrosToInstant(String token) {
+        return parsePreciseDateToInstant(token, 6);
+    }
+
+    static Instant parseNanosToInstant(String token) {
+        return parsePreciseDateToInstant(token, 9);
+    }
+
+    static Instant parsePreciseDateToInstant(String token, int precision) {
+        return token.length() > precision ? Instant.ofEpochSecond(Long.parseLong(token.substring(0, token.length() - precision)),
+            Long.parseLong(token.substring(token.length() - precision) + "0".repeat(9 - precision))) :
+            Instant.ofEpochSecond(0,
+                Long.parseLong(token + "0".repeat(9 - precision)));
     }
 }
