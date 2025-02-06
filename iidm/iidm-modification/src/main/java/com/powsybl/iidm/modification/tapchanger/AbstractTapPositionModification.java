@@ -15,13 +15,14 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
@@ -66,7 +67,7 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
         } else if (twoWindingsTransformer != null) {
             applyTwoWindingsTransformer(network, twoWindingsTransformer, throwException);
         } else {
-            ModificationLogs.logOrThrow(throwException, "No matching transformer found with ID:" + getTransformerId());
+            logOrThrow(throwException, "No matching transformer found with ID:" + getTransformerId());
             return;
         }
     }
@@ -90,10 +91,10 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
                 .filter(isTapHolder)
                 .collect(Collectors.toSet());
             if (validLegs.size() > 1) {
-                ModificationLogs.logOrThrow(throwException, "Multiple valid legs found.");
+                logOrThrow(throwException, "Multiple valid legs found.");
                 return null;
             } else if (validLegs.isEmpty()) {
-                ModificationLogs.logOrThrow(throwException, "No valid legs found.");
+                logOrThrow(throwException, "No valid legs found.");
                 return null;
             } else { // validLegs.size() == 1
                 return validLegs.iterator().next();

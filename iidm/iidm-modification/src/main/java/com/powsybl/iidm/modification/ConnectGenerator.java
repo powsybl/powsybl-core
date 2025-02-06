@@ -10,7 +10,6 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.IdentifiableType;
@@ -18,6 +17,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -41,7 +42,7 @@ public final class ConnectGenerator extends AbstractNetworkModification {
         Generator g = network.getGenerator(generatorId);
 
         if (g == null) {
-            ModificationLogs.logOrThrow(throwException, "Generator '" + generatorId + "' not found");
+            logOrThrow(throwException, "Generator '" + generatorId + "' not found");
             return;
         } else {
             connect(g);

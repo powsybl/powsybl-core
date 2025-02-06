@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
@@ -19,6 +18,8 @@ import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
  * Simple {@link NetworkModification} to (dis)connect a shunt compensator and/or change its section.
@@ -48,7 +49,7 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
 
         if (shuntCompensator == null) {
-            ModificationLogs.logOrThrow(throwException, "Shunt Compensator '" + shuntCompensatorId + "' not found");
+            logOrThrow(throwException, "Shunt Compensator '" + shuntCompensatorId + "' not found");
             return;
         }
 
@@ -66,7 +67,7 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
                 shuntCompensator.setSectionCount(sectionCount);
             }
         } catch (PowsyblException powsyblException) {
-            ModificationLogs.logOrThrow(throwException, powsyblException.getMessage());
+            logOrThrow(throwException, powsyblException.getMessage());
         }
     }
 

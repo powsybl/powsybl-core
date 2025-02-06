@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -21,6 +20,7 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.generatorLocalRegulationReport;
 
 /**
@@ -51,7 +51,7 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         Generator generator = network.getGenerator(generatorId);
         if (generator == null) {
-            ModificationLogs.logOrThrow(throwException, "Generator '" + generatorId + "' not found");
+            logOrThrow(throwException, "Generator '" + generatorId + "' not found");
             return;
         } else if (!isGeneratorRegulatingLocally(generator)) {
             setLocalRegulation(generator, reportNode);

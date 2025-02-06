@@ -10,7 +10,6 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.slf4j.Logger;
@@ -18,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.function.Predicate;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.connectableConnectionReport;
 
 /**
@@ -73,7 +73,7 @@ public class ConnectableConnection extends AbstractConnectDisconnectModification
 
         // Connect the element if it exists
         if (identifiable == null) {
-            ModificationLogs.logOrThrow(throwException, "Identifiable '" + identifiableId + "' not found");
+            logOrThrow(throwException, "Identifiable '" + identifiableId + "' not found");
             return;
         } else {
             connectIdentifiable(identifiable, network, throwException, reportNode);
@@ -90,7 +90,7 @@ public class ConnectableConnection extends AbstractConnectDisconnectModification
             } else if (identifiable instanceof HvdcLine hvdcLine) {
                 hasBeenConnected = hvdcLine.connectConverterStations(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
             } else {
-                ModificationLogs.logOrThrow(throwException, String.format("Connection not implemented for identifiable '%s'", identifiableId));
+                logOrThrow(throwException, String.format("Connection not implemented for identifiable '%s'", identifiableId));
                 return;
             }
         } finally {

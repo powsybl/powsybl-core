@@ -10,7 +10,6 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
@@ -18,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
  * Simple {@link NetworkModification} for an HVDC line (also potentially modifying its {@link HvdcAngleDroopActivePowerControl} extension).
@@ -55,7 +56,7 @@ public class HvdcLineModification extends AbstractNetworkModification {
                       ReportNode reportNode) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcId);
         if (hvdcLine == null) {
-            ModificationLogs.logOrThrow(throwException, "HvdcLine '" + hvdcId + "' not found");
+            logOrThrow(throwException, "HvdcLine '" + hvdcId + "' not found");
             return;
         }
         if (activePowerSetpoint != null) {

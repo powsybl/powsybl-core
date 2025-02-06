@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -21,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
@@ -47,7 +47,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             notFoundVoltageLevelReport(reportNode, voltageLevelId);
-            ModificationLogs.logOrThrow(throwException, "Voltage level not found: " + voltageLevelId);
+            logOrThrow(throwException, "Voltage level not found: " + voltageLevelId);
             return;
         }
 

@@ -10,11 +10,12 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
  * Simple {@link NetworkModification} for an area interchange target update.
@@ -41,7 +42,7 @@ public class AreaInterchangeTargetModification extends AbstractNetworkModificati
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         Area area = network.getArea(areaId);
         if (area == null) {
-            ModificationLogs.logOrThrow(throwException, "Area '" + areaId + "' not found");
+            logOrThrow(throwException, "Area '" + areaId + "' not found");
             return;
         }
         area.setInterchangeTarget(interchangeTarget);

@@ -10,11 +10,12 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
  * Simple {@link NetworkModification} for a dangling line.
@@ -54,7 +55,7 @@ public class DanglingLineModification extends AbstractLoadModification {
                       ReportNode reportNode) {
         DanglingLine danglingLine = network.getDanglingLine(getDanglingLineId());
         if (danglingLine == null) {
-            ModificationLogs.logOrThrow(throwException, "DanglingLine '" + getDanglingLineId() + "' not found");
+            logOrThrow(throwException, "DanglingLine '" + getDanglingLineId() + "' not found");
             return;
         }
         getP0().ifPresent(value -> danglingLine.setP0((isRelativeValue() ? danglingLine.getP0() : 0) + value));
