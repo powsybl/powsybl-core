@@ -51,11 +51,11 @@ public class CgmesDcConversion {
         // Get hvdc configurations
         AcDcConverterNodes acDcConverterNodes = new AcDcConverterNodes(cgmesModel);
 
-        Adjacency adjacency = new Adjacency(cgmesModel, acDcConverterNodes);
+        Adjacency adjacency = new Adjacency(cgmesModel, context, acDcConverterNodes);
         if (adjacency.isEmpty()) {
             return;
         }
-        NodeEquipment nodeEquipment = new NodeEquipment(cgmesModel, acDcConverterNodes, adjacency);
+        NodeEquipment nodeEquipment = new NodeEquipment(cgmesModel, context, acDcConverterNodes, adjacency);
         Islands islands = new Islands(adjacency);
 
         IslandsEnds islandsEnds = new IslandsEnds();
