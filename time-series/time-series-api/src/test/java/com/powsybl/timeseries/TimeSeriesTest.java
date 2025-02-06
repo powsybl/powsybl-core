@@ -10,6 +10,9 @@ package com.powsybl.timeseries;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,7 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
+import static com.powsybl.timeseries.TimeSeries.writeInstantToString;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -509,5 +514,30 @@ class TimeSeriesTest {
         assertArrayEquals(new double[] {4d, 5d, Double.NaN}, split.get(0).get(1).toArray(), 0d);
         assertArrayEquals(new double[] {Double.NaN, Double.NaN, 3d}, split.get(1).get(0).toArray(), 0d);
         assertArrayEquals(new double[] {Double.NaN, Double.NaN, 6d}, split.get(1).get(1).toArray(), 0d);
+    }
+
+    private static Stream<Arguments> getArgumentsWriteInstantToString() {
+        return Stream.of(
+            Arguments.of(Instant.ofEpochSecond(123456, 7), "123456000000007", 9),
+            Arguments.of(Instant.ofEpochSecond(123456, 7000), "123456000007000", 9),
+            Arguments.of(Instant.ofEpochSecond(123456, 700000000), "123456700000000", 9),
+            Arguments.of(Instant.ofEpochSecond(0, 7), "7", 9),
+            Arguments.of(Instant.ofEpochSecond(0, 7000), "7000", 9),
+            Arguments.of(Instant.ofEpochSecond(0, 700000000), "700000000", 9),
+            Arguments.of(Instant.ofEpochSecond(123456, 7), "123456000000", 6),
+            Arguments.of(Instant.ofEpochSecond(123456, 700), "123456000001", 6), // Case with rounding
+            Arguments.of(Instant.ofEpochSecond(123456, 7000), "123456000007", 6),
+            Arguments.of(Instant.ofEpochSecond(123456, 700000000), "123456700000", 6),
+            Arguments.of(Instant.ofEpochSecond(0, 7), "0", 6),
+            Arguments.of(Instant.ofEpochSecond(0, 700), "1", 6), // Case with rounding
+            Arguments.of(Instant.ofEpochSecond(0, 7000), "7", 6),
+            Arguments.of(Instant.ofEpochSecond(0, 700000000), "700000", 6)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("getArgumentsWriteInstantToString")
+    void testWriteInstantToString(Instant instant, String expected, int precision) {
+        assertEquals(expected, writeInstantToString(instant, precision));
     }
 }

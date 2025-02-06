@@ -14,6 +14,7 @@ import org.threeten.extra.Interval;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Iterator;
@@ -23,6 +24,9 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import static com.powsybl.timeseries.TimeSeries.parseNanosToInstant;
+import static com.powsybl.timeseries.TimeSeries.writeInstantToNanoString;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -99,8 +103,8 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
                             case "endTime" -> endInstant = Instant.ofEpochMilli(parser.nextLongValue(-1));
                             case "spacing" -> timeStep = Duration.ofMillis(parser.nextLongValue(-1));
                             // Precision in ns
-                            case "startInstant" -> startInstant = TimeSeriesIndex.longToInstant(parser.nextLongValue(-1), 1_000_000_000L);
-                            case "endInstant" -> endInstant = TimeSeriesIndex.longToInstant(parser.nextLongValue(-1), 1_000_000_000L);
+                            case "startInstant" -> startInstant = parseNanoTokenToInstant(parser);
+                            case "endInstant" -> endInstant = parseNanoTokenToInstant(parser);
                             case "timeStep" -> timeStep = Duration.ofNanos(parser.nextLongValue(-1));
                             default -> throw new IllegalStateException("Unexpected field " + fieldName);
                         }
@@ -204,12 +208,12 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         try {
             generator.writeStartObject();
             if (timeFormat == ExportFormat.MILLISECONDS) {
-                generator.writeNumberField("startTime", TimeSeriesIndex.instantToLong(startInstant, 1_000L));
-                generator.writeNumberField("endTime", TimeSeriesIndex.instantToLong(endInstant, 1_000L));
+                generator.writeNumberField("startTime", startInstant.toEpochMilli());
+                generator.writeNumberField("endTime", endInstant.toEpochMilli());
                 generator.writeNumberField("spacing", timeStep.toMillis());
             } else {
-                generator.writeNumberField("startInstant", TimeSeriesIndex.instantToLong(startInstant, 1_000_000_000L));
-                generator.writeNumberField("endInstant", TimeSeriesIndex.instantToLong(endInstant, 1_000_000_000L));
+                generator.writeNumberField("startInstant", new BigInteger(writeInstantToNanoString(startInstant)));
+                generator.writeNumberField("endInstant", new BigInteger(writeInstantToNanoString(endInstant)));
                 generator.writeNumberField("timeStep", timeStep.toNanos());
             }
             generator.writeEndObject();
@@ -251,5 +255,13 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     @Override
     public String toString() {
         return "RegularTimeSeriesIndex(startInstant=" + startInstant + ", endInstant=" + endInstant + ", timeStep=" + timeStep + ")";
+    }
+
+    private static Instant parseNanoTokenToInstant(JsonParser parser) throws IOException {
+        // The next token contains the value
+        parser.nextToken();
+
+        // Parse the value
+        return parseNanosToInstant(parser.getValueAsString());
     }
 }

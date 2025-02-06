@@ -47,6 +47,12 @@ class RegularTimeSeriesIndexTest {
         assertEquals(secondInstant, index.getInstantAt(1));
         assertEquals(Instant.parse("2015-01-01T00:15:00Z"), index.getInstantAt(1));
         assertEquals(Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), index.getTimeAt(1));
+    }
+
+    @Test
+    void testIteratorsAndStream() {
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"),
+            Duration.ofMinutes(15));
 
         // test iterator and stream
         List<Instant> instants = Arrays.asList(Instant.parse("2015-01-01T00:00:00Z"),
@@ -56,10 +62,22 @@ class RegularTimeSeriesIndexTest {
             Instant.parse("2015-01-01T01:00:00Z"));
         assertEquals(instants, index.stream().toList());
         assertEquals(instants, Lists.newArrayList(index.iterator()));
+    }
+
+    @Test
+    void testToString() {
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"),
+            Duration.ofMinutes(15));
 
         // test to string
         assertEquals("RegularTimeSeriesIndex(startInstant=2015-01-01T00:00:00Z, endInstant=2015-01-01T01:00:00Z, timeStep=PT15M)",
             index.toString());
+    }
+
+    @Test
+    void testJsonSerialization() {
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"),
+            Duration.ofMinutes(15));
 
         // test json
         String jsonRefMillis = String.join(System.lineSeparator(),
@@ -84,6 +102,12 @@ class RegularTimeSeriesIndexTest {
         RegularTimeSeriesIndex index3 = JsonUtil.parseJson(jsonMillis, RegularTimeSeriesIndex::parseJson);
         assertNotNull(index3);
         assertEquals(index, index3);
+    }
+
+    @Test
+    void testDeprecatedConstructor() {
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"),
+            Duration.ofMinutes(15));
 
         // Deprecated contructor
         RegularTimeSeriesIndex index4 = new RegularTimeSeriesIndex(Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(),

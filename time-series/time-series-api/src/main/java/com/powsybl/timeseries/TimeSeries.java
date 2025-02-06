@@ -624,10 +624,51 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         return parsePreciseDateToInstant(token, 9);
     }
 
-    static Instant parsePreciseDateToInstant(String token, int precision) {
-        return token.length() > precision ? Instant.ofEpochSecond(Long.parseLong(token.substring(0, token.length() - precision)),
-            Long.parseLong(token.substring(token.length() - precision) + "0".repeat(9 - precision))) :
+    static Instant parsePreciseDateToInstant(String timestamp, int precision) {
+        return timestamp.length() > precision ? Instant.ofEpochSecond(Long.parseLong(timestamp.substring(0, timestamp.length() - precision)),
+            Long.parseLong(timestamp.substring(timestamp.length() - precision) + "0".repeat(9 - precision))) :
             Instant.ofEpochSecond(0,
-                Long.parseLong(token + "0".repeat(9 - precision)));
+                Long.parseLong(timestamp + "0".repeat(9 - precision)));
+    }
+
+    static String writeInstantToMicroString(Instant instant) {
+        return writeInstantToString(instant, 6);
+    }
+
+    static String writeInstantToNanoString(Instant instant) {
+        return writeInstantToString(instant, 9);
+    }
+
+    static String writeInstantToString(Instant instant, int precision) {
+        long seconds = instant.getEpochSecond();
+        int nanos = instant.getNano();
+        // Compute the multiplier to bring nanos to the right precision
+        long multiplier = (long) Math.pow(10, 9. - precision);
+
+        // Compute the fractional part before rounding off
+        long fraction = nanos / multiplier;
+
+        // Rounding: if the remainder is at least half the multiplier, round up.
+        if (nanos % multiplier * 2 >= multiplier) {
+            fraction++;
+        }
+
+        // If rounding reduces the fraction to 10^(precision), the seconds must be carried forward.
+        long scale = (long) Math.pow(10, precision);
+        if (fraction >= scale && seconds > 0) {
+            seconds++;
+            fraction = 0;
+        }
+
+        if (seconds > 0) {
+            // Format the fraction with any zeros to obtain exactly ‘precision’ digits.
+            String format = "%0" + precision + "d";
+            String fractionStr = String.format(format, fraction);
+            return seconds + fractionStr;
+        } else {
+            // For seconds == 0, the value is returned without initial zeros.
+            return String.valueOf(fraction);
+        }
+
     }
 }
