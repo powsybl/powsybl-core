@@ -36,8 +36,8 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
     private final Map<String, String> serializationNameByVersion = new HashMap<>();
     private final Map<String, String> namespacePrefixByVersion = new HashMap<>();
 
-    public record AlternativeSerializationName(String name, Set<String> versions, String namespacePrefix) {
-        public AlternativeSerializationName(String name, Set<String> versions) {
+    public record AlternativeSerializationData(String name, Set<String> versions, String namespacePrefix) {
+        public AlternativeSerializationData(String name, Set<String> versions) {
             this(name, versions, null);
         }
     }
@@ -50,23 +50,23 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
     protected AbstractVersionableNetworkExtensionSerDe(String extensionName, Class<? super E> extensionClass, String namespacePrefix,
                                                        Map<IidmVersion, ImmutableSortedSet<String>> extensionVersions,
                                                        Map<String, String> namespaceUris,
-                                                       Set<AlternativeSerializationName> alternativeSerializationNames) {
+                                                       Set<AlternativeSerializationData> alternativeSerializationData) {
         this.extensionName = Objects.requireNonNull(extensionName);
         this.extensionClass = Objects.requireNonNull(extensionClass);
         this.namespacePrefix = Objects.requireNonNull(namespacePrefix);
         this.extensionVersions.putAll(Objects.requireNonNull(extensionVersions));
         this.namespaceUris.putAll(Objects.requireNonNull(namespaceUris));
 
-        if (alternativeSerializationNames != null) {
+        if (alternativeSerializationData != null) {
             Set<String> names = new HashSet<>();
-            for (AlternativeSerializationName altName : alternativeSerializationNames) {
-                if (!names.add(altName.name())) {
-                    throw new IllegalArgumentException("Duplicate alternative serialization name: " + altName.name());
+            for (AlternativeSerializationData data : alternativeSerializationData) {
+                if (!names.add(data.name())) {
+                    throw new IllegalArgumentException("Duplicate alternative serialization name: " + data.name());
                 }
-                altName.versions().forEach(version -> {
-                    this.serializationNameByVersion.put(version, altName.name());
-                    if (altName.namespacePrefix() != null) {
-                        this.namespacePrefixByVersion.put(version, altName.namespacePrefix());
+                data.versions().forEach(version -> {
+                    this.serializationNameByVersion.put(version, data.name());
+                    if (data.namespacePrefix() != null) {
+                        this.namespacePrefixByVersion.put(version, data.namespacePrefix());
                     }
                 });
             }
@@ -84,11 +84,8 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
     }
 
     @Override
-    public Set<String> getSerializationNames() {
-        Set<String> versions = new HashSet<>(serializationNameByVersion.values());
-        // Add the extension name because it may not be stored in serializationNameByVersion (it's the default name)
-        versions.add(extensionName);
-        return versions;
+    public Set<String> getAlternativeSerializationNames() {
+        return new HashSet<>(serializationNameByVersion.values());
     }
 
     @Override

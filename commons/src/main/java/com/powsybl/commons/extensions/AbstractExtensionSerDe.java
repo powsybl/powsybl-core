@@ -50,8 +50,8 @@ public abstract class AbstractExtensionSerDe<T extends Extendable, E extends Ext
     }
 
     @Override
-    public final Set<String> getSerializationNames() {
-        return Set.of(getExtensionName());
+    public final Set<String> getAlternativeSerializationNames() {
+        return Set.of();
     }
 
     @Override

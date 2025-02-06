@@ -42,8 +42,8 @@ public class LoadMockSerDe extends AbstractVersionableNetworkExtensionSerDe<Load
                         .put("1.1", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_1")
                         .put("1.2", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_2")
                         .build(),
-                Set.of(new AlternativeSerializationName("loadElementMock", Set.of("0.1")),
-                        new AlternativeSerializationName("loadEltMock", Set.of("0.2"), "lem")));
+                Set.of(new AlternativeSerializationData("loadElementMock", Set.of("0.1")),
+                        new AlternativeSerializationData("loadEltMock", Set.of("0.2"), "lem")));
     }
 
     @Override

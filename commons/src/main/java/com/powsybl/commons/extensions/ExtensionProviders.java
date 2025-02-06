@@ -9,9 +9,11 @@ package com.powsybl.commons.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.ServiceLoaderCache;
+import org.apache.commons.lang3.function.ToBooleanBiFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,6 +21,8 @@ import java.util.stream.Stream;
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public final class ExtensionProviders<T extends ExtensionProvider> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionProviders.class);
 
     private final Map<String, T> providers;
 
@@ -52,25 +56,46 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
 
     private Map<String, T> loadProviders(Class<T> clazz, String categoryName, Set<String> extensionNames) {
         final Map<String, T> providersMap = new HashMap<>();
-        Predicate<String> validateName = extensionNames == null ? n -> true : extensionNames::contains;
+        ToBooleanBiFunction<String, String> validateNames = extensionNames == null ?
+                (n1, n2) -> true :
+                (n1, n2) -> extensionNames.contains(n1) || extensionNames.contains(n2);
 
-        Stream<T> stream = new ServiceLoaderCache<>(clazz).getServices().stream();
+        Stream<T> servicesStream = new ServiceLoaderCache<>(clazz).getServices().stream();
         if (categoryName != null) {
-            stream = stream.filter(s -> s.getCategoryName().equals(categoryName));
+            servicesStream = servicesStream.filter(s -> s.getCategoryName().equals(categoryName));
         }
+        Set<T> services = servicesStream.collect(Collectors.toSet());
+        services.forEach(service -> addService(providersMap, service.getExtensionName(), service, validateNames));
         if (clazz.equals(ExtensionSerDe.class)) {
-            stream.forEach(service ->
-                ((ExtensionSerDe<?, ?>) service).getSerializationNames().forEach(name -> addService(providersMap, name, service, validateName))
-            );
-        } else {
-            stream.forEach(service -> addService(providersMap, service.getExtensionName(), service, validateName));
+            // Add the alternative serialization names for extension SerDes
+            services.forEach(service -> ((ExtensionSerDe<?, ?>) service).getAlternativeSerializationNames()
+                    .forEach(name -> addService(providersMap, name, service, validateNames)));
         }
         return providersMap;
     }
 
-    private void addService(Map<String, T> providersMap, String name, T service, Predicate<String> validateName) {
-        if (validateName.test(name)) {
-            providersMap.put(name, service);
+    private void addService(Map<String, T> providersMap, String nameToAdd,
+                            T service, ToBooleanBiFunction<String, String> validateNames) {
+        if (validateNames.applyAsBoolean(nameToAdd, service.getExtensionName())) {
+            boolean add = true;
+            T previousService = providersMap.get(nameToAdd);
+            if (previousService != null) {
+                if (service.getExtensionName().equals(nameToAdd)) {
+                    // Historically, there was no control on possible duplicated service names
+                    // and the last encountered service replaced the previous one.
+                    // To avoid problems, the same behavior is kept, but a warning is logged
+                    LOGGER.warn("Duplicate extension name {} - Replacing previous extension provider", service.getExtensionName());
+                } else {
+                    // For alternative names, a duplicate does not replace the previous provider, to avoid replacing
+                    // providers mapped to their real extension names by providers mapped to an alternative name.
+                    add = false;
+                    LOGGER.warn("Alternative extension name {} for extension {} is already used for extension {} - Skipping",
+                            nameToAdd, service.getExtensionName(), previousService.getExtensionName());
+                }
+            }
+            if (add) {
+                providersMap.put(nameToAdd, service);
+            }
         }
     }
 
@@ -91,7 +116,7 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
         return providers.values().stream().distinct().collect(Collectors.toList());
     }
 
-    public <T> void addExtensions(Extendable<T> extendable, Collection<Extension<T>> extensions) {
+    public <E> void addExtensions(Extendable<E> extendable, Collection<Extension<E>> extensions) {
         Objects.requireNonNull(extendable);
         Objects.requireNonNull(extensions);
         extensions.forEach(e -> extendable.addExtension(findProvider(e.getName()).getExtensionClass(), e));

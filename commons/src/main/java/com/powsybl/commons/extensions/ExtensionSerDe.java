@@ -71,7 +71,7 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
 
     String getSerializationName(String extensionVersion);
 
-    Set<String> getSerializationNames();
+    Set<String> getAlternativeSerializationNames();
 
     /**
      * Return the latest version of the serialization of the extension.
