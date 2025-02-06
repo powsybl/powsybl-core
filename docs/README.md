@@ -1,30 +1,49 @@
+# PowSyBl Core documentation
+
 These are the documentation sources for PowSyBl core features.
 
 Please keep them up to date with your developments.  
 They are published on powsybl.readthedocs.io/ and pull requests are built and previewed automatically.
 
+## Build the documentation
+
 When modifying the website content, you can easily preview the result on your PC.
 
-**First option - in a terminal, navigate to the root of the project and run the following commands:**
+### From a terminal
 
+Navigate to the root of the project and run the following commands:
+
+Install the requirements the first time:
+~~~bash
+pip install -r requirements.txt
 ~~~
-pip install -r docs/requirements.txt
-sphinx-build -a docs ./build-docs
+Build the documentation:
+~~~bash
+sphinx-build -a . _build/html
+~~~
+Or
+~~~bash
+make html
+~~~
+Or to build in latex format
+~~~bash
+make latexpdf
 ~~~
 
-**Second option - run the following commands directly from your IDE GUI**
+### From your IDE GUI
 
+Install the requirements the first time:
 ~~~bash
 pip install -r requirements.txt
 ~~~
 
 ~~~bash
-sphinx-build -a . ../build-docs
+sphinx-build -a . _build/html
 ~~~
 
-**Preview the result**
+### Preview the result
 
-Then open `build-docs/index.html` in your browser.
+Then open `_build/html/index.html` in your browser.
 
 If you want to add links to another documentation, add the corresponding repository to the `conf.py` file.
 To automatically get the version specified in the `pom.xml`, please use the same naming as the version: if you define the
@@ -59,5 +78,5 @@ automatically generate anchors for each title.*
 
 *Note²: if the build fails, try with the `-E` option to clear the cache:*
 ~~~bash
-sphinx-build -a -E docs ./build-docs
+sphinx-build -a -E . _build/html
 ~~~
