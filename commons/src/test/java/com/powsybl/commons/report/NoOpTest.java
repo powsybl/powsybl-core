@@ -7,7 +7,6 @@
  */
 package com.powsybl.commons.report;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import org.junit.jupiter.api.Test;
@@ -69,4 +68,17 @@ class NoOpTest extends AbstractSerDeTest {
         ReportNodeSerializer.write(root, serializedReport);
         ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/testReportNodeNoOp.json"), Files.newInputStream(serializedReport));
     }
+
+    @Test
+    void testTreeContextNoOp() {
+        assertEquals(0, TreeContextNoOp.NO_OP.getDictionary().size());
+        assertNull(TreeContextNoOp.NO_OP.getTimestampFormatter());
+        assertFalse(TreeContextNoOp.NO_OP.isTimestampAdded());
+
+        TreeContextImpl treeContext = new TreeContextImpl();
+        treeContext.addDictionaryEntry("key", "value");
+        TreeContextNoOp.NO_OP.merge(treeContext);
+        assertEquals(0, TreeContextNoOp.NO_OP.getDictionary().size());
+    }
+
 }
