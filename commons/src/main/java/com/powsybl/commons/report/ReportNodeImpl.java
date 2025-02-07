@@ -186,6 +186,9 @@ public final class ReportNodeImpl implements ReportNode {
 
         ReportNodeImpl copiedReportNode = (ReportNodeImpl) ReportNodeDeserializer.read(IOUtils.toInputStream(sw.toString(), StandardCharsets.UTF_8));
         children.add(copiedReportNode);
+
+        getTreeContext().merge(copiedReportNode.getTreeContext());
+        copiedReportNode.treeContext.setRef(treeContext);
     }
 
     private void unroot() {
