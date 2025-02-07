@@ -99,10 +99,12 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .withMessageTemplate("includedChild", "Included child message")
                 .add();
 
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> root.include(root));
-        PowsyblException e1 = assertThrows(PowsyblException.class, () -> otherRootChild.include(otherRoot));
-        assertEquals("The given reportNode cannot be included as it is the root of the reportNode", e0.getMessage());
-        assertEquals("The given reportNode cannot be included as it is the root of the reportNode", e1.getMessage());
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> root.include(ReportNode.NO_OP));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> otherRootChild.include(otherRoot));
+        PowsyblException e3 = assertThrows(PowsyblException.class, () -> otherRootChild.include(otherRoot));
+        assertEquals("Cannot mix implementations of ReportNode, included reportNode should be/extend ReportNodeImpl", e1.getMessage());
+        assertEquals("The given reportNode cannot be included as it is the root of the reportNode", e2.getMessage());
+        assertEquals("The given reportNode cannot be included as it is the root of the reportNode", e3.getMessage());
 
         root.include(otherRoot);
         assertEquals(1, root.getChildren().size());
@@ -110,14 +112,14 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) otherRoot).getTreeContextRef().get());
 
         // Other root is not root anymore and can therefore not be added again
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> root.include(otherRoot));
-        assertEquals("Cannot include non-root reportNode", e2.getMessage());
+        PowsyblException e4 = assertThrows(PowsyblException.class, () -> root.include(otherRoot));
+        assertEquals("Cannot include non-root reportNode", e4.getMessage());
 
         ReportNode child = root.newReportNode()
                 .withMessageTemplate("child", "Child message")
                 .add();
-        PowsyblException e3 = assertThrows(PowsyblException.class, () -> root.include(child));
-        assertEquals("Cannot include non-root reportNode", e3.getMessage());
+        PowsyblException e5 = assertThrows(PowsyblException.class, () -> root.include(child));
+        assertEquals("Cannot include non-root reportNode", e5.getMessage());
 
         ReportNode yetAnotherRoot = ReportNode.newRootReportNode()
                 .withMessageTemplate("newRootAboveAll", "New root above all reportNodes")
