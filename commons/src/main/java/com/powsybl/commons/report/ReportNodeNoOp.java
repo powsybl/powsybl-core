@@ -45,7 +45,7 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public String getMessage() {
+    public String getMessage(Formatter formatter) {
         return null;
     }
 
@@ -70,7 +70,7 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public void print(Writer writer) throws IOException {
+    public void print(Writer writer, Formatter formatter) throws IOException {
         // No-op
     }
 

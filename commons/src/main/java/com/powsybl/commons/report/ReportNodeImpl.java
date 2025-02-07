@@ -109,14 +109,14 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public String getMessage() {
+    public String getMessage(Formatter formatter) {
         return Optional.ofNullable(getTreeContext().getDictionary().get(messageKey))
-                .map(messageTemplate -> new StringSubstitutor(vk -> getValueAsString(vk).orElse(null)).replace(messageTemplate))
+                .map(messageTemplate -> new StringSubstitutor(vk -> getValueAsString(vk, formatter).orElse(null)).replace(messageTemplate))
                 .orElse("(missing message key in dictionary)");
     }
 
-    public Optional<String> getValueAsString(String valueKey) {
-        return getValue(valueKey).map(TypedValue::getValue).map(Object::toString);
+    public Optional<String> getValueAsString(String valueKey, Formatter formatter) {
+        return getValue(valueKey).map(formatter::format);
     }
 
     @Override
@@ -183,24 +183,24 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public void print(Writer writer) throws IOException {
-        print(writer, "");
+    public void print(Writer writer, Formatter formatter) throws IOException {
+        print(writer, "", formatter);
     }
 
-    private void print(Writer writer, String indentationStart) throws IOException {
+    private void print(Writer writer, String indentationStart, Formatter formatter) throws IOException {
         if (children.isEmpty()) {
-            print(writer, indentationStart, "");
+            print(writer, indentationStart, "", formatter);
         } else {
-            print(writer, indentationStart, "+ ");
+            print(writer, indentationStart, "+ ", formatter);
             String childrenIndent = indentationStart + "   ";
             for (ReportNodeImpl child : children) {
-                child.print(writer, childrenIndent);
+                child.print(writer, childrenIndent, formatter);
             }
         }
     }
 
-    private void print(Writer writer, String indent, String prefix) throws IOException {
-        writer.append(indent).append(prefix).append(getMessage()).append(System.lineSeparator());
+    private void print(Writer writer, String indent, String prefix, Formatter formatter) throws IOException {
+        writer.append(indent).append(prefix).append(getMessage(formatter)).append(System.lineSeparator());
     }
 
     public static ReportNodeImpl parseJsonNode(JsonParser parser, ObjectMapper objectMapper, TreeContextImpl treeContext, ReportNodeVersion version) throws IOException {

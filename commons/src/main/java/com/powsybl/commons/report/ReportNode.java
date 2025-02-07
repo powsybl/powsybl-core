@@ -88,7 +88,16 @@ public interface ReportNode {
      * corresponding values, either contained in current node or in one of its parents.
      * @return the message
      */
-    String getMessage();
+    default String getMessage() {
+        return getMessage(Formatter.DEFAULT);
+    }
+
+    /**
+     * Get the message of current node, replacing <code>${key}</code> references in the message template with the
+     * corresponding values, either contained in current node or in one of its parents.
+     * @return the message
+     */
+    String getMessage(Formatter formatter);
 
     /**
      * Get the values which belong to current node (does not include the inherited values)
@@ -150,5 +159,13 @@ public interface ReportNode {
      * Print to given writer the current report node and its descendants
      * @param writer the writer to write to
      */
-    void print(Writer writer) throws IOException;
+    default void print(Writer writer) throws IOException {
+        print(writer, Formatter.DEFAULT);
+    }
+
+    /**
+     * Print to given writer the current report node and its descendants
+     * @param writer the writer to write to
+     */
+    void print(Writer writer, Formatter formatter) throws IOException;
 }
