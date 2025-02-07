@@ -84,13 +84,15 @@ public final class NetworkSerDe {
     /** Magic number for binary iidm files ("Binary IIDM" in ASCII) */
     static final byte[] BIIDM_MAGIC_NUMBER = {0x42, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x20, 0x49, 0x49, 0x44, 0x4d};
 
-    private static final Supplier<ExtensionProviders<ExtensionSerDe>> EXTENSIONS_SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerDe.class, EXTENSION_CATEGORY_NAME));
-
     private static final Supplier<Schema> SCHEMA_SUPPLIER = Suppliers.memoize(NetworkSerDe::createSchema);
 
+    private static Supplier<ExtensionProviders<ExtensionSerDe>> extensionsSupplier;
+
+    static {
+        reloadExtensionsSupplier();
+    }
+
     private NetworkSerDe() {
-        ExtensionProviders.createProvider(ExtensionSerDe.class, EXTENSION_CATEGORY_NAME);
     }
 
     public static void validate(InputStream is) {
@@ -114,7 +116,7 @@ public final class NetworkSerDe {
 
     private static Schema createSchema() {
         List<Source> additionalSchemas = new ArrayList<>();
-        for (ExtensionSerDe<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
+        for (ExtensionSerDe<?, ?> e : extensionsSupplier.get().getProviders()) {
             e.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
         }
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -158,8 +160,9 @@ public final class NetworkSerDe {
             throw new IllegalStateException("Extension Serializer of " + extension.getName() + " should not be null");
         }
         String namespaceUri = getNamespaceUri(extensionSerDe, context.getOptions());
-        writer.writeStartNode(namespaceUri, extension.getName());
         context.getExtensionVersion(extension.getName()).ifPresent(extensionSerDe::checkExtensionVersionSupported);
+        String exportName = extensionSerDe.getSerializationName(getExtensionVersion(extensionSerDe, context.getOptions()));
+        writer.writeStartNode(namespaceUri, exportName);
         extensionSerDe.write(extension, context);
         writer.writeEndNode();
     }
@@ -167,8 +170,8 @@ public final class NetworkSerDe {
     private static ExtensionSerDe getExtensionSerializer(ExportOptions options, Extension<? extends Identifiable<?>> extension) {
         if (options.withExtension(extension.getName())) {
             ExtensionSerDe extensionSerDe = options.isThrowExceptionIfExtensionNotFound()
-                    ? EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName())
-                    : EXTENSIONS_SUPPLIER.get().findProvider(extension.getName());
+                    ? extensionsSupplier.get().findProviderOrThrowException(extension.getName())
+                    : extensionsSupplier.get().findProvider(extension.getName());
             if (extensionSerDe == null) {
                 String message = "XmlSerializer for " + extension.getName() + " not found";
                 throwExceptionIfOption(options, message);
@@ -248,13 +251,35 @@ public final class NetworkSerDe {
             XmlWriter xmlWriter = new XmlWriter(os, indent, options.getCharset(), iidmNamespace, IIDM_PREFIX);
 
             Set<ExtensionSerDe<?, ?>> serializers = getExtensionSerializers(n, options);
+            Set<String> extensionUris = new HashSet<>();
+            Set<String> extensionPrefixes = new HashSet<>();
             for (ExtensionSerDe<?, ?> extensionSerDe : serializers) {
                 String extensionVersion = getExtensionVersion(extensionSerDe, options);
-                xmlWriter.setExtensionNamespace(extensionSerDe.getName(), extensionSerDe.getNamespaceUri(extensionVersion), extensionSerDe.getNamespacePrefix());
-            }
+                String namespaceUri = extensionSerDe.getNamespaceUri(extensionVersion);
+                String realNamespacePrefix = extensionSerDe.getNamespacePrefix(extensionVersion);
+                String fixedNamespacePrefix = realNamespacePrefix;
 
-            // Ensure that there is no conflict in namespace prefixes and URIs
-            checkNamespaceCollisions(options, serializers);
+                // Throw an exception if a namespace URI collision is detected
+                if (extensionUris.contains(namespaceUri)) {
+                    throw new PowsyblException("Extension namespace URI collision");
+                } else {
+                    extensionUris.add(namespaceUri);
+                }
+
+                // Try to compute another namespace prefix if a collision is detected
+                int i = 1;
+                while (i < 100 && extensionPrefixes.contains(fixedNamespacePrefix)) {
+                    fixedNamespacePrefix = realNamespacePrefix + i;
+                    i++;
+                }
+                if (i >= 100) {
+                    throw new PowsyblException("Cannot compute a unique extension namespace prefix: " + realNamespacePrefix);
+                } else {
+                    extensionPrefixes.add(fixedNamespacePrefix);
+                }
+
+                xmlWriter.setExtensionNamespace(extensionSerDe.getName(), namespaceUri, fixedNamespacePrefix);
+            }
 
             return xmlWriter;
         } catch (XMLStreamException e) {
@@ -316,25 +341,6 @@ public final class NetworkSerDe {
                         .map(extension -> (ExtensionSerDe<?, ?>) getExtensionSerializer(options, extension))
                         .filter(exs -> canTheExtensionBeWritten(exs, networkVersion, options)))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
-
-    private static void checkNamespaceCollisions(ExportOptions options, Set<ExtensionSerDe<?, ?>> serializers) {
-        Set<String> extensionUris = new HashSet<>();
-        Set<String> extensionPrefixes = new HashSet<>();
-        for (ExtensionSerDe<?, ?> extensionSerDe : serializers) {
-            String namespaceUri = getNamespaceUri(extensionSerDe, options);
-            if (extensionUris.contains(namespaceUri)) {
-                throw new PowsyblException("Extension namespace URI collision");
-            } else {
-                extensionUris.add(namespaceUri);
-            }
-
-            if (extensionPrefixes.contains(extensionSerDe.getNamespacePrefix())) {
-                throw new PowsyblException("Extension namespace prefix collision");
-            } else {
-                extensionPrefixes.add(extensionSerDe.getNamespacePrefix());
-            }
-        }
     }
 
     private static void writeBaseNetwork(Network n, NetworkSerializerContext context) {
@@ -549,7 +555,7 @@ public final class NetworkSerDe {
 
     private static TreeDataReader createXmlReader(InputStream is, ImportOptions config) {
         try {
-            return new XmlReader(is, getNamespaceVersionMap(), config.withNoExtension() ? Collections.emptyList() : EXTENSIONS_SUPPLIER.get().getProviders());
+            return new XmlReader(is, getNamespaceVersionMap(), config.withNoExtension() ? Collections.emptyList() : extensionsSupplier.get().getProviders());
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -606,7 +612,7 @@ public final class NetworkSerDe {
 
         Map<String, String> extensionsMap = new HashMap<>();
         if (withExtensions) {
-            for (ExtensionSerDe<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
+            for (ExtensionSerDe<?, ?> e : extensionsSupplier.get().getProviders()) {
                 extensionsMap.putAll(e.getArrayNameToSingleNameMap());
             }
         }
@@ -758,7 +764,7 @@ public final class NetworkSerDe {
         }
         if (!extensionNamesNotFound.isEmpty()) {
             ReportNode extensionsNotFoundReportNode = reportNode.newReportNode().withMessageTemplate("extensionsNotFound", "Not found extensions").add();
-            throwExceptionIfOption(context.getOptions(), "Extensions " + extensionNamesNotFound + " " + "not found !");
+            throwExceptionIfOption(context.getOptions(), "Extensions " + extensionNamesNotFound + " " + "not found!");
             logExtensionsNotFound(extensionsNotFoundReportNode, extensionNamesNotFound);
         }
 
@@ -814,14 +820,15 @@ public final class NetworkSerDe {
     private static void readExtensions(Identifiable identifiable, NetworkDeserializerContext context,
                                        Set<String> extensionNamesImported, Set<String> extensionNamesNotFound) {
 
-        context.getReader().readChildNodes(extensionName -> {
+        context.getReader().readChildNodes(extensionSerializationName -> {
             // extensions root elements are nested directly in 'extension' element, so there is no need
             // to check for an extension to exist if depth is greater than zero. Furthermore, in case of
             // missing extension serializer, we must not check for an extension in sub elements.
-            if (context.getOptions().withExtension(extensionName)) {
-                ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
-                if (extensionXmlSerializer != null) {
-                    extensionXmlSerializer.read(identifiable, context);
+            ExtensionSerDe extensionSerde = extensionsSupplier.get().findProvider(extensionSerializationName);
+            String extensionName = extensionSerde != null ? extensionSerde.getExtensionName() : extensionSerializationName;
+            if (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName)) {
+                if (extensionSerde != null) {
+                    extensionSerde.read(identifiable, context);
                     extensionNamesImported.add(extensionName);
                 } else {
                     extensionNamesNotFound.add(extensionName);
@@ -922,5 +929,9 @@ public final class NetworkSerDe {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public static void reloadExtensionsSupplier() {
+        extensionsSupplier = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerDe.class, EXTENSION_CATEGORY_NAME));
     }
 }
