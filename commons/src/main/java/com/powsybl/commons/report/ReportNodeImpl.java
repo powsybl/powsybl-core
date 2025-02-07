@@ -162,8 +162,8 @@ public final class ReportNodeImpl implements ReportNode {
         if (!reportNodeImpl.isRoot) {
             throw new PowsyblException("Cannot include non-root reportNode");
         }
-        if (reportRoot == this) {
-            throw new PowsyblException("Cannot add a reportNode in itself");
+        if (getTreeContext() == reportNodeImpl.getTreeContext()) {
+            throw new PowsyblException("The given reportNode cannot be included as it is the root of the reportNode");
         }
 
         reportNodeImpl.unroot();

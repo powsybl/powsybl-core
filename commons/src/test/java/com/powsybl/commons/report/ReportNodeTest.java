@@ -92,15 +92,17 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .withMessageTemplate("rootTemplate", "Root message")
                 .build();
 
-        PowsyblException e1 = assertThrows(PowsyblException.class, () -> root.include(root));
-        assertEquals("Cannot add a reportNode in itself", e1.getMessage());
-
         ReportNode otherRoot = ReportNode.newRootReportNode()
                 .withMessageTemplate("includedRoot", "Included root message")
                 .build();
-        otherRoot.newReportNode()
+        ReportNode otherRootChild = otherRoot.newReportNode()
                 .withMessageTemplate("includedChild", "Included child message")
                 .add();
+
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> root.include(root));
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> otherRootChild.include(otherRoot));
+        assertEquals("The given reportNode cannot be included as it is the root of the reportNode", e0.getMessage());
+        assertEquals("The given reportNode cannot be included as it is the root of the reportNode", e1.getMessage());
 
         root.include(otherRoot);
         assertEquals(1, root.getChildren().size());
