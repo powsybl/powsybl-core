@@ -167,7 +167,6 @@ class ReportNodeTest extends AbstractSerDeTest {
         // 2. the dictionary contains all the keys from the copied reportNode tree (even the ones from non-copied reportNodes)
         assertEquals(6, ((ReportNodeImpl) root).getTreeContext().getDictionary().size());
 
-
         Path serializedReport = tmpDir.resolve("tmp.json");
         ReportNodeSerializer.write(root, serializedReport);
         ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/testCopyReportNode.json"), Files.newInputStream(serializedReport));
