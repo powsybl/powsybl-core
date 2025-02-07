@@ -84,9 +84,9 @@ public final class NetworkSerDe {
     /** Magic number for binary iidm files ("Binary IIDM" in ASCII) */
     static final byte[] BIIDM_MAGIC_NUMBER = {0x42, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x20, 0x49, 0x49, 0x44, 0x4d};
 
-    private static Supplier<ExtensionProviders<ExtensionSerDe>> EXTENSIONS_SUPPLIER;
-
     private static final Supplier<Schema> SCHEMA_SUPPLIER = Suppliers.memoize(NetworkSerDe::createSchema);
+
+    private static Supplier<ExtensionProviders<ExtensionSerDe>> extensionsSupplier;
 
     static {
         reloadExtensionsSupplier();
@@ -116,7 +116,7 @@ public final class NetworkSerDe {
 
     private static Schema createSchema() {
         List<Source> additionalSchemas = new ArrayList<>();
-        for (ExtensionSerDe<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
+        for (ExtensionSerDe<?, ?> e : extensionsSupplier.get().getProviders()) {
             e.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
         }
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -170,8 +170,8 @@ public final class NetworkSerDe {
     private static ExtensionSerDe getExtensionSerializer(ExportOptions options, Extension<? extends Identifiable<?>> extension) {
         if (options.withExtension(extension.getName())) {
             ExtensionSerDe extensionSerDe = options.isThrowExceptionIfExtensionNotFound()
-                    ? EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName())
-                    : EXTENSIONS_SUPPLIER.get().findProvider(extension.getName());
+                    ? extensionsSupplier.get().findProviderOrThrowException(extension.getName())
+                    : extensionsSupplier.get().findProvider(extension.getName());
             if (extensionSerDe == null) {
                 String message = "XmlSerializer for " + extension.getName() + " not found";
                 throwExceptionIfOption(options, message);
@@ -555,7 +555,7 @@ public final class NetworkSerDe {
 
     private static TreeDataReader createXmlReader(InputStream is, ImportOptions config) {
         try {
-            return new XmlReader(is, getNamespaceVersionMap(), config.withNoExtension() ? Collections.emptyList() : EXTENSIONS_SUPPLIER.get().getProviders());
+            return new XmlReader(is, getNamespaceVersionMap(), config.withNoExtension() ? Collections.emptyList() : extensionsSupplier.get().getProviders());
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -612,7 +612,7 @@ public final class NetworkSerDe {
 
         Map<String, String> extensionsMap = new HashMap<>();
         if (withExtensions) {
-            for (ExtensionSerDe<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
+            for (ExtensionSerDe<?, ?> e : extensionsSupplier.get().getProviders()) {
                 extensionsMap.putAll(e.getArrayNameToSingleNameMap());
             }
         }
@@ -824,7 +824,7 @@ public final class NetworkSerDe {
             // extensions root elements are nested directly in 'extension' element, so there is no need
             // to check for an extension to exist if depth is greater than zero. Furthermore, in case of
             // missing extension serializer, we must not check for an extension in sub elements.
-            ExtensionSerDe extensionSerde = EXTENSIONS_SUPPLIER.get().findProvider(extensionSerializationName);
+            ExtensionSerDe extensionSerde = extensionsSupplier.get().findProvider(extensionSerializationName);
             String extensionName = extensionSerde != null ? extensionSerde.getExtensionName() : extensionSerializationName;
             if (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName)) {
                 if (extensionSerde != null) {
@@ -932,7 +932,6 @@ public final class NetworkSerDe {
     }
 
     public static void reloadExtensionsSupplier() {
-        EXTENSIONS_SUPPLIER =
-                Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerDe.class, EXTENSION_CATEGORY_NAME));
+        extensionsSupplier = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerDe.class, EXTENSION_CATEGORY_NAME));
     }
 }
