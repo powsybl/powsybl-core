@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -51,4 +53,8 @@ class ReactiveCapabilityCurveImplTest {
         assertEquals(400.0, curve.getMaxQ(1000.0), 0.0);
     }
 
+    @Test
+    void testMinQStrictlySuperiorToMaxQ() {
+        assertThrows(IllegalStateException.class, () -> createCurve(new PointImpl(100, 200, 100), new PointImpl(200, 100, 400)));
+    }
 }
