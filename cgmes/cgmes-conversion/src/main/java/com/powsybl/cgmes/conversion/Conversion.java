@@ -327,6 +327,7 @@ public class Conversion {
 
         updateLoads(network, cgmes, updateContext);
         updateGenerators(network, cgmes, updateContext);
+        updateLines(network, updateContext);
         updateTransformers(network, updateContext);
         updateStaticVarCompensators(network, cgmes, updateContext);
         updateShuntCompensators(network, cgmes, updateContext);

@@ -83,7 +83,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         double x = p.asDouble("x");
         double gch = p.asDouble("gch", 0.0);
         double bch = p.asDouble("bch");
-        convertBranch(r, x, gch, bch);
+        convertBranch(r, x, gch, bch, CgmesNames.AC_LINE_SEGMENT);
     }
 
     private void convertLineAtBoundary(int boundarySide) {
@@ -102,9 +102,13 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         }
     }
 
+    public static void update(Line line, Context context) {
+        updateBranch(line, context);
+    }
+
     public static void update(DanglingLine danglingLine, Context context) {
         updateTerminals(danglingLine, context, danglingLine.getTerminal());
-        updateTargetsAndRegulation(danglingLine, isBoundaryTerminalConnected(danglingLine, context), context);
+        updateTargetsAndRegulationAndOperationalLimits(danglingLine, isBoundaryTerminalConnected(danglingLine, context), context);
         computeFlowsOnModelSide(danglingLine, context);
     }
 }

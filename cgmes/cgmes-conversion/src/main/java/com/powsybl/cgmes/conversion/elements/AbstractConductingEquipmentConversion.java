@@ -250,8 +250,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     // _5150a037-e241-421f-98b2-fe60e5c90303 XQ1-N1
     // ends in a boundary node where there is no other line,
     // does not have energy consumer or equivalent injection
-    protected static void updateTargetsAndRegulation(DanglingLine danglingLine, boolean isConnectedOnBoundarySide, Context context) {
+    protected static void updateTargetsAndRegulationAndOperationalLimits(DanglingLine danglingLine, boolean isConnectedOnBoundarySide, Context context) {
         EquivalentInjectionConversion.update(danglingLine, isConnectedOnBoundarySide, context);
+        danglingLine.getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(danglingLine, operationalLimitsGroup, context));
     }
 
     public static boolean isBoundaryTerminalConnected(DanglingLine danglingLine, Context context) {
