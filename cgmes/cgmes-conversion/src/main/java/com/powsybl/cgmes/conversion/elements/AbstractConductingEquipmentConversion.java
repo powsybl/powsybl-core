@@ -121,10 +121,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     @Override
     public void convertInsideBoundary() {
-        if (context.config().convertBoundary()) {
-            if (valid()) {
-                convert();
-            }
+        if (context.config().convertBoundary() && valid()) {
+            convert();
         }
     }
 
@@ -662,26 +660,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             adder.setNode(iidmNode(terminal));
         } else {
             adder.setBus(null).setConnectableBus(busId(terminal));
-        }
-    }
-
-    public void connect(BranchAdder<?, ?> adder) {
-        if (context.nodeBreaker()) {
-            adder
-                .setVoltageLevel1(iidmVoltageLevelId(1))
-                .setVoltageLevel2(iidmVoltageLevelId(2))
-                .setNode1(iidmNode(1))
-                .setNode2(iidmNode(2));
-        } else {
-            String busId1 = busId(1);
-            String busId2 = busId(2);
-            adder
-                .setVoltageLevel1(iidmVoltageLevelId(1))
-                .setVoltageLevel2(iidmVoltageLevelId(2))
-                .setBus1(terminalConnected(1) ? busId1 : null)
-                .setBus2(terminalConnected(2) ? busId2 : null)
-                .setConnectableBus1(busId1)
-                .setConnectableBus2(busId2);
         }
     }
 
