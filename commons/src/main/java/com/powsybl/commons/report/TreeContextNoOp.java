@@ -10,7 +10,6 @@ package com.powsybl.commons.report;
 import com.powsybl.commons.PowsyblException;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.Map;
 
 /**
