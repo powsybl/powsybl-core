@@ -70,7 +70,6 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
             LOGGER.error("Hvdc Line {} not found", hvdcLineId);
             notFoundHvdcLineReport(reportNode, hvdcLineId);
             logOrThrow(throwException, "Hvdc Line " + hvdcLineId + " not found");
-            return;
         }
     }
 

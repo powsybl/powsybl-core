@@ -47,16 +47,16 @@ public class PhaseShifterShiftTap extends AbstractNetworkModification {
         TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
         if (phaseShifter == null) {
             logOrThrow(throwException, "Transformer '" + phaseShifterId + "' not found");
-            return;
+        } else {
+            PhaseTapChanger phaseTapChanger = phaseShifter.getPhaseTapChanger();
+            if (phaseTapChanger == null) {
+                logOrThrow(throwException, "Transformer '" + phaseShifterId + "' is not a phase shifter");
+            } else {
+                adjustTapPosition(phaseTapChanger);
+                phaseTapChanger.setRegulating(false);
+                phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
+            }
         }
-        PhaseTapChanger phaseTapChanger = phaseShifter.getPhaseTapChanger();
-        if (phaseTapChanger == null) {
-            logOrThrow(throwException, "Transformer '" + phaseShifterId + "' is not a phase shifter");
-            return;
-        }
-        adjustTapPosition(phaseTapChanger);
-        phaseTapChanger.setRegulating(false);
-        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
     }
 
     private void adjustTapPosition(PhaseTapChanger phaseTapChanger) {
