@@ -12,6 +12,9 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.Objects;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransformerTest {
@@ -19,6 +22,22 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     private static final String INVALID = "invalid";
 
     private static final String TWT_NAME = "twt_name";
+
+    public static boolean areTwoWindingsTransformersIdentical(TwoWindingsTransformer transformer1, TwoWindingsTransformer transformer2) {
+        boolean areIdentical = false;
+
+        if (transformer1 != null && transformer2 != null) {
+            areIdentical = transformer1.getR() == transformer2.getR()
+                    && transformer1.getX() == transformer2.getX()
+                    && transformer1.getB() == transformer2.getB()
+                    && transformer1.getG() == transformer2.getG()
+                    && transformer1.getRatedU1() == transformer2.getRatedU1()
+                    && transformer1.getRatedU2() == transformer2.getRatedU2()
+                    && Objects.equals(transformer1.getTerminal1().getVoltageLevel().getId(), transformer2.getTerminal1().getVoltageLevel().getId())
+                    && Objects.equals(transformer1.getTerminal2().getVoltageLevel().getId(), transformer2.getTerminal2().getVoltageLevel().getId());
+        }
+        return areIdentical;
+    }
 
     @Test
     public void baseTests() {
@@ -212,6 +231,90 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertTrue(e.getMessage().contains("the 2 windings of the transformer shall belong to the substation"));
     }
 
+    @Test
+    public void testTwoWindingsTransformersCopier() {
+        // Transformers creation 1
+        TwoWindingsTransformer transformer1 = substation.newTwoWindingsTransformer()
+                .setId("twt1")
+                .setName(TWT_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRatedU1(5.0)
+                .setRatedU2(6.0)
+                .setRatedS(7.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+
+        // Group and limits creation 1
+        transformer1.newOperationalLimitsGroup1("group1").newCurrentLimits().setPermanentLimit(220.0).add();
+        transformer1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<CurrentLimits> optionalLimits1 = transformer1.getCurrentLimits1();
+        assertTrue(optionalLimits1.isPresent());
+        CurrentLimits limits1 = optionalLimits1.get();
+        assertNotNull(limits1);
+
+        transformer1.getOperationalLimitsGroup1("group1").get().newActivePowerLimits().setPermanentLimit(220.0).add();
+        Optional<ActivePowerLimits> optionalActivePowerLimits1 = transformer1.getActivePowerLimits1();
+        assertTrue(optionalActivePowerLimits1.isPresent());
+        ActivePowerLimits activePowerLimits1 = optionalActivePowerLimits1.get();
+        assertNotNull(activePowerLimits1);
+
+        transformer1.getOperationalLimitsGroup1("group1").get().newApparentPowerLimits().setPermanentLimit(220.0).add();
+        Optional<ApparentPowerLimits> optionalApparentPowerLimits1 = transformer1.getApparentPowerLimits1();
+        assertTrue(optionalApparentPowerLimits1.isPresent());
+        ApparentPowerLimits apparentPowerLimits1 = optionalApparentPowerLimits1.get();
+        assertNotNull(apparentPowerLimits1);
+
+        // Group and limit creation 2
+        transformer1.newOperationalLimitsGroup2("group2").newCurrentLimits().setPermanentLimit(80.0).add();
+        transformer1.setSelectedOperationalLimitsGroup2("group2");
+        Optional<CurrentLimits> optionalLimits2 = transformer1.getCurrentLimits2();
+        assertTrue(optionalLimits2.isPresent());
+        CurrentLimits limits2 = optionalLimits2.get();
+        assertNotNull(limits2);
+
+        // Transformers creation 2
+        TwoWindingsTransformer transformer3 = substation.newTwoWindingsTransformer()
+                .setId("twt3")
+                .setName(TWT_NAME)
+                .setR(2.0)
+                .setX(3.0)
+                .setG(5.0)
+                .setB(5.0)
+                .setRatedU1(6.0)
+                .setRatedU2(7.0)
+                .setRatedS(8.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+
+        // Transformers creation by copy
+        TwoWindingsTransformer transformer2 = substation.newTwoWindingsTransformer(transformer1)
+                .setId("twt2")
+                .setRatedS(7.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+
+        // Group and limit creation 3
+        Optional<CurrentLimits> optionalLimits3 = transformer2.getCurrentLimits1();
+        assertTrue(optionalLimits3.isPresent());
+        CurrentLimits limits3 = optionalLimits3.get();
+
+        // Tests
+        assertNotNull(transformer2);
+        assertNotNull(transformer1);
+        assertEquals(transformer1.getR(), transformer2.getR());
+        assertEquals(transformer1.getX(), transformer2.getX());
+        assertTrue(areTwoWindingsTransformersIdentical(transformer1, transformer2));
+        assertFalse(areTwoWindingsTransformersIdentical(transformer1, transformer3));
+        assertFalse(areTwoWindingsTransformersIdentical(transformer2, transformer3));
+        assertTrue(areLimitsIdentical(limits1, limits3));
+    }
+
     private void createTwoWindingTransformer(String id, String name, double r, double x, double g, double b,
                                              double ratedU1, double ratedU2, double ratedS) {
         substation.newTwoWindingsTransformer()
@@ -307,4 +410,5 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .endStep()
                 .add();
     }
+
 }

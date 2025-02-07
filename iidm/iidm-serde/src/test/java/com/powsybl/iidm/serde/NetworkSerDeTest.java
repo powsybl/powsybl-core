@@ -178,7 +178,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         @Override
         public BusbarSectionExt read(BusbarSection busbarSection, DeserializerContext context) {
             context.getReader().readEndNode();
-            return new BusbarSectionExt(busbarSection);
+            var bbsExt = new BusbarSectionExt(busbarSection);
+            busbarSection.addExtension(BusbarSectionExt.class, bbsExt);
+            return bbsExt;
         }
     }
 

@@ -54,6 +54,7 @@ public class LoadBarSerDe extends AbstractExtensionSerDe<Load, LoadBarExt> {
         if (point[0] != null) {
             loadBarExt.setPoint(point[0]);
         }
+        load.addExtension(LoadBarExt.class, loadBarExt);
         return loadBarExt;
     }
 }
