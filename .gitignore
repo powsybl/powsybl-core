@@ -31,4 +31,5 @@ powsybl.log
 .mvn/wrapper/*.jar
 
 # Documentation
+build-docs/
 /docs/_build

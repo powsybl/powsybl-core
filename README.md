@@ -64,7 +64,7 @@ Read [Install](#install) to generate an installed iTools distribution, a standal
 the built objects required to run powsybl programs.
 
 ## Build the documentation
-To locally build the readthedocs documentation follow the instructions in the [documentation README](https://github.com/powsybl/powsybl-core/tree/main/docs) page.
+To locally build the readthedocs documentation follow the instructions in the [documentation README](https://github.com/powsybl/powsybl-core/blob/main/docs/README.md) page.
 
 ## Install
 An iTools distribution can be generated and installed. The installation is a standalone external folder that contains all

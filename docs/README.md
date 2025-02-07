@@ -11,7 +11,7 @@ When modifying the website content, you can easily preview the result on your PC
 
 ### From a terminal
 
-Navigate to the root of the project and run the following commands:
+Navigate to the "docs" directory of the project and run the following commands:
 
 Install the requirements the first time:
 ~~~bash
