@@ -128,7 +128,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testCopy() throws IOException {
+    void testAddCopy() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
                 .withMessageTemplate("root", "Root message with value ${value}")
                 .withTypedValue("value", 2.3203, "ROOT_VALUE")
@@ -151,7 +151,7 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .withMessageTemplate("grandChild", "Grandchild message")
                 .add();
 
-        root.copy(childToCopy);
+        root.addCopy(childToCopy);
         assertEquals(2, otherRoot.getChildren().size()); // the copied message is not removed
         assertEquals(2, root.getChildren().size());
 
@@ -172,7 +172,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testCopyCornerCases() {
+    void testAddCopyCornerCases() {
         ReportNode root = ReportNode.newRootReportNode()
                 .withMessageTemplate("root", "Root message with value ${value}")
                 .withTypedValue("value", 2.3203, "ROOT_VALUE")
@@ -182,7 +182,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         // there's no limitation on this with current implementation
         // this leads to: root
         //                 |___ root
-        root.copy(root);
+        root.addCopy(root);
 
         assertEquals(root.getMessage(), root.getChildren().get(0).getMessage());
 
@@ -197,7 +197,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         ReportNode rootChild = root.newReportNode()
                 .withMessageTemplate("rootChild", "Another child")
                 .add();
-        rootChild.copy(root);
+        rootChild.addCopy(root);
 
         ReportNode rootGrandChild = rootChild.getChildren().get(0);
         ReportNode rootGreatGrandChild1 = rootGrandChild.getChildren().get(0);

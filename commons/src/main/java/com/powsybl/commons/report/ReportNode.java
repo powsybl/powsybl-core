@@ -128,7 +128,7 @@ public interface ReportNode {
      *
      * @param reportNode the <code>ReportNode</code> to copy into the children of current <code>ReportNode</code>
      */
-    void copy(ReportNode reportNode);
+    void addCopy(ReportNode reportNode);
 
     /**
      * Serialize the current report node

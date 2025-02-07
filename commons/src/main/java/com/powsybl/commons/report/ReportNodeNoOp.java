@@ -35,7 +35,7 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public void copy(ReportNode reportNode) {
+    public void addCopy(ReportNode reportNode) {
         // No-op
     }
 

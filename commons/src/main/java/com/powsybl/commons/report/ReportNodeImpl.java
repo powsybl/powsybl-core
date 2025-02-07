@@ -174,7 +174,7 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public void copy(ReportNode reportNode) {
+    public void addCopy(ReportNode reportNode) {
         var om = new ObjectMapper().registerModule(new ReportNodeJsonModule());
         var sw = new StringWriter();
 
