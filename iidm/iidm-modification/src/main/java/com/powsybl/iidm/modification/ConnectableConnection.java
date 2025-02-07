@@ -74,7 +74,6 @@ public class ConnectableConnection extends AbstractConnectDisconnectModification
         // Connect the element if it exists
         if (identifiable == null) {
             logOrThrow(throwException, "Identifiable '" + identifiableId + "' not found");
-            return;
         } else {
             connectIdentifiable(identifiable, network, throwException, reportNode);
         }

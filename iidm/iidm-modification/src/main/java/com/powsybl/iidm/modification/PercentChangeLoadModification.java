@@ -51,7 +51,6 @@ public class PercentChangeLoadModification extends AbstractNetworkModification {
         Load load = network.getLoad(loadId);
         if (load == null) {
             logOrThrow(throwException, "Load '" + loadId + "' not found");
-            return;
         } else {
             double p0 = load.getP0();
             load.setP0(p0 + (p0 * p0PercentChange / 100));

@@ -141,7 +141,6 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
         if (teePoint == null) {
             noTeePointAndOrTappedVoltageLevelReport(reportNode, oldLine1Id, oldLine2Id, lineToRemoveId);
             logOrThrow(throwException, String.format("Unable to find the tee point and the tapped voltage level from lines %s, %s and %s", oldLine1Id, oldLine2Id, lineToRemoveId));
-            return;
         } else {
             // tapped voltage level is the voltage level of tpLineToRemove, at the opposite side of the tee point
             VoltageLevel tappedVoltageLevel = tpLineToRemove.getTerminal1().getVoltageLevel() == teePoint

@@ -38,7 +38,6 @@ public class CloseSwitch extends AbstractNetworkModification {
         Switch sw = network.getSwitch(switchId);
         if (sw == null) {
             logOrThrow(throwException, "Switch '" + switchId + "' not found");
-            return;
         } else {
             sw.setOpen(false);
         }
