@@ -60,7 +60,7 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
                 (n1, n2) -> true :
                 (n1, n2) -> extensionNames.contains(n1) || extensionNames.contains(n2);
 
-        Stream<T> servicesStream = new ServiceLoaderCache<>(clazz).getServices().stream();
+        Stream<T> servicesStream = getServicesStream(clazz);
         if (categoryName != null) {
             servicesStream = servicesStream.filter(s -> s.getCategoryName().equals(categoryName));
         }
@@ -72,6 +72,10 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
                     .forEach(name -> addService(providersMap, name, service, validateNames)));
         }
         return providersMap;
+    }
+
+    public static <T extends ExtensionProvider> Stream<T> getServicesStream(Class<T> clazz) {
+        return new ServiceLoaderCache<>(clazz).getServices().stream();
     }
 
     private void addService(Map<String, T> providersMap, String nameToAdd,
@@ -89,7 +93,7 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
                     // For alternative names, a duplicate does not replace the previous provider, to avoid replacing
                     // providers mapped to their real extension names by providers mapped to an alternative name.
                     add = false;
-                    LOGGER.warn("Alternative extension name {} for extension {} is already used for extension {} - Skipping",
+                    LOGGER.warn("Alternative extension name {} for extension {} is already used for real extension {} - Skipping",
                             nameToAdd, service.getExtensionName(), previousService.getExtensionName());
                 }
             }

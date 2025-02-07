@@ -84,10 +84,13 @@ public final class NetworkSerDe {
     /** Magic number for binary iidm files ("Binary IIDM" in ASCII) */
     static final byte[] BIIDM_MAGIC_NUMBER = {0x42, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x20, 0x49, 0x49, 0x44, 0x4d};
 
-    private static final Supplier<ExtensionProviders<ExtensionSerDe>> EXTENSIONS_SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerDe.class, EXTENSION_CATEGORY_NAME));
+    private static Supplier<ExtensionProviders<ExtensionSerDe>> EXTENSIONS_SUPPLIER;
 
     private static final Supplier<Schema> SCHEMA_SUPPLIER = Suppliers.memoize(NetworkSerDe::createSchema);
+
+    static {
+        reloadExtensionsSupplier();
+    }
 
     private NetworkSerDe() {
     }
@@ -926,5 +929,10 @@ public final class NetworkSerDe {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public static void reloadExtensionsSupplier() {
+        EXTENSIONS_SUPPLIER =
+                Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerDe.class, EXTENSION_CATEGORY_NAME));
     }
 }

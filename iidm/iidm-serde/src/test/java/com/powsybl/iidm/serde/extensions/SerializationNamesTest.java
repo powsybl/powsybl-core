@@ -7,22 +7,29 @@
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionSerDe;
+import com.powsybl.commons.extensions.*;
+import com.powsybl.commons.io.DeserializerContext;
+import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.LoadFooExt;
 import com.powsybl.iidm.network.test.LoadMockExt;
 import com.powsybl.iidm.serde.*;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionSerDe;
 import org.junit.jupiter.api.Test;
+import org.mockito.AdditionalMatchers;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -90,6 +97,67 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
         network = NetworkSerDe.read(file, importOptions);
         assertNotNull(network.getLoad("Load1").getExtension(LoadMockExt.class),
                 "Using the real extension name as extension to load should work.");
+    }
+
+    @Test
+    void ignoreOtherSerializationNameIfAlreadyUsed() throws URISyntaxException {
+        // No extension serde available
+        // This assertion is used to test that the configuration mechanism is working
+        Network network = loadNetworkWithGivenSerdes(List.of());
+        assertTrue(network.getLoad("Load1").getExtensions().isEmpty(), "No extension should be loaded.");
+
+        // The extension in the network ("loadElementMock") is only associated to the LoadMockExt extension,
+        // and it is defined as an "other serialization name"
+        List<ExtensionSerDe<?, ?>> serdes = List.of(new LoadMockSerDe());
+        network = loadNetworkWithGivenSerdes(serdes);
+        Load load1 = network.getLoad("Load1");
+        assertNotNull(load1.getExtension(LoadMockExt.class), "The read extension should be a LoadMockExt.");
+        assertEquals(1, load1.getExtensions().size(), "Only 1 extension should be loaded.");
+
+        // The extension in the network corresponds to the real extension name of the dummy extension SerDe
+        // and to an "other serialization name" of the LoadMockExt extension.
+        // In this case, the dummy extension should have the precedence (real names before "other" names)
+        // Note that the dummy SerDe loads a "LoadFooExt".
+        serdes = List.of(new LoadMockSerDe(), createDummyExtensionSerDe());
+        network = loadNetworkWithGivenSerdes(serdes);
+        load1 = network.getLoad("Load1");
+        assertNull(load1.getExtension(LoadMockExt.class), "No LoadMockExt should be loaded.");
+        assertNotNull(load1.getExtension(LoadFooExt.class), "A LoadFooExt extension should be loaded.");
+
+        // Reload the extensions supplier for the other tests
+        NetworkSerDe.reloadExtensionsSupplier();
+    }
+
+    private Network loadNetworkWithGivenSerdes(List<ExtensionSerDe<?, ?>> serdes) throws URISyntaxException {
+        try (MockedStatic<ExtensionProviders> staticMock = Mockito.mockStatic(ExtensionProviders.class, Mockito.CALLS_REAL_METHODS)) {
+            // For ExtensionSerDe.class, the ExtensionProviders should return the content of "serdes".
+            staticMock.when(() -> ExtensionProviders.getServicesStream(ExtensionSerDe.class))
+                    .thenReturn(serdes.stream());
+            // For other classes, the ExtensionProviders should return the services found by the ServiceLoader.
+            staticMock.when(() -> ExtensionProviders.getServicesStream(AdditionalMatchers.not(eq(ExtensionSerDe.class))))
+                    .then(i -> new ServiceLoaderCache<>(i.getArgument(0)).getServices().stream());
+
+            NetworkSerDe.reloadExtensionsSupplier();
+            Path file = Paths.get(Objects.requireNonNull(getClass().getResource("/extensionName_0_1_otherPrefix.xml")).toURI());
+            return NetworkSerDe.read(file);
+        }
+    }
+
+    private static ExtensionSerDe<Load, LoadFooExt> createDummyExtensionSerDe() {
+        return new AbstractExtensionSerDe<>("loadElementMock", "network", LoadFooExt.class,
+                "", "", "") {
+            @Override
+            public void write(LoadFooExt extension, SerializerContext context) {
+                // Do nothing
+            }
+
+            @Override
+            public LoadFooExt read(Load extendable, DeserializerContext context) {
+                LoadFooExt extension = new LoadFooExt(extendable);
+                extendable.addExtension(LoadFooExt.class, extension);
+                return extension;
+            }
+        };
     }
 
     private static Network getNetwork() {
