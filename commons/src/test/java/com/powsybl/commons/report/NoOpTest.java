@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.report;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import org.junit.jupiter.api.Test;
@@ -68,5 +69,4 @@ class NoOpTest extends AbstractSerDeTest {
         ReportNodeSerializer.write(root, serializedReport);
         ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/testReportNodeNoOp.json"), Files.newInputStream(serializedReport));
     }
-
 }

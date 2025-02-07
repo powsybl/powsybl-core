@@ -7,8 +7,6 @@
  */
 package com.powsybl.commons.report;
 
-import com.powsybl.commons.PowsyblException;
-
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
@@ -34,8 +32,6 @@ public class TreeContextNoOp implements TreeContext {
 
     @Override
     public void merge(TreeContext treeContext) {
-        if (!(treeContext instanceof TreeContextNoOp)) {
-            throw new PowsyblException("Cannot merge a TreeContextNoOp with non TreeContextNoOp");
-        }
+        // no-op
     }
 }
