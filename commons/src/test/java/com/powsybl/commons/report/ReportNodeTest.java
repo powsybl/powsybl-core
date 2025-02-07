@@ -9,9 +9,11 @@ package com.powsybl.commons.report;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -123,6 +125,86 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) otherRoot).getTreeContextRef().get());
 
         roundTripTest(yetAnotherRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/testIncludeReportNode.json");
+    }
+
+    @Test
+    void testCopy() throws IOException {
+        ReportNode root = ReportNode.newRootReportNode()
+                .withMessageTemplate("root", "Root message with value ${value}")
+                .withTypedValue("value", 2.3203, "ROOT_VALUE")
+                .build();
+        root.newReportNode()
+                .withMessageTemplate("existingChild", "Child message")
+                .add();
+
+        ReportNode otherRoot = ReportNode.newRootReportNode()
+                .withMessageTemplate("otherRoot", "Root message containing node to copy")
+                .withTypedValue("value", -915.3, "ROOT_VALUE")
+                .build();
+        otherRoot.newReportNode()
+                .withMessageTemplate("childNotCopied", "Child message")
+                .add();
+        ReportNode childToCopy = otherRoot.newReportNode()
+                .withMessageTemplate("childToCopy", "Child message with inherited value ${value}")
+                .add();
+        childToCopy.newReportNode()
+                .withMessageTemplate("grandChild", "Grandchild message")
+                .add();
+
+        root.copy(childToCopy);
+        assertEquals(2, otherRoot.getChildren().size()); // the copied message is not removed
+        assertEquals(2, root.getChildren().size());
+
+        ReportNode childCopied = root.getChildren().get(1);
+        assertEquals(childToCopy.getMessageKey(), childCopied.getMessageKey());
+        assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) childCopied).getTreeContextRef().get());
+
+        // Two limitations of copy current implementation, due to the current ReportNode serialization
+        // 1. the inherited values are not kept
+        assertNotEquals(childToCopy.getMessage(), childCopied.getMessage());
+        // 2. the dictionary contains all the keys from the copied reportNode tree (even the ones from non-copied reportNodes)
+        assertEquals(6, ((ReportNodeImpl) root).getTreeContext().getDictionary().size());
+
+
+        Path serializedReport = tmpDir.resolve("tmp.json");
+        ReportNodeSerializer.write(root, serializedReport);
+        ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/testCopyReportNode.json"), Files.newInputStream(serializedReport));
+    }
+
+    @Test
+    void testCopyCornerCases() {
+        ReportNode root = ReportNode.newRootReportNode()
+                .withMessageTemplate("root", "Root message with value ${value}")
+                .withTypedValue("value", 2.3203, "ROOT_VALUE")
+                .build();
+
+        // Corner case: copying oneself
+        // there's no limitation on this with current implementation
+        // this leads to: root
+        //                 |___ root
+        root.copy(root);
+
+        assertEquals(root.getMessage(), root.getChildren().get(0).getMessage());
+
+        // Corner case: copying an ancestor
+        // there's also no limitation on this with current implementation
+        // this leads to: root
+        //                 |___ root
+        //                 |___ rootChild
+        //                        |___root
+        //                             |___ root
+        //                             |___ rootChild
+        ReportNode rootChild = root.newReportNode()
+                .withMessageTemplate("rootChild", "Another child")
+                .add();
+        rootChild.copy(root);
+
+        ReportNode rootGrandChild = rootChild.getChildren().get(0);
+        ReportNode rootGreatGrandChild1 = rootGrandChild.getChildren().get(0);
+        ReportNode rootGreatGrandChild2 = rootGrandChild.getChildren().get(1);
+        assertEquals(root.getMessage(), rootGrandChild.getMessage());
+        assertEquals(root.getMessage(), rootGreatGrandChild1.getMessage());
+        assertEquals(rootChild.getMessage(), rootGreatGrandChild2.getMessage());
     }
 
     @Test
