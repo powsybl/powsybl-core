@@ -30,6 +30,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,8 +51,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.powsybl.timeseries.TimeSeriesIndex.parseDoubleToInstant;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -616,6 +616,17 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         return JsonUtil.parseJson(file, TimeSeries::parseJson);
     }
 
+    static Instant parseDoubleToInstant(String doubleString) {
+        BigDecimal bd = new BigDecimal(doubleString);
+        BigDecimal seconds = bd.setScale(0, RoundingMode.DOWN);
+        BigDecimal nanos = bd.subtract(seconds).multiply(BigDecimal.valueOf(1_000_000_000));
+
+        return Instant.ofEpochSecond(
+            seconds.longValue(),
+            nanos.longValue()
+        );
+    }
+
     static Instant parseMicrosToInstant(String token) {
         return parsePreciseDateToInstant(token, 6);
     }
@@ -625,10 +636,11 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static Instant parsePreciseDateToInstant(String timestamp, int precision) {
-        return timestamp.length() > precision ? Instant.ofEpochSecond(Long.parseLong(timestamp.substring(0, timestamp.length() - precision)),
-            Long.parseLong(timestamp.substring(timestamp.length() - precision) + "0".repeat(9 - precision))) :
-            Instant.ofEpochSecond(0,
-                Long.parseLong(timestamp + "0".repeat(9 - precision)));
+        long multiplier = (long) Math.pow(10, 9. - precision);
+        return timestamp.length() > precision ?
+            Instant.ofEpochSecond(Long.parseLong(timestamp.substring(0, timestamp.length() - precision)),
+                Long.parseLong(timestamp.substring(timestamp.length() - precision)) * multiplier) :
+            Instant.ofEpochSecond(0, Long.parseLong(timestamp) * multiplier);
     }
 
     static String writeInstantToMicroString(Instant instant) {
@@ -642,20 +654,21 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     static String writeInstantToString(Instant instant, int precision) {
         long seconds = instant.getEpochSecond();
         int nanos = instant.getNano();
-        // Compute the multiplier to bring nanos to the right precision
-        long multiplier = (long) Math.pow(10, 9. - precision);
+        // Compute the divisor to bring nanos to the right precision
+        long divisor = (long) Math.pow(10, 9. - precision);
 
         // Compute the fractional part before rounding off
-        long fraction = nanos / multiplier;
+        long fraction = nanos / divisor;
 
-        // Rounding: if the remainder is at least half the multiplier, round up.
-        if (nanos % multiplier * 2 >= multiplier) {
+        // Rounding: if the remainder is at least half the divisor, round up.
+        if (nanos % divisor * 2 >= divisor) {
             fraction++;
         }
 
         // If rounding reduces the fraction to 10^(precision), the seconds must be carried forward.
         long scale = (long) Math.pow(10, precision);
         if (fraction >= scale && seconds > 0) {
+            // If seconds == 0, we prefer to keep the added second in the fraction to use the shortest way in the next part
             seconds++;
             fraction = 0;
         }
@@ -666,7 +679,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             String fractionStr = String.format(format, fraction);
             return seconds + fractionStr;
         } else {
-            // For seconds == 0, the value is returned without initial zeros.
+            // For seconds == 0, the value is returned as-is, without initial zeros.
             return String.valueOf(fraction);
         }
 

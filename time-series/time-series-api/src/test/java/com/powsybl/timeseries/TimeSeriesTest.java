@@ -531,7 +531,8 @@ class TimeSeriesTest {
             Arguments.of(Instant.ofEpochSecond(0, 7), "0", 6),
             Arguments.of(Instant.ofEpochSecond(0, 700), "1", 6), // Case with rounding
             Arguments.of(Instant.ofEpochSecond(0, 7000), "7", 6),
-            Arguments.of(Instant.ofEpochSecond(0, 700000000), "700000", 6)
+            Arguments.of(Instant.ofEpochSecond(0, 700000000), "700000", 6),
+            Arguments.of(Instant.ofEpochSecond(0, 999999999), "1000000", 6) // Rounding to the next second
         );
     }
 

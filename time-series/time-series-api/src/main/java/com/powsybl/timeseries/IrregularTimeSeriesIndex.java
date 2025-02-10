@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +21,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
+
+import static com.powsybl.timeseries.TimeSeries.parseNanosToInstant;
+import static com.powsybl.timeseries.TimeSeries.writeInstantToNanoString;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -43,7 +47,7 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
      */
     @Deprecated(since = "6.7.0")
     public IrregularTimeSeriesIndex(long[] times) {
-        this(Arrays.stream(times).mapToObj(time -> TimeSeriesIndex.longToInstant(time, 1_000L)).toArray(Instant[]::new));
+        this(Arrays.stream(times).mapToObj(Instant::ofEpochMilli).toArray(Instant[]::new));
     }
 
     public static IrregularTimeSeriesIndex create(Instant... instants) {
@@ -67,7 +71,9 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
             List<Instant> instants = new ArrayList<>();
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.VALUE_NUMBER_INT) {
-                    instants.add(TimeSeriesIndex.longToInstant(parser.getLongValue(), timeFormat));
+                    instants.add(timeFormat == ExportFormat.MILLISECONDS ?
+                        Instant.ofEpochMilli(parser.getLongValue()) :
+                        parseNanosToInstant(parser.getValueAsString()));
                 } else if (token == JsonToken.END_ARRAY) {
                     return IrregularTimeSeriesIndex.create(instants);
                 }
@@ -110,9 +116,17 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     public void writeJson(JsonGenerator generator, ExportFormat timeFormat) {
         Objects.requireNonNull(generator);
         try {
-            generator.writeArray(Arrays.stream(instants)
-                .mapToLong(instant -> TimeSeriesIndex.instantToLong(instant, timeFormat))
-                .toArray(), 0, instants.length);
+            if (timeFormat == ExportFormat.MILLISECONDS) {
+                generator.writeArray(Arrays.stream(instants)
+                    .mapToLong(Instant::toEpochMilli)
+                    .toArray(), 0, instants.length);
+            } else {
+                generator.writeStartArray();
+                for (Instant instant : instants) {
+                    generator.writeNumber(new BigInteger(writeInstantToNanoString(instant)));
+                }
+                generator.writeEndArray();
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -131,5 +145,13 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     @Override
     public String toString() {
         return "IrregularTimeSeriesIndex(times=" + stream().toList() + ")";
+    }
+
+    private static Instant parseNanoTokenToInstant(JsonParser parser) throws IOException {
+        // The next token contains the value
+        parser.nextToken();
+
+        // Parse the value
+        return parseNanosToInstant(parser.getValueAsString());
     }
 }

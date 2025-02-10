@@ -28,7 +28,7 @@ class IrregularTimeSeriesIndexTest {
     @Test
     void test() {
         List<Instant> instants = Arrays.asList(Instant.parse("2015-01-01T00:00:00Z"),
-                                               Instant.parse("2015-01-01T01:00:00Z"));
+            Instant.parse("2015-01-01T01:00:00Z"));
         IrregularTimeSeriesIndex index = IrregularTimeSeriesIndex.create(instants);
         assertEquals(IrregularTimeSeriesIndex.TYPE, index.getType());
 
@@ -36,14 +36,37 @@ class IrregularTimeSeriesIndexTest {
         assertEquals("2015-01-01T00:00:00Z", index.getInstantAt(0).toString());
         assertEquals("2015-01-01T01:00:00Z", index.getInstantAt(1).toString());
         assertEquals(2, index.getPointCount());
+    }
+
+    @Test
+    void testIteratorsAndStream() {
+        List<Instant> instants = Arrays.asList(Instant.parse("2015-01-01T00:00:00Z"),
+            Instant.parse("2015-01-01T01:00:00Z"));
+        IrregularTimeSeriesIndex index = IrregularTimeSeriesIndex.create(instants);
 
         // test iterator and stream
         assertEquals(instants, index.stream().toList());
         assertEquals(instants, Lists.newArrayList(index.iterator()));
+    }
+
+    @Test
+    void testToString() {
+        List<Instant> instants = Arrays.asList(Instant.parse("2015-01-01T00:00:00Z"),
+            Instant.parse("2015-01-01T01:00:00Z"));
+        IrregularTimeSeriesIndex index = IrregularTimeSeriesIndex.create(instants);
+        assertEquals(IrregularTimeSeriesIndex.TYPE, index.getType());
 
         // test to string
         assertEquals("IrregularTimeSeriesIndex(times=[2015-01-01T00:00:00Z, 2015-01-01T01:00:00Z])",
-                     index.toString());
+            index.toString());
+    }
+
+    @Test
+    void testJsonSerialization() {
+        List<Instant> instants = Arrays.asList(Instant.parse("2015-01-01T00:00:00Z"),
+            Instant.parse("2015-01-01T01:00:00Z"));
+        IrregularTimeSeriesIndex index = IrregularTimeSeriesIndex.create(instants);
+        assertEquals(IrregularTimeSeriesIndex.TYPE, index.getType());
 
         // test json
         String jsonRefMillis = "[ 1420070400000, 1420074000000 ]";
@@ -58,6 +81,14 @@ class IrregularTimeSeriesIndexTest {
         IrregularTimeSeriesIndex index3 = JsonUtil.parseJson(jsonMillis, IrregularTimeSeriesIndex::parseJson);
         assertNotNull(index3);
         assertEquals(index, index3);
+    }
+
+    @Test
+    void testDeprecatedConstructor() {
+        List<Instant> instants = Arrays.asList(Instant.parse("2015-01-01T00:00:00Z"),
+            Instant.parse("2015-01-01T01:00:00Z"));
+        IrregularTimeSeriesIndex index = IrregularTimeSeriesIndex.create(instants);
+        assertEquals(IrregularTimeSeriesIndex.TYPE, index.getType());
 
         // Deprecated contructor
         IrregularTimeSeriesIndex index4 = new IrregularTimeSeriesIndex(instants.stream().mapToLong(Instant::toEpochMilli).toArray());
@@ -67,11 +98,11 @@ class IrregularTimeSeriesIndexTest {
     @Test
     void testEquals() {
         new EqualsTester()
-                .addEqualityGroup(IrregularTimeSeriesIndex.create(Instant.parse("2015-01-01T00:00:00Z")),
-                                  IrregularTimeSeriesIndex.create(Instant.parse("2015-01-01T00:00:00Z")))
-                .addEqualityGroup(IrregularTimeSeriesIndex.create(Instant.parse("2015-01-01T01:00:00Z")),
-                                  IrregularTimeSeriesIndex.create(Instant.parse("2015-01-01T01:00:00Z")))
-                .testEquals();
+            .addEqualityGroup(IrregularTimeSeriesIndex.create(Instant.parse("2015-01-01T00:00:00Z")),
+                IrregularTimeSeriesIndex.create(Instant.parse("2015-01-01T00:00:00Z")))
+            .addEqualityGroup(IrregularTimeSeriesIndex.create(Instant.parse("2015-01-01T01:00:00Z")),
+                IrregularTimeSeriesIndex.create(Instant.parse("2015-01-01T01:00:00Z")))
+            .testEquals();
     }
 
     @Test

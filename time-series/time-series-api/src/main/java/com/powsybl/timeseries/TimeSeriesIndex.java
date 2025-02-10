@@ -54,36 +54,4 @@ public interface TimeSeriesIndex extends Iterable<Instant> {
     Stream<Instant> stream();
 
     Iterator<Instant> iterator();
-
-    static Instant parseDoubleToInstant(String doubleString) {
-        BigDecimal bd = new BigDecimal(doubleString);
-        BigDecimal seconds = bd.setScale(0, RoundingMode.DOWN);
-        BigDecimal nanos = bd.subtract(seconds).multiply(BigDecimal.valueOf(1_000_000_000));
-
-        return Instant.ofEpochSecond(
-            seconds.longValue(),
-            nanos.longValue()
-        );
-    }
-
-    static Instant parseLongToInstant(String token, long conversionToSeconds) {
-        long dateAsLong = Long.parseLong(token);
-        return longToInstant(dateAsLong, conversionToSeconds);
-    }
-
-    static Instant longToInstant(long dateAsLong, long conversionToSeconds) {
-        return Instant.ofEpochSecond(dateAsLong / conversionToSeconds, (dateAsLong % conversionToSeconds) * 1_000_000_000L / conversionToSeconds);
-    }
-
-    static Instant longToInstant(long dateAsLong, ExportFormat exportFormat) {
-        return longToInstant(dateAsLong, exportFormat == ExportFormat.MILLISECONDS ? 1_000L : 1_000_000_000L);
-    }
-
-    static long instantToLong(Instant instant, long conversionToSeconds) {
-        return instant.getEpochSecond() * conversionToSeconds + instant.getNano() * conversionToSeconds / 1_000_000_000L;
-    }
-
-    static long instantToLong(Instant instant, ExportFormat exportFormat) {
-        return instantToLong(instant, exportFormat == ExportFormat.MILLISECONDS ? 1_000L : 1_000_000_000L);
-    }
 }
