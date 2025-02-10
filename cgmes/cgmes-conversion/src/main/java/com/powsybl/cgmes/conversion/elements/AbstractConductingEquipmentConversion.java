@@ -371,18 +371,26 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     private static Optional<PropertyBag> getCgmesSvVoltageOnBoundarySide(DanglingLine danglingLine, Context context) {
-        String topologicalNodeIdOnBoundarySide = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        String topologicalNodeIdOnBoundarySide = getTopologicalNodeIdOnBoundarySide(danglingLine, context);
         if (topologicalNodeIdOnBoundarySide != null) {
-            PropertyBag svVoltage = context.svVoltage(topologicalNodeIdOnBoundarySide);
-            if (svVoltage != null) {
-                return Optional.of(svVoltage);
-            }
-        }
-        String connectivityNodeIdOnBoundarySide = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
-        if (connectivityNodeIdOnBoundarySide != null) {
-            return Optional.ofNullable(context.svVoltage(connectivityNodeIdOnBoundarySide));
+            return Optional.ofNullable(context.svVoltage(topologicalNodeIdOnBoundarySide));
         }
         return Optional.empty();
+    }
+
+    private static String getTopologicalNodeIdOnBoundarySide(DanglingLine danglingLine, Context context) {
+        String topologicalNodeIdOnBoundarySide = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        if (topologicalNodeIdOnBoundarySide != null) {
+            return topologicalNodeIdOnBoundarySide;
+        }
+        String terminalIdOnBoundarySide = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
+        if (terminalIdOnBoundarySide != null) {
+            PropertyBag cgmesTerminal = context.cgmesTerminal(terminalIdOnBoundarySide);
+            if (cgmesTerminal != null) {
+                return cgmesTerminal.getId(CgmesNames.TOPOLOGICAL_NODE);
+            }
+        }
+        return null;
     }
 
     private static Optional<EquivalentInjectionConversion> getEquivalentInjectionConversionForDanglingLine(Context context, String boundaryNode, String eqInstance) {
