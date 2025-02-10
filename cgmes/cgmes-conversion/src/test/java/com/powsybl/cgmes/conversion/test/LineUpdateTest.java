@@ -70,21 +70,32 @@ class LineUpdateTest {
         assertEquals(3, network.getLineCount());
 
         Line acLineSegment = network.getLine("ACLineSegment");
+        Line equivalentBranch = network.getLine("EquivalentBranch");
+        Line seriesCompensator = network.getLine("SeriesCompensator");
+        assertTrue(checkEq(acLineSegment, equivalentBranch, seriesCompensator));
+
+        readCgmesResources(network, DIR, "line_SSH.xml");
+        assertTrue(checkSsh(acLineSegment, equivalentBranch, seriesCompensator));
+
+        readCgmesResources(network, DIR, "line_SSH_1.xml");
+        assertTrue(checkSsh1(acLineSegment, equivalentBranch, seriesCompensator));
+    }
+
+    private static boolean checkEq(Line acLineSegment, Line equivalentBranch, Line seriesCompensator) {
         assertTrue(checkEq(acLineSegment));
         assertTrue(checkDefinedCurrentLimits(acLineSegment,
                 new CurrentLimit(796.0, 900, 1990.0),
                 new CurrentLimit(796.0, 900, 1990.0)));
 
-        Line equivalentBranch = network.getLine("EquivalentBranch");
         assertTrue(checkEq(equivalentBranch));
         assertTrue(checkNotDefinedLimits(equivalentBranch));
 
-        Line seriesCompensator = network.getLine("SeriesCompensator");
         assertTrue(checkEq(seriesCompensator));
         assertTrue(checkNotDefinedLimits(seriesCompensator));
+        return true;
+    }
 
-        readCgmesResources(network, DIR, "line_SSH.xml");
-
+    private static boolean checkSsh(Line acLineSegment, Line equivalentBranch, Line seriesCompensator) {
         assertTrue(checkSsh(acLineSegment));
         assertTrue(checkDefinedCurrentLimits(acLineSegment,
                 new CurrentLimit(797.0, 900, 1991.0),
@@ -95,9 +106,10 @@ class LineUpdateTest {
 
         assertTrue(checkSsh(seriesCompensator));
         assertTrue(checkNotDefinedLimits(seriesCompensator));
+        return true;
+    }
 
-        readCgmesResources(network, DIR, "line_SSH_1.xml");
-
+    private static boolean checkSsh1(Line acLineSegment, Line equivalentBranch, Line seriesCompensator) {
         assertTrue(checkSsh(acLineSegment));
         assertTrue(checkDefinedCurrentLimits(acLineSegment,
                 new CurrentLimit(798.0, 900, 1992.0),
@@ -108,6 +120,7 @@ class LineUpdateTest {
 
         assertTrue(checkSsh(seriesCompensator));
         assertTrue(checkNotDefinedLimits(seriesCompensator));
+        return true;
     }
 
     private static boolean checkEq(Line line) {

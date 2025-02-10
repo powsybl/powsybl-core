@@ -73,39 +73,61 @@ class DanglingLineUpdateTest {
         assertEquals(4, network.getDanglingLineCount());
 
         DanglingLine acLineSegment = network.getDanglingLine("ACLineSegment");
-        assertTrue(checkEq(acLineSegment));
-        assertTrue(checkNotDefinedLimits(acLineSegment));
         DanglingLine equivalentBranch = network.getDanglingLine("EquivalentBranch");
-        assertTrue(checkEq(equivalentBranch));
-        assertTrue(checkNotDefinedLimits(equivalentBranch));
         DanglingLine powerTransformer = network.getDanglingLine("PowerTransformer");
-        assertTrue(checkEq(powerTransformer));
-        assertTrue(checkNotDefinedLimits(powerTransformer));
         DanglingLine breaker = network.getDanglingLine("Breaker");
-        assertTrue(checkEq(breaker));
-        assertTrue(checkDefinedActivePowerLimits(breaker, new ActivePowerLimit(90.0, 900, 108.0)));
+        assertTrue(checkEq(acLineSegment, equivalentBranch, powerTransformer, breaker));
 
         readCgmesResources(network, DIR, "danglingLine_SSH.xml");
-
-        assertTrue(checkSsh(acLineSegment, 284.5, 70.5, false, Double.NaN, Double.NaN, Double.NaN, false));
-        assertTrue(checkNotDefinedLimits(acLineSegment));
-        assertTrue(checkSsh(equivalentBranch, 0.0, 0.0, true, -275.0, -50.0, 405.0, true));
-        assertTrue(checkNotDefinedLimits(equivalentBranch));
-        assertTrue(checkSsh(powerTransformer, 0.0, 0.0, true, -100.0, -25.0, 225.0, true));
-        assertTrue(checkNotDefinedLimits(powerTransformer));
-        assertTrue(checkSsh(breaker, 0.0, 0.0, true, -10.0, -5.0, 402.0, true));
-        assertTrue(checkDefinedActivePowerLimits(breaker, new ActivePowerLimit(89.0, 900, 107.0)));
+        assertTrue(checkSsh(acLineSegment, equivalentBranch, powerTransformer, breaker));
 
         readCgmesResources(network, DIR, "danglingLine_SSH_1.xml");
+        assertTrue(checkSsh1(acLineSegment, equivalentBranch, powerTransformer, breaker));
+    }
 
+    private static boolean checkEq(DanglingLine acLineSegment, DanglingLine equivalentBranch, DanglingLine powerTransformer, DanglingLine breaker) {
+        assertTrue(checkEq(acLineSegment));
+        assertTrue(checkNotDefinedLimits(acLineSegment));
+
+        assertTrue(checkEq(equivalentBranch));
+        assertTrue(checkNotDefinedLimits(equivalentBranch));
+
+        assertTrue(checkEq(powerTransformer));
+        assertTrue(checkNotDefinedLimits(powerTransformer));
+
+        assertTrue(checkEq(breaker));
+        assertTrue(checkDefinedActivePowerLimits(breaker, new ActivePowerLimit(90.0, 900, 108.0)));
+        return true;
+    }
+
+    private static boolean checkSsh(DanglingLine acLineSegment, DanglingLine equivalentBranch, DanglingLine powerTransformer, DanglingLine breaker) {
+        assertTrue(checkSsh(acLineSegment, 284.5, 70.5, false, Double.NaN, Double.NaN, Double.NaN, false));
+        assertTrue(checkNotDefinedLimits(acLineSegment));
+
+        assertTrue(checkSsh(equivalentBranch, 0.0, 0.0, true, -275.0, -50.0, 405.0, true));
+        assertTrue(checkNotDefinedLimits(equivalentBranch));
+
+        assertTrue(checkSsh(powerTransformer, 0.0, 0.0, true, -100.0, -25.0, 225.0, true));
+        assertTrue(checkNotDefinedLimits(powerTransformer));
+
+        assertTrue(checkSsh(breaker, 0.0, 0.0, true, -10.0, -5.0, 402.0, true));
+        assertTrue(checkDefinedActivePowerLimits(breaker, new ActivePowerLimit(89.0, 900, 107.0)));
+        return true;
+    }
+
+    private static boolean checkSsh1(DanglingLine acLineSegment, DanglingLine equivalentBranch, DanglingLine powerTransformer, DanglingLine breaker) {
         assertTrue(checkSsh(acLineSegment, 280.0, 70.0, false, Double.NaN, Double.NaN, Double.NaN, false));
         assertTrue(checkNotDefinedLimits(acLineSegment));
+
         assertTrue(checkSsh(equivalentBranch, 0.0, 0.0, true, -270.0, -55.0, 410.0, false));
         assertTrue(checkNotDefinedLimits(equivalentBranch));
+
         assertTrue(checkSsh(powerTransformer, 0.0, 0.0, true, -105.0, -20.0, 227.0, true));
         assertTrue(checkNotDefinedLimits(powerTransformer));
+
         assertTrue(checkSsh(breaker, 0.0, 0.0, true, -15.0, -3.0, 403.0, true));
         assertTrue(checkDefinedActivePowerLimits(breaker, new ActivePowerLimit(91.0, 900, 109.0)));
+        return true;
     }
 
     private static boolean checkEq(DanglingLine danglingLine) {
