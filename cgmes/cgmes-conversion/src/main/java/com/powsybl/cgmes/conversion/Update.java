@@ -26,6 +26,8 @@ import java.util.*;
 
 public final class Update {
 
+    private static final String UNEXPECTED_ORIGINAL_CLASS = "Unexpected originalClass ";
+
     private Update() {
     }
 
@@ -51,7 +53,7 @@ public final class Update {
                 case CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY, CgmesNames.ENERGY_CONSUMER ->
                         EnergyConsumerConversion.update(load, cgmesData, context);
                 default ->
-                        throw new ConversionException("Unexpected originalClass " + originalClass + " for Load: " + load.getId());
+                        throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for Load: " + load.getId());
             }
         }
     }
@@ -75,7 +77,7 @@ public final class Update {
             case CgmesNames.SYNCHRONOUS_MACHINE -> SynchronousMachineConversion.update(generator, getPropertyBag(generator.getId(), equipmentIdPropertyBag), context);
             case CgmesNames.EQUIVALENT_INJECTION -> EquivalentInjectionConversion.update(generator, getEquivalentInjectionPropertyBag(generator.getId(), context), context);
             case CgmesNames.EXTERNAL_NETWORK_INJECTION -> ExternalNetworkInjectionConversion.update(generator, getPropertyBag(generator.getId(), equipmentIdPropertyBag), context);
-            default -> throw new ConversionException("Unexpected originalClass " + originalClass + " for Generator: " + generator.getId());
+            default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for Generator: " + generator.getId());
         }
     }
 
@@ -146,7 +148,7 @@ public final class Update {
             case CgmesNames.POWER_TRANSFORMER -> TwoWindingsTransformerConversion.update(danglingLine, context);
             case CgmesNames.EQUIVALENT_BRANCH -> EquivalentBranchConversion.update(danglingLine, context);
             case CgmesNames.SWITCH -> SwitchConversion.update(danglingLine, getPropertyBag(danglingLine.getId(), equipmentIdPropertyBag), context);
-            default -> throw new ConversionException("Unexpected originalClass " + originalClass + " for DanglingLine: " + danglingLine.getId());
+            default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for DanglingLine: " + danglingLine.getId());
         }
     }
 

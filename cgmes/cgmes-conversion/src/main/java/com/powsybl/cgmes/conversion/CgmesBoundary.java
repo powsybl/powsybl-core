@@ -101,13 +101,7 @@ public class CgmesBoundary {
         nodesEquivalentInjections.computeIfAbsent(node, ls -> new ArrayList<>(2)).add(equivalentInjection);
     }
 
-    public void addVoltageAtBoundary(String node, double v, double angle) {
-        Voltage voltage = new Voltage();
-        voltage.v = v;
-        voltage.angle = angle;
-    }
-
-    public List<BoundaryEquipment> boundaryEquipmentAtNode(String node) {
+    List<BoundaryEquipment> boundaryEquipmentAtNode(String node) {
         return nodesEquipment.getOrDefault(node, Collections.emptyList());
     }
 
@@ -129,11 +123,6 @@ public class CgmesBoundary {
 
     public Collection<String> xnodesNames() {
         return topologicalNodes.keySet();
-    }
-
-    private static class Voltage {
-        double v;
-        double angle;
     }
 
     private final Set<String> nodes;
