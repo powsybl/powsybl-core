@@ -688,66 +688,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public static void connect(Context context, InjectionAdder<?, ?> adder, String busId, boolean connected, int node) {
-        if (context.nodeBreaker()) {
-            adder.setNode(node);
-        } else {
-            adder
-                    .setBus(connected ? busId : null)
-                    .setConnectableBus(busId);
-        }
-    }
-
-    public void connect(BranchAdder<?, ?> adder,
-        String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
-        String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
-        connect(context, adder, iidmVoltageLevelId1, busId1, t1Connected, node1, iidmVoltageLevelId2, busId2, t2Connected, node2);
-    }
-
-    public static void connect(Context context, BranchAdder<?, ?> adder,
-        String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
-        String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
-        if (context.nodeBreaker()) {
-            adder
-                .setVoltageLevel1(iidmVoltageLevelId1)
-                .setVoltageLevel2(iidmVoltageLevelId2)
-                .setNode1(node1)
-                .setNode2(node2);
-        } else {
-            adder
-                .setVoltageLevel1(iidmVoltageLevelId1)
-                .setVoltageLevel2(iidmVoltageLevelId2)
-                .setBus1(t1Connected ? busId1 : null)
-                .setBus2(t2Connected ? busId2 : null)
-                .setConnectableBus1(busId1)
-                .setConnectableBus2(busId2);
-        }
-    }
-
-    public void connect(BranchAdder<?, ?> adder, boolean t1Connected, boolean t2Connected) {
-        connect(adder, t1Connected, t2Connected, true);
-    }
-
-    public void connect(BranchAdder<?, ?> adder, boolean t1Connected, boolean t2Connected, boolean branchIsClosed) {
-        if (context.nodeBreaker()) {
-            adder
-                .setVoltageLevel1(iidmVoltageLevelId(1))
-                .setVoltageLevel2(iidmVoltageLevelId(2))
-                .setNode1(iidmNode(1, branchIsClosed))
-                .setNode2(iidmNode(2, branchIsClosed));
-        } else {
-            String busId1 = busId(1);
-            String busId2 = busId(2);
-            adder
-                .setVoltageLevel1(iidmVoltageLevelId(1))
-                .setVoltageLevel2(iidmVoltageLevelId(2))
-                .setBus1(t1Connected && branchIsClosed ? busId1 : null)
-                .setBus2(t2Connected && branchIsClosed ? busId2 : null)
-                .setConnectableBus1(busId1)
-                .setConnectableBus2(busId2);
-        }
-    }
-
     public void connect(VoltageLevel.NodeBreakerView.SwitchAdder adder, boolean open) {
         if (!context.nodeBreaker()) {
             throw new ConversionException("Not in node breaker context");
@@ -851,10 +791,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     protected static double findTargetQ(PropertyBag regulatingControl, int terminalSign, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
         return findTargetValue(regulatingControl, terminalSign, defaultValue, use, context);
-    }
-
-    protected static double findTargetQ(PropertyBag regulatingControl, String propertyTag, int terminalSign, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
-        return findTargetValue(regulatingControl, propertyTag, terminalSign, defaultValue, use, context);
     }
 
     protected static double findTargetValue(PropertyBag regulatingControl, int terminalSign, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
