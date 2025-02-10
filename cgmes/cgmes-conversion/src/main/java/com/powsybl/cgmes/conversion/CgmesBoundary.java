@@ -31,7 +31,6 @@ public class CgmesBoundary {
         PropertyBags bns = cgmes.boundaryNodes();
         nodesName = new HashMap<>();
         topologicalNodes = new HashMap<>();
-        connectivityNodes = new HashMap<>();
         lineAtNodes = new HashMap<>();
         hvdcNodes = new HashSet<>();
         if (bns != null) {
@@ -52,7 +51,6 @@ public class CgmesBoundary {
                 String tnName = node.get("topologicalNodeName");
                 nodesName.put(tn, tnName);
                 topologicalNodes.put(tnName, tn);
-                connectivityNodes.put(tnName, cn);
                 if (node.containsKey("description") && node.getId("description").startsWith("HVDC")) {
                     hvdcNodes.add(cn);
                     hvdcNodes.add(tn);
@@ -137,7 +135,7 @@ public class CgmesBoundary {
         return nodesVoltage.containsKey(node) ? nodesVoltage.get(node).angle : Double.NaN;
     }
 
-    public List<BoundaryEquipment> boundaryEquipmentAtNode(String node) {
+    List<BoundaryEquipment> boundaryEquipmentAtNode(String node) {
         return nodesEquipment.getOrDefault(node, Collections.emptyList());
     }
 
@@ -161,14 +159,6 @@ public class CgmesBoundary {
         return topologicalNodes.keySet();
     }
 
-    public String topologicalNodeAtBoundary(String xnodeName) {
-        return topologicalNodes.get(xnodeName);
-    }
-
-    public String connectivityNodeAtBoundary(String xnodeName) {
-        return connectivityNodes.get(xnodeName);
-    }
-
     private static class Voltage {
         double v;
         double angle;
@@ -181,7 +171,6 @@ public class CgmesBoundary {
     private final Map<String, Voltage> nodesVoltage;
     private final Map<String, String> nodesName;
     private final Map<String, String> topologicalNodes;
-    private final Map<String, String> connectivityNodes;
     private final Map<String, String> lineAtNodes;
     private final Set<String> hvdcNodes;
 

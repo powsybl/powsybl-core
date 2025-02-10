@@ -215,4 +215,143 @@
         <cim:RegulatingControl.Terminal rdf:resource="#_T3W-Terminal2"/>
     </cim:TapChangerControl>
 
+    <cim:OperationalLimitSet rdf:ID="_T2W-Terminal1-OperationalLimitSet">
+        <cim:IdentifiedObject.name>T2W-Terminal1-OperationalLimitSet</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_T2W-Terminal1"/>
+    </cim:OperationalLimitSet>
+    <cim:ApparentPowerLimit rdf:ID="_T2W-Terminal1-OperationalLimitSet-ApparentPowerLimit1">
+        <cim:IdentifiedObject.name>T2W-Terminal1-OperationalLimitSet-ApparentPowerLimit1</cim:IdentifiedObject.name>
+        <cim:ApparentPowerLimit.normalValue>990</cim:ApparentPowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_T2W-Terminal1-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_T2W-Terminal1-OperationalLimitSet-ApparentPowerLimit1-Patl"/>
+    </cim:ApparentPowerLimit>
+    <cim:OperationalLimitType rdf:ID="_T2W-Terminal1-OperationalLimitSet-ApparentPowerLimit1-Patl">
+        <cim:IdentifiedObject.name>T2W-Terminal1-OperationalLimitSet-ApparentPowerLimit1-Patl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.patl" />
+    </cim:OperationalLimitType>
+    <cim:ApparentPowerLimit rdf:ID="_T2W-Terminal1-OperationalLimitSet-ApparentPowerLimit2">
+        <cim:IdentifiedObject.name>T2W-Terminal1-OperationalLimitSet-ApparentPowerLimit2</cim:IdentifiedObject.name>
+        <cim:ApparentPowerLimit.normalValue>1000</cim:ApparentPowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_T2W-Terminal1-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_T2W-Terminal1-OperationalLimitSet-ApparentPowerLimit2-Tatl"/>
+    </cim:ApparentPowerLimit>
+    <cim:OperationalLimitType rdf:ID="_T2W-Terminal1-OperationalLimitSet-ApparentPowerLimit2-Tatl">
+        <cim:IdentifiedObject.name>T2W-Terminal1-OperationalLimitSet-ApparentPowerLimit2-Tatl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.acceptableDuration>900</cim:OperationalLimitType.acceptableDuration>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.tatl" />
+    </cim:OperationalLimitType>
+
+    <cim:OperationalLimitSet rdf:ID="_T2W-Terminal2-OperationalLimitSet">
+        <cim:IdentifiedObject.name>T2W-Terminal2-OperationalLimitSet</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_T2W-Terminal2"/>
+    </cim:OperationalLimitSet>
+    <cim:ApparentPowerLimit rdf:ID="_T2W-Terminal2-OperationalLimitSet-ApparentPowerLimit1">
+        <cim:IdentifiedObject.name>T2W-Terminal2-OperationalLimitSet-ApparentPowerLimit1</cim:IdentifiedObject.name>
+        <cim:ApparentPowerLimit.normalValue>991</cim:ApparentPowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_T2W-Terminal2-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_T2W-Terminal2-OperationalLimitSet-ApparentPowerLimit1-Patl"/>
+    </cim:ApparentPowerLimit>
+    <cim:OperationalLimitType rdf:ID="_T2W-Terminal2-OperationalLimitSet-ApparentPowerLimit1-Patl">
+        <cim:IdentifiedObject.name>T2W-Terminal2-OperationalLimitSet-ApparentPowerLimit1-Patl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.patl" />
+    </cim:OperationalLimitType>
+    <cim:ApparentPowerLimit rdf:ID="_T2W-Terminal2-OperationalLimitSet-ApparentPowerLimit2">
+        <cim:IdentifiedObject.name>T2W-Terminal2-OperationalLimitSet-ApparentPowerLimit2</cim:IdentifiedObject.name>
+        <cim:ApparentPowerLimit.normalValue>1001</cim:ApparentPowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_T2W-Terminal2-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_T2W-Terminal2-OperationalLimitSet-ApparentPowerLimit2-Tatl"/>
+    </cim:ApparentPowerLimit>
+    <cim:OperationalLimitType rdf:ID="_T2W-Terminal2-OperationalLimitSet-ApparentPowerLimit2-Tatl">
+        <cim:IdentifiedObject.name>T2W-Terminal2-OperationalLimitSet-ApparentPowerLimit2-Tatl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.acceptableDuration>900</cim:OperationalLimitType.acceptableDuration>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.tatl" />
+    </cim:OperationalLimitType>
+
+    <cim:OperationalLimitSet rdf:ID="_T3W-Terminal1-OperationalLimitSet">
+        <cim:IdentifiedObject.name>T3W-Terminal1-OperationalLimitSet</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_T3W-Terminal1"/>
+    </cim:OperationalLimitSet>
+    <cim:ApparentPowerLimit rdf:ID="_T3W-Terminal1-OperationalLimitSet-ApparentPowerLimit1">
+        <cim:IdentifiedObject.name>T3W-Terminal1-OperationalLimitSet-ApparentPowerLimit1</cim:IdentifiedObject.name>
+        <cim:ApparentPowerLimit.normalValue>100</cim:ApparentPowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_T3W-Terminal1-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_T3W-Terminal1-OperationalLimitSet-ApparentPowerLimit1-Patl"/>
+    </cim:ApparentPowerLimit>
+    <cim:OperationalLimitType rdf:ID="_T3W-Terminal1-OperationalLimitSet-ApparentPowerLimit1-Patl">
+        <cim:IdentifiedObject.name>T3W-Terminal1-OperationalLimitSet-ApparentPowerLimit1-Patl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.patl" />
+    </cim:OperationalLimitType>
+    <cim:ApparentPowerLimit rdf:ID="_T3W-Terminal1-OperationalLimitSet-ApparentPowerLimit2">
+        <cim:IdentifiedObject.name>T3W-Terminal1-OperationalLimitSet-ApparentPowerLimit2</cim:IdentifiedObject.name>
+        <cim:ApparentPowerLimit.normalValue>110</cim:ApparentPowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_T3W-Terminal1-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_T3W-Terminal1-OperationalLimitSet-ApparentPowerLimit2-Tatl"/>
+    </cim:ApparentPowerLimit>
+    <cim:OperationalLimitType rdf:ID="_T3W-Terminal1-OperationalLimitSet-ApparentPowerLimit2-Tatl">
+        <cim:IdentifiedObject.name>T3W-Terminal1-OperationalLimitSet-ApparentPowerLimit2-Tatl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.acceptableDuration>900</cim:OperationalLimitType.acceptableDuration>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.tatl" />
+    </cim:OperationalLimitType>
+
+    <cim:OperationalLimitSet rdf:ID="_T3W-Terminal2-OperationalLimitSet">
+        <cim:IdentifiedObject.name>T3W-Terminal2-OperationalLimitSet</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_T3W-Terminal2"/>
+    </cim:OperationalLimitSet>
+    <cim:ApparentPowerLimit rdf:ID="_T3W-Terminal2-OperationalLimitSet-ApparentPowerLimit1">
+        <cim:IdentifiedObject.name>T3W-Terminal2-OperationalLimitSet-ApparentPowerLimit1</cim:IdentifiedObject.name>
+        <cim:ApparentPowerLimit.normalValue>75</cim:ApparentPowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_T3W-Terminal2-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_T3W-Terminal2-OperationalLimitSet-ApparentPowerLimit1-Patl"/>
+    </cim:ApparentPowerLimit>
+    <cim:OperationalLimitType rdf:ID="_T3W-Terminal2-OperationalLimitSet-ApparentPowerLimit1-Patl">
+        <cim:IdentifiedObject.name>T3W-Terminal2-OperationalLimitSet-ApparentPowerLimit1-Patl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.patl" />
+    </cim:OperationalLimitType>
+    <cim:ApparentPowerLimit rdf:ID="_T3W-Terminal2-OperationalLimitSet-ApparentPowerLimit2">
+        <cim:IdentifiedObject.name>T3W-Terminal2-OperationalLimitSet-ApparentPowerLimit2</cim:IdentifiedObject.name>
+        <cim:ApparentPowerLimit.normalValue>80</cim:ApparentPowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_T3W-Terminal2-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_T3W-Terminal2-OperationalLimitSet-ApparentPowerLimit2-Tatl"/>
+    </cim:ApparentPowerLimit>
+    <cim:OperationalLimitType rdf:ID="_T3W-Terminal2-OperationalLimitSet-ApparentPowerLimit2-Tatl">
+        <cim:IdentifiedObject.name>T3W-Terminal2-OperationalLimitSet-ApparentPowerLimit2-Tatl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.acceptableDuration>900</cim:OperationalLimitType.acceptableDuration>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.tatl" />
+    </cim:OperationalLimitType>
+
+    <cim:OperationalLimitSet rdf:ID="_T3W-Terminal3-OperationalLimitSet">
+        <cim:IdentifiedObject.name>T3W-Terminal3-OperationalLimitSet</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_T3W-Terminal3"/>
+    </cim:OperationalLimitSet>
+    <cim:ApparentPowerLimit rdf:ID="_T3W-Terminal3-OperationalLimitSet-ApparentPowerLimit1">
+        <cim:IdentifiedObject.name>T3W-Terminal3-OperationalLimitSet-ApparentPowerLimit1</cim:IdentifiedObject.name>
+        <cim:ApparentPowerLimit.normalValue>25</cim:ApparentPowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_T3W-Terminal3-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_T3W-Terminal3-OperationalLimitSet-ApparentPowerLimit1-Patl"/>
+    </cim:ApparentPowerLimit>
+    <cim:OperationalLimitType rdf:ID="_T3W-Terminal3-OperationalLimitSet-ApparentPowerLimit1-Patl">
+        <cim:IdentifiedObject.name>T3W-Terminal3-OperationalLimitSet-ApparentPowerLimit1-Patl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.patl" />
+    </cim:OperationalLimitType>
+    <cim:ApparentPowerLimit rdf:ID="_T3W-Terminal3-OperationalLimitSet-ApparentPowerLimit2">
+        <cim:IdentifiedObject.name>T3W-Terminal3-OperationalLimitSet-ApparentPowerLimit2</cim:IdentifiedObject.name>
+        <cim:ApparentPowerLimit.normalValue>30</cim:ApparentPowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_T3W-Terminal3-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_T3W-Terminal3-OperationalLimitSet-ApparentPowerLimit2-Tatl"/>
+    </cim:ApparentPowerLimit>
+    <cim:OperationalLimitType rdf:ID="_T3W-Terminal3-OperationalLimitSet-ApparentPowerLimit2-Tatl">
+        <cim:IdentifiedObject.name>T3W-Terminal3-OperationalLimitSet-ApparentPowerLimit2-Tatl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.acceptableDuration>900</cim:OperationalLimitType.acceptableDuration>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.tatl" />
+    </cim:OperationalLimitType>
 </rdf:RDF>
