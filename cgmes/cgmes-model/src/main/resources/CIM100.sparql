@@ -130,6 +130,7 @@ WHERE {
         cim:IdentifiedObject.name ?operationalLimitTypeName .
     OPTIONAL { ?OperationalLimit cim:CurrentLimit.normalValue ?normalValue }
     OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.normalValue ?normalValue }
+    OPTIONAL { ?OperationalLimit cim:ActivePowerLimit.normalValue ?normalValue }
     OPTIONAL { ?OperationalLimit cim:VoltageLimit.normalValue ?normalValue }
     OPTIONAL { ?OperationalLimitSet cim:IdentifiedObject.name ?OperationalLimitSetName }
     # operational limit sets can be attached to terminals or equipments

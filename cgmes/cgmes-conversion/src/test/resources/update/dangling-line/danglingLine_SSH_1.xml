@@ -76,4 +76,11 @@
         <cim:EquivalentInjection.regulationStatus>true</cim:EquivalentInjection.regulationStatus>
         <cim:EquivalentInjection.regulationTarget>403.0</cim:EquivalentInjection.regulationTarget>
     </cim:EquivalentInjection>
+
+    <cim:ActivePowerLimit rdf:about="#_Breaker-T2-OperationalLimitSet-ActivePowerLimit1">
+        <cim:ActivePowerLimit.value>91</cim:ActivePowerLimit.value>
+    </cim:ActivePowerLimit>
+    <cim:ActivePowerLimit rdf:about="#_Breaker-T2-OperationalLimitSet-ActivePowerLimit2">
+        <cim:ActivePowerLimit.value>109</cim:ActivePowerLimit.value>
+    </cim:ActivePowerLimit>
 </rdf:RDF>
