@@ -67,7 +67,7 @@
 </cim:Terminal>
 <cim:OperationalLimitSet rdf:ID="_OLS_ACL_1">
     <cim:IdentifiedObject.name>Limit set</cim:IdentifiedObject.name>
-    <cim:OperationalLimitSet.Terminal rdf:resource="#_T_ACL_1"/>
+    <cim:OperationalLimitSet.Equipment rdf:resource="#_ACL"/>
 </cim:OperationalLimitSet>
 <cim:CurrentLimit rdf:ID="_I_PATL_1">
     <cim:IdentifiedObject.name>Current limit</cim:IdentifiedObject.name>
