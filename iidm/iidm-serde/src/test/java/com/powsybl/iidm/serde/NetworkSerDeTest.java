@@ -29,7 +29,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
@@ -59,7 +58,6 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     @EnumSource(value = TreeDataFormat.class, names = {"XML", "JSON"})
     void testSkippedExtension(TreeDataFormat format) throws IOException {
         Network network = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"));
-        Path tmpDir = Paths.get("/tmp");
         Path file = tmpDir.resolve("data");
         NetworkSerDe.write(network, new ExportOptions().setFormat(format), file);
 
