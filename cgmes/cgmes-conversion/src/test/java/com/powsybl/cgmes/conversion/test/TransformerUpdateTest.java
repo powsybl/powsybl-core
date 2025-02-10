@@ -71,18 +71,31 @@ class TransformerUpdateTest {
         assertEquals(1, network.getThreeWindingsTransformerCount());
 
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
+        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
+        assertTrue(checkEq(t2w, t3w));
+
+        readCgmesResources(network, DIR, "transformer_SSH.xml");
+        assertTrue(checkSsh(t2w, t3w));
+
+        readCgmesResources(network, DIR, "transformer_SSH_1.xml");
+        assertTrue(checkSsh1(t2w, t3w));
+    }
+
+    private static boolean checkEq(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w) {
         assertTrue(checkEq(t2w));
         assertTrue(checkDefinedApparentPowerLimits(t2w,
                 new ApparentPowerLimit(990.0, 900, 1000.0),
                 new ApparentPowerLimit(991.0, 900, 1001.0)));
-        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
+
         assertTrue(checkEq(t3w));
         assertTrue(checkDefinedApparentPowerLimits(t3w,
                 new ApparentPowerLimit(100.0, 900, 110.0),
                 new ApparentPowerLimit(75.0, 900, 80.0),
                 new ApparentPowerLimit(25.0, 900, 30.0)));
+        return true;
+    }
 
-        readCgmesResources(network, DIR, "transformer_SSH.xml");
+    private static boolean checkSsh(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w) {
         assertTrue(checkSsh(t2w, -2, 100.0, 0.2, true));
         assertTrue(checkDefinedApparentPowerLimits(t2w,
                 new ApparentPowerLimit(995.0, 900, 1005.0),
@@ -92,8 +105,10 @@ class TransformerUpdateTest {
                 new ApparentPowerLimit(102.0, 900, 112.0),
                 new ApparentPowerLimit(76.0, 900, 81.0),
                 new ApparentPowerLimit(26.0, 900, 31.0)));
+        return true;
+    }
 
-        readCgmesResources(network, DIR, "transformer_SSH_1.xml");
+    private static boolean checkSsh1(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w) {
         assertTrue(checkSsh(t2w, -1, 110.0, 0.3, false));
         assertTrue(checkDefinedApparentPowerLimits(t2w,
                 new ApparentPowerLimit(996.0, 900, 1006.0),
@@ -103,6 +118,7 @@ class TransformerUpdateTest {
                 new ApparentPowerLimit(104.0, 900, 114.0),
                 new ApparentPowerLimit(77.0, 900, 82.0),
                 new ApparentPowerLimit(27.0, 900, 32.0)));
+        return true;
     }
 
     private static boolean checkEq(TwoWindingsTransformer t2w) {
