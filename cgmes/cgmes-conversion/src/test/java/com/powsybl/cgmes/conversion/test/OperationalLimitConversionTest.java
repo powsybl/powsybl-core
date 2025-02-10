@@ -77,7 +77,7 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         //   - On side 2, 2 (not selected) OperationalLimitsGroup.
         // CGMES export:
         //   When the parameter to export all limits group is set to false, only the selected groups are exported.
-        //   When it is set to true, all limits group are exported, whether selected or not.
+        //   When it is set to true (default value), all limits group are exported, whether selected or not.
         Network network = readCgmesResources(DIR, "multiple_limitsets_on_same_terminal.xml");
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, false);
@@ -97,9 +97,8 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertEquals(0, getUniqueMatches(eqFile, ACTIVE_POWER_LIMIT).size());
         assertEquals(6, getUniqueMatches(eqFile, CURRENT_LIMIT).size());
 
-        // Export all 3 limits groups, regardless of selected.
-        exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, true);
-        eqFile = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
+        // Export all 3 limits groups, regardless of selected (default value of the parameter).
+        eqFile = writeCgmesProfile(network, "EQ", tmpDir);
         assertEquals(3, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_SET).size());
         assertEquals(3, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_TYPE).size());
         assertEquals(3, getUniqueMatches(eqFile, ACTIVE_POWER_LIMIT).size());
