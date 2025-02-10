@@ -51,4 +51,36 @@
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
 
+    <cim:ApparentPowerLimit rdf:about="#_T2W-Terminal1-OperationalLimitSet-ApparentPowerLimit1">
+        <cim:ApparentPowerLimit.value>995</cim:ApparentPowerLimit.value>
+    </cim:ApparentPowerLimit>
+    <cim:ApparentPowerLimit rdf:about="#_T2W-Terminal1-OperationalLimitSet-ApparentPowerLimit2">
+        <cim:ApparentPowerLimit.value>1005</cim:ApparentPowerLimit.value>
+    </cim:ApparentPowerLimit>
+    <cim:ApparentPowerLimit rdf:about="#_T2W-Terminal2-OperationalLimitSet-ApparentPowerLimit1">
+        <cim:ApparentPowerLimit.value>996</cim:ApparentPowerLimit.value>
+    </cim:ApparentPowerLimit>
+    <cim:ApparentPowerLimit rdf:about="#_T2W-Terminal2-OperationalLimitSet-ApparentPowerLimit2">
+        <cim:ApparentPowerLimit.value>1006</cim:ApparentPowerLimit.value>
+    </cim:ApparentPowerLimit>
+
+    <cim:ApparentPowerLimit rdf:about="#_T3W-Terminal1-OperationalLimitSet-ApparentPowerLimit1">
+        <cim:ApparentPowerLimit.value>102</cim:ApparentPowerLimit.value>
+    </cim:ApparentPowerLimit>
+    <cim:ApparentPowerLimit rdf:about="#_T3W-Terminal1-OperationalLimitSet-ApparentPowerLimit2">
+        <cim:ApparentPowerLimit.value>112</cim:ApparentPowerLimit.value>
+    </cim:ApparentPowerLimit>
+    <cim:ApparentPowerLimit rdf:about="#_T3W-Terminal2-OperationalLimitSet-ApparentPowerLimit1">
+        <cim:ApparentPowerLimit.value>76</cim:ApparentPowerLimit.value>
+    </cim:ApparentPowerLimit>
+    <cim:ApparentPowerLimit rdf:about="#_T3W-Terminal2-OperationalLimitSet-ApparentPowerLimit2">
+        <cim:ApparentPowerLimit.value>81</cim:ApparentPowerLimit.value>
+    </cim:ApparentPowerLimit>
+    <cim:ApparentPowerLimit rdf:about="#_T3W-Terminal3-OperationalLimitSet-ApparentPowerLimit1">
+        <cim:ApparentPowerLimit.value>26</cim:ApparentPowerLimit.value>
+    </cim:ApparentPowerLimit>
+    <cim:ApparentPowerLimit rdf:about="#_T3W-Terminal3-OperationalLimitSet-ApparentPowerLimit2">
+        <cim:ApparentPowerLimit.value>31</cim:ApparentPowerLimit.value>
+    </cim:ApparentPowerLimit>
+
 </rdf:RDF>

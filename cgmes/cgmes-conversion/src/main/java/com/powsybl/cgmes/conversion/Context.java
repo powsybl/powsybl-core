@@ -209,26 +209,13 @@ public class Context {
         buildUpdateCache(operationalLimits, cgmes.operationalLimits(), CgmesNames.OPERATIONAL_LIMIT);
         buildUpdateCache(generatingUnits, cgmes.generatingUnits(), CgmesNames.GENERATING_UNIT);
         buildUpdateCache(equivalentInjections, cgmes.equivalentInjections(), CgmesNames.EQUIVALENT_INJECTION);
-        buildUpdateSvVoltagesCache(svVoltages, cgmes.svVoltages());
+        buildUpdateCache(svVoltages, cgmes.svVoltages(), CgmesNames.TOPOLOGICAL_NODE);
     }
 
     private static void buildUpdateCache(Map<String, PropertyBag> cache, PropertyBags cgmesPropertyBags, String tagId) {
         cgmesPropertyBags.forEach(p -> {
             String id = p.getId(tagId);
             cache.put(id, p);
-        });
-    }
-
-    private static void buildUpdateSvVoltagesCache(Map<String, PropertyBag> cache, PropertyBags cgmesPropertyBags) {
-        cgmesPropertyBags.forEach(p -> {
-            String topologicalNodeId = p.getId("TopologicalNode");
-            if (topologicalNodeId != null) {
-                cache.put(topologicalNodeId, p);
-            }
-            String connectivityNodeId = p.getId("ConnectivityNode");
-            if (connectivityNodeId != null) {
-                cache.put(connectivityNodeId, p);
-            }
         });
     }
 

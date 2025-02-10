@@ -35,6 +35,9 @@ SELECT *
             cim:SvPowerFlow.p ?p ;
             cim:SvPowerFlow.q ?q .
     }
+    OPTIONAL {
+        ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
+    }
 }
 
 # query: topologicalIslands
@@ -58,16 +61,13 @@ SELECT *
 }
 
 # query: svVoltages
-SELECT ?SvVoltage ?TopologicalNode ?v ?angle (MIN(?ConnectivityNode) AS ?ConnectivityNode) WHERE {
+SELECT *
+WHERE {
     ?SvVoltage a cim:SvVoltage ;
         cim:SvVoltage.TopologicalNode ?TopologicalNode ;
         cim:SvVoltage.v ?v ;
         cim:SvVoltage.angle ?angle .
-    OPTIONAL {
-        ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
-    }
 }
-GROUP BY ?SvVoltage ?TopologicalNode ?v ?angle
 
 # query: switches
 SELECT *

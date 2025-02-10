@@ -161,7 +161,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
 
     public static void update(DanglingLine danglingLine, Context context) {
         updateTerminals(danglingLine, context, danglingLine.getTerminal());
-        updateTargetsAndRegulation(danglingLine, isBoundaryTerminalConnected(danglingLine, context), context);
+        updateTargetsAndRegulationAndOperationalLimits(danglingLine, isBoundaryTerminalConnected(danglingLine, context), context);
         computeFlowsOnModelSide(danglingLine, context);
     }
 

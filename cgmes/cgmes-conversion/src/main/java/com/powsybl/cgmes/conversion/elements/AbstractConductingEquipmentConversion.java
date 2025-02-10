@@ -121,10 +121,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     @Override
     public void convertInsideBoundary() {
-        if (context.config().convertBoundary()) {
-            if (valid()) {
-                convert();
-            }
+        if (context.config().convertBoundary() && valid()) {
+            convert();
         }
     }
 
@@ -250,8 +248,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     // _5150a037-e241-421f-98b2-fe60e5c90303 XQ1-N1
     // ends in a boundary node where there is no other line,
     // does not have energy consumer or equivalent injection
-    protected static void updateTargetsAndRegulation(DanglingLine danglingLine, boolean isConnectedOnBoundarySide, Context context) {
+    protected static void updateTargetsAndRegulationAndOperationalLimits(DanglingLine danglingLine, boolean isConnectedOnBoundarySide, Context context) {
         EquivalentInjectionConversion.update(danglingLine, isConnectedOnBoundarySide, context);
+        danglingLine.getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(danglingLine, operationalLimitsGroup, context));
     }
 
     public static boolean isBoundaryTerminalConnected(DanglingLine danglingLine, Context context) {
@@ -372,18 +371,26 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     private static Optional<PropertyBag> getCgmesSvVoltageOnBoundarySide(DanglingLine danglingLine, Context context) {
-        String topologicalNodeIdOnBoundarySide = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        String topologicalNodeIdOnBoundarySide = getTopologicalNodeIdOnBoundarySide(danglingLine, context);
         if (topologicalNodeIdOnBoundarySide != null) {
-            PropertyBag svVoltage = context.svVoltage(topologicalNodeIdOnBoundarySide);
-            if (svVoltage != null) {
-                return Optional.of(svVoltage);
-            }
-        }
-        String connectivityNodeIdOnBoundarySide = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
-        if (connectivityNodeIdOnBoundarySide != null) {
-            return Optional.ofNullable(context.svVoltage(connectivityNodeIdOnBoundarySide));
+            return Optional.ofNullable(context.svVoltage(topologicalNodeIdOnBoundarySide));
         }
         return Optional.empty();
+    }
+
+    private static String getTopologicalNodeIdOnBoundarySide(DanglingLine danglingLine, Context context) {
+        String topologicalNodeIdOnBoundarySide = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        if (topologicalNodeIdOnBoundarySide != null) {
+            return topologicalNodeIdOnBoundarySide;
+        }
+        String terminalIdOnBoundarySide = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
+        if (terminalIdOnBoundarySide != null) {
+            PropertyBag cgmesTerminal = context.cgmesTerminal(terminalIdOnBoundarySide);
+            if (cgmesTerminal != null) {
+                return cgmesTerminal.getId(CgmesNames.TOPOLOGICAL_NODE);
+            }
+        }
+        return null;
     }
 
     private static Optional<EquivalentInjectionConversion> getEquivalentInjectionConversionForDanglingLine(Context context, String boundaryNode, String eqInstance) {

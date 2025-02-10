@@ -222,13 +222,13 @@
         <cim:IdentifiedObject.name>_Breaker-T1</cim:IdentifiedObject.name>
         <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
         <cim:Terminal.ConductingEquipment rdf:resource="#_Breaker"/>
-        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode4"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode4-BD"/>
     </cim:Terminal>
     <cim:Terminal rdf:ID="_Breaker-T2">
         <cim:IdentifiedObject.name>_Breaker-T2</cim:IdentifiedObject.name>
         <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
         <cim:Terminal.ConductingEquipment rdf:resource="#_Breaker"/>
-        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode4-BD"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode4"/>
     </cim:Terminal>
     <cim:EquivalentInjection rdf:ID="_Breaker-EquivalentInjection">
         <cim:IdentifiedObject.name>Breaker-EquivalentInjection</cim:IdentifiedObject.name>
@@ -247,4 +247,31 @@
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode4-BD"/>
     </cim:Terminal>
 
+    <cim:OperationalLimitSet rdf:ID="_Breaker-T2-OperationalLimitSet">
+        <cim:IdentifiedObject.name>Breaker-T2-OperationalLimitSet</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_Breaker-T2"/>
+    </cim:OperationalLimitSet>
+    <cim:ActivePowerLimit rdf:ID="_Breaker-T2-OperationalLimitSet-ActivePowerLimit1">
+        <cim:IdentifiedObject.name>Breaker-T2-OperationalLimitSet-ActivePowerLimit1</cim:IdentifiedObject.name>
+        <cim:ActivePowerLimit.normalValue>90</cim:ActivePowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_Breaker-T2-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Breaker-T2-OperationalLimitSet-ActivePowerLimit1-Patl"/>
+    </cim:ActivePowerLimit>
+    <cim:OperationalLimitType rdf:ID="_Breaker-T2-OperationalLimitSet-ActivePowerLimit1-Patl">
+        <cim:IdentifiedObject.name>Breaker-T2-OperationalLimitSet-ActivePowerLimit1-Patl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.patl" />
+    </cim:OperationalLimitType>
+    <cim:ActivePowerLimit rdf:ID="_Breaker-T2-OperationalLimitSet-ActivePowerLimit2">
+        <cim:IdentifiedObject.name>Breaker-T2-OperationalLimitSet-ActivePowerLimit2</cim:IdentifiedObject.name>
+        <cim:ActivePowerLimit.normalValue>108</cim:ActivePowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_Breaker-T2-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Breaker-T2-OperationalLimitSet-ActivePowerLimit2-Tatl"/>
+    </cim:ActivePowerLimit>
+    <cim:OperationalLimitType rdf:ID="_Breaker-T2-OperationalLimitSet-ActivePowerLimit2-Tatl">
+        <cim:IdentifiedObject.name>Breaker-T2-OperationalLimitSet-ActivePowerLimit2-Tatl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.acceptableDuration>900</cim:OperationalLimitType.acceptableDuration>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.tatl" />
+    </cim:OperationalLimitType>
 </rdf:RDF>

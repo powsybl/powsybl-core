@@ -104,7 +104,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
 
     public static void update(DanglingLine danglingLine, Context context) {
         updateTerminals(danglingLine, context, danglingLine.getTerminal());
-        updateTargetsAndRegulation(danglingLine, isBoundaryTerminalConnected(danglingLine, context), context);
+        updateTargetsAndRegulationAndOperationalLimits(danglingLine, isBoundaryTerminalConnected(danglingLine, context), context);
         computeFlowsOnModelSide(danglingLine, context);
     }
 }
