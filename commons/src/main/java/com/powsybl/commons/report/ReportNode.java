@@ -95,6 +95,7 @@ public interface ReportNode {
     /**
      * Get the message of current node, replacing <code>${key}</code> references in the message template with the
      * corresponding values, either contained in current node or in one of its parents.
+     * @param formatter the formatter to use to transform any value into a string
      * @return the message
      */
     String getMessage(Formatter formatter);
@@ -147,11 +148,20 @@ public interface ReportNode {
 
     /**
      * Print to given path the current report node and its descendants
-     * @param path the writer to write to
+     * @param path the path to write to
      */
     default void print(Path path) throws IOException {
+        print(path, Formatter.DEFAULT);
+    }
+
+    /**
+     * Print to given path the current report node and its descendants
+     * @param path the path to write to
+     * @param formatter the formatter to use to print values
+     */
+    default void print(Path path, Formatter formatter) throws IOException {
         try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-            print(writer);
+            print(writer, formatter);
         }
     }
 
@@ -166,6 +176,7 @@ public interface ReportNode {
     /**
      * Print to given writer the current report node and its descendants
      * @param writer the writer to write to
+     * @param formatter the formatter to use to print values
      */
     void print(Writer writer, Formatter formatter) throws IOException;
 }
