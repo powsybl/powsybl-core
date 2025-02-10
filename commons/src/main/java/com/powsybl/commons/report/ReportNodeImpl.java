@@ -109,13 +109,13 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public String getMessage(Formatter formatter) {
+    public String getMessage(ReportFormatter formatter) {
         return Optional.ofNullable(getTreeContext().getDictionary().get(messageKey))
                 .map(messageTemplate -> new StringSubstitutor(vk -> getValueAsString(vk, formatter).orElse(null)).replace(messageTemplate))
                 .orElse("(missing message key in dictionary)");
     }
 
-    public Optional<String> getValueAsString(String valueKey, Formatter formatter) {
+    public Optional<String> getValueAsString(String valueKey, ReportFormatter formatter) {
         return getValue(valueKey).map(formatter::format);
     }
 
@@ -183,11 +183,11 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public void print(Writer writer, Formatter formatter) throws IOException {
+    public void print(Writer writer, ReportFormatter formatter) throws IOException {
         print(writer, "", formatter);
     }
 
-    private void print(Writer writer, String indentationStart, Formatter formatter) throws IOException {
+    private void print(Writer writer, String indentationStart, ReportFormatter formatter) throws IOException {
         if (children.isEmpty()) {
             print(writer, indentationStart, "", formatter);
         } else {
@@ -199,7 +199,7 @@ public final class ReportNodeImpl implements ReportNode {
         }
     }
 
-    private void print(Writer writer, String indent, String prefix, Formatter formatter) throws IOException {
+    private void print(Writer writer, String indent, String prefix, ReportFormatter formatter) throws IOException {
         writer.append(indent).append(prefix).append(getMessage(formatter)).append(System.lineSeparator());
     }
 

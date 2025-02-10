@@ -11,8 +11,8 @@ package com.powsybl.commons.report;
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 @FunctionalInterface
-public interface Formatter {
-    Formatter DEFAULT = t -> t.getValue().toString();
+public interface ReportFormatter {
+    ReportFormatter DEFAULT = t -> t.getValue().toString();
 
     String format(TypedValue value);
 }

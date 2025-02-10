@@ -89,7 +89,7 @@ public interface ReportNode {
      * @return the message
      */
     default String getMessage() {
-        return getMessage(Formatter.DEFAULT);
+        return getMessage(ReportFormatter.DEFAULT);
     }
 
     /**
@@ -98,7 +98,7 @@ public interface ReportNode {
      * @param formatter the formatter to use to transform any value into a string
      * @return the message
      */
-    String getMessage(Formatter formatter);
+    String getMessage(ReportFormatter formatter);
 
     /**
      * Get the values which belong to current node (does not include the inherited values)
@@ -151,7 +151,7 @@ public interface ReportNode {
      * @param path the path to write to
      */
     default void print(Path path) throws IOException {
-        print(path, Formatter.DEFAULT);
+        print(path, ReportFormatter.DEFAULT);
     }
 
     /**
@@ -159,7 +159,7 @@ public interface ReportNode {
      * @param path the path to write to
      * @param formatter the formatter to use to print values
      */
-    default void print(Path path, Formatter formatter) throws IOException {
+    default void print(Path path, ReportFormatter formatter) throws IOException {
         try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             print(writer, formatter);
         }
@@ -170,7 +170,7 @@ public interface ReportNode {
      * @param writer the writer to write to
      */
     default void print(Writer writer) throws IOException {
-        print(writer, Formatter.DEFAULT);
+        print(writer, ReportFormatter.DEFAULT);
     }
 
     /**
@@ -178,5 +178,5 @@ public interface ReportNode {
      * @param writer the writer to write to
      * @param formatter the formatter to use to print values
      */
-    void print(Writer writer, Formatter formatter) throws IOException;
+    void print(Writer writer, ReportFormatter formatter) throws IOException;
 }

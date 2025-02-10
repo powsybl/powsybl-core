@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-class FormatterTest {
+class ReportFormatterTest {
 
     @Test
     void test() {
@@ -34,7 +34,7 @@ class FormatterTest {
                 .withUntypedValue("stringDefaultFormat", "tiny")
                 .withTypedValue("stringSpecificFormat", "This is a sentence which needs to be truncated", "LONG_SENTENCE")
                 .build();
-        Formatter customFormatter = typedValue -> {
+        ReportFormatter customFormatter = typedValue -> {
             if (typedValue.getType().equals(TypedValue.ACTIVE_POWER) && typedValue.getValue() instanceof Double d) {
                 return String.format(Locale.CANADA_FRENCH, "%2.4f", d);
             }
