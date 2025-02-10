@@ -808,14 +808,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return PowerFlow.UNDEFINED;
     }
 
-    protected static boolean isControlModeVoltage(String controlMode) {
-        return controlMode != null && controlMode.endsWith(CgmesNames.VOLTAGE_TAG);
-    }
-
-    protected static boolean isControlModeReactivePower(String controlMode) {
-        return controlMode != null && controlMode.toLowerCase().endsWith(CgmesNames.REACTIVE_POWER);
-    }
-
     protected static <C extends Connectable<C>> Optional<PropertyBag> findCgmesRegulatingControl(Connectable<C> tw, String tapChangerId, Context context) {
         CgmesTapChangers<C> cgmesTcs = tw.getExtension(CgmesTapChangers.class);
         if (cgmesTcs != null && tapChangerId != null) {
@@ -870,10 +862,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     protected static boolean isValidTargetV(double targetV) {
         return targetV > 0.0;
-    }
-
-    protected static boolean isValidTargetQ(double targetQ) {
-        return isValidTargetValue(targetQ);
     }
 
     protected static boolean isValidTargetValue(double targetValue) {
