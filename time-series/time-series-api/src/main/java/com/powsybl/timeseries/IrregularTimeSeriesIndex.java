@@ -146,12 +146,4 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     public String toString() {
         return "IrregularTimeSeriesIndex(times=" + stream().toList() + ")";
     }
-
-    private static Instant parseNanoTokenToInstant(JsonParser parser) throws IOException {
-        // The next token contains the value
-        parser.nextToken();
-
-        // Parse the value
-        return parseNanosToInstant(parser.getValueAsString());
-    }
 }
