@@ -8,6 +8,7 @@
 
 package com.powsybl.cgmes.model;
 
+import com.powsybl.commons.compress.ZipSecurityHelper;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
@@ -90,7 +91,17 @@ public class CgmesOnDataSource {
         // Get the base URI if present, else build an absolute URI from the data source base name
         return names().stream()
                 .map(n -> {
-                    try (InputStream is = getInputStream(n)) {
+                    String fileExtension = n.substring(n.lastIndexOf('.') + 1);
+                    if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
+                        ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, n);
+                        try (ZipInputStream is = new ZipInputStream(dataSource.newInputStream(n))) {
+                            is.getNextEntry();
+                            return NamespaceReader.base(is);
+                        } catch (IOException x) {
+                            throw new UncheckedIOException(x);
+                        }
+                    }
+                    try (InputStream is = dataSource.newInputStream(n)) {
                         return NamespaceReader.base(is);
                     } catch (IOException x) {
                         throw new UncheckedIOException(x);
@@ -127,7 +138,20 @@ public class CgmesOnDataSource {
     }
 
     private boolean containsValidNamespace(String name) {
-        try (InputStream is = getInputStream(name)) {
+        String fileExtension = name.substring(name.lastIndexOf('.') + 1);
+        if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
+            ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, name);
+            try (ZipInputStream is = new ZipInputStream(dataSource.newInputStream(name))) {
+                is.getNextEntry();
+                Set<String> ns = NamespaceReader.namespaces1(is);
+                return ns.contains(RDF_NAMESPACE) && ns.stream().anyMatch(CgmesNamespace::isValid);
+            } catch (XMLStreamException e) {
+                return false;
+            } catch (IOException x) {
+                throw new CgmesModelException(String.format("Listing CGMES names in data source %s", dataSource), x);
+            }
+        }
+        try (InputStream is = dataSource.newInputStream(name)) {
             Set<String> ns = NamespaceReader.namespaces1(is);
             return ns.contains(RDF_NAMESPACE) && ns.stream().anyMatch(CgmesNamespace::isValid);
         } catch (XMLStreamException e) {
@@ -137,20 +161,21 @@ public class CgmesOnDataSource {
         }
     }
 
-    private InputStream getInputStream(String fileName) throws IOException {
-        String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1);
-        if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
-            ZipInputStream is = new ZipInputStream(dataSource.newInputStream(fileName));
-            is.getNextEntry();
-            return is;
-        }
-        return dataSource.newInputStream(fileName);
-    }
-
     public Set<String> namespaces() {
         Set<String> ns = new HashSet<>();
         names().forEach(n -> {
-            try (InputStream is = getInputStream(n)) {
+            String fileExtension = n.substring(n.lastIndexOf('.') + 1);
+            if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
+                ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, n);
+                try (ZipInputStream is = new ZipInputStream(dataSource.newInputStream(n))) {
+                    is.getNextEntry();
+                    ns.addAll(NamespaceReader.namespaces(is));
+                    return;
+                } catch (IOException x) {
+                    throw new UncheckedIOException(x);
+                }
+            }
+            try (InputStream is = dataSource.newInputStream(n)) {
                 ns.addAll(NamespaceReader.namespaces(is));
             } catch (IOException x) {
                 throw new UncheckedIOException(x);
