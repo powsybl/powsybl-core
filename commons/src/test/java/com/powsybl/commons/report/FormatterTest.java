@@ -9,6 +9,8 @@ package com.powsybl.commons.report;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Locale;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -34,10 +36,10 @@ class FormatterTest {
                 .build();
         Formatter customFormatter = typedValue -> {
             if (typedValue.getType().equals(TypedValue.ACTIVE_POWER) && typedValue.getValue() instanceof Double d) {
-                return String.format("%2.4f", d);
+                return String.format(Locale.CANADA_FRENCH, "%2.4f", d);
             }
             if (typedValue.getType().equals(TypedValue.IMPEDANCE) && typedValue.getValue() instanceof Float f) {
-                return String.format("%.2f", f);
+                return String.format(Locale.CANADA_FRENCH, "%.2f", f);
             }
             if (typedValue.getType().equals("LONG_SENTENCE") && typedValue.getValue() instanceof String s) {
                 return s.substring(0, 18);
