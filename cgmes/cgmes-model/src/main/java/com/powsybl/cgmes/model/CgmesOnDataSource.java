@@ -27,6 +27,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.*;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class CgmesOnDataSource {
+    private static final String LISTING_CGMES_NAMES_IN_DATA_SOURCE = "Listing CGMES names in data source %s";
     private static final String EXTENSION = "xml";
 
     public CgmesOnDataSource(ReadOnlyDataSource ds) {
@@ -125,7 +126,7 @@ public class CgmesOnDataSource {
             allNames.removeIf(n -> !existsInDatasource(n) || !containsValidNamespace(n));
             return allNames;
         } catch (IOException x) {
-            throw new CgmesModelException(String.format("Listing CGMES names in data source %s", dataSource), x);
+            throw new CgmesModelException(String.format(LISTING_CGMES_NAMES_IN_DATA_SOURCE, dataSource), x);
         }
     }
 
@@ -148,7 +149,7 @@ public class CgmesOnDataSource {
             } catch (XMLStreamException e) {
                 return false;
             } catch (IOException x) {
-                throw new CgmesModelException(String.format("Listing CGMES names in data source %s", dataSource), x);
+                throw new CgmesModelException(String.format(LISTING_CGMES_NAMES_IN_DATA_SOURCE, dataSource), x);
             }
         }
         try (InputStream is = dataSource.newInputStream(name)) {
@@ -157,7 +158,7 @@ public class CgmesOnDataSource {
         } catch (XMLStreamException e) {
             return false;
         } catch (IOException x) {
-            throw new CgmesModelException(String.format("Listing CGMES names in data source %s", dataSource), x);
+            throw new CgmesModelException(String.format(LISTING_CGMES_NAMES_IN_DATA_SOURCE, dataSource), x);
         }
     }
 

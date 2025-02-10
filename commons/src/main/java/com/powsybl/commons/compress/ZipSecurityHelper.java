@@ -10,7 +10,6 @@ package com.powsybl.commons.compress;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -41,11 +40,11 @@ public final class ZipSecurityHelper {
         }
     }
 
-    public static boolean isZipFileSafe(ZipInputStream zipInputStream) throws ZipException, IOException {
+    public static boolean isZipFileSafe(ZipInputStream zipInputStream) throws IOException {
         return isZipFileSafe(zipInputStream, THRESHOLD_ENTRIES, THRESHOLD_SIZE, THRESHOLD_RATIO);
     }
 
-    public static boolean isZipFileSafe(ZipInputStream zipInputStream, int thresholdEntries, int thresholdSize, double thresholdCompressionRatio) throws ZipException, IOException {
+    public static boolean isZipFileSafe(ZipInputStream zipInputStream, int thresholdEntries, int thresholdSize, double thresholdCompressionRatio) throws IOException {
         int totalSizeArchive = 0;
         int totalEntryArchive = 0;
         ZipEntry ze = zipInputStream.getNextEntry();
