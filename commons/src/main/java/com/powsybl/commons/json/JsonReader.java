@@ -264,17 +264,21 @@ public class JsonReader extends AbstractTreeDataReader {
                     case FIELD_NAME -> {
                         switch (parser.nextToken()) {
                             case START_ARRAY -> contextQueue.add(new Context(ContextType.ARRAY, parser.currentName()));
-                            case START_OBJECT -> {
-                                contextQueue.add(new Context(ContextType.OBJECT, parser.currentName()));
-                                childNodeReader.onStartNode(contextQueue.getLast().getFieldName());
-                            }
+                            case START_OBJECT -> readChildObject(childNodeReader);
                             default -> throw newUnexpectedTokenException();
                         }
                     }
                     case START_OBJECT -> {
-                        Context arrayContext = checkNodeChain(ContextType.ARRAY);
-                        contextQueue.add(new Context(ContextType.OBJECT, arrayContext.getFieldName()));
-                        childNodeReader.onStartNode(arrayElementNameToSingleElementName.get(arrayContext.getFieldName()));
+                        if (childNodeReader != skipChild) {
+                            Context arrayContext = checkNodeChain(ContextType.ARRAY);
+                            contextQueue.add(new Context(ContextType.OBJECT, arrayContext.getFieldName()));
+                            childNodeReader.onStartNode(arrayElementNameToSingleElementName.get(arrayContext.getFieldName()));
+                        } else {
+                            // Case where the object correspond to a node to skip that is inside another skipped node.
+                            // The FIELD_NAME token was already consumed (by skipSimpleValueAttributes)
+                            // and the object is not in an array.
+                            readChildObject(childNodeReader);
+                        }
                     }
                     case END_ARRAY -> {
                         checkNodeChain(ContextType.ARRAY);
@@ -291,6 +295,11 @@ public class JsonReader extends AbstractTreeDataReader {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private void readChildObject(ChildNodeReader childNodeReader) throws IOException {
+        contextQueue.add(new Context(ContextType.OBJECT, parser.currentName()));
+        childNodeReader.onStartNode(contextQueue.getLast().getFieldName());
     }
 
     private Context checkNodeChain(ContextType expectedNodeType) {

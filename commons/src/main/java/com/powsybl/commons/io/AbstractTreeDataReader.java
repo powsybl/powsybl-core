@@ -14,6 +14,8 @@ import java.util.Map;
  */
 public abstract class AbstractTreeDataReader implements TreeDataReader {
 
+    protected final ChildNodeReader skipChild = elementName -> skipNode();
+
     @Override
     public TreeDataHeader readHeader() {
         return new TreeDataHeader(readRootVersion(), readExtensionVersions());
@@ -47,7 +49,7 @@ public abstract class AbstractTreeDataReader implements TreeDataReader {
     @Override
     public void skipNode() {
         skipSimpleValueAttributes();
-        readChildNodes(elementName -> skipNode());
+        readChildNodes(skipChild);
     }
 
     /**
