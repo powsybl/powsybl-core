@@ -133,7 +133,7 @@
     </cim:OperationalLimitSet>
     <cim:CurrentLimit rdf:ID="_ACLineSegment-T1-OperationalLimitSet-CurrentLimit1">
         <cim:IdentifiedObject.name>ACLineSegment-T1-OperationalLimitSet-CurrentLimit1</cim:IdentifiedObject.name>
-        <cim:CurrentLimit.value>796</cim:CurrentLimit.value>
+        <cim:CurrentLimit.normalValue>796</cim:CurrentLimit.normalValue>
         <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_ACLineSegment-T1-OperationalLimitSet"/>
         <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ACLineSegment-T1-OperationalLimitSet-CurrentLimit1-Patl"/>
     </cim:CurrentLimit>
@@ -144,7 +144,7 @@
     </cim:OperationalLimitType>
     <cim:CurrentLimit rdf:ID="_ACLineSegment-T1-OperationalLimitSet-CurrentLimit2">
         <cim:IdentifiedObject.name>ACLineSegment-T1-OperationalLimitSet-CurrentLimit2</cim:IdentifiedObject.name>
-        <cim:CurrentLimit.value>1990</cim:CurrentLimit.value>
+        <cim:CurrentLimit.normalValue>1990</cim:CurrentLimit.normalValue>
         <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_ACLineSegment-T1-OperationalLimitSet"/>
         <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ACLineSegment-T1-OperationalLimitSet-CurrentLimit2-Tatl"/>
     </cim:CurrentLimit>
@@ -161,7 +161,7 @@
     </cim:OperationalLimitSet>
     <cim:CurrentLimit rdf:ID="_ACLineSegment-T2-OperationalLimitSet-CurrentLimit1">
         <cim:IdentifiedObject.name>ACLineSegment-T2-OperationalLimitSet-CurrentLimit1</cim:IdentifiedObject.name>
-        <cim:CurrentLimit.value>796</cim:CurrentLimit.value>
+        <cim:CurrentLimit.normalValue>796</cim:CurrentLimit.normalValue>
         <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_ACLineSegment-T2-OperationalLimitSet"/>
         <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ACLineSegment-T2-OperationalLimitSet-CurrentLimit1-Patl"/>
     </cim:CurrentLimit>
@@ -172,7 +172,7 @@
     </cim:OperationalLimitType>
     <cim:CurrentLimit rdf:ID="_ACLineSegment-T2-OperationalLimitSet-CurrentLimit2">
         <cim:IdentifiedObject.name>ACLineSegment-T2-OperationalLimitSet-CurrentLimit2</cim:IdentifiedObject.name>
-        <cim:CurrentLimit.value>1990</cim:CurrentLimit.value>
+        <cim:CurrentLimit.normalValue>1990</cim:CurrentLimit.normalValue>
         <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_ACLineSegment-T2-OperationalLimitSet"/>
         <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ACLineSegment-T2-OperationalLimitSet-CurrentLimit2-Tatl"/>
     </cim:CurrentLimit>
