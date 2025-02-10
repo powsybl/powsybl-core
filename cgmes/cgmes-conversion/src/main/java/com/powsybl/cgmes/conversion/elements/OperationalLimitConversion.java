@@ -494,6 +494,10 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return s;
     }
 
+    public static void update(Identifiable<?> identifiable, OperationalLimitsGroup operationalLimitsGroup, Context context) {
+        update(identifiable, operationalLimitsGroup, "", context);
+    }
+
     public static void update(Identifiable<?> identifiable, OperationalLimitsGroup operationalLimitsGroup, TwoSides side, Context context) {
         update(identifiable, operationalLimitsGroup, String.valueOf(side.getNum()), context);
     }
@@ -520,13 +524,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private static double getValue(PR propertyNameData, Identifiable<?> identifiable, double previousValue, Context context) {
-        String operationalLimitId = getOperationalLimitId(getPropertyName(propertyNameData, CgmesNames.OPERATIONAL_LIMIT_SET), identifiable);
+        String operationalLimitId = getOperationalLimitId(getPropertyName(propertyNameData, CgmesNames.OPERATIONAL_LIMIT), identifiable);
         DefaultValueDouble defaultLimitValue = getDefaultValue(getNormalValue(getPropertyName(propertyNameData, CgmesNames.NORMAL_VALUE), identifiable), previousValue);
         return updatedValue(operationalLimitId, context).orElse(defaultValue(defaultLimitValue, context));
     }
 
     private static double getValue(TPR temporaryPropertyNameData, Identifiable<?> identifiable, double previousValue, Context context) {
-        String operationalLimitId = getOperationalLimitId(getPropertyName(temporaryPropertyNameData, CgmesNames.OPERATIONAL_LIMIT_SET), identifiable);
+        String operationalLimitId = getOperationalLimitId(getPropertyName(temporaryPropertyNameData, CgmesNames.OPERATIONAL_LIMIT), identifiable);
         DefaultValueDouble defaultLimitValue = getDefaultValue(getNormalValue(getPropertyName(temporaryPropertyNameData, CgmesNames.NORMAL_VALUE), identifiable), previousValue);
         return updatedValue(operationalLimitId, context).orElse(defaultValue(defaultLimitValue, context));
     }
@@ -543,8 +547,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return identifiable.getProperty(propertyName);
     }
 
-    private static double getNormalValue(String propertyName, Identifiable<?> identifiable) {
-        return Double.parseDouble(identifiable.getProperty(propertyName));
+    private static Double getNormalValue(String propertyName, Identifiable<?> identifiable) {
+        return identifiable.getProperty(propertyName) != null ? Double.parseDouble(identifiable.getProperty(propertyName)) : null;
     }
 
     private static String getPropertyName(PR pr, String tagProperty) {
@@ -564,8 +568,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 + tpr.duration;
     }
 
-    private static DefaultValueDouble getDefaultValue(double normalValue, double previousValue) {
-        return new DefaultValueDouble(normalValue, previousValue, normalValue, normalValue);
+    private static DefaultValueDouble getDefaultValue(Double normalValue, double previousValue) {
+        return new DefaultValueDouble(normalValue, previousValue, normalValue, normalValue != null ? normalValue : previousValue);
     }
 
     private record PR(String operationalLimitSetId, String limitSubclass, String end) {

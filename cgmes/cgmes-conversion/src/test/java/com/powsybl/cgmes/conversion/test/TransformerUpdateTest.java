@@ -33,8 +33,15 @@ class TransformerUpdateTest {
 
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
         assertTrue(checkEq(t2w));
+        assertTrue(checkDefinedApparentPowerLimits(t2w,
+                new ApparentPowerLimit(990.0, 900, 1000.0),
+                new ApparentPowerLimit(991.0, 900, 1001.0)));
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
         assertTrue(checkEq(t3w));
+        assertTrue(checkDefinedApparentPowerLimits(t3w,
+                new ApparentPowerLimit(100.0, 900, 110.0),
+                new ApparentPowerLimit(75.0, 900, 80.0),
+                new ApparentPowerLimit(25.0, 900, 30.0)));
     }
 
     @Test
@@ -45,9 +52,16 @@ class TransformerUpdateTest {
 
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
         assertTrue(checkSsh(t2w, -2, 100.0, 0.2, true));
+        assertTrue(checkDefinedApparentPowerLimits(t2w,
+                new ApparentPowerLimit(995.0, 900, 1005.0),
+                new ApparentPowerLimit(996.0, 900, 1006.0)));
 
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
         assertTrue(checkSsh(t3w, 8, 225.0, 2.0, true));
+        assertTrue(checkDefinedApparentPowerLimits(t3w,
+                new ApparentPowerLimit(102.0, 900, 112.0),
+                new ApparentPowerLimit(76.0, 900, 81.0),
+                new ApparentPowerLimit(26.0, 900, 31.0)));
     }
 
     @Test
@@ -57,17 +71,54 @@ class TransformerUpdateTest {
         assertEquals(1, network.getThreeWindingsTransformerCount());
 
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
-        assertTrue(checkEq(t2w));
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
-        assertTrue(checkEq(t3w));
+        assertTrue(checkEq(t2w, t3w));
 
         readCgmesResources(network, DIR, "transformer_SSH.xml");
-        assertTrue(checkSsh(t2w, -2, 100.0, 0.2, true));
-        assertTrue(checkSsh(t3w, 8, 225.0, 2.0, true));
+        assertTrue(checkSsh(t2w, t3w));
 
         readCgmesResources(network, DIR, "transformer_SSH_1.xml");
+        assertTrue(checkSsh1(t2w, t3w));
+    }
+
+    private static boolean checkEq(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w) {
+        assertTrue(checkEq(t2w));
+        assertTrue(checkDefinedApparentPowerLimits(t2w,
+                new ApparentPowerLimit(990.0, 900, 1000.0),
+                new ApparentPowerLimit(991.0, 900, 1001.0)));
+
+        assertTrue(checkEq(t3w));
+        assertTrue(checkDefinedApparentPowerLimits(t3w,
+                new ApparentPowerLimit(100.0, 900, 110.0),
+                new ApparentPowerLimit(75.0, 900, 80.0),
+                new ApparentPowerLimit(25.0, 900, 30.0)));
+        return true;
+    }
+
+    private static boolean checkSsh(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w) {
+        assertTrue(checkSsh(t2w, -2, 100.0, 0.2, true));
+        assertTrue(checkDefinedApparentPowerLimits(t2w,
+                new ApparentPowerLimit(995.0, 900, 1005.0),
+                new ApparentPowerLimit(996.0, 900, 1006.0)));
+        assertTrue(checkSsh(t3w, 8, 225.0, 2.0, true));
+        assertTrue(checkDefinedApparentPowerLimits(t3w,
+                new ApparentPowerLimit(102.0, 900, 112.0),
+                new ApparentPowerLimit(76.0, 900, 81.0),
+                new ApparentPowerLimit(26.0, 900, 31.0)));
+        return true;
+    }
+
+    private static boolean checkSsh1(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w) {
         assertTrue(checkSsh(t2w, -1, 110.0, 0.3, false));
+        assertTrue(checkDefinedApparentPowerLimits(t2w,
+                new ApparentPowerLimit(996.0, 900, 1006.0),
+                new ApparentPowerLimit(997.0, 900, 1007.0)));
         assertTrue(checkSsh(t3w, 7, 220.0, 2.2, false));
+        assertTrue(checkDefinedApparentPowerLimits(t3w,
+                new ApparentPowerLimit(104.0, 900, 114.0),
+                new ApparentPowerLimit(77.0, 900, 82.0),
+                new ApparentPowerLimit(27.0, 900, 32.0)));
+        return true;
     }
 
     private static boolean checkEq(TwoWindingsTransformer t2w) {
@@ -125,5 +176,62 @@ class TransformerUpdateTest {
         CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tapChangerId);
         assertNotNull(cgmesTcs);
         return cgmesTc.getStep().orElseThrow();
+    }
+
+    private static boolean checkDefinedApparentPowerLimits(TwoWindingsTransformer t2w, ApparentPowerLimit apparentPowerLimit1, ApparentPowerLimit apparentPowerLimit2) {
+
+        assertEquals(1, t2w.getOperationalLimitsGroups1().size());
+        assertTrue(checkDefinedApparentPowerLimitsSide(t2w, TwoSides.ONE, apparentPowerLimit1));
+        assertEquals(1, t2w.getOperationalLimitsGroups2().size());
+        assertTrue(checkDefinedApparentPowerLimitsSide(t2w, TwoSides.TWO, apparentPowerLimit2));
+
+        assertNull(t2w.getCurrentLimits1().orElse(null));
+        assertNull(t2w.getActivePowerLimits1().orElse(null));
+        assertNull(t2w.getCurrentLimits2().orElse(null));
+        assertNull(t2w.getActivePowerLimits2().orElse(null));
+        return true;
+    }
+
+    private static boolean checkDefinedApparentPowerLimitsSide(TwoWindingsTransformer t2w, TwoSides side, ApparentPowerLimit apparentPowerLimit) {
+        assertNotNull(t2w.getApparentPowerLimits(side).orElse(null));
+        if (t2w.getApparentPowerLimits(side).isPresent()) {
+            assertEquals(apparentPowerLimit.ptalValue, t2w.getApparentPowerLimits(side).get().getPermanentLimit());
+            assertEquals(1, t2w.getApparentPowerLimits(side).get().getTemporaryLimits().size());
+            assertEquals(apparentPowerLimit.tatlDuration, t2w.getApparentPowerLimits(side).get().getTemporaryLimits().iterator().next().getAcceptableDuration());
+            assertEquals(apparentPowerLimit.tatlValue, t2w.getApparentPowerLimits(side).get().getTemporaryLimits().iterator().next().getValue());
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean checkDefinedApparentPowerLimits(ThreeWindingsTransformer t3w, ApparentPowerLimit apparentPowerLimit1, ApparentPowerLimit apparentPowerLimit2, ApparentPowerLimit apparentPowerLimit3) {
+
+        assertTrue(checkDefinedApparentPowerLimitsSide(t3w.getLeg1(), apparentPowerLimit1));
+        assertTrue(checkDefinedApparentPowerLimitsSide(t3w.getLeg2(), apparentPowerLimit2));
+        assertTrue(checkDefinedApparentPowerLimitsSide(t3w.getLeg3(), apparentPowerLimit3));
+
+        assertNull(t3w.getLeg1().getCurrentLimits().orElse(null));
+        assertNull(t3w.getLeg1().getActivePowerLimits().orElse(null));
+        assertNull(t3w.getLeg2().getCurrentLimits().orElse(null));
+        assertNull(t3w.getLeg2().getActivePowerLimits().orElse(null));
+        assertNull(t3w.getLeg3().getCurrentLimits().orElse(null));
+        assertNull(t3w.getLeg3().getActivePowerLimits().orElse(null));
+        return true;
+    }
+
+    private static boolean checkDefinedApparentPowerLimitsSide(ThreeWindingsTransformer.Leg leg, ApparentPowerLimit apparentPowerLimit) {
+        assertEquals(1, leg.getOperationalLimitsGroups().size());
+        assertNotNull(leg.getApparentPowerLimits().orElse(null));
+        if (leg.getApparentPowerLimits().isPresent()) {
+            assertEquals(apparentPowerLimit.ptalValue, leg.getApparentPowerLimits().get().getPermanentLimit());
+            assertEquals(1, leg.getApparentPowerLimits().get().getTemporaryLimits().size());
+            assertEquals(apparentPowerLimit.tatlDuration, leg.getApparentPowerLimits().get().getTemporaryLimits().iterator().next().getAcceptableDuration());
+            assertEquals(apparentPowerLimit.tatlValue, leg.getApparentPowerLimits().get().getTemporaryLimits().iterator().next().getValue());
+            return true;
+        }
+        return false;
+    }
+
+    private record ApparentPowerLimit(double ptalValue, int tatlDuration, double tatlValue) {
     }
 }
