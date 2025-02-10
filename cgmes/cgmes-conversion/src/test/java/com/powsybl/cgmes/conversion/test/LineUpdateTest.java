@@ -32,8 +32,8 @@ class LineUpdateTest {
         Line acLineSegment = network.getLine("ACLineSegment");
         assertTrue(checkEq(acLineSegment));
         assertTrue(checkDefinedCurrentLimits(acLineSegment,
-                1, new CurrentLimit(796.0, 900, 1990.0),
-                1, new CurrentLimit(796.0, 900, 1990.0)));
+                new CurrentLimit(796.0, 900, 1990.0),
+                new CurrentLimit(796.0, 900, 1990.0)));
 
         Line equivalentBranch = network.getLine("EquivalentBranch");
         assertTrue(checkEq(equivalentBranch));
@@ -52,8 +52,8 @@ class LineUpdateTest {
         Line acLineSegment = network.getLine("ACLineSegment");
         assertTrue(checkSsh(acLineSegment));
         assertTrue(checkDefinedCurrentLimits(acLineSegment,
-                1, new CurrentLimit(797.0, 900, 1991.0),
-                1, new CurrentLimit(795.0, 900, 1989.0)));
+                new CurrentLimit(797.0, 900, 1991.0),
+                new CurrentLimit(795.0, 900, 1989.0)));
 
         Line equivalentBranch = network.getLine("EquivalentBranch");
         assertTrue(checkSsh(equivalentBranch));
@@ -72,8 +72,8 @@ class LineUpdateTest {
         Line acLineSegment = network.getLine("ACLineSegment");
         assertTrue(checkEq(acLineSegment));
         assertTrue(checkDefinedCurrentLimits(acLineSegment,
-                1, new CurrentLimit(796.0, 900, 1990.0),
-                1, new CurrentLimit(796.0, 900, 1990.0)));
+                new CurrentLimit(796.0, 900, 1990.0),
+                new CurrentLimit(796.0, 900, 1990.0)));
 
         Line equivalentBranch = network.getLine("EquivalentBranch");
         assertTrue(checkEq(equivalentBranch));
@@ -87,8 +87,8 @@ class LineUpdateTest {
 
         assertTrue(checkSsh(acLineSegment));
         assertTrue(checkDefinedCurrentLimits(acLineSegment,
-                1, new CurrentLimit(797.0, 900, 1991.0),
-                1, new CurrentLimit(795.0, 900, 1989.0)));
+                new CurrentLimit(797.0, 900, 1991.0),
+                new CurrentLimit(795.0, 900, 1989.0)));
 
         assertTrue(checkSsh(equivalentBranch));
         assertTrue(checkNotDefinedLimits(equivalentBranch));
@@ -100,8 +100,8 @@ class LineUpdateTest {
 
         assertTrue(checkSsh(acLineSegment));
         assertTrue(checkDefinedCurrentLimits(acLineSegment,
-                1, new CurrentLimit(798.0, 900, 1992.0),
-                1, new CurrentLimit(794.0, 900, 1988.0)));
+                new CurrentLimit(798.0, 900, 1992.0),
+                new CurrentLimit(794.0, 900, 1988.0)));
 
         assertTrue(checkSsh(equivalentBranch));
         assertTrue(checkNotDefinedLimits(equivalentBranch));
@@ -121,11 +121,10 @@ class LineUpdateTest {
         return true;
     }
 
-    private static boolean checkDefinedCurrentLimits(Line line, int numberOfOperationalGroups1, CurrentLimit currentLimit1,
-                                                     int numberOfOperationalGroups2, CurrentLimit currentLimit2) {
-        assertEquals(numberOfOperationalGroups1, line.getOperationalLimitsGroups1().size());
+    private static boolean checkDefinedCurrentLimits(Line line, CurrentLimit currentLimit1, CurrentLimit currentLimit2) {
+        assertEquals(1, line.getOperationalLimitsGroups1().size());
         assertTrue(checkDefinedCurrentLimitsSide(line, TwoSides.ONE, currentLimit1));
-        assertEquals(numberOfOperationalGroups2, line.getOperationalLimitsGroups2().size());
+        assertEquals(1, line.getOperationalLimitsGroups2().size());
         assertTrue(checkDefinedCurrentLimitsSide(line, TwoSides.TWO, currentLimit2));
 
         assertTrue(checkNotDefinedApparentPowerLimits(line));
