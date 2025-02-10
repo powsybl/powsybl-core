@@ -265,7 +265,9 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         //   Limits are imported smoothly.
         Network network = readCgmesResources(DIR, "limits_cim100.xml");
 
-        // Loading limits have been imported smoothly.
+        // The difference between CIM16 and CIM100 limits lies in the naming of attributes: value and limitType.
+        // It is therefore relevant to test that values and type (permanent vs temporary) are correctly converted
+        // from the graph to the property bag. Everything else is common and doesn't need to be tested again.
         Line line = network.getLine("ACL");
         assertTrue(line.getCurrentLimits1().isPresent());
         assertEquals(100.0, line.getCurrentLimits1().get().getPermanentLimit());
