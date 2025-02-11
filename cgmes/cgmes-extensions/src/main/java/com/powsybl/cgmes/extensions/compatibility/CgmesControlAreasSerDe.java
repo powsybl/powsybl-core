@@ -89,7 +89,7 @@ public class CgmesControlAreasSerDe extends AbstractVersionableNetworkExtensionS
 
     @Override
     public void write(DummyExt extension, SerializerContext context) {
-        throw new UnsupportedOperationException("Backward writing compatibility is not yet supported.");
+        throw new IllegalStateException("Should not happen");
     }
 
     @Override
