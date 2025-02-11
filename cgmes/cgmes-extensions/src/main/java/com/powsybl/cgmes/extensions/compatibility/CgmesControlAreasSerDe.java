@@ -132,7 +132,6 @@ public class CgmesControlAreasSerDe extends AbstractVersionableNetworkExtensionS
             switch (elementName) {
                 case BOUNDARY_ROOT_ELEMENT -> {
                     String id = networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id"));
-                    TwoSides side = reader.readEnumAttribute("side", TwoSides.class);
                     Identifiable<?> identifiable = network.getIdentifiable(id);
                     boolean isAc = true;  // Set to "true" because this piece of data is not available
                     if (identifiable instanceof DanglingLine dl) {
@@ -141,6 +140,7 @@ public class CgmesControlAreasSerDe extends AbstractVersionableNetworkExtensionS
                                 .setBoundary(dl.getBoundary())
                                 .add();
                     } else if (identifiable instanceof TieLine tl) {
+                        TwoSides side = reader.readEnumAttribute("side", TwoSides.class);
                         area.newAreaBoundary()
                                 .setAc(isAc)
                                 .setBoundary(tl.getDanglingLine(side).getBoundary())
