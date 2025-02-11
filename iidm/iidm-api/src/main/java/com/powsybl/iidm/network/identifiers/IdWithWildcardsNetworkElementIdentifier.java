@@ -47,7 +47,7 @@ public class IdWithWildcardsNetworkElementIdentifier implements NetworkElementId
     }
 
     private void initialize() {
-        String allowedCharactersRegex = "^[A-Za-z0-9_?.-]*$";
+        String allowedCharactersRegex = "^[A-Za-z0-9_? .-]*$";
 
         if (!identifier.matches(allowedCharactersRegex)) {
             throw new PowsyblException("Only characters allowed for this identifier are letters, numbers, '_', '-', '.' and the wildcard character '?'");

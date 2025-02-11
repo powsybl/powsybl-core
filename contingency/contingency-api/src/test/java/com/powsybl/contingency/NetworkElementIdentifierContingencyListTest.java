@@ -219,6 +219,14 @@ class NetworkElementIdentifierContingencyListTest {
         Assertions.assertEquals(1, identifiables.size());
         assertTrue(identifiables.contains("NHV1.NHV2-1"));
 
+        // Test with space character in identifier
+        network.newSubstation().setId(".NHV1 3 .NHV2 1").add();
+        network.newSubstation().setId(".NHV1 2 .NHV2 2").add();
+        elementIdentifier = new IdWithWildcardsNetworkElementIdentifier(".NHV1 ? .NHV2 ?");
+        identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
+        Assertions.assertEquals(2, identifiables.size());
+        assertTrue(identifiables.containsAll(Arrays.asList(".NHV1 2 .NHV2 2", ".NHV1 3 .NHV2 1")));
+
         String message3 = assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("TEST_WITH_NO_WILDCARDS")).getMessage();
         assertEquals("There is no wildcard in your identifier, please use IdBasedNetworkElementIdentifier instead", message3);
     }
