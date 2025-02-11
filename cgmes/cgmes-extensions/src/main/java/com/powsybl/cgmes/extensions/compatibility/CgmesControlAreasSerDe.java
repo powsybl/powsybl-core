@@ -9,34 +9,28 @@ package com.powsybl.cgmes.extensions.compatibility;
 
 import com.google.auto.service.AutoService;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.TerminalRefSerDe;
-import com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtensionSerDe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.OptionalDouble;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
-public class CgmesControlAreasSerDe extends AbstractVersionableNetworkExtensionSerDe<Network, CgmesControlAreasSerDe.DummyExt> {
+public class CgmesControlAreasSerDe extends AbstractExtensionSerDe<Network, CgmesControlAreasSerDe.DummyExt> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CgmesControlAreasSerDe.class);
 
@@ -48,36 +42,8 @@ public class CgmesControlAreasSerDe extends AbstractVersionableNetworkExtensionS
     public static final String BOUNDARY_ARRAY_ELEMENT = "boundaries";
 
     public CgmesControlAreasSerDe() {
-        super("cgmesControlAreas", CgmesControlAreasSerDe.DummyExt.class, "cca",
-                new ImmutableMap.Builder<IidmVersion, ImmutableSortedSet<String>>()
-                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_2, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_3, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_4, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_5, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_6, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_7, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_8, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_9, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_12, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_13, ImmutableSortedSet.of("1.0"))
-                        .build(),
-                new ImmutableMap.Builder<String, String>()
-                        .put("1.0", "http://www.powsybl.org/schema/iidm/ext/cgmes_control_areas/1_0")
-                        .build());
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/cgmesControlAreas.xsd");
-    }
-
-    @Override
-    public List<InputStream> getXsdAsStreamList() {
-        return List.of(Objects.requireNonNull(getClass().getResourceAsStream("/xsd/cgmesControlAreas.xsd")));
+        super("cgmesControlAreas", "network", CgmesControlAreasSerDe.DummyExt.class, "cgmesControlAreas.xsd",
+                "http://www.powsybl.org/schema/iidm/ext/cgmes_control_areas/1_0", "cca");
     }
 
     @Override
