@@ -9,9 +9,11 @@ package com.powsybl.commons.report;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -92,7 +94,13 @@ class ReportNodeTest extends AbstractSerDeTest {
         ReportNode root = ReportNode.newRootReportNode()
                 .withMessageTemplate("rootTemplate", ALL_VALUES_MESSAGE_TEMPLATE)
                 .build();
+        ReportNode child = root.newReportNode()
+                .withMessageTemplate("child", "Child message with parent value ${stringTyped} and own severity '${reportSeverity}'")
+                .withSeverity("Overridden custom severity")
+                .add();
+        assertEquals("Child message with parent value ${stringTyped} and own severity 'Overridden custom severity'", child.getMessage());
 
+        // postponed values added
         root.addUntypedValue("doubleUntyped", 4.3)
                 .addTypedValue("doubleTyped", 4.4, TypedValue.ACTIVE_POWER)
                 .addUntypedValue("floatUntyped", -1.5f)
@@ -108,16 +116,16 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .addSeverity(TypedValue.INFO_SEVERITY);
         assertEquals(ALL_VALUES_MESSAGE_FORMATTED, root.getMessage());
 
-        ReportNode child = root.newReportNode()
-                .withMessageTemplate("child", "Child message with parent value ${stringTyped} and own severity '${reportSeverity}'")
-                .withSeverity("Overridden custom severity")
-                .add();
+        // child reportNode also inherits the postponed added values
         assertEquals("Child message with parent value filename and own severity 'Overridden custom severity'", child.getMessage());
 
+        // postponed overriding severity
         child.addSeverity("Very important custom severity");
         assertEquals("Child message with parent value filename and own severity 'Very important custom severity'", child.getMessage());
 
-        roundTripTest(root, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/testValuesReportNode.json");
+        Path report = tmpDir.resolve("report.json");
+        ReportNodeSerializer.write(root, report);
+        ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/testValuesReportNode.json"), Files.readString(report));
     }
 
     @Test

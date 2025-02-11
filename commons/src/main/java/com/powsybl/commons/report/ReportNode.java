@@ -43,7 +43,8 @@ import java.util.*;
  * syntax, in order to be later replaced by {@link org.apache.commons.text.StringSubstitutor} for instance when formatting
  * the string for the end user.
  * The <code>ReportNode</code> values may be referred to within the corresponding messageTemplate, or within any of its
- * descendants. Be aware that any descendant might override a value by giving a new value to an existing key.
+ * descendants, even if the value is added afterward.
+ * Be aware that any descendant might override a value by giving a new value to an existing key.
  * All implementations of <code>ReportNode</code> need to take that inheritance into account.
  *
  * <p>Instances of <code>ReportNode</code> are not thread-safe.
