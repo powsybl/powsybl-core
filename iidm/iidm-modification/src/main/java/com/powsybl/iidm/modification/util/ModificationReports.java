@@ -405,7 +405,7 @@ public final class ModificationReports {
 
     public static void positionOrderTooHighReport(ReportNode reportNode, int maxValue, int positionOrder) {
         reportNode.newReportNode()
-                .withMessageTemplate("positionOrderTooHigh", "PositionOrder ${positionOrder} too high (>${minValue}). No position extension created.")
+                .withMessageTemplate("positionOrderTooHigh", "PositionOrder ${positionOrder} too high (>${maxValue}). No position extension created.")
                 .withUntypedValue(POSITION_ORDER, positionOrder)
                 .withUntypedValue("maxValue", maxValue)
                 .withSeverity(TypedValue.WARN_SEVERITY)
