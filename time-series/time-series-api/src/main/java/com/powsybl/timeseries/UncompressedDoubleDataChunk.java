@@ -133,7 +133,7 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
     @Override
     public Stream<DoublePoint> stream(TimeSeriesIndex index) {
         Objects.requireNonNull(index);
-        return IntStream.range(0, values.length).mapToObj(i -> new DoublePoint(offset + i, index.getTimeAt(offset + i), values[i]));
+        return IntStream.range(0, values.length).mapToObj(i -> new DoublePoint(offset + i, index.getInstantAt(offset + i), values[i]));
     }
 
     @Override
@@ -153,7 +153,7 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                DoublePoint point = new DoublePoint(offset + i, index.getTimeAt(offset + i), values[i]);
+                DoublePoint point = new DoublePoint(offset + i, index.getInstantAt(offset + i), values[i]);
                 i++;
                 return point;
             }
