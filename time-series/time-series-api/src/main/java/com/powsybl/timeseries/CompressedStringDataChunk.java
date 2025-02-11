@@ -115,7 +115,7 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                StringPoint point = new StringPoint(i, index.getTimeAt(i), stepValues[step]);
+                StringPoint point = new StringPoint(i, index.getInstantAt(i), stepValues[step]);
                 i += stepLengths[step];
                 step++;
                 return point;
