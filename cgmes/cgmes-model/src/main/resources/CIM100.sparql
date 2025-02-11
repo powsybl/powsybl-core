@@ -136,7 +136,7 @@ WHERE {
     OPTIONAL { ?OperationalLimitType eu:OperationalLimitType.kind ?limitType }
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
     OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
     OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
