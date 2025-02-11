@@ -31,8 +31,10 @@ import java.util.*;
  *
  * <p>When the collection of children of a <code>ReportNode</code> is non-empty, the message of the corresponding
  * <code>ReportNode</code> is expected to summarize the children content. In order to help this summary, the
- * map of {@link TypedValue} can be filled up after the <code>ReportNode</code> creation. Note that the summarizing
- * template should be succinct: 120 characters is a good limit for the message string length (once formatted).
+ * {@link TypedValue} can be provided after the <code>ReportNode</code> creation with {@link #addTypedValue}/
+ * {@link #addUntypedValue} methods.
+ * Note that the summarizing template should be succinct: 120 characters is a good limit for the message string length
+ * (once formatted).
  *
  * <p>The {@link TypedValue} values should have a meaningful type to possibly enrich the message content. Please reuse
  * the generic types provided in {@link TypedValue} when possible.
