@@ -133,19 +133,19 @@
 </cim:CurrentLimit>
 <cim:ActivePowerLimit rdf:ID="_LIM_34">
     <cim:IdentifiedObject.name>Limit 34</cim:IdentifiedObject.name>
-    <cim:CurrentLimit.value>104</cim:CurrentLimit.value>
+    <cim:ActivePowerLimit.value>104</cim:ActivePowerLimit.value>
     <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_3"/>
     <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OLT_1"/>
 </cim:ActivePowerLimit>
 <cim:ActivePowerLimit rdf:ID="_LIM_35">
     <cim:IdentifiedObject.name>Limit 35</cim:IdentifiedObject.name>
-    <cim:CurrentLimit.value>204</cim:CurrentLimit.value>
+    <cim:ActivePowerLimit.value>204</cim:ActivePowerLimit.value>
     <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_3"/>
     <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OLT_2"/>
 </cim:ActivePowerLimit>
 <cim:ActivePowerLimit rdf:ID="_LIM_36">
     <cim:IdentifiedObject.name>Limit 36</cim:IdentifiedObject.name>
-    <cim:CurrentLimit.value>304</cim:CurrentLimit.value>
+    <cim:ActivePowerLimit.value>304</cim:ActivePowerLimit.value>
     <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_3"/>
     <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OLT_3"/>
 </cim:ActivePowerLimit>
