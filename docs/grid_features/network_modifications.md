@@ -92,8 +92,8 @@ Class: `ConnectableConnection`
 ### Dangling line
 This modification is used to update the active and reactive powers of a dangling line.
 
-If `relativeValue` is true, then the new constant active power (P0) and reactive power (Q0) are set as the addition of the given value to the ancient one.  
-If `relativeValue` is false, then the new constant active power (P0) and reactive power (Q0) are updated to the new given value.
+If `relativeValue` is set to true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given values to the previous ones.  
+If `relativeValue` is set to false, then the new constant active power (`P0`) and reactive power (`Q0`) are updated to the new given values.
 
 Class: `DanglingLineModification`
 
@@ -136,7 +136,7 @@ The data to be updated are optional among:
 - `targetV`, the target voltage value in kV.
 - `targetQ`, the target reactive power value in MVAR.
 - `connected`, the connection state of the generator terminal.
-- `voltageRegulatorOn`, to activate or deactivate the generator voltage regulator status. If `true` and the generator target voltage is not set then is computed an acceptable value for the generator `targetV` before activating.
+- `voltageRegulatorOn`, to activate or deactivate the generator voltage regulator status. If `true` and the generator target voltage is not set then an acceptable value for the generator `targetV` is computed before activating.
 - The active power if `targetP` or `deltaTargetP` are given. An active power is determined by the new `targetP` if given, and if not then the `deltaTargetP` is considered instead and the new value of the generator `targetP` is the addition of the old generator value with the given delta target P value. Then, according to the given `ignoreCorrectiveOperations` parameter:
   - If `ignoreCorrectiveOperations` is true, this determined active power is applied as the new generator target P value.
   - If `ignoreCorrectiveOperations` is false, then the new active power will also depend on the limits and will be the minimum value between the generator `maxP` and the maximum value between the generator `minP` and the previously determined active power value. Besides, if the generator connection state has not been updated before within this `NetworkModification` then the generator is connected if necessary.
@@ -165,16 +165,16 @@ This modification is used to modify a given HVDC line (and potentially its angle
 - Modify the HVDC line `activePowerSetpoint` if given, relatively to the existent `activePowerSetpoint` if `relativeValue` is true or as a replacement value if not.
 - Modify the `convertersMode` with the given one if set
 - Modify the angle droop active power control extension (if existing but will not crash if not found for the HVDC line):
-  - Enable or disable the ac emulation if given with the given `acEmulationEnabled`
-  - Update the active power if given with the given `p0`
-  - Update the droop in MW/degree if given with the given `droop`
+  - Enable or disable the ac emulation `acEmulationEnabled` is provided
+  - Update the active power if `p0` is provided
+  - Update the droop in MW/degree if `droop` is provided
 
 Class: `HvdcLineModification`
 
 ### Load
 
 #### Modification
-This modification is used to change the `P` and `Q` values of the load to new fixed values.
+This modification updates the `P` and `Q` values of the load.
 
 If `relativeValue` is true, then the new constant active power (P0) and reactive power (Q0) are set as the addition of the given value to the ancient one.  
 If `relativeValue` is false, then the new constant active power (P0) and reactive power (Q0) are updated to the new given value.
@@ -189,23 +189,23 @@ Class: `PercentChangeLoadModification`
 ### Phase shifters
 
 #### Optimize tap modification
-This modification is used to find the optimal phase tap changer position of a given two windings transformer phase shifter id.
+This modification is used to find the optimal phase-tap changer position of a given two-winding transformer phase shifter id.
 
-A phase shifter optimization load flow is run with the configured `load-flow-based-phase-shifter-optimizer` to determine this optimal.
+A phase shifter optimization load flow is run with the configured `load-flow-based-phase-shifter-optimizer` to determine the optimal tap position.
 
 Class: `PhaseShifterOptimizeTap`
 
 #### Fixed tap modification
-This modification is used to update the phase tap changer of a given two windings transformer phase shifter id.
+This modification updates the phase-tap changer of a given two-winding transformer phase shifter id.
 
-It updates its `tapPosition` with the given value and set the phase tap changer as not regulating with a `FIXED_TAP` regulation mode.
+It updates its `tapPosition` with the given value and set the phase-tap changer as not regulating with a `FIXED_TAP` regulation mode.
 
 Class: `PhaseShifterSetAsFixedTap`
 
 #### Shift tap modification
-This modification is used to update the phase tap changer of a given two windings transformer phase shifter id.
+This modification is used to update the phase-tap changer of a given two-winding transformer phase shifter id.
 
-It sets the phase tap changer as not regulating with a `FIXED_TAP` regulation mode and updates its `tapPosition` by adjusting it with the given `tapDelta` applied on the current tap position. The resulting ta position is bounded by the phase tap changer lowest and highest possible positions.
+It sets the phase-tap changer as not regulating with a `FIXED_TAP` regulation mode and updates its `tapPosition` by adjusting it with the given `tapDelta` applied on the current tap position. The resulting tap position is bounded by the phase-tap changer lowest and highest possible positions.
 
 Class: `PhaseShifterShiftTap`
 
@@ -215,11 +215,11 @@ This modification is used to replace all the tie lines of a network to simple li
 - The two voltage levels are set from the tie line dangling lines terminal voltage levels (the first voltage level from the first dangling line and the second from the second one).
 - For each voltage level the topology kind is taken into account to create node (for `NODE_BREAKER` kind) or bus and connectable bus (for `BUS_BREAKER` kind)
 - The tie line id, name, r, x, b1, b2, g1, g2 are set in the new line
-- Active power limits, apparent power limits and current limits are set on each side of the line from the limits of the 2 tie line dangling lines
+- Active power limits, apparent power limits and current limits are set on each side of the line from the limits of the 2 dangling lines
 - Terminal active and reactive powers are set for both terminals from each dangline line active and reactive powers
 - Line properties are set from the merge of the tie line and its 2 dangling lines properties
 - Line aliases are set from the merge of the tie line and its 2 dangling lines aliases
-- If the tie line has a pairing key then its is added to the new line as a pairing key alias
+- If the tie line has a pairing key then it is added to the new line as a pairing key alias
 - The tie line and its dangling lines are removed from the network
 
 Class: `ReplaceTieLinesByLines`
@@ -227,12 +227,12 @@ Class: `ReplaceTieLinesByLines`
 ### Shunt compensator
 This modification is used to (dis)connect a shunt compensator and/or change its section count in service.
 
-If the modification connects the shunt compensator and its terminal is regulating then it also set its target voltage if an acceptable value is found.
+If the modification connects the shunt compensator and its terminal is regulating then it will also set its target voltage if an acceptable value is found.
 
 Class: `ShuntCompensatorModification`
 
 ### Static var compensator
-This modification is used to modify the voltage and reactive power setpoints of a static var compensator, following a load convention.
+This modification modifies the voltage and reactive power setpoints of a static var compensator, following a load convention.
 
 Class: `StaticVarCompensatorModification`
 
@@ -249,25 +249,25 @@ Class: `OpenSwitch`
 
 ### Transformers
 
-#### Three windings transformers legs rated voltage
-This modification is used to modify the rated voltage of each leg of a three windings transformer.
+#### Three-winding transformers legs rated voltage
+This modification is used to modify the rated voltage of each leg of a three-winding transformer.
 
-On each leg the new rated voltage is computed from the given common rated voltage multiplied by the ratio (leg old rated voltage / rated voltage of the three windings transformer (the `ratedU0` also used as nominal voltage) at the fictitious bus (in kV)).
+On each leg the new rated voltage is computed from the given common rated voltage multiplied by the ratio (leg old rated voltage / rated voltage of the three-winding transformer (the `ratedU0` also used as nominal voltage) at the fictitious bus (in kV)).
 
 Class: `ThreeWindingsTransformerModification`
 
-#### Replace 1 three windings transformer by 3 two windings transformers
+#### Replace 1 three-winding transformer by 3 two-winding transformers
 This modification is used to replace all or a given list of `ThreeWindingsTransformer` by triplets of `TwoWindingsTransformer`.
 
 For each `ThreeWindingsTransformer` to be replaced:
 - A new voltage level is created for the star node with nominal voltage of ratedU0.
 - Three `TwoWindingsTransformers` are created, one for each leg of the `ThreeWindingsTransformer` to transform.
 - The following attributes are copied from each leg to the new associated `TwoWindingsTransformer`:
-  - Electrical characteristics, ratio tap changers, and phase tap changers. No adjustments are required.
-  - Operational Loading Limits are copied to the non-star end of the two windings transformers.
-  - Active and reactive powers at the terminal are copied to the non-star terminal of the two windings transformer.
+  - Electrical characteristics, ratio tap changers, and phase-tap changers. No adjustments are required.
+  - Operational Loading Limits are copied to the non-star end of the two-winding transformers.
+  - Active and reactive powers at the terminal are copied to the non-star terminal of the two-winding transformer.
 - Aliases:
-  - Aliases for known CGMES identifiers (terminal, transformer end, ratio, and phase tap changer) are copied to the right `TwoWindingsTransformer` after adjusting the alias type.
+  - Aliases for known CGMES identifiers (terminal, transformer end, ratio, and phase-tap changer) are copied to the right `TwoWindingsTransformer` after adjusting the alias type.
   - Aliases that are not mapped are recorded in the functional log.
 - Properties:
   - Star bus voltage and angle are set to the bus created for the star node.
@@ -283,7 +283,7 @@ For each `ThreeWindingsTransformer` to be replaced:
 
 Class: `ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers`
 
-#### Replace 3 two windings transformers by 1 three windings transformer
+#### Replace 3 two-winding transformers by 1 three-winding transformer
 This modification is used to replace all or a given list of `TwoWindingsTransformer` by `ThreeWindingsTransformer`.
 
 In the list of `TwoWindingsTransformer` if only one of a triplet of `TwoWindingsTransformer` is given then the 3 `TwoWindingsTransformer` will be transformed to a `ThreeWindingsTransformer`.
@@ -291,16 +291,16 @@ In the list of `TwoWindingsTransformer` if only one of a triplet of `TwoWindings
 Conditions to detect a triplet of `TwoWindingsTransformer` to transform:
 - `BusbarSections` and the three `TwoWindingsTransformer` are the only connectable equipment allowed in the voltage level associated with the star bus.
 - The three `TwoWindingsTransformer` must be connected to the star bus.
-- The star terminals of the two windings transformers must not be regulated terminals for any controller.
+- The star terminals of the two-winding transformers must not be regulated terminals for any controller.
 - Each `TwoWindingsTransformer` is well oriented if the star bus is located at the end 2.
 
 Then a `ThreeWindingsTransformer` is created to replace them:
 - The following attributes are copied from each `TwoWindingsTransformer` to the new associated leg:
-  - Electrical characteristics, ratio tap changers, and phase tap changers. Adjustments are required if the `TwoWindingsTransformer` is not well oriented.
+  - Electrical characteristics, ratio tap changers, and phase-tap changers. Adjustments are required if the `TwoWindingsTransformer` is not well oriented.
   - Only the operational loading limits defined at the non-star end are copied to the leg.
   - Active and reactive powers at the non-star terminal are copied to the leg terminal.
 - Aliases:
-  - Aliases for known CGMES identifiers (terminal, transformer end, ratio, and phase tap changer) are copied to the `ThreeWindingsTransformer` after adjusting the alias type.
+  - Aliases for known CGMES identifiers (terminal, transformer end, ratio, and phase-tap changer) are copied to the `ThreeWindingsTransformer` after adjusting the alias type.
   - Aliases that are not mapped are recorded in the functional log.
 - Properties:
   - Voltage and angle of the star bus are added as properties of the `ThreeWindingsTransformer`.
@@ -319,24 +319,24 @@ Class: `Replace3TwoWindingsTransformersByThreeWindingsTransformers`
 
 ### Tap changers
 
-#### Phase tap changer position
-This modification is used to modify a phase tap changers tap position of a given `PhaseTapChangerHolder` (for two or three windings transformer).
+#### Phase-tap changer position
+This modification is used to modify a phase-tap changers tap position of a given `PhaseTapChangerHolder` (for two or three-winding transformer).
 
 The new tap position can be either the one given in parameter or a relative position added to the existing one.  
 The `PhaseTapChangerHolder` can be from:
-- A two windings transformers
-- A three windings transformer with a single phase tap changer
-- A leg of a three windings transformer
+- A two-winding transformers
+- A three-winding transformer with a single phase-tap changer
+- A leg of a three-winding transformer
 
 Class: `PhaseTapPositionModification`
 
 #### Ratio tap changer position
-This modification is used to modify a ratio tap changers tap position of a given `RatioTapChangerHolder` (for two or three windings transformer).
+This modification is used to modify a ratio tap changers tap position of a given `RatioTapChangerHolder` (for two or three-winding transformer).
 
 The `RatioTapChangerHolder` can be from:
-- a two windings transformers
-- a three windings transformer with a single phase tap changer
-- a leg of a three windings transformer
+- A two-winding transformers
+- A three-winding transformer with a single phase-tap changer
+- A leg of a three-winding transformer
 
 Class: `RatioTapPositionModification`
 
