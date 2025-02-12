@@ -146,7 +146,7 @@ Class: `GeneratorModification`
 #### Connection
 This modification is used to connect a given generator.
 
-If the generator terminal is regulating then it also set its target voltage if an acceptable value is found.
+If the generator terminal is regulating then it will also set its target voltage if an acceptable value is found.
 
 Class: `ConnectGenerator`
 
@@ -165,7 +165,7 @@ This modification is used to modify a given HVDC line (and potentially its angle
 - Modify the HVDC line `activePowerSetpoint` if given, relatively to the existent `activePowerSetpoint` if `relativeValue` is true or as a replacement value if not.
 - Modify the `convertersMode` with the given one if set
 - Modify the angle droop active power control extension (if existing but will not crash if not found for the HVDC line):
-  - Enable or disable the ac emulation `acEmulationEnabled` is provided
+  - Enable or disable the AC emulation if `acEmulationEnabled` is provided
   - Update the active power if `p0` is provided
   - Update the droop in MW/degree if `droop` is provided
 
@@ -176,8 +176,8 @@ Class: `HvdcLineModification`
 #### Modification
 This modification updates the `P` and `Q` values of the load.
 
-If `relativeValue` is true, then the new constant active power (P0) and reactive power (Q0) are set as the addition of the given value to the ancient one.  
-If `relativeValue` is false, then the new constant active power (P0) and reactive power (Q0) are updated to the new given value.
+If `relativeValue` is true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given value to the previous ones.  
+If `relativeValue` is false, then the new constant active power (`P0`) and reactive power (`Q0`) are updated to the new given value.
 
 Class: `LoadModification`
 
@@ -216,7 +216,7 @@ This modification is used to replace all the tie lines of a network to simple li
 - For each voltage level the topology kind is taken into account to create node (for `NODE_BREAKER` kind) or bus and connectable bus (for `BUS_BREAKER` kind)
 - The tie line id, name, r, x, b1, b2, g1, g2 are set in the new line
 - Active power limits, apparent power limits and current limits are set on each side of the line from the limits of the 2 dangling lines
-- Terminal active and reactive powers are set for both terminals from each dangline line active and reactive powers
+- Terminal active and reactive powers are set for both terminals from each dangling line active and reactive powers
 - Line properties are set from the merge of the tie line and its 2 dangling lines properties
 - Line aliases are set from the merge of the tie line and its 2 dangling lines aliases
 - If the tie line has a pairing key then it is added to the new line as a pairing key alias
