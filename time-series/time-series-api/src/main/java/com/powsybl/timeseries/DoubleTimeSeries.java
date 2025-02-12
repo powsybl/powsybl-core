@@ -8,6 +8,7 @@
 package com.powsybl.timeseries;
 
 import java.nio.DoubleBuffer;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -99,7 +100,12 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
 
                     @Override
                     public long getTime() {
-                        return e.getValue().get(0).getPoint().getTime();
+                        return getInstant().toEpochMilli();
+                    }
+
+                    @Override
+                    public Instant getInstant() {
+                        return e.getValue().get(0).getPoint().getInstant();
                     }
 
                     @Override
