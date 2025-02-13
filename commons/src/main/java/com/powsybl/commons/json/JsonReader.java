@@ -239,10 +239,10 @@ public class JsonReader extends AbstractTreeDataReader {
 
     @Override
     public void readChildNodes(ChildNodeReader childNodeReader) {
-        AttributeReader unexpectedAttributeWhileReadingChildren = attributeName -> {
+        AttributeReader throwingAttributeReader = attributeName -> {
             throw new PowsyblException("Unexpected attribute while reading child node '" + attributeName + "', attributes are expected to be before children nodes");
         };
-        readNode(childNodeReader, unexpectedAttributeWhileReadingChildren);
+        readNode(childNodeReader, throwingAttributeReader);
     }
 
     @FunctionalInterface

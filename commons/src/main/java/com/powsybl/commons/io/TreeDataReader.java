@@ -17,16 +17,21 @@ import java.util.OptionalInt;
  */
 public interface TreeDataReader extends AutoCloseable {
 
+    @FunctionalInterface
     interface ChildNodeReader {
 
         /**
-         * The implementations must read the full node corresponding to the given name,
-         * including the corresponding end node
-         * @param nodeName field name of the started node
+         * The implementations must read the full node corresponding to the given node name
+         * (including the corresponding end node if any)
+         * @param nodeName field name of the started child node
          */
         void onStartNode(String nodeName);
     }
 
+    /**
+     * Read the file header, among which the serialization versions
+     * @return the {@link TreeDataHeader} containing the serialization versions
+     */
     TreeDataHeader readHeader();
 
     double readDoubleAttribute(String name);
@@ -63,10 +68,21 @@ public interface TreeDataReader extends AutoCloseable {
 
     List<String> readStringArrayAttribute(String name);
 
+    /**
+     * Skip everything contained in current node, from the current parser position to the end node (if any)
+     */
     void skipNode();
 
+    /**
+     * Read the child nodes from the current parser position to the end node (if any).
+     * Throws an {@link com.powsybl.commons.PowsyblException} if encountering a scalar attribute.
+     */
     void readChildNodes(ChildNodeReader childNodeReader);
 
+    /**
+     * Read the end node at current parser position.
+     * Throws an {@link com.powsybl.commons.PowsyblException} if encountering anything else than an end node.
+     */
     void readEndNode();
 
     @Override
