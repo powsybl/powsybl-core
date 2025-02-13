@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CgmesMetadataModelsAdder;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
@@ -495,11 +494,11 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // Obtain exported model identifiers from reporter
         Set<String> exportedModelIdsFromReporter = new HashSet<>();
         for (ReportNode n : report.getChildren()) {
-            if (CgmesExportUtil.REPORT_NODE_KEY_EXPORTED_CGMES_ID.equals(n.getMessageKey())) {
-                cgmesId = n.getValue(CgmesExportUtil.REPORT_VALUE_EXPORTED_CGMES_ID).orElseThrow().toString();
+            if ("ExportedCgmesId".equals(n.getMessageKey())) {
+                cgmesId = n.getValue("cgmesId").orElseThrow().toString();
                 exportedModelIdsFromReporter.add(cgmesId);
-                String subset = n.getValue(CgmesExportUtil.REPORT_VALUE_EXPORTED_CGMES_SUBSET).orElseThrow().toString();
-                String networkId = n.getValue(CgmesExportUtil.REPORT_VALUE_EXPORTED_CGMES_NETWORK_ID).orElseThrow().toString();
+                String subset = n.getValue("cgmesSubset").orElseThrow().toString();
+                String networkId = n.getValue("networkId").orElseThrow().toString();
                 assertEquals(exportedModelId2Subset.get(cgmesId), subset);
                 assertEquals(exportedModelId2NetworkId.get(cgmesId), networkId);
             }

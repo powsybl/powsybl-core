@@ -329,20 +329,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReferenceResources microGridBaseCaseBEUndefinedPatl() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_undefined_PATL/";
-        return new GridModelReferenceResources("MicroGrid-BaseCase-BE-UndefinedPATL",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_BE_SV,
-                        MICRO_GRID_BE_SSH),
-                microGridBaseCaseBoundaries());
-    }
-
     public static GridModelReference microGridBaseCaseBEEquivalentInjectionRegulatingVoltage() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_BE_v2_equivalent_injection_regulating_voltage/";
@@ -484,20 +470,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReferenceResources microGridBaseCaseBELimits() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_limits/";
-        return new GridModelReferenceResources("MicroGrid-BaseCase-BE-Limits",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_BE_SV,
-                        MICRO_GRID_BE_SSH),
-                microGridBaseCaseBoundaries());
-    }
-
     public static GridModelReferenceResources microGridBaseBEFixedMinPMaxP() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_BE_v2_fixed_minP_maxP/";
@@ -519,20 +491,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 null,
                 new ResourceSet(baseModified,
                         MICRO_GRID_BE_EQ,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_BE_SV,
-                        MICRO_GRID_BE_SSH),
-                microGridBaseCaseBoundaries());
-    }
-
-    public static GridModelReferenceResources microGridBaseCaseBEMissingLimitValue() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_missing_limit_value/";
-        return new GridModelReferenceResources("MicroGrid-BaseCase-BE-missing-limit-value",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ),
-                new ResourceSet(MICRO_GRID_BE_BASE,
                         MICRO_GRID_BE_TP,
                         MICRO_GRID_BE_SV,
                         MICRO_GRID_BE_SSH),
@@ -916,23 +874,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 new ResourceSet(MINI_GRID_NODE_BREAKER_BD_BASE, MINI_GRID_BD_EQ,
                         MINI_GRID_BD_TP));
 
-    }
-
-    public static GridModelReferenceResources miniNodeBreakerLimitsforEquipment() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_limits/";
-        return new GridModelReferenceResources(
-                "MiniGrid-NodeBreaker-LimistForEquipment",
-                null,
-                new ResourceSet(base,
-                        MINI_GRID_EQ),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BASE,
-                        MINI_GRID_DL,
-                        MINI_GRID_SSH,
-                        MINI_GRID_SV,
-                        MINI_GRID_TP),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BD_BASE, MINI_GRID_BD_EQ,
-                        MINI_GRID_BD_TP));
     }
 
     public static GridModelReferenceResources miniNodeBreakerInvalidT2w() {
