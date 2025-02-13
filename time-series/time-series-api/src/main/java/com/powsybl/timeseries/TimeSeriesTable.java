@@ -8,13 +8,17 @@
 package com.powsybl.timeseries;
 
 import com.google.common.base.Stopwatch;
-
 import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -22,7 +26,11 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -30,6 +38,9 @@ import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.GZIPOutputStream;
+
+import static com.powsybl.timeseries.TimeSeries.writeInstantToMicroString;
+import static com.powsybl.timeseries.TimeSeries.writeInstantToNanoString;
 
 /**
  * Utility class to load time series into a table and then:
@@ -649,14 +660,13 @@ public class TimeSeriesTable {
     }
 
     private void writeTime(Writer writer, TimeSeriesCsvConfig timeSeriesCsvConfig, int point, int cachedPoint) throws IOException {
-        long time = tableIndex.getTimeAt(point + cachedPoint);
+        Instant instant = tableIndex.getInstantAt(point + cachedPoint);
         switch (timeSeriesCsvConfig.timeFormat()) {
-            case DATE_TIME -> {
-                ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
-                writer.write(zonedDateTime.format(timeSeriesCsvConfig.dateTimeFormatter()));
-            }
-            case FRACTIONS_OF_SECOND -> writer.write(Double.toString(time / 1000.0));
-            case MILLIS -> writer.write(Long.toString(time));
+            case DATE_TIME -> writer.write(ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()).format(timeSeriesCsvConfig.dateTimeFormatter()));
+            case FRACTIONS_OF_SECOND -> writer.write(Double.toString(instant.getEpochSecond() + instant.getNano() / 1e9));
+            case MILLIS -> writer.write(Long.toString(instant.toEpochMilli()));
+            case MICROS -> writer.write(writeInstantToMicroString(instant));
+            case NANOS -> writer.write(writeInstantToNanoString(instant));
             default -> throw new IllegalStateException("Unknown time format " + timeSeriesCsvConfig.timeFormat());
         }
     }

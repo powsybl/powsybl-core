@@ -6,7 +6,7 @@
       Instance file MicroGridTestConfiguration_BC_BE_EQ_V2.xml
       Instance file MicroGridTestConfiguration_BC_BE_SV_V2.xml
       Instance file MicroGridTestConfiguration_BC_BE_SSH_V2.xml
-   + Importing CGMES file(s)
+   + Importing CGMES file(s) with basename 'MicroGridTestConfiguration_BC_BE'
       Applying preprocessors.
       Building mappings.
       Converting Substation.

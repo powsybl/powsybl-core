@@ -14,11 +14,19 @@ import org.threeten.extra.Interval;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import static com.powsybl.timeseries.TimeSeries.parseNanosToInstant;
+import static com.powsybl.timeseries.TimeSeries.writeInstantToNanoString;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -27,11 +35,9 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     public static final String TYPE = "regularIndex";
 
-    private final long startTime; // in ms from epoch
-
-    private final long endTime; // in ms from epoch
-
-    private final long spacing; // in ms
+    private final Instant startInstant;
+    private final Instant endInstant;
+    private final Duration timeStep;
 
     // computed from the previous fields; startTime and endTime are inclusive,
     // with rounding to have easier interactions with calendar dates (the
@@ -41,34 +47,38 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     // between 2 calendar dates.
     private final int pointCount;
 
-    public RegularTimeSeriesIndex(long startTime, long endTime, long spacing) {
-        if (startTime < 0) {
-            throw new IllegalArgumentException("Bad start time value " + startTime);
+    public RegularTimeSeriesIndex(Instant startInstant, Instant endInstant, Duration timeStep) {
+        if (timeStep.isNegative()) {
+            throw new IllegalArgumentException("Bad timeStep value " + timeStep);
         }
-        if (endTime < 0) {
-            throw new IllegalArgumentException("Bad end time value " + endTime);
+        if (timeStep.compareTo(Duration.between(startInstant, endInstant)) > 0) {
+            throw new IllegalArgumentException("TimeStep " + timeStep + " is longer than interval " + (Duration.between(startInstant, endInstant)));
         }
-        if (spacing < 0) {
-            throw new IllegalArgumentException("Bad spacing value " + spacing);
-        }
-        if (spacing > endTime - startTime) {
-            throw new IllegalArgumentException("Spacing " + spacing + " is longer than interval " + (endTime - startTime));
-        }
-        long computedPointCount = computePointCount(startTime, endTime, spacing);
+        long computedPointCount = computePointCount(startInstant, endInstant, timeStep);
         if (computedPointCount > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Point Count " + computedPointCount + " is bigger than max allowed value " + Integer.MAX_VALUE);
         }
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.spacing = spacing;
+        this.startInstant = startInstant;
+        this.endInstant = endInstant;
+        this.timeStep = timeStep;
         this.pointCount = (int) computedPointCount;
+    }
+
+    /**
+     * @deprecated Replaced by {@link RegularTimeSeriesIndex#RegularTimeSeriesIndex(Instant, Instant, Duration)}
+     */
+    @Deprecated(since = "6.7.0")
+    public RegularTimeSeriesIndex(long startTime, long endTime, long spacing) {
+        this(Instant.ofEpochMilli(startTime),
+            Instant.ofEpochMilli(endTime),
+            Duration.ofMillis(spacing));
     }
 
     public static RegularTimeSeriesIndex create(Instant start, Instant end, Duration spacing) {
         Objects.requireNonNull(start);
         Objects.requireNonNull(end);
         Objects.requireNonNull(spacing);
-        return new RegularTimeSeriesIndex(start.toEpochMilli(), end.toEpochMilli(), spacing.toMillis());
+        return new RegularTimeSeriesIndex(start, end, spacing);
     }
 
     public static RegularTimeSeriesIndex create(Interval interval, Duration spacing) {
@@ -80,25 +90,30 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         Objects.requireNonNull(parser);
         JsonToken token;
         try {
-            long startTime = -1;
-            long endTime = -1;
-            long spacing = -1;
+            Instant startInstant = null;
+            Instant endInstant = null;
+            Duration timeStep = null;
             while ((token = parser.nextToken()) != null) {
                 switch (token) {
                     case FIELD_NAME -> {
                         String fieldName = parser.currentName();
                         switch (fieldName) {
-                            case "startTime" -> startTime = parser.nextLongValue(-1);
-                            case "endTime" -> endTime = parser.nextLongValue(-1);
-                            case "spacing" -> spacing = parser.nextLongValue(-1);
+                            // Precision in ms
+                            case "startTime" -> startInstant = Instant.ofEpochMilli(parser.nextLongValue(-1));
+                            case "endTime" -> endInstant = Instant.ofEpochMilli(parser.nextLongValue(-1));
+                            case "spacing" -> timeStep = Duration.ofMillis(parser.nextLongValue(-1));
+                            // Precision in ns
+                            case "startInstant" -> startInstant = parseNanoTokenToInstant(parser);
+                            case "endInstant" -> endInstant = parseNanoTokenToInstant(parser);
+                            case "timeStep" -> timeStep = Duration.ofNanos(parser.nextLongValue(-1));
                             default -> throw new IllegalStateException("Unexpected field " + fieldName);
                         }
                     }
                     case END_OBJECT -> {
-                        if (startTime == -1 || endTime == -1 || spacing == -1) {
+                        if (startInstant == null || endInstant == null || timeStep == null) {
                             throw new IllegalStateException("Incomplete regular time series index json");
                         }
-                        return new RegularTimeSeriesIndex(startTime, endTime, spacing);
+                        return new RegularTimeSeriesIndex(startInstant, endInstant, timeStep);
                     }
                     default -> {
                         // Do nothing
@@ -111,20 +126,44 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         }
     }
 
+    /**
+     * @deprecated Replaced by {@link RegularTimeSeriesIndex#getStartInstant()}
+     */
+    @Deprecated(since = "6.7.0")
     public long getStartTime() {
-        return startTime;
+        return startInstant.toEpochMilli();
     }
 
+    public Instant getStartInstant() {
+        return startInstant;
+    }
+
+    /**
+     * @deprecated Replaced by {@link RegularTimeSeriesIndex#getEndInstant()}
+     */
+    @Deprecated(since = "6.7.0")
     public long getEndTime() {
-        return endTime;
+        return endInstant.toEpochMilli();
     }
 
+    public Instant getEndInstant() {
+        return endInstant;
+    }
+
+    /**
+     * @deprecated Replaced by {@link RegularTimeSeriesIndex#getTimeStep()}
+     */
+    @Deprecated(since = "6.7.0")
     public long getSpacing() {
-        return spacing;
+        return timeStep.toMillis();
     }
 
-    private static long computePointCount(long startTime, long endTime, long spacing) {
-        return Math.round(((double) (endTime - startTime)) / spacing) + 1;
+    public Duration getTimeStep() {
+        return timeStep;
+    }
+
+    private static long computePointCount(Instant startTime, Instant endTime, Duration spacing) {
+        return Math.round(((double) (Duration.between(startTime, endTime).toNanos())) / spacing.toNanos()) + 1;
     }
 
     @Override
@@ -133,22 +172,22 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     }
 
     @Override
-    public long getTimeAt(int point) {
-        return startTime + point * spacing;
+    public Instant getInstantAt(int point) {
+        return startInstant.plus(timeStep.multipliedBy(point));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(startTime, endTime, spacing);
+        return Objects.hash(startInstant, endInstant, timeStep);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof TimeSeriesIndex) {
             RegularTimeSeriesIndex otherIndex = (RegularTimeSeriesIndex) obj;
-            return startTime == otherIndex.startTime &&
-                    endTime == otherIndex.endTime &&
-                    spacing == otherIndex.spacing;
+            return startInstant.equals(otherIndex.startInstant) &&
+                endInstant.equals(otherIndex.endInstant) &&
+                timeStep.equals(otherIndex.timeStep);
         }
         return false;
     }
@@ -158,14 +197,25 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         return TYPE;
     }
 
+    /**
+     * <p>Writes the index in a JSON format.</p>
+     * <p>If {@code timeFormat = ExportFormat.MILLISECONDS}, values are written in millisecond precision. Else, if
+     * {@code timeFormat = ExportFormat.NANOSECONDS}, values are written in nanosecond precision</p>
+     */
     @Override
-    public void writeJson(JsonGenerator generator) {
+    public void writeJson(JsonGenerator generator, ExportFormat timeFormat) {
         Objects.requireNonNull(generator);
         try {
             generator.writeStartObject();
-            generator.writeNumberField("startTime", startTime);
-            generator.writeNumberField("endTime", endTime);
-            generator.writeNumberField("spacing", spacing);
+            if (timeFormat == ExportFormat.MILLISECONDS) {
+                generator.writeNumberField("startTime", startInstant.toEpochMilli());
+                generator.writeNumberField("endTime", endInstant.toEpochMilli());
+                generator.writeNumberField("spacing", timeStep.toMillis());
+            } else {
+                generator.writeNumberField("startInstant", new BigInteger(writeInstantToNanoString(startInstant)));
+                generator.writeNumberField("endInstant", new BigInteger(writeInstantToNanoString(endInstant)));
+                generator.writeNumberField("timeStep", timeStep.toNanos());
+            }
             generator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -174,13 +224,13 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     @Override
     public Iterator<Instant> iterator() {
-        return new Iterator<Instant>() {
+        return new Iterator<>() {
 
-            long time = startTime;
+            Instant time = startInstant;
 
             @Override
             public boolean hasNext() {
-                return time <= endTime;
+                return time.compareTo(endInstant) <= 0;
             }
 
             @Override
@@ -188,8 +238,8 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                Instant instant = Instant.ofEpochMilli(time);
-                time += spacing;
+                Instant instant = time;
+                time = time.plus(timeStep);
                 return instant;
             }
         };
@@ -204,7 +254,14 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     @Override
     public String toString() {
-        return "RegularTimeSeriesIndex(startTime=" + Instant.ofEpochMilli(startTime) + ", endTime=" + Instant.ofEpochMilli(endTime) +
-                ", spacing=" + Duration.ofMillis(spacing) + ")";
+        return "RegularTimeSeriesIndex(startInstant=" + startInstant + ", endInstant=" + endInstant + ", timeStep=" + timeStep + ")";
+    }
+
+    private static Instant parseNanoTokenToInstant(JsonParser parser) throws IOException {
+        // The next token contains the value
+        parser.nextToken();
+
+        // Parse the value
+        return parseNanosToInstant(parser.getValueAsString());
     }
 }
