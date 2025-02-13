@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
@@ -19,7 +20,6 @@ import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
@@ -49,11 +49,6 @@ public final class CgmesExportUtil {
 
     private CgmesExportUtil() {
     }
-
-    public static final String REPORT_NODE_KEY_EXPORTED_CGMES_ID = "ExportedCgmesId";
-    public static final String REPORT_VALUE_EXPORTED_CGMES_ID = "cgmesId";
-    public static final String REPORT_VALUE_EXPORTED_CGMES_SUBSET = "cgmesSubset";
-    public static final String REPORT_VALUE_EXPORTED_CGMES_NETWORK_ID = "networkId";
 
     // Avoid trailing zeros and format always using US locale
 
@@ -146,12 +141,12 @@ public final class CgmesExportUtil {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelDescription.getId());
         // Report the exported CGMES model identifiers
-        context.getReportNode().newReportNode()
-                .withMessageTemplate(REPORT_NODE_KEY_EXPORTED_CGMES_ID, "CGMES exported model identifier: ${cgmesId} for subset ${cgmesSubset} of network ${networkId}")
-                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_ID, modelDescription.getId(), TypedValue.URN_UUID)
-                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_SUBSET, subset.getIdentifier(), TypedValue.CGMES_SUBSET)
-                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_NETWORK_ID, network.getId(), TypedValue.ID)
-                .add();
+        CgmesReports.exportedModelIdentifierReport(
+                context.getReportNode(),
+                modelDescription.getId(),
+                subset.getIdentifier(),
+                network.getId()
+        );
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(DATE_TIME_FORMATTER.format(context.getScenarioTime()));
         writer.writeEndElement();
