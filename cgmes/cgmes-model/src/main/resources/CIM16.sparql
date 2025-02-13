@@ -377,20 +377,21 @@ SELECT *
 WHERE
 { GRAPH ?graph {
     ?OperationalLimit
-        a $OperationalLimitSubclass ;
+        a ?OperationalLimitSubclass ;
         cim:IdentifiedObject.name ?name ;
         cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
         cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
     OPTIONAL { ?OperationalLimit entsoe:IdentifiedObject.shortName ?shortName }
     OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
+    OPTIONAL { ?OperationalLimit cim:ActivePowerLimit.value ?value }
     OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
     OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
     OPTIONAL { ?OperationalLimitSet cim:IdentifiedObject.name ?OperationalLimitSetName }
     # operational limit sets can be attached to terminals or equipments
     OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal }
     OPTIONAL { GRAPH ?graph2 {
-        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
-        ?Equipment cim:Equipment.EquipmentContainer ?EquipmentContainer
+        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment
+        OPTIONAL { ?Equipment cim:Equipment.EquipmentContainer ?EquipmentContainer }
     }}
     ?OperationalLimitType
         a cim:OperationalLimitType ;
