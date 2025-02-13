@@ -424,9 +424,6 @@ WHERE {
     FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
         || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2) )
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?Switch cim:Switch.open ?open
-}}
 }
 
 # query: acLineSegments

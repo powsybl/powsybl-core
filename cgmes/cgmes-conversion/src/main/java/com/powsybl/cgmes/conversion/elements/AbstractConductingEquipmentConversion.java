@@ -36,9 +36,6 @@ import java.util.Optional;
  */
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
 
-    private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
-    private static final String CONNECTED = "connected";
-
     protected AbstractConductingEquipmentConversion(
             String type,
             PropertyBag p,
@@ -226,8 +223,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                     .add();
         }
         context.terminalMapping().add(terminalId(boundarySide), dl.getBoundary(), 2);
-        dl.addAlias(terminalId(boundarySide), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY, terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
+        dl.addAlias(terminalId(boundarySide), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY);
+        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY, terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
         dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
         dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal", terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
         Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, tn));
@@ -254,11 +251,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     public static boolean isBoundaryTerminalConnected(DanglingLine danglingLine, Context context) {
-        return getBoundaryCgmesTerminal(danglingLine, context).map(cgmesTerminalData -> cgmesTerminalData.asBoolean(CONNECTED, true)).orElse(true);
+        return getBoundaryCgmesTerminal(danglingLine, context).map(cgmesTerminalData -> cgmesTerminalData.asBoolean(CgmesNames.CONNECTED, true)).orElse(true);
     }
 
     private static Optional<PropertyBag> getBoundaryCgmesTerminal(DanglingLine danglingLine, Context context) {
-        String cgmesTerminalId = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY).orElse(null);
+        String cgmesTerminalId = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY).orElse(null);
         return cgmesTerminalId != null ? Optional.ofNullable(context.cgmesTerminal(cgmesTerminalId)) : Optional.empty();
     }
 
@@ -383,7 +380,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (topologicalNodeIdOnBoundarySide != null) {
             return topologicalNodeIdOnBoundarySide;
         }
-        String terminalIdOnBoundarySide = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
+        String terminalIdOnBoundarySide = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY);
         if (terminalIdOnBoundarySide != null) {
             PropertyBag cgmesTerminal = context.cgmesTerminal(terminalIdOnBoundarySide);
             if (cgmesTerminal != null) {
@@ -415,20 +412,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     int iidmNode() {
-        return iidmNode(1, true);
+        return iidmNode(1);
     }
 
     int iidmNode(int n) {
-        return iidmNode(n, true);
-    }
-
-    int iidmNode(int n, boolean equipmentIsConnected) {
         if (!context.nodeBreaker()) {
             throw new ConversionException("Can't request an iidmNode if conversion context is not node-breaker");
         }
         VoltageLevel vl = terminals[n - 1].voltageLevel;
         CgmesTerminal t = terminals[n - 1].t;
-        return context.nodeMapping().iidmNodeForTerminal(t, type.equals("Switch"), vl, equipmentIsConnected);
+        return context.nodeMapping().iidmNodeForTerminal(t, vl);
     }
 
     String busId() {
@@ -544,7 +537,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     private static void updateTerminal(PropertyBag cgmesTerminal, Terminal terminal, Context context) {
         if (updateConnect(terminal, context)) {
-            boolean connectedInUpdate = cgmesTerminal.asBoolean(CONNECTED, true);
+            boolean connectedInUpdate = cgmesTerminal.asBoolean(CgmesNames.CONNECTED, true);
             if (terminal.isConnected() != connectedInUpdate) {
                 if (connectedInUpdate) {
                     terminal.connect();
@@ -691,18 +684,17 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(VoltageLevel.NodeBreakerView.SwitchAdder adder, boolean open) {
+    public void connectWithOnlyEq(VoltageLevel.NodeBreakerView.SwitchAdder adder) {
         if (!context.nodeBreaker()) {
             throw new ConversionException("Not in node breaker context");
         }
-        adder.setNode1(iidmNode(1)).setNode2(iidmNode(2)).setOpen(open);
+        adder.setNode1(iidmNode(1)).setNode2(iidmNode(2));
     }
 
-    public void connect(VoltageLevel.BusBreakerView.SwitchAdder adder, boolean open) {
+    public void connectWithOnlyEq(VoltageLevel.BusBreakerView.SwitchAdder adder) {
         adder
-            .setBus1(busId(1))
-            .setBus2(busId(2))
-            .setOpen(open || !terminalConnected(1) || !terminalConnected(2));
+                .setBus1(busId(1))
+                .setBus2(busId(2));
     }
 
     public void connectWithOnlyEq(LegAdder adder, int terminal) {
@@ -849,6 +841,25 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         NOT_DEFINED,
         NOT_VALID,
         ALWAYS
+    }
+
+    protected static Optional<Boolean> getIsOpenFromBothTerminalStatus(Switch sw, Context context) {
+        Optional<Boolean> connected1 = getIsTerminalConnected(sw, context, TwoSides.ONE);
+        Optional<Boolean> connected2 = getIsTerminalConnected(sw, context, TwoSides.TWO);
+        return connected1.flatMap(c1 -> connected2.map(c2 -> !c1 || !c2))
+                .or(() -> connected1.map(c1 -> !c1))
+                .or(() -> connected2.map(c2 -> !c2));
+    }
+
+    private static Optional<Boolean> getIsTerminalConnected(Switch sw, Context context, TwoSides side) {
+        return sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + side.getNum())
+                .flatMap(cgmesTerminalId -> Optional.ofNullable(context.cgmesTerminal(cgmesTerminalId)))
+                .flatMap(cgmesTerminal -> cgmesTerminal.asBoolean(CgmesNames.CONNECTED));
+    }
+
+    protected static DefaultValueBoolean getDefaultIsOpen(Switch sw) {
+        String normalOpen = sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN);
+        return new DefaultValueBoolean(normalOpen != null ? Boolean.parseBoolean(normalOpen) : null, sw.isOpen(), false, false);
     }
 
     private final TerminalData[] terminals;

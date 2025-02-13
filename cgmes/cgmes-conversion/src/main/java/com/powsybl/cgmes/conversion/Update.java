@@ -19,6 +19,8 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
 
+import static com.powsybl.cgmes.conversion.elements.AbstractBranchConversion.*;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -131,32 +133,26 @@ public final class Update {
         context.popReportNode();
     }
 
-    static void updateDanglingLines(Network network, CgmesModel cgmes, Context context) {
+    static void updateDanglingLines(Network network, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.DANGLING_LINE.name()));
-
-        Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
-        addPropertyBags(cgmes.switches(), CgmesNames.SWITCH, equipmentIdPropertyBag);
-        network.getDanglingLines().forEach(danglingLine -> updateDanglingLine(danglingLine, equipmentIdPropertyBag, context));
-
+        network.getDanglingLines().forEach(danglingLine -> updateDanglingLine(danglingLine, context));
         context.popReportNode();
     }
 
-    private static void updateDanglingLine(DanglingLine danglingLine, Map<String, PropertyBag> equipmentIdPropertyBag, Context context) {
+    private static void updateDanglingLine(DanglingLine danglingLine, Context context) {
         String originalClass = danglingLine.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
         switch (originalClass) {
             case CgmesNames.AC_LINE_SEGMENT -> ACLineSegmentConversion.update(danglingLine, context);
             case CgmesNames.POWER_TRANSFORMER -> TwoWindingsTransformerConversion.update(danglingLine, context);
             case CgmesNames.EQUIVALENT_BRANCH -> EquivalentBranchConversion.update(danglingLine, context);
-            case CgmesNames.SWITCH -> SwitchConversion.update(danglingLine, getPropertyBag(danglingLine.getId(), equipmentIdPropertyBag), context);
+            case CgmesNames.SWITCH -> SwitchConversion.update(danglingLine, getSwitchPropertyBag(danglingLine.getId(), context), context);
             default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for DanglingLine: " + danglingLine.getId());
         }
     }
 
     static void updateLines(Network network, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.LINE.name()));
-
         network.getLines().forEach(line -> updateLine(line, context));
-
         context.popReportNode();
     }
 
@@ -170,6 +166,44 @@ public final class Update {
         }
     }
 
+    static void updateSwitches(Network network, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.SWITCH.name()));
+        network.getSwitches().forEach(sw -> updateSwitch(sw, context));
+        context.popReportNode();
+    }
+
+    private static void updateSwitch(Switch sw, Context context) {
+        if (sw.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL) != null) {
+            updateSwitchCreatedForDisconnectedTerminal(sw, context);
+            return;
+        }
+        String originalClass = sw.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        switch (originalClass) {
+            case CgmesNames.AC_LINE_SEGMENT -> ACLineSegmentConversion.update(sw, context);
+            case CgmesNames.EQUIVALENT_BRANCH -> EquivalentBranchConversion.update(sw, context);
+            case CgmesNames.SERIES_COMPENSATOR -> SeriesCompensatorConversion.update(sw, context);
+            case CgmesNames.SWITCH, "Breaker", "Disconnector", "LoadBreakSwitch", "ProtectedSwitch", "GroundDisconnector", "Jumper" ->
+                    SwitchConversion.update(sw, getSwitchPropertyBag(sw.getId(), context), context);
+            default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for Switch: " + sw.getId());
+        }
+    }
+
+    // There are some node-breaker models that,
+    // in addition to the information of opened switches also set
+    // the terminal.connected property to false,
+    // we have decided to create fictitious switches to precisely
+    // map this situation to IIDM.
+    // This behavior can be disabled through configuration.
+    public static void createSwitchesForDisconnectedTerminalsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
+        if (createFictitiousSwitch(context)) {
+            cgmes.terminals().forEach(cgmesTerminal -> createSwitchForDisconnectedTerminal(network, cgmesTerminal, context));
+        }
+    }
+
+    private static boolean createFictitiousSwitch(Context context) {
+        return context.config().getCreateFictitiousSwitchesForDisconnectedTerminalsMode() != CgmesImport.FictitiousSwitchesCreationMode.NEVER;
+    }
+
     private static void addPropertyBags(PropertyBags propertyBags, String idTag, Map<String, PropertyBag> equipmentIdPropertyBag) {
         propertyBags.forEach(propertyBag -> equipmentIdPropertyBag.put(propertyBag.getId(idTag), propertyBag));
     }
@@ -180,6 +214,11 @@ public final class Update {
 
     private static PropertyBag getEquivalentInjectionPropertyBag(String equivalentInjectionId, Context context) {
         PropertyBag cgmesData = context.equivalentInjection(equivalentInjectionId);
+        return cgmesData != null ? cgmesData : emptyPropertyBag();
+    }
+
+    private static PropertyBag getSwitchPropertyBag(String switchId, Context context) {
+        PropertyBag cgmesData = context.cgmesSwitch(switchId);
         return cgmesData != null ? cgmesData : emptyPropertyBag();
     }
 

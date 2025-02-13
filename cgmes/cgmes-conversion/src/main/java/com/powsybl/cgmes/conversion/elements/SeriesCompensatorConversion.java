@@ -11,6 +11,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -33,5 +34,9 @@ public class SeriesCompensatorConversion extends AbstractBranchConversion {
 
     public static void update(Line line, Context context) {
         updateBranch(line, context);
+    }
+
+    public static void update(Switch sw, Context context) {
+        updateBranch(sw, context);
     }
 }

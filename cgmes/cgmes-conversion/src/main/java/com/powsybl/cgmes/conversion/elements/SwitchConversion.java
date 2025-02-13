@@ -75,28 +75,24 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     private Switch convertToSwitch() {
-        boolean normalOpen = p.asBoolean("normalOpen", false);
-        boolean open = p.asBoolean("open", normalOpen);
+        boolean normalOpen = p.asBoolean(CgmesNames.NORMAL_OPEN, false);
         Switch s;
         if (context.nodeBreaker()) {
             VoltageLevel.NodeBreakerView.SwitchAdder adder = voltageLevel().getNodeBreakerView().newSwitch().setKind(kind());
             identify(adder);
-            connect(adder, open);
+            connectWithOnlyEq(adder);
             boolean retained = p.asBoolean("retained", false);
-            adder.setRetained(retained);
-            s = adder.add();
-            if (!kindHasDirectMapToIiidm()) {
-                addTypeAsProperty(s);
-            }
+            s = adder.setOpen(normalOpen).setRetained(retained).add();
         } else {
             VoltageLevel.BusBreakerView.SwitchAdder adder = voltageLevel().getBusBreakerView().newSwitch();
             identify(adder);
-            connect(adder, open);
-            s = adder.add();
-            // Always preserve the original type, because all switches at bus/breaker view will be of kind "breaker"
-            addTypeAsProperty(s);
+            connectWithOnlyEq(adder);
+            s = adder.setOpen(normalOpen).add();
         }
+        // Always preserve the original type
+        addTypeAsProperty(s);
         addAliasesAndProperties(s);
+        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
         return s;
     }
 
@@ -119,11 +115,6 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         };
     }
 
-    private boolean kindHasDirectMapToIiidm() {
-        String type = p.getLocal("type");
-        return type.equals("Breaker") || type.equals("Disconnector") || type.equals("LoadBreakSwitch");
-    }
-
     private void addTypeAsProperty(Switch s) {
         s.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, p.getLocal("type"));
     }
@@ -134,13 +125,21 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
 
     public static void update(DanglingLine danglingLine, PropertyBag cgmesData, Context context) {
         updateTerminals(danglingLine, context, danglingLine.getTerminal());
-        boolean isClosed = !cgmesData.asBoolean("open").orElse(defaultValue(defaultOpen(), context));
+        boolean isClosed = !cgmesData.asBoolean(CgmesNames.OPEN).orElse(defaultValue(defaultOpen(), context));
         updateTargetsAndRegulationAndOperationalLimits(danglingLine, isBoundaryTerminalConnected(danglingLine, context) && isClosed, context);
         computeFlowsOnModelSide(danglingLine, context);
     }
 
     private static DefaultValueBoolean defaultOpen() {
         return new DefaultValueBoolean(null, false, false, false);
+    }
+
+    public static void update(Switch sw, PropertyBag cgmesData, Context context) {
+        boolean isOpenFromBothTerminalStatus = sw.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER
+                ? getIsOpenFromBothTerminalStatus(sw, context).orElse(false)
+                : false;
+        boolean isOpen = cgmesData.asBoolean(CgmesNames.OPEN).orElse(defaultValue(getDefaultIsOpen(sw), context));
+        sw.setOpen(isOpen || isOpenFromBothTerminalStatus);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);

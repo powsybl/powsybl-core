@@ -301,6 +301,7 @@ public class Conversion {
         Context updateContext = createUpdateContext(network, reportNode);
 
         // add processes to create new equipment using update data (ssh and sv data)
+        createSwitchesForDisconnectedTerminalsDuringUpdate(network, cgmes, updateContext); // TODO JAM
 
         update(network, updateContext, reportNode);
     }
@@ -325,6 +326,11 @@ public class Conversion {
             nts.forEach(nt -> LOG.debug(cgmes.allObjectsOfType(nt.getLocal("Type")).tabulateLocals()));
         }
 
+        // Switches are updated first because the subsequent update of the terminals
+        // is configurable and, if activated, may modify their state.
+        // Then, the update of the terminals can overwrite the state of the switches
+        updateSwitches(network, updateContext);
+
         updateLoads(network, cgmes, updateContext);
         updateGenerators(network, cgmes, updateContext);
         updateLines(network, updateContext);
@@ -332,7 +338,7 @@ public class Conversion {
         updateStaticVarCompensators(network, cgmes, updateContext);
         updateShuntCompensators(network, cgmes, updateContext);
         updateHvdcLines(network, cgmes, updateContext);
-        updateDanglingLines(network, cgmes, updateContext);
+        updateDanglingLines(network, updateContext);
 
         // Fix dangling lines issues
         updateContext.pushReportNode(CgmesReports.fixingDanglingLinesIssuesReport(reportNode));
