@@ -14,8 +14,6 @@ import java.util.Map;
  */
 public abstract class AbstractTreeDataReader implements TreeDataReader {
 
-    protected final ChildNodeReader skipChild = elementName -> skipNode();
-
     @Override
     public TreeDataHeader readHeader() {
         return new TreeDataHeader(readRootVersion(), readExtensionVersions());
@@ -45,15 +43,4 @@ public abstract class AbstractTreeDataReader implements TreeDataReader {
         String attributeValue = readStringAttribute(name);
         return attributeValue != null ? Enum.valueOf(clazz, attributeValue) : defaultValue;
     }
-
-    @Override
-    public void skipNode() {
-        skipSimpleValueAttributes();
-        readChildNodes(skipChild);
-    }
-
-    /**
-     * Skip the attributes with scalar values
-     */
-    protected abstract void skipSimpleValueAttributes();
 }

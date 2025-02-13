@@ -230,31 +230,32 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
-    protected void skipSimpleValueAttributes() {
-        try {
-            Context startContext = contextQueue.peekLast();
-            while (!(getNextToken() == JsonToken.END_OBJECT && contextQueue.peekLast() == startContext)) {
-                if (Objects.requireNonNull(parser.currentToken()) == JsonToken.FIELD_NAME) {
-                    JsonToken nextToken = parser.nextToken();
-                    if (nextToken.isStructStart()) {
-                        // all attributes have been skipped as a child node is starting
-                        return;
-                    } else if (nextToken.isScalarValue()) {
-                        currentJsonTokenConsumed = true;
-                    } else {
-                        throw newUnexpectedTokenException();
-                    }
-                } else {
-                    throw newUnexpectedTokenException();
-                }
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    public void skipNode() {
+        AttributeReader skipAttribute = attributeName -> {
+            // nothing to do
+        };
+        readNode(nodeName -> skipNode(), skipAttribute);
     }
 
     @Override
     public void readChildNodes(ChildNodeReader childNodeReader) {
+        AttributeReader unexpectedAttributeWhileReadingChildren = attributeName -> {
+            throw new PowsyblException("Unexpected attribute while reading child node '" + attributeName + "', attributes are expected to be before children nodes");
+        };
+        readNode(childNodeReader, unexpectedAttributeWhileReadingChildren);
+    }
+
+    @FunctionalInterface
+    private interface AttributeReader {
+        void onScalar(String attributeName);
+    }
+
+    /**
+     * Read current node until its {@link JsonToken#END_OBJECT} is encountered; this token is marked as consumed when exiting this method
+     * @param childNodeReader reader to use if a child is encountered
+     * @param attributeReader reader to use if a scalar attribute is encountered
+     */
+    private void readNode(ChildNodeReader childNodeReader, AttributeReader attributeReader) {
         Objects.requireNonNull(childNodeReader);
         try {
             Context startContext = contextQueue.peekLast();
@@ -264,21 +265,19 @@ public class JsonReader extends AbstractTreeDataReader {
                     case FIELD_NAME -> {
                         switch (parser.nextToken()) {
                             case START_ARRAY -> contextQueue.add(new Context(ContextType.ARRAY, parser.currentName()));
-                            case START_OBJECT -> readChildObject(childNodeReader);
+                            case START_OBJECT -> {
+                                contextQueue.add(new Context(ContextType.OBJECT, parser.currentName()));
+                                childNodeReader.onStartNode(contextQueue.getLast().getFieldName());
+                            }
+                            case VALUE_FALSE, VALUE_TRUE, VALUE_NULL, VALUE_STRING, VALUE_EMBEDDED_OBJECT,
+                                 VALUE_NUMBER_FLOAT, VALUE_NUMBER_INT -> attributeReader.onScalar(parser.currentName());
                             default -> throw newUnexpectedTokenException();
                         }
                     }
                     case START_OBJECT -> {
-                        if (childNodeReader != skipChild) {
-                            Context arrayContext = checkNodeChain(ContextType.ARRAY);
-                            contextQueue.add(new Context(ContextType.OBJECT, arrayContext.getFieldName()));
-                            childNodeReader.onStartNode(arrayElementNameToSingleElementName.get(arrayContext.getFieldName()));
-                        } else {
-                            // Case where the object correspond to a node to skip that is inside another skipped node.
-                            // The FIELD_NAME token was already consumed (by skipSimpleValueAttributes)
-                            // and the object is not in an array.
-                            readChildObject(childNodeReader);
-                        }
+                        Context arrayContext = checkNodeChain(ContextType.ARRAY);
+                        contextQueue.add(new Context(ContextType.OBJECT, arrayContext.getFieldName()));
+                        childNodeReader.onStartNode(arrayElementNameToSingleElementName.get(arrayContext.getFieldName()));
                     }
                     case END_ARRAY -> {
                         checkNodeChain(ContextType.ARRAY);
@@ -295,11 +294,6 @@ public class JsonReader extends AbstractTreeDataReader {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    private void readChildObject(ChildNodeReader childNodeReader) throws IOException {
-        contextQueue.add(new Context(ContextType.OBJECT, parser.currentName()));
-        childNodeReader.onStartNode(contextQueue.getLast().getFieldName());
     }
 
     private Context checkNodeChain(ContextType expectedNodeType) {
