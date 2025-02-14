@@ -104,7 +104,6 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
 
     private static boolean checkPositionPercent(double positionPercent, boolean throwException, ReportNode reportNode, Logger logger) {
         if (Double.isNaN(positionPercent)) {
-            logger.error("Percent should not be undefined");
             undefinedPercent(reportNode);
             logOrThrow(throwException, "Percent should not be undefined");
             return false;

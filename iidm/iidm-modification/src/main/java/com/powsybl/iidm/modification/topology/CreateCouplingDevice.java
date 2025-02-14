@@ -248,7 +248,6 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             return true;
         }
         if (bbs1 == bbs2) {
-            LOGGER.error("No coupling device can be created on a same busbar section or bus ({})", busOrBbsId1);
             noCouplingDeviceOnSameBusOrBusbarSection(reportNode, busOrBbsId1);
             logOrThrow(throwException, String.format("No coupling device can be created on a same bus or busbar section (%s)", busOrBbsId1));
             return true;

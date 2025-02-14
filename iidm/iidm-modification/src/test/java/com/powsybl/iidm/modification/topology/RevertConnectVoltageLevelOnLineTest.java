@@ -50,7 +50,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine2Id("CJ_2")
                 .withLineId("CJ")
                 .build();
-        assertDoesNotThrow(() -> modificationWithError1.apply(network, false, reportNode1));
+        assertDoesNotThrow(() -> modificationWithError1.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, reportNode1), "Line line1NotFound is not found");
         assertEquals("lineNotFound", reportNode1.getChildren().get(0).getMessageKey());
 
@@ -60,7 +60,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine2Id("line2NotFound")
                 .withLineId("CJ")
                 .build();
-        assertDoesNotThrow(() -> modificationWithError2.apply(network, false, reportNode2));
+        assertDoesNotThrow(() -> modificationWithError2.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, reportNode2), "Line line2NotFound is not found");
         assertEquals("lineNotFound", reportNode2.getChildren().get(0).getMessageKey());
 
@@ -70,7 +70,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine2Id("LINE34")
                 .withLineId("CJ")
                 .build();
-        assertDoesNotThrow(() -> modificationWithError3.apply(network, false, reportNode3));
+        assertDoesNotThrow(() -> modificationWithError3.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, reportNode3), "Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities");
         assertEquals("noVoltageLevelInCommon", reportNode3.getChildren().get(0).getMessageKey());
 

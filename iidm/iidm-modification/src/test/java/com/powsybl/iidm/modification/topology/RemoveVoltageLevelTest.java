@@ -115,7 +115,7 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
 
         RemoveVoltageLevel removeUnknown = new RemoveVoltageLevel("UNKNOWN");
         removeUnknown.apply(network, false, reportNode);
-        assertDoesNotThrow(() -> removeUnknown.apply(network, false, reportNode));
+        assertDoesNotThrow(() -> removeUnknown.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reportNode));
         assertEquals("Voltage level not found: UNKNOWN", e.getMessage());
         assertEquals("voltageLevelNotFound", reportNode.getChildren().get(0).getMessageKey());

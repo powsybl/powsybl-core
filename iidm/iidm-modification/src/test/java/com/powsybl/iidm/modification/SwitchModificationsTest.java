@@ -8,8 +8,6 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
@@ -47,13 +45,13 @@ class SwitchModificationsTest {
     @Test
     void testInvalidOpenSwitch() {
         assertDoesNotThrow(() -> new OpenSwitch("dummy").apply(network));
-        assertThrows(RuntimeException.class, () -> new OpenSwitch("dummy").apply(network, new DefaultNamingStrategy(), true, LocalComputationManager.getDefault(), ReportNode.NO_OP));
+        assertThrows(RuntimeException.class, () -> new OpenSwitch("dummy").apply(network, true, ReportNode.NO_OP));
     }
 
     @Test
     void testInvalidCloseSwitch() {
         assertDoesNotThrow(() -> new CloseSwitch("dummy").apply(network));
-        assertThrows(RuntimeException.class, () -> new CloseSwitch("dummy").apply(network, new DefaultNamingStrategy(), true, LocalComputationManager.getDefault(), ReportNode.NO_OP));
+        assertThrows(RuntimeException.class, () -> new CloseSwitch("dummy").apply(network, true, ReportNode.NO_OP));
     }
 
     @Test

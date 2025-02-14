@@ -9,7 +9,6 @@ package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.network.Network;
@@ -44,7 +43,7 @@ class StaticVarCompensatorTrippingTest extends AbstractTrippingTest {
     @Test
     void unknownShuntCompensatorTest() {
         StaticVarCompensatorTripping tripping = new StaticVarCompensatorTripping("SVC");
-        assertThrows(PowsyblException.class, () -> tripping.apply(network, new DefaultNamingStrategy(), true, LocalComputationManager.getDefault(), ReportNode.NO_OP));
+        assertThrows(PowsyblException.class, () -> tripping.apply(network, new DefaultNamingStrategy(), true, ReportNode.NO_OP));
         assertDoesNotThrow(() -> tripping.apply(network));
     }
 

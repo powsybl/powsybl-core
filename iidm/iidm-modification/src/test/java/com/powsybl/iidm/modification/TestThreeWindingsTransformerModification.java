@@ -62,8 +62,7 @@ class TestThreeWindingsTransformerModification {
         ThreeWindingsTransformerModification t3wtModification = new ThreeWindingsTransformerModification("UNKNOWN_ID", Double.NaN);
         assertThrows(PowsyblException.class, () -> t3wtModification.apply(network, true, ReportNode.NO_OP),
                 "An invalid ID should fail to apply.");
-        assertDoesNotThrow(() -> t3wtModification.apply(network, false, ReportNode.NO_OP),
-                "An invalid ID should not throw if throwException is false.");
+        assertDoesNotThrow(() -> t3wtModification.apply(network, false, ReportNode.NO_OP));
     }
 
     @Test

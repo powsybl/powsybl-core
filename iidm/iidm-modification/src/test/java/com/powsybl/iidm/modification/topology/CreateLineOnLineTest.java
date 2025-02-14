@@ -142,7 +142,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withLine(line1)
                 .withLineAdder(adder1)
                 .build();
-        assertDoesNotThrow(() -> modification1.apply(network1, false, reportNode1));
+        assertDoesNotThrow(() -> modification1.apply(network1, false, ReportNode.NO_OP));
         PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, reportNode1));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception1.getMessage());
         assertEquals("notFoundBusOrBusbarSection", reportNode1.getChildren().get(0).getMessageKey());
@@ -156,7 +156,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withLine(line2)
                 .withLineAdder(adder2)
                 .build();
-        assertDoesNotThrow(() -> modification2.apply(network2, false, reportNode2));
+        assertDoesNotThrow(() -> modification2.apply(network2, false, ReportNode.NO_OP));
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network2, true, reportNode2));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
         assertEquals("notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
@@ -167,7 +167,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withLine(line2)
                 .withLineAdder(adder2)
                 .build();
-        assertDoesNotThrow(() -> modification3.apply(network2, false, reportNode3));
+        assertDoesNotThrow(() -> modification3.apply(network2, false, ReportNode.NO_OP));
         PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, reportNode3));
         assertEquals("Unexpected type of identifiable LOAD: LOAD", exception3.getMessage());
         assertEquals("unexpectedIdentifiableType", reportNode3.getChildren().get(0).getMessageKey());
@@ -180,7 +180,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withCreateFictitiousSubstation(true)
                 .withFictitiousSubstationId(null)
                 .build();
-        assertDoesNotThrow(() -> modification4.apply(network1, false, reportNode4));
+        assertDoesNotThrow(() -> modification4.apply(network1, false, ReportNode.NO_OP));
         PowsyblException exception4 = assertThrows(PowsyblException.class, () -> modification4.apply(network1, true, reportNode4));
         assertEquals("Fictitious substation ID must be defined if a fictitious substation is to be created", exception4.getMessage());
         assertEquals("undefinedFictitiousSubstationId", reportNode4.getChildren().get(0).getMessageKey());
@@ -193,7 +193,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withCreateFictitiousSubstation(true)
                 .withPositionPercent(Double.NaN)
                 .build();
-        assertDoesNotThrow(() -> modification5.apply(network1, false, reportNode5));
+        assertDoesNotThrow(() -> modification5.apply(network1, false, ReportNode.NO_OP));
         PowsyblException exception5 = assertThrows(PowsyblException.class, () -> modification5.apply(network1, true, reportNode5));
         assertEquals("Percent should not be undefined", exception5.getMessage());
         assertEquals("undefinedPercent", reportNode5.getChildren().get(0).getMessageKey());
