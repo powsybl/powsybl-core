@@ -7,9 +7,7 @@
  */
 package com.powsybl.ampl.converter.util;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 
 /**

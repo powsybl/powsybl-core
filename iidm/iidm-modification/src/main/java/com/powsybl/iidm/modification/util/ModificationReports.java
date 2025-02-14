@@ -30,6 +30,7 @@ public final class ModificationReports {
     private static final String THREE_WINDINGS_TRANSFORMER_ID = "threeWindingsTransformerId";
     private static final String EXTENSIONS = "extensions";
     public static final String POSITION_ORDER = "positionOrder";
+    public static final String TIE_LINE_ID = "tieLineId";
 
     // INFO
     public static void createdConnectable(ReportNode reportNode, Connectable<?> connectable) {
@@ -62,10 +63,19 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void removedTieLineReport(ReportNode reportNode, String tieLineId, String pairingKey) {
+        reportNode.newReportNode()
+                .withMessageTemplate("removedTieLine", "Removed tie line ${tieLineId} with pairing key ${pairingKey}")
+                .withTypedValue(TIE_LINE_ID, tieLineId, TypedValue.ID)
+                .withUntypedValue("pairingKey", pairingKey == null ? "" : pairingKey)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
     public static void removedTieLineAndAssociatedDanglingLines(ReportNode reportNode, String tieLineId, String danglingLineId1, String danglingLineId2, String pairingKey) {
         reportNode.newReportNode()
                 .withMessageTemplate("removedTieLineAndAssociatedDanglingLines", "Removed tie line ${tieLineId} and associated dangling lines ${danglingLineId1} and ${danglingLineId2} with pairing key ${pairingKey}")
-                .withUntypedValue("tieLineId", tieLineId)
+                .withTypedValue(TIE_LINE_ID, tieLineId, TypedValue.ID)
                 .withUntypedValue("danglingLineId1", danglingLineId1)
                 .withUntypedValue("danglingLineId2", danglingLineId2)
                 .withUntypedValue("pairingKey", pairingKey == null ? "" : pairingKey)
@@ -355,7 +365,7 @@ public final class ModificationReports {
         reportNode.newReportNode()
                 .withMessageTemplate("lostTieLineExtensions", "Extension [${extensions}] of tie line ${tieLineId} will be lost")
                 .withUntypedValue(EXTENSIONS, extensions)
-                .withUntypedValue("tieLineId", tieLineId)
+                .withTypedValue(TIE_LINE_ID, tieLineId, TypedValue.ID)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -395,7 +405,7 @@ public final class ModificationReports {
 
     public static void positionOrderTooHighReport(ReportNode reportNode, int maxValue, int positionOrder) {
         reportNode.newReportNode()
-                .withMessageTemplate("positionOrderTooHigh", "PositionOrder ${positionOrder} too high (>${minValue}). No position extension created.")
+                .withMessageTemplate("positionOrderTooHigh", "PositionOrder ${positionOrder} too high (>${maxValue}). No position extension created.")
                 .withUntypedValue(POSITION_ORDER, positionOrder)
                 .withUntypedValue("maxValue", maxValue)
                 .withSeverity(TypedValue.WARN_SEVERITY)

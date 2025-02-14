@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -36,7 +37,7 @@ class Adjacency {
 
     private final Map<String, List<Adjacent>> adjacency;
 
-    Adjacency(CgmesModel cgmesModel, AcDcConverterNodes acDcConverterNodes) {
+    Adjacency(CgmesModel cgmesModel, Context context, AcDcConverterNodes acDcConverterNodes) {
         adjacency = new HashMap<>();
         cgmesModel.dcLineSegments().forEach(dcls -> computeDcLineSegmentAdjacency(cgmesModel, dcls));
 
@@ -44,15 +45,17 @@ class Adjacency {
             .forEach((key, value) -> computeAcDcConverterAdjacency(value.acNode,
                 value.dcNode));
 
-        cgmesModel.groupedTransformerEnds().forEach((t, ends) -> {
-            if (ends.size() == 2) {
-                computeTwoWindingsTransformerAdjacency(cgmesModel, ends);
-            } else if (ends.size() == 3) {
-                computeThreeWindingsTransformerAdjacency(cgmesModel, ends);
-            } else {
-                throw new PowsyblException(String.format("Unexpected TransformerEnds: ends %d", ends.size()));
-            }
-        });
+        cgmesModel.transformers().stream()
+                .map(t -> context.transformerEnds(t.getId("PowerTransformer")))
+                .forEach(ends -> {
+                    if (ends.size() == 2) {
+                        computeTwoWindingsTransformerAdjacency(cgmesModel, ends);
+                    } else if (ends.size() == 3) {
+                        computeThreeWindingsTransformerAdjacency(cgmesModel, ends);
+                    } else {
+                        throw new PowsyblException(String.format("Unexpected TransformerEnds: ends %d", ends.size()));
+                    }
+                });
     }
 
     private void computeDcLineSegmentAdjacency(CgmesModel cgmesModel, PropertyBag equipment) {
