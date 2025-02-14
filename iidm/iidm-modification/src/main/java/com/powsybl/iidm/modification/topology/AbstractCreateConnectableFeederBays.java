@@ -183,7 +183,6 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 int connectableNode = firstAvailableNodes.compute(voltageLevel, this::getNextAvailableNode);
                 setNode(side, connectableNode, voltageLevel.getId());
             } else {
-                LOGGER.error("Unsupported type {} for identifiable {}", busOrBusbarSection.getType(), busOrBusbarSectionId);
                 unsupportedIdentifiableType(reportNode, busOrBusbarSection.getType(), busOrBusbarSectionId);
                 logOrThrow(throwException, String.format("Unsupported type %s for identifiable %s", busOrBusbarSection.getType(), busOrBusbarSectionId));
                 return false;
@@ -199,10 +198,9 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     private static boolean checkNetworks(Connectable<?> connectable, Network network, ReportNode reportNode, boolean throwException) {
         if (connectable.getNetwork() != network) {
             connectable.remove();
-            LOGGER.error("Network given in parameters and in connectableAdder are different. Connectable '{}' of type {} was added then removed",
-                    connectable.getId(), connectable.getType());
             networkMismatchReport(reportNode, connectable.getId(), connectable.getType());
-            logOrThrow(throwException, "Network given in parameters and in connectableAdder are different. Connectable was added then removed");
+            logOrThrow(throwException, String.format("Network given in parameters and in connectableAdder are different. Connectable %s of type %s was added then removed",
+                    connectable.getId(), connectable.getType()));
             return false;
         }
         return true;

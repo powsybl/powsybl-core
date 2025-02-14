@@ -9,7 +9,6 @@ package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.network.Network;
@@ -38,7 +37,7 @@ class LoadTrippingTest extends AbstractTrippingTest {
         Network network = EurostagTutorialExample1Factory.create();
 
         LoadTripping tripping = new LoadTripping("generator");
-        assertThrows(PowsyblException.class, () -> tripping.apply(network, new DefaultNamingStrategy(), true, LocalComputationManager.getDefault(), ReportNode.NO_OP));
+        assertThrows(PowsyblException.class, () -> tripping.apply(network, new DefaultNamingStrategy(), true, ReportNode.NO_OP));
         assertDoesNotThrow(() -> tripping.apply(network));
     }
 

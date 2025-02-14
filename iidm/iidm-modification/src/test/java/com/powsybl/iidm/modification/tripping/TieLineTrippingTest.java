@@ -9,10 +9,9 @@ package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
-import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
@@ -42,12 +41,12 @@ class TieLineTrippingTest extends AbstractTrippingTest {
         assertFalse(line.getDanglingLine2().getTerminal().isConnected());
 
         TieLineTripping unknownLineTripping = new TieLineTripping("NOT_EXISTS");
-        Exception e1 = assertThrows(PowsyblException.class, () -> unknownLineTripping.apply(network, new DefaultNamingStrategy(), true, LocalComputationManager.getDefault(), ReportNode.NO_OP));
+        Exception e1 = assertThrows(PowsyblException.class, () -> unknownLineTripping.apply(network, true, ReportNode.NO_OP));
         assertEquals("Tie line 'NOT_EXISTS' not found", e1.getMessage());
         assertDoesNotThrow(() -> unknownLineTripping.apply(network));
 
         TieLineTripping unknownVlTripping = new TieLineTripping("NHV1_NHV2_1", "NOT_EXISTS_VL");
-        Exception e2 = assertThrows(PowsyblException.class, () -> unknownVlTripping.apply(network, new DefaultNamingStrategy(), true, LocalComputationManager.getDefault(), ReportNode.NO_OP));
+        Exception e2 = assertThrows(PowsyblException.class, () -> unknownVlTripping.apply(network, true, ReportNode.NO_OP));
         assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to TIE_LINE 'NHV1_NHV2_1'", e2.getMessage());
         assertDoesNotThrow(() -> unknownVlTripping.apply(network));
     }
