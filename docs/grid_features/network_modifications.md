@@ -176,7 +176,7 @@ Class: `HvdcLineModification`
 #### Modification
 This modification updates the `P` and `Q` values of the load.
 
-If `relativeValue` is set to true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given value to the previous ones.  
+If `relativeValue` is set to true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given values to the previous ones.  
 If `relativeValue` is set to false, then the new constant active power (`P0`) and reactive power (`Q0`) are updated to the new given values.
 
 Class: `LoadModification`
