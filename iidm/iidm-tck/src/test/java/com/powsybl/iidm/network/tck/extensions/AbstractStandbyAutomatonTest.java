@@ -72,6 +72,9 @@ public abstract class AbstractStandbyAutomatonTest {
         assertFalse(standbyAutomaton.isStandby());
         standbyAutomaton.setHighVoltageThreshold(200f);
         assertEquals(200f, standbyAutomaton.getHighVoltageThreshold(), 0.0);
+
+        // but an exception is thrown when the standby mode is latter used
+        assertThrows(IllegalArgumentException.class, () -> standbyAutomaton.setStandby(true));
     }
 
     @Test
