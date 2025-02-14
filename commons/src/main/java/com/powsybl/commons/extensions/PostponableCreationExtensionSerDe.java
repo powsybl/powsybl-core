@@ -19,8 +19,8 @@ public interface PostponableCreationExtensionSerDe<T extends Extendable<T>, E ex
 
     @Override
     default E read(T extendable, DeserializerContext context) {
-        return extensionCreator(context).apply(extendable);
+        return readAndGetPostponableCreator(context).apply(extendable);
     }
 
-    Function<T, E> extensionCreator(DeserializerContext context);
+    Function<T, E> readAndGetPostponableCreator(DeserializerContext context);
 }

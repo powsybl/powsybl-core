@@ -36,7 +36,7 @@ public class OverloadManagementSystemMockSerDe extends AbstractExtensionSerDe<Ov
     }
 
     @Override
-    public Function<OverloadManagementSystem, OverloadManagementSystemMockExt> extensionCreator(DeserializerContext context) {
+    public Function<OverloadManagementSystem, OverloadManagementSystemMockExt> readAndGetPostponableCreator(DeserializerContext context) {
         // Read the elements
         String foo = context.getReader().readStringAttribute("foo");
         context.getReader().readEndNode();
