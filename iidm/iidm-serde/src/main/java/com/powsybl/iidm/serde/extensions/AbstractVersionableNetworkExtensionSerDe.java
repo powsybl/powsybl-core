@@ -36,8 +36,8 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
     private final Map<String, String> serializationNameByVersion = new HashMap<>();
     private final Map<String, String> namespacePrefixByVersion = new HashMap<>();
 
-    public record AlternativeSerializationData(String name, Set<String> versions, String namespacePrefix) {
-        public AlternativeSerializationData(String name, Set<String> versions) {
+    public record AlternativeSerializationData(String name, List<String> versions, String namespacePrefix) {
+        public AlternativeSerializationData(String name, List<String> versions) {
             this(name, versions, null);
         }
     }
@@ -50,7 +50,7 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
     protected AbstractVersionableNetworkExtensionSerDe(String extensionName, Class<? super E> extensionClass, String namespacePrefix,
                                                        Map<IidmVersion, ImmutableSortedSet<String>> extensionVersions,
                                                        Map<String, String> namespaceUris,
-                                                       Set<AlternativeSerializationData> alternativeSerializationData) {
+                                                       List<AlternativeSerializationData> alternativeSerializationData) {
         this.extensionName = Objects.requireNonNull(extensionName);
         this.extensionClass = Objects.requireNonNull(extensionClass);
         this.namespacePrefix = Objects.requireNonNull(namespacePrefix);

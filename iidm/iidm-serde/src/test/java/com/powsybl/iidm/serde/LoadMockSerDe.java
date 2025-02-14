@@ -20,7 +20,6 @@ import com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtensionSerD
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -42,8 +41,8 @@ public class LoadMockSerDe extends AbstractVersionableNetworkExtensionSerDe<Load
                         .put("1.1", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_1")
                         .put("1.2", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_2")
                         .build(),
-                Set.of(new AlternativeSerializationData("loadElementMock", Set.of("0.1")),
-                        new AlternativeSerializationData("loadEltMock", Set.of("0.2"), "lem")));
+                List.of(new AlternativeSerializationData("loadElementMock", List.of("0.1")),
+                        new AlternativeSerializationData("loadEltMock", List.of("0.2"), "lem")));
     }
 
     @Override

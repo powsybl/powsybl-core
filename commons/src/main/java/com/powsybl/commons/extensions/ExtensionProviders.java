@@ -81,23 +81,18 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
     private void addService(Map<String, T> providersMap, String nameToAdd,
                             T service, ToBooleanBiFunction<String, String> validateNames) {
         if (validateNames.applyAsBoolean(nameToAdd, service.getExtensionName())) {
-            boolean add = true;
             T previousService = providersMap.get(nameToAdd);
             if (previousService != null) {
                 if (service.getExtensionName().equals(nameToAdd)) {
-                    // Historically, there was no control on possible duplicated service names
-                    // and the last encountered service replaced the previous one.
-                    // To avoid problems, the same behavior is kept, but a warning is logged
-                    LOGGER.warn("Duplicate extension name {} - Replacing previous extension provider", service.getExtensionName());
+                    // There should not be two extensions of the same real name
+                    throw new IllegalStateException("Several providers were found for extension '" + nameToAdd + "'");
                 } else {
                     // For alternative names, a duplicate does not replace the previous provider, to avoid replacing
                     // providers mapped to their real extension names by providers mapped to an alternative name.
-                    add = false;
                     LOGGER.warn("Alternative extension name {} for extension {} is already used for real extension {} - Skipping",
                             nameToAdd, service.getExtensionName(), previousService.getExtensionName());
                 }
-            }
-            if (add) {
+            } else {
                 providersMap.put(nameToAdd, service);
             }
         }
