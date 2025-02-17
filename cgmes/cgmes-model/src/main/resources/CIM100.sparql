@@ -8,7 +8,7 @@
 # include: CIM16.sparql
 
 # query: boundaryNodes
-# All pairs (Connectiviy Node, Topological Node) from a graph that has a modeProfile EquipmentBoundary-
+# All pairs (Connectivity Node, Topological Node) from a graph that has a modeProfile EquipmentBoundary-
 # We expect all Connectivity Nodes have 1 and only one corresponding TopologicalNode
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
