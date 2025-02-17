@@ -101,15 +101,23 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetV, context));
             StaticVarCompensator.RegulationMode regulationMode = controlEnabled && regulatingOn && isValidTargetV(targetV) ? StaticVarCompensator.RegulationMode.VOLTAGE : StaticVarCompensator.RegulationMode.OFF;
 
-            staticVarCompensator.setVoltageSetpoint(targetV).setRegulationMode(regulationMode);
+            setRegulation(staticVarCompensator, staticVarCompensator.getReactivePowerSetpoint(), targetV, regulationMode);
         } else if (selectedMode != null && isControlModeReactivePower(selectedMode.toLowerCase())) {
             DefaultValueDouble defaultTargetQ = getDefaultTargetQ(staticVarCompensator, defaultQ);
             double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, 1, defaultTargetQ, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetQ, context));
             StaticVarCompensator.RegulationMode regulationMode = controlEnabled && regulatingOn && isValidTargetQ(targetQ) ? StaticVarCompensator.RegulationMode.REACTIVE_POWER : StaticVarCompensator.RegulationMode.OFF;
 
-            staticVarCompensator.setReactivePowerSetpoint(targetQ).setRegulationMode(regulationMode);
+            setRegulation(staticVarCompensator, targetQ, staticVarCompensator.getVoltageSetpoint(), regulationMode);
         } else {
             context.ignored(mode, "Unsupported regulation mode for staticVarCompensator " + staticVarCompensator.getId());
+        }
+    }
+
+    private static void setRegulation(StaticVarCompensator staticVarCompensator, double targetQ, double targetV, StaticVarCompensator.RegulationMode regulationMode) {
+        switch (regulationMode) {
+            case OFF -> staticVarCompensator.setRegulationMode(regulationMode).setVoltageSetpoint(targetV).setReactivePowerSetpoint(targetQ);
+            case VOLTAGE -> staticVarCompensator.setVoltageSetpoint(targetV).setRegulationMode(regulationMode).setReactivePowerSetpoint(targetQ);
+            case REACTIVE_POWER -> staticVarCompensator.setReactivePowerSetpoint(targetQ).setRegulationMode(regulationMode).setVoltageSetpoint(targetV);
         }
     }
 

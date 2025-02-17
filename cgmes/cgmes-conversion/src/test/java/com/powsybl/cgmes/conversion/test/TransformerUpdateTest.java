@@ -65,7 +65,7 @@ class TransformerUpdateTest {
     }
 
     @Test
-    void importEqAndTwoSshsTest() {
+    void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "transformer_EQ.xml");
         assertEquals(1, network.getTwoWindingsTransformerCount());
         assertEquals(1, network.getThreeWindingsTransformerCount());
@@ -79,6 +79,14 @@ class TransformerUpdateTest {
 
         readCgmesResources(network, DIR, "transformer_SSH_1.xml");
         assertTrue(checkSsh1(t2w, t3w));
+
+        readCgmesResources(network, DIR, "transformer_SV.xml");
+        assertTrue(checkFlows(t2w.getTerminal1(), 100.0, -50.0));
+        assertTrue(checkFlows(t2w.getTerminal2(), -100.1, 50.5));
+
+        assertTrue(checkFlows(t3w.getLeg1().getTerminal(), 200.0, 50.0));
+        assertTrue(checkFlows(t3w.getLeg2().getTerminal(), -150.0, -40.0));
+        assertTrue(checkFlows(t3w.getLeg3().getTerminal(), -50.0, -10.0));
     }
 
     private static boolean checkEq(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w) {
@@ -233,5 +241,12 @@ class TransformerUpdateTest {
     }
 
     private record ApparentPowerLimit(double ptalValue, int tatlDuration, double tatlValue) {
+    }
+
+    private static boolean checkFlows(Terminal terminal, double p, double q) {
+        double tol = 0.0000001;
+        assertEquals(p, terminal.getP(), tol);
+        assertEquals(q, terminal.getQ(), tol);
+        return true;
     }
 }
