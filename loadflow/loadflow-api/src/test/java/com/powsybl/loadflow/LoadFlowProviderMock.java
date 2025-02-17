@@ -100,11 +100,11 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     public void updateSpecificParameters(Extension<LoadFlowParameters> extension, PlatformConfig config) {
         config.getOptionalModuleConfig("dummy-extension").ifPresent(moduleConfig -> {
             moduleConfig.getOptionalDoubleProperty(DOUBLE_PARAMETER_NAME)
-                    .ifPresent(prop -> ((DummyExtension) extension).setParameterDouble(prop));
+                    .ifPresent(((DummyExtension) extension)::setParameterDouble);
             moduleConfig.getOptionalBooleanProperty(BOOLEAN_PARAMETER_NAME)
-                    .ifPresent(prop -> ((DummyExtension) extension).setParameterBoolean(prop));
+                    .ifPresent(((DummyExtension) extension)::setParameterBoolean);
             moduleConfig.getOptionalStringProperty(STRING_PARAMETER_NAME)
-                    .ifPresent(prop -> ((DummyExtension) extension).setParameterString(prop));
+                    .ifPresent(((DummyExtension) extension)::setParameterString);
         });
     }
 
