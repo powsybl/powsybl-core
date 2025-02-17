@@ -31,6 +31,8 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     private TerminalExt regulatingTerminal;
 
+    private boolean regulating;
+
     StaticVarCompensatorAdderImpl(VoltageLevelExt vl) {
         this.voltageLevel = Objects.requireNonNull(vl);
     }
@@ -77,6 +79,12 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
     }
 
     @Override
+    public StaticVarCompensatorAdderImpl setRegulating(boolean regulating) {
+        this.regulating = regulating;
+        return this;
+    }
+
+    @Override
     public StaticVarCompensatorImpl add() {
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
@@ -85,10 +93,10 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkSvcRegulator(this, voltageSetpoint, reactivePowerSetpoint, regulationMode,
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkSvcRegulator(this, regulating, voltageSetpoint, reactivePowerSetpoint, regulationMode,
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax, voltageSetpoint, reactivePowerSetpoint,
-                regulationMode, regulatingTerminal, getNetworkRef());
+                regulationMode, regulating, regulatingTerminal, getNetworkRef());
         svc.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(svc);

@@ -127,7 +127,9 @@ public final class ScadaNetworkFactory {
                 .setBmin(1.1)
                 .setBmax(3.2)
                 .setBus(bus2Id)
+                .setRegulating(false)
                 .add();
+        boolean regul0 = network.getStaticVarCompensator("svc").isRegulating();
         VoltageLevel vl3 = sub.newVoltageLevel()
                 .setId("vl3")
                 .setNominalV(420.0)

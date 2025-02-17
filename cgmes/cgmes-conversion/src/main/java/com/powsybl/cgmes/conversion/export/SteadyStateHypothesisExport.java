@@ -407,8 +407,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeStaticVarCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            StaticVarCompensator.RegulationMode regulationMode = svc.getRegulationMode();
-            boolean controlEnabled = regulationMode != StaticVarCompensator.RegulationMode.OFF;
+            boolean controlEnabled = svc.isRegulating();
 
             CgmesExportUtil.writeStartAbout("StaticVarCompensator", context.getNamingStrategy().getCgmesId(svc), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);

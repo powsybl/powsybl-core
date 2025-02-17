@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.OFF;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -39,7 +38,8 @@ class SvcExportTest extends AbstractSerDeTest {
         Network network = Network.read(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControlV().dataSource(), importParams);
         StaticVarCompensator svc = network.getStaticVarCompensator(svcId);
         assertNotNull(svc);
-        assertEquals(OFF, svc.getRegulationMode());
+        assertNull(svc.getRegulationMode());
+        assertFalse(svc.isRegulating());
         assertEquals(rcId, svc.getProperty(Conversion.PROPERTY_REGULATING_CONTROL));
         assertEquals(231.123, svc.getVoltageSetpoint(), 0.0);
 

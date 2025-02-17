@@ -161,7 +161,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
 
     @Override
     protected void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                         boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated,
+                         boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated,
                          SvcData svcData, boolean found, boolean writeValues) throws IOException {
         write(svcId, "p", found, -svcData.p, writeValues, -p);
         write(svcId, "q", found, -svcData.q, writeValues, -q);
@@ -172,7 +172,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
         write(svcId, "voltageSetpoint", found, svcData.voltageSetpoint, writeValues, voltageSetpoint);
         if (verbose) {
             write(svcId, CONNECTED, found, svcData.connected, writeValues, connected);
-            write(svcId, "regulationMode", found, svcData.regulationMode.name(), writeValues, regulationMode.name());
+            write(svcId, "regulationMode", found, svcData.regulationMode != null ? svcData.regulationMode.name() : "", writeValues, regulationMode != null ? regulationMode.name() : "");
+            write(svcId, "regulating", found, svcData.regulating, writeValues, regulating);
             write(svcId, "bMin", found, svcData.bMin, writeValues, bMin);
             write(svcId, "bMax", found, svcData.bMax, writeValues, bMax);
             write(svcId, MAIN_COMPONENT, found, svcData.mainComponent, writeValues, mainComponent);

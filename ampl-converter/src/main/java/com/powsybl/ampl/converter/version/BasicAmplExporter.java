@@ -1381,7 +1381,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .addCell(vlNum)
             .addCell(svc.getBmin() * zb)
             .addCell(svc.getBmax() * zb)
-            .addCell(svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE))
+            .addCell(svc.isRegulating() && svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE))
             .addCell(vlSet / vb)
             .addCell(svc.getReactivePowerSetpoint())
             .addCell(faultNum)

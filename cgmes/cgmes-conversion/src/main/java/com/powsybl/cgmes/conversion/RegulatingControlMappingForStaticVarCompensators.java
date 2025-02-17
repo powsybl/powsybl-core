@@ -34,7 +34,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     public static void initialize(StaticVarCompensatorAdder adder) {
-        adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
+        adder.setRegulating(false);
     }
 
     public void add(String iidmId, PropertyBag sm) {
@@ -121,7 +121,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
             okSet = true;
         } else {
             context.fixed("SVCControlMode", () -> String.format("Invalid control mode for static var compensator %s. Regulating control is disabled", svc.getId()));
-            regulationMode = StaticVarCompensator.RegulationMode.OFF;
+            regulationMode = null;
         }
 
         svc.setVoltageSetpoint(targetVoltage);
@@ -130,6 +130,9 @@ public class RegulatingControlMappingForStaticVarCompensators {
             svc.setRegulationMode(regulationMode);
         }
         svc.setRegulatingTerminal(regulatingTerminal);
+        if (regulationMode == null) {
+            svc.setRegulating(false);
+        }
 
         return okSet;
     }
@@ -160,20 +163,23 @@ public class RegulatingControlMappingForStaticVarCompensators {
         // We try to keep data from original regulating control if available.
         // Even if the regulating control was disabled it may have defined a valid target value
         if (RegulatingControlMapping.isControlModeVoltage(rc.defaultRegulationMode.toLowerCase())) {
-            regulationMode = onlyReactivePowerReg ? StaticVarCompensator.RegulationMode.OFF : StaticVarCompensator.RegulationMode.VOLTAGE;
+            regulationMode = onlyReactivePowerReg ? null : StaticVarCompensator.RegulationMode.VOLTAGE;
             targetVoltage = isValidVoltageFromRegulatingControl(control) ? control.targetValue : rc.defaultTargetVoltage;
         } else if (isControlModeReactivePower(rc.defaultRegulationMode.toLowerCase())) {
             regulationMode = StaticVarCompensator.RegulationMode.REACTIVE_POWER;
             targetReactivePower = isValidReactivePowerFromRegulatingControl(control) ? control.targetValue : rc.defaultTargetReactivePower;
         } else {
             context.fixed("SVCControlMode", () -> String.format("Invalid control mode for static var compensator %s. Regulating control is disabled", svc.getId()));
-            regulationMode = StaticVarCompensator.RegulationMode.OFF;
+            regulationMode = null;
         }
 
         svc.setVoltageSetpoint(targetVoltage);
         svc.setReactivePowerSetpoint(targetReactivePower);
         if (rc.controlEnabled) {
             svc.setRegulationMode(regulationMode);
+        }
+        if (regulationMode == null) {
+            svc.setRegulating(false);
         }
     }
 

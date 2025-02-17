@@ -22,6 +22,8 @@ public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompe
 
     StaticVarCompensatorAdder setRegulationMode(StaticVarCompensator.RegulationMode regulationMode);
 
+    StaticVarCompensatorAdder setRegulating(boolean regulating);
+
     default StaticVarCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException("Not yet implemented");
     }

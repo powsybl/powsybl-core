@@ -33,14 +33,14 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     private final TDoubleArrayList reactivePowerSetpoint;
 
     StaticVarCompensatorImpl(String id, String name, boolean fictitious, double bMin, double bMax, double voltageSetpoint, double reactivePowerSetpoint,
-                             RegulationMode regulationMode, TerminalExt regulatingTerminal, Ref<NetworkImpl> ref) {
+                             RegulationMode regulationMode, boolean regulating, TerminalExt regulatingTerminal, Ref<NetworkImpl> ref) {
         super(ref, id, name, fictitious);
         this.bMin = bMin;
         this.bMax = bMax;
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.voltageSetpoint = new TDoubleArrayList(variantArraySize);
         this.reactivePowerSetpoint = new TDoubleArrayList(variantArraySize);
-        regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, regulationMode != null ? regulationMode.ordinal() : -1, regulationMode == RegulationMode.VOLTAGE);
+        regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, regulationMode != null ? regulationMode.ordinal() : -1, regulating, regulationMode == RegulationMode.VOLTAGE);
         regulatingPoint.setRegulatingTerminal(regulatingTerminal);
         for (int i = 0; i < variantArraySize; i++) {
             this.voltageSetpoint.add(voltageSetpoint);
@@ -94,7 +94,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     @Override
     public StaticVarCompensatorImpl setVoltageSetpoint(double voltageSetpoint) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkSvcRegulator(this, voltageSetpoint, getReactivePowerSetpoint(), getRegulationMode(),
+        ValidationUtil.checkSvcRegulator(this, isRegulating(), voltageSetpoint, getReactivePowerSetpoint(), getRegulationMode(),
                 n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
@@ -112,7 +112,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     @Override
     public StaticVarCompensatorImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetpoint, getRegulationMode(),
+        ValidationUtil.checkSvcRegulator(this, isRegulating(), getVoltageSetpoint(), reactivePowerSetpoint, getRegulationMode(),
                 n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
@@ -131,7 +131,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     @Override
     public StaticVarCompensatorImpl setRegulationMode(RegulationMode regulationMode) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode,
+        ValidationUtil.checkSvcRegulator(this, isRegulating(), getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode,
                 n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         int oldValueOrdinal = regulatingPoint.setRegulationMode(variantIndex,
@@ -196,6 +196,19 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
             reactivePowerSetpoint.set(index, reactivePowerSetpoint.get(sourceIndex));
         }
         regulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
+    }
+
+    @Override
+    public boolean isRegulating() {
+        int variantIndex = getNetwork().getVariantIndex();
+        return regulatingPoint.isRegulating(variantIndex);
+    }
+
+    @Override
+    public StaticVarCompensator setRegulating(boolean regulating) {
+        int variantIndex = getNetwork().getVariantIndex();
+        this.regulatingPoint.setRegulating(variantIndex, regulating);
+        return this;
     }
 
 }
