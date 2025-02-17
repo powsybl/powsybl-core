@@ -189,23 +189,23 @@ Class: `PercentChangeLoadModification`
 ### Phase shifters
 
 #### Optimize tap modification
-This modification is used to find the optimal phase-tap changer position of a given two-winding transformer phase shifter id.
+This modification is used to find the optimal phase tap changer position of a given two-winding transformer phase shifter id.
 
 A phase shifter optimization load flow is run with the configured `load-flow-based-phase-shifter-optimizer` to determine the optimal tap position.
 
 Class: `PhaseShifterOptimizeTap`
 
 #### Fixed tap modification
-This modification updates the phase-tap changer of a given two-winding transformer phase shifter id.
+This modification updates the phase tap changer of a given two-winding transformer phase shifter id.
 
-It updates its `tapPosition` with the given value and set the phase-tap changer as not regulating with a `FIXED_TAP` regulation mode.
+It updates its `tapPosition` with the given value and set the phase tap changer as not regulating with a `FIXED_TAP` regulation mode.
 
 Class: `PhaseShifterSetAsFixedTap`
 
 #### Shift tap modification
-This modification is used to update the phase-tap changer of a given two-winding transformer phase shifter id.
+This modification is used to update the phase tap changer of a given two-winding transformer phase shifter id.
 
-It sets the phase-tap changer as not regulating with a `FIXED_TAP` regulation mode and updates its `tapPosition` by adjusting it with the given `tapDelta` applied on the current tap position. The resulting tap position is bounded by the phase-tap changer lowest and highest possible positions.
+It sets the phase tap changer as not regulating with a `FIXED_TAP` regulation mode and updates its `tapPosition` by adjusting it with the given `tapDelta` applied on the current tap position. The resulting tap position is bounded by the phase tap changer lowest and highest possible positions.
 
 Class: `PhaseShifterShiftTap`
 
@@ -263,11 +263,11 @@ For each `ThreeWindingsTransformer` to be replaced:
 - A new voltage level is created for the star node with nominal voltage of ratedU0.
 - Three `TwoWindingsTransformers` are created, one for each leg of the `ThreeWindingsTransformer` to transform.
 - The following attributes are copied from each leg to the new associated `TwoWindingsTransformer`:
-  - Electrical characteristics, ratio tap changers, and phase-tap changers. No adjustments are required.
+  - Electrical characteristics, ratio tap changers, and phase tap changers. No adjustments are required.
   - Operational Loading Limits are copied to the non-star end of the two-winding transformers.
   - Active and reactive powers at the terminal are copied to the non-star terminal of the two-winding transformer.
 - Aliases:
-  - Aliases for known CGMES identifiers (terminal, transformer end, ratio, and phase-tap changer) are copied to the right `TwoWindingsTransformer` after adjusting the alias type.
+  - Aliases for known CGMES identifiers (terminal, transformer end, ratio, and phase tap changer) are copied to the right `TwoWindingsTransformer` after adjusting the alias type.
   - Aliases that are not mapped are recorded in the functional log.
 - Properties:
   - Star bus voltage and angle are set to the bus created for the star node.
@@ -296,11 +296,11 @@ Conditions to detect a triplet of `TwoWindingsTransformer` to transform:
 
 Then a `ThreeWindingsTransformer` is created to replace them:
 - The following attributes are copied from each `TwoWindingsTransformer` to the new associated leg:
-  - Electrical characteristics, ratio tap changers, and phase-tap changers. Adjustments are required if the `TwoWindingsTransformer` is not well oriented.
+  - Electrical characteristics, ratio tap changers, and phase tap changers. Adjustments are required if the `TwoWindingsTransformer` is not well oriented.
   - Only the operational loading limits defined at the non-star end are copied to the leg.
   - Active and reactive powers at the non-star terminal are copied to the leg terminal.
 - Aliases:
-  - Aliases for known CGMES identifiers (terminal, transformer end, ratio, and phase-tap changer) are copied to the `ThreeWindingsTransformer` after adjusting the alias type.
+  - Aliases for known CGMES identifiers (terminal, transformer end, ratio, and phase tap changer) are copied to the `ThreeWindingsTransformer` after adjusting the alias type.
   - Aliases that are not mapped are recorded in the functional log.
 - Properties:
   - Voltage and angle of the star bus are added as properties of the `ThreeWindingsTransformer`.
@@ -319,13 +319,13 @@ Class: `Replace3TwoWindingsTransformersByThreeWindingsTransformers`
 
 ### Tap changers
 
-#### Phase-tap changer position
-This modification is used to modify a phase-tap changers tap position of a given `PhaseTapChangerHolder` (for two or three-winding transformer).
+#### Phase tap changer position
+This modification is used to modify a phase tap changers tap position of a given `PhaseTapChangerHolder` (for two or three-winding transformer).
 
 The new tap position can be either the one given in parameter or a relative position added to the existing one.  
 The `PhaseTapChangerHolder` can be from:
 - A two-winding transformers
-- A three-winding transformer with a single phase-tap changer
+- A three-winding transformer with a single phase tap changer
 - A leg of a three-winding transformer
 
 Class: `PhaseTapPositionModification`
@@ -335,7 +335,7 @@ This modification is used to modify a ratio tap changers tap position of a given
 
 The `RatioTapChangerHolder` can be from:
 - A two-winding transformers
-- A three-winding transformer with a single phase-tap changer
+- A three-winding transformer with a single phase tap changer
 - A leg of a three-winding transformer
 
 Class: `RatioTapPositionModification`
