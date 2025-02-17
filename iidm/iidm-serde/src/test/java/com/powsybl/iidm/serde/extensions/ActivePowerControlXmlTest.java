@@ -21,10 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.OptionalDouble;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
@@ -51,7 +48,7 @@ class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
     void testTargetPLimits() throws IOException {
         network.getGenerator("GEN").getExtension(ActivePowerControl.class).setMaxTargetP(800.);
         network.getBattery("BAT").getExtension(ActivePowerControl.class).setMinTargetP(10.);
-        Network network2 = allFormatsRoundTripTest(network, "/activePowerControlWithLimitRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "/activePowerControlWithLimitRoundTripRef.xml");
 
         Generator gen2 = network2.getGenerator("GEN");
         assertNotNull(gen2);
