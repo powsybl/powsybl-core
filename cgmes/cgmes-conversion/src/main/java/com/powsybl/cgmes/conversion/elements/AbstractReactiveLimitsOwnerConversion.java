@@ -171,7 +171,15 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         }
 
         // Regulating control is enabled AND this equipment participates in regulating control
-        generator.setTargetV(targetV).setVoltageRegulatorOn(regulatingOn && controlEnabled && validTargetV);
+        setVoltageRegulation(generator, targetV, regulatingOn && controlEnabled && validTargetV);
+    }
+
+    private static void setVoltageRegulation(Generator generator, double targetV, boolean regulatingOn) {
+        if (regulatingOn) {
+            generator.setTargetV(targetV).setVoltageRegulatorOn(true);
+        } else {
+            generator.setVoltageRegulatorOn(false).setTargetV(targetV);
+        }
     }
 
     private static void updateRegulatingControlReactivePower(Generator generator, boolean controlEnabled, Context context) {
@@ -187,7 +195,15 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetQ, context));
         boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultRegulatingOn, context));
 
-        remoteReactivePowerControl.setTargetQ(targetQ).setEnabled(regulatingOn && controlEnabled && isValidTargetQ(targetQ));
+        setReactivePowerRegulation(remoteReactivePowerControl, targetQ, regulatingOn && controlEnabled && isValidTargetQ(targetQ));
+    }
+
+    private static void setReactivePowerRegulation(RemoteReactivePowerControl remoteReactivePowerControl, double targetQ, boolean regulatingOn) {
+        if (regulatingOn) {
+            remoteReactivePowerControl.setTargetQ(targetQ).setEnabled(regulatingOn);
+        } else {
+            remoteReactivePowerControl.setEnabled(regulatingOn).setTargetQ(targetQ);
+        }
     }
 
     private static DefaultValueDouble getDefaultTargetV(Generator generator) {

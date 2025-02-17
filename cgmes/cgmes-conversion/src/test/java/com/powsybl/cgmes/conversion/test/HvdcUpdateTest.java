@@ -53,7 +53,7 @@ class HvdcUpdateTest {
     }
 
     @Test
-    void importEqAndTwoSshsTest() {
+    void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "hvdc_EQ.xml");
         assertEquals(2, network.getHvdcLineCount());
 
@@ -78,6 +78,10 @@ class HvdcUpdateTest {
         assertTrue(checkSshVsc(vscHvdcLine, 596.4, SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 0.0, 396.54, 0.0, true,
                 0.0, 0.0, 30.0, false));
+
+        readCgmesResources(network, DIR, "hvdc_SV.xml");
+        assertTrue(checkFlows(lccHvdcLine.getConverterStation1().getTerminal(), 200.0, 50.0, lccHvdcLine.getConverterStation2().getTerminal(), -200.1, -50.1));
+        assertTrue(checkFlows(vscHvdcLine.getConverterStation1().getTerminal(), 100.0, 25.0, vscHvdcLine.getConverterStation2().getTerminal(), -100.1, -25.1));
     }
 
     private static boolean checkEqLcc(HvdcLine hvdcLine) {
@@ -157,6 +161,15 @@ class HvdcUpdateTest {
         assertEquals(targetV, vscConverterStation.getVoltageSetpoint(), tol);
         assertEquals(targetQ, vscConverterStation.getReactivePowerSetpoint(), tol);
         assertEquals(voltageRegulatorOn, vscConverterStation.isVoltageRegulatorOn());
+        return true;
+    }
+
+    private static boolean checkFlows(Terminal terminal1, double p1, double q1, Terminal terminal2, double p2, double q2) {
+        double tol = 0.0000001;
+        assertEquals(p1, terminal1.getP(), tol);
+        assertEquals(q1, terminal1.getQ(), tol);
+        assertEquals(p2, terminal2.getP(), tol);
+        assertEquals(q2, terminal2.getQ(), tol);
         return true;
     }
 }
