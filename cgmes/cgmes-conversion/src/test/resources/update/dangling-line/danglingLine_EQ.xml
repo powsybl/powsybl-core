@@ -274,4 +274,23 @@
         <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
         <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.tatl" />
     </cim:OperationalLimitType>
+
+    <cim:BusbarSection rdf:ID="_BusbarSection-1">
+        <cim:IdentifiedObject.name>BusbarSection-1</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_BusbarSection-1-T">
+        <cim:IdentifiedObject.name>BusbarSection-1-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BusbarSection-1" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+    <cim:BusbarSection rdf:ID="_BusbarSection-4">
+        <cim:IdentifiedObject.name>BusbarSection-4</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_BusbarSection-4-T">
+        <cim:IdentifiedObject.name>BusbarSection-4-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BusbarSection-4" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode4" />
+    </cim:Terminal>
 </rdf:RDF>

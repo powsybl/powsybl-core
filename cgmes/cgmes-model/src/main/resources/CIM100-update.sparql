@@ -8,29 +8,3 @@
 
 # include: CIM16-update.sparql
 
-# query: boundaryNodes
-# All pairs (Connectiviy Node, Topological Node) from a graph that has a modeProfile EquipmentBoundary-
-# We expect all Connectivity Nodes have 1 and only one corresponding TopologicalNode
-prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
-SELECT *
-{
-GRAPH ?graphBDEQ {
-    ?FullModel md:Model.profile ?modelProfile .
-    FILTER (regex(?modelProfile, "EquipmentBoundary-", "i"))
-    ?ConnectivityNode
-        a cim:ConnectivityNode ;
-        cim:IdentifiedObject.name ?name ;
-        cim:ConnectivityNode.ConnectivityNodeContainer ?container .
-    ?BoundaryPoint
-        a eu:BoundaryPoint ;
-        eu:BoundaryPoint.ConnectivityNode ?ConnectivityNode .
-    OPTIONAL { ?BoundaryPoint eu:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNode }
-    OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNodeContainer }
-    OPTIONAL { ?ConnectivityNode cim:IdentifiedObject.description ?description }
-}
-OPTIONAL { GRAPH ?grapBDTP {
-    ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
-    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName
-}}
-}
-
