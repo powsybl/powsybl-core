@@ -85,6 +85,68 @@ class DanglingLineUpdateTest {
         assertTrue(checkSsh1(acLineSegment, equivalentBranch, powerTransformer, breaker));
     }
 
+    @Test
+    void importSvTogetherTest() {
+        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml", "danglingLine_TP.xml", "danglingLine_SV.xml");
+
+        assertEquals(4, network.getDanglingLineCount());
+
+        double tol = 0.0000001;
+        DanglingLine acLineSegment = network.getDanglingLine("ACLineSegment");
+        assertEquals(285.2495134203, acLineSegment.getTerminal().getP(), tol);
+        assertEquals(-68.1683990331, acLineSegment.getTerminal().getQ(), tol);
+
+        DanglingLine equivalentBranch = network.getDanglingLine("EquivalentBranch");
+        assertEquals(275.1, equivalentBranch.getTerminal().getP(), tol);
+        assertEquals(50.5, equivalentBranch.getTerminal().getQ(), tol);
+
+        DanglingLine powerTransformer = network.getDanglingLine("PowerTransformer");
+        assertTrue(Double.isNaN(powerTransformer.getTerminal().getP()));
+        assertTrue(Double.isNaN(powerTransformer.getTerminal().getQ()));
+
+        DanglingLine breaker = network.getDanglingLine("Breaker");
+        assertEquals(10.0, breaker.getTerminal().getP(), tol);
+        assertEquals(5.0, breaker.getTerminal().getQ(), tol);
+    }
+
+    @Test
+    void importSvSeparatelyTest() {
+        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml");
+
+        assertEquals(4, network.getDanglingLineCount());
+
+        double tol = 0.0000001;
+        DanglingLine acLineSegment = network.getDanglingLine("ACLineSegment");
+        assertTrue(Double.isNaN(acLineSegment.getTerminal().getP()));
+        assertTrue(Double.isNaN(acLineSegment.getTerminal().getQ()));
+
+        DanglingLine equivalentBranch = network.getDanglingLine("EquivalentBranch");
+        assertTrue(Double.isNaN(equivalentBranch.getTerminal().getP()));
+        assertTrue(Double.isNaN(equivalentBranch.getTerminal().getQ()));
+
+        DanglingLine powerTransformer = network.getDanglingLine("PowerTransformer");
+        assertTrue(Double.isNaN(powerTransformer.getTerminal().getP()));
+        assertTrue(Double.isNaN(powerTransformer.getTerminal().getQ()));
+
+        DanglingLine breaker = network.getDanglingLine("Breaker");
+        assertEquals(10.0, breaker.getTerminal().getP(), tol);
+        assertEquals(5.0, breaker.getTerminal().getQ(), tol);
+
+        readCgmesResources(network, DIR, "danglingLine_TP.xml", "danglingLine_SV.xml");
+
+        assertEquals(0.0503090159, acLineSegment.getTerminal().getP(), tol);
+        assertEquals(-145.5845194744, acLineSegment.getTerminal().getQ(), tol);
+
+        assertEquals(275.1, equivalentBranch.getTerminal().getP(), tol);
+        assertEquals(50.5, equivalentBranch.getTerminal().getQ(), tol);
+
+        assertTrue(Double.isNaN(powerTransformer.getTerminal().getP()));
+        assertTrue(Double.isNaN(powerTransformer.getTerminal().getQ()));
+
+        assertEquals(10.0, breaker.getTerminal().getP(), tol);
+        assertEquals(5.0, breaker.getTerminal().getQ(), tol);
+    }
+
     private static boolean checkEq(DanglingLine acLineSegment, DanglingLine equivalentBranch, DanglingLine powerTransformer, DanglingLine breaker) {
         assertTrue(checkEq(acLineSegment));
         assertTrue(checkNotDefinedLimits(acLineSegment));

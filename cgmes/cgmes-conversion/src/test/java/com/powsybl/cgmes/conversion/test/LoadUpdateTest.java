@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
@@ -55,7 +56,7 @@ class LoadUpdateTest {
     }
 
     @Test
-    void importEqAndTwoSshsTest() {
+    void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "load_EQ.xml");
         assertEquals(3, network.getLoadCount());
 
@@ -77,6 +78,11 @@ class LoadUpdateTest {
         assertTrue(checkSsh(loadEnergyConsumer, 10.5, 5.5));
         assertTrue(checkSsh(loadEnergySource, -200.5, -90.5));
         assertTrue(checkSsh(loadAsynchronousMachine, 200.5, 50.5));
+
+        readCgmesResources(network, DIR, "load_SV.xml");
+        assertTrue(checkFlows(loadEnergyConsumer.getTerminal(), 100.0, 50.0));
+        assertTrue(checkFlows(loadEnergySource.getTerminal(), 20.0, 10.0));
+        assertTrue(checkFlows(loadAsynchronousMachine.getTerminal(), 10.0, 5.0));
     }
 
     private static boolean checkEq(Load load) {
@@ -95,6 +101,13 @@ class LoadUpdateTest {
         assertNotNull(load);
         assertEquals(p0, load.getP0());
         assertEquals(q0, load.getQ0());
+        return true;
+    }
+
+    private static boolean checkFlows(Terminal terminal, double p, double q) {
+        double tol = 0.0000001;
+        assertEquals(p, terminal.getP(), tol);
+        assertEquals(q, terminal.getQ(), tol);
         return true;
     }
 }

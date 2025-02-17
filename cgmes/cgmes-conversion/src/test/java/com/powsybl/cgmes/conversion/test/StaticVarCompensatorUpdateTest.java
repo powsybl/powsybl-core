@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.Terminal;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
@@ -43,7 +44,7 @@ class StaticVarCompensatorUpdateTest {
     }
 
     @Test
-    void importEqAndTwoSshsTest() {
+    void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml");
         assertEquals(1, network.getStaticVarCompensatorCount());
 
@@ -55,6 +56,9 @@ class StaticVarCompensatorUpdateTest {
 
         readCgmesResources(network, DIR, "staticVarCompensator_SSH_1.xml");
         assertTrue(checkSsh(staticVarCompensator, Double.NaN, 400.0, StaticVarCompensator.RegulationMode.OFF));
+
+        readCgmesResources(network, DIR, "staticVarCompensator_SV.xml");
+        assertTrue(checkFlows(staticVarCompensator.getTerminal(), 0.0, -50.0));
     }
 
     private static boolean checkEq(StaticVarCompensator staticVarCompensator) {
@@ -75,6 +79,13 @@ class StaticVarCompensatorUpdateTest {
         assertEquals(targetQ, staticVarCompensator.getReactivePowerSetpoint(), tol);
         assertEquals(targetV, staticVarCompensator.getVoltageSetpoint(), tol);
         assertEquals(regulationMode, staticVarCompensator.getRegulationMode());
+        return true;
+    }
+
+    private static boolean checkFlows(Terminal terminal, double p, double q) {
+        double tol = 0.0000001;
+        assertEquals(p, terminal.getP(), tol);
+        assertEquals(q, terminal.getQ(), tol);
         return true;
     }
 }

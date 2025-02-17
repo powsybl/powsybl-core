@@ -113,9 +113,15 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetDeadband, context));
         boolean enabled = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultRegulatingOn, context));
 
-        shuntCompensator.setTargetV(targetV)
-                .setTargetDeadband(targetDeadband)
-                .setVoltageRegulatorOn(controlEnabled && enabled && isValidTargetV(targetV) && isValidTargetDeadband(targetDeadband));
+        setRegulation(shuntCompensator, targetV, targetDeadband, controlEnabled && enabled && isValidTargetV(targetV) && isValidTargetDeadband(targetDeadband));
+    }
+
+    private static void setRegulation(ShuntCompensator shuntCompensator, double targetV, double targetDeadband, boolean regulatingOn) {
+        if (regulatingOn) {
+            shuntCompensator.setTargetV(targetV).setTargetDeadband(targetDeadband).setVoltageRegulatorOn(true);
+        } else {
+            shuntCompensator.setVoltageRegulatorOn(false).setTargetV(targetV).setTargetDeadband(targetDeadband);
+        }
     }
 
     private static DefaultValueDouble getDefaultTargetV(ShuntCompensator shuntCompensator) {

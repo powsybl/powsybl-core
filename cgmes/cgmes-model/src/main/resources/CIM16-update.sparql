@@ -26,9 +26,25 @@ SELECT *
 # we cannot access the 'inService' Status
 SELECT *
 {
-    ?Terminal
-        a cim:Terminal ;
-        cim:ACDCTerminal.connected ?connected
+    {
+        SELECT DISTINCT ?Terminal
+        WHERE {
+            {
+                ?Terminal a cim:Terminal .
+            }
+            UNION
+            {
+                SELECT ?Terminal
+                WHERE {
+                    ?SvPowerFlow a cim:SvPowerFlow ;
+                        cim:SvPowerFlow.Terminal ?Terminal .
+                }
+            }
+        }
+    }
+    OPTIONAL {
+        ?Terminal cim:ACDCTerminal.connected ?connected .
+    }
     OPTIONAL {
         ?SvPowerFlow a cim:SvPowerFlow ;
             cim:SvPowerFlow.Terminal ?Terminal ;
@@ -38,15 +54,6 @@ SELECT *
     OPTIONAL {
         ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
     }
-}
-
-# query: topologicalIslands
-SELECT *
-{
-    ?TopologicalIsland a cim:TopologicalIsland ;
-        cim:IdentifiedObject.name ?name ;
-        cim:TopologicalIsland.AngleRefTopologicalNode ?AngleRefTopologicalNode ;
-        cim:TopologicalIsland.TopologicalNodes ?TopologicalNodes .
 }
 
 # query: operationalLimits

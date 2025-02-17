@@ -222,9 +222,15 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                 targetDeadband = Double.NaN; // To avoid an exception from checkTargetDeadband
             }
 
-            rtc.setRegulating(regulatingOn && isRegulatingAllowed && validTargetV && validTargetDeadband)
-                    .setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband);
+            setRegulation(rtc, targetV, targetDeadband, regulatingOn && isRegulatingAllowed && validTargetV && validTargetDeadband);
+        }
+    }
+
+    private static void setRegulation(RatioTapChanger rtc, double targetV, double targetDeadband, boolean regulatingOn) {
+        if (regulatingOn) {
+            rtc.setTargetV(targetV).setTargetDeadband(targetDeadband).setRegulating(true);
+        } else {
+            rtc.setRegulating(false).setTargetV(targetV).setTargetDeadband(targetDeadband);
         }
     }
 
@@ -268,9 +274,15 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                 targetDeadband = Double.NaN; // To avoid an exception from checkTargetDeadband
             }
 
-            ptc.setRegulating(fixedRegulating && isRegulatingAllowed && isValidTargetValue(targetValue) && validTargetDeadband)
-                    .setRegulationValue(targetValue)
-                    .setTargetDeadband(targetDeadband);
+            setRegulation(ptc, targetValue, targetDeadband, fixedRegulating && isRegulatingAllowed && isValidTargetValue(targetValue) && validTargetDeadband);
+        }
+    }
+
+    private static void setRegulation(PhaseTapChanger ptc, double targetValue, double targetDeadband, boolean regulatingOn) {
+        if (regulatingOn) {
+            ptc.setRegulationValue(targetValue).setTargetDeadband(targetDeadband).setRegulating(true);
+        } else {
+            ptc.setRegulating(false).setRegulationValue(targetValue).setTargetDeadband(targetDeadband);
         }
     }
 

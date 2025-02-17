@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ class GeneratorUpdateTest {
     }
 
     @Test
-    void importEqAndTwoSshsTest() {
+    void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "generator_EQ.xml");
         assertEquals(3, network.getGeneratorCount());
 
@@ -79,6 +80,11 @@ class GeneratorUpdateTest {
         assertTrue(checkSsh(synchronousMachine, 165.0, -5.0, 410.0, true, 0.9, 1));
         assertTrue(checkSsh(externalNetworkInjection, -10.0, -5.0, Double.NaN, false, 0.0, 0));
         assertTrue(checkSsh(equivalentInjection, -174.0, -5.0, Double.NaN, false, 0.0, 0));
+
+        readCgmesResources(network, DIR, "generator_SV.xml");
+        assertTrue(checkFlows(synchronousMachine.getTerminal(), 100.0, -50.0));
+        assertTrue(checkFlows(externalNetworkInjection.getTerminal(), 250.0, -30.0));
+        assertTrue(checkFlows(equivalentInjection.getTerminal(), 150.0, 50.0));
     }
 
     private static boolean checkEq(Generator generator) {
@@ -109,6 +115,13 @@ class GeneratorUpdateTest {
             assertEquals(normalPF, activePowerControl.getParticipationFactor());
         }
         assertEquals(referencePriority, ReferencePriority.get(generator));
+        return true;
+    }
+
+    private static boolean checkFlows(Terminal terminal, double p, double q) {
+        double tol = 0.0000001;
+        assertEquals(p, terminal.getP(), tol);
+        assertEquals(q, terminal.getQ(), tol);
         return true;
     }
 }
