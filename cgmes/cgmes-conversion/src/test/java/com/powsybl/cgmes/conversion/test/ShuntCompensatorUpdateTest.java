@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
@@ -55,7 +56,7 @@ class ShuntCompensatorUpdateTest {
     }
 
     @Test
-    void importEqAndTwoSshsTest() {
+    void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml");
         assertEquals(3, network.getShuntCompensatorCount());
 
@@ -75,6 +76,11 @@ class ShuntCompensatorUpdateTest {
         assertTrue(checkSsh(linearShuntCompensator, 1, 407.0, 0.2, true));
         assertTrue(checkSsh(nonLinearShuntCompensator, 1, 406.0, 0.1, true));
         assertTrue(checkSsh(equivalentShunt, 0, Double.NaN, Double.NaN, false));
+
+        readCgmesResources(network, DIR, "shuntCompensator_SV.xml");
+        assertTrue(checkFlows(linearShuntCompensator.getTerminal(), 0.0, 50.0));
+        assertTrue(checkFlows(nonLinearShuntCompensator.getTerminal(), 1.0, 25.0));
+        assertTrue(checkFlows(equivalentShunt.getTerminal(), 2.0, -5.0));
     }
 
     private static boolean checkEq(ShuntCompensator shuntCompensator) {
@@ -99,6 +105,13 @@ class ShuntCompensatorUpdateTest {
         assertEquals(targetV, shuntCompensator.getTargetV(), tol);
         assertEquals(targetDeadband, shuntCompensator.getTargetDeadband(), tol);
         assertEquals(isRegulatingOn, shuntCompensator.isVoltageRegulatorOn());
+        return true;
+    }
+
+    private static boolean checkFlows(Terminal terminal, double p, double q) {
+        double tol = 0.0000001;
+        assertEquals(p, terminal.getP(), tol);
+        assertEquals(q, terminal.getQ(), tol);
         return true;
     }
 }

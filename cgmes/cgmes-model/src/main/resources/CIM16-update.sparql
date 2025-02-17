@@ -26,24 +26,34 @@ SELECT *
 # we cannot access the 'inService' Status
 SELECT *
 {
-    ?Terminal
-        a cim:Terminal ;
-        cim:ACDCTerminal.connected ?connected
+    {
+        SELECT DISTINCT ?Terminal
+        WHERE {
+            {
+                ?Terminal a cim:Terminal .
+            }
+            UNION
+            {
+                SELECT ?Terminal
+                WHERE {
+                    ?SvPowerFlow a cim:SvPowerFlow ;
+                        cim:SvPowerFlow.Terminal ?Terminal .
+                }
+            }
+        }
+    }
+    OPTIONAL {
+        ?Terminal cim:ACDCTerminal.connected ?connected .
+    }
     OPTIONAL {
         ?SvPowerFlow a cim:SvPowerFlow ;
             cim:SvPowerFlow.Terminal ?Terminal ;
             cim:SvPowerFlow.p ?p ;
             cim:SvPowerFlow.q ?q .
     }
-}
-
-# query: topologicalIslands
-SELECT *
-{
-    ?TopologicalIsland a cim:TopologicalIsland ;
-        cim:IdentifiedObject.name ?name ;
-        cim:TopologicalIsland.AngleRefTopologicalNode ?AngleRefTopologicalNode ;
-        cim:TopologicalIsland.TopologicalNodes ?TopologicalNodes .
+    OPTIONAL {
+        ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
+    }
 }
 
 # query: operationalLimits
@@ -55,33 +65,6 @@ SELECT *
         OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
         OPTIONAL { ?OperationalLimit cim:ActivePowerLimit.value ?value }
         OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
-}
-
-# query: topologicalNodes
-SELECT *
-{
-    ?TopologicalNode a cim:TopologicalNode .
-    OPTIONAL {
-        ?SvVoltage a cim:SvVoltage ;
-            cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-            cim:SvVoltage.v ?v ;
-            cim:SvVoltage.angle ?angle
-    }
-    OPTIONAL {
-        SELECT ?ConnectivityNode
-        WHERE {
-            ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode
-        }
-        LIMIT 1
-    }
-}
-
-# query: switches
-SELECT *
-{
-    ?Switch a ?type ;
-        cim:Switch.open ?open .
-    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector }
 }
 
 # query: ratioTapChangers
@@ -239,28 +222,4 @@ SELECT *
             cim:SvShuntCompensatorSections.ShuntCompensator ?ShuntCompensator ;
             cim:SvShuntCompensatorSections.sections ?SVsections
     }
-}
-
-# query: boundaryNodes
-# All pairs (Connectivity Node, Topological Node) from instance files that have boundary profile and attribute boundaryPoint set to true
-# We expect all Connectivity Nodes have 1 and only one corresponding TopologicalNode
-prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
-SELECT *
-{
-GRAPH ?graphBDEQ {
-    ?FullModel md:Model.profile ?modelProfile .
-    FILTER (regex(?modelProfile, "EquipmentBoundaryOperation", "i"))
-    ?ConnectivityNode
-        a cim:ConnectivityNode ;
-        cim:IdentifiedObject.name ?name ;
-        cim:ConnectivityNode.ConnectivityNodeContainer ?container ;
-        entsoe:ConnectivityNode.boundaryPoint "true" .
-    OPTIONAL { ?ConnectivityNode entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNode }
-    OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNodeContainer }
-    OPTIONAL { ?ConnectivityNode cim:IdentifiedObject.description ?description }
-}
-GRAPH ?grapBDTP {
-    ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
-    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName
-}
 }
