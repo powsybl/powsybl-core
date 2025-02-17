@@ -152,6 +152,11 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
+    public void skipNode() {
+        readChildNodes(elementName -> skipNode());
+    }
+
+    @Override
     public void readEndNode() {
         try {
             XmlUtil.readEndElementOrThrow(reader);
