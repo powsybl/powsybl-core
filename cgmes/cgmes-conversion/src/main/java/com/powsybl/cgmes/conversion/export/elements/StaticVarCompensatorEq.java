@@ -51,7 +51,9 @@ public final class StaticVarCompensatorEq {
         }
         writer.writeEndElement();
         writer.writeEmptyElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + regulationMode(svcControlMode));
+        if (svcControlMode != null) {
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + regulationMode(svcControlMode));
+        }
         writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_VOLTAGESETPOINT);
         writer.writeCharacters(CgmesExportUtil.format(voltageSetPoint));
         writer.writeEndElement();
@@ -62,10 +64,6 @@ public final class StaticVarCompensatorEq {
         if (StaticVarCompensator.RegulationMode.VOLTAGE.equals(svcControlMode)) {
             return "SVCControlMode.voltage";
         } else if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svcControlMode)) {
-            return "SVCControlMode.reactivePower";
-        } else if (StaticVarCompensator.RegulationMode.OFF.equals(svcControlMode)) {
-            // CGMES does not have a "none" value for SVCControlMode enumeration,
-            // so we have to take a default here
             return "SVCControlMode.reactivePower";
         }
         throw new PowsyblException("Invalid regulation mode for Static Var Compensator " + svcControlMode);
