@@ -54,7 +54,7 @@ A `NetworkModification` offers a method to check whether or not its application 
 ### Tie line tripping
 <span style="color: red">TODO</span>
 
-### two-winding transformer tripping
+### Two-winding transformer tripping
 <span style="color: red">TODO</span>
 
 ## Other modifications
