@@ -299,7 +299,7 @@ public class Conversion {
     private void updateWithAllInputs(Network network, Context convertContext, ReportNode reportNode) {
         // FIXME(Luma) Before switching to update we must invalidate all caches of the cgmes model
         //  and change the query catalog to "update" mode
-        if (!sshIncludedInCgmesModel(this.cgmes)) {
+        if (!sshOrSvIsIncludedInCgmesModel(this.cgmes)) {
             return;
         }
         this.cgmes.invalidateCaches();
@@ -311,8 +311,11 @@ public class Conversion {
         update(network, updateContext, reportNode);
     }
 
-    private static boolean sshIncludedInCgmesModel(CgmesModel cgmes) {
-        return cgmes.version().contains("CIM14") || cgmes.fullModels().stream().anyMatch(fullModel -> fullModel.getId("profileList").contains("SteadyStateHypothesis"));
+    private static boolean sshOrSvIsIncludedInCgmesModel(CgmesModel cgmes) {
+        return cgmes.version().contains("CIM14")
+                || cgmes.fullModels().stream()
+                .map(fullModel -> fullModel.getId("profileList"))
+                .anyMatch(profileList -> profileList.contains("SteadyStateHypothesis") || profileList.contains("StateVariables"));
     }
 
     public void update(Network network, ReportNode reportNode) {
@@ -1165,7 +1168,7 @@ public class Conversion {
         private double missingPermanentLimitPercentage = 100;
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
         private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
-        private final List<DefaultValue> updateDefaultValuesPriority = List.of(DefaultValue.EQ, DefaultValue.EMPTY);
+        private final List<DefaultValue> updateDefaultValuesPriority = List.of(DefaultValue.EQ, DefaultValue.DEFAULT, DefaultValue.EMPTY);
     }
 
     private final CgmesModel cgmes;
