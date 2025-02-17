@@ -175,8 +175,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
 
             danglingLine.getGeneration().setTargetP(0.0);
             danglingLine.getGeneration().setTargetQ(0.0);
-            danglingLine.getGeneration().setTargetV(targetV);
-            danglingLine.getGeneration().setVoltageRegulationOn(false);
+            setRegulation(danglingLine, targetV, false);
         }
         danglingLine.setP0(0.0);
         danglingLine.setQ0(0.0);
@@ -196,11 +195,18 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             danglingLine.setQ0(0.0);
             danglingLine.getGeneration().setTargetP(getTargetP(updatedPowerFlow, danglingLine.getGeneration(), context));
             danglingLine.getGeneration().setTargetQ(getTargetQ(updatedPowerFlow, danglingLine.getGeneration(), context));
-            danglingLine.getGeneration().setTargetV(targetV);
-            danglingLine.getGeneration().setVoltageRegulationOn(regulatingOn && isValidTargetV(targetV));
+            setRegulation(danglingLine, targetV, regulatingOn && isValidTargetV(targetV));
         } else {
             danglingLine.setP0(getTargetP(updatedPowerFlow, danglingLine, context));
             danglingLine.setQ0(getTargetQ(updatedPowerFlow, danglingLine, context));
+        }
+    }
+
+    private static void setRegulation(DanglingLine danglingLine, double targetV, boolean regulatingOn) {
+        if (regulatingOn) {
+            danglingLine.getGeneration().setTargetV(targetV).setVoltageRegulationOn(true);
+        } else {
+            danglingLine.getGeneration().setVoltageRegulationOn(false).setTargetV(targetV);
         }
     }
 

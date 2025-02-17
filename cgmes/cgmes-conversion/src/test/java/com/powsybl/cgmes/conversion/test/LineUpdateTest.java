@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.Test;
 
@@ -65,7 +66,7 @@ class LineUpdateTest {
     }
 
     @Test
-    void importEqAndTwoSshsTest() {
+    void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "line_EQ.xml");
         assertEquals(3, network.getLineCount());
 
@@ -79,6 +80,11 @@ class LineUpdateTest {
 
         readCgmesResources(network, DIR, "line_SSH_1.xml");
         assertTrue(checkSsh1(acLineSegment, equivalentBranch, seriesCompensator));
+
+        readCgmesResources(network, DIR, "line_SV.xml");
+        assertTrue(checkFlows(acLineSegment.getTerminal1(), 275.0, 50.0, acLineSegment.getTerminal2(), -275.1, -50.1));
+        assertTrue(checkFlows(equivalentBranch.getTerminal1(), 175.0, 40.0, equivalentBranch.getTerminal2(), -175.1, -40.1));
+        assertTrue(checkFlows(seriesCompensator.getTerminal1(), 75.0, 30.0, seriesCompensator.getTerminal2(), -75.1, -30.1));
     }
 
     private static boolean checkEq(Line acLineSegment, Line equivalentBranch, Line seriesCompensator) {
@@ -185,5 +191,14 @@ class LineUpdateTest {
     }
 
     private record CurrentLimit(double ptalValue, int tatlDuration, double tatlValue) {
+    }
+
+    private static boolean checkFlows(Terminal terminal1, double p1, double q1, Terminal terminal2, double p2, double q2) {
+        double tol = 0.0000001;
+        assertEquals(p1, terminal1.getP(), tol);
+        assertEquals(q1, terminal1.getQ(), tol);
+        assertEquals(p2, terminal2.getP(), tol);
+        assertEquals(q2, terminal2.getQ(), tol);
+        return true;
     }
 }

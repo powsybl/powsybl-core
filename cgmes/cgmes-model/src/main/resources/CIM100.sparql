@@ -116,28 +116,6 @@ WHERE {
 }}
 }
 
-# query: staticVarCompensators
-SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?StaticVarCompensator
-        a cim:StaticVarCompensator ;
-        cim:IdentifiedObject.name ?name ;
-        cim:StaticVarCompensator.capacitiveRating ?capacitiveRating ;
-        cim:StaticVarCompensator.inductiveRating ?inductiveRating ;
-        cim:StaticVarCompensator.slope ?slope .
-    ?Terminal cim:Terminal.ConductingEquipment ?StaticVarCompensator .
-    OPTIONAL { ?StaticVarCompensator cim:StaticVarCompensator.sVCControlMode ?controlMode }
-    OPTIONAL { ?StaticVarCompensator cim:StaticVarCompensator.voltageSetPoint ?voltageSetPoint }
-    OPTIONAL { ?StaticVarCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
-}}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?StaticVarCompensator
-        cim:StaticVarCompensator.q ?q ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled
-}}
-}
-
 # query: operationalLimits
 SELECT *
 WHERE {
@@ -166,12 +144,6 @@ WHERE {
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.direction ?direction }
     OPTIONAL { ?OperationalLimitType eu:OperationalLimitType.kind ?limitType }
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
-}}
-OPTIONAL { GRAPH ?graphSSH {
-    OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
-    OPTIONAL { ?OperationalLimit cim:ActivePowerLimit.value ?value }
-    OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
-    OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
 }}
 }
 
