@@ -766,7 +766,7 @@ class CgmesConformity1ModifiedConversionTest {
 
     @Test
     void smallNodeBreakerHvdcMissingDCLineSegment() {
-        // Small Grid Node Breaker HVDC modified so there is not DC Line Segment
+        // Small Grid Node Breaker HVDC modified so there is no DC Line Segment
         assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcMissingDCLineSegment().dataSource(), NetworkFactory.findDefault(), importParams));
     }
 
