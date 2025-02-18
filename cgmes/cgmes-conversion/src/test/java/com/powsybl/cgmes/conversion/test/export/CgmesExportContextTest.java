@@ -62,7 +62,7 @@ class CgmesExportContextTest {
         CgmesExportContext context = new CgmesExportContext();
         assertEquals(16, context.getCimVersion());
         assertEquals(CgmesNamespace.CIM_16_NAMESPACE, context.getCim().getNamespace());
-        assertEquals(CgmesTopologyKind.BUS_BRANCH, context.getTopologyKind());
+        assertEquals(CgmesTopologyKind.NODE_BREAKER, context.getTopologyKind());
         assertTrue(Duration.between(ZonedDateTime.now(), context.getScenarioTime()).toMinutes() < 1);
         assertTrue(context.exportBoundaryPowerFlows());
         assertEquals("1D", context.getBusinessProcess());
