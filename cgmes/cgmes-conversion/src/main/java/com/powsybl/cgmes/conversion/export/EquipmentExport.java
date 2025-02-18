@@ -78,9 +78,7 @@ public final class EquipmentExport {
             Set<String> exportedLimitTypes = new HashSet<>();
             LoadGroups loadGroups = new LoadGroups();
 
-            if (context.writeConnectivityNodes()) {
-                writeConnectivityNodes(network, mapNodeKey2NodeId, cimNamespace, writer, context);
-            }
+            writeConnectivityNodes(network, mapNodeKey2NodeId, cimNamespace, writer, context);
             writeTerminals(network, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);
             writeSwitches(network, cimNamespace, writer, context);
 
@@ -109,22 +107,26 @@ public final class EquipmentExport {
     }
 
     private static void writeConnectivityNodes(Network network, Map <String, String> mapNodeKey2NodeId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        // ConnectivityNodes are:
+        // - always exported from nodes and buses in case of a node-breaker export
+        // - only exported from nodes in case of a mixed-topology CIM100 export
+        // - never exported in case of a bus-branch export or in case of a mixed-topology CIM16 export
         for (VoltageLevel vl : network.getVoltageLevels()) {
             String cgmesVlId = context.getNamingStrategy().getCgmesId(vl);
-            if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+            if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
                 writeNodes(vl, cgmesVlId, new VoltageLevelAdjacency(vl, context), mapNodeKey2NodeId, cimNamespace, writer, context);
-            } else {
+                writeSwitchesConnectivity(vl, cgmesVlId, mapNodeKey2NodeId, cimNamespace, writer, context);
+                writeBusbarSectionsConnectivity(vl, mapNodeKey2NodeId, cimNamespace, writer, context);
+            } else if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER && context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER) {
                 writeBuses(vl, cgmesVlId, mapNodeKey2NodeId, cimNamespace, writer, context);
             }
-            writeSwitchesConnectivity(vl, cgmesVlId, mapNodeKey2NodeId, cimNamespace, writer, context);
         }
-        writeBusbarSectionsConnectivity(network, mapNodeKey2NodeId, cimNamespace, writer, context);
     }
 
     private static void writeSwitchesConnectivity(VoltageLevel vl, String cgmesVlId, Map <String, String> mapNodeKey2NodeId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         String[] nodeKeys = new String[2];
         for (Switch sw : vl.getSwitches()) {
-            fillSwitchNodeKeys(vl, sw, nodeKeys);
+            fillSwitchNodeKeys(vl, sw, nodeKeys, context);
             // We have to go through all switches, even if they are not exported as equipment,
             // to be sure that all required mappings between IIDM node number and CGMES Connectivity Node are created
             writeSwitchConnectivity(nodeKeys[0], vl, cgmesVlId, mapNodeKey2NodeId, cimNamespace, writer, context);
@@ -152,15 +154,14 @@ public final class EquipmentExport {
         return bus.getId();
     }
 
-    private static void writeBusbarSectionsConnectivity(Network network, Map <String, String> mapNodeKey2NodeId, String cimNamespace,
+    private static void writeBusbarSectionsConnectivity(VoltageLevel vl, Map <String, String> mapNodeKey2NodeId, String cimNamespace,
                                                         XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (BusbarSection bus : network.getBusbarSections()) {
-            String connectivityNodeId = connectivityNodeId(mapNodeKey2NodeId, bus.getTerminal());
+        for (BusbarSection bbs : vl.getNodeBreakerView().getBusbarSections()) {
+            String connectivityNodeId = connectivityNodeId(mapNodeKey2NodeId, bbs.getTerminal(), context);
             if (connectivityNodeId == null) {
-                VoltageLevel vl = bus.getTerminal().getVoltageLevel();
-                String node = context.getNamingStrategy().getCgmesId(refTyped(bus), CONNECTIVITY_NODE);
-                ConnectivityNodeEq.write(node, bus.getNameOrId(), context.getNamingStrategy().getCgmesId(vl), cimNamespace, writer, context);
-                String key = buildNodeKey(vl, bus.getTerminal().getNodeBreakerView().getNode());
+                String node = context.getNamingStrategy().getCgmesId(refTyped(bbs), CONNECTIVITY_NODE);
+                ConnectivityNodeEq.write(node, bbs.getNameOrId(), context.getNamingStrategy().getCgmesId(vl), cimNamespace, writer, context);
+                String key = buildNodeKey(vl, bbs.getTerminal().getNodeBreakerView().getNode());
                 mapNodeKey2NodeId.put(key, node);
             }
         }
@@ -205,8 +206,8 @@ public final class EquipmentExport {
         return bus1 != bus2;
     }
 
-    private static void fillSwitchNodeKeys(VoltageLevel vl, Switch sw, String[] nodeKeys) {
-        if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+    private static void fillSwitchNodeKeys(VoltageLevel vl, Switch sw, String[] nodeKeys, CgmesExportContext context) {
+        if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER) && !context.isBusBranchExport()) {
             nodeKeys[0] = buildNodeKey(vl, vl.getNodeBreakerView().getNode1(sw.getId()));
             nodeKeys[1] = buildNodeKey(vl, vl.getNodeBreakerView().getNode2(sw.getId()));
         } else {
@@ -271,10 +272,12 @@ public final class EquipmentExport {
     }
 
     private static void writeBusbarSections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (BusbarSection bbs : network.getBusbarSections()) {
-            BusbarSectionEq.write(context.getNamingStrategy().getCgmesId(bbs), bbs.getNameOrId(),
-                    context.getNamingStrategy().getCgmesId(bbs.getTerminal().getVoltageLevel()),
-                    context.getBaseVoltageByNominalVoltage(bbs.getTerminal().getVoltageLevel().getNominalV()).getId(), cimNamespace, writer, context);
+        if (!context.isBusBranchExport()) {
+            for (BusbarSection bbs : network.getBusbarSections()) {
+                BusbarSectionEq.write(context.getNamingStrategy().getCgmesId(bbs), bbs.getNameOrId(),
+                        context.getNamingStrategy().getCgmesId(bbs.getTerminal().getVoltageLevel()),
+                        context.getBaseVoltageByNominalVoltage(bbs.getTerminal().getVoltageLevel().getNominalV()).getId(), cimNamespace, writer, context);
+            }
         }
     }
 
@@ -1045,7 +1048,7 @@ public final class EquipmentExport {
     private static String writeDanglingLinesConnectivity(List<DanglingLine> danglingLineList, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
                                                          CgmesExportContext context) throws XMLStreamException {
         String connectivityNodeId = null;
-        if (context.writeConnectivityNodes()) {
+        if (!context.isBusBranchExport()) {
             connectivityNodeId = writeDanglingLinesConnectivityNode(danglingLineList, baseVoltageId, cimNamespace, writer, context);
         } else {
             writeDanglingLinesFictitiousContainer(danglingLineList, baseVoltageId, cimNamespace, writer, context);
@@ -1298,14 +1301,14 @@ public final class EquipmentExport {
 
             HvdcConverterStation<?> converter = line.getConverterStation1();
             terminalId = context.getNamingStrategy().getCgmesId(refTyped(line), refTyped(converter), CONVERTER_STATION, ref(1));
-            writeTerminal(converter.getTerminal(), mapTerminal2Id, terminalId, converter1Id, connectivityNodeId(mapNodeKey2NodeId, converter.getTerminal()), 1, cimNamespace, writer, context);
+            writeTerminal(converter.getTerminal(), mapTerminal2Id, terminalId, converter1Id, connectivityNodeId(mapNodeKey2NodeId, converter.getTerminal(), context), 1, cimNamespace, writer, context);
             String capabilityCurveId1 = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
             String acdcConverterDcTerminal1 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + AC_DC_CONVERTER_DC_TERMINAL).orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal1, converter1Id, dcNode1, 2, cimNamespace, writer, context);
 
             converter = line.getConverterStation2();
             terminalId = context.getNamingStrategy().getCgmesId(refTyped(line), refTyped(converter), CONVERTER_STATION, ref(2));
-            writeTerminal(converter.getTerminal(), mapTerminal2Id, terminalId, converter2Id, connectivityNodeId(mapNodeKey2NodeId, converter.getTerminal()), 1, cimNamespace, writer, context);
+            writeTerminal(converter.getTerminal(), mapTerminal2Id, terminalId, converter2Id, connectivityNodeId(mapNodeKey2NodeId, converter.getTerminal(), context), 1, cimNamespace, writer, context);
             String capabilityCurveId2 = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
             String acdcConverterDcTerminal2 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + AC_DC_CONVERTER_DC_TERMINAL).orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal2, converter2Id, dcNode2, 2, cimNamespace, writer, context);
@@ -1450,7 +1453,7 @@ public final class EquipmentExport {
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
                 VoltageLevel vl = sw.getVoltageLevel();
-                fillSwitchNodeKeys(vl, sw, switchNodesKeys);
+                fillSwitchNodeKeys(vl, sw, switchNodesKeys, context);
                 String nodeId1 = mapNodeKey2NodeId.get(switchNodesKeys[0]);
                 String terminalId1 = context.getNamingStrategy().getCgmesIdFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
                 TerminalEq.write(terminalId1, context.getNamingStrategy().getCgmesId(sw), nodeId1, 1, cimNamespace, writer, context);
@@ -1464,7 +1467,7 @@ public final class EquipmentExport {
     private static void writeTerminal(Terminal t, Map<Terminal, String> mapTerminal2Id, Map<String, String> mapNodeKey2NodeId,
                                       String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         String equipmentId = context.getNamingStrategy().getCgmesId(t.getConnectable());
-        writeTerminal(t, mapTerminal2Id, CgmesExportUtil.getTerminalId(t, context), equipmentId, connectivityNodeId(mapNodeKey2NodeId, t),
+        writeTerminal(t, mapTerminal2Id, CgmesExportUtil.getTerminalId(t, context), equipmentId, connectivityNodeId(mapNodeKey2NodeId, t, context),
                 CgmesExportUtil.getTerminalSequenceNumber(t), cimNamespace, writer, context);
     }
 
@@ -1487,9 +1490,9 @@ public final class EquipmentExport {
         }
     }
 
-    private static String connectivityNodeId(Map<String, String> mapNodeKey2NodeId, Terminal terminal) {
+    private static String connectivityNodeId(Map<String, String> mapNodeKey2NodeId, Terminal terminal, CgmesExportContext context) {
         String key;
-        if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+        if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
             key = buildNodeKey(terminal.getVoltageLevel(), terminal.getNodeBreakerView().getNode());
         } else {
             key = buildNodeKey(terminal.getBusBreakerView().getConnectableBus());
