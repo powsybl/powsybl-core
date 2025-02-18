@@ -37,7 +37,6 @@
       Converting SvInjection.
       Converting ControlArea.
       Converting RegulatingControl.
-      Setting voltages and angles.
       Applying postprocessors.
       CGMES network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73 is imported.
       Updating SWITCH.
@@ -53,4 +52,5 @@
       Updating HVDC_LINE.
       Updating DANGLING_LINE.
       Fixing issues with dangling lines.
+      Setting voltages and angles.
       Running validation checks on IIDM network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73

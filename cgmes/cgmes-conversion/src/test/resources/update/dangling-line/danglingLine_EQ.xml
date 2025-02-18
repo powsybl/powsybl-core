@@ -64,7 +64,6 @@
         <cim:ACLineSegment.shortCircuitEndTemperature>0</cim:ACLineSegment.shortCircuitEndTemperature>
         <cim:ACLineSegment.x>18.35</cim:ACLineSegment.x>
         <cim:ACLineSegment.x0>45.59</cim:ACLineSegment.x0>
-        <cim:Equipment.EquipmentContainer rdf:resource="#_b613d79c-1d3a-4f8c-b312-f000d3df0e73"/>
     </cim:ACLineSegment>
     <cim:Terminal rdf:ID="_ACLineSegment-T1">
         <cim:IdentifiedObject.name>ACLineSegment-T1</cim:IdentifiedObject.name>
@@ -283,6 +282,15 @@
         <cim:IdentifiedObject.name>BusbarSection-1-T</cim:IdentifiedObject.name>
         <cim:Terminal.ConductingEquipment rdf:resource="#_BusbarSection-1" />
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+    <cim:BusbarSection rdf:ID="_BusbarSection-2">
+        <cim:IdentifiedObject.name>BusbarSection-2</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_BusbarSection-2-T">
+        <cim:IdentifiedObject.name>BusbarSection-2-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BusbarSection-2" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2" />
     </cim:Terminal>
     <cim:BusbarSection rdf:ID="_BusbarSection-4">
         <cim:IdentifiedObject.name>BusbarSection-4</cim:IdentifiedObject.name>

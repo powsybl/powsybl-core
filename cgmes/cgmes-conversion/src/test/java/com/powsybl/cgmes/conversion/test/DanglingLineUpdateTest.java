@@ -8,8 +8,8 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
@@ -99,6 +99,8 @@ class DanglingLineUpdateTest {
         DanglingLine equivalentBranch = network.getDanglingLine("EquivalentBranch");
         assertEquals(275.1, equivalentBranch.getTerminal().getP(), tol);
         assertEquals(50.5, equivalentBranch.getTerminal().getQ(), tol);
+        assertTrue(checkBusVoltage(equivalentBranch.getTerminal().getBusView().getBus(), 400.5, -3.0));
+        assertTrue(checkBoundaryBusVoltage(equivalentBranch, 388.0868627936761, -5.9167013802728095));
 
         DanglingLine powerTransformer = network.getDanglingLine("PowerTransformer");
         assertTrue(Double.isNaN(powerTransformer.getTerminal().getP()));
@@ -139,6 +141,8 @@ class DanglingLineUpdateTest {
 
         assertEquals(275.1, equivalentBranch.getTerminal().getP(), tol);
         assertEquals(50.5, equivalentBranch.getTerminal().getQ(), tol);
+        assertTrue(checkBusVoltage(equivalentBranch.getTerminal().getBusView().getBus(), 400.5, -3.0));
+        assertTrue(checkBoundaryBusVoltage(equivalentBranch, 388.0868627936761, -5.9167013802728095));
 
         assertTrue(Double.isNaN(powerTransformer.getTerminal().getP()));
         assertTrue(Double.isNaN(powerTransformer.getTerminal().getQ()));
@@ -247,5 +251,19 @@ class DanglingLineUpdateTest {
     }
 
     private record ActivePowerLimit(double ptalValue, int tatlDuration, double tatlValue) {
+    }
+
+    private static boolean checkBusVoltage(Bus bus, double v, double angle) {
+        double tol = 0.0000001;
+        assertEquals(v, bus.getV(), tol);
+        assertEquals(angle, bus.getAngle(), tol);
+        return true;
+    }
+
+    private static boolean checkBoundaryBusVoltage(DanglingLine danglingLine, double v, double angle) {
+        double tol = 0.0000001;
+        assertEquals(v, Double.parseDouble(danglingLine.getProperty(CgmesNames.VOLTAGE)), tol);
+        assertEquals(angle, Double.parseDouble(danglingLine.getProperty(CgmesNames.ANGLE)), tol);
+        return true;
     }
 }

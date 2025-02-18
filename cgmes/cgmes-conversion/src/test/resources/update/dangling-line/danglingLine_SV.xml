@@ -15,6 +15,12 @@
         <cim:SvPowerFlow.Terminal rdf:resource="#_EquivalentBranch-T1" />
     </cim:SvPowerFlow>
 
+    <cim:SvVoltage rdf:ID="_ConnectivityNode2-TP-SvVoltage">
+        <cim:SvVoltage.angle>-3.0</cim:SvVoltage.angle>
+        <cim:SvVoltage.v>400.5</cim:SvVoltage.v>
+        <cim:SvVoltage.TopologicalNode rdf:resource="#_ConnectivityNode2-TP" />
+    </cim:SvVoltage>
+
     <cim:SvVoltage rdf:ID="_ConnectivityNode1-BD-TP-SvVoltage">
         <cim:SvVoltage.angle>-5.0</cim:SvVoltage.angle>
         <cim:SvVoltage.v>402.5</cim:SvVoltage.v>

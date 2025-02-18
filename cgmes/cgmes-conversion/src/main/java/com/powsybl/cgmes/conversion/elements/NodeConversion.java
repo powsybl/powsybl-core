@@ -9,19 +9,19 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
-import static com.powsybl.cgmes.conversion.CgmesReports.invalidAngleVoltageBusReport;
-import static com.powsybl.cgmes.conversion.CgmesReports.invalidAngleVoltageNodeReport;
+import static com.powsybl.cgmes.conversion.CgmesReports.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -58,33 +58,33 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         String substationName = "boundary";
         String vlName = "boundary";
         SubstationAdder adder = context.network()
-            .newSubstation()
-            .setId(context.namingStrategy().getIidmId("Substation", substationId))
-            .setName(substationName)
-            .setCountry(boundaryCountryCode());
+                .newSubstation()
+                .setId(context.namingStrategy().getIidmId("Substation", substationId))
+                .setName(substationName)
+                .setCountry(boundaryCountryCode());
         if (boundaryCountryCode() != null) {
             adder.setGeographicalTags(boundaryCountryCode().toString());
         }
         Substation substation = adder.add();
         return substation.newVoltageLevel()
-            .setId(context.namingStrategy().getIidmId("VoltageLevel", vlId))
-            .setName(vlName)
-            .setNominalV(nominalVoltage)
-            .setTopologyKind(context.nodeBreaker() ? TopologyKind.NODE_BREAKER : TopologyKind.BUS_BREAKER)
-            .add();
+                .setId(context.namingStrategy().getIidmId("VoltageLevel", vlId))
+                .setName(vlName)
+                .setNominalV(nominalVoltage)
+                .setTopologyKind(context.nodeBreaker() ? TopologyKind.NODE_BREAKER : TopologyKind.BUS_BREAKER)
+                .add();
     }
 
     private Country boundaryCountryCode() {
         // Selection of country code when ENTSO-E extensions are present
         return CountryConversion.fromIsoCode(p.getLocal("fromEndIsoCode"))
-            .orElseGet(() -> CountryConversion.fromIsoCode(p.getLocal("toEndIsoCode"))
-                .orElseGet(() -> {
-                    Supplier<String> countryCodes = () -> String.format("Country. ISO codes %s %s",
-                        p.getLocal("fromEndIsoCode"),
-                        p.getLocal("toEndIsoCode"));
-                    ignored(countryCodes);
-                    return null;
-                }));
+                .orElseGet(() -> CountryConversion.fromIsoCode(p.getLocal("toEndIsoCode"))
+                        .orElseGet(() -> {
+                            Supplier<String> countryCodes = () -> String.format("Country. ISO codes %s %s",
+                                    p.getLocal("fromEndIsoCode"),
+                                    p.getLocal("toEndIsoCode"));
+                            ignored(countryCodes);
+                            return null;
+                        }));
     }
 
     @Override
@@ -105,49 +105,6 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         } else {
             newBus(vl);
         }
-    }
-
-    public void setVoltageAngleNodeBreaker() {
-        if (!context.nodeBreaker()) {
-            return;
-        }
-        // Before trying to find a bus, check that values are valid
-        if (!checkValidVoltageAngle(null)) {
-            return;
-        }
-
-        VoltageLevel vl = voltageLevel();
-        if (vl == null) { // if inside boundary but boundaries must not be converted
-            return;
-        }
-        VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
-        String connectivityNode = id;
-        int iidmNode = context.nodeMapping().iidmNodeForConnectivityNode(connectivityNode, vl);
-        if (!topo.hasAttachedEquipment(iidmNode)) {
-            LOG.error("ConnectivityNode {} with voltage and angle is not valid in IIDM", connectivityNode);
-            return;
-        }
-        // To obtain a bus for which we want to set voltage:
-        // If there is no Terminal at this IIDM node,
-        // then find from it the first connected node with a Terminal
-        Terminal t = topo.getOptionalTerminal(iidmNode)
-                .orElseGet(() -> Networks.getEquivalentTerminal(vl, iidmNode));
-        if (t == null) {
-            LOG.error("Can't find a Terminal to obtain a Bus to set Voltage, Angle. ConnectivityNode {}", id);
-            return;
-        }
-        Bus bus = t.getBusView().getBus();
-        if (bus == null) {
-            bus = t.getBusBreakerView().getBus();
-            if (bus == null) {
-                LOG.error("Can't find a Bus from Terminal to set Voltage, Angle. Connectivity Node {}", id);
-                return;
-            }
-            LOG.warn(
-                    "Can't find a bus from the Bus View to set Voltage and Angle, we use the bus {} from the Bus/Breaker view. Connectivity node {}",
-                    bus, id);
-        }
-        setVoltageAngle(bus);
     }
 
     private VoltageLevel voltageLevel() {
@@ -179,65 +136,22 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         // against the topology present in the CGMES model
         if (context.config().createBusbarSectionForEveryConnectivityNode()) {
             BusbarSection bus = nbv.newBusbarSection()
-                .setId(context.namingStrategy().getIidmId("Bus", id))
-                .setName(context.namingStrategy().getIidmName("Bus", name))
-                .setNode(iidmNode)
-                .add();
+                    .setId(context.namingStrategy().getIidmId("Bus", id))
+                    .setName(context.namingStrategy().getIidmName("Bus", name))
+                    .setNode(iidmNode)
+                    .add();
             LOG.debug("    BusbarSection added at node {} : {} {} : {}", iidmNode, id, name, bus);
         }
     }
 
     private void newBus(VoltageLevel voltageLevel) {
-        Bus bus = voltageLevel.getBusBreakerView().newBus()
-            .setId(context.namingStrategy().getIidmId("Bus", id))
-            .setName(context.namingStrategy().getIidmName("Bus", name))
-            .add();
-        if (checkValidVoltageAngle(bus)) {
-            setVoltageAngle(bus);
-        }
+        voltageLevel.getBusBreakerView().newBus()
+                .setId(context.namingStrategy().getIidmId("Bus", id))
+                .setName(context.namingStrategy().getIidmName("Bus", name))
+                .add();
     }
 
-    private boolean checkValidVoltageAngle(Bus bus) {
-        double v = p.asDouble(CgmesNames.VOLTAGE);
-        double angle = p.asDouble(CgmesNames.ANGLE);
-        // If no values have been found we do not need to log or report
-        if (Double.isNaN(v) && Double.isNaN(angle)) {
-            return false;
-        }
-        boolean valid = valid(v, angle);
-        if (!valid) {
-            Supplier<String> message = getStringSupplier(bus, v, angle);
-            context.invalid("SvVoltage", message);
-
-            if (bus != null) {
-                invalidAngleVoltageBusReport(context.getReportNode(), bus, id, v, angle);
-            } else {
-                invalidAngleVoltageNodeReport(context.getReportNode(), id, v, angle);
-            }
-        }
-        return valid;
-    }
-
-    private Supplier<String> getStringSupplier(Bus bus, double v, double angle) {
-        Supplier<String> reason = () -> String.format("v = %f, angle = %f. Node %s", v, angle, id);
-        Supplier<String> location = () -> bus == null
-            ? "No bus"
-            : String.format("Bus %s, %sVoltage level %s",
-                bus.getId(),
-                bus.getVoltageLevel().getSubstation().map(s -> "Substation " + s.getNameOrId() + ", ").orElse(""),
-                bus.getVoltageLevel().getNameOrId());
-        return () -> reason.get() + ". " + location.get();
-    }
-
-    private void setVoltageAngle(Bus bus) {
-        Objects.requireNonNull(bus);
-        double v = p.asDouble(CgmesNames.VOLTAGE);
-        double angle = p.asDouble(CgmesNames.ANGLE);
-        bus.setV(v);
-        bus.setAngle(angle);
-    }
-
-    private boolean valid(double v, double angle) {
+    private static boolean valid(double v, double angle) {
         // TTG data for DACF has some 380 kV buses connected with v=0 and bad angle
 
         // LITGRID data for DACF contains some buses with v=0, angle=0
@@ -254,9 +168,82 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         // and ensure that both ends have the same values (v,angle).
         // This is what HELM integration layer does when mapping from IIDM to HELM.
 
-        boolean valid = v > 0;
-        LOG.debug("valid voltage ({}, {}) ? {}", v, angle, valid);
-        return valid;
+        return v > 0 && Double.isFinite(angle);
+    }
+
+    public static void update(Bus bus, Context context) {
+        if (bus.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
+            updateBusBreakerBus(bus, context);
+        } else {
+            updateNodeBreakerBus(bus, context);
+        }
+    }
+
+    private static void updateBusBreakerBus(Bus bus, Context context) {
+        bus.getConnectedTerminalStream()
+                .map(terminal -> getBusBreakerSvVoltage(terminal, context))
+                .flatMap(Optional::stream)
+                .findFirst()
+                .ifPresent(svVoltage -> {
+                    double v = svVoltage.asDouble(CgmesNames.VOLTAGE);
+                    double angle = svVoltage.asDouble(CgmesNames.ANGLE);
+                    if (valid(v, angle)) {
+                        bus.setV(v).setAngle(angle);
+                    } else {
+                        String topologicalNode = svVoltage.getId(CgmesNames.TOPOLOGICAL_NODE);
+                        invalidAngleVoltageReport(context.getReportNode(), bus, topologicalNode, v, angle);
+                    }
+                });
+    }
+
+    private static Optional<PropertyBag> getBusBreakerSvVoltage(Terminal terminal, Context context) {
+        // busBreakerId is always a topologicalNode
+        return getSvVoltage(terminal.getBusBreakerView().getBus().getId(), context);
+    }
+
+    private static void updateNodeBreakerBus(Bus bus, Context context) {
+        bus.getConnectedTerminalStream()
+                .map(terminal -> getNodeBreakerSvVoltage(terminal, context))
+                .flatMap(Optional::stream)
+                .findFirst()
+                .ifPresent(svVoltage -> {
+                    double v = svVoltage.asDouble(CgmesNames.VOLTAGE);
+                    double angle = svVoltage.asDouble(CgmesNames.ANGLE);
+                    if (valid(v, angle)) {
+                        bus.setV(v).setAngle(angle);
+                    } else {
+                        String topologicalNode = svVoltage.getId(CgmesNames.TOPOLOGICAL_NODE);
+                        invalidAngleVoltageReport(context.getReportNode(), bus, topologicalNode, v, angle);
+                    }
+                });
+    }
+
+    private static Optional<PropertyBag> getNodeBreakerSvVoltage(Terminal terminal, Context context) {
+        return getTerminalId(terminal.getConnectable(), terminal.getSide())
+                .flatMap(terminalId -> getTopologicalNodeId(terminalId, context))
+                .flatMap(topologicalNodeId -> getSvVoltage(topologicalNodeId, context));
+    }
+
+    private static Optional<String> getTerminalId(Connectable<?> connectable, ThreeSides side) {
+        if (side == null) {
+            return connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL)
+                    .or(() -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1));
+        }
+        return switch (side) {
+            case ONE -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1)
+                    .or(() -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL));
+            case TWO -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2);
+            case THREE -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 3);
+        };
+    }
+
+    private static Optional<String> getTopologicalNodeId(String terminalId, Context context) {
+        return Optional.ofNullable(context.cgmesTerminal(terminalId))
+                .map(cgmesTerminal -> cgmesTerminal.getId(CgmesNames.TOPOLOGICAL_NODE));
+    }
+
+    private static Optional<PropertyBag> getSvVoltage(String topologicalNodeId, Context context) {
+        return Optional.ofNullable(context.svVoltage(topologicalNodeId));
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(NodeConversion.class);
