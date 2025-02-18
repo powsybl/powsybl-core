@@ -13,6 +13,7 @@ import com.powsybl.cgmes.conversion.export.*;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
@@ -164,6 +165,7 @@ public class CgmesExport implements Exporter {
         NamingStrategy namingStrategy = NamingStrategyFactory.create(namingStrategyImpl, uuidNamespace);
         CgmesExportContext context = new CgmesExportContext(network, referenceDataProvider, namingStrategy);
         addParametersToContext(context, parameters, reportNode, referenceDataProvider);
+        context.addIidmMappings(network);
 
         return context;
     }
@@ -538,16 +540,22 @@ public class CgmesExport implements Exporter {
                 .setReportNode(reportNode)
                 .setUpdateDependencies(Parameter.readBoolean(getFormat(), params, UPDATE_DEPENDENCIES_PARAMETER, defaultValueConfig));
 
-        // If sourcing actor data has been found and the modeling authority set has not been specified explicitly, set it
-        PropertyBag sourcingActor = referenceDataProvider.getSourcingActor();
-        if (sourcingActor.containsKey("masUri") && context.getModelingAuthoritySet() == null) {
-            context.setModelingAuthoritySet(sourcingActor.get("masUri"));
-        }
-
         // Set CIM version
         String cimVersion = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersion != null) {
             context.setCimVersion(Integer.parseInt(cimVersion));
+        }
+
+        // Set the topology kind
+        String topologyKind = Parameter.readString(getFormat(), params, TOPOLOGY_KIND_PARAMETER, defaultValueConfig);
+        if (topologyKind != null) {
+            context.setTopologyKind(Enum.valueOf(CgmesTopologyKind.class, topologyKind));
+        }
+
+        // If sourcing actor data has been found and the modeling authority set has not been specified explicitly, set it
+        PropertyBag sourcingActor = referenceDataProvider.getSourcingActor();
+        if (sourcingActor.containsKey("masUri") && context.getModelingAuthoritySet() == null) {
+            context.setModelingAuthoritySet(sourcingActor.get("masUri"));
         }
 
         // Set boundaries
@@ -640,6 +648,7 @@ public class CgmesExport implements Exporter {
     public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
     public static final String NAMING_STRATEGY = "iidm.export.cgmes.naming-strategy";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
+    public static final String TOPOLOGY_KIND = "iidm.export.cgmes.topology-kind";
     public static final String CGM_EXPORT = "iidm.export.cgmes.cgm_export";
     public static final String MODELING_AUTHORITY_SET = "iidm.export.cgmes.modeling-authority-set";
     public static final String MODEL_DESCRIPTION = "iidm.export.cgmes.model-description";
@@ -694,6 +703,12 @@ public class CgmesExport implements Exporter {
             "Profiles to export",
             List.of("EQ", "TP", "SSH", "SV"),
             List.of("EQ", "TP", "SSH", "SV"));
+    private static final Parameter TOPOLOGY_KIND_PARAMETER = new Parameter(
+            TOPOLOGY_KIND,
+            ParameterType.STRING,
+            "The topology kind of the export",
+            null,
+            List.of(CgmesTopologyKind.NODE_BREAKER.name(), CgmesTopologyKind.BUS_BRANCH.name()));
     private static final Parameter CGM_EXPORT_PARAMETER = new Parameter(
             CGM_EXPORT,
             ParameterType.BOOLEAN,
