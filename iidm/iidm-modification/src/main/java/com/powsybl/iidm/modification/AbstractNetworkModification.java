@@ -15,17 +15,14 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.powsybl.iidm.serde.NetworkSerDe;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public abstract class AbstractNetworkModification implements NetworkModification {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractNetworkModification.class);
     protected static final NetworkModificationImpact DEFAULT_IMPACT = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
     protected static final double EPSILON = 1e-10;
 

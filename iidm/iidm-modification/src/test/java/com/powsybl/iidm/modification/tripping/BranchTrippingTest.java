@@ -12,6 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
@@ -111,18 +112,20 @@ class BranchTrippingTest extends AbstractTrippingTest {
     @Test
     void unknownBranchTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
+        NamingStrategy namingStrategy = new DefaultNamingStrategy();
 
         BranchTripping tripping = new BranchTripping("transformer");
-        assertThrows(PowsyblException.class, () -> tripping.apply(network, new DefaultNamingStrategy(), true, ReportNode.NO_OP));
+        assertThrows(PowsyblException.class, () -> tripping.apply(network, namingStrategy, true, ReportNode.NO_OP));
         assertDoesNotThrow(() -> tripping.apply(network));
     }
 
     @Test
     void unknownSubstationTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
+        NamingStrategy namingStrategy = new DefaultNamingStrategy();
 
         BranchTripping tripping = new BranchTripping("NHV2_NLOAD", "UNKNOWN");
-        assertThrows(PowsyblException.class, () -> tripping.apply(network, new DefaultNamingStrategy(), true, ReportNode.NO_OP));
+        assertThrows(PowsyblException.class, () -> tripping.apply(network, namingStrategy, true, ReportNode.NO_OP));
         assertDoesNotThrow(() -> tripping.apply(network));
     }
 

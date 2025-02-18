@@ -13,6 +13,7 @@ import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -47,9 +48,10 @@ class GeneratorTrippingTest extends AbstractTrippingTest {
     @Test
     void unknownGeneratorTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
+        NamingStrategy namingStrategy = new DefaultNamingStrategy();
 
         GeneratorTripping tripping = new GeneratorTripping("generator");
-        assertThrows(PowsyblException.class, () -> tripping.apply(network, new DefaultNamingStrategy(), true, ReportNode.NO_OP));
+        assertThrows(PowsyblException.class, () -> tripping.apply(network, namingStrategy, true, ReportNode.NO_OP));
         assertDoesNotThrow(() -> tripping.apply(network));
     }
 
