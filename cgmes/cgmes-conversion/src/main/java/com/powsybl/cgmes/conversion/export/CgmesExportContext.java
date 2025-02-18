@@ -298,11 +298,13 @@ public class CgmesExportContext {
     }
 
     public boolean isExportedEquipment(Identifiable<?> c) {
-        // We ignore fictitious loads used to model CGMES SvInjection objects that represent calculation mismatches
-        // We also ignore fictitious switches used to model CGMES disconnected Terminals
-        boolean ignored = c.isFictitious() &&
-                (c instanceof Load
-                        || c instanceof Switch && "true".equals(c.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL)));
+        boolean ignored = false;
+        if (c instanceof Load load) {
+            ignored = load.isFictitious();
+        } else if (c instanceof Switch sw) {
+            ignored = sw.isFictitious() && "true".equals(sw.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL))
+                    || isBusBranchExport() && !sw.isRetained();
+        }
         return !ignored;
     }
 
@@ -686,10 +688,6 @@ public class CgmesExportContext {
         return baseVoltageByNominalVoltageMapping.get(nominalV);
     }
 
-    public boolean writeConnectivityNodes() {
-        return getCimVersion() == 100 || topologyKind == CgmesTopologyKind.NODE_BREAKER;
-    }
-
     public Collection<String> getRegionsIds() {
         return Collections.unmodifiableSet(regionsIdsByRegionName.values());
     }
@@ -790,6 +788,14 @@ public class CgmesExportContext {
     public CgmesExportContext setProfiles(List<String> profiles) {
         this.profiles = profiles;
         return this;
+    }
+
+    public boolean isCim16BusBranchExport() {
+        return getCimVersion() == 16 && isBusBranchExport();
+    }
+
+    public boolean isBusBranchExport() {
+        return getTopologyKind() == CgmesTopologyKind.BUS_BRANCH;
     }
 
     public String getBaseName() {
