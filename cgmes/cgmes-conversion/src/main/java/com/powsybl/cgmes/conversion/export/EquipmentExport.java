@@ -286,14 +286,18 @@ public final class EquipmentExport {
     // one load area and one sub load area is created in any case
     private static String writeLoadGroups(Network network, Collection<LoadGroup> foundLoadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // Write one load area and one sub load area for the whole network
-        String baseName = network.getNameOrId();
         String loadAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), LOAD_AREA);
-        LoadAreaEq.write(loadAreaId, baseName, cimNamespace, writer, context);
         String subLoadAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), SUB_LOAD_AREA);
-        LoadAreaEq.writeSubArea(subLoadAreaId, loadAreaId, baseName, cimNamespace, writer, context);
+        if (!context.isCim16BusBranchExport()) {
+            String baseName = network.getNameOrId();
+            LoadAreaEq.write(loadAreaId, baseName, cimNamespace, writer, context);
+            LoadAreaEq.writeSubArea(subLoadAreaId, loadAreaId, baseName, cimNamespace, writer, context);
+        }
         for (LoadGroup loadGroup : foundLoadGroups) {
             CgmesExportUtil.writeStartIdName(loadGroup.className, loadGroup.id, loadGroup.name, cimNamespace, writer, context);
-            CgmesExportUtil.writeReference("LoadGroup.SubLoadArea", subLoadAreaId, cimNamespace, writer, context);
+            if (!context.isCim16BusBranchExport()) {
+                CgmesExportUtil.writeReference("LoadGroup.SubLoadArea", subLoadAreaId, cimNamespace, writer, context);
+            }
             writer.writeEndElement();
         }
         return loadAreaId;
@@ -1207,6 +1211,11 @@ public final class EquipmentExport {
     }
 
     private static void writeLimitsGroup(Identifiable<?> identifiable, OperationalLimitsGroup limitsGroup, String terminalId, String cimNamespace, String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        if (limitsGroup.getCurrentLimits().isEmpty() && context.isCim16BusBranchExport()) {
+            // In CIM16, ActivePowerLimit and ApparentPowerLimit are part of EquipmentOperation profile
+            return;
+        }
+
         // Write the OperationalLimitSet
         String operationalLimitSetId;
         String operationalLimitSetName;
@@ -1242,6 +1251,11 @@ public final class EquipmentExport {
     }
 
     private static void writeLoadingLimits(LoadingLimits limits, String cimNamespace, String euNamespace, String operationalLimitSetId, Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        if (!(limits instanceof CurrentLimits) && context.isCim16BusBranchExport()) {
+            // In CIM16, ActivePowerLimit and ApparentPowerLimit are part of EquipmentOperation profile
+            return;
+        }
+
         // Write the permanent limit type (if not already written)
         String operationalLimitTypeId = context.getNamingStrategy().getCgmesId(PATL, OPERATIONAL_LIMIT_TYPE);
         if (!exportedLimitTypes.contains(operationalLimitTypeId)) {

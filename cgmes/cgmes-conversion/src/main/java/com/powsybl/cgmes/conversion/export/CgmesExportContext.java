@@ -300,9 +300,11 @@ public class CgmesExportContext {
     public boolean isExportedEquipment(Identifiable<?> c) {
         boolean ignored = false;
         if (c instanceof Load load) {
-            ignored = load.isFictitious();
+            ignored = load.isFictitious()
+                    || isCim16BusBranchExport() && CgmesNames.STATION_SUPPLY.equals(CgmesExportUtil.loadClassName(load));
         } else if (c instanceof Switch sw) {
             ignored = sw.isFictitious() && "true".equals(sw.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL))
+                    || isCim16BusBranchExport() && sw.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "").equals("GroundDisconnector")
                     || isBusBranchExport() && !sw.isRetained();
         }
         return !ignored;
