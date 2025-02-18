@@ -13,6 +13,14 @@
 	<cim:TopologicalNode rdf:ID="_ConnectivityNode1-BD-TP">
 		<cim:IdentifiedObject.name>ConnectivityNode1-BD-TP</cim:IdentifiedObject.name>
 		<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_LineContainer-ConnectivityNode1-BD"/>
-		<cim:TopologicalNode.BaseVoltage rdf:resource="#__BaseVoltage400"/>
+		<cim:TopologicalNode.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+	</cim:TopologicalNode>
+	<cim:Terminal rdf:about="#_EquivalentBranch-T1">
+		<cim:Terminal.TopologicalNode rdf:resource="#_ConnectivityNode2-TP"/>
+	</cim:Terminal>
+	<cim:TopologicalNode rdf:ID="_ConnectivityNode2-TP">
+		<cim:IdentifiedObject.name>ConnectivityNode2-TP</cim:IdentifiedObject.name>
+		<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1"/>
+		<cim:TopologicalNode.BaseVoltage rdf:resource="#_BaseVoltage400"/>
 	</cim:TopologicalNode>
 </rdf:RDF>
