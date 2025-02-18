@@ -55,7 +55,7 @@ public class CgmesExportContext {
     private static final String BOUNDARY_TP_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "TP_BD_ID";
 
     private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
-    private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
+    private CgmesTopologyKind topologyKind = CgmesTopologyKind.MIXED_TOPOLOGY;
     private ZonedDateTime scenarioTime = ZonedDateTime.now();
     private ReportNode reportNode = ReportNode.NO_OP;
     private String businessProcess = DEFAULT_BUSINESS_PROCESS;
@@ -155,12 +155,18 @@ public class CgmesExportContext {
     }
 
     private CgmesTopologyKind networkTopologyKind(Network network) {
-        for (VoltageLevel vl : network.getVoltageLevels()) {
-            if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-                return CgmesTopologyKind.NODE_BREAKER;
-            }
+        long nodeBreakerVoltageLevelsCount = network.getVoltageLevelStream()
+                .filter(vl -> vl.getTopologyKind() == TopologyKind.NODE_BREAKER)
+                .count();
+        long busBreakerVoltageLevelsCount = network.getVoltageLevelStream()
+                .filter(vl -> vl.getTopologyKind() == TopologyKind.BUS_BREAKER)
+                .count();
+        if (nodeBreakerVoltageLevelsCount > 0 && busBreakerVoltageLevelsCount == 0) {
+            return CgmesTopologyKind.NODE_BREAKER;
+        } else if (nodeBreakerVoltageLevelsCount == 0 && busBreakerVoltageLevelsCount > 0) {
+            return CgmesTopologyKind.BUS_BRANCH;
         }
-        return CgmesTopologyKind.BUS_BRANCH;
+        return CgmesTopologyKind.MIXED_TOPOLOGY;
     }
 
     public void addIidmMappings(Network network) {
