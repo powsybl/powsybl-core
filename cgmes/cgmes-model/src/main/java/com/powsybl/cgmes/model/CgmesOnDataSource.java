@@ -93,6 +93,9 @@ public class CgmesOnDataSource {
         return names().stream()
                 .map(n -> {
                     try (InputStream is = loadInputStream(n)) {
+                        if (is instanceof ZipInputStream zis) {
+                            zis.getNextEntry();
+                        }
                         return NamespaceReader.base(is);
                     } catch (IOException x) {
                         throw new UncheckedIOException(x);
@@ -129,32 +132,21 @@ public class CgmesOnDataSource {
     }
 
     private InputStream loadInputStream(String n) throws IOException {
-        InputStream is = null;
+        InputStream in = dataSource.newInputStream(n);
         String fileExtension = n.substring(n.lastIndexOf('.') + 1);
         if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
             ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, n);
-            InputStream in = null;
-            try {
-                in = dataSource.newInputStream(n);
-                is = new ZipInputStream(in);
-                ((ZipInputStream) is).getNextEntry();
-            } catch (Exception e) {
-                if (in != null) {
-                    in.close();
-                }
-                if (is != null) {
-                    is.close();
-                }
-                throw e;
-            }
+            return new ZipInputStream(in);
         } else {
-            is = dataSource.newInputStream(n);
+            return in;
         }
-        return is;
     }
 
     private boolean containsValidNamespace(String name) {
         try (InputStream is = loadInputStream(name)) {
+            if (is instanceof ZipInputStream zis) {
+                zis.getNextEntry();
+            }
             Set<String> ns = NamespaceReader.namespaces1(is);
             return ns.contains(RDF_NAMESPACE) && ns.stream().anyMatch(CgmesNamespace::isValid);
         } catch (XMLStreamException e) {
@@ -168,6 +160,9 @@ public class CgmesOnDataSource {
         Set<String> ns = new HashSet<>();
         names().forEach(n -> {
             try (InputStream is = loadInputStream(n)) {
+                if (is instanceof ZipInputStream zis) {
+                    zis.getNextEntry();
+                }
                 ns.addAll(NamespaceReader.namespaces(is));
             } catch (IOException x) {
                 throw new UncheckedIOException(x);
