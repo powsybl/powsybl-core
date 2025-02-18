@@ -75,9 +75,9 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
             checkAllTerminalsConnected(network, name);
         }
 
-        // Export as CGMES 3
+        // Export as node-breaker
         Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, "100");
+        params.put(CgmesExport.TOPOLOGY_KIND, "NODE_BREAKER");
         ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), name);
         new CgmesExport().export(network, params, zip);
         Properties importParams = new Properties();
