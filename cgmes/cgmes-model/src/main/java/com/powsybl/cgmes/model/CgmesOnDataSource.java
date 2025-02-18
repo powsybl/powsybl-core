@@ -129,7 +129,7 @@ public class CgmesOnDataSource {
     }
 
     private InputStream loadInputStream(String n) throws IOException {
-        InputStream is;
+        InputStream is = null;
         String fileExtension = n.substring(n.lastIndexOf('.') + 1);
         if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
             ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, n);
@@ -138,9 +138,12 @@ public class CgmesOnDataSource {
                 in = dataSource.newInputStream(n);
                 is = new ZipInputStream(in);
                 ((ZipInputStream) is).getNextEntry();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 if (in != null) {
                     in.close();
+                }
+                if (is != null) {
+                    is.close();
                 }
                 throw e;
             }
