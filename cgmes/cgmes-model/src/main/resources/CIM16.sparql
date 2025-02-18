@@ -377,12 +377,13 @@ SELECT *
 WHERE
 { GRAPH ?graph {
     ?OperationalLimit
-        a $OperationalLimitSubclass ;
+        a ?OperationalLimitSubclass ;
         cim:IdentifiedObject.name ?name ;
         cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
         cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
     OPTIONAL { ?OperationalLimit entsoe:IdentifiedObject.shortName ?shortName }
     OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
+    OPTIONAL { ?OperationalLimit cim:ActivePowerLimit.value ?value }
     OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
     OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
     OPTIONAL { ?OperationalLimitSet cim:IdentifiedObject.name ?OperationalLimitSetName }
