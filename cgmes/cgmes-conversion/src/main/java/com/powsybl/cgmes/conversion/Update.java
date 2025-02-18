@@ -154,9 +154,7 @@ public final class Update {
 
     static void updateLines(Network network, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.LINE.name()));
-
         network.getLines().forEach(line -> updateLine(line, context));
-
         context.popReportNode();
     }
 
@@ -168,6 +166,23 @@ public final class Update {
             case CgmesNames.SERIES_COMPENSATOR -> SeriesCompensatorConversion.update(line, context);
             default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for Line: " + line.getId());
         }
+    }
+
+    public static void updateVoltageAndAnglesAndComplete(Network network, Context context) {
+        context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(context.getReportNode()));
+        // update voltage and angles
+        network.getBusView().getBuses().forEach(bus -> NodeConversion.update(bus, context));
+
+        // Voltage and angle in boundary buses
+        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+                .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
+
+        // Now in tieLines
+        network.getTieLines().forEach(tieLine -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()));
+
+        // Voltage and angle in starBus as properties
+        network.getThreeWindingsTransformers().forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);
+        context.popReportNode();
     }
 
     private static void addPropertyBags(PropertyBags propertyBags, String idTag, Map<String, PropertyBag> equipmentIdPropertyBag) {

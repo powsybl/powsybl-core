@@ -86,8 +86,8 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         double starBusTheta = Math.toDegrees(twtData.getStarTheta());
 
         if (!Double.isNaN(starBusV) && !Double.isNaN(starBusTheta)) {
-            twt.setProperty("v", Double.toString(starBusV));
-            twt.setProperty("angle", Double.toString(starBusTheta));
+            twt.setProperty(CgmesNames.VOLTAGE, Double.toString(starBusV));
+            twt.setProperty(CgmesNames.ANGLE, Double.toString(starBusTheta));
         }
     }
 
