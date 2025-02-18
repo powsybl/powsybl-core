@@ -91,7 +91,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.LOAD_BREAK_SWITCH, SwitchKind.DISCONNECTOR)
                 .build();
-        assertDoesNotThrow(() -> modification.apply(network, false, reportNode));
+        assertDoesNotThrow(() -> modification.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals("Switch kinds must be DISCONNECTOR or BREAKER", e.getMessage());
         assertEquals("wrongSwitchKind", reportNode.getChildren().get(0).getMessageKey());
