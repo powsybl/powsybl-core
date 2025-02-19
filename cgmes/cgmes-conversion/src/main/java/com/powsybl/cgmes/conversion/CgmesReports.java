@@ -118,23 +118,13 @@ public final class CgmesReports {
                 .add();
     }
 
-    public static void invalidAngleVoltageBusReport(ReportNode reportNode, Bus bus, String nodeId, double v, double angle) {
+    public static void invalidAngleVoltageReport(ReportNode reportNode, Bus bus, String topologicalNode, double v, double angle) {
         reportNode.newReportNode()
-                .withMessageTemplate("invalidAngleVoltageBus", "Node ${nodeId} in substation ${substation}, voltageLevel ${voltageLevel}, bus ${bus} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}.")
+                .withMessageTemplate("invalidAngleVoltageBus", "Bus ${bus} in substation ${substation}, voltageLevel ${voltageLevel}, has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}.")
                 .withUntypedValue("substation", bus.getVoltageLevel().getSubstation().map(Substation::getNameOrId).orElse("unknown"))
                 .withUntypedValue("voltageLevel", bus.getVoltageLevel().getNameOrId())
                 .withUntypedValue("bus", bus.getId())
-                .withUntypedValue("nodeId", nodeId)
-                .withTypedValue("voltage", v, TypedValue.VOLTAGE)
-                .withTypedValue("angle", angle, TypedValue.ANGLE)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
-    }
-
-    public static void invalidAngleVoltageNodeReport(ReportNode reportNode, String nodeId, double v, double angle) {
-        reportNode.newReportNode()
-                .withMessageTemplate("invalidAngleVoltageNode", "Node ${nodeId} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}.")
-                .withUntypedValue("nodeId", nodeId)
+                .withUntypedValue("topologicalNode", topologicalNode)
                 .withTypedValue("voltage", v, TypedValue.VOLTAGE)
                 .withTypedValue("angle", angle, TypedValue.ANGLE)
                 .withSeverity(TypedValue.WARN_SEVERITY)

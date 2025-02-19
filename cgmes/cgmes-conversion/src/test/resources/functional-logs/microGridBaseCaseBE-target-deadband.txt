@@ -34,7 +34,6 @@
       Converting ControlArea.
       Converting RegulatingControl.
       Fixing issues with dangling lines.
-      Setting voltages and angles.
       Applying postprocessors.
       CGMES network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73 is imported.
       Updating LOAD.
@@ -47,4 +46,5 @@
          Equipment fe25f43a-7341-446e-a71a-8ab7119ba806 has a regulating control with bad target value for voltage: 0.0.
       Updating STATIC_VAR_COMPENSATOR.
       Updating SHUNT_COMPENSATOR.
+      Setting voltages and angles.
       Running validation checks on IIDM network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73

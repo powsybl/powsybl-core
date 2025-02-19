@@ -89,6 +89,35 @@ class TransformerUpdateTest {
         assertTrue(checkFlows(t3w.getLeg3().getTerminal(), -50.0, -10.0));
     }
 
+    @Test
+    void starBusVoltageTogetherTest() {
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml", "transformer_TP.xml", "transformer_SV.xml");
+        assertEquals(1, network.getTwoWindingsTransformerCount());
+        assertEquals(1, network.getThreeWindingsTransformerCount());
+
+        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
+        assertTrue(checkBusVoltage(t3w.getLeg1().getTerminal().getBusView().getBus(), 402.5, 5.0));
+        assertTrue(checkBusVoltage(t3w.getLeg2().getTerminal().getBusView().getBus(), 220.5, -3.0));
+        assertTrue(checkBusVoltage(t3w.getLeg3().getTerminal().getBusView().getBus(), 111.5, 2.0));
+        assertTrue(checkStarBusVoltage(t3w, 401.4610086017755, -0.7578725292783544));
+    }
+
+    @Test
+    void starBusVoltageSeparatelyTest() {
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml");
+        assertEquals(1, network.getTwoWindingsTransformerCount());
+        assertEquals(1, network.getThreeWindingsTransformerCount());
+
+        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
+
+        readCgmesResources(network, DIR, "transformer_SSH.xml", "transformer_TP.xml", "transformer_SV.xml");
+
+        assertTrue(checkBusVoltage(t3w.getLeg1().getTerminal().getBusView().getBus(), 402.5, 5.0));
+        assertTrue(checkBusVoltage(t3w.getLeg2().getTerminal().getBusView().getBus(), 220.5, -3.0));
+        assertTrue(checkBusVoltage(t3w.getLeg3().getTerminal().getBusView().getBus(), 111.5, 2.0));
+        assertTrue(checkStarBusVoltage(t3w, 401.4610086017755, -0.7578725292783544));
+    }
+
     private static boolean checkEq(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w) {
         assertTrue(checkEq(t2w));
         assertTrue(checkDefinedApparentPowerLimits(t2w,
@@ -247,6 +276,20 @@ class TransformerUpdateTest {
         double tol = 0.0000001;
         assertEquals(p, terminal.getP(), tol);
         assertEquals(q, terminal.getQ(), tol);
+        return true;
+    }
+
+    private static boolean checkBusVoltage(Bus bus, double v, double angle) {
+        double tol = 0.0000001;
+        assertEquals(v, bus.getV(), tol);
+        assertEquals(angle, bus.getAngle(), tol);
+        return true;
+    }
+
+    private static boolean checkStarBusVoltage(ThreeWindingsTransformer t3w, double v, double angle) {
+        double tol = 0.0000001;
+        assertEquals(v, Double.parseDouble(t3w.getProperty(CgmesNames.VOLTAGE)), tol);
+        assertEquals(angle, Double.parseDouble(t3w.getProperty(CgmesNames.ANGLE)), tol);
         return true;
     }
 }

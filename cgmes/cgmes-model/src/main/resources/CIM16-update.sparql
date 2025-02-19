@@ -67,6 +67,15 @@ SELECT *
         OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
 }
 
+# query: svVoltages
+SELECT *
+WHERE {
+    ?SvVoltage a cim:SvVoltage ;
+        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+        cim:SvVoltage.v ?v ;
+        cim:SvVoltage.angle ?angle .
+}
+
 # query: ratioTapChangers
 SELECT *
 {
