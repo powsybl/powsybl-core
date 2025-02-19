@@ -86,7 +86,6 @@ class TieLineUpdateTest {
         Network network = readCgmesResources(DIR, "tieLine_EQ.xml", "tieLine_EQ_BD.xml", "tieLine_SSH.xml");
         assertEquals(1, network.getTieLineCount());
 
-        double tol = 0.0000001;
         TieLine tieLine = network.getTieLine("ACLineSegment-1 + ACLineSegment-2");
         assertTrue(checkFlow(tieLine.getDanglingLine1(), Double.NaN, Double.NaN));
         assertTrue(checkFlow(tieLine.getDanglingLine2(), Double.NaN, Double.NaN));
