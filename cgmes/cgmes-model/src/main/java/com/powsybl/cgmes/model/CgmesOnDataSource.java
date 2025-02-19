@@ -12,13 +12,12 @@ import com.powsybl.commons.compress.ZipSecurityHelper;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.*;
@@ -91,23 +90,7 @@ public class CgmesOnDataSource {
     public String baseName() {
         // Get the base URI if present, else build an absolute URI from the data source base name
         return names().stream()
-                .map(n -> {
-                    String fileExtension = n.substring(n.lastIndexOf('.') + 1);
-                    if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
-                        ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, n);
-                        try (ZipInputStream is = new ZipInputStream(dataSource.newInputStream(n))) {
-                            is.getNextEntry();
-                            return NamespaceReader.base(is);
-                        } catch (IOException x) {
-                            throw new UncheckedIOException(x);
-                        }
-                    }
-                    try (InputStream is = dataSource.newInputStream(n)) {
-                        return NamespaceReader.base(is);
-                    } catch (IOException x) {
-                        throw new UncheckedIOException(x);
-                    }
-                })
+                .map(n -> loadInputStreamAndGetNamespace(n, NamespaceReader::base))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElseGet(() -> {
@@ -138,51 +121,33 @@ public class CgmesOnDataSource {
         }
     }
 
-    private boolean containsValidNamespace(String name) {
-        String fileExtension = name.substring(name.lastIndexOf('.') + 1);
-        if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
-            ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, name);
-            try (ZipInputStream is = new ZipInputStream(dataSource.newInputStream(name))) {
-                is.getNextEntry();
-                Set<String> ns = NamespaceReader.namespaces1(is);
-                return ns.contains(RDF_NAMESPACE) && ns.stream().anyMatch(CgmesNamespace::isValid);
-            } catch (XMLStreamException e) {
-                return false;
-            } catch (IOException x) {
-                throw new CgmesModelException(String.format(LISTING_CGMES_NAMES_IN_DATA_SOURCE, dataSource), x);
-            }
-        }
-        try (InputStream is = dataSource.newInputStream(name)) {
-            Set<String> ns = NamespaceReader.namespaces1(is);
-            return ns.contains(RDF_NAMESPACE) && ns.stream().anyMatch(CgmesNamespace::isValid);
-        } catch (XMLStreamException e) {
-            return false;
-        } catch (IOException x) {
-            throw new CgmesModelException(String.format(LISTING_CGMES_NAMES_IN_DATA_SOURCE, dataSource), x);
-        }
-    }
-
-    public Set<String> namespaces() {
-        Set<String> ns = new HashSet<>();
-        names().forEach(n -> {
+    private <T> T loadInputStreamAndGetNamespace(String n, Function<InputStream, T> namespaceGetter) {
+        try (InputStream in = dataSource.newInputStream(n)) {
             String fileExtension = n.substring(n.lastIndexOf('.') + 1);
             if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
                 ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, n);
-                try (ZipInputStream is = new ZipInputStream(dataSource.newInputStream(n))) {
-                    is.getNextEntry();
-                    ns.addAll(NamespaceReader.namespaces(is));
-                    return;
-                } catch (IOException x) {
-                    throw new UncheckedIOException(x);
+                try (ZipInputStream zis = new ZipInputStream(in)) {
+                    zis.getNextEntry();
+                    return namespaceGetter.apply(zis);
                 }
+            } else {
+                return namespaceGetter.apply(in);
             }
-            try (InputStream is = dataSource.newInputStream(n)) {
-                ns.addAll(NamespaceReader.namespaces(is));
-            } catch (IOException x) {
-                throw new UncheckedIOException(x);
-            }
-        });
-        return ns;
+        } catch (IOException e) {
+            throw new CgmesModelException(String.format(LISTING_CGMES_NAMES_IN_DATA_SOURCE, dataSource), e);
+        }
+    }
+
+    private boolean containsValidNamespace(String name) {
+        Set<String> ns = loadInputStreamAndGetNamespace(name, NamespaceReader::namespacesOrEmpty);
+        return ns.contains(RDF_NAMESPACE) && ns.stream().anyMatch(CgmesNamespace::isValid);
+    }
+
+    public Set<String> namespaces() {
+        return names().stream()
+                .map(name -> loadInputStreamAndGetNamespace(name, NamespaceReader::namespaces))
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
     }
 
     public String cimNamespace() {
