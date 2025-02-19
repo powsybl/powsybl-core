@@ -80,7 +80,7 @@ public final class ReportNodeImpl implements ReportNode {
         this.messageKey = Objects.requireNonNull(messageKey);
         checkMap(values);
         Objects.requireNonNull(inheritedValuesMaps).forEach(ReportNodeImpl::checkMap);
-        this.values = Collections.unmodifiableMap(values);
+        this.values = values;
         this.inheritedValuesMaps = inheritedValuesMaps;
         this.treeContext = Objects.requireNonNull(treeContext);
         this.isRoot = isRoot;
@@ -105,7 +105,7 @@ public final class ReportNodeImpl implements ReportNode {
 
     @Override
     public Map<String, TypedValue> getValues() {
-        return values;
+        return Collections.unmodifiableMap(values);
     }
 
     @Override
@@ -180,6 +180,91 @@ public final class ReportNodeImpl implements ReportNode {
     @Override
     public List<ReportNode> getChildren() {
         return Collections.unmodifiableList(children);
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, String value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, String value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, double value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, double value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, float value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, float value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, int value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, int value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, long value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, long value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, boolean value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, boolean value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addSeverity(TypedValue severity) {
+        TypedValue.checkSeverityType(severity);
+        values.put(ReportConstants.SEVERITY_KEY, severity);
+        return this;
+    }
+
+    @Override
+    public ReportNode addSeverity(String severity) {
+        values.put(ReportConstants.SEVERITY_KEY, TypedValue.of(severity, TypedValue.SEVERITY));
+        return this;
     }
 
     @Override

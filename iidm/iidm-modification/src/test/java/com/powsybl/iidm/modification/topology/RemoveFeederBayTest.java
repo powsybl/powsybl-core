@@ -155,7 +155,7 @@ class RemoveFeederBayTest {
         assertEquals(2, values.size());
         assertEquals(TypedValue.ERROR_SEVERITY, values.get(ReportConstants.SEVERITY_KEY));
         assertEquals("BBS_TEST_1_1", values.get("connectableId").getValue());
-        assertEquals(TypedValue.UNTYPED, values.get("connectableId").getType());
+        assertEquals(TypedValue.UNTYPED_TYPE, values.get("connectableId").getType());
     }
 
     private Network createNetwork2Feeders() {
