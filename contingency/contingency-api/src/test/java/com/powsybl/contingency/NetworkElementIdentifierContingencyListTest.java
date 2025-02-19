@@ -18,7 +18,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
+import static com.powsybl.iidm.network.test.EurostagTutorialExample1Factory.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -230,4 +232,58 @@ class NetworkElementIdentifierContingencyListTest {
         String message3 = assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("TEST_WITH_NO_WILDCARDS")).getMessage();
         assertEquals("There is no wildcard in your identifier, please use IdBasedNetworkElementIdentifier instead", message3);
     }
+
+    @Test
+    void testExtendedModeForIdWithWildcards() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.newLine(network.getLine("NHV1_NHV2_1"))
+                .setId("NHV1_NHV?_1")
+                .setBus1(NHV1)
+                .setBus2(NHV2)
+                .setConnectableBus1(NHV1)
+                .setConnectableBus2(NHV2)
+                .add();
+        network.newLine(network.getLine("NHV1_NHV2_1"))
+                .setId("NHV1_NHV?_2")
+                .setBus1(NHV1)
+                .setBus2(NHV2)
+                .setConnectableBus1(NHV1)
+                .setConnectableBus2(NHV2)
+                .add();
+        // Legacy wildcard
+        assertMatchingElements(network, "NHV1_NHV?_?", List.of("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV?_1", "NHV1_NHV?_2"));
+
+        // Extended-mode wildcard: the '?' char is ignored
+        assertMatchingElements(network, "NHV1_NHV?_@", List.of("NHV1_NHV?_1", "NHV1_NHV?_2"));
+    }
+
+    private static void assertMatchingElements(Network network, String pattern, List<String> expectedElements) {
+        List<NetworkElementIdentifier> networkElementIdentifierListElements = new ArrayList<>();
+        NetworkElementIdentifier elementIdentifier = new IdWithWildcardsNetworkElementIdentifier(pattern);
+        networkElementIdentifierListElements.add(elementIdentifier);
+        IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierListElements);
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(1, contingencies.size());
+        List<String> elementIds = contingencies.get(0).getElements().stream().map(ContingencyElement::getId).toList();
+        assertTrue(elementIds.containsAll(expectedElements));
+    }
+
+    @Test
+    void testExtendedModeAllowedCharacters() {
+        int size = 0x7e - 0x20 + 2; // All printable ASCII chars (from ' ' to '~') + wildcard '@'
+        char[] allowedCharacters = new char[size];
+        IntStream.range(0x20, 0x7f).forEach(i -> allowedCharacters[i - 0x20] = (char) i);
+        allowedCharacters[size - 1] = '@';
+        assertEquals(' ', allowedCharacters[0]);
+        assertEquals('~', allowedCharacters[size - 2]);
+        assertDoesNotThrow(() -> new IdWithWildcardsNetworkElementIdentifier(new String(allowedCharacters)));
+
+        char[] notAllowed = new char[2];
+        notAllowed[0] = 0x1b; // ESC char
+        notAllowed[1] = '@'; // To enable the new wildcard
+        String forbidden = new String(notAllowed);
+        String message = assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier(forbidden)).getMessage();
+        assertEquals("Only ASCII printable characters + wildcard '@' are allowed for this identifier.", message);
+    }
+
 }

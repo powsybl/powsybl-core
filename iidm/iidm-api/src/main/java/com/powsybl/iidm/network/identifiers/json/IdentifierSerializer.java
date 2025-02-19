@@ -49,7 +49,7 @@ public class IdentifierSerializer extends StdSerializer<NetworkElementIdentifier
                 break;
             case ID_WITH_WILDCARDS:
                 jsonGenerator.writeStringField("identifier", ((IdWithWildcardsNetworkElementIdentifier) networkElementIdentifier)
-                    .getIdentifier().replace('.', IdWithWildcardsNetworkElementIdentifier.WILDCARD));
+                    .getIdentifier());
         }
         jsonGenerator.writeEndObject();
     }
