@@ -233,6 +233,11 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
+    public LineAdder newLine(Line line) {
+        return getNetwork().newLine(id, line);
+    }
+
+    @Override
     public Iterable<Line> getLines() {
         return getLineStream().toList();
     }
@@ -836,11 +841,6 @@ public class SubnetworkImpl extends AbstractNetwork {
             previousRootNetwork.getVoltageAngleLimitsIndex().remove(val.getId());
             detachedNetwork.getVoltageAngleLimitsIndex().put(val.getId(), val);
         }
-
-        detachedNetwork.getAreaStream().forEach(a -> {
-            AreaImpl area = (AreaImpl) a;
-            area.moveListener(previousRootNetwork, detachedNetwork);
-        });
 
         // We don't control that regulating terminals and phase/ratio regulation terminals are in the same subnetwork
         // as their network elements (generators, PSTs, ...). It is unlikely that those terminals and their elements

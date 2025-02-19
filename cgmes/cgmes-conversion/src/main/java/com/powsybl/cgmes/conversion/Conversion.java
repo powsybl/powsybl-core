@@ -473,11 +473,6 @@ public class Conversion {
     private Context createContext(Network network, ReportNode reportNode) {
         Context context = new Context(cgmes, config, network, reportNode);
         context.dc().initialize();
-        context.loadRatioTapChangers();
-        context.loadPhaseTapChangers();
-        context.loadRatioTapChangerTables();
-        context.loadPhaseTapChangerTables();
-        context.loadReactiveCapabilityCurveData();
         return context;
     }
 
@@ -640,6 +635,7 @@ public class Conversion {
                 .setLowVoltageLimit(vlref.getLowVoltageLimit())
                 .setHighVoltageLimit(vlref.getHighVoltageLimit())
                 .setId(fictitiousVoltageLevelId)
+                .setFictitious(true)
                 .setName(containerName)
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
@@ -688,21 +684,24 @@ public class Conversion {
 
     private void convertTransformers(Context context, Set<String> delayedBoundaryNodes) {
         context.pushReportNode(CgmesReports.convertingElementTypeReport(context.getReportNode(), CgmesNames.POWER_TRANSFORMER));
-        cgmes.groupedTransformerEnds().forEach((t, ends) -> {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Transformer {}, {}-winding", t, ends.size());
-                ends.forEach(e -> LOG.trace(e.tabulateLocals("TransformerEnd")));
-            }
-            if (ends.size() == 2) {
-                convertTwoWindingsTransformers(context, ends, delayedBoundaryNodes);
-            } else if (ends.size() == 3) {
-                convertThreeWindingsTransformers(context, ends);
-            } else {
-                String what = "PowerTransformer " + t;
-                Supplier<String> reason = () -> String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
-                context.invalid(what, reason);
-            }
-        });
+        cgmes.transformers().stream()
+                .map(t -> context.transformerEnds(t.getId("PowerTransformer")))
+                .forEach(ends -> {
+                    String transformerId = ends.get(0).getId("PowerTransformer");
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Transformer {}, {}-winding", transformerId, ends.size());
+                        ends.forEach(e -> LOG.trace(e.tabulateLocals("TransformerEnd")));
+                    }
+                    if (ends.size() == 2) {
+                        convertTwoWindingsTransformers(context, ends, delayedBoundaryNodes);
+                    } else if (ends.size() == 3) {
+                        convertThreeWindingsTransformers(context, ends);
+                    } else {
+                        String what = "PowerTransformer " + transformerId;
+                        Supplier<String> reason = () -> String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
+                        context.invalid(what, reason);
+                    }
+                });
         context.popReportNode();
     }
 
@@ -1100,9 +1099,12 @@ public class Conversion {
     public static final String PROPERTY_IS_EQUIVALENT_SHUNT = CGMES_PREFIX_ALIAS_PROPERTIES + "isEquivalentShunt";
     public static final String PROPERTY_HYDRO_PLANT_STORAGE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "hydroPlantStorageKind";
     public static final String PROPERTY_FOSSIL_FUEL_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "fuelType";
+    public static final String PROPERTY_WIND_GEN_UNIT_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "windGenUnitType";
     public static final String PROPERTY_CGMES_ORIGINAL_CLASS = CGMES_PREFIX_ALIAS_PROPERTIES + "originalClass";
     public static final String PROPERTY_BUSBAR_SECTION_TERMINALS = CGMES_PREFIX_ALIAS_PROPERTIES + "busbarSectionTerminals";
     public static final String PROPERTY_CGMES_GOVERNOR_SCD = CGMES_PREFIX_ALIAS_PROPERTIES + "governorSCD";
     public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineType";
     public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineOperatingMode";
+    public static final String PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS = CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT_SET + "_identifiers";
+    public static final String PROPERTY_REGULATING_CONTROL = CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL;
 }

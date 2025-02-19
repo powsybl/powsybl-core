@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -34,14 +33,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     @Override
     public Properties getProperties() {
         return this.properties;
-    }
-
-    @Override
-    public Map<String, PropertyBags> groupedTransformerEnds() {
-        if (cachedGroupedTransformerEnds == null) {
-            cachedGroupedTransformerEnds = computeGroupedTransformerEnds();
-        }
-        return cachedGroupedTransformerEnds;
     }
 
     @Override
@@ -66,16 +57,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             cachedDcTerminals = computeDcTerminals();
         }
         return cachedDcTerminals.get(dcTerminalId);
-    }
-
-    @Override
-    public List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
-        return powerTransformerRatioTapChanger.get(powerTransformerId) == null ? null : Arrays.asList(powerTransformerRatioTapChanger.get(powerTransformerId));
-    }
-
-    @Override
-    public List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
-        return powerTransformerPhaseTapChanger.get(powerTransformerId) == null ? null : Arrays.asList(powerTransformerPhaseTapChanger.get(powerTransformerId));
     }
 
     @Override
@@ -159,41 +140,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         }
 
         return (containerId == null) ? null : container(containerId);
-    }
-
-    private Map<String, PropertyBags> computeGroupedTransformerEnds() {
-        // Alternative implementation:
-        // instead of sorting after building each list,
-        // use a sorted collection when inserting
-        String endNumber = "endNumber";
-        Map<String, PropertyBags> gends = new HashMap<>();
-        powerTransformerRatioTapChanger = new HashMap<>();
-        powerTransformerPhaseTapChanger = new HashMap<>();
-        transformerEnds()
-            .forEach(end -> {
-                String id = end.getId("PowerTransformer");
-                PropertyBags ends = gends.computeIfAbsent(id, x -> new PropertyBags());
-                ends.add(end);
-                if (end.getId("PhaseTapChanger") != null) {
-                    powerTransformerPhaseTapChanger.computeIfAbsent(id, s -> new String[3]);
-                    powerTransformerPhaseTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("PhaseTapChanger");
-                }
-                if (end.getId("RatioTapChanger") != null) {
-                    powerTransformerRatioTapChanger.computeIfAbsent(id, s -> new String[3]);
-                    powerTransformerRatioTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("RatioTapChanger");
-                }
-            });
-        gends.entrySet()
-            .forEach(tends -> {
-                PropertyBags tends1 = new PropertyBags(
-                    tends.getValue().stream()
-                        .sorted(Comparator
-                            .comparing(WindingType::fromTransformerEnd)
-                            .thenComparing(end -> end.asInt(endNumber, -1)))
-                        .collect(Collectors.toList()));
-                tends.setValue(tends1);
-            });
-        return gends;
     }
 
     protected void cacheNodes() {
@@ -291,9 +237,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     protected void invalidateCaches() {
-        cachedGroupedTransformerEnds = null;
-        powerTransformerRatioTapChanger = null;
-        powerTransformerPhaseTapChanger = null;
         cachedTerminals = null;
         cachedContainers = null;
         cachedBaseVoltages = null;
@@ -308,7 +251,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private String baseName;
 
     // Caches
-    private Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private Map<String, CgmesTerminal> cachedTerminals;
     private Map<String, CgmesContainer> cachedContainers;
     private Map<String, Double> cachedBaseVoltages;
@@ -317,8 +259,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     protected PropertyBags cachedTopologicalNodes;
     private Map<String, PropertyBag> cachedNodesById;
     // equipmentId, sequenceNumber, terminalId
-    private Map<String, String[]> powerTransformerRatioTapChanger;
-    private Map<String, String[]> powerTransformerPhaseTapChanger;
     private Map<String, CgmesDcTerminal> cachedDcTerminals;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesModel.class);

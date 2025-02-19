@@ -92,12 +92,13 @@ public interface CgmesModel {
 
     PropertyBags transformerEnds();
 
-    // Transformer ends grouped by transformer
-    Map<String, PropertyBags> groupedTransformerEnds();
-
     PropertyBags ratioTapChangers();
 
+    PropertyBags ratioTapChangerTablePoints();
+
     PropertyBags phaseTapChangers();
+
+    PropertyBags phaseTapChangerTablePoints();
 
     PropertyBags regulatingControls();
 
@@ -109,7 +110,12 @@ public interface CgmesModel {
 
     PropertyBags equivalentShunts();
 
-    PropertyBags nonlinearShuntCompensatorPoints(String id);
+    /**
+     * Query all NonlinearShuntCompensatorPoint in the CgmesModel.
+     *
+     * @return A {@link PropertyBags} with the shunt compensators points properties.
+     */
+    PropertyBags nonlinearShuntCompensatorPoints();
 
     PropertyBags staticVarCompensators();
 
@@ -145,14 +151,6 @@ public interface CgmesModel {
     PropertyBags asynchronousMachines();
 
     PropertyBags reactiveCapabilityCurveData();
-
-    PropertyBags ratioTapChangerTablesPoints();
-
-    PropertyBags phaseTapChangerTablesPoints();
-
-    PropertyBags ratioTapChangerTable(String tableId);
-
-    PropertyBags phaseTapChangerTable(String tableId);
 
     PropertyBags controlAreas();
 
@@ -213,10 +211,6 @@ public interface CgmesModel {
     void read(InputStream is, String baseName, String contextName, ReportNode reportNode);
 
     // Helper mappings
-
-    List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId);
-
-    List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId);
 
     /**
      * Obtain the substation of a given terminal.

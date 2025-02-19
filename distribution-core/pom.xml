@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>6.7.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -508,6 +508,14 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-ucte-util</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- In provided scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-itools-packager-maven-plugin</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

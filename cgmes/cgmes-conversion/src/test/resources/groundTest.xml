@@ -92,10 +92,6 @@
 		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
 		<cim:IdentifiedObject.name>RK</cim:IdentifiedObject.name>
 	</cim:Terminal>
-	<cim:ConnectivityNode rdf:ID="RJ">
-		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#S"/>
-		<cim:IdentifiedObject.name>AAP</cim:IdentifiedObject.name>
-	</cim:ConnectivityNode>
 	<cim:Terminal rdf:ID="ZM">
 		<cim:Terminal.ConnectivityNode rdf:resource="#RJ"/>
 		<cim:Terminal.ConductingEquipment rdf:resource="#CO"/>

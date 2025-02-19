@@ -90,12 +90,23 @@ public class LegacyTextReader {
         return reader.readLine();
     }
 
+    public String readUntilFindingARecordLineNotEmpty() throws IOException {
+        String line = readRecordLine();
+        while (emptyLine(line)) {
+            line = readRecordLine();
+        }
+        return line;
+    }
+
     // Read a line that contains a record
     // Removes comments and normalizes spaces in unquoted areas
     public String readRecordLine() throws IOException {
         String line = reader.readLine();
         if (line == null) {
             throw new PsseException("PSSE. Unexpected end of file");
+        }
+        if (isRecordLineDefiningTheAttributeFields(line)) {
+            return ""; // an empty line must be returned
         }
         StringBuilder newLine = new StringBuilder();
         Matcher m = FileFormat.LEGACY_TEXT_QUOTED_OR_WHITESPACE.matcher(removeComment(line));
@@ -110,6 +121,11 @@ public class LegacyTextReader {
         }
         m.appendTail(newLine);
         return newLine.toString().trim();
+    }
+
+    // all the lines beginning with "@!" are record lines defining the attribute fields
+    private static boolean isRecordLineDefiningTheAttributeFields(String line) {
+        return line.length() >= 2 && line.substring(0, 2).equals("@!");
     }
 
     private static String removeComment(String line) {

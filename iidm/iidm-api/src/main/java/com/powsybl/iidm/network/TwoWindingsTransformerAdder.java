@@ -13,6 +13,15 @@ package com.powsybl.iidm.network;
  */
 public interface TwoWindingsTransformerAdder extends BranchAdder<TwoWindingsTransformer, TwoWindingsTransformerAdder> {
 
+    static TwoWindingsTransformerAdder fillTwoWindingsTransformerAdder(TwoWindingsTransformerAdder adder, TwoWindingsTransformer twoWindingsTransformer) {
+        return adder.setR(twoWindingsTransformer.getR())
+                .setX(twoWindingsTransformer.getX())
+                .setB(twoWindingsTransformer.getB())
+                .setG(twoWindingsTransformer.getG())
+                .setRatedU1(twoWindingsTransformer.getRatedU1())
+                .setRatedU2(twoWindingsTransformer.getRatedU2());
+    }
+
     TwoWindingsTransformerAdder setR(double r);
 
     TwoWindingsTransformerAdder setX(double x);

@@ -40,7 +40,6 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class SteadyStateHypothesisExport {
 
     private static final Logger LOG = LoggerFactory.getLogger(SteadyStateHypothesisExport.class);
-    private static final String REGULATING_CONTROL_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl";
     private static final String GENERATING_UNIT_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit";
     private static final String ROTATING_MACHINE_P = "RotatingMachine.p";
     private static final String ROTATING_MACHINE_Q = "RotatingMachine.q";
@@ -270,10 +269,10 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void addRegulatingControlView(ShuntCompensator s, Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
-        if (s.hasProperty(REGULATING_CONTROL_PROPERTY)) {
+        if (s.hasProperty(Conversion.PROPERTY_REGULATING_CONTROL)) {
             // PowSyBl has considered the control as discrete, with a certain targetDeadband
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
-            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, REGULATING_CONTROL_PROPERTY);
+            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, Conversion.PROPERTY_REGULATING_CONTROL);
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, true,
                 s.isVoltageRegulatorOn(), s.getTargetDeadband(), s.getTargetV(), "k");
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
@@ -372,10 +371,10 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void addRegulatingControlView(Generator g, Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
-        if (g.hasProperty(REGULATING_CONTROL_PROPERTY)) {
+        if (g.hasProperty(Conversion.PROPERTY_REGULATING_CONTROL)) {
             // PowSyBl has considered the control as continuous and with targetDeadband of size 0
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
-            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(g, REGULATING_CONTROL_PROPERTY);
+            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(g, Conversion.PROPERTY_REGULATING_CONTROL);
 
             double targetDeadband = 0;
             double target;
@@ -389,6 +388,14 @@ public final class SteadyStateHypothesisExport {
                 enabled = rrpc.isEnabled();
             } else {
                 target = g.getTargetV();
+                if (context.isExportGeneratorsInLocalRegulationMode()) {
+                    double remoteNominalV = g.getRegulatingTerminal().getVoltageLevel().getNominalV();
+                    double localNominalV = g.getTerminal().getVoltageLevel().getNominalV();
+                    if (localNominalV != remoteNominalV) {
+                        // This check prevents potential rounding variations of target when both voltages are equals
+                        target = localNominalV * target / remoteNominalV;
+                    }
+                }
                 targetValueUnitMultiplier = "k";
                 enabled = g.isVoltageRegulatorOn();
             }
@@ -414,8 +421,8 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
             writer.writeEndElement();
 
-            if (svc.hasProperty(REGULATING_CONTROL_PROPERTY)) {
-                String rcid = context.getNamingStrategy().getCgmesIdFromProperty(svc, REGULATING_CONTROL_PROPERTY);
+            if (svc.hasProperty(Conversion.PROPERTY_REGULATING_CONTROL)) {
+                String rcid = context.getNamingStrategy().getCgmesIdFromProperty(svc, Conversion.PROPERTY_REGULATING_CONTROL);
                 double targetDeadband = 0;
                 // Regulating control could be reactive power or voltage
                 double targetValue;
@@ -570,7 +577,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeSwitch(Switch sw, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         try {
-            String switchType = sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "switchType");
+            String switchType = sw.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
             String className = switchType != null ? switchType : CgmesExportUtil.switchClassname(sw.getKind());
             CgmesExportUtil.writeStartAbout(className, context.getNamingStrategy().getCgmesId(sw), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "Switch.open");

@@ -58,6 +58,8 @@ import java.util.regex.Pattern;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.writeCgmesProfile;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.getFirstMatch;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -1316,6 +1318,14 @@ class EquipmentExportTest extends AbstractSerDeTest {
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
 
+            // Generator with remote voltage regulation exported in local regulation mode
+            Properties exportInLocalRegulationModeParams = new Properties();
+            exportInLocalRegulationModeParams.put(CgmesExport.PROFILES, "EQ");
+            exportInLocalRegulationModeParams.put(CgmesExport.EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE, true);
+            network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
+            eq = getEQ(network, baseName, tmpDir, exportInLocalRegulationModeParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+
             // Generator with local reactive
             network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
             eq = getEQ(network, baseName, tmpDir, exportParams);
@@ -1363,12 +1373,12 @@ class EquipmentExportTest extends AbstractSerDeTest {
             // Generator without control
             network = EurostagTutorialExample1Factory.createWithoutControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "_GEN_RC", "", "dummy");
 
             // Generator with remote terminal without control
             network = EurostagTutorialExample1Factory.createRemoteWithoutControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "_GEN_RC", "", "dummy");
 
             // Generator without control capability
             network = EurostagTutorialExample1Factory.create();
@@ -1830,5 +1840,128 @@ class EquipmentExportTest extends AbstractSerDeTest {
         network.removeExtension(CimCharacteristics.class);
 
         return network;
+    }
+
+    private static Network allGeneratingUnitTypesNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("network", "test");
+        Substation substation1 = network.newSubstation()
+                .setId("substation1")
+                .setCountry(Country.FR)
+                .setTso("TSO1")
+                .setGeographicalTags("region1")
+                .add();
+        VoltageLevel voltageLevel1 = substation1.newVoltageLevel()
+                .setId("voltageLevel1")
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        VoltageLevel.NodeBreakerView topology1 = voltageLevel1.getNodeBreakerView();
+        topology1.newBusbarSection()
+                .setId("voltageLevel1BusbarSection1")
+                .setNode(0)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("other")
+                .setNode(1)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("nuclear")
+                .setNode(2)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.NUCLEAR)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("thermal")
+                .setNode(3)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.THERMAL)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("hydro")
+                .setNode(4)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.HYDRO)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("solar")
+                .setNode(5)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.SOLAR)
+                .add();
+        Generator windOnshore = voltageLevel1.newGenerator()
+                .setId("wind_onshore")
+                .setNode(6)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.WIND)
+                .add();
+        Generator windOffshore = voltageLevel1.newGenerator()
+                .setId("wind_offshore")
+                .setNode(7)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.WIND)
+                .add();
+        topology1.newInternalConnection().setNode1(0).setNode2(1).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(2).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(3).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(4).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(5).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(6).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(7).add();
+        windOnshore.setProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "onshore");
+        windOffshore.setProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "offshore");
+        return network;
+    }
+
+    @Test
+    void generatingUnitTypesTest() throws IOException {
+        Network network = allGeneratingUnitTypesNetwork();
+
+        // Export as cgmes
+        String eqXml = writeCgmesProfile(network, "EQ", tmpDir);
+
+        assertTrue(eqXml.contains("<cim:GeneratingUnit rdf:ID=\"_other_GU\">"));
+        assertTrue(eqXml.contains("<cim:NuclearGeneratingUnit rdf:ID=\"_nuclear_NGU\">"));
+        assertTrue(eqXml.contains("<cim:ThermalGeneratingUnit rdf:ID=\"_thermal_TGU\">"));
+        assertTrue(eqXml.contains("<cim:HydroGeneratingUnit rdf:ID=\"_hydro_HGU\">"));
+        assertTrue(eqXml.contains("<cim:SolarGeneratingUnit rdf:ID=\"_solar_SGU\">"));
+        assertTrue(eqXml.contains("<cim:WindGeneratingUnit rdf:ID=\"_wind_onshore_WGU\">"));
+        assertTrue(eqXml.contains("<cim:WindGeneratingUnit rdf:ID=\"_wind_offshore_WGU\">"));
+
+        String sPattern = "<cim:WindGeneratingUnit rdf:ID=\"${rdfId}\">.*?" +
+                "<cim:WindGeneratingUnit.windGenUnitType rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#WindGenUnitKind.(.*?)\"/>";
+
+        Pattern onshorePattern = Pattern.compile(sPattern.replace("${rdfId}", "_wind_onshore_WGU"), Pattern.DOTALL);
+        assertEquals("onshore", getFirstMatch(eqXml, onshorePattern));
+        Pattern offshorePattern = Pattern.compile(sPattern.replace("${rdfId}", "_wind_offshore_WGU"), Pattern.DOTALL);
+        assertEquals("offshore", getFirstMatch(eqXml, offshorePattern));
     }
 }

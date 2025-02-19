@@ -1,0 +1,180 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:eu="http://iec.ch/TC57/CIM100-European#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:GeneratingUnitTypesTest">
+        <md:Model.scenarioTime>2024-10-18T00:00:00Z</md:Model.scenarioTime>
+        <md:Model.created>2024-10-18T00:00:00Z</md:Model.created>
+        <md:Model.description>Generating Unit Types test</md:Model.description>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/Operation-EU/3.0</md:Model.profile>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+        <md:Model.modelingAuthoritySet>http://powsybl.org</md:Model.modelingAuthoritySet>
+        <md:Model.version>1</md:Model.version>
+    </md:FullModel>
+    <cim:BaseVoltage rdf:ID="_bv400">
+        <cim:BaseVoltage.nominalVoltage>400</cim:BaseVoltage.nominalVoltage>
+        <cim:IdentifiedObject.name>400 kV</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.description>Base voltage for 400 kV</cim:IdentifiedObject.description>
+    </cim:BaseVoltage>
+    <cim:GeographicalRegion rdf:ID="_gr">
+        <cim:IdentifiedObject.name>GeographicalRegion</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.mRID>_gr</cim:IdentifiedObject.mRID>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_sgr">
+        <cim:SubGeographicalRegion.Region rdf:resource="#_gr"/>
+        <cim:IdentifiedObject.name>SubGeographicalRegion</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.mRID>_sgr</cim:IdentifiedObject.mRID>
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_s">
+        <cim:Substation.Region rdf:resource="#_sgr"/>
+        <cim:IdentifiedObject.name>Substation</cim:IdentifiedObject.name>
+    </cim:Substation>
+    <cim:VoltageLevel rdf:ID="_vl">
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_bv400"/>
+        <cim:VoltageLevel.Substation rdf:resource="#_s"/>
+        <cim:IdentifiedObject.name>VoltageLevel</cim:IdentifiedObject.name>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_cn">
+        <cim:IdentifiedObject.name>ConnectivityNode</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_vl"/>
+    </cim:ConnectivityNode>
+
+    <!-- other -->
+    <cim:SynchronousMachine rdf:ID="_gu_sm">
+        <cim:IdentifiedObject.name>SynchronousMachine</cim:IdentifiedObject.name>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineKind.generator" />
+        <cim:RotatingMachine.GeneratingUnit rdf:resource="#_gu"/>
+        <cim:SynchronousMachine.minQ>-100</cim:SynchronousMachine.minQ>
+        <cim:SynchronousMachine.maxQ>100</cim:SynchronousMachine.maxQ>
+    </cim:SynchronousMachine>
+    <cim:GeneratingUnit rdf:ID="_gu">
+        <cim:IdentifiedObject.name>GeneratingUnit</cim:IdentifiedObject.name>
+        <cim:GeneratingUnit.minOperatingP>0</cim:GeneratingUnit.minOperatingP>
+        <cim:GeneratingUnit.maxOperatingP>100</cim:GeneratingUnit.maxOperatingP>
+        <cim:GeneratingUnit.initialP>0</cim:GeneratingUnit.initialP>
+    </cim:GeneratingUnit>
+    <cim:Terminal rdf:ID="_gu_t">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_gu_sm"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_cn"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+
+    <!-- thermal -->
+    <cim:SynchronousMachine rdf:ID="_tgu_sm">
+        <cim:IdentifiedObject.name>SynchronousMachine</cim:IdentifiedObject.name>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineKind.generator" />
+        <cim:RotatingMachine.GeneratingUnit rdf:resource="#_tgu"/>
+        <cim:SynchronousMachine.minQ>-100</cim:SynchronousMachine.minQ>
+        <cim:SynchronousMachine.maxQ>100</cim:SynchronousMachine.maxQ>
+    </cim:SynchronousMachine>
+    <cim:ThermalGeneratingUnit rdf:ID="_tgu">
+        <cim:IdentifiedObject.name>GeneratingUnit</cim:IdentifiedObject.name>
+        <cim:GeneratingUnit.minOperatingP>0</cim:GeneratingUnit.minOperatingP>
+        <cim:GeneratingUnit.maxOperatingP>100</cim:GeneratingUnit.maxOperatingP>
+        <cim:GeneratingUnit.initialP>0</cim:GeneratingUnit.initialP>
+    </cim:ThermalGeneratingUnit>
+    <cim:Terminal rdf:ID="_tgu_t">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_tgu_sm"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_cn"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+
+    <!-- nuclear -->
+    <cim:SynchronousMachine rdf:ID="_ngu_sm">
+        <cim:IdentifiedObject.name>SynchronousMachine</cim:IdentifiedObject.name>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineKind.generator" />
+        <cim:RotatingMachine.GeneratingUnit rdf:resource="#_ngu"/>
+        <cim:SynchronousMachine.minQ>-100</cim:SynchronousMachine.minQ>
+        <cim:SynchronousMachine.maxQ>100</cim:SynchronousMachine.maxQ>
+    </cim:SynchronousMachine>
+    <cim:NuclearGeneratingUnit rdf:ID="_ngu">
+        <cim:IdentifiedObject.name>GeneratingUnit</cim:IdentifiedObject.name>
+        <cim:GeneratingUnit.minOperatingP>0</cim:GeneratingUnit.minOperatingP>
+        <cim:GeneratingUnit.maxOperatingP>100</cim:GeneratingUnit.maxOperatingP>
+        <cim:GeneratingUnit.initialP>0</cim:GeneratingUnit.initialP>
+    </cim:NuclearGeneratingUnit>
+    <cim:Terminal rdf:ID="_ngu_t">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ngu_sm"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_cn"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+
+    <!-- hydro -->
+    <cim:SynchronousMachine rdf:ID="_hgu_sm">
+        <cim:IdentifiedObject.name>SynchronousMachine</cim:IdentifiedObject.name>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineKind.generator" />
+        <cim:RotatingMachine.GeneratingUnit rdf:resource="#_hgu"/>
+        <cim:SynchronousMachine.minQ>-100</cim:SynchronousMachine.minQ>
+        <cim:SynchronousMachine.maxQ>100</cim:SynchronousMachine.maxQ>
+    </cim:SynchronousMachine>
+    <cim:HydroGeneratingUnit rdf:ID="_hgu">
+        <cim:IdentifiedObject.name>GeneratingUnit</cim:IdentifiedObject.name>
+        <cim:GeneratingUnit.minOperatingP>0</cim:GeneratingUnit.minOperatingP>
+        <cim:GeneratingUnit.maxOperatingP>100</cim:GeneratingUnit.maxOperatingP>
+        <cim:GeneratingUnit.initialP>0</cim:GeneratingUnit.initialP>
+    </cim:HydroGeneratingUnit>
+    <cim:Terminal rdf:ID="_hgu_t">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_hgu_sm"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_cn"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+
+    <!-- solar -->
+    <cim:SynchronousMachine rdf:ID="_sgu_sm">
+        <cim:IdentifiedObject.name>SynchronousMachine</cim:IdentifiedObject.name>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineKind.generator" />
+        <cim:RotatingMachine.GeneratingUnit rdf:resource="#_sgu"/>
+        <cim:SynchronousMachine.minQ>-100</cim:SynchronousMachine.minQ>
+        <cim:SynchronousMachine.maxQ>100</cim:SynchronousMachine.maxQ>
+    </cim:SynchronousMachine>
+    <cim:SolarGeneratingUnit rdf:ID="_sgu">
+        <cim:IdentifiedObject.name>GeneratingUnit</cim:IdentifiedObject.name>
+        <cim:GeneratingUnit.minOperatingP>0</cim:GeneratingUnit.minOperatingP>
+        <cim:GeneratingUnit.maxOperatingP>100</cim:GeneratingUnit.maxOperatingP>
+        <cim:GeneratingUnit.initialP>0</cim:GeneratingUnit.initialP>
+    </cim:SolarGeneratingUnit>
+    <cim:Terminal rdf:ID="_sgu_t">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_sgu_sm"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_cn"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+
+    <!-- wind / onshore -->
+    <cim:SynchronousMachine rdf:ID="_onshore_wgu_sm">
+        <cim:IdentifiedObject.name>SynchronousMachine</cim:IdentifiedObject.name>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineKind.generator" />
+        <cim:RotatingMachine.GeneratingUnit rdf:resource="#_onshore_wgu"/>
+        <cim:SynchronousMachine.minQ>-100</cim:SynchronousMachine.minQ>
+        <cim:SynchronousMachine.maxQ>100</cim:SynchronousMachine.maxQ>
+    </cim:SynchronousMachine>
+    <cim:WindGeneratingUnit rdf:ID="_onshore_wgu">
+        <cim:IdentifiedObject.name>GeneratingUnit</cim:IdentifiedObject.name>
+        <cim:GeneratingUnit.minOperatingP>0</cim:GeneratingUnit.minOperatingP>
+        <cim:GeneratingUnit.maxOperatingP>100</cim:GeneratingUnit.maxOperatingP>
+        <cim:GeneratingUnit.initialP>0</cim:GeneratingUnit.initialP>
+        <cim:WindGeneratingUnit.windGenUnitType rdf:resource="http://iec.ch/TC57/CIM100#WindGenUnitKind.onshore"/>
+    </cim:WindGeneratingUnit>
+    <cim:Terminal rdf:ID="_onshore_wgu_t">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_onshore_wgu_sm"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_cn"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+
+    <!-- wind / offshore -->
+    <cim:SynchronousMachine rdf:ID="_offshore_wgu_sm">
+        <cim:IdentifiedObject.name>SynchronousMachine</cim:IdentifiedObject.name>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineKind.generator" />
+        <cim:RotatingMachine.GeneratingUnit rdf:resource="#_offshore_wgu"/>
+        <cim:SynchronousMachine.minQ>-100</cim:SynchronousMachine.minQ>
+        <cim:SynchronousMachine.maxQ>100</cim:SynchronousMachine.maxQ>
+    </cim:SynchronousMachine>
+    <cim:WindGeneratingUnit rdf:ID="_offshore_wgu">
+        <cim:IdentifiedObject.name>GeneratingUnit</cim:IdentifiedObject.name>
+        <cim:GeneratingUnit.minOperatingP>0</cim:GeneratingUnit.minOperatingP>
+        <cim:GeneratingUnit.maxOperatingP>100</cim:GeneratingUnit.maxOperatingP>
+        <cim:GeneratingUnit.initialP>0</cim:GeneratingUnit.initialP>
+        <cim:WindGeneratingUnit.windGenUnitType rdf:resource="http://iec.ch/TC57/CIM100#WindGenUnitKind.offshore"/>
+    </cim:WindGeneratingUnit>
+    <cim:Terminal rdf:ID="_offshore_wgu_t">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_offshore_wgu_sm"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_cn"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+</rdf:RDF>
