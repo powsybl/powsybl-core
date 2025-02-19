@@ -12,7 +12,7 @@ or network simulation via different tools: check them out below.
 | [IIDM](iidm/index.md) (XIIDM, JIIDM, BIIDM) | the internal data model of PowSyBl in a XML / JSON / binary format                                           | <span style="color:green">&#x2714;</span> | <span style="color:green">&#x2714;</span> |
 | [IEEE-CDF](ieee/ieee.md)                    | a IEEE standard format                                                                                       | <span style="color:green">&#x2714;</span> |  <span style="color:red">&#x2718;</span>  |
 | [PSS®E](psse/index.md)                      | the format for power flow analysis on Siemens PSS®E software                                                 | <span style="color:green">&#x2714;</span> | <span style="color:red">&#x2718;</span>*  |
-| PowerFactory                                | the format for DIgSILENT PowerFactory software                                                               | <span style="color:green">&#x2714;</span> |  <span style="color:red">&#x2718;</span>  |
+| [PowerFactory](powerfactory/index.md)       | the format for DIgSILENT PowerFactory software                                                               | <span style="color:green">&#x2714;</span> |  <span style="color:red">&#x2718;</span>  |
 | [Matpower](matpower/index.md)               | the format for the free and open-source Matlab toolbox dedicated to power system simulation and optimization | <span style="color:green">&#x2714;</span> |  <span style="color:red">&#x2718;</span>  |
 | [AMPL](ampl/index.md)                       | a data separated value format easy to parse with AMPL                                                        |  <span style="color:red">&#x2718;</span>  | <span style="color:green">&#x2714;</span> |
 
@@ -30,6 +30,7 @@ cgmes/index.md
 ucte/index.md
 iidm/index.md
 ieee/ieee.md
+powerfactory/index.md
 matpower/index.md
 psse/index.md
 ampl/index.md
