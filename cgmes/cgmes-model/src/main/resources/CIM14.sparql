@@ -375,6 +375,7 @@ WHERE {
     }
     ?RegulatingControl
         cim:RegulatingControl.mode ?mode ;
+        cim:RegulatingControl.targetValue ?targetValue ;
         cim:RegulatingControl.Terminal ?Terminal .
         { GRAPH ?graphTP {
             ?Terminal
