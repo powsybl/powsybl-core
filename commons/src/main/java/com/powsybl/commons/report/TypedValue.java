@@ -141,7 +141,7 @@ public final class TypedValue {
     }
 
     /**
-     * Creating n untyped value from the given value
+     * Creating an untyped value from the given value
      */
     public static TypedValue untyped(double value) {
         return new TypedValue(value, TypedValue.UNTYPED_TYPE);
