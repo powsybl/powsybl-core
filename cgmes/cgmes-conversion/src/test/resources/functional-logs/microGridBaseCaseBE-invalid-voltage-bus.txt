@@ -11,8 +11,7 @@
       Building mappings.
       Converting Substation.
       Converting VoltageLevel.
-      + Converting TopologicalNode.
-         Node e44141af-f1dc-44d3-bfa4-b674e5c953d7 in substation PP_Brussels, voltageLevel 380.0, bus e44141af-f1dc-44d3-bfa4-b674e5c953d7 has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0.
+      Converting TopologicalNode.
       Converting BusbarSection.
       Converting Ground.
       Converting EnergyConsumer.
@@ -36,7 +35,6 @@
       Converting ControlArea.
       Converting RegulatingControl.
       Fixing issues with dangling lines.
-      Setting voltages and angles.
       Applying postprocessors.
       CGMES network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73 is imported.
       Updating LOAD.
@@ -45,4 +43,6 @@
          Equipment 955d9cd0-4a10-4031-b008-60c0dc340a07 has a regulating control with bad target value for voltage: 0.0.
       + Updating THREE_WINDINGS_TRANSFORMER.
          Equipment fe25f43a-7341-446e-a71a-8ab7119ba806 has a regulating control with bad target value for voltage: 0.0.
+      + Setting voltages and angles.
+         Bus 469df5f7-058f-4451-a998-57a48e8a56fe_0 in substation PP_Brussels, voltageLevel 380.0, has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0.
       Running validation checks on IIDM network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73

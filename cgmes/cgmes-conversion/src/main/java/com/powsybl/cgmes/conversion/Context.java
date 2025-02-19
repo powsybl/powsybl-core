@@ -75,6 +75,7 @@ public class Context {
         regulatingControls = new HashMap<>();
         operationalLimits = new HashMap<>();
         generatingUnits = new HashMap<>();
+        svVoltages = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -206,6 +207,7 @@ public class Context {
         buildUpdateCache(regulatingControls, cgmes.regulatingControls(), CgmesNames.REGULATING_CONTROL);
         buildUpdateCache(operationalLimits, cgmes.operationalLimits(), CgmesNames.OPERATIONAL_LIMIT);
         buildUpdateCache(generatingUnits, cgmes.generatingUnits(), CgmesNames.GENERATING_UNIT);
+        buildUpdateCache(svVoltages, cgmes.svVoltages(), CgmesNames.TOPOLOGICAL_NODE);
     }
 
     private static void buildUpdateCache(Map<String, PropertyBag> cache, PropertyBags cgmesPropertyBags, String tagId) {
@@ -237,6 +239,10 @@ public class Context {
 
     public PropertyBag generatingUnit(String id) {
         return generatingUnits.get(id);
+    }
+
+    public PropertyBag svVoltage(String id) {
+        return svVoltages.get(id);
     }
 
     // Handling issues found during conversion
@@ -361,6 +367,6 @@ public class Context {
     private final Map<String, PropertyBag> regulatingControls;
     private final Map<String, PropertyBag> operationalLimits;
     private final Map<String, PropertyBag> generatingUnits;
-
+    private final Map<String, PropertyBag> svVoltages;
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }
