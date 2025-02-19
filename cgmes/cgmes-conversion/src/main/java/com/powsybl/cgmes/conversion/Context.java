@@ -74,6 +74,7 @@ public class Context {
         phaseTapChangers = new HashMap<>();
         regulatingControls = new HashMap<>();
         operationalLimits = new HashMap<>();
+        svVoltages = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -204,6 +205,7 @@ public class Context {
         buildUpdateCache(phaseTapChangers, cgmes.phaseTapChangers(), CgmesNames.PHASE_TAP_CHANGER);
         buildUpdateCache(regulatingControls, cgmes.regulatingControls(), CgmesNames.REGULATING_CONTROL);
         buildUpdateCache(operationalLimits, cgmes.operationalLimits(), CgmesNames.OPERATIONAL_LIMIT);
+        buildUpdateCache(svVoltages, cgmes.svVoltages(), CgmesNames.TOPOLOGICAL_NODE);
     }
 
     private static void buildUpdateCache(Map<String, PropertyBag> cache, PropertyBags cgmesPropertyBags, String tagId) {
@@ -231,6 +233,10 @@ public class Context {
 
     public PropertyBag operationalLimit(String id) {
         return operationalLimits.get(id);
+    }
+
+    public PropertyBag svVoltage(String id) {
+        return svVoltages.get(id);
     }
 
     // Handling issues found during conversion
@@ -354,6 +360,6 @@ public class Context {
     private final Map<String, PropertyBag> phaseTapChangers;
     private final Map<String, PropertyBag> regulatingControls;
     private final Map<String, PropertyBag> operationalLimits;
-
+    private final Map<String, PropertyBag> svVoltages;
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }

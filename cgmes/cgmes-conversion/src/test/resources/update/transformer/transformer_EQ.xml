@@ -354,4 +354,15 @@
         <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
         <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.tatl" />
     </cim:OperationalLimitType>
+
+    <cim:BusbarSection rdf:ID="_BusbarSection-3">
+        <cim:IdentifiedObject.name>BusbarSection-3</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel3" />
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_BusbarSection-3-T">
+        <cim:IdentifiedObject.name>BusbarSection-3-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BusbarSection-3" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode3" />
+    </cim:Terminal>
+
 </rdf:RDF>

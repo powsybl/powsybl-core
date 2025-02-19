@@ -38,32 +38,88 @@ SELECT *
 # we cannot access the 'inService' Status
 SELECT *
 {
-    ?Terminal
-        a cim:Terminal ;
-        cim:Terminal.connected ?connected
+    {
+        SELECT DISTINCT ?Terminal
+        WHERE {
+            {
+                ?Terminal a cim:Terminal .
+            }
+            UNION
+            {
+                SELECT ?Terminal
+                WHERE {
+                    ?SvPowerFlow a cim:SvPowerFlow ;
+                        cim:SvPowerFlow.Terminal ?Terminal .
+                }
+            }
+        }
+    }
+    OPTIONAL {
+        ?Terminal cim:ACDCTerminal.connected ?connected .
+    }
     OPTIONAL {
         ?SvPowerFlow a cim:SvPowerFlow ;
             cim:SvPowerFlow.Terminal ?Terminal ;
             cim:SvPowerFlow.p ?p ;
             cim:SvPowerFlow.q ?q .
     }
+    OPTIONAL {
+        ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
+    }
 }
 
-# query: topologicalNodes
+# query: svVoltages
 SELECT *
-{
-    ?TopologicalNode a cim:TopologicalNode .
-    OPTIONAL {
-        ?SvVoltage a cim:SvVoltage ;
-            cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-            cim:SvVoltage.v ?v ;
-            cim:SvVoltage.angle ?angle
+WHERE {
+    ?SvVoltage a cim:SvVoltage ;
+        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+        cim:SvVoltage.v ?v ;
+        cim:SvVoltage.angle ?angle .
+}
+
+# query: regulatingControls
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    {
+        ?RegulatingControl a cim:RegulatingControl
     }
-    OPTIONAL {
-        SELECT ?ConnectivityNode
-        WHERE {
-            ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode
-        }
-        LIMIT 1
+    UNION
+    {
+        ?RegulatingControl a cim:TapChangerControl
     }
+    ?RegulatingControl
+        cim:RegulatingControl.targetValue ?targetValue .
+    BIND ( "true" AS ?enabled )
+}}
+}
+
+# query: ratioTapChangers
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?RatioTapChanger
+        a cim:RatioTapChanger .
+}}
+OPTIONAL { GRAPH ?graphSV {
+    ?SvTapStep
+        a cim:SvTapStep ;
+        cim:SvTapStep.TapChanger ?RatioTapChanger ;
+        cim:SvTapStep.continuousPosition ?SVtapStep
+}}
+}
+
+# query: phaseTapChangers
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?PhaseTapChanger
+        a cim:PhaseTapChanger .
+}}
+OPTIONAL { GRAPH ?graphSV {
+    ?SVTapStep
+        a cim:SvTapStep ;
+        cim:SvTapStep.TapChanger ?PhaseTapChanger ;
+        cim:SvTapStep.continuousPosition ?SVtapStep
+}}
 }

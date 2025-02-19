@@ -7,9 +7,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.conversion.elements.AsynchronousMachineConversion;
-import com.powsybl.cgmes.conversion.elements.EnergyConsumerConversion;
-import com.powsybl.cgmes.conversion.elements.EnergySourceConversion;
+import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -19,6 +17,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
+
+import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.computeFlowsOnModelSide;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -64,6 +64,27 @@ public final class Update {
 
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.THREE_WINDINGS_TRANSFORMER.name()));
         network.getThreeWindingsTransformers().forEach(t3w -> ThreeWindingsTransformerConversion.update(t3w, context));
+        context.popReportNode();
+    }
+
+    static void temporaryComputeFlowsDanglingLines(Network network, Context context) {
+        network.getDanglingLines().forEach(danglingLine -> computeFlowsOnModelSide(danglingLine, context));
+    }
+
+    public static void updateVoltageAndAnglesAndComplete(Network network, Context context) {
+        context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(context.getReportNode()));
+        // update voltage and angles
+        network.getBusView().getBuses().forEach(bus -> NodeConversion.update(bus, context));
+
+        // Voltage and angle in boundary buses
+        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+                .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
+
+        // Now in tieLines
+        network.getTieLines().forEach(tieLine -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()));
+
+        // Voltage and angle in starBus as properties
+        network.getThreeWindingsTransformers().forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);
         context.popReportNode();
     }
 

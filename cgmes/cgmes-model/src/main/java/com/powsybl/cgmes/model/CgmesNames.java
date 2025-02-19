@@ -153,6 +153,8 @@ public final class CgmesNames {
     public static final String ENABLED = "enabled";
     public static final String REACTIVE_POWER = "reactivepower";
     public static final String VOLTAGE_TAG = "voltage";
+    public static final String CONNECTED = "connected";
+    public static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
 
     private CgmesNames() {
     }

@@ -598,6 +598,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags svVoltages() {
+        return namedQuery("svVoltages");
+    }
+
+    @Override
     public PropertyBags modelProfiles() {
         return namedQuery(MODEL_PROFILES);
     }
