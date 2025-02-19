@@ -268,11 +268,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return dl;
     }
 
-    private static Optional<PropertyBag> getBoundaryCgmesTerminal(DanglingLine danglingLine, Context context) {
-        String cgmesTerminalId = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY).orElse(null);
-        return cgmesTerminalId != null ? Optional.ofNullable(context.cgmesTerminal(cgmesTerminalId)) : Optional.empty();
-    }
-
     // In a Dangling Line the CGMES side and the IIDM side may not be the same
     // Dangling lines in IIDM only have one terminal, one side
     // We do not have SSH values at the model side, it is a line flow. We take directly SV values
