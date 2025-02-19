@@ -359,7 +359,7 @@ class CgmesConformity1ModifiedConversionTest {
                         .microGridBaseCaseBEMissingShuntRegulatingControlId().dataSource(), NetworkFactory.findDefault(), importParams);
         ShuntCompensator shunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
         assertTrue(shunt.isVoltageRegulatorOn());
-        assertEquals(shunt.getTerminal().getBusView().getBus().getV(), shunt.getTargetV(), 0.0d);
+        assertEquals(shunt.getTerminal().getVoltageLevel().getNominalV(), shunt.getTargetV(), 0.0d);
         assertEquals(0.0d, shunt.getTargetDeadband(), 0.0d);
         assertEquals(shunt.getTerminal(), shunt.getRegulatingTerminal());
     }
@@ -766,7 +766,7 @@ class CgmesConformity1ModifiedConversionTest {
 
     @Test
     void smallNodeBreakerHvdcMissingDCLineSegment() {
-        // Small Grid Node Breaker HVDC modified so there is not DC Line Segment
+        // Small Grid Node Breaker HVDC modified so there is no DC Line Segment
         assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcMissingDCLineSegment().dataSource(), NetworkFactory.findDefault(), importParams));
     }
 
