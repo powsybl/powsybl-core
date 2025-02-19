@@ -75,17 +75,6 @@ WHERE {
 { GRAPH ?graphTP {
     ?Terminal cim:Terminal.connected ?connected
 }}
-OPTIONAL { GRAPH ?graphSV {
-    ?SvPowerFlow
-        a cim:SvPowerFlow ;
-        cim:SvPowerFlow.Terminal ?Terminal ;
-        cim:SvPowerFlow.p ?p ;
-        cim:SvPowerFlow.q ?q
-} OPTIONAL {?SvStatus
-        a cim:SvStatus ;
-        cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
-        cim:SvStatus.inService ?inService . 
-}}
 OPTIONAL { GRAPH ?graphTP2 {
     ?Terminal cim:Terminal.TopologicalNode ?TopologicalNodeTerminal
 }}
@@ -98,13 +87,6 @@ WHERE {
     ?TopologicalNode 
         cim:IdentifiedObject.name ?name ;
         cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
-}}
-OPTIONAL { GRAPH ?graphSV {
-    ?SvVoltage 
-        a cim:SvVoltage ;
-        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-        cim:SvVoltage.v ?v ;
-        cim:SvVoltage.angle ?angle 
 }}
 }
 
@@ -249,12 +231,6 @@ WHERE {
     ?Terminal cim:Terminal.ConductingEquipment ?TransformerWinding .
     OPTIONAL { ?RatioTapChanger cim:TapChanger.RegulatingControl ?TapChangerControl }
 }}
-OPTIONAL { GRAPH ?graphSV {
-    ?SvTapStep
-        a cim:SvTapStep ;
-        cim:SvTapStep.TapChanger ?RatioTapChanger ;
-        cim:SvTapStep.continuousPosition ?SVtapStep
-}}
 BIND ( ?TransformerWinding AS ?TransformerEnd )
 }
 
@@ -282,12 +258,6 @@ WHERE {
     OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.xStepMax ?xStepMax ; cim:PhaseTapChanger.xStepMin ?xStepMin    }
     OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.stepPhaseShiftIncrement ?stepPhaseShiftIncrement }
     OPTIONAL { ?PhaseTapChanger cim:TapChanger.RegulatingControl ?RegulatingControl }
-}}
-OPTIONAL { GRAPH ?graphSV {
-    ?SVTapStep
-        a cim:SvTapStep ;
-        cim:SvTapStep.TapChanger ?PhaseTapChanger ;
-        cim:SvTapStep.continuousPosition ?SVtapStep
 }}
 BIND ( ?TransformerWinding AS ?TransformerEnd )
 }

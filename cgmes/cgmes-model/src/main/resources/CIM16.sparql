@@ -362,16 +362,6 @@ WHERE {
     }
 }
 
-# query: voltages
-SELECT *
-{ GRAPH ?graphSV {
-    ?SvVoltage
-        a cim:SvVoltage ;
-        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-        cim:SvVoltage.v ?v ;
-        cim:SvVoltage.angle ?angle
-}}
-
 # query: operationalLimits
 SELECT *
 WHERE
