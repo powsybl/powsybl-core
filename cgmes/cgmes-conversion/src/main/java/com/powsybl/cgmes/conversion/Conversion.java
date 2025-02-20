@@ -37,6 +37,8 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
+import static com.powsybl.cgmes.conversion.Update.*;
+import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.isBoundaryTerminalConnected;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -158,7 +160,14 @@ public class Conversion {
 
         // Create base network with metadata information
         Network network = createNetwork();
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+
+        // FIXME(Luma) we are not reusing conversion objects,
+        //  so it is safe to store the context as an attribute for later use in update
+        //  to do things right the context should have been created in the constructor,
+        //  together with the empty network
         Context context = createContext(network, reportNode);
+
         assignNetworkProperties(context);
         addMetadataModels(network, context);
         addCimCharacteristics(network);
@@ -244,18 +253,6 @@ public class Conversion {
         context.regulatingControlMapping().setAllRegulatingControls(network);
         context.popReportNode();
 
-        // Fix dangling lines issues
-        context.pushReportNode(CgmesReports.fixingDanglingLinesIssuesReport(reportNode));
-        handleDangingLineDisconnectedAtBoundary(network, context);
-        adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(network, context);
-        context.popReportNode();
-
-        // Set voltages and angles
-        context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(reportNode));
-        voltageAngles(nodes, context);
-        completeVoltagesAndAngles(network);
-        context.popReportNode();
-
         // Save/store data for debug or external validation
         if (config.debugTopology()) {
             debugTopology(context);
@@ -276,7 +273,75 @@ public class Conversion {
         }
 
         CgmesReports.importedCgmesNetworkReport(reportNode, network.getId());
+
+        // FIXME(Luma) in the first step, the Conversion object has used only info from EQ,
+        //  we call the update method on the same conversion object,
+        //  that has the context created during the convert (first) step
+        //  and all the data already loaded in the triplestore,
+        //  we only need to switch to a different set of queries
+        updateWithAllInputs(network, context, reportNode);
+
         return network;
+    }
+
+    private void updateWithAllInputs(Network network, Context convertContext, ReportNode reportNode) {
+        // FIXME(Luma) Before switching to update we must invalidate all caches of the cgmes model
+        //  and change the query catalog to "update" mode
+        if (!sshOrSvIsIncludedInCgmesModel(this.cgmes)) {
+            return;
+        }
+        this.cgmes.invalidateCaches();
+        this.cgmes.setQueryCatalog("-update");
+        Context updateContext = createUpdateContext(network, reportNode);
+
+        // add processes to create new equipment using update data (ssh and sv data)
+
+        update(network, updateContext, reportNode);
+    }
+
+    private static boolean sshOrSvIsIncludedInCgmesModel(CgmesModel cgmes) {
+        return cgmes.version().contains("CIM14")
+                || cgmes.fullModels().stream()
+                .map(fullModel -> fullModel.getId("profileList"))
+                .anyMatch(profileList -> profileList.contains("SteadyStateHypothesis") || profileList.contains("StateVariables"));
+    }
+
+    public void update(Network network, ReportNode reportNode) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(reportNode);
+        Context updateContext = createUpdateContext(network, reportNode);
+        update(network, updateContext, reportNode);
+    }
+
+    private void update(Network network, Context updateContext, ReportNode reportNode) {
+        // FIXME(Luma) Inspect the contents of the loaded data
+        if (LOG.isDebugEnabled()) {
+            PropertyBags nts = cgmes.numObjectsByType();
+            LOG.debug("CGMES objects read for the update:");
+            nts.forEach(nt -> LOG.debug(String.format("  %5d %s", nt.asInt("numObjects"), nt.getLocal("Type"))));
+            nts.forEach(nt -> LOG.debug(cgmes.allObjectsOfType(nt.getLocal("Type")).tabulateLocals()));
+        }
+
+        updateLoads(network, cgmes, updateContext);
+        updateGenerators(network, cgmes, updateContext);
+        updateLines(network, updateContext);
+        updateTransformers(network, updateContext);
+        updateStaticVarCompensators(network, cgmes, updateContext);
+        updateShuntCompensators(network, cgmes, updateContext);
+        updateHvdcLines(network, cgmes, updateContext);
+        updateDanglingLines(network, cgmes, updateContext);
+
+        // Fix dangling lines issues
+        updateContext.pushReportNode(CgmesReports.fixingDanglingLinesIssuesReport(reportNode));
+        handleDangingLineDisconnectedAtBoundary(network, updateContext);
+        adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(network, updateContext);
+        updateContext.popReportNode();
+
+        // Set voltages and angles, then complete
+        updateVoltageAndAnglesAndComplete(network, updateContext);
+
+        network.runValidationChecks(false, reportNode);
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
 
     /**
@@ -321,25 +386,11 @@ public class Conversion {
     private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {
         if (config.disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected()) {
             for (DanglingLine dl : network.getDanglingLines()) {
-                String terminalBoundaryId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElse(null);
-                if (terminalBoundaryId == null) {
-                    LOG.warn("Dangling line {}: alias for terminal at boundary is missing", dl.getId());
-                } else {
-                    disconnectDanglingLineAtBounddary(dl, terminalBoundaryId, context);
+                if (!isBoundaryTerminalConnected(dl, context) && dl.getTerminal().isConnected()) {
+                    LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
+                    CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
+                    dl.getTerminal().disconnect();
                 }
-            }
-        }
-    }
-
-    private void disconnectDanglingLineAtBounddary(DanglingLine dl, String terminalBoundaryId, Context context) {
-        CgmesTerminal terminalBoundary = cgmes.terminal(terminalBoundaryId);
-        if (terminalBoundary == null) {
-            LOG.warn("Dangling line {}: terminal at boundary with id {} is not found in CGMES model", dl.getId(), terminalBoundaryId);
-        } else {
-            if (!terminalBoundary.connected() && dl.getTerminal().isConnected()) {
-                LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
-                CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
-                dl.getTerminal().disconnect();
             }
         }
     }
@@ -387,18 +438,6 @@ public class Conversion {
     private Source isBoundaryBaseVoltage(String graph) {
         //There are unit tests where the boundary file contains the sequence "EQBD" and others "EQ_BD"
         return graph.contains("EQ") && graph.contains("BD") ? Source.BOUNDARY : Source.IGM;
-    }
-
-    private static void completeVoltagesAndAngles(Network network) {
-
-        // Voltage and angle in starBus as properties
-        network.getThreeWindingsTransformers()
-            .forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);
-
-        // Voltage and angle in boundary buses
-        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
-            .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
-        network.getTieLines().forEach(tieLine -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()));
     }
 
     private static void createControlArea(CgmesControlAreas cgmesControlAreas, PropertyBag ca) {
@@ -472,6 +511,12 @@ public class Conversion {
     private Context createContext(Network network, ReportNode reportNode) {
         Context context = new Context(cgmes, config, network, reportNode);
         context.dc().initialize();
+        return context;
+    }
+
+    private Context createUpdateContext(Network network, ReportNode reportNode) {
+        Context context = new Context(cgmes, config, network, reportNode);
+        context.buildUpdateCache();
         return context;
     }
 
@@ -802,20 +847,6 @@ public class Conversion {
         return voltageLevel.getSubstation().map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName")).orElse(null);
     }
 
-    private void voltageAngles(PropertyBags nodes, Context context) {
-        if (context.nodeBreaker()) {
-            // TODO(Luma): we create again one conversion object for every node
-            // In node-breaker conversion,
-            // set (voltage, angle) values after all nodes have been created and connected
-            for (PropertyBag n : nodes) {
-                NodeConversion nc = new NodeConversion(CgmesNames.CONNECTIVITY_NODE, n, context);
-                if (!nc.insideBoundary() || nc.insideBoundary() && context.config().convertBoundary()) {
-                    nc.setVoltageAngleNodeBreaker();
-                }
-            }
-        }
-    }
-
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
         // In case of faulty CGMES files, remove HVDC Converter Stations without HVDC lines
         network.getHvdcConverterStationStream()
@@ -845,6 +876,13 @@ public class Conversion {
         public enum StateProfile {
             SSH,
             SV
+        }
+
+        public enum DefaultValue {
+            EQ,
+            DEFAULT,
+            EMPTY,
+            PREVIOUS
         }
 
         public List<String> substationIdsExcludedFromMapping() {
@@ -1041,6 +1079,14 @@ public class Conversion {
             return disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected;
         }
 
+        public boolean updateTerminalConnectionInNodeBreakerVoltageLevel() {
+            return UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL;
+        }
+
+        public List<DefaultValue> updateDefaultValuesPriority() {
+            return updateDefaultValuesPriority;
+        }
+
         public boolean getCreateFictitiousVoltageLevelsForEveryNode() {
             return createFictitiousVoltageLevelsForEveryNode;
         }
@@ -1079,6 +1125,8 @@ public class Conversion {
 
         private double missingPermanentLimitPercentage = 100;
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
+        private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
+        private final List<DefaultValue> updateDefaultValuesPriority = List.of(DefaultValue.EQ, DefaultValue.DEFAULT, DefaultValue.EMPTY);
     }
 
     private final CgmesModel cgmes;
