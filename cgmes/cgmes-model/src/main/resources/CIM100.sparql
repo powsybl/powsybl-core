@@ -26,10 +26,12 @@ GRAPH ?graphBDEQ {
     OPTIONAL { ?BoundaryPoint eu:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNode }
     OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNodeContainer }
     OPTIONAL { ?ConnectivityNode cim:IdentifiedObject.description ?description }
+    OPTIONAL { ?BoundaryPoint eu:BoundaryPoint.isDirectCurrent ?boundaryPointIsDirectCurrent }
 }
 OPTIONAL { GRAPH ?grapBDTP {
     ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
-    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName
+    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName .
+    OPTIONAL { ?TopologicalNode cim:IdentifiedObject.description ?topologicalNodeDescription }
 }}
 }
 

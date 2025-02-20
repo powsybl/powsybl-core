@@ -13,10 +13,7 @@ import com.powsybl.cgmes.conversion.export.*;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
-import com.powsybl.cgmes.model.CgmesMetadataModel;
-import com.powsybl.cgmes.model.CgmesMetadataModelImpl;
-import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -28,6 +25,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +40,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.inconsistentProfilesTPRequiredReport;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.CONTROL_AREA;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -78,6 +78,81 @@ public class CgmesExport implements Exporter {
     public void export(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
         Objects.requireNonNull(network);
 
+        CgmesExportContext context = createContext(network, parameters, reportNode);
+
+        // Export the network
+        if (Parameter.readBoolean(getFormat(), parameters, CGM_EXPORT_PARAMETER, defaultValueConfig)) {
+            exportCGM(network, dataSource, context);
+        } else {
+            exportIGM(network, dataSource, context);
+        }
+    }
+
+    /**
+     * <p>Create a default control area of type interchange.</p>
+     *
+     * <p>Assuming the given network is an IGM (Individual Grid Model),
+     * create a control area of type interchange from its current boundaries.</p>
+     *
+     * <p>An area boundary is created for each dangling line in the model.
+     * The interchange target of the area is set to the sum of flows at boundary side of dangling lines.</p>
+     *
+     * <p>The location of reference data (boundaries files) is determined based on the configuration for the CGMES export module.
+     * The reference data may provide the area EIC code and additional characteristics for the boundaries: if it is AC or DC.
+     * </p>
+     *
+     * @param network The network for which a default control area of type interchange will be created.
+     */
+    public void createDefaultControlAreaInterchange(Network network) {
+        createDefaultControlAreaInterchange(network, null);
+    }
+
+    /**
+     * <p>Create a default control area of type interchange.</p>
+     *
+     * <p>Assuming the given network is an IGM (Individual Grid Model),
+     * create a control area of type interchange from its current boundaries.</p>
+     *
+     * <p>An area boundary is created for each dangling line in the model.
+     * The interchange target of the area is set to the sum of flows at boundary side of dangling lines.</p>
+     *
+     * <p>The location of reference data (boundaries files) is determined based on the based on the parameters passed
+     * and the configuration for the CGMES export module.
+     * The reference data may provide the area EIC code and additional characteristics for the boundaries: if it is AC or DC.
+     * </p>
+     *
+     * @param network The network for which a default control area of type interchange will be created.
+     * @param parameters Optional parameters that influence the creation of default control area.
+     */
+    public void createDefaultControlAreaInterchange(Network network, Properties parameters) {
+        Objects.requireNonNull(network);
+
+        CgmesExportContext context = createContext(network, parameters, ReportNode.NO_OP);
+
+        String controlAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), CONTROL_AREA);
+        Area area = network.newArea()
+                .setAreaType(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)
+                .setId(controlAreaId)
+                .setName("Network")
+                .add();
+        ReferenceDataProvider referenceDataProvider = context.getReferenceDataProvider();
+        if (referenceDataProvider != null && referenceDataProvider.getSourcingActor().containsKey(CgmesNames.ENERGY_IDENT_CODE_EIC)) {
+            area.addAlias(referenceDataProvider.getSourcingActor().get(CgmesNames.ENERGY_IDENT_CODE_EIC), CgmesNames.ENERGY_IDENT_CODE_EIC);
+        }
+        double currentInterchange = 0;
+        Set<String> boundaryDcNodes = getBoundaryDcNodes(referenceDataProvider);
+        for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+            // Our exchange should be referred the boundary
+            area.newAreaBoundary()
+                    .setAc(isAcBoundary(danglingLine, boundaryDcNodes))
+                    .setBoundary(danglingLine.getBoundary())
+                    .add();
+            currentInterchange += danglingLine.getBoundary().getP();
+        }
+        area.setInterchangeTarget(currentInterchange);
+    }
+
+    private CgmesExportContext createContext(Network network, Properties parameters, ReportNode reportNode) {
         // Determine reference data (boundaries, base voltages and other sourcing references) for the export
         String sourcingActorName = Parameter.readString(getFormat(), parameters, SOURCING_ACTOR_PARAMETER, defaultValueConfig);
         String countryName = getCountry(network);
@@ -90,12 +165,38 @@ public class CgmesExport implements Exporter {
         CgmesExportContext context = new CgmesExportContext(network, referenceDataProvider, namingStrategy);
         addParametersToContext(context, parameters, reportNode, referenceDataProvider);
 
-        // Export the network
-        if (Parameter.readBoolean(getFormat(), parameters, CGM_EXPORT_PARAMETER, defaultValueConfig)) {
-            exportCGM(network, dataSource, context);
-        } else {
-            exportIGM(network, dataSource, context);
+        return context;
+    }
+
+    private Set<String> getBoundaryDcNodes(ReferenceDataProvider referenceDataProvider) {
+        if (referenceDataProvider == null) {
+            return Collections.emptySet();
         }
+        PropertyBags boundaryNodes = referenceDataProvider.getBoundaryNodes();
+        if (boundaryNodes == null) {
+            return Collections.emptySet();
+        } else {
+            return boundaryNodes.stream()
+                    .filter(CgmesBoundary::isDcNode)
+                    .map(node -> {
+                        List<String> nodeIds = new ArrayList<>();
+                        nodeIds.add(node.getId(CgmesNames.CONNECTIVITY_NODE));
+                        if (node.containsKey(CgmesNames.TOPOLOGICAL_NODE)) {
+                            nodeIds.add(node.getId(CgmesNames.TOPOLOGICAL_NODE));
+                        }
+                        return nodeIds;
+                    })
+                    .flatMap(List::stream)
+                    .collect(Collectors.toSet());
+        }
+    }
+
+    private boolean isAcBoundary(DanglingLine danglingLine, Set<String> boundaryDcNodes) {
+        String dlBoundaryNode = Conversion.getDanglingLineBoundaryNode(danglingLine);
+        if (dlBoundaryNode != null) {
+            return !boundaryDcNodes.contains(dlBoundaryNode);
+        }
+        return true;
     }
 
     /**
