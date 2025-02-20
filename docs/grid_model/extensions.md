@@ -67,8 +67,32 @@ This extension gives positions information about a busbar section. The `busbarIn
 (connectable-position-extension)=
 ## Connectable position
 
-<span style="color: red">TODO</span>
+This extension gives information about the relative position of connectables to each other in a voltage level.
+It also indicates the direction of the connectable relative to the busbar section to which it is connected. This is mainly
+used for visualization.
 
+This extension is created by connectable, this information is available for each side of branches and three-winding
+transformers.
+
+The attributes of the extension are given below:
+
+| Attribute | Type   | Unit | Required | Default value | Description                                                         |
+|-----------|--------|------|----------|---------------|---------------------------------------------------------------------|
+| feeder    | Feeder | -    | no       | -             | The information for an injection with only one side                 |
+| feeder1   | Feeder | -    | no       | -             | The information on side 1 for a Branch or three-winding transformer |
+| feeder2   | Feeder | -    | no       | -             | The information on side 2 for a Branch or three-winding transformer |
+| feeder3   | Feeder | -    | no       | -             | The information on side 3 for a three-winding transformer           |
+
+Depending on the type of connectable, the associated attribute should be filled out: only feeder for injections, feeder1
+and feeder2 for branches and feeder1, feeder2 and feeder3 for three-winding transformers.
+
+The attributes of the `Feeder` class, containing all the position information of the connectable relative to one voltage level, are:
+
+| Attribute | Type                            | Unit | Required | Default value | Description                                                                                         |
+|-----------|---------------------------------|------|----------|---------------|-----------------------------------------------------------------------------------------------------|
+| name      | String                          | -    | yes      | -             | The name associated to the feeder. It is the name that will be displayed on diagrams.               |
+| order     | Integer                         | -    | no       | -             | The position of the connectable relative to the others                                              |
+| direction | `ConnectablePosition.Direction` | -    | no       | -             | The direction of the connectable relative to its connected busbar section. Can be `TOP` or `BOTTOM` |
 (coordinated-reactive-control-extension)=
 ## Coordinated reactive control
 
