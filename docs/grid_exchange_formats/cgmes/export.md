@@ -350,13 +350,14 @@ Optional property that defines if power flows at boundary nodes are to be export
 **iidm.export.cgmes.export-power-flows-for-switches**  
 Optional property that defines if power flows of switches are exported in the SV file. `true` by default.
 
-**idm.export.cgmes.naming-strategy**  
+**iidm.export.cgmes.naming-strategy**  
 Optional property that defines which naming strategy is used to transform IIDM identifiers to CGMES identifiers.
 It can be:
 - `identity`: CGMES IDs are the same as IIDM IDs.
 - `cgmes`: new CGMES IDs (new master resource identifiers, cim:mRID) are created for IIDM `Identifiables` if the IIDM IDs are not compliant with CGMES requirements.
-- `cgmes-fix-all-invalid-ids`: ensures that all CGMES IDs in the export will comply with CGMES requirements, for IIDM `Identifiables`and also for its related objects (tap changers, operational limits, regulating controls, reactive capability outputVariables, ...).
-  Its default value is `identity`.
+- `cgmes-fix-all-invalid-ids`: ensures that all CGMES IDs in the export will comply with CGMES requirements, for IIDM `Identifiables`and also for its related objects (tap changers, operational limits, regulating controls, reactive capability outputVariables, ...).  
+
+Its default value is `identity`.
 
 **iidm.export.cgmes.uuid-namespace**  
 Optional property related to the naming strategy specified in `iidm.export.cgmes.naming-strategy`. When new CGMES IDs have to be generated, a mechanism that ensures creation of new, stable identifiers based on IIDM IDs is used (see [RFC 4122](https://datatracker.ietf.org/doc/html/rfc4122)). These new IDs are guaranteed to be unique inside a namespace given by this UUID. By default, it is the name-based UUID fo the text "powsybl.org" in the empty namespace.

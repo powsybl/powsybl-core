@@ -124,4 +124,10 @@ public final class ConversionUtil {
         }
         return matches;
     }
+
+    public static String getElement(String xmlFile, String className, String rdfId) {
+        String regex = "(<cim:" + className + " (rdf:ID=\"_|rdf:about=\"#_)" + rdfId + "\">.*?</cim:" + className + ">)";
+        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+        return getFirstMatch(xmlFile, pattern);
+    }
 }
