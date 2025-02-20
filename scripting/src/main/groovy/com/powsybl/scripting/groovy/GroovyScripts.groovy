@@ -7,6 +7,7 @@
  */
 package com.powsybl.scripting.groovy
 
+import com.powsybl.computation.ComputationManager
 import com.powsybl.computation.DefaultComputationManagerConfig
 import groovy.transform.ThreadInterrupt
 import org.codehaus.groovy.control.CompilerConfiguration
@@ -47,6 +48,10 @@ class GroovyScripts {
     }
 
     static void run(Reader codeReader, Binding binding, Iterable<GroovyScriptExtension> extensions, PrintStream out) {
+        run(codeReader, binding, extensions, out, new HashMap<>())
+    }
+
+    static void run(Reader codeReader, Binding binding, Iterable<GroovyScriptExtension> extensions, PrintStream out, Map<Class<?>, Objects> contextObjects) {
         assert codeReader
         assert extensions != null
 
@@ -58,6 +63,7 @@ class GroovyScripts {
         // Computation manager
         DefaultComputationManagerConfig config = DefaultComputationManagerConfig.load()
         binding.computationManager = config.createShortTimeExecutionComputationManager()
+        contextObjects.put(ComputationManager.class, binding.computationManager)
 
         if (out != null) {
             binding.out = out
@@ -65,7 +71,7 @@ class GroovyScripts {
 
         try {
             // load extensions
-            extensions.forEach { it.load(binding, binding.computationManager) }
+            extensions.forEach { it.load(binding, contextObjects) }
 
             GroovyShell shell = new GroovyShell(binding, conf)
 

@@ -23,8 +23,7 @@ class LoadFlowGroovyScriptExtension implements GroovyScriptExtension {
     private final LoadFlowParameters parameters
 
     LoadFlowGroovyScriptExtension(LoadFlowParameters parameters) {
-        assert parameters
-        this.parameters = parameters
+        this.parameters = Objects.requireNonNull(parameters)
     }
 
     LoadFlowGroovyScriptExtension() {
@@ -32,12 +31,16 @@ class LoadFlowGroovyScriptExtension implements GroovyScriptExtension {
     }
 
     @Override
-    void load(Binding binding, ComputationManager computationManager) {
-        binding.loadFlow = { Network network, LoadFlowParameters parameters = this.parameters ->
-            LoadFlow.run(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters)
-        }
-        binding.loadflow = { Network network, LoadFlowParameters parameters = this.parameters ->
-            LoadFlow.run(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters)
+    void load(Binding binding, Map<Class<?>, Object> contextObjects) {
+        if (contextObjects.keySet().contains(ComputationManager.class)) {
+            ComputationManager computationManager = contextObjects.get(ComputationManager.class) as ComputationManager
+
+            binding.loadFlow = { Network network, LoadFlowParameters parameters = this.parameters ->
+                LoadFlow.run(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters)
+            }
+            binding.loadflow = { Network network, LoadFlowParameters parameters = this.parameters ->
+                LoadFlow.run(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters)
+            }
         }
     }
 
