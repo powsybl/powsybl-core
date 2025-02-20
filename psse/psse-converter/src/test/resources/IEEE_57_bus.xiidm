@@ -33,7 +33,7 @@
             <iidm:load id="B3-L1 " loadType="UNDEFINED" p0="41.0" q0="21.0" bus="B3" connectableBus="B3"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S4">
+    <iidm:substation id="S4-18">
         <iidm:voltageLevel id="VL4-18" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B4" name="Sprigg      " v="135.34763999999998" angle="-7.3374"/>
@@ -74,7 +74,7 @@
             <iidm:load id="B6-L1 " loadType="UNDEFINED" p0="75.0" q0="2.0" bus="B6" connectableBus="B6"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S7">
+    <iidm:substation id="S7-29">
         <iidm:voltageLevel id="VL7-29" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B7" name="Bus 7       " v="135.8196" angle="-7.6014"/>
@@ -99,7 +99,7 @@
             <iidm:load id="B8-L1 " loadType="UNDEFINED" p0="150.0" q0="22.0" bus="B8" connectableBus="B8"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S9">
+    <iidm:substation id="S9-55">
         <iidm:voltageLevel id="VL9-55" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B9" name="Saltvill    " v="135.24" angle="-9.5847"/>
@@ -117,7 +117,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S10">
+    <iidm:substation id="S10-51">
         <iidm:voltageLevel id="VL10-51" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B10" name="Bus 10      " v="136.10112" angle="-11.4497"/>
@@ -132,7 +132,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S11">
+    <iidm:substation id="S11-41-43">
         <iidm:voltageLevel id="VL11-41-43" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B11" name="Tazewell    " v="134.40648000000002" angle="-10.1932"/>
@@ -164,7 +164,7 @@
             <iidm:load id="B12-L1 " loadType="UNDEFINED" p0="377.0" q0="24.0" bus="B12" connectableBus="B12"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S13">
+    <iidm:substation id="S13-49">
         <iidm:voltageLevel id="VL13-49" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B13" name="Bus 13      " v="135.08682000000002" angle="-9.8035"/>
@@ -179,7 +179,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S14">
+    <iidm:substation id="S14-46">
         <iidm:voltageLevel id="VL14-46" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B14" name="Bus 14      " v="133.88484" angle="-9.3503"/>
@@ -193,7 +193,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S15">
+    <iidm:substation id="S15-45">
         <iidm:voltageLevel id="VL15-45" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B15" name="Bus 15      " v="136.34814" angle="-7.1902"/>
@@ -231,7 +231,7 @@
             <iidm:load id="B19-L1 " loadType="UNDEFINED" p0="3.3" q0="0.6" bus="B19" connectableBus="B19"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S20">
+    <iidm:substation id="S20-21">
         <iidm:voltageLevel id="VL20-21" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B20" name="Bus 20      " v="133.00302" angle="-13.4443"/>
@@ -260,7 +260,7 @@
             <iidm:load id="B23-L1 " loadType="UNDEFINED" p0="6.3" q0="2.1" bus="B23" connectableBus="B23"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S24">
+    <iidm:substation id="S24-26">
         <iidm:voltageLevel id="VL24-26" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B24" name="Bus 24      " v="137.89373999999998" angle="-13.2921"/>
@@ -316,7 +316,7 @@
             <iidm:load id="B31-L1 " loadType="UNDEFINED" p0="5.8" q0="2.9" bus="B31" connectableBus="B31"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S32">
+    <iidm:substation id="S32-34">
         <iidm:voltageLevel id="VL32-34" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B32" name="Bus 32      " v="131.08206" angle="-18.5123"/>
@@ -368,7 +368,7 @@
             <iidm:load id="B38-L1 " loadType="UNDEFINED" p0="14.0" q0="7.0" bus="B38" connectableBus="B38"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S39">
+    <iidm:substation id="S39-57">
         <iidm:voltageLevel id="VL39-57" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B39" name="Bus 39      " v="135.62916" angle="-13.491"/>
@@ -382,7 +382,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S40">
+    <iidm:substation id="S40-56">
         <iidm:voltageLevel id="VL40-56" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B40" name="Bus 40      " v="134.24778" angle="-13.6582"/>

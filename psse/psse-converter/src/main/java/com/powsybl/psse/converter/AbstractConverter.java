@@ -69,14 +69,34 @@ public abstract class AbstractConverter {
         return network;
     }
 
-    static String getVoltageLevelId(Set<Integer> busNums) {
-        if (busNums.isEmpty()) {
-            throw new PsseException("Unexpected empty busNums");
+    static String getSubstationIdFromPsseSubstationIds(Set<Integer> busNumbers) {
+        return getSubstationId("Sub", busNumbers);
+    }
+
+    static String getSubstationIdFromBuses(Set<Integer> busNumbers) {
+        return getSubstationId("S", busNumbers);
+    }
+
+    private static String getSubstationId(String tag, Set<Integer> numbers) {
+        if (numbers.isEmpty()) {
+            throw new PsseException("Unexpected empty numbers");
         }
-        List<Integer> sortedBusNums = busNums.stream().sorted().toList();
-        String voltageLevelId = "VL" + sortedBusNums.get(0);
-        for (int i = 1; i < sortedBusNums.size(); i++) {
-            voltageLevelId = voltageLevelId.concat(String.format("-%d", sortedBusNums.get(i)));
+        List<Integer> sortedNumbers = numbers.stream().sorted().toList();
+        String substationId = tag + sortedNumbers.get(0);
+        for (int i = 1; i < sortedNumbers.size(); i++) {
+            substationId = substationId.concat(String.format("-%d", sortedNumbers.get(i)));
+        }
+        return substationId;
+    }
+
+    static String getVoltageLevelId(Set<Integer> busNumbers) {
+        if (busNumbers.isEmpty()) {
+            throw new PsseException("Unexpected empty busNumbers");
+        }
+        List<Integer> sortedBusNumbers = busNumbers.stream().sorted().toList();
+        String voltageLevelId = "VL" + sortedBusNumbers.get(0);
+        for (int i = 1; i < sortedBusNumbers.size(); i++) {
+            voltageLevelId = voltageLevelId.concat(String.format("-%d", sortedBusNumbers.get(i)));
         }
         return voltageLevelId;
     }
@@ -160,8 +180,16 @@ public abstract class AbstractConverter {
         return shuntCompensator.getTerminal().isConnected() && shuntCompensator.getTerminal().getBusBreakerView().getBus() != null ? 1 : 0;
     }
 
-    static String getNodeBreakerEquipmentIdBus(String equipmentId, int bus) {
-        return equipmentId + "." + bus;
+    static String getNodeBreakerEquipmentId(PsseEquipmentType equipmentType, int busI, String id) {
+        return getNodeBreakerEquipmentId(equipmentType, busI, 0, 0, id);
+    }
+
+    static String getNodeBreakerEquipmentId(PsseEquipmentType equipmentType, int busI, int busJ, String id) {
+        return getNodeBreakerEquipmentId(equipmentType, busI, busJ, 0, id);
+    }
+
+    static String getNodeBreakerEquipmentId(PsseEquipmentType equipmentType, int busI, int busJ, int busK, String id) {
+        return getNodeBreakerEquipmentId(equipmentType.getTextCode(), busI, busJ, busK, id);
     }
 
     // EquipmentId must be independent of the bus order
@@ -171,33 +199,11 @@ public abstract class AbstractConverter {
         int bus2 = sortedBuses.get(1);
         int bus3 = sortedBuses.get(2);
 
-        // after sorting, zeros will be at the beginning
-        if (bus1 == 0 && bus2 == 0) {
-            return type + "." + bus3 + "." + id;
-        } else if (bus1 == 0) {
-            return type + "." + bus2 + "." + bus3 + "." + id;
-        } else {
-            return type + "." + bus1 + "." + bus2 + "." + bus3 + "." + id;
-        }
+        return type + "." + bus1 + "." + bus2 + "." + bus3 + "." + id;
     }
 
-    static String getNodeBreakerEquipmentId(PsseEquipmentType equipmentType, int busI, String id) {
-        return equipmentType.getTextCode() + "." + busI + "." + id;
-    }
-
-    static String getNodeBreakerEquipmentId(PsseEquipmentType equipmentType, int busI, int busJ, String id) {
-        List<Integer> sortedBuses = Stream.of(busI, busJ).sorted().toList();
-        int bus1 = sortedBuses.get(0);
-        int bus2 = sortedBuses.get(1);
-        return equipmentType.getTextCode() + "." + bus1 + "." + bus2 + "." + id;
-    }
-
-    static String getNodeBreakerEquipmentId(PsseEquipmentType equipmentType, int busI, int busJ, int busK, String id) {
-        List<Integer> sortedBuses = Stream.of(busI, busJ, busK).sorted().toList();
-        int bus1 = sortedBuses.get(0);
-        int bus2 = sortedBuses.get(1);
-        int bus3 = sortedBuses.get(2);
-        return equipmentType.getTextCode() + "." + bus1 + "." + bus2 + "." + bus3 + "." + id;
+    static String getNodeBreakerEquipmentIdBus(String equipmentId, int bus) {
+        return equipmentId + "." + bus;
     }
 
     static Terminal findTerminalNode(Network network, String voltageLevelId, int node) {

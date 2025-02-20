@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="SwitchedShunt" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
-    <iidm:substation id="S1">
+    <iidm:substation id="S1-2-4-7">
         <iidm:voltageLevel id="VL1-2" nominalV="18.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1" name="1           " v="18.72" angle="-6.5957"/>
@@ -62,7 +62,7 @@
             </iidm:operationalLimitsGroup3>
         </iidm:threeWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S3">
+    <iidm:substation id="S3-5">
         <iidm:voltageLevel id="VL3" nominalV="18.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B3" name="3           " v="18.36" angle="-37.1199"/>

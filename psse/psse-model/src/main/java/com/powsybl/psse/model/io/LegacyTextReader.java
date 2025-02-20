@@ -92,7 +92,7 @@ public class LegacyTextReader {
 
     public String readUntilFindingARecordLineNotEmpty() throws IOException {
         String line = readRecordLine();
-        while (emptyLine(line)) {
+        while (emptyLine(line) || isRecordLineDefiningTheAttributeFields(line)) {
             line = readRecordLine();
         }
         return line;
