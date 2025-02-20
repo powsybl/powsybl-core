@@ -13,6 +13,9 @@ import com.powsybl.commons.report.TypedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.REACTIVE_POWER;
+import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.VOLTAGE;
+
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Objects;
@@ -383,19 +386,12 @@ public final class ValidationUtil {
     private static ValidationLevel checkSvcRegulator(Validable validable, boolean regulating, double voltageSetpoint, double reactivePowerSetpoint,
                                                     StaticVarCompensator.RegulationMode regulationMode, boolean throwException, ReportNode reportNode) {
         if (regulating) {
-            switch (regulationMode) {
-                case VOLTAGE -> {
-                    if (Double.isNaN(voltageSetpoint)) {
-                        throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, throwException, reportNode);
-                        return ValidationLevel.EQUIPMENT;
-                    }
-                }
-                case REACTIVE_POWER -> {
-                    if (Double.isNaN(reactivePowerSetpoint)) {
-                        throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, "reactive power setpoint", throwException, reportNode);
-                        return ValidationLevel.EQUIPMENT;
-                    }
-                }
+            if (regulationMode.equals(VOLTAGE) && Double.isNaN(voltageSetpoint)) {
+                throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, throwException, reportNode);
+                return ValidationLevel.EQUIPMENT;
+            } else if (regulationMode.equals(REACTIVE_POWER) && Double.isNaN(reactivePowerSetpoint)) {
+                throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, "reactive power setpoint", throwException, reportNode);
+                return ValidationLevel.EQUIPMENT;
             }
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
