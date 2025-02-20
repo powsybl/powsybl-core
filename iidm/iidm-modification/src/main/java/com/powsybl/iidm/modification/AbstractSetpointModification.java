@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.OptionalDouble;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+
 /**
  * Simple {@link NetworkModification} for elements that needs to modify
  * their voltage and reactive setpoints. This is used for SVCs and for VSC

@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
@@ -22,6 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
@@ -69,9 +69,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         } else {
             LOGGER.error("Hvdc Line {} not found", hvdcLineId);
             notFoundHvdcLineReport(reportNode, hvdcLineId);
-            if (throwException) {
-                throw new PowsyblException("Hvdc Line " + hvdcLineId + " not found");
-            }
+            logOrThrow(throwException, "Hvdc Line " + hvdcLineId + " not found");
         }
     }
 
@@ -88,10 +86,8 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         ShuntCompensator sc = network.getShuntCompensator(id);
         if (sc == null) {
             notFoundShuntReport(reportNode, id);
-            LOGGER.error("Shunt {} not found", id);
-            if (throwException) {
-                throw new PowsyblException("Shunt " + id + " not found");
-            }
+            logOrThrow(throwException, "Shunt " + id + " not found");
+            return null;
         }
         return sc;
     }

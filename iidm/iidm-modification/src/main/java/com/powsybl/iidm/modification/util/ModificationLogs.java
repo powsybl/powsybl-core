@@ -22,11 +22,16 @@ public final class ModificationLogs {
     private ModificationLogs() {
     }
 
-    public static void busOrBbsDoesNotExist(String bbsId, ReportNode reportNode, boolean throwException) {
-        LOGGER.error("Bus or busbar section {} not found.", bbsId);
-        ModificationReports.notFoundBusOrBusbarSectionReport(reportNode, bbsId);
+    public static void logOrThrow(boolean throwException, String message) {
         if (throwException) {
-            throw new PowsyblException(String.format("Bus or busbar section %s not found", bbsId));
+            throw new PowsyblException(message);
+        } else {
+            LOGGER.warn("Error while applying modification : {}", message);
         }
+    }
+
+    public static void busOrBbsDoesNotExist(String bbsId, ReportNode reportNode, boolean throwException) {
+        ModificationReports.notFoundBusOrBusbarSectionReport(reportNode, bbsId);
+        logOrThrow(throwException, String.format("Bus or busbar section %s not found", bbsId));
     }
 }

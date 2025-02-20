@@ -46,6 +46,7 @@ class BatteryModificationTest {
         assertEquals(2., battery.getTargetQ());
 
         BatteryModification batteryModification3 = new BatteryModification("BAT_NOT_EXISTING", null, 2.0);
+        assertDoesNotThrow(() -> batteryModification3.apply(network, false, ReportNode.NO_OP));
         PowsyblException exception = assertThrows(PowsyblException.class, () -> batteryModification3.apply(network, true, ReportNode.NO_OP));
         assertEquals("Battery 'BAT_NOT_EXISTING' not found", exception.getMessage());
     }

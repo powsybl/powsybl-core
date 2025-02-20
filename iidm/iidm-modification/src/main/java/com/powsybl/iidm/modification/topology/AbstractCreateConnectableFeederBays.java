@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
@@ -24,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
@@ -104,18 +104,12 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         if (topologyKind == TopologyKind.NODE_BREAKER) {
             if (positionOrder == null) {
                 unexpectedNullPositionOrder(reportNode, voltageLevel.getId());
-                LOGGER.error("Position order is null for attachment in node-breaker voltage level {}", voltageLevel.getId());
-                if (throwException) {
-                    throw new PowsyblException("Position order is null for attachment in node-breaker voltage level " + voltageLevel.getId());
-                }
+                logOrThrow(throwException, "Position order is null for attachment in node-breaker voltage level " + voltageLevel.getId());
                 return false;
             }
             if (positionOrder < 0) {
                 unexpectedNegativePositionOrder(reportNode, positionOrder, voltageLevel.getId());
-                LOGGER.error("Position order is negative ({}) for attachment in node-breaker voltage level {}", positionOrder, voltageLevel.getId());
-                if (throwException) {
-                    throw new PowsyblException("Position order is negative for attachment in node-breaker voltage level " + voltageLevel.getId() + ": " + positionOrder);
-                }
+                logOrThrow(throwException, "Position order is negative for attachment in node-breaker voltage level " + voltageLevel.getId() + ": " + positionOrder);
                 return false;
             }
         }
@@ -189,11 +183,8 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 int connectableNode = firstAvailableNodes.compute(voltageLevel, this::getNextAvailableNode);
                 setNode(side, connectableNode, voltageLevel.getId());
             } else {
-                LOGGER.error("Unsupported type {} for identifiable {}", busOrBusbarSection.getType(), busOrBusbarSectionId);
                 unsupportedIdentifiableType(reportNode, busOrBusbarSection.getType(), busOrBusbarSectionId);
-                if (throwException) {
-                    throw new PowsyblException(String.format("Unsupported type %s for identifiable %s", busOrBusbarSection.getType(), busOrBusbarSectionId));
-                }
+                logOrThrow(throwException, String.format("Unsupported type %s for identifiable %s", busOrBusbarSection.getType(), busOrBusbarSectionId));
                 return false;
             }
         }
@@ -207,12 +198,9 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     private static boolean checkNetworks(Connectable<?> connectable, Network network, ReportNode reportNode, boolean throwException) {
         if (connectable.getNetwork() != network) {
             connectable.remove();
-            LOGGER.error("Network given in parameters and in connectableAdder are different. Connectable '{}' of type {} was added then removed",
-                    connectable.getId(), connectable.getType());
             networkMismatchReport(reportNode, connectable.getId(), connectable.getType());
-            if (throwException) {
-                throw new PowsyblException("Network given in parameters and in connectableAdder are different. Connectable was added then removed");
-            }
+            logOrThrow(throwException, String.format("Network given in parameters and in connectableAdder are different. Connectable %s of type %s was added then removed",
+                    connectable.getId(), connectable.getType()));
             return false;
         }
         return true;

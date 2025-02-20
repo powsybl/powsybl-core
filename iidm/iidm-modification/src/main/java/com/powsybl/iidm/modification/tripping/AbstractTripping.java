@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
@@ -42,10 +44,13 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
 
-        traverse(network, switchesToOpen, terminalsToDisconnect);
-
-        switchesToOpen.forEach(s -> s.setOpen(true));
-        terminalsToDisconnect.forEach(Terminal::disconnect);
+        try {
+            traverse(network, switchesToOpen, terminalsToDisconnect);
+            switchesToOpen.forEach(s -> s.setOpen(true));
+            terminalsToDisconnect.forEach(Terminal::disconnect);
+        } catch (PowsyblException powsyblException) {
+            logOrThrow(throwException, powsyblException.getMessage());
+        }
     }
 
     @Override

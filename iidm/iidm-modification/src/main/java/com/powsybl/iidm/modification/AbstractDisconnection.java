@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.function.Predicate;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.identifiableDisconnectionReport;
 
 /**

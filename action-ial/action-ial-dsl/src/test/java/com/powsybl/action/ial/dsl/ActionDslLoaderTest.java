@@ -159,8 +159,10 @@ class ActionDslLoaderTest {
         Action deltaTapAction = actionDb.getAction("TransformerWithoutPhaseShifter");
         assertNotNull(deltaTapAction);
         assertEquals(-10, ((PhaseShifterShiftTap) deltaTapAction.getModifications().get(0)).getTapDelta());
-        PowsyblException e = assertThrows(PowsyblException.class, () -> deltaTapAction.run(network));
-        assertTrue(e.getMessage().contains("Transformer 'NGEN_NHV1' is not a phase shifter"));
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> deltaTapAction.run(network));
+        assertTrue(e1.getMessage().contains("Transformer 'NGEN_NHV1' is not a phase shifter"));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> deltaTapAction.run(network, true));
+        assertTrue(e2.getMessage().contains("Transformer 'NGEN_NHV1' is not a phase shifter"));
     }
 
     @Test

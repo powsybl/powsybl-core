@@ -46,6 +46,7 @@ class AreaInterchangeModificationTest {
         assertTrue(area.getInterchangeTarget().isEmpty());
 
         AreaInterchangeTargetModification modification3 = new AreaInterchangeTargetModification("AREA_UNKNOWN", 2.0);
+        assertDoesNotThrow(() -> modification3.apply(network, false, ReportNode.NO_OP));
         PowsyblException exception = assertThrows(PowsyblException.class, () -> modification3.apply(network, true, ReportNode.NO_OP));
         assertEquals("Area 'AREA_UNKNOWN' not found", exception.getMessage());
     }

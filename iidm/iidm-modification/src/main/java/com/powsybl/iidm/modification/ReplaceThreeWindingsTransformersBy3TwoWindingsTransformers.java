@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.modification.util.TransformerUtils.*;
 import static com.powsybl.iidm.modification.util.TransformerUtils.copyAndAddPhaseAngleClock;

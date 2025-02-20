@@ -56,6 +56,7 @@ class SetGeneratorToLocalRegulationTest {
         new SetGeneratorToLocalRegulation("GEN1").apply(network, reportNode);
         new SetGeneratorToLocalRegulation("GEN2").apply(network, reportNode);
         SetGeneratorToLocalRegulation modification = new SetGeneratorToLocalRegulation("WRONG_ID");
+        assertDoesNotThrow(() -> modification.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals("Generator 'WRONG_ID' not found", e.getMessage());
 

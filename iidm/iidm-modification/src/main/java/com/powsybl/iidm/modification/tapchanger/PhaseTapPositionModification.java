@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
@@ -97,6 +99,7 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
             ptcHolder.getPhaseTapChanger().setTapPosition(newTapPosition);
         } catch (ValidationException e) {
             logOrThrow(throwException, e.getMessage());
+            return;
         }
     }
 

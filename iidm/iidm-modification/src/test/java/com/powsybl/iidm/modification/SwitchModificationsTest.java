@@ -7,12 +7,14 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -42,12 +44,14 @@ class SwitchModificationsTest {
 
     @Test
     void testInvalidOpenSwitch() {
-        assertThrows(RuntimeException.class, () -> new OpenSwitch("dummy").apply(network));
+        assertDoesNotThrow(() -> new OpenSwitch("dummy").apply(network));
+        assertThrows(RuntimeException.class, () -> new OpenSwitch("dummy").apply(network, true, ReportNode.NO_OP));
     }
 
     @Test
     void testInvalidCloseSwitch() {
-        assertThrows(RuntimeException.class, () -> new CloseSwitch("dummy").apply(network));
+        assertDoesNotThrow(() -> new CloseSwitch("dummy").apply(network));
+        assertThrows(RuntimeException.class, () -> new CloseSwitch("dummy").apply(network, true, ReportNode.NO_OP));
     }
 
     @Test
