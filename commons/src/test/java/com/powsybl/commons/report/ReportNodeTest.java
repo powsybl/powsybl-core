@@ -134,15 +134,19 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .withMessageTemplate("rootTemplate", "Root message")
                 .build();
 
-        PowsyblException e1 = assertThrows(PowsyblException.class, () -> root.include(root));
-        assertEquals("Cannot add a reportNode in itself", e1.getMessage());
-
         ReportNode otherRoot = ReportNode.newRootReportNode()
                 .withMessageTemplate("includedRoot", "Included root message")
                 .build();
-        otherRoot.newReportNode()
+        ReportNode otherRootChild = otherRoot.newReportNode()
                 .withMessageTemplate("includedChild", "Included child message")
                 .add();
+
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> root.include(ReportNode.NO_OP));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> root.include(root));
+        PowsyblException e3 = assertThrows(PowsyblException.class, () -> otherRootChild.include(otherRoot));
+        assertEquals("Cannot mix implementations of ReportNode, included reportNode should be/extend ReportNodeImpl", e1.getMessage());
+        assertEquals("The given reportNode cannot be included as it is the root of the reportNode", e2.getMessage());
+        assertEquals("The given reportNode cannot be included as it is the root of the reportNode", e3.getMessage());
 
         root.include(otherRoot);
         assertEquals(1, root.getChildren().size());
@@ -150,14 +154,14 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) otherRoot).getTreeContextRef().get());
 
         // Other root is not root anymore and can therefore not be added again
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> root.include(otherRoot));
-        assertEquals("Cannot include non-root reportNode", e2.getMessage());
+        PowsyblException e4 = assertThrows(PowsyblException.class, () -> root.include(otherRoot));
+        assertEquals("Cannot include non-root reportNode", e4.getMessage());
 
         ReportNode child = root.newReportNode()
                 .withMessageTemplate("child", "Child message")
                 .add();
-        PowsyblException e3 = assertThrows(PowsyblException.class, () -> root.include(child));
-        assertEquals("Cannot include non-root reportNode", e3.getMessage());
+        PowsyblException e5 = assertThrows(PowsyblException.class, () -> root.include(child));
+        assertEquals("Cannot include non-root reportNode", e5.getMessage());
 
         ReportNode yetAnotherRoot = ReportNode.newRootReportNode()
                 .withMessageTemplate("newRootAboveAll", "New root above all reportNodes")
@@ -167,6 +171,85 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) otherRoot).getTreeContextRef().get());
 
         roundTripTest(yetAnotherRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/testIncludeReportNode.json");
+    }
+
+    @Test
+    void testAddCopy() throws IOException {
+        ReportNode root = ReportNode.newRootReportNode()
+                .withMessageTemplate("root", "Root message with value ${value}")
+                .withTypedValue("value", 2.3203, "ROOT_VALUE")
+                .build();
+        root.newReportNode()
+                .withMessageTemplate("existingChild", "Child message")
+                .add();
+
+        ReportNode otherRoot = ReportNode.newRootReportNode()
+                .withMessageTemplate("otherRoot", "Root message containing node to copy")
+                .withTypedValue("value", -915.3, "ROOT_VALUE")
+                .build();
+        otherRoot.newReportNode()
+                .withMessageTemplate("childNotCopied", "Child message")
+                .add();
+        ReportNode childToCopy = otherRoot.newReportNode()
+                .withMessageTemplate("childToCopy", "Child message with inherited value ${value}")
+                .add();
+        childToCopy.newReportNode()
+                .withMessageTemplate("grandChild", "Grandchild message")
+                .add();
+
+        root.addCopy(childToCopy);
+        assertEquals(2, otherRoot.getChildren().size()); // the copied message is not removed
+        assertEquals(2, root.getChildren().size());
+
+        ReportNode childCopied = root.getChildren().get(1);
+        assertEquals(childToCopy.getMessageKey(), childCopied.getMessageKey());
+        assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) childCopied).getTreeContextRef().get());
+
+        // Two limitations of copy current implementation, due to the current ReportNode serialization
+        // 1. the inherited values are not kept
+        assertNotEquals(childToCopy.getMessage(), childCopied.getMessage());
+        // 2. the dictionary contains all the keys from the copied reportNode tree (even the ones from non-copied reportNodes)
+        assertEquals(6, ((ReportNodeImpl) root).getTreeContext().getDictionary().size());
+
+        Path serializedReport = tmpDir.resolve("tmp.json");
+        ReportNodeSerializer.write(root, serializedReport);
+        ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/testCopyReportNode.json"), Files.newInputStream(serializedReport));
+    }
+
+    @Test
+    void testAddCopyCornerCases() {
+        ReportNode root = ReportNode.newRootReportNode()
+                .withMessageTemplate("root", "Root message with value ${value}")
+                .withTypedValue("value", 2.3203, "ROOT_VALUE")
+                .build();
+
+        // Corner case: copying oneself
+        // there's no limitation on this with current implementation
+        // this leads to: root
+        //                 |___ root
+        root.addCopy(root);
+
+        assertEquals(root.getMessage(), root.getChildren().get(0).getMessage());
+
+        // Corner case: copying an ancestor
+        // there's also no limitation on this with current implementation
+        // this leads to: root
+        //                 |___ root
+        //                 |___ rootChild
+        //                        |___root
+        //                             |___ root
+        //                             |___ rootChild
+        ReportNode rootChild = root.newReportNode()
+                .withMessageTemplate("rootChild", "Another child")
+                .add();
+        rootChild.addCopy(root);
+
+        ReportNode rootGrandChild = rootChild.getChildren().get(0);
+        ReportNode rootGreatGrandChild1 = rootGrandChild.getChildren().get(0);
+        ReportNode rootGreatGrandChild2 = rootGrandChild.getChildren().get(1);
+        assertEquals(root.getMessage(), rootGrandChild.getMessage());
+        assertEquals(root.getMessage(), rootGreatGrandChild1.getMessage());
+        assertEquals(rootChild.getMessage(), rootGreatGrandChild2.getMessage());
     }
 
     @Test

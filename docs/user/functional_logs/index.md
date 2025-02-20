@@ -77,6 +77,21 @@ Both API share methods to provide the message template and the typed values:
 - `withTypedValue(key, value, type)`,
 - `withSeverity(severity)`.
 
+## Merging ReportNodes
+
+### Include
+An `include` method is provided in the API in order to fully insert a given root `ReportNode` as a child of another `ReportNode`.
+The given root `ReportNode` is becoming non-root after this operation.
+This was meant for including the serialized reports obtained from another process.
+
+### AddCopy
+An `addCopy` method is provided in the API to partly insert a `ReportNode`: unlike `include`, the given node does not need to be root.
+The given `ReportNode` is copied and inserted as a child of the `ReportNode`.
+
+Two known limitations of this method:
+1. the inherited values of copied `ReportNode` are not kept,
+2. the resulting dictionary contains all the keys from the copied `ReportNode` tree, even the ones from non-copied `ReportNode`s.
+
 ## Example
 ```java
 ReportNode root = ReportNode.newRootReportNode()
