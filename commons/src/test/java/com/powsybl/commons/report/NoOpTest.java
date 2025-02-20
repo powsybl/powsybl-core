@@ -56,4 +56,34 @@ class NoOpTest {
         assertEquals("", sw.toString());
     }
 
+    @Test
+    void testPostponedValuesAdded() throws IOException {
+        ReportNode root = ReportNode.NO_OP;
+        ReportNode childNode = root.newReportNode()
+                .withMessageTemplate("key", "message with value = ${double}")
+                .add();
+        childNode.addTypedValue("double", 2.0, TypedValue.ACTIVE_POWER)
+                .addTypedValue("float", 2.0f, TypedValue.ACTIVE_POWER)
+                .addTypedValue("int", 4, "counter")
+                .addTypedValue("long", 4L, "counter")
+                .addTypedValue("boolean", true, "condition")
+                .addTypedValue("string", "vl1", TypedValue.VOLTAGE_LEVEL)
+                .addUntypedValue("untyped_double", 2.0)
+                .addUntypedValue("untyped_float", 2.0f)
+                .addUntypedValue("untyped_int", 4)
+                .addUntypedValue("untyped_long", 4L)
+                .addUntypedValue("untyped_boolean", true)
+                .addUntypedValue("untyped_string", "vl1")
+                .addSeverity(TypedValue.TRACE_SEVERITY)
+                .addSeverity("Custom severity");
+
+        assertEquals(Collections.emptyMap(), childNode.getValues());
+        assertEquals(Optional.empty(), childNode.getValue("int"));
+        assertNull(childNode.getMessage());
+
+        StringWriter sw = new StringWriter();
+        childNode.print(sw);
+        assertEquals("", sw.toString());
+    }
+
 }

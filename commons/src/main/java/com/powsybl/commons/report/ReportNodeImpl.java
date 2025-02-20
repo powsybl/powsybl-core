@@ -80,7 +80,7 @@ public final class ReportNodeImpl implements ReportNode {
         this.messageKey = Objects.requireNonNull(messageKey);
         checkMap(values);
         Objects.requireNonNull(inheritedValuesMaps).forEach(ReportNodeImpl::checkMap);
-        this.values = Collections.unmodifiableMap(values);
+        this.values = values;
         this.inheritedValuesMaps = inheritedValuesMaps;
         this.treeContext = Objects.requireNonNull(treeContext);
         this.isRoot = isRoot;
@@ -105,18 +105,18 @@ public final class ReportNodeImpl implements ReportNode {
 
     @Override
     public Map<String, TypedValue> getValues() {
-        return values;
+        return Collections.unmodifiableMap(values);
     }
 
     @Override
-    public String getMessage() {
+    public String getMessage(ReportFormatter formatter) {
         return Optional.ofNullable(getTreeContext().getDictionary().get(messageKey))
-                .map(messageTemplate -> new StringSubstitutor(vk -> getValueAsString(vk).orElse(null)).replace(messageTemplate))
+                .map(messageTemplate -> new StringSubstitutor(vk -> getValueAsString(vk, formatter).orElse(null)).replace(messageTemplate))
                 .orElse("(missing message key in dictionary)");
     }
 
-    public Optional<String> getValueAsString(String valueKey) {
-        return getValue(valueKey).map(TypedValue::getValue).map(Object::toString);
+    public Optional<String> getValueAsString(String valueKey, ReportFormatter formatter) {
+        return getValue(valueKey).map(formatter::format);
     }
 
     @Override
@@ -183,24 +183,109 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public void print(Writer writer) throws IOException {
-        print(writer, "");
+    public ReportNode addTypedValue(String key, String value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
     }
 
-    private void print(Writer writer, String indentationStart) throws IOException {
+    @Override
+    public ReportNode addUntypedValue(String key, String value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, double value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, double value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, float value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, float value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, int value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, int value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, long value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, long value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, boolean value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, boolean value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addSeverity(TypedValue severity) {
+        TypedValue.checkSeverityType(severity);
+        values.put(ReportConstants.SEVERITY_KEY, severity);
+        return this;
+    }
+
+    @Override
+    public ReportNode addSeverity(String severity) {
+        values.put(ReportConstants.SEVERITY_KEY, TypedValue.of(severity, TypedValue.SEVERITY));
+        return this;
+    }
+
+    @Override
+    public void print(Writer writer, ReportFormatter formatter) throws IOException {
+        print(writer, "", formatter);
+    }
+
+    private void print(Writer writer, String indentationStart, ReportFormatter formatter) throws IOException {
         if (children.isEmpty()) {
-            print(writer, indentationStart, "");
+            print(writer, indentationStart, "", formatter);
         } else {
-            print(writer, indentationStart, "+ ");
+            print(writer, indentationStart, "+ ", formatter);
             String childrenIndent = indentationStart + "   ";
             for (ReportNodeImpl child : children) {
-                child.print(writer, childrenIndent);
+                child.print(writer, childrenIndent, formatter);
             }
         }
     }
 
-    private void print(Writer writer, String indent, String prefix) throws IOException {
-        writer.append(indent).append(prefix).append(getMessage()).append(System.lineSeparator());
+    private void print(Writer writer, String indent, String prefix, ReportFormatter formatter) throws IOException {
+        writer.append(indent).append(prefix).append(getMessage(formatter)).append(System.lineSeparator());
     }
 
     public static ReportNodeImpl parseJsonNode(JsonParser parser, ObjectMapper objectMapper, TreeContextImpl treeContext, ReportNodeVersion version) throws IOException {

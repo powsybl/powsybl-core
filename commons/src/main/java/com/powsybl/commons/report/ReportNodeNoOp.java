@@ -45,7 +45,7 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public String getMessage() {
+    public String getMessage(ReportFormatter formatter) {
         return null;
     }
 
@@ -70,7 +70,77 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public void print(Writer writer) throws IOException {
+    public ReportNode addTypedValue(String key, String value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, String value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, double value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, double value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, float value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, float value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, int value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, int value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, long value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, long value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, boolean value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, boolean value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addSeverity(TypedValue severity) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addSeverity(String severity) {
+        return this;
+    }
+
+    @Override
+    public void print(Writer writer, ReportFormatter formatter) throws IOException {
         // No-op
     }
 

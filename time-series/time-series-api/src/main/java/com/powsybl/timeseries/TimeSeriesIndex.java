@@ -20,15 +20,34 @@ public interface TimeSeriesIndex extends Iterable<Instant> {
 
     int getPointCount();
 
+    enum ExportFormat {
+        MILLISECONDS,
+        NANOSECONDS
+    }
+
+    /**
+     * @deprecated Replaced by {@link TimeSeriesIndex#getInstantAt(int)}}
+     */
+    @Deprecated(since = "6.7.0")
     long getTimeAt(int point);
 
     Instant getInstantAt(int point);
 
     String getType();
 
+    /**
+     * Write the TimeSeriesIndex as JSON using {@code ExportFormat.MILLISECONDS} format
+     */
     void writeJson(JsonGenerator generator);
 
+    void writeJson(JsonGenerator generator, ExportFormat format);
+
+    /**
+     * Export the TimeSeriesIndex as JSON using {@code ExportFormat.MILLISECONDS} format
+     */
     String toJson();
+
+    String toJson(ExportFormat format);
 
     Stream<Instant> stream();
 
