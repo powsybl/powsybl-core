@@ -10,16 +10,13 @@ package com.powsybl.cgmes.completion;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
-import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.Importers;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -74,10 +71,11 @@ class CgmesCompletionTest {
         }
         assertNotNull(network);
 
-        // Check that a specific terminal has a voltage level, navigating the CGMES model
-        CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
+        // Check that a specific terminal has a voltage level, by using the alias to get the busBarSection
         String terminalId = "T_BBS";
-        String voltageLevelId = cgmes.voltageLevel(cgmes.terminal(terminalId), cgmes.isNodeBreaker());
+        Connectable<?> connectable = network.getConnectable(terminalId);
+        BusbarSection busBarSection = (BusbarSection) connectable;
+        String voltageLevelId = busBarSection.getTerminal().getVoltageLevel().getId();
         if (voltageLevelId == null || voltageLevelId.isEmpty()) {
             fail("Missing voltage level for terminal " + terminalId);
         }
