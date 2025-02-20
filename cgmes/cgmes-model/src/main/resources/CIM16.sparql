@@ -274,7 +274,7 @@ WHERE {
 }}
 OPTIONAL {
     {
-        SELECT ?TopologicalNode
+        SELECT ?ConnectivityNode (MIN(?TopologicalNode) AS ?TopologicalNode)
         WHERE {
             {
                 GRAPH ?graphTPCN { ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode }
@@ -284,15 +284,15 @@ OPTIONAL {
                 # For TSOs missing the direct relationship ConnectivityNode -> TopologicalNode in TP
                 # We have to locate the TopologicalNode through one of the Terminals connected to the
                 # ConnectivityNode
-                SELECT ?TopologicalNode
+                SELECT ?ConnectivityNode (MIN(?TopologicalNode) AS ?TopologicalNode)
                 WHERE {
                     GRAPH ?graphEQ { ?Terminal cim:Terminal.ConnectivityNode ?ConnectivityNode }
                     GRAPH ?graphTPCN2 { ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode }
                 }
-                LIMIT 1
+                GROUP BY ?ConnectivityNode
             }
         }
-        LIMIT 1
+        GROUP BY ?ConnectivityNode
     }
     ?TopologicalNode cim:TopologicalNode.BaseVoltage ?BaseVoltage
     OPTIONAL { GRAPH ?graphSVT {
