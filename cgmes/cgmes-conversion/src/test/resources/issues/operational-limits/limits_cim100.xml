@@ -52,7 +52,6 @@
     <cim:ACLineSegment.x>1</cim:ACLineSegment.x>
     <cim:ACLineSegment.x0>0.1</cim:ACLineSegment.x0>
     <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV"/>
-    <cim:Equipment.EquipmentContainer rdf:resource="#_LN"/>
 </cim:ACLineSegment>
 <cim:Terminal rdf:ID="_T_ACL_1">
     <cim:IdentifiedObject.name>Terminal ACL 1</cim:IdentifiedObject.name>
@@ -68,7 +67,7 @@
 </cim:Terminal>
 <cim:OperationalLimitSet rdf:ID="_OLS_ACL_1">
     <cim:IdentifiedObject.name>Limit set</cim:IdentifiedObject.name>
-    <cim:OperationalLimitSet.Terminal rdf:resource="#_T_ACL_1"/>
+    <cim:OperationalLimitSet.Equipment rdf:resource="#_ACL"/>
 </cim:OperationalLimitSet>
 <cim:CurrentLimit rdf:ID="_I_PATL_1">
     <cim:IdentifiedObject.name>Current limit</cim:IdentifiedObject.name>

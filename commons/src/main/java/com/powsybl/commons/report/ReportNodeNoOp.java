@@ -26,11 +26,16 @@ public class ReportNodeNoOp implements ReportNode {
 
     @Override
     public TreeContext getTreeContext() {
-        return null;
+        return TreeContext.NO_OP;
     }
 
     @Override
     public void include(ReportNode reportRoot) {
+        // No-op
+    }
+
+    @Override
+    public void addCopy(ReportNode reportNode) {
         // No-op
     }
 
@@ -67,6 +72,76 @@ public class ReportNodeNoOp implements ReportNode {
     @Override
     public void writeJson(JsonGenerator generator) throws IOException {
         // No-op
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, String value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, String value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, double value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, double value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, float value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, float value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, int value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, int value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, long value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, long value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, boolean value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, boolean value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addSeverity(TypedValue severity) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addSeverity(String severity) {
+        return this;
     }
 
     @Override

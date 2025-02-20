@@ -193,6 +193,11 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertTrue(line.getCurrentLimits1().isPresent());
         assertEquals(100.0, line.getCurrentLimits1().get().getPermanentLimit());
         assertEquals(200.0, line.getCurrentLimits1().get().getTemporaryLimit(600).getValue());
+
+        assertTrue(line.getActivePowerLimits1().isPresent());
+        assertEquals(101.0, line.getActivePowerLimits1().get().getPermanentLimit());
+        assertEquals(201.0, line.getActivePowerLimits1().get().getTemporaryLimit(600).getValue());
+
         assertTrue(line.getApparentPowerLimits1().isPresent());
         assertEquals(102.0, line.getApparentPowerLimits1().get().getPermanentLimit());
         assertEquals(202.0, line.getApparentPowerLimits1().get().getTemporaryLimit(600).getValue());
@@ -272,6 +277,11 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertTrue(line.getCurrentLimits1().isPresent());
         assertEquals(100.0, line.getCurrentLimits1().get().getPermanentLimit());
         assertEquals(200.0, line.getCurrentLimits1().get().getTemporaryLimit(600).getValue());
+
+        assertTrue(line.getActivePowerLimits1().isPresent());
+        assertEquals(101.0, line.getActivePowerLimits1().get().getPermanentLimit());
+        assertEquals(201.0, line.getActivePowerLimits1().get().getTemporaryLimit(600).getValue());
+
         assertTrue(line.getApparentPowerLimits1().isPresent());
         assertEquals(102.0, line.getApparentPowerLimits1().get().getPermanentLimit());
         assertEquals(202.0, line.getApparentPowerLimits1().get().getTemporaryLimit(600).getValue());
