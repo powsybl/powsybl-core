@@ -54,7 +54,7 @@ public final class ZipSecurityHelper {
             int nBytes = -1;
             byte[] buffer = new byte[2048];
             int totalSizeEntry = 0;
-            while ((nBytes = zipInputStream.read(buffer)) > 0) { // Compliant
+            while ((nBytes = zipInputStream.read(buffer)) > 0) {
                 totalSizeEntry += nBytes;
                 totalSizeArchive += nBytes;
 
