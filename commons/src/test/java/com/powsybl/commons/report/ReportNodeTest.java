@@ -142,7 +142,7 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .add();
 
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> root.include(ReportNode.NO_OP));
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> otherRootChild.include(otherRoot));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> root.include(root));
         PowsyblException e3 = assertThrows(PowsyblException.class, () -> otherRootChild.include(otherRoot));
         assertEquals("Cannot mix implementations of ReportNode, included reportNode should be/extend ReportNodeImpl", e1.getMessage());
         assertEquals("The given reportNode cannot be included as it is the root of the reportNode", e2.getMessage());
