@@ -321,6 +321,9 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlow().dataSource(),
             NetworkFactory.findDefault(), importParams);
 
+        // Check that the query discarded the areas that aren't of type Interchange
+        assertEquals(1, network.getAreaCount());
+
         Area area = network.getArea("BECONTROLAREA");
         assertEquals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE, area.getAreaType());
         assertEquals("BE", area.getNameOrId());

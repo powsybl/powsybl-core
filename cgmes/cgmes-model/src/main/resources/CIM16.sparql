@@ -1026,7 +1026,7 @@ WHERE {
         cim:IdentifiedObject.name ?name ;
         cim:ControlArea.type ?controlAreaType .
         OPTIONAL { ?ControlArea entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic }
-    FILTER (regex(STR(?controlAreaType), "Interchange", "i"))
+        VALUES ?controlAreaType { cim:ControlAreaTypeKind.Interchange }
 }}
 OPTIONAL { GRAPH ?graphSSH {
     ?ControlArea cim:ControlArea.netInterchange ?netInterchange
