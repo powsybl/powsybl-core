@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
@@ -71,7 +72,8 @@ class LoadZippedProfilesTest {
 
             Properties importParams = new Properties();
             importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
-            CgmesModelException ex = assertThrows(CgmesModelException.class, () -> Network.read(DataSource.fromPath(workDir), importParams));
+            ReadOnlyDataSource datasource = DataSource.fromPath(workDir);
+            CgmesModelException ex = assertThrows(CgmesModelException.class, () -> Network.read(datasource, importParams));
             assertEquals("No entry found in zip file MicroGridTestConfiguration_BC_BE_DL_V2.xml.zip", ex.getCause().getMessage());
         }
     }
