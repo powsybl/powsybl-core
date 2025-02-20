@@ -23,6 +23,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -65,24 +66,17 @@ class GroundConversionTest extends AbstractSerDeTest {
 
         // Check also the exported GraphViz
         // Some edges have been removed, ensure it is exported properly
-        String actual = graphVizClean(graphViz(network, "S"));
+        StringWriter writer = new StringWriter();
+        network.getVoltageLevel("S").exportTopology(writer, new Random(1));
+        String actual = graphVizClean(writer.toString());
 
-        String rawExpected = new String(ByteStreams.toByteArray(Objects.requireNonNull(
+        String expected = new String(ByteStreams.toByteArray(Objects.requireNonNull(
                 getClass().getResourceAsStream("/groundConversionRemoveGraph.dot"))), StandardCharsets.UTF_8);
-        String expected = graphVizClean(rawExpected);
         ComparisonUtils.assertTxtEquals(expected, actual);
     }
 
-    private String graphViz(Network network, String voltageLevelId) throws IOException {
-        StringWriter writer = new StringWriter();
-        network.getVoltageLevel(voltageLevelId).exportTopology(writer);
-        return writer.toString();
-    }
-
     private String graphVizClean(String gv) {
-        // Remove all colors (they are assigned randomly each time a graphviz is exported)
-        String r = gv.replaceAll("color=\"#[^\"]+\"", "color=\"---\"");
         // Remove all comments
-        return r.replaceAll("([\\n\\r])(\\s+)//.*([\\n\\r])", "$1$2//$3");
+        return gv.replaceAll("([\\n\\r])(\\s+)// scope.*([\\n\\r])", "$1$2// scope xxxxx$3");
     }
 }

@@ -1,11 +1,11 @@
 digraph G {
 	node [shape=box];
 	compound=true;
-	n0 [label="0\lBUSBAR_SECTION\lAX\lEF",shape="ellipse",style="filled",fillcolor="---"];
-	n2 [label="5\lGENERATOR\lZX\lZY",shape="ellipse",style="filled",fillcolor="---"];
+	n0 [label="0\lBUSBAR_SECTION\lAX\lEF",shape="ellipse",style="filled",fillcolor="#7AF385"];
+	n2 [label="5\lGENERATOR\lZX\lZY",shape="ellipse",style="filled",fillcolor="#7AF385"];
 	n0 -> n2 [];
 	subgraph cluster_c1 {
-		//
+		// scope xxxxx
 		cluster_c1 [label="",shape=point,style=invis];
 		pencolor="transparent";
 		n0;
