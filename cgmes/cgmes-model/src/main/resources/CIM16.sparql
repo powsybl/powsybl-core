@@ -184,22 +184,22 @@ WHERE {
     # Optional is required to keep the ?Substation variable already bounded in the sub-queries ...
     OPTIONAL {
         {
-            SELECT ?SubRegion
+            SELECT ?Substation (MIN(?SubRegion) AS ?SubRegion)
             WHERE {
                 ?Substation cim:Substation.Region ?SubRegion .
                 ?SubRegion a cim:SubGeographicalRegion .
             }
-            LIMIT 1
+            GROUP BY ?Substation
         }
         ?SubRegion cim:IdentifiedObject.name ?subRegionName .
         OPTIONAL {
             {
-                SELECT ?Region
+                SELECT ?SubRegion (MIN(?Region) AS ?Region)
                 WHERE {
                     ?SubRegion cim:SubGeographicalRegion.Region ?Region .
                     ?Region a cim:GeographicalRegion .
                 }
-                LIMIT 1
+                GROUP BY ?SubRegion
             }
             ?Region cim:IdentifiedObject.name ?regionName .
         }
