@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023-2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import gnu.trove.list.array.TIntArrayList;
 import org.slf4j.Logger;
@@ -45,7 +44,7 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
         this.regulationMode = null;
     }
 
-    RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, int regulationMode, boolean useVoltageRegulation) {
+    RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, int regulationMode, boolean regulating, boolean useVoltageRegulation) {
         this.regulatedEquipmentId = regulatedEquipmentId;
         this.localTerminalSupplier = localTerminalSupplier;
         this.useVoltageRegulation = useVoltageRegulation;
@@ -53,7 +52,10 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
         for (int i = 0; i < variantArraySize; i++) {
             this.regulationMode.add(regulationMode);
         }
-        this.regulating = null;
+        this.regulating = new TBooleanArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.regulating.add(regulating);
+        }
     }
 
     void setRegulatingTerminal(TerminalExt regulatingTerminal) {
@@ -159,9 +161,6 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
         LOG.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", oldRegulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
         if (regulating != null) {
             regulating.fill(0, regulating.size(), false);
-        }
-        if (regulationMode != null) {
-            regulationMode.fill(0, regulationMode.size(), StaticVarCompensator.RegulationMode.OFF.ordinal());
         }
     }
 

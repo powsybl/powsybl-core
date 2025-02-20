@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+ * Copyright (c) 2016-2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -87,6 +87,7 @@ public final class SvcTestCaseFactory {
                 .setBmin(0.0002)
                 .setBmax(0.0008)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulating(true)
                 .setVoltageSetpoint(390)
                 .add();
         network.newLine()
@@ -121,6 +122,7 @@ public final class SvcTestCaseFactory {
                 .setBmin(0.0002)
                 .setBmax(0.0008)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulating(true)
                 .setVoltageSetpoint(390)
                 .setReactivePowerSetpoint(350)
                 .add();
@@ -256,7 +258,8 @@ public final class SvcTestCaseFactory {
 
     private static Network addOffNoTarget(Network network) {
         network.getStaticVarCompensator("SVC2")
-                .setRegulationMode(StaticVarCompensator.RegulationMode.OFF)
+                .setRegulating(false)
+                .setRegulationMode(null)
                 .setVoltageSetpoint(Double.NaN)
                 .setReactivePowerSetpoint(Double.NaN);
         return network;
