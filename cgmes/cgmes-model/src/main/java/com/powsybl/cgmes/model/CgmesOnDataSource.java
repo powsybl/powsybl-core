@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.*;
@@ -127,7 +128,10 @@ public class CgmesOnDataSource {
             if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
                 ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, n);
                 try (ZipInputStream zis = new ZipInputStream(in)) {
-                    zis.getNextEntry();
+                    ZipEntry zipEntry = zis.getNextEntry();
+                    if (zipEntry == null) {
+                        throw new IOException("No entry found in zip file " + n);
+                    }
                     return namespaceGetter.apply(zis);
                 }
             } else {

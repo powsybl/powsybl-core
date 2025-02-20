@@ -30,7 +30,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 /**
  * @author Giovanni Ferrari {@literal <giovanni.ferrari at soft.it>}
  */
-public class ZipSecurityHelperTest {
+class ZipSecurityHelperTest {
     private FileSystem fileSystem;
     private Path workingDir;
     ReadOnlyDataSource dataSource;
@@ -60,14 +60,14 @@ public class ZipSecurityHelperTest {
     }
 
     @Test
-    public void testIsZipFileSafe() throws IOException {
+    void testIsZipFileSafe() throws IOException {
         try (ZipInputStream zipInputStream = new ZipInputStream(dataSource.newInputStream("test.zip"))) {
             assertTrue(ZipSecurityHelper.isZipFileSafe(zipInputStream));
         }
     }
 
     @Test
-    public void testZipFileEntries() throws IOException {
+    void testZipFileEntries() throws IOException {
         try (ZipInputStream zipInputStream = new ZipInputStream(dataSource.newInputStream("test.zip"))) {
             boolean result = ZipSecurityHelper.isZipFileSafe(zipInputStream, 2, ZipSecurityHelper.THRESHOLD_SIZE, ZipSecurityHelper.THRESHOLD_RATIO);
             assertFalse(result);
@@ -75,14 +75,14 @@ public class ZipSecurityHelperTest {
     }
 
     @Test
-    public void testZipFileSize() throws IOException {
+    void testZipFileSize() throws IOException {
         try (ZipInputStream zipInputStream = new ZipInputStream(dataSource.newInputStream("test.zip"))) {
             assertFalse(ZipSecurityHelper.isZipFileSafe(zipInputStream, ZipSecurityHelper.THRESHOLD_ENTRIES, 1, ZipSecurityHelper.THRESHOLD_RATIO));
         }
     }
 
     @Test
-    public void testZipFileCompressRatio() throws IOException {
+    void testZipFileCompressRatio() throws IOException {
         try (ZipInputStream zipInputStream = new ZipInputStream(dataSource.newInputStream("test.zip"))) {
             assertFalse(ZipSecurityHelper.isZipFileSafe(zipInputStream, ZipSecurityHelper.THRESHOLD_ENTRIES, ZipSecurityHelper.THRESHOLD_SIZE, 0.1d));
 
@@ -90,12 +90,12 @@ public class ZipSecurityHelperTest {
     }
 
     @Test
-    public void testCheckIfZipExtractionIsSafe() {
+    void testCheckIfZipExtractionIsSafe() {
         ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, "test.zip");
     }
 
     @Test
-    public void testCheckIfZipExtractionIsNotSafe() {
+    void testCheckIfZipExtractionIsNotSafe() {
         String message = assertThrows(UncheckedIOException.class,
                 () -> ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, "test.zip", 2, ZipSecurityHelper.THRESHOLD_SIZE, ZipSecurityHelper.THRESHOLD_RATIO))
                 .getMessage();
