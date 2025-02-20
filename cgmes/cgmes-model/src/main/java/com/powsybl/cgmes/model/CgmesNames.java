@@ -166,6 +166,8 @@ public final class CgmesNames {
     public static final String CONNECTED = "connected";
     public static final String OPEN = "open";
     public static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
+    public static final String HIGH_VOLTAGE_LIMIT = "highVoltageLimit";
+    public static final String LOW_VOLTAGE_LIMIT = "lowVoltageLimit";
 
     private CgmesNames() {
     }

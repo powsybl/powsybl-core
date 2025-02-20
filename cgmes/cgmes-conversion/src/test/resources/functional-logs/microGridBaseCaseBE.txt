@@ -52,5 +52,6 @@
       Updating HVDC_LINE.
       Updating DANGLING_LINE.
       Fixing issues with dangling lines.
+      Updating VOLTAGE_LEVEL.
       Setting voltages and angles.
       Running validation checks on IIDM network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73

@@ -49,6 +49,7 @@
       Updating HVDC_LINE.
       Updating DANGLING_LINE.
       Fixing issues with dangling lines.
+      Updating VOLTAGE_LEVEL.
       + Setting voltages and angles.
          Bus 469df5f7-058f-4451-a998-57a48e8a56fe_0 in substation PP_Brussels, voltageLevel 380.0, has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0.
       Running validation checks on IIDM network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73
