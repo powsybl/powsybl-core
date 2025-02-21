@@ -432,10 +432,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminals[n - 1].busId;
     }
 
-    boolean terminalConnected() {
-        return terminals[0].t.connected();
-    }
-
     boolean terminalConnected(int n) {
         return terminals[n - 1].t.connected();
     }
@@ -639,14 +635,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     // Connect
-
-    public void connect(InjectionAdder<?, ?> adder) {
-        if (context.nodeBreaker()) {
-            adder.setNode(iidmNode());
-        } else {
-            adder.setBus(terminalConnected() ? busId() : null).setConnectableBus(busId());
-        }
-    }
 
     public void connectWithOnlyEq(InjectionAdder<?, ?> adder) {
         if (context.nodeBreaker()) {
