@@ -2,8 +2,8 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.ZipArchiveDataSource;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Disabled;
@@ -39,7 +39,7 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
         // The condition for a valid bus in the BusView for bus-breaker and node-breaker is slightly different
         // So we end up with different bus-view buses
         test(createGeneratorDisconnectedTransformerBBNetwork(), false, false,
-                new String[] {"voltageLevel2_0", "voltageLevel2_1"}); // FIXME: no bus in busbreaker view for the voltage levell 1: no edges!
+                new String[] {"voltageLevel1_0", "voltageLevel2_0", "voltageLevel2_1"});
     }
 
     @Test
@@ -59,7 +59,7 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
     @Test
     void testExportDisconnectedLoadNodeBreaker() {
         test(createDisconnectedLoadNBNetwork(), false, true,
-                new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_2"});
+                new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_3"});
     }
 
     private void test(Network network,
@@ -94,8 +94,6 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
                     network.getBusView().getBusStream().count(),
                     networkFromCgmes.getBusView().getBusStream().count());
         }
-
-        networkFromCgmes.getVoltageLevel("voltageLevel1").getBusBreakerView().getBuses();
 
         // And the list of buses should be the expected one
         assertArrayEquals(
