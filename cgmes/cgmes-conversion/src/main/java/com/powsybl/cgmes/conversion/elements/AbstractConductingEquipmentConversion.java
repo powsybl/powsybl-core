@@ -44,7 +44,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         numTerminals = 1;
         terminals = new TerminalData[]{null, null, null};
         terminals[0] = new TerminalData(CgmesNames.TERMINAL, p, context);
-        steadyStatePowerFlow = new PowerFlow(p, "p", "q");
 
     }
 
@@ -64,7 +63,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             int k0 = k - 1;
             terminals[k0] = new TerminalData(CgmesNames.TERMINAL + k, p, context);
         }
-        steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
     protected AbstractConductingEquipmentConversion(
@@ -83,7 +81,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             int k0 = k - 1;
             terminals[k0] = new TerminalData(CgmesNames.TERMINAL, ps.get(k0), context);
         }
-        steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
     public String findPairingKey(String boundaryNode) {
@@ -471,47 +468,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return (terminals[0].voltageLevel != null) ? terminals[0].voltageLevel.getSubstation() : Optional.empty();
     }
 
-    private PowerFlow stateVariablesPowerFlow() {
-        return terminals[0].t.flow();
-    }
-
-    public PowerFlow stateVariablesPowerFlow(int n) {
-        return terminals[n - 1].t.flow();
-    }
-
-    private PowerFlow steadyStateHypothesisPowerFlow() {
-        return steadyStatePowerFlow;
-    }
-
-    PowerFlow powerFlow() {
-        if (steadyStateHypothesisPowerFlow().defined()) {
-            return steadyStateHypothesisPowerFlow();
-        }
-        if (stateVariablesPowerFlow().defined()) {
-            return stateVariablesPowerFlow();
-        }
-        return PowerFlow.UNDEFINED;
-    }
-
-    PowerFlow powerFlowSV(int n) {
-        if (stateVariablesPowerFlow(n).defined()) {
-            return stateVariablesPowerFlow(n);
-        }
-        return PowerFlow.UNDEFINED;
-    }
-
     // Terminals
-
-    protected void convertedTerminals(Terminal... ts) {
-        if (ts.length != numTerminals) {
-            throw new IllegalArgumentException();
-        }
-        for (int k = 0; k < ts.length; k++) {
-            int n = k + 1;
-            Terminal t = ts[k];
-            context.convertedTerminal(terminalId(n), t, n, powerFlowSV(n));
-        }
-    }
 
     protected void convertedTerminalsWithOnlyEq(Terminal... ts) {
         if (ts.length != numTerminals) {
@@ -709,14 +666,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    protected double p0() {
-        return powerFlow().defined() ? powerFlow().p() : 0.0;
-    }
-
-    protected double q0() {
-        return powerFlow().defined() ? powerFlow().q() : 0.0;
-    }
-
     protected static PowerFlow updatedPowerFlow(Connectable<?> connectable, PropertyBag cgmesData, Context context) {
         PowerFlow steadyStateHypothesisPowerFlow = new PowerFlow(cgmesData, "p", "q");
         if (steadyStateHypothesisPowerFlow.defined()) {
@@ -851,5 +800,4 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     private final TerminalData[] terminals;
-    private final PowerFlow steadyStatePowerFlow;
 }
