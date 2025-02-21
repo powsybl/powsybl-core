@@ -5,6 +5,8 @@ The CIM-CGMES importer reads and converts a CIM-CGMES model to the PowSyBl grid 
 - Convert CIM-CGMES data retrieved by SPARQL requests from the created triplestore to PowSyBl grid model
 
 The data in input CIM/XML files uses RDF (Resource Description Framework) syntax. In RDF, data is described making statements about resources using triplet expressions: (subject, predicate, object).
+The CIM-CGMES importer supports also ZIP compressed input files. The importer will decompress the ZIP files to read CIM/XML data.
+
 To describe the conversion from CGMES to PowSyBl, we first introduce some generic considerations about the level of detail of the model (node/breaker or bus/branch), the identity of the equipments and equipment containment in substations and voltage levels. After that, the conversion for every CGMES relevant class is explained. Consistency checks and validations performed during the conversion are mentioned in the corresponding sections.
 
 (cgmes-import-level-of-detail)=
