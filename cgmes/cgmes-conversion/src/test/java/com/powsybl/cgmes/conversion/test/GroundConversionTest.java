@@ -58,6 +58,7 @@ class GroundConversionTest extends AbstractSerDeTest {
     void groundConversionRemoveTest() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.POST_PROCESSORS, "RemoveGrounds");
+        importParams.put(CgmesImport.CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE, "NEVER");
         Network network = Network.read(
                 new ResourceDataSource("groundTest.xml", new ResourceSet("/", "groundTest.xml")),
                 importParams);
