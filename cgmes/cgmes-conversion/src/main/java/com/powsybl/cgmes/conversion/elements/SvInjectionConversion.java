@@ -13,7 +13,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
 
-import static com.powsybl.cgmes.conversion.elements.AbstractBranchConversion.getTerminal;
+import static com.powsybl.cgmes.conversion.elements.TerminalConversion.getTerminal;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}

@@ -780,15 +780,15 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         ALWAYS
     }
 
-    protected static Optional<Boolean> getIsOpenFromBothTerminalStatus(Switch sw, Context context) {
-        Optional<Boolean> connected1 = getIsTerminalConnected(sw, context, TwoSides.ONE);
-        Optional<Boolean> connected2 = getIsTerminalConnected(sw, context, TwoSides.TWO);
+    protected static Optional<Boolean> isOpenFromBothTerminalStatus(Switch sw, Context context) {
+        Optional<Boolean> connected1 = isTerminalConnected(sw, context, TwoSides.ONE);
+        Optional<Boolean> connected2 = isTerminalConnected(sw, context, TwoSides.TWO);
         return connected1.flatMap(c1 -> connected2.map(c2 -> !c1 || !c2))
                 .or(() -> connected1.map(c1 -> !c1))
                 .or(() -> connected2.map(c2 -> !c2));
     }
 
-    private static Optional<Boolean> getIsTerminalConnected(Switch sw, Context context, TwoSides side) {
+    private static Optional<Boolean> isTerminalConnected(Switch sw, Context context, TwoSides side) {
         return sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + side.getNum())
                 .flatMap(cgmesTerminalId -> Optional.ofNullable(context.cgmesTerminal(cgmesTerminalId)))
                 .flatMap(cgmesTerminal -> cgmesTerminal.asBoolean(CgmesNames.CONNECTED));
