@@ -53,53 +53,42 @@ import static com.powsybl.iidm.network.identifiers.NetworkElementIdentifier.Iden
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class IdWithWildcardsNetworkElementIdentifier implements NetworkElementIdentifier {
-    public static final char LEGACY_MODE_WILDCARD = '?';
-    public static final String LEGACY_MODE_ALLOWED_CHARACTERS = "^[A-Za-z0-9_? .-]*$";
-    public static final String LEGACY_MODE_ERROR_MESSAGE = "Only characters allowed for this identifier are letters, numbers, '_', '-', '.', spaces and the wildcard character '?'";
-
-    public static final char EXTENDED_MODE_WILDCARD = '@';
-    public static final String EXTENDED_MODE_ALLOWED_CHARACTERS = "^[\\p{Print}|@]*$"; // All printable ASCII chars (in [0x20 ; 0x7e]) + @
-    public static final String EXTENDED_MODE_ERROR_MESSAGE = "Only ASCII printable characters + wildcard '@' are allowed for this identifier.";
+    public static final int ALLOWED_WILDCARDS_NUMBER = 5;
+    public static final String DEFAULT_WILDCARD_CHARACTER = "?";
 
     private final String originalIdentifier;
     private String identifierPattern;
-    public static final int ALLOWED_WILDCARDS_NUMBER = 5;
+    private final String wildcardCharacter;
     private final String contingencyId;
 
     public IdWithWildcardsNetworkElementIdentifier(String identifier) {
-        this(identifier, null);
+        this(identifier, DEFAULT_WILDCARD_CHARACTER, null);
     }
 
     public IdWithWildcardsNetworkElementIdentifier(String identifier, String contingencyId) {
+        this(identifier, DEFAULT_WILDCARD_CHARACTER, contingencyId);
+    }
+
+    public IdWithWildcardsNetworkElementIdentifier(String identifier, String wildcardCharacter, String contingencyId) {
         this.originalIdentifier = Objects.requireNonNull(identifier);
         this.contingencyId = contingencyId;
+        if (wildcardCharacter.codePointCount(0, wildcardCharacter.length()) != 1) { // Count code points to accept supplementary UTF-16 characters
+            throw new IllegalArgumentException("Wildcard character must be a single character");
+        }
+        this.wildcardCharacter = wildcardCharacter;
         initialize();
     }
 
     private void initialize() {
-        String allowedCharacters = LEGACY_MODE_ALLOWED_CHARACTERS;
-        char wildcard = LEGACY_MODE_WILDCARD;
-        String errorMessage = LEGACY_MODE_ERROR_MESSAGE;
-
-        // If the extended-mode wildcard is present, switch to extended mode
-        if (originalIdentifier.indexOf(EXTENDED_MODE_WILDCARD) != -1) {
-            allowedCharacters = EXTENDED_MODE_ALLOWED_CHARACTERS;
-            wildcard = EXTENDED_MODE_WILDCARD;
-            errorMessage = EXTENDED_MODE_ERROR_MESSAGE;
-        }
-
-        if (!originalIdentifier.matches(allowedCharacters)) {
-            throw new PowsyblException(errorMessage);
-        }
-        int separatorNumber = StringUtils.countMatches(originalIdentifier, wildcard);
+        int separatorNumber = StringUtils.countMatches(originalIdentifier, wildcardCharacter);
         if (separatorNumber > ALLOWED_WILDCARDS_NUMBER) {
-            throw new PowsyblException("There can be a maximum of " + ALLOWED_WILDCARDS_NUMBER + " wildcards ('" + wildcard + "')");
+            throw new PowsyblException("There can be a maximum of " + ALLOWED_WILDCARDS_NUMBER + " wildcards ('" + wildcardCharacter + "')");
         }
         if (separatorNumber == 0) {
             throw new PowsyblException("There is no wildcard in your identifier, please use IdBasedNetworkElementIdentifier instead");
         }
-        // Escape all non wildcard sequence characters
-        String[] chunks = originalIdentifier.split(Pattern.quote("" + wildcard));
+        // Escape all non wildcard characters
+        String[] chunks = originalIdentifier.split(Pattern.quote(wildcardCharacter));
         StringBuilder sb = new StringBuilder();
         for (String chunk : chunks) {
             sb.append(Pattern.quote(chunk)).append('.');
@@ -133,5 +122,9 @@ public class IdWithWildcardsNetworkElementIdentifier implements NetworkElementId
 
     public String getIdentifier() {
         return originalIdentifier;
+    }
+
+    public String getWildcardCharacter() {
+        return wildcardCharacter;
     }
 }

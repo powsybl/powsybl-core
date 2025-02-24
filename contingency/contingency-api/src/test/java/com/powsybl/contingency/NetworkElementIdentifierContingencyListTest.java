@@ -206,8 +206,6 @@ class NetworkElementIdentifierContingencyListTest {
     void testUnknownCharacterIdentifier() {
         String message = Assertions.assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV2_?_?_?_?_?_?_?")).getMessage();
         Assertions.assertEquals("There can be a maximum of 5 wildcards ('?')", message);
-        String message2 = Assertions.assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV2_ç")).getMessage();
-        Assertions.assertEquals("Only characters allowed for this identifier are letters, numbers, '_', '-', '.', spaces and the wildcard character '?'", message2);
         NetworkElementIdentifier elementIdentifier = new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV?_?");
         Network network = EurostagTutorialExample1Factory.create();
         List<String> identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
@@ -234,7 +232,7 @@ class NetworkElementIdentifierContingencyListTest {
     }
 
     @Test
-    void testExtendedModeForIdWithWildcards() {
+    void testSpecifiedWildcardCharForIdWithWildcards() {
         Network network = EurostagTutorialExample1Factory.create();
         network.newLine(network.getLine("NHV1_NHV2_1"))
                 .setId("NHV1_NHV?_1")
@@ -250,16 +248,23 @@ class NetworkElementIdentifierContingencyListTest {
                 .setConnectableBus1(NHV1)
                 .setConnectableBus2(NHV2)
                 .add();
-        // Legacy wildcard
-        assertMatchingElements(network, "NHV1_NHV?_?", List.of("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV?_1", "NHV1_NHV?_2"));
+        // Default wildcard
+        assertMatchingElements(network, "NHV1_NHV?_?", IdWithWildcardsNetworkElementIdentifier.DEFAULT_WILDCARD_CHARACTER,
+                List.of("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV?_1", "NHV1_NHV?_2"));
 
-        // Extended-mode wildcard: the '?' char is ignored
-        assertMatchingElements(network, "NHV1_NHV?_@", List.of("NHV1_NHV?_1", "NHV1_NHV?_2"));
+        // Invalid wildcard: not 1 character
+        assertThrows(IllegalArgumentException.class, () -> new IdWithWildcardsNetworkElementIdentifier("123", "", null));
+        assertThrows(IllegalArgumentException.class, () -> new IdWithWildcardsNetworkElementIdentifier("12##3", "##", null));
+
+        // Specified wildcard
+        assertMatchingElements(network, "NHV1_NHV?_@", "@", List.of("NHV1_NHV?_1", "NHV1_NHV?_2"));
+        // Specified wildcard: UTF-16 supplementary character
+        assertMatchingElements(network, "NHV1_NHV?_\uD835\uDD52", "\uD835\uDD52", List.of("NHV1_NHV?_1", "NHV1_NHV?_2"));
     }
 
-    private static void assertMatchingElements(Network network, String pattern, List<String> expectedElements) {
+    private static void assertMatchingElements(Network network, String pattern, String wildcardCharacter, List<String> expectedElements) {
         List<NetworkElementIdentifier> networkElementIdentifierListElements = new ArrayList<>();
-        NetworkElementIdentifier elementIdentifier = new IdWithWildcardsNetworkElementIdentifier(pattern);
+        NetworkElementIdentifier elementIdentifier = new IdWithWildcardsNetworkElementIdentifier(pattern, wildcardCharacter, null);
         networkElementIdentifierListElements.add(elementIdentifier);
         IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierListElements);
         List<Contingency> contingencies = contingencyList.getContingencies(network);
@@ -269,21 +274,14 @@ class NetworkElementIdentifierContingencyListTest {
     }
 
     @Test
-    void testExtendedModeAllowedCharacters() {
+    void testPrintableAsciiCharacters() {
         int size = 0x7e - 0x20 + 2; // All printable ASCII chars (from ' ' to '~') + wildcard '@'
         char[] allowedCharacters = new char[size];
         IntStream.range(0x20, 0x7f).forEach(i -> allowedCharacters[i - 0x20] = (char) i);
         allowedCharacters[size - 1] = '@';
         assertEquals(' ', allowedCharacters[0]);
         assertEquals('~', allowedCharacters[size - 2]);
-        assertDoesNotThrow(() -> new IdWithWildcardsNetworkElementIdentifier(new String(allowedCharacters)));
-
-        char[] notAllowed = new char[2];
-        notAllowed[0] = 0x1b; // ESC char
-        notAllowed[1] = '@'; // To enable the new wildcard
-        String forbidden = new String(notAllowed);
-        String message = assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier(forbidden)).getMessage();
-        assertEquals("Only ASCII printable characters + wildcard '@' are allowed for this identifier.", message);
+        assertDoesNotThrow(() -> new IdWithWildcardsNetworkElementIdentifier(new String(allowedCharacters), "@"));
     }
 
 }
