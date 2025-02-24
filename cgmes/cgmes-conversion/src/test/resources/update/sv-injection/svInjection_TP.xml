@@ -1,0 +1,19 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+	<md:FullModel rdf:about="urn:uuid:95b0709c-bf22-4df8-a179-042c7038d62a">
+		<md:Model.created>2021-04-15T21:56:31Z</md:Model.created>
+		<md:Model.scenarioTime>2021-03-25T15:30:00Z</md:Model.scenarioTime>
+		<md:Model.description>SvInjection</md:Model.description>
+		<md:Model.modelingAuthoritySet>http://powsybl.org</md:Model.modelingAuthoritySet>
+		<md:Model.profile>http://iec.ch/TC57/ns/CIM/Topology-EU/3.0</md:Model.profile>
+	</md:FullModel>
+
+	<cim:Terminal rdf:about="#_BusbarSection-T">
+		<cim:Terminal.TopologicalNode rdf:resource="#_ConnectivityNode-TN"/>
+	</cim:Terminal>
+	<cim:TopologicalNode rdf:ID="_ConnectivityNode-TN">
+		<cim:IdentifiedObject.name>ConnectivityNode-TN</cim:IdentifiedObject.name>
+		<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel"/>
+		<cim:TopologicalNode.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+	</cim:TopologicalNode>
+
+</rdf:RDF>

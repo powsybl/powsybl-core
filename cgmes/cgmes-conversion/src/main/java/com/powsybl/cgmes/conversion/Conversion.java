@@ -235,10 +235,6 @@ public class Conversion {
         context.loadingLimitsMapping().addAll();
         setSelectedOperationalLimitsGroup(context);
 
-        if (config.convertSvInjections()) {
-            convert(cgmes.svInjections(), CgmesNames.SV_INJECTION, context);
-        }
-
         if (config.importControlAreas()) {
             context.pushReportNode(CgmesReports.convertingElementTypeReport(reportNode, CgmesNames.CONTROL_AREA));
             network.newExtension(CgmesControlAreasAdder.class).add();
@@ -296,6 +292,7 @@ public class Conversion {
 
         // add processes to create new equipment using update data (ssh and sv data)
         createSwitchesForDisconnectedTerminalsDuringUpdate(network, cgmes, updateContext);
+        createFictitiousLoadsForSvInjectionsDuringUpdate(network, cgmes, updateContext);
 
         update(network, updateContext, reportNode);
     }
@@ -499,7 +496,6 @@ public class Conversion {
                 case CgmesNames.SYNCHRONOUS_MACHINE -> new SynchronousMachineConversion(element, context);
                 case CgmesNames.SERIES_COMPENSATOR -> new SeriesCompensatorConversion(element, context);
                 case CgmesNames.OPERATIONAL_LIMIT -> new OperationalLimitConversion(element, context);
-                case CgmesNames.SV_INJECTION -> new SvInjectionConversion(element, context);
                 default -> throw new IllegalArgumentException("Invalid elementType.");
             };
             if (c.insideBoundary()) {

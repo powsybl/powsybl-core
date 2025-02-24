@@ -836,18 +836,6 @@ WHERE {
 }}
 }
 
-# query: svInjections
-SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?SvInjection
-        a cim:SvInjection ;
-        cim:SvInjection.TopologicalNode ?TopologicalNode ;
-        cim:SvInjection.pInjection ?pInjection .
-        OPTIONAL { ?SvInjection cim:SvInjection.qInjection ?qInjection }
-}}
-}
-
 # query: reactiveCapabilityCurveData
 SELECT *
 WHERE {

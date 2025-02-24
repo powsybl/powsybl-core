@@ -76,6 +76,23 @@ WHERE {
         cim:SvVoltage.angle ?angle .
 }
 
+# query: svInjections
+SELECT *
+WHERE {
+    ?SvInjection
+        a cim:SvInjection ;
+        cim:SvInjection.TopologicalNode ?TopologicalNode ;
+        cim:SvInjection.pInjection ?pInjection .
+        OPTIONAL { ?SvInjection cim:SvInjection.qInjection ?qInjection }
+    OPTIONAL {
+        SELECT ?TopologicalNode (MIN(?Terminal) AS ?Terminal)
+        WHERE {
+            ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode
+        }
+        GROUP BY ?TopologicalNode
+    }
+}
+
 # query: switches
 SELECT *
 {

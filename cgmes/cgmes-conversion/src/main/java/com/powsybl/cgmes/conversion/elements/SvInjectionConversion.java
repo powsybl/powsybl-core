@@ -7,117 +7,82 @@
  */
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesTerminal;
-import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.Optional;
+
+import static com.powsybl.cgmes.conversion.elements.AbstractBranchConversion.getTerminal;
+
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
+public final class SvInjectionConversion {
 
-    public SvInjectionConversion(PropertyBag p, Context context) {
-        super(CgmesNames.SV_INJECTION, p, context);
-        String tn = p.getId("TopologicalNode");
-        if (!findVoltageLevel(tn)) {
-            return;
-        }
-        if (context.nodeBreaker()) {
-            findNode(tn);
-        } else {
-            findBusId(tn);
-        }
+    private SvInjectionConversion() {
     }
 
-    @Override
-    public boolean valid() {
-        return voltageLevel != null
-                && (context.nodeBreaker() && node != -1
-                    || !context.nodeBreaker() && voltageLevel.getBusBreakerView().getBus(busId) != null);
+    public static void create(Network network, PropertyBag svInjection) {
+        findTerminal(network, svInjection).ifPresentOrElse(
+                terminal -> {
+                    if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                        createNodeBreakerLoad(terminal, svInjection);
+                    } else {
+                        createBusBreakerLoad(terminal.getBusBreakerView().getConnectableBus(), svInjection);
+                    }
+                },
+                () -> findBus(network, svInjection).ifPresent(bus -> createBusBreakerLoad(bus, svInjection))
+        );
     }
 
-    @Override
-    public void convert() {
-        double p0 = p.asDouble("pInjection");
-        double q0 = p.asDouble("qInjection", 0.0);
-        LoadAdder adder = voltageLevel.newLoad()
+    private static Optional<Terminal> findTerminal(Network network, PropertyBag svInjection) {
+        String terminalId = svInjection.getId(CgmesNames.TERMINAL);
+        Connectable<?> connectable = (terminalId != null) ? network.getConnectable(terminalId) : null;
+        return (connectable != null) ? Optional.of(getTerminal(connectable, terminalId)) : Optional.empty();
+    }
+
+    private static Optional<Bus> findBus(Network network, PropertyBag svInjection) {
+        String topologicalNodeId = svInjection.getId(CgmesNames.TOPOLOGICAL_NODE);
+        return topologicalNodeId != null ? Optional.ofNullable(network.getBusBreakerView().getBus(topologicalNodeId)) : Optional.empty();
+    }
+
+    private static void createNodeBreakerLoad(Terminal terminal, PropertyBag svInjection) {
+        String id = svInjection.getId(CgmesNames.SV_INJECTION);
+        double p0 = svInjection.asDouble("pInjection");
+        double q0 = svInjection.asDouble("qInjection", 0.0);
+        int node = terminal.getNodeBreakerView().getNode();
+        int newNode = terminal.getVoltageLevel().getNodeBreakerView().getMaximumNodeIndex() + 1;
+
+        terminal.getVoltageLevel().getNodeBreakerView().newInternalConnection().setNode1(node).setNode2(newNode).add();
+        Load load = terminal.getVoltageLevel().newLoad()
+                .setId(id)
+                .setName(id)
                 .setP0(p0)
                 .setQ0(q0)
                 .setFictitious(true)
-                .setLoadType(LoadType.FICTITIOUS);
-        identify(adder);
-        connect(adder);
-        Load load = adder.add();
-        if (cgmesTerminal != null) {
-            PowerFlow f = cgmesTerminal.flow();
-            if (!f.defined()) {
-                f = new PowerFlow(p0, q0);
-            }
-            context.convertedTerminal(cgmesTerminal.id(), load.getTerminal(), 1, f);
-        } else {
-            load.getTerminal().setP(p0);
-            load.getTerminal().setQ(q0);
-        }
-
-        addSpecificProperties(load);
+                .setLoadType(LoadType.FICTITIOUS)
+                .setNode(newNode)
+                .add();
+        load.getTerminal().setP(p0).setQ(q0);
     }
 
-    private static void addSpecificProperties(Load load) {
-        load.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SV_INJECTION);
+    private static void createBusBreakerLoad(Bus bus, PropertyBag svInjection) {
+        String id = svInjection.getId(CgmesNames.SV_INJECTION);
+        double p0 = svInjection.asDouble("pInjection");
+        double q0 = svInjection.asDouble("qInjection", 0.0);
+        Load load = bus.getVoltageLevel().newLoad()
+                .setId(id)
+                .setName(id)
+                .setP0(p0)
+                .setQ0(q0)
+                .setFictitious(true)
+                .setLoadType(LoadType.FICTITIOUS)
+                .setConnectableBus(bus.getId())
+                .setBus(bus.getId())
+                .add();
+        load.getTerminal().setP(p0).setQ(q0);
     }
-
-    private void connect(LoadAdder adder) {
-        if (context.nodeBreaker()) {
-            adder.setNode(node);
-        } else {
-            adder.setConnectableBus(busId).setBus(busId);
-        }
-    }
-
-    private boolean findVoltageLevel(String topologicalNode) {
-        Terminal associatedTerminal = context.terminalMapping().findFromTopologicalNode(topologicalNode);
-        if (associatedTerminal == null) {
-            cgmesTerminal = context.cgmes().terminal(context.terminalMapping().findCgmesTerminalFromTopologicalNode(topologicalNode));
-            if (cgmesTerminal == null || context.cgmes().voltageLevel(cgmesTerminal, context.nodeBreaker()) == null) {
-                context.missing(id, () ->
-                        String.format("The CGMES terminal and/or the voltage level associated to the topological node %s linked to the SV injection %s is missing",
-                                topologicalNode, id));
-                return false;
-            }
-            voltageLevel = context.network().getVoltageLevel(context.cgmes().voltageLevel(cgmesTerminal, context.nodeBreaker()));
-        } else {
-            voltageLevel = associatedTerminal.getVoltageLevel();
-        }
-        return true;
-    }
-
-    private void findBusId(String topologicalNode) {
-        busId = context.namingStrategy().getIidmId("Bus", topologicalNode);
-    }
-
-    private void findNode(String topologicalNode) {
-        Terminal associatedTerminal = context.terminalMapping().findFromTopologicalNode(topologicalNode);
-        if (associatedTerminal == null) {
-            findNodeFromUnmappedCgmesTerminal();
-        } else {
-            findNodeFromMappedCgmesTerminal(associatedTerminal, topologicalNode);
-        }
-    }
-
-    private void findNodeFromUnmappedCgmesTerminal() {
-        node = context.nodeMapping().iidmNodeForTerminal(cgmesTerminal, voltageLevel);
-    }
-
-    private void findNodeFromMappedCgmesTerminal(Terminal associatedTerminal, String topologicalNode) {
-        node = context.nodeMapping().iidmNodeForTopologicalNode(topologicalNode, associatedTerminal.getNodeBreakerView().getNode(), associatedTerminal.getVoltageLevel());
-    }
-
-    private VoltageLevel voltageLevel;
-    private int node = -1;
-    private String busId;
-    private CgmesTerminal cgmesTerminal;
 }

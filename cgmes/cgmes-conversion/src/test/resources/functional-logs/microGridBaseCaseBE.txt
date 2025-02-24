@@ -34,11 +34,11 @@
       Converting equipments at boundaries.
       Converting DC network.
       Converting OperationalLimit.
-      Converting SvInjection.
       Converting ControlArea.
       Converting RegulatingControl.
       Applying postprocessors.
       CGMES network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73 is imported.
+      Converting during update SvInjection.
       Updating SWITCH.
       Updating LOAD.
       Updating GENERATOR.

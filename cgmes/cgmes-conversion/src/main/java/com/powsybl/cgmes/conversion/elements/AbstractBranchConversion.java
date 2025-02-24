@@ -173,7 +173,7 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
         }
     }
 
-    private static Terminal getTerminal(Connectable<?> connectable, String terminalId) {
+    protected static Terminal getTerminal(Connectable<?> connectable, String terminalId) {
         String aliasType = connectable.getAliasType(terminalId).orElse("");
         return switch (aliasType) {
             case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1 ->

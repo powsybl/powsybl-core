@@ -53,6 +53,14 @@ public final class CgmesReports {
                 .add();
     }
 
+    public static ReportNode convertingDuringUpdateElementTypeReport(ReportNode reportNode, String elementType) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("convertingDuringUpdateElementType", "Converting during update ${elementType}.")
+                .withUntypedValue("elementType", elementType)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
     public static ReportNode updatingElementTypeReport(ReportNode reportNode, String elementType) {
         return reportNode.newReportNode()
                 .withMessageTemplate("updatingElementType", "Updating ${elementType}.")
