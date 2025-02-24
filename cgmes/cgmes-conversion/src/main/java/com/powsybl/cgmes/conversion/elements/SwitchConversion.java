@@ -136,7 +136,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
 
     public static void update(Switch sw, PropertyBag cgmesData, Context context) {
         boolean isOpenFromBothTerminalStatus = sw.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER
-                && getIsOpenFromBothTerminalStatus(sw, context).orElse(false);
+                && isOpenFromBothTerminalStatus(sw, context).orElse(false);
         boolean isOpen = cgmesData.asBoolean(CgmesNames.OPEN).orElse(defaultValue(getDefaultIsOpen(sw), context));
         sw.setOpen(isOpen || isOpenFromBothTerminalStatus);
     }
