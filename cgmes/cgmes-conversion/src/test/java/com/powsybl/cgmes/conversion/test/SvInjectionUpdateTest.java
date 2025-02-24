@@ -35,7 +35,7 @@ class SvInjectionUpdateTest {
         Load load = network.getLoad("ConnectivityNode-TN-SvInjection");
         assertNotNull(load);
         double tol = 0.0000001;
-        assertTrue(load.getLoadType() == LoadType.FICTITIOUS);
+        assertSame(LoadType.FICTITIOUS, load.getLoadType());
         assertTrue(load.isFictitious());
         assertEquals(9.0, load.getP0(), tol);
         assertEquals(1.2, load.getQ0(), tol);
