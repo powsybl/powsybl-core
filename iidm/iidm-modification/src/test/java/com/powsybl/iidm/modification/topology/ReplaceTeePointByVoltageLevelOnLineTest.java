@@ -38,7 +38,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
     }
 
     @Test
-    void replaceTeePointByVoltageLevelOnLineNbTest() throws IOException {
+    void replaceTeePointByVoltageLevelOnLineNb1Test() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
@@ -125,6 +125,25 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
         assertDoesNotThrow(() -> modificationWithError6.apply(network, false, ReportNode.NO_OP));
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError6.apply(network, true, reportNode6)).getMessage().contains("Busbar section bbs3 is not found in voltage level VLTEST"));
         assertEquals("busbarSectionNotFound", reportNode6.getChildren().get(0).getMessageKey());
+    }
+
+    @Test
+    void replaceTeePointByVoltageLevelOnLineNb2Test() throws IOException {
+
+        Network network = createNbNetworkWithBusbarSection();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
+        modification.apply(network);
+
+        // create additional line to test bad configuration
+        VoltageLevel vl = network.newVoltageLevel().setId("VL3").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        vl.getNodeBreakerView().newBusbarSection().setId("bbs3").setNode(0).add();
+        vl.getNodeBreakerView().newSwitch().setId("breaker3").setName("breaker3").setKind(SwitchKind.BREAKER).setRetained(false).setOpen(true).setFictitious(false).setNode1(0).setNode2(1).add();
+        vl = network.newVoltageLevel().setId("VL4").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        vl.getNodeBreakerView().newBusbarSection().setId("bbs4").setNode(0).add();
+        vl.getNodeBreakerView().newSwitch().setId("breaker4").setName("breaker4").setKind(SwitchKind.BREAKER).setRetained(false).setOpen(true).setFictitious(false).setNode1(0).setNode2(1).add();
+        network.newLine().setId("LINE34").setR(0.1).setX(0.1).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setNode1(1).setVoltageLevel1("VL3").setNode2(1).setVoltageLevel2("VL4").add();
 
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestReplaceTeePointByVoltageLevelOnLineNB", "Testing reportNode when replacing tee point by voltage level on line in Node/breaker network").build();
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()

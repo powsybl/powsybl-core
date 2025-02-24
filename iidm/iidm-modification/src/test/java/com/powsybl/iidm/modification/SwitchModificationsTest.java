@@ -44,8 +44,9 @@ class SwitchModificationsTest {
 
     @Test
     void testInvalidOpenSwitch() {
+        OpenSwitch openSwitch = new OpenSwitch("dummy");
         assertDoesNotThrow(() -> new OpenSwitch("dummy").apply(network));
-        assertThrows(RuntimeException.class, () -> new OpenSwitch("dummy").apply(network, true, ReportNode.NO_OP));
+        assertThrows(RuntimeException.class, () -> openSwitch.apply(network, true, ReportNode.NO_OP));
     }
 
     @Test
