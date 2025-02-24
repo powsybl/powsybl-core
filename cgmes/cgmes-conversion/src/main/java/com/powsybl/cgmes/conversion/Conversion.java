@@ -295,7 +295,7 @@ public class Conversion {
         Context updateContext = createUpdateContext(network, reportNode);
 
         // add processes to create new equipment using update data (ssh and sv data)
-        createSwitchesForDisconnectedTerminalsDuringUpdate(network, cgmes, updateContext);
+        createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(network, cgmes, updateContext);
 
         update(network, updateContext, reportNode);
     }
