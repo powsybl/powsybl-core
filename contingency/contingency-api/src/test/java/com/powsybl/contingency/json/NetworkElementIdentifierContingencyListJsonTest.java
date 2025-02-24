@@ -52,13 +52,26 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
     }
 
     @Test
+    void readVersion12() {
+        ContingencyList contingencyList = NetworkElementIdentifierContingencyListJsonTest
+                .readJsonInputStream(Objects.requireNonNull(getClass()
+                        .getResourceAsStream("/identifierContingencyListv1_2.json")));
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            WRITER.writeValue(bos, contingencyList);
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/identifierContingencyListReferenceForPreviousVersion.json"), new ByteArrayInputStream(bos.toByteArray()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
     void readVersion11() {
         ContingencyList contingencyList = NetworkElementIdentifierContingencyListJsonTest
                 .readJsonInputStream(Objects.requireNonNull(getClass()
                         .getResourceAsStream("/identifierContingencyListv1_1.json")));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             WRITER.writeValue(bos, contingencyList);
-            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/identifierContingencyListReferenceForPreviousVersion.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -71,7 +84,7 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
                         .getResourceAsStream("/identifierContingencyListv1_0.json")));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             WRITER.writeValue(bos, contingencyList);
-            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/identifierContingencyListReferenceForPreviousVersion.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
