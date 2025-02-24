@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+
 /**
  * Simple {@link NetworkModification} for an HVDC line (also potentially modifying its {@link HvdcAngleDroopActivePowerControl} extension).
  *
