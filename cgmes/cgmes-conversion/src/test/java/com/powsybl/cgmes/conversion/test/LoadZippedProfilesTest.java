@@ -11,7 +11,6 @@ import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -49,9 +48,7 @@ class LoadZippedProfilesTest {
                 }
             }
 
-            Properties importParams = new Properties();
-            importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
-            Network network = Network.read(DataSource.fromPath(workDir), importParams);
+            Network network = Network.read(DataSource.fromPath(workDir));
             assertNotNull(network);
         }
     }
@@ -70,10 +67,8 @@ class LoadZippedProfilesTest {
                 }
             }
 
-            Properties importParams = new Properties();
-            importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
             ReadOnlyDataSource datasource = DataSource.fromPath(workDir);
-            CgmesModelException ex = assertThrows(CgmesModelException.class, () -> Network.read(datasource, importParams));
+            CgmesModelException ex = assertThrows(CgmesModelException.class, () -> Network.read(datasource));
             assertEquals("No entry found in zip file MicroGridTestConfiguration_BC_BE_DL_V2.xml.zip", ex.getCause().getMessage());
         }
     }

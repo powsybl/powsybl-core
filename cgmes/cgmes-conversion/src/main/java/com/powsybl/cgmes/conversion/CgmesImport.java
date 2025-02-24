@@ -14,7 +14,9 @@ import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.compress.ZipSecurityHelper;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
@@ -45,6 +47,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static java.util.function.Predicate.not;
 
@@ -303,8 +307,31 @@ public class CgmesImport implements Importer {
 
         private Optional<String> readModelingAuthority(String name) {
             String modellingAuthority = null;
-            try (InputStream is = dataSource.newInputStream(name)) {
-                XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(is);
+            try (InputStream in = dataSource.newInputStream(name)) {
+                String fileExtension = name.substring(name.lastIndexOf('.') + 1);
+                if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
+                    ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, name);
+                    try (ZipInputStream zis = new ZipInputStream(in)) {
+                        ZipEntry zipEntry = zis.getNextEntry();
+                        if (zipEntry == null) {
+                            throw new IOException("No entry found in zip file " + name);
+                        }
+                        modellingAuthority = readModelingAuthority(zis);
+                    }
+                } else {
+                    modellingAuthority = readModelingAuthority(in);
+                }
+            } catch (IOException | XMLStreamException e) {
+                throw new PowsyblException(e);
+            }
+            return Optional.ofNullable(modellingAuthority);
+        }
+
+        private String readModelingAuthority(InputStream is) throws XMLStreamException {
+            String modellingAuthority = null;
+            XMLStreamReader reader = null;
+            try {
+                reader = xmlInputFactory.createXMLStreamReader(is);
                 boolean stopReading = false;
                 while (reader.hasNext() && !stopReading) {
                     int token = reader.next();
@@ -317,11 +344,12 @@ public class CgmesImport implements Importer {
                         stopReading = true;
                     }
                 }
-                reader.close();
-            } catch (IOException | XMLStreamException e) {
-                throw new PowsyblException(e);
+            } finally {
+                if (reader != null) {
+                    reader.close();
+                }
             }
-            return Optional.ofNullable(modellingAuthority);
+            return modellingAuthority;
         }
 
         private Set<ReadOnlyDataSource> separateByIgmName() {
