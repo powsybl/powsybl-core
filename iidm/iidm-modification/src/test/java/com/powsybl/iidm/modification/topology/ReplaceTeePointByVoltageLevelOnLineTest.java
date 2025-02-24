@@ -38,7 +38,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
     }
 
     @Test
-    void replaceTeePointByVoltageLevelOnLineNb1Test() throws IOException {
+    void replaceTeePointByVoltageLevelOnLineNb1Test() {
         Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
