@@ -19,8 +19,6 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
 
-import static com.powsybl.cgmes.conversion.elements.AbstractBranchConversion.*;
-
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -174,7 +172,7 @@ public final class Update {
 
     private static void updateSwitch(Switch sw, Context context) {
         if (sw.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL) != null) {
-            updateSwitchCreatedForDisconnectedTerminal(sw, context);
+            TerminalConversion.update(sw, context);
             return;
         }
         String originalClass = sw.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
@@ -194,10 +192,12 @@ public final class Update {
     // we have decided to create fictitious switches to precisely
     // map this situation to IIDM.
     // This behavior can be disabled through configuration.
-    public static void createSwitchesForDisconnectedTerminalsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
+    public static void createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
+        context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.TERMINAL));
         if (createFictitiousSwitch(context)) {
-            cgmes.terminals().forEach(cgmesTerminal -> createSwitchForDisconnectedTerminal(network, cgmesTerminal, context));
+            cgmes.terminals().forEach(cgmesTerminal -> TerminalConversion.create(network, cgmesTerminal, context));
         }
+        context.popReportNode();
     }
 
     private static boolean createFictitiousSwitch(Context context) {
