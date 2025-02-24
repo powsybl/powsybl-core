@@ -430,6 +430,16 @@ If the CGMES `Switch` is mapped to a PowSyBl [`DanglingLine`](../../grid_model/n
 - `P0` is copied from CGMES `P` of the terminal at boundary side;
 - `Q0` is copied from CGMES `Q` of the terminal at boundary side
 
+(cgmes-control-area-import)=
+### Control areas
+
+CGMES control areas (objects of class `ControlArea`) are mapped directly to PowSyBl objects of type `Area`.
+
+The control area CGMES `type` is copied as a string in the `areaType` attribute of the PowSyBl `Area`. The CGMES `netInterchange` is copied to the PowSyBl `interchangeTarget`. If CGMES `pTolerance` is defined, its value is copied to a new property named `pTolerance`. Finally, if an attribute `entsoe:IdentifiedObject.energyIdentCodeEic` is found for the CGMES control area, it is added as an alias with `aliasType == "energyIdentCodeEic"`.
+
+The CGMES control area tie flows (objects of class `TieFlow`) are mapped to PowSyBl `Area` boundary items. 
+Boundary items can be terminals (if the corresponding CGMES point can be mapped to a PowSyBl `Terminal`) or boundaries, when the corresponding CGMES point is the boundary side of a dangling line in PowSyBl.
+
 ## Extensions
 
 The CIM-CGMES format contains more information than what the `iidm` grid model needs for calculation. The additional data that are needed to export a network in CIM-CGMES format are stored in several extensions.
