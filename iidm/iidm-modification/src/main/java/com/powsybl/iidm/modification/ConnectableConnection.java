@@ -90,7 +90,6 @@ public class ConnectableConnection extends AbstractConnectDisconnectModification
                 hasBeenConnected = hvdcLine.connectConverterStations(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
             } else {
                 logOrThrow(throwException, String.format("Connection not implemented for identifiable '%s'", identifiableId));
-                return;
             }
         } finally {
             network.getReportNodeContext().popReportNode();

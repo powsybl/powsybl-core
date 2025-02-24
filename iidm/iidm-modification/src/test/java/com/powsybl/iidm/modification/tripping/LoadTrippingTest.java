@@ -10,8 +10,6 @@ package com.powsybl.iidm.modification.tripping;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
-import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
-import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
@@ -36,10 +34,9 @@ class LoadTrippingTest extends AbstractTrippingTest {
     @Test
     void unknownLoadTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
-        NamingStrategy namingStrategy = new DefaultNamingStrategy();
 
         LoadTripping tripping = new LoadTripping("generator");
-        assertThrows(PowsyblException.class, () -> tripping.apply(network, namingStrategy, true, ReportNode.NO_OP));
+        assertThrows(PowsyblException.class, () -> tripping.apply(network, true, ReportNode.NO_OP));
         assertDoesNotThrow(() -> tripping.apply(network));
     }
 

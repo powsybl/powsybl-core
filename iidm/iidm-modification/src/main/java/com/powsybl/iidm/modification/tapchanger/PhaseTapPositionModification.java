@@ -99,7 +99,6 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
             ptcHolder.getPhaseTapChanger().setTapPosition(newTapPosition);
         } catch (ValidationException e) {
             logOrThrow(throwException, e.getMessage());
-            return;
         }
     }
 

@@ -10,8 +10,6 @@ package com.powsybl.iidm.modification.tripping;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
-import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
-import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -65,20 +63,18 @@ class HvdcLineTrippingTest {
     @Test
     void unknownHvdcLineTrippingTest() {
         Network network = HvdcTestNetwork.createLcc();
-        NamingStrategy namingStrategy = new DefaultNamingStrategy();
 
         HvdcLineTripping tripping = new HvdcLineTripping("unknownHvdcLine");
-        assertThrows(PowsyblException.class, () -> tripping.apply(network, namingStrategy, true, ReportNode.NO_OP));
+        assertThrows(PowsyblException.class, () -> tripping.apply(network, true, ReportNode.NO_OP));
         assertDoesNotThrow(() -> tripping.apply(network));
     }
 
     @Test
     void unknownVoltageLevelTrippingTest() {
         Network network = HvdcTestNetwork.createLcc();
-        NamingStrategy namingStrategy = new DefaultNamingStrategy();
 
         HvdcLineTripping tripping = new HvdcLineTripping("L", "unknownVoltageLevel");
-        assertThrows(PowsyblException.class, () -> tripping.apply(network, namingStrategy, true, ReportNode.NO_OP));
+        assertThrows(PowsyblException.class, () -> tripping.apply(network, true, ReportNode.NO_OP));
         assertDoesNotThrow(() -> tripping.apply(network));
     }
 

@@ -50,8 +50,9 @@ class SwitchModificationsTest {
 
     @Test
     void testInvalidCloseSwitch() {
-        assertDoesNotThrow(() -> new CloseSwitch("dummy").apply(network));
-        assertThrows(RuntimeException.class, () -> new CloseSwitch("dummy").apply(network, true, ReportNode.NO_OP));
+        CloseSwitch closeSwitch = new CloseSwitch("dummy");
+        assertDoesNotThrow(() -> closeSwitch.apply(network));
+        assertThrows(RuntimeException.class, () -> closeSwitch.apply(network, true, ReportNode.NO_OP));
     }
 
     @Test

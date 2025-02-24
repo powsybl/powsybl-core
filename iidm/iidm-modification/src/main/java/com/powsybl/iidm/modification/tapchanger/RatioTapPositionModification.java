@@ -70,7 +70,6 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
             rtcHolder.getRatioTapChanger().setTapPosition(getTapPosition());
         } catch (ValidationException e) {
             logOrThrow(throwException, e.getMessage());
-            return;
         }
     }
 
