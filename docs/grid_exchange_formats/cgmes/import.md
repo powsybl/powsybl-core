@@ -434,30 +434,6 @@ If the CGMES `Switch` is mapped to a PowSyBl [`DanglingLine`](../../grid_model/n
 
 The CIM-CGMES format contains more information than what the `iidm` grid model needs for calculation. The additional data that are needed to export a network in CIM-CGMES format are stored in several extensions.
 
-(cgmes-control-areas-import)=
-### CGMES control areas
-
-This extension models all the control areas contained in the network as modeled in CIM-CGMES.
-
-| Attribute           | Type                           | Unit | Required | Default value | Description                              |
-|---------------------|--------------------------------|------|----------|---------------|------------------------------------------|
-| CGMES control areas | `Collection<CgmesControlArea>` | -    | no       | -             | The list of control areas in the network |
-
-**CGMES control area**
-
-| Attribute                        | Type       | Unit | Required | Default value | Description                                              |
-|----------------------------------|------------|------|----------|---------------|----------------------------------------------------------|
-| ID                               | String     | -    | yes      | -             | The ID of the control area                               |
-| name                             | String     | -    | no       | -             | The name of the control area                             |
-| Energy Identification Code (EIC) | String     | -    | no       | -             | The EIC control area                                     |
-| net interchange                  | double     | -    | no       | -             | The net interchange of the control area (at its borders) |
-| terminals                        | `Terminal` | -    | no       | -             | Terminals at the border of the control area              |
-| boundaries                       | `Boundary` | -    | no       | -             | Boundaries at the border of the control area             |
-
-It is possible to retrieve a control area by its ID. It is also possible to iterate through all control areas.
-
-This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
-
 (cgmes-dangling-line-boundary-node-import)=
 ### CGMES dangling line boundary node
 
