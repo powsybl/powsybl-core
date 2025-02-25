@@ -147,6 +147,7 @@ class RemoveFeederBayTest {
         Network network = createNetwork2Feeders();
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveBbs", "Testing reportNode when trying to remove a busbar section").build();
         RemoveFeederBay removeBbs = new RemoveFeederBay("BBS_TEST_1_1");
+        assertDoesNotThrow(() -> removeBbs.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, reportNode));
         assertEquals("BusbarSection connectables are not allowed as RemoveFeederBay input: BBS_TEST_1_1", e.getMessage());
         assertEquals("removeBayBusbarSectionConnectable", reportNode.getChildren().get(0).getMessageKey());
