@@ -83,7 +83,7 @@ public class CgmesControlAreasSerDe extends AbstractExtensionSerDe<Network, Cgme
                     readBoundariesAndTerminals(networkContext, area, extendable);
                 } else {
                     LOGGER.warn("Area with id {} already exists. Skipping this CgmesControlArea.", id);
-                    reader.skipChildNodes();
+                    reader.skipNode();
                 }
             } else {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in 'cgmesControlArea'");
