@@ -12,9 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.network.DefaultNetworkListener;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +53,44 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
     }
 
     @Test
+    void testLoops() {
+        Network network = Network.create("test", "test");
+        var s = network.newSubstation().setId("s").add();
+
+        // First voltage level (which will be removed):
+        // two busbars linked with a coupler, two lines, one diamond-shaped cell (two breakers in parallel)
+        var vl1 = s.newVoltageLevel().setId("vl1").setTopologyKind(TopologyKind.NODE_BREAKER).setNominalV(225).add();
+        vl1.getNodeBreakerView().newBusbarSection().setId("bbs1").setNode(0).add();
+        vl1.getNodeBreakerView().newBusbarSection().setId("bbs2").setNode(1).add();
+        vl1.getNodeBreakerView().newSwitch().setId("Coupler").setNode1(0).setNode2(1).setKind(SwitchKind.BREAKER).add();
+        vl1.getNodeBreakerView().newSwitch().setId("d_l1_bbs1").setNode1(0).setNode2(2).setKind(SwitchKind.DISCONNECTOR).add();
+        vl1.getNodeBreakerView().newSwitch().setId("d_l1_bbs2").setNode1(1).setNode2(2).setKind(SwitchKind.DISCONNECTOR).add();
+        vl1.getNodeBreakerView().newSwitch().setId("d_l2_bbs1").setNode1(0).setNode2(3).setKind(SwitchKind.DISCONNECTOR).add();
+        vl1.getNodeBreakerView().newSwitch().setId("d_l2_bbs2").setNode1(1).setNode2(3).setKind(SwitchKind.DISCONNECTOR).add();
+        vl1.getNodeBreakerView().newSwitch().setId("b_l2_bbs2_A").setNode1(3).setNode2(4).setKind(SwitchKind.BREAKER).setOpen(true).add();
+        vl1.getNodeBreakerView().newSwitch().setId("b_l2_bbs2_B").setNode1(3).setNode2(4).setKind(SwitchKind.BREAKER).setOpen(false).add();
+
+        // Second voltage level, only there to host the lines
+        var vl2 = s.newVoltageLevel().setId("vl2").setTopologyKind(TopologyKind.NODE_BREAKER).setNominalV(225).add();
+        vl2.getNodeBreakerView().newBusbarSection().setId("bbs").setNode(0).add();
+        vl2.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(1).add();
+        vl2.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(2).add();
+
+        // "Parallel lines" between voltage levels: a tie line and a line
+        DanglingLine dl1 = vl1.newDanglingLine().setId("DL1").setNode(2).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        DanglingLine dl2 = vl2.newDanglingLine().setId("DL2").setNode(1).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        network.newTieLine().setId("TL").setDanglingLine1(dl1.getId()).setDanglingLine2(dl2.getId()).add();
+        network.newLine().setId("line").setVoltageLevel1(vl1.getId()).setVoltageLevel2(vl2.getId()).setNode1(4).setNode2(2)
+                .setR(0.01).setX(20.0).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).add();
+        addListener(network);
+
+        new RemoveVoltageLevelBuilder().withVoltageLevelId(vl1.getId()).build().apply(network);
+
+        assertEquals(Set.of("bbs1", "bbs2", "Coupler", "b_l2_bbs2_B", "b_l2_bbs2_A", "d_l2_bbs2", "vl1", "d_l2_bbs1", "d_l1_bbs2", "line", "TL", "DL1", "d_l1_bbs1"), removedObjects);
+        assertNull(network.getVoltageLevel("TL"));
+    }
+
+    @Test
     void testRemoveVoltageLevel() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveVL", "Testing reportNode on remove voltage level").build();
@@ -79,6 +115,7 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
 
         RemoveVoltageLevel removeUnknown = new RemoveVoltageLevel("UNKNOWN");
         removeUnknown.apply(network, false, reportNode);
+        assertDoesNotThrow(() -> removeUnknown.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reportNode));
         assertEquals("Voltage level not found: UNKNOWN", e.getMessage());
         assertEquals("voltageLevelNotFound", reportNode.getChildren().get(0).getMessageKey());

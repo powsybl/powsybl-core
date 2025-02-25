@@ -136,7 +136,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
         @Override
         public TypedValue deserialize(JsonParser p, DeserializationContext deserializationContext) throws IOException {
             Object value = null;
-            String type = TypedValue.UNTYPED;
+            String type = TypedValue.UNTYPED_TYPE;
 
             while (p.nextToken() != JsonToken.END_OBJECT) {
                 switch (p.currentName()) {

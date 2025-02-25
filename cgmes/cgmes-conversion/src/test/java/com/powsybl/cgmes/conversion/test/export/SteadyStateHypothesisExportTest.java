@@ -354,8 +354,9 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::ignoringTextValueTapChangerControlEnabled,
                 ExportXmlCompare::ignoringRdfChildLookupTerminal,
                 ExportXmlCompare::ignoringRdfChildLookupEquivalentInjection,
-                ExportXmlCompare::ignoringRdfChildLookupStaticVarCompensator,
-                ExportXmlCompare::ignoringRdfChildLookupRegulatingControl,
+                ExportXmlCompare::ignoringStaticVarCompensatorControlEnabled,
+                ExportXmlCompare::ignoringStaticVarCompensatorQ,
+                ExportXmlCompare::ignoringRegulatingControl,
                 ExportXmlCompare::ignoringTextValueEquivalentInjection);
         assertTrue(ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh));
     }
@@ -741,12 +742,12 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // Generator without control
             network = EurostagTutorialExample1Factory.createWithoutControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "0", "k");
+            testRcEqRCWithoutAttribute(ssh, "_GEN_RC");
 
             // Generator with remote terminal without control
             network = EurostagTutorialExample1Factory.createRemoteWithoutControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "0", "k");
+            testRcEqRCWithoutAttribute(ssh, "_GEN_RC");
 
             // Generator without control capability
             network = EurostagTutorialExample1Factory.create();

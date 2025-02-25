@@ -8,5 +8,6 @@ maxdepth: 1
 ---
 configuration/index.md
 itools/index.md
+functional_logs/index.md
 ```
 

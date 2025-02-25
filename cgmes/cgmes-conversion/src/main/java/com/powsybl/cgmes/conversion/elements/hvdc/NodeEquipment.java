@@ -11,6 +11,7 @@ package com.powsybl.cgmes.conversion.elements.hvdc;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -31,7 +32,7 @@ class NodeEquipment {
 
     private final Map<String, List<EquipmentReference>> nodeEquipment;
 
-    NodeEquipment(CgmesModel cgmesModel, AcDcConverterNodes acDcConverterNodes, Adjacency adjacency) {
+    NodeEquipment(CgmesModel cgmesModel, Context context, AcDcConverterNodes acDcConverterNodes, Adjacency adjacency) {
         nodeEquipment = new HashMap<>();
 
         cgmesModel.dcLineSegments().forEach(dcls -> computeDcLineSegment(cgmesModel, adjacency, dcls));
@@ -40,13 +41,15 @@ class NodeEquipment {
             .forEach(value -> addEquipment(adjacency, value.id, value.acNode,
                 value.dcNode, EquipmentType.AC_DC_CONVERTER));
 
-        cgmesModel.groupedTransformerEnds().forEach((t, ends) -> {
-            if (ends.size() == 2) {
-                computeTwoWindingsTransformer(cgmesModel, adjacency, ends);
-            } else if (ends.size() == 3) {
-                computeThreeWindingsTransformer(cgmesModel, adjacency, ends);
-            }
-        });
+        cgmesModel.transformers().stream()
+                .map(t -> context.transformerEnds(t.getId("PowerTransformer")))
+                .forEach(ends -> {
+                    if (ends.size() == 2) {
+                        computeTwoWindingsTransformer(cgmesModel, adjacency, ends);
+                    } else if (ends.size() == 3) {
+                        computeThreeWindingsTransformer(cgmesModel, adjacency, ends);
+                    }
+                });
     }
 
     private void computeDcLineSegment(CgmesModel cgmesModel, Adjacency adjacency, PropertyBag equipment) {
