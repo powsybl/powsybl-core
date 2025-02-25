@@ -61,7 +61,7 @@ public class PsseExporter implements Exporter {
     public void export(Network network, Properties parameters, DataSource dataSource) {
         PssePowerFlowModel updatePsseModel;
         Context context;
-        boolean isFullExport = findFullExport(network);
+        boolean isFullExport = isFullExport(network);
         if (isFullExport) {
             updatePsseModel = createPsseModel(network);
             context = PowerFlowDataFactory.createPsseContext();
@@ -88,7 +88,8 @@ public class PsseExporter implements Exporter {
         }
     }
 
-    private static boolean findFullExport(Network network) {
+    // TODO, it should be defined properly, or it may need to be specified by the user
+    private static boolean isFullExport(Network network) {
         return network.getExtension(PsseModelExtension.class) == null;
     }
 
