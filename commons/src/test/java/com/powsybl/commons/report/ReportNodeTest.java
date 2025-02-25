@@ -9,9 +9,11 @@ package com.powsybl.commons.report;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,24 +28,41 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ReportNodeTest extends AbstractSerDeTest {
 
+    private static final String ALL_VALUES_MESSAGE_TEMPLATE = """
+            Root message
+            doubleUntyped: ${doubleUntyped}
+            doubleTyped: ${doubleTyped}
+            floatUntyped: ${floatUntyped}
+            floatTyped: ${floatTyped}
+            intUntyped: ${intUntyped}
+            intTyped: ${intTyped}
+            longUntyped: ${longUntyped}
+            longTyped: ${longTyped}
+            booleanUntyped: ${booleanUntyped}
+            booleanTyped: ${booleanTyped}
+            stringUntyped: ${stringUntyped}
+            stringTyped: ${stringTyped}
+            severity: ${reportSeverity}""";
+    private static final String ALL_VALUES_MESSAGE_FORMATTED = """
+            Root message
+            doubleUntyped: 4.3
+            doubleTyped: 4.4
+            floatUntyped: -1.5
+            floatTyped: 0.6
+            intUntyped: 4
+            intTyped: -2
+            longUntyped: 5
+            longTyped: -3
+            booleanUntyped: true
+            booleanTyped: false
+            stringUntyped: value
+            stringTyped: filename
+            severity: INFO""";
+
     @Test
     void testValues() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
-                .withMessageTemplate("rootTemplate", """
-                        Root message
-                        doubleUntyped: ${doubleUntyped}
-                        doubleTyped: ${doubleTyped}
-                        floatUntyped: ${floatUntyped}
-                        floatTyped: ${floatTyped}
-                        intUntyped: ${intUntyped}
-                        intTyped: ${intTyped}
-                        longUntyped: ${longUntyped}
-                        longTyped: ${longTyped}
-                        booleanUntyped: ${booleanUntyped}
-                        booleanTyped: ${booleanTyped}
-                        stringUntyped: ${stringUntyped}
-                        stringTyped: ${stringTyped}
-                        severity: ${reportSeverity}""")
+                .withMessageTemplate("rootTemplate", ALL_VALUES_MESSAGE_TEMPLATE)
                 .withUntypedValue("doubleUntyped", 4.3)
                 .withTypedValue("doubleTyped", 4.4, TypedValue.ACTIVE_POWER)
                 .withUntypedValue("floatUntyped", -1.5f)
@@ -58,21 +77,7 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .withTypedValue("stringTyped", "filename", TypedValue.FILENAME)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build();
-        assertEquals("""
-                        Root message
-                        doubleUntyped: 4.3
-                        doubleTyped: 4.4
-                        floatUntyped: -1.5
-                        floatTyped: 0.6
-                        intUntyped: 4
-                        intTyped: -2
-                        longUntyped: 5
-                        longTyped: -3
-                        booleanUntyped: true
-                        booleanTyped: false
-                        stringUntyped: value
-                        stringTyped: filename
-                        severity: INFO""", root.getMessage());
+        assertEquals(ALL_VALUES_MESSAGE_FORMATTED, root.getMessage());
 
         ReportNode child = root.newReportNode()
                 .withMessageTemplate("child", "Child message with parent value ${stringTyped} and own severity '${reportSeverity}'")
@@ -85,20 +90,63 @@ class ReportNodeTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testPostponedValues() throws IOException {
+        ReportNode root = ReportNode.newRootReportNode()
+                .withMessageTemplate("rootTemplate", ALL_VALUES_MESSAGE_TEMPLATE)
+                .build();
+        ReportNode child = root.newReportNode()
+                .withMessageTemplate("child", "Child message with parent value ${stringTyped} and own severity '${reportSeverity}'")
+                .withSeverity("Overridden custom severity")
+                .add();
+        assertEquals("Child message with parent value ${stringTyped} and own severity 'Overridden custom severity'", child.getMessage());
+
+        // postponed values added
+        root.addUntypedValue("doubleUntyped", 4.3)
+                .addTypedValue("doubleTyped", 4.4, TypedValue.ACTIVE_POWER)
+                .addUntypedValue("floatUntyped", -1.5f)
+                .addTypedValue("floatTyped", 0.6f, TypedValue.IMPEDANCE)
+                .addUntypedValue("intUntyped", 4)
+                .addTypedValue("intTyped", -2, "count")
+                .addUntypedValue("longUntyped", 5L)
+                .addTypedValue("longTyped", -3L, "count")
+                .addUntypedValue("booleanUntyped", true)
+                .addTypedValue("booleanTyped", false, "protected")
+                .addUntypedValue("stringUntyped", "value")
+                .addTypedValue("stringTyped", "filename", TypedValue.FILENAME)
+                .addSeverity(TypedValue.INFO_SEVERITY);
+        assertEquals(ALL_VALUES_MESSAGE_FORMATTED, root.getMessage());
+
+        // child reportNode also inherits the postponed added values
+        assertEquals("Child message with parent value filename and own severity 'Overridden custom severity'", child.getMessage());
+
+        // postponed overriding severity
+        child.addSeverity("Very important custom severity");
+        assertEquals("Child message with parent value filename and own severity 'Very important custom severity'", child.getMessage());
+
+        Path report = tmpDir.resolve("report.json");
+        ReportNodeSerializer.write(root, report);
+        ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/testValuesReportNode.json"), Files.readString(report));
+    }
+
+    @Test
     void testInclude() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
                 .withMessageTemplate("rootTemplate", "Root message")
                 .build();
 
-        PowsyblException e1 = assertThrows(PowsyblException.class, () -> root.include(root));
-        assertEquals("Cannot add a reportNode in itself", e1.getMessage());
-
         ReportNode otherRoot = ReportNode.newRootReportNode()
                 .withMessageTemplate("includedRoot", "Included root message")
                 .build();
-        otherRoot.newReportNode()
+        ReportNode otherRootChild = otherRoot.newReportNode()
                 .withMessageTemplate("includedChild", "Included child message")
                 .add();
+
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> root.include(ReportNode.NO_OP));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> root.include(root));
+        PowsyblException e3 = assertThrows(PowsyblException.class, () -> otherRootChild.include(otherRoot));
+        assertEquals("Cannot mix implementations of ReportNode, included reportNode should be/extend ReportNodeImpl", e1.getMessage());
+        assertEquals("The given reportNode cannot be included as it is the root of the reportNode", e2.getMessage());
+        assertEquals("The given reportNode cannot be included as it is the root of the reportNode", e3.getMessage());
 
         root.include(otherRoot);
         assertEquals(1, root.getChildren().size());
@@ -106,14 +154,14 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) otherRoot).getTreeContextRef().get());
 
         // Other root is not root anymore and can therefore not be added again
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> root.include(otherRoot));
-        assertEquals("Cannot include non-root reportNode", e2.getMessage());
+        PowsyblException e4 = assertThrows(PowsyblException.class, () -> root.include(otherRoot));
+        assertEquals("Cannot include non-root reportNode", e4.getMessage());
 
         ReportNode child = root.newReportNode()
                 .withMessageTemplate("child", "Child message")
                 .add();
-        PowsyblException e3 = assertThrows(PowsyblException.class, () -> root.include(child));
-        assertEquals("Cannot include non-root reportNode", e3.getMessage());
+        PowsyblException e5 = assertThrows(PowsyblException.class, () -> root.include(child));
+        assertEquals("Cannot include non-root reportNode", e5.getMessage());
 
         ReportNode yetAnotherRoot = ReportNode.newRootReportNode()
                 .withMessageTemplate("newRootAboveAll", "New root above all reportNodes")
@@ -123,6 +171,85 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) otherRoot).getTreeContextRef().get());
 
         roundTripTest(yetAnotherRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/testIncludeReportNode.json");
+    }
+
+    @Test
+    void testAddCopy() throws IOException {
+        ReportNode root = ReportNode.newRootReportNode()
+                .withMessageTemplate("root", "Root message with value ${value}")
+                .withTypedValue("value", 2.3203, "ROOT_VALUE")
+                .build();
+        root.newReportNode()
+                .withMessageTemplate("existingChild", "Child message")
+                .add();
+
+        ReportNode otherRoot = ReportNode.newRootReportNode()
+                .withMessageTemplate("otherRoot", "Root message containing node to copy")
+                .withTypedValue("value", -915.3, "ROOT_VALUE")
+                .build();
+        otherRoot.newReportNode()
+                .withMessageTemplate("childNotCopied", "Child message")
+                .add();
+        ReportNode childToCopy = otherRoot.newReportNode()
+                .withMessageTemplate("childToCopy", "Child message with inherited value ${value}")
+                .add();
+        childToCopy.newReportNode()
+                .withMessageTemplate("grandChild", "Grandchild message")
+                .add();
+
+        root.addCopy(childToCopy);
+        assertEquals(2, otherRoot.getChildren().size()); // the copied message is not removed
+        assertEquals(2, root.getChildren().size());
+
+        ReportNode childCopied = root.getChildren().get(1);
+        assertEquals(childToCopy.getMessageKey(), childCopied.getMessageKey());
+        assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) childCopied).getTreeContextRef().get());
+
+        // Two limitations of copy current implementation, due to the current ReportNode serialization
+        // 1. the inherited values are not kept
+        assertNotEquals(childToCopy.getMessage(), childCopied.getMessage());
+        // 2. the dictionary contains all the keys from the copied reportNode tree (even the ones from non-copied reportNodes)
+        assertEquals(6, ((ReportNodeImpl) root).getTreeContext().getDictionary().size());
+
+        Path serializedReport = tmpDir.resolve("tmp.json");
+        ReportNodeSerializer.write(root, serializedReport);
+        ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/testCopyReportNode.json"), Files.newInputStream(serializedReport));
+    }
+
+    @Test
+    void testAddCopyCornerCases() {
+        ReportNode root = ReportNode.newRootReportNode()
+                .withMessageTemplate("root", "Root message with value ${value}")
+                .withTypedValue("value", 2.3203, "ROOT_VALUE")
+                .build();
+
+        // Corner case: copying oneself
+        // there's no limitation on this with current implementation
+        // this leads to: root
+        //                 |___ root
+        root.addCopy(root);
+
+        assertEquals(root.getMessage(), root.getChildren().get(0).getMessage());
+
+        // Corner case: copying an ancestor
+        // there's also no limitation on this with current implementation
+        // this leads to: root
+        //                 |___ root
+        //                 |___ rootChild
+        //                        |___root
+        //                             |___ root
+        //                             |___ rootChild
+        ReportNode rootChild = root.newReportNode()
+                .withMessageTemplate("rootChild", "Another child")
+                .add();
+        rootChild.addCopy(root);
+
+        ReportNode rootGrandChild = rootChild.getChildren().get(0);
+        ReportNode rootGreatGrandChild1 = rootGrandChild.getChildren().get(0);
+        ReportNode rootGreatGrandChild2 = rootGrandChild.getChildren().get(1);
+        assertEquals(root.getMessage(), rootGrandChild.getMessage());
+        assertEquals(root.getMessage(), rootGreatGrandChild1.getMessage());
+        assertEquals(rootChild.getMessage(), rootGreatGrandChild2.getMessage());
     }
 
     @Test

@@ -6,7 +6,7 @@
       Instance file MicroGridTestConfiguration_BC_BE_EQ_V2.xml
       Instance file MicroGridTestConfiguration_BC_BE_SV_V2.xml
       Instance file MicroGridTestConfiguration_BC_BE_SSH_V2.xml
-   + Importing CGMES file(s)
+   + Importing CGMES file(s) with basename 'MicroGridTestConfiguration_BC_BE'
       Applying preprocessors.
       Building mappings.
       Converting Substation.
@@ -34,6 +34,7 @@
       Converting OperationalLimit.
       Converting SvInjection.
       Converting ControlArea.
+      Converting TieFlow.
       + Converting RegulatingControl.
          Equipment 955d9cd0-4a10-4031-b008-60c0dc340a07 has a regulating control with bad target value for voltage: 0.0.
          Equipment fe25f43a-7341-446e-a71a-8ab7119ba806 has a regulating control with bad target value for voltage: 0.0.
