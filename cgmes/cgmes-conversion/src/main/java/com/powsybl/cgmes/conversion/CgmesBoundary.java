@@ -51,7 +51,7 @@ public class CgmesBoundary {
                 String tnName = node.get("topologicalNodeName");
                 nodesName.put(tn, tnName);
                 topologicalNodes.put(tnName, tn);
-                if (node.containsKey("description") && node.getId("description").startsWith("HVDC")) {
+                if (isDcNode(node)) {
                     hvdcNodes.add(cn);
                     hvdcNodes.add(tn);
                 }
@@ -70,6 +70,16 @@ public class CgmesBoundary {
         nodesEquivalentInjections = new HashMap<>();
         nodesPowerFlow = new HashMap<>();
         nodesVoltage = new HashMap<>();
+    }
+
+    public static boolean isDcNode(PropertyBag node) {
+        if (node.containsKey("boundaryPointIsDirectCurrent")) {
+            return Boolean.parseBoolean(node.getId("boundaryPointIsDirectCurrent"));
+        } else if (node.containsKey("description") && node.getId("description").startsWith("HVDC")) {
+            return true;
+        } else {
+            return node.containsKey("topologicalNodeDescription") && node.getId("topologicalNodeDescription").startsWith("HVDC");
+        }
     }
 
     public boolean containsNode(String id) {
