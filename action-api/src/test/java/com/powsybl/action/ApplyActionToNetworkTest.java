@@ -185,8 +185,9 @@ class ApplyActionToNetworkTest {
                 .withSectionCount(2)
                 .build();
         NetworkModification modif = action2.toModification();
-        ValidationException e = assertThrows(ValidationException.class, () -> modif.apply(network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modif.apply(network, true, ReportNode.NO_OP));
         assertEquals("Shunt compensator 'SHUNT': the current number (2) of section should be lesser than the maximum number of section (1)", e.getMessage());
+        assertDoesNotThrow(() -> modif.apply(network));
     }
 
     @Test
@@ -202,7 +203,7 @@ class ApplyActionToNetworkTest {
         assertEquals(2, twoWT.getPhaseTapChanger().getTapPosition());
         PhaseTapChangerTapPositionAction action2 = new PhaseTapChangerTapPositionAction("id", "PS1", false, 3);
         NetworkModification modif = action2.toModification();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> modif.apply(network, true, null));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modif.apply(network, true, ReportNode.NO_OP));
         assertEquals("2 windings transformer 'PS1': incorrect tap position 3 [0, 2]", e.getMessage());
 
         Network network2 = ThreeWindingsTransformerNetworkFactory.create();
