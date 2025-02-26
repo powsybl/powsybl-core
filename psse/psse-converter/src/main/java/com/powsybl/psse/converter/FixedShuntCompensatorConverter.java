@@ -63,7 +63,7 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
         adder.add();
     }
 
-    static void updateFixedShunts(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getFixedShunts().forEach(psseFixedShunt -> {
             String fixedShuntId = getFixedShuntId(psseFixedShunt.getI(), psseFixedShunt.getId());
             ShuntCompensator fixedShunt = network.getShuntCompensator(fixedShuntId);

@@ -126,13 +126,13 @@ public class PsseExporter implements Exporter {
 
         VoltageLevelConverter.updateSubstations(network, contextExport);
 
-        BusConverter.updateBuses(updatedPsseModel, contextExport);
-        LoadConverter.updateLoads(network, updatedPsseModel);
-        FixedShuntCompensatorConverter.updateFixedShunts(network, updatedPsseModel);
-        GeneratorConverter.updateGenerators(network, updatedPsseModel);
-        LineConverter.updateLines(network, updatedPsseModel);
-        TransformerConverter.updateTransformers(network, updatedPsseModel);
-        TwoTerminalDcConverter.updateTwoTerminalDcTransmissionLines(network, updatedPsseModel);
-        SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, updatedPsseModel);
+        BusConverter.update(updatedPsseModel, contextExport);
+        LoadConverter.update(network, updatedPsseModel);
+        FixedShuntCompensatorConverter.update(network, updatedPsseModel);
+        GeneratorConverter.update(network, updatedPsseModel);
+        LineConverter.update(network, updatedPsseModel);
+        TransformerConverter.update(network, updatedPsseModel);
+        TwoTerminalDcConverter.update(network, updatedPsseModel);
+        SwitchedShuntCompensatorConverter.update(network, updatedPsseModel);
     }
 }

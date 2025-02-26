@@ -835,7 +835,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     // At the moment we do not consider new transformers and antenna twoWindingsTransformers are exported as open
-    static void updateTransformers(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getTransformers().forEach(psseTransformer -> {
             if (isTwoWindingsTransformer(psseTransformer)) {
                 updateTwoWindingsTransformer(network, psseTransformer);
