@@ -137,7 +137,8 @@ GRAPH ?graphBDEQ {
 }
 GRAPH ?grapBDTP {
     ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
-    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName
+    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName .
+    OPTIONAL { ?TopologicalNode cim:IdentifiedObject.description ?topologicalNodeDescription }
 }
 }
 
@@ -918,13 +919,12 @@ WHERE {
         cim:IdentifiedObject.name ?name ;
         cim:ControlArea.type ?controlAreaType .
         OPTIONAL { ?ControlArea entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic }
-    FILTER (regex(STR(?controlAreaType), "Interchange", "i"))
-
+        VALUES ?controlAreaType { cim:ControlAreaTypeKind.Interchange }
 }}
-{ OPTIONAL { GRAPH ?graphSSH {
-    ?ControlArea cim:ControlArea.netInterchange ?netInterchange .
+OPTIONAL { GRAPH ?graphSSH {
+    ?ControlArea cim:ControlArea.netInterchange ?netInterchange
     OPTIONAL { ?ControlArea cim:ControlArea.pTolerance ?pTolerance }
-}}}
+}}
 }
 
 # query: acDcConverters
@@ -1023,7 +1023,7 @@ WHERE {
 { GRAPH ?graph {
     ?TieFlow
         a cim:TieFlow ;
-        cim:TieFlow.Terminal ?terminal ;
+        cim:TieFlow.Terminal ?Terminal ;
         cim:TieFlow.ControlArea ?ControlArea
 }}
 }
