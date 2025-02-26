@@ -454,36 +454,6 @@ final class ExportXmlCompare {
         return true;
     }
 
-    static ComparisonResult ignoringControlAreaNetInterchange(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT) {
-            if (comparison.getType() == ComparisonType.ELEMENT_NUM_ATTRIBUTES) {
-                Node control = comparison.getControlDetails().getTarget();
-                Node test = comparison.getTestDetails().getTarget();
-                if (control.getLocalName().equals("controlArea")
-                        && control.getAttributes().getLength() - test.getAttributes().getLength() == 1
-                        && control.getAttributes().getNamedItem("netInterchange") != null && test.getAttributes().getNamedItem("netInterchange") == null) {
-                    return ComparisonResult.EQUAL;
-                }
-            }
-            if (comparison.getType() == ComparisonType.ATTR_NAME_LOOKUP) {
-                Comparison.Detail control = comparison.getControlDetails();
-                if (control.getValue().toString().equals("netInterchange")
-                        && control.getTarget().getLocalName().equals("controlArea")) {
-                    return ComparisonResult.EQUAL;
-                }
-            }
-            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
-                Comparison.Detail control = comparison.getControlDetails();
-                Comparison.Detail test = comparison.getTestDetails();
-                if (control.getTarget().getLocalName().equals("netInterchange")
-                        && test.getTarget().getLocalName().equals("netInterchange")) {
-                    return ComparisonResult.EQUAL;
-                }
-            }
-        }
-        return result;
-    }
-
     static ComparisonResult ignoringFullModelAbout(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             if (comparison.getType() == ComparisonType.ATTR_VALUE) {

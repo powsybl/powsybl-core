@@ -115,6 +115,8 @@ public final class CgmesNames {
     public static final String STATIC_VAR_COMPENSATOR = "StaticVarCompensator";
     public static final String REGULATING_CONTROL = "RegulatingControl";
     public static final String CONTROL_AREA = "ControlArea";
+    public static final String CONTROL_AREA_TYPE_KIND_INTERCHANGE = "ControlAreaTypeKind.Interchange";
+    public static final String TIE_FLOW = "TieFlow";
     public static final String CONFORM_LOAD = "ConformLoad";
     public static final String NONCONFORM_LOAD = "NonConformLoad";
     public static final String ENERGY_CONSUMER = "EnergyConsumer";
@@ -168,6 +170,9 @@ public final class CgmesNames {
     public static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
     public static final String HIGH_VOLTAGE_LIMIT = "highVoltageLimit";
     public static final String LOW_VOLTAGE_LIMIT = "lowVoltageLimit";
+
+    public static final String ENERGY_IDENT_CODE_EIC = "energyIdentCodeEic";
+    public static final String P_TOLERANCE = "pTolerance";
 
     private CgmesNames() {
     }
