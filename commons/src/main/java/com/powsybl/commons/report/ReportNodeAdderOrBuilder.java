@@ -147,4 +147,10 @@ public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>>
      * @return a reference to this object
      */
     T withSeverity(String severity);
+
+    /**
+     * Indicate that a timestamp should be added to the {@link ReportNode}.
+     * @return a reference to this object
+     */
+    T withTimestamp();
 }

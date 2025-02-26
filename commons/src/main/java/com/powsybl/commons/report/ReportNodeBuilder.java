@@ -46,13 +46,6 @@ public interface ReportNodeBuilder extends ReportNodeAdderOrBuilder<ReportNodeBu
     ReportNodeBuilder withLocale(Locale locale);
 
     /**
-     * Enable timestamps on build ReportNode and all descendants.
-     * @return a reference to this object
-     */
-    ReportNodeBuilder withTimestamps(boolean enabled);
-
-
-    /**
      * Build the corresponding {@link ReportNode}.
      * @return the new {@link ReportNode} corresponding to current <code>ReportNodeBuilder</code>
      */

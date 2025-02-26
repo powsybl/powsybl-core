@@ -19,20 +19,14 @@ import java.util.*;
 public class TreeContextImpl implements TreeContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(TreeContextImpl.class);
     private final SortedMap<String, String> dictionary = new TreeMap<>();
-    private final boolean timestamps;
     private final DateTimeFormatter timestampFormatter;
     private final Locale locale;
 
     public TreeContextImpl() {
-        this(false);
+        this(ReportConstants.DEFAULT_TIMESTAMP_FORMATTER, ReportConstants.DEFAULT_LOCALE);
     }
 
-    public TreeContextImpl(boolean timestamps) {
-        this(timestamps, ReportConstants.DEFAULT_TIMESTAMP_FORMATTER, ReportConstants.DEFAULT_LOCALE);
-    }
-
-    public TreeContextImpl(boolean timestamps, DateTimeFormatter dateTimeFormatter, Locale locale) {
-        this.timestamps = timestamps;
+    public TreeContextImpl(DateTimeFormatter dateTimeFormatter, Locale locale) {
         this.timestampFormatter = Objects.requireNonNull(dateTimeFormatter);
         this.locale = locale;
     }
@@ -45,11 +39,6 @@ public class TreeContextImpl implements TreeContext {
     @Override
     public DateTimeFormatter getTimestampFormatter() {
         return timestampFormatter;
-    }
-
-    @Override
-    public boolean isTimestampAdded() {
-        return timestamps;
     }
 
     @Override

@@ -29,11 +29,6 @@ public class TreeContextNoOp implements TreeContext {
     }
 
     @Override
-    public boolean isTimestampAdded() {
-        return false;
-    }
-
-    @Override
     public void merge(TreeContext treeContext) {
         if (!(treeContext instanceof TreeContextNoOp)) {
             throw new PowsyblException("Cannot merge a TreeContextNoOp with non TreeContextNoOp");

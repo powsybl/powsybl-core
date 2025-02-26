@@ -20,6 +20,7 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     protected String key;
     protected String messageTemplate;
     protected String bundleBaseName;
+    protected boolean withTimestamp = false;
 
     @Override
     public T withMessageTemplate(String key, String messageTemplate) {
@@ -113,6 +114,12 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     @Override
     public T withSeverity(String severity) {
         values.put(ReportConstants.SEVERITY_KEY, new TypedValue(severity, TypedValue.SEVERITY));
+        return self();
+    }
+
+    @Override
+    public T withTimestamp() {
+        this.withTimestamp = true;
         return self();
     }
 
