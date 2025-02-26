@@ -94,15 +94,12 @@ class DanglingLineConverter extends AbstractConverter {
 
     private static PsseRates createRates(DanglingLine danglingLine, double vNominal1) {
         PsseRates windingRates = createDefaultRates();
-        if (danglingLine.getApparentPowerLimits().isPresent()) {
-            ApparentPowerLimits apparentPowerLimits = danglingLine.getApparentPowerLimits().get();
-            setSortedRatesToPsseRates(getSortedRates(apparentPowerLimits), windingRates);
-        } else if (danglingLine.getCurrentLimits().isPresent()) {
-            CurrentLimits currentLimits = danglingLine.getCurrentLimits().get();
-            setSortedRatesToPsseRates(getSortedRates(currentLimits, vNominal1), windingRates);
-        } else if (danglingLine.getActivePowerLimits().isPresent()) {
-            ActivePowerLimits activePowerLimits = danglingLine.getActivePowerLimits().get();
-            setSortedRatesToPsseRates(getSortedRates(activePowerLimits), windingRates);
+        danglingLine.getApparentPowerLimits().ifPresent(apparentPowerLimits -> setSortedRatesToPsseRates(getSortedRates(apparentPowerLimits), windingRates));
+        if (danglingLine.getApparentPowerLimits().isEmpty()) {
+            danglingLine.getCurrentLimits().ifPresent(currentLimits -> setSortedRatesToPsseRates(getSortedRates(currentLimits, vNominal1), windingRates));
+        }
+        if (danglingLine.getApparentPowerLimits().isEmpty() && danglingLine.getCurrentLimits().isEmpty()) {
+            danglingLine.getActivePowerLimits().ifPresent(activePowerLimits -> setSortedRatesToPsseRates(getSortedRates(activePowerLimits), windingRates));
         }
         return windingRates;
     }
