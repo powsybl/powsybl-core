@@ -23,6 +23,7 @@ This key is used to build a dictionary for the tree, which is carried by the `Tr
 This allows to serialize in an efficient way the tree (by not repeating the duplicated templates).
 
 When the children of a `ReportNode` is non-empty, the message of the corresponding `ReportNode` should summarize the children content.
+To that end, one or several values can be added after the `ReportNode` construction.
 The summarizing template should be succinct: 120 characters is an indicative limit for the message string length (once formatted).
 
 ## Values
@@ -76,12 +77,28 @@ Both API share methods to provide the message template and the typed values:
 - `withTypedValue(key, value, type)`,
 - `withSeverity(severity)`.
 
+## Merging ReportNodes
+
+### Include
+An `include` method is provided in the API in order to fully insert a given root `ReportNode` as a child of another `ReportNode`.
+The given root `ReportNode` is becoming non-root after this operation.
+This was meant for including the serialized reports obtained from another process.
+
+### AddCopy
+An `addCopy` method is provided in the API to partly insert a `ReportNode`: unlike `include`, the given node does not need to be root.
+The given `ReportNode` is copied and inserted as a child of the `ReportNode`.
+
+Two known limitations of this method:
+1. the inherited values of copied `ReportNode` are not kept,
+2. the resulting dictionary contains all the keys from the copied `ReportNode` tree, even the ones from non-copied `ReportNode`s.
+
 ## Example
 ```java
 ReportNode root = ReportNode.newRootReportNode()
-        .withMessageTemplate("importMessage", "Import file ${filename}")
+        .withMessageTemplate("importMessage", "Import file ${filename} in ${time} ms")
         .withTypedValue("filename", "file.txt", TypedValue.FILENAME)
         .build();
+long t0 = System.currentTimeMillis();
 
 ReportNode task1 = root.newReportNode()
         .withMessageTemplate("task1", "Doing first task with double parameter ${parameter}")
@@ -105,4 +122,8 @@ for (ProblematicElement element : problematicElements) {
             .withSeverity(TypedValue.DETAIL_SEVERITY)
             .add();
 }
+
+// Putting a value afterward in a given reportNode
+long t1 = System.currentTimeMillis();
+root.addTypedValue("time", t1 - t0, "ELAPSED_TIME");
 ```
