@@ -1,0 +1,30 @@
+{
+  "version" : "2.1",
+  "dictionaries" : {
+    "default" : {
+      "childNotCopied" : "Child message",
+      "childToCopy" : "Child message with inherited value ${value}",
+      "existingChild" : "Child message",
+      "grandChild" : "Grandchild message",
+      "otherRoot" : "Root message containing node to copy",
+      "root" : "Root message with value ${value}"
+    }
+  },
+  "reportRoot" : {
+    "messageKey" : "root",
+    "values" : {
+      "value" : {
+        "value" : 2.3203,
+        "type" : "ROOT_VALUE"
+      }
+    },
+    "children" : [ {
+      "messageKey" : "existingChild"
+    }, {
+      "messageKey" : "childToCopy",
+      "children" : [ {
+        "messageKey" : "grandChild"
+      } ]
+    } ]
+  }
+}
