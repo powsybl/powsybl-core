@@ -15,10 +15,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.commons.ref.RefObj;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringSubstitutor;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
@@ -80,7 +84,7 @@ public final class ReportNodeImpl implements ReportNode {
         this.messageKey = Objects.requireNonNull(messageKey);
         checkMap(values);
         Objects.requireNonNull(inheritedValuesMaps).forEach(ReportNodeImpl::checkMap);
-        this.values = Collections.unmodifiableMap(values);
+        this.values = values;
         this.inheritedValuesMaps = inheritedValuesMaps;
         this.treeContext = Objects.requireNonNull(treeContext);
         this.isRoot = isRoot;
@@ -105,7 +109,7 @@ public final class ReportNodeImpl implements ReportNode {
 
     @Override
     public Map<String, TypedValue> getValues() {
-        return values;
+        return Collections.unmodifiableMap(values);
     }
 
     @Override
@@ -151,15 +155,15 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public void include(ReportNode reportNode) {
-        if (!(reportNode instanceof ReportNodeImpl reportNodeImpl)) {
+    public void include(ReportNode reportRoot) {
+        if (!(reportRoot instanceof ReportNodeImpl reportNodeImpl)) {
             throw new PowsyblException("Cannot mix implementations of ReportNode, included reportNode should be/extend ReportNodeImpl");
         }
         if (!reportNodeImpl.isRoot) {
             throw new PowsyblException("Cannot include non-root reportNode");
         }
-        if (reportNode == this) {
-            throw new PowsyblException("Cannot add a reportNode in itself");
+        if (getTreeContext() == reportNodeImpl.getTreeContext()) {
+            throw new PowsyblException("The given reportNode cannot be included as it is the root of the reportNode");
         }
 
         reportNodeImpl.unroot();
@@ -167,6 +171,24 @@ public final class ReportNodeImpl implements ReportNode {
 
         getTreeContext().merge(reportNodeImpl.getTreeContext());
         reportNodeImpl.treeContext.setRef(treeContext);
+    }
+
+    @Override
+    public void addCopy(ReportNode reportNode) {
+        var om = new ObjectMapper().registerModule(new ReportNodeJsonModule());
+        var sw = new StringWriter();
+
+        try {
+            om.writeValue(sw, reportNode);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        ReportNodeImpl copiedReportNode = (ReportNodeImpl) ReportNodeDeserializer.read(IOUtils.toInputStream(sw.toString(), StandardCharsets.UTF_8));
+        children.add(copiedReportNode);
+
+        getTreeContext().merge(copiedReportNode.getTreeContext());
+        copiedReportNode.treeContext.setRef(treeContext);
     }
 
     private void unroot() {
@@ -180,6 +202,91 @@ public final class ReportNodeImpl implements ReportNode {
     @Override
     public List<ReportNode> getChildren() {
         return Collections.unmodifiableList(children);
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, String value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, String value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, double value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, double value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, float value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, float value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, int value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, int value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, long value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, long value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, boolean value, String type) {
+        values.put(key, TypedValue.of(value, type));
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, boolean value) {
+        values.put(key, TypedValue.untyped(value));
+        return this;
+    }
+
+    @Override
+    public ReportNode addSeverity(TypedValue severity) {
+        TypedValue.checkSeverityType(severity);
+        values.put(ReportConstants.SEVERITY_KEY, severity);
+        return this;
+    }
+
+    @Override
+    public ReportNode addSeverity(String severity) {
+        values.put(ReportConstants.SEVERITY_KEY, TypedValue.of(severity, TypedValue.SEVERITY));
+        return this;
     }
 
     @Override

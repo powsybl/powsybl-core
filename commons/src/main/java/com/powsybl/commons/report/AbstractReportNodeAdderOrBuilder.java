@@ -28,82 +28,86 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
 
     @Override
     public T withTypedValue(String key, String value, String type) {
-        values.put(key, new TypedValue(value, type));
+        values.put(key, TypedValue.of(value, type));
         return self();
     }
 
     @Override
     public T withUntypedValue(String key, String value) {
-        return withTypedValue(key, value, TypedValue.UNTYPED);
+        values.put(key, TypedValue.untyped(value));
+        return self();
     }
 
     @Override
     public T withTypedValue(String key, double value, String type) {
-        values.put(key, new TypedValue(value, type));
+        values.put(key, TypedValue.of(value, type));
         return self();
     }
 
     @Override
     public T withUntypedValue(String key, double value) {
-        return withTypedValue(key, value, TypedValue.UNTYPED);
+        values.put(key, TypedValue.untyped(value));
+        return self();
     }
 
     @Override
     public T withTypedValue(String key, float value, String type) {
-        values.put(key, new TypedValue(value, type));
+        values.put(key, TypedValue.of(value, type));
         return self();
     }
 
     @Override
     public T withUntypedValue(String key, float value) {
-        return withTypedValue(key, value, TypedValue.UNTYPED);
+        values.put(key, TypedValue.untyped(value));
+        return self();
     }
 
     @Override
     public T withTypedValue(String key, int value, String type) {
-        values.put(key, new TypedValue(value, type));
+        values.put(key, TypedValue.of(value, type));
         return self();
     }
 
     @Override
     public T withUntypedValue(String key, int value) {
-        return withTypedValue(key, value, TypedValue.UNTYPED);
+        values.put(key, TypedValue.untyped(value));
+        return self();
     }
 
     @Override
     public T withTypedValue(String key, long value, String type) {
-        values.put(key, new TypedValue(value, type));
+        values.put(key, TypedValue.of(value, type));
         return self();
     }
 
     @Override
     public T withUntypedValue(String key, long value) {
-        return withTypedValue(key, value, TypedValue.UNTYPED);
+        values.put(key, TypedValue.untyped(value));
+        return self();
     }
 
     @Override
     public T withTypedValue(String key, boolean value, String type) {
-        values.put(key, new TypedValue(value, type));
+        values.put(key, TypedValue.of(value, type));
         return self();
     }
 
     @Override
     public T withUntypedValue(String key, boolean value) {
-        return withTypedValue(key, value, TypedValue.UNTYPED);
+        values.put(key, TypedValue.untyped(value));
+        return self();
     }
 
     @Override
     public T withSeverity(TypedValue severity) {
-        if (!severity.getType().equals(TypedValue.SEVERITY)) {
-            throw new IllegalArgumentException("Expected a " + TypedValue.SEVERITY + " but received " + severity.getType());
-        }
+        TypedValue.checkSeverityType(severity);
         values.put(ReportConstants.SEVERITY_KEY, severity);
         return self();
     }
 
     @Override
     public T withSeverity(String severity) {
-        values.put(ReportConstants.SEVERITY_KEY, new TypedValue(severity, TypedValue.SEVERITY));
+        values.put(ReportConstants.SEVERITY_KEY, TypedValue.of(severity, TypedValue.SEVERITY));
         return self();
     }
 

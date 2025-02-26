@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.generatorLocalRegulationReport;
 
 /**
