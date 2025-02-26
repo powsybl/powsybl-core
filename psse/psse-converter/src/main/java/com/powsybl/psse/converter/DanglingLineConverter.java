@@ -95,11 +95,14 @@ class DanglingLineConverter extends AbstractConverter {
     private static PsseRates createRates(DanglingLine danglingLine, double vNominal1) {
         PsseRates windingRates = createDefaultRates();
         if (danglingLine.getApparentPowerLimits().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(danglingLine.getApparentPowerLimits().get()), windingRates);
+            ApparentPowerLimits apparentPowerLimits = danglingLine.getApparentPowerLimits().get();
+            setSortedRatesToPsseRates(getSortedRates(apparentPowerLimits), windingRates);
         } else if (danglingLine.getCurrentLimits().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(danglingLine.getCurrentLimits().get(), vNominal1), windingRates);
+            CurrentLimits currentLimits = danglingLine.getCurrentLimits().get();
+            setSortedRatesToPsseRates(getSortedRates(currentLimits, vNominal1), windingRates);
         } else if (danglingLine.getActivePowerLimits().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(danglingLine.getActivePowerLimits().get()), windingRates);
+            ActivePowerLimits activePowerLimits = danglingLine.getActivePowerLimits().get();
+            setSortedRatesToPsseRates(getSortedRates(activePowerLimits), windingRates);
         }
         return windingRates;
     }
