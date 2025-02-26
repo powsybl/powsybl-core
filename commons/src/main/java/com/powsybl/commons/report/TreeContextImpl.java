@@ -10,6 +10,7 @@ package com.powsybl.commons.report;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -18,19 +19,26 @@ import java.util.*;
 public class TreeContextImpl implements TreeContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(TreeContextImpl.class);
     private final SortedMap<String, String> dictionary = new TreeMap<>();
+    private final DateTimeFormatter timestampFormatter;
     private final Locale locale;
 
     public TreeContextImpl() {
-        this(null);
+        this(ReportConstants.DEFAULT_TIMESTAMP_FORMATTER, ReportConstants.DEFAULT_LOCALE);
     }
 
-    public TreeContextImpl(Locale locale) {
-        this.locale = Objects.requireNonNullElse(locale, ReportConstants.DEFAULT_LOCALE);
+    public TreeContextImpl(DateTimeFormatter dateTimeFormatter, Locale locale) {
+        this.timestampFormatter = Objects.requireNonNull(dateTimeFormatter);
+        this.locale = locale;
     }
 
     @Override
     public Map<String, String> getDictionary() {
         return Collections.unmodifiableMap(dictionary);
+    }
+
+    @Override
+    public DateTimeFormatter getTimestampFormatter() {
+        return timestampFormatter;
     }
 
     @Override

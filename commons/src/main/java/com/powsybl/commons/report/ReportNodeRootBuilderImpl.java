@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.report;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 /**
@@ -16,7 +17,16 @@ import java.util.Locale;
  */
 public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeBuilder> implements ReportNodeBuilder {
 
+    private String timestampPattern;
+    private Locale timestampLocale;
     private Locale locale;
+
+    @Override
+    public ReportNodeBuilder withTimestampPattern(String timestampPattern, Locale locale) {
+        this.timestampPattern = timestampPattern;
+        this.timestampLocale = locale;
+        return this;
+    }
 
     @Override
     public ReportNodeBuilder withLocale(Locale locale) {
@@ -26,9 +36,23 @@ public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<
 
     @Override
     public ReportNode build() {
-        TreeContextImpl treeContext = new TreeContextImpl(locale);
+        Locale localeSetOrDefault = this.locale != null ? this.locale : ReportConstants.DEFAULT_LOCALE;
+        TreeContextImpl treeContext = new TreeContextImpl(createDateTimeFormatter(timestampPattern, timestampLocale), localeSetOrDefault);
         String messageTemplate = getMessageTemplate(treeContext);
-        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, treeContext);
+        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, withTimestamp, treeContext);
+    }
+
+    private static DateTimeFormatter createDateTimeFormatter(String timestampPattern, Locale timestampLocale) {
+        if (timestampPattern == null && timestampLocale == null) {
+            return ReportConstants.DEFAULT_TIMESTAMP_FORMATTER;
+        }
+        if (timestampPattern == null) {
+            return DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN, timestampLocale);
+        }
+        if (timestampLocale == null) {
+            return DateTimeFormatter.ofPattern(timestampPattern, ReportConstants.DEFAULT_TIMESTAMP_LOCALE);
+        }
+        return DateTimeFormatter.ofPattern(timestampPattern, timestampLocale);
     }
 
     @Override
