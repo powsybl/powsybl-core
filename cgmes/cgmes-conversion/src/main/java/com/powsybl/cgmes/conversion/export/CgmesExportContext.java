@@ -55,7 +55,7 @@ public class CgmesExportContext {
     private static final String BOUNDARY_TP_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "TP_BD_ID";
 
     private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
-    private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
+    private CgmesTopologyKind topologyKind = CgmesTopologyKind.NODE_BREAKER;
     private ZonedDateTime scenarioTime = ZonedDateTime.now();
     private ReportNode reportNode = ReportNode.NO_OP;
     private String businessProcess = DEFAULT_BUSINESS_PROCESS;
@@ -159,12 +159,25 @@ public class CgmesExportContext {
     }
 
     private CgmesTopologyKind networkTopologyKind(Network network) {
-        for (VoltageLevel vl : network.getVoltageLevels()) {
-            if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+        long nodeBreakerVoltageLevelsCount = network.getVoltageLevelStream()
+                .filter(vl -> vl.getTopologyKind() == TopologyKind.NODE_BREAKER)
+                .count();
+        long busBreakerVoltageLevelsCount = network.getVoltageLevelStream()
+                .filter(vl -> vl.getTopologyKind() == TopologyKind.BUS_BREAKER)
+                .count();
+
+        if (nodeBreakerVoltageLevelsCount > 0 && busBreakerVoltageLevelsCount == 0) {
+            return CgmesTopologyKind.NODE_BREAKER;
+        } else if (nodeBreakerVoltageLevelsCount == 0 && busBreakerVoltageLevelsCount > 0) {
+            return CgmesTopologyKind.BUS_BRANCH;
+        } else {
+            // For mixed-topology network, the topology kind is node/breaker for CIM 100 and bus/branch for CIM 16
+            if (getCimVersion() < 100) {
+                return CgmesTopologyKind.BUS_BRANCH;
+            } else {
                 return CgmesTopologyKind.NODE_BREAKER;
             }
         }
-        return CgmesTopologyKind.BUS_BRANCH;
     }
 
     public void addIidmMappings(Network network) {
@@ -285,11 +298,15 @@ public class CgmesExportContext {
     }
 
     public boolean isExportedEquipment(Identifiable<?> c) {
-        // We ignore fictitious loads used to model CGMES SvInjection objects that represent calculation mismatches
-        // We also ignore fictitious switches used to model CGMES disconnected Terminals
-        boolean ignored = c.isFictitious() &&
-                (c instanceof Load
-                        || c instanceof Switch && "true".equals(c.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL)));
+        boolean ignored = false;
+        if (c instanceof Load load) {
+            ignored = load.isFictitious()
+                    || isCim16BusBranchExport() && CgmesNames.STATION_SUPPLY.equals(CgmesExportUtil.loadClassName(load));
+        } else if (c instanceof Switch sw) {
+            ignored = sw.isFictitious() && "true".equals(sw.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL))
+                    || isCim16BusBranchExport() && sw.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "").equals("GroundDisconnector")
+                    || isBusBranchExport() && !sw.isRetained();
+        }
         return !ignored;
     }
 
@@ -673,14 +690,6 @@ public class CgmesExportContext {
         return baseVoltageByNominalVoltageMapping.get(nominalV);
     }
 
-    public boolean writeConnectivityNodes() {
-        if (getCimVersion() == 100) {
-            return true;
-        } else {
-            return topologyKind == CgmesTopologyKind.NODE_BREAKER;
-        }
-    }
-
     public Collection<String> getRegionsIds() {
         return Collections.unmodifiableSet(regionsIdsByRegionName.values());
     }
@@ -781,6 +790,14 @@ public class CgmesExportContext {
     public CgmesExportContext setProfiles(List<String> profiles) {
         this.profiles = profiles;
         return this;
+    }
+
+    public boolean isCim16BusBranchExport() {
+        return getCimVersion() == 16 && isBusBranchExport();
+    }
+
+    public boolean isBusBranchExport() {
+        return getTopologyKind() == CgmesTopologyKind.BUS_BRANCH;
     }
 
     public String getBaseName() {
