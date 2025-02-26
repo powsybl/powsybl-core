@@ -295,7 +295,6 @@ public class PssePowerFlowModel {
         newPsseModel.addZones(psseModel.getZones());
         newPsseModel.addInterareaTransfer(psseModel.getInterareaTransfer());
         newPsseModel.addOwners(psseModel.getOwners());
-        newPsseModel.addFacts(psseModel.getFacts());
         newPsseModel.addGneDevice(psseModel.getGneDevice());
         newPsseModel.addInductionMachines(psseModel.getInductionMachines());
     }
@@ -312,6 +311,7 @@ public class PssePowerFlowModel {
         psseModel.getTwoTerminalDcTransmissionLines().forEach(twoTerminalDc -> newPsseModel.twoTerminalDcTransmissionLines.add(twoTerminalDc.copy()));
         psseModel.getVoltageSourceConverterDcTransmissionLines().forEach(vscDcTransmissionLine -> newPsseModel.voltageSourceConverterDcTransmissionLines.add(vscDcTransmissionLine.copy()));
 
+        psseModel.getFacts().forEach(psseFactsDevice -> newPsseModel.facts.add(psseFactsDevice.copy()));
         psseModel.getSwitchedShunts().forEach(psseSwitchedShunt -> newPsseModel.switchedShunts.add(psseSwitchedShunt.copy()));
         psseModel.getSubstations().forEach(psseSubstation -> newPsseModel.substations.add(psseSubstation.copy()));
     }
