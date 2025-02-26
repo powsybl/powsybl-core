@@ -95,17 +95,6 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
         return converter2;
     }
 
-    public PsseVoltageSourceConverterDcTransmissionLine copy() {
-        PsseVoltageSourceConverterDcTransmissionLine copy = new PsseVoltageSourceConverterDcTransmissionLine();
-        copy.name = this.name;
-        copy.mdc = this.mdc;
-        copy.rdc = this.rdc;
-        copy.ownership = this.ownership.copy();
-        copy.converter1 = this.converter1.copy();
-        copy.converter2 = this.converter2.copy();
-        return copy;
-    }
-
     public static class ConverterHeaderTransformer extends HeaderTransformer {
         private final String converterChar;
 
