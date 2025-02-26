@@ -195,6 +195,9 @@ class ConditionDslLoader extends DslLoader {
 
             def shell = createShell(binding)
 
+            // Check for thread interruption right before beginning the evaluation
+            if (Thread.currentThread().isInterrupted()) throw new InterruptedException("Execution Interrupted");
+
             def value = shell.evaluate(dslSrc)
             if (value instanceof Identifiable) {
                 value

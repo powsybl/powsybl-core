@@ -336,20 +336,17 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
-        return Iterables.concat(index.getAll(BusBreakerVoltageLevel.class),
-                index.getAll(NodeBreakerVoltageLevel.class));
+        return Collections.unmodifiableCollection(index.getAll(VoltageLevelImpl.class));
     }
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return Stream.concat(index.getAll(BusBreakerVoltageLevel.class).stream(),
-                index.getAll(NodeBreakerVoltageLevel.class).stream());
+        return index.getAll(VoltageLevelImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getVoltageLevelCount() {
-        return index.getAll(BusBreakerVoltageLevel.class).size()
-                + index.getAll(NodeBreakerVoltageLevel.class).size();
+        return index.getAll(VoltageLevelImpl.class).size();
     }
 
     @Override
@@ -359,11 +356,20 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public LineAdderImpl newLine() {
-        return newLine(null);
+        return newLine((String) null);
     }
 
     LineAdderImpl newLine(String subnetwork) {
         return new LineAdderImpl(this, subnetwork);
+    }
+
+    @Override
+    public LineAdderImpl newLine(Line copiedLine) {
+        return newLine(null, copiedLine);
+    }
+
+    LineAdderImpl newLine(String subnetwork, Line copiedLine) {
+        return new LineAdderImpl(this, subnetwork, copiedLine);
     }
 
     @Override
@@ -1018,11 +1024,6 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
         checkMergeability(otherNetwork);
 
-        otherNetwork.getAreaStream().forEach(a -> {
-            AreaImpl area = (AreaImpl) a;
-            area.moveListener(otherNetwork, this);
-        });
-
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();
         Map<String, List<DanglingLine>> dl1byPairingKey = new HashMap<>();
@@ -1081,9 +1082,12 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     private static void createSubnetwork(NetworkImpl parent, NetworkImpl original) {
-        // The root network reference should point to parent and not original anymore
-        // All substations/voltage levels will this way refer to parent instead of original
-        original.ref.setRef(new RefObj<>(parent));
+        // The root network reference should point to parent and not original anymore.
+        // All substations/voltage levels will this way refer to parent instead of original.
+        // Note that "ref" should directly reference the parent network's ref and not reference directly
+        // the parent network. This is needed to avoid inconsistencies if the whole network is latter flatten
+        // then merged with another one (see "#flatten" for further details).
+        original.ref.setRef(parent.ref);
 
         // Handles the case of creating a subnetwork for itself without duplicating the id
         String idSubNetwork = parent != original ? original.getId() : Identifiables.getUniqueId(original.getId(), parent.getIndex()::contains);
@@ -1160,7 +1164,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         if (subnetworks.containsKey(subnetworkId)) {
             throw new IllegalArgumentException("The network already contains another subnetwork of id " + subnetworkId);
         }
-        SubnetworkImpl subnetwork = new SubnetworkImpl(new RefChain<>(new RefObj<>(this)), subnetworkId, name, sourceFormat);
+        SubnetworkImpl subnetwork = new SubnetworkImpl(new RefChain<>(ref), subnetworkId, name, sourceFormat);
         subnetworks.put(subnetworkId, subnetwork);
         index.checkAndAdd(subnetwork);
         return subnetwork;
@@ -1193,6 +1197,27 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public boolean isBoundaryElement(Identifiable<?> identifiable) {
         return identifiable.getType() == IdentifiableType.DANGLING_LINE && !((DanglingLine) identifiable).isPaired();
+    }
+
+    @Override
+    public void flatten() {
+        if (subnetworks.isEmpty()) {
+            // Nothing to do
+            return;
+        }
+        subnetworks.values().forEach(subnetwork -> {
+            // The subnetwork ref chain should point to the current network's subnetworkRef
+            // (thus, we obtain a "double ref chain": a refChain referencing another refChain).
+            // This way, all its network elements (using this ref chain) will have a reference to the current network
+            // if it is merged later.
+            subnetwork.getRef().setRef(this.subnetworkRef);
+            // Transfer the extensions and the properties from the subnetwork to the current network.
+            // Those which are already present in the current network are not transferred.
+            transferExtensions(subnetwork, this, true);
+            transferProperties(subnetwork, this, true);
+            index.remove(subnetwork);
+        });
+        subnetworks.clear();
     }
 
     @Override
@@ -1235,15 +1260,13 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
-    public Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
-        Objects.requireNonNull(validationLevel);
-        if (this.validationLevel == null) {
-            this.validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, this.validationLevel, ReportNode.NO_OP);
+    public Network setMinimumAcceptableValidationLevel(ValidationLevel minLevel) {
+        Objects.requireNonNull(minLevel);
+        ValidationLevel currentLevel = getValidationLevel();
+        if (currentLevel.compareTo(minLevel) < 0) {
+            throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + minLevel);
         }
-        if (this.validationLevel.compareTo(validationLevel) < 0) {
-            throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + validationLevel);
-        }
-        this.minValidationLevel = validationLevel;
+        this.minValidationLevel = minLevel;
         return this;
     }
 

@@ -27,34 +27,34 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
+public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportNodeDeserializer.class);
     public static final String DICTIONARY_VALUE_ID = "dictionary";
     public static final String DICTIONARY_DEFAULT_NAME = "default";
 
     ReportNodeDeserializer() {
-        super(ReportNodeImpl.class);
+        super(ReportNode.class);
     }
 
     @Override
-    public ReportNodeImpl deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+    public ReportNode deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
         ReportNodeImpl reportNode = null;
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new ReportNodeJsonModule());
         ReportNodeVersion version = ReportConstants.CURRENT_VERSION;
-        RootContext rootContext = new RootContext();
+        TreeContextImpl treeContext = new TreeContextImpl();
         while (p.nextToken() != JsonToken.END_OBJECT) {
             switch (p.currentName()) {
                 case "version" -> version = ReportNodeVersion.of(p.nextTextValue());
-                case "dictionaries" -> readDictionary(p, objectMapper, rootContext, getDictionaryName(ctx));
-                case "reportRoot" -> reportNode = ReportNodeImpl.parseJsonNode(p, objectMapper, rootContext, version);
+                case "dictionaries" -> readDictionary(p, objectMapper, treeContext, getDictionaryName(ctx));
+                case "reportRoot" -> reportNode = ReportNodeImpl.parseJsonNode(p, objectMapper, treeContext, version);
                 default -> throw new IllegalStateException("Unexpected value: " + p.currentName());
             }
         }
         return reportNode;
     }
 
-    private void readDictionary(JsonParser p, ObjectMapper objectMapper, RootContext rootContext, String dictionaryName) throws IOException {
+    private void readDictionary(JsonParser p, ObjectMapper objectMapper, TreeContextImpl treeContext, String dictionaryName) throws IOException {
         checkToken(p, JsonToken.START_OBJECT); // remove start object token to read the underlying map
         TypeReference<HashMap<String, HashMap<String, String>>> dictionariesTypeRef = new TypeReference<>() {
         };
@@ -71,7 +71,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
                 dictionary = dictionaryEntry.getValue();
             }
         }
-        dictionary.forEach(rootContext::addDictionaryEntry);
+        dictionary.forEach(treeContext::addDictionaryEntry);
     }
 
     private String getDictionaryName(DeserializationContext ctx) {
@@ -108,7 +108,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
         Objects.requireNonNull(jsonIs);
         Objects.requireNonNull(dictionary);
         try {
-            return getReportNodeModelObjectMapper(dictionary).readValue(jsonIs, ReportNodeImpl.class);
+            return getReportNodeModelObjectMapper(dictionary).readValue(jsonIs, ReportNode.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -136,7 +136,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
         @Override
         public TypedValue deserialize(JsonParser p, DeserializationContext deserializationContext) throws IOException {
             Object value = null;
-            String type = TypedValue.UNTYPED;
+            String type = TypedValue.UNTYPED_TYPE;
 
             while (p.nextToken() != JsonToken.END_OBJECT) {
                 switch (p.currentName()) {

@@ -51,7 +51,7 @@ The default value is `TRANSIENT`. The transient and sub-transient reactance of t
 
 **sub-transient-coefficient**
 
-This property allows to define an optional coefficient, in case of a sub-transient study, to apply to the transient reactance of generators to get the sub-transient one:
+This property allows defining an optional coefficient, in case of a sub-transient study, to apply to the transient reactance of generators to get the sub-transient one:
 
 $X''_d = c \times X'_d$
 
@@ -75,7 +75,7 @@ The voltage drop is calculated as the ratio between the initial voltage magnitud
 
 **with-loads**
 
-This property indicates whether loads should be taken into account during the calculation. If `true`, the loads are modelled as an equivalent reactance and the equivalent reactance at the fault point will be lowered. If `false`, then they will be ignored.
+This property indicates whether loads should be taken into account during the calculation. If `true`, the loads are modelled as an equivalent reactance, and the equivalent reactance at the fault point will be lowered. If `false`, then they will be ignored.
 
 **with-shunt-compensators**
 
@@ -106,30 +106,36 @@ This property defines the voltage profile that should be used for the calculatio
 **voltage-ranges**
 
 This property specifies a path to a JSON file containing the voltage ranges and associated coefficients to be used when `initial-voltage-profile-mode` is set to `CONFIGURED`.
-The JSON file must contain a list of voltage ranges and coefficients. Then, for each nominal voltage in the network that belongs to the range, the given coefficient is applied to calculate the voltage to be used
-in the calculation. All the coefficients should be between 0.8 and 1.2.
+The JSON file must contain a list of voltage ranges and for each range, coefficients and/or voltages.
+Then, for each nominal voltage in the network that belongs to the range, the coefficient is applied to calculate the voltage to be used
+in the calculation. All the coefficients should be between 0.8 and 1.2. They are optional, and if they are missing for a range, 1 will be used. 
+The voltage attribute of the voltage range defines the nominal voltage of all the voltage levels in the network that are in the range.
+It is also optional, and if it is not defined, then the nominal voltage already in the network will be used.
 Here is an example of this JSON file:
 ````json
 [
     {
       "minimumNominalVoltage": 350.0, 
       "maximumNominalVoltage": 400.0,
-      "voltageRangeCoefficient": 1.1
+      "voltageRangeCoefficient": 1.1,
+      "voltage": 380.0
     },
     {
       "minimumNominalVoltage": 215.0,
       "maximumNominalVoltage": 235.0,
-      "voltageRangeCoefficient": 1.2
+      "voltageRangeCoefficient": 1.2,
+      "voltage": 225.0
     },
     {
       "minimumNominalVoltage": 80.0,
       "maximumNominalVoltage": 150.0,
-      "voltageRangeCoefficient": 1.05
+      "voltageRangeCoefficient": 1.05,
+      "voltage": 105.0
     }
 ]
 ````
 
-
+(shortcircuit-fault-parameters)=
 ## FaultParameters
 
 It is possible to override parameters for each fault by creating an instance of `com.powsybl.shortcircuit.FaultParameters`. This object will take the fault to which it applies and all the parameters

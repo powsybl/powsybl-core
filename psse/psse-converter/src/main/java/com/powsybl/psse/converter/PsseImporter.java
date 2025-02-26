@@ -12,6 +12,7 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -38,6 +39,9 @@ import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.powsybl.psse.converter.AbstractConverter.getSubstationIdFromBuses;
+import static com.powsybl.psse.converter.AbstractConverter.getSubstationIdFromPsseSubstationIds;
 
 /**
  * @author JB Heyberger {@literal <jean-baptiste.heyberger at rte-france.com>}
@@ -66,10 +70,16 @@ public class PsseImporter implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return Arrays.asList(EXTENSIONS);
+    }
+
+    @Override
     public List<Parameter> getParameters() {
-        return List.of(
+        List<Parameter> parameterList = List.of(
                 IGNORE_BASE_VOLTAGE_PARAMETER,
                 IGNORE_NODE_BREAKER_TOPOLOGY_PARAMETER);
+        return ConfiguredParameter.load(parameterList, getFormat(), ParameterDefaultValueConfig.INSTANCE);
     }
 
     @Override
@@ -144,7 +154,7 @@ public class PsseImporter implements Importer {
             PssePowerFlowModel pssePowerFlowModel = PowerFlowDataFactory.create(ext, version).read(dataSource, ext, context);
             pssePowerFlowModel.getCaseIdentification().validate();
 
-            new PsseFixDuplicateIds(pssePowerFlowModel, context.getVersion()).fix();
+            new PsseFixes(pssePowerFlowModel, context.getVersion()).fix();
             PsseValidation psseValidation = new PsseValidation(pssePowerFlowModel, context.getVersion());
             if (!psseValidation.isValidCase()) {
                 throw new PsseException("The PSS/E file is not a valid case");
@@ -179,10 +189,10 @@ public class PsseImporter implements Importer {
 
         // Necessary data for validating nodeBreaker topology
         NodeBreakerValidation nodeBreakerValidation = new NodeBreakerValidation(ignoreNodeBreakerTopology);
-        nodeBreakerValidation.fill(psseModel, version);
+        nodeBreakerValidation.fillAndValidate(psseModel, version);
 
         // build container to fit IIDM requirements
-        ContainersMapping containersMapping = defineContainersMapping(psseModel, busNumToPsseBus, perUnitContext);
+        ContainersMapping containersMapping = defineContainersMapping(psseModel, busNumToPsseBus, perUnitContext, nodeBreakerValidation);
 
         // create buses
         NodeBreakerImport nodeBreakerImport = createBuses(psseModel, containersMapping, perUnitContext, network, nodeBreakerValidation);
@@ -248,9 +258,9 @@ public class PsseImporter implements Importer {
         return network;
     }
 
-    private ContainersMapping defineContainersMapping(PssePowerFlowModel psseModel, Map<Integer, PsseBus> busNumToPsseBus, PerUnitContext perUnitContext) {
+    private ContainersMapping defineContainersMapping(PssePowerFlowModel psseModel, Map<Integer, PsseBus> busNumToPsseBus, PerUnitContext perUnitContext, NodeBreakerValidation nodeBreakerValidation) {
         List<Edge> edges = new ArrayList<>();
-        // only zeroImpedance Lines are necessary and they are not allowed, so nothing to do
+        // only zeroImpedance Lines are necessary and as they are not allowed, nothing to do
 
         psseModel.getTransformers().forEach(t -> {
             if (t.getK() == 0) { // twoWindingsTransformers with zero impedance are not allowed
@@ -258,6 +268,16 @@ public class PsseImporter implements Importer {
             } else { // threeWindingsTransformers with zero impedance are not allowed
                 edges.add(new Edge(t.getI(), t.getJ(), true, false));
                 edges.add(new Edge(t.getI(), t.getK(), true, false));
+            }
+        });
+        // buses inside a psse substation are connected in the same way as transformers
+        nodeBreakerValidation.getValidSubstations().forEach(psseSubstation -> {
+            List<Integer> busesInside = nodeBreakerValidation.getBuses(psseSubstation);
+            if (busesInside.size() >= 2) {
+                int bus = busesInside.get(0);
+                for (int index = 1; index < busesInside.size(); index++) {
+                    edges.add(new Edge(bus, busesInside.get(index), true, false));
+                }
             }
         });
 
@@ -269,7 +289,12 @@ public class PsseImporter implements Importer {
                 Edge::transformer,
                 busNumber -> getNominalVFromBusNumber(busNumToPsseBus, busNumber, perUnitContext),
                 AbstractConverter::getVoltageLevelId,
-                substationNums -> "S" + substationNums.stream().sorted().findFirst().orElseThrow(() -> new PsseException("Unexpected empty substationNums")));
+                substationNums -> getSubstationId(nodeBreakerValidation, substationNums));
+    }
+
+    private static String getSubstationId(NodeBreakerValidation nodeBreakerValidation, Set<Integer> substationBusNumbers) {
+        Set<Integer> validSubstationIds = nodeBreakerValidation.getValidSubstationsIds(substationBusNumbers);
+        return validSubstationIds.isEmpty() ? getSubstationIdFromBuses(substationBusNumbers) : getSubstationIdFromPsseSubstationIds(validSubstationIds);
     }
 
     private double getNominalVFromBusNumber(Map<Integer, PsseBus> busNumToPsseBus, int busNumber, PerUnitContext perUnitContext) {
@@ -286,7 +311,6 @@ public class PsseImporter implements Importer {
         NodeBreakerImport nodeBreakerImport = new NodeBreakerImport();
 
         for (PsseBus psseBus : psseModel.getBuses()) {
-
             Substation substation = new SubstationConverter(psseBus, containersMapping, network).create();
             VoltageLevel voltageLevel = new VoltageLevelConverter(psseBus, containersMapping, perUnitContext, network, nodeBreakerValidation, nodeBreakerImport).create(substation);
             new BusConverter(psseBus, containersMapping, network, nodeBreakerImport).create(voltageLevel);

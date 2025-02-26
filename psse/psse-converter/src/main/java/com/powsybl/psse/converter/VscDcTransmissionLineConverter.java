@@ -177,23 +177,22 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
         if (hvdcLine == null) {
             return;
         }
-        addControlConverter(getNetwork(), psseVscDcTransmissionLine, psseVscDcTransmissionLine.getConverter1(), (VscConverterStation) hvdcLine.getConverterStation1(), version, nodeBreakerImport);
-        addControlConverter(getNetwork(), psseVscDcTransmissionLine, psseVscDcTransmissionLine.getConverter2(), (VscConverterStation) hvdcLine.getConverterStation2(), version, nodeBreakerImport);
+        addControlConverter(getNetwork(), psseVscDcTransmissionLine.getConverter1(), (VscConverterStation) hvdcLine.getConverterStation1(), version, nodeBreakerImport);
+        addControlConverter(getNetwork(), psseVscDcTransmissionLine.getConverter2(), (VscConverterStation) hvdcLine.getConverterStation2(), version, nodeBreakerImport);
     }
 
-    private static void addControlConverter(Network network, PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine, PsseVoltageSourceConverter converter, VscConverterStation c, PsseVersion psseVersion, NodeBreakerImport nodeBreakerImport) {
-        Terminal regulatingTerminal = findRegulatingTerminal(network, psseVscDcTransmissionLine, converter, c, nodeBreakerImport, psseVersion);
+    private static void addControlConverter(Network network, PsseVoltageSourceConverter converter, VscConverterStation c, PsseVersion psseVersion, NodeBreakerImport nodeBreakerImport) {
+        Terminal regulatingTerminal = findRegulatingTerminal(network, converter, c, nodeBreakerImport, psseVersion);
         c.setRegulatingTerminal(regulatingTerminal)
                 .setVoltageSetpoint(findTargetVpu(converter) * regulatingTerminal.getVoltageLevel().getNominalV())
                 .setVoltageRegulatorOn(findIsRegulatingOn(converter));
     }
 
-    private static Terminal findRegulatingTerminal(Network network, PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine, PsseVoltageSourceConverter converter, VscConverterStation c, NodeBreakerImport nodeBreakerImport, PsseVersion psseVersion) {
+    private static Terminal findRegulatingTerminal(Network network, PsseVoltageSourceConverter converter, VscConverterStation c, NodeBreakerImport nodeBreakerImport, PsseVersion psseVersion) {
         Terminal regulatingTerminal = null;
-        String equipmentId = getNodeBreakerEquipmentId(PSSE_VSC_DC_LINE, converter.getIbus(), psseVscDcTransmissionLine.getName());
-        Optional<NodeBreakerImport.NodeBreakerControlNode> controlNode = nodeBreakerImport.getControlNode(getNodeBreakerEquipmentIdBus(equipmentId, vscDcTransmissionLineRegulatingBus(converter, psseVersion)));
-        if (controlNode.isPresent()) {
-            regulatingTerminal = findTerminalNode(network, controlNode.get().getVoltageLevelId(), controlNode.get().getNode());
+        Optional<NodeBreakerImport.ControlR> control = nodeBreakerImport.getControl(vscDcTransmissionLineRegulatingBus(converter, psseVersion));
+        if (control.isPresent()) {
+            regulatingTerminal = findTerminalNode(network, control.get().voltageLevelId(), control.get().node());
         } else {
             String regulatingBusId = getBusId(vscDcTransmissionLineRegulatingBus(converter, psseVersion));
             Bus bus = network.getBusBreakerView().getBus(regulatingBusId);

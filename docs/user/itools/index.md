@@ -9,16 +9,17 @@ action-simulator.md
 cim_anonymizer.md
 compare-security-analysis-results.md
 convert_network.md
+dynamic-security-analysis.md
 dynamic-simulation.md
+list-dynamic-simulation-models.md
 loadflow.md
 loadflow-validation.md
 run-script.md
 security-analysis.md
-dynamic-security-analysis.md
 sensitivity-computation.md
 ```
 
-The `iTools` script provides a command-line interface to interact with PowSyBl, available under Linux and Windows (MacOS is not supported yet).
+The `iTools` script provides a command-line interface to interact with PowSyBl, available under Linux and Windows (macOS is not supported yet).
 
 An `iTools` package is constituted of:
 - a `bin` directory containing the executable scripts and the binaries
@@ -42,6 +43,7 @@ Available commands are:
 `--config-name`  
 Use this option to overload the default base name for the configuration file. It overrides the [powsybl_config_name](#powsybl_config_name) property defined in the `itools.conf` file.
 
+(itools-configuration)=
 ### Configuration
 The `iTools` script reads its configuration from the `<ITOOLS_PREFIX>/etc/itools.conf` [property file](https://en.wikipedia.org/wiki/.properties). The properties defined in this file are used to configure the Java Virtual Machine.
 
@@ -66,7 +68,7 @@ java_xmx=8G
 The list of the deprecated properties is available [here]()
 
 ### Logging
-The `iTools` script uses [logback](https://logback.qos.ch/) as logging framework. To configure the logging framework, edit the `<ITOOLS_HOME>/etc/logback-itools.xml` configuration file. Please refer to the [logback manual](https://logback.qos.ch/manual/index.html) for the available logging options.
+The `iTools` script uses [logback](https://logback.qos.ch/) as a logging framework. To configure the logging framework, edit the `<ITOOLS_HOME>/etc/logback-itools.xml` configuration file. Please refer to the [logback manual](https://logback.qos.ch/manual/index.html) for the available logging options.
 
 Sometimes, it could be useful for a user to have its own logging configuration to filter unexpected logs or to have more details for some features. The simplest way to proceed is to copy the global configuration file in the `<USER_HOME>/.itools` folder and then customize it.
 
@@ -85,11 +87,12 @@ Sometimes, it could be useful for a user to have its own logging configuration t
 </configuration>
 ```
 
+(itools-available-commands)=
 ## Available commands
 The `iTools` script relies on a [plugin mechanism](): the commands are discovered at runtime and depend on the jars present in the `share/java` folder.
 
 | Command                                                                     | Theme           | Description                                   |
-|-----------------------------------------------------------------------------| --------------- |-----------------------------------------------|
+|-----------------------------------------------------------------------------|-----------------|-----------------------------------------------|
 | [action-simulator](./action-simulator.md)                                   | Computation     | Run a security analysis with remedial actions |
 | [cim-anonymizer](cim_anonymizer.md)                                         | Data conversion | Anonymize CIM files                           |
 | [compare-security-analysis-results](./compare-security-analysis-results.md) | Computation     | Compare security analysis results             |
@@ -104,5 +107,5 @@ The `iTools` script relies on a [plugin mechanism](): the commands are discovere
 
 ## Going further
 The following links could also be useful:
-- [Bundle an iTools package](../../developer/tutorials/itools-packager.md): Learn how to use the `itools-packager` maven plugin
-- [Create an iTools command](../../developer/tutorials/itools-command.md): Learn how to create your own `iTools` command in Java
+- [Bundle an iTools package](inv:powsybltutorials:*:*#itools/itools-packager): Learn how to use the `itools-packager` maven plugin
+- [Create an iTools command](inv:powsybltutorials:*:*#itools/itools-command): Learn how to create your own `iTools` command in Java

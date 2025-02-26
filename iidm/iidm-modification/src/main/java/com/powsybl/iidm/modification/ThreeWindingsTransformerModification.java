@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -27,6 +29,11 @@ public class ThreeWindingsTransformerModification extends AbstractNetworkModific
     public ThreeWindingsTransformerModification(String transformerId, double ratedU0) {
         this.transformerId = Objects.requireNonNull(transformerId);
         this.ratedU0 = ratedU0;
+    }
+
+    @Override
+    public String getName() {
+        return "ThreeWindingsTransformerModification";
     }
 
     @Override
@@ -43,6 +50,18 @@ public class ThreeWindingsTransformerModification extends AbstractNetworkModific
             t3wt.getLeg3().setRatedU(calculateNewRatedU(t3wt.getLeg3().getRatedU(), t3wt.getRatedU0(), ratedU0));
             t3wt.setRatedU0(ratedU0);
         }
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer(transformerId);
+        if (t3wt == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (areValuesEqual(ratedU0, t3wt.getRatedU0(), false)) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+        }
+        return impact;
     }
 
     private static double calculateNewRatedU(double ratedU, double ratedU0, double newRatedU0) {

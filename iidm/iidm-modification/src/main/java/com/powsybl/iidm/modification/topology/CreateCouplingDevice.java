@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.powsybl.iidm.modification.util.ModificationLogs.busOrBbsDoesNotExist;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
@@ -43,6 +45,11 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         this.busOrBbsId1 = Objects.requireNonNull(busOrBbsId1, "Busbar section 1 not defined");
         this.busOrBbsId2 = Objects.requireNonNull(busOrBbsId2, "Busbar section 2 not defined");
         this.switchPrefixId = switchPrefixId;
+    }
+
+    @Override
+    public String getName() {
+        return "CreateCouplingDevice";
     }
 
     public String getBusOrBbsId1() {
@@ -111,6 +118,18 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         }
         LOGGER.info("New coupling device was added to voltage level {} between {} and {}", voltageLevel1.getId(), busOrBbs1, busOrBbs2);
         newCouplingDeviceAddedReport(reportNode, voltageLevel1.getId(), busOrBbsId1, busOrBbsId2);
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        Identifiable<?> busOrBbs1 = network.getIdentifiable(busOrBbsId1);
+        Identifiable<?> busOrBbs2 = network.getIdentifiable(busOrBbsId2);
+        if (!checkVoltageLevel(busOrBbs1) || !checkVoltageLevel(busOrBbs2)
+            || busOrBbsId1.equals(busOrBbsId2)) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        }
+        return impact;
     }
 
     /**
@@ -229,11 +248,8 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             return true;
         }
         if (bbs1 == bbs2) {
-            LOGGER.error("No coupling device can be created on a same busbar section or bus ({})", busOrBbsId1);
             noCouplingDeviceOnSameBusOrBusbarSection(reportNode, busOrBbsId1);
-            if (throwException) {
-                throw new PowsyblException(String.format("No coupling device can be created on a same bus or busbar section (%s)", busOrBbsId1));
-            }
+            logOrThrow(throwException, String.format("No coupling device can be created on a same bus or busbar section (%s)", busOrBbsId1));
             return true;
         }
         return false;

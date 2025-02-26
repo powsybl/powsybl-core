@@ -21,6 +21,57 @@ public final class CgmesReports {
     }
 
     // INFO
+    public static ReportNode applyingPreprocessorsReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("applyingPreprocessors", "Applying preprocessors.")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void applyingProcessorReport(ReportNode reportNode, String processorName) {
+        reportNode.newReportNode()
+                .withMessageTemplate("applyingProcessor", "Applying processor: {processorName}.")
+                .withUntypedValue("processorName", processorName)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode buildingMappingsReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("buildingMappings", "Building mappings.")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode convertingElementTypeReport(ReportNode reportNode, String elementType) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("convertingElementType", "Converting ${elementType}.")
+                .withUntypedValue("elementType", elementType)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode fixingDanglingLinesIssuesReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("fixingDanglingLinesIssues", "Fixing issues with dangling lines.")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode settingVoltagesAndAnglesReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("settingVoltagesAndAngles", "Setting voltages and angles.")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode applyingPostprocessorsReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("applyingPostprocessors", "Applying postprocessors.")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
     public static void importedCgmesNetworkReport(ReportNode reportNode, String networkId) {
         reportNode.newReportNode()
                 .withMessageTemplate("importedCgmesNetwork", "CGMES network ${networkId} is imported.")
@@ -32,7 +83,7 @@ public final class CgmesReports {
     // WARN
     public static void badVoltageTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
         reportNode.newReportNode()
-                .withMessageTemplate("badVoltageTargetValueRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target value for voltage: ${targetValue}")
+                .withMessageTemplate("badVoltageTargetValueRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target value for voltage: ${targetValue}.")
                 .withUntypedValue("equipmentId", eqId)
                 .withTypedValue("targetValue", targetValue, TypedValue.VOLTAGE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -41,7 +92,7 @@ public final class CgmesReports {
 
     public static void badTargetDeadbandRegulatingControlReport(ReportNode reportNode, String eqId, double targetDeadband) {
         reportNode.newReportNode()
-                .withMessageTemplate("badTargetDeadbandRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}")
+                .withMessageTemplate("badTargetDeadbandRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}.")
                 .withUntypedValue("equipmentId", eqId)
                 .withTypedValue("targetDeadband", targetDeadband, TypedValue.VOLTAGE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -50,7 +101,7 @@ public final class CgmesReports {
 
     public static void invalidAngleVoltageBusReport(ReportNode reportNode, Bus bus, String nodeId, double v, double angle) {
         reportNode.newReportNode()
-                .withMessageTemplate("invalidAngleVoltageBus", "Node ${nodeId} in substation ${substation}, voltageLevel ${voltageLevel}, bus ${bus} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}")
+                .withMessageTemplate("invalidAngleVoltageBus", "Node ${nodeId} in substation ${substation}, voltageLevel ${voltageLevel}, bus ${bus} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}.")
                 .withUntypedValue("substation", bus.getVoltageLevel().getSubstation().map(Substation::getNameOrId).orElse("unknown"))
                 .withUntypedValue("voltageLevel", bus.getVoltageLevel().getNameOrId())
                 .withUntypedValue("bus", bus.getId())
@@ -63,10 +114,44 @@ public final class CgmesReports {
 
     public static void invalidAngleVoltageNodeReport(ReportNode reportNode, String nodeId, double v, double angle) {
         reportNode.newReportNode()
-                .withMessageTemplate("invalidAngleVoltageNode", "Node ${nodeId} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}")
+                .withMessageTemplate("invalidAngleVoltageNode", "Node ${nodeId} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}.")
                 .withUntypedValue("nodeId", nodeId)
                 .withTypedValue("voltage", v, TypedValue.VOLTAGE)
                 .withTypedValue("angle", angle, TypedValue.ANGLE)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void removingUnattachedHvdcConverterStationReport(ReportNode reportNode, String converterId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("removingUnattachedHvdcConverterStation", "HVDC Converter Station ${converterId} will be removed since it has no attached HVDC line.")
+                .withUntypedValue("converterId", converterId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void voltageLevelMappingReport(ReportNode reportNode, int voltageLevelMappingSize, String mapAsString) {
+        reportNode.newReportNode()
+                .withMessageTemplate("voltageLevelMapping", "Original ${voltageLevelMappingSize} VoltageLevel container(s) connected by switches have been merged in IIDM. Map of original VoltageLevel to IIDM: ${mapAsString}.")
+                .withUntypedValue("voltageLevelMappingSize", voltageLevelMappingSize)
+                .withUntypedValue("mapAsString", mapAsString)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void substationMappingReport(ReportNode reportNode, int substationMappingSize, String mapAsString) {
+        reportNode.newReportNode()
+                .withMessageTemplate("substationMapping", "Original ${substationMappingSize} Substation container(s) connected by transformers have been merged in IIDM. Map of original Substation to IIDM: ${mapAsString}.")
+                .withUntypedValue("substationMappingSize", substationMappingSize)
+                .withUntypedValue("mapAsString", mapAsString)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void nominalVoltageIsZeroReport(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("nominalVoltageIsZero", "Ignoring VoltageLevel: ${voltageLevelId} for its nominal voltage is equal to 0.")
+                .withUntypedValue("voltageLevelId", voltageLevelId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -97,6 +182,38 @@ public final class CgmesReports {
                 .withUntypedValue("p0Adjusted", p0Adjusted)
                 .withUntypedValue("q0Adjusted", q0Adjusted)
                 .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void missingMandatoryAttributeReport(ReportNode reportNode, String attributeName, String objectClass, String objectId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("missingMandatoryAttribute", "Could't retrieve mandatory attribute: ${attributeName} of ${objectClass}: ${objectId}.")
+                .withUntypedValue("attributeName", attributeName)
+                .withUntypedValue("objectClass", objectClass)
+                .withUntypedValue("objectId", objectId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode importingCgmesFileReport(ReportNode reportNode, String basename) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("CGMESConversion", "Importing CGMES file(s) with basename '${basename}'")
+                .withUntypedValue("basename", basename)
+                .add();
+    }
+
+    public static ReportNode readingCgmesTriplestoreReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("CGMESTriplestore", "Reading CGMES Triplestore")
+                .add();
+    }
+
+    public static void exportedModelIdentifierReport(ReportNode reportNode, String description, String identifier, String networkId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("ExportedCgmesId", "CGMES exported model identifier: ${cgmesId} for subset ${cgmesSubset} of network ${networkId}")
+                .withTypedValue("cgmesId", description, TypedValue.URN_UUID)
+                .withTypedValue("cgmesSubset", identifier, TypedValue.CGMES_SUBSET)
+                .withTypedValue("networkId", networkId, TypedValue.ID)
                 .add();
     }
 }

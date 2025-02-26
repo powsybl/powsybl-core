@@ -15,6 +15,7 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -37,7 +38,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.powsybl.ucte.converter.util.UcteConstants.*;
+import static com.powsybl.ucte.converter.util.UcteConverterConstants.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -903,13 +904,18 @@ public class UcteImporter implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return Arrays.asList(EXTENSIONS);
+    }
+
+    @Override
     public String getComment() {
         return "UCTE-DEF";
     }
 
     @Override
     public List<Parameter> getParameters() {
-        return PARAMETERS;
+        return ConfiguredParameter.load(PARAMETERS, getFormat(), defaultValueConfig);
     }
 
     private String findExtension(ReadOnlyDataSource dataSource, boolean throwException) throws IOException {

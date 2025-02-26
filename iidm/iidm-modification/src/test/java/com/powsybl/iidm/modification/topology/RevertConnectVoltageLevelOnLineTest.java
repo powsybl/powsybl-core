@@ -9,7 +9,9 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +19,7 @@ import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
@@ -47,6 +50,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine2Id("CJ_2")
                 .withLineId("CJ")
                 .build();
+        assertDoesNotThrow(() -> modificationWithError1.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, reportNode1), "Line line1NotFound is not found");
         assertEquals("lineNotFound", reportNode1.getChildren().get(0).getMessageKey());
 
@@ -56,6 +60,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine2Id("line2NotFound")
                 .withLineId("CJ")
                 .build();
+        assertDoesNotThrow(() -> modificationWithError2.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, reportNode2), "Line line2NotFound is not found");
         assertEquals("lineNotFound", reportNode2.getChildren().get(0).getMessageKey());
 
@@ -65,6 +70,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine2Id("LINE34")
                 .withLineId("CJ")
                 .build();
+        assertDoesNotThrow(() -> modificationWithError3.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, reportNode3), "Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities");
         assertEquals("noVoltageLevelInCommon", reportNode3.getChildren().get(0).getMessageKey());
 
@@ -154,5 +160,68 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLineName("NEW LINE NAME")
                 .build();
         assertEquals("NEW LINE NAME", modification.getLineName());
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new RevertConnectVoltageLevelOnLineBuilder()
+            .withLine1Id("NHV1_NHV2_1_1")
+            .withLine2Id("NHV1_NHV2_1_2")
+            .withLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals("RevertConnectVoltageLevelOnLine", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = createNbBbNetwork();
+        network.newLine()
+            .setId("LINE")
+            .setVoltageLevel1("VLLOAD")
+            .setBus1("NLOAD")
+            .setConnectableBus1("NLOAD")
+            .setVoltageLevel2("VLHV2")
+            .setBus2("NHV2")
+            .setConnectableBus2("NHV2")
+            .setR(3.0)
+            .setX(33.0)
+            .setG1(0.0)
+            .setB1(386E-6 / 2)
+            .setG2(0.0)
+            .setB2(386E-6 / 2)
+            .add();
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+            .withBusbarSectionOrBusId(BBS)
+            .withLine(network.getLine("NHV1_NHV2_1"))
+            .build();
+        modification.apply(network);
+
+        NetworkModification modification1 = new RevertConnectVoltageLevelOnLineBuilder()
+            .withLine1Id("WRONG_ID")
+            .withLine2Id("NHV1_NHV2_1_2")
+            .withLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new RevertConnectVoltageLevelOnLineBuilder()
+            .withLine1Id("NHV1_NHV2_1_1")
+            .withLine2Id("WRONG_ID")
+            .withLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification2.hasImpactOnNetwork(network));
+
+        NetworkModification modification3 = new RevertConnectVoltageLevelOnLineBuilder()
+            .withLine1Id("NHV1_NHV2_1_1")
+            .withLine2Id("NHV1_NHV2_1_2")
+            .withLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+
+        NetworkModification modification4 = new RevertConnectVoltageLevelOnLineBuilder()
+            .withLine1Id("LINE")
+            .withLine2Id("NHV1_NHV2_1_1")
+            .withLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification4.hasImpactOnNetwork(network));
     }
 }

@@ -92,12 +92,13 @@ public interface CgmesModel {
 
     PropertyBags transformerEnds();
 
-    // Transformer ends grouped by transformer
-    Map<String, PropertyBags> groupedTransformerEnds();
-
     PropertyBags ratioTapChangers();
 
+    PropertyBags ratioTapChangerTablePoints();
+
     PropertyBags phaseTapChangers();
+
+    PropertyBags phaseTapChangerTablePoints();
 
     PropertyBags regulatingControls();
 
@@ -109,7 +110,12 @@ public interface CgmesModel {
 
     PropertyBags equivalentShunts();
 
-    PropertyBags nonlinearShuntCompensatorPoints(String id);
+    /**
+     * Query all NonlinearShuntCompensatorPoint in the CgmesModel.
+     *
+     * @return A {@link PropertyBags} with the shunt compensators points properties.
+     */
+    PropertyBags nonlinearShuntCompensatorPoints();
 
     PropertyBags staticVarCompensators();
 
@@ -130,6 +136,12 @@ public interface CgmesModel {
         return new PropertyBags();
     }
 
+    default PropertyBags synchronousMachinesAll() {
+        PropertyBags p = new PropertyBags(synchronousMachinesGenerators());
+        p.addAll(synchronousMachinesCondensers());
+        return p;
+    }
+
     PropertyBags equivalentInjections();
 
     PropertyBags externalNetworkInjections();
@@ -139,14 +151,6 @@ public interface CgmesModel {
     PropertyBags asynchronousMachines();
 
     PropertyBags reactiveCapabilityCurveData();
-
-    PropertyBags ratioTapChangerTablesPoints();
-
-    PropertyBags phaseTapChangerTablesPoints();
-
-    PropertyBags ratioTapChangerTable(String tableId);
-
-    PropertyBags phaseTapChangerTable(String tableId);
 
     PropertyBags controlAreas();
 
@@ -208,10 +212,6 @@ public interface CgmesModel {
 
     // Helper mappings
 
-    List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId);
-
-    List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId);
-
     /**
      * Obtain the substation of a given terminal.
      *
@@ -227,6 +227,10 @@ public interface CgmesModel {
      * @param nodeBreaker to determine the terminal container, use node-breaker connectivity information first
      */
     String voltageLevel(CgmesTerminal t, boolean nodeBreaker);
+
+    Optional<String> node(CgmesTerminal t, boolean nodeBreaker);
+
+    Optional<CgmesContainer> nodeContainer(String nodeId);
 
     CgmesContainer container(String containerId);
 

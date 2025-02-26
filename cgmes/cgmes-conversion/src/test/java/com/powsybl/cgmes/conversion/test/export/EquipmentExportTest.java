@@ -58,6 +58,8 @@ import java.util.regex.Pattern;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.writeCgmesProfile;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.getFirstMatch;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -67,6 +69,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     private Properties importParams;
 
+    @Override
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
@@ -157,29 +160,22 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
 
-        network.newExtension(CgmesControlAreasAdder.class).add();
-        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-        CgmesControlArea cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
+        // Define a tie flow at the boundary of a dangling line
+        TieLine tieLine = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        Area area = network.newArea()
                 .setId("controlAreaId")
                 .setName("controlAreaName")
-                .setEnergyIdentificationCodeEic("energyIdentCodeEic")
-                .setNetInterchange(Double.NaN)
+                .setAreaType(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)
+                .setInterchangeTarget(Double.NaN)
+                .addAreaBoundary(tieLine.getDanglingLine2().getBoundary(), true)
                 .add();
-        TieLine tieLine = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
-        cgmesControlArea.add(tieLine.getDanglingLine2().getBoundary());
+        area.addAlias("energyIdentCodeEic", CgmesNames.ENERGY_IDENT_CODE_EIC);
 
-        // TODO(Luma) updated expected result after halves of tie lines are exported as equipment
-        //  instead of an error logged and the tie flow ignored,
-        //  the reimported network control area should contain one tie flow
-        Network actual = exportImportNodeBreaker(network, dataSource);
-        CgmesControlArea actualCgmesControlArea = actual.getExtension(CgmesControlAreas.class).getCgmesControlArea("controlAreaId");
-        boolean tieFlowsAtTieLinesAreSupported = false;
-        if (tieFlowsAtTieLinesAreSupported) {
-            assertEquals(1, actualCgmesControlArea.getBoundaries().size());
-            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getDanglingLine().getId());
-        } else {
-            assertEquals(0, actualCgmesControlArea.getBoundaries().size());
-        }
+        // The reimported network control area should contain one tie flow
+        Network actual = exportImportBusBranch(network, dataSource);
+        Area actualControlArea = actual.getArea("controlAreaId");
+        assertEquals(1, actualControlArea.getAreaBoundaryStream().count());
+        assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualControlArea.getAreaBoundaries().iterator().next().getBoundary().get().getDanglingLine().getId());
     }
 
     @Test
@@ -218,7 +214,13 @@ class EquipmentExportTest extends AbstractSerDeTest {
         TwoWindingsTransformer twta = actual.getTwoWindingsTransformerStream().findFirst().orElseThrow();
         network.getTwoWindingsTransformers().forEach(twtn -> twtn.setRatedS(twta.getRatedS()));
 
-        assertTrue(compareNetworksEQdata(network, actual));
+        // Ignore OperationalLimitsGroup id
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringNonEQ,
+                ExportXmlCompare::ignoringOperationalLimitsGroupId);
+        assertTrue(compareNetworksEQdata(network, actual, knownDiffs));
     }
 
     @Test
@@ -238,7 +240,13 @@ class EquipmentExportTest extends AbstractSerDeTest {
         TwoWindingsTransformer twta = actual.getTwoWindingsTransformerStream().findFirst().orElseThrow();
         network.getTwoWindingsTransformers().forEach(twtn -> twtn.setRatedS(twta.getRatedS()));
 
-        assertTrue(compareNetworksEQdata(network, actual));
+        // Ignore OperationalLimitsGroup id
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringNonEQ,
+                ExportXmlCompare::ignoringOperationalLimitsGroupId);
+        assertTrue(compareNetworksEQdata(network, actual, knownDiffs));
     }
 
     private void prepareNetworkForSortedTransformerEndsComparison(Network network) {
@@ -575,7 +583,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.NONCONFORM_LOAD), loadsCreatedFromOriginalClassCount(actual, CgmesNames.NONCONFORM_LOAD));
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.STATION_SUPPLY), loadsCreatedFromOriginalClassCount(actual, CgmesNames.STATION_SUPPLY));
 
-        // Avoid comparing targetP and targetQ (reimport does not consider the SSH file);
+        // Areas must be preserved
+        // The input test case contains 2 control areas of type interchange,
+        // that must be exported and reimported
+
+        // Avoid comparing targetP and targetQ, as reimport does not consider the SSH file
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
             actualGenerator.setTargetP(expectedGenerator.getTargetP());
@@ -653,7 +665,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals(generatorsCreatedFromOriginalClassCount(expected, "ExternalNetworkInjection"), generatorsCreatedFromOriginalClassCount(actual, "ExternalNetworkInjection"));
         assertEquals(generatorsCreatedFromOriginalClassCount(expected, "EquivalentInjection"), generatorsCreatedFromOriginalClassCount(actual, "EquivalentInjection"));
 
-        // Avoid comparing targetP and targetQ (reimport does not consider the SSH file);
+        // Avoid comparing targetP and targetQ, as reimport does not consider the SSH file
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
             actualGenerator.setTargetP(expectedGenerator.getTargetP());
@@ -1304,6 +1316,14 @@ class EquipmentExportTest extends AbstractSerDeTest {
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
 
+            // Generator with remote voltage regulation exported in local regulation mode
+            Properties exportInLocalRegulationModeParams = new Properties();
+            exportInLocalRegulationModeParams.put(CgmesExport.PROFILES, "EQ");
+            exportInLocalRegulationModeParams.put(CgmesExport.EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE, true);
+            network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
+            eq = getEQ(network, baseName, tmpDir, exportInLocalRegulationModeParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+
             // Generator with local reactive
             network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
             eq = getEQ(network, baseName, tmpDir, exportParams);
@@ -1351,12 +1371,12 @@ class EquipmentExportTest extends AbstractSerDeTest {
             // Generator without control
             network = EurostagTutorialExample1Factory.createWithoutControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "_GEN_RC", "", "dummy");
 
             // Generator with remote terminal without control
             network = EurostagTutorialExample1Factory.createRemoteWithoutControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "_GEN_RC", "", "dummy");
 
             // Generator without control capability
             network = EurostagTutorialExample1Factory.create();
@@ -1675,6 +1695,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
         // Export original and only EQ
         ExportOptions exportOptions = new ExportOptions();
+        // Do not export extensions
         exportOptions.setExtensions(Collections.emptySet());
         exportOptions.setSorted(true);
 
@@ -1812,11 +1833,137 @@ class EquipmentExportTest extends AbstractSerDeTest {
         for (Load load : network.getLoads()) {
             load.setP0(0.0).setQ0(0.0);
         }
+        for (Area area : network.getAreas()) {
+            area.setInterchangeTarget(0.0);
+        }
 
         network.removeExtension(CgmesModelExtension.class);
         network.removeExtension(CgmesMetadataModels.class);
         network.removeExtension(CimCharacteristics.class);
 
         return network;
+    }
+
+    private static Network allGeneratingUnitTypesNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("network", "test");
+        Substation substation1 = network.newSubstation()
+                .setId("substation1")
+                .setCountry(Country.FR)
+                .setTso("TSO1")
+                .setGeographicalTags("region1")
+                .add();
+        VoltageLevel voltageLevel1 = substation1.newVoltageLevel()
+                .setId("voltageLevel1")
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        VoltageLevel.NodeBreakerView topology1 = voltageLevel1.getNodeBreakerView();
+        topology1.newBusbarSection()
+                .setId("voltageLevel1BusbarSection1")
+                .setNode(0)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("other")
+                .setNode(1)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("nuclear")
+                .setNode(2)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.NUCLEAR)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("thermal")
+                .setNode(3)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.THERMAL)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("hydro")
+                .setNode(4)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.HYDRO)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("solar")
+                .setNode(5)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.SOLAR)
+                .add();
+        Generator windOnshore = voltageLevel1.newGenerator()
+                .setId("wind_onshore")
+                .setNode(6)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.WIND)
+                .add();
+        Generator windOffshore = voltageLevel1.newGenerator()
+                .setId("wind_offshore")
+                .setNode(7)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.WIND)
+                .add();
+        topology1.newInternalConnection().setNode1(0).setNode2(1).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(2).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(3).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(4).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(5).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(6).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(7).add();
+        windOnshore.setProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "onshore");
+        windOffshore.setProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "offshore");
+        return network;
+    }
+
+    @Test
+    void generatingUnitTypesTest() throws IOException {
+        Network network = allGeneratingUnitTypesNetwork();
+
+        // Export as cgmes
+        String eqXml = writeCgmesProfile(network, "EQ", tmpDir);
+
+        assertTrue(eqXml.contains("<cim:GeneratingUnit rdf:ID=\"_other_GU\">"));
+        assertTrue(eqXml.contains("<cim:NuclearGeneratingUnit rdf:ID=\"_nuclear_NGU\">"));
+        assertTrue(eqXml.contains("<cim:ThermalGeneratingUnit rdf:ID=\"_thermal_TGU\">"));
+        assertTrue(eqXml.contains("<cim:HydroGeneratingUnit rdf:ID=\"_hydro_HGU\">"));
+        assertTrue(eqXml.contains("<cim:SolarGeneratingUnit rdf:ID=\"_solar_SGU\">"));
+        assertTrue(eqXml.contains("<cim:WindGeneratingUnit rdf:ID=\"_wind_onshore_WGU\">"));
+        assertTrue(eqXml.contains("<cim:WindGeneratingUnit rdf:ID=\"_wind_offshore_WGU\">"));
+
+        String sPattern = "<cim:WindGeneratingUnit rdf:ID=\"${rdfId}\">.*?" +
+                "<cim:WindGeneratingUnit.windGenUnitType rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#WindGenUnitKind.(.*?)\"/>";
+
+        Pattern onshorePattern = Pattern.compile(sPattern.replace("${rdfId}", "_wind_onshore_WGU"), Pattern.DOTALL);
+        assertEquals("onshore", getFirstMatch(eqXml, onshorePattern));
+        Pattern offshorePattern = Pattern.compile(sPattern.replace("${rdfId}", "_wind_offshore_WGU"), Pattern.DOTALL);
+        assertEquals("offshore", getFirstMatch(eqXml, offshorePattern));
     }
 }

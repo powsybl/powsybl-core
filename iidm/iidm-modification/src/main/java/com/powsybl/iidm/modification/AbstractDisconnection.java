@@ -12,9 +12,9 @@ import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
 import java.util.function.Predicate;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.identifiableDisconnectionReport;
 
 /**
@@ -30,16 +30,13 @@ import static com.powsybl.iidm.modification.util.ModificationReports.identifiabl
  * try to disconnect every side.</p>
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public abstract class AbstractDisconnection extends AbstractNetworkModification {
+public abstract class AbstractDisconnection extends AbstractConnectDisconnectModification {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDisconnection.class);
-    final String identifiableId;
     final Predicate<Switch> openableSwitches;
-    final ThreeSides side;
 
     AbstractDisconnection(String identifiableId, Predicate<Switch> openableSwitches, ThreeSides side) {
-        this.identifiableId = Objects.requireNonNull(identifiableId);
+        super(identifiableId, side, false);
         this.openableSwitches = openableSwitches;
-        this.side = side;
     }
 
     public void applyModification(Network network, boolean isPlanned, boolean throwException, ReportNode reportNode) {

@@ -10,5 +10,7 @@ maxdepth: 1
 
 import_post_processor.md
 extraction.md
+working_with_subnetworks.md
 loadflow_validation
+network_modifications.md
 ```

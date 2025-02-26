@@ -27,42 +27,42 @@ import com.univocity.parsers.annotations.Parsed;
 
 public class PsseSubstation {
 
-    public PsseSubstation(PsseSubstationRecord srecord,
+    public PsseSubstation(PsseSubstationRecord substationRecord,
                           List<PsseSubstationNode> nodes, List<PsseSubstationSwitchingDevice> switchingDevices,
                           List<PsseSubstationEquipmentTerminal> equipmentTerminals) {
-        this.srecord = srecord;
+        this.substationRecord = substationRecord;
         this.nodes = nodes;
         this.switchingDevices = switchingDevices;
         this.equipmentTerminals = equipmentTerminals;
     }
 
-    private final PsseSubstationRecord srecord;
+    private final PsseSubstationRecord substationRecord;
     private final List<PsseSubstationNode> nodes;
     private final List<PsseSubstationSwitchingDevice> switchingDevices;
     private final List<PsseSubstationEquipmentTerminal> equipmentTerminals;
 
     public int getIs() {
-        return srecord.is;
+        return substationRecord.is;
     }
 
     public String getName() {
-        return srecord.name;
+        return substationRecord.name;
     }
 
     public double getLati() {
-        return srecord.lati;
+        return substationRecord.lati;
     }
 
     public double getLong() {
-        return srecord.longi;
+        return substationRecord.longi;
     }
 
     public double getSrg() {
-        return srecord.srg;
+        return substationRecord.srg;
     }
 
     public PsseSubstationRecord getRecord() {
-        return srecord;
+        return substationRecord;
     }
 
     public List<PsseSubstationNode> getNodes() {
@@ -78,7 +78,7 @@ public class PsseSubstation {
     }
 
     public PsseSubstation copy() {
-        PsseSubstationRecord copyRecord = this.srecord.copy();
+        PsseSubstationRecord copyRecord = this.substationRecord.copy();
 
         List<PsseSubstationNode> copyNodes = new ArrayList<>();
         this.nodes.forEach(node -> copyNodes.add(node.copy()));
@@ -172,9 +172,11 @@ public class PsseSubstation {
         @Parsed(field = {"stat", "status"})
         private int status = 1;
 
+        @NullString(nulls = {"null"})
         @Parsed
         private double vm = 1.0;
 
+        @NullString(nulls = {"null"})
         @Parsed
         private double va = 0.0;
 

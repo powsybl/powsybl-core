@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
@@ -219,8 +220,9 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification0.apply(network1, false, ReportNode.NO_OP));
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, reportNode1));
-        assertEquals("Network given in parameters and in connectableAdder are different. Connectable was added then removed", e0.getMessage());
+        assertEquals("Network given in parameters and in connectableAdder are different. Connectable lineTest of type LINE was added then removed", e0.getMessage());
         assertEquals("networkMismatch", reportNode1.getChildren().get(0).getMessageKey());
 
         // not found id
@@ -234,6 +236,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification1.apply(nbNetwork, false, ReportNode.NO_OP));
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(nbNetwork, true, reportNode2));
         assertEquals("Bus or busbar section bbs not found", e1.getMessage());
         assertEquals("notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
@@ -249,6 +252,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification2.apply(nbNetwork, false, ReportNode.NO_OP));
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(nbNetwork, true, reportNode3));
         assertEquals("Unsupported type GENERATOR for identifiable gen1", e2.getMessage());
         assertEquals("unsupportedIdentifiableType", reportNode3.getChildren().get(0).getMessageKey());
@@ -379,5 +383,28 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .build()
                 .apply(network, true, reportNode);
         testReportNode(reportNode, "/reportNode/create-line-NB-without-extensions-report.txt");
+    }
+
+    @Test
+    void testGetName() {
+        Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
+        LineAdder lineAdder = network.newLine()
+            .setId("lineTest")
+            .setR(1.0)
+            .setX(1.0)
+            .setG1(0.0)
+            .setG2(0.0)
+            .setB1(0.0)
+            .setB2(0.0);
+        AbstractNetworkModification networkModification = new CreateBranchFeederBaysBuilder()
+            .withBranchAdder(lineAdder)
+            .withBusOrBusbarSectionId1("bbs5")
+            .withPositionOrder1(115)
+            .withDirection1(BOTTOM)
+            .withBusOrBusbarSectionId2("bbs1")
+            .withPositionOrder2(121)
+            .withDirection2(TOP)
+            .build();
+        assertEquals("CreateBranchFeederBays", networkModification.getName());
     }
 }

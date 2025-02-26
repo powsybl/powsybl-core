@@ -383,6 +383,21 @@ final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringOperationalLimitsGroupId(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (comparison.getControlDetails().getXPath().contains("operationalLimitsGroup") && control != null
+                        && control.getLocalName().equals("id")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control != null && control.getLocalName().contains("selectedOperationalLimitsGroupId")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringJunctionOrBusbarTerminals(Comparison comparison, ComparisonResult result) {
         // If control node is a terminal of a junction, ignore the difference
         // Means that we also have to ignore length of children of RDF element
@@ -435,36 +450,6 @@ final class ExportXmlCompare {
             }
         }
         return true;
-    }
-
-    static ComparisonResult ignoringControlAreaNetInterchange(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT) {
-            if (comparison.getType() == ComparisonType.ELEMENT_NUM_ATTRIBUTES) {
-                Node control = comparison.getControlDetails().getTarget();
-                Node test = comparison.getTestDetails().getTarget();
-                if (control.getLocalName().equals("controlArea")
-                        && control.getAttributes().getLength() - test.getAttributes().getLength() == 1
-                        && control.getAttributes().getNamedItem("netInterchange") != null && test.getAttributes().getNamedItem("netInterchange") == null) {
-                    return ComparisonResult.EQUAL;
-                }
-            }
-            if (comparison.getType() == ComparisonType.ATTR_NAME_LOOKUP) {
-                Comparison.Detail control = comparison.getControlDetails();
-                if (control.getValue().toString().equals("netInterchange")
-                        && control.getTarget().getLocalName().equals("controlArea")) {
-                    return ComparisonResult.EQUAL;
-                }
-            }
-            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
-                Comparison.Detail control = comparison.getControlDetails();
-                Comparison.Detail test = comparison.getTestDetails();
-                if (control.getTarget().getLocalName().equals("netInterchange")
-                        && test.getTarget().getLocalName().equals("netInterchange")) {
-                    return ComparisonResult.EQUAL;
-                }
-            }
-        }
-        return result;
     }
 
     static ComparisonResult ignoringFullModelAbout(Comparison comparison, ComparisonResult result) {
@@ -589,18 +574,33 @@ final class ExportXmlCompare {
         return result;
     }
 
-    static ComparisonResult ignoringRdfChildLookupStaticVarCompensator(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+    static ComparisonResult ignoringStaticVarCompensatorControlEnabled(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
             String cxpath = comparison.getControlDetails().getXPath();
-            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("StaticVarCompensator")) {
+            if (cxpath != null && cxpath.contains("StaticVarCompensator") && cxpath.contains(".controlEnabled")) {
                 return ComparisonResult.EQUAL;
             }
         }
         return result;
     }
 
-    static ComparisonResult ignoringRdfChildLookupRegulatingControl(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+    static ComparisonResult ignoringStaticVarCompensatorQ(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("StaticVarCompensator.q")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringRegulatingControl(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("RegulatingControl")) {
+                return ComparisonResult.EQUAL;
+            }
+        } else if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
             String cxpath = comparison.getControlDetails().getXPath();
             if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("RegulatingControl")) {
                 return ComparisonResult.EQUAL;

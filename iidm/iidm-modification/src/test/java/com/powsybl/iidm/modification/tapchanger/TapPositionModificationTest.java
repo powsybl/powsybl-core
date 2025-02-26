@@ -9,7 +9,9 @@ package com.powsybl.iidm.modification.tapchanger;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
@@ -19,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
@@ -111,12 +114,14 @@ class TapPositionModificationTest {
             ThreeSides.ONE);
         assertThrows(PowsyblException.class, () -> modifRtc.apply(threeWindingNetwork, true, ReportNode.NO_OP),
             "Modifying a Ratio tap that is not present should throw.");
+        assertDoesNotThrow(() -> modifRtc.apply(threeWindingNetwork, false, ReportNode.NO_OP));
         // Phase
         assertFalse(leg.hasRatioTapChanger(), "Test assumptions are wrong.");
         NetworkModification modifPtc = new PhaseTapPositionModification(threeWindingNetwork.getId(), 1,
             ThreeSides.ONE);
         assertThrows(PowsyblException.class, () -> modifPtc.apply(threeWindingNetwork, true, ReportNode.NO_OP),
             "Modifying a Phasetap that is not present should throw.");
+        assertDoesNotThrow(() -> modifPtc.apply(threeWindingNetwork, false, ReportNode.NO_OP));
     }
 
     @Test
@@ -213,6 +218,7 @@ class TapPositionModificationTest {
             networkToApply = threeWindingNetwork;
         }
         modif = getNetworkModification(type, invalidTapPos, transformerId, leg);
+        assertDoesNotThrow(() -> modif.apply(networkToApply, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modif.apply(networkToApply, true, ReportNode.NO_OP));
         assertEquals(currentTapPos, tapPositionSupplier.get(),
             "Invalid tap position should not be applied to the network");
@@ -225,4 +231,100 @@ class TapPositionModificationTest {
         PHASE, RATIO
     }
 
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new PhaseTapPositionModification("ID", 10);
+        assertEquals("PhaseTapPositionModification", networkModification.getName());
+
+        networkModification = new RatioTapPositionModification("ID", 10);
+        assertEquals("RatioTapPositionModification", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        NetworkModification modification1 = getNetworkModification(TapType.PHASE, 0, "NOT_EXISTING", ThreeSides.ONE);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = getNetworkModification(TapType.RATIO, 0, "NOT_EXISTING", ThreeSides.ONE);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification2.hasImpactOnNetwork(network));
+
+        NetworkModification modification3 = getNetworkModification(TapType.PHASE, 0, twoWindingsTransformer.getId(), ThreeSides.ONE);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+
+        NetworkModification modification4 = getNetworkModification(TapType.RATIO, 0, twoWindingsTransformer.getId(), ThreeSides.ONE);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
+
+        NetworkModification modification5 = getNetworkModification(TapType.PHASE, 32, twoWindingsTransformer.getId(), ThreeSides.ONE);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification5.hasImpactOnNetwork(network));
+
+        NetworkModification modification6 = getNetworkModification(TapType.RATIO, 2, twoWindingsTransformer.getId(), ThreeSides.ONE);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification6.hasImpactOnNetwork(network));
+
+        twoWindingsTransformer.getRatioTapChanger().remove();
+        twoWindingsTransformer.getPhaseTapChanger().remove();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification5.hasImpactOnNetwork(network));
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification6.hasImpactOnNetwork(network));
+
+        NetworkModification modification7 = getNetworkModification(TapType.PHASE, 0, threeWindingTransformer.getId(), ThreeSides.ONE);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification7.hasImpactOnNetwork(threeWindingNetwork));
+
+        NetworkModification modification8 = getNetworkModification(TapType.RATIO, 0, threeWindingTransformer.getId(), ThreeSides.ONE);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification8.hasImpactOnNetwork(threeWindingNetwork));
+
+        ThreeWindingsTransformer.Leg leg = threeWindingTransformer.getLeg1();
+        leg.newPhaseTapChanger()
+            .setLowTapPosition(0)
+            .setTapPosition(0)
+            .beginStep()
+            .setR(0.01)
+            .setX(0.0001)
+            .setB(0)
+            .setG(0)
+            .setRho(1.1)
+            .setAlpha(1)
+            .endStep()
+            .beginStep()
+            .setR(0.02)
+            .setX(0.0002)
+            .setB(0)
+            .setG(0)
+            .setRho(1.2)
+            .setAlpha(1.1)
+            .endStep()
+            .add();
+        leg.newRatioTapChanger()
+            .setLowTapPosition(0)
+            .setTapPosition(0)
+            .beginStep()
+            .setRho(1.0)
+            .endStep()
+            .setTargetV(leg.getTerminal().getVoltageLevel().getNominalV())
+            .setTargetDeadband(2.0)
+            .setRegulationTerminal(leg.getTerminal())
+            .add();
+
+        NetworkModification modification9 = getNetworkModification(TapType.PHASE, 0, threeWindingTransformer.getId(), ThreeSides.ONE);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification9.hasImpactOnNetwork(threeWindingNetwork));
+
+        NetworkModification modification10 = getNetworkModification(TapType.RATIO, 2, threeWindingTransformer.getId(), ThreeSides.TWO);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification10.hasImpactOnNetwork(threeWindingNetwork));
+
+        NetworkModification modification11 = getNetworkModification(TapType.PHASE, 1, threeWindingTransformer.getId(), ThreeSides.ONE);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification11.hasImpactOnNetwork(threeWindingNetwork));
+
+        NetworkModification modification12 = getNetworkModification(TapType.RATIO, 1, threeWindingTransformer.getId(), ThreeSides.TWO);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification12.hasImpactOnNetwork(threeWindingNetwork));
+
+        NetworkModification modification13 = getNetworkModification(TapType.PHASE, 10, threeWindingTransformer.getId(), ThreeSides.ONE);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification13.hasImpactOnNetwork(threeWindingNetwork));
+
+        NetworkModification modification14 = getNetworkModification(TapType.RATIO, 10, threeWindingTransformer.getId(), ThreeSides.TWO);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification14.hasImpactOnNetwork(threeWindingNetwork));
+
+        NetworkModification modification15 = getNetworkModification(TapType.PHASE, -1, threeWindingTransformer.getId(), ThreeSides.ONE);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification15.hasImpactOnNetwork(threeWindingNetwork));
+
+        NetworkModification modification16 = getNetworkModification(TapType.RATIO, -1, threeWindingTransformer.getId(), ThreeSides.TWO);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification16.hasImpactOnNetwork(threeWindingNetwork));
+    }
 }

@@ -791,8 +791,12 @@ public final class NetworkSerDe {
     }
 
     public static Network read(Path xmlFile, ImportOptions options) {
+        return read(xmlFile, options, null, NetworkFactory.findDefault(), ReportNode.NO_OP);
+    }
+
+    public static Network read(Path xmlFile, ImportOptions options, Anonymizer anonymizer, NetworkFactory networkFactory, ReportNode reportNode) {
         try (InputStream is = Files.newInputStream(xmlFile)) {
-            return read(is, options, null);
+            return read(is, options, anonymizer, networkFactory, reportNode);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -821,15 +825,14 @@ public final class NetworkSerDe {
             if (context.getOptions().withExtension(extensionName)) {
                 ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
                 if (extensionXmlSerializer != null) {
-                    Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
-                    identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+                    extensionXmlSerializer.read(identifiable, context);
                     extensionNamesImported.add(extensionName);
                 } else {
                     extensionNamesNotFound.add(extensionName);
-                    context.getReader().skipChildNodes();
+                    context.getReader().skipNode();
                 }
             } else {
-                context.getReader().skipChildNodes();
+                context.getReader().skipNode();
             }
         });
     }
@@ -874,6 +877,33 @@ public final class NetworkSerDe {
     }
 
     public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor) {
+        return copy(network, networkFactory, executor, TreeDataFormat.JSON);
+    }
+
+    /**
+     * Deep copy of the network using the specified converter
+     *
+     * @param network the network to copy
+     * @param format the converter to use to export/import the network
+     * @return the copy of the network
+     */
+    public static Network copy(Network network, TreeDataFormat format) {
+        return copy(network, NetworkFactory.findDefault(), format);
+    }
+
+    /**
+     * Deep copy of the network using the specified converter
+     *
+     * @param network        the network to copy
+     * @param networkFactory the network factory to use for the copy
+     * @param format the converter to use to export/import the network
+     * @return the copy of the network
+     */
+    public static Network copy(Network network, NetworkFactory networkFactory, TreeDataFormat format) {
+        return copy(network, networkFactory, ForkJoinPool.commonPool(), format);
+    }
+
+    public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor, TreeDataFormat format) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(executor);
@@ -881,7 +911,7 @@ public final class NetworkSerDe {
         try (InputStream is = new PipedInputStream(pos)) {
             executor.execute(() -> {
                 try {
-                    write(network, pos);
+                    write(network, new ExportOptions().setFormat(format), pos);
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 } finally {
@@ -892,7 +922,7 @@ public final class NetworkSerDe {
                     }
                 }
             });
-            return read(is, new ImportOptions(), null, networkFactory, ReportNode.NO_OP);
+            return read(is, new ImportOptions().setFormat(format), null, networkFactory, ReportNode.NO_OP);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

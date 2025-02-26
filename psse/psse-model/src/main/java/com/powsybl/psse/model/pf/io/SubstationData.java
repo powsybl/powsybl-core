@@ -16,11 +16,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.powsybl.psse.model.pf.PsseSubstation.*;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -62,13 +60,13 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
             if (!reader.isQRecordFound()) {
                 String line = reader.readUntilFindingARecordLineNotEmpty();
                 while (!reader.endOfBlock(line)) {
-                    PsseSubstationRecord srecord = recordData.readFromStrings(Collections.singletonList(line), context).get(0);
+                    PsseSubstationRecord substationRecord = recordData.readFromStrings(Collections.singletonList(line), context).get(0);
 
                     List<PsseSubstationNode> nodeList = new SubstationNodeData().read(reader, context);
                     List<PsseSubstationSwitchingDevice> switchingDeviceList = new SubstationSwitchingDeviceData().read(reader, context);
                     List<PsseSubstationEquipmentTerminal> equipmentTerminalList = readEquipmentTerminalData(reader, context);
 
-                    PsseSubstation substation = new PsseSubstation(srecord, nodeList, switchingDeviceList, equipmentTerminalList);
+                    PsseSubstation substation = new PsseSubstation(substationRecord, nodeList, switchingDeviceList, equipmentTerminalList);
                     substationList.add(substation);
 
                     line = reader.readUntilFindingARecordLineNotEmpty();
@@ -135,9 +133,9 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private List<String> writeEquipmentTerminalData(List<PsseSubstationEquipmentTerminal> equipmentTerminalList, Context context) {
 
-            List<PsseSubstationEquipmentTerminal> eqOneBus = equipmentTerminalList.stream().filter(eq -> isOneBus(eq.getType())).collect(Collectors.toList());
-            List<PsseSubstationEquipmentTerminal> eqTwoBuses = equipmentTerminalList.stream().filter(eq -> isTwoBuses(eq.getType())).collect(Collectors.toList());
-            List<PsseSubstationEquipmentTerminal> eqThreeBuses = equipmentTerminalList.stream().filter(eq -> isThreeBuses(eq.getType())).collect(Collectors.toList());
+            List<PsseSubstationEquipmentTerminal> eqOneBus = equipmentTerminalList.stream().filter(eq -> isOneBus(eq.getType())).toList();
+            List<PsseSubstationEquipmentTerminal> eqTwoBuses = equipmentTerminalList.stream().filter(eq -> isTwoBuses(eq.getType())).toList();
+            List<PsseSubstationEquipmentTerminal> eqThreeBuses = equipmentTerminalList.stream().filter(eq -> isThreeBuses(eq.getType())).toList();
 
             SubstationEquipmentTerminalDataOneBus oneBusData = new SubstationEquipmentTerminalDataOneBus();
             List<String> strings = oneBusData.buildRecords(eqOneBus, context.getFieldNames(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS), oneBusData.quotedFields(), context);
@@ -246,7 +244,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
             if (outputStream != null) {
                 throw new PsseException("Unexpected outputStream. Should be null");
             }
-            List<PsseSubstationRecord> recordList = substationList.stream().map(PsseSubstation::getRecord).collect(Collectors.toList());
+            List<PsseSubstationRecord> recordList = substationList.stream().map(PsseSubstation::getRecord).toList();
             new SubstationRecordData().write(recordList, context, null);
 
             List<PsseSubstationNodex> nodexList = new ArrayList<>();
@@ -270,12 +268,12 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
                                                                     List<PsseSubstationEquipmentTerminalx> equipmentTerminalxList) {
 
             List<PsseSubstation> substationList = new ArrayList<>();
-            for (PsseSubstationRecord srecord : recordList) {
-                List<PsseSubstationNode> nodeList = nodexList.stream().filter(n -> n.getIsub() == srecord.getIs()).map(PsseSubstationNodex::getNode).collect(Collectors.toList());
-                List<PsseSubstationSwitchingDevice> switchingDeviceList = switchingDevicexList.stream().filter(sd -> sd.getIsub() == srecord.getIs()).map(PsseSubstationSwitchingDevicex::getSwitchingDevice).collect(Collectors.toList());
-                List<PsseSubstationEquipmentTerminal> equipmentTerminalList = equipmentTerminalxList.stream().filter(eq -> eq.getIsub() == srecord.getIs()).map(PsseSubstationEquipmentTerminalx::getEquipmentTerminal).collect(Collectors.toList());
+            for (PsseSubstationRecord substationRecord : recordList) {
+                List<PsseSubstationNode> nodeList = nodexList.stream().filter(n -> n.getIsub() == substationRecord.getIs()).map(PsseSubstationNodex::getNode).toList();
+                List<PsseSubstationSwitchingDevice> switchingDeviceList = switchingDevicexList.stream().filter(sd -> sd.getIsub() == substationRecord.getIs()).map(PsseSubstationSwitchingDevicex::getSwitchingDevice).toList();
+                List<PsseSubstationEquipmentTerminal> equipmentTerminalList = equipmentTerminalxList.stream().filter(eq -> eq.getIsub() == substationRecord.getIs()).map(PsseSubstationEquipmentTerminalx::getEquipmentTerminal).toList();
 
-                substationList.add(new PsseSubstation(srecord, nodeList, switchingDeviceList, equipmentTerminalList));
+                substationList.add(new PsseSubstation(substationRecord, nodeList, switchingDeviceList, equipmentTerminalList));
             }
             return substationList;
         }

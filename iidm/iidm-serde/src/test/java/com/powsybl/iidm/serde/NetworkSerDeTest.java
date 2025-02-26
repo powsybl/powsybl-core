@@ -13,6 +13,7 @@ import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
@@ -20,6 +21,8 @@ import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -28,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,11 +54,59 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
     }
 
-    @Test
-    void testSkippedExtension() throws IOException {
+    @ParameterizedTest
+    @EnumSource(value = TreeDataFormat.class, names = {"XML", "JSON"})
+    void testSkippedExtension(TreeDataFormat format) throws IOException {
+        Network network = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"));
+        Path file = tmpDir.resolve("data");
+        NetworkSerDe.write(network, new ExportOptions().setFormat(format), file);
+
         // Read file with all extensions included (default ImportOptions)
         ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
-        Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
+        Network networkReadExtensions = NetworkSerDe.read(file,
+                new ImportOptions().setFormat(format), null, NetworkFactory.findDefault(), reportNode1);
+        Load load1 = networkReadExtensions.getLoad("LOAD1");
+        assertNotNull(load1.getExtension(LoadBarExt.class));
+        assertNotNull(load1.getExtension(LoadZipModel.class));
+
+        StringWriter sw1 = new StringWriter();
+        reportNode1.print(sw1);
+        assertEquals("""
+                + Root reportNode
+                   Validation warnings
+                   + Imported extensions
+                      Extension loadBar imported.
+                      Extension loadZipModel imported.
+                """, TestUtil.normalizeLineSeparator(sw1.toString()));
+
+        // Read file with only terminalMockNoSerDe and loadZipModel extensions included
+        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
+        ImportOptions notAllExtensions = new ImportOptions()
+                .addExtension("terminalMockNoSerDe").addExtension("loadZipModel")
+                .setFormat(format);
+        Network networkSkippedExtensions = NetworkSerDe.read(file,
+                notAllExtensions, null, NetworkFactory.findDefault(), reportNode2);
+        Load load2 = networkSkippedExtensions.getLoad("LOAD1");
+        assertNull(load2.getExtension(LoadBarExt.class));
+        LoadZipModel loadZipModelExt = load2.getExtension(LoadZipModel.class);
+        assertNotNull(loadZipModelExt);
+        assertEquals(3.0, loadZipModelExt.getA3(), 0.001);
+
+        StringWriter sw2 = new StringWriter();
+        reportNode2.print(sw2);
+        assertEquals("""
+                + Root reportNode
+                   Validation warnings
+                   + Imported extensions
+                      Extension loadZipModel imported.
+                """, TestUtil.normalizeLineSeparator(sw2.toString()));
+    }
+
+    @Test
+    void testNotFoundExtension() throws IOException {
+        // Read file with all extensions included (default ImportOptions)
+        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
+        Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/notFoundExtension.xml"),
                 new ImportOptions(), null, NetworkFactory.findDefault(), reportNode1);
         Load load1 = networkReadExtensions.getLoad("LOAD");
         assertNotNull(load1.getExtension(LoadBarExt.class));
@@ -71,28 +123,6 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                    + Not found extensions
                       Extension terminalMockNoSerDe not found.
                 """, TestUtil.normalizeLineSeparator(sw1.toString()));
-
-        // Read file with only terminalMockNoSerDe and loadZipModel extensions included
-        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
-        ImportOptions notAllExtensions = new ImportOptions().addExtension("terminalMockNoSerDe").addExtension("loadZipModel");
-        Network networkSkippedExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
-                notAllExtensions, null, NetworkFactory.findDefault(), reportNode2);
-        Load load2 = networkSkippedExtensions.getLoad("LOAD");
-        assertNull(load2.getExtension(LoadBarExt.class));
-        LoadZipModel loadZipModelExt = load2.getExtension(LoadZipModel.class);
-        assertNotNull(loadZipModelExt);
-        assertEquals(3.0, loadZipModelExt.getA3(), 0.001);
-
-        StringWriter sw2 = new StringWriter();
-        reportNode2.print(sw2);
-        assertEquals("""
-                + Root reportNode
-                   Validation warnings
-                   + Imported extensions
-                      Extension loadZipModel imported.
-                   + Not found extensions
-                      Extension terminalMockNoSerDe not found.
-                """, TestUtil.normalizeLineSeparator(sw2.toString()));
     }
 
     @Test
@@ -116,6 +146,21 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         assertArrayEquals(Files.readAllBytes(file1), Files.readAllBytes(file2));
     }
 
+    @Test
+    void testCopyFormat() {
+        Network network = createEurostagTutorialExample1();
+        Path file1 = tmpDir.resolve("n.xml");
+        NetworkSerDe.write(network, file1);
+        Network network2 = NetworkSerDe.copy(network);
+        Path file2 = tmpDir.resolve("n2.xml");
+        NetworkSerDe.write(network2, file2);
+        assertTxtEquals(file1, file2);
+        Network network3 = NetworkSerDe.copy(network, TreeDataFormat.BIN);
+        Path file3 = tmpDir.resolve("n3.xml");
+        NetworkSerDe.write(network3, file3);
+        assertTxtEquals(file1, file3);
+    }
+
     @AutoService(ExtensionSerDe.class)
     public static class BusbarSectionExtSerDe extends AbstractExtensionSerDe<BusbarSection, BusbarSectionExt> {
 
@@ -131,7 +176,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         @Override
         public BusbarSectionExt read(BusbarSection busbarSection, DeserializerContext context) {
             context.getReader().readEndNode();
-            return new BusbarSectionExt(busbarSection);
+            var bbsExt = new BusbarSectionExt(busbarSection);
+            busbarSection.addExtension(BusbarSectionExt.class, bbsExt);
+            return bbsExt;
         }
     }
 

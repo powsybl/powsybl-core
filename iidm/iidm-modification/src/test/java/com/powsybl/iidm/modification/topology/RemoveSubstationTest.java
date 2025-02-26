@@ -9,6 +9,9 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -77,5 +80,23 @@ class RemoveSubstationTest extends AbstractModificationTest {
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reportNode));
         assertEquals("Substation not found: UNKNOWN", e.getMessage());
         testReportNode(reportNode, "/reportNode/remove-unknown-substation-report.txt");
+        assertDoesNotThrow(() -> removeUnknown.apply(network, false, ReportNode.NO_OP));
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new RemoveSubstationBuilder().withSubstationId("L").build();
+        assertEquals("RemoveSubstation", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        NetworkModification modification1 = new RemoveSubstationBuilder().withSubstationId("WRONG_ID").build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new RemoveSubstationBuilder().withSubstationId("P2").build();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
     }
 }

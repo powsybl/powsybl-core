@@ -26,7 +26,11 @@ public final class ModificationReports {
     private static final String IDENTIFIABLE_ID = "identifiableId";
     private static final String IDENTIFIABLE_TYPE = "identifiableType";
     private static final String HVDC_LINE_ID = "hvdcLineId";
+    private static final String TWO_WINDINGS_TRANSFORMER_ID = "twoWindingsTransformerId";
+    private static final String THREE_WINDINGS_TRANSFORMER_ID = "threeWindingsTransformerId";
+    private static final String EXTENSIONS = "extensions";
     public static final String POSITION_ORDER = "positionOrder";
+    public static final String TIE_LINE_ID = "tieLineId";
 
     // INFO
     public static void createdConnectable(ReportNode reportNode, Connectable<?> connectable) {
@@ -59,10 +63,19 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void removedTieLineReport(ReportNode reportNode, String tieLineId, String pairingKey) {
+        reportNode.newReportNode()
+                .withMessageTemplate("removedTieLine", "Removed tie line ${tieLineId} with pairing key ${pairingKey}")
+                .withTypedValue(TIE_LINE_ID, tieLineId, TypedValue.ID)
+                .withUntypedValue("pairingKey", pairingKey == null ? "" : pairingKey)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
     public static void removedTieLineAndAssociatedDanglingLines(ReportNode reportNode, String tieLineId, String danglingLineId1, String danglingLineId2, String pairingKey) {
         reportNode.newReportNode()
                 .withMessageTemplate("removedTieLineAndAssociatedDanglingLines", "Removed tie line ${tieLineId} and associated dangling lines ${danglingLineId1} and ${danglingLineId2} with pairing key ${pairingKey}")
-                .withUntypedValue("tieLineId", tieLineId)
+                .withTypedValue(TIE_LINE_ID, tieLineId, TypedValue.ID)
                 .withUntypedValue("danglingLineId1", danglingLineId1)
                 .withUntypedValue("danglingLineId2", danglingLineId2)
                 .withUntypedValue("pairingKey", pairingKey == null ? "" : pairingKey)
@@ -75,6 +88,109 @@ public final class ModificationReports {
                 .withMessageTemplate("lineCreated", "Line ${lineId} created")
                 .withUntypedValue(LINE_ID, lineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void createdVoltageLevelReport(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("voltageLevelCreated", "VoltageLevel ${voltageLevelId} created")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void createdTwoWindingsTransformerReport(ReportNode reportNode, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("twoWindingsTransformerCreated", "TwoWindingsTransformer ${twoWindingsTransformerId} created")
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void createdThreeWindingsTransformerReport(ReportNode reportNode, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("threeWindingsTransformerCreated", "ThreeWindingsTransformer ${threeWindingsTransformerId} created")
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void removedTwoWindingsTransformerReport(ReportNode reportNode, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("twoWindingsTransformerRemoved", "TwoWindingsTransformer ${twoWindingsTransformerId} removed")
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void removedThreeWindingsTransformerReport(ReportNode reportNode, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("threeWindingsTransformerRemoved", "ThreeWindingsTransformer ${threeWindingsTransformerId} removed")
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void lostTwoWindingsTransformerAliases(ReportNode reportNode, String aliases, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("lostTwoWindingsTransformerAliases", "Alias [${aliases}] of twoWindingsTransformer ${twoWindingsTransformerId} will be lost")
+                .withUntypedValue("aliases", aliases)
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void lostThreeWindingsTransformerAliases(ReportNode reportNode, String aliases, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("lostThreeWindingsTransformerAliases", "Alias [${aliases}] of threeWindingsTransformer ${threeWindingsTransformerId} will be lost")
+                .withUntypedValue("aliases", aliases)
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void lostTwoWindingsTransformerProperties(ReportNode reportNode, String properties, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("lostTwoWindingsTransformerProperties", "Property [${properties}] of twoWindingsTransformer ${twoWindingsTransformerId} will be lost")
+                .withUntypedValue("properties", properties)
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void lostThreeWindingsTransformerProperties(ReportNode reportNode, String properties, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("lostThreeWindingsTransformerProperties", "Property [${properties}] of threeWindingsTransformer ${threeWindingsTransformerId} will be lost")
+                .withUntypedValue("properties", properties)
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void lostTwoWindingsTransformerExtensions(ReportNode reportNode, String extensions, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("lostTwoWindingsTransformerExtensions", "Extension [${extensions}] of twoWindingsTransformer ${twoWindingsTransformerId} will be lost")
+                .withUntypedValue(EXTENSIONS, extensions)
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void lostThreeWindingsTransformerExtensions(ReportNode reportNode, String extensions, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("lostThreeWindingsTransformerExtensions", "Extension [${extensions}] of threeWindingsTransformer ${threeWindingsTransformerId} will be lost")
+                .withUntypedValue(EXTENSIONS, extensions)
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void lostTwoWindingsTransformerOperationalLimitsGroups(ReportNode reportNode, String limits, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("lostTwoWindingsTransformerOperationalLimitsGroups", "OperationalLimitsGroups [${limits}] of twoWindingsTransformer ${twoWindingsTransformerId} will be lost")
+                .withUntypedValue("limits", limits)
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
 
@@ -239,7 +355,7 @@ public final class ModificationReports {
     public static void lostDanglingLineExtensions(ReportNode reportNode, String extensions, String danglingLineId) {
         reportNode.newReportNode()
                 .withMessageTemplate("lostDanglingLineExtensions", "Extension [${extensions}] of dangling line ${danglingLineId} will be lost")
-                .withUntypedValue("extensions", extensions)
+                .withUntypedValue(EXTENSIONS, extensions)
                 .withUntypedValue("danglingLineId", danglingLineId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -248,8 +364,8 @@ public final class ModificationReports {
     public static void lostTieLineExtensions(ReportNode reportNode, String extensions, String tieLineId) {
         reportNode.newReportNode()
                 .withMessageTemplate("lostTieLineExtensions", "Extension [${extensions}] of tie line ${tieLineId} will be lost")
-                .withUntypedValue("extensions", extensions)
-                .withUntypedValue("tieLineId", tieLineId)
+                .withUntypedValue(EXTENSIONS, extensions)
+                .withTypedValue(TIE_LINE_ID, tieLineId, TypedValue.ID)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -289,7 +405,7 @@ public final class ModificationReports {
 
     public static void positionOrderTooHighReport(ReportNode reportNode, int maxValue, int positionOrder) {
         reportNode.newReportNode()
-                .withMessageTemplate("positionOrderTooHigh", "PositionOrder ${positionOrder} too high (>${minValue}). No position extension created.")
+                .withMessageTemplate("positionOrderTooHigh", "PositionOrder ${positionOrder} too high (>${maxValue}). No position extension created.")
                 .withUntypedValue(POSITION_ORDER, positionOrder)
                 .withUntypedValue("maxValue", maxValue)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -563,54 +679,76 @@ public final class ModificationReports {
 
     public static void scalingReport(ReportNode reportNode, String type, DistributionMode mode, ScalingType scalingType, double asked, double done) {
         reportNode.newReportNode()
-            .withMessageTemplate("scalingApplied", "Successfully scaled on ${identifiableType} using mode ${mode} and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
-            .withUntypedValue(IDENTIFIABLE_TYPE, type)
-            .withUntypedValue("mode", mode.name())
-            .withUntypedValue("type", scalingType.name())
-            .withUntypedValue("asked", asked)
-            .withUntypedValue("done", done)
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate("scalingApplied", "Successfully scaled on ${identifiableType} using mode ${mode} and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
+                .withUntypedValue(IDENTIFIABLE_TYPE, type)
+                .withUntypedValue("mode", mode.name())
+                .withUntypedValue("type", scalingType.name())
+                .withUntypedValue("asked", asked)
+                .withUntypedValue("done", done)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
     }
 
     public static void scalingReport(ReportNode reportNode, String type, ScalingType scalingType, double asked, double done) {
         reportNode.newReportNode()
-            .withMessageTemplate("scalingApplied", "Successfully scaled on ${identifiableType} using mode STACKING and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
-            .withUntypedValue(IDENTIFIABLE_TYPE, type)
-            .withUntypedValue("type", scalingType.name())
-            .withUntypedValue("asked", asked)
-            .withUntypedValue("done", done)
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate("scalingApplied", "Successfully scaled on ${identifiableType} using mode STACKING and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
+                .withUntypedValue(IDENTIFIABLE_TYPE, type)
+                .withUntypedValue("type", scalingType.name())
+                .withUntypedValue("asked", asked)
+                .withUntypedValue("done", done)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
     }
 
     public static void connectableConnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean connectionSuccessful, ThreeSides side) {
         String defaultMessage = connectionSuccessful ?
-            "Connectable ${identifiable} has been connected" :
-            "Connectable ${identifiable} has NOT been connected";
+                "Connectable ${identifiable} has been connected" :
+                "Connectable ${identifiable} has NOT been connected";
         defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = connectionSuccessful ? "connectableConnected" : "connectableNotConnected";
         key += side == null ? "" : "Side" + side.getNum();
         reportNode.newReportNode()
-            .withMessageTemplate(key, defaultMessage)
-            .withUntypedValue("identifiable", identifiable.getId())
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate(key, defaultMessage)
+                .withUntypedValue("identifiable", identifiable.getId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
     }
 
     public static void identifiableDisconnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
         String defaultMessage = disconnectionSuccessful ?
-            "Identifiable ${identifiable} has been disconnected" :
-            "Identifiable ${identifiable} has NOT been disconnected";
+                "Identifiable ${identifiable} has been disconnected" :
+                "Identifiable ${identifiable} has NOT been disconnected";
         defaultMessage += isPlanned ? " (planned disconnection)" : " (unplanned disconnection)";
         defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = isPlanned ? "planned" : "unplanned";
         key += disconnectionSuccessful ? "IdentifiableDisconnected" : "IdentifiableNotDisconnected";
         key += side == null ? "" : "Side" + side.getNum();
         reportNode.newReportNode()
-            .withMessageTemplate(key, defaultMessage)
-            .withUntypedValue("identifiable", identifiable.getId())
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate(key, defaultMessage)
+                .withUntypedValue("identifiable", identifiable.getId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode replaceThreeWindingsTransformersBy3TwoWindingsTransformersReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("replaced-t3w-by-3t2w", "Replaced ThreeWindingsTransformer by 3 TwoWindingsTransformers")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode replace3TwoWindingsTransformersByThreeWindingsTransformersReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("replaced-3t2w-by-t3w", "Replaced 3 TwoWindingsTransformers by ThreeWindingsTransformer")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void generatorLocalRegulationReport(ReportNode reportNode, String generatorId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("generatorLocalRegulation", "Changed regulation for generator ${generatorId} to local instead of remote")
+                .withUntypedValue("generatorId", generatorId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
     }
 }

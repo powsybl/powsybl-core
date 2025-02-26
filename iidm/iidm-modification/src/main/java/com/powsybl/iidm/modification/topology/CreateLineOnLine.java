@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
@@ -20,6 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.noBusbarSectionPositionExtensionReport;
 import static com.powsybl.iidm.modification.util.ModificationReports.undefinedFictitiousSubstationId;
 
@@ -81,13 +81,15 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         this.lineAdder = Objects.requireNonNull(lineAdder);
     }
 
+    @Override
+    public String getName() {
+        return "CreateLineOnLine";
+    }
+
     private static boolean checkFictitiousSubstationId(boolean createFictSubstation, String fictitiousSubstationId, boolean throwException, ReportNode reportNode) {
         if (createFictSubstation && fictitiousSubstationId == null) {
-            LOG.error("Fictitious substation ID must be defined if a fictitious substation is to be created");
             undefinedFictitiousSubstationId(reportNode);
-            if (throwException) {
-                throw new PowsyblException("Fictitious substation ID must be defined if a fictitious substation is to be created");
-            }
+            logOrThrow(throwException, "Fictitious substation ID must be defined if a fictitious substation is to be created");
             return false;
         }
         return true;
@@ -122,7 +124,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         // Checks
-        if (failChecks(network, throwException, reportNode, LOG)) {
+        if (failChecks(network, throwException, reportNode)) {
             return;
         }
 

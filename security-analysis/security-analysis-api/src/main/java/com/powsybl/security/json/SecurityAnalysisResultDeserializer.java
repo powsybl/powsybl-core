@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import static com.powsybl.security.json.LimitViolationDeserializer.VIOLATION_LOCATION_SUPPORT;
+
 /**
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  */
@@ -63,6 +65,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     parser.nextToken(); // skip
                     version = parser.getValueAsString();
                     JsonUtil.setSourceVersion(ctx, version, SOURCE_VERSION_ATTRIBUTE);
+                    ctx.setAttribute(VIOLATION_LOCATION_SUPPORT, version.compareTo("1.7") >= 0);
                     break;
 
                 case "network":

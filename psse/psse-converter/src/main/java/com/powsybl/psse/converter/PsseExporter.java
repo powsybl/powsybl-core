@@ -9,6 +9,8 @@ package com.powsybl.psse.converter;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.parameters.ConfiguredParameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.parameters.Parameter;
@@ -42,7 +44,7 @@ public class PsseExporter implements Exporter {
 
     @Override
     public List<Parameter> getParameters() {
-        return STATIC_PARAMETERS;
+        return ConfiguredParameter.load(STATIC_PARAMETERS, getFormat(), ParameterDefaultValueConfig.INSTANCE);
     }
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of();
@@ -134,8 +136,7 @@ public class PsseExporter implements Exporter {
     }
 
     private static void updateModifiedBlocks(Network network, PssePowerFlowModel updatedPsseModel) {
-        PerUnitContext perUnitContext = new PerUnitContext(updatedPsseModel.getCaseIdentification().getSbase());
-        ContextExport contextExport = createContextExport(network, updatedPsseModel, false);
+        ContextExport contextExport = VoltageLevelConverter.createContextExport(network, updatedPsseModel, false);
 
         VoltageLevelConverter.updateSubstations(network, contextExport);
 

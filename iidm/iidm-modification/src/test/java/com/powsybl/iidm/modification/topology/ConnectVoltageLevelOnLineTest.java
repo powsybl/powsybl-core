@@ -10,6 +10,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
@@ -138,6 +139,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine(network1.getLine("CJ"))
                 .build();
         ReportNode subReportNodeNb = reportNode.newReportNode().withMessageTemplate("nodeBreaker", "Test on node/breaker network").add();
+        assertDoesNotThrow(() -> modification2.apply(network1, false, ReportNode.NO_OP));
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, subReportNodeNb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
         ReportNode firstReport = reportNode.getChildren().get(0);
@@ -150,6 +152,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine(network2.getLine("NHV1_NHV2_1"))
                 .build();
         ReportNode subReportNodeBb = reportNode.newReportNode().withMessageTemplate("busBreaker", "Test on bus/breaker network").add();
+        assertDoesNotThrow(() -> modification3.apply(network2, false, ReportNode.NO_OP));
         PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, subReportNodeBb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception3.getMessage());
         ReportNode secondReport = reportNode.getChildren().get(1);
@@ -182,5 +185,15 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine(network.getLine("CJ"))
                 .build().apply(network, new DefaultNamingStrategy(), true, report);
         testReportNode(report, "/reportNode/connect-voltage-level-on-line-NB-report.txt");
+    }
+
+    @Test
+    void testGetName() {
+        Network network2 = createBbNetwork();
+        AbstractNetworkModification networkModification = new ConnectVoltageLevelOnLineBuilder()
+            .withBusbarSectionOrBusId("NOT_EXISTING")
+            .withLine(network2.getLine("NHV1_NHV2_1"))
+            .build();
+        assertEquals("ConnectVoltageLevelOnLine", networkModification.getName());
     }
 }

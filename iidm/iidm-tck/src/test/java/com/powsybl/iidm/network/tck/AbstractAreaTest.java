@@ -56,7 +56,7 @@ public abstract class AbstractAreaTest {
         vlload = network.getVoltageLevel("VLLOAD");
         dlXnode1A = network.getDanglingLine("NHV1_XNODE1");
         dlXnode1B = network.getDanglingLine("XNODE1_NHV2");
-        dlXnode2A = network.getDanglingLine("NVH1_XNODE2");
+        dlXnode2A = network.getDanglingLine("NHV1_XNODE2");
         dlXnode2B = network.getDanglingLine("XNODE2_NHV2");
         tieLine1 = network.getTieLine("NHV1_NHV2_1");
         tieLine2 = network.getTieLine("NHV1_NHV2_2");
@@ -187,8 +187,8 @@ public abstract class AbstractAreaTest {
         assertNotNull(areaBoundary);
         assertTrue(areaBoundary.isAc());
         assertEquals(controlAreaA.getId(), areaBoundary.getArea().getId());
-        assertEquals(-301.47, areaBoundary.getP(), DELTA);
-        assertEquals(-116.52, areaBoundary.getQ(), DELTA);
+        assertEquals(-301.44, areaBoundary.getP(), DELTA);
+        assertEquals(-116.55, areaBoundary.getQ(), DELTA);
 
         controlAreaA.removeAreaBoundary(dlXnode1A.getBoundary());
         assertNull(controlAreaA.getAreaBoundary(dlXnode1A.getBoundary()));
@@ -196,13 +196,13 @@ public abstract class AbstractAreaTest {
 
     @Test
     public void areaInterchangeComputation() {
-        assertEquals(-602.94, controlAreaA.getAcInterchange(), DELTA);
+        assertEquals(-602.88, controlAreaA.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaA.getDcInterchange());
-        assertEquals(-602.94, controlAreaA.getInterchange(), DELTA);
+        assertEquals(-602.88, controlAreaA.getInterchange(), DELTA);
 
-        assertEquals(+602.94, controlAreaB.getAcInterchange(), DELTA);
+        assertEquals(+602.88, controlAreaB.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaB.getDcInterchange());
-        assertEquals(+602.94, controlAreaB.getInterchange(), DELTA);
+        assertEquals(+602.88, controlAreaB.getInterchange(), DELTA);
 
         // no boundaries defined
         assertEquals(0.0, regionAB.getAcInterchange());
@@ -211,9 +211,9 @@ public abstract class AbstractAreaTest {
 
         // verify NaN do not mess up the calculation
         dlXnode1A.getTerminal().setP(Double.NaN);
-        assertEquals(-301.47, controlAreaA.getAcInterchange(), DELTA);
+        assertEquals(-301.44, controlAreaA.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaA.getDcInterchange());
-        assertEquals(-301.47, controlAreaA.getInterchange(), DELTA);
+        assertEquals(-301.44, controlAreaA.getInterchange(), DELTA);
     }
 
     @Test
@@ -315,9 +315,9 @@ public abstract class AbstractAreaTest {
                 .newAreaBoundary().setBoundary(dlXnode2A.getBoundary()).setAc(true).add();
         // no change
         assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
-        assertEquals(-602.94, controlAreaA.getAcInterchange(), DELTA);
+        assertEquals(-602.88, controlAreaA.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaA.getDcInterchange());
-        assertEquals(-602.94, controlAreaA.getInterchange(), DELTA);
+        assertEquals(-602.88, controlAreaA.getInterchange(), DELTA);
 
         // change them to DC
         controlAreaA
@@ -325,8 +325,8 @@ public abstract class AbstractAreaTest {
                 .newAreaBoundary().setBoundary(dlXnode2A.getBoundary()).setAc(false).add();
         assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
         assertEquals(0.0, controlAreaA.getAcInterchange());
-        assertEquals(-602.94, controlAreaA.getDcInterchange(), DELTA);
-        assertEquals(-602.94, controlAreaA.getInterchange(), DELTA);
+        assertEquals(-602.88, controlAreaA.getDcInterchange(), DELTA);
+        assertEquals(-602.88, controlAreaA.getInterchange(), DELTA);
     }
 
     @Test
@@ -449,7 +449,7 @@ public abstract class AbstractAreaTest {
         network = network.detach();
         controlAreaA = network.getArea("ControlArea_A");
         controlAreaB = network.getArea("ControlArea_B");
-        dlXnode2A = network.getDanglingLine("NVH1_XNODE2");
+        dlXnode2A = network.getDanglingLine("NHV1_XNODE2");
         tieLine2 = network.getTieLine("NHV1_NHV2_2");
 
         // Verify the cleanup listener is now effective on the detached network
@@ -458,6 +458,54 @@ public abstract class AbstractAreaTest {
 
         assertEquals(0, controlAreaA.getAreaBoundaryStream().count());
         assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
+    }
+
+    @Test
+    public void mergeAndFlatten() {
+        // do a merge
+        Network fourBus = FourSubstationsNodeBreakerFactory.create();
+        String networkId = "merged";
+        Network network0 = Network.merge(networkId, network, fourBus);
+        controlAreaA = network0.getArea("ControlArea_A");
+        controlAreaB = network0.getArea("ControlArea_B");
+        dlXnode1A = network0.getDanglingLine("NHV1_XNODE1");
+        tieLine1 = network0.getTieLine("NHV1_NHV2_1");
+        assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
+        assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
+        checkAreas(network0, network0, network0.getSubnetwork("sim1"));
+
+        // now flatten
+        network0.flatten();
+        controlAreaA = network0.getArea("ControlArea_A");
+        controlAreaB = network0.getArea("ControlArea_B");
+        checkAreas(network0, network0, network0);
+
+        dlXnode2A = network0.getDanglingLine("NHV1_XNODE2");
+        tieLine2 = network0.getTieLine("NHV1_NHV2_2");
+
+        // Verify the cleanup listener is always effective
+        tieLine2.remove();
+        dlXnode2A.remove();
+
+        assertEquals(1, controlAreaA.getAreaBoundaryStream().count());
+        assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
+
+        // Use the flatten network in another merge
+        Network network2 = Network.merge(network0, Network.create("n3", "manual"));
+        Network subnetwork = network2.getSubnetwork(networkId);
+        checkAreas(network2, network2, subnetwork);
+
+        // And even if detached, everything is alright
+        Network detached = subnetwork.detach();
+        checkAreas(detached, detached, detached);
+    }
+
+    private void checkAreas(Network network, Network expectedNetwork, Network expectedParentNetwork) {
+        assertEquals(3, network.getAreaCount());
+        network.getAreaStream().forEach(area -> {
+            assertEquals(expectedNetwork, area.getNetwork());
+            assertEquals(expectedParentNetwork, area.getParentNetwork());
+        });
     }
 
     @Test

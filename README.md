@@ -32,7 +32,7 @@ By participating, you are expected to uphold this code. Please report unacceptab
 
 This document describes how to build the code of PowSyBl Core. If you just want to run PowSyBl demos, please visit
 https://www.powsybl.org/ where downloads will be available soon. If you want guidance on how to start building your own
-application based on PowSyBl, please visit the [tutorials](https://www.powsybl.org/pages/documentation/developer/tutorials/) page.
+application based on PowSyBl, please visit the [tutorials](https://powsybl.readthedocs.io/projects/powsybl-tutorials/) page.
 
 The PowSyBl Core project is not a standalone project. Read on to learn how to modify the core code, be it for fun, for
 diagnosing bugs, for improving your understanding of the framework, or for preparing pull requests to suggest improvements!
@@ -62,6 +62,9 @@ on how to run code.
 
 Read [Install](#install) to generate an installed iTools distribution, a standalone external folder that contains all
 the built objects required to run powsybl programs.
+
+## Build the documentation
+To locally build the readthedocs documentation follow the instructions in the [documentation README](https://github.com/powsybl/powsybl-core/blob/main/docs/README.md) page.
 
 ## Install
 An iTools distribution can be generated and installed. The installation is a standalone external folder that contains all

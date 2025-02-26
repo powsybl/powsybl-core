@@ -129,6 +129,11 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     }
 
     @Override
+    public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer) {
+        return new TwoWindingsTransformerAdderImpl(this, twoWindingsTransformer);
+    }
+
+    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return FluentIterable.from(voltageLevels)
                 .transformAndConcat(vl -> vl.getConnectables(TwoWindingsTransformer.class))
@@ -203,8 +208,9 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         if (tag == null) {
             throw new ValidationException(this, "geographical tag is null");
         }
+        Set<String> oldGeographicalTags = new LinkedHashSet<>(geographicalTags);
         if (geographicalTags.add(tag)) {
-            getNetwork().getListeners().notifyElementAdded(this, "geographicalTags", tag);
+            getNetwork().getListeners().notifyUpdate(this, "geographicalTags", oldGeographicalTags, geographicalTags);
         }
         return this;
     }

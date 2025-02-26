@@ -100,9 +100,9 @@ class FactsDeviceConverter extends AbstractConverter {
             regulatingTerminal = staticVarCompensator.getTerminal();
         } else {
             String equipmentId = getNodeBreakerEquipmentId(PSSE_FACTS_DEVICE, psseFactsDevice.getI(), psseFactsDevice.getJ(), psseFactsDevice.getName());
-            Optional<NodeBreakerImport.NodeBreakerControlNode> controlNode = nodeBreakerImport.getControlNode(getNodeBreakerEquipmentIdBus(equipmentId, factsDeviceRegulatingBus(psseFactsDevice, version)));
-            if (controlNode.isPresent()) {
-                regulatingTerminal = findTerminalNode(network, controlNode.get().getVoltageLevelId(), controlNode.get().getNode());
+            Optional<NodeBreakerImport.ControlR> control = nodeBreakerImport.getControl(factsDeviceRegulatingBus(psseFactsDevice, version));
+            if (control.isPresent()) {
+                regulatingTerminal = findTerminalNode(network, control.get().voltageLevelId(), control.get().node());
             } else {
                 String regulatingBusId = getBusId(factsDeviceRegulatingBus(psseFactsDevice, version));
                 Bus bus = network.getBusBreakerView().getBus(regulatingBusId);

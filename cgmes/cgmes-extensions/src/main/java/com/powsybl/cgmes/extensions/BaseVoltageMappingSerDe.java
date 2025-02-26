@@ -64,10 +64,10 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
         context.getReader().readChildNodes(elementName -> {
             if (elementName.equals(BASE_VOLTAGE_ROOT_ELEMENT)) {
                 double nominalV = context.getReader().readDoubleAttribute("nominalVoltage");
-                String sourceBV = context.getReader().readStringAttribute("source");
+                Source sourceBV = context.getReader().readEnumAttribute("source", Source.class);
                 String baseVoltageId = context.getReader().readStringAttribute("id");
                 context.getReader().readEndNode();
-                mapping.addBaseVoltage(nominalV, baseVoltageId, Source.valueOf(sourceBV));
+                mapping.addBaseVoltage(nominalV, baseVoltageId, sourceBV);
             } else {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in 'baseVoltageMapping'");
             }

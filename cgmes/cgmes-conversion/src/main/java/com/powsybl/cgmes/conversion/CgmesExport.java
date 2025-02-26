@@ -13,13 +13,11 @@ import com.powsybl.cgmes.conversion.export.*;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
-import com.powsybl.cgmes.model.CgmesMetadataModel;
-import com.powsybl.cgmes.model.CgmesMetadataModelImpl;
-import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -27,6 +25,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +40,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.inconsistentProfilesTPRequiredReport;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.CONTROL_AREA;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -63,7 +64,7 @@ public class CgmesExport implements Exporter {
 
     @Override
     public List<Parameter> getParameters() {
-        return STATIC_PARAMETERS;
+        return ConfiguredParameter.load(STATIC_PARAMETERS, getFormat(), defaultValueConfig);
     }
 
     /**
@@ -77,6 +78,81 @@ public class CgmesExport implements Exporter {
     public void export(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
         Objects.requireNonNull(network);
 
+        CgmesExportContext context = createContext(network, parameters, reportNode);
+
+        // Export the network
+        if (Parameter.readBoolean(getFormat(), parameters, CGM_EXPORT_PARAMETER, defaultValueConfig)) {
+            exportCGM(network, dataSource, context);
+        } else {
+            exportIGM(network, dataSource, context);
+        }
+    }
+
+    /**
+     * <p>Create a default control area of type interchange.</p>
+     *
+     * <p>Assuming the given network is an IGM (Individual Grid Model),
+     * create a control area of type interchange from its current boundaries.</p>
+     *
+     * <p>An area boundary is created for each dangling line in the model.
+     * The interchange target of the area is set to the sum of flows at boundary side of dangling lines.</p>
+     *
+     * <p>The location of reference data (boundaries files) is determined based on the configuration for the CGMES export module.
+     * The reference data may provide the area EIC code and additional characteristics for the boundaries: if it is AC or DC.
+     * </p>
+     *
+     * @param network The network for which a default control area of type interchange will be created.
+     */
+    public void createDefaultControlAreaInterchange(Network network) {
+        createDefaultControlAreaInterchange(network, null);
+    }
+
+    /**
+     * <p>Create a default control area of type interchange.</p>
+     *
+     * <p>Assuming the given network is an IGM (Individual Grid Model),
+     * create a control area of type interchange from its current boundaries.</p>
+     *
+     * <p>An area boundary is created for each dangling line in the model.
+     * The interchange target of the area is set to the sum of flows at boundary side of dangling lines.</p>
+     *
+     * <p>The location of reference data (boundaries files) is determined based on the based on the parameters passed
+     * and the configuration for the CGMES export module.
+     * The reference data may provide the area EIC code and additional characteristics for the boundaries: if it is AC or DC.
+     * </p>
+     *
+     * @param network The network for which a default control area of type interchange will be created.
+     * @param parameters Optional parameters that influence the creation of default control area.
+     */
+    public void createDefaultControlAreaInterchange(Network network, Properties parameters) {
+        Objects.requireNonNull(network);
+
+        CgmesExportContext context = createContext(network, parameters, ReportNode.NO_OP);
+
+        String controlAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), CONTROL_AREA);
+        Area area = network.newArea()
+                .setAreaType(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)
+                .setId(controlAreaId)
+                .setName("Network")
+                .add();
+        ReferenceDataProvider referenceDataProvider = context.getReferenceDataProvider();
+        if (referenceDataProvider != null && referenceDataProvider.getSourcingActor().containsKey(CgmesNames.ENERGY_IDENT_CODE_EIC)) {
+            area.addAlias(referenceDataProvider.getSourcingActor().get(CgmesNames.ENERGY_IDENT_CODE_EIC), CgmesNames.ENERGY_IDENT_CODE_EIC);
+        }
+        double currentInterchange = 0;
+        Set<String> boundaryDcNodes = getBoundaryDcNodes(referenceDataProvider);
+        for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+            // Our exchange should be referred the boundary
+            area.newAreaBoundary()
+                    .setAc(isAcBoundary(danglingLine, boundaryDcNodes))
+                    .setBoundary(danglingLine.getBoundary())
+                    .add();
+            currentInterchange += danglingLine.getBoundary().getP();
+        }
+        area.setInterchangeTarget(currentInterchange);
+    }
+
+    private CgmesExportContext createContext(Network network, Properties parameters, ReportNode reportNode) {
         // Determine reference data (boundaries, base voltages and other sourcing references) for the export
         String sourcingActorName = Parameter.readString(getFormat(), parameters, SOURCING_ACTOR_PARAMETER, defaultValueConfig);
         String countryName = getCountry(network);
@@ -89,12 +165,38 @@ public class CgmesExport implements Exporter {
         CgmesExportContext context = new CgmesExportContext(network, referenceDataProvider, namingStrategy);
         addParametersToContext(context, parameters, reportNode, referenceDataProvider);
 
-        // Export the network
-        if (Parameter.readBoolean(getFormat(), parameters, CGM_EXPORT_PARAMETER, defaultValueConfig)) {
-            exportCGM(network, dataSource, context);
-        } else {
-            exportIGM(network, dataSource, context);
+        return context;
+    }
+
+    private Set<String> getBoundaryDcNodes(ReferenceDataProvider referenceDataProvider) {
+        if (referenceDataProvider == null) {
+            return Collections.emptySet();
         }
+        PropertyBags boundaryNodes = referenceDataProvider.getBoundaryNodes();
+        if (boundaryNodes == null) {
+            return Collections.emptySet();
+        } else {
+            return boundaryNodes.stream()
+                    .filter(CgmesBoundary::isDcNode)
+                    .map(node -> {
+                        List<String> nodeIds = new ArrayList<>();
+                        nodeIds.add(node.getId(CgmesNames.CONNECTIVITY_NODE));
+                        if (node.containsKey(CgmesNames.TOPOLOGICAL_NODE)) {
+                            nodeIds.add(node.getId(CgmesNames.TOPOLOGICAL_NODE));
+                        }
+                        return nodeIds;
+                    })
+                    .flatMap(List::stream)
+                    .collect(Collectors.toSet());
+        }
+    }
+
+    private boolean isAcBoundary(DanglingLine danglingLine, Set<String> boundaryDcNodes) {
+        String dlBoundaryNode = Conversion.getDanglingLineBoundaryNode(danglingLine);
+        if (dlBoundaryNode != null) {
+            return !boundaryDcNodes.contains(dlBoundaryNode);
+        }
+        return true;
     }
 
     /**
@@ -107,14 +209,16 @@ public class CgmesExport implements Exporter {
     private void exportCGM(Network network, DataSource dataSource, CgmesExportContext context) {
         checkCgmConsistency(network, context);
 
-        // Initialize models for export. The original IGM TP and SSH don't get exported,
+        // Initialize models for export. The original IGM EQ, SSH, TP and TP_BD don't get exported,
         // but we need to init their models to retrieve their IDs when building the dependencies.
         Map<Network, IgmModelsForCgm> igmModels = new HashMap<>();
         for (Network subnetwork : network.getSubnetworks()) {
             IgmModelsForCgm igmModelsForCgm = new IgmModelsForCgm(
-                    initializeModelForExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, false, false),
                     initializeModelForExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, false, true),
-                    initializeModelForExport(subnetwork, CgmesSubset.TOPOLOGY, context, false, false)
+                    initializeModelForExport(subnetwork, CgmesSubset.EQUIPMENT, context, false, false),
+                    initializeModelForExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, false, false),
+                    initializeModelForExport(subnetwork, CgmesSubset.TOPOLOGY, context, false, false),
+                    initializeModelForExport(subnetwork, CgmesSubset.TOPOLOGY_BOUNDARY, context, false, false)
             );
             igmModels.put(subnetwork, igmModelsForCgm);
         }
@@ -122,7 +226,7 @@ public class CgmesExport implements Exporter {
 
         // Update dependencies
         if (context.updateDependencies()) {
-            updateDependenciesCGM(igmModels.values(), updatedCgmSvModel);
+            updateDependenciesCGM(igmModels.values(), updatedCgmSvModel, context.getBoundaryTpId());
         }
 
         // Export the SSH for the IGMs and the SV for the CGM
@@ -227,22 +331,29 @@ public class CgmesExport implements Exporter {
     }
 
     /**
-     * Update cross dependencies between the subset models through the dependentOn relationship.
-     * The IGMs updated SSH supersede the original ones.
-     * The CGM updated SV depends on the IGMs updated SSH and on the IGMs original TP.
-     * @param igmModels For each IGM: the original SSH model, the updated SSH model and the original TP model.
+     * Update cross dependencies between the subset models (including boundaries) through the dependentOn relationship.
+     * The IGMs updated SSH supersede the original ones and depend on the original EQ. Other dependencies are kept.
+     * The CGM updated SV depends on the IGMs updated SSH and on the IGMs original TP and TP_BD.
+     * @param igmModels For each IGM: the updated SSH model and the original SSH, TP and TP_BD models.
      * @param updatedCgmSvModel The SV model for the CGM.
+     * @param boundaryTpId The model id for the TP_BD subset.
      */
-    private void updateDependenciesCGM(Collection<IgmModelsForCgm> igmModels, CgmesMetadataModel updatedCgmSvModel) {
+    private void updateDependenciesCGM(Collection<IgmModelsForCgm> igmModels, CgmesMetadataModel updatedCgmSvModel, String boundaryTpId) {
+        // Each updated SSH model depends on the original EQ model
+        igmModels.forEach(m -> m.updatedSsh.addDependentOn(m.originalEq.getId()));
+
         // Each updated SSH model supersedes the original one
-        // Clear previous dependencies
-        igmModels.forEach(m -> m.updatedSsh.clearDependencies());
         igmModels.forEach(m -> m.updatedSsh.clearSupersedes());
         igmModels.forEach(m -> m.updatedSsh.addSupersedes(m.originalSsh.getId()));
 
-        // Updated SV model depends on updated SSH models and original TP models
+        // Updated SV model depends on updated SSH models and original TP and TP_BD models
         updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.updatedSsh.getId()).collect(Collectors.toSet()));
         updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.originalTp.getId()).collect(Collectors.toSet()));
+        if (boundaryTpId != null) {
+            updatedCgmSvModel.addDependentOn(boundaryTpId);
+        } else {
+            updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.originalTpBd.getId()).collect(Collectors.toSet()));
+        }
     }
 
     /**
@@ -412,6 +523,8 @@ public class CgmesExport implements Exporter {
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
                 .setExportTransformersWithHighestVoltageAtEnd1(Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig))
                 .setExportLoadFlowStatus(Parameter.readBoolean(getFormat(), params, EXPORT_LOAD_FLOW_STATUS_PARAMETER, defaultValueConfig))
+                .setExportAllLimitsGroup(Parameter.readBoolean(getFormat(), params, EXPORT_ALL_LIMITS_GROUP_PARAMETER, defaultValueConfig))
+                .setExportGeneratorsInLocalRegulationMode(Parameter.readBoolean(getFormat(), params, EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE_PARAMETER, defaultValueConfig))
                 .setMaxPMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_P_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
                 .setMaxQMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_Q_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
                 .setExportSvInjectionsForSlacks(Parameter.readBoolean(getFormat(), params, EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER, defaultValueConfig))
@@ -492,14 +605,19 @@ public class CgmesExport implements Exporter {
      * when setting the relationships (dependOn, supersedes) between them in a CGM export.
      */
     private static class IgmModelsForCgm {
-        CgmesMetadataModel originalSsh;
         CgmesMetadataModel updatedSsh;
+        CgmesMetadataModel originalEq;
+        CgmesMetadataModel originalSsh;
         CgmesMetadataModel originalTp;
+        CgmesMetadataModel originalTpBd;
 
-        public IgmModelsForCgm(CgmesMetadataModel originalSsh, CgmesMetadataModel updatedSsh, CgmesMetadataModel originalTp) {
-            this.originalSsh = originalSsh;
+        public IgmModelsForCgm(CgmesMetadataModel updatedSsh, CgmesMetadataModel originalEq, CgmesMetadataModel originalSsh,
+                               CgmesMetadataModel originalTp, CgmesMetadataModel originalTpBd) {
             this.updatedSsh = updatedSsh;
+            this.originalEq = originalEq;
+            this.originalSsh = originalSsh;
             this.originalTp = originalTp;
+            this.originalTpBd = originalTpBd;
         }
     }
 
@@ -527,6 +645,8 @@ public class CgmesExport implements Exporter {
     public static final String MODEL_DESCRIPTION = "iidm.export.cgmes.model-description";
     public static final String EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1 = "iidm.export.cgmes.export-transformers-with-highest-voltage-at-end1";
     public static final String EXPORT_LOAD_FLOW_STATUS = "iidm.export.cgmes.export-load-flow-status";
+    public static final String EXPORT_ALL_LIMITS_GROUP = "iidm.export.cgmes.export-all-limits-group";
+    public static final String EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE = "iidm.export.cgmes.export-generators-in-local-regulation-mode";
     public static final String MAX_P_MISMATCH_CONVERGED = "iidm.export.cgmes.max-p-mismatch-converged";
     public static final String MAX_Q_MISMATCH_CONVERGED = "iidm.export.cgmes.max-q-mismatch-converged";
     public static final String EXPORT_SV_INJECTIONS_FOR_SLACKS = "iidm.export.cgmes.export-sv-injections-for-slacks";
@@ -616,6 +736,16 @@ public class CgmesExport implements Exporter {
             ParameterType.BOOLEAN,
             "Export load flow status of topological islands",
             CgmesExportContext.EXPORT_LOAD_FLOW_STATUS_DEFAULT_VALUE);
+    private static final Parameter EXPORT_ALL_LIMITS_GROUP_PARAMETER = new Parameter(
+            EXPORT_ALL_LIMITS_GROUP,
+            ParameterType.BOOLEAN,
+            "True to export all OperationalLimitsGroup, False to export only the selected group",
+            CgmesExportContext.EXPORT_ALL_LIMITS_GROUP_DEFAULT_VALUE);
+    private static final Parameter EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE_PARAMETER = new Parameter(
+            EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE,
+            ParameterType.BOOLEAN,
+            "True to export voltage regulating generators in local regulation mode, False to keep their regulation mode unchanged.",
+            CgmesExportContext.EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE_DEFAULT_VALUE);
     private static final Parameter MAX_P_MISMATCH_CONVERGED_PARAMETER = new Parameter(
             MAX_P_MISMATCH_CONVERGED,
             ParameterType.DOUBLE,

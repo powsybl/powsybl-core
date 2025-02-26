@@ -14,14 +14,14 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
-import com.powsybl.cgmes.extensions.CgmesControlArea;
-import com.powsybl.cgmes.extensions.CgmesControlAreas;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
+import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -55,6 +55,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
     private Properties importParams;
 
+    @Override
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
@@ -109,8 +110,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         assertTrue(test(CgmesConformity1Catalog.smallBusBranch().dataSource(), knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
-                ExportXmlCompare::ignoringCgmesMetadataModels,
-                ExportXmlCompare::ignoringControlAreaNetInterchange)));
+                ExportXmlCompare::ignoringCgmesMetadataModels)));
     }
 
     @Test
@@ -122,7 +122,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
-                ExportXmlCompare::ignoringControlAreaNetInterchange,
                 ExportXmlCompare::ignoringCgmesMetadataModels,
                 ExportXmlCompare::ignoringHvdcLinePmax)));
     }
@@ -162,10 +161,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         // Import with new SSH
         Network actual = Network.read(repackaged,
                 DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), importParams);
-
-        // Remove ControlAreas extension
-        expected.removeExtension(CgmesControlAreas.class);
-        actual.removeExtension(CgmesControlAreas.class);
 
         // Export original and with new SSH
         Path expectedPath = tmpDir.resolve("expected.xml");
@@ -256,16 +251,16 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
         // Read network and check control area data
         Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource(), importParams);
-        CgmesControlAreas controlAreas = be.getExtension(CgmesControlAreas.class);
-        assertNotNull(controlAreas);
-        assertFalse(controlAreas.getCgmesControlAreas().isEmpty());
-        CgmesControlArea controlArea = controlAreas.getCgmesControlAreas().iterator().next();
-        assertEquals(236.9798, controlArea.getNetInterchange(), 1e-10);
-        assertEquals(10, controlArea.getPTolerance(), 1e-10);
+        long numControlAreas = be.getAreaStream().filter(a -> a.getAreaType().equals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)).count();
+        assertEquals(1, numControlAreas);
+        Area controlArea = be.getAreas().iterator().next();
+        assertEquals(236.9798, controlArea.getInterchangeTarget().getAsDouble(), 1e-10);
+        double pTolerance = Double.parseDouble(controlArea.getProperty("pTolerance"));
+        assertEquals(10, pTolerance, 1e-10);
 
         // Update control area data
-        controlArea.setNetInterchange(controlArea.getNetInterchange() * 2);
-        controlArea.setPTolerance(controlArea.getPTolerance() / 2);
+        controlArea.setInterchangeTarget(controlArea.getInterchangeTarget().getAsDouble() * 2);
+        controlArea.setProperty("pTolerance", Double.toString(pTolerance / 2));
 
         // Write and read the network to check serialization of the extension
         Path updatedXiidm = outputPath.resolve("BE-updated.xiidm");
@@ -354,8 +349,9 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::ignoringTextValueTapChangerControlEnabled,
                 ExportXmlCompare::ignoringRdfChildLookupTerminal,
                 ExportXmlCompare::ignoringRdfChildLookupEquivalentInjection,
-                ExportXmlCompare::ignoringRdfChildLookupStaticVarCompensator,
-                ExportXmlCompare::ignoringRdfChildLookupRegulatingControl,
+                ExportXmlCompare::ignoringStaticVarCompensatorControlEnabled,
+                ExportXmlCompare::ignoringStaticVarCompensatorQ,
+                ExportXmlCompare::ignoringRegulatingControl,
                 ExportXmlCompare::ignoringTextValueEquivalentInjection);
         assertTrue(ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh));
     }
@@ -681,10 +677,18 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // Generator remote voltage
             network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "399", "k");
             network.getGenerator("GEN").setVoltageRegulatorOn(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "24.5", "k");
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "399", "k");
+
+            // Generator with remote voltage regulation exported in local regulation mode
+            Properties exportInLocalRegulationModeParams = new Properties();
+            exportInLocalRegulationModeParams.put(CgmesExport.PROFILES, "SSH");
+            exportInLocalRegulationModeParams.put(CgmesExport.EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE, true);
+            network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
+            ssh = getSSH(network, baseName, tmpDir, exportInLocalRegulationModeParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "25.2", "k");
 
             // Generator with local reactive
             network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
@@ -719,26 +723,26 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // Generator with remote reactive and voltage
             network = EurostagTutorialExample1Factory.createWithRemoteReactiveAndVoltageGenerators();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "399", "k");
             network.getGenerator("GEN").setVoltageRegulatorOn(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
             network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "24.5", "k");
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "399", "k");
             network.getGenerator("GEN").setVoltageRegulatorOn(true);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "399", "k");
 
             // Generator without control
             network = EurostagTutorialExample1Factory.createWithoutControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "0", "k");
+            testRcEqRCWithoutAttribute(ssh, "_GEN_RC");
 
             // Generator with remote terminal without control
             network = EurostagTutorialExample1Factory.createRemoteWithoutControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "0", "k");
+            testRcEqRCWithoutAttribute(ssh, "_GEN_RC");
 
             // Generator without control capability
             network = EurostagTutorialExample1Factory.create();

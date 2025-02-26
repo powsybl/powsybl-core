@@ -17,6 +17,10 @@
       "values" : [ 0.0, 0.1, 0.1, 0.2, 0.1, 0.0 ]
     } ]
   } ],
+  "finalStateValues" : [ {
+    "name" : "fsv1",
+    "value" : 20.0
+  } ],
   "timeLine" : [ {
     "time" : 0.1,
     "modelName" : "CLA_2_5",

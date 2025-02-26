@@ -7,19 +7,25 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
-import com.powsybl.iidm.network.*;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
+import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
+ * Removes a voltage level and the feeder bays connected to that voltage level. Note that dangling lines connected to
+ * this voltage level (hence paired) are not removed but unpaired.
  * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
 public class RemoveVoltageLevel extends AbstractNetworkModification {
@@ -32,14 +38,16 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "RemoveVoltageLevel";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
-            LOGGER.error("Voltage level {} not found", voltageLevelId);
             notFoundVoltageLevelReport(reportNode, voltageLevelId);
-            if (throwException) {
-                throw new PowsyblException("Voltage level not found: " + voltageLevelId);
-            }
+            logOrThrow(throwException, "Voltage level not found: " + voltageLevelId);
             return;
         }
 
@@ -49,15 +57,27 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
             }
         });
 
+        voltageLevel.getDanglingLines().forEach(dl ->
+            dl.getTieLine().ifPresent(tieLine -> {
+                String tlId = tieLine.getId();
+                String pairingKey = tieLine.getPairingKey();
+                tieLine.remove();
+                removedTieLineReport(reportNode, tlId, pairingKey);
+                LOGGER.info("Tie line {} removed", tlId);
+            })
+        );
+
+        Consumer<String> removeConnectableFeederBay = id -> new RemoveFeederBayBuilder().withConnectableId(id).build()
+                .apply(network, throwException, computationManager, reportNode);
+        voltageLevel.getLines().forEach(line -> removeConnectableFeederBay.accept(line.getId()));
+        voltageLevel.getTwoWindingsTransformers().forEach(transformer -> removeConnectableFeederBay.accept(transformer.getId()));
+        voltageLevel.getThreeWindingsTransformers().forEach(transformer -> removeConnectableFeederBay.accept(transformer.getId()));
+
         voltageLevel.getConnectables().forEach(connectable -> {
-            if (connectable instanceof Injection) {
-                String connectableId = connectable.getId();
-                connectable.remove();
-                removedConnectableReport(reportNode, connectableId);
-                LOGGER.info("Connectable {} removed", connectableId);
-            } else {
-                new RemoveFeederBayBuilder().withConnectableId(connectable.getId()).build().apply(network, throwException, computationManager, reportNode);
-            }
+            String connectableId = connectable.getId();
+            connectable.remove();
+            removedConnectableReport(reportNode, connectableId);
+            LOGGER.info("Connectable {} removed", connectableId);
         });
 
         voltageLevel.remove();
@@ -65,4 +85,12 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
         LOGGER.info("Voltage level {}, its equipments and the branches it is connected to have been removed", voltageLevelId);
     }
 
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        if (network.getVoltageLevel(voltageLevelId) == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        }
+        return impact;
+    }
 }

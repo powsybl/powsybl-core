@@ -28,7 +28,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     private static final String SECTION_NUMBER = "sectionNumber";
 
     public ShuntConversion(PropertyBag sh, Context context) {
-        super("ShuntCompensator", sh, context);
+        super(CgmesNames.SHUNT_COMPENSATOR, sh, context);
     }
 
     private int getSections(PropertyBag p, int normalSections) {
@@ -61,7 +61,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
                     .add();
         } else if ("NonlinearShuntCompensator".equals(shuntType)) {
             ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
-            PropertyBags ss = context.cgmes().nonlinearShuntCompensatorPoints(id);
+            PropertyBags ss = context.nonlinearShuntCompensatorPoints(id);
             ss.stream()
                     .filter(s -> s.asInt(SECTION_NUMBER) > 0)
                     .sorted(Comparator.comparing(s -> s.asInt(SECTION_NUMBER)))

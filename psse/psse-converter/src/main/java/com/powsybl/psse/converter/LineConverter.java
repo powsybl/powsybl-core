@@ -41,8 +41,6 @@ class LineConverter extends AbstractConverter {
     void create() {
         String id = getLineId(psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
 
-        String bus1Id = getBusId(psseLine.getI());
-        String bus2Id = getBusId(psseLine.getJ());
         String voltageLevel1Id = getContainersMapping().getVoltageLevelId(psseLine.getI());
         String voltageLevel2Id = getContainersMapping().getVoltageLevelId(psseLine.getJ());
 
@@ -75,6 +73,7 @@ class LineConverter extends AbstractConverter {
         if (node1.isPresent()) {
             adder.setNode1(node1.getAsInt());
         } else {
+            String bus1Id = getBusId(psseLine.getI());
             adder.setConnectableBus1(bus1Id);
             adder.setBus1(psseLine.getSt() == 1 ? bus1Id : null);
         }
@@ -82,6 +81,7 @@ class LineConverter extends AbstractConverter {
         if (node2.isPresent()) {
             adder.setNode2(node2.getAsInt());
         } else {
+            String bus2Id = getBusId(psseLine.getJ());
             adder.setConnectableBus2(bus2Id);
             adder.setBus2(psseLine.getSt() == 1 ? bus2Id : null);
         }
@@ -181,7 +181,12 @@ class LineConverter extends AbstractConverter {
     }
 
     private static int getStatus(Line line) {
-        return getStatus(line.getTerminal1()) * getStatus(line.getTerminal2());
+        if (line.getTerminal1().isConnected() && line.getTerminal1().getBusBreakerView().getBus() != null
+                && line.getTerminal2().isConnected() && line.getTerminal2().getBusBreakerView().getBus() != null) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     private final PsseNonTransformerBranch psseLine;

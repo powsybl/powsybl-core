@@ -256,4 +256,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             + tapPosition + " [" + lowTapPosition + ", " + highTapPosition
             + "]");
     }
+
+    public void remove() {
+        regulatingPoint.remove();
+    }
 }

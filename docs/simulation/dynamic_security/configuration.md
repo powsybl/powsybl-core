@@ -1,9 +1,9 @@
 # Configuration
 
 ## Implementation
-If you have several implementation in your classpath, you need to choose which implementation to use in your configuration file with the `default-impl-name` property.
+If you have several implementations in your classpath, you need to choose which implementation to use in your configuration file with the `default-impl-name` property.
 Each implementation is identified by its name, that may be unique in the classpath:
-- use "DynaWaltz" to use powsybl-dynawo implementation
+- Use "Dynawo" to use powsybl-dynawo implementation
 
 **YAML configuration:**
 ```yaml
@@ -20,7 +20,7 @@ dynamic-security-analysis:
 
 ## Parameters
 The `dynamic-security-analysis-default-parameters` module is used every time a dynamic security analysis is run. It defines the default values for the most common parameters a `com.powsybl.security.dynamic.DynamicSecurityAnalysis` implementation should be able to handle.
-In addition to its own set of parameter, the dynamic security analysis reuse [dynamic simulation parameters](../dynamic/parameters.md).
+In addition to its own set of parameters, the dynamic security analysis reuses [dynamic simulation parameters](../dynamic/configuration.md).
 
 You may configure some generic parameters for all implementations:
 ```yaml

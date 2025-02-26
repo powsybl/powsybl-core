@@ -9,7 +9,9 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.TopologyKind;
@@ -23,8 +25,8 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
@@ -63,6 +65,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .withBusOrBusbarSectionId1("bbs")
                 .withBusOrBusbarSectionId2("bbs2")
                 .build();
+        assertDoesNotThrow(() -> couplingDeviceModifWrongBbs.apply(network, false, ReportNode.NO_OP));
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> couplingDeviceModifWrongBbs.apply(network, true, reportNode1));
         assertEquals("Bus or busbar section bbs not found", e0.getMessage());
         assertEquals("notFoundBusOrBusbarSection", reportNode1.getChildren().get(0).getMessageKey());
@@ -72,6 +75,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs5")
                 .build();
+        assertDoesNotThrow(() -> couplingDeviceModifBbsInDifferentVl.apply(network, false, ReportNode.NO_OP));
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> couplingDeviceModifBbsInDifferentVl.apply(network, true, reportNode2));
         assertEquals("bbs1 and bbs5 are in two different voltage levels.", e1.getMessage());
         assertEquals("unexpectedDifferentVoltageLevels", reportNode2.getChildren().get(0).getMessageKey());
@@ -81,6 +85,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs1")
                 .build();
+        assertDoesNotThrow(() -> sameBusbarSection.apply(network, false, ReportNode.NO_OP));
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> sameBusbarSection.apply(network, true, reportNode3));
         assertEquals("No coupling device can be created on a same bus or busbar section (bbs1)", e2.getMessage());
         assertEquals("noCouplingDeviceOnSameBusOrBusbarSection", reportNode3.getChildren().get(0).getMessageKey());
@@ -141,6 +146,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .withBusOrBusbarSectionId1(bbs1)
                 .withBusOrBusbarSectionId2(bbs2)
                 .build();
+        assertDoesNotThrow(() -> modification.apply(network, false, ReportNode.NO_OP));
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals(message, e2.getMessage());
         assertEquals(messageKey, reportNode.getChildren().get(0).getMessageKey());
@@ -187,5 +193,46 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .setOpen(false)
                 .add();
         return network;
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new CreateCouplingDeviceBuilder()
+            .withBusOrBusbarSectionId1("bbs1")
+            .withBusOrBusbarSectionId2("bbs2")
+            .build();
+        assertEquals("CreateCouplingDevice", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        NetworkModification couplingDeviceModif = new CreateCouplingDeviceBuilder()
+            .withBusOrBusbarSectionId1("bbs1")
+            .withBusOrBusbarSectionId2("bbs3")
+            .withSwitchPrefixId("sw")
+            .build();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, couplingDeviceModif.hasImpactOnNetwork(network));
+
+        couplingDeviceModif = new CreateCouplingDeviceBuilder()
+            .withBusOrBusbarSectionId1("WRONG_BBS")
+            .withBusOrBusbarSectionId2("bbs3")
+            .withSwitchPrefixId("sw")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, couplingDeviceModif.hasImpactOnNetwork(network));
+
+        couplingDeviceModif = new CreateCouplingDeviceBuilder()
+            .withBusOrBusbarSectionId1("bbs1")
+            .withBusOrBusbarSectionId2("WRONG_BBS")
+            .withSwitchPrefixId("sw")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, couplingDeviceModif.hasImpactOnNetwork(network));
+
+        couplingDeviceModif = new CreateCouplingDeviceBuilder()
+            .withBusOrBusbarSectionId1("bbs1")
+            .withBusOrBusbarSectionId2("bbs1")
+            .withSwitchPrefixId("sw")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, couplingDeviceModif.hasImpactOnNetwork(network));
     }
 }

@@ -8,14 +8,12 @@
 package com.powsybl.security.detectors;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.security.*;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
+
+import static com.powsybl.security.LimitViolationDetection.createViolationLocation;
 
 /**
  * Implements the default behaviour for limit violation detection.
@@ -82,12 +80,12 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         VoltageLevel vl = bus.getVoltageLevel();
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
-                    vl.getLowVoltageLimit(), limitReductionValue, value));
+                    vl.getLowVoltageLimit(), limitReductionValue, value, createViolationLocation(bus)));
         }
 
         if (!Double.isNaN(vl.getHighVoltageLimit()) && value >= vl.getHighVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.HIGH_VOLTAGE,
-                    vl.getHighVoltageLimit(), limitReductionValue, value));
+                    vl.getHighVoltageLimit(), limitReductionValue, value, createViolationLocation(bus)));
         }
     }
 

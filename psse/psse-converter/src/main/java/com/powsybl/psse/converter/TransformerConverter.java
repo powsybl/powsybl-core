@@ -22,6 +22,10 @@ import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.pf.PsseBus;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
+import com.powsybl.psse.model.pf.PsseTransformer;
+import com.powsybl.psse.model.pf.PsseTransformerWinding;
 
 import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.*;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
@@ -58,12 +62,10 @@ class TransformerConverter extends AbstractConverter {
 
         String id = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getCkt());
 
-        String bus1Id = getBusId(psseTransformer.getI());
         String voltageLevel1Id = getContainersMapping().getVoltageLevelId(psseTransformer.getI());
         VoltageLevel voltageLevel1 = getNetwork().getVoltageLevel(voltageLevel1Id);
         double baskv1 = busNumToPsseBus.get(psseTransformer.getI()).getBaskv();
 
-        String bus2Id = getBusId(psseTransformer.getJ());
         String voltageLevel2Id = getContainersMapping().getVoltageLevelId(psseTransformer.getJ());
         VoltageLevel voltageLevel2 = getNetwork().getVoltageLevel(voltageLevel2Id);
         double baskv2 = busNumToPsseBus.get(psseTransformer.getJ()).getBaskv();
@@ -116,6 +118,7 @@ class TransformerConverter extends AbstractConverter {
         if (node1.isPresent()) {
             adder.setNode1(node1.getAsInt());
         } else {
+            String bus1Id = getBusId(psseTransformer.getI());
             adder.setConnectableBus1(bus1Id);
             adder.setBus1(psseTransformer.getStat() == 1 ? bus1Id : null);
         }
@@ -123,6 +126,7 @@ class TransformerConverter extends AbstractConverter {
         if (node2.isPresent()) {
             adder.setNode2(node2.getAsInt());
         } else {
+            String bus2Id = getBusId(psseTransformer.getJ());
             adder.setConnectableBus2(bus2Id);
             adder.setBus2(psseTransformer.getStat() == 1 ? bus2Id : null);
         }
@@ -273,25 +277,23 @@ class TransformerConverter extends AbstractConverter {
         double rw;
         double xw;
         switch (cz) {
-            case 1:
+            case 1 -> {
                 rw = r;
                 xw = x;
-                break;
-            case 2:
+            }
+            case 2 -> {
                 // change to right Sbase pu
                 rw = r * sbase / windingSbase;
                 xw = x * sbase / windingSbase;
-                break;
-            case 3:
+            }
+            case 3 -> {
                 // convert load loss power and current into pu impedances
                 rw = r / windingSbase / 1000000;
                 xw = Math.sqrt(x * x - rw * rw);
-
                 rw = rw * sbase / windingSbase;
                 xw = xw * sbase / windingSbase;
-                break;
-            default:
-                throw new PsseException("Unexpected CZ = " + cz);
+            }
+            default -> throw new PsseException("Unexpected CZ = " + cz);
         }
         return new Complex(rw, xw);
     }
@@ -301,13 +303,13 @@ class TransformerConverter extends AbstractConverter {
         double g;
         double b;
         switch (cm) {
-            case 1:
+            case 1 -> {
                 // g and b represent the values of the magnetizing admittance at the i end in pu at 1/Zb1 base where Zb1 = Vb1*Vb1/Sb1
                 // Vb1 is the bus i voltage base (BASKV) and Sb1 is the system MVA base which is SBASE
                 g = magG;
                 b = magB;
-                break;
-            case 2:
+            }
+            case 2 -> {
                 g = magG / (1000000 * sbase) * (baskv / nomV) * (baskv / nomV);
                 double y = magB * (windingSbase / sbase) * (baskv / nomV) * (baskv / nomV);
                 double b2 = y * y - g * g;
@@ -317,9 +319,8 @@ class TransformerConverter extends AbstractConverter {
                     b = 0.0;
                     LOGGER.warn("Magnetizing susceptance of Transformer ({}) set to 0 because admittance module is ({}) and conductance is ({})  ", id, y, g);
                 }
-                break;
-            default:
-                throw new PsseException("Unexpected CM = " + cm);
+            }
+            default -> throw new PsseException("Unexpected CM = " + cm);
         }
         return new Complex(g, b);
     }
@@ -329,39 +330,21 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static double defineRatio(double windV, double baskv, double nomV, int cw) {
-        double ratio;
-        switch (cw) {
-            case 1:
-                ratio = windV;
-                break;
-            case 2:
-                ratio = windV / baskv;
-                break;
-            case 3:
-                ratio = windV * nomV / baskv;
-                break;
-            default:
-                throw new PsseException("Unexpected CW = " + cw);
-        }
-        return ratio;
+        return switch (cw) {
+            case 1 -> windV;
+            case 2 -> windV / baskv;
+            case 3 -> windV * nomV / baskv;
+            default -> throw new PsseException("Unexpected CW = " + cw);
+        };
     }
 
     private static double defineWindV(double ratio, double baskv, double nomV, int cw) {
-        double windV;
-        switch (cw) {
-            case 1:
-                windV = ratio;
-                break;
-            case 2:
-                windV = ratio * baskv;
-                break;
-            case 3:
-                windV = ratio * baskv / nomV;
-                break;
-            default:
-                throw new PsseException("Unexpected CW = " + cw);
-        }
-        return windV;
+        return switch (cw) {
+            case 1 -> ratio;
+            case 2 -> ratio * baskv;
+            case 3 -> ratio * baskv / nomV;
+            default -> throw new PsseException("Unexpected CW = " + cw);
+        };
     }
 
     private static TapChanger defineTapChanger(ComplexRatio complexRatio, PsseTransformerWinding winding, double baskv,
@@ -743,11 +726,11 @@ class TransformerConverter extends AbstractConverter {
         }
         boolean regulatingForcedToOff = false;
         if (twt.hasRatioTapChanger()) {
-            boolean regulating = defineVoltageControl(getNetwork(), twt.getId(), equipmentId, psseTransformer.getWinding1(), twt.getRatioTapChanger(), regulatingForcedToOff, nodeBreakerImport);
+            boolean regulating = defineVoltageControl(getNetwork(), twt.getId(), psseTransformer.getWinding1(), twt.getRatioTapChanger(), regulatingForcedToOff, nodeBreakerImport);
             regulatingForcedToOff = forceRegulatingToOff(regulatingForcedToOff, regulating);
         }
         if (twt.hasPhaseTapChanger()) {
-            defineActivePowerControl(getNetwork(), twt.getId(), equipmentId, psseTransformer.getWinding1(), twt.getPhaseTapChanger(), regulatingForcedToOff, nodeBreakerImport);
+            defineActivePowerControl(getNetwork(), twt.getId(), psseTransformer.getWinding1(), twt.getPhaseTapChanger(), regulatingForcedToOff, nodeBreakerImport);
         }
     }
 
@@ -759,28 +742,28 @@ class TransformerConverter extends AbstractConverter {
             return;
         }
         boolean regulatingForcedToOff = false;
-        regulatingForcedToOff = addControlThreeWindingsTransformerLeg(getNetwork(), twt.getId(), equipmentId, twt.getLeg1(), psseTransformer.getWinding1(), regulatingForcedToOff, nodeBreakerImport);
-        regulatingForcedToOff = addControlThreeWindingsTransformerLeg(getNetwork(), twt.getId(), equipmentId, twt.getLeg2(), psseTransformer.getWinding2(), regulatingForcedToOff, nodeBreakerImport);
-        addControlThreeWindingsTransformerLeg(getNetwork(), twt.getId(), equipmentId, twt.getLeg3(), psseTransformer.getWinding3(), regulatingForcedToOff, nodeBreakerImport);
+        regulatingForcedToOff = addControlThreeWindingsTransformerLeg(getNetwork(), twt.getId(), twt.getLeg1(), psseTransformer.getWinding1(), regulatingForcedToOff, nodeBreakerImport);
+        regulatingForcedToOff = addControlThreeWindingsTransformerLeg(getNetwork(), twt.getId(), twt.getLeg2(), psseTransformer.getWinding2(), regulatingForcedToOff, nodeBreakerImport);
+        addControlThreeWindingsTransformerLeg(getNetwork(), twt.getId(), twt.getLeg3(), psseTransformer.getWinding3(), regulatingForcedToOff, nodeBreakerImport);
     }
 
-    private static boolean addControlThreeWindingsTransformerLeg(Network network, String id, String equipmentId, Leg leg,
-                                                                 PsseTransformerWinding winding, boolean regulatingForcedToOffInput, NodeBreakerImport nodeBreakerImport) {
+    private static boolean addControlThreeWindingsTransformerLeg(Network network, String id, Leg leg,
+        PsseTransformerWinding winding, boolean regulatingForcedToOffInput, NodeBreakerImport nodeBreakerImport) {
         boolean regulatingForcedToOff = regulatingForcedToOffInput;
         if (leg.hasRatioTapChanger()) {
-            boolean regulating = defineVoltageControl(network, id, equipmentId, winding, leg.getRatioTapChanger(), regulatingForcedToOff, nodeBreakerImport);
+            boolean regulating = defineVoltageControl(network, id, winding, leg.getRatioTapChanger(), regulatingForcedToOff, nodeBreakerImport);
             regulatingForcedToOff = forceRegulatingToOff(regulatingForcedToOff, regulating);
         }
         if (leg.hasPhaseTapChanger()) {
-            boolean regulating = defineActivePowerControl(network, id, equipmentId, winding, leg.getPhaseTapChanger(), regulatingForcedToOff, nodeBreakerImport);
+            boolean regulating = defineActivePowerControl(network, id, winding, leg.getPhaseTapChanger(), regulatingForcedToOff, nodeBreakerImport);
             regulatingForcedToOff = forceRegulatingToOff(regulatingForcedToOff, regulating);
         }
         return regulatingForcedToOff;
     }
 
-    private static boolean defineVoltageControl(Network network, String id, String equipmentId, PsseTransformerWinding winding, RatioTapChanger rtc,
-                                                boolean regulatingForcedToOff, NodeBreakerImport nodeBreakerImport) {
-        if (isReactivePowerControl(winding.getCod())) {
+    private static boolean defineVoltageControl(Network network, String id, PsseTransformerWinding winding, RatioTapChanger rtc,
+        boolean regulatingForcedToOff, NodeBreakerImport nodeBreakerImport) {
+        if (Math.abs(winding.getCod()) == 2) {
             LOGGER.warn("Transformer {}. Reactive power control not supported", id);
             return false;
         }
@@ -788,7 +771,7 @@ class TransformerConverter extends AbstractConverter {
             return false;
         }
 
-        Terminal regulatingTerminal = defineRegulatingTerminal(network, id, equipmentId, winding, nodeBreakerImport);
+        Terminal regulatingTerminal = defineRegulatingTerminal(network, id, winding, nodeBreakerImport);
         // Discard control if the transformer is controlling an isolated bus
         if (regulatingTerminal == null) {
             return false;
@@ -812,12 +795,12 @@ class TransformerConverter extends AbstractConverter {
         return regulating;
     }
 
-    private static boolean defineActivePowerControl(Network network, String id, String equipmentId, PsseTransformerWinding winding, PhaseTapChanger ptc, boolean regulatingForcedToOff, NodeBreakerImport nodeBreakerImport) {
-        if (!isActivePowerControl(winding.getCod())) {
+    private static boolean defineActivePowerControl(Network network, String id, PsseTransformerWinding winding, PhaseTapChanger ptc, boolean regulatingForcedToOff, NodeBreakerImport nodeBreakerImport) {
+        if (Math.abs(winding.getCod()) != 3) {
             return false;
         }
 
-        Terminal regulatingTerminal = defineRegulatingTerminal(network, id, equipmentId, winding, nodeBreakerImport);
+        Terminal regulatingTerminal = defineRegulatingTerminal(network, id, winding, nodeBreakerImport);
         // Discard control if the transformer is controlling an isolated bus
         if (regulatingTerminal == null) {
             return false;
@@ -827,7 +810,6 @@ class TransformerConverter extends AbstractConverter {
         double targetValue = 0.5 * (activePowerMin + activePowerMax);
         double targetDeadBand = activePowerMax - activePowerMin;
         boolean regulating = targetDeadBand >= 0.0;
-
         if (regulating && regulatingForcedToOff) {
             LOGGER.warn("Transformer {}. Regulating control forced to off. Only one control is supported", id);
             regulating = false;
@@ -846,13 +828,14 @@ class TransformerConverter extends AbstractConverter {
         return regulatingForcedToOff || regulating;
     }
 
-    private static Terminal defineRegulatingTerminal(Network network, String id, String equipmentId, PsseTransformerWinding winding, NodeBreakerImport nodeBreakerImport) {
+    private static Terminal defineRegulatingTerminal(Network network, String id, PsseTransformerWinding winding, NodeBreakerImport nodeBreakerImport) {
         Terminal regulatingTerminal = null;
 
         int busI = Math.abs(winding.getCont());
-        Optional<NodeBreakerImport.NodeBreakerControlNode> controlNode = nodeBreakerImport.getControlNode(getNodeBreakerEquipmentIdBus(equipmentId, busI));
-        if (controlNode.isPresent()) {
-            regulatingTerminal = findTerminalNode(network, controlNode.get().getVoltageLevelId(), controlNode.get().getNode());
+        Optional<NodeBreakerImport.ControlR> control = nodeBreakerImport.getControl(busI);
+        if (control.isPresent()) {
+            int controlledNode = winding.getNode() != 0 ? winding.getNode() : control.get().node();
+            regulatingTerminal = findTerminalNode(network, control.get().voltageLevelId(), controlledNode);
         } else {
             String regulatingBusId = getBusId(busI);
             Bus bus = network.getBusBreakerView().getBus(regulatingBusId);
@@ -861,7 +844,7 @@ class TransformerConverter extends AbstractConverter {
             }
         }
         if (regulatingTerminal == null) {
-            LOGGER.warn("Transformer {}. Regulating terminal is not assigned as the bus is isolated", id);
+            LOGGER.warn("Transformer {}. Regulating terminal is not assigned", id);
         }
         return regulatingTerminal;
     }
@@ -955,11 +938,6 @@ class TransformerConverter extends AbstractConverter {
             setSortedRatesToPsseRates(getSortedRates(t2w.getActivePowerLimits2().get()), windingRates);
         }
         return windingRates;
-    }
-
-    private static int getStatus(TwoWindingsTransformer t2w) {
-        return t2w.getTerminal1().isConnected() && t2w.getTerminal1().getBusBreakerView().getBus() != null
-                && t2w.getTerminal2().isConnected() && t2w.getTerminal2().getBusBreakerView().getBus() != null ? 1 : 0;
     }
 
     private static PsseTransformer createThreeWindingsTransformer(ThreeWindingsTransformer t3w, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
@@ -1183,7 +1161,7 @@ class TransformerConverter extends AbstractConverter {
         return winding;
     }
 
-    // antenna twoWindingsTransformers are exported as open
+    // At the moment we do not consider new transformers and antenna twoWindingsTransformers are exported as open
     static void updateTransformers(Network network, PssePowerFlowModel psseModel) {
         psseModel.getTransformers().forEach(psseTransformer -> {
             if (isTwoWindingsTransformer(psseTransformer)) {
@@ -1207,6 +1185,11 @@ class TransformerConverter extends AbstractConverter {
 
             psseTransformer.setStat(getStatus(t2w));
         }
+    }
+
+    private static int getStatus(TwoWindingsTransformer t2w) {
+        return t2w.getTerminal1().isConnected() && t2w.getTerminal1().getBusBreakerView().getBus() != null
+                && t2w.getTerminal2().isConnected() && t2w.getTerminal2().getBusBreakerView().getBus() != null ? 1 : 0;
     }
 
     private static void updateThreeWindingsTransformer(Network network, PsseTransformer psseTransformer) {

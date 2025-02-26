@@ -11,7 +11,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -30,6 +32,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.g
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
@@ -146,8 +149,9 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification0.apply(network1, false, ReportNode.NO_OP));
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, reportNode1));
-        assertEquals("Network given in parameters and in connectableAdder are different. Connectable was added then removed", e0.getMessage());
+        assertEquals("Network given in parameters and in connectableAdder are different. Connectable newLoad of type LOAD was added then removed", e0.getMessage());
         assertEquals("networkMismatch", reportNode1.getChildren().get(0).getMessageKey());
 
         // not found id
@@ -158,6 +162,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification1.apply(network, false, ReportNode.NO_OP));
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(network, true, reportNode2));
         assertEquals("Bus or busbar section bbs not found", e1.getMessage());
         assertEquals("notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
@@ -170,6 +175,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification2.apply(network, false, ReportNode.NO_OP));
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true, reportNode3));
         assertEquals("Unsupported type GENERATOR for identifiable gen1", e2.getMessage());
         assertEquals("unsupportedIdentifiableType", reportNode3.getChildren().get(0).getMessageKey());
@@ -445,6 +451,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withBusOrBusbarSectionId(bbs.getId())
                 .withInjectionPositionOrder(-2)
                 .build();
+        assertDoesNotThrow(() -> negativeOrderCreate.apply(network, false, computationManager, ReportNode.NO_OP));
         PowsyblException eNeg = assertThrows(PowsyblException.class, () -> negativeOrderCreate.apply(network, true, computationManager, reportNode1));
         assertEquals("Position order is negative for attachment in node-breaker voltage level vl: -2", eNeg.getMessage());
         assertEquals("unexpectedNegativePositionOrder", reportNode1.getChildren().get(0).getMessageKey());
@@ -455,6 +462,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId(bbs.getId())
                 .build();
+        assertDoesNotThrow(() -> nullOrderCreate.apply(network, false, computationManager, ReportNode.NO_OP));
         PowsyblException eNull = assertThrows(PowsyblException.class, () -> nullOrderCreate.apply(network, true, computationManager, reportNode2));
         assertEquals("Position order is null for attachment in node-breaker voltage level vl", eNull.getMessage());
         assertEquals("unexpectedNullPositionOrder", reportNode2.getChildren().get(0).getMessageKey());
@@ -495,5 +503,75 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .build()
                 .apply(network, reportNode);
         testReportNode(reportNode, "/reportNode/create-load-NB-without-extensions-report.txt");
+    }
+
+    @Test
+    void testGetName() {
+        Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+            .setId("newLoad")
+            .setLoadType(LoadType.UNDEFINED)
+            .setP0(0)
+            .setQ0(0);
+        AbstractNetworkModification networkModification = new CreateFeederBayBuilder()
+            .withInjectionAdder(loadAdder)
+            .withBusOrBusbarSectionId("bbs4")
+            .withInjectionPositionOrder(115)
+            .build();
+        assertEquals("CreateFeederBay", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+            .setId("newLoad")
+            .setLoadType(LoadType.UNDEFINED)
+            .setP0(0)
+            .setQ0(0);
+        NetworkModification modification1 = new CreateFeederBayBuilder()
+            .withInjectionAdder(loadAdder)
+            .withBusOrBusbarSectionId("bbs4")
+            .withInjectionPositionOrder(115)
+            .withInjectionFeederName("newLoadFeeder")
+            .withInjectionDirection(BOTTOM)
+            .build();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new CreateFeederBayBuilder()
+            .withInjectionAdder(loadAdder)
+            .withBusOrBusbarSectionId("bbs4")
+            .withInjectionFeederName("newLoadFeeder")
+            .withInjectionDirection(BOTTOM)
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification2.hasImpactOnNetwork(network));
+
+        NetworkModification modification3 = new CreateFeederBayBuilder()
+            .withInjectionAdder(loadAdder)
+            .withBusOrBusbarSectionId("bbs4")
+            .withInjectionPositionOrder(-5)
+            .withInjectionFeederName("newLoadFeeder")
+            .withInjectionDirection(BOTTOM)
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification3.hasImpactOnNetwork(network));
+
+        NetworkModification modification4 = new CreateFeederBayBuilder()
+            .withInjectionAdder(loadAdder)
+            .withBusOrBusbarSectionId("WRONG_BBS")
+            .withInjectionPositionOrder(115)
+            .withInjectionFeederName("newLoadFeeder")
+            .withInjectionDirection(BOTTOM)
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification4.hasImpactOnNetwork(network));
+
+        Network networkBus = EurostagTutorialExample1Factory.create().setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        NetworkModification modification5 = new CreateFeederBayBuilder()
+            .withInjectionAdder(loadAdder)
+            .withBusOrBusbarSectionId("NGEN")
+            .withInjectionPositionOrder(115)
+            .withInjectionFeederName("newLoadFeeder")
+            .withInjectionDirection(BOTTOM)
+            .build();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification5.hasImpactOnNetwork(networkBus));
     }
 }

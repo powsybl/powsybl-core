@@ -16,6 +16,8 @@ import com.powsybl.timeseries.TimeSeries;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +45,12 @@ class DynamicSimulationResultJsonTest extends AbstractSerDeTest {
 
             @Override
             public Map<String, DoubleTimeSeries> getCurves() {
-                return Collections.singletonMap("curve1", TimeSeries.createDouble("curve1", new RegularTimeSeriesIndex(0, 5, 1), 0.0, 0.1, 0.1, 0.2, 0.1, 0.0));
+                return Collections.singletonMap("curve1", TimeSeries.createDouble("curve1", new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(5), Duration.ofMillis(1)), 0.0, 0.1, 0.1, 0.2, 0.1, 0.0));
+            }
+
+            @Override
+            public Map<String, Double> getFinalStateValues() {
+                return Collections.singletonMap("fsv1", 20.0);
             }
 
             @Override
@@ -71,6 +78,11 @@ class DynamicSimulationResultJsonTest extends AbstractSerDeTest {
 
             @Override
             public Map<String, DoubleTimeSeries> getCurves() {
+                return Collections.emptyMap();
+            }
+
+            @Override
+            public Map<String, Double> getFinalStateValues() {
                 return Collections.emptyMap();
             }
 

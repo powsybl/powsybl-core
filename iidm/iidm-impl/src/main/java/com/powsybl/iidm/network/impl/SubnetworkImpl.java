@@ -33,6 +33,8 @@ public class SubnetworkImpl extends AbstractNetwork {
     /**
      * Reference to the root network, hence the parent network in this implementation (only one level of subnetworks).
      * This is used to easily update the root network in all equipments when detaching this subnetwork.
+     * <p>This {@link RefChain} should reference the {@code ref} attribute of the root network in order for the {@link #flatten()}
+     * method to work.</p>
      */
     private final RefChain<NetworkImpl> rootNetworkRef;
 
@@ -59,6 +61,10 @@ public class SubnetworkImpl extends AbstractNetwork {
     @Override
     public RefChain<NetworkImpl> getRootNetworkRef() {
         return rootNetworkRef;
+    }
+
+    protected RefChain<SubnetworkImpl> getRef() {
+        return ref;
     }
 
     @Override
@@ -224,6 +230,11 @@ public class SubnetworkImpl extends AbstractNetwork {
     @Override
     public LineAdder newLine() {
         return getNetwork().newLine(id);
+    }
+
+    @Override
+    public LineAdder newLine(Line line) {
+        return getNetwork().newLine(id, line);
     }
 
     @Override
@@ -831,11 +842,6 @@ public class SubnetworkImpl extends AbstractNetwork {
             detachedNetwork.getVoltageAngleLimitsIndex().put(val.getId(), val);
         }
 
-        detachedNetwork.getAreaStream().forEach(a -> {
-            AreaImpl area = (AreaImpl) a;
-            area.moveListener(previousRootNetwork, detachedNetwork);
-        });
-
         // We don't control that regulating terminals and phase/ratio regulation terminals are in the same subnetwork
         // as their network elements (generators, PSTs, ...). It is unlikely that those terminals and their elements
         // are in different subnetworks but nothing prevents it. For now, we ignore this case, but it may be necessary
@@ -906,6 +912,11 @@ public class SubnetworkImpl extends AbstractNetwork {
             case DANGLING_LINE -> isBoundary((DanglingLine) identifiable);
             default -> false;
         };
+    }
+
+    @Override
+    public void flatten() {
+        throw new UnsupportedOperationException("Subnetworks cannot be flattened.");
     }
 
     private boolean isBoundary(Branch<?> branch) {

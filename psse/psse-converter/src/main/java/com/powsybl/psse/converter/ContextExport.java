@@ -63,6 +63,10 @@ final class ContextExport {
             this.voltageLevelNodeIdToBusI = new HashMap<>();
         }
 
+        void addBusViewBusILink(Bus busView, int busI) {
+            this.busIToBusView.put(busI, busView);
+        }
+
         void addBusViewBusIDoubleLink(Bus busView, int busI) {
             this.busViewToBusI.put(busView, busI);
             this.busIToBusView.put(busI, busView);

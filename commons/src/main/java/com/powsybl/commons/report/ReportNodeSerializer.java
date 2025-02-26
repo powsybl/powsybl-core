@@ -22,21 +22,21 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeSerializer extends StdSerializer<ReportNodeImpl> {
+public class ReportNodeSerializer extends StdSerializer<ReportNode> {
 
     ReportNodeSerializer() {
-        super(ReportNodeImpl.class);
+        super(ReportNode.class);
     }
 
     @Override
-    public void serialize(ReportNodeImpl reportNode, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ReportNode reportNode, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
         generator.writeStartObject();
 
         generator.writeStringField("version", ReportConstants.CURRENT_VERSION.toString());
 
         generator.writeFieldName("dictionaries");
         generator.writeStartObject();
-        generator.writeObjectField("default", reportNode.getRootContext().get().getDictionary());
+        generator.writeObjectField("default", reportNode.getTreeContext().getDictionary());
         generator.writeEndObject();
 
         generator.writeFieldName("reportRoot");
@@ -70,7 +70,7 @@ public class ReportNodeSerializer extends StdSerializer<ReportNodeImpl> {
         public void serialize(TypedValue typedValue, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
             generator.writeStartObject();
             serializerProvider.defaultSerializeField("value", typedValue.getValue(), generator);
-            if (!TypedValue.UNTYPED.equals(typedValue.getType())) {
+            if (!TypedValue.UNTYPED_TYPE.equals(typedValue.getType())) {
                 generator.writeStringField("type", typedValue.getType());
             }
             generator.writeEndObject();

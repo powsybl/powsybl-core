@@ -9,7 +9,6 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,14 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -65,10 +71,11 @@ class StringDataChunkTest {
         // stream test
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:45:00Z"),
                                                                      Duration.ofMinutes(15));
-        assertEquals(ImmutableList.of(new StringPoint(1, Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), "a"),
-                                      new StringPoint(2, Instant.parse("2015-01-01T00:30:00Z").toEpochMilli(), "b"),
-                                      new StringPoint(3, Instant.parse("2015-01-01T00:45:00Z").toEpochMilli(), "c")),
-                chunk.stream(index).toList());
+        assertEquals(
+            List.of(new StringPoint(1, Instant.parse("2015-01-01T00:15:00Z"), "a"),
+                new StringPoint(2, Instant.parse("2015-01-01T00:30:00Z"), "b"),
+                new StringPoint(3, Instant.parse("2015-01-01T00:45:00Z"), "c")),
+            chunk.stream(index).toList());
     }
 
     @Test
@@ -97,10 +104,11 @@ class StringDataChunkTest {
         assertEquals(jsonRef, JsonUtil.toJson(compressedChunk::writeJson));
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:30:00Z"),
                                                                      Duration.ofMinutes(15));
-        assertEquals(ImmutableList.of(new StringPoint(1, Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), "aaa"),
-                                      new StringPoint(2, Instant.parse("2015-01-01T00:30:00Z").toEpochMilli(), "bbb"),
-                                      new StringPoint(6, Instant.parse("2015-01-01T01:30:00Z").toEpochMilli(), "ccc")),
-                     compressedChunk.stream(index).toList());
+        assertEquals(
+            List.of(new StringPoint(1, Instant.parse("2015-01-01T00:15:00Z"), "aaa"),
+                new StringPoint(2, Instant.parse("2015-01-01T00:30:00Z"), "bbb"),
+                new StringPoint(6, Instant.parse("2015-01-01T01:30:00Z"), "ccc")),
+            compressedChunk.stream(index).toList());
     }
 
     @Test
