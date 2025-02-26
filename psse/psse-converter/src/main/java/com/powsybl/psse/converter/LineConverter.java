@@ -119,7 +119,7 @@ class LineConverter extends AbstractConverter {
         }
     }
 
-    static void createLines(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
         network.getLines().forEach(line -> psseModel.addNonTransformerBranches(Collections.singletonList(createLine(line, contextExport, perUnitContext))));
         psseModel.replaceAllNonTransformerBranches(psseModel.getNonTransformerBranches().stream().sorted(Comparator.comparingInt(PsseNonTransformerBranch::getI).thenComparingInt(PsseNonTransformerBranch::getJ).thenComparing(PsseNonTransformerBranch::getCkt)).toList());
     }
@@ -167,7 +167,7 @@ class LineConverter extends AbstractConverter {
     }
 
     // antenna lines are exported as open
-    static void updateLines(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getNonTransformerBranches().forEach(psseLine -> {
             String lineId = getLineId(psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
             Line line = network.getLine(lineId);

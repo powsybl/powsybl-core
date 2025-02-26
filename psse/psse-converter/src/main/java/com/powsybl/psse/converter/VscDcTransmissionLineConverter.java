@@ -223,7 +223,7 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
         return converter.getMode() == 1;
     }
 
-    static void createVscDcTransmissionLines(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
         PsseVersion version = PsseVersion.fromRevision(psseModel.getCaseIdentification().getRev());
         network.getHvdcLines().forEach(hvdcLine -> {
             if (isVscDcTransmissionLine(hvdcLine)) {
@@ -312,7 +312,7 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
         return converter;
     }
 
-    static void updateVscDcTransmissionLines(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getVoltageSourceConverterDcTransmissionLines().forEach(psseVscDcTransmissionLine -> {
             String hvdcId = getVscDcTransmissionLineId(psseVscDcTransmissionLine.getName());
             HvdcLine hvdcLine = network.getHvdcLine(hvdcId);

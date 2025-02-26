@@ -62,7 +62,7 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
         adder.add();
     }
 
-    static void createFixedShunts(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
         network.getShuntCompensators().forEach(shuntCompensator -> psseModel.addFixedShunts(Collections.singletonList(createFixedShunt(shuntCompensator, contextExport))));
         psseModel.replaceAllFixedShunts(psseModel.getFixedShunts().stream().sorted(Comparator.comparingInt(PsseFixedShunt::getI).thenComparing(PsseFixedShunt::getId)).toList());
     }
@@ -80,7 +80,7 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
         return psseFixedShunt;
     }
 
-    static void updateFixedShunts(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getFixedShunts().forEach(psseFixedShunt -> {
             String fixedShuntId = getFixedShuntId(psseFixedShunt.getI(), psseFixedShunt.getId());
             ShuntCompensator fixedShunt = network.getShuntCompensator(fixedShuntId);

@@ -120,7 +120,7 @@ class GeneratorConverter extends AbstractConverter {
         return regulatingTerminal;
     }
 
-    static void createGenerators(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
         network.getGenerators().forEach(generator -> psseModel.addGenerators(Collections.singletonList(createGenerator(generator, contextExport, perUnitContext))));
         psseModel.replaceAllGenerators(psseModel.getGenerators().stream().sorted(Comparator.comparingInt(PsseGenerator::getI).thenComparing(PsseGenerator::getId)).toList());
     }
@@ -171,7 +171,7 @@ class GeneratorConverter extends AbstractConverter {
         return psseGenerator;
     }
 
-    static void updateGenerators(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getGenerators().forEach(psseGen -> {
             String genId = getGeneratorId(psseGen.getI(), psseGen.getId());
             Generator gen = network.getGenerator(genId);

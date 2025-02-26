@@ -125,7 +125,7 @@ class FactsDeviceConverter extends AbstractConverter {
         }
     }
 
-    static void createFactsDevices(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
         network.getStaticVarCompensators().forEach(staticVarCompensator -> psseModel.addFacts(Collections.singletonList(createFactsDevice(staticVarCompensator, contextExport))));
         psseModel.replaceAllFacts(psseModel.getFacts().stream().sorted(Comparator.comparing(PsseFacts::getName)).toList());
     }
@@ -173,7 +173,7 @@ class FactsDeviceConverter extends AbstractConverter {
         return psseFactsDevice;
     }
 
-    static void updateFactsDevices(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         PsseVersion version = PsseVersion.fromRevision(psseModel.getCaseIdentification().getRev());
         psseModel.getFacts().forEach(psseFactsDevice -> {
             String factsDeviceName = getFactsDeviceId(psseFactsDevice.getName());

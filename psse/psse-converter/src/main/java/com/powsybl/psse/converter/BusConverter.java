@@ -43,7 +43,7 @@ class BusConverter extends AbstractConverter {
                 .setAngle(psseBus.getVa());
     }
 
-    static void createBuses(PssePowerFlowModel psseModel, ContextExport contextExport) {
+    static void create(PssePowerFlowModel psseModel, ContextExport contextExport) {
 
         contextExport.getLinkExport().getBusISet().forEach(busI -> {
             // bus and type is always present when a psseBus is created
@@ -69,7 +69,7 @@ class BusConverter extends AbstractConverter {
         return psseBus;
     }
 
-    static void updateBuses(PssePowerFlowModel psseModel, ContextExport contextExport) {
+    static void update(PssePowerFlowModel psseModel, ContextExport contextExport) {
         psseModel.getBuses().forEach(psseBus -> {
             Optional<Bus> busViewBus = contextExport.getLinkExport().getBusView(psseBus.getI());
             if (busViewBus.isPresent()) {

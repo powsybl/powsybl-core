@@ -24,7 +24,7 @@ class BatteryConverter extends AbstractConverter {
         super(network);
     }
 
-    static void createBatteries(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
         network.getBatteries().forEach(battery -> psseModel.addLoads(Collections.singletonList(createBattery(battery, contextExport))));
         psseModel.replaceAllLoads(psseModel.getLoads().stream().sorted(Comparator.comparingInt(PsseLoad::getI).thenComparing(PsseLoad::getId)).toList());
     }

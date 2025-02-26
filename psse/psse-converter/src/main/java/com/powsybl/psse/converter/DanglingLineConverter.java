@@ -27,7 +27,7 @@ class DanglingLineConverter extends AbstractConverter {
         super(network);
     }
 
-    static void createDanglingLines(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
         List<DanglingLine> unPairedDanglingLines = network.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired()).toList();
         if (!unPairedDanglingLines.isEmpty()) {
             createUnpairedDanglingLines(unPairedDanglingLines, psseModel, contextExport, perUnitContext);

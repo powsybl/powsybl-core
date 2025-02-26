@@ -849,7 +849,7 @@ class TransformerConverter extends AbstractConverter {
         return regulatingTerminal;
     }
 
-    static void createTransformers(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
         network.getTwoWindingsTransformers().forEach(t2w -> psseModel.addTransformers(Collections.singletonList(createTwoWindingsTransformer(t2w, contextExport, perUnitContext))));
         network.getThreeWindingsTransformers().forEach(t3w -> psseModel.addTransformers(Collections.singletonList(createThreeWindingsTransformer(t3w, contextExport, perUnitContext))));
         psseModel.replaceAllTransformers(psseModel.getTransformers().stream().sorted(Comparator.comparingInt(PsseTransformer::getI).thenComparingInt(PsseTransformer::getJ).thenComparingInt(PsseTransformer::getK).thenComparing(PsseTransformer::getCkt)).toList());
@@ -1162,7 +1162,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     // At the moment we do not consider new transformers and antenna twoWindingsTransformers are exported as open
-    static void updateTransformers(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getTransformers().forEach(psseTransformer -> {
             if (isTwoWindingsTransformer(psseTransformer)) {
                 updateTwoWindingsTransformer(network, psseTransformer);

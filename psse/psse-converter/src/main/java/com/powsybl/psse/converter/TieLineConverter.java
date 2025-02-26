@@ -26,7 +26,7 @@ class TieLineConverter extends AbstractConverter {
         super(network);
     }
 
-    static void createTieLines(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
         network.getTieLines().forEach(tieLine -> psseModel.addNonTransformerBranches(Collections.singletonList(createTieLine(tieLine, contextExport, perUnitContext))));
         psseModel.replaceAllNonTransformerBranches(psseModel.getNonTransformerBranches().stream().sorted(Comparator.comparingInt(PsseNonTransformerBranch::getI).thenComparingInt(PsseNonTransformerBranch::getJ).thenComparing(PsseNonTransformerBranch::getCkt)).toList());
     }
