@@ -135,7 +135,7 @@ class FactsDeviceConverter extends AbstractConverter {
 
         psseFactsDevice.setName(extractFactsDeviceName(staticVarCompensator.getId()));
         psseFactsDevice.setI(busI);
-        psseFactsDevice.setMode(getStatus(staticVarCompensator.getTerminal()));
+        psseFactsDevice.setMode(getStatus(staticVarCompensator.getTerminal()) == 1 ? 2 : 0);
         findTargetQ(staticVarCompensator).ifPresent(psseFactsDevice::setQdes);
         findTargetV(staticVarCompensator).ifPresent(psseFactsDevice::setVset);
         psseFactsDevice.setShmx(maxReactivePower);
