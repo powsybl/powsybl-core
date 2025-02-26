@@ -150,18 +150,23 @@ class LineConverter extends AbstractConverter {
 
     private static PsseRates createRates(Line line, double vNominal1, double vNominal2) {
         PsseRates windingRates = createDefaultRates();
-        if (line.getApparentPowerLimits1().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(line.getApparentPowerLimits1().get()), windingRates);
-        } else if (line.getApparentPowerLimits2().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(line.getApparentPowerLimits2().get()), windingRates);
-        } else if (line.getCurrentLimits1().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(line.getCurrentLimits1().get(), vNominal1), windingRates);
-        } else if (line.getCurrentLimits2().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(line.getCurrentLimits2().get(), vNominal2), windingRates);
-        } else if (line.getActivePowerLimits1().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(line.getActivePowerLimits1().get()), windingRates);
-        } else if (line.getActivePowerLimits2().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(line.getActivePowerLimits2().get()), windingRates);
+        line.getApparentPowerLimits1().ifPresent(apparentPowerLimits1 -> setSortedRatesToPsseRates(getSortedRates(apparentPowerLimits1), windingRates));
+        if (line.getApparentPowerLimits1().isEmpty()) {
+            line.getApparentPowerLimits2().ifPresent(apparentPowerLimits2 -> setSortedRatesToPsseRates(getSortedRates(apparentPowerLimits2), windingRates));
+        }
+        if (line.getApparentPowerLimits1().isEmpty() && line.getApparentPowerLimits2().isEmpty()) {
+            line.getCurrentLimits1().ifPresent(currentLimits1 -> setSortedRatesToPsseRates(getSortedRates(currentLimits1, vNominal1), windingRates));
+        }
+        if (line.getApparentPowerLimits1().isEmpty() && line.getApparentPowerLimits2().isEmpty() && line.getCurrentLimits1().isEmpty()) {
+            line.getCurrentLimits2().ifPresent(currentLimits2 -> setSortedRatesToPsseRates(getSortedRates(currentLimits2, vNominal2), windingRates));
+        }
+        if (line.getApparentPowerLimits1().isEmpty() && line.getApparentPowerLimits2().isEmpty() && line.getCurrentLimits1().isEmpty()
+                && line.getCurrentLimits2().isEmpty()) {
+            line.getActivePowerLimits1().ifPresent(activePowerLimits1 -> setSortedRatesToPsseRates(getSortedRates(activePowerLimits1), windingRates));
+        }
+        if (line.getApparentPowerLimits1().isEmpty() && line.getApparentPowerLimits2().isEmpty() && line.getCurrentLimits1().isEmpty()
+                && line.getCurrentLimits2().isEmpty() && line.getActivePowerLimits1().isEmpty()) {
+            line.getActivePowerLimits2().ifPresent(activePowerLimits2 -> setSortedRatesToPsseRates(getSortedRates(activePowerLimits2), windingRates));
         }
         return windingRates;
     }

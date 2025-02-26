@@ -56,18 +56,23 @@ class TieLineConverter extends AbstractConverter {
 
     private static PsseRates createRates(TieLine tieLine, double vNominal1, double vNominal2) {
         PsseRates windingRates = createDefaultRates();
-        if (tieLine.getApparentPowerLimits1().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(tieLine.getApparentPowerLimits1().get()), windingRates);
-        } else if (tieLine.getApparentPowerLimits2().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(tieLine.getApparentPowerLimits2().get()), windingRates);
-        } else if (tieLine.getCurrentLimits1().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(tieLine.getCurrentLimits1().get(), vNominal1), windingRates);
-        } else if (tieLine.getCurrentLimits2().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(tieLine.getCurrentLimits2().get(), vNominal2), windingRates);
-        } else if (tieLine.getActivePowerLimits1().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(tieLine.getActivePowerLimits1().get()), windingRates);
-        } else if (tieLine.getActivePowerLimits2().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(tieLine.getActivePowerLimits2().get()), windingRates);
+        tieLine.getApparentPowerLimits1().ifPresent(apparentPowerLimits1 -> setSortedRatesToPsseRates(getSortedRates(apparentPowerLimits1), windingRates));
+        if (tieLine.getApparentPowerLimits1().isEmpty()) {
+            tieLine.getApparentPowerLimits2().ifPresent(apparentPowerLimits2 -> setSortedRatesToPsseRates(getSortedRates(apparentPowerLimits2), windingRates));
+        }
+        if (tieLine.getApparentPowerLimits1().isEmpty() && tieLine.getApparentPowerLimits2().isEmpty()) {
+            tieLine.getCurrentLimits1().ifPresent(currentLimits1 -> setSortedRatesToPsseRates(getSortedRates(currentLimits1, vNominal1), windingRates));
+        }
+        if (tieLine.getApparentPowerLimits1().isEmpty() && tieLine.getApparentPowerLimits2().isEmpty() && tieLine.getCurrentLimits1().isEmpty()) {
+            tieLine.getCurrentLimits2().ifPresent(currentLimits2 -> setSortedRatesToPsseRates(getSortedRates(currentLimits2, vNominal2), windingRates));
+        }
+        if (tieLine.getApparentPowerLimits1().isEmpty() && tieLine.getApparentPowerLimits2().isEmpty() && tieLine.getCurrentLimits1().isEmpty()
+                && tieLine.getCurrentLimits2().isEmpty()) {
+            tieLine.getActivePowerLimits1().ifPresent(activePowerLimits1 -> setSortedRatesToPsseRates(getSortedRates(activePowerLimits1), windingRates));
+        }
+        if (tieLine.getApparentPowerLimits1().isEmpty() && tieLine.getApparentPowerLimits2().isEmpty() && tieLine.getCurrentLimits1().isEmpty()
+                && tieLine.getCurrentLimits2().isEmpty() && tieLine.getActivePowerLimits1().isEmpty()) {
+            tieLine.getActivePowerLimits2().ifPresent(activePowerLimits2 -> setSortedRatesToPsseRates(getSortedRates(activePowerLimits2), windingRates));
         }
         return windingRates;
     }

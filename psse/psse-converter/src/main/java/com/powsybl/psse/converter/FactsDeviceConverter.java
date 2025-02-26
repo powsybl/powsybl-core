@@ -17,7 +17,6 @@ import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_FACTS_DEVICE;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
@@ -99,7 +98,6 @@ class FactsDeviceConverter extends AbstractConverter {
         if (factsDeviceRegulatingBus(psseFactsDevice, version) == 0) {
             regulatingTerminal = staticVarCompensator.getTerminal();
         } else {
-            String equipmentId = getNodeBreakerEquipmentId(PSSE_FACTS_DEVICE, psseFactsDevice.getI(), psseFactsDevice.getJ(), psseFactsDevice.getName());
             Optional<NodeBreakerImport.ControlR> control = nodeBreakerImport.getControl(factsDeviceRegulatingBus(psseFactsDevice, version));
             if (control.isPresent()) {
                 regulatingTerminal = findTerminalNode(network, control.get().voltageLevelId(), control.get().node());
@@ -174,14 +172,15 @@ class FactsDeviceConverter extends AbstractConverter {
     }
 
     static void update(Network network, PssePowerFlowModel psseModel) {
-        PsseVersion version = PsseVersion.fromRevision(psseModel.getCaseIdentification().getRev());
         psseModel.getFacts().forEach(psseFactsDevice -> {
             String factsDeviceName = getFactsDeviceId(psseFactsDevice.getName());
             StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator(factsDeviceName);
-            if (staticVarCompensator == null && isStatCom(psseFactsDevice)) {
+            if (staticVarCompensator == null) {
                 psseFactsDevice.setMode(0);
-            } else {
+            } else if (isStatCom(psseFactsDevice)) {
                 psseFactsDevice.setMode(getStatus(staticVarCompensator.getTerminal()));
+            } else {
+                psseFactsDevice.setMode(getStatus(staticVarCompensator.getTerminal()) == 1 ? 2 : 0);
                 findTargetQ(staticVarCompensator).ifPresent(psseFactsDevice::setQdes);
                 findTargetV(staticVarCompensator).ifPresent(psseFactsDevice::setVset);
             }

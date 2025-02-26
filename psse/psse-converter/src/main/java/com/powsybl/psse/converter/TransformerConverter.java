@@ -719,7 +719,6 @@ class TransformerConverter extends AbstractConverter {
 
     private void addControlTwoWindingsTransformer() {
         String id = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getCkt());
-        String equipmentId = getNodeBreakerEquipmentId(PSSE_TWO_WINDING, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getCkt());
         TwoWindingsTransformer twt = getNetwork().getTwoWindingsTransformer(id);
         if (twt == null) {
             return;
@@ -736,7 +735,6 @@ class TransformerConverter extends AbstractConverter {
 
     private void addControlThreeWindingsTransformer() {
         String id = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
-        String equipmentId = getNodeBreakerEquipmentId(PSSE_THREE_WINDING, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
         ThreeWindingsTransformer twt = getNetwork().getThreeWindingsTransformer(id);
         if (twt == null) {
             return;
@@ -924,18 +922,23 @@ class TransformerConverter extends AbstractConverter {
 
     private static PsseRates createRates(TwoWindingsTransformer t2w) {
         PsseRates windingRates = createDefaultRates();
-        if (t2w.getApparentPowerLimits1().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(t2w.getApparentPowerLimits1().get()), windingRates);
-        } else if (t2w.getApparentPowerLimits2().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(t2w.getApparentPowerLimits2().get()), windingRates);
-        } else if (t2w.getCurrentLimits1().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(t2w.getCurrentLimits1().get(), t2w.getTerminal1().getVoltageLevel().getNominalV()), windingRates);
-        } else if (t2w.getCurrentLimits2().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(t2w.getCurrentLimits2().get(), t2w.getTerminal2().getVoltageLevel().getNominalV()), windingRates);
-        } else if (t2w.getActivePowerLimits1().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(t2w.getActivePowerLimits1().get()), windingRates);
-        } else if (t2w.getActivePowerLimits2().isPresent()) {
-            setSortedRatesToPsseRates(getSortedRates(t2w.getActivePowerLimits2().get()), windingRates);
+        t2w.getApparentPowerLimits1().ifPresent(apparentPowerLimits1 -> setSortedRatesToPsseRates(getSortedRates(apparentPowerLimits1), windingRates));
+        if (t2w.getApparentPowerLimits1().isEmpty()) {
+            t2w.getApparentPowerLimits2().ifPresent(apparentPowerLimits2 -> setSortedRatesToPsseRates(getSortedRates(apparentPowerLimits2), windingRates));
+        }
+        if (t2w.getApparentPowerLimits1().isEmpty() && t2w.getApparentPowerLimits2().isEmpty()) {
+            t2w.getCurrentLimits1().ifPresent(currentLimits1 -> setSortedRatesToPsseRates(getSortedRates(currentLimits1, t2w.getTerminal1().getVoltageLevel().getNominalV()), windingRates));
+        }
+        if (t2w.getApparentPowerLimits1().isEmpty() && t2w.getApparentPowerLimits2().isEmpty() && t2w.getCurrentLimits1().isEmpty()) {
+            t2w.getCurrentLimits2().ifPresent(currentLimits2 -> setSortedRatesToPsseRates(getSortedRates(currentLimits2, t2w.getTerminal2().getVoltageLevel().getNominalV()), windingRates));
+        }
+        if (t2w.getApparentPowerLimits1().isEmpty() && t2w.getApparentPowerLimits2().isEmpty() && t2w.getCurrentLimits1().isEmpty()
+                && t2w.getCurrentLimits2().isEmpty()) {
+            t2w.getActivePowerLimits1().ifPresent(activePowerLimits1 -> setSortedRatesToPsseRates(getSortedRates(activePowerLimits1), windingRates));
+        }
+        if (t2w.getApparentPowerLimits1().isEmpty() && t2w.getApparentPowerLimits2().isEmpty() && t2w.getCurrentLimits1().isEmpty()
+                && t2w.getCurrentLimits2().isEmpty() && t2w.getActivePowerLimits1().isEmpty()) {
+            t2w.getActivePowerLimits2().ifPresent(activePowerLimits2 -> setSortedRatesToPsseRates(getSortedRates(activePowerLimits2), windingRates));
         }
         return windingRates;
     }
