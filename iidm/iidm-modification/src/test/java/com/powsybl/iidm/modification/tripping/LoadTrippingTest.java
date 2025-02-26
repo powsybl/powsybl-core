@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -35,7 +36,8 @@ class LoadTrippingTest extends AbstractTrippingTest {
         Network network = EurostagTutorialExample1Factory.create();
 
         LoadTripping tripping = new LoadTripping("generator");
-        assertThrows(PowsyblException.class, () -> tripping.apply(network));
+        assertThrows(PowsyblException.class, () -> tripping.apply(network, true, ReportNode.NO_OP));
+        assertDoesNotThrow(() -> tripping.apply(network));
     }
 
     @Test
