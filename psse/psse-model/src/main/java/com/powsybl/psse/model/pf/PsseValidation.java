@@ -71,6 +71,7 @@ public class PsseValidation {
         validateGenerators(model.getBuses(), model.getGenerators(), buses);
         validateNonTransformerBranches(model.getNonTransformerBranches(), buses);
         validateTransformers(model.getTransformers(), buses);
+        validateTwoTerminalDcTransmissionLines(model.getTwoTerminalDcTransmissionLines(), buses);
 
         validateSwitchedShunts(model.getSwitchedShunts(), buses, psseVersion);
     }
@@ -337,6 +338,26 @@ public class PsseValidation {
         }
     }
 
+    private void validateTwoTerminalDcTransmissionLines(List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcTransmissionLines, Map<Integer, List<Integer>> buses) {
+        Map<String, Integer> twoTerminalDcNames = new HashMap<>();
+        for (PsseTwoTerminalDcTransmissionLine twoTerminalDc : twoTerminalDcTransmissionLines) {
+            if (!buses.containsKey(twoTerminalDc.getRectifier().getIp())) {
+                warnings.add(String.format("TwoTerminalDcTransmissionLine: %s Unexpected rectifier Ip: %d", twoTerminalDc.getName(), twoTerminalDc.getRectifier().getIp()));
+                validCase = false;
+            }
+            if (!buses.containsKey(twoTerminalDc.getInverter().getIp())) {
+                warnings.add(String.format("TwoTerminalDcTransmissionLine: %s Unexpected inverter Ip: %d", twoTerminalDc.getName(), twoTerminalDc.getInverter().getIp()));
+                validCase = false;
+            }
+            twoTerminalDcNames.put(twoTerminalDc.getName(), twoTerminalDcNames.getOrDefault(twoTerminalDc.getName(), 0) + 1);
+        }
+        List<String> duplicatedNames = twoTerminalDcNames.keySet().stream().filter(key -> twoTerminalDcNames.get(key) > 1).toList();
+        if (!duplicatedNames.isEmpty()) {
+            duplicatedNames.forEach(name -> warnings.add(String.format("TwoTerminalDcTransmissionLine: This name %s is not unique", name)));
+            validCase = false;
+        }
+    }
+
     private void validateSwitchedShunts(List<PsseSwitchedShunt> switchedShunts, Map<Integer, List<Integer>> buses, PsseVersion psseVersion) {
         Map<String, List<String>> busesSwitchedShunts = new HashMap<>();
 
@@ -362,9 +383,9 @@ public class PsseValidation {
             addSwitchedShuntBusesMap(busesSwitchedShunts, switchedShunt, psseVersion);
         }
 
-        Map<String, List<String>> duplicatedBusesFixedShunts = getDuplicates(busesSwitchedShunts);
-        if (!duplicatedBusesFixedShunts.isEmpty()) {
-            duplicatedBusesFixedShunts.forEach((key, value) -> warnings.add(multipleSwitchedShuntString(key, value, psseVersion)));
+        Map<String, List<String>> duplicatedBusesSwitchedShunts = getDuplicates(busesSwitchedShunts);
+        if (!duplicatedBusesSwitchedShunts.isEmpty()) {
+            duplicatedBusesSwitchedShunts.forEach((key, value) -> warnings.add(multipleSwitchedShuntString(key, value, psseVersion)));
             validCase = false;
         }
     }

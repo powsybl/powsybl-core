@@ -207,11 +207,6 @@ public class PsseImporter implements Importer {
             new FixedShuntCompensatorConverter(psseShunt, containersMapping, network, nodeBreakerImport).create();
         }
 
-        // Create switched shunts
-        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
-            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version, nodeBreakerImport).create();
-        }
-
         for (PsseGenerator psseGen : psseModel.getGenerators()) {
             new GeneratorConverter(psseGen, containersMapping, network, nodeBreakerImport).create();
         }
@@ -228,20 +223,24 @@ public class PsseImporter implements Importer {
             new TwoTerminalDcConverter(psseTwoTerminaDc, containersMapping, network, nodeBreakerImport).create();
         }
 
+        // Create switched shunts
+        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
+            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version, nodeBreakerImport).create();
+        }
+
         // Attach a slack bus
         new SlackConverter(psseModel.getBuses(), containersMapping, network, nodeBreakerImport).create();
 
         // Add controls
-        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
-            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version, nodeBreakerImport).addControl();
-        }
         for (PsseGenerator psseGen : psseModel.getGenerators()) {
             new GeneratorConverter(psseGen, containersMapping, network, nodeBreakerImport).addControl(busNumToPsseBus.get(psseGen.getI()));
         }
         for (PsseTransformer psseTransformer : psseModel.getTransformers()) {
             new TransformerConverter(psseTransformer, containersMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase(), version, nodeBreakerImport).addControl();
         }
-
+        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
+            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version, nodeBreakerImport).addControl();
+        }
         return network;
     }
 
