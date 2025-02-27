@@ -96,7 +96,7 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                DoublePoint point = new DoublePoint(i, index.getTimeAt(i), stepValues[step]);
+                DoublePoint point = new DoublePoint(i, index.getInstantAt(i), stepValues[step]);
                 i += stepLengths[step];
                 step++;
                 return point;

@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.Load;
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class LoadBarExt extends AbstractExtension<Load> {
+    private Point point;
+    private Integer value = null;
 
     public LoadBarExt(Load load) {
         super(load);
@@ -23,4 +25,22 @@ public class LoadBarExt extends AbstractExtension<Load> {
     public String getName() {
         return "loadBar";
     }
+
+    public Integer getValue() {
+        return value;
+    }
+
+    public void setValue(Integer value) {
+        this.value = value;
+    }
+
+    public Point getPoint() {
+        return point;
+    }
+
+    public void setPoint(Point point) {
+        this.point = point;
+    }
+
+    public record Point(double x, double y) { }
 }
