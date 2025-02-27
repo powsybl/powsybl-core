@@ -291,6 +291,7 @@ public class Conversion {
 
         // add processes to create new equipment using update data (ssh and sv data)
         createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(network, cgmes, updateContext);
+        createTieLinesWhenThereAreMoreThanTwoDanglingLinesAtBoundaryNodeDuringUpdate(network, updateContext);
 
         update(network, updateContext, reportNode);
     }
@@ -768,62 +769,21 @@ public class Conversion {
             beqs.get(0).createConversion(context).convertAtBoundary();
         } else if (numEquipmentsAtNode == 2) {
             convertTwoEquipmentsAtBoundaryNode(context, node, beqs.get(0), beqs.get(1));
-        } else if (numEquipmentsAtNode > 2) {
-            // In some TYNDP there are three acLineSegments at the boundary node,
-            // one of them disconnected. The two connected acLineSegments are imported.
-            List<BoundaryEquipment> connectedBeqs = beqs.stream()
-                .filter(beq -> !beq.isAcLineSegmentDisconnected(context)).toList();
-            if (connectedBeqs.size() == 2) {
-                convertTwoEquipmentsAtBoundaryNode(context, node, connectedBeqs.get(0), connectedBeqs.get(1));
-                // There can be multiple disconnected ACLineSegment to the same X-node (for example, for planning purposes)
-                beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).toList()
-                    .forEach(beq -> {
-                        context.fixed("convertEquipmentAtBoundaryNode",
-                                String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is imported as a dangling line.", node, beq.getAcLineSegmentId()));
-                        beq.createConversion(context).convertAtBoundary();
-                    });
-            } else {
-                // This case should not happen and will not result in an equivalent network at the end of the conversion
-                context.fixed(node, "More than two connected AcLineSegments at boundary: only dangling lines are created." +
-                        " Please note that the converted IIDM network will probably not be equivalent to the CGMES network.");
-                beqs.forEach(beq -> beq.createConversion(context).convertAtBoundary());
-            }
+        } else {
+            // In some TYNDPs, there are three or more AcLineSegments at the boundary node, but only two are connected.
+            // Here, a danglingLine is created for each segment, and later, in the method
+            // createTieLinesWhenThereAreMoreThanTwoDanglingLinesAtBoundaryNodeDuringUpdate,
+            // a tieLine is created using only the two connected danglingLines
+            context.fixed(node, "More than two connected AcLineSegments at boundary: only dangling lines are created." +
+                    " Please note that the converted IIDM network will probably not be equivalent to the CGMES network.");
+            beqs.forEach(beq -> beq.createConversion(context).convertAtBoundary());
         }
     }
 
     private static void convertTwoEquipmentsAtBoundaryNode(Context context, String node, BoundaryEquipment beq1, BoundaryEquipment beq2) {
         EquipmentAtBoundaryConversion conversion1 = beq1.createConversion(context);
         EquipmentAtBoundaryConversion conversion2 = beq2.createConversion(context);
-
-        conversion1.convertAtBoundary();
-        Optional<DanglingLine> dl1 = conversion1.getDanglingLine();
-        conversion2.convertAtBoundary();
-        Optional<DanglingLine> dl2 = conversion2.getDanglingLine();
-
-        if (dl1.isPresent() && dl2.isPresent()) {
-            // there can be several dangling lines linked to same x-node in one IGM for planning purposes
-            // in this case, we don't merge them
-            // please note that only one of them should be connected
-            String regionName1 = obtainRegionName(dl1.get().getTerminal().getVoltageLevel());
-            String regionName2 = obtainRegionName(dl2.get().getTerminal().getVoltageLevel());
-
-            String pairingKey1 = dl1.get().getPairingKey();
-            String pairingKey2 = dl2.get().getPairingKey();
-
-            if (!(pairingKey1 != null && pairingKey1.equals(pairingKey2))) {
-                context.ignored(node, "Both dangling lines do not have the same pairingKey: we do not consider them as a merged line");
-            } else if (regionName1 != null && regionName1.equals(regionName2)) {
-                context.ignored(node, "Both dangling lines are in the same voltage level: we do not consider them as a merged line");
-            } else if (dl2.get().getId().compareTo(dl1.get().getId()) >= 0) {
-                ACLineSegmentConversion.convertToTieLine(context, dl1.get(), dl2.get());
-            } else {
-                ACLineSegmentConversion.convertToTieLine(context, dl2.get(), dl1.get());
-            }
-        }
-    }
-
-    private static String obtainRegionName(VoltageLevel voltageLevel) {
-        return voltageLevel.getSubstation().map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName")).orElse(null);
+        TieLineConversion.create(node, conversion1, conversion2, context);
     }
 
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
