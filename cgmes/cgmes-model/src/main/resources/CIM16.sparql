@@ -237,22 +237,6 @@ WHERE {
     OPTIONAL { ?Terminal cim:ACDCTerminal.sequenceNumber ?sequenceNumber }
     OPTIONAL { ?Terminal cim:IdentifiedObject.name ?name }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?Terminal cim:ACDCTerminal.connected ?connected
-}}
-OPTIONAL { GRAPH ?graphSV {
-    ?SvPowerFlow
-        a cim:SvPowerFlow ;
-        cim:SvPowerFlow.Terminal ?Terminal ;
-        cim:SvPowerFlow.p ?p ;
-        cim:SvPowerFlow.q ?q .
-}}
-OPTIONAL { GRAPH ?graphSV2 {
-    ?SvStatus
-        a cim:SvStatus ;
-        cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
-        cim:SvStatus.inService ?inService .
-}}
 OPTIONAL { GRAPH ?graphCN {
         ?Terminal cim:Terminal.ConnectivityNode ?ConnectivityNode .
         OPTIONAL { GRAPH ?graphTPCN {
@@ -296,13 +280,6 @@ OPTIONAL {
         LIMIT 1
     }
     ?TopologicalNode cim:TopologicalNode.BaseVoltage ?BaseVoltage
-    OPTIONAL { GRAPH ?graphSVT {
-        ?SvVoltageT
-            a cim:SvVoltage ;
-            cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-            cim:SvVoltage.v ?v ;
-            cim:SvVoltage.angle ?angle
-    }}
 }
 }
 
@@ -316,13 +293,6 @@ WHERE {
         cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
     OPTIONAL { ?TopologicalNode entsoe:TopologicalNode.fromEndIsoCode ?fromEndIsoCode }
     OPTIONAL { ?TopologicalNode entsoe:TopologicalNode.toEndIsoCode ?toEndIsoCode }
-}}
-OPTIONAL { GRAPH ?graphSVT {
-    ?SvVoltageT
-        a cim:SvVoltage ;
-        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-        cim:SvVoltage.v ?v ;
-        cim:SvVoltage.angle ?angle
 }}
 }
 
