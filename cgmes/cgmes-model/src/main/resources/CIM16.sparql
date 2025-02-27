@@ -906,10 +906,6 @@ WHERE {
         OPTIONAL { ?ControlArea entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic }
         VALUES ?controlAreaType { cim:ControlAreaTypeKind.Interchange }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?ControlArea cim:ControlArea.netInterchange ?netInterchange
-    OPTIONAL { ?ControlArea cim:ControlArea.pTolerance ?pTolerance }
-}}
 }
 
 # query: acDcConverters

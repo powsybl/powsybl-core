@@ -224,6 +224,14 @@ public final class Update {
         context.popReportNode();
     }
 
+    static void updateAreas(Network network, CgmesModel cgmes, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.AREA.name()));
+        Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
+        addPropertyBags(cgmes.controlAreas(), CgmesNames.CONTROL_AREA, equipmentIdPropertyBag);
+        network.getAreas().forEach(area -> ControlAreaConversion.update(area, getPropertyBag(area.getId(), equipmentIdPropertyBag), context));
+        context.popReportNode();
+    }
+
     public static void updateVoltageAndAnglesAndComplete(Network network, Context context) {
         context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(context.getReportNode()));
         // update voltage and angles

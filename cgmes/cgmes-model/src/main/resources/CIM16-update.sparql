@@ -287,3 +287,11 @@ SELECT *
         OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
     }
 }
+
+# query: controlAreas
+SELECT *
+{
+    ?ControlArea a cim:ControlArea ;
+        cim:ControlArea.netInterchange ?netInterchange .
+    OPTIONAL { ?ControlArea cim:ControlArea.pTolerance ?pTolerance }
+}

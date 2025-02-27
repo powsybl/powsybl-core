@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:eu="http://iec.ch/TC57/CIM100-European#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <md:FullModel rdf:about="urn:uuid:536f9bf1-3f8f-a546-87e3-7af2272f29b7">
+    <md:Model.created>2024-06-28T11:00:00Z</md:Model.created>
+    <md:Model.scenarioTime>2024-06-28T11:00:00Z</md:Model.scenarioTime>
+    <md:Model.version>1</md:Model.version>
+    <md:Model.description>ControlArea</md:Model.description>
+    <md:Model.profile>http://iec.ch/TC57/ns/CIM/EquipmentBoundary-EU/3.0</md:Model.profile>
+    <md:Model.modelingAuthoritySet>http://powsybl.org</md:Model.modelingAuthoritySet>
+  </md:FullModel>
+
+  <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest-BD">
+    <cim:IdentifiedObject.description>GeographicalRegionTest-BD</cim:IdentifiedObject.description>
+  </cim:GeographicalRegion>
+  <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest-BD">
+    <cim:IdentifiedObject.name>SubGeographicalRegionTest-BD</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest-BD"/>
+  </cim:SubGeographicalRegion>
+
+  <cim:Line rdf:ID="_LineContainer-ConnectivityNode-BD">
+    <cim:Line.Region rdf:resource="#_GeographicalRegionTest-BD" />
+    <cim:IdentifiedObject.name>LineContainer-ConnectivityNode-BD</cim:IdentifiedObject.name>
+  </cim:Line>
+  <cim:ConnectivityNode rdf:ID="_ConnectivityNode-BD">
+    <cim:IdentifiedObject.name>ConnectivityNode-BD</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_LineContainer-ConnectivityNode-BD" />
+  </cim:ConnectivityNode>
+  <eu:BoundaryPoint rdf:ID="_BoundaryPoint-ConnectivityNode-BD">
+    <cim:IdentifiedObject.name>BoundaryPoint-ConnectivityNode-BD</cim:IdentifiedObject.name>
+    <eu:BoundaryPoint.ConnectivityNode rdf:resource="#_ConnectivityNode-BD" />
+  </eu:BoundaryPoint>
+
+</rdf:RDF>
