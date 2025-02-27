@@ -157,13 +157,6 @@ public class NodeMapping {
         }
     }
 
-    private boolean isFirstBbsAtConnectivityNode(CgmesTerminal t, List<CgmesTerminal> connectivityNodeTerminals) {
-        return connectivityNodeTerminals.stream()
-                .filter(t1 -> t != t1)
-                .filter(NodeMapping::isBusbarSectionTerminal)
-                .noneMatch(t1 -> cgmes2iidm.containsKey(t1.id()));
-    }
-
     private static boolean isBusbarSectionTerminal(CgmesTerminal t) {
         return t.conductingEquipmentType().equals("BusbarSection");
     }
