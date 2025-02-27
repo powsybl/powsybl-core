@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.util.ReactiveCapabilityCurveUtil;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.TreeMap;
-import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -113,7 +113,7 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         return getReactiveLimit(p, extrapolateReactiveLimitSlope, Point::getMaxQ);
     }
 
-    private double getReactiveLimit(double p, boolean extrapolateReactiveLimitSlope, Function<Point, Double> getMinOrMaxQ) {
+    private double getReactiveLimit(double p, boolean extrapolateReactiveLimitSlope, ToDoubleFunction<Point> getMinOrMaxQ) {
         checkPointsSize(points);
 
         // First case : searched point is one of the points defining the curve
