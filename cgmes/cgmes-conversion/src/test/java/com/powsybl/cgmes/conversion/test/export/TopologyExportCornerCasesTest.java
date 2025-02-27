@@ -8,64 +8,44 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Properties;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class TopologyExportCornerCasesTest extends AbstractSerDeTest {
 
-    @Test
-    void testExportSwitchesBusBreaker() {
-        test(createSwitchesBBNetwork(), true, true,
-                new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_2", "voltageLevel1_3", "voltageLevel1_4"});
+    static Stream<Arguments> provideTestArguments() {
+        return Stream.of(
+                Arguments.of("testExportSwitchesBusBreaker", createSwitchesBBNetwork(), true, true,
+                        new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_2", "voltageLevel1_3", "voltageLevel1_4"}),
+                Arguments.of("testExportParallelSwitchesNodeBreaker", createParallelSwitchesNBNetwork(), true, true,
+                        new String[] {"voltageLevel1_0"}),
+                Arguments.of("testExportSwitchesNodeBreaker", createSwitchesNBNetwork(), true, true,
+                        new String[] {"voltageLevel1_0", "voltageLevel1_2", "voltageLevel1_8"}),
+                // The calculated BusView from bus-breaker iidm and from node-breaker iidm is different
+                // The condition for a valid bus in the BusView for bus-breaker and node-breaker is slightly different
+                // So we end up with different bus-view buses
+                Arguments.of("testExportGeneratorDisconnectedTransformerBusBreaker", createGeneratorDisconnectedTransformerBBNetwork(), false, false,
+                        new String[] {"voltageLevel1_0", "voltageLevel2_0", "voltageLevel2_1"}),
+                Arguments.of("testExportGeneratorTransformerNodeBreaker", createGeneratorTransformerNBNetwork(), true, true,
+                        new String[] {"voltageLevel1_0", "voltageLevel2_0"}),
+                // FIXME(Luma): consider adding busbar section to exported EQ when we save a bus/breaker topology as node/breaker
+                Arguments.of("testExportDisconnectedLoadBusBreaker", createDisconnectedLoadBBNetwork(), false, true,
+                        new String[] {"voltageLevel1_0", "voltageLevel1_1"}),
+                Arguments.of("testExportDisconnectedLoadNodeBreaker", createDisconnectedLoadNBNetwork(), false, true,
+                        new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_3"})
+                );
     }
 
-    @Test
-    void testExportParallelSwitchesNodeBreaker() {
-        test(createParallelSwitchesNBNetwork(), true, true,
-                new String[] {"voltageLevel1_0"});
-    }
-
-    @Test
-    void testExportSwitchesNodeBreaker() {
-        test(createSwitchesNBNetwork(), true, true,
-                new String[] {"voltageLevel1_0", "voltageLevel1_2", "voltageLevel1_8"});
-    }
-
-    @Test
-    void testExportGeneratorDisconnectedTransformerBusBreaker() {
-        // The calculated BusView from bus-breaker iidm and from node-breaker iidm is different
-        // The condition for a valid bus in the BusView for bus-breaker and node-breaker is slightly different
-        // So we end up with different bus-view buses
-        test(createGeneratorDisconnectedTransformerBBNetwork(), false, false,
-                new String[] {"voltageLevel1_0", "voltageLevel2_0", "voltageLevel2_1"});
-    }
-
-    @Test
-    void testExportGeneratorTransformerNodeBreaker() {
-        test(createGeneratorTransformerNBNetwork(), true, true,
-                new String[] {"voltageLevel1_0", "voltageLevel2_0"});
-    }
-
-    @Disabled("Mismatch in bus view bus definition from node/breaker and bus/breaker topologies")
-    // FIXME(Luma): consider adding busbar section to exported EQ when we save a bus/breaker topology as node/breaker
-    @Test
-    void testExportDisconnectedLoadBusBreaker() {
-        test(createDisconnectedLoadBBNetwork(), false, true,
-                new String[] {"voltageLevel1_0", "voltageLevel1_1"});
-    }
-
-    @Test
-    void testExportDisconnectedLoadNodeBreaker() {
-        test(createDisconnectedLoadNBNetwork(), false, true,
-                new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_3"});
-    }
-
-    private void test(Network network,
-                      boolean checkAllTerminalsConnected,
-                      boolean checkSameNumberOfBusViewBuses,
-                      String[] expectedBusBreakerViewBuses) {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("provideTestArguments")
+    void test(String testName, Network network, boolean checkAllTerminalsConnected,
+              boolean checkSameNumberOfBusViewBuses, String[] expectedBusBreakerViewBuses) {
         String name = network.getId();
 
         // Some terminals may show as disconnected even if everything is connected but the bus is not valid
@@ -150,10 +130,9 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
         createLoadAdder(network.getVoltageLevel("voltageLevel1"), "load1")
                 .setBus(voltageLevel1Bus1.getId())
                 .add();
-        Load load2 = createLoadAdder(network.getVoltageLevel("voltageLevel1"), "load2")
+        createLoadAdder(network.getVoltageLevel("voltageLevel1"), "load2")
                 .setConnectableBus(voltageLevel1Bus1.getId())
                 .add();
-        load2.getTerminal().disconnect();
 
         return network;
     }
