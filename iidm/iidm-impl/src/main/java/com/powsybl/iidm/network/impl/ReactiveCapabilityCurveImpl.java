@@ -9,21 +9,21 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
+import com.powsybl.iidm.network.util.ReactiveCapabilityCurveUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveCapabilityCurveImpl.class);
-    private int warningCount = 0;
+    private final String ownerDescription;
 
     static class PointImpl implements Point {
 
@@ -64,37 +64,10 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         }
     }
 
-    private Point extrapolateReactiveLimitsSlope(double p, Point pBound) {
-        double minQ;
-        double maxQ;
-        Point pbis;
-        if (p < pBound.getP()) {
-            // Extrapolate reactive limits slope below min active power limit (pBound = min active power limit)
-            pbis = points.higherEntry(points.firstKey()).getValue(); // p < pBound < pbis
-        } else if (p > pBound.getP()) {
-            // Extrapolate reactive limits slope above max active power limit (pBound = max active power limit)
-            pbis = points.lowerEntry(points.lastKey()).getValue(); // pbis < pBound < p
-        } else {
-            throw new IllegalStateException();
-        }
-        double slopeMinQ = (pbis.getMinQ() - pBound.getMinQ()) / (pbis.getP() - pBound.getP());
-        double slopeMaxQ = (pbis.getMaxQ() - pBound.getMaxQ()) / (pbis.getP() - pBound.getP());
-        minQ = pBound.getMinQ() + slopeMinQ * (p - pBound.getP());
-        maxQ = pBound.getMaxQ() + slopeMaxQ * (p - pBound.getP());
-        if (minQ <= maxQ) {
-            return new PointImpl(p, minQ, maxQ);
-        } else { // Corner case of intersecting reactive limits when extrapolated
-            double limitQ = (minQ + maxQ) / 2;
-            if (warningCount++ % 100 == 0) { // Warn message only every 100 calls to avoid logging overflow
-                LOGGER.warn("PQ diagram extrapolation leads to minQ > maxQ ({} > {}) for P = {} => changing to minQ = maxQ = {}", minQ, maxQ, p, limitQ);
-            }
-            return new PointImpl(p, limitQ, limitQ); // Returning the mean as limits minQ and maxQ
-        }
-    }
-
-    ReactiveCapabilityCurveImpl(TreeMap<Double, Point> points) {
+    ReactiveCapabilityCurveImpl(TreeMap<Double, Point> points, String ownerDescription) {
         checkPointsSize(points);
         this.points = points;
+        this.ownerDescription = ownerDescription;
     }
 
     @Override
@@ -134,53 +107,43 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     @Override
     public double getMinQ(double p, boolean extrapolateReactiveLimitSlope) {
-        checkPointsSize(points);
-
-        Point pt = points.get(p);
-        if (pt != null) {
-            return pt.getMinQ();
-        }
-
-        Map.Entry<Double, Point> e1 = points.floorEntry(p);
-        Map.Entry<Double, Point> e2 = points.ceilingEntry(p);
-        if (e1 == null && e2 != null) {
-            Point pMin = e2.getValue();
-            return extrapolateReactiveLimitSlope ? extrapolateReactiveLimitsSlope(p, pMin).getMinQ() : pMin.getMinQ();
-        } else if (e1 != null && e2 == null) {
-            Point pMax = e1.getValue();
-            return extrapolateReactiveLimitSlope ? extrapolateReactiveLimitsSlope(p, pMax).getMinQ() : pMax.getMinQ();
-        } else if (e1 != null && e2 != null) {
-            Point p1 = e1.getValue();
-            Point p2 = e2.getValue();
-            return p1.getMinQ() + (p2.getMinQ() - p1.getMinQ()) / (p2.getP() - p1.getP()) * (p - p1.getP());
-        } else {
-            throw new IllegalStateException();
-        }
+        return getReactiveLimit(p, extrapolateReactiveLimitSlope, Point::getMinQ);
     }
 
     @Override
     public double getMaxQ(double p, boolean extrapolateReactiveLimitSlope) {
+        return getReactiveLimit(p, extrapolateReactiveLimitSlope, Point::getMaxQ);
+    }
+
+    private double getReactiveLimit(double p, boolean extrapolateReactiveLimitSlope, Function<Point, Double> getMinOrMaxQ) {
         checkPointsSize(points);
 
+        // First case : searched point is one of the points defining the curve
         Point pt = points.get(p);
         if (pt != null) {
-            return pt.getMaxQ();
+            return getMinOrMaxQ.apply(pt);
         }
 
-        Map.Entry<Double, Point> e1 = points.floorEntry(p);
-        Map.Entry<Double, Point> e2 = points.ceilingEntry(p);
-        if (e1 == null && e2 != null) {
-            Point pMin = e2.getValue();
-            return extrapolateReactiveLimitSlope ? extrapolateReactiveLimitsSlope(p, pMin).getMaxQ() : pMin.getMaxQ();
-        } else if (e1 != null && e2 == null) {
-            Point pMax = e1.getValue();
-            return extrapolateReactiveLimitSlope ? extrapolateReactiveLimitsSlope(p, pMax).getMaxQ() : pMax.getMaxQ();
-        } else if (e1 != null && e2 != null) {
-            Point p1 = e1.getValue();
-            Point p2 = e2.getValue();
-            return p1.getMaxQ() + (p2.getMaxQ() - p1.getMaxQ()) / (p2.getP() - p1.getP()) * (p - p1.getP());
+        // Second case : searched point is between minP and maxP
+        if (p >= this.getMinP() && p <= this.getMaxP()) {
+            Point p1 = points.floorEntry(p).getValue();
+            Point p2 = points.ceilingEntry(p).getValue();
+            return getMinOrMaxQ.apply(p1) + (getMinOrMaxQ.apply(p2) - getMinOrMaxQ.apply(p1)) / (p2.getP() - p1.getP()) * (p - p1.getP());
+        }
+
+        // Third case : searched point is outside minP and maxP
+        if (extrapolateReactiveLimitSlope) {
+            Point extrapolatedPoint = ReactiveCapabilityCurveUtil.extrapolateReactiveLimitsSlope(p, points, PointImpl::new, ownerDescription);
+            return getMinOrMaxQ.apply(extrapolatedPoint);
         } else {
-            throw new IllegalStateException();
+            if (p < this.getMinP()) { // p < minP
+                Point pMin = points.firstEntry().getValue();
+                return getMinOrMaxQ.apply(pMin);
+            } else { // p > maxP
+                Point pMax = points.lastEntry().getValue();
+                return getMinOrMaxQ.apply(pMax);
+            }
         }
     }
+
 }

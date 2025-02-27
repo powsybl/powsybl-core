@@ -27,7 +27,7 @@ class ReactiveCapabilityCurveImplTest {
         for (Point pt : points) {
             map.put(pt.getP(), pt);
         }
-        return new ReactiveCapabilityCurveImpl(map);
+        return new ReactiveCapabilityCurveImpl(map, "ReactiveCapabilityCurve owner");
     }
 
     @Test
