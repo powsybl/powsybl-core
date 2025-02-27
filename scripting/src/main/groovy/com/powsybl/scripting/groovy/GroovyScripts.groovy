@@ -51,7 +51,7 @@ class GroovyScripts {
         run(codeReader, binding, extensions, out, new HashMap<>())
     }
 
-    static void run(Reader codeReader, Binding binding, Iterable<GroovyScriptExtension> extensions, PrintStream out, Map<Class<?>, Objects> contextObjects) {
+    static void run(Reader codeReader, Binding binding, Iterable<GroovyScriptExtension> extensions, PrintStream out, Map<Class<?>, Object> contextObjects) {
         assert codeReader
         assert extensions != null
 

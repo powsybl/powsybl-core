@@ -19,7 +19,6 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,8 +36,7 @@ public abstract class AbstractGroovyScriptTest {
     protected abstract List<GroovyScriptExtension> getExtensions();
 
     public void doTest() {
-        Map<Class<?>, Object> contextObjects = new HashMap<>();
-        contextObjects.put(ComputationManager.class, Mockito.mock(ComputationManager.class));
+        Map<Class<?>, Object> contextObjects = Map.of(ComputationManager.class, Mockito.mock(ComputationManager.class));
         Binding binding = new Binding();
         StringWriter out = null;
         try {

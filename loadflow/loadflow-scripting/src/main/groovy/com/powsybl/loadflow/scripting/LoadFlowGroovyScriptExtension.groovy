@@ -32,8 +32,8 @@ class LoadFlowGroovyScriptExtension implements GroovyScriptExtension {
 
     @Override
     void load(Binding binding, Map<Class<?>, Object> contextObjects) {
-        if (contextObjects.keySet().contains(ComputationManager.class)) {
-            ComputationManager computationManager = contextObjects.get(ComputationManager.class) as ComputationManager
+        ComputationManager computationManager = contextObjects.get(ComputationManager.class) as ComputationManager
+        if (computationManager != null) {
 
             binding.loadFlow = { Network network, LoadFlowParameters parameters = this.parameters ->
                 LoadFlow.run(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters)
