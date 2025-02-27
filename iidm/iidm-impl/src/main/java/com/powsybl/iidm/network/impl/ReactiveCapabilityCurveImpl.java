@@ -119,27 +119,27 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         // First case : searched point is one of the points defining the curve
         Point pt = points.get(p);
         if (pt != null) {
-            return getMinOrMaxQ.apply(pt);
+            return getMinOrMaxQ.applyAsDouble(pt);
         }
 
         // Second case : searched point is between minP and maxP
         if (p >= this.getMinP() && p <= this.getMaxP()) {
             Point p1 = points.floorEntry(p).getValue();
             Point p2 = points.ceilingEntry(p).getValue();
-            return getMinOrMaxQ.apply(p1) + (getMinOrMaxQ.apply(p2) - getMinOrMaxQ.apply(p1)) / (p2.getP() - p1.getP()) * (p - p1.getP());
+            return getMinOrMaxQ.applyAsDouble(p1) + (getMinOrMaxQ.applyAsDouble(p2) - getMinOrMaxQ.applyAsDouble(p1)) / (p2.getP() - p1.getP()) * (p - p1.getP());
         }
 
         // Third case : searched point is outside minP and maxP
         if (extrapolateReactiveLimitSlope) {
             Point extrapolatedPoint = ReactiveCapabilityCurveUtil.extrapolateReactiveLimitsSlope(p, points, PointImpl::new, ownerDescription);
-            return getMinOrMaxQ.apply(extrapolatedPoint);
+            return getMinOrMaxQ.applyAsDouble(extrapolatedPoint);
         } else {
             if (p < this.getMinP()) { // p < minP
                 Point pMin = points.firstEntry().getValue();
-                return getMinOrMaxQ.apply(pMin);
+                return getMinOrMaxQ.applyAsDouble(pMin);
             } else { // p > maxP
                 Point pMax = points.lastEntry().getValue();
-                return getMinOrMaxQ.apply(pMax);
+                return getMinOrMaxQ.applyAsDouble(pMax);
             }
         }
     }
