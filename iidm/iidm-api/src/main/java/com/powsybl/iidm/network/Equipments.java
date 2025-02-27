@@ -7,10 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.PowsyblException;
-
-import java.util.Iterator;
-
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -49,16 +45,6 @@ public final class Equipments {
         } else {
             connected = false;
             bus = t.getBusBreakerView().getConnectableBus();
-            if (bus == null) {
-                // otherwise take first bus of the substation at the same voltage
-                // level...
-                Iterator<Bus> itVLB = t.getVoltageLevel().getBusBreakerView().getBuses().iterator();
-                if (itVLB.hasNext()) {
-                    bus = itVLB.next();
-                } else {
-                    throw new PowsyblException("Cannot find a connection bus");
-                }
-            }
         }
         return new ConnectionInfo(bus, connected);
     }
