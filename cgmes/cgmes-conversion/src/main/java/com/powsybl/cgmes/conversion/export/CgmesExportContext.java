@@ -19,6 +19,7 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.net.URLEncoder;
@@ -39,7 +40,6 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refGenera
  */
 public class CgmesExportContext {
 
-    private static final String REGULATING_CONTROL = "RegulatingControl";
     private static final String GENERATING_UNIT = "GeneratingUnit";
 
     private static final String DCNODE = "DCNode";
@@ -154,6 +154,10 @@ public class CgmesExportContext {
         }
     }
 
+    public ReferenceDataProvider getReferenceDataProvider() {
+        return referenceDataProvider;
+    }
+
     private CgmesTopologyKind networkTopologyKind(Network network) {
         for (VoltageLevel vl : network.getVoltageLevels()) {
             if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
@@ -180,7 +184,6 @@ public class CgmesExportContext {
         addIidmMappingsStaticVarCompensators(network);
         addIidmMappingsEndsAndTapChangers(network);
         addIidmMappingsEquivalentInjection(network);
-        addIidmMappingsControlArea(network);
     }
 
     private void addIidmMappingsSubstations(Network network) {
@@ -383,26 +386,28 @@ public class CgmesExportContext {
                     generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
                 }
             }
-            String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
-            if (regulatingControlId == null && hasVoltageControlCapability(generator)) {
+            String regulatingControlId = generator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+            if (regulatingControlId == null && hasRegulatingControlCapability(generator)) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(generator), Part.REGULATING_CONTROL);
-                generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
+                generator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
             }
         }
     }
 
-    private static boolean hasVoltageControlCapability(Generator generator) {
-        if (generator.getReactiveLimits() == null) {
-            return false;
-        }
+    private static boolean hasRegulatingControlCapability(Generator generator) {
+        return generator.getExtension(RemoteReactivePowerControl.class) != null
+                || !Double.isNaN(generator.getTargetV()) && hasReactiveCapability(generator);
+    }
 
+    private static boolean hasReactiveCapability(Generator generator) {
         ReactiveLimits reactiveLimits = generator.getReactiveLimits();
-        if (reactiveLimits.getKind() == ReactiveLimitsKind.CURVE) {
+        if (reactiveLimits == null) {
+            return false;
+        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.CURVE) {
             return hasReactiveCapability((ReactiveCapabilityCurve) reactiveLimits);
         } else if (reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
             return hasReactiveCapability((MinMaxReactiveLimits) reactiveLimits);
         }
-
         return false;
     }
 
@@ -435,25 +440,25 @@ public class CgmesExportContext {
             if ("true".equals(shuntCompensator.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))) {
                 continue;
             }
-            String regulatingControlId = shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
+            String regulatingControlId = shuntCompensator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
             if (regulatingControlId == null && (CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getTargetV())
                                             || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(shuntCompensator), Part.REGULATING_CONTROL);
-                shuntCompensator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
+                shuntCompensator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
             }
         }
     }
 
     private void addIidmMappingsStaticVarCompensators(Network network) {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            String regulatingControlId = svc.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
+            String regulatingControlId = svc.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
             boolean validVoltageSetpoint = CgmesExportUtil.isValidVoltageSetpoint(svc.getVoltageSetpoint());
             boolean validReactiveSetpoint = CgmesExportUtil.isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint());
             if (regulatingControlId == null && (validReactiveSetpoint
                                                 || validVoltageSetpoint
                                                 || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()))) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(svc), Part.REGULATING_CONTROL);
-                svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
+                svc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
             }
         }
     }
@@ -527,24 +532,6 @@ public class CgmesExportContext {
             if (alias == null) {
                 String equivalentInjectionTerminalId = namingStrategy.getCgmesId(refTyped(danglingLine), EQUIVALENT_INJECTION, TERMINAL);
                 danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", equivalentInjectionTerminalId);
-            }
-        }
-    }
-
-    private void addIidmMappingsControlArea(Network network) {
-        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-        if (cgmesControlAreas == null) {
-            network.newExtension(CgmesControlAreasAdder.class).add();
-            cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-            String cgmesControlAreaId = namingStrategy.getCgmesId(refTyped(network), CONTROL_AREA);
-            cgmesControlAreas.newCgmesControlArea()
-                    .setId(cgmesControlAreaId)
-                    .setName("Network")
-                    .setEnergyIdentificationCodeEic("Network--1")
-                    .add();
-            CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(cgmesControlAreaId);
-            for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
-                cgmesControlArea.add(danglingLine.getTerminal());
             }
         }
     }

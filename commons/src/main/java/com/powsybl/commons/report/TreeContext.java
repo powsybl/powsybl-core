@@ -19,6 +19,8 @@ import java.util.Map;
  */
 public interface TreeContext {
 
+    TreeContext NO_OP = new TreeContextNoOp();
+
     /**
      * Get the dictionary of message templates indexed by their key.
      */

@@ -80,6 +80,7 @@ class RemoveSubstationTest extends AbstractModificationTest {
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reportNode));
         assertEquals("Substation not found: UNKNOWN", e.getMessage());
         testReportNode(reportNode, "/reportNode/remove-unknown-substation-report.txt");
+        assertDoesNotThrow(() -> removeUnknown.apply(network, false, ReportNode.NO_OP));
     }
 
     @Test

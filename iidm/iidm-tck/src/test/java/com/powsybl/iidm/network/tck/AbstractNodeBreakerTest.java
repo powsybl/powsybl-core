@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public abstract class AbstractNodeBreakerTest {
 
-    private Network createNetwork() {
+    protected Network createNetwork() {
         Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation()
             .setId("S1")

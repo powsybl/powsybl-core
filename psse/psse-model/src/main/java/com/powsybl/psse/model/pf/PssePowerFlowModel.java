@@ -60,6 +60,8 @@ public class PssePowerFlowModel {
 
     private final List<PsseInductionMachine> inductionMachines = new ArrayList<>();
 
+    private final List<PsseSubstation> substations = new ArrayList<>();
+
     public PssePowerFlowModel(PsseCaseIdentification caseIdentification) {
         this.caseIdentification = Objects.requireNonNull(caseIdentification);
     }
@@ -69,6 +71,11 @@ public class PssePowerFlowModel {
     }
 
     public void addBuses(List<PsseBus> buses) {
+        this.buses.addAll(modelled(buses));
+    }
+
+    public void replaceAllBuses(List<PsseBus> buses) {
+        this.buses.clear();
         this.buses.addAll(modelled(buses));
     }
 
@@ -220,6 +227,14 @@ public class PssePowerFlowModel {
         return Collections.unmodifiableList(inductionMachines);
     }
 
+    public void addSubstations(List<PsseSubstation> substations) {
+        this.substations.addAll(substations);
+    }
+
+    public List<PsseSubstation> getSubstations() {
+        return Collections.unmodifiableList(substations);
+    }
+
     public PssePowerFlowModel referenceAndCopyPssePowerFlowModel() {
         PssePowerFlowModel newPsseModel = new PssePowerFlowModel(this.getCaseIdentification());
         referencePermanentBlocks(this, newPsseModel);
@@ -243,6 +258,8 @@ public class PssePowerFlowModel {
     }
 
     private static void copyModifiedBlocks(PssePowerFlowModel psseModel, PssePowerFlowModel newPsseModel) {
+        psseModel.getSubstations().forEach(psseSubstation -> newPsseModel.substations.add(psseSubstation.copy()));
+
         psseModel.getBuses().forEach(psseBus -> newPsseModel.buses.add(psseBus.copy()));
         psseModel.getLoads().forEach(psseLoad -> newPsseModel.loads.add(psseLoad.copy()));
 
