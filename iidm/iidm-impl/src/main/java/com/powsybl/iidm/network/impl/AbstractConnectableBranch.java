@@ -103,6 +103,16 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup1() {
+        return getOperationalLimitsHolder1().getOrCreateSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2() {
+        return getOperationalLimitsHolder2().getOrCreateSelectedOperationalLimitsGroup();
+    }
+
+    @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
         return getOperationalLimitsHolder1().newActivePowerLimits();
     }

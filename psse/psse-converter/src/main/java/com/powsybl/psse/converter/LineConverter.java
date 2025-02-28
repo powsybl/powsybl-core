@@ -111,13 +111,13 @@ class LineConverter extends AbstractConverter {
 
         // CurrentPermanentLimit in A
         if (currentLimit1 > 0) {
-            CurrentLimitsAdder currentLimitFrom = line.newCurrentLimits1();
+            CurrentLimitsAdder currentLimitFrom = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
             currentLimitFrom.setPermanentLimit(currentLimit1 * 1000);
             currentLimitFrom.add();
         }
 
         if (currentLimit2 > 0) {
-            CurrentLimitsAdder currentLimitTo = line.newCurrentLimits2();
+            CurrentLimitsAdder currentLimitTo = line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits();
             currentLimitTo.setPermanentLimit(currentLimit2 * 1000);
             currentLimitTo.add();
         }

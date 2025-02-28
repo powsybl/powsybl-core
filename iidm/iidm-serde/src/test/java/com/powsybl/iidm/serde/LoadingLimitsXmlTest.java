@@ -33,7 +33,8 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         DanglingLine dl = network.getDanglingLine("DL");
         createLoadingLimits(dl::newActivePowerLimits);
         createLoadingLimits(dl::newApparentPowerLimits);
-        createLoadingLimits(dl::newCurrentLimits);
+        OperationalLimitsGroup operationalLimitsGroup = dl.getOrCreateSelectedOperationalLimitsGroup();
+        createLoadingLimits(operationalLimitsGroup::newCurrentLimits);
         allFormatsRoundTripTest(network, "dl-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
@@ -65,15 +66,19 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(line::newActivePowerLimits2);
         createLoadingLimits(line::newApparentPowerLimits1);
         createLoadingLimits(line::newApparentPowerLimits2);
-        createLoadingLimits(line::newCurrentLimits1);
-        createLoadingLimits(line::newCurrentLimits2);
+        OperationalLimitsGroup operationalLimitsGroup1 = line.getOrCreateSelectedOperationalLimitsGroup1();
+        createLoadingLimits(operationalLimitsGroup1::newCurrentLimits);
+        OperationalLimitsGroup operationalLimitsGroup2 = line.getOrCreateSelectedOperationalLimitsGroup2();
+        createLoadingLimits(operationalLimitsGroup2::newCurrentLimits);
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NGEN_NHV1");
         createLoadingLimits(twt::newActivePowerLimits1);
         createLoadingLimits(twt::newActivePowerLimits2);
         createLoadingLimits(twt::newApparentPowerLimits1);
         createLoadingLimits(twt::newApparentPowerLimits2);
-        createLoadingLimits(twt::newCurrentLimits1);
-        createLoadingLimits(twt::newCurrentLimits2);
+        operationalLimitsGroup1 = twt.getOrCreateSelectedOperationalLimitsGroup1();
+        createLoadingLimits(operationalLimitsGroup1::newCurrentLimits);
+        operationalLimitsGroup2 = twt.getOrCreateSelectedOperationalLimitsGroup2();
+        createLoadingLimits(operationalLimitsGroup2::newCurrentLimits);
         allFormatsRoundTripTest(network, "eurostag-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
@@ -104,8 +109,10 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(tl.getDanglingLine2()::newActivePowerLimits);
         createLoadingLimits(tl.getDanglingLine1()::newApparentPowerLimits);
         createLoadingLimits(tl.getDanglingLine2()::newApparentPowerLimits);
-        createLoadingLimits(tl.getDanglingLine1()::newCurrentLimits);
-        createLoadingLimits(tl.getDanglingLine2()::newCurrentLimits);
+        OperationalLimitsGroup operationalLimitsGroup1 = tl.getOrCreateSelectedOperationalLimitsGroup1();
+        OperationalLimitsGroup operationalLimitsGroup2 = tl.getOrCreateSelectedOperationalLimitsGroup2();
+        createLoadingLimits(operationalLimitsGroup1::newCurrentLimits);
+        createLoadingLimits(operationalLimitsGroup2::newCurrentLimits);
         allFormatsRoundTripTest(network, "tl-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5

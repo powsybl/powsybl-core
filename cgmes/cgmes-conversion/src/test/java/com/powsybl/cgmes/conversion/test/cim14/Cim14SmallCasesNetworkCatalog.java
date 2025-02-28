@@ -132,7 +132,7 @@ final class Cim14SmallCasesNetworkCatalog {
             .setVoltageLevel1(vlGrid.getId())
             .setVoltageLevel2(vlInf.getId())
             .add();
-        line.newCurrentLimits1().setPermanentLimit(9116.06).add();
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(9116.06).add();
         {
             double u2 = 419.0;
             double u1 = 21.0;
@@ -166,8 +166,8 @@ final class Cim14SmallCasesNetworkCatalog {
                 .setRatedU1(u1)
                 .setRatedU2(u2)
                 .add();
-            tx.newCurrentLimits1().setPermanentLimit(13746.4).add();
-            tx.newCurrentLimits2().setPermanentLimit(759.671).add();
+            tx.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(13746.4).add();
+            tx.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(759.671).add();
         }
 
         return network;

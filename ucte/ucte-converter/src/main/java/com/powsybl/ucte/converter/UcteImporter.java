@@ -21,7 +21,6 @@ import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.entsoe.util.*;
-import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.ucte.network.*;
@@ -311,7 +310,7 @@ public class UcteImporter implements Importer {
         }
 
         if (ucteLine.getCurrentLimit() != null) {
-            dl.newCurrentLimits()
+            dl.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                     .setPermanentLimit(ucteLine.getCurrentLimit())
                     .add();
         }
@@ -403,10 +402,10 @@ public class UcteImporter implements Importer {
 
         if (ucteLine.getCurrentLimit() != null) {
             int currentLimit = ucteLine.getCurrentLimit();
-            l.newCurrentLimits1()
+            l.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                     .setPermanentLimit(currentLimit)
                     .add();
-            l.newCurrentLimits2()
+            l.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                     .setPermanentLimit(currentLimit)
                     .add();
         }
@@ -787,7 +786,7 @@ public class UcteImporter implements Importer {
 
             if (ucteTransfo.getCurrentLimit() != null) {
                 int currentLimit = ucteTransfo.getCurrentLimit();
-                transformer.newCurrentLimits2()
+                transformer.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                         .setPermanentLimit(currentLimit)
                         .add();
             }

@@ -187,7 +187,7 @@ class DefaultLimitReductionsApplierTest {
     void reduceOnOneSideOnlyTest() {
         applier.setWorkingContingency("contingency5");
         TwoWindingsTransformer nhv2Nload = network.getTwoWindingsTransformer("NHV2_NLOAD");
-        nhv2Nload.newCurrentLimits1()
+        nhv2Nload.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                     .setValue(1200.)
@@ -195,7 +195,7 @@ class DefaultLimitReductionsApplierTest {
                     .setName("60'")
                 .endTemporaryLimit()
                 .add();
-        nhv2Nload.newCurrentLimits2()
+        nhv2Nload.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                     .setValue(1200.)

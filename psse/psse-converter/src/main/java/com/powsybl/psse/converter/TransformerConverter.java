@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
-import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
 import com.powsybl.psse.model.PsseException;
@@ -536,13 +535,13 @@ class TransformerConverter extends AbstractConverter {
 
         // CurrentPermanentLimit in A
         if (currentLimit1 > 0) {
-            CurrentLimitsAdder currentLimitFrom = twt.newCurrentLimits1();
+            CurrentLimitsAdder currentLimitFrom = twt.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
             currentLimitFrom.setPermanentLimit(currentLimit1 * 1000);
             currentLimitFrom.add();
         }
 
         if (currentLimit2 > 0) {
-            CurrentLimitsAdder currentLimitTo = twt.newCurrentLimits2();
+            CurrentLimitsAdder currentLimitTo = twt.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits();
             currentLimitTo.setPermanentLimit(currentLimit2 * 1000);
             currentLimitTo.add();
         }
@@ -559,17 +558,17 @@ class TransformerConverter extends AbstractConverter {
 
         // CurrentPermanentLimit in A
         if (currentLimit1 > 0) {
-            CurrentLimitsAdder currentLimitFrom = twt.getLeg1().newCurrentLimits();
+            CurrentLimitsAdder currentLimitFrom = twt.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
             currentLimitFrom.setPermanentLimit(currentLimit1 * 1000);
             currentLimitFrom.add();
         }
         if (currentLimit2 > 0) {
-            CurrentLimitsAdder currentLimitFrom = twt.getLeg2().newCurrentLimits();
+            CurrentLimitsAdder currentLimitFrom = twt.getLeg2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
             currentLimitFrom.setPermanentLimit(currentLimit2 * 1000);
             currentLimitFrom.add();
         }
         if (currentLimit3 > 0) {
-            CurrentLimitsAdder currentLimitFrom = twt.getLeg3().newCurrentLimits();
+            CurrentLimitsAdder currentLimitFrom = twt.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
             currentLimitFrom.setPermanentLimit(currentLimit3 * 1000);
             currentLimitFrom.add();
         }

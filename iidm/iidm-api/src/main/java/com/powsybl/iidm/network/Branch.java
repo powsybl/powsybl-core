@@ -224,6 +224,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link CurrentLimits} in the selected {@link OperationalLimitsGroup} on side 1.
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
      */
     CurrentLimitsAdder newCurrentLimits1();
 
@@ -234,10 +235,37 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * are valid.</p>
      * @param currentLimits a set of existing current limits.
      * @return an adder allowing to create a new {@link CurrentLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 1.
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits(CurrentLimits)} instead.
      */
     default CurrentLimitsAdder newCurrentLimits1(CurrentLimits currentLimits) {
         CurrentLimitsAdder currentLimitsAdder = newCurrentLimits1();
         return initializeFromLoadingLimits(currentLimitsAdder, currentLimits);
+    }
+
+    /**
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the default ID or create a new one if it does not exists.
+     * Set the {@link OperationalLimitsGroup} as the selected one on side 1.</p>
+     * @return the selected {@link OperationalLimitsGroup} on side 1.
+     */
+    OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup1();
+
+    /**
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the default ID or create a new one if it does not exists.
+     * Set the {@link OperationalLimitsGroup} as the selected one on side 2.</p>
+     * @return the selected {@link OperationalLimitsGroup} on side 2.
+     */
+    OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2();
+
+    /**
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exists.
+     * Set the {@link OperationalLimitsGroup} as the selected one on side 1.</p>
+     * @param id an ID of {@link OperationalLimitsGroup}
+     * @return the selected {@link OperationalLimitsGroup} on side 1.
+     */
+    default OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup1(String limitsGroupId) {
+        OperationalLimitsGroup operationalLimitsGroup = getOperationalLimitsGroup1(limitsGroupId).orElseGet(() -> newOperationalLimitsGroup1(limitsGroupId));
+        setSelectedOperationalLimitsGroup1(limitsGroupId);
+        return operationalLimitsGroup;
     }
 
     /**
@@ -391,6 +419,8 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link CurrentLimits} in the selected {@link OperationalLimitsGroup} on side 2.
+     CurrentLimits currentLimits
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
      */
     CurrentLimitsAdder newCurrentLimits2();
 
@@ -401,10 +431,23 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * are valid.</p>
      * @param currentLimits a set of existing current limits.
      * @return an adder allowing to create a new {@link CurrentLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 2.
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits(CurrentLimits)} instead.
      */
     default CurrentLimitsAdder newCurrentLimits2(CurrentLimits currentLimits) {
         CurrentLimitsAdder currentLimitsAdder = newCurrentLimits2();
         return initializeFromLoadingLimits(currentLimitsAdder, currentLimits);
+    }
+
+    /**
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exists.
+     * Set the {@link OperationalLimitsGroup} as the selected one on side 2.</p>
+     * @param id an ID of {@link OperationalLimitsGroup}
+     * @return the selected {@link OperationalLimitsGroup} on side 1.
+     */
+    default OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2(String limitsGroupId) {
+        OperationalLimitsGroup operationalLimitsGroup = getOperationalLimitsGroup2(limitsGroupId).orElseGet(() -> newOperationalLimitsGroup2(limitsGroupId));
+        setSelectedOperationalLimitsGroup2(limitsGroupId);
+        return operationalLimitsGroup;
     }
 
     /**

@@ -107,7 +107,8 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
         return Optional.ofNullable(selectedLimitsId);
     }
 
-    private OperationalLimitsGroupImpl getOrCreateSelectedOperationalLimitsGroup() {
+    @Override
+    public OperationalLimitsGroupImpl getOrCreateSelectedOperationalLimitsGroup() {
         return getSelectedOperationalLimitsGroupImpl().orElseGet(() -> {
             String groupId = DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
             OperationalLimitsGroupImpl group = Optional.ofNullable(operationalLimitsGroupById.get(groupId))

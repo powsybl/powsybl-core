@@ -232,10 +232,10 @@ public final class FictitiousSwitchFactory {
                 .setNode2(10)
                 .setVoltageLevel2("N")
                 .add();
-        twtCI.newCurrentLimits1()
+        twtCI.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .add();
-        twtCI.newCurrentLimits2()
+        twtCI.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .add();
         twtCI.newPhaseTapChanger()
@@ -293,10 +293,10 @@ public final class FictitiousSwitchFactory {
                 .setNode2(5)
                 .setVoltageLevel2("N")
                 .add();
-        lineCJ.newCurrentLimits1()
+        lineCJ.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .add();
-        lineCJ.newCurrentLimits2()
+        lineCJ.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .beginTemporaryLimit()
                     .setName("IST")

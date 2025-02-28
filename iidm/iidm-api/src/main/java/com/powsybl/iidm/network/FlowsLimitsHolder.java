@@ -87,6 +87,25 @@ public interface FlowsLimitsHolder {
     }
 
     /**
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the default ID or create a new one if it does not exists.
+     * Set the {@link OperationalLimitsGroup} as the selected one.</p>
+     * @return the selected {@link OperationalLimitsGroup}.
+     */
+    OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup();
+
+    /**
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exists.
+     * Set the {@link OperationalLimitsGroup} as the selected one .</p>
+     * @param id an ID of {@link OperationalLimitsGroup}
+     * @return the selected {@link OperationalLimitsGroup} on side 1.
+     */
+    default OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup(String limitsGroupId) {
+        OperationalLimitsGroup operationalLimitsGroup = getOperationalLimitsGroup(limitsGroupId).orElseGet(() -> newOperationalLimitsGroup(limitsGroupId));
+        setSelectedOperationalLimitsGroup(limitsGroupId);
+        return operationalLimitsGroup;
+    }
+
+    /**
      * Get the {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup}.
      * @return {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} if any, an empty {@link Optional} otherwise.
      */
@@ -124,6 +143,7 @@ public interface FlowsLimitsHolder {
      * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link CurrentLimits} in the selected {@link OperationalLimitsGroup}.
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits(CurrentLimits)} instead.
      */
     CurrentLimitsAdder newCurrentLimits();
 
@@ -134,6 +154,7 @@ public interface FlowsLimitsHolder {
      * are valid.</p>
      * @param limits a set of existing current limits.
      * @return an adder allowing to create a new {@link CurrentLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup}.
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits(CurrentLimits)} instead.
      */
     default CurrentLimitsAdder newCurrentLimits(CurrentLimits limits) {
         CurrentLimitsAdder adder = newCurrentLimits();
