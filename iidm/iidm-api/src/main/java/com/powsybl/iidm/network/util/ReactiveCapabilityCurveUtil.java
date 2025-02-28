@@ -28,9 +28,9 @@ public final class ReactiveCapabilityCurveUtil {
      * Extrapolate reactive limits when p is outside [minP,maxP] using slopes of reactive limits at the crossed limit of p
      * (Note that this method throws an exception if p is inside [minP, maxP])
      * @param p                               Active power value to evaluate the reactive limits
-     * @param points                          TreeMap of all points defining the reactive capability curve
-     * @param valuesToReactiveCapabilityPoint TriFunction returning the used implementation of ReactiveCapabilityCurve.Point interface
-     * @param ownerDescription                Description of the owner (for logging purpose)
+     * @param points                          TreeMap of all points defining the reactive capability curve mapped by their active power values
+     * @param valuesToReactiveCapabilityPoint TriFunction returning the used implementation of {@link ReactiveCapabilityCurve.Point} interface: <code>(p, minQ, maxQ) -> Point</code>
+     * @param ownerDescription                Description of the ReactiveCapabilityCurve's owner (for logging purpose)
      * @return A ReactiveCapabilityCurve.Point of the extrapolated limits at the requested value of p
      */
     public static ReactiveCapabilityCurve.Point extrapolateReactiveLimitsSlope(double p, TreeMap<Double, ReactiveCapabilityCurve.Point> points, TriFunction<Double, Double, Double, ReactiveCapabilityCurve.Point> valuesToReactiveCapabilityPoint, String ownerDescription) {
