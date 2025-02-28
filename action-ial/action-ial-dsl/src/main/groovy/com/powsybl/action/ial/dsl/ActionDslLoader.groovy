@@ -15,6 +15,8 @@ import com.powsybl.dsl.ast.BooleanLiteralNode
 import com.powsybl.dsl.ast.ExpressionNode
 import com.powsybl.iidm.modification.NetworkModification
 import com.powsybl.iidm.network.Network
+import com.powsybl.scripting.groovy.GroovyScriptExtension
+import com.powsybl.scripting.groovy.GroovyScripts
 import org.codehaus.groovy.control.CompilationFailedException
 import org.slf4j.LoggerFactory
 
@@ -110,7 +112,11 @@ class ActionDslLoader extends DslLoader {
     }
 
     ActionDb load(Network network) {
-        load(network, null)
+        load(network, null, new HashMap<Class<?>, Object>())
+    }
+
+    ActionDb load(Network network, Map<Class<?>, Object> contextObjects) {
+        load(network, null, contextObjects)
     }
 
     /**
@@ -122,7 +128,7 @@ class ActionDslLoader extends DslLoader {
      * @param handler  Will allow client code to define how objects created when interpreting a script will be used
      * @param observer Will allow client code to observe the interpretation of the script
      */
-    static void loadDsl(Binding binding, Network network, ActionDslHandler handler, ActionDslLoaderObserver observer)  {
+    static void loadDsl(Binding binding, Network network, ActionDslHandler handler, ActionDslLoaderObserver observer, Map<Class<?>, Object> contextObjects)  {
 
         // set base network
         binding.setVariable("network", network)
@@ -131,6 +137,10 @@ class ActionDslLoader extends DslLoader {
         ContingencyDslLoader.loadDsl(binding, network, {c -> handler.addContingency(c)}, observer)
 
         ConditionDslLoader.prepareClosures(binding)
+
+        // Bindings through extensions
+        Iterable<GroovyScriptExtension> extensions = ServiceLoader.load(GroovyScriptExtension.class, GroovyScripts.class.getClassLoader())
+        extensions.forEach { it.load(binding, contextObjects) }
 
         // rules
         binding.rule = { String id, Closure<Void> closure ->
@@ -198,13 +208,17 @@ class ActionDslLoader extends DslLoader {
     }
 
     void load(Network network, ActionDslHandler handler, ActionDslLoaderObserver observer) {
+        load(network, handler, observer, new HashMap<Class<?>, Object>())
+    }
+
+    void load(Network network, ActionDslHandler handler, ActionDslLoaderObserver observer, Map<Class<?>, Object> contextObjects) {
 
         LOGGER.debug("Loading DSL '{}'", dslSrc.getName())
         observer?.begin(dslSrc.getName())
 
         Binding binding = new Binding()
 
-        loadDsl(binding, network, handler, observer)
+        loadDsl(binding, network, handler, observer, contextObjects)
         try {
 
             def shell = createShell(binding)
@@ -221,6 +235,10 @@ class ActionDslLoader extends DslLoader {
     }
 
     ActionDb load(Network network, ActionDslLoaderObserver observer) {
+        return load(network, observer, new HashMap<Class<?>, Object>())
+    }
+
+    ActionDb load(Network network, ActionDslLoaderObserver observer, Map<Class<?>, Object> contextObjects) {
         ActionDb rulesDb = new ActionDb()
 
         //Handler to create an ActionDb instance
@@ -242,7 +260,7 @@ class ActionDslLoader extends DslLoader {
             }
         }
 
-        load(network, actionDbBuilder, observer)
+        load(network, actionDbBuilder, observer, contextObjects)
 
         rulesDb.checkUndefinedActions()
         rulesDb
