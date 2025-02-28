@@ -33,8 +33,12 @@ public final class GeneratorUcteExport {
     public static void convertGenerators(UcteNode ucteNode, Bus bus) {
         double activePowerGeneration = 0;
         double reactivePowerGeneration = 0;
-        List<Double> localVoltageReferences = new ArrayList<>();
-        List<Double> remoteVoltageReferences = new ArrayList<>();
+
+        List<Double> localActiveVoltageReferences = new ArrayList<>();
+        List<Double> remoteActiveVoltageReferences = new ArrayList<>();
+        List<Double> localInactiveVoltageReferences = new ArrayList<>();
+        List<Double> remoteInactiveVoltageReferences = new ArrayList<>();
+
         List<Double> minPs = new ArrayList<>();
         List<Double> maxPs = new ArrayList<>();
         List<Double> minQs = new ArrayList<>();
@@ -54,15 +58,10 @@ public final class GeneratorUcteExport {
                 reactivePowerGeneration -= generator.getTargetQ();
             }
             if (!Double.isNaN(generator.getTargetV())) {
-                if (generator.getRegulatingTerminal().getConnectable().getId().equals(generator.getId())) {
-                    localVoltageReferences.add(generator.getTargetV());
-                } else {
-                    remoteVoltageReferences.add(getTargetV(generator));
+                categorizeVoltageReference(generator, localActiveVoltageReferences, remoteActiveVoltageReferences, localInactiveVoltageReferences, remoteInactiveVoltageReferences);
+                if (generator.isVoltageRegulatorOn()) {
+                    nodeType = UcteNodeTypeCode.PU; // If one of the generators regulates voltage, then the node is a PU node.
                 }
-            }
-            if (generator.isVoltageRegulatorOn()) {
-                // If one of the generators regulates voltage, then the node is a PU node.
-                nodeType = UcteNodeTypeCode.PU;
             }
             minPs.add(generator.getMinP());
             maxPs.add(generator.getMaxP());
@@ -71,7 +70,7 @@ public final class GeneratorUcteExport {
 
         ucteNode.setActivePowerGeneration(activePowerGeneration);
         ucteNode.setReactivePowerGeneration(reactivePowerGeneration);
-        ucteNode.setVoltageReference(getVoltageReference(localVoltageReferences, remoteVoltageReferences, bus.getVoltageLevel().getNominalV()));
+        ucteNode.setVoltageReference(getVoltageReference(localActiveVoltageReferences, remoteActiveVoltageReferences, localInactiveVoltageReferences, remoteInactiveVoltageReferences, bus.getVoltageLevel().getNominalV()));
         ucteNode.setPowerPlantType(getUctePowerPlantType(powerPlantTypes, bus));
         ucteNode.setTypeCode(nodeType);
         // for minP, maxP, minQ, maxQ, sum the values on each generator unless it is equal to Double.MAX_VALUE or DEFAULT_POWER_LIMIT (equivalent to undefined)
@@ -81,6 +80,25 @@ public final class GeneratorUcteExport {
         ucteNode.setMaximumPermissibleActivePowerGeneration(-computeMaxPower(maxPs));
         ucteNode.setMinimumPermissibleReactivePowerGeneration(-computeMinPower(minQs));
         ucteNode.setMaximumPermissibleReactivePowerGeneration(-computeMaxPower(maxQs));
+    }
+
+    private static void categorizeVoltageReference(Generator generator, List<Double> localActiveVoltageReferences, List<Double> remoteActiveVoltageReferences, List<Double> localInactiveVoltageReferences, List<Double> remoteInactiveVoltageReferences) {
+        double targetV = getTargetV(generator);
+        boolean isLocalRegulation = generator.getId().equals(generator.getRegulatingTerminal().getConnectable().getId());
+
+        if (isLocalRegulation) {
+            if (generator.isVoltageRegulatorOn()) {
+                localActiveVoltageReferences.add(targetV);
+            } else {
+                localInactiveVoltageReferences.add(targetV);
+            }
+        } else {
+            if (generator.isVoltageRegulatorOn()) {
+                remoteActiveVoltageReferences.add(targetV);
+            } else {
+                remoteInactiveVoltageReferences.add(targetV);
+            }
+        }
     }
 
     private static double computeMaxPower(List<Double> powers) {
@@ -106,9 +124,18 @@ public final class GeneratorUcteExport {
         return UctePowerPlantType.F;
     }
 
-    private static double getVoltageReference(List<Double> localVoltageReferences, List<Double> remoteVoltageReferences, double nominalV) {
-        return findClosestVoltageToNominalV(localVoltageReferences, nominalV)
-            .orElseGet(() -> findClosestVoltageToNominalV(remoteVoltageReferences, nominalV).orElse(Double.NaN));
+    // Voltage reference depends on the generator connected to the bus, and if the regulation is remote or local
+    // Priority is given to:
+    //      1. TargetV of generators regulating locally
+    //      2. TargetV of generators regulating remotely
+    //      3. TargetV of generators with local deactivated regulation
+    //      4. TargetV of generators with remote deactivated regulation
+    // In any case, the value closest to the nominalV of the voltage level is kept.
+    private static double getVoltageReference(List<Double> localActiveVoltageReferences, List<Double> remoteActiveVoltageReferences, List<Double> localInactiveVoltageReferences, List<Double> remoteInactiveVoltageReferences, double nominalV) {
+        return findClosestVoltageToNominalV(localActiveVoltageReferences, nominalV)
+            .orElseGet(() -> findClosestVoltageToNominalV(remoteActiveVoltageReferences, nominalV)
+                .orElseGet(() -> findClosestVoltageToNominalV(localInactiveVoltageReferences, nominalV)
+                    .orElseGet(() -> findClosestVoltageToNominalV(remoteInactiveVoltageReferences, nominalV).orElse(Double.NaN))));
     }
 
     private static Optional<Double> findClosestVoltageToNominalV(List<Double> voltageReferences, double nominalV) {

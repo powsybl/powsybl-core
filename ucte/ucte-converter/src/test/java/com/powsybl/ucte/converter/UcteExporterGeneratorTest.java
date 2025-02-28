@@ -96,6 +96,19 @@ class UcteExporterGeneratorTest {
         testExporter(network, "/eurostag.uct", p);
     }
 
+    @Test
+    void testActiveRemoteAndInactiveLocalRegulatingGenerator() throws IOException {
+        // Create a second generator and make it regulate remotely after the transformer with a different targetV
+        createGen2AndSplitGeneration();
+        network.getGenerator("GEN2").setRegulatingTerminal(network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2()).setTargetV(24.5 * 380 / 24);
+        // The local generator has inactive regulation
+        network.getGenerator("GEN").setVoltageRegulatorOn(false).setTargetV(25);
+        Properties p = new Properties();
+        p.put(UcteExporter.NAMING_STRATEGY, "Counter");
+        // TargetV exported will be the one of the local generator GEN and not the targetV of the remote generator
+        testExporter(network, "/eurostag.uct", p);
+    }
+
     private void createGen2AndSplitGeneration() {
         // Splits generation on two generators
         network.getVoltageLevel("VLGEN").newGenerator()

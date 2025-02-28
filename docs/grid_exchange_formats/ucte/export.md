@@ -11,7 +11,12 @@ the generators connected to the associated bus:
 3 if the bus is the slack node and 0 (PQ node) by default.
 - The voltage reference of the UCTE node is obtained from the `TargetV` of the generators connected to the bus.
 If multiple generators are regulating voltage with a different `TargetV`, then the `TargetV` that is the closest to the
-`nominalV` of the `VoltageLevel` is kept. 
+`nominalV` of the `VoltageLevel` is selected. If some generators are regulating remotely or have a `TargetV` without active regulation, 
+the `TargetV` is determined the following priority order:
+  1. TargetV of generators regulating locally
+  2. TargetV of generators regulating remotely
+  3. TargetV of generators with local deactivated regulation
+  4. TargetV of generators with remote deactivated regulation
 - The active power generation of the UCTE node is the negated sum of the `TargetP` of every connected generator that are not `NaN`.
 - The reactive power generation of the UCTE node is the negated sum of the `TargetQ` of every connected generator that are not `NaN`.
 - The minimum permissible generation in active power of the UCTE node is the sum of the `minP` of every connected generator
