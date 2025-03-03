@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:test">
+        <md:Model.scenarioTime>2023-01-01T00:00:00Z</md:Model.scenarioTime>
+        <md:Model.created>2023-01-01T00:00:00Z</md:Model.created>
+        <md:Model.description>Test internal connections created at import</md:Model.description>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/Operation-EU/3.0</md:Model.profile>
+        <md:Model.modelingAuthoritySet>http://powsybl.org</md:Model.modelingAuthoritySet>
+    </md:FullModel>
+    <cim:GeographicalRegion rdf:ID="_Region">
+        <cim:IdentifiedObject.name>Region</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SubRegion">
+        <cim:SubGeographicalRegion.Region rdf:resource="#_Region"/>
+        <cim:IdentifiedObject.name>SubRegion</cim:IdentifiedObject.name>
+    </cim:SubGeographicalRegion>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage67">
+        <cim:BaseVoltage.nominalVoltage>67.5</cim:BaseVoltage.nominalVoltage>
+        <cim:IdentifiedObject.name>67.5</cim:IdentifiedObject.name>
+    </cim:BaseVoltage>
+    <cim:Substation rdf:ID="_Substation">
+        <cim:Substation.Region rdf:resource="#_SubRegion"/>
+        <cim:IdentifiedObject.name>Substation</cim:IdentifiedObject.name>
+    </cim:Substation>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel">
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage67"/>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation"/>
+        <cim:IdentifiedObject.name>VoltageLevel</cim:IdentifiedObject.name>
+    </cim:VoltageLevel>
+    <cim:BusbarSection rdf:ID="_BBS1">
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>BBS1</cim:IdentifiedObject.name>
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_BBS1_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_BBS1_Load1_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BBS1"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>BBS1 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:ConnectivityNode rdf:ID="_BBS1_Load1_CN">
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>BBS1 and Load1 ConnectivityNode</cim:IdentifiedObject.name>
+    </cim:ConnectivityNode>
+    <cim:BusbarSection rdf:ID="_BBS2">
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>BBS2</cim:IdentifiedObject.name>
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_BBS2_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_BBS2_BBS3_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BBS2"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>BBS2 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:BusbarSection rdf:ID="_BBS3">
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>BBS3</cim:IdentifiedObject.name>
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_BBS3_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_BBS2_BBS3_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BBS3"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>BBS3 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:ConnectivityNode rdf:ID="_BBS2_BBS3_CN">
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>BBS2 and BBS3 ConnectivityNode</cim:IdentifiedObject.name>
+    </cim:ConnectivityNode>
+    <cim:BusbarSection rdf:ID="_BBS4">
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>BBS4</cim:IdentifiedObject.name>
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_BBS4_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_BBS4_BBS5_Load9_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BBS4"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>BBS4 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:BusbarSection rdf:ID="_BBS5">
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>BBS3</cim:IdentifiedObject.name>
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_BBS5_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_BBS4_BBS5_Load9_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BBS5"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>BBS5 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:ConnectivityNode rdf:ID="_BBS4_BBS5_Load9_CN">
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>BBS4, BBS5 and Load9 ConnectivityNode</cim:IdentifiedObject.name>
+    </cim:ConnectivityNode>
+    <cim:EnergyConsumer rdf:ID="_Load1">
+        <cim:IdentifiedObject.name>Load1</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_Load1_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_BBS1_Load1_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Load1"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>Load1 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:EnergyConsumer rdf:ID="_Load2">
+        <cim:IdentifiedObject.name>Load2</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_Load2_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Load2_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Load2"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>Load2 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:ConnectivityNode rdf:ID="_Load2_CN">
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>Load2 ConnectivityNode</cim:IdentifiedObject.name>
+    </cim:ConnectivityNode>
+    <cim:EnergyConsumer rdf:ID="_Load3">
+        <cim:IdentifiedObject.name>Load3</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_Load3_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Load3_BBS6_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Load3"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>Load3 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:ConnectivityNode rdf:ID="_Load3_BBS6_CN">
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>Load3 and BBS6 ConnectivityNode</cim:IdentifiedObject.name>
+    </cim:ConnectivityNode>
+    <cim:EnergyConsumer rdf:ID="_Load4">
+        <cim:IdentifiedObject.name>Load4</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_Load4_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Load4_Load5_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Load4"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>Load4 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:EnergyConsumer rdf:ID="_Load5">
+        <cim:IdentifiedObject.name>Load5</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_Load5_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Load4_Load5_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Load5"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>Load5 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:ConnectivityNode rdf:ID="_Load4_Load5_CN">
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>Load4 and Load5 ConnectivityNode</cim:IdentifiedObject.name>
+    </cim:ConnectivityNode>
+    <cim:EnergyConsumer rdf:ID="_Load6">
+        <cim:IdentifiedObject.name>Load6</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_Load6_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Load6_Load7_Load8_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Load6"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>Load6 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:EnergyConsumer rdf:ID="_Load7">
+        <cim:IdentifiedObject.name>Load7</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_Load7_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Load6_Load7_Load8_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Load7"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>Load7 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:EnergyConsumer rdf:ID="_Load8">
+        <cim:IdentifiedObject.name>Load8</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_Load8_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Load6_Load7_Load8_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Load8"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>Load8 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:ConnectivityNode rdf:ID="_Load6_Load7_Load8_CN">
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>Load6, Load7 and Load8 ConnectivityNode</cim:IdentifiedObject.name>
+    </cim:ConnectivityNode>
+    <cim:EnergyConsumer rdf:ID="_Load9">
+        <cim:IdentifiedObject.name>Load9</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_Load9_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_BBS4_BBS5_Load9_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Load9"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>Load9 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:EnergyConsumer rdf:ID="_Load10">
+        <cim:IdentifiedObject.name>Load10</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_Load10_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Load10_BBS7_Load11_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Load10"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>Load10 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:EnergyConsumer rdf:ID="_Load11">
+        <cim:IdentifiedObject.name>Load11</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_Load11_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Load10_BBS7_Load11_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Load11"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>Load11 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:ConnectivityNode rdf:ID="_Load10_BBS7_Load11_CN">
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>Load10, BB7 and Load11 ConnectivityNode</cim:IdentifiedObject.name>
+    </cim:ConnectivityNode>
+    <cim:BusbarSection rdf:ID="_BBS6">
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>BBS6</cim:IdentifiedObject.name>
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_BBS6_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Load3_BBS6_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BBS6"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>BBS4 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:BusbarSection rdf:ID="_BBS7">
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>BBS7</cim:IdentifiedObject.name>
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_BBS7_T">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Load10_BBS7_Load11_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BBS7"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>BBS7 Terminal</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:Disconnector rdf:ID="_Disconnector">
+        <cim:Switch.normalOpen>true</cim:Switch.normalOpen>
+        <cim:Switch.retained>false</cim:Switch.retained>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
+        <cim:IdentifiedObject.name>opened disconnector</cim:IdentifiedObject.name>
+    </cim:Disconnector>
+    <cim:Terminal rdf:ID="_Disconnector_T1">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_BBS1_Load1_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Disconnector"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>Disconnector Terminal1</cim:IdentifiedObject.name>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Disconnector_T2">
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Load2_CN"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Disconnector"/>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:IdentifiedObject.name>Disconnector Terminal2</cim:IdentifiedObject.name>
+    </cim:Terminal>
+</rdf:RDF>
