@@ -80,7 +80,7 @@
     </cim:Terminal>
     <cim:BusbarSection rdf:ID="_BBS5">
         <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel"/>
-        <cim:IdentifiedObject.name>BBS3</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.name>BBS5</cim:IdentifiedObject.name>
     </cim:BusbarSection>
     <cim:Terminal rdf:ID="_BBS5_T">
         <cim:Terminal.ConnectivityNode rdf:resource="#_BBS4_BBS5_Load9_CN"/>
