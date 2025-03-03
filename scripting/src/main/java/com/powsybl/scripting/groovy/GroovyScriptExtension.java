@@ -19,7 +19,7 @@ public interface GroovyScriptExtension {
     /**
      * Method used to load the extension and, usually, to bind methods or variables based on context objects
      * @param binding           The context which functions will be created in
-     * @param contextObjects    Context objects used in groovy script extensions
+     * @param contextObjects    Context objects (ComputationManager, Writer, etc.) used in groovy script extensions
      */
     void load(Binding binding, Map<Class<?>, Object> contextObjects);
 
