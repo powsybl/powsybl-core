@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
-import com.powsybl.psse.converter.NodeBreakerValidation.NodeBreakerControl;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.pf.PsseBus;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
@@ -39,12 +38,13 @@ class VoltageLevelConverter extends AbstractConverter {
     }
 
     VoltageLevel create(Substation substation) {
+
         String voltageLevelId = getContainersMapping().getVoltageLevelId(psseBus.getI());
         VoltageLevel voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
 
         if (voltageLevel == null) {
             double nominalV = getNominalV(psseBus, perUnitContext.ignoreBaseVoltage());
-            boolean isNodeBreakerValid = nodeBreakerValidation.isNodeBreakerSubstationDataCoherent(getContainersMapping().getBusesSet(voltageLevelId));
+            boolean isNodeBreakerValid = nodeBreakerValidation.isConsideredNodeBreaker(getContainersMapping().getBusesSet(voltageLevelId));
 
             TopologyKind topologyKind = isNodeBreakerValid ? TopologyKind.NODE_BREAKER : TopologyKind.BUS_BREAKER;
             voltageLevel = substation.newVoltageLevel()
@@ -72,20 +72,22 @@ class VoltageLevelConverter extends AbstractConverter {
     private void addNodeBreakerConnectivity(String voltageLevelId, VoltageLevel voltageLevel, NodeBreakerValidation nodeBreakerValidation, NodeBreakerImport nodeBreakerImport) {
         Set<Integer> buses = getContainersMapping().getBusesSet(voltageLevelId);
         nodeBreakerImport.addTopologicalBuses(buses);
-        Optional<PsseSubstation> psseSubstation = nodeBreakerValidation.getSubstationIfOnlyOneExists(buses);
+        Optional<PsseSubstation> psseSubstation = nodeBreakerValidation.getTheOnlySubstation(buses);
         if (psseSubstation.isPresent()) {
             int lastNode = psseSubstation.get().getNodes().stream().map(PsseSubstationNode::getNi).max(Comparator.naturalOrder()).orElseThrow();
             for (int bus : buses) {
-                lastNode = addNodeBreakerConnectivity(voltageLevelId, voltageLevel, psseSubstation.get(), bus, lastNode, nodeBreakerValidation, nodeBreakerImport);
+                lastNode = addNodeBreakerConnectivity(voltageLevelId, voltageLevel, psseSubstation.get(), bus, lastNode, nodeBreakerImport);
             }
         }
     }
 
-    private static int addNodeBreakerConnectivity(String voltageLevelId, VoltageLevel voltageLevel, PsseSubstation psseSubstation, int bus, int lastNodeInternalConnections, NodeBreakerValidation nodeBreakerValidation, NodeBreakerImport nodeBreakerImport) {
-        Set<Integer> nodesSet = psseSubstation.getNodes().stream().filter(psseNode -> psseNode.getStatus() == 1 && psseNode.getI() == bus).map(PsseSubstationNode::getNi).collect(Collectors.toSet());
+    private static int addNodeBreakerConnectivity(String voltageLevelId, VoltageLevel voltageLevel, PsseSubstation psseSubstation, int bus, int lastNodeInternalConnections, NodeBreakerImport nodeBreakerImport) {
+        Set<Integer> nodesSet = psseSubstation.getNodes().stream().filter(psseNode -> psseNode.getI() == bus).map(PsseSubstationNode::getNi).collect(Collectors.toSet());
 
         List<PsseSubstationSwitchingDevice> switchingDeviceList = psseSubstation.getSwitchingDevices().stream()
-                .filter(sd -> nodesSet.contains(sd.getNi()) && nodesSet.contains(sd.getNj())).toList();
+                .filter(sd -> nodesSet.contains(sd.getNi()) && nodesSet.contains(sd.getNj()))
+                .sorted(Comparator.comparing(VoltageLevelConverter::switchingDeviceString))
+                .toList();
 
         for (PsseSubstationSwitchingDevice switchingDevice : switchingDeviceList) {
             voltageLevel.getNodeBreakerView().newSwitch()
@@ -128,10 +130,6 @@ class VoltageLevelConverter extends AbstractConverter {
                         .setNode(psseNode.getNi())
                         .add());
 
-        // Define where controls must be connected. Psse nodes and iidm nodes are identical.
-        List<NodeBreakerControl> controls = nodeBreakerValidation.getControls(bus);
-        controls.forEach(control -> nodeBreakerImport.addControl(getNodeBreakerEquipmentIdBus(control.getEquipmentId(), bus), voltageLevelId, control.getNode()));
-
         // update voltages
         psseSubstation.getNodes().stream()
                 .filter(psseNode -> nodesSet.contains(psseNode.getNi()))
@@ -143,7 +141,15 @@ class VoltageLevelConverter extends AbstractConverter {
                     }
                 });
 
+        // add data for control, if only the bus is specified the control will be associated with the default node
+        int defaultNode = nodesSet.stream().sorted().findFirst().orElseThrow();
+        nodeBreakerImport.addBusControl(bus, voltageLevelId, defaultNode);
+
         return lastNode;
+    }
+
+    private static String switchingDeviceString(PsseSubstationSwitchingDevice switchingDevice) {
+        return switchingDevice.getNi() + "-" + switchingDevice.getNj() + "-" + switchingDevice.getCkt();
     }
 
     private static SwitchKind findSwitchingKind(int type) {
@@ -151,7 +157,7 @@ class VoltageLevelConverter extends AbstractConverter {
     }
 
     private static int findSlackNode(NodeBreakerValidation nodeBreakerValidation, int bus) {
-        PsseSubstation psseSubstation = nodeBreakerValidation.getSubstationIfOnlyOneExists(bus).orElseThrow();
+        PsseSubstation psseSubstation = nodeBreakerValidation.getTheOnlySubstation(bus).orElseThrow();
         return psseSubstation.getNodes().stream().filter(n -> n.getI() == bus)
                 .map(PsseSubstationNode::getNi).min(Comparator.comparingInt((Integer node) -> connectedGenerators(psseSubstation, node))
                         .reversed().thenComparing(Comparator.naturalOrder())).orElseThrow();
@@ -161,9 +167,11 @@ class VoltageLevelConverter extends AbstractConverter {
         return (int) psseSubstation.getEquipmentTerminals().stream().filter(eqt -> eqt.getNi() == node && eqt.getType().equals(PSSE_GENERATOR.getTextCode())).count();
     }
 
-    static ContextExport createContextExport(Network network, PssePowerFlowModel psseModel) {
-        ContextExport contextExport = new ContextExport();
-        mapVoltageLevelsAndPsseSubstation(network, psseModel, contextExport);
+    static ContextExport createContextExport(Network network, PssePowerFlowModel psseModel, boolean isFullExport) {
+        ContextExport contextExport = new ContextExport(isFullExport);
+        if (!isFullExport) {
+            mapVoltageLevelsAndPsseSubstation(network, psseModel, contextExport);
+        }
         getSortedVoltageLevels(network).forEach(voltageLevel -> {
             if (exportVoltageLevelAsNodeBreaker(voltageLevel)) {
                 createNodeBreakerContextExport(voltageLevel, contextExport);
@@ -269,6 +277,171 @@ class VoltageLevelConverter extends AbstractConverter {
         };
     }
 
+    static void createSubstations(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+        getSortedVoltageLevels(network).forEach(voltageLevel -> {
+            if (exportVoltageLevelAsNodeBreaker(voltageLevel)) {
+                psseModel.addSubstations(Collections.singletonList(createPsseSubstation(voltageLevel, contextExport)));
+            }
+        });
+    }
+
+    private static PsseSubstation createPsseSubstation(VoltageLevel voltageLevel, ContextExport contextExport) {
+        return new PsseSubstation(createPsseSubstationSubstationRecord(voltageLevel, contextExport),
+                createPsseSubstationNodes(voltageLevel, contextExport),
+                createPsseSubstationSwitchingDevices(voltageLevel, contextExport),
+                createPsseSubstationEquipmentTerminals(voltageLevel, contextExport));
+    }
+
+    private static PsseSubstation.PsseSubstationRecord createPsseSubstationSubstationRecord(VoltageLevel voltageLevel, ContextExport contextExport) {
+        PsseSubstation.PsseSubstationRecord substationRecord = new PsseSubstation.PsseSubstationRecord();
+        substationRecord.setIs(contextExport.getFullExport().getNewPsseSubstationIs());
+        substationRecord.setName(voltageLevel.getId());
+        substationRecord.setLati(0.0);
+        substationRecord.setLong(0.0);
+        substationRecord.setSrg(0.1);
+        return substationRecord;
+    }
+
+    private static List<PsseSubstation.PsseSubstationNode> createPsseSubstationNodes(VoltageLevel voltageLevel, ContextExport contextExport) {
+        Set<Integer> nodesToBeExported = new HashSet<>();
+        for (int node : voltageLevel.getNodeBreakerView().getNodes()) {
+            nodesToBeExported.add(convertToPsseNode(contextExport.getFullExport().getRepresentativeNode(voltageLevel, node)));
+        }
+
+        List<PsseSubstation.PsseSubstationNode> nodes = new ArrayList<>();
+        nodesToBeExported.stream().sorted(Comparator.naturalOrder()).forEach(ni -> {
+            PsseSubstation.PsseSubstationNode psseNode = new PsseSubstationNode();
+            int busI = contextExport.getLinkExport().getBusI(voltageLevel, ni).orElseThrow();
+            Bus bus = contextExport.getLinkExport().getBusView(voltageLevel, ni).orElse(null);
+
+            psseNode.setNi(ni);
+            psseNode.setName(getNodeId(voltageLevel, ni));
+            psseNode.setI(busI);
+            psseNode.setStatus(1);
+            psseNode.setVm(getVm(bus));
+            psseNode.setVa(getVa(bus));
+
+            nodes.add(psseNode);
+        });
+        return nodes;
+    }
+
+    // ckt must be unique inside the voltageLevel
+    private static List<PsseSubstation.PsseSubstationSwitchingDevice> createPsseSubstationSwitchingDevices(VoltageLevel voltageLevel, ContextExport contextExport) {
+        List<PsseSubstation.PsseSubstationSwitchingDevice> switchingDevices = new ArrayList<>();
+        voltageLevel.getSwitches().forEach(sw -> {
+            int ni = convertToPsseNode(contextExport.getFullExport().getRepresentativeNode(voltageLevel, sw.getVoltageLevel().getNodeBreakerView().getNode1(sw.getId())));
+            int nj = convertToPsseNode(contextExport.getFullExport().getRepresentativeNode(voltageLevel, sw.getVoltageLevel().getNodeBreakerView().getNode2(sw.getId())));
+            PsseSubstation.PsseSubstationSwitchingDevice switchingDevice = new PsseSubstationSwitchingDevice();
+            switchingDevice.setNi(ni);
+            switchingDevice.setNj(nj);
+            switchingDevice.setCkt(contextExport.getFullExport().getEquipmentCkt(voltageLevel, sw.getId(), IdentifiableType.SWITCH, ni, nj));
+            switchingDevice.setName(sw.getNameOrId());
+            switchingDevice.setType(getSwitchingDeviceType(sw));
+            switchingDevice.setStatus(sw.isOpen() ? 0 : 1);
+            switchingDevice.setNstat(1);
+            switchingDevice.setX(0.0001);
+            switchingDevice.setRate1(0.0);
+            switchingDevice.setRate2(0.0);
+            switchingDevice.setRate3(0.0);
+
+            switchingDevices.add(switchingDevice);
+        });
+        return switchingDevices;
+    }
+
+    private static int getSwitchingDeviceType(Switch sw) {
+        return switch (sw.getKind()) {
+            case BREAKER, LOAD_BREAK_SWITCH -> 2;
+            case DISCONNECTOR -> 3;
+        };
+    }
+
+    private static List<PsseSubstation.PsseSubstationEquipmentTerminal> createPsseSubstationEquipmentTerminals(VoltageLevel voltageLevel, ContextExport contextExport) {
+        List<PsseSubstation.PsseSubstationEquipmentTerminal> equipmentTerminals = new ArrayList<>();
+
+        getEquipmentListToBeExported(voltageLevel).forEach(equipmentId -> {
+            List<NodeBusR> nodeBusRList = getEquipmentNodesInsideVoltageLevelPreservingOrder(voltageLevel, equipmentId, contextExport);
+            Identifiable<?> identifiable = getIdentifiable(voltageLevel, equipmentId);
+            String type = getPsseEquipmentType(identifiable);
+            getNodesInsideVoltageLevelPreservingOrder(nodeBusRList, voltageLevel).forEach(nodeBusR -> {
+                List<Integer> otherBuses = getTwoOtherBusesPreservingOrder(voltageLevel, equipmentId, nodeBusR, contextExport);
+
+                PsseSubstation.PsseSubstationEquipmentTerminal equipmentTerminal = new PsseSubstationEquipmentTerminal();
+                equipmentTerminal.setNi(nodeBusR.node());
+                equipmentTerminal.setType(type);
+                equipmentTerminal.setId(contextExport.getFullExport().getEquipmentCkt(equipmentId, identifiable.getType(), nodeBusR.busI(), otherBuses.get(0), otherBuses.get(1)));
+                equipmentTerminal.setI(nodeBusR.busI());
+                equipmentTerminal.setJ(otherBuses.get(0));
+                equipmentTerminal.setK(otherBuses.get(1));
+
+                equipmentTerminals.add(equipmentTerminal);
+            });
+        });
+        return equipmentTerminals;
+    }
+
+    private static List<NodeBusR> getEquipmentNodesInsideVoltageLevelPreservingOrder(VoltageLevel voltageLevel, String equipmentId, ContextExport contextExport) {
+        return getEquipmentTerminals(voltageLevel, equipmentId).stream()
+                .filter(terminal -> terminal.getVoltageLevel().equals(voltageLevel))
+                .map(terminal -> findNodeBusR(terminal, contextExport)).toList();
+    }
+
+    private static NodeBusR findNodeBusR(Terminal terminal, ContextExport contextExport) {
+        int representativeNode = convertToPsseNode(contextExport.getFullExport().getRepresentativeNode(terminal.getVoltageLevel(), getTerminalNode(terminal)));
+        int busI = getTerminalBusI(terminal, contextExport);
+        return new NodeBusR(terminal.getVoltageLevel(), representativeNode, busI);
+    }
+
+    private record NodeBusR(VoltageLevel voltageLevel, int node, int busI) {
+        boolean equals(NodeBusR other) {
+            return voltageLevel().equals(other.voltageLevel()) && node() == other.node();
+        }
+    }
+
+    private static List<NodeBusR> getNodesInsideVoltageLevelPreservingOrder(List<NodeBusR> nodeBusRList, VoltageLevel voltageLevel) {
+        return nodeBusRList.stream().filter(nodeBusR -> nodeBusR.voltageLevel().equals(voltageLevel)).toList();
+    }
+
+    private static List<Integer> getTwoOtherBusesPreservingOrder(VoltageLevel voltageLevel, String equipmentId, NodeBusR nodeBusR, ContextExport contextExport) {
+        List<Integer> buses = new ArrayList<>();
+        getEquipmentTerminals(voltageLevel, equipmentId).forEach(terminal -> {
+            if (exportVoltageLevelAsNodeBreaker(terminal.getVoltageLevel())) {
+                NodeBusR otherNodeBusR = findNodeBusR(terminal, contextExport);
+                if (!nodeBusR.equals(otherNodeBusR)) {
+                    buses.add(otherNodeBusR.busI());
+                }
+                // busJ associated with boundary side of the dangling lines
+                Identifiable<?> identifiable = getIdentifiable(voltageLevel, equipmentId);
+                if (identifiable.getType().equals(IdentifiableType.DANGLING_LINE)) {
+                    buses.add(contextExport.getLinkExport().getBusI((DanglingLine) identifiable).orElseThrow());
+                }
+            } else {
+                Bus busView = getTerminalBusView(terminal);
+                buses.add(contextExport.getLinkExport().getBusI(busView).orElseThrow());
+            }
+        });
+        // Complete with zeros until two buses
+        if (buses.isEmpty()) {
+            buses.add(0);
+            buses.add(0);
+        } else if (buses.size() == 1) {
+            buses.add(0);
+        } else if (buses.size() > 2) {
+            throw new PsseException("Unexpected number of buses for equipmentId: " + equipmentId);
+        }
+        return buses;
+    }
+
+    private static Identifiable<?> getIdentifiable(VoltageLevel voltageLevel, String identifiableId) {
+        Identifiable<?> identifiable = voltageLevel.getNetwork().getIdentifiable(identifiableId);
+        if (identifiable != null) {
+            return identifiable;
+        } else {
+            throw new PsseException("Unexpected identifiableId: " + identifiableId);
+        }
+    }
+
     private static Optional<Integer> findBusI(PsseSubstation psseSubstation, int node) {
         return psseSubstation.getNodes().stream().filter(psseNode -> psseNode.getNi() == node).map(PsseSubstationNode::getI).findFirst();
     }
@@ -284,10 +457,16 @@ class VoltageLevelConverter extends AbstractConverter {
 
     private static void updateSubstation(VoltageLevel voltageLevel, PsseSubstation psseSubstation, Set<Integer> busesSet, ContextExport contextExport) {
         Set<PsseSubstationNode> psseNodeSet = psseSubstation.getNodes().stream().filter(psseNode -> busesSet.contains(psseNode.getI())).collect(Collectors.toSet());
-        psseNodeSet.forEach(psseSubstationNode -> contextExport.getLinkExport().getBusView(voltageLevel, psseSubstationNode.getNi()).ifPresent(busView -> {
-            psseSubstationNode.setVm(getVm(busView));
-            psseSubstationNode.setVa(getVa(busView));
-        }));
+        psseNodeSet.forEach(psseSubstationNode -> {
+            Optional<Bus> busView = contextExport.getLinkExport().getBusView(voltageLevel, psseSubstationNode.getNi());
+            if (busView.isPresent()) {
+                psseSubstationNode.setVm(getVm(busView.get()));
+                psseSubstationNode.setVa(getVa(busView.get()));
+            } else {
+                psseSubstationNode.setVm(1.0);
+                psseSubstationNode.setVa(0.0);
+            }
+        });
 
         Set<Integer> nodesSet = psseNodeSet.stream().map(PsseSubstationNode::getNi).collect(Collectors.toSet());
         Set<PsseSubstationSwitchingDevice> switchingDeviceSet = psseSubstation.getSwitchingDevices().stream()

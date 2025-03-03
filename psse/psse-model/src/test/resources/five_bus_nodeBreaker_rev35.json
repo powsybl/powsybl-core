@@ -97,7 +97,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 3,
@@ -116,7 +116,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 4,
@@ -135,7 +135,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 5,
@@ -154,7 +154,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   } ],
   "fixedShunts" : [ {

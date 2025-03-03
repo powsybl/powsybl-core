@@ -276,4 +276,32 @@ public class PsseFacts extends PsseVersioned {
     public void setNreg(int nreg) {
         this.nreg = nreg;
     }
+
+    public PsseFacts copy() {
+        PsseFacts copy = new PsseFacts();
+        copy.name = this.name;
+        copy.i = this.i;
+        copy.j = this.j;
+        copy.mode = this.mode;
+        copy.pdes = this.pdes;
+        copy.qdes = this.qdes;
+        copy.vset = this.vset;
+        copy.shmx = this.shmx;
+        copy.trmx = this.trmx;
+        copy.vtmn = this.vtmn;
+        copy.vtmx = this.vtmx;
+        copy.vsmx = this.vsmx;
+        copy.imx = this.imx;
+        copy.linx = this.linx;
+        copy.rmpct = this.rmpct;
+        copy.owner = this.owner;
+        copy.set1 = this.set1;
+        copy.set2 = this.set2;
+        copy.vsref = this.vsref;
+        copy.remot = this.remot;
+        copy.mname = this.mname;
+        copy.fcreg = this.fcreg;
+        copy.nreg = this.nreg;
+        return copy;
+    }
 }

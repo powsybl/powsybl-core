@@ -16,8 +16,7 @@ import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
 
 import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_TWO_TERMINAL_DC_LINE;
 
-import java.util.Objects;
-import java.util.OptionalInt;
+import java.util.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -105,7 +104,81 @@ class TwoTerminalDcConverter extends AbstractConverter {
         return 0.5 * (Math.cos(Math.toRadians(converter.getAnmx())) + Math.cos(Math.toRadians(60.0)));
     }
 
-    static void updateTwoTerminalDcTransmissionLines(Network network, PssePowerFlowModel psseModel) {
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+        network.getHvdcLines().forEach(hvdcLine -> {
+            if (isTwoTerminalDcTransmissionLine(hvdcLine)) {
+                psseModel.addTwoTerminalDcTransmissionLines(Collections.singletonList(createTwoTerminalDcTransmissionLine(hvdcLine, contextExport)));
+            }
+        });
+        psseModel.replaceAllTwoTerminalDcTransmissionLines(psseModel.getTwoTerminalDcTransmissionLines().stream().sorted(Comparator.comparing(PsseTwoTerminalDcTransmissionLine::getName)).toList());
+    }
+
+    private static PsseTwoTerminalDcTransmissionLine createTwoTerminalDcTransmissionLine(HvdcLine hvdcLine, ContextExport contextExport) {
+        PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc = new PsseTwoTerminalDcTransmissionLine();
+
+        psseTwoTerminalDc.setName(extractTwoTerminalDcName(hvdcLine.getId()));
+        psseTwoTerminalDc.setMdc(findControlMode(hvdcLine, psseTwoTerminalDc.getMdc()));
+        psseTwoTerminalDc.setRdc(hvdcLine.getR());
+        psseTwoTerminalDc.setSetvl(getVl(hvdcLine));
+        psseTwoTerminalDc.setVschd(hvdcLine.getNominalV());
+        psseTwoTerminalDc.setVcmod(0.0);
+        psseTwoTerminalDc.setRcomp(0.0);
+        psseTwoTerminalDc.setDelti(0.0);
+        psseTwoTerminalDc.setMeter("I");
+        psseTwoTerminalDc.setDcvmin(0.0);
+        psseTwoTerminalDc.setCccitmx(20);
+        psseTwoTerminalDc.setCccacc(1.0);
+
+        if (hvdcLine.getConvertersMode().equals(ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
+            psseTwoTerminalDc.setRectifier(findConverter((LccConverterStation) hvdcLine.getConverterStation1(), contextExport));
+            psseTwoTerminalDc.setInverter(findConverter((LccConverterStation) hvdcLine.getConverterStation2(), contextExport));
+        } else {
+            psseTwoTerminalDc.setRectifier(findConverter((LccConverterStation) hvdcLine.getConverterStation2(), contextExport));
+            psseTwoTerminalDc.setInverter(findConverter((LccConverterStation) hvdcLine.getConverterStation1(), contextExport));
+        }
+
+        return psseTwoTerminalDc;
+    }
+
+    private static double getVl(HvdcLine hvdcLine) {
+        return Double.isFinite(hvdcLine.getActivePowerSetpoint()) ? hvdcLine.getActivePowerSetpoint() : 0.0;
+    }
+
+    private static PsseTwoTerminalDcConverter findConverter(LccConverterStation lccConverter, ContextExport contextExport) {
+        PsseTwoTerminalDcConverter converter = createDefaultConverter();
+        converter.setIp(getTerminalBusI(lccConverter.getTerminal(), contextExport));
+        converter.setAnmx(getAmnx(lccConverter.getPowerFactor()));
+        return converter;
+    }
+
+    private static double getAmnx(double powerFactor) {
+        return Math.toDegrees(Math.acos(powerFactor * 2.0 - Math.cos(Math.toRadians(60.0))));
+    }
+
+    private static PsseTwoTerminalDcConverter createDefaultConverter() {
+        PsseTwoTerminalDcConverter converter = new PsseTwoTerminalDcConverter();
+        converter.setIp(0);
+        converter.setNb(0);
+        converter.setAnmx(0.0);
+        converter.setAnmn(0.0);
+        converter.setRc(0.0);
+        converter.setXc(0.0);
+        converter.setEbas(0.0);
+        converter.setTr(1.0);
+        converter.setTap(1.0);
+        converter.setTmx(1.5);
+        converter.setTmn(0.51);
+        converter.setStp(0.00625);
+        converter.setIc(0);
+        converter.setNd(0);
+        converter.setIf(0);
+        converter.setIt(0);
+        converter.setId("1");
+        converter.setXcap(0.0);
+        return converter;
+    }
+
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getTwoTerminalDcTransmissionLines().forEach(psseTwoTerminalDc -> {
             String hvdcId = getTwoTerminalDcId(psseTwoTerminalDc.getName());
             HvdcLine hvdcLine = network.getHvdcLine(hvdcId);

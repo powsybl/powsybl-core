@@ -43,7 +43,33 @@ class BusConverter extends AbstractConverter {
                 .setAngle(psseBus.getVa());
     }
 
-    static void updateBuses(PssePowerFlowModel psseModel, ContextExport contextExport) {
+    static void create(PssePowerFlowModel psseModel, ContextExport contextExport) {
+
+        contextExport.getLinkExport().getBusISet().forEach(busI -> {
+            // bus and type is always present when a psseBus is created
+            Bus busViewBus = contextExport.getLinkExport().getBusView(busI).orElseThrow();
+            int type = findBusViewBusType(busViewBus.getVoltageLevel(), busViewBus);
+            psseModel.addBuses(Collections.singletonList(createBus(busViewBus, busI, type)));
+        });
+        psseModel.replaceAllBuses(psseModel.getBuses().stream().sorted(Comparator.comparingInt(PsseBus::getI)).toList());
+    }
+
+    private static PsseBus createBus(Bus bus, int busI, int type) {
+        PsseBus psseBus = createDefaultBus();
+        psseBus.setI(busI);
+        psseBus.setName(fixBusName(bus.getNameOrId()));
+        psseBus.setBaskv(bus.getVoltageLevel().getNominalV());
+        psseBus.setIde(type);
+        psseBus.setVm(getVm(bus));
+        psseBus.setVa(getVa(bus));
+        psseBus.setNvhi(getHighVm(bus));
+        psseBus.setNvlo(getLowVm(bus));
+        psseBus.setEvhi(getHighVm(bus));
+        psseBus.setEvlo(getLowVm(bus));
+        return psseBus;
+    }
+
+    static void update(PssePowerFlowModel psseModel, ContextExport contextExport) {
         psseModel.getBuses().forEach(psseBus -> {
             Optional<Bus> busViewBus = contextExport.getLinkExport().getBusView(psseBus.getI());
             if (busViewBus.isPresent()) {

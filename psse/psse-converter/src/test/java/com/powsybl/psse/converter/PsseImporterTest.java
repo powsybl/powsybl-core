@@ -226,6 +226,8 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertNotNull(n.getLine("L-2-1-11"));
         assertNotNull(n.getTwoWindingsTransformer("T-4-7-1 "));
         assertNotNull(n.getTwoWindingsTransformer("T-4-7-10"));
+        assertNotNull(n.getStaticVarCompensator("FactsDevice-FACTS_DVCE_1"));
+        assertNotNull(n.getStaticVarCompensator("FactsDevice-FACTS_DVCE_0"));
     }
 
     @Test
@@ -318,5 +320,15 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertFalse(t3w.getLeg2().getRatioTapChanger().isRegulating());
         assertNotNull(t3w.getLeg3().getRatioTapChanger());
         assertFalse(t3w.getLeg3().getRatioTapChanger().isRegulating());
+    }
+
+    @Test
+    void importTwoSubstationsTest() throws IOException {
+        importTest("twoSubstations_rev35", "twoSubstations_rev35.raw", false);
+    }
+
+    @Test
+    void importTwoSubstationsRawxTest() throws IOException {
+        importTest("twoSubstations_rev35", "twoSubstations_rev35.rawx", false);
     }
 }

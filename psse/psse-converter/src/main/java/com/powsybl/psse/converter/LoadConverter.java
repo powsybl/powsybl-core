@@ -91,7 +91,24 @@ class LoadConverter extends AbstractConverter {
         adder.add();
     }
 
-    static void updateLoads(Network network, PssePowerFlowModel psseModel) {
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+        network.getLoads().forEach(load -> psseModel.addLoads(Collections.singletonList(createLoad(load, contextExport))));
+        psseModel.replaceAllLoads(psseModel.getLoads().stream().sorted(Comparator.comparingInt(PsseLoad::getI).thenComparing(PsseLoad::getId)).toList());
+    }
+
+    private static PsseLoad createLoad(Load load, ContextExport contextExport) {
+        PsseLoad psseLoad = createDefaultLoad();
+
+        int busI = getTerminalBusI(load.getTerminal(), contextExport);
+        psseLoad.setI(busI);
+        psseLoad.setId(contextExport.getFullExport().getEquipmentCkt(load.getId(), IdentifiableType.LOAD, busI));
+        psseLoad.setStatus(getStatus(load.getTerminal()));
+        psseLoad.setPl(getP(load));
+        psseLoad.setQl(getQ(load));
+        return psseLoad;
+    }
+
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getLoads().forEach(psseLoad -> {
             String loadId = getLoadId(psseLoad.getI(), psseLoad.getId());
             Load load = network.getLoad(loadId);
