@@ -87,9 +87,12 @@ public class NodeMapping {
             case 2 -> {
                 // There are two terminals on the same connectivity node. We need one (and only one!) internal connection
                 // between the two terminals as iidm can only handle one terminal per node.
-                // If there's one bbs, it is placed at the connectivity node: in iidm we want the node of the bbs terminal
+                // There's a special treatment for BusbarSections described below. Indeed, a bbs is a central equipment,
+                // to which bays/cells connect. We want to keep this physical centrality in iidm, especially for
+                // easy graph traversals and visualization. Note that there are no other central equipments of this type.
+                // - if there's one bbs, it is placed at the connectivity node: in iidm we want the node of the bbs terminal
                 // (and not the connectivity point!) to be where all feeders connect.
-                // If there are two bbs on the same connectivity node (that is, two united bbs), this is only done for
+                // - if there are two bbs on the same connectivity node (that is, two united bbs), this is only done for
                 // the first bbs of the list.
                 CgmesTerminal t0 = connectivityNodeTerminals.get(0);
                 CgmesTerminal t1 = connectivityNodeTerminals.get(1);
@@ -103,12 +106,14 @@ public class NodeMapping {
             }
             default -> {
                 // We need the connectivity node as connecting point between terminals
-                // Similarly to previous case, if there's only one bbs, it is placed at the connectivity node.
-                // If there are several bbs (that is, several united bbs), this is only done for the first one encountered,
-                // the other ones are connected to the first one with internal connections.
+                // Similarly to previous case, there's a special treatment for BusbarSections described thereafter for
+                // the same mentioned reasons.
+                // - if there's only one bbs, it is placed at the connectivity node.
+                // - if there are several bbs (that is, several united bbs), this is only done for the first one
+                // encountered, the other ones are connected to the first one with internal connections.
                 boolean bbsEncountered = false;
                 for (CgmesTerminal t : connectivityNodeTerminals) {
-                    if (isBusbarSectionTerminal(t) && !bbsEncountered) {
+                    if (!bbsEncountered && isBusbarSectionTerminal(t)) {
                         oneIidmNodeForBothTerminalAndConnectivityNode(t, vl);
                         bbsEncountered = true;
                     } else {
