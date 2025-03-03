@@ -10,8 +10,10 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
+import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,6 +33,60 @@ import com.powsybl.cgmes.model.GridModelReference;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class HvdcConversionTest {
+
+    private static final String DIR = "/issues/hvdc/";
+
+    @Test
+    void simpleHvdcEqTest() {
+        // CGMES network:
+        //   An EQ file with 2 HVDC lines (monopole, ground return):
+        //   - DCLineSegment DCL_12 with CsConverter CSC_1 and CSC_2 (LCC line)
+        //   - DCLineSegment DCL_34 with VsConverter VSC_3 and VSC_4 (VSC line)
+        // IIDM network:
+        //   - HvdcLine DCL_12 with LccConverterStation CSC_1 and CSC_2
+        //   - HvdcLine DCL_34 with VscConverterStation VSC_3 and VSC_4
+        Network network = readCgmesResources(DIR, "simple_hvdc_EQ.xml");
+
+        // EQ contains the name of equipments and static values (DCLine resistances).
+        // Converter's loss factor, power factor, modes and line's active power setpoint and max value get default value.
+        assertTrue(containsLccConverter(network, "CSC_1", "Current source converter 1", "DCL_12", 0.0, 0.8));
+        assertTrue(containsLccConverter(network, "CSC_2", "Current source converter 2", "DCL_12", 0.0, 0.8));
+        assertTrue(containsHvdcLine(network, "DCL_12", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12", "CSC_1", "CSC_2", 4.65, 0.0, 0.0));
+
+        assertTrue(containsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.0, 0.0, 0.0));
+        assertTrue(containsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.0, 0.0, 0.0));
+        assertTrue(containsHvdcLine(network, "DCL_34", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 34", "VSC_3", "VSC_4", 9.92, 0.0, 0.0));
+    }
+
+    @Test
+    void simpleHvdcEqSshTest() {
+        // Same test as with EQ only, but this time the SSH is also read.
+        Network network = readCgmesResources(DIR, "simple_hvdc_EQ.xml", "simple_hvdc_SSH.xml");
+
+        // SSH provides converter state data (operating kinds, powers and voltages).
+        assertTrue(containsLccConverter(network, "CSC_1", "Current source converter 1", "DCL_12", 0.0, -0.8251));
+        assertTrue(containsLccConverter(network, "CSC_2", "Current source converter 2", "DCL_12", 0.0, 0.8));
+        assertTrue(containsHvdcLine(network, "DCL_12", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 12", "CSC_1", "CSC_2", 4.65, 99.0, 118.8));
+
+        assertTrue(containsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.0, 95.0, 0.0));
+        assertTrue(containsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.0, 90.0, 0.0));
+        assertTrue(containsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 100.0, 120.0));
+    }
+
+    @Test
+    void simpleHvdcFullTest() {
+        // Same test as with EQ and SSH, but this time the SV is also read (the TP too but it isn't used).
+        Network network = readCgmesResources(DIR, "simple_hvdc_EQ.xml", "simple_hvdc_SSH.xml", "simple_hvdc_SV.xml", "simple_hvdc_TP.xml");
+
+        // SV gives losses in converters.
+        assertTrue(containsLccConverter(network, "CSC_1", "Current source converter 1", "DCL_12", 0.4024, -0.8251));
+        assertTrue(containsLccConverter(network, "CSC_2", "Current source converter 2", "DCL_12", 0.4008, 0.8));
+        assertTrue(containsHvdcLine(network, "DCL_12", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 12", "CSC_1", "CSC_2", 4.65, 99.8, 118.8));
+
+        assertTrue(containsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.6, 95.0, 0.0));
+        assertTrue(containsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.6036, 90.0, 0.0));
+        assertTrue(containsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 100.0, 120.0));
+    }
 
     @Test
     void smallNodeBreakerHvdc() throws IOException {
