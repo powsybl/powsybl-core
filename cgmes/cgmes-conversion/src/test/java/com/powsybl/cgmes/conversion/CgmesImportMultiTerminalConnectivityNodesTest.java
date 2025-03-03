@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class CgmesImportMultiTerminalConnectivityNodesTest {
+class CgmesImportMultiTerminalConnectivityNodesTest {
 
     @Test
     void testNever() {

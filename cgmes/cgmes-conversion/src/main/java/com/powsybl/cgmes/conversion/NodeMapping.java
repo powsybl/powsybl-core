@@ -23,10 +23,12 @@ import java.util.Map;
  */
 public class NodeMapping {
 
+    private final Map<String, Integer> cgmes2iidm = new HashMap<>(100);
+    private final Map<VoltageLevel, Integer> voltageLevelNumNodes = new HashMap<>(100);
+    private final Context context;
+
     public NodeMapping(Context context) {
         this.context = context;
-        cgmes2iidm = new HashMap<>(100);
-        voltageLevelNumNodes = new HashMap<>(100);
     }
 
     public int iidmNodeForTopologicalNode(String id, int associatedNode, VoltageLevel vl) {
@@ -186,8 +188,4 @@ public class NodeMapping {
         int numNodes = voltageLevelNumNodes.merge(vl, 1, Integer::sum);
         return numNodes - 1;
     }
-
-    private final Map<String, Integer> cgmes2iidm;
-    private final Map<VoltageLevel, Integer> voltageLevelNumNodes;
-    private final Context context;
 }
