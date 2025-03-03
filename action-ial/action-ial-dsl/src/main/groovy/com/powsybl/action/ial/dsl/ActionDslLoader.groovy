@@ -123,10 +123,11 @@ class ActionDslLoader extends DslLoader {
      * Loads in binding the functions which create contingencies, actions, and rules,
      * binding them to the network parameter. The handler defines how created objects will be used.
      *
-     * @param binding  The context which functions will be created in
-     * @param network  The network which functions will be bound to
-     * @param handler  Will allow client code to define how objects created when interpreting a script will be used
-     * @param observer Will allow client code to observe the interpretation of the script
+     * @param binding           The context which functions will be created in
+     * @param network           The network which functions will be bound to
+     * @param handler           Will allow client code to define how objects created when interpreting a script will be used
+     * @param observer          Will allow client code to observe the interpretation of the script
+     * @param contextObjects    Context objects used in groovy script extensions
      */
     static void loadDsl(Binding binding, Network network, ActionDslHandler handler, ActionDslLoaderObserver observer, Map<Class<?>, Object> contextObjects)  {
 
