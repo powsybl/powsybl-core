@@ -133,13 +133,11 @@ class VoltageLevelConverter extends AbstractConverter {
         // update voltages
         psseSubstation.getNodes().stream()
                 .filter(psseNode -> nodesSet.contains(psseNode.getNi()))
-                .forEach(psseNode -> {
-                    Bus busView = findBusViewNode(voltageLevel, psseNode.getNi());
-                    if (busView != null) {
-                        busView.setV(psseNode.getVm() * voltageLevel.getNominalV());
-                        busView.setAngle(psseNode.getVa());
-                    }
-                });
+                .forEach(psseNode -> findBusViewNode(voltageLevel, psseNode.getNi())
+                        .ifPresent(busView -> {
+                            busView.setV(psseNode.getVm() * voltageLevel.getNominalV());
+                            busView.setAngle(psseNode.getVa());
+                        }));
 
         // add data for control, if only the bus is specified the control will be associated with the default node
         int defaultNode = nodesSet.stream().sorted().findFirst().orElseThrow();
@@ -204,46 +202,26 @@ class VoltageLevelConverter extends AbstractConverter {
 
     private static Optional<PsseSubstation> getVoltageLevelPsseSubstation(VoltageLevel voltageLevel, Map<Integer, PsseSubstation> busPsseSubstation) {
         List<Integer> buses = extractBusesFromVoltageLevelId(voltageLevel.getId());
-        Set<PsseSubstation> psseSubstationSet = new HashSet<>();
-        buses.forEach(bus -> {
-            if (busPsseSubstation.containsKey(bus)) {
-                psseSubstationSet.add(busPsseSubstation.get(bus));
-            }
-        });
-        if (psseSubstationSet.size() >= 2) {
-            throw new PsseException("Only one PsseSubstation by voltageLevel. VoltageLevelId: " + voltageLevel.getId());
+
+        Set<PsseSubstation> psseSubstationSet = buses.stream()
+                .filter(busPsseSubstation::containsKey)
+                .map(busPsseSubstation::get)
+                .collect(Collectors.toSet());
+
+        if (psseSubstationSet.size() > 1) {
+            throw new PsseException("Only one PsseSubstation is allowed per VoltageLevel. VoltageLevelId: " + voltageLevel.getId());
         }
-        return psseSubstationSet.isEmpty() ? Optional.empty() : Optional.of(psseSubstationSet.iterator().next());
+
+        return psseSubstationSet.stream().findFirst();
     }
 
     private static void createBusBranchContextExport(VoltageLevel voltageLevel, ContextExport contextExport) {
-        Map<String, List<String>> busViewBusBusBreakerViewBuses = new HashMap<>();
-
-        // psse isolated buses do not have busView
-        voltageLevel.getBusBreakerView().getBuses().forEach(busBreakerViewBus -> {
-            Bus mergedBus = voltageLevel.getBusView().getMergedBus(busBreakerViewBus.getId());
-            if (mergedBus != null) {
-                busViewBusBusBreakerViewBuses.computeIfAbsent(mergedBus.getId(), k -> new ArrayList<>()).add(busBreakerViewBus.getId());
-            }
-        });
-
-        voltageLevel.getBusView().getBuses().forEach(bus -> {
-            String busBreakerViewId = findBusBreakerViewBusId(bus.getId(), busViewBusBusBreakerViewBuses);
-            extractBusNumber(busBreakerViewId).ifPresent(busI -> contextExport.getLinkExport().addBusViewBusILink(bus, busI));
-        });
-    }
-
-    private static String findBusBreakerViewBusId(String busViewBusId, Map<String, List<String>> busViewBusBusBreakerViewBuses) {
-        if (busViewBusBusBreakerViewBuses.containsKey(busViewBusId)) {
-            List<String> busBreakerViewBuses = busViewBusBusBreakerViewBuses.get(busViewBusId);
-            if (busBreakerViewBuses.isEmpty()) {
-                throw new PsseException("BusView without busBreakerView: " + busViewBusId);
-            } else {
-                return busBreakerViewBuses.stream().sorted().toList().get(0);
-            }
-        } else {
-            throw new PsseException("BusView bus does not found: " + busViewBusId);
-        }
+        voltageLevel.getBusBreakerView().getBuses().forEach(busBreakerViewBus ->
+                Optional.ofNullable(voltageLevel.getBusView().getMergedBus(busBreakerViewBus.getId()))
+                        .ifPresent(mergedBus -> extractBusNumber(busBreakerViewBus.getId())
+                                .ifPresent(busI -> contextExport.getLinkExport().addBusIBusViewLink(busI, mergedBus))
+                        )
+        );
     }
 
     // All the nodes are always associated with the same busI, so the busViewId will be ok only when we do not have bus-sections
@@ -251,17 +229,15 @@ class VoltageLevelConverter extends AbstractConverter {
         Map<Integer, List<Bus>> busIBusViews = new HashMap<>();
         PsseSubstation psseSubstation = contextExport.getUpdateExport().getPsseSubstation(voltageLevel).orElseThrow();
         for (int node : voltageLevel.getNodeBreakerView().getNodes()) {
-            Bus bus = findBusViewNode(voltageLevel, node);
-            if (bus != null) {
-                int busI = findBusI(psseSubstation, node).orElseThrow();
-                contextExport.getLinkExport().addNodeBusILink(voltageLevel, node, busI);
-                busIBusViews.computeIfAbsent(busI, k -> new ArrayList<>()).add(bus);
-            }
+            findBusViewNode(voltageLevel, node).ifPresent(bus -> {
+                contextExport.getLinkExport().addNodeBusViewLink(voltageLevel, node, bus);
+                findBusI(psseSubstation, node).ifPresent(busI -> busIBusViews.computeIfAbsent(busI, k -> new ArrayList<>()).add(bus));
+            });
         }
         // we try to assign a busView inside mainConnectedComponent with the strong psse bus type and, we preserve the original bus type
         busIBusViews.forEach((busI, busList) -> {
             Bus selectedBus = busList.stream().min(Comparator.comparingInt(busView -> findPriorityType(voltageLevel, busView))).orElseThrow();
-            contextExport.getLinkExport().addBusViewBusILink(selectedBus, busI);
+            contextExport.getLinkExport().addBusIBusViewLink(busI, selectedBus);
         });
     }
 

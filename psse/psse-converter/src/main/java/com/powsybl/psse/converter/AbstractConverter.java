@@ -216,9 +216,9 @@ public abstract class AbstractConverter {
                 .orElseGet(() -> Networks.getEquivalentTerminal(voltageLevel, node));
     }
 
-    static Bus findBusViewNode(VoltageLevel voltageLevel, int node) {
-        Terminal terminal = findTerminalNode(voltageLevel, node);
-        return terminal != null ? getTerminalBusView(terminal) : null;
+    static Optional<Bus> findBusViewNode(VoltageLevel voltageLevel, int node) {
+        return Optional.ofNullable(findTerminalNode(voltageLevel, node))
+                .map(AbstractConverter::getTerminalBusView);
     }
 
     static Bus getTerminalBusView(Terminal terminal) {
