@@ -1,0 +1,120 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:SimpleHvdc_SV">
+    <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+    <md:Model.description>LCC HVDC line</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/StateVariables/4/1</md:Model.profile>
+    <md:Model.DependentOn rdf:resource="urn:uuid:SimpleHvdc_SSH"/>
+    <md:Model.DependentOn rdf:resource="urn:uuid:SimpleHvdc_TP"/>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:SvStatus rdf:ID="_SVS_1">
+    <cim:SvStatus.inService>true</cim:SvStatus.inService>
+    <cim:SvStatus.ConductingEquipment rdf:resource="#_CSC_1"/>
+</cim:SvStatus>
+<cim:SvStatus rdf:ID="_SVS_2">
+    <cim:SvStatus.inService>true</cim:SvStatus.inService>
+    <cim:SvStatus.ConductingEquipment rdf:resource="#_CSC_2"/>
+</cim:SvStatus>
+<cim:SvStatus rdf:ID="_SVS_3">
+    <cim:SvStatus.inService>true</cim:SvStatus.inService>
+    <cim:SvStatus.ConductingEquipment rdf:resource="#_VSC_3"/>
+</cim:SvStatus>
+<cim:SvStatus rdf:ID="_SVS_4">
+    <cim:SvStatus.inService>true</cim:SvStatus.inService>
+    <cim:SvStatus.ConductingEquipment rdf:resource="#_VSC_4"/>
+</cim:SvStatus>
+<cim:SvVoltage rdf:ID="_SVV_1">
+    <cim:SvVoltage.angle>0</cim:SvVoltage.angle>
+    <cim:SvVoltage.v>90</cim:SvVoltage.v>
+    <cim:SvVoltage.TopologicalNode rdf:resource="#_TN_1"/>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SVV_2">
+    <cim:SvVoltage.angle>0</cim:SvVoltage.angle>
+    <cim:SvVoltage.v>95</cim:SvVoltage.v>
+    <cim:SvVoltage.TopologicalNode rdf:resource="#_TN_2"/>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SVV_3">
+    <cim:SvVoltage.angle>0</cim:SvVoltage.angle>
+    <cim:SvVoltage.v>95</cim:SvVoltage.v>
+    <cim:SvVoltage.TopologicalNode rdf:resource="#_TN_3"/>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SVV_4">
+    <cim:SvVoltage.angle>0</cim:SvVoltage.angle>
+    <cim:SvVoltage.v>90</cim:SvVoltage.v>
+    <cim:SvVoltage.TopologicalNode rdf:resource="#_TN_4"/>
+</cim:SvVoltage>
+<cim:CsConverter rdf:about="#_CSC_1">
+    <cim:ACDCConverter.idc>207.5</cim:ACDCConverter.idc>
+    <cim:ACDCConverter.poleLossP>0.4</cim:ACDCConverter.poleLossP>
+    <cim:ACDCConverter.uc>90</cim:ACDCConverter.uc>
+    <cim:ACDCConverter.udc>479.04</cim:ACDCConverter.udc>
+    <cim:CsConverter.alpha>0</cim:CsConverter.alpha>
+    <cim:CsConverter.gamma>21.9</cim:CsConverter.gamma>
+</cim:CsConverter>
+<cim:CsConverter rdf:about="#_CSC_2">
+    <cim:ACDCConverter.idc>207.5</cim:ACDCConverter.idc>
+    <cim:ACDCConverter.poleLossP>0.4</cim:ACDCConverter.poleLossP>
+    <cim:ACDCConverter.uc>95</cim:ACDCConverter.uc>
+    <cim:ACDCConverter.udc>480</cim:ACDCConverter.udc>
+    <cim:CsConverter.alpha>15.8</cim:CsConverter.alpha>
+    <cim:CsConverter.gamma>0</cim:CsConverter.gamma>
+</cim:CsConverter>
+<cim:VsConverter rdf:about="#_VSC_3">
+    <cim:ACDCConverter.idc>284</cim:ACDCConverter.idc>
+    <cim:ACDCConverter.poleLossP>0.6</cim:ACDCConverter.poleLossP>
+    <cim:ACDCConverter.uc>95</cim:ACDCConverter.uc>
+    <cim:ACDCConverter.udc>350</cim:ACDCConverter.udc>
+    <cim:VsConverter.delta>-9</cim:VsConverter.delta>
+    <cim:VsConverter.uf>0</cim:VsConverter.uf>
+</cim:VsConverter>
+<cim:VsConverter rdf:about="#_VSC_4">
+    <cim:ACDCConverter.idc>284</cim:ACDCConverter.idc>
+    <cim:ACDCConverter.poleLossP>0.6</cim:ACDCConverter.poleLossP>
+    <cim:ACDCConverter.uc>90</cim:ACDCConverter.uc>
+    <cim:ACDCConverter.udc>347.18</cim:ACDCConverter.udc>
+    <cim:VsConverter.delta>10</cim:VsConverter.delta>
+    <cim:VsConverter.uf>0</cim:VsConverter.uf>
+</cim:VsConverter>
+<cim:TopologicalIsland rdf:ID="_TI_1">
+    <cim:IdentifiedObject.name>Topological island 1</cim:IdentifiedObject.name>
+    <cim:TopologicalIsland.AngleRefTopologicalNode rdf:resource="#_TN_1"/>
+    <cim:TopologicalIsland.TopologicalNodes rdf:resource="#_TN_1"/>
+</cim:TopologicalIsland>
+<cim:TopologicalIsland rdf:ID="_TI_2">
+    <cim:IdentifiedObject.name>Topological island 2</cim:IdentifiedObject.name>
+    <cim:TopologicalIsland.AngleRefTopologicalNode rdf:resource="#_TN_2"/>
+    <cim:TopologicalIsland.TopologicalNodes rdf:resource="#_TN_2"/>
+</cim:TopologicalIsland>
+<cim:TopologicalIsland rdf:ID="_TI_3">
+    <cim:IdentifiedObject.name>Topological island 3</cim:IdentifiedObject.name>
+    <cim:TopologicalIsland.AngleRefTopologicalNode rdf:resource="#_TN_3"/>
+    <cim:TopologicalIsland.TopologicalNodes rdf:resource="#_TN_3"/>
+</cim:TopologicalIsland>
+<cim:TopologicalIsland rdf:ID="_TI_4">
+    <cim:IdentifiedObject.name>Topological island 4</cim:IdentifiedObject.name>
+    <cim:TopologicalIsland.AngleRefTopologicalNode rdf:resource="#_TN_4"/>
+    <cim:TopologicalIsland.TopologicalNodes rdf:resource="#_TN_4"/>
+</cim:TopologicalIsland>
+<cim:DCTopologicalIsland rdf:ID="_DCTI_12_UDC">
+    <cim:IdentifiedObject.name>480kV DC topological isand 12</cim:IdentifiedObject.name>
+    <cim:DCTopologicalIsland.DCTopologicalNodes rdf:resource="#_DCTN_12"/>
+    <cim:DCTopologicalIsland.DCTopologicalNodes rdf:resource="#_DCTN_22"/>
+</cim:DCTopologicalIsland>
+<cim:DCTopologicalIsland rdf:ID="_DCTI_12_GRD">
+    <cim:IdentifiedObject.name>0kV DC topological isand 12</cim:IdentifiedObject.name>
+    <cim:DCTopologicalIsland.DCTopologicalNodes rdf:resource="#_DCTN_13"/>
+    <cim:DCTopologicalIsland.DCTopologicalNodes rdf:resource="#_DCTN_23"/>
+</cim:DCTopologicalIsland>
+<cim:DCTopologicalIsland rdf:ID="_DCTI_34_UDC">
+    <cim:IdentifiedObject.name>350kV DC topological isand 34</cim:IdentifiedObject.name>
+    <cim:DCTopologicalIsland.DCTopologicalNodes rdf:resource="#_DCTN_32"/>
+    <cim:DCTopologicalIsland.DCTopologicalNodes rdf:resource="#_DCTN_42"/>
+</cim:DCTopologicalIsland>
+<cim:DCTopologicalIsland rdf:ID="_DCTI_34_GRD">
+    <cim:IdentifiedObject.name>0kV DC topological isand 34</cim:IdentifiedObject.name>
+    <cim:DCTopologicalIsland.DCTopologicalNodes rdf:resource="#_DCTN_33"/>
+    <cim:DCTopologicalIsland.DCTopologicalNodes rdf:resource="#_DCTN_43"/>
+</cim:DCTopologicalIsland>
+</rdf:RDF>
