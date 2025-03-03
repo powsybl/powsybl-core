@@ -16,25 +16,7 @@ public final class Equipments {
     private Equipments() {
     }
 
-    public static class ConnectionInfo {
-
-        private final Bus connectionBus;
-
-        private final boolean connected;
-
-        public ConnectionInfo(Bus connectionBus, boolean connected) {
-            this.connectionBus = connectionBus;
-            this.connected = connected;
-        }
-
-        public Bus getConnectionBus() {
-            return connectionBus;
-        }
-
-        public boolean isConnected() {
-            return connected;
-        }
-
+    public record ConnectionInfo(Bus connectionBus, boolean connected) {
     }
 
     public static ConnectionInfo getConnectionInfoInBusBreakerView(Terminal t) {
