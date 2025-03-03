@@ -16,6 +16,8 @@ import com.powsybl.timeseries.TimeSeries;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,9 +47,12 @@ class DynamicSimulationResultJsonTest extends AbstractSerDeTest {
             @Override
             public Map<String, DoubleTimeSeries> getCurves() {
                 Map<String, DoubleTimeSeries> curves = new LinkedHashMap<>();
-                curves.put("curve1", TimeSeries.createDouble("curve1", new RegularTimeSeriesIndex(0, 5, 1), 0.0, 0.1, 0.1, 0.2, 0.1, 0.0));
-                curves.put("curve2", TimeSeries.createDouble("curve2", new RegularTimeSeriesIndex(0, 5, 1), 0.0, 0.3, 0.3, 0.4, 0.5, 1.0));
-                curves.put("curve3", TimeSeries.createDouble("curve3", new RegularTimeSeriesIndex(0, 5, 1), 10.0, 10.0, 10.5, 10.2, 10.1, 5.0));
+                Instant startInstant = Instant.ofEpochMilli(0);
+                Instant endInstant = Instant.ofEpochMilli(5);
+                Duration timeStep = Duration.ofMillis(1);
+                curves.put("curve1", TimeSeries.createDouble("curve1", new RegularTimeSeriesIndex(startInstant, endInstant, timeStep), 0.0, 0.1, 0.1, 0.2, 0.1, 0.0));
+                curves.put("curve2", TimeSeries.createDouble("curve2", new RegularTimeSeriesIndex(startInstant, endInstant, timeStep), 0.0, 0.3, 0.3, 0.4, 0.5, 1.0));
+                curves.put("curve3", TimeSeries.createDouble("curve3", new RegularTimeSeriesIndex(startInstant, endInstant, timeStep), 10.0, 10.0, 10.5, 10.2, 10.1, 5.0));
                 return curves;
             }
 
