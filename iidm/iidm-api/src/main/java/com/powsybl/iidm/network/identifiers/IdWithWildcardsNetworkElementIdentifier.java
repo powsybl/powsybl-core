@@ -25,29 +25,8 @@ import static com.powsybl.iidm.network.identifiers.NetworkElementIdentifier.Iden
  *
  * <p>Identifier that finds a network element that have some unknown characters.</p>
  * <p>The unknown characters should be replaced in the identifier by a wildcard character. There can be a maximum of 5 wildcards in the identifier.</p>
- * <p>They are 2 possible modes:</p>
- * <ul>
- *     <li>The legacy mode, where:
- *     <ul>
- *         <li>the wildcard character is '?'</li>
- *         <li>the only special characters allowed for the identifier are ' ', '_', '-' and '.'</li>
- *     </ul>
- *     </li>
- *     <li>An extended mode, where:
- *     <ul>
- *         <li>the wildcard character is '@'</li>
- *         <li>all the printable US ASCII characters (the ones in [0x20 ; 0x7f]) are allowed for the identifier</li>
- *     </ul>
- *     </li>
- * <p>The used mode is determined by the presence of the '@' character. If it is present in the identifier, the extended mode will be used.
- * Else it will be the legacy mode </p>
- * </br>
- * <p>Here are some examples:</p>
- * <ul>
- *     <li>The identifier "GEN_?" allows to find "GEN_1" (legacy mode).</li>
- *     <li>The identifier "GEN_0/?+" fails (legacy mode does not support '/' and '+' characters).</li>
- *     <li>The identifier "GEN_?/@+" allows to find "GEN_?/1+", but not "GEN_0/1+" (extended mode: the '?' is considered as a normal character).</li>
- * </ul>
+ * <p>By default, the wildcard character is '?'. But you can change it if needed / wanted by using
+ * the {@link #IdWithWildcardsNetworkElementIdentifier(String, String, String)} constructor.</p>
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
