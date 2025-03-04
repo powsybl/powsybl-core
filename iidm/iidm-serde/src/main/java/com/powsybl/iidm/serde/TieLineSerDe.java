@@ -181,7 +181,7 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
                 }
                 case "currentLimits1" -> {
                     IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
-                    readCurrentLimits(tl.getDanglingLine1().newCurrentLimits(), context);
+                    readCurrentLimits(tl.getDanglingLine1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
                 }
                 case LIMITS_GROUP_2 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
@@ -199,7 +199,7 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
                 }
                 case "currentLimits2" -> {
                     IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
-                    readCurrentLimits(tl.getDanglingLine2().newCurrentLimits(), context);
+                    readCurrentLimits(tl.getDanglingLine2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
                 }
                 default -> readSubElement(elementName, tl, context);
             }
