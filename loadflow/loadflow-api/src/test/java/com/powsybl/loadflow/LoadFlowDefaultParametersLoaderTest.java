@@ -19,8 +19,7 @@ import java.nio.file.FileSystem;
 import java.util.List;
 
 import static com.powsybl.loadflow.LoadFlowParameters.load;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
@@ -64,5 +63,31 @@ class LoadFlowDefaultParametersLoaderTest {
         load(parameters, platformConfig);
         assertFalse(parameters.isUseReactiveLimits());
         assertEquals(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES, parameters.getVoltageInitMode());
+    }
+
+    @Test
+    void testProviderParameters() {
+        LoadFlowDefaultParametersLoaderMock loader = new LoadFlowDefaultParametersLoaderMock("test");
+        LoadFlowParameters parameters = new LoadFlowParameters(List.of(loader));
+
+        // LoadFlowDefaultParametersLoaderMock creates provider parameters extensions
+        JsonLoadFlowParametersTest.DummyExtension beforePlatformConfig = parameters.getExtension(JsonLoadFlowParametersTest.DummyExtension.class);
+        assertNotNull(beforePlatformConfig);
+        assertEquals(5, beforePlatformConfig.getParameterDouble());
+        assertEquals("Hello", beforePlatformConfig.getParameterString());
+
+        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("dummy-extension");
+        moduleConfig.setStringProperty("parameterString", "modified");
+
+        load(parameters, platformConfig);
+        parameters.loadExtensions(platformConfig);
+
+        // loadExtensions only override values that are present in PlatformConfig
+        JsonLoadFlowParametersTest.DummyExtension afterPlatformConfig = parameters.getExtension(JsonLoadFlowParametersTest.DummyExtension.class);
+        assertNotNull(afterPlatformConfig);
+        assertEquals(5, afterPlatformConfig.getParameterDouble());
+        assertEquals("modified", afterPlatformConfig.getParameterString());
     }
 }
