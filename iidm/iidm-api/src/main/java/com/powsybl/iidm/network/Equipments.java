@@ -16,10 +16,6 @@ public final class Equipments {
     private Equipments() {
     }
 
-    /**
-     * @deprecated See {@link #getConnectionInfoInBusBreakerView}
-     */
-    @Deprecated(since = "6.7.0", forRemoval = true)
     public record ConnectionInfo(Bus connectionBus, boolean connected) {
     }
 
