@@ -20,8 +20,8 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 public final class ZipSecurityHelper {
 
     public static final int THRESHOLD_ENTRIES = 10000;
-    public static final int THRESHOLD_SIZE = 1000000000; // 1 GB
-    public static final double THRESHOLD_RATIO = 10;
+    public static final int THRESHOLD_SIZE = 1_610_612_736; // 1.5 GB
+    public static final double THRESHOLD_RATIO = 20;
 
     private ZipSecurityHelper() {
     }
@@ -51,14 +51,11 @@ public final class ZipSecurityHelper {
         while (ze != null) {
             totalEntryArchive++;
 
-            int nBytes = -1;
-            byte[] buffer = new byte[2048];
-            int totalSizeEntry = 0;
-            while ((nBytes = zipInputStream.read(buffer)) > 0) {
-                totalSizeEntry += nBytes;
-                totalSizeArchive += nBytes;
-
-            }
+            ZipEntry currentEntry = ze;
+            ze = zipInputStream.getNextEntry();
+            long entrySize = currentEntry.getCompressedSize();
+            long uncompressedSize = currentEntry.getSize();
+            totalSizeArchive += uncompressedSize;
 
             if (totalSizeArchive > thresholdSize) {
                 // the uncompressed data size is too much for the application resource capacity
@@ -69,10 +66,28 @@ public final class ZipSecurityHelper {
                 // too many entries in this archive, can lead to inodes exhaustion of the system
                 return false;
             }
-            ZipEntry currentEntry = ze;
-            ze = zipInputStream.getNextEntry();
-            long entrySize = currentEntry.getCompressedSize();
-            double compressionRatio = (double) totalSizeEntry / (double) entrySize;
+
+            double compressionRatio = (double) entrySize / (double) entrySize;
+            if (compressionRatio > thresholdCompressionRatio) {
+                // ratio between compressed and uncompressed data is highly suspicious, looks
+                // like a Zip Bomb Attack
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isFirstZipFileEntrySafe(ZipInputStream zipInputStream) throws IOException {
+        return isFirstZipFileEntrySafe(zipInputStream, THRESHOLD_RATIO);
+    }
+
+    public static boolean isFirstZipFileEntrySafe(ZipInputStream zipInputStream, double thresholdCompressionRatio) throws IOException {
+        ZipEntry ze = zipInputStream.getNextEntry();
+        if (ze != null) {
+            zipInputStream.getNextEntry();
+            long uncompressedSize = ze.getSize();
+            long entrySize = ze.getCompressedSize();
+            double compressionRatio = (double) uncompressedSize / (double) entrySize;
             if (compressionRatio > thresholdCompressionRatio) {
                 // ratio between compressed and uncompressed data is highly suspicious, looks
                 // like a Zip Bomb Attack

@@ -58,7 +58,6 @@ class LoadZippedProfilesTest {
         var testDataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
         Set<String> profiles = testDataSource.listNames(".*");
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
-            // copy and compress each of the profile to the file system
             Path workDir = fileSystem.getPath("/work");
             for (String profile : profiles) {
                 try (var is = testDataSource.newInputStream(profile);
@@ -69,7 +68,7 @@ class LoadZippedProfilesTest {
 
             ReadOnlyDataSource datasource = DataSource.fromPath(workDir);
             CgmesModelException ex = assertThrows(CgmesModelException.class, () -> Network.read(datasource));
-            assertEquals("No entry found in zip file MicroGridTestConfiguration_BC_BE_DL_V2.xml.zip", ex.getCause().getMessage());
+            assertEquals("Zip entry index out of bounds: 1", ex.getCause().getMessage());
         }
     }
 }

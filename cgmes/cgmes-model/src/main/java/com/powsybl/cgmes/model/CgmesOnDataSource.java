@@ -8,7 +8,7 @@
 
 package com.powsybl.cgmes.model;
 
-import com.powsybl.commons.compress.ZipSecurityHelper;
+import com.powsybl.commons.compress.SafeZipInputStream;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
@@ -18,7 +18,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.*;
@@ -126,12 +125,7 @@ public class CgmesOnDataSource {
         try (InputStream in = dataSource.newInputStream(n)) {
             String fileExtension = n.substring(n.lastIndexOf('.') + 1);
             if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
-                ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, n);
-                try (ZipInputStream zis = new ZipInputStream(in)) {
-                    ZipEntry zipEntry = zis.getNextEntry();
-                    if (zipEntry == null) {
-                        throw new IOException("No entry found in zip file " + n);
-                    }
+                try (SafeZipInputStream zis = new SafeZipInputStream(new ZipInputStream(in), 1, 1024)) {
                     return namespaceGetter.apply(zis);
                 }
             } else {

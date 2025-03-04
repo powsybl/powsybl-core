@@ -85,7 +85,6 @@ class ZipSecurityHelperTest {
     void testZipFileCompressRatio() throws IOException {
         try (ZipInputStream zipInputStream = new ZipInputStream(dataSource.newInputStream("test.zip"))) {
             assertFalse(ZipSecurityHelper.isZipFileSafe(zipInputStream, ZipSecurityHelper.THRESHOLD_ENTRIES, ZipSecurityHelper.THRESHOLD_SIZE, 0.1d));
-
         }
     }
 
@@ -102,4 +101,17 @@ class ZipSecurityHelperTest {
         Assertions.assertEquals("Zip file extraction is not safe", message);
     }
 
+    @Test
+    void testFirstZipEntryCompressRatioNotsafe() throws IOException {
+        try (ZipInputStream zipInputStream = new ZipInputStream(dataSource.newInputStream("test.zip"))) {
+            assertFalse(ZipSecurityHelper.isFirstZipFileEntrySafe(zipInputStream, 0.1d));
+        }
+    }
+
+    @Test
+    void testFirstZipEntryCompressRatio() throws IOException {
+        try (ZipInputStream zipInputStream = new ZipInputStream(dataSource.newInputStream("test.zip"))) {
+            assertTrue(ZipSecurityHelper.isFirstZipFileEntrySafe(zipInputStream));
+        }
+    }
 }

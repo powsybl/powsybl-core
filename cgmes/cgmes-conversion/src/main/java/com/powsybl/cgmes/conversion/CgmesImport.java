@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.compress.SafeZipInputStream;
 import com.powsybl.commons.compress.ZipSecurityHelper;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.CompressionFormat;
@@ -47,7 +48,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static java.util.function.Predicate.not;
@@ -311,11 +311,7 @@ public class CgmesImport implements Importer {
                 String fileExtension = name.substring(name.lastIndexOf('.') + 1);
                 if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
                     ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, name);
-                    try (ZipInputStream zis = new ZipInputStream(in)) {
-                        ZipEntry zipEntry = zis.getNextEntry();
-                        if (zipEntry == null) {
-                            throw new IOException("No entry found in zip file " + name);
-                        }
+                    try (SafeZipInputStream zis = new SafeZipInputStream(new ZipInputStream(in), 1, 2048)) {
                         modellingAuthority = readModelingAuthority(zis);
                     }
                 } else {
