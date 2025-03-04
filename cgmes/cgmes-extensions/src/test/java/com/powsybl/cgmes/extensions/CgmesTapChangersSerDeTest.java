@@ -30,6 +30,7 @@ class CgmesTapChangersSerDeTest extends AbstractCgmesExtensionTest {
         ctc2wt.newTapChanger()
                 .setId("tc1")
                 .setControlId("control1")
+                .setStep(1)
                 .setType("type1")
                 .setHiddenStatus(false)
                 .add();
