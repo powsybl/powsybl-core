@@ -25,9 +25,13 @@ public class GroundConversion extends AbstractConductingEquipmentConversion {
     public void convert() {
         GroundAdder adder = voltageLevel().newGround();
         identify(adder);
-        connect(adder);
+        connectWithOnlyEq(adder);
         Ground g = adder.add();
         addAliasesAndProperties(g);
-        convertedTerminals(g.getTerminal());
+        convertedTerminalsWithOnlyEq(g.getTerminal());
+    }
+
+    public static void update(Ground ground, Context context) {
+        updateTerminals(ground, context, ground.getTerminal());
     }
 }

@@ -98,6 +98,11 @@ public final class ConversionUtil {
         return Network.read(ds, properties);
     }
 
+    public static void readCgmesResources(Network network, String dir, String... files) {
+        ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(dir, files));
+        network.update(ds);
+    }
+
     public static String writeCgmesProfile(Network network, String profile, Path outDir) throws IOException {
         return writeCgmesProfile(network, profile, outDir, new Properties());
     }
