@@ -1,0 +1,74 @@
+/**
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.commons.compress;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class SafeZipInputStreamTest {
+
+    private ZipInputStream zipInputStream;
+    private SafeZipInputStream safeZipInputStream;
+
+    @BeforeEach
+    void setUp() {
+        zipInputStream = mock(ZipInputStream.class);
+    }
+
+    @Test
+    void testConstructorWithValidEntryNumber() throws IOException {
+        when(zipInputStream.getNextEntry()).thenReturn(new ZipEntry("entry1"), new ZipEntry("entry2"));
+        safeZipInputStream = new SafeZipInputStream(zipInputStream, 1, 100);
+        assertNotNull(safeZipInputStream);
+    }
+
+    @Test
+    void testConstructorWithInvalidEntryNumber() throws IOException {
+        when(zipInputStream.getNextEntry()).thenReturn(null);
+
+        IOException exception = assertThrows(IOException.class, () -> {
+            try (SafeZipInputStream sin = new SafeZipInputStream(zipInputStream, 1, 100)) { }
+        });
+
+        assertEquals("Zip entry index out of bounds: 1", exception.getMessage());
+    }
+
+    @Test
+    void testReadExceedsMaxBytes() throws IOException {
+        when(zipInputStream.read()).thenReturn(1, 1, 1, -1);
+
+        safeZipInputStream = new SafeZipInputStream(zipInputStream, 0, 2);
+
+        assertEquals(1, safeZipInputStream.read());
+        assertEquals(1, safeZipInputStream.read());
+        IOException exception = assertThrows(IOException.class, () -> {
+            safeZipInputStream.read();
+        });
+
+        assertEquals("Max bytes to read exceeded", exception.getMessage());
+    }
+
+    @Test
+    void testReadByteArrayExceedsMaxBytes() throws IOException {
+        byte[] buffer = new byte[10];
+        when(zipInputStream.read(buffer, 0, 10)).thenReturn(10);
+
+        safeZipInputStream = new SafeZipInputStream(zipInputStream, 0, 5);
+
+        IOException exception = assertThrows(IOException.class, () -> {
+            safeZipInputStream.read(buffer, 0, 10);
+        });
+
+        assertEquals("Max bytes to read exceeded", exception.getMessage());
+    }
+}
