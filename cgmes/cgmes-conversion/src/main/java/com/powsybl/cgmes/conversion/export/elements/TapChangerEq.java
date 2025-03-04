@@ -85,7 +85,7 @@ public final class TapChangerEq {
         writer.writeCharacters(CgmesExportUtil.format(stepVoltageIncrement));
         writer.writeEndElement();
         writeSteps(lowStep, highStep, neutralStep, normalStep, neutralU, ltcFlag, cimNamespace, writer);
-        if (context.getCim().writeTculControlMode()) {
+        if (context.getCimVersion() <= 16) {
             writer.writeEmptyElement(cimNamespace, "RatioTapChanger.tculControlMode");
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", cimNamespace, "TransformerControlMode", controlMode));
         }
