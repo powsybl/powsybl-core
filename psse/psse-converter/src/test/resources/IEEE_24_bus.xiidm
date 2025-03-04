@@ -27,7 +27,7 @@
             <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="97.0" q0="20.0" bus="B2" connectableBus="B2"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S3">
+    <iidm:substation id="S3-24">
         <iidm:voltageLevel id="VL3" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B3" name="3           " v="119.2251" angle="10.7472"/>
@@ -56,7 +56,7 @@
             <iidm:load id="B4-L1 " loadType="UNDEFINED" p0="74.0" q0="15.0" bus="B4" connectableBus="B4"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S5">
+    <iidm:substation id="S5-9-10-11-12">
         <iidm:voltageLevel id="VL5-9-10" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B5" name="5           " v="127.91634" angle="-0.2237"/>
@@ -512,6 +512,6 @@
         </iidm:operationalLimitsGroup2>
     </iidm:line>
     <iidm:extension id="VL1">
-        <slt:slackTerminal id="B1-SwSH1"/>
+        <slt:slackTerminal id="B1-G1"/>
     </iidm:extension>
 </iidm:network>

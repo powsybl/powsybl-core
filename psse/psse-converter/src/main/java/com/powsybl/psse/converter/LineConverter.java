@@ -123,7 +123,7 @@ class LineConverter extends AbstractConverter {
         }
     }
 
-    static void updateLines(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getNonTransformerBranches().forEach(psseLine -> {
             String lineId = getLineId(psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
             Line line = network.getLine(lineId);

@@ -319,4 +319,14 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertNotNull(t3w.getLeg3().getRatioTapChanger());
         assertFalse(t3w.getLeg3().getRatioTapChanger().isRegulating());
     }
+
+    @Test
+    void importTwoSubstationsTest() throws IOException {
+        importTest("twoSubstations_rev35", "twoSubstations_rev35.raw", false);
+    }
+
+    @Test
+    void importTwoSubstationsRawxTest() throws IOException {
+        importTest("twoSubstations_rev35", "twoSubstations_rev35.rawx", false);
+    }
 }

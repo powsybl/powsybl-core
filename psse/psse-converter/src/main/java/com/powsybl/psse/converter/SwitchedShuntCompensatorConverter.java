@@ -115,13 +115,14 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         if (switchedShuntRegulatingBus(psseSwitchedShunt, version) == 0) {
             regulatingTerminal = shunt.getTerminal();
         } else {
-            String equipmentId = getNodeBreakerEquipmentId(PSSE_SWITCHED_SHUNT, psseSwitchedShunt.getI(), defineShuntId(psseSwitchedShunt, version));
-            Optional<NodeBreakerImport.NodeBreakerControlNode> controlNode = nodeBreakerImport.getControlNode(getNodeBreakerEquipmentIdBus(equipmentId, switchedShuntRegulatingBus(psseSwitchedShunt, version)));
-            if (controlNode.isPresent()) {
-                regulatingTerminal = findTerminalNode(network, controlNode.get().getVoltageLevelId(), controlNode.get().getNode());
+            Optional<NodeBreakerImport.ControlR> control = nodeBreakerImport.getControl(switchedShuntRegulatingBus(psseSwitchedShunt, version));
+            if (control.isPresent()) {
+                int controlledNode = psseSwitchedShunt.getNreg() != 0 ? psseSwitchedShunt.getNreg() : control.get().node();
+                regulatingTerminal = findTerminalNode(network, control.get().voltageLevelId(), controlledNode);
             } else {
                 String regulatingBusId = getBusId(switchedShuntRegulatingBus(psseSwitchedShunt, version));
                 Bus bus = network.getBusBreakerView().getBus(regulatingBusId);
+
                 if (bus != null) {
                     regulatingTerminal = bus.getConnectedTerminalStream().findFirst().orElse(null);
                 }
@@ -129,7 +130,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         }
         if (regulatingTerminal == null) {
             String shuntId = defineShuntId(psseSwitchedShunt, version);
-            LOGGER.warn("SwitchedShunt {}. Regulating terminal is not assigned as the bus is isolated", shuntId);
+            LOGGER.warn("SwitchedShunt {}. Regulating terminal is not assigned", shuntId);
         }
         return regulatingTerminal;
     }
@@ -272,7 +273,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         }
     }
 
-    static void updateSwitchedShunts(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         PsseVersion version = PsseVersion.fromRevision(psseModel.getCaseIdentification().getRev());
         psseModel.getSwitchedShunts().forEach(psseSwitchedShunt -> {
             String switchedShuntId = getSwitchedShuntId(psseSwitchedShunt.getI(), defineShuntId(psseSwitchedShunt, version));
