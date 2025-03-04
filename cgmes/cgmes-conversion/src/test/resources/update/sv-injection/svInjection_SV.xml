@@ -1,0 +1,18 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2021-04-15T21:56:31Z</md:Model.created>
+        <md:Model.scenarioTime>2021-03-25T15:30:00Z</md:Model.scenarioTime>
+        <md:Model.description>SvInjection</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/StateVariables-EU/3.0</md:Model.profile>
+        <md:Model.version>001</md:Model.version>
+        <md:Model.DependentOn rdf:resource="urn:uuid:95b0709c-bf22-4df8-a179-042c7038d62a" />
+    </md:FullModel>
+
+    <cim:SvInjection rdf:ID="_ConnectivityNode-TN-SvInjection">
+        <cim:SvInjection.pInjection>9.0</cim:SvInjection.pInjection>
+        <cim:SvInjection.qInjection>1.2</cim:SvInjection.qInjection>
+        <cim:SvInjection.TopologicalNode rdf:resource="#_ConnectivityNode-TN"/>
+    </cim:SvInjection>
+
+</rdf:RDF>
