@@ -7,10 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.PowsyblException;
-
-import java.util.Iterator;
-
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -20,27 +16,20 @@ public final class Equipments {
     private Equipments() {
     }
 
-    public static class ConnectionInfo {
-
-        private final Bus connectionBus;
-
-        private final boolean connected;
-
-        public ConnectionInfo(Bus connectionBus, boolean connected) {
-            this.connectionBus = connectionBus;
-            this.connected = connected;
-        }
-
-        public Bus getConnectionBus() {
-            return connectionBus;
-        }
-
-        public boolean isConnected() {
-            return connected;
-        }
-
+    public record ConnectionInfo(Bus connectionBus, boolean connected) {
     }
 
+    /**
+     * @deprecated This method was introduced to provide a fallback to handle the very specific case where
+     * {@link com.powsybl.iidm.network.Terminal.BusBreakerView#getConnectableBus()} returned a null bus. This case is no
+     * longer possible, hence this method is now useless.
+     * You can use:
+     * <ul>
+     * <li><code>connected = t.getBusBreakerView().getBus();</code></li>
+     * <li><code>bus = Optional.ofNullable(t.getBusBreakerView().getBus()).orElse(t.getBusBreakerView().getConnectableBus());</code></li>
+     * </ul>
+     */
+    @Deprecated(since = "6.7.0", forRemoval = true)
     public static ConnectionInfo getConnectionInfoInBusBreakerView(Terminal t) {
         Bus bus = t.getBusBreakerView().getBus();
         boolean connected;
@@ -49,16 +38,6 @@ public final class Equipments {
         } else {
             connected = false;
             bus = t.getBusBreakerView().getConnectableBus();
-            if (bus == null) {
-                // otherwise take first bus of the substation at the same voltage
-                // level...
-                Iterator<Bus> itVLB = t.getVoltageLevel().getBusBreakerView().getBuses().iterator();
-                if (itVLB.hasNext()) {
-                    bus = itVLB.next();
-                } else {
-                    throw new PowsyblException("Cannot find a connection bus");
-                }
-            }
         }
         return new ConnectionInfo(bus, connected);
     }
