@@ -598,7 +598,6 @@ public abstract class AbstractNetworkTest {
     public void testScadaNetwork() {
         Network network = ScadaNetworkFactory.create();
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
-
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
 
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testReportScadaNetwork", "Test reporting of SCADA network").build();
