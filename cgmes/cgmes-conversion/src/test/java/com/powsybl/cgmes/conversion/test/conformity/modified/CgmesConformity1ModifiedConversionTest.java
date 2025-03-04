@@ -15,8 +15,6 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
-import com.powsybl.cgmes.extensions.CgmesControlArea;
-import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
@@ -323,12 +321,15 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlow().dataSource(),
             NetworkFactory.findDefault(), importParams);
 
-        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-        CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea("BECONTROLAREA");
-        assertEquals("BE", cgmesControlArea.getName());
-        assertEquals("10BE------1", cgmesControlArea.getEnergyIdentificationCodeEIC());
-        assertEquals(-205.90011555672567, cgmesControlArea.getNetInterchange(), 0.0);
-        assertEquals(5, cgmesControlArea.getTerminals().size());
+        // Check that the query discarded the areas that aren't of type Interchange
+        assertEquals(1, network.getAreaCount());
+
+        Area area = network.getArea("BECONTROLAREA");
+        assertEquals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE, area.getAreaType());
+        assertEquals("BE", area.getNameOrId());
+        assertEquals("10BE------1", area.getAliasFromType(CgmesNames.ENERGY_IDENT_CODE_EIC).get());
+        assertEquals(-205.90011555672567, area.getInterchangeTarget().getAsDouble(), 0.0);
+        assertEquals(5, area.getAreaBoundaryStream().count());
     }
 
     @Test
@@ -727,7 +728,7 @@ class CgmesConformity1ModifiedConversionTest {
     @Test
     void smallBusBranchTieFlowWithoutControlArea() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallBusBranchTieFlowsWithoutControlArea().dataSource(), NetworkFactory.findDefault(), importParams);
-        assertNull(network.getExtension(CgmesControlAreas.class));
+        assertEquals(0, network.getAreaCount());
     }
 
     @Test
