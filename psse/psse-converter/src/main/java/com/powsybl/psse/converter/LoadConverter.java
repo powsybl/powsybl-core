@@ -91,7 +91,7 @@ class LoadConverter extends AbstractConverter {
         adder.add();
     }
 
-    static void updateLoads(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getLoads().forEach(psseLoad -> {
             String loadId = getLoadId(psseLoad.getI(), psseLoad.getId());
             Load load = network.getLoad(loadId);

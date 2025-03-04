@@ -21,7 +21,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.psse.converter.NodeBreakerImport.NodeBreakerControlNode;
 import com.powsybl.psse.model.pf.PsseBus;
 import com.powsybl.psse.model.pf.PsseGenerator;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
@@ -109,10 +108,10 @@ class GeneratorConverter extends AbstractConverter {
         if (psseGenerator.getIreg() == 0) {
             regulatingTerminal = generator.getTerminal();
         } else {
-            String equipmentId = getNodeBreakerEquipmentId(PSSE_GENERATOR, psseGenerator.getI(), psseGenerator.getId());
-            Optional<NodeBreakerControlNode> controlNode = nodeBreakerImport.getControlNode(getNodeBreakerEquipmentIdBus(equipmentId, psseGenerator.getIreg()));
-            if (controlNode.isPresent()) {
-                regulatingTerminal = findTerminalNode(network, controlNode.get().getVoltageLevelId(), controlNode.get().getNode());
+            Optional<NodeBreakerImport.ControlR> control = nodeBreakerImport.getControl(psseGenerator.getIreg());
+            if (control.isPresent() && psseGenerator.getNreg() != 0) {
+                int controlledNode = psseGenerator.getNreg() != 0 ? psseGenerator.getNreg() : control.get().node();
+                regulatingTerminal = findTerminalNode(network, control.get().voltageLevelId(), controlledNode);
             } else {
                 String regulatingBusId = getBusId(psseGenerator.getIreg());
                 Bus bus = network.getBusBreakerView().getBus(regulatingBusId);
@@ -123,12 +122,12 @@ class GeneratorConverter extends AbstractConverter {
         }
         if (regulatingTerminal == null && psseGenerator.getI() != psseGenerator.getIreg()) {
             String generatorId = getGeneratorId(psseGenerator.getI(), psseGenerator.getId());
-            LOGGER.warn("Generator {}. Regulating terminal is not assigned as the bus is isolated", generatorId);
+            LOGGER.warn("Generator {}. Regulating terminal is not assigned", generatorId);
         }
         return regulatingTerminal;
     }
 
-    static void updateGenerators(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getGenerators().forEach(psseGen -> {
             String genId = getGeneratorId(psseGen.getI(), psseGen.getId());
             Generator gen = network.getGenerator(genId);

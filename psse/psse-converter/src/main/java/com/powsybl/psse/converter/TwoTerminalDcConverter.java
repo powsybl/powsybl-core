@@ -105,7 +105,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         return 0.5 * (Math.cos(Math.toRadians(converter.getAnmx())) + Math.cos(Math.toRadians(60.0)));
     }
 
-    static void updateTwoTerminalDcTransmissionLines(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getTwoTerminalDcTransmissionLines().forEach(psseTwoTerminalDc -> {
             String hvdcId = getTwoTerminalDcId(psseTwoTerminalDc.getName());
             HvdcLine hvdcLine = network.getHvdcLine(hvdcId);

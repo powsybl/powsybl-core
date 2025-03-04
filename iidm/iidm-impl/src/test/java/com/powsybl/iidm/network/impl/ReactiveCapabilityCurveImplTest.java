@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.impl.ReactiveCapabilityCurveImpl.PointImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.TreeMap;
 
@@ -25,11 +27,11 @@ class ReactiveCapabilityCurveImplTest {
         for (Point pt : points) {
             map.put(pt.getP(), pt);
         }
-        return new ReactiveCapabilityCurveImpl(map);
+        return new ReactiveCapabilityCurveImpl(map, "ReactiveCapabilityCurve owner");
     }
 
     @Test
-    void testInterpolation() {
+    void testReactiveCapabilityCurve() {
         ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(100.0, 200.0, 300.0),
                                                         new PointImpl(200.0, 300.0, 400.0));
         // bounds test
@@ -51,4 +53,33 @@ class ReactiveCapabilityCurveImplTest {
         assertEquals(400.0, curve.getMaxQ(1000.0), 0.0);
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testReactiveCapabilityCurveWithReactiveLimitsExtrapolation(boolean extrapolate) {
+        ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(100.0, 200.0, 300.0),
+                new PointImpl(200.0, 300.0, 400.0),
+                new PointImpl(300.0, 300.0, 400.0),
+                new PointImpl(400.0, 310.0, 390.0));
+        // bounds test
+        assertEquals(200.0, curve.getMinQ(100.0, extrapolate), 0.0);
+        assertEquals(300.0, curve.getMaxQ(100.0, extrapolate), 0.0);
+        assertEquals(300.0, curve.getMinQ(200.0, extrapolate), 0.0);
+        assertEquals(400.0, curve.getMaxQ(200.0, extrapolate), 0.0);
+
+        // interpolation test
+        assertEquals(250.0, curve.getMinQ(150.0, extrapolate), 0.0);
+        assertEquals(350.0, curve.getMaxQ(150.0, extrapolate), 0.0);
+        assertEquals(210.0, curve.getMinQ(110.0, extrapolate), 0.0);
+        assertEquals(310.0, curve.getMaxQ(110.0, extrapolate), 0.0);
+
+        // out of bounds test
+        assertEquals(extrapolate ? 100.0 : 200.0, curve.getMinQ(0.0, extrapolate), 0.0);
+        assertEquals(extrapolate ? 200.0 : 300.0, curve.getMaxQ(0.0, extrapolate), 0.0);
+        assertEquals(extrapolate ? 320.0 : 310.0, curve.getMinQ(500.0, extrapolate), 0.0);
+        assertEquals(extrapolate ? 380.0 : 390.0, curve.getMaxQ(500.0, extrapolate), 0.0);
+
+        // intersecting reactive limits test
+        assertEquals(extrapolate ? 350.0 : 310.0, curve.getMinQ(1500.0, extrapolate), 0.0);
+        assertEquals(extrapolate ? 350.0 : 390.0, curve.getMaxQ(1500.0, extrapolate), 0.0);
+    }
 }
