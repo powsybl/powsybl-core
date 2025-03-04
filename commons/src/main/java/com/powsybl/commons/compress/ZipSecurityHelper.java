@@ -67,7 +67,7 @@ public final class ZipSecurityHelper {
                 return false;
             }
 
-            double compressionRatio = (double) entrySize / (double) entrySize;
+            double compressionRatio = (double) uncompressedSize / (double) entrySize;
             if (compressionRatio > thresholdCompressionRatio) {
                 // ratio between compressed and uncompressed data is highly suspicious, looks
                 // like a Zip Bomb Attack
