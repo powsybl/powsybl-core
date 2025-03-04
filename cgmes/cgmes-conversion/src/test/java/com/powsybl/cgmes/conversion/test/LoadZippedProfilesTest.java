@@ -55,15 +55,10 @@ class LoadZippedProfilesTest {
 
     @Test
     void emptyZipErrorTest() throws Exception {
-        var testDataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
-        Set<String> profiles = testDataSource.listNames(".*");
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path workDir = fileSystem.getPath("/work");
-            for (String profile : profiles) {
-                try (var is = testDataSource.newInputStream(profile);
-                        var os = new ZipOutputStream(Files.newOutputStream(workDir.resolve(profile + ".zip")))) {
-                    os.closeEntry();
-                }
+            try (var os = new ZipOutputStream(Files.newOutputStream(workDir.resolve("empty.zip")))) {
+                os.closeEntry();
             }
 
             ReadOnlyDataSource datasource = DataSource.fromPath(workDir);

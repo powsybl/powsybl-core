@@ -77,23 +77,4 @@ public final class ZipSecurityHelper {
         return true;
     }
 
-    public static boolean isFirstZipFileEntrySafe(ZipInputStream zipInputStream) throws IOException {
-        return isFirstZipFileEntrySafe(zipInputStream, THRESHOLD_RATIO);
-    }
-
-    public static boolean isFirstZipFileEntrySafe(ZipInputStream zipInputStream, double thresholdCompressionRatio) throws IOException {
-        ZipEntry ze = zipInputStream.getNextEntry();
-        if (ze != null) {
-            zipInputStream.getNextEntry();
-            long uncompressedSize = ze.getSize();
-            long entrySize = ze.getCompressedSize();
-            double compressionRatio = (double) uncompressedSize / (double) entrySize;
-            if (compressionRatio > thresholdCompressionRatio) {
-                // ratio between compressed and uncompressed data is highly suspicious, looks
-                // like a Zip Bomb Attack
-                return false;
-            }
-        }
-        return true;
-    }
 }

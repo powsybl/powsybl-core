@@ -15,7 +15,6 @@ import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.compress.SafeZipInputStream;
-import com.powsybl.commons.compress.ZipSecurityHelper;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSource;
@@ -310,7 +309,6 @@ public class CgmesImport implements Importer {
             try (InputStream in = dataSource.newInputStream(name)) {
                 String fileExtension = name.substring(name.lastIndexOf('.') + 1);
                 if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
-                    ZipSecurityHelper.checkIfZipExtractionIsSafe(dataSource, name);
                     try (SafeZipInputStream zis = new SafeZipInputStream(new ZipInputStream(in), 1, 2048)) {
                         modellingAuthority = readModelingAuthority(zis);
                     }
