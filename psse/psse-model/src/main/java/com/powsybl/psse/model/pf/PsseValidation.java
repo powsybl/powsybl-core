@@ -196,7 +196,7 @@ public class PsseValidation {
         Map<String, List<String>> busesNonTransformerBranches = new HashMap<>();
 
         for (PsseNonTransformerBranch nonTransformerBranch : nonTransformerBranches) {
-            if (isBaldyConnectedNonTransformedBranch(nonTransformerBranch, buses)) {
+            if (isBadlyConnectedNonTransformedBranch(nonTransformerBranch, buses)) {
                 continue;
             }
             if (nonTransformerBranch.getX() == 0.0) {
@@ -209,7 +209,7 @@ public class PsseValidation {
         checkDuplicatesLinks("NonTransformerBranch", "branches", getDuplicates(busesNonTransformerBranches));
     }
 
-    private boolean isBaldyConnectedNonTransformedBranch(PsseNonTransformerBranch nonTransformerBranch, Map<Integer, List<Integer>> buses) {
+    private boolean isBadlyConnectedNonTransformedBranch(PsseNonTransformerBranch nonTransformerBranch, Map<Integer, List<Integer>> buses) {
         if (!buses.containsKey(nonTransformerBranch.getI())) {
             validationWarnings.add(String.format("NonTransformerBranch: bus not found I: %d, NonTransformerBranch record %d, %d, %s, ... will be ignored", nonTransformerBranch.getI(), nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt()));
             return true;
@@ -235,7 +235,7 @@ public class PsseValidation {
         Map<String, List<String>> busesTransformers = new HashMap<>();
 
         for (PsseTransformer transformer : transformers) {
-            if (isBaldyConnectedT2wTransformer(transformer, buses)) {
+            if (isBadlyConnectedT2wTransformer(transformer, buses)) {
                 continue;
             }
 
@@ -253,7 +253,7 @@ public class PsseValidation {
         checkDuplicatesLinks("Transformer", "branches", getDuplicates(busesTransformers));
     }
 
-    private boolean isBaldyConnectedT2wTransformer(PsseTransformer transformer, Map<Integer, List<Integer>> buses) {
+    private boolean isBadlyConnectedT2wTransformer(PsseTransformer transformer, Map<Integer, List<Integer>> buses) {
         if (!buses.containsKey(transformer.getI())) {
             validationWarnings.add(String.format("Transformer: bus not found I: %d, Transformer record %d, %d, %s, ... will be ignored", transformer.getI(), transformer.getI(), transformer.getJ(), transformer.getCkt()));
             return true;
@@ -269,7 +269,7 @@ public class PsseValidation {
         Map<String, List<String>> busesTransformers = new HashMap<>();
 
         for (PsseTransformer transformer : transformers) {
-            if (isBaldyConnectedT3wTransformer(transformer, buses)) {
+            if (isBadlyConnectedT3wTransformer(transformer, buses)) {
                 continue;
             }
 
@@ -311,7 +311,7 @@ public class PsseValidation {
         }
     }
 
-    private boolean isBaldyConnectedT3wTransformer(PsseTransformer transformer, Map<Integer, List<Integer>> buses) {
+    private boolean isBadlyConnectedT3wTransformer(PsseTransformer transformer, Map<Integer, List<Integer>> buses) {
         if (!buses.containsKey(transformer.getI())) {
             validationWarnings.add(String.format("Transformer: bus not found I: %d, Transformer record %d, %d, %d, %s, ... will be ignored", transformer.getI(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
             return true;
@@ -380,7 +380,7 @@ public class PsseValidation {
     private void validateTwoTerminalDcTransmissionLines(List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcTransmissionLines, Map<Integer, List<Integer>> buses) {
         Map<String, Integer> twoTerminalDcNames = new HashMap<>();
         for (PsseTwoTerminalDcTransmissionLine twoTerminalDc : twoTerminalDcTransmissionLines) {
-            if (isBaldyConnectedTwoTerminalDcTransmissionLine(twoTerminalDc, buses)) {
+            if (isBadlyConnectedTwoTerminalDcTransmissionLine(twoTerminalDc, buses)) {
                 continue;
             }
             twoTerminalDcNames.put(twoTerminalDc.getName(), twoTerminalDcNames.getOrDefault(twoTerminalDc.getName(), 0) + 1);
@@ -392,7 +392,7 @@ public class PsseValidation {
         }
     }
 
-    private boolean isBaldyConnectedTwoTerminalDcTransmissionLine(PsseTwoTerminalDcTransmissionLine twoTerminalDc, Map<Integer, List<Integer>> buses) {
+    private boolean isBadlyConnectedTwoTerminalDcTransmissionLine(PsseTwoTerminalDcTransmissionLine twoTerminalDc, Map<Integer, List<Integer>> buses) {
         if (!buses.containsKey(twoTerminalDc.getRectifier().getIp())) {
             validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: %s rectifier bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored", twoTerminalDc.getName(), twoTerminalDc.getRectifier().getIp(), twoTerminalDc.getName()));
             return true;

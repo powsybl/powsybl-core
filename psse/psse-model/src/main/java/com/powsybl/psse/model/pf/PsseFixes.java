@@ -36,8 +36,9 @@ public class PsseFixes {
 
     public void fix() {
         fixDuplicatedIds();
-        fixTransformersWindingCod();
+        // fix the controlled buses before fixing the winding cod
         fixControlledBuses();
+        fixTransformersWindingCod();
     }
 
     private void fixDuplicatedIds() {
