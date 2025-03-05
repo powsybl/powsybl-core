@@ -10,24 +10,24 @@ package com.powsybl.iidm.serde.extensions;
 import com.powsybl.commons.extensions.*;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.LoadFooExt;
 import com.powsybl.iidm.network.test.LoadMockExt;
 import com.powsybl.iidm.serde.*;
+import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionSerDe;
 import org.junit.jupiter.api.Test;
-import org.mockito.AdditionalMatchers;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -124,22 +124,27 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
         load1 = network.getLoad("Load1");
         assertNull(load1.getExtension(LoadMockExt.class), "No LoadMockExt should be loaded.");
         assertNotNull(load1.getExtension(LoadFooExt.class), "A LoadFooExt extension should be loaded.");
-
-        // Reload the extensions supplier for the other tests
-        NetworkSerDe.reloadExtensionsSupplier();
     }
 
     private Network loadNetworkWithGivenSerdes(List<ExtensionSerDe<?, ?>> serdes) {
-        try (MockedStatic<ExtensionProviders> staticMock = Mockito.mockStatic(ExtensionProviders.class, Mockito.CALLS_REAL_METHODS)) {
-            // For ExtensionSerDe.class, the ExtensionProviders should return the content of "serdes".
-            staticMock.when(() -> ExtensionProviders.getServicesStream(ExtensionSerDe.class))
-                    .thenReturn(serdes.stream());
-            // For other classes, the ExtensionProviders should return the services found by the ServiceLoader.
-            staticMock.when(() -> ExtensionProviders.getServicesStream(AdditionalMatchers.not(eq(ExtensionSerDe.class))))
-                    .then(i -> new ServiceLoaderCache<>(i.getArgument(0)).getServices().stream());
+        ExtensionProvidersLoader loader = new CustomExtensionProvidersLoader(serdes);
+        ExtensionsSupplier extensionsSupplier = () -> ExtensionProviders.createProvider(ExtensionSerDe.class, "network", loader);
 
-            NetworkSerDe.reloadExtensionsSupplier();
-            return NetworkSerDe.read(getClass().getResourceAsStream("/extensionName_0_1_otherPrefix.xml"));
+        return NetworkSerDe.read(getClass().getResourceAsStream("/extensionName_0_1_otherPrefix.xml"),
+                new ImportOptions(), null, NetworkFactory.findDefault(), extensionsSupplier, ReportNode.NO_OP);
+    }
+
+    private static class CustomExtensionProvidersLoader extends DefaultExtensionProvidersLoader {
+        private final List<ExtensionSerDe<?, ?>> serdes;
+
+        public CustomExtensionProvidersLoader(List<ExtensionSerDe<?, ?>> serdes) {
+            this.serdes = serdes;
+        }
+
+        @Override
+        public <T extends ExtensionProvider> Stream<T> getServicesStream(Class<T> clazz) {
+            return clazz == ExtensionSerDe.class ? serdes.stream().map(clazz::cast) :
+                    new ServiceLoaderCache<>(clazz).getServices().stream();
         }
     }
 

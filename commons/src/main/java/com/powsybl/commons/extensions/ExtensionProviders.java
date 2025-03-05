@@ -8,7 +8,6 @@
 package com.powsybl.commons.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.util.ServiceLoaderCache;
 import org.apache.commons.lang3.function.ToBooleanBiFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,13 +33,17 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
         return new ExtensionProviders<>(clazz, categoryName);
     }
 
+    public static <T extends ExtensionProvider> ExtensionProviders<T> createProvider(Class<T> clazz, String categoryName, ExtensionProvidersLoader loader) {
+        return new ExtensionProviders<>(clazz, categoryName, null, loader);
+    }
+
     public static <T extends ExtensionProvider> ExtensionProviders<T> createProvider(Class<T> clazz, String categoryName, Set<String> extensionNames) {
         return new ExtensionProviders<>(clazz, categoryName, extensionNames);
     }
 
     private ExtensionProviders(Class<T> clazz) {
         Objects.requireNonNull(clazz);
-        providers = loadProviders(clazz, null, null);
+        providers = loadProviders(clazz, null, null, new DefaultExtensionProvidersLoader());
     }
 
     private ExtensionProviders(Class<T> clazz, String categoryName) {
@@ -48,19 +51,23 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
     }
 
     private ExtensionProviders(Class<T> clazz, String categoryName, Set<String> extensionNames) {
+        this(clazz, categoryName, extensionNames, new DefaultExtensionProvidersLoader());
+    }
+
+    private ExtensionProviders(Class<T> clazz, String categoryName, Set<String> extensionNames, ExtensionProvidersLoader loader) {
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(categoryName);
 
-        providers = loadProviders(clazz, categoryName, extensionNames);
+        providers = loadProviders(clazz, categoryName, extensionNames, loader);
     }
 
-    private Map<String, T> loadProviders(Class<T> clazz, String categoryName, Set<String> extensionNames) {
+    private Map<String, T> loadProviders(Class<T> clazz, String categoryName, Set<String> extensionNames, ExtensionProvidersLoader loader) {
         final Map<String, T> providersMap = new HashMap<>();
         ToBooleanBiFunction<String, String> validateNames = extensionNames == null ?
                 (n1, n2) -> true :
                 (n1, n2) -> extensionNames.contains(n1) || extensionNames.contains(n2);
 
-        Stream<T> servicesStream = getServicesStream(clazz);
+        Stream<T> servicesStream = loader.getServicesStream(clazz);
         if (categoryName != null) {
             servicesStream = servicesStream.filter(s -> s.getCategoryName().equals(categoryName));
         }
@@ -72,10 +79,6 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
                     .forEach(name -> addService(providersMap, name, service, validateNames)));
         }
         return providersMap;
-    }
-
-    public static <T extends ExtensionProvider> Stream<T> getServicesStream(Class<T> clazz) {
-        return new ServiceLoaderCache<>(clazz).getServices().stream();
     }
 
     private void addService(Map<String, T> providersMap, String nameToAdd,
