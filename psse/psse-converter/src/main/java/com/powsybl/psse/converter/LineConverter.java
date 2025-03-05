@@ -43,6 +43,9 @@ class LineConverter extends AbstractConverter {
     }
 
     void create() {
+        if (!getContainersMapping().isBusDefined(psseLine.getI()) || !getContainersMapping().isBusDefined(psseLine.getJ())) {
+            return;
+        }
         String id = getLineId(psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
 
         String voltageLevel1Id = getContainersMapping().getVoltageLevelId(psseLine.getI());
