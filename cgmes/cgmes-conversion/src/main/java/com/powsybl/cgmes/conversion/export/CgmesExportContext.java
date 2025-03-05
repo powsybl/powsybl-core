@@ -674,11 +674,7 @@ public class CgmesExportContext {
     }
 
     public boolean writeConnectivityNodes() {
-        if (getCimVersion() == 100) {
-            return true;
-        } else {
-            return topologyKind == CgmesTopologyKind.NODE_BREAKER;
-        }
+        return getCimVersion() == 100 || topologyKind == CgmesTopologyKind.NODE_BREAKER;
     }
 
     public Collection<String> getRegionsIds() {
