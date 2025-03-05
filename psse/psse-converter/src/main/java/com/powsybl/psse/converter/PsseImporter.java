@@ -248,6 +248,22 @@ public class PsseImporter implements Importer {
         List<Edge> edges = new ArrayList<>();
         // only zeroImpedance Lines are necessary and as they are not allowed, nothing to do
 
+        defineEdgesForTransformers(psseModel, busNumToPsseBus, edges);
+        // buses inside a psse substation are connected in the same way as transformers
+        defineEdgesForBusesInsideSubstation(nodeBreakerValidation, edges);
+
+        return ContainersMapping.create(psseModel.getBuses(), edges,
+                PsseBus::getI,
+                Edge::bus1,
+                Edge::bus2,
+                Edge::zeroImpedance,
+                Edge::transformer,
+                busNumber -> getNominalVFromBusNumber(busNumToPsseBus, busNumber, perUnitContext),
+                AbstractConverter::getVoltageLevelId,
+                substationNums -> getSubstationId(nodeBreakerValidation, substationNums));
+    }
+
+    private void defineEdgesForTransformers(PssePowerFlowModel psseModel, Map<Integer, PsseBus> busNumToPsseBus, List<Edge> edges) {
         psseModel.getTransformers().forEach(t -> {
             if (t.getK() == 0) { // twoWindingsTransformers with zero impedance are not allowed
                 if (busNumToPsseBus.containsKey(t.getI()) && busNumToPsseBus.containsKey(t.getJ())) {
@@ -260,7 +276,9 @@ public class PsseImporter implements Importer {
                 }
             }
         });
-        // buses inside a psse substation are connected in the same way as transformers
+    }
+
+    private void defineEdgesForBusesInsideSubstation(NodeBreakerValidation nodeBreakerValidation, List<Edge> edges) {
         nodeBreakerValidation.getValidSubstations().forEach(psseSubstation -> {
             List<Integer> busesInside = nodeBreakerValidation.getBuses(psseSubstation);
             if (busesInside.size() >= 2) {
@@ -270,16 +288,6 @@ public class PsseImporter implements Importer {
                 }
             }
         });
-
-        return ContainersMapping.create(psseModel.getBuses(), edges,
-                PsseBus::getI,
-                Edge::bus1,
-                Edge::bus2,
-                Edge::zeroImpedance,
-                Edge::transformer,
-                busNumber -> getNominalVFromBusNumber(busNumToPsseBus, busNumber, perUnitContext),
-                AbstractConverter::getVoltageLevelId,
-                substationNums -> getSubstationId(nodeBreakerValidation, substationNums));
     }
 
     private static String getSubstationId(NodeBreakerValidation nodeBreakerValidation, Set<Integer> substationBusNumbers) {

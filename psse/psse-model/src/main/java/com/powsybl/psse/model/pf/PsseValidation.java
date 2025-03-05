@@ -196,12 +196,7 @@ public class PsseValidation {
         Map<String, List<String>> busesNonTransformerBranches = new HashMap<>();
 
         for (PsseNonTransformerBranch nonTransformerBranch : nonTransformerBranches) {
-            if (!buses.containsKey(nonTransformerBranch.getI())) {
-                validationWarnings.add(String.format("NonTransformerBranch: bus not found I: %d, NonTransformerBranch record %d, %d, %s, ... will be ignored", nonTransformerBranch.getI(), nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt()));
-                continue;
-            }
-            if (!buses.containsKey(nonTransformerBranch.getJ())) {
-                validationWarnings.add(String.format("NonTransformerBranch: bus not found J: %d, NonTransformerBranch record %d, %d, %s, ... will be ignored", nonTransformerBranch.getJ(), nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt()));
+            if (isBaldyConnectedNonTransformedBranch(nonTransformerBranch, buses)) {
                 continue;
             }
             if (nonTransformerBranch.getX() == 0.0) {
@@ -212,6 +207,18 @@ public class PsseValidation {
         }
 
         checkDuplicatesLinks("NonTransformerBranch", "branches", getDuplicates(busesNonTransformerBranches));
+    }
+
+    private boolean isBaldyConnectedNonTransformedBranch(PsseNonTransformerBranch nonTransformerBranch, Map<Integer, List<Integer>> buses) {
+        if (!buses.containsKey(nonTransformerBranch.getI())) {
+            validationWarnings.add(String.format("NonTransformerBranch: bus not found I: %d, NonTransformerBranch record %d, %d, %s, ... will be ignored", nonTransformerBranch.getI(), nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt()));
+            return true;
+        }
+        if (!buses.containsKey(nonTransformerBranch.getJ())) {
+            validationWarnings.add(String.format("NonTransformerBranch: bus not found J: %d, NonTransformerBranch record %d, %d, %s, ... will be ignored", nonTransformerBranch.getJ(), nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt()));
+            return true;
+        }
+        return false;
     }
 
     private void validateTransformers(List<PsseTransformer> transformers, Map<Integer, List<Integer>> buses) {
@@ -228,12 +235,7 @@ public class PsseValidation {
         Map<String, List<String>> busesTransformers = new HashMap<>();
 
         for (PsseTransformer transformer : transformers) {
-            if (!buses.containsKey(transformer.getI())) {
-                validationWarnings.add(String.format("Transformer: bus not found I: %d, Transformer record %d, %d, %s, ... will be ignored", transformer.getI(), transformer.getI(), transformer.getJ(), transformer.getCkt()));
-                continue;
-            }
-            if (!buses.containsKey(transformer.getJ())) {
-                validationWarnings.add(String.format("Transformer: bus not found J: %d, Transformer record %d, %d, %s, ... will be ignored", transformer.getJ(), transformer.getI(), transformer.getJ(), transformer.getCkt()));
+            if (isBaldyConnectedT2wTransformer(transformer, buses)) {
                 continue;
             }
 
@@ -251,20 +253,23 @@ public class PsseValidation {
         checkDuplicatesLinks("Transformer", "branches", getDuplicates(busesTransformers));
     }
 
+    private boolean isBaldyConnectedT2wTransformer(PsseTransformer transformer, Map<Integer, List<Integer>> buses) {
+        if (!buses.containsKey(transformer.getI())) {
+            validationWarnings.add(String.format("Transformer: bus not found I: %d, Transformer record %d, %d, %s, ... will be ignored", transformer.getI(), transformer.getI(), transformer.getJ(), transformer.getCkt()));
+            return true;
+        }
+        if (!buses.containsKey(transformer.getJ())) {
+            validationWarnings.add(String.format("Transformer: bus not found J: %d, Transformer record %d, %d, %s, ... will be ignored", transformer.getJ(), transformer.getI(), transformer.getJ(), transformer.getCkt()));
+            return true;
+        }
+        return false;
+    }
+
     private void validateThreeWindingsTransformers(List<PsseTransformer> transformers, Map<Integer, List<Integer>> buses) {
         Map<String, List<String>> busesTransformers = new HashMap<>();
 
         for (PsseTransformer transformer : transformers) {
-            if (!buses.containsKey(transformer.getI())) {
-                validationWarnings.add(String.format("Transformer: bus not found I: %d, Transformer record %d, %d, %d, %s, ... will be ignored", transformer.getI(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
-                continue;
-            }
-            if (!buses.containsKey(transformer.getJ())) {
-                validationWarnings.add(String.format("Transformer: bus not found J: %d, Transformer record %d, %d, %d, %s, ... will be ignored", transformer.getJ(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
-                continue;
-            }
-            if (!buses.containsKey(transformer.getK())) {
-                validationWarnings.add(String.format("Transformer: bus not found K: %d, Transformer record %d, %d, %d, %s, ... will be ignored", transformer.getK(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
+            if (isBaldyConnectedT3wTransformer(transformer, buses)) {
                 continue;
             }
 
@@ -304,6 +309,22 @@ public class PsseValidation {
                     value.size(), firstBus(key), secondBus(key), thirdBus(key), value.get(0))));
             validCase = false;
         }
+    }
+
+    private boolean isBaldyConnectedT3wTransformer(PsseTransformer transformer, Map<Integer, List<Integer>> buses) {
+        if (!buses.containsKey(transformer.getI())) {
+            validationWarnings.add(String.format("Transformer: bus not found I: %d, Transformer record %d, %d, %d, %s, ... will be ignored", transformer.getI(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
+            return true;
+        }
+        if (!buses.containsKey(transformer.getJ())) {
+            validationWarnings.add(String.format("Transformer: bus not found J: %d, Transformer record %d, %d, %d, %s, ... will be ignored", transformer.getJ(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
+            return true;
+        }
+        if (!buses.containsKey(transformer.getK())) {
+            validationWarnings.add(String.format("Transformer: bus not found K: %d, Transformer record %d, %d, %d, %s, ... will be ignored", transformer.getK(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
+            return true;
+        }
+        return false;
     }
 
     private void validateTransformerX(String id, double x, String xTag) {
@@ -359,12 +380,7 @@ public class PsseValidation {
     private void validateTwoTerminalDcTransmissionLines(List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcTransmissionLines, Map<Integer, List<Integer>> buses) {
         Map<String, Integer> twoTerminalDcNames = new HashMap<>();
         for (PsseTwoTerminalDcTransmissionLine twoTerminalDc : twoTerminalDcTransmissionLines) {
-            if (!buses.containsKey(twoTerminalDc.getRectifier().getIp())) {
-                validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: %s rectifier bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored", twoTerminalDc.getName(), twoTerminalDc.getRectifier().getIp(), twoTerminalDc.getName()));
-                continue;
-            }
-            if (!buses.containsKey(twoTerminalDc.getInverter().getIp())) {
-                validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: %s inverter bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored", twoTerminalDc.getName(), twoTerminalDc.getInverter().getIp(), twoTerminalDc.getName()));
+            if (isBaldyConnectedTwoTerminalDcTransmissionLine(twoTerminalDc, buses)) {
                 continue;
             }
             twoTerminalDcNames.put(twoTerminalDc.getName(), twoTerminalDcNames.getOrDefault(twoTerminalDc.getName(), 0) + 1);
@@ -374,6 +390,18 @@ public class PsseValidation {
             duplicatedNames.forEach(name -> validationErrors.add(String.format("TwoTerminalDcTransmissionLine: This name %s is not unique", name)));
             validCase = false;
         }
+    }
+
+    private boolean isBaldyConnectedTwoTerminalDcTransmissionLine(PsseTwoTerminalDcTransmissionLine twoTerminalDc, Map<Integer, List<Integer>> buses) {
+        if (!buses.containsKey(twoTerminalDc.getRectifier().getIp())) {
+            validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: %s rectifier bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored", twoTerminalDc.getName(), twoTerminalDc.getRectifier().getIp(), twoTerminalDc.getName()));
+            return true;
+        }
+        if (!buses.containsKey(twoTerminalDc.getInverter().getIp())) {
+            validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: %s inverter bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored", twoTerminalDc.getName(), twoTerminalDc.getInverter().getIp(), twoTerminalDc.getName()));
+            return true;
+        }
+        return false;
     }
 
     private void validateSwitchedShunts(List<PsseSwitchedShunt> switchedShunts, Map<Integer, List<Integer>> buses, PsseVersion psseVersion) {

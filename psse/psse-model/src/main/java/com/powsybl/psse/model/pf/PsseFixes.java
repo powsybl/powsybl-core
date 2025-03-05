@@ -23,6 +23,8 @@ import static com.powsybl.psse.model.pf.PsseValidation.switchedShuntRegulatingBu
  */
 public class PsseFixes {
 
+    private static final String WINDING_1 = "Winding1";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PsseFixes.class);
     private final PssePowerFlowModel model;
     private final PsseVersion version;
@@ -53,9 +55,9 @@ public class PsseFixes {
     private void fixTransformersWindingCod() {
         model.getTransformers().forEach(psseTransformer -> {
             if (psseTransformer.getK() == 0) { // TwoWindingsTransformers
-                fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding1(), "Winding1");
+                fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding1(), WINDING_1);
             } else {
-                fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding1(), "Winding1");
+                fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding1(), WINDING_1);
                 fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding2(), "Winding2");
                 fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding3(), "Winding3");
             }
@@ -185,9 +187,9 @@ public class PsseFixes {
     private void fixTransformersControlledBus(Set<Integer> buses) {
         model.getTransformers().forEach(psseTransformer -> {
             if (psseTransformer.getK() == 0) { // TwoWindingsTransformers
-                fixTransformerWindingControlledBus(buses, psseTransformer, psseTransformer.getWinding1(), "Winding1");
+                fixTransformerWindingControlledBus(buses, psseTransformer, psseTransformer.getWinding1(), WINDING_1);
             } else {
-                fixTransformerWindingControlledBus(buses, psseTransformer, psseTransformer.getWinding1(), "Winding1");
+                fixTransformerWindingControlledBus(buses, psseTransformer, psseTransformer.getWinding1(), WINDING_1);
                 fixTransformerWindingControlledBus(buses, psseTransformer, psseTransformer.getWinding2(), "Winding2");
                 fixTransformerWindingControlledBus(buses, psseTransformer, psseTransformer.getWinding3(), "Winding3");
             }
