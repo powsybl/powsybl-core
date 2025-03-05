@@ -22,9 +22,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -76,31 +74,34 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void importXiidmWithAnotherPrefixTest() throws URISyntaxException {
+    void importXiidmWithAnotherPrefixTest() throws IOException {
         // Read a network with an old extension serialization name + a non-standard namespace prefix.
-        Network network = NetworkSerDe.validateAndRead(Paths.get(
-                Objects.requireNonNull(getClass().getResource("/extensionName_0_1_otherPrefix.xml")).toURI()));
+        String file = "/extensionName_0_1_otherPrefix.xml";
+        try (InputStream is = getClass().getResourceAsStream(file)) {
+            NetworkSerDe.validate(is);
+        }
+        Network network = NetworkSerDe.read(getClass().getResourceAsStream(file));
         assertNotNull(network.getLoad("Load1").getExtension(LoadMockExt.class));
     }
 
     @Test
-    void indicateExtensionAtImportTest() throws URISyntaxException {
+    void indicateExtensionAtImportTest() {
         // Read a network with an old extension serialization name
         // To specify the extension to import, both the real extension name or the serialization name can be used.
-        Path file = Paths.get(Objects.requireNonNull(getClass().getResource("/extensionName_0_1_otherPrefix.xml")).toURI());
+        String file = "/extensionName_0_1_otherPrefix.xml";
         ImportOptions importOptions = new ImportOptions().addExtension("loadElementMock");
-        Network network = NetworkSerDe.read(file, importOptions);
+        Network network = NetworkSerDe.read(getClass().getResourceAsStream(file), importOptions, null);
         assertNotNull(network.getLoad("Load1").getExtension(LoadMockExt.class),
                 "Using the serialization name as extension to load should work.");
 
         importOptions = new ImportOptions().addExtension("loadMock");
-        network = NetworkSerDe.read(file, importOptions);
+        network = NetworkSerDe.read(getClass().getResourceAsStream(file), importOptions, null);
         assertNotNull(network.getLoad("Load1").getExtension(LoadMockExt.class),
                 "Using the real extension name as extension to load should work.");
     }
 
     @Test
-    void ignoreOtherSerializationNameIfAlreadyUsed() throws URISyntaxException {
+    void ignoreOtherSerializationNameIfAlreadyUsed() {
         // No extension serde available
         // This assertion is used to test that the configuration mechanism is working
         Network network = loadNetworkWithGivenSerdes(List.of());
@@ -128,7 +129,7 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
         NetworkSerDe.reloadExtensionsSupplier();
     }
 
-    private Network loadNetworkWithGivenSerdes(List<ExtensionSerDe<?, ?>> serdes) throws URISyntaxException {
+    private Network loadNetworkWithGivenSerdes(List<ExtensionSerDe<?, ?>> serdes) {
         try (MockedStatic<ExtensionProviders> staticMock = Mockito.mockStatic(ExtensionProviders.class, Mockito.CALLS_REAL_METHODS)) {
             // For ExtensionSerDe.class, the ExtensionProviders should return the content of "serdes".
             staticMock.when(() -> ExtensionProviders.getServicesStream(ExtensionSerDe.class))
@@ -138,8 +139,7 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
                     .then(i -> new ServiceLoaderCache<>(i.getArgument(0)).getServices().stream());
 
             NetworkSerDe.reloadExtensionsSupplier();
-            Path file = Paths.get(Objects.requireNonNull(getClass().getResource("/extensionName_0_1_otherPrefix.xml")).toURI());
-            return NetworkSerDe.read(file);
+            return NetworkSerDe.read(getClass().getResourceAsStream("/extensionName_0_1_otherPrefix.xml"));
         }
     }
 

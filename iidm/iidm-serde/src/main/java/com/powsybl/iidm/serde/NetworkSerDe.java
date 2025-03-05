@@ -85,6 +85,7 @@ public final class NetworkSerDe {
     static final byte[] BIIDM_MAGIC_NUMBER = {0x42, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x20, 0x49, 0x49, 0x44, 0x4d};
 
     private static final Supplier<Schema> SCHEMA_SUPPLIER = Suppliers.memoize(NetworkSerDe::createSchema);
+    public static final int MAX_NAMESPACE_PREFIX_NUM = 100;
 
     private static Supplier<ExtensionProviders<ExtensionSerDe>> extensionsSupplier;
 
@@ -268,11 +269,11 @@ public final class NetworkSerDe {
 
                 // Try to compute another namespace prefix if a collision is detected
                 int i = 1;
-                while (i < 100 && extensionPrefixes.contains(fixedNamespacePrefix)) {
+                while (i < MAX_NAMESPACE_PREFIX_NUM && extensionPrefixes.contains(fixedNamespacePrefix)) {
                     fixedNamespacePrefix = realNamespacePrefix + i;
                     i++;
                 }
-                if (i >= 100) {
+                if (i >= MAX_NAMESPACE_PREFIX_NUM) {
                     throw new PowsyblException("Cannot compute a unique extension namespace prefix: " + realNamespacePrefix);
                 } else {
                     extensionPrefixes.add(fixedNamespacePrefix);
