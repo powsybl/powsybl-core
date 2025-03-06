@@ -13,6 +13,7 @@ import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.report.ReportNode;
@@ -46,6 +47,17 @@ public interface DynamicSimulationProvider extends Versionable, PlatformConfigNa
     Optional<Class<? extends Extension<DynamicSimulationParameters>>> getSpecificParametersClass();
 
     /**
+     * The serializer for implementation-specific parameters, or {@link Optional#empty()} if the implementation
+     * does not have any specific parameters, or does not support JSON serialization.
+     *
+     * <p>Note that the actual serializer type should be {@code ExtensionJsonSerializer<DynamicSimulationParameters, MyParametersExtension>}
+     * where {@code MyParametersExtension} is the specific parameters class.
+     *
+     * @return The serializer for implementation-specific parameters.
+     */
+    Optional<ExtensionJsonSerializer> getSpecificParametersSerializer();
+
+    /**
      * Reads implementation-specific parameters from platform config, or return {@link Optional#empty()}
      * if the implementation does not have any specific parameters, or does not support loading from config.
      *
@@ -74,12 +86,6 @@ public interface DynamicSimulationProvider extends Versionable, PlatformConfigNa
      * Updates implementation-specific parameters from a Map.
      */
     void updateSpecificParameters(Extension<DynamicSimulationParameters> extension, Map<String, String> properties);
-
-    /**
-     * Updates implementation-specific parameters from a PlatformConfig
-     */
-    //TODO add method ?
-    //void updateSpecificParameters(Extension<DynamicSimulationParameters> extension, PlatformConfig config);
 
     /**
      * Get the parameters of the parameters extension associated with this provider.

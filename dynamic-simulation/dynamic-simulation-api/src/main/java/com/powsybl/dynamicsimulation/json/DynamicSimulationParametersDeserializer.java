@@ -19,6 +19,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 
+import static com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters.getExtensionSerializers;
+
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
@@ -57,7 +59,7 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
 
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonDynamicSimulationParameters.getExtensionSerializers());
+                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);
                     break;
 
                 default:
@@ -65,7 +67,7 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
             }
         }
 
-        JsonDynamicSimulationParameters.getExtensionSerializers().addExtensions(parameters, extensions);
+        extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
 
         return parameters;
     }

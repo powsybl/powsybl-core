@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-class JsonDynamicSimulationParametersTest extends AbstractSerDeTest {
+public class JsonDynamicSimulationParametersTest extends AbstractSerDeTest {
 
     @Test
     void roundTrip() throws IOException {
