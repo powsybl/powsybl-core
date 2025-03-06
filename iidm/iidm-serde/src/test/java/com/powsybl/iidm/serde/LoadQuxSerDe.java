@@ -57,7 +57,6 @@ public class LoadQuxSerDe extends AbstractVersionableNetworkExtensionSerDe<Load,
 
     @Override
     public LoadQuxExt read(Load extendable, DeserializerContext context) {
-        checkReadingCompatibility((NetworkDeserializerContext) context);
         return new LoadQuxExt(extendable);
     }
 }

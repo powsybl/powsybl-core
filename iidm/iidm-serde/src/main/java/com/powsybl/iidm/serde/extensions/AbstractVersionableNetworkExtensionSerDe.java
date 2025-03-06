@@ -137,7 +137,9 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
                 .orElseGet(() -> getVersion(networkSerializerContext.getVersion()));
     }
 
-    protected void checkReadingCompatibility(NetworkDeserializerContext networkContext) {
+    @Override
+    public void checkReadingCompatibility(DeserializerContext context) {
+        NetworkDeserializerContext networkContext = convertContext(context);
         IidmVersion iidmVersion = networkContext.getVersion();
         checkCompatibilityNetworkVersion(iidmVersion);
         if (versions.stream().filter(v -> v.supports(iidmVersion)).noneMatch(v -> networkContext.containsExtensionVersion(getExtensionName(), v.getVersionString()))) {
@@ -208,5 +210,25 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
         } else {
             return a.orElse(null);
         }
+    }
+
+    /**
+     * Safe conversion of a XmlWriterContext to a NetworkXmlWriterContext
+     */
+    protected static NetworkSerializerContext convertContext(SerializerContext context) {
+        if (context instanceof NetworkSerializerContext networkSerializerContext) {
+            return networkSerializerContext;
+        }
+        throw new IllegalArgumentException("context is not a NetworkXmlWriterContext");
+    }
+
+    /**
+     * Safe conversion of a XmlReaderContext to a NetworkXmlReaderContext
+     */
+    protected static NetworkDeserializerContext convertContext(DeserializerContext context) {
+        if (context instanceof NetworkDeserializerContext networkDeserializerContext) {
+            return networkDeserializerContext;
+        }
+        throw new IllegalArgumentException("context is not a NetworkXmlReaderContext");
     }
 }

@@ -859,6 +859,7 @@ public final class NetworkSerDe {
             String extensionName = extensionSerde != null ? extensionSerde.getExtensionName() : extensionSerializationName;
             if (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName)) {
                 if (extensionSerde != null) {
+                    extensionSerde.checkReadingCompatibility(context);
                     extensionSerde.read(identifiable, context);
                     extensionNamesImported.add(extensionName);
                 } else {

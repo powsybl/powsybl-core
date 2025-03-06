@@ -63,7 +63,7 @@ public class ConnectablePositionSerDe<C extends Connectable<C>> extends Abstract
 
     @Override
     public void write(ConnectablePosition<C> connectablePosition, SerializerContext context) {
-        NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
+        NetworkSerializerContext networkContext = convertContext(context);
         String connectableId = connectablePosition.getExtendable().getId();
         if (connectablePosition.getFeeder() != null) {
             writePosition(connectableId, connectablePosition.getFeeder(), null, networkContext);

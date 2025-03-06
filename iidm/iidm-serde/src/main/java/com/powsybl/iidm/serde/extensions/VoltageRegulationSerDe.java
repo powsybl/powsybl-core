@@ -99,17 +99,14 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
 
     @Override
     public VoltageRegulation read(Battery battery, DeserializerContext context) {
-        NetworkDeserializerContext networkContext = convertContext(context);
-        checkReadingCompatibility(networkContext);
-
-        boolean voltageRegulatorOn = networkContext.getReader().readBooleanAttribute("voltageRegulatorOn");
-        double targetV = networkContext.getReader().readDoubleAttribute("targetV");
+        boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
+        double targetV = context.getReader().readDoubleAttribute("targetV");
 
         VoltageRegulation voltageRegulation = battery.newExtension(VoltageRegulationAdder.class).withVoltageRegulatorOn(voltageRegulatorOn).withTargetV(targetV).add();
 
-        networkContext.getReader().readChildNodes(elementName -> {
+        context.getReader().readChildNodes(elementName -> {
             if (elementName.equals("terminalRef")) {
-                TerminalRefSerDe.readTerminalRef(networkContext, battery.getTerminal().getVoltageLevel().getNetwork(), voltageRegulation::setRegulatingTerminal);
+                TerminalRefSerDe.readTerminalRef(context, battery.getTerminal().getVoltageLevel().getNetwork(), voltageRegulation::setRegulatingTerminal);
             } else {
                 throw new AssertionError("Unexpected element: " + elementName);
             }
@@ -121,25 +118,5 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
     protected Version getDefaultVersion() {
         // Default version is v1.1, the subsequent ones have been added without any change
         return Version.V_1_1;
-    }
-
-    /**
-     * Safe conversion of a XmlWriterContext to a NetworkXmlWriterContext
-     */
-    private static NetworkSerializerContext convertContext(SerializerContext context) {
-        if (context instanceof NetworkSerializerContext networkSerializerContext) {
-            return networkSerializerContext;
-        }
-        throw new IllegalArgumentException("context is not a NetworkXmlWriterContext");
-    }
-
-    /**
-     * Safe conversion of a XmlReaderContext to a NetworkXmlReaderContext
-     */
-    private static NetworkDeserializerContext convertContext(DeserializerContext context) {
-        if (context instanceof NetworkDeserializerContext networkDeserializerContext) {
-            return networkDeserializerContext;
-        }
-        throw new IllegalArgumentException("context is not a NetworkXmlReaderContext");
     }
 }

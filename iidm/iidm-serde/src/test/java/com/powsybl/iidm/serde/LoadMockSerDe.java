@@ -64,7 +64,6 @@ public class LoadMockSerDe extends AbstractVersionableNetworkExtensionSerDe<Load
 
     @Override
     public LoadMockExt read(Load load, DeserializerContext context) {
-        checkReadingCompatibility((NetworkDeserializerContext) context);
         context.getReader().readEndNode();
         var loadMock = new LoadMockExt(load);
         load.addExtension(LoadMockExt.class, loadMock);

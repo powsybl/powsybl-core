@@ -59,12 +59,12 @@ public class SlackTerminalSerDe extends AbstractVersionableNetworkExtensionSerDe
 
     @Override
     public void write(SlackTerminal slackTerminal, SerializerContext context) {
-        TerminalRefSerDe.writeTerminalRefAttribute(slackTerminal.getTerminal(), (NetworkSerializerContext) context);
+        TerminalRefSerDe.writeTerminalRefAttribute(slackTerminal.getTerminal(), convertContext(context));
     }
 
     @Override
     public SlackTerminal read(VoltageLevel voltageLevel, DeserializerContext context) {
-        Terminal terminal = TerminalRefSerDe.readTerminal((NetworkDeserializerContext) context, voltageLevel.getNetwork());
+        Terminal terminal = TerminalRefSerDe.readTerminal(convertContext(context), voltageLevel.getNetwork());
         return voltageLevel.newExtension(SlackTerminalAdder.class)
                 .withTerminal(terminal)
                 .add();
