@@ -84,8 +84,10 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
     }
 
     @Override
-    public Set<String> getAlternativeSerializationNames() {
-        return new HashSet<>(serializationNameByVersion.values());
+    public Set<String> getSerializationNames() {
+        Set<String> names = new HashSet<>(serializationNameByVersion.values());
+        names.add(extensionName);
+        return names;
     }
 
     @Override

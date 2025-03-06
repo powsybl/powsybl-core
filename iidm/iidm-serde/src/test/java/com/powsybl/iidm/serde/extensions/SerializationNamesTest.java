@@ -42,8 +42,9 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
         // Use the default extension version => also the default serialization name
         AbstractExtensionSerDe<?, ?> serde = new NetworkSourceExtensionSerDe();
         assertEquals(serde.getExtensionName(), serde.getSerializationName(serde.getVersion()));
-        Set<String> serializationNames = serde.getAlternativeSerializationNames();
-        assertTrue(serializationNames.isEmpty());
+        Set<String> serializationNames = serde.getSerializationNames();
+        assertEquals(1, serializationNames.size());
+        assertTrue(serializationNames.contains("networkSource"));
     }
 
     @Test
@@ -53,9 +54,9 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
         assertEquals(LOAD_MOCK, serde.getExtensionName());
         assertEquals(LOAD_MOCK, serde.getSerializationName(serde.getVersion()));
         assertEquals(LOAD_ELEMENT_MOCK, serde.getSerializationName("0.1"));
-        Set<String> serializationNames = serde.getAlternativeSerializationNames();
-        assertEquals(2, serializationNames.size());
-        assertTrue(serializationNames.containsAll(Set.of(LOAD_ELEMENT_MOCK, "loadEltMock")));
+        Set<String> serializationNames = serde.getSerializationNames();
+        assertEquals(3, serializationNames.size());
+        assertTrue(serializationNames.containsAll(Set.of(LOAD_MOCK, LOAD_ELEMENT_MOCK, "loadEltMock")));
     }
 
     @Test

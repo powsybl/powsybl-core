@@ -70,7 +70,8 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
         services.forEach(service -> addService(providersMap, service, extensionNames));
         if (clazz.equals(ExtensionSerDe.class)) {
             // Add the alternative serialization names for extension SerDes
-            services.forEach(service -> ((ExtensionSerDe<?, ?>) service).getAlternativeSerializationNames()
+            services.forEach(service -> ((ExtensionSerDe<?, ?>) service).getSerializationNames().stream()
+                    .filter(name -> !service.getExtensionName().equals(name))
                     .forEach(name -> addServiceForAlternativeName(providersMap, service, name, extensionNames)));
         }
         return providersMap;
