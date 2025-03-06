@@ -50,6 +50,7 @@ class ImportersTest extends AbstractConvertersTest {
     private final NetworkFactory networkFactory = new NetworkFactoryMock();
 
     @BeforeEach
+    @Override
     void setUp() throws IOException {
         super.setUp();
         Files.createFile(fileSystem.getPath(WORK_DIR + FOO_TST));
@@ -226,6 +227,19 @@ class ImportersTest extends AbstractConvertersTest {
         Network.readAll(fileSystem.getPath(WORK_DIR), false, loader, computationManager, importConfigMock, null, n -> isLoadPresent.add(n.getLoad("LOAD") != null), null, networkFactory, ReportNode.NO_OP);
         assertEquals(2, isLoadPresent.size());
         isLoadPresent.forEach(Assertions::assertTrue);
+    }
+
+    @Test
+    void updateNetwork() {
+        Network network = Network.read(path, computationManager, importConfigMock, null, networkFactory, loader, ReportNode.NO_OP);
+        assertNotNull(network);
+        Load load = network.getLoad("LOAD");
+        assertNotNull(load);
+
+        // The mocked network simulates P0 is not set in first import, but is read when we call update
+        assertTrue(Double.isNaN(load.getP0()));
+        network.update(DataSource.fromPath(path));
+        assertEquals(123.0, load.getP0());
     }
 }
 
