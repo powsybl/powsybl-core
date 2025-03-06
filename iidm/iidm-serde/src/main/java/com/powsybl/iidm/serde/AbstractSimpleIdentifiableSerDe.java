@@ -40,7 +40,7 @@ abstract class AbstractSimpleIdentifiableSerDe<T extends Identifiable<? super T>
         if (identifiable != null) {
             readSubElements(identifiable, context);
         } else {
-            context.getReader().skipChildNodes();
+            context.getReader().skipNode();
         }
     }
 

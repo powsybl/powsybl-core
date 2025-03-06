@@ -93,7 +93,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
     private boolean setRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, RegulatingControl control, StaticVarCompensator svc) {
         // Always save the original RC id,
         // even if we can not complete setting all the regulation data
-        svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", rc.regulatingControlId);
+        svc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, rc.regulatingControlId);
 
         // Take default terminal if it has not been defined in CGMES files (it is never null)
         Terminal regulatingTerminal = RegulatingTerminalMapper
@@ -148,6 +148,9 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     private void setDefaultRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc, boolean onlyReactivePowerReg, RegulatingControl control) {
+        if (!defaultRegulatingControlIsWellDefined(rc)) {
+            return;
+        }
 
         double targetVoltage = Double.NaN;
         double targetReactivePower = Double.NaN;
@@ -172,6 +175,13 @@ public class RegulatingControlMappingForStaticVarCompensators {
         if (rc.controlEnabled) {
             svc.setRegulationMode(regulationMode);
         }
+    }
+
+    // SVCControlMode and voltageSetPoint are optional in Cgmes 3.0
+    private static boolean defaultRegulatingControlIsWellDefined(CgmesRegulatingControlForStaticVarCompensator rc) {
+        return rc.defaultRegulationMode != null
+                && (RegulatingControlMapping.isControlModeVoltage(rc.defaultRegulationMode.toLowerCase()) && rc.defaultTargetVoltage > 0.0
+                || isControlModeReactivePower(rc.defaultRegulationMode.toLowerCase()) && Double.isFinite(rc.defaultTargetReactivePower));
     }
 
     private static boolean isControlModeReactivePower(String controlMode) {

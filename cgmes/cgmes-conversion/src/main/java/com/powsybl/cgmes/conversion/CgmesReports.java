@@ -194,4 +194,26 @@ public final class CgmesReports {
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
     }
+
+    public static ReportNode importingCgmesFileReport(ReportNode reportNode, String basename) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("CGMESConversion", "Importing CGMES file(s) with basename '${basename}'")
+                .withUntypedValue("basename", basename)
+                .add();
+    }
+
+    public static ReportNode readingCgmesTriplestoreReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("CGMESTriplestore", "Reading CGMES Triplestore")
+                .add();
+    }
+
+    public static void exportedModelIdentifierReport(ReportNode reportNode, String description, String identifier, String networkId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("ExportedCgmesId", "CGMES exported model identifier: ${cgmesId} for subset ${cgmesSubset} of network ${networkId}")
+                .withTypedValue("cgmesId", description, TypedValue.URN_UUID)
+                .withTypedValue("cgmesSubset", identifier, TypedValue.CGMES_SUBSET)
+                .withTypedValue("networkId", networkId, TypedValue.ID)
+                .add();
+    }
 }

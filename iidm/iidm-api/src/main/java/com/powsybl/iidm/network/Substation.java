@@ -127,6 +127,12 @@ public interface Substation extends Container<Substation> {
     TwoWindingsTransformerAdder newTwoWindingsTransformer();
 
     /**
+     * Get a builder to create a new two windings transformer in the substation by copying an existing one.
+     * Only use this builder if the two ends of the transformer are in the substation.
+     */
+    TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer);
+
+    /**
      * Get the two windings transformers connected to the substation.
      */
     Iterable<TwoWindingsTransformer> getTwoWindingsTransformers();

@@ -41,11 +41,11 @@
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-18" loadType="UNDEFINED" p0="27.2" q0="9.8" bus="BUS-18" connectableBus="BUS-18"/>
             <iidm:shunt id="SHUNT-18" sectionCount="1" voltageRegulatorOn="false" bus="BUS-18" connectableBus="BUS-18">
-                <iidm:shuntLinearModel bPerSection="10.0" maximumSectionCount="1"/>
+                <iidm:shuntLinearModel bPerSection="10.0" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT-4-18" r="0.0" x="0.00555" g="0.0" b="0.0" ratedU1="0.97" ratedU2="1.0" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId1="VL-4" bus2="BUS-18" connectableBus2="BUS-18" voltageLevelId2="VL-4"/>
-        <iidm:twoWindingsTransformer id="TWT-4-18#0" r="0.0" x="0.0043" g="0.0" b="0.0" ratedU1="0.978" ratedU2="1.0" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId1="VL-4" bus2="BUS-18" connectableBus2="BUS-18" voltageLevelId2="VL-4"/>
+        <iidm:twoWindingsTransformer id="TWT-4-18" r="0.0" x="0.00555" g="0.0" b="0.0" ratedU1="0.97" ratedU2="1.0" voltageLevelId1="VL-4" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId2="VL-4" bus2="BUS-18" connectableBus2="BUS-18"/>
+        <iidm:twoWindingsTransformer id="TWT-4-18#0" r="0.0" x="0.0043" g="0.0" b="0.0" ratedU1="0.978" ratedU2="1.0" voltageLevelId1="VL-4" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId2="VL-4" bus2="BUS-18" connectableBus2="BUS-18"/>
     </iidm:substation>
     <iidm:substation id="SUB-5">
         <iidm:voltageLevel id="VL-5" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -74,7 +74,7 @@
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-29" loadType="UNDEFINED" p0="17.0" q0="2.6" bus="BUS-29" connectableBus="BUS-29"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT-7-29" r="0.0" x="6.48E-4" g="0.0" b="0.0" ratedU1="0.967" ratedU2="1.0" bus1="BUS-7" connectableBus1="BUS-7" voltageLevelId1="VL-7" bus2="BUS-29" connectableBus2="BUS-29" voltageLevelId2="VL-7"/>
+        <iidm:twoWindingsTransformer id="TWT-7-29" r="0.0" x="6.48E-4" g="0.0" b="0.0" ratedU1="0.967" ratedU2="1.0" voltageLevelId1="VL-7" bus1="BUS-7" connectableBus1="BUS-7" voltageLevelId2="VL-7" bus2="BUS-29" connectableBus2="BUS-29"/>
     </iidm:substation>
     <iidm:substation id="SUB-8">
         <iidm:voltageLevel id="VL-8" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -99,7 +99,7 @@
             <iidm:load id="LOAD-9" loadType="UNDEFINED" p0="121.0" q0="26.0" bus="BUS-9" connectableBus="BUS-9"/>
             <iidm:load id="LOAD-55" loadType="UNDEFINED" p0="6.8" q0="3.4" bus="BUS-55" connectableBus="BUS-55"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT-9-55" r="0.0" x="0.001205" g="0.0" b="0.0" ratedU1="0.94" ratedU2="1.0" bus1="BUS-9" connectableBus1="BUS-9" voltageLevelId1="VL-9" bus2="BUS-55" connectableBus2="BUS-55" voltageLevelId2="VL-9"/>
+        <iidm:twoWindingsTransformer id="TWT-9-55" r="0.0" x="0.001205" g="0.0" b="0.0" ratedU1="0.94" ratedU2="1.0" voltageLevelId1="VL-9" bus1="BUS-9" connectableBus1="BUS-9" voltageLevelId2="VL-9" bus2="BUS-55" connectableBus2="BUS-55"/>
     </iidm:substation>
     <iidm:substation id="SUB-10">
         <iidm:voltageLevel id="VL-10" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -110,7 +110,7 @@
             <iidm:load id="LOAD-10" loadType="UNDEFINED" p0="5.0" q0="2.0" bus="BUS-10" connectableBus="BUS-10"/>
             <iidm:load id="LOAD-51" loadType="UNDEFINED" p0="18.0" q0="5.3" bus="BUS-51" connectableBus="BUS-51"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT-10-51" r="0.0" x="7.12E-4" g="0.0" b="0.0" ratedU1="0.93" ratedU2="1.0" bus1="BUS-10" connectableBus1="BUS-10" voltageLevelId1="VL-10" bus2="BUS-51" connectableBus2="BUS-51" voltageLevelId2="VL-10"/>
+        <iidm:twoWindingsTransformer id="TWT-10-51" r="0.0" x="7.12E-4" g="0.0" b="0.0" ratedU1="0.93" ratedU2="1.0" voltageLevelId1="VL-10" bus1="BUS-10" connectableBus1="BUS-10" voltageLevelId2="VL-10" bus2="BUS-51" connectableBus2="BUS-51"/>
     </iidm:substation>
     <iidm:substation id="SUB-11">
         <iidm:voltageLevel id="VL-11" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -122,8 +122,8 @@
             <iidm:load id="LOAD-41" loadType="UNDEFINED" p0="6.3" q0="3.0" bus="BUS-41" connectableBus="BUS-41"/>
             <iidm:load id="LOAD-43" loadType="UNDEFINED" p0="2.0" q0="1.0" bus="BUS-43" connectableBus="BUS-43"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT-11-41" r="0.0" x="0.00749" g="0.0" b="0.0" ratedU1="0.955" ratedU2="1.0" bus1="BUS-11" connectableBus1="BUS-11" voltageLevelId1="VL-11" bus2="BUS-41" connectableBus2="BUS-41" voltageLevelId2="VL-11"/>
-        <iidm:twoWindingsTransformer id="TWT-11-43" r="0.0" x="0.0015300000000000001" g="0.0" b="0.0" ratedU1="0.958" ratedU2="1.0" bus1="BUS-11" connectableBus1="BUS-11" voltageLevelId1="VL-11" bus2="BUS-43" connectableBus2="BUS-43" voltageLevelId2="VL-11"/>
+        <iidm:twoWindingsTransformer id="TWT-11-41" r="0.0" x="0.00749" g="0.0" b="0.0" ratedU1="0.955" ratedU2="1.0" voltageLevelId1="VL-11" bus1="BUS-11" connectableBus1="BUS-11" voltageLevelId2="VL-11" bus2="BUS-41" connectableBus2="BUS-41"/>
+        <iidm:twoWindingsTransformer id="TWT-11-43" r="0.0" x="0.0015300000000000001" g="0.0" b="0.0" ratedU1="0.958" ratedU2="1.0" voltageLevelId1="VL-11" bus1="BUS-11" connectableBus1="BUS-11" voltageLevelId2="VL-11" bus2="BUS-43" connectableBus2="BUS-43"/>
     </iidm:substation>
     <iidm:substation id="SUB-12">
         <iidm:voltageLevel id="VL-12" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -145,7 +145,7 @@
             <iidm:load id="LOAD-13" loadType="UNDEFINED" p0="18.0" q0="2.3" bus="BUS-13" connectableBus="BUS-13"/>
             <iidm:load id="LOAD-49" loadType="UNDEFINED" p0="18.0" q0="8.5" bus="BUS-49" connectableBus="BUS-49"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT-13-49" r="0.0" x="0.00191" g="0.0" b="0.0" ratedU1="0.895" ratedU2="1.0" bus1="BUS-13" connectableBus1="BUS-13" voltageLevelId1="VL-13" bus2="BUS-49" connectableBus2="BUS-49" voltageLevelId2="VL-13"/>
+        <iidm:twoWindingsTransformer id="TWT-13-49" r="0.0" x="0.00191" g="0.0" b="0.0" ratedU1="0.895" ratedU2="1.0" voltageLevelId1="VL-13" bus1="BUS-13" connectableBus1="BUS-13" voltageLevelId2="VL-13" bus2="BUS-49" connectableBus2="BUS-49"/>
     </iidm:substation>
     <iidm:substation id="SUB-14">
         <iidm:voltageLevel id="VL-14" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -155,7 +155,7 @@
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-14" loadType="UNDEFINED" p0="10.5" q0="5.3" bus="BUS-14" connectableBus="BUS-14"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT-14-46" r="0.0" x="7.35E-4" g="0.0" b="0.0" ratedU1="0.9" ratedU2="1.0" bus1="BUS-14" connectableBus1="BUS-14" voltageLevelId1="VL-14" bus2="BUS-46" connectableBus2="BUS-46" voltageLevelId2="VL-14"/>
+        <iidm:twoWindingsTransformer id="TWT-14-46" r="0.0" x="7.35E-4" g="0.0" b="0.0" ratedU1="0.9" ratedU2="1.0" voltageLevelId1="VL-14" bus1="BUS-14" connectableBus1="BUS-14" voltageLevelId2="VL-14" bus2="BUS-46" connectableBus2="BUS-46"/>
     </iidm:substation>
     <iidm:substation id="SUB-15">
         <iidm:voltageLevel id="VL-15" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -165,7 +165,7 @@
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-15" loadType="UNDEFINED" p0="22.0" q0="5.0" bus="BUS-15" connectableBus="BUS-15"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT-15-45" r="0.0" x="0.001042" g="0.0" b="0.0" ratedU1="0.955" ratedU2="1.0" bus1="BUS-15" connectableBus1="BUS-15" voltageLevelId1="VL-15" bus2="BUS-45" connectableBus2="BUS-45" voltageLevelId2="VL-15"/>
+        <iidm:twoWindingsTransformer id="TWT-15-45" r="0.0" x="0.001042" g="0.0" b="0.0" ratedU1="0.955" ratedU2="1.0" voltageLevelId1="VL-15" bus1="BUS-15" connectableBus1="BUS-15" voltageLevelId2="VL-15" bus2="BUS-45" connectableBus2="BUS-45"/>
     </iidm:substation>
     <iidm:substation id="SUB-16">
         <iidm:voltageLevel id="VL-16" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -199,7 +199,7 @@
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-20" loadType="UNDEFINED" p0="2.3" q0="1.0" bus="BUS-20" connectableBus="BUS-20"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT-21-20" r="0.0" x="0.007767" g="0.0" b="0.0" ratedU1="1.043" ratedU2="1.0" bus1="BUS-21" connectableBus1="BUS-21" voltageLevelId1="VL-20" bus2="BUS-20" connectableBus2="BUS-20" voltageLevelId2="VL-20"/>
+        <iidm:twoWindingsTransformer id="TWT-21-20" r="0.0" x="0.007767" g="0.0" b="0.0" ratedU1="1.043" ratedU2="1.0" voltageLevelId1="VL-20" bus1="BUS-21" connectableBus1="BUS-21" voltageLevelId2="VL-20" bus2="BUS-20" connectableBus2="BUS-20"/>
     </iidm:substation>
     <iidm:substation id="SUB-22">
         <iidm:voltageLevel id="VL-22" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -223,7 +223,7 @@
                 <iidm:bus id="BUS-26" v="0.959" angle="-12.95"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT-24-26" r="0.0" x="4.73E-4" g="0.0" b="0.0" ratedU1="1.043" ratedU2="1.0" bus1="BUS-24" connectableBus1="BUS-24" voltageLevelId1="VL-24" bus2="BUS-26" connectableBus2="BUS-26" voltageLevelId2="VL-24"/>
+        <iidm:twoWindingsTransformer id="TWT-24-26" r="0.0" x="4.73E-4" g="0.0" b="0.0" ratedU1="1.043" ratedU2="1.0" voltageLevelId1="VL-24" bus1="BUS-24" connectableBus1="BUS-24" voltageLevelId2="VL-24" bus2="BUS-26" connectableBus2="BUS-26"/>
     </iidm:substation>
     <iidm:substation id="SUB-25">
         <iidm:voltageLevel id="VL-25" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -232,7 +232,7 @@
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-25" loadType="UNDEFINED" p0="6.3" q0="3.2" bus="BUS-25" connectableBus="BUS-25"/>
             <iidm:shunt id="SHUNT-25" sectionCount="1" voltageRegulatorOn="false" bus="BUS-25" connectableBus="BUS-25">
-                <iidm:shuntLinearModel bPerSection="5.9" maximumSectionCount="1"/>
+                <iidm:shuntLinearModel bPerSection="5.9" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -276,7 +276,7 @@
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-32" loadType="UNDEFINED" p0="1.6" q0="0.8" bus="BUS-32" connectableBus="BUS-32"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT-34-32" r="0.0" x="0.00953" g="0.0" b="0.0" ratedU1="0.975" ratedU2="1.0" bus1="BUS-34" connectableBus1="BUS-34" voltageLevelId1="VL-32" bus2="BUS-32" connectableBus2="BUS-32" voltageLevelId2="VL-32"/>
+        <iidm:twoWindingsTransformer id="TWT-34-32" r="0.0" x="0.00953" g="0.0" b="0.0" ratedU1="0.975" ratedU2="1.0" voltageLevelId1="VL-32" bus1="BUS-34" connectableBus1="BUS-34" voltageLevelId2="VL-32" bus2="BUS-32" connectableBus2="BUS-32"/>
     </iidm:substation>
     <iidm:substation id="SUB-33">
         <iidm:voltageLevel id="VL-33" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -324,7 +324,7 @@
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-57" loadType="UNDEFINED" p0="6.7" q0="2.0" bus="BUS-57" connectableBus="BUS-57"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT-39-57" r="0.0" x="0.01355" g="0.0" b="0.0" ratedU1="0.98" ratedU2="1.0" bus1="BUS-39" connectableBus1="BUS-39" voltageLevelId1="VL-39" bus2="BUS-57" connectableBus2="BUS-57" voltageLevelId2="VL-39"/>
+        <iidm:twoWindingsTransformer id="TWT-39-57" r="0.0" x="0.01355" g="0.0" b="0.0" ratedU1="0.98" ratedU2="1.0" voltageLevelId1="VL-39" bus1="BUS-39" connectableBus1="BUS-39" voltageLevelId2="VL-39" bus2="BUS-57" connectableBus2="BUS-57"/>
     </iidm:substation>
     <iidm:substation id="SUB-40">
         <iidm:voltageLevel id="VL-40" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -334,7 +334,7 @@
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-56" loadType="UNDEFINED" p0="7.6" q0="2.2" bus="BUS-56" connectableBus="BUS-56"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT-40-56" r="0.0" x="0.01195" g="0.0" b="0.0" ratedU1="0.958" ratedU2="1.0" bus1="BUS-40" connectableBus1="BUS-40" voltageLevelId1="VL-40" bus2="BUS-56" connectableBus2="BUS-56" voltageLevelId2="VL-40"/>
+        <iidm:twoWindingsTransformer id="TWT-40-56" r="0.0" x="0.01195" g="0.0" b="0.0" ratedU1="0.958" ratedU2="1.0" voltageLevelId1="VL-40" bus1="BUS-40" connectableBus1="BUS-40" voltageLevelId2="VL-40" bus2="BUS-56" connectableBus2="BUS-56"/>
     </iidm:substation>
     <iidm:substation id="SUB-42">
         <iidm:voltageLevel id="VL-42" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -390,7 +390,7 @@
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-53" loadType="UNDEFINED" p0="20.0" q0="10.0" bus="BUS-53" connectableBus="BUS-53"/>
             <iidm:shunt id="SHUNT-53" sectionCount="1" voltageRegulatorOn="false" bus="BUS-53" connectableBus="BUS-53">
-                <iidm:shuntLinearModel bPerSection="6.3" maximumSectionCount="1"/>
+                <iidm:shuntLinearModel bPerSection="6.3" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -402,71 +402,71 @@
             <iidm:load id="LOAD-54" loadType="UNDEFINED" p0="4.1" q0="1.4" bus="BUS-54" connectableBus="BUS-54"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:line id="LINE-1-2" r="8.3E-5" x="2.8000000000000003E-4" g1="0.0" b1="6.45" g2="0.0" b2="6.45" bus1="BUS-1" connectableBus1="BUS-1" voltageLevelId1="VL-1" bus2="BUS-2" connectableBus2="BUS-2" voltageLevelId2="VL-2"/>
-    <iidm:line id="LINE-2-3" r="2.98E-4" x="8.500000000000001E-4" g1="0.0" b1="4.09" g2="0.0" b2="4.09" bus1="BUS-2" connectableBus1="BUS-2" voltageLevelId1="VL-2" bus2="BUS-3" connectableBus2="BUS-3" voltageLevelId2="VL-3"/>
-    <iidm:line id="LINE-3-4" r="1.12E-4" x="3.66E-4" g1="0.0" b1="1.9" g2="0.0" b2="1.9" bus1="BUS-3" connectableBus1="BUS-3" voltageLevelId1="VL-3" bus2="BUS-4" connectableBus2="BUS-4" voltageLevelId2="VL-4"/>
-    <iidm:line id="LINE-4-5" r="6.25E-4" x="0.00132" g1="0.0" b1="1.29" g2="0.0" b2="1.29" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId1="VL-4" bus2="BUS-5" connectableBus2="BUS-5" voltageLevelId2="VL-5"/>
-    <iidm:line id="LINE-4-6" r="4.3E-4" x="0.00148" g1="0.0" b1="1.7399999999999998" g2="0.0" b2="1.7399999999999998" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId1="VL-4" bus2="BUS-6" connectableBus2="BUS-6" voltageLevelId2="VL-6"/>
-    <iidm:line id="LINE-6-7" r="2.0E-4" x="0.0010199999999999999" g1="0.0" b1="1.38" g2="0.0" b2="1.38" bus1="BUS-6" connectableBus1="BUS-6" voltageLevelId1="VL-6" bus2="BUS-7" connectableBus2="BUS-7" voltageLevelId2="VL-7"/>
-    <iidm:line id="LINE-6-8" r="3.39E-4" x="0.0017299999999999998" g1="0.0" b1="2.35" g2="0.0" b2="2.35" bus1="BUS-6" connectableBus1="BUS-6" voltageLevelId1="VL-6" bus2="BUS-8" connectableBus2="BUS-8" voltageLevelId2="VL-8"/>
-    <iidm:line id="LINE-8-9" r="9.900000000000001E-5" x="5.05E-4" g1="0.0" b1="2.74" g2="0.0" b2="2.74" bus1="BUS-8" connectableBus1="BUS-8" voltageLevelId1="VL-8" bus2="BUS-9" connectableBus2="BUS-9" voltageLevelId2="VL-9"/>
-    <iidm:line id="LINE-9-10" r="3.69E-4" x="0.001679" g1="0.0" b1="2.1999999999999997" g2="0.0" b2="2.1999999999999997" bus1="BUS-9" connectableBus1="BUS-9" voltageLevelId1="VL-9" bus2="BUS-10" connectableBus2="BUS-10" voltageLevelId2="VL-10"/>
-    <iidm:line id="LINE-9-11" r="2.58E-4" x="8.48E-4" g1="0.0" b1="1.09" g2="0.0" b2="1.09" bus1="BUS-9" connectableBus1="BUS-9" voltageLevelId1="VL-9" bus2="BUS-11" connectableBus2="BUS-11" voltageLevelId2="VL-11"/>
-    <iidm:line id="LINE-9-12" r="6.479999999999999E-4" x="0.00295" g1="0.0" b1="3.8600000000000003" g2="0.0" b2="3.8600000000000003" bus1="BUS-9" connectableBus1="BUS-9" voltageLevelId1="VL-9" bus2="BUS-12" connectableBus2="BUS-12" voltageLevelId2="VL-12"/>
-    <iidm:line id="LINE-9-13" r="4.81E-4" x="0.00158" g1="0.0" b1="2.03" g2="0.0" b2="2.03" bus1="BUS-9" connectableBus1="BUS-9" voltageLevelId1="VL-9" bus2="BUS-13" connectableBus2="BUS-13" voltageLevelId2="VL-13"/>
-    <iidm:line id="LINE-13-14" r="1.32E-4" x="4.3400000000000003E-4" g1="0.0" b1="0.5499999999999999" g2="0.0" b2="0.5499999999999999" bus1="BUS-13" connectableBus1="BUS-13" voltageLevelId1="VL-13" bus2="BUS-14" connectableBus2="BUS-14" voltageLevelId2="VL-14"/>
-    <iidm:line id="LINE-13-15" r="2.69E-4" x="8.690000000000001E-4" g1="0.0" b1="1.15" g2="0.0" b2="1.15" bus1="BUS-13" connectableBus1="BUS-13" voltageLevelId1="VL-13" bus2="BUS-15" connectableBus2="BUS-15" voltageLevelId2="VL-15"/>
-    <iidm:line id="LINE-1-15" r="1.78E-4" x="9.1E-4" g1="0.0" b1="4.9399999999999995" g2="0.0" b2="4.9399999999999995" bus1="BUS-1" connectableBus1="BUS-1" voltageLevelId1="VL-1" bus2="BUS-15" connectableBus2="BUS-15" voltageLevelId2="VL-15"/>
-    <iidm:line id="LINE-1-16" r="4.5400000000000003E-4" x="0.0020599999999999998" g1="0.0" b1="2.73" g2="0.0" b2="2.73" bus1="BUS-1" connectableBus1="BUS-1" voltageLevelId1="VL-1" bus2="BUS-16" connectableBus2="BUS-16" voltageLevelId2="VL-16"/>
-    <iidm:line id="LINE-1-17" r="2.38E-4" x="0.00108" g1="0.0" b1="1.43" g2="0.0" b2="1.43" bus1="BUS-1" connectableBus1="BUS-1" voltageLevelId1="VL-1" bus2="BUS-17" connectableBus2="BUS-17" voltageLevelId2="VL-17"/>
-    <iidm:line id="LINE-3-15" r="1.6199999999999998E-4" x="5.3E-4" g1="0.0" b1="2.7199999999999998" g2="0.0" b2="2.7199999999999998" bus1="BUS-3" connectableBus1="BUS-3" voltageLevelId1="VL-3" bus2="BUS-15" connectableBus2="BUS-15" voltageLevelId2="VL-15"/>
-    <iidm:line id="LINE-5-6" r="3.02E-4" x="6.410000000000001E-4" g1="0.0" b1="0.62" g2="0.0" b2="0.62" bus1="BUS-5" connectableBus1="BUS-5" voltageLevelId1="VL-5" bus2="BUS-6" connectableBus2="BUS-6" voltageLevelId2="VL-6"/>
-    <iidm:line id="LINE-7-8" r="1.39E-4" x="7.12E-4" g1="0.0" b1="0.97" g2="0.0" b2="0.97" bus1="BUS-7" connectableBus1="BUS-7" voltageLevelId1="VL-7" bus2="BUS-8" connectableBus2="BUS-8" voltageLevelId2="VL-8"/>
-    <iidm:line id="LINE-10-12" r="2.77E-4" x="0.001262" g1="0.0" b1="1.6400000000000001" g2="0.0" b2="1.6400000000000001" bus1="BUS-10" connectableBus1="BUS-10" voltageLevelId1="VL-10" bus2="BUS-12" connectableBus2="BUS-12" voltageLevelId2="VL-12"/>
-    <iidm:line id="LINE-11-13" r="2.23E-4" x="7.32E-4" g1="0.0" b1="0.9400000000000001" g2="0.0" b2="0.9400000000000001" bus1="BUS-11" connectableBus1="BUS-11" voltageLevelId1="VL-11" bus2="BUS-13" connectableBus2="BUS-13" voltageLevelId2="VL-13"/>
-    <iidm:line id="LINE-12-13" r="1.78E-4" x="5.8E-4" g1="0.0" b1="3.02" g2="0.0" b2="3.02" bus1="BUS-12" connectableBus1="BUS-12" voltageLevelId1="VL-12" bus2="BUS-13" connectableBus2="BUS-13" voltageLevelId2="VL-13"/>
-    <iidm:line id="LINE-12-16" r="1.7999999999999998E-4" x="8.129999999999999E-4" g1="0.0" b1="1.08" g2="0.0" b2="1.08" bus1="BUS-12" connectableBus1="BUS-12" voltageLevelId1="VL-12" bus2="BUS-16" connectableBus2="BUS-16" voltageLevelId2="VL-16"/>
-    <iidm:line id="LINE-12-17" r="3.97E-4" x="0.00179" g1="0.0" b1="2.3800000000000003" g2="0.0" b2="2.3800000000000003" bus1="BUS-12" connectableBus1="BUS-12" voltageLevelId1="VL-12" bus2="BUS-17" connectableBus2="BUS-17" voltageLevelId2="VL-17"/>
-    <iidm:line id="LINE-14-15" r="1.71E-4" x="5.47E-4" g1="0.0" b1="0.74" g2="0.0" b2="0.74" bus1="BUS-14" connectableBus1="BUS-14" voltageLevelId1="VL-14" bus2="BUS-15" connectableBus2="BUS-15" voltageLevelId2="VL-15"/>
-    <iidm:line id="LINE-18-19" r="0.00461" x="0.00685" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-18" connectableBus1="BUS-18" voltageLevelId1="VL-4" bus2="BUS-19" connectableBus2="BUS-19" voltageLevelId2="VL-19"/>
-    <iidm:line id="LINE-19-20" r="0.0028299999999999996" x="0.00434" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-19" connectableBus1="BUS-19" voltageLevelId1="VL-19" bus2="BUS-20" connectableBus2="BUS-20" voltageLevelId2="VL-20"/>
-    <iidm:line id="LINE-21-22" r="7.36E-4" x="0.00117" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-21" connectableBus1="BUS-21" voltageLevelId1="VL-20" bus2="BUS-22" connectableBus2="BUS-22" voltageLevelId2="VL-22"/>
-    <iidm:line id="LINE-22-23" r="9.900000000000001E-5" x="1.52E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-22" connectableBus1="BUS-22" voltageLevelId1="VL-22" bus2="BUS-23" connectableBus2="BUS-23" voltageLevelId2="VL-23"/>
-    <iidm:line id="LINE-23-24" r="0.00166" x="0.00256" g1="0.0" b1="0.42" g2="0.0" b2="0.42" bus1="BUS-23" connectableBus1="BUS-23" voltageLevelId1="VL-23" bus2="BUS-24" connectableBus2="BUS-24" voltageLevelId2="VL-24"/>
-    <iidm:line id="LINE-24-25" r="0.0" x="0.011819999999999999" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-24" connectableBus1="BUS-24" voltageLevelId1="VL-24" bus2="BUS-25" connectableBus2="BUS-25" voltageLevelId2="VL-25"/>
-    <iidm:line id="LINE-24-25#0" r="0.0" x="0.0123" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-24" connectableBus1="BUS-24" voltageLevelId1="VL-24" bus2="BUS-25" connectableBus2="BUS-25" voltageLevelId2="VL-25"/>
-    <iidm:line id="LINE-26-27" r="0.00165" x="0.00254" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-26" connectableBus1="BUS-26" voltageLevelId1="VL-24" bus2="BUS-27" connectableBus2="BUS-27" voltageLevelId2="VL-27"/>
-    <iidm:line id="LINE-27-28" r="6.180000000000001E-4" x="9.54E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-27" connectableBus1="BUS-27" voltageLevelId1="VL-27" bus2="BUS-28" connectableBus2="BUS-28" voltageLevelId2="VL-28"/>
-    <iidm:line id="LINE-28-29" r="4.1799999999999997E-4" x="5.870000000000001E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-28" connectableBus1="BUS-28" voltageLevelId1="VL-28" bus2="BUS-29" connectableBus2="BUS-29" voltageLevelId2="VL-7"/>
-    <iidm:line id="LINE-25-30" r="0.00135" x="0.00202" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-25" connectableBus1="BUS-25" voltageLevelId1="VL-25" bus2="BUS-30" connectableBus2="BUS-30" voltageLevelId2="VL-30"/>
-    <iidm:line id="LINE-30-31" r="0.0032600000000000003" x="0.00497" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-30" connectableBus1="BUS-30" voltageLevelId1="VL-30" bus2="BUS-31" connectableBus2="BUS-31" voltageLevelId2="VL-31"/>
-    <iidm:line id="LINE-31-32" r="0.00507" x="0.00755" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-31" connectableBus1="BUS-31" voltageLevelId1="VL-31" bus2="BUS-32" connectableBus2="BUS-32" voltageLevelId2="VL-32"/>
-    <iidm:line id="LINE-32-33" r="3.92E-4" x="3.5999999999999997E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-32" connectableBus1="BUS-32" voltageLevelId1="VL-32" bus2="BUS-33" connectableBus2="BUS-33" voltageLevelId2="VL-33"/>
-    <iidm:line id="LINE-34-35" r="5.2E-4" x="7.8E-4" g1="0.0" b1="0.16" g2="0.0" b2="0.16" bus1="BUS-34" connectableBus1="BUS-34" voltageLevelId1="VL-32" bus2="BUS-35" connectableBus2="BUS-35" voltageLevelId2="VL-35"/>
-    <iidm:line id="LINE-35-36" r="4.3E-4" x="5.369999999999999E-4" g1="0.0" b1="0.08" g2="0.0" b2="0.08" bus1="BUS-35" connectableBus1="BUS-35" voltageLevelId1="VL-35" bus2="BUS-36" connectableBus2="BUS-36" voltageLevelId2="VL-36"/>
-    <iidm:line id="LINE-36-37" r="2.9E-4" x="3.66E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-36" connectableBus1="BUS-36" voltageLevelId1="VL-36" bus2="BUS-37" connectableBus2="BUS-37" voltageLevelId2="VL-37"/>
-    <iidm:line id="LINE-37-38" r="6.510000000000001E-4" x="0.0010090000000000001" g1="0.0" b1="0.1" g2="0.0" b2="0.1" bus1="BUS-37" connectableBus1="BUS-37" voltageLevelId1="VL-37" bus2="BUS-38" connectableBus2="BUS-38" voltageLevelId2="VL-38"/>
-    <iidm:line id="LINE-37-39" r="2.39E-4" x="3.7900000000000005E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-37" connectableBus1="BUS-37" voltageLevelId1="VL-37" bus2="BUS-39" connectableBus2="BUS-39" voltageLevelId2="VL-39"/>
-    <iidm:line id="LINE-36-40" r="3.0E-4" x="4.6600000000000005E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-36" connectableBus1="BUS-36" voltageLevelId1="VL-36" bus2="BUS-40" connectableBus2="BUS-40" voltageLevelId2="VL-40"/>
-    <iidm:line id="LINE-22-38" r="1.9199999999999998E-4" x="2.9499999999999996E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-22" connectableBus1="BUS-22" voltageLevelId1="VL-22" bus2="BUS-38" connectableBus2="BUS-38" voltageLevelId2="VL-38"/>
-    <iidm:line id="LINE-41-42" r="0.00207" x="0.0035199999999999997" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-41" connectableBus1="BUS-41" voltageLevelId1="VL-11" bus2="BUS-42" connectableBus2="BUS-42" voltageLevelId2="VL-42"/>
-    <iidm:line id="LINE-41-43" r="0.0" x="0.0041199999999999995" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-41" connectableBus1="BUS-41" voltageLevelId1="VL-11" bus2="BUS-43" connectableBus2="BUS-43" voltageLevelId2="VL-11"/>
-    <iidm:line id="LINE-38-44" r="2.89E-4" x="5.85E-4" g1="0.0" b1="0.1" g2="0.0" b2="0.1" bus1="BUS-38" connectableBus1="BUS-38" voltageLevelId1="VL-38" bus2="BUS-44" connectableBus2="BUS-44" voltageLevelId2="VL-44"/>
-    <iidm:line id="LINE-46-47" r="2.3E-4" x="6.8E-4" g1="0.0" b1="0.16" g2="0.0" b2="0.16" bus1="BUS-46" connectableBus1="BUS-46" voltageLevelId1="VL-14" bus2="BUS-47" connectableBus2="BUS-47" voltageLevelId2="VL-47"/>
-    <iidm:line id="LINE-47-48" r="1.82E-4" x="2.3300000000000003E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-47" connectableBus1="BUS-47" voltageLevelId1="VL-47" bus2="BUS-48" connectableBus2="BUS-48" voltageLevelId2="VL-48"/>
-    <iidm:line id="LINE-48-49" r="8.34E-4" x="0.0012900000000000001" g1="0.0" b1="0.24" g2="0.0" b2="0.24" bus1="BUS-48" connectableBus1="BUS-48" voltageLevelId1="VL-48" bus2="BUS-49" connectableBus2="BUS-49" voltageLevelId2="VL-13"/>
-    <iidm:line id="LINE-49-50" r="8.010000000000001E-4" x="0.00128" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-49" connectableBus1="BUS-49" voltageLevelId1="VL-13" bus2="BUS-50" connectableBus2="BUS-50" voltageLevelId2="VL-50"/>
-    <iidm:line id="LINE-50-51" r="0.001386" x="0.0022" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-50" connectableBus1="BUS-50" voltageLevelId1="VL-50" bus2="BUS-51" connectableBus2="BUS-51" voltageLevelId2="VL-10"/>
-    <iidm:line id="LINE-29-52" r="0.001442" x="0.00187" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-29" connectableBus1="BUS-29" voltageLevelId1="VL-7" bus2="BUS-52" connectableBus2="BUS-52" voltageLevelId2="VL-52"/>
-    <iidm:line id="LINE-52-53" r="7.620000000000001E-4" x="9.84E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-52" connectableBus1="BUS-52" voltageLevelId1="VL-52" bus2="BUS-53" connectableBus2="BUS-53" voltageLevelId2="VL-53"/>
-    <iidm:line id="LINE-53-54" r="0.001878" x="0.00232" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-53" connectableBus1="BUS-53" voltageLevelId1="VL-53" bus2="BUS-54" connectableBus2="BUS-54" voltageLevelId2="VL-54"/>
-    <iidm:line id="LINE-54-55" r="0.001732" x="0.002265" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-54" connectableBus1="BUS-54" voltageLevelId1="VL-54" bus2="BUS-55" connectableBus2="BUS-55" voltageLevelId2="VL-9"/>
-    <iidm:line id="LINE-44-45" r="6.24E-4" x="0.001242" g1="0.0" b1="0.2" g2="0.0" b2="0.2" bus1="BUS-44" connectableBus1="BUS-44" voltageLevelId1="VL-44" bus2="BUS-45" connectableBus2="BUS-45" voltageLevelId2="VL-15"/>
-    <iidm:line id="LINE-56-41" r="0.00553" x="0.00549" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-56" connectableBus1="BUS-56" voltageLevelId1="VL-40" bus2="BUS-41" connectableBus2="BUS-41" voltageLevelId2="VL-11"/>
-    <iidm:line id="LINE-56-42" r="0.002125" x="0.0035399999999999997" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-56" connectableBus1="BUS-56" voltageLevelId1="VL-40" bus2="BUS-42" connectableBus2="BUS-42" voltageLevelId2="VL-42"/>
-    <iidm:line id="LINE-57-56" r="0.0017399999999999998" x="0.0026" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-57" connectableBus1="BUS-57" voltageLevelId1="VL-39" bus2="BUS-56" connectableBus2="BUS-56" voltageLevelId2="VL-40"/>
-    <iidm:line id="LINE-38-49" r="0.00115" x="0.0017699999999999999" g1="0.0" b1="0.15" g2="0.0" b2="0.15" bus1="BUS-38" connectableBus1="BUS-38" voltageLevelId1="VL-38" bus2="BUS-49" connectableBus2="BUS-49" voltageLevelId2="VL-13"/>
-    <iidm:line id="LINE-38-48" r="3.12E-4" x="4.82E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-38" connectableBus1="BUS-38" voltageLevelId1="VL-38" bus2="BUS-48" connectableBus2="BUS-48" voltageLevelId2="VL-48"/>
+    <iidm:line id="LINE-1-2" r="8.3E-5" x="2.8000000000000003E-4" g1="0.0" b1="6.45" g2="0.0" b2="6.45" voltageLevelId1="VL-1" bus1="BUS-1" connectableBus1="BUS-1" voltageLevelId2="VL-2" bus2="BUS-2" connectableBus2="BUS-2"/>
+    <iidm:line id="LINE-2-3" r="2.98E-4" x="8.500000000000001E-4" g1="0.0" b1="4.09" g2="0.0" b2="4.09" voltageLevelId1="VL-2" bus1="BUS-2" connectableBus1="BUS-2" voltageLevelId2="VL-3" bus2="BUS-3" connectableBus2="BUS-3"/>
+    <iidm:line id="LINE-3-4" r="1.12E-4" x="3.66E-4" g1="0.0" b1="1.9" g2="0.0" b2="1.9" voltageLevelId1="VL-3" bus1="BUS-3" connectableBus1="BUS-3" voltageLevelId2="VL-4" bus2="BUS-4" connectableBus2="BUS-4"/>
+    <iidm:line id="LINE-4-5" r="6.25E-4" x="0.00132" g1="0.0" b1="1.29" g2="0.0" b2="1.29" voltageLevelId1="VL-4" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId2="VL-5" bus2="BUS-5" connectableBus2="BUS-5"/>
+    <iidm:line id="LINE-4-6" r="4.3E-4" x="0.00148" g1="0.0" b1="1.7399999999999998" g2="0.0" b2="1.7399999999999998" voltageLevelId1="VL-4" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId2="VL-6" bus2="BUS-6" connectableBus2="BUS-6"/>
+    <iidm:line id="LINE-6-7" r="2.0E-4" x="0.0010199999999999999" g1="0.0" b1="1.38" g2="0.0" b2="1.38" voltageLevelId1="VL-6" bus1="BUS-6" connectableBus1="BUS-6" voltageLevelId2="VL-7" bus2="BUS-7" connectableBus2="BUS-7"/>
+    <iidm:line id="LINE-6-8" r="3.39E-4" x="0.0017299999999999998" g1="0.0" b1="2.35" g2="0.0" b2="2.35" voltageLevelId1="VL-6" bus1="BUS-6" connectableBus1="BUS-6" voltageLevelId2="VL-8" bus2="BUS-8" connectableBus2="BUS-8"/>
+    <iidm:line id="LINE-8-9" r="9.900000000000001E-5" x="5.05E-4" g1="0.0" b1="2.74" g2="0.0" b2="2.74" voltageLevelId1="VL-8" bus1="BUS-8" connectableBus1="BUS-8" voltageLevelId2="VL-9" bus2="BUS-9" connectableBus2="BUS-9"/>
+    <iidm:line id="LINE-9-10" r="3.69E-4" x="0.001679" g1="0.0" b1="2.1999999999999997" g2="0.0" b2="2.1999999999999997" voltageLevelId1="VL-9" bus1="BUS-9" connectableBus1="BUS-9" voltageLevelId2="VL-10" bus2="BUS-10" connectableBus2="BUS-10"/>
+    <iidm:line id="LINE-9-11" r="2.58E-4" x="8.48E-4" g1="0.0" b1="1.09" g2="0.0" b2="1.09" voltageLevelId1="VL-9" bus1="BUS-9" connectableBus1="BUS-9" voltageLevelId2="VL-11" bus2="BUS-11" connectableBus2="BUS-11"/>
+    <iidm:line id="LINE-9-12" r="6.479999999999999E-4" x="0.00295" g1="0.0" b1="3.8600000000000003" g2="0.0" b2="3.8600000000000003" voltageLevelId1="VL-9" bus1="BUS-9" connectableBus1="BUS-9" voltageLevelId2="VL-12" bus2="BUS-12" connectableBus2="BUS-12"/>
+    <iidm:line id="LINE-9-13" r="4.81E-4" x="0.00158" g1="0.0" b1="2.03" g2="0.0" b2="2.03" voltageLevelId1="VL-9" bus1="BUS-9" connectableBus1="BUS-9" voltageLevelId2="VL-13" bus2="BUS-13" connectableBus2="BUS-13"/>
+    <iidm:line id="LINE-13-14" r="1.32E-4" x="4.3400000000000003E-4" g1="0.0" b1="0.5499999999999999" g2="0.0" b2="0.5499999999999999" voltageLevelId1="VL-13" bus1="BUS-13" connectableBus1="BUS-13" voltageLevelId2="VL-14" bus2="BUS-14" connectableBus2="BUS-14"/>
+    <iidm:line id="LINE-13-15" r="2.69E-4" x="8.690000000000001E-4" g1="0.0" b1="1.15" g2="0.0" b2="1.15" voltageLevelId1="VL-13" bus1="BUS-13" connectableBus1="BUS-13" voltageLevelId2="VL-15" bus2="BUS-15" connectableBus2="BUS-15"/>
+    <iidm:line id="LINE-1-15" r="1.78E-4" x="9.1E-4" g1="0.0" b1="4.9399999999999995" g2="0.0" b2="4.9399999999999995" voltageLevelId1="VL-1" bus1="BUS-1" connectableBus1="BUS-1" voltageLevelId2="VL-15" bus2="BUS-15" connectableBus2="BUS-15"/>
+    <iidm:line id="LINE-1-16" r="4.5400000000000003E-4" x="0.0020599999999999998" g1="0.0" b1="2.73" g2="0.0" b2="2.73" voltageLevelId1="VL-1" bus1="BUS-1" connectableBus1="BUS-1" voltageLevelId2="VL-16" bus2="BUS-16" connectableBus2="BUS-16"/>
+    <iidm:line id="LINE-1-17" r="2.38E-4" x="0.00108" g1="0.0" b1="1.43" g2="0.0" b2="1.43" voltageLevelId1="VL-1" bus1="BUS-1" connectableBus1="BUS-1" voltageLevelId2="VL-17" bus2="BUS-17" connectableBus2="BUS-17"/>
+    <iidm:line id="LINE-3-15" r="1.6199999999999998E-4" x="5.3E-4" g1="0.0" b1="2.7199999999999998" g2="0.0" b2="2.7199999999999998" voltageLevelId1="VL-3" bus1="BUS-3" connectableBus1="BUS-3" voltageLevelId2="VL-15" bus2="BUS-15" connectableBus2="BUS-15"/>
+    <iidm:line id="LINE-5-6" r="3.02E-4" x="6.410000000000001E-4" g1="0.0" b1="0.62" g2="0.0" b2="0.62" voltageLevelId1="VL-5" bus1="BUS-5" connectableBus1="BUS-5" voltageLevelId2="VL-6" bus2="BUS-6" connectableBus2="BUS-6"/>
+    <iidm:line id="LINE-7-8" r="1.39E-4" x="7.12E-4" g1="0.0" b1="0.97" g2="0.0" b2="0.97" voltageLevelId1="VL-7" bus1="BUS-7" connectableBus1="BUS-7" voltageLevelId2="VL-8" bus2="BUS-8" connectableBus2="BUS-8"/>
+    <iidm:line id="LINE-10-12" r="2.77E-4" x="0.001262" g1="0.0" b1="1.6400000000000001" g2="0.0" b2="1.6400000000000001" voltageLevelId1="VL-10" bus1="BUS-10" connectableBus1="BUS-10" voltageLevelId2="VL-12" bus2="BUS-12" connectableBus2="BUS-12"/>
+    <iidm:line id="LINE-11-13" r="2.23E-4" x="7.32E-4" g1="0.0" b1="0.9400000000000001" g2="0.0" b2="0.9400000000000001" voltageLevelId1="VL-11" bus1="BUS-11" connectableBus1="BUS-11" voltageLevelId2="VL-13" bus2="BUS-13" connectableBus2="BUS-13"/>
+    <iidm:line id="LINE-12-13" r="1.78E-4" x="5.8E-4" g1="0.0" b1="3.02" g2="0.0" b2="3.02" voltageLevelId1="VL-12" bus1="BUS-12" connectableBus1="BUS-12" voltageLevelId2="VL-13" bus2="BUS-13" connectableBus2="BUS-13"/>
+    <iidm:line id="LINE-12-16" r="1.7999999999999998E-4" x="8.129999999999999E-4" g1="0.0" b1="1.08" g2="0.0" b2="1.08" voltageLevelId1="VL-12" bus1="BUS-12" connectableBus1="BUS-12" voltageLevelId2="VL-16" bus2="BUS-16" connectableBus2="BUS-16"/>
+    <iidm:line id="LINE-12-17" r="3.97E-4" x="0.00179" g1="0.0" b1="2.3800000000000003" g2="0.0" b2="2.3800000000000003" voltageLevelId1="VL-12" bus1="BUS-12" connectableBus1="BUS-12" voltageLevelId2="VL-17" bus2="BUS-17" connectableBus2="BUS-17"/>
+    <iidm:line id="LINE-14-15" r="1.71E-4" x="5.47E-4" g1="0.0" b1="0.74" g2="0.0" b2="0.74" voltageLevelId1="VL-14" bus1="BUS-14" connectableBus1="BUS-14" voltageLevelId2="VL-15" bus2="BUS-15" connectableBus2="BUS-15"/>
+    <iidm:line id="LINE-18-19" r="0.00461" x="0.00685" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-4" bus1="BUS-18" connectableBus1="BUS-18" voltageLevelId2="VL-19" bus2="BUS-19" connectableBus2="BUS-19"/>
+    <iidm:line id="LINE-19-20" r="0.0028299999999999996" x="0.00434" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-19" bus1="BUS-19" connectableBus1="BUS-19" voltageLevelId2="VL-20" bus2="BUS-20" connectableBus2="BUS-20"/>
+    <iidm:line id="LINE-21-22" r="7.36E-4" x="0.00117" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-20" bus1="BUS-21" connectableBus1="BUS-21" voltageLevelId2="VL-22" bus2="BUS-22" connectableBus2="BUS-22"/>
+    <iidm:line id="LINE-22-23" r="9.900000000000001E-5" x="1.52E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-22" bus1="BUS-22" connectableBus1="BUS-22" voltageLevelId2="VL-23" bus2="BUS-23" connectableBus2="BUS-23"/>
+    <iidm:line id="LINE-23-24" r="0.00166" x="0.00256" g1="0.0" b1="0.42" g2="0.0" b2="0.42" voltageLevelId1="VL-23" bus1="BUS-23" connectableBus1="BUS-23" voltageLevelId2="VL-24" bus2="BUS-24" connectableBus2="BUS-24"/>
+    <iidm:line id="LINE-24-25" r="0.0" x="0.011819999999999999" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-24" bus1="BUS-24" connectableBus1="BUS-24" voltageLevelId2="VL-25" bus2="BUS-25" connectableBus2="BUS-25"/>
+    <iidm:line id="LINE-24-25#0" r="0.0" x="0.0123" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-24" bus1="BUS-24" connectableBus1="BUS-24" voltageLevelId2="VL-25" bus2="BUS-25" connectableBus2="BUS-25"/>
+    <iidm:line id="LINE-26-27" r="0.00165" x="0.00254" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-24" bus1="BUS-26" connectableBus1="BUS-26" voltageLevelId2="VL-27" bus2="BUS-27" connectableBus2="BUS-27"/>
+    <iidm:line id="LINE-27-28" r="6.180000000000001E-4" x="9.54E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-27" bus1="BUS-27" connectableBus1="BUS-27" voltageLevelId2="VL-28" bus2="BUS-28" connectableBus2="BUS-28"/>
+    <iidm:line id="LINE-28-29" r="4.1799999999999997E-4" x="5.870000000000001E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-28" bus1="BUS-28" connectableBus1="BUS-28" voltageLevelId2="VL-7" bus2="BUS-29" connectableBus2="BUS-29"/>
+    <iidm:line id="LINE-25-30" r="0.00135" x="0.00202" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-25" bus1="BUS-25" connectableBus1="BUS-25" voltageLevelId2="VL-30" bus2="BUS-30" connectableBus2="BUS-30"/>
+    <iidm:line id="LINE-30-31" r="0.0032600000000000003" x="0.00497" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-30" bus1="BUS-30" connectableBus1="BUS-30" voltageLevelId2="VL-31" bus2="BUS-31" connectableBus2="BUS-31"/>
+    <iidm:line id="LINE-31-32" r="0.00507" x="0.00755" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-31" bus1="BUS-31" connectableBus1="BUS-31" voltageLevelId2="VL-32" bus2="BUS-32" connectableBus2="BUS-32"/>
+    <iidm:line id="LINE-32-33" r="3.92E-4" x="3.5999999999999997E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-32" bus1="BUS-32" connectableBus1="BUS-32" voltageLevelId2="VL-33" bus2="BUS-33" connectableBus2="BUS-33"/>
+    <iidm:line id="LINE-34-35" r="5.2E-4" x="7.8E-4" g1="0.0" b1="0.16" g2="0.0" b2="0.16" voltageLevelId1="VL-32" bus1="BUS-34" connectableBus1="BUS-34" voltageLevelId2="VL-35" bus2="BUS-35" connectableBus2="BUS-35"/>
+    <iidm:line id="LINE-35-36" r="4.3E-4" x="5.369999999999999E-4" g1="0.0" b1="0.08" g2="0.0" b2="0.08" voltageLevelId1="VL-35" bus1="BUS-35" connectableBus1="BUS-35" voltageLevelId2="VL-36" bus2="BUS-36" connectableBus2="BUS-36"/>
+    <iidm:line id="LINE-36-37" r="2.9E-4" x="3.66E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-36" bus1="BUS-36" connectableBus1="BUS-36" voltageLevelId2="VL-37" bus2="BUS-37" connectableBus2="BUS-37"/>
+    <iidm:line id="LINE-37-38" r="6.510000000000001E-4" x="0.0010090000000000001" g1="0.0" b1="0.1" g2="0.0" b2="0.1" voltageLevelId1="VL-37" bus1="BUS-37" connectableBus1="BUS-37" voltageLevelId2="VL-38" bus2="BUS-38" connectableBus2="BUS-38"/>
+    <iidm:line id="LINE-37-39" r="2.39E-4" x="3.7900000000000005E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-37" bus1="BUS-37" connectableBus1="BUS-37" voltageLevelId2="VL-39" bus2="BUS-39" connectableBus2="BUS-39"/>
+    <iidm:line id="LINE-36-40" r="3.0E-4" x="4.6600000000000005E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-36" bus1="BUS-36" connectableBus1="BUS-36" voltageLevelId2="VL-40" bus2="BUS-40" connectableBus2="BUS-40"/>
+    <iidm:line id="LINE-22-38" r="1.9199999999999998E-4" x="2.9499999999999996E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-22" bus1="BUS-22" connectableBus1="BUS-22" voltageLevelId2="VL-38" bus2="BUS-38" connectableBus2="BUS-38"/>
+    <iidm:line id="LINE-41-42" r="0.00207" x="0.0035199999999999997" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-11" bus1="BUS-41" connectableBus1="BUS-41" voltageLevelId2="VL-42" bus2="BUS-42" connectableBus2="BUS-42"/>
+    <iidm:line id="LINE-41-43" r="0.0" x="0.0041199999999999995" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-11" bus1="BUS-41" connectableBus1="BUS-41" voltageLevelId2="VL-11" bus2="BUS-43" connectableBus2="BUS-43"/>
+    <iidm:line id="LINE-38-44" r="2.89E-4" x="5.85E-4" g1="0.0" b1="0.1" g2="0.0" b2="0.1" voltageLevelId1="VL-38" bus1="BUS-38" connectableBus1="BUS-38" voltageLevelId2="VL-44" bus2="BUS-44" connectableBus2="BUS-44"/>
+    <iidm:line id="LINE-46-47" r="2.3E-4" x="6.8E-4" g1="0.0" b1="0.16" g2="0.0" b2="0.16" voltageLevelId1="VL-14" bus1="BUS-46" connectableBus1="BUS-46" voltageLevelId2="VL-47" bus2="BUS-47" connectableBus2="BUS-47"/>
+    <iidm:line id="LINE-47-48" r="1.82E-4" x="2.3300000000000003E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-47" bus1="BUS-47" connectableBus1="BUS-47" voltageLevelId2="VL-48" bus2="BUS-48" connectableBus2="BUS-48"/>
+    <iidm:line id="LINE-48-49" r="8.34E-4" x="0.0012900000000000001" g1="0.0" b1="0.24" g2="0.0" b2="0.24" voltageLevelId1="VL-48" bus1="BUS-48" connectableBus1="BUS-48" voltageLevelId2="VL-13" bus2="BUS-49" connectableBus2="BUS-49"/>
+    <iidm:line id="LINE-49-50" r="8.010000000000001E-4" x="0.00128" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-13" bus1="BUS-49" connectableBus1="BUS-49" voltageLevelId2="VL-50" bus2="BUS-50" connectableBus2="BUS-50"/>
+    <iidm:line id="LINE-50-51" r="0.001386" x="0.0022" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-50" bus1="BUS-50" connectableBus1="BUS-50" voltageLevelId2="VL-10" bus2="BUS-51" connectableBus2="BUS-51"/>
+    <iidm:line id="LINE-29-52" r="0.001442" x="0.00187" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-7" bus1="BUS-29" connectableBus1="BUS-29" voltageLevelId2="VL-52" bus2="BUS-52" connectableBus2="BUS-52"/>
+    <iidm:line id="LINE-52-53" r="7.620000000000001E-4" x="9.84E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-52" bus1="BUS-52" connectableBus1="BUS-52" voltageLevelId2="VL-53" bus2="BUS-53" connectableBus2="BUS-53"/>
+    <iidm:line id="LINE-53-54" r="0.001878" x="0.00232" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-53" bus1="BUS-53" connectableBus1="BUS-53" voltageLevelId2="VL-54" bus2="BUS-54" connectableBus2="BUS-54"/>
+    <iidm:line id="LINE-54-55" r="0.001732" x="0.002265" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-54" bus1="BUS-54" connectableBus1="BUS-54" voltageLevelId2="VL-9" bus2="BUS-55" connectableBus2="BUS-55"/>
+    <iidm:line id="LINE-44-45" r="6.24E-4" x="0.001242" g1="0.0" b1="0.2" g2="0.0" b2="0.2" voltageLevelId1="VL-44" bus1="BUS-44" connectableBus1="BUS-44" voltageLevelId2="VL-15" bus2="BUS-45" connectableBus2="BUS-45"/>
+    <iidm:line id="LINE-56-41" r="0.00553" x="0.00549" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-40" bus1="BUS-56" connectableBus1="BUS-56" voltageLevelId2="VL-11" bus2="BUS-41" connectableBus2="BUS-41"/>
+    <iidm:line id="LINE-56-42" r="0.002125" x="0.0035399999999999997" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-40" bus1="BUS-56" connectableBus1="BUS-56" voltageLevelId2="VL-42" bus2="BUS-42" connectableBus2="BUS-42"/>
+    <iidm:line id="LINE-57-56" r="0.0017399999999999998" x="0.0026" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-39" bus1="BUS-57" connectableBus1="BUS-57" voltageLevelId2="VL-40" bus2="BUS-56" connectableBus2="BUS-56"/>
+    <iidm:line id="LINE-38-49" r="0.00115" x="0.0017699999999999999" g1="0.0" b1="0.15" g2="0.0" b2="0.15" voltageLevelId1="VL-38" bus1="BUS-38" connectableBus1="BUS-38" voltageLevelId2="VL-13" bus2="BUS-49" connectableBus2="BUS-49"/>
+    <iidm:line id="LINE-38-48" r="3.12E-4" x="4.82E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-38" bus1="BUS-38" connectableBus1="BUS-38" voltageLevelId2="VL-48" bus2="BUS-48" connectableBus2="BUS-48"/>
     <iidm:extension id="VL-1">
         <slt:slackTerminal id="LOAD-1"/>
     </iidm:extension>
