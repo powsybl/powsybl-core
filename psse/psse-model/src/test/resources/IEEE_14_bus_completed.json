@@ -1780,7 +1780,7 @@
     "owner" : 1,
     "set1" : 0.0,
     "set2" : 0.0,
-    "vsref" : 0.0,
+    "vsref" : 0,
     "remot" : 5,
     "mname" : ""
   }, {
@@ -1802,7 +1802,7 @@
     "owner" : 1,
     "set1" : 0.0,
     "set2" : 0.0,
-    "vsref" : 0.0,
+    "vsref" : 0,
     "remot" : 7,
     "mname" : ""
   } ],

@@ -35,7 +35,7 @@ class BatteryConverter extends AbstractConverter {
         int busI = getTerminalBusI(battery.getTerminal(), contextExport);
         psseLoad.setI(busI);
         psseLoad.setId(contextExport.getFullExport().getEquipmentCkt(battery.getId(), IdentifiableType.LOAD, busI));
-        psseLoad.setStatus(getStatus(battery.getTerminal()));
+        psseLoad.setStatus(getStatus(battery.getTerminal(), contextExport));
         psseLoad.setPl(getP(battery));
         psseLoad.setQl(getQ(battery));
         return psseLoad;

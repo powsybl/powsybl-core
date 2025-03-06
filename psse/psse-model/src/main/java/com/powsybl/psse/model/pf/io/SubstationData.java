@@ -33,6 +33,10 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
     static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_ONE_BUS = {"i", "ni", "type", "id"};
     static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_TWO_BUSES = {"i", "ni", "type", "j", "id"};
     static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_THREE_BUSES = {"i", "ni", "type", "j", "k", "id"};
+    static final String[] FIELD_NAMES_SUBSTATION_RAWX = {"isub", "name", "lati", "long", "srg"};
+    static final String[] FIELD_NAMES_SUBSTATION_NODE_RAWX = {"isub", "inode", "name", "ibus", "stat", "vm", "va"};
+    static final String[] FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES_RAWX = {"isub", "inode", "jnode", "swdid", "name", "type", "stat", "nstat", "xpu", "rsetnam"};
+    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_RAWX = {"isub", "inode", "type", "eqid", "ibus", "jbus", "kbus"};
 
     SubstationData() {
         super(SUBSTATION);
@@ -113,8 +117,6 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
                 SubstationRecordData recordData = new SubstationRecordData();
                 write(recordData.buildRecords(Collections.singletonList(substation.getRecord()), context.getFieldNames(SUBSTATION), recordData.quotedFields(), context), outputStream);
-
-                writeComment(" BEGIN SUBSTATION NODE DATA", outputStream);
 
                 SubstationNodeData nodeData = new SubstationNodeData();
                 write(nodeData.buildRecords(substation.getNodes(), context.getFieldNames(INTERNAL_SUBSTATION_NODE), nodeData.quotedFields(), context), outputStream);

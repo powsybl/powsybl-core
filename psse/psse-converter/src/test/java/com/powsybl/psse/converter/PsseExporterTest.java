@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DataSource;
@@ -301,6 +300,8 @@ class PsseExporterTest extends AbstractSerDeTest {
 
         assertEquals("Update IIDM to PSS/E ", psseExporter.getComment());
         assertEquals("PSS/E", psseExporter.getFormat());
-        assertEquals(ImmutableList.of(), psseExporter.getParameters());
+        assertEquals(2, psseExporter.getParameters().size());
+        assertEquals("psse.export.update", psseExporter.getParameters().get(0).getName());
+        assertEquals("psse.export.raw-format", psseExporter.getParameters().get(1).getName());
     }
 }

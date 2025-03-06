@@ -2,7 +2,7 @@
   "network" : {
     "caseid" : {
       "fields" : [ "ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2" ],
-      "data" : [ 0,100.0,35,0.0,0.0,60.0," 08/19/93 UW ARCHIVE           100.0  1962 W IEEE 14 Bus Test Case","" ]
+      "data" : [ 0,100.0,35,0,0,60.0," 08/19/93 UW ARCHIVE           100.0  1962 W IEEE 14 Bus Test Case","" ]
     },
     "bus" : {
       "fields" : [ "ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va" ],
@@ -180,8 +180,8 @@
     "facts" : {
       "fields" : [ "name", "ibus", "jbus", "mode", "pdes", "qdes", "vset", "shmx", "trmx", "vtmn", "vtmx", "vsmx", "imx", "linx", "rmpct", "owner", "set1", "set2", "vsref", "fcreg", "nreg", "mname" ],
       "data" : [
-        [ "FACTS_DVCE_1",5,0,1,0.0,0.0,1.015,50.0,100.0,0.9263,1.134,1.0,0.0,0.05652,100.0,1,0.0,0.0,0.0,5,0,"" ],
-        [ "FACTS_DVCE_2",7,0,1,350.0,40.0,1.015,25.0,9999.0,0.9,1.1,1.0,0.0,0.05,100.0,1,0.0,0.0,0.0,7,0,"" ]
+        [ "FACTS_DVCE_1",5,0,1,0.0,0.0,1.015,50.0,100.0,0.9263,1.134,1.0,0.0,0.05652,100.0,1,0.0,0.0,0,5,0,"" ],
+        [ "FACTS_DVCE_2",7,0,1,350.0,40.0,1.015,25.0,9999.0,0.9,1.1,1.0,0.0,0.05,100.0,1,0.0,0.0,0,7,0,"" ]
       ]
     },
     "gne" : {

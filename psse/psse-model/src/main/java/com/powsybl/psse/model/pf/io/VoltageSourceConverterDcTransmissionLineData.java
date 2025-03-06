@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.powsybl.psse.model.PsseVersion.Major.*;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_CONVERTER;
@@ -31,6 +32,8 @@ class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<P
     private static final String[] FIELD_NAMES_CONVERTER_32_33 = {"ibus", "type", "mode", "dcset", "acset", "aloss", "bloss", "minloss", "smax", "imax", "pwf", "maxq", "minq", "remot", "rmpct"};
     static final String[] FIELD_NAMES_35 = {"name", "mdc", "rdc", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
     static final String[] FIELD_NAMES_CONVERTER_35 = {"ibus", "type", "mode", "dcset", "acset", "aloss", "bloss", "minloss", "smax", "imax", "pwf", "maxq", "minq", "vsreg", "nreg", "rmpct"};
+    static final String[] FIELD_NAMES_CONVERTERS_35_RAWX = {"ibus1", "type1", "mode1", "dcset1", "acset1", "aloss1", "bloss1", "minloss1", "smax1", "imax1", "pwf1", "maxq1", "minq1", "vsreg1", "nreg1", "rmpct1", "ibus2", "type2", "mode2", "dcset2", "acset2", "aloss2", "bloss2", "minloss2", "smax2", "imax2", "pwf2", "maxq2", "minq2", "vsreg2", "nreg2", "rmpct2"};
+    static final String[] FIELD_NAMES_35_RAWX = Stream.concat(Arrays.stream(FIELD_NAMES_35), Arrays.stream(FIELD_NAMES_CONVERTERS_35_RAWX)).toArray(String[]::new);
 
     VoltageSourceConverterDcTransmissionLineData() {
         super(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, FIELD_NAMES_35);

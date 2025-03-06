@@ -165,7 +165,7 @@ class GeneratorConverter extends AbstractConverter {
         psseGenerator.setIreg(getRegulatingTerminalBusI(generator.getRegulatingTerminal(), busI, psseGenerator.getIreg(), contextExport));
         psseGenerator.setNreg(getRegulatingTerminalNode(generator.getRegulatingTerminal(), contextExport));
         psseGenerator.setMbase(perUnitContext.sBase());
-        psseGenerator.setStat(getStatus(generator));
+        psseGenerator.setStat(getStatus(generator.getTerminal(), contextExport));
         psseGenerator.setPt(getMaxP(generator));
         psseGenerator.setPb(getMinP(generator));
         return psseGenerator;
@@ -179,19 +179,11 @@ class GeneratorConverter extends AbstractConverter {
             if (gen == null) {
                 psseGen.setStat(0);
             } else {
-                psseGen.setStat(getStatus(gen));
+                psseGen.setStat(getUpdatedStatus(gen.getTerminal()));
                 psseGen.setPg(getP(gen));
                 psseGen.setQg(getQ(gen));
             }
         });
-    }
-
-    private static int getStatus(Generator gen) {
-        if (gen.getTerminal().isConnected() && gen.getTerminal().getBusBreakerView().getBus() != null) {
-            return 1;
-        } else {
-            return 0;
-        }
     }
 
     private static double getP(Generator gen) {

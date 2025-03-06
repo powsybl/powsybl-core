@@ -2112,7 +2112,7 @@
     "owner" : 1,
     "set1" : 0.0,
     "set2" : 0.0,
-    "vsref" : 0.0,
+    "vsref" : 0,
     "mname" : "",
     "fcreg" : 5,
     "nreg" : 0
@@ -2135,7 +2135,7 @@
     "owner" : 1,
     "set1" : 0.0,
     "set2" : 0.0,
-    "vsref" : 0.0,
+    "vsref" : 0,
     "mname" : "",
     "fcreg" : 7,
     "nreg" : 0

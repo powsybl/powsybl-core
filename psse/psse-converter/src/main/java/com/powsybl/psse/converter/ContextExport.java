@@ -23,23 +23,17 @@ import java.util.stream.Stream;
  */
 final class ContextExport {
     private final boolean isFullExport;
-    private final LinkExport linkExport;
     private final UpdateExport updateExport;
     private final FullExport fullExport;
 
     ContextExport(boolean isFullExport) {
         this.isFullExport = isFullExport;
-        this.linkExport = new LinkExport();
         this.updateExport = new UpdateExport();
         this.fullExport = new FullExport();
     }
 
     boolean isFullExport() {
         return this.isFullExport;
-    }
-
-    LinkExport getLinkExport() {
-        return this.linkExport;
     }
 
     UpdateExport getUpdateExport() {
@@ -50,68 +44,32 @@ final class ContextExport {
         return this.fullExport;
     }
 
-    static class LinkExport {
-        private final Map<Bus, Integer> busViewToBusI;
-        private final Map<Integer, Bus> busIToBusView;
-        private final Map<DanglingLine, Integer> danglingLineToBusI;
-        private final Map<String, Integer> voltageLevelNodeIdToBusI;
-
-        LinkExport() {
-            this.busViewToBusI = new HashMap<>();
-            this.busIToBusView = new HashMap<>();
-            this.danglingLineToBusI = new HashMap<>();
-            this.voltageLevelNodeIdToBusI = new HashMap<>();
-        }
-
-        void addBusViewBusILink(Bus busView, int busI) {
-            this.busIToBusView.put(busI, busView);
-        }
-
-        void addBusViewBusIDoubleLink(Bus busView, int busI) {
-            this.busViewToBusI.put(busView, busI);
-            this.busIToBusView.put(busI, busView);
-        }
-
-        void addDanglingLineBusILink(DanglingLine danglingLine, int busI) {
-            this.danglingLineToBusI.put(danglingLine, busI);
-        }
-
-        Set<Integer> getBusISet() {
-            return busIToBusView.keySet();
-        }
-
-        OptionalInt getBusI(Bus busView) {
-            return this.busViewToBusI.containsKey(busView) ? OptionalInt.of(this.busViewToBusI.get(busView)) : OptionalInt.empty();
-        }
-
-        OptionalInt getBusI(DanglingLine danglingLine) {
-            return this.danglingLineToBusI.containsKey(danglingLine) ? OptionalInt.of(this.danglingLineToBusI.get(danglingLine)) : OptionalInt.empty();
-        }
-
-        Optional<Bus> getBusView(int busI) {
-            return this.busIToBusView.containsKey(busI) ? Optional.of(this.busIToBusView.get(busI)) : Optional.empty();
-        }
-
-        void addNodeBusILink(VoltageLevel voltageLevel, int node, int busI) {
-            this.voltageLevelNodeIdToBusI.put(AbstractConverter.getNodeId(voltageLevel, node), busI);
-        }
-
-        OptionalInt getBusI(VoltageLevel voltageLevel, int node) {
-            String voltageLevelNodeId = AbstractConverter.getNodeId(voltageLevel, node);
-            return this.voltageLevelNodeIdToBusI.containsKey(voltageLevelNodeId) ? OptionalInt.of(this.voltageLevelNodeIdToBusI.get(voltageLevelNodeId)) : OptionalInt.empty();
-        }
-
-        Optional<Bus> getBusView(VoltageLevel voltageLevel, int node) {
-            OptionalInt busI = getBusI(voltageLevel, node);
-            return busI.isPresent() ? getBusView(busI.getAsInt()) : Optional.empty();
-        }
-    }
-
     static class UpdateExport {
+        private final Map<Integer, Bus> busIBusView;
+        private final Map<String, Bus> voltageLevelNodeIdBusView;
         private final Map<VoltageLevel, PsseSubstation> voltageLevelPsseSubstation;
 
         UpdateExport() {
+            this.busIBusView = new HashMap<>();
+            this.voltageLevelNodeIdBusView = new HashMap<>();
             this.voltageLevelPsseSubstation = new HashMap<>();
+        }
+
+        void addBusIBusView(int busI, Bus busView) {
+            this.busIBusView.put(busI, busView);
+        }
+
+        Optional<Bus> getBusView(int busI) {
+            return this.busIBusView.containsKey(busI) ? Optional.of(this.busIBusView.get(busI)) : Optional.empty();
+        }
+
+        // busView can be null
+        void addNodeBusView(VoltageLevel voltageLevel, int node, Bus busView) {
+            this.voltageLevelNodeIdBusView.put(AbstractConverter.getNodeId(voltageLevel, node), busView);
+        }
+
+        Optional<Bus> getBusView(VoltageLevel voltageLevel, int node) {
+            return Optional.ofNullable(this.voltageLevelNodeIdBusView.get(AbstractConverter.getNodeId(voltageLevel, node)));
         }
 
         void addVoltageLevelPsseSubstation(VoltageLevel voltageLevel, PsseSubstation psseSubstation) {
@@ -126,14 +84,24 @@ final class ContextExport {
     static class FullExport {
         private int maxPsseBus;
         private int maxPsseSubstation;
-        private final Map<String, Integer> internalConnectionNodeRepresentative;
+        private final Map<Bus, Integer> busViewBusI;
+        private final Map<Integer, Bus> busIBusView;
+        private final Map<DanglingLine, Integer> danglingLineBusI;
+        private final Map<String, NodeData> voltageLevelNodeIdNodeData;
+        private final Map<String, Integer> psseSubstationIdLastPsseNode;
+        private final Map<String, Set<VoltageLevel>> psseSubstationIdVoltageLevels;
         private final Map<String, String> equipmentIdCkt;
         private final Map<String, Integer> equipmentBusesIdMaxCkt;
 
         FullExport() {
             this.maxPsseBus = 0;
             this.maxPsseSubstation = 0;
-            this.internalConnectionNodeRepresentative = new HashMap<>();
+            this.busViewBusI = new HashMap<>();
+            this.busIBusView = new HashMap<>();
+            this.danglingLineBusI = new HashMap<>();
+            this.voltageLevelNodeIdNodeData = new HashMap<>();
+            this.psseSubstationIdLastPsseNode = new HashMap<>();
+            this.psseSubstationIdVoltageLevels = new HashMap<>();
             this.equipmentIdCkt = new HashMap<>();
             this.equipmentBusesIdMaxCkt = new HashMap<>();
         }
@@ -146,24 +114,104 @@ final class ContextExport {
             return ++maxPsseSubstation;
         }
 
-        void addInternalConnectionNodeRepresentativeNode(VoltageLevel voltageLevel, Set<Integer> internalNodes, int representativeNode) {
-            internalNodes.forEach(node -> this.internalConnectionNodeRepresentative.put(AbstractConverter.getNodeId(voltageLevel, node), representativeNode));
+        void addBusIBusView(int busI, Bus busView) {
+            this.busIBusView.put(busI, busView);
+            if (busView != null) {
+                this.busViewBusI.put(busView, busI);
+            }
         }
 
-        int getRepresentativeNode(VoltageLevel voltageLevel, int node) {
-            return getRepresentativeNodeOfInternalConnectionNode(voltageLevel, node).orElse(node);
+        void addDanglingLineBusI(DanglingLine danglingLine, int busI) {
+            this.danglingLineBusI.put(danglingLine, busI);
         }
 
-        private OptionalInt getRepresentativeNodeOfInternalConnectionNode(VoltageLevel voltageLevel, int node) {
-            return internalConnectionNodeRepresentative.containsKey(AbstractConverter.getNodeId(voltageLevel, node)) ? OptionalInt.of(internalConnectionNodeRepresentative.get(AbstractConverter.getNodeId(voltageLevel, node))) : OptionalInt.empty();
+        Set<Integer> getBusISet() {
+            return busIBusView.keySet();
+        }
+
+        OptionalInt getBusI(Bus busView) {
+            return Optional.ofNullable(this.busViewBusI.get(busView)).map(OptionalInt::of).orElse(OptionalInt.empty());
+        }
+
+        OptionalInt getBusI(DanglingLine danglingLine) {
+            return Optional.ofNullable(this.danglingLineBusI.get(danglingLine)).map(OptionalInt::of).orElse(OptionalInt.empty());
+        }
+
+        Optional<Bus> getBusView(int busI) {
+            return Optional.ofNullable(this.busIBusView.get(busI));
+        }
+
+        // voltageBusViewBus can be null
+        void addNodeData(VoltageLevel voltageLevel, int node, int psseBusI, int psseNode, Bus voltageBusViewBus) {
+            this.voltageLevelNodeIdNodeData.put(AbstractConverter.getNodeId(voltageLevel, node), new NodeData(voltageLevel, node, psseBusI, psseNode, voltageBusViewBus));
+        }
+
+        OptionalInt getBusI(VoltageLevel voltageLevel, int node) {
+            String voltageLevelNodeId = AbstractConverter.getNodeId(voltageLevel, node);
+            return Optional.ofNullable(this.voltageLevelNodeIdNodeData.get(voltageLevelNodeId))
+                    .map(nodeData -> OptionalInt.of(nodeData.psseBusI))
+                    .orElse(OptionalInt.empty());
+        }
+
+        OptionalInt getPsseNode(VoltageLevel voltageLevel, int node) {
+            String voltageLevelNodeId = AbstractConverter.getNodeId(voltageLevel, node);
+            return Optional.ofNullable(this.voltageLevelNodeIdNodeData.get(voltageLevelNodeId))
+                    .map(nodeData -> OptionalInt.of(nodeData.psseNode))
+                    .orElse(OptionalInt.empty());
+        }
+
+        Optional<Bus> getVoltageBus(VoltageLevel voltageLevel, int node) {
+            String voltageLevelNodeId = AbstractConverter.getNodeId(voltageLevel, node);
+            return Optional.ofNullable(this.voltageLevelNodeIdNodeData.get(voltageLevelNodeId)).map(nodeData -> nodeData.voltageBusViewBus);
+        }
+
+        boolean isDeEnergized(VoltageLevel voltageLevel, int node) {
+            return getVoltageBus(voltageLevel, node).map(bus -> bus.getV() == 0.0 && bus.getAngle() == 0.0).orElse(true);
+        }
+
+        Optional<VoltageLevel> getVoltageLevel(int busI) {
+            return this.voltageLevelNodeIdNodeData.values().stream().filter(nodeData -> nodeData.psseBusI == busI).map(nodeData -> nodeData.voltageLevel).findFirst();
+        }
+
+        OptionalInt getNode(int busI) {
+            return this.voltageLevelNodeIdNodeData.values().stream().filter(nodeData -> nodeData.psseBusI == busI).mapToInt(nodeData -> nodeData.node).findFirst();
+        }
+
+        private record NodeData(VoltageLevel voltageLevel, int node, int psseBusI, int psseNode, Bus voltageBusViewBus) {
+        }
+
+        int getNewPsseNode(String psseSubstationId) {
+            int newPsseNode = getLastPsseNode(psseSubstationId) + 1;
+            this.psseSubstationIdLastPsseNode.put(psseSubstationId, newPsseNode);
+            return newPsseNode;
+        }
+
+        int getLastPsseNode(String psseSubstationId) {
+            return this.psseSubstationIdLastPsseNode.getOrDefault(psseSubstationId, 0);
+        }
+
+        void addPsseSubstationIdVoltageLevel(String psseSubstationId, VoltageLevel voltageLevel) {
+            this.psseSubstationIdVoltageLevels.computeIfAbsent(psseSubstationId, k -> new HashSet<>()).add(voltageLevel);
+        }
+
+        List<String> getSortedPsseSubstationIds() {
+            return this.psseSubstationIdVoltageLevels.keySet().stream().sorted().toList();
+        }
+
+        Set<VoltageLevel> getVoltageLevelSet(String psseSubstationId) {
+            return this.psseSubstationIdVoltageLevels.getOrDefault(psseSubstationId, Collections.emptySet());
+        }
+
+        boolean isExportedAsNodeBreaker(VoltageLevel voltageLevel) {
+            return this.psseSubstationIdVoltageLevels.values().stream().flatMap(Set::stream).toList().contains(voltageLevel);
         }
 
         String getEquipmentCkt(String equipmentId, IdentifiableType type, int busI) {
             return getEquipmentCkt(null, equipmentId, type, busI, 0, 0);
         }
 
-        String getEquipmentCkt(VoltageLevel voltageLevel, String equipmentId, IdentifiableType type, int busI, int busJ) {
-            return getEquipmentCkt(voltageLevel, equipmentId, type, busI, busJ, 0);
+        String getEquipmentCkt(VoltageLevel voltageLevel, String equipmentId, int busI, int busJ) {
+            return getEquipmentCkt(voltageLevel, equipmentId, IdentifiableType.SWITCH, busI, busJ, 0);
         }
 
         String getEquipmentCkt(String equipmentId, IdentifiableType type, int busI, int busJ) {

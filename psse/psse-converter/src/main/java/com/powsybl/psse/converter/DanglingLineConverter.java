@@ -52,10 +52,10 @@ class DanglingLineConverter extends AbstractConverter {
     private static PsseBus createDanglingLineBus(DanglingLine danglingLine, ContextExport contextExport) {
         Bus networkBusView = getTerminalBusView(danglingLine.getTerminal());
         PsseBus psseBus = createDefaultBus();
-        psseBus.setI(contextExport.getLinkExport().getBusI(danglingLine).orElseThrow());
+        psseBus.setI(contextExport.getFullExport().getBusI(danglingLine).orElseThrow());
         psseBus.setName(fixBusName(danglingLine.getNameOrId()));
         psseBus.setBaskv(danglingLine.getTerminal().getVoltageLevel().getNominalV());
-        psseBus.setIde(findType(danglingLine));
+        psseBus.setIde(findType(danglingLine, contextExport));
         psseBus.setVm(getVm(new DanglingLineData(danglingLine).getBoundaryBusU()));
         psseBus.setVa(getVa(Math.toDegrees(new DanglingLineData(danglingLine).getBoundaryBusTheta())));
         psseBus.setNvhi(getHighVm(networkBusView));
@@ -65,8 +65,8 @@ class DanglingLineConverter extends AbstractConverter {
         return psseBus;
     }
 
-    private static int findType(DanglingLine danglingLine) {
-        if (getStatus(danglingLine.getTerminal()) == 1) {
+    private static int findType(DanglingLine danglingLine, ContextExport contextExport) {
+        if (getStatus(danglingLine.getTerminal(), contextExport) == 1) {
             return isVoltageRegulationOn(danglingLine) ? 2 : 1;
         } else {
             return 4;
@@ -88,7 +88,7 @@ class DanglingLineConverter extends AbstractConverter {
         psseLine.setRates(createRates(danglingLine, vNom1));
         psseLine.setGi(admittanceEnd1ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getReal(), danglingLine.getG(), vNom1, vNom1, perUnitContext.sBase()));
         psseLine.setBi(admittanceEnd1ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getImaginary(), danglingLine.getB(), vNom1, vNom1, perUnitContext.sBase()));
-        psseLine.setSt(getStatus(danglingLine.getTerminal()));
+        psseLine.setSt(getStatus(danglingLine.getTerminal(), contextExport));
         return psseLine;
     }
 

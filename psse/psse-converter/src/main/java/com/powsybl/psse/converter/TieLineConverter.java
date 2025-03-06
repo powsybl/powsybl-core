@@ -50,7 +50,7 @@ class TieLineConverter extends AbstractConverter {
         psseLine.setBi(admittanceEnd1ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getImaginary(), tieLine.getB1(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setGj(admittanceEnd2ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getReal(), tieLine.getG2(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setBj(admittanceEnd2ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getImaginary(), tieLine.getB2(), vNom1, vNom2, perUnitContext.sBase()));
-        psseLine.setSt(getStatus(tieLine));
+        psseLine.setSt(getStatus(tieLine.getTerminal1(), tieLine.getTerminal2(), contextExport));
         return psseLine;
     }
 
@@ -75,9 +75,5 @@ class TieLineConverter extends AbstractConverter {
             tieLine.getActivePowerLimits2().ifPresent(activePowerLimits2 -> setSortedRatesToPsseRates(getSortedRates(activePowerLimits2), windingRates));
         }
         return windingRates;
-    }
-
-    private static int getStatus(TieLine tieLine) {
-        return getStatus(tieLine.getTerminal1()) * getStatus(tieLine.getTerminal2());
     }
 }

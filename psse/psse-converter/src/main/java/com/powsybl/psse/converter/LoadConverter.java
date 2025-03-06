@@ -102,7 +102,7 @@ class LoadConverter extends AbstractConverter {
         int busI = getTerminalBusI(load.getTerminal(), contextExport);
         psseLoad.setI(busI);
         psseLoad.setId(contextExport.getFullExport().getEquipmentCkt(load.getId(), IdentifiableType.LOAD, busI));
-        psseLoad.setStatus(getStatus(load.getTerminal()));
+        psseLoad.setStatus(getStatus(load.getTerminal(), contextExport));
         psseLoad.setPl(getP(load));
         psseLoad.setQl(getQ(load));
         return psseLoad;
@@ -121,7 +121,7 @@ class LoadConverter extends AbstractConverter {
     }
 
     private static void updateLoad(Load load, PsseLoad psseLoad) {
-        psseLoad.setStatus(getStatus(load.getTerminal()));
+        psseLoad.setStatus(getUpdatedStatus(load.getTerminal()));
         psseLoad.setPl(getP(load));
         psseLoad.setQl(getQ(load));
     }

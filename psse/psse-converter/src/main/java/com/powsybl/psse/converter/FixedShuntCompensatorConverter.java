@@ -73,7 +73,7 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
         int busI = getTerminalBusI(shuntCompensator.getTerminal(), contextExport);
         psseFixedShunt.setI(busI);
         psseFixedShunt.setId(contextExport.getFullExport().getEquipmentCkt(shuntCompensator.getId(), IdentifiableType.SHUNT_COMPENSATOR, busI));
-        psseFixedShunt.setStatus(getStatus(shuntCompensator));
+        psseFixedShunt.setStatus(getStatus(shuntCompensator.getTerminal(), contextExport));
         psseFixedShunt.setGl(getP(shuntCompensator));
         psseFixedShunt.setBl(getQ(shuntCompensator));
 
@@ -88,7 +88,7 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
             if (fixedShunt == null) {
                 psseFixedShunt.setStatus(0);
             } else {
-                psseFixedShunt.setStatus(getStatus(fixedShunt));
+                psseFixedShunt.setStatus(getUpdatedStatus(fixedShunt.getTerminal()));
                 psseFixedShunt.setGl(getP(fixedShunt));
                 psseFixedShunt.setBl(getQ(fixedShunt));
             }

@@ -45,20 +45,31 @@ class BusConverter extends AbstractConverter {
 
     static void create(PssePowerFlowModel psseModel, ContextExport contextExport) {
 
-        contextExport.getLinkExport().getBusISet().forEach(busI -> {
+        contextExport.getFullExport().getBusISet().forEach(busI -> {
             // bus and type is always present when a psseBus is created
-            Bus busViewBus = contextExport.getLinkExport().getBusView(busI).orElseThrow();
-            int type = findBusViewBusType(busViewBus.getVoltageLevel(), busViewBus);
-            psseModel.addBuses(Collections.singletonList(createBus(busViewBus, busI, type)));
+            Bus busViewBus = contextExport.getFullExport().getBusView(busI).orElse(null);
+            int type = findBusViewBusType(busViewBus);
+            String busName;
+            double nominalV;
+            if (busViewBus != null) {
+                busName = fixBusName(busViewBus.getNameOrId());
+                nominalV = busViewBus.getVoltageLevel().getNominalV();
+            } else {
+                VoltageLevel voltageLevel = contextExport.getFullExport().getVoltageLevel(busI).orElseThrow();
+                int node = contextExport.getFullExport().getNode(busI).orElseThrow();
+                busName = fixBusName(voltageLevel.getNameOrId() + "-" + node);
+                nominalV = voltageLevel.getNominalV();
+            }
+            psseModel.addBuses(Collections.singletonList(createBus(busViewBus, busI, busName, nominalV, type)));
         });
         psseModel.replaceAllBuses(psseModel.getBuses().stream().sorted(Comparator.comparingInt(PsseBus::getI)).toList());
     }
 
-    private static PsseBus createBus(Bus bus, int busI, int type) {
+    private static PsseBus createBus(Bus bus, int busI, String busName, double nominalV, int type) {
         PsseBus psseBus = createDefaultBus();
         psseBus.setI(busI);
-        psseBus.setName(fixBusName(bus.getNameOrId()));
-        psseBus.setBaskv(bus.getVoltageLevel().getNominalV());
+        psseBus.setName(busName);
+        psseBus.setBaskv(nominalV);
         psseBus.setIde(type);
         psseBus.setVm(getVm(bus));
         psseBus.setVa(getVa(bus));
@@ -71,7 +82,7 @@ class BusConverter extends AbstractConverter {
 
     static void update(PssePowerFlowModel psseModel, ContextExport contextExport) {
         psseModel.getBuses().forEach(psseBus -> {
-            Optional<Bus> busViewBus = contextExport.getLinkExport().getBusView(psseBus.getI());
+            Optional<Bus> busViewBus = contextExport.getUpdateExport().getBusView(psseBus.getI());
             if (busViewBus.isPresent()) {
                 updatePsseBus(busViewBus.get(), findBusType(busViewBus.get().getVoltageLevel(), busViewBus.get(), psseBus), psseBus);
             } else {
@@ -82,7 +93,7 @@ class BusConverter extends AbstractConverter {
 
     // type is preserved in the update of nodeBreaker topologies. Type is calculated internally by psse based on the status of switches
     private static int findBusType(VoltageLevel voltageLevel, Bus busView, PsseBus psseBus) {
-        return exportVoltageLevelAsNodeBreaker(voltageLevel) ? psseBus.getIde() : findBusViewBusType(voltageLevel, busView);
+        return exportVoltageLevelAsNodeBreaker(voltageLevel) ? psseBus.getIde() : findBusViewBusType(busView);
     }
 
     private static void updatePsseBus(Bus busView, int type, PsseBus psseBus) {

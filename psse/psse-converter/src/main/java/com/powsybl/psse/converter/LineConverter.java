@@ -144,7 +144,7 @@ class LineConverter extends AbstractConverter {
         psseLine.setBi(admittanceEnd1ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getImaginary(), line.getB1(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setGj(admittanceEnd2ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getReal(), line.getG2(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setBj(admittanceEnd2ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getImaginary(), line.getB2(), vNom1, vNom2, perUnitContext.sBase()));
-        psseLine.setSt(getStatus(line));
+        psseLine.setSt(getStatus(line.getTerminal1(), line.getTerminal2(), contextExport));
         return psseLine;
     }
 
@@ -180,18 +180,9 @@ class LineConverter extends AbstractConverter {
             if (line == null) {
                 psseLine.setSt(0);
             } else {
-                psseLine.setSt(getStatus(line));
+                psseLine.setSt(getUpdatedStatus(line.getTerminal1(), line.getTerminal2()));
             }
         });
-    }
-
-    private static int getStatus(Line line) {
-        if (line.getTerminal1().isConnected() && line.getTerminal1().getBusBreakerView().getBus() != null
-                && line.getTerminal2().isConnected() && line.getTerminal2().getBusBreakerView().getBus() != null) {
-            return 1;
-        } else {
-            return 0;
-        }
     }
 
     private final PsseNonTransformerBranch psseLine;

@@ -236,7 +236,7 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
     private static PsseVoltageSourceConverterDcTransmissionLine createVscDcTransmissionLine(HvdcLine hvdcLine, PsseVersion version, ContextExport contextExport) {
         PsseVoltageSourceConverterDcTransmissionLine vscDcTransmissionLine = new PsseVoltageSourceConverterDcTransmissionLine();
         vscDcTransmissionLine.setName(extractVscDcTransmissionLineName(hvdcLine.getId()));
-        vscDcTransmissionLine.setMdc(findControlMode(hvdcLine));
+        vscDcTransmissionLine.setMdc(findControlMode(hvdcLine, contextExport));
         vscDcTransmissionLine.setRdc(hvdcLine.getR());
         vscDcTransmissionLine.setOwnership(createDefaultOwnership());
 
@@ -320,18 +320,19 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
             if (hvdcLine == null) {
                 psseVscDcTransmissionLine.setMdc(0);
             } else {
-                psseVscDcTransmissionLine.setMdc(findControlMode(hvdcLine));
+                psseVscDcTransmissionLine.setMdc(findUpdatedControlMode(hvdcLine));
             }
         });
     }
 
-    private static int findControlMode(HvdcLine hvdcLine) {
-        if (hvdcLine.getConverterStation1().getTerminal().isConnected() && hvdcLine.getConverterStation1().getTerminal().getBusBreakerView().getBus() != null
-                && hvdcLine.getConverterStation2().getTerminal().isConnected() && hvdcLine.getConverterStation2().getTerminal().getBusBreakerView().getBus() != null) {
-            return 1;
-        } else {
-            return 0;
-        }
+    private static int findControlMode(HvdcLine hvdcLine, ContextExport contextExport) {
+        return getStatus(hvdcLine.getConverterStation1().getTerminal(), contextExport) == 1
+                && getStatus(hvdcLine.getConverterStation2().getTerminal(), contextExport) == 1 ? 1 : 0;
+    }
+
+    private static int findUpdatedControlMode(HvdcLine hvdcLine) {
+        return getUpdatedStatus(hvdcLine.getConverterStation1().getTerminal()) == 1
+                && getUpdatedStatus(hvdcLine.getConverterStation2().getTerminal()) == 1 ? 1 : 0;
     }
 
     private final PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine;

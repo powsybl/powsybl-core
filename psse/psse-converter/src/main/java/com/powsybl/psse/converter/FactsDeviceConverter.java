@@ -135,7 +135,7 @@ class FactsDeviceConverter extends AbstractConverter {
 
         psseFactsDevice.setName(extractFactsDeviceName(staticVarCompensator.getId()));
         psseFactsDevice.setI(busI);
-        psseFactsDevice.setMode(getStatus(staticVarCompensator.getTerminal()) == 1 ? 2 : 0);
+        psseFactsDevice.setMode(getStatus(staticVarCompensator.getTerminal(), contextExport));
         findTargetQ(staticVarCompensator).ifPresent(psseFactsDevice::setQdes);
         findTargetV(staticVarCompensator).ifPresent(psseFactsDevice::setVset);
         psseFactsDevice.setShmx(maxReactivePower);
@@ -165,6 +165,7 @@ class FactsDeviceConverter extends AbstractConverter {
         psseFactsDevice.setOwner(1);
         psseFactsDevice.setSet1(0.0);
         psseFactsDevice.setSet2(0.0);
+        psseFactsDevice.setVsref(0);
         psseFactsDevice.setFcreg(0);
         psseFactsDevice.setNreg(0);
         psseFactsDevice.setMname("");
@@ -178,9 +179,9 @@ class FactsDeviceConverter extends AbstractConverter {
             if (staticVarCompensator == null) {
                 psseFactsDevice.setMode(0);
             } else if (isStatCom(psseFactsDevice)) {
-                psseFactsDevice.setMode(getStatus(staticVarCompensator.getTerminal()));
+                psseFactsDevice.setMode(getUpdatedStatus(staticVarCompensator.getTerminal()));
             } else {
-                psseFactsDevice.setMode(getStatus(staticVarCompensator.getTerminal()) == 1 ? 2 : 0);
+                psseFactsDevice.setMode(getUpdatedStatus(staticVarCompensator.getTerminal()));
                 findTargetQ(staticVarCompensator).ifPresent(psseFactsDevice::setQdes);
                 findTargetV(staticVarCompensator).ifPresent(psseFactsDevice::setVset);
             }

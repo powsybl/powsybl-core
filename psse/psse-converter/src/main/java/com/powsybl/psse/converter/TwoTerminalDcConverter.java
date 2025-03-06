@@ -117,7 +117,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc = new PsseTwoTerminalDcTransmissionLine();
 
         psseTwoTerminalDc.setName(extractTwoTerminalDcName(hvdcLine.getId()));
-        psseTwoTerminalDc.setMdc(findControlMode(hvdcLine, psseTwoTerminalDc.getMdc()));
+        psseTwoTerminalDc.setMdc(findControlMode(hvdcLine, psseTwoTerminalDc.getMdc(), contextExport));
         psseTwoTerminalDc.setRdc(hvdcLine.getR());
         psseTwoTerminalDc.setSetvl(getVl(hvdcLine));
         psseTwoTerminalDc.setVschd(hvdcLine.getNominalV());
@@ -152,7 +152,10 @@ class TwoTerminalDcConverter extends AbstractConverter {
     }
 
     private static double getAmnx(double powerFactor) {
-        return Math.toDegrees(Math.acos(powerFactor * 2.0 - Math.cos(Math.toRadians(60.0))));
+        double cosValue = powerFactor * 2.0 - Math.cos(Math.toRadians(60.0));
+        cosValue = cosValue < -1.0 ? -1.0 : cosValue;
+        cosValue = cosValue > 1.0 ? 1.0 : cosValue;
+        return Math.toDegrees(Math.acos(cosValue));
     }
 
     private static PsseTwoTerminalDcConverter createDefaultConverter() {
@@ -186,14 +189,23 @@ class TwoTerminalDcConverter extends AbstractConverter {
             if (hvdcLine == null) {
                 psseTwoTerminalDc.setMdc(0);
             } else {
-                psseTwoTerminalDc.setMdc(findControlMode(hvdcLine, psseTwoTerminalDc.getMdc()));
+                psseTwoTerminalDc.setMdc(findUpdatedControlMode(hvdcLine, psseTwoTerminalDc.getMdc()));
             }
         });
     }
 
-    private static int findControlMode(HvdcLine hvdcLine, int mdc) {
-        if (hvdcLine.getConverterStation1().getTerminal().isConnected() && hvdcLine.getConverterStation1().getTerminal().getBusBreakerView().getBus() != null
-                && hvdcLine.getConverterStation2().getTerminal().isConnected() && hvdcLine.getConverterStation2().getTerminal().getBusBreakerView().getBus() != null) {
+    private static int findControlMode(HvdcLine hvdcLine, int mdc, ContextExport contextExport) {
+        return findControlMode(getStatus(hvdcLine.getConverterStation1().getTerminal(), contextExport),
+                getStatus(hvdcLine.getConverterStation2().getTerminal(), contextExport), mdc);
+    }
+
+    private static int findUpdatedControlMode(HvdcLine hvdcLine, int mdc) {
+        return findControlMode(getUpdatedStatus(hvdcLine.getConverterStation1().getTerminal()),
+                getUpdatedStatus(hvdcLine.getConverterStation2().getTerminal()), mdc);
+    }
+
+    private static int findControlMode(int status1, int status2, int mdc) {
+        if (status1 == 1 && status2 == 1) {
             return mdc != 0 ? mdc : 1;
         } else {
             return 0;

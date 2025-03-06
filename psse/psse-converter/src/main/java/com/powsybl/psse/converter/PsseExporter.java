@@ -11,6 +11,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.parameters.Parameter;
@@ -42,17 +43,29 @@ public class PsseExporter implements Exporter {
 
     private static final String FORMAT = "PSS/E";
 
-    @Override
-    public List<Parameter> getParameters() {
-        return ConfiguredParameter.load(STATIC_PARAMETERS, getFormat(), ParameterDefaultValueConfig.INSTANCE);
-    }
+    private static final Parameter EXPORT_UPDATE = new Parameter("psse.export.update",
+            ParameterType.BOOLEAN,
+            "Export by updating values on the imported psse model",
+            Boolean.TRUE);
 
-    private static final List<Parameter> STATIC_PARAMETERS = List.of();
+    private static final Parameter EXPORT_AS_RAW_FORMAT = new Parameter("psse.export.raw-format",
+            ParameterType.BOOLEAN,
+            "Export as raw format",
+            Boolean.TRUE);
 
     @Override
     public String getFormat() {
         return FORMAT;
     }
+
+    @Override
+    public List<Parameter> getParameters() {
+        return ConfiguredParameter.load(STATIC_PARAMETERS, getFormat(), ParameterDefaultValueConfig.INSTANCE);
+    }
+
+    private static final List<Parameter> STATIC_PARAMETERS = List.of(
+            EXPORT_UPDATE,
+            EXPORT_AS_RAW_FORMAT);
 
     @Override
     public String getComment() {
@@ -61,13 +74,21 @@ public class PsseExporter implements Exporter {
 
     @Override
     public void export(Network network, Properties parameters, DataSource dataSource) {
+
+        boolean updateExport = Parameter.readBoolean(FORMAT, parameters, EXPORT_UPDATE,
+                ParameterDefaultValueConfig.INSTANCE);
+
         PssePowerFlowModel updatePsseModel;
         Context context;
-        boolean isFullExport = isFullExport(network);
+        boolean isFullExport = isFullExport(network, updateExport);
         if (isFullExport) {
+            boolean rawFormat = Parameter.readBoolean(FORMAT, parameters, EXPORT_AS_RAW_FORMAT,
+                    ParameterDefaultValueConfig.INSTANCE);
+
             updatePsseModel = createPsseModel(network);
-            context = PowerFlowDataFactory.createPsseContext();
+            context = PowerFlowDataFactory.createPsseContext(rawFormat);
         } else {
+            // use the same format as the imported case
             PssePowerFlowModel psseModel = network.getExtension(PsseModelExtension.class).getPsseModel();
             updatePsseModel = createUpdatePsseModel(network, psseModel);
             context = network.getExtension(PsseConversionContextExtension.class).getContext();
@@ -90,9 +111,8 @@ public class PsseExporter implements Exporter {
         }
     }
 
-    // TODO, it should be defined properly, or it may need to be specified by the user
-    private static boolean isFullExport(Network network) {
-        return network.getExtension(PsseModelExtension.class) == null;
+    private static boolean isFullExport(Network network, boolean updateExport) {
+        return !(updateExport && network.getExtension(PsseModelExtension.class) != null);
     }
 
     private void exportNotJson(Context context, PssePowerFlowModel updatePsseModel, PsseVersion version, DataSource dataSource) {
@@ -158,7 +178,7 @@ public class PsseExporter implements Exporter {
         PssePowerFlowModel psseModel = new PssePowerFlowModel(caseIdentification);
         ContextExport contextExport = createContextExport(network, psseModel, true);
 
-        VoltageLevelConverter.createSubstations(network, psseModel, contextExport);
+        VoltageLevelConverter.createSubstations(psseModel, contextExport);
 
         BusConverter.create(psseModel, contextExport);
         LoadConverter.create(network, psseModel, contextExport);

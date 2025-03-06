@@ -231,10 +231,6 @@ public abstract class AbstractConverter {
         return !isTwoTerminalDcTransmissionLine(hvdcLine);
     }
 
-    static int getStatus(ShuntCompensator shuntCompensator) {
-        return shuntCompensator.getTerminal().isConnected() && shuntCompensator.getTerminal().getBusBreakerView().getBus() != null ? 1 : 0;
-    }
-
     static List<String> getEquipmentListToBeExported(VoltageLevel voltageLevel) {
         List<String> equipmentListToBeExported = new ArrayList<>();
         for (Connectable<?> connectable : voltageLevel.getConnectables()) {
@@ -344,26 +340,21 @@ public abstract class AbstractConverter {
         return voltageLevel.getNodeBreakerView().getOptionalTerminal(node).orElse(Networks.getEquivalentTerminal(voltageLevel, node));
     }
 
-    static Bus findBusViewNode(VoltageLevel voltageLevel, int node) {
-        Terminal terminal = findTerminalNode(voltageLevel, node);
-        return terminal != null ? getTerminalBusView(terminal) : null;
+    static Optional<Bus> findBusViewNode(VoltageLevel voltageLevel, int node) {
+        return Optional.ofNullable(findTerminalNode(voltageLevel, node))
+                .map(AbstractConverter::getTerminalBusView);
     }
 
     static Bus getTerminalBusView(Terminal terminal) {
         return terminal.getBusView().getBus() != null ? terminal.getBusView().getBus() : terminal.getBusView().getConnectableBus();
     }
 
-    static int getTerminalNode(Terminal terminal) {
-        return exportVoltageLevelAsNodeBreaker(terminal.getVoltageLevel()) ? terminal.getNodeBreakerView().getNode() : 0;
-    }
-
     static int getTerminalBusI(Terminal terminal, ContextExport contextExport) {
-        if (exportVoltageLevelAsNodeBreaker(terminal.getVoltageLevel())) {
-            int node = convertToPsseNode(contextExport.getFullExport().getRepresentativeNode(terminal.getVoltageLevel(), terminal.getNodeBreakerView().getNode()));
-            return contextExport.getLinkExport().getBusI(terminal.getVoltageLevel(), node).orElseThrow();
+        if (contextExport.getFullExport().isExportedAsNodeBreaker(terminal.getVoltageLevel())) {
+            return contextExport.getFullExport().getBusI(terminal.getVoltageLevel(), terminal.getNodeBreakerView().getNode()).orElseThrow();
         } else {
             Bus bus = getTerminalBusView(terminal);
-            return contextExport.getLinkExport().getBusI(bus).orElseThrow();
+            return contextExport.getFullExport().getBusI(bus).orElseThrow();
         }
     }
 
@@ -371,8 +362,8 @@ public abstract class AbstractConverter {
         if (regulatingTerminal == null) {
             return 0;
         } else {
-            if (exportVoltageLevelAsNodeBreaker(regulatingTerminal.getVoltageLevel())) {
-                return convertToPsseNode(contextExport.getFullExport().getRepresentativeNode(regulatingTerminal.getVoltageLevel(), regulatingTerminal.getNodeBreakerView().getNode()));
+            if (contextExport.getFullExport().isExportedAsNodeBreaker(regulatingTerminal.getVoltageLevel())) {
+                return contextExport.getFullExport().getPsseNode(regulatingTerminal.getVoltageLevel(), regulatingTerminal.getNodeBreakerView().getNode()).orElseThrow();
             } else {
                 return 0;
             }
@@ -393,15 +384,31 @@ public abstract class AbstractConverter {
         }
     }
 
-    static int getStatus(Terminal terminal) {
+    static int getStatus(Terminal terminal, ContextExport contextExport) {
+        if (contextExport.getFullExport().isExportedAsNodeBreaker(terminal.getVoltageLevel())) {
+            return contextExport.getFullExport().isDeEnergized(terminal.getVoltageLevel(), terminal.getNodeBreakerView().getNode()) ? 0 : 1;
+        } else {
+            return getUpdatedStatus(terminal);
+        }
+    }
+
+    static int getStatus(Terminal terminal1, Terminal terminal2, ContextExport contextExport) {
+        return getStatus(terminal1, contextExport) == 1 && getStatus(terminal2, contextExport) == 1 ? 1 : 0;
+    }
+
+    static int getUpdatedStatus(Terminal terminal) {
         return terminal.isConnected() && terminal.getBusView().getBus() != null ? 1 : 0;
     }
 
-    static int findBusViewBusType(VoltageLevel voltageLevel, Bus bus) {
-        if (!bus.isInMainConnectedComponent()) {
+    static int getUpdatedStatus(Terminal terminal1, Terminal terminal2) {
+        return getUpdatedStatus(terminal1) == 1 && getUpdatedStatus(terminal2) == 1 ? 1 : 0;
+    }
+
+    static int findBusViewBusType(Bus bus) {
+        if (bus == null || !bus.isInMainConnectedComponent()) {
             return 4;
         }
-        SlackTerminal slackTerminal = voltageLevel.getExtension(SlackTerminal.class);
+        SlackTerminal slackTerminal = bus.getVoltageLevel().getExtension(SlackTerminal.class);
         if (slackTerminal != null
                 && slackTerminal.getTerminal().getBusView().getBus() != null
                 && bus.getId().equals(slackTerminal.getTerminal().getBusView().getBus().getId())) {
@@ -411,8 +418,9 @@ public abstract class AbstractConverter {
     }
 
     private static boolean withLocalRegulatingControl(Generator generator) {
-        return generator.isVoltageRegulatorOn()
-                && generator.getTerminal().getBusView().getBus().equals(generator.getRegulatingTerminal().getBusView().getBus());
+        Bus generatorBus = generator.getTerminal().getBusView().getBus();
+        Bus regulatedBus = generator.getRegulatingTerminal().getBusView().getBus();
+        return generator.isVoltageRegulatorOn() && generatorBus != null && regulatedBus != null && generatorBus.getId().equals(regulatedBus.getId());
     }
 
     // node numbers in psse must be between 1 and 999
@@ -420,12 +428,11 @@ public abstract class AbstractConverter {
     static boolean exportVoltageLevelAsNodeBreaker(VoltageLevel voltageLevel) {
         return voltageLevel.getTopologyKind().equals(TopologyKind.NODE_BREAKER)
                 && voltageLevel.getNodeBreakerView().getSwitchCount() > 0
-                && maxNode(voltageLevel) <= 998;
+                && maxNode(voltageLevel) <= getMaxPsseNodeBySubstation();
     }
 
-    // TODO JAM analyze why 999, is not allowed
-    static int convertToPsseNode(int node) {
-        return node == 0 ? 999 : node;
+    static int getMaxPsseNodeBySubstation() {
+        return 998;
     }
 
     private static int maxNode(VoltageLevel voltageLevel) {

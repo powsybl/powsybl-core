@@ -290,7 +290,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         psseSwitchedShunt.setI(busI);
         psseSwitchedShunt.setId(contextExport.getFullExport().getEquipmentCkt(shuntCompensator.getId(), IdentifiableType.SHUNT_COMPENSATOR, busI));
         psseSwitchedShunt.setModsw(getModsw(shuntCompensator));
-        psseSwitchedShunt.setStat(getStatus(shuntCompensator));
+        psseSwitchedShunt.setStat(getStatus(shuntCompensator.getTerminal(), contextExport));
         psseSwitchedShunt.setVswhi(getVswhi(shuntCompensator));
         psseSwitchedShunt.setVswlo(getVswlo(shuntCompensator));
         psseSwitchedShunt.setSwreg(regulatingBus);
@@ -431,7 +431,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
             if (switchedShunt == null) {
                 psseSwitchedShunt.setStat(0);
             } else {
-                psseSwitchedShunt.setStat(getStatus(switchedShunt));
+                psseSwitchedShunt.setStat(getUpdatedStatus(switchedShunt.getTerminal()));
                 psseSwitchedShunt.setBinit(getQ(switchedShunt));
             }
         });
