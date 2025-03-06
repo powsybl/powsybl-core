@@ -47,17 +47,26 @@ An example of the current version 2.1 of the serialization is below:
 ```
 
 ## Display format
-In order to have an overview of a report node, two print methods are provided in the API:
-- for printing to a `Path`
+To get an overview of a report node, several print methods are provided in the API, with the possibility to provide your own `Formatter` -
+`Formatter` is a functional interface that specifies how to get a `String` from a `TypedValue`.
+- To print to a `Path`:
 ```java
 reportNode.print(path);
+reportNode.print(path, formatter);
 ```
-- for printing to a `Writer`
+- To print to a `Writer`:
 ```java
 reportNode.print(writer);
+reportNode.print(writer, formatter);
 ```
 
-The correspond multiline string of above example is below.
+In both cases, giving a custom formatter allows to do specific formatting based on types for instance.
+If no formatter is provided, the default one is used:
+```java
+typedValue -> typedValue.getValue().toString()
+```
+
+The corresponding multiline string of above example is below.
 The `+` character and the indentation are used to show the tree hierarchy.
 ```text
 + template with typed value

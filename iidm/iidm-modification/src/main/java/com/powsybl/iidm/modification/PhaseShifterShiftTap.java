@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
@@ -16,6 +15,8 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
  * @author Hamou AMROUN {@literal <hamou.amroun at rte-france.com>}
@@ -45,15 +46,17 @@ public class PhaseShifterShiftTap extends AbstractNetworkModification {
         Objects.requireNonNull(network);
         TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
         if (phaseShifter == null) {
-            throw new PowsyblException("Transformer '" + phaseShifterId + "' not found");
+            logOrThrow(throwException, "Transformer '" + phaseShifterId + "' not found");
+        } else {
+            PhaseTapChanger phaseTapChanger = phaseShifter.getPhaseTapChanger();
+            if (phaseTapChanger == null) {
+                logOrThrow(throwException, "Transformer '" + phaseShifterId + "' is not a phase shifter");
+            } else {
+                adjustTapPosition(phaseTapChanger);
+                phaseTapChanger.setRegulating(false);
+                phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
+            }
         }
-        PhaseTapChanger phaseTapChanger = phaseShifter.getPhaseTapChanger();
-        if (phaseTapChanger == null) {
-            throw new PowsyblException("Transformer '" + phaseShifterId + "' is not a phase shifter");
-        }
-        adjustTapPosition(phaseTapChanger);
-        phaseTapChanger.setRegulating(false);
-        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
     }
 
     private void adjustTapPosition(PhaseTapChanger phaseTapChanger) {
