@@ -8,8 +8,6 @@
 package com.powsybl.iidm.serde.extensions;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
@@ -22,54 +20,41 @@ import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 import com.powsybl.iidm.serde.TerminalRefSerDe;
 
-import java.io.InputStream;
-import java.util.List;
-
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
-public class SlackTerminalSerDe extends AbstractVersionableNetworkExtensionSerDe<VoltageLevel, SlackTerminal> {
+public class SlackTerminalSerDe extends AbstractVersionableNetworkExtensionSerDe<VoltageLevel, SlackTerminal, SlackTerminalSerDe.Version> {
+
+    public enum Version implements SerDeVersion<Version> {
+        V_1_0("/xsd/slackTerminal_V1_0.xsd", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0",
+                new VersionNumbers(1, 0), IidmVersion.V_1_3, IidmVersion.V_1_4),
+        V_1_1("/xsd/slackTerminal_V1_1.xsd", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_1",
+                new VersionNumbers(1, 1), IidmVersion.V_1_4, IidmVersion.V_1_5),
+        V_1_2("/xsd/slackTerminal_V1_2.xsd", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_2",
+                new VersionNumbers(1, 2), IidmVersion.V_1_5, IidmVersion.V_1_6),
+        V_1_3("/xsd/slackTerminal_V1_3.xsd", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_3",
+                new VersionNumbers(1, 3), IidmVersion.V_1_6, IidmVersion.V_1_7),
+        V_1_4("/xsd/slackTerminal_V1_4.xsd", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_4",
+                new VersionNumbers(1, 4), IidmVersion.V_1_7, IidmVersion.V_1_8),
+        V_1_5("/xsd/slackTerminal_V1_5.xsd", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5",
+                new VersionNumbers(1, 5), IidmVersion.V_1_8, null);
+
+        private final VersionInfo versionInfo;
+
+        Version(String xsdResourcePath, String namespaceUri, VersionNumbers versionNumbers, IidmVersion minIidmVersionIncluded, IidmVersion maxIidmVersionExcluded) {
+            this.versionInfo = new VersionInfo(xsdResourcePath, namespaceUri, "slt", versionNumbers,
+                    minIidmVersionIncluded, maxIidmVersionExcluded, SlackTerminal.NAME);
+        }
+
+        @Override
+        public VersionInfo getVersionInfo() {
+            return versionInfo;
+        }
+    }
 
     public SlackTerminalSerDe() {
-
-        super("slackTerminal", SlackTerminal.class, "slt",
-            new ImmutableMap.Builder<IidmVersion, ImmutableSortedSet<String>>()
-                .put(IidmVersion.V_1_3, ImmutableSortedSet.of("1.0"))
-                .put(IidmVersion.V_1_4, ImmutableSortedSet.of("1.1"))
-                .put(IidmVersion.V_1_5, ImmutableSortedSet.of("1.2"))
-                .put(IidmVersion.V_1_6, ImmutableSortedSet.of("1.3"))
-                .put(IidmVersion.V_1_7, ImmutableSortedSet.of("1.4"))
-                .put(IidmVersion.V_1_8, ImmutableSortedSet.of("1.5"))
-                .put(IidmVersion.V_1_9, ImmutableSortedSet.of("1.5"))
-                .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.5"))
-                .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.5"))
-                .put(IidmVersion.V_1_12, ImmutableSortedSet.of("1.5"))
-                .put(IidmVersion.V_1_13, ImmutableSortedSet.of("1.5"))
-                .build(),
-            new ImmutableMap.Builder<String, String>()
-                .put("1.0", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0")
-                .put("1.1", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_1")
-                .put("1.2", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_2")
-                .put("1.3", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_3")
-                .put("1.4", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_4")
-                .put("1.5", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5")
-                .build());
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/slackTerminal_V1_5.xsd");
-    }
-
-    @Override
-    public List<InputStream> getXsdAsStreamList() {
-        return List.of(getClass().getResourceAsStream("/xsd/slackTerminal_V1_0.xsd"),
-                getClass().getResourceAsStream("/xsd/slackTerminal_V1_1.xsd"),
-                getClass().getResourceAsStream("/xsd/slackTerminal_V1_2.xsd"),
-                getClass().getResourceAsStream("/xsd/slackTerminal_V1_3.xsd"),
-                getClass().getResourceAsStream("/xsd/slackTerminal_V1_4.xsd"),
-                getClass().getResourceAsStream("/xsd/slackTerminal_V1_5.xsd"));
+        super(SlackTerminal.NAME, SlackTerminal.class, Version.values());
     }
 
     @Override

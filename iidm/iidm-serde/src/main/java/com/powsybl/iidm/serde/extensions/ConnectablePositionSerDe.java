@@ -8,8 +8,6 @@
 package com.powsybl.iidm.serde.extensions;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
@@ -18,61 +16,46 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.serde.IidmVersion;
-import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
-
-import java.io.InputStream;
-import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
-public class ConnectablePositionSerDe<C extends Connectable<C>> extends AbstractVersionableNetworkExtensionSerDe<C, ConnectablePosition<C>> {
+public class ConnectablePositionSerDe<C extends Connectable<C>> extends AbstractVersionableNetworkExtensionSerDe<C, ConnectablePosition<C>, ConnectablePositionSerDe.Version> {
 
-    private static final String V_1_0 = "1.0";
-    private static final String V_1_1 = "1.1";
+    public enum Version implements SerDeVersion<Version> {
+        V_1_0("/xsd/connectablePosition_V1_0.xsd", "http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0",
+                new VersionNumbers(1, 0), IidmVersion.V_1_0, null),
+        V_1_1("/xsd/connectablePosition_V1_1.xsd", "http://www.powsybl.org/schema/iidm/ext/connectable_position/1_1",
+                new VersionNumbers(1, 1), IidmVersion.V_1_0, null);
+
+        private final VersionInfo versionInfo;
+
+        Version(String xsdResourcePath, String namespaceUri, VersionNumbers versionNumbers, IidmVersion minIidmVersionIncluded, IidmVersion maxIidmVersionExcluded) {
+            this.versionInfo = new VersionInfo(xsdResourcePath, namespaceUri, "cp", versionNumbers,
+                    minIidmVersionIncluded, maxIidmVersionExcluded, ConnectablePosition.NAME);
+        }
+
+        @Override
+        public VersionInfo getVersionInfo() {
+            return versionInfo;
+        }
+    }
 
     public ConnectablePositionSerDe() {
-        super(ConnectablePosition.NAME, ConnectablePosition.class, "cp",
-                ImmutableMap.<IidmVersion, ImmutableSortedSet<String>>builder()
-                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_2, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_3, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_4, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_5, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_6, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_7, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_8, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_9, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_10, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_11, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_12, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_13, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .build(),
-                ImmutableMap.<String, String>builder()
-                        .put(V_1_0, "http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0")
-                        .put(V_1_1, "http://www.powsybl.org/schema/iidm/ext/connectable_position/1_1")
-                        .build());
+        super(ConnectablePosition.NAME, ConnectablePosition.class, Version.values());
     }
 
     private void writePosition(String connectableId, ConnectablePosition.Feeder feeder, Integer i, NetworkSerializerContext context) {
         context.getWriter().writeStartNode(context.getExtensionVersion(ConnectablePosition.NAME)
                 .map(this::getNamespaceUri)
                 .orElseGet(this::getNamespaceUri), "feeder" + (i != null ? i : ""));
-        String extVersionStr = context.getExtensionVersion(ConnectablePosition.NAME)
-                .orElseGet(() -> getVersion(context.getVersion()));
-        switch (extVersionStr) {
-            case V_1_0:
-                context.getWriter().writeStringAttribute("name", feeder.getName().orElse(connectableId));
-                break;
-            case V_1_1:
-                context.getWriter().writeStringAttribute("name", feeder.getName().orElse(null));
-                break;
-            default:
-                throw new PowsyblException("Unsupported version (" + extVersionStr + ") for " + ConnectablePosition.NAME);
-        }
+        String name = switch (getExtensionVersionToExport(context)) {
+            case V_1_0 -> feeder.getName().orElse(connectableId);
+            case V_1_1 -> feeder.getName().orElse(null);
+        };
+        context.getWriter().writeStringAttribute("name", name);
         context.getWriter().writeOptionalIntAttribute("order", feeder.getOrder().orElse(null));
         context.getWriter().writeEnumAttribute("direction", feeder.getDirection());
         context.getWriter().writeEndNode();
@@ -105,9 +88,7 @@ public class ConnectablePositionSerDe<C extends Connectable<C>> extends Abstract
         if (name != null) {
             adder.withName(name);
         } else {
-            NetworkDeserializerContext networkSerializerReaderContext = (NetworkDeserializerContext) context;
-            String extensionVersionStr = networkSerializerReaderContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
-            if (V_1_1.compareTo(extensionVersionStr) > 0) {
+            if (getExtensionVersionImported(context).isLessThan(Version.V_1_1)) {
                 throw new PowsyblException("Feeder name is mandatory for version < 1.1");
             }
         }
@@ -127,16 +108,5 @@ public class ConnectablePositionSerDe<C extends Connectable<C>> extends Abstract
             }
         });
         return adder.add();
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/connectablePosition_V1_1.xsd");
-    }
-
-    @Override
-    public List<InputStream> getXsdAsStreamList() {
-        return List.of(getClass().getResourceAsStream("/xsd/connectablePosition_V1_1.xsd"),
-                getClass().getResourceAsStream("/xsd/connectablePosition_V1_0.xsd"));
     }
 }

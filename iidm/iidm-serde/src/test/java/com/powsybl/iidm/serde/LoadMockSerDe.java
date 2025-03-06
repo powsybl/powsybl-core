@@ -8,55 +8,53 @@
 package com.powsybl.iidm.serde;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadMockExt;
 import com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtensionSerDe;
-
-import java.io.InputStream;
-import java.util.List;
-import java.util.Objects;
+import com.powsybl.iidm.serde.extensions.SerDeVersion;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
-public class LoadMockSerDe extends AbstractVersionableNetworkExtensionSerDe<Load, LoadMockExt> {
+public class LoadMockSerDe extends AbstractVersionableNetworkExtensionSerDe<Load, LoadMockExt, LoadMockSerDe.Version> {
+
+    public enum Version implements SerDeVersion<Version> {
+        V_0_1("/V1_0/xsd/loadMock_V0_1.xsd", "http://www.powsybl.org/schema/iidm/ext/load_element_mock/1_0",
+                new VersionNumbers(0, 1), IidmVersion.V_1_0, IidmVersion.V_1_1, "lmock", "loadElementMock"),
+        V_0_2("/V1_0/xsd/loadMock_V0_2.xsd", "http://www.powsybl.org/schema/iidm/ext/load_element_mock/1_1",
+                new VersionNumbers(0, 2), IidmVersion.V_1_0, IidmVersion.V_1_1, "lem", "loadEltMock"),
+        V_1_0("/V1_0/xsd/loadMock_V1_0.xsd", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_0",
+                new VersionNumbers(1, 0), IidmVersion.V_1_0, IidmVersion.V_1_1),
+        V_1_1("/V1_1/xsd/loadMock_V1_1.xsd", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_1",
+                new VersionNumbers(1, 1), IidmVersion.V_1_1, null),
+        V_1_2("/V1_1/xsd/loadMock_V1_2.xsd", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_2",
+                new VersionNumbers(1, 2), IidmVersion.V_1_1, null);
+
+        private final VersionInfo versionInfo;
+
+        Version(String xsdResourcePath, String namespaceUri, VersionNumbers versionNumbers, IidmVersion minIidmVersionIncluded, IidmVersion maxIidmVersionExcluded) {
+            this(xsdResourcePath, namespaceUri, versionNumbers, minIidmVersionIncluded, maxIidmVersionExcluded,
+                    "lmock", "loadMock");
+        }
+
+        Version(String xsdResourcePath, String namespaceUri, VersionNumbers versionNumbers, IidmVersion minIidmVersionIncluded, IidmVersion maxIidmVersionExcluded,
+                String namespacePrefix, String serializationName) {
+            this.versionInfo = new VersionInfo(xsdResourcePath, namespaceUri, namespacePrefix, versionNumbers,
+                    minIidmVersionIncluded, maxIidmVersionExcluded, serializationName);
+        }
+
+        @Override
+        public VersionInfo getVersionInfo() {
+            return versionInfo;
+        }
+    }
 
     public LoadMockSerDe() {
-        super("loadMock", LoadMockExt.class, "lmock",
-                ImmutableMap.<IidmVersion, ImmutableSortedSet<String>>builder()
-                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of("0.1", "0.2", "1.0"))
-                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of("1.1", "1.2"))
-                        .put(IidmSerDeConstants.CURRENT_IIDM_VERSION, ImmutableSortedSet.of("1.1", "1.2"))
-                        .build(),
-                ImmutableMap.<String, String>builder()
-                        .put("0.1", "http://www.powsybl.org/schema/iidm/ext/load_element_mock/1_0")
-                        .put("0.2", "http://www.powsybl.org/schema/iidm/ext/load_element_mock/1_1")
-                        .put("1.0", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_0")
-                        .put("1.1", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_1")
-                        .put("1.2", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_2")
-                        .build(),
-                List.of(new AlternativeSerializationData("loadElementMock", List.of("0.1")),
-                        new AlternativeSerializationData("loadEltMock", List.of("0.2"), "lem")));
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/V1_1/xsd/loadMock_V1_2.xsd");
-    }
-
-    @Override
-    public List<InputStream> getXsdAsStreamList() {
-        return List.of(Objects.requireNonNull(getClass().getResourceAsStream("/V1_0/xsd/loadMock_V0_1.xsd")),
-                Objects.requireNonNull(getClass().getResourceAsStream("/V1_0/xsd/loadMock_V0_2.xsd")),
-                Objects.requireNonNull(getClass().getResourceAsStream("/V1_0/xsd/loadMock_V1_0.xsd")),
-                Objects.requireNonNull(getClass().getResourceAsStream("/V1_1/xsd/loadMock_V1_1.xsd")),
-                Objects.requireNonNull(getClass().getResourceAsStream("/V1_1/xsd/loadMock_V1_2.xsd")));
+        super("loadMock", LoadMockExt.class, Version.values());
     }
 
     @Override
