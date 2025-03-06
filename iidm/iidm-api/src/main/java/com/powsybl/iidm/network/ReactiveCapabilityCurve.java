@@ -70,4 +70,15 @@ public interface ReactiveCapabilityCurve extends ReactiveLimits {
      */
     double getMaxP();
 
+    /**
+     * Get the reactive power minimum value of the curve (with the possibility of extrapolating slope of reactive
+     * limits outside active limits)
+     */
+    double getMinQ(double p, boolean extrapolateReactiveLimitSlope);
+
+    /**
+     * Get the reactive power maximum value of the curve (with the possibility of extrapolating slope of reactive
+     * limits outside active limits)
+     */
+    double getMaxQ(double p, boolean extrapolateReactiveLimitSlope);
 }

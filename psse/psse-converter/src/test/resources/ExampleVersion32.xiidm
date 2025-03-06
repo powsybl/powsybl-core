@@ -7,7 +7,7 @@
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S2">
+    <iidm:substation id="S2-7">
         <iidm:voltageLevel id="VL2" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B2" name="Bus 2       " v="143.106" angle="0.44"/>
@@ -33,7 +33,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S3">
+    <iidm:substation id="S3-6-8">
         <iidm:voltageLevel id="VL3" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B3" name="Bus 3       " v="142.58159999999998" angle="2.89"/>
@@ -64,7 +64,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S4">
+    <iidm:substation id="S4-5">
         <iidm:voltageLevel id="VL4" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B4" name="Bus 4       " v="140.2218" angle="-1.91"/>

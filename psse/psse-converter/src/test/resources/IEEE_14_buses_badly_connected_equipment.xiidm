@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="IEEE_14_buses_zip_load" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="IEEE_14_buses_badly_connected_equipment" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1">
         <iidm:voltageLevel id="VL1" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -18,9 +18,7 @@
             <iidm:generator id="B2-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="true" targetP="40.0" targetV="144.20999999999998" targetQ="43.556" bus="B2" connectableBus="B2">
                 <iidm:minMaxReactiveLimits minQ="-40.0" maxQ="50.0"/>
             </iidm:generator>
-            <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="31.7" q0="28.08" bus="B2" connectableBus="B2">
-                <iidm:zipModel c0p="0.6845425867507886" c1p="0.26813880126182965" c2p="0.04731861198738171" c0q="0.45227920227920226" c1q="0.4287749287749288" c2q="0.11894586894586895"/>
-            </iidm:load>
+            <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="21.7" q0="12.7" bus="B2" connectableBus="B2"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S3">

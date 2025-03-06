@@ -70,7 +70,7 @@ public class PsseLoad extends PsseVersioned {
 
     @Parsed
     @Revision(since = 35)
-    private double dgenm = 0;
+    private int dgenm = 0;
 
     @Parsed(defaultNullRead = "            ")
     @Revision(since = 35)
@@ -210,12 +210,12 @@ public class PsseLoad extends PsseVersioned {
         this.dgenq = dgenq;
     }
 
-    public double getDgenm() {
+    public int getDgenm() {
         checkVersion("dgenm");
         return dgenm;
     }
 
-    public void setDgenm(double dgenm) {
+    public void setDgenm(int dgenm) {
         checkVersion("dgenm");
         this.dgenm = dgenm;
     }

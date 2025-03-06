@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="IEEE_14_buses_zip_load" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="IEEE_14_buses_badly_defined_controlled_buses" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1">
         <iidm:voltageLevel id="VL1" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -18,9 +18,16 @@
             <iidm:generator id="B2-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="true" targetP="40.0" targetV="144.20999999999998" targetQ="43.556" bus="B2" connectableBus="B2">
                 <iidm:minMaxReactiveLimits minQ="-40.0" maxQ="50.0"/>
             </iidm:generator>
-            <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="31.7" q0="28.08" bus="B2" connectableBus="B2">
-                <iidm:zipModel c0p="0.6845425867507886" c1p="0.26813880126182965" c2p="0.04731861198738171" c0q="0.45227920227920226" c1q="0.4287749287749288" c2q="0.11894586894586895"/>
-            </iidm:load>
+            <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="21.7" q0="12.7" bus="B2" connectableBus="B2"/>
+            <iidm:shunt id="B2-SwSH1" sectionCount="3" voltageRegulatorOn="true" targetV="137.31" targetDeadband="1.3799999999999955" bus="B2" connectableBus="B2">
+                <iidm:shuntNonLinearModel>
+                    <iidm:section b="-0.0010501995379122034" g="0.0"/>
+                    <iidm:section b="-7.876496534341525E-4" g="0.0"/>
+                    <iidm:section b="-5.250997689561017E-4" g="0.0"/>
+                    <iidm:section b="-2.6254988447805085E-4" g="0.0"/>
+                    <iidm:section b="0.0" g="0.0"/>
+                </iidm:shuntNonLinearModel>
+            </iidm:shunt>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S3">
@@ -57,6 +64,28 @@
                 <iidm:step r="0.0" x="0.0" g="-6.1039000000000065" b="-6.1039000000000065" rho="1.0319917440660475"/>
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
+        <iidm:threeWindingsTransformer id="T-4-7-9-1 " r1="-7.799051701646568E-7" x1="1.1395911508266792E-4" g1="0.011012916672" b1="-0.008219632838016834" ratedU1="138.0" r2="2.506552897437384E-6" x2="1.913087291200171E-4" g2="0.0" b2="0.0" ratedU2="138.0" r3="8.39084857664657E-7" x3="5.51790882287039E-4" g3="0.0" b3="0.0" ratedU3="138.0" ratedU0="1.0" voltageLevelId1="VL4-7-9" bus1="B4" connectableBus1="B4" voltageLevelId2="VL4-7-9" bus2="B7" connectableBus2="B7" voltageLevelId3="VL4-7-9" bus3="B9" connectableBus3="B9" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT" selectedOperationalLimitsGroupId3="DEFAULT">
+            <iidm:property name="v" value="0.98627"/>
+            <iidm:property name="angle" value="-10.1187"/>
+            <iidm:ratioTapChanger1 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
+                <iidm:step r="0.0" x="0.0" g="1212.749422390254" b="1212.749422390254" rho="0.27599999999999997"/>
+            </iidm:ratioTapChanger1>
+            <iidm:ratioTapChanger2 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="7.567034051653233"/>
+            </iidm:ratioTapChanger2>
+            <iidm:ratioTapChanger3 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="8.626078259782473"/>
+            </iidm:ratioTapChanger3>
+            <iidm:operationalLimitsGroup1 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="422.5534578851609"/>
+            </iidm:operationalLimitsGroup1>
+            <iidm:operationalLimitsGroup2 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="840.9232181674985"/>
+            </iidm:operationalLimitsGroup2>
+            <iidm:operationalLimitsGroup3 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="1259.292978449836"/>
+            </iidm:operationalLimitsGroup3>
+        </iidm:threeWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S5-6">
         <iidm:voltageLevel id="VL5-6" nominalV="138.0" topologyKind="BUS_BREAKER">
