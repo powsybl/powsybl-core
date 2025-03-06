@@ -44,6 +44,17 @@ class SafeZipInputStreamTest {
     }
 
     @Test
+    void testGetNextEntry() throws IOException {
+        when(zipInputStream.getNextEntry()).thenReturn(new ZipEntry("entry1"), new ZipEntry("entry2"), null);
+        safeZipInputStream = new SafeZipInputStream(zipInputStream, 1, 100);
+        ZipEntry entry2 = safeZipInputStream.getNextEntry();
+        assertNotNull(entry2);
+        assertEquals("entry2", entry2.getName());
+        ZipEntry entry3 = safeZipInputStream.getNextEntry();
+        assertNull(entry3);
+    }
+
+    @Test
     void testReadExceedsMaxBytes() throws IOException {
         when(zipInputStream.read()).thenReturn(1, 1, 1, -1);
 

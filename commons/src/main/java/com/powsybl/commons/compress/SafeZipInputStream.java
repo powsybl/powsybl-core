@@ -15,8 +15,8 @@ import com.powsybl.commons.io.ForwardingInputStream;
 
 public class SafeZipInputStream extends ForwardingInputStream<ZipInputStream> {
 
-    private int bytesRead;
-    private int maxBytesToRead;
+    private long bytesRead;
+    private long maxBytesToRead;
 
     public SafeZipInputStream(ZipInputStream in, int entryNumber, int maxBytesToRead) throws IOException {
         super(in);
@@ -27,6 +27,10 @@ public class SafeZipInputStream extends ForwardingInputStream<ZipInputStream> {
                 throw new IOException(String.format("Zip entry index out of bounds: %s", entryNumber));
             }
         }
+    }
+
+    public ZipEntry getNextEntry() throws IOException {
+        return this.getDelegate().getNextEntry();
     }
 
     @Override
@@ -41,10 +45,12 @@ public class SafeZipInputStream extends ForwardingInputStream<ZipInputStream> {
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
         int byteRead = super.read(b, off, len);
-        if (byteRead != -1 && (this.bytesRead + byteRead) > this.maxBytesToRead) {
-            throw new IOException("Max bytes to read exceeded");
+        if (byteRead != -1) {
+            this.bytesRead += byteRead;
+            if (this.bytesRead > this.maxBytesToRead) {
+                throw new IOException("Max bytes to read exceeded");
+            }
         }
-        this.bytesRead += byteRead;
         return byteRead;
     }
 }
