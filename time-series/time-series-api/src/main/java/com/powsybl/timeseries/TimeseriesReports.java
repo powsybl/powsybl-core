@@ -22,7 +22,7 @@ public final class TimeseriesReports {
 
     public static void warnsOnTimeseriesVersionNumber(ReportNode reportNode, int versionNumber, String line) {
         reportNode.newReportNode()
-                .withMessageTemplate("invalidVersionNumber", "The version number for a versioned TimeSeries should not be equals to the default version number (${versionNumber}) at line ${line}")
+                .withLocaleMessageTemplate("core-timeseries-invalidVersionNumber", BUNDLE_BASE_NAME)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .withUntypedValue("versionNumber", versionNumber)
                 .withUntypedValue("line", line)
@@ -31,7 +31,7 @@ public final class TimeseriesReports {
 
     public static void timeseriesLoadingTimeDuration(ReportNode reportNode, int tsNumber, long timing) {
         reportNode.newReportNode()
-                .withMessageTemplate("timeseriesLoadingTime", "${tsNumber} time series loaded from CSV in ${timing} ms")
+                .withLocaleMessageTemplate("core-timeseries-timeseriesLoadingTime", BUNDLE_BASE_NAME)
                 .withUntypedValue("tsNumber", tsNumber)
                 .withUntypedValue("timing", timing)
                 .add();
