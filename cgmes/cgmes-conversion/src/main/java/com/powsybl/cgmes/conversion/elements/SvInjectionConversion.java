@@ -109,7 +109,7 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private void findNodeFromUnmappedCgmesTerminal() {
-        node = context.nodeMapping().iidmNodeForTerminal(cgmesTerminal, false, voltageLevel);
+        node = context.nodeMapping().iidmNodeForTerminal(cgmesTerminal, voltageLevel);
     }
 
     private void findNodeFromMappedCgmesTerminal(Terminal associatedTerminal, String topologicalNode) {
