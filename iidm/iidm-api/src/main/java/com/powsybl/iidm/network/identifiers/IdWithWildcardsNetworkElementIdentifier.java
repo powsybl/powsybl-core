@@ -47,10 +47,10 @@ public class IdWithWildcardsNetworkElementIdentifier implements NetworkElementId
     }
 
     private void initialize() {
-        String allowedCharactersRegex = "^[A-Za-z0-9_?.-]*$";
+        String allowedCharactersRegex = "^[A-Za-z0-9_? .-]*$";
 
         if (!identifier.matches(allowedCharactersRegex)) {
-            throw new PowsyblException("Only characters allowed for this identifier are letters, numbers, '_', '-', '.' and the wildcard character '?'");
+            throw new PowsyblException("Only characters allowed for this identifier are letters, numbers, '_', '-', '.', spaces and the wildcard character '?'");
         }
         int separatorNumber = StringUtils.countMatches(identifier, WILDCARD);
         if (separatorNumber > ALLOWED_WILDCARDS_NUMBER) {
