@@ -162,7 +162,7 @@ By default, the export topology kind is computed from the IIDM network's `Voltag
 * If some `VoltageLevel` of the network are at `node/breaker` and some other at `bus/breaker` connectivity level, then the export's topology kind depends on the CIM version for export: 
 it is `BUS_BRANCH` for CIM 16 and `NODE_BREAKER` for CIM 100
 
-It is however possible to ignore the computed export topology kind and force it to be `NODE_BREAKER` or `BUS_BRANCH` by setting the parameter `iidm.export.cgmes.topology-kind`.
+It is however possible to ignore the computed export topology kind and force it to be `NODE_BREAKER` or `BUS_BRANCH` by setting the parameter [`iidm.export.cgmes.topology-kind`](#options).
 
 The various configurations and the differences in what's written are summarized in the following table:
 
@@ -174,7 +174,7 @@ The various configurations and the differences in what's written are summarized 
 | 100         | `BUS_BRANCH`             | Yes (**)                              | Yes                                                 |
 
 ### Connectivity elements
-* non-retained `Switch` are always written in the case of a `NODE_BREAKER` export, and never written in the case of a `BUS_BRANCH` export
+* Non-retained `Switch` are always written in the case of a `NODE_BREAKER` export, and never written in the case of a `BUS_BRANCH` export
 * `ConnectivityNode` are:
   * Never exported in the case of a CIM 16 `BUS_BRANCH` export
   * (*) Always exported in the case of a `NODE_BREAKER` export. If the VoltageLevel's connectivity level is `node/breaker`,
@@ -413,9 +413,9 @@ Optional property related to the naming strategy specified in `iidm.export.cgmes
 Optional property that determines which instance files will be exported.
 By default, it is a full CGMES export: the instance files for the profiles EQ, TP, SSH and SV are exported.
 
-**iidm.export.cgmes.topology-kind**
+**iidm.export.cgmes.topology-kind**  
 Optional property that defines the topology kind of the export. Allowed values are: `NODE_BREAKER` and `BUS_BRANCH`.
-By default, the export topology kind reflects the network's voltage levels connectivity level detail: node/breaker, bus/breaker, mixed (CIM 100/CGMES 3.0 only).
+By default, the export topology kind reflects the network's voltage levels connectivity level detail: node/breaker or bus/breaker.
 This property is used to bypass the natural export topology kind and force a desired one (e.g. export as bus/branch a node/breaker network).
 
 **iidm.export.cgmes.modeling-authority-set**  
@@ -440,11 +440,11 @@ the sums of active power and reactive power at the bus are higher than a thresho
 `iidm.export.cgmes.max-p-mismatch-converged` and `iidm.export.cgmes.max-q-mismatch-converged`.
 This property is set to `true` by default.
 
-**iidm.export.cgmes.export-all-limits-group**
+**iidm.export.cgmes.export-all-limits-group**  
 Optional property that defines whether all OperationalLimitsGroup should be exported, or only the selected (active) ones.
 This property is set to `true` by default, which means all groups are exported (not only the active ones).
 
-**iidm.export.cgmes.export-generators-in-local-regulation-mode**
+**iidm.export.cgmes.export-generators-in-local-regulation-mode**  
 Optional property that allows to export voltage regulating generators in local regulation mode. This doesn't concern reactive power regulating generators.
 If set to true, the generator's regulating terminal is set to the generator's own terminal and the target voltage is rescaled accordingly.
 This property is set to `false` by default.
@@ -473,9 +473,9 @@ Its default value is 1.
 The business process in which the export takes place. This is used to generate unique UUIDs for the EQ, TP, SSH and SV file `FullModel`.
 Its default value is `1D`.
 
-**iidm.export.cgmes.cgm_export**
+**iidm.export.cgmes.cgm_export**  
 Optional property to specify the export use-case: IGM (Individual Grid Model) or CGM (Common Grid Model).
 To export instance files of a CGM, set the value to `True`. The default value is `False` to export network as an IGM.
 
-**iidm.export.cgmes.update-dependencies**
+**iidm.export.cgmes.update-dependencies**  
 Optional property to determine if dependencies in the exported instance files should be managed automatically. The default value is `True`.
