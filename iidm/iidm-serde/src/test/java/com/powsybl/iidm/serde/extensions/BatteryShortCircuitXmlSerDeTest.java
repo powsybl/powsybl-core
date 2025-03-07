@@ -13,13 +13,13 @@ import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
+import com.powsybl.iidm.serde.ExportOptions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
@@ -27,19 +27,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
-    void test() throws IOException {
-        Network network = BatteryNetworkFactory.create();
-        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
-        Battery bat = network.getBattery("BAT");
-        assertNotNull(bat);
-        bat.newExtension(BatteryShortCircuitAdder.class)
-            .withDirectTransX(1.0)
-            .withDirectSubtransX(2.0)
-            .withStepUpTransformerX(3.0)
-            .add();
-        BatteryShortCircuit batteryShortCircuits = bat.getExtension(BatteryShortCircuit.class);
+    void roundTripTest() throws IOException {
+        NetworkData networkData = getNetworkData();
+        Network network = networkData.network();
+        BatteryShortCircuit batteryShortCircuits = networkData.batteryShortCircuits();
 
-        Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/batteryShortCircuitRef.xml");
+        Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/batteryShortCircuitRef_V1_0.xml");
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);
@@ -49,5 +42,43 @@ class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
         assertEquals(batteryShortCircuits.getDirectTransX(), batteryShortCircuits2.getDirectTransX(), 0.001d);
         assertEquals(batteryShortCircuits.getDirectSubtransX(), batteryShortCircuits2.getDirectSubtransX(), 0.001d);
         assertEquals(batteryShortCircuits.getStepUpTransformerX(), batteryShortCircuits2.getStepUpTransformerX(), 0.001d);
+    }
+
+    @Test
+    void roundTripTestV01() throws IOException {
+        NetworkData networkData = getNetworkData();
+        Network network = networkData.network();
+        BatteryShortCircuit batteryShortCircuits = networkData.batteryShortCircuits();
+
+        // Use an extension version which serialization name is not the default
+        ExportOptions exportOptions = new ExportOptions()
+                .addExtensionVersion(BatteryShortCircuit.NAME, "0.1");
+        Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/batteryShortCircuitRef_V0_1.xml", exportOptions);
+
+        Battery bat2 = network2.getBattery("BAT");
+        assertNotNull(bat2);
+        BatteryShortCircuit batteryShortCircuits2 = bat2.getExtension(BatteryShortCircuit.class);
+        assertNotNull(batteryShortCircuits2);
+
+        assertEquals(batteryShortCircuits.getDirectTransX(), batteryShortCircuits2.getDirectTransX(), 0.001d);
+        assertEquals(batteryShortCircuits.getStepUpTransformerX(), batteryShortCircuits2.getStepUpTransformerX(), 0.001d);
+        assertTrue(Double.isNaN(batteryShortCircuits2.getDirectSubtransX())); // This attribute is not exported in V0.1
+    }
+
+    private static NetworkData getNetworkData() {
+        Network network = BatteryNetworkFactory.create();
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        Battery bat = network.getBattery("BAT");
+        assertNotNull(bat);
+        bat.newExtension(BatteryShortCircuitAdder.class)
+                .withDirectTransX(1.0)
+                .withDirectSubtransX(2.0)
+                .withStepUpTransformerX(3.0)
+                .add();
+        BatteryShortCircuit batteryShortCircuits = bat.getExtension(BatteryShortCircuit.class);
+        return new NetworkData(network, batteryShortCircuits);
+    }
+
+    private record NetworkData(Network network, BatteryShortCircuit batteryShortCircuits) {
     }
 }
