@@ -1,0 +1,214 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>TieLine</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest1">
+        <cim:IdentifiedObject.name>GeographicalRegionTest1</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest1">
+        <cim:IdentifiedObject.name>SubGeographicalRegionTest1</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest1" />
+    </cim:SubGeographicalRegion>
+    <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest2">
+        <cim:IdentifiedObject.name>GeographicalRegionTest2</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest2">
+        <cim:IdentifiedObject.name>SubGeographicalRegionTest2</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest2" />
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_Substation1">
+        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest1" />
+    </cim:Substation>
+    <cim:Substation rdf:ID="_Substation2">
+        <cim:IdentifiedObject.name>Substation2</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest2" />
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage400">
+        <cim:IdentifiedObject.name>400.0 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel1">
+        <cim:IdentifiedObject.name>VoltageLevel1</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel2">
+        <cim:IdentifiedObject.name>VoltageLevel2</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation2"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode1">
+        <cim:IdentifiedObject.name>Connectivity Node 1</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode2">
+        <cim:IdentifiedObject.name>Connectivity Node 2</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel2" />
+    </cim:ConnectivityNode>
+
+    <cim:ACLineSegment rdf:ID="_ACLineSegment-1">
+        <cim:IdentifiedObject.name>ACLineSegment-1</cim:IdentifiedObject.name>
+        <cim:ACLineSegment.b0ch>0.0008</cim:ACLineSegment.b0ch>
+        <cim:ACLineSegment.bch>0.00091</cim:ACLineSegment.bch>
+        <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+        <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+        <cim:ACLineSegment.r>1.50</cim:ACLineSegment.r>
+        <cim:ACLineSegment.r0>7.43</cim:ACLineSegment.r0>
+        <cim:ACLineSegment.shortCircuitEndTemperature>0</cim:ACLineSegment.shortCircuitEndTemperature>
+        <cim:ACLineSegment.x>18.35</cim:ACLineSegment.x>
+        <cim:ACLineSegment.x0>45.59</cim:ACLineSegment.x0>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_ACLineSegment-1-T1">
+        <cim:IdentifiedObject.name>ACLineSegment-1-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment-1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ACLineSegment-1-T2">
+        <cim:IdentifiedObject.name>ACLineSegment-1-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment-1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode-BD"/>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:ID="_ACLineSegment-1-EquivalentInjection">
+        <cim:IdentifiedObject.name>ACLineSegment-1-EquivalentInjection</cim:IdentifiedObject.name>
+        <cim:EquivalentInjection.r>0</cim:EquivalentInjection.r>
+        <cim:EquivalentInjection.r0>0</cim:EquivalentInjection.r0>
+        <cim:EquivalentInjection.r2>0</cim:EquivalentInjection.r2>
+        <cim:EquivalentInjection.regulationCapability>false</cim:EquivalentInjection.regulationCapability>
+        <cim:EquivalentInjection.x>0</cim:EquivalentInjection.x>
+        <cim:EquivalentInjection.x0>0</cim:EquivalentInjection.x0>
+        <cim:EquivalentInjection.x2>0</cim:EquivalentInjection.x2>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_ACLineSegment-1-EquivalentInjection-T">
+        <cim:IdentifiedObject.name>ACLineSegment-1-EquivalentInjection-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment-1-EquivalentInjection"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode-BD"/>
+    </cim:Terminal>
+
+    <cim:ACLineSegment rdf:ID="_ACLineSegment-2">
+        <cim:IdentifiedObject.name>ACLineSegment-2</cim:IdentifiedObject.name>
+        <cim:ACLineSegment.b0ch>0.0008</cim:ACLineSegment.b0ch>
+        <cim:ACLineSegment.bch>0.00091</cim:ACLineSegment.bch>
+        <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+        <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+        <cim:ACLineSegment.r>1.70</cim:ACLineSegment.r>
+        <cim:ACLineSegment.r0>7.43</cim:ACLineSegment.r0>
+        <cim:ACLineSegment.shortCircuitEndTemperature>0</cim:ACLineSegment.shortCircuitEndTemperature>
+        <cim:ACLineSegment.x>17.55</cim:ACLineSegment.x>
+        <cim:ACLineSegment.x0>45.59</cim:ACLineSegment.x0>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_ACLineSegment-2-T1">
+        <cim:IdentifiedObject.name>ACLineSegment-2-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment-2"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ACLineSegment-2-T2">
+        <cim:IdentifiedObject.name>ACLineSegment-2-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment-2"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode-BD"/>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:ID="_ACLineSegment-2-EquivalentInjection">
+        <cim:IdentifiedObject.name>ACLineSegment-2-EquivalentInjection</cim:IdentifiedObject.name>
+        <cim:EquivalentInjection.r>0</cim:EquivalentInjection.r>
+        <cim:EquivalentInjection.r0>0</cim:EquivalentInjection.r0>
+        <cim:EquivalentInjection.r2>0</cim:EquivalentInjection.r2>
+        <cim:EquivalentInjection.regulationCapability>false</cim:EquivalentInjection.regulationCapability>
+        <cim:EquivalentInjection.x>0</cim:EquivalentInjection.x>
+        <cim:EquivalentInjection.x0>0</cim:EquivalentInjection.x0>
+        <cim:EquivalentInjection.x2>0</cim:EquivalentInjection.x2>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_ACLineSegment-2-EquivalentInjection-T">
+        <cim:IdentifiedObject.name>ACLineSegment-2-EquivalentInjection-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment-2-EquivalentInjection"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode-BD"/>
+    </cim:Terminal>
+
+    <cim:OperationalLimitSet rdf:ID="_ACLineSegment-1-T1-OperationalLimitSet">
+        <cim:IdentifiedObject.name>ACLineSegment-1-T1-OperationalLimitSet</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_ACLineSegment-1-T1"/>
+    </cim:OperationalLimitSet>
+    <cim:ActivePowerLimit rdf:ID="_ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit1">
+        <cim:IdentifiedObject.name>ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit1</cim:IdentifiedObject.name>
+        <cim:ActivePowerLimit.normalValue>90</cim:ActivePowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_ACLineSegment-1-T1-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit1-Patl"/>
+    </cim:ActivePowerLimit>
+    <cim:OperationalLimitType rdf:ID="_ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit1-Patl">
+        <cim:IdentifiedObject.name>ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit1-Patl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.patl" />
+    </cim:OperationalLimitType>
+    <cim:ActivePowerLimit rdf:ID="_ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit2">
+        <cim:IdentifiedObject.name>ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit2</cim:IdentifiedObject.name>
+        <cim:ActivePowerLimit.normalValue>108</cim:ActivePowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_ACLineSegment-1-T1-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit2-Tatl"/>
+    </cim:ActivePowerLimit>
+    <cim:OperationalLimitType rdf:ID="_ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit2-Tatl">
+        <cim:IdentifiedObject.name>ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit2-Tatl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.acceptableDuration>900</cim:OperationalLimitType.acceptableDuration>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.tatl" />
+    </cim:OperationalLimitType>
+
+    <cim:OperationalLimitSet rdf:ID="_ACLineSegment-2-T1-OperationalLimitSet">
+        <cim:IdentifiedObject.name>ACLineSegment-2-T1-OperationalLimitSet</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_ACLineSegment-2-T1"/>
+    </cim:OperationalLimitSet>
+    <cim:ActivePowerLimit rdf:ID="_ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit1">
+        <cim:IdentifiedObject.name>ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit1</cim:IdentifiedObject.name>
+        <cim:ActivePowerLimit.normalValue>91</cim:ActivePowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_ACLineSegment-2-T1-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit1-Patl"/>
+    </cim:ActivePowerLimit>
+    <cim:OperationalLimitType rdf:ID="_ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit1-Patl">
+        <cim:IdentifiedObject.name>ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit1-Patl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.patl" />
+    </cim:OperationalLimitType>
+    <cim:ActivePowerLimit rdf:ID="_ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit2">
+        <cim:IdentifiedObject.name>ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit2</cim:IdentifiedObject.name>
+        <cim:ActivePowerLimit.normalValue>109</cim:ActivePowerLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_ACLineSegment-2-T1-OperationalLimitSet"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit2-Tatl"/>
+    </cim:ActivePowerLimit>
+    <cim:OperationalLimitType rdf:ID="_ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit2-Tatl">
+        <cim:IdentifiedObject.name>ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit2-Tatl</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.acceptableDuration>901</cim:OperationalLimitType.acceptableDuration>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
+        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.tatl" />
+    </cim:OperationalLimitType>
+
+    <cim:BusbarSection rdf:ID="_BusbarSection-1">
+        <cim:IdentifiedObject.name>BusbarSection-1</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_BusbarSection-1-T">
+        <cim:IdentifiedObject.name>BusbarSection-1-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BusbarSection-1" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+
+    <cim:BusbarSection rdf:ID="_BusbarSection-2">
+        <cim:IdentifiedObject.name>BusbarSection-2</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel2" />
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_BusbarSection-2-T">
+        <cim:IdentifiedObject.name>BusbarSection-2-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BusbarSection-2" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2" />
+    </cim:Terminal>
+
+</rdf:RDF>
