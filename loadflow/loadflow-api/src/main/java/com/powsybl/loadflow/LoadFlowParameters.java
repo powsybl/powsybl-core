@@ -24,7 +24,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Parameters for loadflow computation.
