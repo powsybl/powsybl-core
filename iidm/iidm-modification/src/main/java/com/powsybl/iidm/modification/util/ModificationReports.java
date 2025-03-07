@@ -9,7 +9,6 @@ package com.powsybl.iidm.modification.util;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.iidm.modification.scalable.ProportionalScalable.DistributionMode;
 import com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType;
 import com.powsybl.iidm.network.*;
 
@@ -690,33 +689,101 @@ public final class ModificationReports {
     }
 
     public static void connectableConnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean connectionSuccessful, ThreeSides side) {
-        String defaultMessage = connectionSuccessful ?
-                "Connectable ${identifiable} has been connected" :
-                "Connectable ${identifiable} has NOT been connected";
-        defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
-        String key = connectionSuccessful ? "connectableConnected" : "connectableNotConnected";
-        key += side == null ? "" : "Side" + side.getNum();
-        reportNode.newReportNode()
-                .withMessageTemplate(key, defaultMessage)
-                .withUntypedValue("identifiable", identifiable.getId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+        if (connectionSuccessful) {
+            if (null == side) {
+                reportNode.newReportNode()
+                        .withMessageTemplate("connectableConnected", "Connectable ${identifiable} has been connected on each side.")
+                        .withUntypedValue("identifiable", identifiable.getId())
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .add();
+            } else {
+                reportNode.newReportNode()
+                        .withMessageTemplate("connectableConnectedSide", "Connectable ${identifiable} has been connected on side " + side + ".")
+                        .withUntypedValue("identifiable", identifiable.getId())
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .add();
+            }
+        } else if (null == side) {
+            reportNode.newReportNode()
+                    .withMessageTemplate("connectableNotConnected", "Connectable ${identifiable} has NOT been connected on each side.")
+                    .withUntypedValue("identifiable", identifiable.getId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
+        } else {
+            reportNode.newReportNode()
+                    .withMessageTemplate("connectableNotConnectedSide", "Connectable ${identifiable} has NOT been connected on side " + side + ".")
+                    .withUntypedValue("identifiable", identifiable.getId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
+        }
     }
 
     public static void identifiableDisconnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
-        String defaultMessage = disconnectionSuccessful ?
-                "Identifiable ${identifiable} has been disconnected" :
-                "Identifiable ${identifiable} has NOT been disconnected";
-        defaultMessage += isPlanned ? " (planned disconnection)" : " (unplanned disconnection)";
-        defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
-        String key = isPlanned ? "planned" : "unplanned";
-        key += disconnectionSuccessful ? "IdentifiableDisconnected" : "IdentifiableNotDisconnected";
-        key += side == null ? "" : "Side" + side.getNum();
-        reportNode.newReportNode()
-                .withMessageTemplate(key, defaultMessage)
-                .withUntypedValue("identifiable", identifiable.getId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+        if (isPlanned) {
+            if (disconnectionSuccessful) {
+                if (null == side) {
+                    reportNode.newReportNode()
+                            .withMessageTemplate("plannedIdentifiableDisconnected", "Identifiable ${identifiable} has been disconnected (planned disconnection) on each side.")
+                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .add();
+                } else {
+                    reportNode.newReportNode()
+                            .withMessageTemplate("plannedIdentifiableDisconnectedSide", "Identifiable ${identifiable} has been disconnected (planned disconnection) on side ${side}.")
+                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withUntypedValue("side", side.getNum())
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .add();
+                }
+            } else {
+                if (null == side) {
+                    reportNode.newReportNode()
+                            .withMessageTemplate("plannedIdentifiableNotDisconnected", "Identifiable ${identifiable} has NOT been disconnected (planned disconnection) on each side.")
+                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .add();
+                } else {
+                    reportNode.newReportNode()
+                            .withMessageTemplate("plannedIdentifiableNotDisconnectedSide", "Identifiable ${identifiable} has NOT been disconnected (planned disconnection) on side ${side}.")
+                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withUntypedValue("side", side.getNum())
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .add();
+                }
+            }
+        } else {
+            if (disconnectionSuccessful) {
+                if (null == side) {
+                    reportNode.newReportNode()
+                            .withMessageTemplate("unplannedIdentifiableDisconnected", "Identifiable ${identifiable} has been disconnected (unplanned disconnection) on each side.")
+                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .add();
+                } else {
+                    reportNode.newReportNode()
+                            .withMessageTemplate("unplannedIdentifiableDisconnectedSide", "Identifiable ${identifiable} has been disconnected (unplanned disconnection) on side ${side}.")
+                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withUntypedValue("side", side.getNum())
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .add();
+                }
+            } else {
+                if (null == side) {
+                    reportNode.newReportNode()
+                            .withMessageTemplate("unplannedIdentifiableNotDisconnected", "Identifiable ${identifiable} has NOT been disconnected (unplanned disconnection) on each side.")
+                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .add();
+                } else {
+                    reportNode.newReportNode()
+                            .withMessageTemplate("unplannedIdentifiableNotDisconnectedSide", "Identifiable ${identifiable} has NOT been disconnected (unplanned disconnection) on side ${side}.")
+                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withUntypedValue("side", side.getNum())
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .add();
+                }
+            }
+        }
     }
 
     public static ReportNode replaceThreeWindingsTransformersBy3TwoWindingsTransformersReport(ReportNode reportNode) {
