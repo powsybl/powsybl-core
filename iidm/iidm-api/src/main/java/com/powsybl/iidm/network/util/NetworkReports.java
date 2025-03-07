@@ -44,7 +44,7 @@ public final class NetworkReports {
 
     public static void parentHasBothRatioAndPhaseTapChanger(ReportNode reportNode, String parentMessage) {
         reportNode.newReportNode()
-                .withMessageTemplate("validationWarning", "${parent} has both Ratio and Phase Tap Changer.")
+                .withMessageTemplate("validationWarningBothRatioPhase", "${parent} has both Ratio and Phase Tap Changer.")
                 .withUntypedValue("parent", parentMessage)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -52,7 +52,7 @@ public final class NetworkReports {
 
     public static void parentHasDuplicatePointForActivePower(ReportNode reportNode, String ownerMessage, Double p) {
         reportNode.newReportNode()
-                .withMessageTemplate("validationWarning", "${parent} duplicate point for active power {p}")
+                .withMessageTemplate("validationWarningDuplicate", "${parent} duplicate point for active power {p}")
                 .withUntypedValue("parent", ownerMessage)
                 .withUntypedValue("p", p)
                 .withSeverity(TypedValue.WARN_SEVERITY)

@@ -24,7 +24,7 @@ public final class DeserializerReports {
     public static void importedNetworkReport(ReportNode reportNode, String networkId, String format) {
         if (reportNode != null) {
             reportNode.newReportNode()
-                    .withMessageTemplate("importedNetwork", "Network \"${networkId}\" is imported from ${format} format.")
+                    .withMessageTemplate("importedNetwork", "Network ${networkId} is imported from ${format} format.")
                     .withUntypedValue("networkId", networkId)
                     .withUntypedValue("format", format)
                     .withSeverity(TypedValue.INFO_SEVERITY)

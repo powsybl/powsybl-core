@@ -79,6 +79,7 @@ class StackScalableTest {
         double variationDone = stackScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
+                "STACKING",
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -100,6 +101,7 @@ class StackScalableTest {
         double variationDone = stackScalable.scale(network, 300.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
+                "STACKING",
             scalingParameters.getScalingType(),
             300.0, variationDone);
         assertEquals(140.0, variationDone, 1e-5);
@@ -121,6 +123,7 @@ class StackScalableTest {
         double variationDone = stackScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
+                "STACKING",
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(-60.0, variationDone, 1e-5);
@@ -145,6 +148,7 @@ class StackScalableTest {
         double variationDone = stackScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
+                "STACKING",
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(75.0, variationDone, 1e-5);
@@ -169,6 +173,7 @@ class StackScalableTest {
         double variationDone = stackScalable.scale(network, -100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
+                "STACKING",
             scalingParameters.getScalingType(),
             -100.0, variationDone);
         assertEquals(-75.0, variationDone, 1e-5);
@@ -197,6 +202,7 @@ class StackScalableTest {
         variationDone = stackScalable.scale(network, volumeAsked, scalingParameters);
         scalingReport(reportNode,
             "generators, loads and dangling lines",
+                "STACKING",
             scalingParameters.getScalingType(),
             volumeAsked, variationDone);
         assertEquals(volumeAsked, variationDone, 1e-5);
