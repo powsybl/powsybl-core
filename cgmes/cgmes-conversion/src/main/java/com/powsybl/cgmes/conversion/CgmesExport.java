@@ -706,7 +706,7 @@ public class CgmesExport implements Exporter {
     private static final Parameter TOPOLOGY_KIND_PARAMETER = new Parameter(
             TOPOLOGY_KIND,
             ParameterType.STRING,
-            "The topology kind of the export",
+            "Force the topology kind for the export (disable automatic detection)",
             null,
             List.of(CgmesTopologyKind.NODE_BREAKER.name(), CgmesTopologyKind.BUS_BRANCH.name()));
     private static final Parameter CGM_EXPORT_PARAMETER = new Parameter(

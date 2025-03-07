@@ -141,7 +141,7 @@ public class CgmesExportContext {
             setCimVersion(cimCharacteristics.getCimVersion());
             topologyKind = cimCharacteristics.getTopologyKind();
         } else {
-            topologyKind = networkTopologyKind(network);
+            topologyKind = detectNetworkTopologyKind(network);
         }
         scenarioTime = network.getCaseDate();
         addIidmMappings(network);
@@ -158,7 +158,7 @@ public class CgmesExportContext {
         return referenceDataProvider;
     }
 
-    private CgmesTopologyKind networkTopologyKind(Network network) {
+    private CgmesTopologyKind detectNetworkTopologyKind(Network network) {
         long nodeBreakerVoltageLevelsCount = network.getVoltageLevelStream()
                 .filter(vl -> vl.getTopologyKind() == TopologyKind.NODE_BREAKER)
                 .count();

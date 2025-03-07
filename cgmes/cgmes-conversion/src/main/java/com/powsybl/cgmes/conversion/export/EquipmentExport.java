@@ -108,7 +108,7 @@ public final class EquipmentExport {
 
     private static void writeConnectivityNodes(Network network, Map <String, String> mapNodeKey2NodeId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // ConnectivityNodes are:
-        // - always exported from nodes and buses in case of a node-breaker or CIM 100 export
+        // - always exported, preferably from nodes if present or buses otherwise in case of a node-breaker export
         // - exported from buses in case of a CIM 100 bus-branch export
         // - never exported in case of a CIM 16 bus-branch export
         if (!context.isCim16BusBranchExport()) {

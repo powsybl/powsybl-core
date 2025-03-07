@@ -57,7 +57,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
         // Assert the exports are valid
         assertValidProfileInHeader(eqFile, topologyKind, cim100Export);
         assertValidCim16EquipmentOperationElements(eqFile, sshFile, svFile, topologyKind, cim100Export);
-        assertValidNodeBreakerElements(eqFile, topologyKind, cim100Export);
+        assertValidConnectivityElements(eqFile, topologyKind, cim100Export);
         assertValidTerminalCount(eqFile, topologyKind, cim100Export);
     }
 
@@ -65,6 +65,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
         if (topologyKind == CgmesTopologyKind.NODE_BREAKER && !cim100Export) {
             assertTrue(eqFile.contains(CgmesNamespace.CIM_16_EQ_OPERATION_PROFILE));
         } else {
+            assertFalse(eqFile.contains(CgmesNamespace.CIM_16_EQ_OPERATION_PROFILE));
             assertFalse(eqFile.contains(CgmesNamespace.CIM_100_EQ_OPERATION_PROFILE));
         }
     }
@@ -101,7 +102,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
         }
     }
 
-    private void assertValidNodeBreakerElements(String eqFile, CgmesTopologyKind topologyKind, boolean cim100Export) {
+    private void assertValidConnectivityElements(String eqFile, CgmesTopologyKind topologyKind, boolean cim100Export) {
         if (topologyKind == CgmesTopologyKind.NODE_BREAKER) {
             assertEquals(4, getElementCount(eqFile, "ConnectivityNode"));
             assertEquals(1, getElementCount(eqFile, "Disconnector"));
