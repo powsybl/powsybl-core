@@ -22,7 +22,7 @@ public final class TimeseriesReports {
 
     public static void warnsOnTimeseriesVersionNumber(ReportNode reportNode, int versionNumber, String line) {
         reportNode.newReportNode()
-                .withMessageTemplate("invalidVersionNumber", "The version number for a versioned TimeSeries should not be equals to the default version number (${versionNumber}) at line \"${line}\"")
+                .withMessageTemplate("invalidVersionNumber", "The version number for a versioned TimeSeries should not be equals to the default version number (${versionNumber}) at line ${line}")
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .withUntypedValue("versionNumber", versionNumber)
                 .withUntypedValue("line", line)

@@ -677,22 +677,11 @@ public final class ModificationReports {
     private ModificationReports() {
     }
 
-    public static void scalingReport(ReportNode reportNode, String type, DistributionMode mode, ScalingType scalingType, double asked, double done) {
+    public static void scalingReport(ReportNode reportNode, String type, String mode, ScalingType scalingType, double asked, double done) {
         reportNode.newReportNode()
                 .withMessageTemplate("scalingApplied", "Successfully scaled on ${identifiableType} using mode ${mode} and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
                 .withUntypedValue(IDENTIFIABLE_TYPE, type)
-                .withUntypedValue("mode", mode.name())
-                .withUntypedValue("type", scalingType.name())
-                .withUntypedValue("asked", asked)
-                .withUntypedValue("done", done)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
-    }
-
-    public static void scalingReport(ReportNode reportNode, String type, ScalingType scalingType, double asked, double done) {
-        reportNode.newReportNode()
-                .withMessageTemplate("scalingApplied", "Successfully scaled on ${identifiableType} using mode STACKING and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
-                .withUntypedValue(IDENTIFIABLE_TYPE, type)
+                .withUntypedValue("mode", mode)
                 .withUntypedValue("type", scalingType.name())
                 .withUntypedValue("asked", asked)
                 .withUntypedValue("done", done)
