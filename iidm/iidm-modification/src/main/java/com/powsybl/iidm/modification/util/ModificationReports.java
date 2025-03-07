@@ -751,4 +751,61 @@ public final class ModificationReports {
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
+
+    public static void reportOnInconclusiveDryRun(ReportNode reportNode, String cause, String name) {
+        reportNode.newReportNode()
+                .withMessageTemplate("networkModificationDryRun-failure",
+                        "Dry-run failed for ${networkModification}. The issue is: ${dryRunError}")
+                .withUntypedValue("dryRunError", cause)
+                .withUntypedValue("networkModification", name)
+                .add();
+    }
+
+    public static void dryRunReportNode(ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("networkModificationDryRun-success",
+                        "Dry-run: Network modifications can successfully be applied on network '${networkNameOrId}'")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode reportOnDryRunStart(ReportNode reportNode, Network network, String name) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("networkModificationDryRun", "Dry-run: Checking if network modification ${networkModification} can be applied on network '${networkNameOrId}'")
+                .withUntypedValue("networkModification", name)
+                .withUntypedValue("networkNameOrId", network.getNameOrId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void ignoreTemporaryLimitsOnBothLineSides(ReportNode reportNode, String lineId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("limitsLost", "Temporary limits on both sides for line ${lineId} : They are ignored")
+                .withUntypedValue("lineId", lineId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void createNewLineAndReplaceOldOne(ReportNode reportNode, String newLineId, String line1Id, String line2Id, String originalLineId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("newLineOnLineCreated", "New line ${newLineId} was created and connected on a tee point to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
+                .withUntypedValue("newLineId", newLineId)
+                .withUntypedValue("line1Id", line1Id)
+                .withUntypedValue("line2Id", line2Id)
+                .withUntypedValue("originalLineId", originalLineId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void connectVoltageLevelToLines(ReportNode reportNode, String voltageLevelId, String line1Id, String line2Id, String originalLineId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("voltageConnectedOnLine", "Voltage level ${voltageLevelId} connected to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
+                .withUntypedValue("voltageLevelId", voltageLevelId)
+                .withUntypedValue("line1Id", line1Id)
+                .withUntypedValue("line2Id", line2Id)
+                .withUntypedValue("originalLineId", originalLineId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
 }
