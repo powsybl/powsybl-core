@@ -14,27 +14,29 @@ import com.powsybl.commons.report.ReportNode;
  */
 public final class DynamicSimulationReports {
 
+    public static final String BUNDLE_BASE_NAME = "com.powsybl.commons.reports";
+
     public static ReportNode buildRootDynamicSimulationTool() {
         return ReportNode.newRootReportNode()
-                .withMessageTemplate("dynamicSimulationTool", "Dynamic Simulation Tool")
+                .withLocaleMessageTemplate("core-dynasim-dynamicSimulationTool", BUNDLE_BASE_NAME)
                 .build();
     }
 
     public static ReportNode supplyGroovyDynamicModels(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("groovyDynamicModels", "Groovy Dynamic Models Supplier")
+                .withLocaleMessageTemplate("core-dynasim-groovyDynamicModels", BUNDLE_BASE_NAME)
                 .add();
     }
 
     public static ReportNode supplyGroovyEventModels(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("groovyEventModels", "Groovy Event Models Supplier")
+                .withLocaleMessageTemplate("core-dynasim-groovyEventModels", BUNDLE_BASE_NAME)
                 .add();
     }
 
     public static ReportNode supplyGroovyOutputVariables(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("groovyOutputVariables", "Groovy Output Variables Supplier")
+                .withLocaleMessageTemplate("core-dynasim-groovyOutputVariables", BUNDLE_BASE_NAME)
                 .add();
     }
 

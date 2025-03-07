@@ -15,12 +15,14 @@ import com.powsybl.commons.report.TypedValue;
  */
 public final class CgmesModelReports {
 
+    public static final String BUNDLE_BASE_NAME = "com.powsybl.commons.reports";
+
     private CgmesModelReports() {
     }
 
     public static void readFile(ReportNode reportNode, String name) {
         reportNode.newReportNode()
-                .withMessageTemplate("CGMESFileRead", "Instance file ${instanceFile}")
+                .withLocaleMessageTemplate("core-cgmes-model-CGMESFileRead", BUNDLE_BASE_NAME)
                 .withTypedValue("instanceFile", name, TypedValue.FILENAME)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
