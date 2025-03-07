@@ -494,7 +494,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // Obtain exported model identifiers from reporter
         Set<String> exportedModelIdsFromReporter = new HashSet<>();
         for (ReportNode n : report.getChildren()) {
-            if ("ExportedCgmesId".equals(n.getMessageKey())) {
+            if ("core-cgmes-conversion-ExportedCgmesId".equals(n.getMessageKey())) {
                 cgmesId = n.getValue("cgmesId").orElseThrow().toString();
                 exportedModelIdsFromReporter.add(cgmesId);
                 String subset = n.getValue("cgmesSubset").orElseThrow().toString();
