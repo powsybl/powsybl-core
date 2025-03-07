@@ -55,13 +55,14 @@ class LoadFlowDefaultParametersLoaderTest {
     void testConflictBetweenDefaultParametersLoader() {
         LoadFlowDefaultParametersLoaderMock loader1 = new LoadFlowDefaultParametersLoaderMock("test1");
         LoadFlowDefaultParametersLoaderMock loader2 = new LoadFlowDefaultParametersLoaderMock("test2");
+        List<LoadFlowDefaultParametersLoader> loaders = List.of(loader1, loader2);
 
-        assertThrows(PowsyblException.class, () -> new LoadFlowParameters(List.of(loader1, loader2), platformConfig));
+        assertThrows(PowsyblException.class, () -> new LoadFlowParameters(loaders, platformConfig));
 
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("default-parameters-loader");
         moduleConfig.setStringProperty("load-flow", "test1");
 
-        LoadFlowParameters parameters = new LoadFlowParameters(List.of(loader1, loader2), platformConfig);
+        LoadFlowParameters parameters = new LoadFlowParameters(loaders, platformConfig);
         List<Extension<LoadFlowParameters>> extensions = parameters.getExtensions().stream().toList();
         assertEquals(1, extensions.size());
     }
