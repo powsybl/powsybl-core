@@ -9,6 +9,7 @@ package com.powsybl.commons.report;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -18,11 +19,19 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     protected final Map<String, TypedValue> values = new LinkedHashMap<>();
     protected String key;
     protected String messageTemplate;
+    protected String bundleBaseName;
 
     @Override
     public T withMessageTemplate(String key, String messageTemplate) {
         this.key = key;
         this.messageTemplate = messageTemplate;
+        return self();
+    }
+
+    @Override
+    public T withLocaleMessageTemplate(String key, String bundleBaseName) {
+        this.key = key;
+        this.bundleBaseName = bundleBaseName;
         return self();
     }
 
@@ -109,6 +118,12 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     public T withSeverity(String severity) {
         values.put(ReportConstants.SEVERITY_KEY, TypedValue.of(severity, TypedValue.SEVERITY));
         return self();
+    }
+
+    protected String getMessageTemplate(TreeContext treeContext) {
+        return bundleBaseName != null
+                ? ResourceBundle.getBundle(bundleBaseName, treeContext.getLocale()).getString(key)
+                : messageTemplate;
     }
 
     protected abstract T self();

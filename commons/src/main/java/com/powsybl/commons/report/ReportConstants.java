@@ -19,6 +19,7 @@ public final class ReportConstants {
     public static final String TIMESTAMP_KEY = "reportTimestamp";
     public static final String DEFAULT_TIMESTAMP_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
     public static final Locale DEFAULT_TIMESTAMP_LOCALE = Locale.US;
+    public static final Locale DEFAULT_LOCALE = Locale.US;
     public static final DateTimeFormatter DEFAULT_TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern(DEFAULT_TIMESTAMP_PATTERN, DEFAULT_TIMESTAMP_LOCALE);
     public static final ReportNodeVersion CURRENT_VERSION = ReportNodeVersion.V_2_1;
 
