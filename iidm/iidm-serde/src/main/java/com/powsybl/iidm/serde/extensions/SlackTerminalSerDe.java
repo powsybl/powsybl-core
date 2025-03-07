@@ -16,8 +16,6 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.serde.IidmVersion;
-import com.powsybl.iidm.serde.NetworkDeserializerContext;
-import com.powsybl.iidm.serde.NetworkSerializerContext;
 import com.powsybl.iidm.serde.TerminalRefSerDe;
 
 /**

@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
 import com.powsybl.iidm.serde.IidmVersion;
-import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 import com.powsybl.iidm.serde.TerminalRefSerDe;
 
@@ -106,7 +105,7 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
 
         context.getReader().readChildNodes(elementName -> {
             if (elementName.equals("terminalRef")) {
-                TerminalRefSerDe.readTerminalRef(context, battery.getTerminal().getVoltageLevel().getNetwork(), voltageRegulation::setRegulatingTerminal);
+                TerminalRefSerDe.readTerminalRef(convertContext(context), battery.getTerminal().getVoltageLevel().getNetwork(), voltageRegulation::setRegulatingTerminal);
             } else {
                 throw new AssertionError("Unexpected element: " + elementName);
             }
