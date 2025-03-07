@@ -162,6 +162,32 @@ generator.newExtension(GeneratorShortCircuitAdder.class)
     .add();
 ```
 
+(generator-startup)=
+## Generator startup
+
+This extension contains the information related to the startup of a generator.
+
+| Attribute                  | Type   | Unit | Required | Default value | Description                                                     |
+|----------------------------|--------|------|----------|---------------|-----------------------------------------------------------------|
+| forcedOutageRate           | double | -    | no       | -             | Rate of forced unavailability                                   |
+| marginalCost               | double | -    | no       | -             | Cost to increase the production of one unit (in general one MW) |
+| plannedActivePowerSetpoint | double | MW   | no       | -             | Active power target planned by the market                       |
+| plannedOutageRate          | double | -    | no       | -             | Rate of planned unavailability                                  |
+| startupCost                | double | -    | no       | -             | Cost to start the generator                                     |
+
+This extension is provided in the  `com.powsybl:powsybl-iidm-extensions` module.
+
+To add this extension to a generator, the code to be used is:
+```java
+generator.newExtension(GeneratorStartupAdder.class)
+        .withPlannedActivePowerSetpoint(600.0)
+        .withStartupCost(5.0)
+        .withMarginalCost(10.0)
+        .withPlannedOutageRate(0.8)
+        .withForcedOutageRate(0.7)
+        .add();
+```
+
 (identifiable-short-circuit-extension)=
 ## Identifiable short-circuit
 
