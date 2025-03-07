@@ -29,7 +29,14 @@ import java.util.*;
  *     <li>a collection of <code>ReportNode</code> children, possibly empty.</li>
  * </ul>
  *
- * The values {@link TypedValue} values should be referred to by their key in the message template, using the <code>${key}</code>
+ * <p>When the collection of children of a <code>ReportNode</code> is non-empty, the message of the corresponding
+ * <code>ReportNode</code> is expected to summarize the children content. Note that the summarizing
+ * template should be succinct: 120 characters is a good limit for the message string length (once formatted).
+ *
+ * <p>The {@link TypedValue} values should have a meaningful type to possibly enrich the message content. Please reuse
+ * the generic types provided in {@link TypedValue} when possible.
+ *
+ * <p>The values {@link TypedValue} values should be referred to by their key in the message template, using the <code>${key}</code>
  * syntax, in order to be later replaced by {@link org.apache.commons.text.StringSubstitutor} for instance when formatting
  * the string for the end user.
  * The <code>ReportNode</code> values may be referred to within the corresponding messageTemplate, or within any of its
@@ -81,7 +88,17 @@ public interface ReportNode {
      * corresponding values, either contained in current node or in one of its parents.
      * @return the message
      */
-    String getMessage();
+    default String getMessage() {
+        return getMessage(ReportFormatter.DEFAULT);
+    }
+
+    /**
+     * Get the message of current node, replacing <code>${key}</code> references in the message template with the
+     * corresponding values, either contained in current node or in one of its parents.
+     * @param formatter the formatter to use to transform any value into a string
+     * @return the message
+     */
+    String getMessage(ReportFormatter formatter);
 
     /**
      * Get the values which belong to current node (does not include the inherited values)
@@ -131,11 +148,20 @@ public interface ReportNode {
 
     /**
      * Print to given path the current report node and its descendants
-     * @param path the writer to write to
+     * @param path the path to write to
      */
     default void print(Path path) throws IOException {
+        print(path, ReportFormatter.DEFAULT);
+    }
+
+    /**
+     * Print to given path the current report node and its descendants
+     * @param path the path to write to
+     * @param formatter the formatter to use to print values
+     */
+    default void print(Path path, ReportFormatter formatter) throws IOException {
         try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-            print(writer);
+            print(writer, formatter);
         }
     }
 
@@ -143,5 +169,14 @@ public interface ReportNode {
      * Print to given writer the current report node and its descendants
      * @param writer the writer to write to
      */
-    void print(Writer writer) throws IOException;
+    default void print(Writer writer) throws IOException {
+        print(writer, ReportFormatter.DEFAULT);
+    }
+
+    /**
+     * Print to given writer the current report node and its descendants
+     * @param writer the writer to write to
+     * @param formatter the formatter to use to print values
+     */
+    void print(Writer writer, ReportFormatter formatter) throws IOException;
 }
