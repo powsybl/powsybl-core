@@ -57,4 +57,27 @@ public final class DeserializerReports {
         }
     }
 
+    public static ReportNode doneImportingXiidm(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("xiidmImportDone", "XIIDM import done")
+                .add();
+    }
+
+    public static ReportNode readWarningValidationPart(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("validationWarnings", "Validation warnings")
+                .add();
+    }
+
+    public static ReportNode importedExtensions(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("importedExtensions", "Imported extensions")
+                .add();
+    }
+
+    public static ReportNode notFoundExtensions(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("extensionsNotFound", "Not found extensions")
+                .add();
+    }
 }
