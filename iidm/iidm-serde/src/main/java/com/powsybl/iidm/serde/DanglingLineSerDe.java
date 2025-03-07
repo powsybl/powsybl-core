@@ -176,7 +176,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(dl.newApparentPowerLimits(), context));
                 }
-                case CURRENT_LIMITS -> readCurrentLimits(dl.newCurrentLimits(), context);
+                case CURRENT_LIMITS -> readCurrentLimits(dl.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME + ".generation", "reactiveLimits", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
                     ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(dl.getGeneration(), context);

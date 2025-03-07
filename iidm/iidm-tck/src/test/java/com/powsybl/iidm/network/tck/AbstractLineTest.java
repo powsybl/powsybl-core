@@ -131,7 +131,7 @@ public abstract class AbstractLineTest {
         acLine.setB2(b2);
         assertEquals(b2, acLine.getB2(), 0.0);
 
-        CurrentLimits currentLimits1 = acLine.newCurrentLimits1()
+        CurrentLimits currentLimits1 = acLine.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(100)
                 .beginTemporaryLimit()
                 .setName("5'")
@@ -139,7 +139,7 @@ public abstract class AbstractLineTest {
                 .setValue(1400)
                 .endTemporaryLimit()
                 .add();
-        CurrentLimits currentLimits2 = acLine.newCurrentLimits2()
+        CurrentLimits currentLimits2 = acLine.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(50)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -683,7 +683,7 @@ public abstract class AbstractLineTest {
 
     private LoadingLimitsAdder<?, ?> getAdder(Line l, LimitType limitType) {
         return switch (limitType) {
-            case CURRENT -> l.newCurrentLimits1();
+            case CURRENT -> l.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
             case ACTIVE_POWER -> l.newActivePowerLimits1();
             case APPARENT_POWER -> l.newApparentPowerLimits1();
             default -> throw new IllegalArgumentException("Invalid type");
