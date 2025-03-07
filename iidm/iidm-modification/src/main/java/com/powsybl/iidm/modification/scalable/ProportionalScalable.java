@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_DISTRIBUTION;
@@ -94,8 +95,12 @@ public class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     public ProportionalScalable(List<? extends Injection> injections, DistributionMode distributionMode, double minValue, double maxValue) {
+        this(injections, ScalableAdapter::new, distributionMode, minValue, maxValue);
+    }
+
+    protected ProportionalScalable(List<? extends Injection> injections, Function<Injection, Scalable> scalableMapping, DistributionMode distributionMode, double minValue, double maxValue) {
         // Create the scalable for each injection
-        List<Scalable> injectionScalables = injections.stream().map(ScalableAdapter::new).collect(Collectors.toList());
+        List<Scalable> injectionScalables = injections.stream().map(scalableMapping).collect(Collectors.toList());
 
         // Compute the sum of every individual power
         double totalDistribution = computeTotalDistribution(injections, distributionMode);
@@ -108,10 +113,10 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         DistributionMode finalDistributionMode;
         double finalTotalDistribution;
         if (totalDistribution == 0.0 &&
-            (distributionMode == DistributionMode.PROPORTIONAL_TO_P0
-                || distributionMode == DistributionMode.PROPORTIONAL_TO_TARGETP
-                || distributionMode == DistributionMode.PROPORTIONAL_TO_DIFF_PMAX_TARGETP
-                || distributionMode == DistributionMode.PROPORTIONAL_TO_DIFF_TARGETP_PMIN)) {
+                (distributionMode == DistributionMode.PROPORTIONAL_TO_P0
+                        || distributionMode == DistributionMode.PROPORTIONAL_TO_TARGETP
+                        || distributionMode == DistributionMode.PROPORTIONAL_TO_DIFF_PMAX_TARGETP
+                        || distributionMode == DistributionMode.PROPORTIONAL_TO_DIFF_TARGETP_PMIN)) {
             finalDistributionMode = DistributionMode.UNIFORM_DISTRIBUTION;
             finalTotalDistribution = computeTotalDistribution(injections, finalDistributionMode);
         } else {
@@ -198,7 +203,7 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    Collection<Scalable> getScalables() {
+    protected Collection<Scalable> getScalables() {
         return scalablePercentageList.stream().map(ScalablePercentage::getScalable).toList();
     }
 
