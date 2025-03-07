@@ -2,8 +2,8 @@
   "version" : "2.1",
   "dictionaries" : {
     "default" : {
+      "core-iidm-network-testImportPostProcessor" : "testing import post processor",
       "test" : "Import model ${model}",
-      "testImportPostProcessor" : "testing import post processor",
       "testPostProcessor" : "Test importer post processor"
     }
   },
@@ -17,7 +17,7 @@
         }
       }
     }, {
-      "messageKey" : "testImportPostProcessor"
+      "messageKey" : "core-iidm-network-testImportPostProcessor"
     } ]
   }
 }
