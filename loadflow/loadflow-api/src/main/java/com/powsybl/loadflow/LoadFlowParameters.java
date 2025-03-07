@@ -9,6 +9,7 @@ package com.powsybl.loadflow;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.google.common.collect.ImmutableMap;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
@@ -198,13 +199,18 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     }
 
     public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders) {
+        // Check load-flow-default-parameters-loader config parameter
+
+        // If not filled :
         int numberOfLoadersFound = Objects.requireNonNull(defaultParametersLoaders).size();
         if (numberOfLoadersFound > 1) {
             List<String> names = defaultParametersLoaders.stream()
                     .map(LoadFlowDefaultParametersLoader::getSourceName)
                     .toList();
-            LOGGER.warn("Multiple default loadflow parameters classes have been found in the class path : {}. No default parameters file loaded",
+            String message = String.format("Multiple default loadflow parameter loader classes have been found in the class path : %s." +
+                            " Specify which one to use with load-flow-default-parameters-loader module of Powsybl configuration.",
                     names);
+            throw new PowsyblException(message);
         } else if (numberOfLoadersFound == 1) {
             LoadFlowDefaultParametersLoader loader = defaultParametersLoaders.get(0);
             JsonLoadFlowParameters.update(this, loader.loadDefaultParametersFromFile());

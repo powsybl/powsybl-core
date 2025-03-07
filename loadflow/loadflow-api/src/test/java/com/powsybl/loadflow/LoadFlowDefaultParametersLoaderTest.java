@@ -9,6 +9,7 @@ package com.powsybl.loadflow;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.extensions.Extension;
@@ -45,9 +46,12 @@ class LoadFlowDefaultParametersLoaderTest {
         LoadFlowDefaultParametersLoaderMock loader1 = new LoadFlowDefaultParametersLoaderMock("test1");
         LoadFlowDefaultParametersLoaderMock loader2 = new LoadFlowDefaultParametersLoaderMock("test2");
 
-        LoadFlowParameters parameters = new LoadFlowParameters(List.of(loader1, loader2));
-        List<Extension<LoadFlowParameters>> extensions = parameters.getExtensions().stream().toList();
-        assertEquals(0, extensions.size());
+        assertThrows(PowsyblException.class, () -> new LoadFlowParameters(List.of(loader1, loader2)));
+
+        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters-loader");
+        moduleConfig.setStringProperty("voltageInitMode", "PREVIOUS_VALUES");
     }
 
     @Test
