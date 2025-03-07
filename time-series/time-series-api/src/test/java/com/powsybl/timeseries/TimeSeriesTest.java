@@ -371,11 +371,11 @@ class TimeSeriesTest {
         TimeSeries.parseCsv(csv, timeSeriesCsvConfig, reportNode);
 
         assertEquals(4, reportNode.getChildren().size());
-        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line \"0.000;-1;1.0;null\"",
+        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line 0.000;-1;1.0;null",
             reportNode.getChildren().get(0).getMessage());
-        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line \"0.001;-1;null;a\"",
+        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line 0.001;-1;null;a",
             reportNode.getChildren().get(1).getMessage());
-        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line \"0.002;-1;3.0;b\"",
+        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line 0.002;-1;3.0;b",
             reportNode.getChildren().get(2).getMessage());
         assertTrue(Pattern.compile("4 time series loaded from CSV in .* ms").matcher(reportNode.getChildren().get(3).getMessage()).find());
     }

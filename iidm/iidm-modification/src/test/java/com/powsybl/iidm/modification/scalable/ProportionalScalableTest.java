@@ -87,7 +87,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParametersProportional);
         scalingReport(reportNode,
             "loads and dangling lines",
-            PROPORTIONAL_TO_P0,
+            PROPORTIONAL_TO_P0.name(),
             scalingParametersProportional.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -103,7 +103,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParametersUniform);
         scalingReport(reportNode,
             "loads and dangling lines",
-            UNIFORM_DISTRIBUTION,
+            UNIFORM_DISTRIBUTION.name(),
             scalingParametersUniform.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -127,7 +127,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_TARGETP,
+            PROPORTIONAL_TO_TARGETP.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -141,7 +141,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_PMAX,
+            PROPORTIONAL_TO_PMAX.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -155,7 +155,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_DIFF_PMAX_TARGETP,
+            PROPORTIONAL_TO_DIFF_PMAX_TARGETP.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -169,7 +169,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            UNIFORM_DISTRIBUTION,
+            UNIFORM_DISTRIBUTION.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -194,7 +194,7 @@ class ProportionalScalableTest {
         assertEquals(100.0, variationDone, 1e-5);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_DIFF_TARGETP_PMIN,
+            PROPORTIONAL_TO_DIFF_TARGETP_PMIN.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(80.0 + 80.0 * 100 / 130.0, network.getGenerator("g1").getTargetP(), 1e-5);
@@ -217,7 +217,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 260.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_TARGETP,
+            PROPORTIONAL_TO_TARGETP.name(),
             scalingParameters.getScalingType(),
             260.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -241,7 +241,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, -500.0, scalingParameters);
         scalingReport(reportNode,
             "loads",
-            PROPORTIONAL_TO_P0,
+            PROPORTIONAL_TO_P0.name(),
             scalingParameters.getScalingType(),
             -500, variationDone);
         assertEquals(-270, variationDone, 1e-5);
@@ -265,7 +265,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 200.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_TARGETP,
+            PROPORTIONAL_TO_TARGETP.name(),
             scalingParameters.getScalingType(),
             200.0, variationDone);
         assertEquals(200.0 * 0.7, variationDone, 1e-5);
@@ -382,7 +382,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_TARGETP,
+            PROPORTIONAL_TO_TARGETP.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -411,7 +411,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_DIFF_TARGETP_PMIN,
+            PROPORTIONAL_TO_DIFF_TARGETP_PMIN.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -440,7 +440,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_DIFF_TARGETP_PMIN,
+            PROPORTIONAL_TO_DIFF_TARGETP_PMIN.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(0.0, variationDone, 1e-5);
@@ -540,7 +540,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParametersProportional);
         scalingReport(reportNode,
             "loads and dangling lines",
-            PROPORTIONAL_TO_P0,
+            PROPORTIONAL_TO_P0.name(),
             scalingParametersProportional.getScalingType(),
             100.0, variationDone);
         assertEquals(75, variationDone, 1e-5);
@@ -577,7 +577,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, -100.0, scalingParametersProportional);
         scalingReport(reportNode,
             "loads and dangling lines",
-            PROPORTIONAL_TO_P0,
+            PROPORTIONAL_TO_P0.name(),
             scalingParametersProportional.getScalingType(),
             -100.0, variationDone);
         assertEquals(-75, variationDone, 1e-5);
@@ -614,7 +614,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, -100.0, scalingParametersProportional);
         scalingReport(reportNode,
             "loads and dangling lines",
-            PROPORTIONAL_TO_P0,
+            PROPORTIONAL_TO_P0.name(),
             scalingParametersProportional.getScalingType(),
             -100.0, variationDone);
         assertEquals(-75, variationDone, 1e-5);
@@ -651,7 +651,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParametersProportional);
         scalingReport(reportNode,
             "loads and dangling lines",
-            PROPORTIONAL_TO_P0,
+            PROPORTIONAL_TO_P0.name(),
             scalingParametersProportional.getScalingType(),
             100.0, variationDone);
         assertEquals(75, variationDone, 1e-5);
@@ -680,7 +680,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
         scalingReport(reportNode,
             "generators, loads and dangling lines",
-            UNIFORM_DISTRIBUTION,
+            UNIFORM_DISTRIBUTION.name(),
             scalingParametersProportional.getScalingType(),
             volumeAsked, variationDone);
         assertEquals(volumeAsked, variationDone, 1e-5);

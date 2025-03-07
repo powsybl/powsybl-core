@@ -223,7 +223,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
         assertDoesNotThrow(() -> modification0.apply(network1, false, ReportNode.NO_OP));
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, reportNode1));
         assertEquals("Network given in parameters and in connectableAdder are different. Connectable lineTest of type LINE was added then removed", e0.getMessage());
-        assertEquals("networkMismatch", reportNode1.getChildren().get(0).getMessageKey());
+        assertEquals("core-iidm-modification-networkMismatch", reportNode1.getChildren().get(0).getMessageKey());
 
         // not found id
         ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("reportTestUndefinedId", "Testing creating line reportNode with wrong busbar section ID").build();
@@ -239,7 +239,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
         assertDoesNotThrow(() -> modification1.apply(nbNetwork, false, ReportNode.NO_OP));
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(nbNetwork, true, reportNode2));
         assertEquals("Bus or busbar section bbs not found", e1.getMessage());
-        assertEquals("notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
+        assertEquals("core-iidm-modification-notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
 
         // wrong identifiable type
         ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("reportTestWrongBbsType", "Testing creating line reportNode with wrong bbs type").build();
@@ -255,7 +255,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
         assertDoesNotThrow(() -> modification2.apply(nbNetwork, false, ReportNode.NO_OP));
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(nbNetwork, true, reportNode3));
         assertEquals("Unsupported type GENERATOR for identifiable gen1", e2.getMessage());
-        assertEquals("unsupportedIdentifiableType", reportNode3.getChildren().get(0).getMessageKey());
+        assertEquals("core-iidm-modification-unsupportedIdentifiableType", reportNode3.getChildren().get(0).getMessageKey());
     }
 
     @Test

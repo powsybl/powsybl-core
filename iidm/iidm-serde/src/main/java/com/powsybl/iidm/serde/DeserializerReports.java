@@ -17,6 +17,8 @@ import java.util.Set;
  */
 public final class DeserializerReports {
 
+    public static final String BUNDLE_BASE_NAME = "com.powsybl.commons.reports";
+
     private DeserializerReports() {
     }
 
@@ -24,7 +26,7 @@ public final class DeserializerReports {
     public static void importedNetworkReport(ReportNode reportNode, String networkId, String format) {
         if (reportNode != null) {
             reportNode.newReportNode()
-                    .withMessageTemplate("importedNetwork", "Network \"${networkId}\" is imported from ${format} format.")
+                    .withLocaleMessageTemplate("core-iidm-serde-importedNetwork", BUNDLE_BASE_NAME)
                     .withUntypedValue("networkId", networkId)
                     .withUntypedValue("format", format)
                     .withSeverity(TypedValue.INFO_SEVERITY)
@@ -37,7 +39,7 @@ public final class DeserializerReports {
         if (reportNode != null) {
             extensionsNameImported.forEach(extensionName ->
                 reportNode.newReportNode()
-                        .withMessageTemplate("importedExtension", "Extension ${extensionName} imported.")
+                        .withLocaleMessageTemplate("core-iidm-serde-importedExtension", BUNDLE_BASE_NAME)
                         .withUntypedValue("extensionName", extensionName)
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add()
@@ -49,7 +51,7 @@ public final class DeserializerReports {
         if (reportNode != null) {
             extensionsNotFoundName.forEach(extensionName ->
                 reportNode.newReportNode()
-                        .withMessageTemplate("extensionNotFound", "Extension ${extensionName} not found.")
+                        .withLocaleMessageTemplate("core-iidm-serde-extensionNotFound", BUNDLE_BASE_NAME)
                         .withUntypedValue("extensionName", extensionName)
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add()
@@ -57,4 +59,27 @@ public final class DeserializerReports {
         }
     }
 
+    public static ReportNode doneImportingXiidm(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withLocaleMessageTemplate("core-iidm-serde-xiidmImportDone", BUNDLE_BASE_NAME)
+                .add();
+    }
+
+    public static ReportNode readWarningValidationPart(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withLocaleMessageTemplate("core-iidm-serde-validationWarnings", BUNDLE_BASE_NAME)
+                .add();
+    }
+
+    public static ReportNode importedExtensions(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withLocaleMessageTemplate("core-iidm-serde-importedExtensions", BUNDLE_BASE_NAME)
+                .add();
+    }
+
+    public static ReportNode notFoundExtensions(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withLocaleMessageTemplate("core-iidm-serde-extensionsNotFound", BUNDLE_BASE_NAME)
+                .add();
+    }
 }
