@@ -17,6 +17,9 @@ import com.powsybl.iidm.network.Substation;
  */
 public final class CgmesReports {
 
+    private static final String EQUIPMENT_ID = "equipmentId";
+    private static final String ELEMENT_TYPE = "elementType";
+
     private CgmesReports() {
     }
 
@@ -46,7 +49,23 @@ public final class CgmesReports {
     public static ReportNode convertingElementTypeReport(ReportNode reportNode, String elementType) {
         return reportNode.newReportNode()
                 .withMessageTemplate("convertingElementType", "Converting ${elementType}.")
-                .withUntypedValue("elementType", elementType)
+                .withUntypedValue(ELEMENT_TYPE, elementType)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode convertingDuringUpdateElementTypeReport(ReportNode reportNode, String elementType) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("convertingDuringUpdateElementType", "Converting during update ${elementType}.")
+                .withUntypedValue(ELEMENT_TYPE, elementType)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode updatingElementTypeReport(ReportNode reportNode, String elementType) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("updatingElementType", "Updating ${elementType}.")
+                .withUntypedValue(ELEMENT_TYPE, elementType)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
@@ -84,8 +103,17 @@ public final class CgmesReports {
     public static void badVoltageTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
         reportNode.newReportNode()
                 .withMessageTemplate("badVoltageTargetValueRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target value for voltage: ${targetValue}.")
-                .withUntypedValue("equipmentId", eqId)
+                .withUntypedValue(EQUIPMENT_ID, eqId)
                 .withTypedValue("targetValue", targetValue, TypedValue.VOLTAGE)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void badTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
+        reportNode.newReportNode()
+                .withMessageTemplate("badTargetValueRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target value: ${targetValue}.")
+                .withUntypedValue(EQUIPMENT_ID, eqId)
+                .withUntypedValue("targetValue", targetValue)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -93,29 +121,19 @@ public final class CgmesReports {
     public static void badTargetDeadbandRegulatingControlReport(ReportNode reportNode, String eqId, double targetDeadband) {
         reportNode.newReportNode()
                 .withMessageTemplate("badTargetDeadbandRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}.")
-                .withUntypedValue("equipmentId", eqId)
-                .withTypedValue("targetDeadband", targetDeadband, TypedValue.VOLTAGE)
+                .withUntypedValue(EQUIPMENT_ID, eqId)
+                .withUntypedValue("targetDeadband", targetDeadband)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
 
-    public static void invalidAngleVoltageBusReport(ReportNode reportNode, Bus bus, String nodeId, double v, double angle) {
+    public static void invalidAngleVoltageReport(ReportNode reportNode, Bus bus, String topologicalNode, double v, double angle) {
         reportNode.newReportNode()
-                .withMessageTemplate("invalidAngleVoltageBus", "Node ${nodeId} in substation ${substation}, voltageLevel ${voltageLevel}, bus ${bus} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}.")
+                .withMessageTemplate("invalidAngleVoltageBus", "Bus ${bus} in substation ${substation}, voltageLevel ${voltageLevel}, has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}.")
                 .withUntypedValue("substation", bus.getVoltageLevel().getSubstation().map(Substation::getNameOrId).orElse("unknown"))
                 .withUntypedValue("voltageLevel", bus.getVoltageLevel().getNameOrId())
                 .withUntypedValue("bus", bus.getId())
-                .withUntypedValue("nodeId", nodeId)
-                .withTypedValue("voltage", v, TypedValue.VOLTAGE)
-                .withTypedValue("angle", angle, TypedValue.ANGLE)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
-    }
-
-    public static void invalidAngleVoltageNodeReport(ReportNode reportNode, String nodeId, double v, double angle) {
-        reportNode.newReportNode()
-                .withMessageTemplate("invalidAngleVoltageNode", "Node ${nodeId} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}.")
-                .withUntypedValue("nodeId", nodeId)
+                .withUntypedValue("topologicalNode", topologicalNode)
                 .withTypedValue("voltage", v, TypedValue.VOLTAGE)
                 .withTypedValue("angle", angle, TypedValue.ANGLE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
