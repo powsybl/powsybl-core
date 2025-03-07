@@ -95,11 +95,8 @@ public final class TopologyExport {
                     if (b == null) {
                         b = t.getBusBreakerView().getConnectableBus();
                     }
-                    // An isolated busbar section in a node/breaker model does not have even a connectable bus
-                    if (b != null) {
-                        String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
-                        writeTerminal(CgmesExportUtil.getTerminalId(t, context), topologicalNodeId, cimNamespace, writer, context);
-                    }
+                    String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
+                    writeTerminal(CgmesExportUtil.getTerminalId(t, context), topologicalNodeId, cimNamespace, writer, context);
                 }
             }
         }
@@ -223,9 +220,6 @@ public final class TopologyExport {
         if (bus == null) {
             bus = converter.getTerminal().getBusBreakerView().getConnectableBus();
         }
-        if (bus == null) {
-            return;
-        }
         String dcTopologicalNode = context.getNamingStrategy().getCgmesId(refTyped(bus), DC_TOPOLOGICAL_NODE);
         String dcNode = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode" + side).orElseThrow(PowsyblException::new);
         writeDCNode(dcNode, dcTopologicalNode, cimNamespace, writer, context);
@@ -325,7 +319,7 @@ public final class TopologyExport {
         if (b == null) {
             b = converter.getTerminal().getBusBreakerView().getConnectableBus();
         }
-        if (b != null && !written.contains(b.getId())) {
+        if (!written.contains(b.getId())) {
             String id = context.getNamingStrategy().getCgmesId(refTyped(b), DC_TOPOLOGICAL_NODE);
             String name = line.getNameOrId() + side;
             writeDCTopologicalNode(id, name, cimNamespace, writer, context);
