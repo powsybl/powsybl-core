@@ -205,7 +205,7 @@ class NetworkElementIdentifierContingencyListTest {
         String message = Assertions.assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV2_?_?_?_?_?_?_?")).getMessage();
         Assertions.assertEquals("There can be a maximum of 5 wildcards ('?')", message);
         String message2 = Assertions.assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV2_ç")).getMessage();
-        Assertions.assertEquals("Only characters allowed for this identifier are letters, numbers, '_', '-', '.' and the wildcard character '?'", message2);
+        Assertions.assertEquals("Only characters allowed for this identifier are letters, numbers, '_', '-', '.', spaces and the wildcard character '?'", message2);
         NetworkElementIdentifier elementIdentifier = new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV?_?");
         Network network = EurostagTutorialExample1Factory.create();
         List<String> identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
@@ -218,6 +218,14 @@ class NetworkElementIdentifierContingencyListTest {
         identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
         Assertions.assertEquals(1, identifiables.size());
         assertTrue(identifiables.contains("NHV1.NHV2-1"));
+
+        // Test with space character in identifier
+        network.newSubstation().setId(".NHV1 3 .NHV2 1").add();
+        network.newSubstation().setId(".NHV1 2 .NHV2 2").add();
+        elementIdentifier = new IdWithWildcardsNetworkElementIdentifier(".NHV1 ? .NHV2 ?");
+        identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
+        Assertions.assertEquals(2, identifiables.size());
+        assertTrue(identifiables.containsAll(Arrays.asList(".NHV1 2 .NHV2 2", ".NHV1 3 .NHV2 1")));
 
         String message3 = assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("TEST_WITH_NO_WILDCARDS")).getMessage();
         assertEquals("There is no wildcard in your identifier, please use IdBasedNetworkElementIdentifier instead", message3);
