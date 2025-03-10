@@ -107,8 +107,6 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
                 SubstationRecordData recordData = new SubstationRecordData();
                 write(recordData.buildRecords(Collections.singletonList(substation.getRecord()), context.getFieldNames(SUBSTATION), recordData.quotedFields(), context), outputStream);
 
-                writeComment(" BEGIN SUBSTATION NODE DATA", outputStream);
-
                 SubstationNodeData nodeData = new SubstationNodeData();
                 write(nodeData.buildRecords(substation.getNodes(), context.getFieldNames(INTERNAL_SUBSTATION_NODE), nodeData.quotedFields(), context), outputStream);
                 writeEndComment(" END OF SUBSTATION NODE DATA, BEGIN SUBSTATION SWITCHING DEVICE DATA", outputStream);
