@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
@@ -73,7 +74,9 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
     @Test
     void testRemoveHvdcLineUnknownShunt() {
         Network network = HvdcTestNetwork.createLcc();
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveHvdcLineWithUnknownShunt", "Testing reportNode on removing a HVDC line with unknown shunt").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestRemoveHvdcLineWithUnknownShunt", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds("UnknownShunt").build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reportNode));
         assertEquals("Shunt UnknownShunt not found", e.getMessage());
@@ -84,7 +87,9 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
     @Test
     void testRemoveHvdcLineUnknownLine() {
         Network network = Network.create("empty", "test");
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveHvdcLineUnknownLine", "Testing reportNode on removing a HVDC line with wrong line ID").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestRemoveHvdcLineUnknownLine", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reportNode));
         assertEquals("Hvdc Line L not found", e.getMessage());
