@@ -594,15 +594,10 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
     private static Optional<Integer> readVersion(InputStream is) {
         try {
             XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
-            boolean insideModelVersion = false;
             while (reader.hasNext()) {
                 int next = reader.next();
                 if (next == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals("Model.version")) {
-                    insideModelVersion = true;
-                } else if (next == XMLStreamConstants.END_ELEMENT) {
-                    insideModelVersion = false;
-                } else if (next == XMLStreamConstants.CHARACTERS && insideModelVersion) {
-                    String version = reader.getText();
+                    String version = reader.getElementText();
                     reader.close();
                     return Optional.of(Integer.parseInt(version));
                 }
