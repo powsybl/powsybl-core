@@ -26,7 +26,7 @@ public final class BoundaryRefSerDe {
     public static void readBoundaryRef(NetworkDeserializerContext context, Network network, Consumer<Boundary> endTaskTerminalConsumer) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
         context.getReader().readEndNode();
-        context.getEndTasks().add(() -> {
+        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
             DanglingLine danglingLine = network.getDanglingLine(id);
             endTaskTerminalConsumer.accept(danglingLine.getBoundary());
         });
