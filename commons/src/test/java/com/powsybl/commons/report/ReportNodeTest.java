@@ -261,7 +261,8 @@ class ReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void testTimestamps() {
-        DateTimeFormatter defaultDateTimeFormatter = DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN);
+        DateTimeFormatter defaultDateTimeFormatter = DateTimeFormatter.ofPattern(
+                ReportConstants.DEFAULT_TIMESTAMP_PATTERN, ReportConstants.DEFAULT_LOCALE);
 
         ReportNode root1 = ReportNode.newRootReportNode()
                 .withMessageTemplate("rootTemplate", "Root message")
@@ -324,6 +325,14 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .add();
         assertHasTimeStamp(child4, customPatternAndLocaleFormatter2);
 
+        // with Locale set but no timestamp pattern
+        DateTimeFormatter noPatternAndLocaleFormatter = DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN, customLocale);
+        ReportNode root4 = ReportNode.newRootReportNode()
+                .withLocale(customLocale)
+                .withMessageTemplate("rootTemplate", "Root message")
+                .withTimestamp()
+                .build();
+        assertHasTimeStamp(root4, noPatternAndLocaleFormatter);
     }
 
     private static void assertHasNoTimeStamp(ReportNode root1) {

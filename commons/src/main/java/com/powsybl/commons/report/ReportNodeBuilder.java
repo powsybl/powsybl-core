@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.report;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 /**
@@ -17,7 +18,7 @@ import java.util.Locale;
 public interface ReportNodeBuilder extends ReportNodeAdderOrBuilder<ReportNodeBuilder> {
 
     /**
-     * Sets the pattern used for timestamps, when a timestamp is added.
+     * Sets the pattern used for timestamps, when a timestamp is added with {@link ReportNodeAdder#withTimestamp()}.
      * If no pattern is given, the default pattern {@link ReportConstants#DEFAULT_TIMESTAMP_PATTERN} is used.
      * Note that the {@link Locale} used to format the timestamps is the one set by {@link #withLocale(Locale)}, or,
      * if not set, the default Locale {@link ReportConstants#DEFAULT_LOCALE}.

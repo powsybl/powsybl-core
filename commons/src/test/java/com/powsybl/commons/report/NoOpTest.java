@@ -72,6 +72,8 @@ class NoOpTest extends AbstractSerDeTest {
     @Test
     void testTreeContextNoOp() {
         assertEquals(0, TreeContextNoOp.NO_OP.getDictionary().size());
+        assertNull(TreeContextNoOp.NO_OP.getDefaultTimestampFormatter());
+        assertNull(TreeContextNoOp.NO_OP.getLocale());
 
         TreeContextImpl treeContext = new TreeContextImpl();
         treeContext.addDictionaryEntry("key", "value");

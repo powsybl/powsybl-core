@@ -9,6 +9,7 @@ package com.powsybl.commons.report;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -122,7 +123,7 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     @Override
     public T withTimestamp(String pattern) {
         this.withTimestamp = true;
-        this.timestampPattern = pattern;
+        this.timestampPattern = Objects.requireNonNull(pattern);
         return self();
     }
 
