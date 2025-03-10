@@ -3,14 +3,14 @@
   "dictionaries" : {
     "default" : {
       "core-iidm-network-testImportPostProcessor" : "testing import post processor",
-      "test" : "Import model ${model}",
+      "testImportModel" : "Import model ${model}",
       "testPostProcessor" : "Test importer post processor"
     }
   },
   "reportRoot" : {
     "messageKey" : "testPostProcessor",
     "children" : [ {
-      "messageKey" : "test",
+      "messageKey" : "testImportModel",
       "values" : {
         "model" : {
           "value" : "eurostagTutorialExample1"
