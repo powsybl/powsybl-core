@@ -12,7 +12,7 @@ package com.powsybl.commons.report;
  */
 public final class ReportBundleBaseName {
 
-    public static final String BUNDLE_BASE_NAME = "com.powsybl.commons.report";
+    public static final String BUNDLE_BASE_NAME = "com.powsybl.commons.reports";
     public static final String BUNDLE_TEST_BASE_NAME = "i18n.reports";
 
     private ReportBundleBaseName() {
