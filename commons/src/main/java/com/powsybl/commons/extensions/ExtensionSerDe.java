@@ -14,7 +14,6 @@ import com.powsybl.commons.io.SerializerContext;
 
 import java.io.InputStream;
 import java.util.*;
-import java.util.function.Function;
 
 /**
  * An ExtensionProvider able to serialize/deserialize extensions from XML.
@@ -105,13 +104,5 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
      */
     default Map<String, String> getArrayNameToSingleNameMap() {
         return Collections.emptyMap();
-    }
-
-    default boolean postponeDeserialization() {
-        return false;
-    }
-
-    default Function<T, E> readAndGetPostponableCreator(DeserializerContext context) {
-        throw new IllegalStateException("readAndGetPostponableCreator has to be implemented when deserialization is postponed.");
     }
 }

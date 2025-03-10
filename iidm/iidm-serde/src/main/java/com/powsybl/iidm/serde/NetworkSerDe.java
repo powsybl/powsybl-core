@@ -52,7 +52,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
@@ -825,20 +824,17 @@ public final class NetworkSerDe {
 
     private static void readExtensions(Network network, String id, NetworkDeserializerContext context,
                                        Set<String> extensionNamesImported, Set<String> extensionNamesNotFound) {
+
         context.getReader().readChildNodes(extensionName -> {
             // extensions root elements are nested directly in 'extension' element, so there is no need
             // to check for an extension to exist if depth is greater than zero. Furthermore, in case of
             // missing extension serializer, we must not check for an extension in sub elements.
             if (context.getOptions().withExtension(extensionName) && !context.isIgnoredEquipment(id)) {
-                ExtensionSerDe<?, ?> extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+                ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
                 if (extensionXmlSerializer != null) {
-                    if (extensionXmlSerializer.postponeDeserialization()) {
-                        Function<Extendable<?>, ?> extensionCreator = (Function<Extendable<?>, ?>) extensionXmlSerializer.readAndGetPostponableCreator(context);
-                        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> createExtension(network, id, extensionCreator, extensionNamesImported, extensionName));
-                    } else {
-                        Identifiable<?> identifiable = getIdentifiable(network, id);
-                        createExtension(identifiable, context, extensionNamesImported, extensionName, extensionXmlSerializer);
-                    }
+                    Identifiable identifiable = getIdentifiable(network, id);
+                    extensionXmlSerializer.read(identifiable, context);
+                    extensionNamesImported.add(extensionName);
                 } else {
                     extensionNamesNotFound.add(extensionName);
                     context.getReader().skipNode();
@@ -855,21 +851,6 @@ public final class NetworkSerDe {
             throw new PowsyblException("Identifiable " + id + " not found");
         }
         return identifiable;
-    }
-
-    private static void createExtension(Network network, String id,
-                                        Function<Extendable<?>, ?> extensionCreator,
-                                        Set<String> extensionNamesImported, String extensionName) {
-        Identifiable<?> identifiable = getIdentifiable(network, id);
-        extensionCreator.apply(identifiable);
-        extensionNamesImported.add(extensionName);
-    }
-
-    private static void createExtension(Identifiable identifiable, NetworkDeserializerContext context,
-                                        Set<String> extensionNamesImported, String extensionName,
-                                        ExtensionSerDe extensionXmlSerializer) {
-        extensionXmlSerializer.read(identifiable, context);
-        extensionNamesImported.add(extensionName);
     }
 
     public static byte[] gzip(Network network) {

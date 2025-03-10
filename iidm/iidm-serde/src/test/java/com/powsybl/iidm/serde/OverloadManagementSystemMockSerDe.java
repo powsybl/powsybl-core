@@ -14,8 +14,6 @@ import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.OverloadManagementSystem;
 
-import java.util.function.Function;
-
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
@@ -35,25 +33,10 @@ public class OverloadManagementSystemMockSerDe extends AbstractExtensionSerDe<Ov
 
     @Override
     public OverloadManagementSystemMockExt read(OverloadManagementSystem extendable, DeserializerContext context) {
-        throw new IllegalStateException("Should not be called.");
-    }
-
-    @Override
-    public boolean postponeDeserialization() {
-        return true;
-    }
-
-    @Override
-    public Function<OverloadManagementSystem, OverloadManagementSystemMockExt> readAndGetPostponableCreator(DeserializerContext context) {
-        // Read the elements
         String foo = context.getReader().readStringAttribute("foo");
         context.getReader().readEndNode();
-
-        // Return the function creating the adder
-        return oms -> {
-            OverloadManagementSystemMockExt extension = new OverloadManagementSystemMockExt(oms, foo);
-            oms.addExtension(getExtensionClass(), extension);
-            return extension;
-        };
+        OverloadManagementSystemMockExt extension = new OverloadManagementSystemMockExt(extendable, foo);
+        extendable.addExtension(getExtensionClass(), extension);
+        return extension;
     }
 }
