@@ -30,7 +30,7 @@ class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
     void roundTripTest() throws IOException {
         NetworkData networkData = getNetworkData();
         Network network = networkData.network();
-        BatteryShortCircuit batteryShortCircuits = networkData.batteryShortCircuits();
+        BatteryShortCircuit batteryShortCircuit = networkData.batteryShortCircuit();
 
         Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/batteryShortCircuitRef_V1_0.xml");
 
@@ -39,16 +39,16 @@ class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
         BatteryShortCircuit batteryShortCircuits2 = bat2.getExtension(BatteryShortCircuit.class);
         assertNotNull(batteryShortCircuits2);
 
-        assertEquals(batteryShortCircuits.getDirectTransX(), batteryShortCircuits2.getDirectTransX(), 0.001d);
-        assertEquals(batteryShortCircuits.getDirectSubtransX(), batteryShortCircuits2.getDirectSubtransX(), 0.001d);
-        assertEquals(batteryShortCircuits.getStepUpTransformerX(), batteryShortCircuits2.getStepUpTransformerX(), 0.001d);
+        assertEquals(batteryShortCircuit.getDirectTransX(), batteryShortCircuits2.getDirectTransX(), 0.001d);
+        assertEquals(batteryShortCircuit.getDirectSubtransX(), batteryShortCircuits2.getDirectSubtransX(), 0.001d);
+        assertEquals(batteryShortCircuit.getStepUpTransformerX(), batteryShortCircuits2.getStepUpTransformerX(), 0.001d);
     }
 
     @Test
     void roundTripTestV01() throws IOException {
         NetworkData networkData = getNetworkData();
         Network network = networkData.network();
-        BatteryShortCircuit batteryShortCircuits = networkData.batteryShortCircuits();
+        BatteryShortCircuit batteryShortCircuit = networkData.batteryShortCircuit();
 
         // Use an extension version which serialization name is not the default
         ExportOptions exportOptions = new ExportOptions()
@@ -60,8 +60,8 @@ class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
         BatteryShortCircuit batteryShortCircuits2 = bat2.getExtension(BatteryShortCircuit.class);
         assertNotNull(batteryShortCircuits2);
 
-        assertEquals(batteryShortCircuits.getDirectTransX(), batteryShortCircuits2.getDirectTransX(), 0.001d);
-        assertEquals(batteryShortCircuits.getStepUpTransformerX(), batteryShortCircuits2.getStepUpTransformerX(), 0.001d);
+        assertEquals(batteryShortCircuit.getDirectTransX(), batteryShortCircuits2.getDirectTransX(), 0.001d);
+        assertEquals(batteryShortCircuit.getStepUpTransformerX(), batteryShortCircuits2.getStepUpTransformerX(), 0.001d);
         assertTrue(Double.isNaN(batteryShortCircuits2.getDirectSubtransX())); // This attribute is not exported in V0.1
     }
 
@@ -79,6 +79,6 @@ class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
         return new NetworkData(network, batteryShortCircuits);
     }
 
-    private record NetworkData(Network network, BatteryShortCircuit batteryShortCircuits) {
+    private record NetworkData(Network network, BatteryShortCircuit batteryShortCircuit) {
     }
 }

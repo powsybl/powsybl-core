@@ -32,17 +32,17 @@ class BatteryShortCircuitTest {
             .withDirectSubtransX(2.0f)
             .withStepUpTransformerX(3.0f)
             .add();
-        BatteryShortCircuit batteryShortCircuits = bat.getExtension(BatteryShortCircuit.class);
-        assertEquals("batteryShortCircuit", batteryShortCircuits.getName());
-        assertEquals(1.0f, batteryShortCircuits.getDirectTransX(), 0.01d);
-        assertEquals(2.0f, batteryShortCircuits.getDirectSubtransX(), 0.01d);
-        assertEquals(3.0f, batteryShortCircuits.getStepUpTransformerX(), 0.01d);
-        batteryShortCircuits.setDirectTransX(2.0f);
-        assertEquals(2.0f, batteryShortCircuits.getDirectTransX(), 0.01d);
-        batteryShortCircuits.setDirectSubtransX(3.0f);
-        assertEquals(3.0f, batteryShortCircuits.getDirectSubtransX(), 0.01d);
-        batteryShortCircuits.setStepUpTransformerX(4.0f);
-        assertEquals(4.0f, batteryShortCircuits.getStepUpTransformerX(), 0.01d);
+        BatteryShortCircuit batteryShortCircuit = bat.getExtension(BatteryShortCircuit.class);
+        assertEquals("batteryShortCircuit", batteryShortCircuit.getName());
+        assertEquals(1.0f, batteryShortCircuit.getDirectTransX(), 0.01d);
+        assertEquals(2.0f, batteryShortCircuit.getDirectSubtransX(), 0.01d);
+        assertEquals(3.0f, batteryShortCircuit.getStepUpTransformerX(), 0.01d);
+        batteryShortCircuit.setDirectTransX(2.0f);
+        assertEquals(2.0f, batteryShortCircuit.getDirectTransX(), 0.01d);
+        batteryShortCircuit.setDirectSubtransX(3.0f);
+        assertEquals(3.0f, batteryShortCircuit.getDirectSubtransX(), 0.01d);
+        batteryShortCircuit.setStepUpTransformerX(4.0f);
+        assertEquals(4.0f, batteryShortCircuit.getStepUpTransformerX(), 0.01d);
     }
 
     @Test
@@ -58,8 +58,8 @@ class BatteryShortCircuitTest {
         battery.newExtension(BatteryShortCircuitAdder.class)
             .withDirectTransX(1.0f)
             .add();
-        BatteryShortCircuit batteryShortCircuits = battery.getExtension(BatteryShortCircuit.class);
-        PowsyblException e1 = assertThrows(PowsyblException.class, () -> batteryShortCircuits.setDirectTransX(Double.NaN));
+        BatteryShortCircuit batteryShortCircuit = battery.getExtension(BatteryShortCircuit.class);
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> batteryShortCircuit.setDirectTransX(Double.NaN));
         assertEquals("Undefined directTransX", e1.getMessage());
     }
 }
