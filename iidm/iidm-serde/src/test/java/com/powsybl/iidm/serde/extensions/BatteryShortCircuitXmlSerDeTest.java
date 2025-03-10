@@ -45,15 +45,15 @@ class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void roundTripTestV01() throws IOException {
+    void roundTripTestV10Legacy() throws IOException {
         NetworkData networkData = getNetworkData();
         Network network = networkData.network();
         BatteryShortCircuit batteryShortCircuit = networkData.batteryShortCircuit();
 
         // Use an extension version which serialization name is not the default
         ExportOptions exportOptions = new ExportOptions()
-                .addExtensionVersion(BatteryShortCircuit.NAME, "0.1");
-        Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/batteryShortCircuitRef_V0_1.xml", exportOptions);
+                .addExtensionVersion(BatteryShortCircuit.NAME, "1.0-legacy");
+        Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/batteryShortCircuitRef_V1_0-legacy.xml", exportOptions);
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);

@@ -30,29 +30,31 @@ import java.util.Objects;
 @AutoService(ExtensionSerDe.class)
 public class BatteryShortCircuitSerDe extends AbstractVersionableNetworkExtensionSerDe<Battery, BatteryShortCircuit> {
 
+    public static final String V1_0_LEGACY = "1.0-legacy";
+
     public BatteryShortCircuitSerDe() {
         super(BatteryShortCircuit.NAME, BatteryShortCircuit.class, "bsc",
                 new ImmutableMap.Builder<IidmVersion, ImmutableSortedSet<String>>()
-                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of("0.1"))
-                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of("0.1"))
-                        .put(IidmVersion.V_1_2, ImmutableSortedSet.of("0.1"))
-                        .put(IidmVersion.V_1_3, ImmutableSortedSet.of("0.1"))
-                        .put(IidmVersion.V_1_4, ImmutableSortedSet.of("0.1"))
-                        .put(IidmVersion.V_1_5, ImmutableSortedSet.of("0.1"))
-                        .put(IidmVersion.V_1_6, ImmutableSortedSet.of("0.1"))
-                        .put(IidmVersion.V_1_7, ImmutableSortedSet.of("0.1"))
-                        .put(IidmVersion.V_1_8, ImmutableSortedSet.of("0.1"))
-                        .put(IidmVersion.V_1_9, ImmutableSortedSet.of("0.1"))
-                        .put(IidmVersion.V_1_10, ImmutableSortedSet.of("0.1"))
-                        .put(IidmVersion.V_1_11, ImmutableSortedSet.of("0.1"))
-                        .put(IidmVersion.V_1_12, ImmutableSortedSet.of("0.1"))
-                        .put(IidmVersion.V_1_13, ImmutableSortedSet.of("0.1", "1.0"))
+                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of(V1_0_LEGACY))
+                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of(V1_0_LEGACY))
+                        .put(IidmVersion.V_1_2, ImmutableSortedSet.of(V1_0_LEGACY))
+                        .put(IidmVersion.V_1_3, ImmutableSortedSet.of(V1_0_LEGACY))
+                        .put(IidmVersion.V_1_4, ImmutableSortedSet.of(V1_0_LEGACY))
+                        .put(IidmVersion.V_1_5, ImmutableSortedSet.of(V1_0_LEGACY))
+                        .put(IidmVersion.V_1_6, ImmutableSortedSet.of(V1_0_LEGACY))
+                        .put(IidmVersion.V_1_7, ImmutableSortedSet.of(V1_0_LEGACY))
+                        .put(IidmVersion.V_1_8, ImmutableSortedSet.of(V1_0_LEGACY))
+                        .put(IidmVersion.V_1_9, ImmutableSortedSet.of(V1_0_LEGACY))
+                        .put(IidmVersion.V_1_10, ImmutableSortedSet.of(V1_0_LEGACY))
+                        .put(IidmVersion.V_1_11, ImmutableSortedSet.of(V1_0_LEGACY))
+                        .put(IidmVersion.V_1_12, ImmutableSortedSet.of(V1_0_LEGACY))
+                        .put(IidmVersion.V_1_13, ImmutableSortedSet.<String>reverseOrder().add(V1_0_LEGACY, "1.0").build())
                         .build(),
                 new ImmutableMap.Builder<String, String>()
-                        .put("0.1", "http://www.itesla_project.eu/schema/iidm/ext/battery_short_circuits/1_0")
+                        .put(V1_0_LEGACY, "http://www.itesla_project.eu/schema/iidm/ext/battery_short_circuits/1_0")
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/battery_short_circuit/1_0")
                         .build(),
-                List.of(new AlternativeSerializationData("batteryShortCircuits", List.of("0.1")))
+                List.of(new AlternativeSerializationData("batteryShortCircuits", List.of(V1_0_LEGACY)))
         );
     }
 
@@ -64,7 +66,7 @@ public class BatteryShortCircuitSerDe extends AbstractVersionableNetworkExtensio
     @Override
     public List<InputStream> getXsdAsStreamList() {
         return List.of(Objects.requireNonNull(getClass().getResourceAsStream("/xsd/batteryShortCircuit_V1_0.xsd")),
-                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/batteryShortCircuit_V0_1.xsd")));
+                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/batteryShortCircuit_V1_0_legacy.xsd")));
     }
 
     @Override
@@ -72,7 +74,7 @@ public class BatteryShortCircuitSerDe extends AbstractVersionableNetworkExtensio
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         String extVersionStr = networkContext.getExtensionVersion(getExtensionName())
                 .orElseGet(() -> getVersion(networkContext.getVersion()));
-        if ("0.1".compareTo(extVersionStr) == 0) {
+        if (V1_0_LEGACY.compareTo(extVersionStr) == 0) {
             context.getWriter().writeFloatAttribute("transientReactance", (float) batteryShortCircuit.getDirectTransX());
             context.getWriter().writeFloatAttribute("stepUpTransformerReactance", (float) batteryShortCircuit.getStepUpTransformerX());
         } else {
@@ -87,7 +89,7 @@ public class BatteryShortCircuitSerDe extends AbstractVersionableNetworkExtensio
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         String extVersionStr = networkContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
         BatteryShortCircuitAdder batteryShortCircuitAdder = battery.newExtension(BatteryShortCircuitAdder.class);
-        if ("0.1".compareTo(extVersionStr) == 0) {
+        if (V1_0_LEGACY.compareTo(extVersionStr) == 0) {
             batteryShortCircuitAdder
                     .withDirectTransX(context.getReader().readFloatAttribute("transientReactance"))
                     .withStepUpTransformerX(context.getReader().readFloatAttribute("stepUpTransformerReactance"));
