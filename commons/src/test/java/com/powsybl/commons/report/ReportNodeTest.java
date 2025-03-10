@@ -28,21 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ReportNodeTest extends AbstractSerDeTest {
 
-    private static final String ALL_VALUES_MESSAGE_TEMPLATE = """
-            Root message
-            doubleUntyped: ${doubleUntyped}
-            doubleTyped: ${doubleTyped}
-            floatUntyped: ${floatUntyped}
-            floatTyped: ${floatTyped}
-            intUntyped: ${intUntyped}
-            intTyped: ${intTyped}
-            longUntyped: ${longUntyped}
-            longTyped: ${longTyped}
-            booleanUntyped: ${booleanUntyped}
-            booleanTyped: ${booleanTyped}
-            stringUntyped: ${stringUntyped}
-            stringTyped: ${stringTyped}
-            severity: ${reportSeverity}""";
     private static final String ALL_VALUES_MESSAGE_FORMATTED = """
             Root message
             doubleUntyped: 4.3
@@ -62,7 +47,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testValues() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
-                .withMessageTemplate("rootTemplate", ALL_VALUES_MESSAGE_TEMPLATE)
+                .withLocaleMessageTemplate("rootTemplate", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withUntypedValue("doubleUntyped", 4.3)
                 .withTypedValue("doubleTyped", 4.4, TypedValue.ACTIVE_POWER)
                 .withUntypedValue("floatUntyped", -1.5f)
@@ -80,7 +65,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals(ALL_VALUES_MESSAGE_FORMATTED, root.getMessage());
 
         ReportNode child = root.newReportNode()
-                .withMessageTemplate("child", "Child message with parent value ${stringTyped} and own severity '${reportSeverity}'")
+                .withLocaleMessageTemplate("child", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withSeverity("Very important custom severity")
                 .add();
         assertEquals("Child message with parent value filename and own severity 'Very important custom severity'", child.getMessage());
@@ -92,10 +77,10 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testPostponedValues() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
-                .withMessageTemplate("rootTemplate", ALL_VALUES_MESSAGE_TEMPLATE)
+                .withLocaleMessageTemplate("rootTemplate", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .build();
         ReportNode child = root.newReportNode()
-                .withMessageTemplate("child", "Child message with parent value ${stringTyped} and own severity '${reportSeverity}'")
+                .withLocaleMessageTemplate("child", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withSeverity("Overridden custom severity")
                 .add();
         assertEquals("Child message with parent value ${stringTyped} and own severity 'Overridden custom severity'", child.getMessage());
@@ -131,14 +116,14 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testInclude() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
-                .withMessageTemplate("rootTemplate", "Root message")
+                .withLocaleMessageTemplate("simpleRootTemplate", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .build();
 
         ReportNode otherRoot = ReportNode.newRootReportNode()
-                .withMessageTemplate("includedRoot", "Included root message")
+                .withLocaleMessageTemplate("includedRoot", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .build();
         ReportNode otherRootChild = otherRoot.newReportNode()
-                .withMessageTemplate("includedChild", "Included child message")
+                .withLocaleMessageTemplate("includedChild", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .add();
 
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> root.include(ReportNode.NO_OP));
@@ -158,13 +143,13 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals("Cannot include non-root reportNode", e4.getMessage());
 
         ReportNode child = root.newReportNode()
-                .withMessageTemplate("child", "Child message")
+                .withLocaleMessageTemplate("simpleChild", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .add();
         PowsyblException e5 = assertThrows(PowsyblException.class, () -> root.include(child));
         assertEquals("Cannot include non-root reportNode", e5.getMessage());
 
         ReportNode yetAnotherRoot = ReportNode.newRootReportNode()
-                .withMessageTemplate("newRootAboveAll", "New root above all reportNodes")
+                .withLocaleMessageTemplate("newRootAboveAll", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .build();
         yetAnotherRoot.include(root);
         assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) yetAnotherRoot).getTreeContextRef().get());
@@ -176,25 +161,25 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testAddCopy() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
-                .withMessageTemplate("root", "Root message with value ${value}")
+                .withLocaleMessageTemplate("rootWithValue", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withTypedValue("value", 2.3203, "ROOT_VALUE")
                 .build();
         root.newReportNode()
-                .withMessageTemplate("existingChild", "Child message")
+                .withLocaleMessageTemplate("existingChild", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .add();
 
         ReportNode otherRoot = ReportNode.newRootReportNode()
-                .withMessageTemplate("otherRoot", "Root message containing node to copy")
+                .withLocaleMessageTemplate("otherRoot", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withTypedValue("value", -915.3, "ROOT_VALUE")
                 .build();
         otherRoot.newReportNode()
-                .withMessageTemplate("childNotCopied", "Child message")
+                .withLocaleMessageTemplate("childNotCopied", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .add();
         ReportNode childToCopy = otherRoot.newReportNode()
-                .withMessageTemplate("childToCopy", "Child message with inherited value ${value}")
+                .withLocaleMessageTemplate("childToCopy", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .add();
         childToCopy.newReportNode()
-                .withMessageTemplate("grandChild", "Grandchild message")
+                .withLocaleMessageTemplate("grandChild", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .add();
 
         root.addCopy(childToCopy);
@@ -219,7 +204,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testAddCopyCornerCases() {
         ReportNode root = ReportNode.newRootReportNode()
-                .withMessageTemplate("root", "Root message with value ${value}")
+                .withLocaleMessageTemplate("rootWithValue", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withTypedValue("value", 2.3203, "ROOT_VALUE")
                 .build();
 
@@ -240,7 +225,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         //                             |___ root
         //                             |___ rootChild
         ReportNode rootChild = root.newReportNode()
-                .withMessageTemplate("rootChild", "Another child")
+                .withLocaleMessageTemplate("rootChild", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .add();
         rootChild.addCopy(root);
 
@@ -265,13 +250,13 @@ class ReportNodeTest extends AbstractSerDeTest {
                 ReportConstants.DEFAULT_TIMESTAMP_PATTERN, ReportConstants.DEFAULT_LOCALE);
 
         ReportNode root1 = ReportNode.newRootReportNode()
-                .withMessageTemplate("rootTemplate", "Root message")
+                .withLocaleMessageTemplate("rootTemplate", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .build();
         assertHasNoTimeStamp(root1);
 
         // No locale set and no timestamp pattern set
         ReportNode child1 = root1.newReportNode()
-                .withMessageTemplate("child", "Child message")
+                .withLocaleMessageTemplate("child", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withTimestamp()
                 .add();
         assertHasTimeStamp(child1, defaultDateTimeFormatter);
@@ -288,7 +273,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         ReportNode root2 = ReportNode.newRootReportNode()
                 .withDefaultTimestampPattern(customPattern1)
                 .withTimestamp()
-                .withMessageTemplate("rootTemplate", "Root message")
+                .withLocaleMessageTemplate("rootTemplate", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .build();
         assertHasTimeStamp(root2, customPatternFormatter);
 
@@ -305,7 +290,7 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .withDefaultTimestampPattern(customPattern1)
                 .withLocale(customLocale)
                 .withTimestamp()
-                .withMessageTemplate("rootTemplate", "Root message")
+                .withLocaleMessageTemplate("rootTemplate", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .build();
         assertHasTimeStamp(root3, customPatternAndLocaleFormatter1);
 
