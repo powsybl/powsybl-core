@@ -7,7 +7,6 @@
  */
 package com.powsybl.commons.report;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 /**
