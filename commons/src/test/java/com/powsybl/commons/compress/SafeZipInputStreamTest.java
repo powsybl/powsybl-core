@@ -28,25 +28,17 @@ class SafeZipInputStreamTest {
     @Test
     void testConstructorWithValidEntryNumber() throws IOException {
         when(zipInputStream.getNextEntry()).thenReturn(new ZipEntry("entry1"), new ZipEntry("entry2"));
-        safeZipInputStream = new SafeZipInputStream(zipInputStream, 1, 100);
+        safeZipInputStream = new SafeZipInputStream(zipInputStream, 100);
         assertNotNull(safeZipInputStream);
-    }
-
-    @Test
-    void testConstructorWithInvalidEntryNumber() throws IOException {
-        when(zipInputStream.getNextEntry()).thenReturn(null);
-
-        IOException exception = assertThrows(IOException.class, () -> {
-            try (SafeZipInputStream sin = new SafeZipInputStream(zipInputStream, 1, 100)) { }
-        });
-
-        assertEquals("Zip entry index out of bounds: 1", exception.getMessage());
     }
 
     @Test
     void testGetNextEntry() throws IOException {
         when(zipInputStream.getNextEntry()).thenReturn(new ZipEntry("entry1"), new ZipEntry("entry2"), null);
-        safeZipInputStream = new SafeZipInputStream(zipInputStream, 1, 100);
+        safeZipInputStream = new SafeZipInputStream(zipInputStream, 100);
+        ZipEntry entry1 = safeZipInputStream.getNextEntry();
+        assertEquals("entry1", entry1.getName());
+        assertNotNull(entry1);
         ZipEntry entry2 = safeZipInputStream.getNextEntry();
         assertNotNull(entry2);
         assertEquals("entry2", entry2.getName());
@@ -58,8 +50,7 @@ class SafeZipInputStreamTest {
     void testReadExceedsMaxBytes() throws IOException {
         when(zipInputStream.read()).thenReturn(1, 1, 1, -1);
 
-        safeZipInputStream = new SafeZipInputStream(zipInputStream, 0, 2);
-
+        safeZipInputStream = new SafeZipInputStream(zipInputStream, 2);
         assertEquals(1, safeZipInputStream.read());
         assertEquals(1, safeZipInputStream.read());
         IOException exception = assertThrows(IOException.class, () -> {
@@ -74,7 +65,7 @@ class SafeZipInputStreamTest {
         byte[] buffer = new byte[10];
         when(zipInputStream.read(buffer, 0, 10)).thenReturn(10);
 
-        safeZipInputStream = new SafeZipInputStream(zipInputStream, 0, 5);
+        safeZipInputStream = new SafeZipInputStream(zipInputStream, 5);
 
         IOException exception = assertThrows(IOException.class, () -> {
             safeZipInputStream.read(buffer, 0, 10);

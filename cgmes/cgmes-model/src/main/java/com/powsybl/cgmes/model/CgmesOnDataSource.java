@@ -125,7 +125,8 @@ public class CgmesOnDataSource {
         try (InputStream in = dataSource.newInputStream(n)) {
             String fileExtension = n.substring(n.lastIndexOf('.') + 1);
             if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
-                try (SafeZipInputStream zis = new SafeZipInputStream(new ZipInputStream(in), 1, 1024)) {
+                try (SafeZipInputStream zis = new SafeZipInputStream(new ZipInputStream(in), 1024)) {
+                    zis.getNextEntry();
                     return namespaceGetter.apply(zis);
                 }
             } else {

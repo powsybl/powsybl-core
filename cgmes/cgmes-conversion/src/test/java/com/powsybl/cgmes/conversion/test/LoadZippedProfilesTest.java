@@ -11,7 +11,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
@@ -62,8 +62,8 @@ class LoadZippedProfilesTest {
             }
 
             ReadOnlyDataSource datasource = DataSource.fromPath(workDir);
-            CgmesModelException ex = assertThrows(CgmesModelException.class, () -> Network.read(datasource));
-            assertEquals("Zip entry index out of bounds: 1", ex.getCause().getMessage());
+            PowsyblException ex = assertThrows(PowsyblException.class, () -> Network.read(datasource));
+            assertEquals("Unsupported file format or invalid file.", ex.getMessage());
         }
     }
 }

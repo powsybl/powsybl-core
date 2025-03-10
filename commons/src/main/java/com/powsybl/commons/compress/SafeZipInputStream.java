@@ -18,15 +18,9 @@ public class SafeZipInputStream extends ForwardingInputStream<ZipInputStream> {
     private long bytesRead;
     private long maxBytesToRead;
 
-    public SafeZipInputStream(ZipInputStream in, int entryNumber, int maxBytesToRead) throws IOException {
+    public SafeZipInputStream(ZipInputStream in, long maxBytesToRead) throws IOException {
         super(in);
         this.maxBytesToRead = maxBytesToRead;
-        for (int i = 0; i < entryNumber; i++) {
-            ZipEntry zipEntry = in.getNextEntry();
-            if (zipEntry == null) {
-                throw new IOException(String.format("Zip entry index out of bounds: %s", entryNumber));
-            }
-        }
     }
 
     public ZipEntry getNextEntry() throws IOException {
