@@ -7,6 +7,7 @@
  */
 package com.powsybl.timeseries;
 
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 
@@ -15,14 +16,12 @@ import com.powsybl.commons.report.TypedValue;
  */
 public final class TimeseriesReports {
 
-    public static final String BUNDLE_BASE_NAME = "com.powsybl.commons.reports";
-
     private TimeseriesReports() {
     }
 
     public static void warnsOnTimeseriesVersionNumber(ReportNode reportNode, int versionNumber, String line) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-timeseries-invalidVersionNumber", BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core-timeseries-invalidVersionNumber", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .withUntypedValue("versionNumber", versionNumber)
                 .withUntypedValue("line", line)
@@ -31,7 +30,7 @@ public final class TimeseriesReports {
 
     public static void timeseriesLoadingTimeDuration(ReportNode reportNode, int tsNumber, long timing) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-timeseries-timeseriesLoadingTime", BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core-timeseries-timeseriesLoadingTime", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("tsNumber", tsNumber)
                 .withUntypedValue("timing", timing)
                 .add();

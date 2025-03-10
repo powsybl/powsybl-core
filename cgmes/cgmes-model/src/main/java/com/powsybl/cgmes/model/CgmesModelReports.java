@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.model;
 
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 
@@ -15,14 +16,12 @@ import com.powsybl.commons.report.TypedValue;
  */
 public final class CgmesModelReports {
 
-    public static final String BUNDLE_BASE_NAME = "com.powsybl.commons.reports";
-
     private CgmesModelReports() {
     }
 
     public static void readFile(ReportNode reportNode, String name) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-cgmes-model-CGMESFileRead", BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core-cgmes-model-CGMESFileRead", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withTypedValue("instanceFile", name, TypedValue.FILENAME)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
