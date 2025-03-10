@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -209,7 +210,9 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .setB2(0.0);
 
         //wrong network
-        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("reportTestWrongNetwork", "Testing creating line reportNode with wrong network").build();
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestWrongNetwork", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         Network network1 = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         CreateBranchFeederBays modification0 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
@@ -226,7 +229,9 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
         assertEquals("core-iidm-modification-networkMismatch", reportNode1.getChildren().get(0).getMessageKey());
 
         // not found id
-        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("reportTestUndefinedId", "Testing creating line reportNode with wrong busbar section ID").build();
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestUndefinedId", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         CreateBranchFeederBays modification1 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("bbs")
@@ -242,7 +247,9 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
         assertEquals("core-iidm-modification-notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
 
         // wrong identifiable type
-        ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("reportTestWrongBbsType", "Testing creating line reportNode with wrong bbs type").build();
+        ReportNode reportNode3 = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestWrongBbsType", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         CreateBranchFeederBays modification2 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("gen1")
@@ -345,7 +352,9 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .setG2(0.0)
                 .setB1(0.0)
                 .setB2(0.0);
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestCreateLine", "Testing creating line reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestCreateLine", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("bbs5")
@@ -371,7 +380,9 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .setG2(0.0)
                 .setB1(0.0)
                 .setB2(0.0);
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestCreateLineWithoutExtensions", "Testing creating line reportNode without extensions").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestCreateLineWithoutExtensions", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("bbs5")

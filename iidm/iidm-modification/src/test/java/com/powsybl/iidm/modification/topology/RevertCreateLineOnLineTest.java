@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -41,14 +42,18 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         vl.getNodeBreakerView().newSwitch().setId("breaker4").setName("breaker4").setKind(SwitchKind.BREAKER).setRetained(false).setOpen(true).setFictitious(false).setNode1(0).setNode2(1).add();
         network.newLine().setId("LINE34").setR(0.1).setX(0.1).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setNode1(1).setVoltageLevel1("VL3").setNode2(1).setVoltageLevel2("VL4").add();
 
-        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("reportTestUndefinedLine1", "Testing reportNode with undefined line1").build();
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestUndefinedLine1", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         final NetworkModification modificationWithError1 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("line1NotFound")
                 .withLineToBeMerged2Id("CJ_1")
                 .withLineToBeDeletedId("CJ_2")
                 .withMergedLineId("CJ")
                 .build();
-        ReportNode subReportNode1 = reportNode1.newReportNode().withMessageTemplate("withThrowException", "throwException = true").add();
+        ReportNode subReportNode1 = reportNode1.newReportNode()
+                .withLocaleMessageTemplate("withThrowException", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .add();
         ReportNode reportNodeChild1a = reportNode1.getChildren().get(0);
         assertDoesNotThrow(() -> modificationWithError1.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, subReportNode1), "Line line1NotFound is not found");
@@ -59,19 +64,25 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withLineToBeDeletedId("CJ_2")
                 .withMergedLineId("CJ")
                 .build();
-        modificationWithError11.apply(network, false, reportNode1.newReportNode().withMessageTemplate("withoutThrowException", "throwException = false").add());
+        modificationWithError11.apply(network, false, reportNode1.newReportNode()
+                .withLocaleMessageTemplate("withoutThrowException", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .add());
         assertNull(network.getLine("CJ"));
         ReportNode reportNodeChild1b = reportNode1.getChildren().get(1);
         assertEquals("core-iidm-modification-lineNotFound", reportNodeChild1b.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("reportTestUndefinedLine2", "Testing reportNode with undefined line2").build();
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestUndefinedLine2", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         final NetworkModification modificationWithError2 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("line2NotFound")
                 .withLineToBeDeletedId("CJ_3")
                 .withMergedLineId("CJ")
                 .build();
-        ReportNode subReportNode2 = reportNode2.newReportNode().withMessageTemplate("withThrowException", "throwException = true").add();
+        ReportNode subReportNode2 = reportNode2.newReportNode()
+                .withLocaleMessageTemplate("withThrowException", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .add();
         assertDoesNotThrow(() -> modificationWithError2.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, subReportNode2), "Line line2NotFound is not found");
         ReportNode reportNodeChild2a = reportNode2.getChildren().get(0);
@@ -82,19 +93,25 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withLineToBeDeletedId("CJ_3")
                 .withMergedLineId("CJ")
                 .build();
-        modificationWithError21.apply(network, false, reportNode2.newReportNode().withMessageTemplate("withoutThrowException", "throwException = false").add());
+        modificationWithError21.apply(network, false, reportNode2.newReportNode()
+                .withLocaleMessageTemplate("withoutThrowException", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .add());
         assertNull(network.getLine("CJ"));
         ReportNode reportNodeChild2b = reportNode2.getChildren().get(1);
         assertEquals("core-iidm-modification-lineNotFound", reportNodeChild2b.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("reportTestUndefinedLineToBeDeleted", "Testing reportNode with undefined line to be deleted").build();
+        ReportNode reportNode3 = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestUndefinedLineToBeDeleted", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         final NetworkModification modificationWithError3 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("CJ_2")
                 .withLineToBeDeletedId("line3NotFound")
                 .withMergedLineId("CJ")
                 .build();
-        ReportNode subReportNode3 = reportNode3.newReportNode().withMessageTemplate("withThrowException", "throwException = true").add();
+        ReportNode subReportNode3 = reportNode3.newReportNode()
+                .withLocaleMessageTemplate("withThrowException", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .add();
         assertDoesNotThrow(() -> modificationWithError3.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, subReportNode3), "Line line3NotFound is not found");
         ReportNode reportNodeChild3a = reportNode3.getChildren().get(0);
@@ -105,19 +122,25 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withLineToBeDeletedId("line3NotFound")
                 .withMergedLineId("CJ")
                 .build();
-        modificationWithError31.apply(network, false, reportNode3.newReportNode().withMessageTemplate("withoutThrowException", "throwException = false").add());
+        modificationWithError31.apply(network, false, reportNode3.newReportNode()
+                .withLocaleMessageTemplate("withoutThrowException", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .add());
         assertNull(network.getLine("CJ"));
         ReportNode reportNodeChild3b = reportNode3.getChildren().get(1);
         assertEquals("core-iidm-modification-lineNotFound", reportNodeChild3b.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode4 = ReportNode.newRootReportNode().withMessageTemplate("reportTestNoTeePointAndOrTappedVoltageLevel", "Testing reportNode without tee point").build();
+        ReportNode reportNode4 = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestNoTeePointAndOrTappedVoltageLevel", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         final NetworkModification modificationWithError4 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("CJ_2")
                 .withLineToBeDeletedId("LINE34")
                 .withMergedLineId("CJ")
                 .build();
-        ReportNode subReportNode4 = reportNode4.newReportNode().withMessageTemplate("withThrowException", "throwException = true").add();
+        ReportNode subReportNode4 = reportNode4.newReportNode()
+                .withLocaleMessageTemplate("withThrowException", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .add();
         assertDoesNotThrow(() -> modificationWithError4.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network, true, subReportNode4), "Unable to find the attachment point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34");
         ReportNode reportNodeChild4a = reportNode4.getChildren().get(0);
@@ -128,12 +151,16 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withLineToBeDeletedId("LINE34")
                 .withMergedLineId("CJ")
                 .build();
-        modificationWithError41.apply(network, false, reportNode4.newReportNode().withMessageTemplate("withoutThrowException", "throwException = false").add());
+        modificationWithError41.apply(network, false, reportNode4.newReportNode()
+                .withLocaleMessageTemplate("withoutThrowException", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .add());
         assertNull(network.getLine("CJ"));
         ReportNode reportNodeChild4b = reportNode4.getChildren().get(1);
         assertEquals("core-iidm-modification-noTeePointAndOrTappedVoltageLevel", reportNodeChild4b.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportNodeTestRevertCreateLineOnLine", "Testing reportNode for reverting create line on line in node/breaker network").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportNodeTestRevertCreateLineOnLine", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         modification = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("CJ_2")
@@ -153,7 +180,9 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportNodeTestRevertCreateLineOnLineNBBB", "Testing reportNode for reverting create line on line with mixed topology network").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportNodeTestRevertCreateLineOnLineNBBB", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         modification = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("NHV1_NHV2_1_2")
                 .withLineToBeMerged2Id("NHV1_NHV2_1_1")
@@ -173,7 +202,9 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId("bus").withLine(line).withLineAdder(adder).build();
         modification.apply(network);
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportNodeTestRevertCreateLineOnLineNBBB", "Testing reportNode for reverting create line on line in bus/breaker network").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportNodeTestRevertCreateLineOnLineBB", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         modification = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("NHV1_NHV2_1_1")
                 .withLineToBeMerged2Id("NHV1_NHV2_1_2")

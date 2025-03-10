@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -60,7 +61,9 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     void createCouplingDeviceThrowsException() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
-        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("testReportNodeWrongBbs", "Testing reportNode with wrong busbar section ID").build();
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("testReportNodeWrongBbs", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         NetworkModification couplingDeviceModifWrongBbs = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs")
                 .withBusOrBusbarSectionId2("bbs2")
@@ -70,7 +73,9 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
         assertEquals("Bus or busbar section bbs not found", e0.getMessage());
         assertEquals("core-iidm-modification-notFoundBusOrBusbarSection", reportNode1.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("testReportNodeBbsInDifferentVl", "Testing reportNode with busbar sections in different voltage levels").build();
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("testReportNodeBbsInDifferentVl", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         NetworkModification couplingDeviceModifBbsInDifferentVl = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs5")
@@ -80,7 +85,9 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
         assertEquals("bbs1 and bbs5 are in two different voltage levels.", e1.getMessage());
         assertEquals("core-iidm-modification-unexpectedDifferentVoltageLevels", reportNode2.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("testReportNodeSameBbs", "Testing reportNode with same busbar section").build();
+        ReportNode reportNode3 = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("testReportNodeSameBbs", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         NetworkModification sameBusbarSection = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs1")
@@ -128,7 +135,9 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     @Test
     void testWithReportNode() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestCreateCouplingDevice", "Testing reportNode for coupling device creation").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestCreateCouplingDevice", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs3")
@@ -141,7 +150,9 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     @MethodSource("parameters")
     void createCouplingDeviceThrowsException(String bbs1, String bbs2, String message, String messageKey) {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("ReportNodeTest", "Testing reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("ReportNodeTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         NetworkModification modification = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1(bbs1)
                 .withBusOrBusbarSectionId2(bbs2)
