@@ -72,7 +72,7 @@ The adder API is accessed from a call to `reportNode.newReportNode()`.
 It is used to add a child to an existing `ReportNode`.
 
 Both API share methods to provide the message template and the typed values:
-- `withMessageTemplate(key, messageTemplate)`,
+- `withLocaleMessageTemplate(key, bundleName)`,
 - `withUntypedValue(key, value)`,
 - `withTypedValue(key, value, type)`,
 - `withSeverity(severity)`.
@@ -93,21 +93,32 @@ Two known limitations of this method:
 2. the resulting dictionary contains all the keys from the copied `ReportNode` tree, even the ones from non-copied `ReportNode`s.
 
 ## Example
+
+Resource bundle property file in `com/powsybl/commons/reports.properties` which is the default translation values file.
+```properties
+translationKey = Import file ${filename} in ${time} ms
+task1 = Doing first task with double parameter ${parameter}
+task2 = Doing second task, reading ${count} elements, among which ${problematicCount} are problematic
+problematic = Problematic element ${id} with active power ${activePower}
+```
+
 ```java
+String bundleName = "com.powsybl.commons.reports";
+
 ReportNode root = ReportNode.newRootReportNode()
-        .withMessageTemplate("importMessage", "Import file ${filename} in ${time} ms")
+        .withLocaleMessageTemplate("translationKey", bundleName)
         .withTypedValue("filename", "file.txt", TypedValue.FILENAME)
         .build();
 long t0 = System.currentTimeMillis();
 
 ReportNode task1 = root.newReportNode()
-        .withMessageTemplate("task1", "Doing first task with double parameter ${parameter}")
+        .withLocaleMessageTemplate("task1", bundleName)
         .withUntypedValue("parameter", 4.2)
         .withSeverity(TypedValue.INFO_SEVERITY)
         .add();
 
 ReportNode task2 = root.newReportNode()
-        .withMessageTemplate("task2", "Doing second task, reading ${count} elements, among which ${problematicCount} are problematic")
+        .withLocaleMessageTemplate("task2", bundleName)
         .withUntypedValue("count", 102)
         .withUntypedValue("problematicCount", 2)
         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -116,7 +127,7 @@ ReportNode task2 = root.newReportNode()
 // Supposing a list of problematic elements has been build, each containing an id and an active power values
 for (ProblematicElement element : problematicElements) {
     task2.newReportNode()
-            .withMessageTemplate("problematic", "Problematic element ${id} with active power ${activePower}")
+            .withLocaleMessageTemplate("problematic", bundleName)
             .withTypedValue("id", element.getId(), TypedValue.ID)
             .withTypedValue("activePower", element.getActivePower(), TypedValue.ACTIVE_POWER)
             .withSeverity(TypedValue.DETAIL_SEVERITY)

@@ -21,13 +21,7 @@ class ReportFormatterTest {
     @Test
     void test() {
         ReportNode root = ReportNode.newRootReportNode()
-                .withMessageTemplate("formatTest", """
-                        Formatter test message
-                        double default format: ${doubleDefaultFormat}
-                        double format based on type: ${doubleSpecificFormat}
-                        float format based on type: ${floatSpecificFormat}
-                        string default format: ${stringDefaultFormat}
-                        string format based on type: ${stringSpecificFormat}""")
+                .withLocaleMessageTemplate("formatTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withUntypedValue("doubleDefaultFormat", 4.35684975)
                 .withTypedValue("doubleSpecificFormat", 4.4664798548, TypedValue.ACTIVE_POWER)
                 .withTypedValue("floatSpecificFormat", 0.6f, TypedValue.IMPEDANCE)
@@ -46,12 +40,6 @@ class ReportFormatterTest {
             }
             return typedValue.getValue().toString();
         };
-        assertEquals("""
-                        Formatter test message
-                        double default format: 4.35684975
-                        double format based on type: 4,4665
-                        float format based on type: 0,60
-                        string default format: tiny
-                        string format based on type: This is a sentence""", root.getMessage(customFormatter));
+        assertEquals("Formatter test message double default format: 4.35684975 double format based on type: 4,4665 float format based on type: 0,60 string default format: tiny string format based on type: This is a sentence", root.getMessage(customFormatter));
     }
 }

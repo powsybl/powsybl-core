@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.NetworkReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,11 +109,7 @@ abstract class AbstractTapChangerAdderImpl<
 
         if (parent.hasPhaseTapChanger() && parent.hasRatioTapChanger()) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
-            network.getReportNodeContext().getReportNode().newReportNode()
-                    .withMessageTemplate("validationWarning", "${parent} has both Ratio and Phase Tap Changer.")
-                    .withUntypedValue("parent", parent.getMessageHeader())
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .add();
+            NetworkReports.parentHasBothRatioAndPhaseTapChanger(network.getReportNodeContext().getReportNode(), parent.getMessageHeader());
         }
 
         return tapChanger;

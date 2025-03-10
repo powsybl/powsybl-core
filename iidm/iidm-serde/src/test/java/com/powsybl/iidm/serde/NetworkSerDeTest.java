@@ -14,6 +14,7 @@ import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataFormat;
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
@@ -62,7 +63,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         NetworkSerDe.write(network, new ExportOptions().setFormat(format), file);
 
         // Read file with all extensions included (default ImportOptions)
-        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("root", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         Network networkReadExtensions = NetworkSerDe.read(file,
                 new ImportOptions().setFormat(format), null, NetworkFactory.findDefault(), reportNode1);
         Load load1 = networkReadExtensions.getLoad("LOAD1");
@@ -80,7 +83,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                 """, TestUtil.normalizeLineSeparator(sw1.toString()));
 
         // Read file with only terminalMockNoSerDe and loadZipModel extensions included
-        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("root", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         ImportOptions notAllExtensions = new ImportOptions()
                 .addExtension("terminalMockNoSerDe").addExtension("loadZipModel")
                 .setFormat(format);
@@ -105,7 +110,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testNotFoundExtension() throws IOException {
         // Read file with all extensions included (default ImportOptions)
-        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("root", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/notFoundExtension.xml"),
                 new ImportOptions(), null, NetworkFactory.findDefault(), reportNode1);
         Load load1 = networkReadExtensions.getLoad("LOAD");
