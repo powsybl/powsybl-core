@@ -396,11 +396,11 @@ public class PsseValidation {
 
     private boolean isTwoTerminalDcTransmissionLineBadlyConnected(PsseTwoTerminalDcTransmissionLine twoTerminalDc, Map<Integer, List<Integer>> buses) {
         if (!buses.containsKey(twoTerminalDc.getRectifier().getIp())) {
-            validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: %s rectifier bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored", twoTerminalDc.getName(), twoTerminalDc.getRectifier().getIp(), twoTerminalDc.getName()));
+            validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: rectifier bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored", twoTerminalDc.getRectifier().getIp(), twoTerminalDc.getName()));
             return true;
         }
         if (!buses.containsKey(twoTerminalDc.getInverter().getIp())) {
-            validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: %s inverter bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored", twoTerminalDc.getName(), twoTerminalDc.getInverter().getIp(), twoTerminalDc.getName()));
+            validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: inverter bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored", twoTerminalDc.getInverter().getIp(), twoTerminalDc.getName()));
             return true;
         }
         return false;
@@ -409,13 +409,8 @@ public class PsseValidation {
     private void validateVscDcTransmissionLines(List<PsseVoltageSourceConverterDcTransmissionLine> vscDcTransmissionLines, Map<Integer, List<Integer>> buses, PsseVersion psseVersion) {
         Map<String, Integer> vscDcTransmissionLinesNames = new HashMap<>();
         for (PsseVoltageSourceConverterDcTransmissionLine vscDcTransmissionLine : vscDcTransmissionLines) {
-            if (!buses.containsKey(vscDcTransmissionLine.getConverter1().getIbus())) {
-                validationErrors.add(String.format("VoltageSourceConverterDcTransmissionLine: %s Unexpected converter1 Ibus: %d", vscDcTransmissionLine.getName(), vscDcTransmissionLine.getConverter1().getIbus()));
-                validCase = false;
-            }
-            if (!buses.containsKey(vscDcTransmissionLine.getConverter2().getIbus())) {
-                validationErrors.add(String.format("VoltageSourceConverterDcTransmissionLine: %s Unexpected converter2 Ibus: %d", vscDcTransmissionLine.getName(), vscDcTransmissionLine.getConverter2().getIbus()));
-                validCase = false;
+            if (isVscDcTransmissionLineBadlyConnected(vscDcTransmissionLine, buses)) {
+                continue;
             }
             if (vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion) != 0 && !buses.containsKey(vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion))) {
                 validationErrors.add(String.format("VoltageSourceConverterDcTransmissionLine: %s Unexpected converter1 Vsreg bus: %d", vscDcTransmissionLine.getName(), vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion)));
@@ -434,7 +429,19 @@ public class PsseValidation {
         }
     }
 
-    private static int vscDcTransmissionLineRegulatingBus(PsseVoltageSourceConverter converter, PsseVersion psseVersion) {
+    private boolean isVscDcTransmissionLineBadlyConnected(PsseVoltageSourceConverterDcTransmissionLine vscDcTransmissionLine, Map<Integer, List<Integer>> buses) {
+        if (!buses.containsKey(vscDcTransmissionLine.getConverter1().getIbus())) {
+            validationWarnings.add(String.format("VoltageSourceConverterDcTransmissionLine: converter1 bus not found Ibus: %d, VoltageSourceConverterDcTransmissionLine record %s, ... will be ignored", vscDcTransmissionLine.getConverter1().getIbus(), vscDcTransmissionLine.getName()));
+            return true;
+        }
+        if (!buses.containsKey(vscDcTransmissionLine.getConverter2().getIbus())) {
+            validationWarnings.add(String.format("VoltageSourceConverterDcTransmissionLine: converter2 bus not found Ibus: %d, VoltageSourceConverterDcTransmissionLine record %s, ... will be ignored", vscDcTransmissionLine.getConverter2().getIbus(), vscDcTransmissionLine.getName()));
+            return true;
+        }
+        return false;
+    }
+
+    static int vscDcTransmissionLineRegulatingBus(PsseVoltageSourceConverter converter, PsseVersion psseVersion) {
         if (psseVersion.major() == V35) {
             return converter.getVsreg();
         } else {
@@ -448,8 +455,8 @@ public class PsseValidation {
         // Only bus I is validated as only statcom facts devices are considered
         for (PsseFacts factsDevice : factsDevices) {
             if (!buses.containsKey(factsDevice.getI())) {
-                validationErrors.add(String.format("FactsDevice: %s Unexpected I: %d", factsDevice.getName(), factsDevice.getI()));
-                validCase = false;
+                validationWarnings.add(String.format("FactsDevice: bus not found I: %d, FactsDevice record %s, ... will be ignored", factsDevice.getI(), factsDevice.getName()));
+                continue;
             }
             int regulatingBus = factsDeviceRegulatingBus(factsDevice, psseVersion);
             if (regulatingBus != 0 && !buses.containsKey(regulatingBus)) {
@@ -466,7 +473,7 @@ public class PsseValidation {
         }
     }
 
-    private static int factsDeviceRegulatingBus(PsseFacts factsDevice, PsseVersion psseVersion) {
+    static int factsDeviceRegulatingBus(PsseFacts factsDevice, PsseVersion psseVersion) {
         if (psseVersion.major() == V35) {
             return factsDevice.getFcreg();
         } else {

@@ -33,6 +33,9 @@ class FactsDeviceConverter extends AbstractConverter {
     }
 
     void create() {
+        if (!getContainersMapping().isBusDefined(psseFactsDevice.getI())) {
+            return;
+        }
         if (isStatCom(psseFactsDevice)) {
             createStatCom();
         }

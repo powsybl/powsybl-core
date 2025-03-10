@@ -14,8 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.powsybl.psse.model.pf.PsseValidation.switchedShuntId;
-import static com.powsybl.psse.model.pf.PsseValidation.switchedShuntRegulatingBus;
+import static com.powsybl.psse.model.pf.PsseValidation.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -73,6 +72,8 @@ public class PsseFixes {
         model.getBuses().forEach(psseBus -> buses.add(psseBus.getI()));
         fixGeneratorsControlledBus(buses);
         fixTransformersControlledBus(buses);
+        fixVscDcTransmissionLineControlledBus(buses);
+        fixFactsDeviceControlledBus(buses);
         fixSwitchedShuntControlledBus(buses);
     }
 
@@ -239,6 +240,31 @@ public class PsseFixes {
             warn("Transformer", String.format("%d, %d, %d, %s, ... %s ", psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt(), windingTag), winding.getCont());
             winding.setCont(0);
         }
+    }
+
+    private void fixVscDcTransmissionLineControlledBus(Set<Integer> buses) {
+        model.getVoltageSourceConverterDcTransmissionLines().forEach(psseVscDcTransmissionLine -> {
+            fixVscDcTransmissionLineConverterControlledBus(buses, psseVscDcTransmissionLine, psseVscDcTransmissionLine.getConverter1(), "Converter1");
+            fixVscDcTransmissionLineConverterControlledBus(buses, psseVscDcTransmissionLine, psseVscDcTransmissionLine.getConverter2(), "Converter2");
+        });
+    }
+
+    private void fixVscDcTransmissionLineConverterControlledBus(Set<Integer> buses, PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine, PsseVoltageSourceConverter psseVscDcConverter, String converterTag) {
+        if (vscDcTransmissionLineRegulatingBus(psseVscDcConverter, version) != 0 && !buses.contains(vscDcTransmissionLineRegulatingBus(psseVscDcConverter, version))) {
+            warn("VoltageSourceConverterDcTransmissionLine", String.format("%s, ... %s", psseVscDcTransmissionLine.getName(), converterTag), vscDcTransmissionLineRegulatingBus(psseVscDcConverter, version));
+            psseVscDcConverter.setVsreg(0);
+            psseVscDcConverter.setRemot(0);
+        }
+    }
+
+    private void fixFactsDeviceControlledBus(Set<Integer> buses) {
+        model.getFacts().forEach(psseFactsDevice -> {
+            if (factsDeviceRegulatingBus(psseFactsDevice, version) != 0 && !buses.contains(factsDeviceRegulatingBus(psseFactsDevice, version))) {
+                warn("FactsDevice", String.format("%s, ...", psseFactsDevice.getName()), factsDeviceRegulatingBus(psseFactsDevice, version));
+                psseFactsDevice.setFcreg(0);
+                psseFactsDevice.setRemot(0);
+            }
+        });
     }
 
     private void fixSwitchedShuntControlledBus(Set<Integer> buses) {

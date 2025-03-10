@@ -36,6 +36,9 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
     }
 
     void create() {
+        if (!getContainersMapping().isBusDefined(psseVscDcTransmissionLine.getConverter1().getIbus()) || !getContainersMapping().isBusDefined(psseVscDcTransmissionLine.getConverter2().getIbus())) {
+            return;
+        }
 
         PsseVoltageSourceConverter converter1 = psseVscDcTransmissionLine.getConverter1();
         PsseVoltageSourceConverter converter2 = psseVscDcTransmissionLine.getConverter2();
