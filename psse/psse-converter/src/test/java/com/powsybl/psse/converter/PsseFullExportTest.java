@@ -91,7 +91,29 @@ class PsseFullExportTest extends AbstractSerDeTest {
         createSwitch(vl1S3, "Sw-Line-Vl1-Sub3-Sub2", 1, 2, false);
         createSwitch(vl1S3, "Sw-Load-Vl1-Sub3", 1, 3, false);
         createSwitch(vl1S3, "Sw-T2w-Vl1-Sub3", 1, 4, false);
+        createSwitch(vl1S3, "Sw-DanglingLine-Vl1-Sub3", 1, 5, false);
         createLoad(vl1S3, "Load-Vl1-Sub3", 3, 25.0, 5.0);
+        DanglingLine dlVl1S3 = vl1S3.newDanglingLine()
+                .setId("DanglingLine-Vl1-S3")
+                .setName("DanglingLine-Vl1-S3")
+                .setNode(5)
+                .setR(5.0)
+                .setX(85.0)
+                .setG(0.0)
+                .setB(0.0)
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setPairingKey("-")
+                .newGeneration()
+                .setTargetV(405.0)
+                .setTargetP(10.5)
+                .setTargetQ(2.5)
+                .setVoltageRegulationOn(true)
+                .setMaxP(100.0)
+                .setMinP(0.0)
+                .add()
+                .add();
+        dlVl1S3.getGeneration().newMinMaxReactiveLimits().setMinQ(-25.0).setMaxQ(35.0).add();
 
         VoltageLevel vl2S3 = createVoltageLevel(sub3, "Vl2-Sub3", 25.0, TopologyKind.BUS_BREAKER);
         Bus busVl2S3 = createBus(vl2S3, "Bus-Vl2-Sub3");
