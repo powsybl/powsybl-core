@@ -18,6 +18,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
@@ -57,7 +58,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class CommonGridModelExportTest extends AbstractSerDeTest {
-
     private static final Pattern REGEX_SCENARIO_TIME = Pattern.compile("Model.scenarioTime>(.*?)<");
     private static final Pattern REGEX_DESCRIPTION = Pattern.compile("Model.description>(.*?)<");
     private static final Pattern REGEX_VERSION = Pattern.compile("Model.version>(.*?)<");
@@ -449,7 +449,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // Export using a reporter to gather the exported model identifiers
         ReportNode report = ReportNode
                 .newRootReportNode()
-                .withMessageTemplate("rootKey", "")
+                .withLocaleMessageTemplate("rootKey", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .build();
 
         MemDataSource memDataSource = new MemDataSource();
