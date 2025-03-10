@@ -7,6 +7,7 @@
  */
 package com.powsybl.timeseries;
 
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
 import org.junit.jupiter.api.Test;
@@ -365,7 +366,9 @@ class TimeSeriesTest {
             """.replaceAll("\n", System.lineSeparator());
 
         // Reporter
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV", "Testing reportNode TimeSeriesImport with wrong version number").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', true, TimeFormat.FRACTIONS_OF_SECOND, false);
         TimeSeries.parseCsv(csv, timeSeriesCsvConfig, reportNode);
@@ -393,7 +396,9 @@ class TimeSeriesTest {
                 """.replaceAll("\n", System.lineSeparator());
 
         // Reporter
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV", "Testing reportNode TimeSeriesImport with wrong version number").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
         TimeSeriesException timeSeriesException = assertThrows(TimeSeriesException.class, () -> TimeSeries.parseCsv(csv, timeSeriesCsvConfig, reportNode));
