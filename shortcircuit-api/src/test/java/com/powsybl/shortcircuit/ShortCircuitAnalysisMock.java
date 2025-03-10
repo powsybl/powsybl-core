@@ -14,6 +14,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterType;
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -67,7 +68,9 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
                                                              ComputationManager computationManager,
                                                              List<FaultParameters> faultParameters,
                                                              ReportNode reportNode) {
-        reportNode.newReportNode().withMessageTemplate("MockShortCircuit", "Running mock short circuit").add();
+        reportNode.newReportNode()
+                .withLocaleMessageTemplate("MockShortCircuit", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .add();
         return run(network, faults, parameters, computationManager, faultParameters);
     }
 
