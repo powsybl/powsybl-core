@@ -7,9 +7,7 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
@@ -44,8 +42,9 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertEquals("PSS/E", importer.getFormat());
         assertEquals("PSS/E Format to IIDM converter", importer.getComment());
         assertEquals(List.of("raw", "RAW", "rawx", "RAWX"), importer.getSupportedExtensions());
-        assertEquals(1, importer.getParameters().size());
+        assertEquals(2, importer.getParameters().size());
         assertEquals("psse.import.ignore-base-voltage", importer.getParameters().get(0).getName());
+        assertEquals("psse.import.ignore-node-breaker-topology", importer.getParameters().get(1).getName());
     }
 
     private void testNetwork(Network network) throws IOException {
@@ -230,6 +229,39 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void importTest14BadlyConnectedEquipment() throws IOException {
+        Network n = importTest("IEEE_14_buses_badly_connected_equipment", "IEEE_14_buses_badly_connected_equipment.raw", false);
+
+        // Ensure that the equipment is not imported
+        assertNull(n.getLoad("B200-L1 "));
+        assertNull(n.getShuntCompensator("B200-SH 1"));
+        assertNull(n.getGenerator("B200-G1 "));
+        assertNull(n.getLine("L-200-13-1 "));
+        assertNull(n.getLine("L-13-200-2 "));
+        assertNull(n.getTwoWindingsTransformer("T-7-200-2 "));
+        assertNull(n.getTwoWindingsTransformer("T-200-7-3 "));
+        assertNull(n.getThreeWindingsTransformer("T-200-2-7-1 "));
+        assertNull(n.getThreeWindingsTransformer("T-4-200-7-2 "));
+        assertNull(n.getThreeWindingsTransformer("T-4-2-200-3 "));
+        assertNull(n.getHvdcLine("TwoTerminalDc-EATL P1     "));
+        assertNull(n.getHvdcLine("TwoTerminalDc-EATL P2     "));
+        assertNull(n.getShuntCompensator("B200-SwSH1"));
+    }
+
+    @Test
+    void importTest14BadlyDefinedControlledBuses() throws IOException {
+        Network n = importTest("IEEE_14_buses_badly_defined_controlled_buses", "IEEE_14_buses_badly_defined_controlled_buses.raw", false);
+
+        // Ensure that the equipment is imported
+        assertNotNull(n.getGenerator("B8-G1 "));
+        assertNotNull(n.getTwoWindingsTransformer("T-4-7-1 "));
+        assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
+        assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
+        assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
+        assertNotNull(n.getShuntCompensator("B2-SwSH1"));
+    }
+
+    @Test
     void testRates() throws IOException {
         Context context = new Context();
         ReadOnlyDataSource ds = new ResourceDataSource("ThreeMIB_T3W_modified", new ResourceSet("/", "ThreeMIB_T3W_modified.raw"));
@@ -294,6 +326,16 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void importTest14NodeBreaker() throws IOException {
+        importTest("IEEE_14_bus_nodeBreaker_rev35", "IEEE_14_bus_nodeBreaker_rev35.raw", false);
+    }
+
+    @Test
+    void importFiveBusNodeBreaker() throws IOException {
+        importTest("five_bus_nodeBreaker_rev35", "five_bus_nodeBreaker_rev35.raw", false);
+    }
+
+    @Test
     void importTestTransformersWithVoltageControlAndNotDefinedControlledBusV33() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("TransformersWithVoltageControlAndNotDefinedControlledBus", new ResourceSet("/", "TransformersWithVoltageControlAndNotDefinedControlledBus.raw"));
         Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), new Properties());
@@ -309,5 +351,15 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertFalse(t3w.getLeg2().getRatioTapChanger().isRegulating());
         assertNotNull(t3w.getLeg3().getRatioTapChanger());
         assertFalse(t3w.getLeg3().getRatioTapChanger().isRegulating());
+    }
+
+    @Test
+    void importTwoSubstationsTest() throws IOException {
+        importTest("twoSubstations_rev35", "twoSubstations_rev35.raw", false);
+    }
+
+    @Test
+    void importTwoSubstationsRawxTest() throws IOException {
+        importTest("twoSubstations_rev35", "twoSubstations_rev35.rawx", false);
     }
 }

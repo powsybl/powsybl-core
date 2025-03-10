@@ -9,9 +9,19 @@
 -->
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:lb="http://www.itesla_project.eu/schema/iidm/ext/loadbar/1_0"
            targetNamespace="http://www.itesla_project.eu/schema/iidm/ext/loadbar/1_0"
            elementFormDefault="qualified">
+    <xs:complexType name="Point">
+        <xs:attribute name="x" use="required" type="xs:double"/>
+        <xs:attribute name="y" use="required" type="xs:double"/>
+    </xs:complexType>
     <xs:element name="loadBar">
-        <xs:complexType/>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="point" type="lb:Point" minOccurs="0"/>
+            </xs:sequence>
+            <xs:attribute name="value" type="xs:integer"/>
+        </xs:complexType>
     </xs:element>
 </xs:schema>

@@ -16,7 +16,6 @@
                 <iidm:bus id="B2" name="Bus 2" v="240.35" angle="-5.78419916"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B2-G1" energySource="OTHER" minP="0.0" maxP="80.0" voltageRegulatorOn="true" targetP="40.0" targetV="240.35" targetQ="4.45" bus="B2" connectableBus="B2">
-                <iidm:regulatingTerminal id="B2-L1"/>
                 <iidm:minMaxReactiveLimits minQ="-40.0" maxQ="50.0"/>
             </iidm:generator>
             <iidm:load id="B2-L1" loadType="UNDEFINED" p0="21.7" q0="12.7" bus="B2" connectableBus="B2"/>
@@ -28,19 +27,18 @@
                 <iidm:bus id="B3" name="Bus 3" v="232.7220661" angle="-14.05192514"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B3-G1" energySource="OTHER" minP="0.0" maxP="-0.0" voltageRegulatorOn="true" targetP="0.0" targetV="232.3" targetQ="0.0" bus="B3" connectableBus="B3">
-                <iidm:regulatingTerminal id="B3-L1"/>
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="40.0"/>
             </iidm:generator>
             <iidm:load id="B3-L1" loadType="UNDEFINED" p0="94.2" q0="19.0" bus="B3" connectableBus="B3"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S4">
+    <iidm:substation id="S4-7">
         <iidm:voltageLevel id="VL4" nominalV="230.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B4" name="Bus 4" v="243.98007619999998" angle="-13.09089157"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B4-L1" loadType="UNDEFINED" p0="47.8" q0="-3.9" bus="B4" connectableBus="B4"/>
-            <iidm:lccConverterStation id="LccConverter-4-8-4" name="EATL P1     " lossFactor="0.0" powerFactor="0.7273804" bus="B4" connectableBus="B4"/>
+            <iidm:lccConverterStation id="LccConverter-4-EATL P1         " name="EATL P1     " lossFactor="0.0" powerFactor="0.7273804" bus="B4" connectableBus="B4"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL7" nominalV="110.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -52,10 +50,9 @@
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.008264462809917356" g="0.0"/>
                 </iidm:shuntNonLinearModel>
-                <iidm:regulatingTerminal id="B7-L1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-4-7-1" r="0.0" x="25.30352" g="0.0" b="0.0" ratedU1="230.0" ratedU2="110.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B7" connectableBus2="B7" voltageLevelId2="VL7" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-4-7-1" r="0.0" x="25.30352" g="0.0" b="0.0" ratedU1="230.0" ratedU2="110.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL7" bus2="B7" connectableBus2="B7" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="-4.3515999999999995" b="-4.3515999999999995" rho="1.0224948875255624"/>
             </iidm:ratioTapChanger>
@@ -67,7 +64,7 @@
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S5">
+    <iidm:substation id="S5-6">
         <iidm:voltageLevel id="VL5" nominalV="230.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B5" name="Bus 5" v="241.81305070000002" angle="-10.35696444"/>
@@ -79,12 +76,11 @@
                 <iidm:bus id="B6" name="Bus 6" v="120.6430478" angle="-11.66424213"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B6-G1" energySource="OTHER" minP="0.0" maxP="-0.0" voltageRegulatorOn="true" targetP="0.0" targetV="111.1" targetQ="-6.0" bus="B6" connectableBus="B6">
-                <iidm:regulatingTerminal id="B6-L1"/>
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
             </iidm:generator>
             <iidm:load id="B6-L1" loadType="UNDEFINED" p0="11.2" q0="7.5" bus="B6" connectableBus="B6"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-5-6-1" r="0.0" x="30.49442" g="0.0" b="0.0" ratedU1="230.0" ratedU2="110.0" bus1="B5" connectableBus1="B5" voltageLevelId1="VL5" bus2="B6" connectableBus2="B6" voltageLevelId2="VL6" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-5-6-1" r="0.0" x="30.49442" g="0.0" b="0.0" ratedU1="230.0" ratedU2="110.0" voltageLevelId1="VL5" bus1="B5" connectableBus1="B5" voltageLevelId2="VL6" bus2="B6" connectableBus2="B6" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="-13.137599999999994" b="-13.137599999999994" rho="1.0729613733905579"/>
             </iidm:ratioTapChanger>
@@ -101,7 +97,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B8" name="Bus 8" v="227.6281066" angle="-5.48014421"/>
             </iidm:busBreakerTopology>
-            <iidm:lccConverterStation id="LccConverter-4-8-8" name="EATL P1     " lossFactor="0.0" powerFactor="0.7183361" bus="B8" connectableBus="B8"/>
+            <iidm:lccConverterStation id="LccConverter-8-EATL P1         " name="EATL P1     " lossFactor="0.0" powerFactor="0.7183361" bus="B8" connectableBus="B8"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S9">
@@ -115,7 +111,7 @@
             </iidm:shunt>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:line id="L-1-2-1" r="10.252020000000002" x="31.300929999999997" g1="0.0" b1="4.9905482041587904E-5" g2="0.0" b2="4.9905482041587904E-5" bus1="B1" connectableBus1="B1" voltageLevelId1="VL1" bus2="B2" connectableBus2="B2" voltageLevelId2="VL2" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+    <iidm:line id="L-1-2-1" r="10.252020000000002" x="31.300929999999997" g1="0.0" b1="4.9905482041587904E-5" g2="0.0" b2="4.9905482041587904E-5" voltageLevelId1="VL1" bus1="B1" connectableBus1="B1" voltageLevelId2="VL2" bus2="B2" connectableBus2="B2" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
             <iidm:currentLimits permanentLimit="711.3756050031097"/>
         </iidm:operationalLimitsGroup1>
@@ -123,7 +119,7 @@
             <iidm:currentLimits permanentLimit="711.3756050031097"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
-    <iidm:line id="L-1-5-1" r="28.58187" x="117.98816" g1="0.0" b1="4.6502835538752366E-5" g2="0.0" b2="4.6502835538752366E-5" bus1="B1" connectableBus1="B1" voltageLevelId1="VL1" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+    <iidm:line id="L-1-5-1" r="28.58187" x="117.98816" g1="0.0" b1="4.6502835538752366E-5" g2="0.0" b2="4.6502835538752366E-5" voltageLevelId1="VL1" bus1="B1" connectableBus1="B1" voltageLevelId2="VL5" bus2="B5" connectableBus2="B5" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
             <iidm:currentLimits permanentLimit="353.6909638343673"/>
         </iidm:operationalLimitsGroup1>
@@ -131,7 +127,7 @@
             <iidm:currentLimits permanentLimit="353.6909638343673"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
-    <iidm:line id="L-2-3-1" r="24.857709999999997" x="104.72613000000001" g1="0.0" b1="4.139886578449905E-5" g2="0.0" b2="4.139886578449905E-5" bus1="B2" connectableBus1="B2" voltageLevelId1="VL2" bus2="B3" connectableBus2="B3" voltageLevelId2="VL3" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+    <iidm:line id="L-2-3-1" r="24.857709999999997" x="104.72613000000001" g1="0.0" b1="4.139886578449905E-5" g2="0.0" b2="4.139886578449905E-5" voltageLevelId1="VL2" bus1="B2" connectableBus1="B2" voltageLevelId2="VL3" bus2="B3" connectableBus2="B3" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
             <iidm:currentLimits permanentLimit="354.21761540251237"/>
         </iidm:operationalLimitsGroup1>
@@ -139,7 +135,7 @@
             <iidm:currentLimits permanentLimit="354.21761540251237"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
-    <iidm:line id="L-2-4-1" r="30.740190000000002" x="93.27328000000001" g1="0.0" b1="3.534971644612477E-5" g2="0.0" b2="3.534971644612477E-5" bus1="B2" connectableBus1="B2" voltageLevelId1="VL2" bus2="B4" connectableBus2="B4" voltageLevelId2="VL4" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+    <iidm:line id="L-2-4-1" r="30.740190000000002" x="93.27328000000001" g1="0.0" b1="3.534971644612477E-5" g2="0.0" b2="3.534971644612477E-5" voltageLevelId1="VL2" bus1="B2" connectableBus1="B2" voltageLevelId2="VL4" bus2="B4" connectableBus2="B4" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
             <iidm:currentLimits permanentLimit="346.83091676069586"/>
         </iidm:operationalLimitsGroup1>
@@ -147,7 +143,7 @@
             <iidm:currentLimits permanentLimit="346.83091676069586"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
-    <iidm:line id="L-2-5-1" r="30.126549999999998" x="91.98252000000001" g1="0.0" b1="3.2136105860113426E-5" g2="0.0" b2="3.2136105860113426E-5" bus1="B2" connectableBus1="B2" voltageLevelId1="VL2" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+    <iidm:line id="L-2-5-1" r="30.126549999999998" x="91.98252000000001" g1="0.0" b1="3.2136105860113426E-5" g2="0.0" b2="3.2136105860113426E-5" voltageLevelId1="VL2" bus1="B2" connectableBus1="B2" voltageLevelId2="VL5" bus2="B5" connectableBus2="B5" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
             <iidm:currentLimits permanentLimit="333.00245410086785"/>
         </iidm:operationalLimitsGroup1>
@@ -155,7 +151,7 @@
             <iidm:currentLimits permanentLimit="333.00245410086785"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
-    <iidm:line id="L-3-4-1" r="35.44829" x="90.47487" g1="0.0" b1="3.270321361058601E-5" g2="0.0" b2="3.270321361058601E-5" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B4" connectableBus2="B4" voltageLevelId2="VL4" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+    <iidm:line id="L-3-4-1" r="35.44829" x="90.47487" g1="0.0" b1="3.270321361058601E-5" g2="0.0" b2="3.270321361058601E-5" voltageLevelId1="VL3" bus1="B3" connectableBus1="B3" voltageLevelId2="VL4" bus2="B4" connectableBus2="B4" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
             <iidm:currentLimits permanentLimit="338.7152051709338"/>
         </iidm:operationalLimitsGroup1>
@@ -163,7 +159,7 @@
             <iidm:currentLimits permanentLimit="338.7152051709338"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
-    <iidm:line id="L-4-5-1" r="7.06215" x="22.27619" g1="0.0" b1="1.2098298676748583E-5" g2="0.0" b2="1.2098298676748583E-5" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+    <iidm:line id="L-4-5-1" r="7.06215" x="22.27619" g1="0.0" b1="1.2098298676748583E-5" g2="0.0" b2="1.2098298676748583E-5" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL5" bus2="B5" connectableBus2="B5" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
             <iidm:currentLimits permanentLimit="415.18834670544203"/>
         </iidm:operationalLimitsGroup1>
@@ -171,7 +167,7 @@
             <iidm:currentLimits permanentLimit="415.18834670544203"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
-    <iidm:line id="L-8-9-1" r="0.0" x="931.8335" g1="0.0" b1="-0.009658377811057448" g2="0.0" b2="9.658377811057449E-4" bus1="B8" connectableBus1="B8" voltageLevelId1="VL8" bus2="B9" connectableBus2="B9" voltageLevelId2="VL9" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+    <iidm:line id="L-8-9-1" r="0.0" x="931.8335" g1="0.0" b1="-0.009658377811057448" g2="0.0" b2="9.658377811057449E-4" voltageLevelId1="VL8" bus1="B8" connectableBus1="B8" voltageLevelId2="VL9" bus2="B9" connectableBus2="B9" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
             <iidm:currentLimits permanentLimit="25099.675398378557"/>
         </iidm:operationalLimitsGroup1>
@@ -179,7 +175,7 @@
             <iidm:currentLimits permanentLimit="2509.967539837856"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
-    <iidm:hvdcLine id="TwoTerminalDc-4-8" name="EATL P1     " r="7.365" nominalV="240.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="120.0" converterStation1="LccConverter-4-8-4" converterStation2="LccConverter-4-8-8"/>
+    <iidm:hvdcLine id="TwoTerminalDc-EATL P1         " name="EATL P1     " r="7.365" nominalV="240.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="120.0" converterStation1="LccConverter-4-EATL P1         " converterStation2="LccConverter-8-EATL P1         "/>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="B1-G1"/>
     </iidm:extension>

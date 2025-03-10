@@ -7,10 +7,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLimits;
 
 /**
  *
@@ -20,6 +20,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
     private final NetworkImpl network;
     private final String subnetwork;
+    private final Line copiedLine;
 
     private double r = Double.NaN;
 
@@ -36,6 +37,14 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
     LineAdderImpl(NetworkImpl network, String subnetwork) {
         this.network = network;
         this.subnetwork = subnetwork;
+        this.copiedLine = null;
+    }
+
+    LineAdderImpl(NetworkImpl network, String subnetwork, Line copiedLine) {
+        this.network = network;
+        this.subnetwork = subnetwork;
+        this.copiedLine = copiedLine;
+        LineAdder.fillLineAdder(this, copiedLine);
     }
 
     @Override
@@ -109,6 +118,8 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         LineImpl line = new LineImpl(networkRef, id, getName(), isFictitious(), r, x, g1, b1, g2, b2);
         line.addTerminal(terminal1);
         line.addTerminal(terminal2);
+
+        copyOperationalLimits(copiedLine, line);
 
         // check that the line is attachable on both side
         voltageLevel1.getTopologyModel().attach(terminal1, true);
