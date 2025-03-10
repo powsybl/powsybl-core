@@ -10,7 +10,6 @@ package com.powsybl.iidm.serde;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.extensions.PostponableCreationExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.OverloadManagementSystem;
@@ -21,8 +20,7 @@ import java.util.function.Function;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
-public class OverloadManagementSystemMockSerDe extends AbstractExtensionSerDe<OverloadManagementSystem, OverloadManagementSystemMockExt>
-    implements PostponableCreationExtensionSerDe<OverloadManagementSystem, OverloadManagementSystemMockExt> {
+public class OverloadManagementSystemMockSerDe extends AbstractExtensionSerDe<OverloadManagementSystem, OverloadManagementSystemMockExt> {
 
     public OverloadManagementSystemMockSerDe() {
         super("omsMock", "network", OverloadManagementSystemMockExt.class,
@@ -33,6 +31,16 @@ public class OverloadManagementSystemMockSerDe extends AbstractExtensionSerDe<Ov
     @Override
     public void write(OverloadManagementSystemMockExt omsFoo, SerializerContext context) {
         context.getWriter().writeStringAttribute("foo", omsFoo.getFoo());
+    }
+
+    @Override
+    public OverloadManagementSystemMockExt read(OverloadManagementSystem extendable, DeserializerContext context) {
+        throw new IllegalStateException("Should not be called.");
+    }
+
+    @Override
+    public boolean postponeDeserialization() {
+        return true;
     }
 
     @Override

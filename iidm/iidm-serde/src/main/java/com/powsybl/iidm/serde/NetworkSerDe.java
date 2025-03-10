@@ -824,8 +824,8 @@ public final class NetworkSerDe {
             if (context.getOptions().withExtension(extensionName) && !context.isIgnoredEquipment(id)) {
                 ExtensionSerDe<?, ?> extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
                 if (extensionXmlSerializer != null) {
-                    if (extensionXmlSerializer instanceof PostponableCreationExtensionSerDe<?, ?> extSerDe) {
-                        Function<Extendable<?>, ?> extensionCreator = (Function<Extendable<?>, ?>) extSerDe.readAndGetPostponableCreator(context);
+                    if (extensionXmlSerializer.postponeDeserialization()) {
+                        Function<Extendable<?>, ?> extensionCreator = (Function<Extendable<?>, ?>) extensionXmlSerializer.readAndGetPostponableCreator(context);
                         context.getEndTasks().add(() -> createExtension(network, id, extensionCreator, extensionNamesImported, extensionName));
                     } else {
                         Identifiable<?> identifiable = getIdentifiable(network, id);
