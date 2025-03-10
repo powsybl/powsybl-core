@@ -60,7 +60,7 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         // Checks
-        if (failChecks(network, throwException, reportNode, LOG)) {
+        if (failChecks(network, throwException, reportNode)) {
             return;
         }
 
