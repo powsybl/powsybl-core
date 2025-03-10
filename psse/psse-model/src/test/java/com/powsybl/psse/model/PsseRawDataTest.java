@@ -827,7 +827,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
         assertNotNull(rawData);
 
         PsseValidation psseValidation = new PsseValidation(rawData, context.getVersion());
-        List<String> warnings = psseValidation.getWarnings();
+        List<String> warnings = psseValidation.getValidationErrors();
         StringBuilder sb = new StringBuilder();
         warnings.forEach(warning -> {
             String s = String.format("%s%n", warning);

@@ -59,7 +59,9 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private void createTwoWindingsTransformer() {
-
+        if (!getContainersMapping().isBusDefined(psseTransformer.getI()) || !getContainersMapping().isBusDefined(psseTransformer.getJ())) {
+            return;
+        }
         String id = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getCkt());
 
         String voltageLevel1Id = getContainersMapping().getVoltageLevelId(psseTransformer.getI());
@@ -138,6 +140,9 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private void createThreeWindingsTransformer() {
+        if (!getContainersMapping().isBusDefined(psseTransformer.getI()) || !getContainersMapping().isBusDefined(psseTransformer.getJ()) || !getContainersMapping().isBusDefined(psseTransformer.getK())) {
+            return;
+        }
         String id = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
 
         String bus1Id = getBusId(psseTransformer.getI());

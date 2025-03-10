@@ -14,11 +14,16 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.function.Function;
 
+import static com.powsybl.psse.model.pf.PsseValidation.switchedShuntId;
+import static com.powsybl.psse.model.pf.PsseValidation.switchedShuntRegulatingBus;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class PsseFixes {
+
+    private static final String WINDING_1 = "Winding1";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PsseFixes.class);
     private final PssePowerFlowModel model;
@@ -31,6 +36,8 @@ public class PsseFixes {
 
     public void fix() {
         fixDuplicatedIds();
+        // fix the controlled buses before fixing the winding cod
+        fixControlledBuses();
         fixTransformersWindingCod();
     }
 
@@ -52,13 +59,21 @@ public class PsseFixes {
     private void fixTransformersWindingCod() {
         model.getTransformers().forEach(psseTransformer -> {
             if (psseTransformer.getK() == 0) { // TwoWindingsTransformers
-                fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding1(), "Winding1");
+                fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding1(), WINDING_1);
             } else {
-                fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding1(), "Winding1");
+                fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding1(), WINDING_1);
                 fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding2(), "Winding2");
                 fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding3(), "Winding3");
             }
         });
+    }
+
+    private void fixControlledBuses() {
+        Set<Integer> buses = new HashSet<>();
+        model.getBuses().forEach(psseBus -> buses.add(psseBus.getI()));
+        fixGeneratorsControlledBus(buses);
+        fixTransformersControlledBus(buses);
+        fixSwitchedShuntControlledBus(buses);
     }
 
     private String sortedBuses(int... buses) {
@@ -198,6 +213,44 @@ public class PsseFixes {
         return fixedName;
     }
 
+    private void fixGeneratorsControlledBus(Set<Integer> buses) {
+        model.getGenerators().forEach(psseGenerator -> {
+            if (psseGenerator.getIreg() != 0 && !buses.contains(psseGenerator.getIreg())) {
+                warn("Generator", String.format("%d, %s, ...", psseGenerator.getI(), psseGenerator.getId()), psseGenerator.getIreg());
+                psseGenerator.setIreg(0);
+            }
+        });
+    }
+
+    private void fixTransformersControlledBus(Set<Integer> buses) {
+        model.getTransformers().forEach(psseTransformer -> {
+            if (psseTransformer.getK() == 0) { // TwoWindingsTransformers
+                fixTransformerWindingControlledBus(buses, psseTransformer, psseTransformer.getWinding1(), WINDING_1);
+            } else {
+                fixTransformerWindingControlledBus(buses, psseTransformer, psseTransformer.getWinding1(), WINDING_1);
+                fixTransformerWindingControlledBus(buses, psseTransformer, psseTransformer.getWinding2(), "Winding2");
+                fixTransformerWindingControlledBus(buses, psseTransformer, psseTransformer.getWinding3(), "Winding3");
+            }
+        });
+    }
+
+    private void fixTransformerWindingControlledBus(Set<Integer> buses, PsseTransformer psseTransformer, PsseTransformerWinding winding, String windingTag) {
+        if (winding.getCont() != 0 && !buses.contains(winding.getCont())) {
+            warn("Transformer", String.format("%d, %d, %d, %s, ... %s ", psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt(), windingTag), winding.getCont());
+            winding.setCont(0);
+        }
+    }
+
+    private void fixSwitchedShuntControlledBus(Set<Integer> buses) {
+        model.getSwitchedShunts().forEach(psseSwitchedShunt -> {
+            if (switchedShuntRegulatingBus(psseSwitchedShunt, version) != 0 && !buses.contains(switchedShuntRegulatingBus(psseSwitchedShunt, version))) {
+                warn("SwitchedShunt", String.format("%s, ...", switchedShuntId(psseSwitchedShunt, version)), switchedShuntRegulatingBus(psseSwitchedShunt, version));
+                psseSwitchedShunt.setSwreg(0);
+                psseSwitchedShunt.setSwrem(0);
+            }
+        });
+    }
+
     private void warn(String type, int i, String id, String fixedId) {
         if (LOGGER.isWarnEnabled()) {
             if (id.equals(fixedId)) {
@@ -241,6 +294,12 @@ public class PsseFixes {
     private void warn(PsseTransformer transformer, String windingTag, int cod, int fixedCod) {
         if (LOGGER.isWarnEnabled()) {
             LOGGER.warn("Transformer {} Cod fixed: I {} J {} K {} CKT {}. Cod '{}' Fixed Cod '{}'. Controlled bus is not defined (cont == 0).", windingTag, transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt(), cod, fixedCod);
+        }
+    }
+
+    private void warn(String type, String recordId, int controlledBus) {
+        if (LOGGER.isWarnEnabled()) {
+            LOGGER.warn("{} {} controlled bus {} not found; fixed to 0", type, recordId, controlledBus);
         }
     }
 

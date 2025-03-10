@@ -32,6 +32,9 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
     }
 
     void create() {
+        if (!getContainersMapping().isBusDefined(psseFixedShunt.getI())) {
+            return;
+        }
         if (psseFixedShunt.getGl() == 0 && psseFixedShunt.getBl() == 0.0) {
             LOGGER.warn("Shunt ({}) has Gl and Bl = 0, not imported ", psseFixedShunt.getI());
             return;
