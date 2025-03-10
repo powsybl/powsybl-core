@@ -19,6 +19,7 @@ import java.util.List;
 
 import static com.powsybl.psse.model.pf.PsseSubstation.*;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I_NODE;
 
 /**
  *
@@ -34,9 +35,9 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
     static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_TWO_BUSES = {"i", "ni", "type", "j", "id"};
     static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_THREE_BUSES = {"i", "ni", "type", "j", "k", "id"};
     static final String[] FIELD_NAMES_SUBSTATION_RAWX = {"isub", "name", "lati", "long", "srg"};
-    static final String[] FIELD_NAMES_SUBSTATION_NODE_RAWX = {"isub", "inode", "name", "ibus", "stat", "vm", "va"};
-    static final String[] FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES_RAWX = {"isub", "inode", "jnode", "swdid", "name", "type", "stat", "nstat", "xpu", "rsetnam"};
-    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_RAWX = {"isub", "inode", "type", "eqid", "ibus", "jbus", "kbus"};
+    static final String[] FIELD_NAMES_SUBSTATION_NODE_RAWX = {"isub", STR_I_NODE, "name", "ibus", "stat", "vm", "va"};
+    static final String[] FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES_RAWX = {"isub", STR_I_NODE, "jnode", "swdid", "name", "type", "stat", "nstat", "xpu", "rsetnam"};
+    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_RAWX = {"isub", STR_I_NODE, "type", "eqid", "ibus", "jbus", "kbus"};
 
     SubstationData() {
         super(SUBSTATION);

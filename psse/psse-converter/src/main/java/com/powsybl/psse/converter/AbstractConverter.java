@@ -33,6 +33,7 @@ public abstract class AbstractConverter {
     private static final String FACTS_DEVICE_TAG = "FactsDevice-";
     private static final int MAX_BUS_LENGTH = 12;
     private static final int MAX_BRANCH_LENGTH = 40;
+    private static final int MAX_PSSE_NODE_BY_SUBSTATION = 998;
 
     enum PsseEquipmentType {
         PSSE_LOAD("L"),
@@ -432,7 +433,7 @@ public abstract class AbstractConverter {
     }
 
     static int getMaxPsseNodeBySubstation() {
-        return 998;
+        return MAX_PSSE_NODE_BY_SUBSTATION;
     }
 
     private static int maxNode(VoltageLevel voltageLevel) {
