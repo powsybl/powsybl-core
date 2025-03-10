@@ -299,6 +299,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setVoltageSetpoint(vl1S2.getNominalV())
                 .setVoltageRegulatorOn(true)
                 .add();
+        vsc1.newMinMaxReactiveLimits().setMinQ(-250.0).setMaxQ(300.0).add();
         VscConverterStation vsc2 = vl1S4.newVscConverterStation()
                 .setId("Vsc-Vl1-Sub4")
                 .setName("Vsc-Vl1-Sub4")
@@ -308,6 +309,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setVoltageSetpoint(vl1S4.getNominalV())
                 .setVoltageRegulatorOn(false)
                 .add();
+        vsc2.newMinMaxReactiveLimits().setMinQ(-260.0).setMaxQ(310.0).add();
         network.newHvdcLine()
                 .setId("Vsc-Vl1-Sub2-Vl1-Sub4")
                 .setName("Vsc-Vl1-Sub2-Vl1-Sub4")
