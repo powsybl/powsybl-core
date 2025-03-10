@@ -85,6 +85,7 @@ class NoOpTest extends AbstractSerDeTest {
         ReportNode root = ReportNode.NO_OP;
         ReportNode childNode = root.newReportNode()
                 .withMessageTemplate("key", "message with value = ${double}")
+                .withTimestamp()
                 .add();
         childNode.addTypedValue("double", 2.0, TypedValue.ACTIVE_POWER)
                 .addTypedValue("float", 2.0f, TypedValue.ACTIVE_POWER)
