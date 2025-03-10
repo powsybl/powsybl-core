@@ -34,6 +34,10 @@ public class ContainersMapping {
         return voltageLevelIdToBusNums.computeIfAbsent(voltageLevelId, k -> new HashSet<>());
     }
 
+    public boolean isBusDefined(int num) {
+        return busNumToVoltageLevelId.containsKey(num);
+    }
+
     public String getVoltageLevelId(int num) {
         String voltageLevelId = busNumToVoltageLevelId.get(num);
         if (voltageLevelId == null) {

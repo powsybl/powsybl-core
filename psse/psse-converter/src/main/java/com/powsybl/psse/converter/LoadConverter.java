@@ -29,7 +29,9 @@ class LoadConverter extends AbstractConverter {
     }
 
     void create() {
-
+        if (!getContainersMapping().isBusDefined(psseLoad.getI())) {
+            return;
+        }
         VoltageLevel voltageLevel = getNetwork()
             .getVoltageLevel(getContainersMapping().getVoltageLevelId(psseLoad.getI()));
 

@@ -40,6 +40,9 @@ class GeneratorConverter extends AbstractConverter {
     }
 
     void create() {
+        if (!getContainersMapping().isBusDefined(psseGenerator.getI())) {
+            return;
+        }
         VoltageLevel voltageLevel = getNetwork().getVoltageLevel(getContainersMapping().getVoltageLevelId(psseGenerator.getI()));
         GeneratorAdder adder = voltageLevel.newGenerator()
                 .setId(getGeneratorId(psseGenerator.getI(), psseGenerator.getId()))

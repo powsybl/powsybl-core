@@ -248,24 +248,9 @@ public class PsseImporter implements Importer {
         List<Edge> edges = new ArrayList<>();
         // only zeroImpedance Lines are necessary and as they are not allowed, nothing to do
 
-        psseModel.getTransformers().forEach(t -> {
-            if (t.getK() == 0) { // twoWindingsTransformers with zero impedance are not allowed
-                edges.add(new Edge(t.getI(), t.getJ(), true, false));
-            } else { // threeWindingsTransformers with zero impedance are not allowed
-                edges.add(new Edge(t.getI(), t.getJ(), true, false));
-                edges.add(new Edge(t.getI(), t.getK(), true, false));
-            }
-        });
+        defineEdgesForTransformers(psseModel, busNumToPsseBus, edges);
         // buses inside a psse substation are connected in the same way as transformers
-        nodeBreakerValidation.getValidSubstations().forEach(psseSubstation -> {
-            List<Integer> busesInside = nodeBreakerValidation.getBuses(psseSubstation);
-            if (busesInside.size() >= 2) {
-                int bus = busesInside.get(0);
-                for (int index = 1; index < busesInside.size(); index++) {
-                    edges.add(new Edge(bus, busesInside.get(index), true, false));
-                }
-            }
-        });
+        defineEdgesForBusesInsideSubstation(nodeBreakerValidation, edges);
 
         return ContainersMapping.create(psseModel.getBuses(), edges,
                 PsseBus::getI,
@@ -276,6 +261,33 @@ public class PsseImporter implements Importer {
                 busNumber -> getNominalVFromBusNumber(busNumToPsseBus, busNumber, perUnitContext),
                 AbstractConverter::getVoltageLevelId,
                 substationNums -> getSubstationId(nodeBreakerValidation, substationNums));
+    }
+
+    private void defineEdgesForTransformers(PssePowerFlowModel psseModel, Map<Integer, PsseBus> busNumToPsseBus, List<Edge> edges) {
+        psseModel.getTransformers().forEach(t -> {
+            if (t.getK() == 0) { // twoWindingsTransformers with zero impedance are not allowed
+                if (busNumToPsseBus.containsKey(t.getI()) && busNumToPsseBus.containsKey(t.getJ())) {
+                    edges.add(new Edge(t.getI(), t.getJ(), true, false));
+                }
+            } else { // threeWindingsTransformers with zero impedance are not allowed
+                if (busNumToPsseBus.containsKey(t.getI()) && busNumToPsseBus.containsKey(t.getJ()) && busNumToPsseBus.containsKey(t.getK())) {
+                    edges.add(new Edge(t.getI(), t.getJ(), true, false));
+                    edges.add(new Edge(t.getI(), t.getK(), true, false));
+                }
+            }
+        });
+    }
+
+    private void defineEdgesForBusesInsideSubstation(NodeBreakerValidation nodeBreakerValidation, List<Edge> edges) {
+        nodeBreakerValidation.getValidSubstations().forEach(psseSubstation -> {
+            List<Integer> busesInside = nodeBreakerValidation.getBuses(psseSubstation);
+            if (busesInside.size() >= 2) {
+                int bus = busesInside.get(0);
+                for (int index = 1; index < busesInside.size(); index++) {
+                    edges.add(new Edge(bus, busesInside.get(index), true, false));
+                }
+            }
+        });
     }
 
     private static String getSubstationId(NodeBreakerValidation nodeBreakerValidation, Set<Integer> substationBusNumbers) {

@@ -52,7 +52,7 @@ class BusbarSectionSerDe extends AbstractSimpleIdentifiableSerDe<BusbarSection, 
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_0, context, () -> {
             double v = context.getReader().readDoubleAttribute("v");
             double angle = context.getReader().readDoubleAttribute("angle");
-            context.getEndTasks().add(() -> {
+            context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
                 Bus b = bbs.getTerminal().getBusView().getBus();
                 if (b != null) {
                     b.setV(v).setAngle(angle);
