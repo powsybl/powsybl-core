@@ -16,12 +16,12 @@ import java.util.Locale;
  */
 public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeBuilder> implements ReportNodeBuilder {
 
-    private String timestampPattern;
+    private String defaultTimestampPattern;
     private Locale locale;
 
     @Override
-    public ReportNodeBuilder withTimestampPattern(String timestampPattern) {
-        this.timestampPattern = timestampPattern;
+    public ReportNodeBuilder withDefaultTimestampPattern(String timestampPattern) {
+        this.defaultTimestampPattern = timestampPattern;
         return this;
     }
 
@@ -33,8 +33,8 @@ public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<
 
     @Override
     public ReportNode build() {
-        TreeContextImpl treeContext = new TreeContextImpl(timestampPattern, locale);
-        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, withTimestamp, treeContext);
+        TreeContextImpl treeContext = new TreeContextImpl(locale, defaultTimestampPattern);
+        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, withTimestamp, timestampPattern, treeContext);
     }
 
     @Override

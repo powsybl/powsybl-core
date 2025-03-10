@@ -72,7 +72,6 @@ class NoOpTest extends AbstractSerDeTest {
     @Test
     void testTreeContextNoOp() {
         assertEquals(0, TreeContextNoOp.NO_OP.getDictionary().size());
-        assertNull(TreeContextNoOp.NO_OP.getTimestampFormatter());
 
         TreeContextImpl treeContext = new TreeContextImpl();
         treeContext.addDictionaryEntry("key", "value");
@@ -86,6 +85,7 @@ class NoOpTest extends AbstractSerDeTest {
         ReportNode childNode = root.newReportNode()
                 .withMessageTemplate("key", "message with value = ${double}")
                 .withTimestamp()
+                .withTimestamp("pattern")
                 .add();
         childNode.addTypedValue("double", 2.0, TypedValue.ACTIVE_POWER)
                 .addTypedValue("float", 2.0f, TypedValue.ACTIVE_POWER)

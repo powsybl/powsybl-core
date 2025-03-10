@@ -136,8 +136,15 @@ public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>>
     T withSeverity(String severity);
 
     /**
-     * Indicate that a timestamp should be added to the {@link ReportNode}.
+     * Indicate that a timestamp should be added to the {@link ReportNode} with default pattern (see {@link ReportConstants#DEFAULT_TIMESTAMP_PATTERN}).
      * @return a reference to this object
      */
     T withTimestamp();
+
+    /**
+     * Indicate that a timestamp should be added to the {@link ReportNode}.
+     * @param timestampPattern the pattern to use
+     * @return a reference to this object
+     */
+    T withTimestamp(String timestampPattern);
 }

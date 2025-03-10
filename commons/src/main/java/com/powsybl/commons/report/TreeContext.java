@@ -8,6 +8,7 @@
 package com.powsybl.commons.report;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -29,7 +30,12 @@ public interface TreeContext {
     /**
      * Get the {@link DateTimeFormatter} to use for timestamps, if enabled.
      */
-    DateTimeFormatter getTimestampFormatter();
+    DateTimeFormatter getDefaultTimestampFormatter();
+
+    /**
+     * Get the {@link Locale} to use in the tree.
+     */
+    Locale getLocale();
 
     /**
      * Merge given {@link TreeContext} with current one.

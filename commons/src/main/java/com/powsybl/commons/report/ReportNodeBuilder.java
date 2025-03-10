@@ -7,7 +7,6 @@
  */
 package com.powsybl.commons.report;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 /**
@@ -26,7 +25,7 @@ public interface ReportNodeBuilder extends ReportNodeAdderOrBuilder<ReportNodeBu
      * @param timestampPattern : the pattern to use for the timestamp (see {@link DateTimeFormatter#ofPattern(String, Locale)}})
      * @return a reference to this object
      */
-    ReportNodeBuilder withTimestampPattern(String timestampPattern);
+    ReportNodeBuilder withDefaultTimestampPattern(String timestampPattern);
 
     /**
      * Choose which {@link Locale} to use for formatting all the `ReportNode` messages of the tree.

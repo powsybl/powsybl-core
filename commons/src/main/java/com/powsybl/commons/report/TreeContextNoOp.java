@@ -8,6 +8,7 @@
 package com.powsybl.commons.report;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -21,7 +22,12 @@ public class TreeContextNoOp implements TreeContext {
     }
 
     @Override
-    public DateTimeFormatter getTimestampFormatter() {
+    public DateTimeFormatter getDefaultTimestampFormatter() {
+        return null;
+    }
+
+    @Override
+    public Locale getLocale() {
         return null;
     }
 

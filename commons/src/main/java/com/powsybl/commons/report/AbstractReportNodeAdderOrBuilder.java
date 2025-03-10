@@ -19,6 +19,7 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     protected String key;
     protected String messageTemplate;
     protected boolean withTimestamp = false;
+    protected String timestampPattern;
 
     @Override
     public T withMessageTemplate(String key, String messageTemplate) {
@@ -115,6 +116,13 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     @Override
     public T withTimestamp() {
         this.withTimestamp = true;
+        return self();
+    }
+
+    @Override
+    public T withTimestamp(String pattern) {
+        this.withTimestamp = true;
+        this.timestampPattern = pattern;
         return self();
     }
 

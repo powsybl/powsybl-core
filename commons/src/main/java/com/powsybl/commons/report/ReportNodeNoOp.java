@@ -234,5 +234,10 @@ public class ReportNodeNoOp implements ReportNode {
         public ReportNodeAdder withTimestamp() {
             return this;
         }
+
+        @Override
+        public ReportNodeAdder withTimestamp(String timestampPattern) {
+            return this;
+        }
     }
 }

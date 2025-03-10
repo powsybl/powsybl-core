@@ -283,8 +283,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         String customPattern = "dd MMMM yyyy HH:mm:ss XXX";
         DateTimeFormatter customPatternFormatter = DateTimeFormatter.ofPattern(customPattern, ReportConstants.DEFAULT_LOCALE);
         ReportNode root2 = ReportNode.newRootReportNode()
-                .withTimestamp()
-                .withTimestampPattern(customPattern)
+                .withTimestamp(customPattern)
                 .withMessageTemplate("rootTemplate", "Root message")
                 .build();
         assertHasTimeStamp(root2, customPatternFormatter);
@@ -292,8 +291,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         Locale customLocale = Locale.ITALIAN;
         DateTimeFormatter customPatternAndLocaleFormatter = DateTimeFormatter.ofPattern(customPattern, customLocale);
         ReportNode root3 = ReportNode.newRootReportNode()
-                .withTimestamp()
-                .withTimestampPattern(customPattern)
+                .withTimestamp(customPattern)
                 .withLocale(customLocale)
                 .withMessageTemplate("rootTemplate", "Root message")
                 .build();
