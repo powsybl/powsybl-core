@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.util;
 
 import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeAdder;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType;
 import com.powsybl.iidm.network.*;
@@ -717,71 +718,42 @@ public final class ModificationReports {
     }
 
     public static void identifiableDisconnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
+        ReportNodeAdder adder = reportNode.newReportNode()
+                .withUntypedValue("identifiable", identifiable.getId())
+                .withSeverity(TypedValue.INFO_SEVERITY);
+        if (side != null) {
+            adder.withUntypedValue("side", side.getNum());
+        }
         if (isPlanned) {
             if (disconnectionSuccessful) {
                 if (null == side) {
-                    reportNode.newReportNode()
-                            .withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .add();
+                    adder.withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME);
                 } else {
-                    reportNode.newReportNode()
-                            .withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
-                            .withUntypedValue("side", side.getNum())
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .add();
+                    adder.withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME);
                 }
             } else {
                 if (null == side) {
-                    reportNode.newReportNode()
-                            .withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableNotDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .add();
+                    adder.withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableNotDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME);
                 } else {
-                    reportNode.newReportNode()
-                            .withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableNotDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
-                            .withUntypedValue("side", side.getNum())
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .add();
+                    adder.withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableNotDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME);
                 }
             }
         } else {
             if (disconnectionSuccessful) {
                 if (null == side) {
-                    reportNode.newReportNode()
-                            .withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .add();
+                    adder.withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME);
                 } else {
-                    reportNode.newReportNode()
-                            .withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
-                            .withUntypedValue("side", side.getNum())
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .add();
+                    adder.withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME);
                 }
             } else {
                 if (null == side) {
-                    reportNode.newReportNode()
-                            .withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableNotDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .add();
+                    adder.withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableNotDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME);
                 } else {
-                    reportNode.newReportNode()
-                            .withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableNotDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
-                            .withUntypedValue("side", side.getNum())
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .add();
+                    adder.withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableNotDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME);
                 }
             }
         }
+        adder.add();
     }
 
     public static ReportNode replaceThreeWindingsTransformersBy3TwoWindingsTransformersReport(ReportNode reportNode) {
