@@ -632,11 +632,12 @@ public final class NetworkSerDe {
     }
 
     private static void readNetworkElement(String elementName, Deque<Network> networks, NetworkFactory networkFactory, NetworkDeserializerContext context,
-                                           Set<String> extensionNamesImported, Set<String> extensionNamesNotFound) {
+                                           Set<String> extensionNamesImported, Set<String> extensionNamesNotFound, ReportNode reportNode) {
         switch (elementName) {
             case AliasesSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadAlias(networks.peek(), context);
             case PropertiesSerDe.ROOT_ELEMENT_NAME -> PropertiesSerDe.read(networks.peek(), context);
-            case NETWORK_ROOT_ELEMENT_NAME -> checkSupportedAndReadSubnetwork(networks, networkFactory, context, extensionNamesImported, extensionNamesNotFound);
+            case NETWORK_ROOT_ELEMENT_NAME -> checkSupportedAndReadSubnetwork(networks, networkFactory, context,
+                    extensionNamesImported, extensionNamesNotFound, reportNode);
             case AreaSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadArea(context, networks);
             case VoltageLevelSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadVoltageLevel(context, networks);
             case SubstationSerDe.ROOT_ELEMENT_NAME -> SubstationSerDe.INSTANCE.read(networks.peek(), context);
@@ -644,7 +645,8 @@ public final class NetworkSerDe {
             case TieLineSerDe.ROOT_ELEMENT_NAME -> TieLineSerDe.INSTANCE.read(networks.peek(), context);
             case HvdcLineSerDe.ROOT_ELEMENT_NAME -> HvdcLineSerDe.INSTANCE.read(networks.peek(), context);
             case VoltageAngleLimitSerDe.ROOT_ELEMENT_NAME -> VoltageAngleLimitSerDe.read(networks.peek(), context);
-            case EXTENSION_ROOT_ELEMENT_NAME -> readExtensionTag(networks.getFirst(), context, extensionNamesImported, extensionNamesNotFound);
+            case EXTENSION_ROOT_ELEMENT_NAME -> readExtensionTag(networks.getFirst(), context,
+                    extensionNamesImported, extensionNamesNotFound, reportNode);
             default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'network'");
         }
     }
@@ -655,7 +657,8 @@ public final class NetworkSerDe {
     }
 
     private static void checkSupportedAndReadSubnetwork(Deque<Network> networks, NetworkFactory networkFactory, NetworkDeserializerContext context,
-                                                        Set<String> extensionNamesImported, Set<String> extensionNamesNotFound) {
+                                                        Set<String> extensionNamesImported, Set<String> extensionNamesNotFound,
+                                                        ReportNode reportNode) {
         IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, NETWORK_ROOT_ELEMENT_NAME,
                 IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_11, context);
         if (networks.size() > 1) {
@@ -666,7 +669,8 @@ public final class NetworkSerDe {
         networks.push(subnetwork);
         // Read subnetwork content
         context.getReader().readChildNodes(
-                elementName -> readNetworkElement(elementName, networks, networkFactory, context, extensionNamesImported, extensionNamesNotFound));
+                elementName -> readNetworkElement(elementName, networks, networkFactory, context,
+                        extensionNamesImported, extensionNamesNotFound, reportNode));
         // Pop the subnetwork. We will now work with its parent.
         networks.pop();
     }
@@ -683,7 +687,10 @@ public final class NetworkSerDe {
         VoltageLevelSerDe.INSTANCE.read(networks.peek(), context);
     }
 
-    private static void readExtensionTag(Network network, NetworkDeserializerContext context, Set<String> extensionNamesImported, Set<String> extensionNamesNotFound) {
+    private static void readExtensionTag(Network network, NetworkDeserializerContext context, Set<String> extensionNamesImported,
+                                         Set<String> extensionNamesNotFound, ReportNode reportNode) {
+        context.executeEndTasks(network, DeserializationEndTask.Step.BEFORE_EXTENSIONS, reportNode);
+
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
         readExtensions(network, id, context, extensionNamesImported, extensionNamesNotFound);
     }
@@ -750,7 +757,10 @@ public final class NetworkSerDe {
 
         ReportNode validationReportNode = reportNode.newReportNode().withMessageTemplate("validationWarnings", "Validation warnings").add();
         reader.readChildNodes(elementName ->
-                readNetworkElement(elementName, networks, networkFactory, context, extensionNamesImported, extensionNamesNotFound));
+                readNetworkElement(elementName, networks, networkFactory, context,
+                        extensionNamesImported, extensionNamesNotFound, validationReportNode));
+
+        context.executeEndTasks(network, DeserializationEndTask.Step.AFTER_EXTENSIONS, validationReportNode);
 
         if (!extensionNamesImported.isEmpty()) {
             ReportNode importedExtensionReportNode = reportNode.newReportNode().withMessageTemplate("importedExtensions", "Imported extensions").add();
@@ -761,8 +771,6 @@ public final class NetworkSerDe {
             throwExceptionIfOption(context.getOptions(), "Extensions " + extensionNamesNotFound + " " + "not found !");
             logExtensionsNotFound(extensionsNotFoundReportNode, extensionNamesNotFound);
         }
-
-        context.executeEndTasks(network, validationReportNode);
 
         return network;
     }
@@ -826,7 +834,7 @@ public final class NetworkSerDe {
                 if (extensionXmlSerializer != null) {
                     if (extensionXmlSerializer.postponeDeserialization()) {
                         Function<Extendable<?>, ?> extensionCreator = (Function<Extendable<?>, ?>) extensionXmlSerializer.readAndGetPostponableCreator(context);
-                        context.getEndTasks().add(() -> createExtension(network, id, extensionCreator, extensionNamesImported, extensionName));
+                        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> createExtension(network, id, extensionCreator, extensionNamesImported, extensionName));
                     } else {
                         Identifiable<?> identifiable = getIdentifiable(network, id);
                         createExtension(identifiable, context, extensionNamesImported, extensionName, extensionXmlSerializer);

@@ -180,12 +180,12 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
     }
 
     @Override
-    protected boolean postponeElementCreation() {
+    protected DeserializationEndTask.Step getPostponedCreationStep() {
         // OverloadManagementSystems may reference other elements which are not in the same substation (for instance lines).
         // In that case, there's no guarantee that the other elements were previously read when deserializing the network.
         // This could lead to errors at the OverloadManagementSystem's creation.
         // To avoid this, this latter is postponed.
-        return true;
+        return DeserializationEndTask.Step.BEFORE_EXTENSIONS;
     }
 
     public final void skip(Substation s, NetworkDeserializerContext context) {
