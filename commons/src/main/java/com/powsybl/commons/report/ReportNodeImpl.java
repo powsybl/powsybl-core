@@ -23,7 +23,6 @@ import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -49,30 +48,23 @@ public final class ReportNodeImpl implements ReportNode {
     private boolean isRoot;
     private Collection<Map<String, TypedValue>> valuesMapsInheritance;
 
-    static ReportNodeImpl createChildReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values,
-                                                boolean withTimestamp, String timestampPattern, ReportNodeImpl parent) {
-        return createReportNode(messageKey, messageTemplate, values, parent.getValuesMapsInheritance(), parent.getTreeContextRef(),
-                withTimestamp, timestampPattern, false);
+    static ReportNodeImpl createChildReportNode(String messageKey, Map<String, TypedValue> values, ReportNodeImpl parent,
+                                                MessageTemplateProvider messageTemplateProvider) {
+        return createReportNode(messageKey, values, parent.getValuesMapsInheritance(), parent.getTreeContextRef(), false, messageTemplateProvider);
     }
 
-    static ReportNodeImpl createRootReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values,
-                                               boolean withTimestamp, String timestampPattern, TreeContextImpl treeContext) {
+    static ReportNodeImpl createRootReportNode(String messageKey, Map<String, TypedValue> values,
+                                               TreeContextImpl treeContext,
+                                               MessageTemplateProvider messageTemplateProvider) {
         RefChain<TreeContextImpl> treeContextRef = new RefChain<>(new RefObj<>(treeContext));
-        return createReportNode(messageKey, messageTemplate, values, Collections.emptyList(), treeContextRef,
-                withTimestamp, timestampPattern, true);
+        return createReportNode(messageKey, values, Collections.emptyList(), treeContextRef, true, messageTemplateProvider);
     }
 
-    private static ReportNodeImpl createReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values,
+    private static ReportNodeImpl createReportNode(String messageKey, Map<String, TypedValue> values,
                                                    Collection<Map<String, TypedValue>> inheritedValuesMaps, RefChain<TreeContextImpl> treeContextRef,
-                                                   boolean withTimestamp, String timestampPattern, boolean isRoot) {
+                                                   boolean isRoot, MessageTemplateProvider messageTemplateProvider) {
         TreeContextImpl treeContext = treeContextRef.get();
-        treeContext.addDictionaryEntry(Objects.requireNonNull(messageKey), Objects.requireNonNull(messageTemplate));
-        if (withTimestamp) {
-            DateTimeFormatter formatter = timestampPattern != null
-                    ? DateTimeFormatter.ofPattern(timestampPattern, treeContext.getLocale())
-                    : treeContext.getDefaultTimestampFormatter();
-            values.put(ReportConstants.TIMESTAMP_KEY, TypedValue.getTimestamp(formatter));
-        }
+        treeContext.addDictionaryEntry(messageKey, messageTemplateProvider);
         return new ReportNodeImpl(messageKey, values, inheritedValuesMaps, treeContextRef, isRoot);
     }
 

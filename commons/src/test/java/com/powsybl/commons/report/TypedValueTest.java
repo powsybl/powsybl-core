@@ -29,10 +29,10 @@ class TypedValueTest {
 
         // Check that is not possible to add a Severity attribute with a TypedValue that is not a severity
         ReportNode root = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("root", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("root")
                 .build();
         ReportNodeAdder r1 = root.newReportNode()
-                .withLocaleMessageTemplate("key", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME);
+                .withMessageTemplate("key");
         TypedValue illegalSeverity = new TypedValue("error", "OTHER_TYPE");
         assertThrows(IllegalArgumentException.class, () -> r1.withSeverity(illegalSeverity));
 
@@ -41,7 +41,7 @@ class TypedValueTest {
 
         String customSeverity = "VeryImportant";
         ReportNode rn2 = root.newReportNode()
-                .withLocaleMessageTemplate("key", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("key")
                 .withSeverity(customSeverity)
                 .add();
         Optional<TypedValue> value = rn2.getValue(ReportConstants.SEVERITY_KEY);

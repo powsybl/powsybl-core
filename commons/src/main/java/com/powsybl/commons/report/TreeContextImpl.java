@@ -64,7 +64,14 @@ public class TreeContextImpl implements TreeContext {
         otherContext.getDictionary().forEach(this::addDictionaryEntry);
     }
 
+    public void addDictionaryEntry(String key, MessageTemplateProvider messageTemplateProvider) {
+        Objects.requireNonNull(messageTemplateProvider);
+        addDictionaryEntry(key, messageTemplateProvider.getTemplate(key));
+    }
+
     public synchronized void addDictionaryEntry(String key, String messageTemplate) {
+        Objects.requireNonNull(key);
+        Objects.requireNonNull(messageTemplate);
         dictionary.merge(key, messageTemplate, (prevMsg, newMsg) -> mergeEntries(key, prevMsg, newMsg));
     }
 

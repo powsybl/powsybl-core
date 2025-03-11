@@ -21,7 +21,7 @@ class ReportFormatterTest {
     @Test
     void test() {
         ReportNode root = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("formatTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("formatTest")
                 .withUntypedValue("doubleDefaultFormat", 4.35684975)
                 .withTypedValue("doubleSpecificFormat", 4.4664798548, TypedValue.ACTIVE_POWER)
                 .withTypedValue("floatSpecificFormat", 0.6f, TypedValue.IMPEDANCE)

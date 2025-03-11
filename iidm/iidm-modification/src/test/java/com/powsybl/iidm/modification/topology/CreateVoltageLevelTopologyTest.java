@@ -8,7 +8,6 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
@@ -66,7 +65,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     void testWithNullSwitchKind() {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
@@ -88,7 +87,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     void testWithUnsupportedSwitchKind() {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
@@ -110,7 +109,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     void testWithNegativeCount() {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTest")
                 .build();
         NetworkModification modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
@@ -159,7 +158,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     void testWithUnexpectedSwitchKindsSize() {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
@@ -181,7 +180,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     void testWithNotExistingVoltageLevel() {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId("NOT_EXISTING")
@@ -216,7 +215,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     void testErrorIfNotSwitchKindsDefinedAndNodeBreaker() {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
@@ -233,7 +232,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     void testWithReportNode() throws IOException {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestCreateVoltageLevelTopology", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTestCreateVoltageLevelTopology")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)

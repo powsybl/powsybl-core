@@ -8,7 +8,6 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -137,7 +136,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
     void testException() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestInvalidNetwork", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTestInvalidNetwork")
                 .build();
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -159,7 +158,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
 
         // not found id
         ReportNode reportNode2 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestInvalidId", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTestInvalidId")
                 .build();
         CreateFeederBay modification1 = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
@@ -174,7 +173,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
 
         // wrong identifiable type
         ReportNode reportNode3 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestInvalidType", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTestInvalidType")
                 .build();
         CreateFeederBay modification2 = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
@@ -453,7 +452,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
 
         //negative order position
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestNegativeOrderPosition", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTestNegativeOrderPosition")
                 .build();
         CreateFeederBay negativeOrderCreate = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
@@ -467,7 +466,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
 
         //null order position
         ReportNode reportNode2 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestNullOrderPosition", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTestNullOrderPosition")
                 .build();
         CreateFeederBay nullOrderCreate = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
@@ -483,7 +482,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
     void testCreateLoadWithReportNode() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestCreateLoad", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTestCreateLoad")
                 .build();
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -504,7 +503,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
     void testCreateLoadWithReportNodeWithoutExtensions() throws IOException {
         Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestCreateLoadWithoutExtensions", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTestCreateLoadWithoutExtensions")
                 .build();
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")

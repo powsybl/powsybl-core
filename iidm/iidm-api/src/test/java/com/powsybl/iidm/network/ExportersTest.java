@@ -11,7 +11,6 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DirectoryDataSource;
-import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.tools.ExporterMockWithReportNode;
@@ -134,7 +133,7 @@ class ExportersTest extends AbstractConvertersTest {
         Exporter testExporter = new ExporterMockWithReportNode();
         DataSource dataSource = Exporters.createDataSource(path);
         ReportNode rootReportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTest")
                 .build();
         testExporter.export(null, null, dataSource, rootReportNode);
         Optional<ReportNode> reportNode = rootReportNode.getChildren().stream().findFirst();

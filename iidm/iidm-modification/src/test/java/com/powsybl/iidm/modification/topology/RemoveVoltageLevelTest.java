@@ -8,7 +8,6 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -95,7 +94,7 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
     void testRemoveVoltageLevel() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestRemoveVL", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTestRemoveVL")
                 .build();
         addListener(network);
 

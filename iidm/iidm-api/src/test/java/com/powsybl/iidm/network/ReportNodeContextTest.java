@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -53,14 +52,14 @@ class ReportNodeContextTest {
     void pushAndGetReportNodeTest(String desc, Supplier<ReportNodeContext> contextSupplier) {
         ReportNodeContext reportNodeContext = contextSupplier.get();
         ReportNode reportNode0 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("task0", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("task0")
                 .build();
         reportNodeContext.pushReportNode(reportNode0);
         assertEquals(reportNode0, reportNodeContext.getReportNode());
         assertEquals(reportNode0, reportNodeContext.peekReportNode());
 
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("task1", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("task1")
                 .build();
         reportNodeContext.pushReportNode(reportNode1);
         assertEquals(reportNode1, reportNodeContext.getReportNode());
@@ -77,10 +76,10 @@ class ReportNodeContextTest {
         ReportNodeContext reportNodeContext = contextSupplier.get();
 
         ReportNode reportNode0 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("task0", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("task0")
                 .build();
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("task1", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("task1")
                 .build();
         reportNodeContext.pushReportNode(reportNode0);
         reportNodeContext.pushReportNode(reportNode1);
@@ -135,15 +134,15 @@ class ReportNodeContextTest {
 
         // Push reportNodes in the context
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("1", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("1")
                 .build();
         reportNodeContext.pushReportNode(reportNode1);
         ReportNode reportNode2 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("2", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("2")
                 .build();
         reportNodeContext.pushReportNode(reportNode2);
         ReportNode reportNode3 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("3", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("3")
                 .build();
         reportNodeContext.pushReportNode(reportNode3);
 
