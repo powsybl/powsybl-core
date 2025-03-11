@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.util.NetworkReports;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.*;
@@ -102,8 +103,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensator unsetSectionCount() {
         NetworkImpl n = getNetwork();
-        ValidationUtil.throwExceptionOrLogError(this, "count of sections in service has been unset", n.getMinValidationLevel(),
-                n.getReportNodeContext().getReportNode());
+        ValidationUtil.throwExceptionOrLogError(this, "count of sections in service has been unset", n.getMinValidationLevel());
+        NetworkReports.unsetSectionCount(n.getReportNodeContext().getReportNode());
         int variantIndex = network.get().getVariantIndex();
         Integer oldValue = this.sectionCount.set(variantIndex, null);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
