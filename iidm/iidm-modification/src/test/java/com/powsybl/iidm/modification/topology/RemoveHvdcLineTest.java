@@ -80,7 +80,7 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds("UnknownShunt").build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reportNode));
         assertEquals("Shunt UnknownShunt not found", e.getMessage());
-        assertEquals("core-iidm-modification-notFoundShunt", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.notFoundShunt", reportNode.getChildren().get(0).getMessageKey());
         assertDoesNotThrow(() -> removeHvdcLine.apply(network, false, reportNode));
     }
 
@@ -93,7 +93,7 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reportNode));
         assertEquals("Hvdc Line L not found", e.getMessage());
-        assertEquals("core-iidm-modification-HvdcNotFound", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.HvdcNotFound", reportNode.getChildren().get(0).getMessageKey());
         assertDoesNotThrow(() -> removeHvdcLine.apply(network, false, reportNode));
     }
 

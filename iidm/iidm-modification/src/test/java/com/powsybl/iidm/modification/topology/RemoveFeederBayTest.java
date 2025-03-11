@@ -153,7 +153,7 @@ class RemoveFeederBayTest {
         assertDoesNotThrow(() -> removeBbs.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, reportNode));
         assertEquals("BusbarSection connectables are not allowed as RemoveFeederBay input: BBS_TEST_1_1", e.getMessage());
-        assertEquals("core-iidm-modification-removeBayBusbarSectionConnectable", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.removeBayBusbarSectionConnectable", reportNode.getChildren().get(0).getMessageKey());
         assertEquals("Cannot remove feeder bay for connectable ${connectableId}, as it is a busbarSection", reportNode.getChildren().get(0).getMessageTemplate());
         Map<String, TypedValue> values = reportNode.getChildren().get(0).getValues();
         assertEquals(2, values.size());

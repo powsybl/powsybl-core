@@ -55,7 +55,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .build();
         assertDoesNotThrow(() -> modificationWithError1.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, reportNode1), "Line line1NotFound is not found");
-        assertEquals("core-iidm-modification-lineNotFound", reportNode1.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.lineNotFound", reportNode1.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode2 = ReportNode.newRootReportNode()
                 .withLocaleMessageTemplate("reportTestUndefinedLine", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
@@ -67,7 +67,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .build();
         assertDoesNotThrow(() -> modificationWithError2.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, reportNode2), "Line line2NotFound is not found");
-        assertEquals("core-iidm-modification-lineNotFound", reportNode2.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.lineNotFound", reportNode2.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode3 = ReportNode.newRootReportNode()
                 .withLocaleMessageTemplate("reportTestNoVLInCommon", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
@@ -79,7 +79,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .build();
         assertDoesNotThrow(() -> modificationWithError3.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, reportNode3), "Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities");
-        assertEquals("core-iidm-modification-noVoltageLevelInCommon", reportNode3.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.noVoltageLevelInCommon", reportNode3.getChildren().get(0).getMessageKey());
 
         // create limits on tee point side
         Line line1 = network.getLine("CJ_1");

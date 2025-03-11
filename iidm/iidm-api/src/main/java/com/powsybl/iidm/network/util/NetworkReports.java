@@ -27,7 +27,7 @@ public final class NetworkReports {
 
     public static void alreadyConnectedIdentifiableTerminal(ReportNode reportNode, String identifiableId) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-iidm-network-alreadyConnectedTerminal", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core.iidm.network.alreadyConnectedTerminal", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("identifiable", identifiableId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -35,7 +35,7 @@ public final class NetworkReports {
 
     public static void alreadyDisconnectedIdentifiableTerminal(ReportNode reportNode, String identifiableId) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-iidm-network-alreadyDisconnectedTerminal", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core.iidm.network.alreadyDisconnectedTerminal", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("identifiable", identifiableId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -43,7 +43,7 @@ public final class NetworkReports {
 
     public static void parentHasBothRatioAndPhaseTapChanger(ReportNode reportNode, String parentMessage) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-iidm-network-validationWarningBothRatioPhase", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core.iidm.network.validationWarningBothRatioPhase", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("parent", parentMessage)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -51,7 +51,7 @@ public final class NetworkReports {
 
     public static void parentHasDuplicatePointForActivePower(ReportNode reportNode, String ownerMessage, Double p) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-iidm-network-validationWarningDuplicate", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core.iidm.network.validationWarningDuplicate", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("parent", ownerMessage)
                 .withUntypedValue("p", p)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -60,7 +60,7 @@ public final class NetworkReports {
 
     public static ReportNode runIidmNetworkValidationCHecks(ReportNode reportNode, String networkId) {
         return Objects.requireNonNull(reportNode).newReportNode()
-                .withLocaleMessageTemplate("core-iidm-network-IIDMValidation", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core.iidm.network.IIDMValidation", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("networkId", networkId)
                 .add();
     }
@@ -68,7 +68,7 @@ public final class NetworkReports {
     // DEBUG
     public static void inconsistentPropertyValues(ReportNode reportNode, String propertyName, String propertyValue1, String propertyValue2, String danglingLineId1, String danglingLineId2) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-iidm-network-InconsistentPropertyValues", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core.iidm.network.InconsistentPropertyValues", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("propertyName", propertyName)
                 .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
                 .withUntypedValue("propertyValue1", propertyValue1)
@@ -80,7 +80,7 @@ public final class NetworkReports {
 
     public static void moveCommonAliases(ReportNode reportNode, String alias, String danglingLineId1, String danglingLineId2) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-iidm-network-MoveCommonAlias", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core.iidm.network.MoveCommonAlias", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("alias", alias)
                 .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
                 .withUntypedValue(DANGLING_LINE_ID_2, danglingLineId2)
@@ -90,7 +90,7 @@ public final class NetworkReports {
 
     public static void propertyOnlyOnOneSide(ReportNode reportNode, String propertyName, String propertyValue, int emptySide, String danglingLineId1, String danglingLineId2) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-iidm-network-PropertyOnlyOnOneSide", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core.iidm.network.PropertyOnlyOnOneSide", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("propertyName", propertyName)
                 .withUntypedValue("side", emptySide)
                 .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
@@ -103,7 +103,7 @@ public final class NetworkReports {
     // WARN
     public static void inconsistentAliasTypes(ReportNode reportNode, String alias, String type1, String type2, String danglingLineId1, String danglingLineId2) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-iidm-network-InconsistentAliasTypes", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core.iidm.network.InconsistentAliasTypes", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("alias", alias)
                 .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
                 .withUntypedValue("type1", type1)
@@ -115,7 +115,7 @@ public final class NetworkReports {
 
     public static void inconsistentAliasValues(ReportNode reportNode, String alias1, String alias2, String type, String danglingLineId1, String danglingLineId2) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-iidm-network-InconsistentAliasValues", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core.iidm.network.InconsistentAliasValues", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("alias1", alias1)
                 .withUntypedValue("alias2", alias2)
                 .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
@@ -127,20 +127,20 @@ public final class NetworkReports {
 
     public static ReportNode createChildReportNode(ReportNode reportNode, ReadOnlyDataSource ds) {
         return reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-iidm-network-importDataSource", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core.iidm.network.importDataSource", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("dataSource", ds.getBaseName())
                 .add();
     }
 
     public static void exportMock(ReportNode reportNode) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-iidm-network-export_test", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core.iidm.network.export_test", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .add();
     }
 
     public static void testImportPostProcessor(ReportNode reportNode) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-iidm-network-testImportPostProcessor", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core.iidm.network.testImportPostProcessor", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .add();
     }
 }
