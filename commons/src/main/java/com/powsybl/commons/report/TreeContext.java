@@ -41,6 +41,4 @@ public interface TreeContext {
      * Merge given {@link TreeContext} with current one.
      */
     void merge(TreeContext treeContext);
-
-    Locale getLocale();
 }
