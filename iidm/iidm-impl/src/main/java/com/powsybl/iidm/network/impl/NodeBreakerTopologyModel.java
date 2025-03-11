@@ -931,6 +931,10 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         public void traverse(int[] nodes, TopologyTraverser t) {
             graph.traverse(nodes, TraversalType.DEPTH_FIRST, adapt(t));
         }
+
+        public UndirectedGraphImpl<NodeTerminal, SwitchImpl> getGraph() {
+            return graph;
+        }
     };
 
     private static TIntSet clearFictitiousInjections(TIntObjectMap<TDoubleArrayList> fictitiousInjectionsByNode) {

@@ -572,6 +572,10 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
         public void traverse(int[] node, TopologyTraverser traverser) {
             throw createNotSupportedBusBreakerTopologyException();
         }
+
+        public UndirectedGraphImpl<Terminal, Switch> getGraph() {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
     };
 
     @Override

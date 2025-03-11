@@ -10,6 +10,7 @@ package com.powsybl.iidm.network;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.math.graph.UndirectedGraphImpl;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -678,6 +679,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * The {@code traverser} callback is called every time an edge is traversed.
          */
         void traverse(int[] node, TopologyTraverser traverser);
+
+        /**
+         * Get the {@link UndirectedGraphImpl} of this VoltageLevel
+         */
+        <E extends Switch, T extends Terminal> UndirectedGraphImpl<T, E> getGraph();
     }
 
     /**
