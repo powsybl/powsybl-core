@@ -38,7 +38,7 @@
             <iidm:load id="B4-L1 " loadType="UNDEFINED" p0="39.0" q0="12.0" bus="B4" connectableBus="B4"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S5">
+    <iidm:substation id="S5-8">
         <iidm:voltageLevel id="VL5-8" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B5" name="Olive       " v="138.27324000000002" angle="16.0287"/>
@@ -148,7 +148,7 @@
             <iidm:load id="B16-L1 " loadType="UNDEFINED" p0="25.0" q0="10.0" bus="B16" connectableBus="B16"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S17">
+    <iidm:substation id="S17-30">
         <iidm:voltageLevel id="VL17-30" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B17" name="Sorenson    " v="137.32793999999998" angle="14.0056"/>
@@ -227,7 +227,7 @@
             <iidm:load id="B24-L1 " loadType="UNDEFINED" p0="13.0" q0="0.0" bus="B24" connectableBus="B24"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S25">
+    <iidm:substation id="S25-26">
         <iidm:voltageLevel id="VL25-26" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B25" name="TannrsCk    " v="144.9" angle="28.1844"/>
@@ -336,7 +336,7 @@
             <iidm:load id="B36-L1 " loadType="UNDEFINED" p0="31.0" q0="17.0" bus="B36" connectableBus="B36"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S37">
+    <iidm:substation id="S37-38">
         <iidm:voltageLevel id="VL37-38" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B37" name="EastLima    " v="136.89324" angle="11.9703"/>
@@ -545,7 +545,7 @@
             <iidm:load id="B58-L1 " loadType="UNDEFINED" p0="12.0" q0="3.0" bus="B58" connectableBus="B58"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S59">
+    <iidm:substation id="S59-63">
         <iidm:voltageLevel id="VL59-63" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B59" name="Tidd        " v="135.93" angle="19.453"/>
@@ -570,7 +570,7 @@
             <iidm:load id="B60-L1 " loadType="UNDEFINED" p0="78.0" q0="3.0" bus="B60" connectableBus="B60"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S61">
+    <iidm:substation id="S61-64">
         <iidm:voltageLevel id="VL61-64" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B61" name="W.Kammer    " v="137.31" angle="24.1257"/>
@@ -597,7 +597,7 @@
             <iidm:load id="B62-L1 " loadType="UNDEFINED" p0="77.0" q0="14.0" bus="B62" connectableBus="B62"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S65">
+    <iidm:substation id="S65-66">
         <iidm:voltageLevel id="VL65-66" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B65" name="Muskngum    " v="138.69" angle="27.7224"/>
@@ -625,7 +625,7 @@
             <iidm:load id="B67-L1 " loadType="UNDEFINED" p0="28.0" q0="7.0" bus="B67" connectableBus="B67"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S68">
+    <iidm:substation id="S68-69">
         <iidm:voltageLevel id="VL68-69" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B68" name="Sporn       " v="138.4485" angle="27.6013"/>
@@ -744,7 +744,7 @@
             </iidm:shunt>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S80">
+    <iidm:substation id="S80-81">
         <iidm:voltageLevel id="VL80-81" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B80" name="CabinCrk    " v="143.52" angle="28.9999"/>
