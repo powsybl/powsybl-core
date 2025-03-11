@@ -309,7 +309,7 @@ public class CgmesImport implements Importer {
             try (InputStream in = dataSource.newInputStream(name)) {
                 String fileExtension = name.substring(name.lastIndexOf('.') + 1);
                 if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
-                    try (SafeZipInputStream zis = new SafeZipInputStream(new ZipInputStream(in), 2048)) {
+                    try (SafeZipInputStream zis = new SafeZipInputStream(new ZipInputStream(in), 1024000L)) {
                         zis.getNextEntry();
                         modellingAuthority = readModelingAuthority(zis);
                     }

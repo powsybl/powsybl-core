@@ -16,9 +16,9 @@ import com.powsybl.commons.io.ForwardingInputStream;
 public class SafeZipInputStream extends ForwardingInputStream<ZipInputStream> {
 
     private long bytesRead;
-    private long maxBytesToRead;
+    private final long maxBytesToRead;
 
-    public SafeZipInputStream(ZipInputStream in, long maxBytesToRead) throws IOException {
+    public SafeZipInputStream(ZipInputStream in, long maxBytesToRead) {
         super(in);
         this.maxBytesToRead = maxBytesToRead;
     }
