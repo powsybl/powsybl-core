@@ -31,13 +31,19 @@ public final class ModificationReports {
     private static final String EXTENSIONS = "extensions";
     public static final String POSITION_ORDER = "positionOrder";
     public static final String TIE_LINE_ID = "tieLineId";
+    public static final String IDENTIFIABLE = "identifiable";
+    public static final String LINE_1_ID = "line1Id";
+    public static final String LINE_2_ID = "line2Id";
+    public static final String LINE_3_ID = "line3Id";
+    public static final String ORIGINAL_LINE_ID = "originalLineId";
+    public static final String CONNECTABLE_TYPE = "connectableType";
 
     // INFO
     public static void createdConnectable(ReportNode reportNode, Connectable<?> connectable) {
         reportNode.newReportNode()
                 .withLocaleMessageTemplate("core.iidm.modification.connectableCreated", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue(CONNECTABLE_ID, connectable.getId())
-                .withUntypedValue("connectableType", connectable.getType().name())
+                .withUntypedValue(CONNECTABLE_TYPE, connectable.getType().name())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
@@ -46,7 +52,7 @@ public final class ModificationReports {
         reportNode.newReportNode()
                 .withLocaleMessageTemplate("core.iidm.modification.newConnectableAdded", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue(CONNECTABLE_ID, connectable.getId())
-                .withUntypedValue("connectableType", connectable.getType().toString())
+                .withUntypedValue(CONNECTABLE_TYPE, connectable.getType().toString())
                 .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withUntypedValue(BBS_ID, bbsId)
                 .withUntypedValue("parallelBbsNumber", parallelBbsNumber)
@@ -498,8 +504,8 @@ public final class ModificationReports {
     public static void noVoltageLevelInCommonReport(ReportNode reportNode, String line1Id, String line2Id) {
         reportNode.newReportNode()
                 .withLocaleMessageTemplate("core.iidm.modification.noVoltageLevelInCommon", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                .withUntypedValue("line1Id", line1Id)
-                .withUntypedValue("line2Id", line2Id)
+                .withUntypedValue(LINE_1_ID, line1Id)
+                .withUntypedValue(LINE_2_ID, line2Id)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
     }
@@ -540,9 +546,9 @@ public final class ModificationReports {
     public static void noTeePointAndOrTappedVoltageLevelReport(ReportNode reportNode, String line1Id, String line2Id, String line3Id) {
         reportNode.newReportNode()
                 .withLocaleMessageTemplate("core.iidm.modification.noTeePointAndOrTappedVoltageLevel", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                .withUntypedValue("line1Id", line1Id)
-                .withUntypedValue("line2Id", line2Id)
-                .withUntypedValue("line3Id", line3Id)
+                .withUntypedValue(LINE_1_ID, line1Id)
+                .withUntypedValue(LINE_2_ID, line2Id)
+                .withUntypedValue(LINE_3_ID, line3Id)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
     }
@@ -683,13 +689,13 @@ public final class ModificationReports {
             if (null == side) {
                 reportNode.newReportNode()
                         .withLocaleMessageTemplate("core.iidm.modification.connectableConnected", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                        .withUntypedValue("identifiable", identifiable.getId())
+                        .withUntypedValue(IDENTIFIABLE, identifiable.getId())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add();
             } else {
                 reportNode.newReportNode()
                         .withLocaleMessageTemplate("core.iidm.modification.connectableConnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                        .withUntypedValue("identifiable", identifiable.getId())
+                        .withUntypedValue(IDENTIFIABLE, identifiable.getId())
                         .withUntypedValue("side", side.getNum())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add();
@@ -697,13 +703,13 @@ public final class ModificationReports {
         } else if (null == side) {
             reportNode.newReportNode()
                     .withLocaleMessageTemplate("core.iidm.modification.connectableNotConnected", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                    .withUntypedValue("identifiable", identifiable.getId())
+                    .withUntypedValue(IDENTIFIABLE, identifiable.getId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
         } else {
             reportNode.newReportNode()
                     .withLocaleMessageTemplate("core.iidm.modification.connectableNotConnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                    .withUntypedValue("identifiable", identifiable.getId())
+                    .withUntypedValue(IDENTIFIABLE, identifiable.getId())
                     .withUntypedValue("side", side.getNum())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
@@ -716,13 +722,13 @@ public final class ModificationReports {
                 if (null == side) {
                     reportNode.newReportNode()
                             .withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
                             .withSeverity(TypedValue.INFO_SEVERITY)
                             .add();
                 } else {
                     reportNode.newReportNode()
                             .withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
                             .withUntypedValue("side", side.getNum())
                             .withSeverity(TypedValue.INFO_SEVERITY)
                             .add();
@@ -731,13 +737,13 @@ public final class ModificationReports {
                 if (null == side) {
                     reportNode.newReportNode()
                             .withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableNotDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
                             .withSeverity(TypedValue.INFO_SEVERITY)
                             .add();
                 } else {
                     reportNode.newReportNode()
                             .withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableNotDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
                             .withUntypedValue("side", side.getNum())
                             .withSeverity(TypedValue.INFO_SEVERITY)
                             .add();
@@ -748,13 +754,13 @@ public final class ModificationReports {
                 if (null == side) {
                     reportNode.newReportNode()
                             .withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
                             .withSeverity(TypedValue.INFO_SEVERITY)
                             .add();
                 } else {
                     reportNode.newReportNode()
                             .withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
                             .withUntypedValue("side", side.getNum())
                             .withSeverity(TypedValue.INFO_SEVERITY)
                             .add();
@@ -763,13 +769,13 @@ public final class ModificationReports {
                 if (null == side) {
                     reportNode.newReportNode()
                             .withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableNotDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
                             .withSeverity(TypedValue.INFO_SEVERITY)
                             .add();
                 } else {
                     reportNode.newReportNode()
                             .withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableNotDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                            .withUntypedValue("identifiable", identifiable.getId())
+                            .withUntypedValue(IDENTIFIABLE, identifiable.getId())
                             .withUntypedValue("side", side.getNum())
                             .withSeverity(TypedValue.INFO_SEVERITY)
                             .add();
@@ -827,7 +833,7 @@ public final class ModificationReports {
     public static void ignoreTemporaryLimitsOnBothLineSides(ReportNode reportNode, String lineId) {
         reportNode.newReportNode()
                 .withLocaleMessageTemplate("core.iidm.modification.limitsLost", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                .withUntypedValue("lineId", lineId)
+                .withUntypedValue(LINE_ID, lineId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -836,9 +842,9 @@ public final class ModificationReports {
         reportNode.newReportNode()
                 .withLocaleMessageTemplate("core.iidm.modification.newLineOnLineCreated", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("newLineId", newLineId)
-                .withUntypedValue("line1Id", line1Id)
-                .withUntypedValue("line2Id", line2Id)
-                .withUntypedValue("originalLineId", originalLineId)
+                .withUntypedValue(LINE_1_ID, line1Id)
+                .withUntypedValue(LINE_2_ID, line2Id)
+                .withUntypedValue(ORIGINAL_LINE_ID, originalLineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
@@ -846,10 +852,10 @@ public final class ModificationReports {
     public static void connectVoltageLevelToLines(ReportNode reportNode, String voltageLevelId, String line1Id, String line2Id, String originalLineId) {
         reportNode.newReportNode()
                 .withLocaleMessageTemplate("core.iidm.modification.voltageConnectedOnLine", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                .withUntypedValue("voltageLevelId", voltageLevelId)
-                .withUntypedValue("line1Id", line1Id)
-                .withUntypedValue("line2Id", line2Id)
-                .withUntypedValue("originalLineId", originalLineId)
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withUntypedValue(LINE_1_ID, line1Id)
+                .withUntypedValue(LINE_2_ID, line2Id)
+                .withUntypedValue(ORIGINAL_LINE_ID, originalLineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }

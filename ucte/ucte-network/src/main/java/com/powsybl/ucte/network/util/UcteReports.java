@@ -46,7 +46,7 @@ public final class UcteReports {
     public static void undefinedActivePower(ReportNode reportNode, String code) {
         reportNode.newReportNode()
                 .withLocaleMessageTemplate("core.ucte.activePowerUndefined", ReportBundleBaseName.BUNDLE_BASE_NAME)
-                .withUntypedValue("node", code.toString())
+                .withUntypedValue("node", code)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
