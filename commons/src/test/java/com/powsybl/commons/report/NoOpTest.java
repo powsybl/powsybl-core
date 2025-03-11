@@ -17,6 +17,7 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -80,6 +81,8 @@ class NoOpTest extends AbstractSerDeTest {
         treeContext.addDictionaryEntry("key", "value");
         PowsyblException e = assertThrows(PowsyblException.class, () -> TreeContextNoOp.NO_OP.merge(treeContext));
         assertEquals("Cannot merge a TreeContextNoOp with non TreeContextNoOp", e.getMessage());
+
+        assertEquals(Locale.US, treeContext.getLocale());
     }
 
     @Test
