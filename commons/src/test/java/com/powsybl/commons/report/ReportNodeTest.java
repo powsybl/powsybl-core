@@ -335,6 +335,40 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertHasTimeStamp(root4, noPatternAndLocaleFormatter);
     }
 
+    @Test
+    void testLocaleAndi18n() {
+        final String bundleName = "i18n.reports";
+
+        // Without giving a locale => default one is en_US
+        ReportNode rootReportEnglish = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("rootWithValue", bundleName)
+                .withUntypedValue("value", 4)
+                .build();
+        // translation should fall back to default properties as the key is not defined in the reports_en_US.properties
+        assertEquals("Root message with value 4", rootReportEnglish.getMessage());
+        assertEquals(Locale.US, rootReportEnglish.getTreeContext().getLocale());
+
+        // With french locale
+        ReportNode rootReportFrench = ReportNode.newRootReportNode()
+                .withLocale(Locale.FRENCH)
+                .withLocaleMessageTemplate("rootWithValue", bundleName)
+                .withUntypedValue("value", 4)
+                .build();
+        // translation should be from the reports_fr.properties file
+        assertEquals("Message racine avec la valeur 4", rootReportFrench.getMessage());
+        assertEquals(Locale.FRENCH, rootReportFrench.getTreeContext().getLocale());
+
+        // Test giving the specific France locale
+        ReportNode rootReportFrance = ReportNode.newRootReportNode()
+                .withLocale(Locale.FRANCE)
+                .withLocaleMessageTemplate("rootWithValue", bundleName)
+                .withUntypedValue("value", 4)
+                .build();
+        // translation should be from the reports_fr.properties file as the key is not defined in the reports_fr_FR.properties
+        assertEquals("Message racine avec la valeur 4", rootReportFrance.getMessage());
+        assertEquals(Locale.FRANCE, rootReportFrance.getTreeContext().getLocale());
+    }
+
     private static void assertHasNoTimeStamp(ReportNode root1) {
         assertFalse(root1.getValues().containsKey(ReportConstants.TIMESTAMP_KEY));
     }
