@@ -279,7 +279,7 @@ class ReportNodeTest extends AbstractSerDeTest {
 
         // Child does not inherit timestamp enabled (but still contains the value as inherited!)
         ReportNode child2 = root2.newReportNode()
-                .withMessageTemplate("child", "Child message")
+                .withLocaleMessageTemplate("child", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .add();
         assertHasNoTimeStamp(child2);
 
@@ -296,7 +296,7 @@ class ReportNodeTest extends AbstractSerDeTest {
 
         // Child inherits timestamp pattern and locale
         ReportNode child3 = root3.newReportNode()
-                .withMessageTemplate("child", "Child message")
+                .withLocaleMessageTemplate("simpleChild", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withTimestamp()
                 .add();
         assertHasTimeStamp(child3, customPatternAndLocaleFormatter1);
@@ -305,7 +305,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         String customPattern2 = "eeee dd MMMM yyyy HH:mm:ss XXX";
         DateTimeFormatter customPatternAndLocaleFormatter2 = DateTimeFormatter.ofPattern(customPattern2, customLocale);
         ReportNode child4 = root3.newReportNode()
-                .withMessageTemplate("child", "Child message")
+                .withLocaleMessageTemplate("simpleChild", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withTimestamp(customPattern2)
                 .add();
         assertHasTimeStamp(child4, customPatternAndLocaleFormatter2);
@@ -314,7 +314,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         DateTimeFormatter noPatternAndLocaleFormatter = DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN, customLocale);
         ReportNode root4 = ReportNode.newRootReportNode()
                 .withLocale(customLocale)
-                .withMessageTemplate("rootTemplate", "Root message")
+                .withLocaleMessageTemplate("simpleRootTemplate", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withTimestamp()
                 .build();
         assertHasTimeStamp(root4, noPatternAndLocaleFormatter);
