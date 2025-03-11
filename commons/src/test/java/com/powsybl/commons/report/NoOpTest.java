@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.report;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,12 +75,27 @@ class NoOpTest extends AbstractSerDeTest {
     void testTreeContextNoOp() {
         assertEquals(0, TreeContextNoOp.NO_OP.getDictionary().size());
         assertNull(TreeContextNoOp.NO_OP.getDefaultTimestampFormatter());
-        assertNull(TreeContextNoOp.NO_OP.getLocale());
+        assertNotNull(TreeContextNoOp.NO_OP.getLocale());
 
         TreeContextImpl treeContext = new TreeContextImpl();
         treeContext.addDictionaryEntry("key", "value");
-        TreeContextNoOp.NO_OP.merge(treeContext);
-        assertEquals(0, TreeContextNoOp.NO_OP.getDictionary().size());
+        PowsyblException e = assertThrows(PowsyblException.class, () -> TreeContextNoOp.NO_OP.merge(treeContext));
+        assertEquals("Cannot merge a TreeContextNoOp with non TreeContextNoOp", e.getMessage());
+
+        assertEquals(Locale.US, treeContext.getLocale());
+    }
+
+    @Test
+    void testTreeContextMerge() {
+        TreeContextImpl treeContext = new TreeContextImpl();
+
+        assertEquals(0, treeContext.getDictionary().size());
+        assertEquals(ReportConstants.DEFAULT_LOCALE, treeContext.getLocale());
+
+        TreeContextImpl treeContext2 = new TreeContextImpl();
+        treeContext2.addDictionaryEntry("key", "value");
+        treeContext.merge(treeContext2);
+        assertEquals(1, treeContext.getDictionary().size());
     }
 
     @Test

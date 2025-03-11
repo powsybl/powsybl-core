@@ -9,6 +9,7 @@ package com.powsybl.ucte.network;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.ucte.network.util.UcteReports;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
@@ -16,13 +17,13 @@ import com.powsybl.commons.report.TypedValue;
 public final class UcteValidation {
 
     private static final UcteLogger LOGGER = new UcteLogger();
+    public static final String LINE_ID_KEY = "lineId";
 
     public static final double ZERO_EPS = 1e-4;
     public static final double REACTANCE_EPS = 0.05;
     public static final double DU_LIMIT = 6;
     public static final double THETA_ABS_LIMIT = 180;
     public static final double N_LIMIT = 35;
-    public static final String LINE_ID_KEY = "lineId";
 
     private UcteValidation() {
     }
@@ -36,12 +37,7 @@ public final class UcteValidation {
             case REAL_ELEMENT_IN_OPERATION:
             case REAL_ELEMENT_OUT_OF_OPERATION:
                 if (line.getResistance() < ZERO_EPS) {
-                    reportNode.newReportNode()
-                        .withMessageTemplate("negativeLineResistance", "${lineId} - Real line resistance cannot be negative (${resistance} ohm)")
-                        .withUntypedValue(LINE_ID_KEY, lineId)
-                        .withTypedValue("resistance", line.getResistance(), TypedValue.RESISTANCE)
-                        .withSeverity(TypedValue.ERROR_SEVERITY)
-                        .add();
+                    UcteReports.negativeLineResistance(line, reportNode, lineId);
                     LOGGER.error(lineId, "Real line resistance cannot be negative", line.getResistance() + " ohm");
                 }
                 if (Math.abs(line.getReactance()) < REACTANCE_EPS) {

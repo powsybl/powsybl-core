@@ -9,6 +9,7 @@
 package com.powsybl.ucte.network;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.ucte.network.util.UcteReports;
 
 import java.util.*;
 
@@ -132,15 +133,14 @@ public class UcteNetworkImpl implements UcteNetwork {
             line.fix(linesReportNode);
         }
 
-        ReportNode transfoReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteTransformer", "Fix UCTE transformers").add();
+        ReportNode transfoReportNode = UcteReports.fixUcteTransformers(reportNode);
         for (UcteTransformer transfo : transformers.values()) {
             transfo.fix(transfoReportNode);
         }
 
-        ReportNode regulationsReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteRegulations", "Fix UCTE regulations").add();
+        ReportNode regulationsReportNode = UcteReports.fixUcteRegulations(reportNode);
         for (UcteRegulation regulation : regulations.values()) {
             regulation.fix(regulationsReportNode);
         }
     }
-
 }
