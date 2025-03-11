@@ -719,41 +719,34 @@ public final class ModificationReports {
 
     public static void identifiableDisconnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
         ReportNodeAdder adder = reportNode.newReportNode()
+                .withLocaleMessageTemplate(getKey(isPlanned, disconnectionSuccessful, side != null), ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("identifiable", identifiable.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY);
         if (side != null) {
             adder.withUntypedValue("side", side.getNum());
         }
-        if (isPlanned) {
-            if (disconnectionSuccessful) {
-                if (null == side) {
-                    adder.withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME);
-                } else {
-                    adder.withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME);
-                }
-            } else {
-                if (null == side) {
-                    adder.withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableNotDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME);
-                } else {
-                    adder.withLocaleMessageTemplate("core.iidm.modification.plannedIdentifiableNotDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME);
-                }
-            }
-        } else {
-            if (disconnectionSuccessful) {
-                if (null == side) {
-                    adder.withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME);
-                } else {
-                    adder.withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME);
-                }
-            } else {
-                if (null == side) {
-                    adder.withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableNotDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME);
-                } else {
-                    adder.withLocaleMessageTemplate("core.iidm.modification.unplannedIdentifiableNotDisconnectedSide", ReportBundleBaseName.BUNDLE_BASE_NAME);
-                }
-            }
-        }
         adder.add();
+    }
+
+    private static String getKey(boolean isPlanned, boolean disconnectionSuccessful, boolean hasSide) {
+        // Transforming the 3 booleans into a 3-bits integer 0bXYZ to operate switch case on it
+        // MSB (leading bit) X corresponds to isPlanned
+        // Second bit Y corresponds to disconnectionSuccessful
+        // LSB (least significant bit) Z corresponds to hasSide
+        int index = (isPlanned ? 1 : 0) << 2
+                | (disconnectionSuccessful ? 1 : 0) << 1
+                | (hasSide ? 1 : 0);
+        return switch (index) {
+            case 0b000 -> "core.iidm.modification.unplannedIdentifiableNotDisconnected";
+            case 0b001 -> "core.iidm.modification.unplannedIdentifiableNotDisconnectedSide";
+            case 0b010 -> "core.iidm.modification.unplannedIdentifiableDisconnected";
+            case 0b011 -> "core.iidm.modification.unplannedIdentifiableDisconnectedSide";
+            case 0b100 -> "core.iidm.modification.plannedIdentifiableNotDisconnected";
+            case 0b101 -> "core.iidm.modification.plannedIdentifiableNotDisconnectedSide";
+            case 0b110 -> "core.iidm.modification.plannedIdentifiableDisconnected";
+            case 0b111 -> "core.iidm.modification.plannedIdentifiableDisconnectedSide";
+            default -> throw new IllegalStateException();
+        };
     }
 
     public static ReportNode replaceThreeWindingsTransformersBy3TwoWindingsTransformersReport(ReportNode reportNode) {
