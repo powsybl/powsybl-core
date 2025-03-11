@@ -24,13 +24,13 @@ public class TreeContextNoOp implements TreeContext {
     }
 
     @Override
-    public DateTimeFormatter getTimestampFormatter() {
+    public DateTimeFormatter getDefaultTimestampFormatter() {
         return null;
     }
 
     @Override
-    public boolean isTimestampAdded() {
-        return false;
+    public Locale getLocale() {
+        return null;
     }
 
     @Override

@@ -10,6 +10,7 @@ package com.powsybl.commons.report;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Objects;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -19,6 +20,8 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     protected final Map<String, TypedValue> values = new LinkedHashMap<>();
     protected String key;
     protected String messageTemplate;
+    protected boolean withTimestamp = false;
+    protected String timestampPattern;
     protected String bundleBaseName;
 
     @Override
@@ -117,6 +120,19 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     @Override
     public T withSeverity(String severity) {
         values.put(ReportConstants.SEVERITY_KEY, TypedValue.of(severity, TypedValue.SEVERITY));
+        return self();
+    }
+
+    @Override
+    public T withTimestamp() {
+        this.withTimestamp = true;
+        return self();
+    }
+
+    @Override
+    public T withTimestamp(String pattern) {
+        this.withTimestamp = true;
+        this.timestampPattern = Objects.requireNonNull(pattern);
         return self();
     }
 

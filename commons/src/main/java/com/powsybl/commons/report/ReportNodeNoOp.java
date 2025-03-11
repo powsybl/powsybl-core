@@ -234,5 +234,15 @@ public class ReportNodeNoOp implements ReportNode {
         public ReportNodeAdder withSeverity(String severity) {
             return this;
         }
+
+        @Override
+        public ReportNodeAdder withTimestamp() {
+            return this;
+        }
+
+        @Override
+        public ReportNodeAdder withTimestamp(String timestampPattern) {
+            return this;
+        }
     }
 }
