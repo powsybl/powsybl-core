@@ -21,7 +21,7 @@ public final class CgmesModelReports {
 
     public static void readFile(ReportNode reportNode, String name) {
         reportNode.newReportNode()
-                .withLocaleMessageTemplate("core-cgmes-model-CGMESFileRead", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withLocaleMessageTemplate("core.cgmes.model.CGMESFileRead", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withTypedValue("instanceFile", name, TypedValue.FILENAME)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();

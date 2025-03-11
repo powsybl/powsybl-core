@@ -51,7 +51,7 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
     private boolean inconsistentProfilesReported(ReportNode reportNode) {
         return reportNode.getChildren().stream()
                 .map(ReportNode::getMessageKey)
-                .anyMatch(key -> key.equals("core-cgmes-conversion-inconsistentProfilesTPRequired"));
+                .anyMatch(key -> key.equals("core.cgmes.conversion.inconsistentProfilesTPRequired"));
     }
 
     private Network importNetwork(ReadOnlyDataSource dataSource) {

@@ -57,7 +57,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         ReportNode reportNodeChild1a = reportNode1.getChildren().get(0);
         assertDoesNotThrow(() -> modificationWithError1.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, subReportNode1), "Line line1NotFound is not found");
-        assertEquals("core-iidm-modification-lineNotFound", reportNodeChild1a.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.lineNotFound", reportNodeChild1a.getChildren().get(0).getMessageKey());
         final NetworkModification modificationWithError11 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("line1NotFound")
                 .withLineToBeMerged2Id("CJ_1")
@@ -69,7 +69,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .add());
         assertNull(network.getLine("CJ"));
         ReportNode reportNodeChild1b = reportNode1.getChildren().get(1);
-        assertEquals("core-iidm-modification-lineNotFound", reportNodeChild1b.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.lineNotFound", reportNodeChild1b.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode2 = ReportNode.newRootReportNode()
                 .withLocaleMessageTemplate("reportTestUndefinedLine2", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
@@ -86,7 +86,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         assertDoesNotThrow(() -> modificationWithError2.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, subReportNode2), "Line line2NotFound is not found");
         ReportNode reportNodeChild2a = reportNode2.getChildren().get(0);
-        assertEquals("core-iidm-modification-lineNotFound", reportNodeChild2a.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.lineNotFound", reportNodeChild2a.getChildren().get(0).getMessageKey());
         final NetworkModification modificationWithError21 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("line2NotFound")
@@ -98,7 +98,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .add());
         assertNull(network.getLine("CJ"));
         ReportNode reportNodeChild2b = reportNode2.getChildren().get(1);
-        assertEquals("core-iidm-modification-lineNotFound", reportNodeChild2b.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.lineNotFound", reportNodeChild2b.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode3 = ReportNode.newRootReportNode()
                 .withLocaleMessageTemplate("reportTestUndefinedLineToBeDeleted", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
@@ -115,7 +115,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         assertDoesNotThrow(() -> modificationWithError3.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, subReportNode3), "Line line3NotFound is not found");
         ReportNode reportNodeChild3a = reportNode3.getChildren().get(0);
-        assertEquals("core-iidm-modification-lineNotFound", reportNodeChild3a.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.lineNotFound", reportNodeChild3a.getChildren().get(0).getMessageKey());
         final NetworkModification modificationWithError31 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("CJ_2")
@@ -127,7 +127,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .add());
         assertNull(network.getLine("CJ"));
         ReportNode reportNodeChild3b = reportNode3.getChildren().get(1);
-        assertEquals("core-iidm-modification-lineNotFound", reportNodeChild3b.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.lineNotFound", reportNodeChild3b.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode4 = ReportNode.newRootReportNode()
                 .withLocaleMessageTemplate("reportTestNoTeePointAndOrTappedVoltageLevel", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
@@ -144,7 +144,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         assertDoesNotThrow(() -> modificationWithError4.apply(network, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network, true, subReportNode4), "Unable to find the attachment point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34");
         ReportNode reportNodeChild4a = reportNode4.getChildren().get(0);
-        assertEquals("core-iidm-modification-noTeePointAndOrTappedVoltageLevel", reportNodeChild4a.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.noTeePointAndOrTappedVoltageLevel", reportNodeChild4a.getChildren().get(0).getMessageKey());
         final NetworkModification modificationWithError41 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("CJ_2")
@@ -156,7 +156,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .add());
         assertNull(network.getLine("CJ"));
         ReportNode reportNodeChild4b = reportNode4.getChildren().get(1);
-        assertEquals("core-iidm-modification-noTeePointAndOrTappedVoltageLevel", reportNodeChild4b.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.noTeePointAndOrTappedVoltageLevel", reportNodeChild4b.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode = ReportNode.newRootReportNode()
                 .withLocaleMessageTemplate("reportNodeTestRevertCreateLineOnLine", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
