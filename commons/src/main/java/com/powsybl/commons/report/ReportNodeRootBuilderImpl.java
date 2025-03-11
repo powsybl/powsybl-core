@@ -14,10 +14,14 @@ import java.util.Locale;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeBuilder> implements ReportNodeBuilder {
+public class ReportNodeRootBuilderImpl<S extends ReportNode> extends AbstractReportNodeAdderOrBuilder<S, ReportNodeBuilder> implements ReportNodeBuilder {
 
     private String defaultTimestampPattern;
     private Locale locale;
+
+    public ReportNodeRootBuilderImpl(ReportNodeFactory<S> reportNodeFactory) {
+        super(reportNodeFactory);
+    }
 
     @Override
     public ReportNodeBuilder withDefaultTimestampPattern(String timestampPattern) {
@@ -38,7 +42,7 @@ public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<
         if (withTimestamp) {
             addTimeStampValue(treeContext);
         }
-        return ReportNodeImpl.createRootReportNode(key, values, treeContext, messageTemplateProvider);
+        return reportNodeFactory.createRoot(key, values, treeContext);
     }
 
     @Override

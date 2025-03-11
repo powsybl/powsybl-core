@@ -14,11 +14,12 @@ import java.util.Objects;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeChildAdderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeAdder> implements ReportNodeAdder {
+public class ReportNodeChildAdderImpl<S extends ReportNode> extends AbstractReportNodeAdderOrBuilder<S, ReportNodeAdder> implements ReportNodeAdder {
 
-    private final ReportNodeImpl parent;
+    private final S parent;
 
-    ReportNodeChildAdderImpl(ReportNodeImpl parent) {
+    ReportNodeChildAdderImpl(S parent, ReportNodeFactory<S> reportNodeFactory) {
+        super(reportNodeFactory);
         this.parent = Objects.requireNonNull(parent);
     }
 
@@ -27,9 +28,7 @@ public class ReportNodeChildAdderImpl extends AbstractReportNodeAdderOrBuilder<R
         if (withTimestamp) {
             addTimeStampValue(parent.getTreeContext());
         }
-        ReportNodeImpl node = ReportNodeImpl.createChildReportNode(key, values, parent, messageTemplateProvider);
-        parent.addChild(node);
-        return node;
+        return reportNodeFactory.createChild(key, values, parent);
     }
 
     @Override
