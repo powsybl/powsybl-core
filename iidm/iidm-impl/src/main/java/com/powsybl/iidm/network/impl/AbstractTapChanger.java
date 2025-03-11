@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.util.NetworkReports;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.ArrayList;
@@ -131,7 +132,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     public C unsetTapPosition() {
         NetworkImpl n = getNetwork();
-        ValidationUtil.throwExceptionOrLogError(parent, "tap position has been unset", n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        ValidationUtil.throwExceptionOrLogError(parent, "tap position has been unset", n.getMinValidationLevel());
+        NetworkReports.tapPositionUnset(n.getReportNodeContext().getReportNode());
         int variantIndex = network.get().getVariantIndex();
         Integer oldValue = this.tapPosition.set(variantIndex, null);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
