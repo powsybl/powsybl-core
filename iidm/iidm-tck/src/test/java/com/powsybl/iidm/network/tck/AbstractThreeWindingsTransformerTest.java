@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
-
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -195,11 +194,21 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertNotSame(transformer.getLeg2(), transformer2.getLeg2());
         assertNotSame(transformer.getLeg3(), transformer2.getLeg3());
 
-        // check getTerminal(voltageLevelId)
+        int count = network.getThreeWindingsTransformerCount();
+        transformer.remove();
+        assertNull(network.getThreeWindingsTransformer("twt"));
+        assertNotNull(transformer);
+        assertEquals(count - 1L, network.getThreeWindingsTransformerCount());
+    }
+
+    @Test
+    public void testGetTerminalVL() {
+        ThreeWindingsTransformerAdder transformerAdder = createThreeWindingsTransformerAdder();
+        ThreeWindingsTransformer transformer = transformerAdder.add();
         assertEquals(transformer.getTerminal("vl1").getBusBreakerView().getConnectableBus(),
             transformer.getLeg1().getTerminal().getBusBreakerView().getConnectableBus());
         String message = assertThrows(PowsyblException.class, () -> transformer.getTerminal("vl2")).getMessage();
-        assertEquals("two of the three terminals are connected to voltage level vl2", message);
+        assertEquals("two of the three terminals are connected to the same voltage level vl2", message);
 
         VoltageLevel voltageLevelC = substation.newVoltageLevel()
             .setId("vl3").setName("vl3")
@@ -227,12 +236,43 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             transformer.getLeg2().getTerminal().getBusBreakerView().getConnectableBus());
         assertEquals(transformer3.getTerminal("vl3").getBusBreakerView().getConnectableBus(),
             transformer3.getLeg3().getTerminal().getBusBreakerView().getConnectableBus());
+        message = assertThrows(PowsyblException.class, () -> transformer3.getTerminal("vl4")).getMessage();
+        assertEquals("No terminal connected to voltage level vl4", message);
 
-        int count = network.getThreeWindingsTransformerCount();
-        transformer.remove();
-        assertNull(network.getThreeWindingsTransformer("twt"));
-        assertNotNull(transformer);
-        assertEquals(count - 1L, network.getThreeWindingsTransformerCount());
+        ThreeWindingsTransformer transformer4 = transformerAdder.setId(transformer.getId() + "_4")
+            .newLeg1()
+                .setR(3.3)
+                .setX(3.4)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(3.5)
+                .setRatedS(3.6)
+                .setVoltageLevel("vl1")
+                .setConnectableBus("busA")
+                .add()
+            .newLeg2()
+                .setR(3.3)
+                .setX(3.4)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(3.5)
+                .setRatedS(3.6)
+                .setVoltageLevel("vl1")
+                .setConnectableBus("busA")
+                .add()
+            .newLeg3()
+                .setR(3.3)
+                .setX(3.4)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(3.5)
+                .setRatedS(3.6)
+                .setVoltageLevel("vl1")
+                .setConnectableBus("busA")
+                .add()
+            .add();
+        message = assertThrows(PowsyblException.class, () -> transformer4.getTerminal("vl1")).getMessage();
+        assertEquals("the three terminals are connected to the same voltage level vl1", message);
     }
 
     @Test
