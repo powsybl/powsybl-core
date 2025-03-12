@@ -7,8 +7,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.*;
@@ -380,6 +381,27 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             case TWO -> getLeg2().getTerminal();
             case THREE -> getLeg3().getTerminal();
         };
+    }
+
+    @Override
+    public Terminal getTerminal(String voltageLevelId) {
+        Objects.requireNonNull(voltageLevelId);
+        boolean side1 = getLeg1().getTerminal().getVoltageLevel().getId().equals(voltageLevelId);
+        boolean side2 = getLeg2().getTerminal().getVoltageLevel().getId().equals(voltageLevelId);
+        boolean side3 = getLeg3().getTerminal().getVoltageLevel().getId().equals(voltageLevelId);
+        if (side1 && side2 && side3) {
+            throw new PowsyblException("the three terminals are connected to voltage level " + voltageLevelId);
+        } else if (side1 && side2 || side3 && side1 || side2 && side3) {
+            throw new PowsyblException("two of the three terminals are connected to voltage level " + voltageLevelId);
+        } else if (side1) {
+            return getLeg1().getTerminal();
+        } else if (side2) {
+            return getLeg2().getTerminal();
+        } else if (side3) {
+            return getLeg3().getTerminal();
+        } else {
+            throw new PowsyblException("No terminal connected to voltage level " + voltageLevelId);
+        }
     }
 
     @Override

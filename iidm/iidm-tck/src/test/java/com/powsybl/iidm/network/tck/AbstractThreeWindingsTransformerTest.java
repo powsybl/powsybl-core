@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
@@ -193,6 +194,39 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertNotSame(transformer.getLeg1(), transformer2.getLeg1());
         assertNotSame(transformer.getLeg2(), transformer2.getLeg2());
         assertNotSame(transformer.getLeg3(), transformer2.getLeg3());
+
+        // check getTerminal(voltageLevelId)
+        assertEquals(transformer.getTerminal("vl1").getBusBreakerView().getConnectableBus(),
+            transformer.getLeg1().getTerminal().getBusBreakerView().getConnectableBus());
+        String message = assertThrows(PowsyblException.class, () -> transformer.getTerminal("vl2")).getMessage();
+        assertEquals("two of the three terminals are connected to voltage level vl2", message);
+
+        VoltageLevel voltageLevelC = substation.newVoltageLevel()
+            .setId("vl3").setName("vl3")
+            .setNominalV(200.0)
+            .setHighVoltageLimit(400.0)
+            .setLowVoltageLimit(200.0)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+        voltageLevelC.getBusBreakerView().newBus()
+            .setId("busC")
+            .setName("busC")
+            .add();
+
+        ThreeWindingsTransformer transformer3 = transformerAdder.setId(transformer.getId() + "_3").newLeg3()
+            .setR(3.3)
+            .setX(3.4)
+            .setG(0.0)
+            .setB(0.0)
+            .setRatedU(3.5)
+            .setRatedS(3.6)
+            .setVoltageLevel("vl3")
+            .setConnectableBus("busC").add().add();
+
+        assertEquals(transformer3.getTerminal("vl2").getBusBreakerView().getConnectableBus(),
+            transformer.getLeg2().getTerminal().getBusBreakerView().getConnectableBus());
+        assertEquals(transformer3.getTerminal("vl3").getBusBreakerView().getConnectableBus(),
+            transformer3.getLeg3().getTerminal().getBusBreakerView().getConnectableBus());
 
         int count = network.getThreeWindingsTransformerCount();
         transformer.remove();

@@ -300,6 +300,8 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
 
     Terminal getTerminal(ThreeSides side);
 
+    Terminal getTerminal(String voltageLevelId);
+
     /**
      * Get the side the terminal is connected to.
      */
