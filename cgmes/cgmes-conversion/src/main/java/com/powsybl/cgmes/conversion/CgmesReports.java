@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Bus;
@@ -23,14 +24,14 @@ public final class CgmesReports {
     // INFO
     public static ReportNode applyingPreprocessorsReport(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("applyingPreprocessors", "Applying preprocessors.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.applyingPreprocessors", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 
     public static void applyingProcessorReport(ReportNode reportNode, String processorName) {
         reportNode.newReportNode()
-                .withMessageTemplate("applyingProcessor", "Applying processor: {processorName}.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.applyingProcessor", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("processorName", processorName)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -38,14 +39,14 @@ public final class CgmesReports {
 
     public static ReportNode buildingMappingsReport(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("buildingMappings", "Building mappings.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.buildingMappings", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 
     public static ReportNode convertingElementTypeReport(ReportNode reportNode, String elementType) {
         return reportNode.newReportNode()
-                .withMessageTemplate("convertingElementType", "Converting ${elementType}.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.convertingElementType", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("elementType", elementType)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -53,28 +54,28 @@ public final class CgmesReports {
 
     public static ReportNode fixingDanglingLinesIssuesReport(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("fixingDanglingLinesIssues", "Fixing issues with dangling lines.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.fixingDanglingLinesIssues", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 
     public static ReportNode settingVoltagesAndAnglesReport(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("settingVoltagesAndAngles", "Setting voltages and angles.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.settingVoltagesAndAngles", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 
     public static ReportNode applyingPostprocessorsReport(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("applyingPostprocessors", "Applying postprocessors.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.applyingPostprocessors", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 
     public static void importedCgmesNetworkReport(ReportNode reportNode, String networkId) {
         reportNode.newReportNode()
-                .withMessageTemplate("importedCgmesNetwork", "CGMES network ${networkId} is imported.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.importedCgmesNetwork", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("networkId", networkId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -83,7 +84,7 @@ public final class CgmesReports {
     // WARN
     public static void badVoltageTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
         reportNode.newReportNode()
-                .withMessageTemplate("badVoltageTargetValueRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target value for voltage: ${targetValue}.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.badVoltageTargetValueRegulatingControl", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("equipmentId", eqId)
                 .withTypedValue("targetValue", targetValue, TypedValue.VOLTAGE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -92,7 +93,7 @@ public final class CgmesReports {
 
     public static void badTargetDeadbandRegulatingControlReport(ReportNode reportNode, String eqId, double targetDeadband) {
         reportNode.newReportNode()
-                .withMessageTemplate("badTargetDeadbandRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.badTargetDeadbandRegulatingControl", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("equipmentId", eqId)
                 .withTypedValue("targetDeadband", targetDeadband, TypedValue.VOLTAGE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -101,7 +102,7 @@ public final class CgmesReports {
 
     public static void invalidAngleVoltageBusReport(ReportNode reportNode, Bus bus, String nodeId, double v, double angle) {
         reportNode.newReportNode()
-                .withMessageTemplate("invalidAngleVoltageBus", "Node ${nodeId} in substation ${substation}, voltageLevel ${voltageLevel}, bus ${bus} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.invalidAngleVoltageBus", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("substation", bus.getVoltageLevel().getSubstation().map(Substation::getNameOrId).orElse("unknown"))
                 .withUntypedValue("voltageLevel", bus.getVoltageLevel().getNameOrId())
                 .withUntypedValue("bus", bus.getId())
@@ -114,7 +115,7 @@ public final class CgmesReports {
 
     public static void invalidAngleVoltageNodeReport(ReportNode reportNode, String nodeId, double v, double angle) {
         reportNode.newReportNode()
-                .withMessageTemplate("invalidAngleVoltageNode", "Node ${nodeId} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.invalidAngleVoltageNode", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("nodeId", nodeId)
                 .withTypedValue("voltage", v, TypedValue.VOLTAGE)
                 .withTypedValue("angle", angle, TypedValue.ANGLE)
@@ -124,7 +125,7 @@ public final class CgmesReports {
 
     public static void removingUnattachedHvdcConverterStationReport(ReportNode reportNode, String converterId) {
         reportNode.newReportNode()
-                .withMessageTemplate("removingUnattachedHvdcConverterStation", "HVDC Converter Station ${converterId} will be removed since it has no attached HVDC line.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.removingUnattachedHvdcConverterStation", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("converterId", converterId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -132,7 +133,7 @@ public final class CgmesReports {
 
     public static void voltageLevelMappingReport(ReportNode reportNode, int voltageLevelMappingSize, String mapAsString) {
         reportNode.newReportNode()
-                .withMessageTemplate("voltageLevelMapping", "Original ${voltageLevelMappingSize} VoltageLevel container(s) connected by switches have been merged in IIDM. Map of original VoltageLevel to IIDM: ${mapAsString}.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.voltageLevelMapping", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("voltageLevelMappingSize", voltageLevelMappingSize)
                 .withUntypedValue("mapAsString", mapAsString)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -141,7 +142,7 @@ public final class CgmesReports {
 
     public static void substationMappingReport(ReportNode reportNode, int substationMappingSize, String mapAsString) {
         reportNode.newReportNode()
-                .withMessageTemplate("substationMapping", "Original ${substationMappingSize} Substation container(s) connected by transformers have been merged in IIDM. Map of original Substation to IIDM: ${mapAsString}.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.substationMapping", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("substationMappingSize", substationMappingSize)
                 .withUntypedValue("mapAsString", mapAsString)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -150,7 +151,7 @@ public final class CgmesReports {
 
     public static void nominalVoltageIsZeroReport(ReportNode reportNode, String voltageLevelId) {
         reportNode.newReportNode()
-                .withMessageTemplate("nominalVoltageIsZero", "Ignoring VoltageLevel: ${voltageLevelId} for its nominal voltage is equal to 0.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.nominalVoltageIsZero", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("voltageLevelId", voltageLevelId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -159,7 +160,7 @@ public final class CgmesReports {
     // ERROR
     public static void inconsistentProfilesTPRequiredReport(ReportNode reportNode, String networkId) {
         reportNode.newReportNode()
-                .withMessageTemplate("inconsistentProfilesTPRequired", "Network contains node/breaker ${networkId} information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.inconsistentProfilesTPRequired", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("networkId", networkId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
@@ -167,7 +168,7 @@ public final class CgmesReports {
 
     public static void danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(ReportNode reportNode, String danglingLineId) {
         reportNode.newReportNode()
-                .withMessageTemplate("danglingLineDisconnectedAtBoundaryHasBeenDisconnected", "DanglingLine ${danglingLineId} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.danglingLineDisconnectedAtBoundaryHasBeenDisconnected", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("danglingLineId", danglingLineId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -175,7 +176,7 @@ public final class CgmesReports {
 
     public static void multipleUnpairedDanglingLinesAtSameBoundaryReport(ReportNode reportNode, String danglingLineId, double p0, double q0, double p0Adjusted, double q0Adjusted) {
         reportNode.newReportNode()
-                .withMessageTemplate("multipleUnpairedDanglingLinesAtSameBoundary", "Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from (${p0}, ${q0}) to (${p0Adjusted}, ${q0Adjusted}) for dangling line ${danglingLineId}.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.multipleUnpairedDanglingLinesAtSameBoundary", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("danglingLineId", danglingLineId)
                 .withUntypedValue("p0", p0)
                 .withUntypedValue("q0", q0)
@@ -187,7 +188,7 @@ public final class CgmesReports {
 
     public static void missingMandatoryAttributeReport(ReportNode reportNode, String attributeName, String objectClass, String objectId) {
         reportNode.newReportNode()
-                .withMessageTemplate("missingMandatoryAttribute", "Could't retrieve mandatory attribute: ${attributeName} of ${objectClass}: ${objectId}.")
+                .withLocaleMessageTemplate("core.cgmes.conversion.missingMandatoryAttribute", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("attributeName", attributeName)
                 .withUntypedValue("objectClass", objectClass)
                 .withUntypedValue("objectId", objectId)
@@ -197,20 +198,20 @@ public final class CgmesReports {
 
     public static ReportNode importingCgmesFileReport(ReportNode reportNode, String basename) {
         return reportNode.newReportNode()
-                .withMessageTemplate("CGMESConversion", "Importing CGMES file(s) with basename '${basename}'")
+                .withLocaleMessageTemplate("core.cgmes.conversion.CGMESConversion", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withUntypedValue("basename", basename)
                 .add();
     }
 
     public static ReportNode readingCgmesTriplestoreReport(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("CGMESTriplestore", "Reading CGMES Triplestore")
+                .withLocaleMessageTemplate("core.cgmes.conversion.CGMESTriplestore", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .add();
     }
 
     public static void exportedModelIdentifierReport(ReportNode reportNode, String description, String identifier, String networkId) {
         reportNode.newReportNode()
-                .withMessageTemplate("ExportedCgmesId", "CGMES exported model identifier: ${cgmesId} for subset ${cgmesSubset} of network ${networkId}")
+                .withLocaleMessageTemplate("core.cgmes.conversion.ExportedCgmesId", ReportBundleBaseName.BUNDLE_BASE_NAME)
                 .withTypedValue("cgmesId", description, TypedValue.URN_UUID)
                 .withTypedValue("cgmesSubset", identifier, TypedValue.CGMES_SUBSET)
                 .withTypedValue("networkId", networkId, TypedValue.ID)

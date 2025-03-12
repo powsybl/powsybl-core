@@ -31,7 +31,7 @@ class NoOpTest extends AbstractSerDeTest {
     void test() throws IOException {
         ReportNode root = ReportNode.NO_OP;
         ReportNode reportNode = root.newReportNode()
-                .withMessageTemplate("key", "message with value = ${double}")
+                .withLocaleMessageTemplate("key", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withTypedValue("double", 2.0, TypedValue.ACTIVE_POWER)
                 .withTypedValue("float", 2.0f, TypedValue.ACTIVE_POWER)
                 .withTypedValue("int", 4, "counter")
@@ -55,7 +55,9 @@ class NoOpTest extends AbstractSerDeTest {
         assertNull(reportNode.getMessageTemplate());
         assertNull(reportNode.getMessageKey());
 
-        ReportNode reportNodeImplRoot = ReportNode.newRootReportNode().withMessageTemplate("k", "Real root reportNode").build();
+        ReportNode reportNodeImplRoot = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("k", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         reportNode.include(reportNodeImplRoot);
         assertEquals(Collections.emptyList(), reportNode.getChildren());
 
@@ -102,7 +104,7 @@ class NoOpTest extends AbstractSerDeTest {
     void testPostponedValuesAdded() throws IOException {
         ReportNode root = ReportNode.NO_OP;
         ReportNode childNode = root.newReportNode()
-                .withMessageTemplate("key", "message with value = ${double}")
+                .withLocaleMessageTemplate("key", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withTimestamp()
                 .withTimestamp("pattern")
                 .add();
