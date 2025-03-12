@@ -123,12 +123,12 @@ public class UcteNetworkImpl implements UcteNetwork {
     @Override
     public void fix(ReportNode reportNode) {
 
-        ReportNode nodesReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteNodes", "Fix UCTE nodes").add();
+        ReportNode nodesReportNode = UcteReports.fixUcteNodes(reportNode);
         for (UcteNode node : nodes.values()) {
             node.fix(nodesReportNode);
         }
 
-        ReportNode linesReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteLines", "Fix UCTE lines").add();
+        ReportNode linesReportNode = UcteReports.fixUcteLines(reportNode);
         for (UcteLine line : lines.values()) {
             line.fix(linesReportNode);
         }

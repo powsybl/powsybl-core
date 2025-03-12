@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
@@ -601,13 +602,15 @@ public abstract class AbstractNetworkTest {
 
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testReportScadaNetwork", "Test reporting of SCADA network").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("testReportScadaNetwork", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reportNode));
 
         List<ReportNode> children = reportNode.getChildren();
         assertEquals(1, children.size());
         ReportNode reportNodeChild = children.get(0);
-        assertEquals("IIDMValidation", reportNodeChild.getMessageKey());
+        assertEquals("core.iidm.network.IIDMValidation", reportNodeChild.getMessageKey());
         assertEquals("Running validation checks on IIDM network scada", reportNodeChild.getMessage());
 
         List<ReportNode> messageNodes = reportNodeChild.getChildren();

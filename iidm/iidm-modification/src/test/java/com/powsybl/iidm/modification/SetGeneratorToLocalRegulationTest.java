@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
@@ -52,7 +53,8 @@ class SetGeneratorToLocalRegulationTest {
         assertEquals(21.0, gen4.getTargetV());
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("rootReportNode", "Set generators to local regulation").build();
+                .withLocaleMessageTemplate("rootReportNode", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         new SetGeneratorToLocalRegulation("GEN1").apply(network, reportNode);
         new SetGeneratorToLocalRegulation("GEN2").apply(network, reportNode);
         SetGeneratorToLocalRegulation modification = new SetGeneratorToLocalRegulation("WRONG_ID");
