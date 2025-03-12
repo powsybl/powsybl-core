@@ -14,4 +14,6 @@ public interface ReportNodeFactory<T extends ReportNode> {
     T createRoot(String key, Map<String, TypedValue> values, TreeContext treeContext);
 
     T createChild(String key, Map<String, TypedValue> values, T parent);
+
+    MessageTemplateProvider getMessageTemplateProvider();
 }

@@ -40,32 +40,33 @@ import static com.powsybl.commons.report.ReportNodeDeserializer.checkToken;
  */
 public final class ReportNodeImpl implements ReportNode {
 
+    private final ReportNodeFactory<ReportNodeImpl> reportNodeFactory;
     private final String messageKey;
     private final List<ReportNodeImpl> children = new ArrayList<>();
     private final Collection<Map<String, TypedValue>> inheritedValuesMaps;
     private final Map<String, TypedValue> values;
-    private final RefChain<TreeContextImpl> treeContext;
+    private final RefChain<TreeContext> treeContext;
     private boolean isRoot;
     private Collection<Map<String, TypedValue>> valuesMapsInheritance;
 
     static ReportNodeImpl createChildReportNode(String messageKey, Map<String, TypedValue> values, ReportNodeImpl parent,
-                                                MessageTemplateProvider messageTemplateProvider) {
-        return createReportNode(messageKey, values, parent.getValuesMapsInheritance(), parent.getTreeContextRef(), false, messageTemplateProvider);
+                                                ReportNodeFactory<ReportNodeImpl> reportNodeFactory) {
+        return createReportNode(messageKey, values, parent.getValuesMapsInheritance(), parent.getTreeContextRef(), false, reportNodeFactory);
     }
 
-    static ReportNodeImpl createRootReportNode(String messageKey, Map<String, TypedValue> values,
-                                               TreeContextImpl treeContext,
-                                               MessageTemplateProvider messageTemplateProvider) {
-        RefChain<TreeContextImpl> treeContextRef = new RefChain<>(new RefObj<>(treeContext));
-        return createReportNode(messageKey, values, Collections.emptyList(), treeContextRef, true, messageTemplateProvider);
+    static ReportNodeImpl createRootReportNode(String messageKey, Map<String, TypedValue> values, TreeContext treeContext,
+                                               ReportNodeFactory<ReportNodeImpl> reportNodeFactory) {
+        RefChain<TreeContext> treeContextRef = new RefChain<>(new RefObj<>(treeContext));
+        return createReportNode(messageKey, values, Collections.emptyList(), treeContextRef, true, reportNodeFactory);
     }
 
     private static ReportNodeImpl createReportNode(String messageKey, Map<String, TypedValue> values,
-                                                   Collection<Map<String, TypedValue>> inheritedValuesMaps, RefChain<TreeContextImpl> treeContextRef,
-                                                   boolean isRoot, MessageTemplateProvider messageTemplateProvider) {
-        TreeContextImpl treeContext = treeContextRef.get();
-        treeContext.addDictionaryEntry(messageKey, messageTemplateProvider);
-        return new ReportNodeImpl(messageKey, values, inheritedValuesMaps, treeContextRef, isRoot);
+                                                   Collection<Map<String, TypedValue>> inheritedValuesMaps, RefChain<TreeContext> treeContextRef,
+                                                   boolean isRoot, ReportNodeFactory<ReportNodeImpl> reportNodeFactory) {
+        Objects.requireNonNull(reportNodeFactory);
+        TreeContext treeContext = treeContextRef.get();
+        treeContext.addDictionaryEntry(messageKey, reportNodeFactory.getMessageTemplateProvider());
+        return new ReportNodeImpl(messageKey, values, inheritedValuesMaps, treeContextRef, isRoot, reportNodeFactory);
     }
 
     /**
@@ -79,7 +80,8 @@ public final class ReportNodeImpl implements ReportNode {
      * @param inheritedValuesMaps a {@link Collection} of inherited values maps
      * @param treeContext         the {@link TreeContextImpl} of the root of corresponding report tree
      */
-    private ReportNodeImpl(String messageKey, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps, RefChain<TreeContextImpl> treeContext, boolean isRoot) {
+    private ReportNodeImpl(String messageKey, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps,
+                           RefChain<TreeContext> treeContext, boolean isRoot, ReportNodeFactory<ReportNodeImpl> reportNodeFactory) {
         this.messageKey = Objects.requireNonNull(messageKey);
         checkMap(values);
         Objects.requireNonNull(inheritedValuesMaps).forEach(ReportNodeImpl::checkMap);
@@ -87,6 +89,7 @@ public final class ReportNodeImpl implements ReportNode {
         this.inheritedValuesMaps = inheritedValuesMaps;
         this.treeContext = Objects.requireNonNull(treeContext);
         this.isRoot = isRoot;
+        this.reportNodeFactory = reportNodeFactory;
     }
 
     private static void checkMap(Map<String, TypedValue> values) {
@@ -123,11 +126,11 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public TreeContextImpl getTreeContext() {
+    public TreeContext getTreeContext() {
         return getTreeContextRef().get();
     }
 
-    RefChain<TreeContextImpl> getTreeContextRef() {
+    RefChain<TreeContext> getTreeContextRef() {
         return treeContext;
     }
 
@@ -149,8 +152,8 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public ReportNodeAdder newReportNode() {
-        return new ReportNodeChildAdderImpl(this);
+    public ReportNodeAdder<ReportNodeImpl> newReportNode() {
+        return new ReportNodeChildAdderImpl<>(this, reportNodeFactory);
     }
 
     @Override
@@ -323,7 +326,7 @@ public final class ReportNodeImpl implements ReportNode {
         return parseJsonNode(parser, objectMapper, new RefChain<>(new RefObj<>(treeContext)), Collections.emptyList(), true);
     }
 
-    private static ReportNodeImpl parseJsonNode(JsonParser p, ObjectMapper objectMapper, RefChain<TreeContextImpl> treeContext,
+    private static ReportNodeImpl parseJsonNode(JsonParser p, ObjectMapper objectMapper, RefChain<TreeContext> treeContext,
                                                 Collection<Map<String, TypedValue>> inheritedValuesMaps, boolean rootReportNode) throws IOException {
         ReportNodeImpl reportNode = null;
         var parsingContext = new Object() {
@@ -340,8 +343,8 @@ public final class ReportNodeImpl implements ReportNode {
                     });
                 }
                 case "children" -> {
-                    // create the current reportNode to add the children to it
-                    reportNode = new ReportNodeImpl(parsingContext.messageKey, parsingContext.values, inheritedValuesMaps, treeContext, rootReportNode);
+                    // create the current reportNode to add the children to it TODO: remove null
+                    reportNode = new ReportNodeImpl(parsingContext.messageKey, parsingContext.values, inheritedValuesMaps, treeContext, rootReportNode, null);
 
                     // Remove start array token to read each child
                     checkToken(p, JsonToken.START_ARRAY);
@@ -354,8 +357,8 @@ public final class ReportNodeImpl implements ReportNode {
             }
         }
 
-        if (reportNode == null) {
-            reportNode = new ReportNodeImpl(parsingContext.messageKey, parsingContext.values, inheritedValuesMaps, treeContext, rootReportNode);
+        if (reportNode == null) { // TODO: remove null
+            reportNode = new ReportNodeImpl(parsingContext.messageKey, parsingContext.values, inheritedValuesMaps, treeContext, rootReportNode, null);
         }
 
         return reportNode;

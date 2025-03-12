@@ -15,17 +15,23 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public abstract class AbstractReportNodeAdderOrBuilder<S extends ReportNode, T extends ReportNodeAdderOrBuilder<T>>
-        implements ReportNodeAdderOrBuilder<T> {
+public abstract class AbstractReportNodeAdderOrBuilder<S extends ReportNode, T extends ReportNodeAdderOrBuilder<S, T>>
+        implements ReportNodeAdderOrBuilder<S, T> {
 
-    protected final ReportNodeFactory<S> reportNodeFactory;
     protected final Map<String, TypedValue> values = new LinkedHashMap<>();
+    protected ReportNodeFactory<S> reportNodeFactory;
     protected String key;
     protected boolean withTimestamp = false;
     protected String timestampPattern;
 
     public AbstractReportNodeAdderOrBuilder(ReportNodeFactory<S> reportNodeFactory) {
         this.reportNodeFactory = reportNodeFactory;
+    }
+
+    @Override
+    public T withReportNodeFactory(ReportNodeFactory<S> reportNodeFactory) {
+        this.reportNodeFactory = reportNodeFactory;
+        return self();
     }
 
     @Override

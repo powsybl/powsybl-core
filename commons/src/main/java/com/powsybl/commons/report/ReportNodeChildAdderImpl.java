@@ -14,7 +14,8 @@ import java.util.Objects;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeChildAdderImpl<S extends ReportNode> extends AbstractReportNodeAdderOrBuilder<S, ReportNodeAdder> implements ReportNodeAdder {
+public class ReportNodeChildAdderImpl<S extends ReportNode> extends AbstractReportNodeAdderOrBuilder<S, ReportNodeAdder<S>>
+        implements ReportNodeAdder<S> {
 
     private final S parent;
 
@@ -24,7 +25,7 @@ public class ReportNodeChildAdderImpl<S extends ReportNode> extends AbstractRepo
     }
 
     @Override
-    public ReportNode add() {
+    public S add() {
         if (withTimestamp) {
             addTimeStampValue(parent.getTreeContext());
         }
@@ -32,7 +33,7 @@ public class ReportNodeChildAdderImpl<S extends ReportNode> extends AbstractRepo
     }
 
     @Override
-    public ReportNodeAdder self() {
+    public ReportNodeChildAdderImpl<S> self() {
         return this;
     }
 }

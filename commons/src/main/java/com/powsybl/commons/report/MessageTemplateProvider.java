@@ -7,9 +7,12 @@
  */
 package com.powsybl.commons.report;
 
+import java.util.Locale;
+
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
+@FunctionalInterface
 public interface MessageTemplateProvider {
-    String getTemplate(String key);
+    String getTemplate(String key, Locale locale);
 }

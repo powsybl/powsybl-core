@@ -66,7 +66,7 @@ public class TreeContextImpl implements TreeContext {
 
     public void addDictionaryEntry(String key, MessageTemplateProvider messageTemplateProvider) {
         Objects.requireNonNull(messageTemplateProvider);
-        addDictionaryEntry(key, messageTemplateProvider.getTemplate(key));
+        addDictionaryEntry(key, messageTemplateProvider.getTemplate(key, getLocale()));
     }
 
     public synchronized void addDictionaryEntry(String key, String messageTemplate) {

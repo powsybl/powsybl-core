@@ -15,7 +15,7 @@ import java.util.Locale;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public interface ReportNodeBuilder extends ReportNodeAdderOrBuilder<ReportNodeBuilder> {
+public interface ReportNodeBuilder<S extends ReportNode> extends ReportNodeAdderOrBuilder<S, ReportNodeBuilder<S>> {
 
     /**
      * Sets the pattern used for timestamps, when a timestamp is added with {@link ReportNodeAdder#withTimestamp()}.
@@ -26,17 +26,17 @@ public interface ReportNodeBuilder extends ReportNodeAdderOrBuilder<ReportNodeBu
      * @param timestampPattern : the pattern to use for the timestamp (see {@link DateTimeFormatter#ofPattern(String, Locale)}})
      * @return a reference to this object
      */
-    ReportNodeBuilder withDefaultTimestampPattern(String timestampPattern);
+    ReportNodeBuilder<S> withDefaultTimestampPattern(String timestampPattern);
 
     /**
      * Choose which {@link Locale} to use for formatting all the `ReportNode` messages of the tree.
      * @return a reference to this object
      */
-    ReportNodeBuilder withLocale(Locale locale);
+    ReportNodeBuilder<S> withLocale(Locale locale);
 
     /**
      * Build the corresponding {@link ReportNode}.
      * @return the new {@link ReportNode} corresponding to current <code>ReportNodeBuilder</code>
      */
-    ReportNode build();
+    S build();
 }

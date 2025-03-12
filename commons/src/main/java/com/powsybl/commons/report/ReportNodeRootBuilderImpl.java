@@ -14,7 +14,8 @@ import java.util.Locale;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeRootBuilderImpl<S extends ReportNode> extends AbstractReportNodeAdderOrBuilder<S, ReportNodeBuilder> implements ReportNodeBuilder {
+public class ReportNodeRootBuilderImpl<S extends ReportNode> extends AbstractReportNodeAdderOrBuilder<S, ReportNodeBuilder<S>>
+        implements ReportNodeBuilder<S> {
 
     private String defaultTimestampPattern;
     private Locale locale;
@@ -24,19 +25,19 @@ public class ReportNodeRootBuilderImpl<S extends ReportNode> extends AbstractRep
     }
 
     @Override
-    public ReportNodeBuilder withDefaultTimestampPattern(String timestampPattern) {
+    public ReportNodeRootBuilderImpl<S> withDefaultTimestampPattern(String timestampPattern) {
         this.defaultTimestampPattern = timestampPattern;
-        return this;
+        return self();
     }
 
     @Override
-    public ReportNodeBuilder withLocale(Locale locale) {
+    public ReportNodeRootBuilderImpl<S> withLocale(Locale locale) {
         this.locale = locale;
-        return this;
+        return self();
     }
 
     @Override
-    public ReportNode build() {
+    public S build() {
         Locale localeSetOrDefault = this.locale != null ? this.locale : ReportConstants.DEFAULT_LOCALE;
         TreeContextImpl treeContext = new TreeContextImpl(localeSetOrDefault, defaultTimestampPattern);
         if (withTimestamp) {
@@ -46,7 +47,7 @@ public class ReportNodeRootBuilderImpl<S extends ReportNode> extends AbstractRep
     }
 
     @Override
-    public ReportNodeBuilder self() {
+    public ReportNodeRootBuilderImpl<S> self() {
         return this;
     }
 }

@@ -10,7 +10,9 @@ package com.powsybl.commons.report;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>> {
+public interface ReportNodeAdderOrBuilder<S extends ReportNode, T extends ReportNodeAdderOrBuilder<S, T>> {
+
+    T withReportNodeFactory(ReportNodeFactory<S> reportNodeFactory);
 
     /**
      * Provide the message template to build the {@link ReportNode} with, through the referred ResourcesBundle and the

@@ -69,8 +69,16 @@ public interface ReportNode {
      * Create a new builder for creating a root <code>ReportNode</code>.
      * @return a {@link ReportNodeBuilder}
      */
-    static ReportNodeBuilder newRootReportNode(ReportNodeFactory reportNodeFactory) {
-        return new ReportNodeRootBuilderImpl(reportNodeFactory);
+    static <T extends ReportNode> ReportNodeBuilder<T> newRootReportNode(ReportNodeFactory<T> reportNodeFactory) {
+        return new ReportNodeRootBuilderImpl<>(reportNodeFactory);
+    }
+
+    /**
+     * Create a new builder for creating a root <code>ReportNode</code>.
+     * @return a {@link ReportNodeBuilder}
+     */
+    static ReportNodeBuilder<ReportNodeImpl> newRootReportNode(String bundleBaseName) {
+        return new ReportNodeRootBuilderImpl<>(new BundleReportNodeFactory(bundleBaseName));
     }
 
     /**
@@ -130,7 +138,14 @@ public interface ReportNode {
      *
      * @return the created <code>ReportNodeAdder</code>
      */
-    ReportNodeAdder newReportNode();
+    ReportNodeAdder<? extends ReportNode> newReportNode();
+
+    /**
+     * Create a new adder to create a <code>ReportNode</code> child.
+     *
+     * @return the created <code>ReportNodeAdder</code>
+     */
+    <T extends ReportNode> ReportNodeAdder<T> newReportNode(ReportNodeFactory<T> reportNodeFactory);
 
     /**
      * Get the {@link TreeContext} of the corresponding {@link ReportNode} tree.
