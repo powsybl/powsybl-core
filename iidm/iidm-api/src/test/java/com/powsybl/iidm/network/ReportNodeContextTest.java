@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -51,14 +52,14 @@ class ReportNodeContextTest {
     @MethodSource("getReportNodeContextStream")
     void pushAndGetReportNodeTest(String desc, Supplier<ReportNodeContext> contextSupplier) {
         ReportNodeContext reportNodeContext = contextSupplier.get();
-        ReportNode reportNode0 = ReportNode.newRootReportNode()
+        ReportNode reportNode0 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("task0")
                 .build();
         reportNodeContext.pushReportNode(reportNode0);
         assertEquals(reportNode0, reportNodeContext.getReportNode());
         assertEquals(reportNode0, reportNodeContext.peekReportNode());
 
-        ReportNode reportNode1 = ReportNode.newRootReportNode()
+        ReportNode reportNode1 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("task1")
                 .build();
         reportNodeContext.pushReportNode(reportNode1);
@@ -75,10 +76,10 @@ class ReportNodeContextTest {
     void popReportNodeTest(String desc, Supplier<ReportNodeContext> contextSupplier) {
         ReportNodeContext reportNodeContext = contextSupplier.get();
 
-        ReportNode reportNode0 = ReportNode.newRootReportNode()
+        ReportNode reportNode0 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("task0")
                 .build();
-        ReportNode reportNode1 = ReportNode.newRootReportNode()
+        ReportNode reportNode1 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("task1")
                 .build();
         reportNodeContext.pushReportNode(reportNode0);
@@ -133,15 +134,15 @@ class ReportNodeContextTest {
         assert ReportNode.NO_OP.equals(reportNodeContext.getReportNode());
 
         // Push reportNodes in the context
-        ReportNode reportNode1 = ReportNode.newRootReportNode()
+        ReportNode reportNode1 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("1")
                 .build();
         reportNodeContext.pushReportNode(reportNode1);
-        ReportNode reportNode2 = ReportNode.newRootReportNode()
+        ReportNode reportNode2 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("2")
                 .build();
         reportNodeContext.pushReportNode(reportNode2);
-        ReportNode reportNode3 = ReportNode.newRootReportNode()
+        ReportNode reportNode3 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("3")
                 .build();
         reportNodeContext.pushReportNode(reportNode3);

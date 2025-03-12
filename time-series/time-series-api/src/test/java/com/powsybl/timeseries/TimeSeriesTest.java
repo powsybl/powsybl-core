@@ -7,6 +7,7 @@
  */
 package com.powsybl.timeseries;
 
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
 import org.junit.jupiter.api.Test;
@@ -365,7 +366,7 @@ class TimeSeriesTest {
             """.replaceAll("\n", System.lineSeparator());
 
         // Reporter
-        ReportNode reportNode = ReportNode.newRootReportNode()
+        ReportNode reportNode = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV")
                 .build();
 
@@ -395,7 +396,7 @@ class TimeSeriesTest {
                 """.replaceAll("\n", System.lineSeparator());
 
         // Reporter
-        ReportNode reportNode = ReportNode.newRootReportNode()
+        ReportNode reportNode = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV")
                 .build();
 

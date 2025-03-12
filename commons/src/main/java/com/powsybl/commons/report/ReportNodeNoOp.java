@@ -11,7 +11,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * A default no-op implementation
@@ -153,6 +156,11 @@ public class ReportNodeNoOp implements ReportNode {
         @Override
         public ReportNode add() {
             return new ReportNodeNoOp();
+        }
+
+        @Override
+        public ReportNodeAdder withMessageTemplateProvider(MessageTemplateProvider messageTemplateProvider) {
+            return this;
         }
 
         @Override

@@ -12,10 +12,10 @@ package com.powsybl.commons.report;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public interface ReportNodeAdder<S extends ReportNode> extends ReportNodeAdderOrBuilder<S, ReportNodeAdder<S>> {
+public interface ReportNodeAdder extends ReportNodeAdderOrBuilder<ReportNodeAdder> {
     /**
      * Build and add the corresponding {@link ReportNode}.
      * @return the new {@link ReportNode} corresponding to current <code>ReportNodeAdder</code>
      */
-    S add();
+    ReportNode add();
 }

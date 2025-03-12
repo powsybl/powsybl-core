@@ -19,6 +19,11 @@ import java.util.Map;
 public class TreeContextNoOp implements TreeContext {
 
     @Override
+    public ReportTreeFactory getReportTreeFactory() {
+        return ReportTreeFactory.DEFAULT;
+    }
+
+    @Override
     public Map<String, String> getDictionary() {
         return Map.of();
     }
@@ -33,6 +38,11 @@ public class TreeContextNoOp implements TreeContext {
         if (!(treeContext instanceof TreeContextNoOp)) {
             throw new PowsyblException("Cannot merge a TreeContextNoOp with non TreeContextNoOp");
         }
+    }
+
+    @Override
+    public void addDictionaryEntry(String messageKey, MessageTemplateProvider messageTemplateProvider) {
+
     }
 
     @Override

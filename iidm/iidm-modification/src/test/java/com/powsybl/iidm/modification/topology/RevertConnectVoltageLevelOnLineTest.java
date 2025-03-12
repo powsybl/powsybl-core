@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -44,7 +45,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         vl.getNodeBreakerView().newSwitch().setId("breaker4").setName("breaker4").setKind(SwitchKind.BREAKER).setRetained(false).setOpen(true).setFictitious(false).setNode1(0).setNode2(1).add();
         network.newLine().setId("LINE34").setR(0.1).setX(0.1).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setNode1(1).setVoltageLevel1("VL3").setNode2(1).setVoltageLevel2("VL4").add();
 
-        ReportNode reportNode1 = ReportNode.newRootReportNode()
+        ReportNode reportNode1 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportTestUndefinedLine")
                 .build();
         final NetworkModification modificationWithError1 = new RevertConnectVoltageLevelOnLineBuilder()
@@ -56,7 +57,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, reportNode1), "Line line1NotFound is not found");
         assertEquals("core.iidm.modification.lineNotFound", reportNode1.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode2 = ReportNode.newRootReportNode()
+        ReportNode reportNode2 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportTestUndefinedLine")
                 .build();
         final NetworkModification modificationWithError2 = new RevertConnectVoltageLevelOnLineBuilder()
@@ -68,7 +69,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, reportNode2), "Line line2NotFound is not found");
         assertEquals("core.iidm.modification.lineNotFound", reportNode2.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode3 = ReportNode.newRootReportNode()
+        ReportNode reportNode3 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportTestNoVLInCommon")
                 .build();
         final NetworkModification modificationWithError3 = new RevertConnectVoltageLevelOnLineBuilder()
@@ -91,7 +92,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         line2.newApparentPowerLimits1().setPermanentLimit(800.).add();
         line2.newCurrentLimits1().setPermanentLimit(900.).beginTemporaryLimit().setName("limit6").setValue(400).setAcceptableDuration(1200).endTemporaryLimit().add();
 
-        ReportNode reportNode = ReportNode.newRootReportNode()
+        ReportNode reportNode = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportTestRevertConnectVoltageLevelOnLine")
                 .build();
         modification = new RevertConnectVoltageLevelOnLineBuilder()
@@ -114,7 +115,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
 
         modification.apply(network);
 
-        ReportNode reportNode = ReportNode.newRootReportNode()
+        ReportNode reportNode = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportTestRevertConnectVoltageLevelOnLineNbBb")
                 .build();
         modification = new RevertConnectVoltageLevelOnLineBuilder()
@@ -137,7 +138,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
 
         modification.apply(network);
 
-        ReportNode reportNode = ReportNode.newRootReportNode()
+        ReportNode reportNode = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportTestRevertConnectVoltageLevelOnLineBb")
                 .build();
         modification = new RevertConnectVoltageLevelOnLineBuilder()

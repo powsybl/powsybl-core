@@ -8,14 +8,20 @@
 package com.powsybl.commons.report;
 
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-@FunctionalInterface
-public interface MessageTemplateProvider {
+public class MapMessageTemplateProvider implements MessageTemplateProvider {
+    private final Map<String, String> dictionary;
 
-    MessageTemplateProvider EMPTY = new EmptyMessageTemplateProvider();
+    public MapMessageTemplateProvider(Map<String, String> dictionary) {
+        this.dictionary = dictionary;
+    }
 
-    String getTemplate(String key, Locale locale);
+    @Override
+    public String getTemplate(String key, Locale locale) {
+        return dictionary.get(key);
+    }
 }

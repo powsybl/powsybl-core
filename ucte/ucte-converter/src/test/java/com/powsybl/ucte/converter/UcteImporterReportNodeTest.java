@@ -44,7 +44,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
     void testReportElementName() throws Exception {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
 
-        ReportNode rootReportNode = ReportNode.newRootReportNode()
+        ReportNode rootReportNode = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("testReportVoltageRegulatingXnode")
                 .withTypedValue("file", "elementName.uct", TypedValue.FILENAME)
                 .build();
@@ -72,7 +72,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
     @Test
     void roundTripReportNodeJsonTest() throws Exception {
         String filename = "frVoltageRegulatingXnode.uct";
-        ReportNode reportRoot = ReportNode.newRootReportNode()
+        ReportNode reportRoot = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("roundTripReportNodeJsonTest")
                 .build();
         reportRoot.newReportNode()
@@ -122,7 +122,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         Files.copy(getClass().getResourceAsStream("/germanTsos.uct"), fileSystem.getPath(WORK_DIR, "germanTsos.uct"));
 
         List<Network> networkList = Collections.synchronizedList(new ArrayList<>());
-        ReportNode reportRoot = ReportNode.newRootReportNode()
+        ReportNode reportRoot = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("importAllParallel")
                 .withTypedValue("file1", "frVoltageRegulatingXnode.uct", TypedValue.FILENAME)
                 .withTypedValue("file2", "frTestGridForMerging.uct", TypedValue.FILENAME)

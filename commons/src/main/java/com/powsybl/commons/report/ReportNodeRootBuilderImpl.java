@@ -7,47 +7,33 @@
  */
 package com.powsybl.commons.report;
 
-import java.util.Locale;
+import java.util.Objects;
 
 /**
  * A builder to create a root {@link ReportNode} object.
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeRootBuilderImpl<S extends ReportNode> extends AbstractReportNodeAdderOrBuilder<S, ReportNodeBuilder<S>>
-        implements ReportNodeBuilder<S> {
+public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeBuilder>
+        implements ReportNodeBuilder {
 
-    private String defaultTimestampPattern;
-    private Locale locale;
-
-    public ReportNodeRootBuilderImpl(ReportNodeFactory<S> reportNodeFactory) {
-        super(reportNodeFactory);
+    @Override
+    public ReportNodeBuilder withReportTreeFactory(ReportTreeFactory reportTreeFactory) {
+        this.reportTreeFactory = Objects.requireNonNull(reportTreeFactory);
+        return this;
     }
 
     @Override
-    public ReportNodeRootBuilderImpl<S> withDefaultTimestampPattern(String timestampPattern) {
-        this.defaultTimestampPattern = timestampPattern;
-        return self();
-    }
-
-    @Override
-    public ReportNodeRootBuilderImpl<S> withLocale(Locale locale) {
-        this.locale = locale;
-        return self();
-    }
-
-    @Override
-    public S build() {
-        Locale localeSetOrDefault = this.locale != null ? this.locale : ReportConstants.DEFAULT_LOCALE;
-        TreeContextImpl treeContext = new TreeContextImpl(localeSetOrDefault, defaultTimestampPattern);
+    public ReportNode build() {
+        TreeContext treeContext = reportTreeFactory.createTreeContext();
         if (withTimestamp) {
             addTimeStampValue(treeContext);
         }
-        return reportNodeFactory.createRoot(key, values, treeContext);
+        return reportTreeFactory.createRoot(key, values, treeContext, messageTemplateProvider);
     }
 
     @Override
-    public ReportNodeRootBuilderImpl<S> self() {
+    public ReportNodeRootBuilderImpl self() {
         return this;
     }
 }

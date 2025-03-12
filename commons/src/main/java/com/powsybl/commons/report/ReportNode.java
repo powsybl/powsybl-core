@@ -69,16 +69,27 @@ public interface ReportNode {
      * Create a new builder for creating a root <code>ReportNode</code>.
      * @return a {@link ReportNodeBuilder}
      */
-    static <T extends ReportNode> ReportNodeBuilder<T> newRootReportNode(ReportNodeFactory<T> reportNodeFactory) {
-        return new ReportNodeRootBuilderImpl<>(reportNodeFactory);
+    static ReportNodeBuilder newRootReportNode() {
+        return new ReportNodeRootBuilderImpl();
     }
 
     /**
      * Create a new builder for creating a root <code>ReportNode</code>.
      * @return a {@link ReportNodeBuilder}
      */
-    static ReportNodeBuilder<ReportNodeImpl> newRootReportNode(String bundleBaseName) {
-        return new ReportNodeRootBuilderImpl<>(new BundleReportNodeFactory(bundleBaseName));
+    static ReportNodeBuilder newRootReportNode(String bundleBaseName) {
+        return new ReportNodeRootBuilderImpl()
+                .withMessageTemplateProvider(new BundleMessageTemplateProvider(bundleBaseName));
+    }
+
+    /**
+     * Create a new builder for creating a root <code>ReportNode</code>.
+     * @return a {@link ReportNodeBuilder}
+     */
+    static ReportNodeBuilder newRootReportNode(String bundleBaseName, Locale locale) {
+        return new ReportNodeRootBuilderImpl()
+                .withReportTreeFactory(new ReportTreeFactoryImpl(locale))
+                .withMessageTemplateProvider(new BundleMessageTemplateProvider(bundleBaseName));
     }
 
     /**
@@ -138,14 +149,7 @@ public interface ReportNode {
      *
      * @return the created <code>ReportNodeAdder</code>
      */
-    ReportNodeAdder<? extends ReportNode> newReportNode();
-
-    /**
-     * Create a new adder to create a <code>ReportNode</code> child.
-     *
-     * @return the created <code>ReportNodeAdder</code>
-     */
-    <T extends ReportNode> ReportNodeAdder<T> newReportNode(ReportNodeFactory<T> reportNodeFactory);
+    ReportNodeAdder newReportNode();
 
     /**
      * Get the {@link TreeContext} of the corresponding {@link ReportNode} tree.

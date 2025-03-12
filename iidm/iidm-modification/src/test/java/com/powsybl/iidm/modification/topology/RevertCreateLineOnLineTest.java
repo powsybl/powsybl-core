@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -41,7 +42,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         vl.getNodeBreakerView().newSwitch().setId("breaker4").setName("breaker4").setKind(SwitchKind.BREAKER).setRetained(false).setOpen(true).setFictitious(false).setNode1(0).setNode2(1).add();
         network.newLine().setId("LINE34").setR(0.1).setX(0.1).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setNode1(1).setVoltageLevel1("VL3").setNode2(1).setVoltageLevel2("VL4").add();
 
-        ReportNode reportNode1 = ReportNode.newRootReportNode()
+        ReportNode reportNode1 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportTestUndefinedLine1")
                 .build();
         final NetworkModification modificationWithError1 = new RevertCreateLineOnLineBuilder()
@@ -70,7 +71,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         ReportNode reportNodeChild1b = reportNode1.getChildren().get(1);
         assertEquals("core.iidm.modification.lineNotFound", reportNodeChild1b.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode2 = ReportNode.newRootReportNode()
+        ReportNode reportNode2 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportTestUndefinedLine2")
                 .build();
         final NetworkModification modificationWithError2 = new RevertCreateLineOnLineBuilder()
@@ -99,7 +100,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         ReportNode reportNodeChild2b = reportNode2.getChildren().get(1);
         assertEquals("core.iidm.modification.lineNotFound", reportNodeChild2b.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode3 = ReportNode.newRootReportNode()
+        ReportNode reportNode3 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportTestUndefinedLineToBeDeleted")
                 .build();
         final NetworkModification modificationWithError3 = new RevertCreateLineOnLineBuilder()
@@ -128,7 +129,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         ReportNode reportNodeChild3b = reportNode3.getChildren().get(1);
         assertEquals("core.iidm.modification.lineNotFound", reportNodeChild3b.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode4 = ReportNode.newRootReportNode()
+        ReportNode reportNode4 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportTestNoTeePointAndOrTappedVoltageLevel")
                 .build();
         final NetworkModification modificationWithError4 = new RevertCreateLineOnLineBuilder()
@@ -157,7 +158,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         ReportNode reportNodeChild4b = reportNode4.getChildren().get(1);
         assertEquals("core.iidm.modification.noTeePointAndOrTappedVoltageLevel", reportNodeChild4b.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode = ReportNode.newRootReportNode()
+        ReportNode reportNode = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportNodeTestRevertCreateLineOnLine")
                 .build();
         modification = new RevertCreateLineOnLineBuilder()
@@ -179,7 +180,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
 
-        ReportNode reportNode = ReportNode.newRootReportNode()
+        ReportNode reportNode = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportNodeTestRevertCreateLineOnLineNBBB")
                 .build();
         modification = new RevertCreateLineOnLineBuilder()
@@ -201,7 +202,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId("bus").withLine(line).withLineAdder(adder).build();
         modification.apply(network);
 
-        ReportNode reportNode = ReportNode.newRootReportNode()
+        ReportNode reportNode = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("reportNodeTestRevertCreateLineOnLineBB")
                 .build();
         modification = new RevertCreateLineOnLineBuilder()

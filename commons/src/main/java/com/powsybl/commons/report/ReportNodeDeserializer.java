@@ -33,8 +33,15 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
     public static final String DICTIONARY_VALUE_ID = "dictionary";
     public static final String DICTIONARY_DEFAULT_NAME = "default";
 
+    private final ReportTreeFactory reportTreeFactory;
+
     ReportNodeDeserializer() {
+        this(ReportTreeFactory.DEFAULT);
+    }
+
+    ReportNodeDeserializer(ReportTreeFactory reportTreeFactory) {
         super(ReportNode.class);
+        this.reportTreeFactory = reportTreeFactory;
     }
 
     @Override
@@ -42,7 +49,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
         ReportNodeImpl reportNode = null;
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new ReportNodeJsonModule());
         ReportNodeVersion version = ReportConstants.CURRENT_VERSION;
-        TreeContextImpl treeContext = new TreeContextImpl();
+        TreeContext treeContext = reportTreeFactory.createTreeContext();
         while (p.nextToken() != JsonToken.END_OBJECT) {
             switch (p.currentName()) {
                 case "version" -> version = ReportNodeVersion.of(p.nextTextValue());
@@ -54,7 +61,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
         return reportNode;
     }
 
-    private void readDictionary(JsonParser p, ObjectMapper objectMapper, TreeContextImpl treeContext, String dictionaryName) throws IOException {
+    private void readDictionary(JsonParser p, ObjectMapper objectMapper, TreeContext treeContext, String dictionaryName) throws IOException {
         checkToken(p, JsonToken.START_OBJECT); // remove start object token to read the underlying map
         TypeReference<HashMap<String, HashMap<String, String>>> dictionariesTypeRef = new TypeReference<>() {
         };
@@ -71,7 +78,8 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
                 dictionary = dictionaryEntry.getValue();
             }
         }
-        dictionary.forEach(treeContext::addDictionaryEntry);
+        MessageTemplateProvider mtp = new MapMessageTemplateProvider(dictionary);
+        dictionary.keySet().forEach(k -> treeContext.addDictionaryEntry(k, mtp));
     }
 
     private String getDictionaryName(DeserializationContext ctx) {

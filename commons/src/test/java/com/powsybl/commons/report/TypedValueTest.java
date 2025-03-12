@@ -28,7 +28,7 @@ class TypedValueTest {
         assertEquals(TypedValue.SEVERITY, TypedValue.ERROR_SEVERITY.getType());
 
         // Check that is not possible to add a Severity attribute with a TypedValue that is not a severity
-        ReportNode root = ReportNode.newRootReportNode()
+        ReportNode root = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withMessageTemplate("root")
                 .build();
         ReportNodeAdder r1 = root.newReportNode()
