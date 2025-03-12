@@ -79,8 +79,8 @@ abstract class AbstractTapChangerAdderImpl<
     public T add() {
         NetworkImpl network = getNetwork();
         if (tapPosition == null) {
-            ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel(),
-                    network.getReportNodeContext().getReportNode());
+            ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
+            NetworkReports.tapPositionNotSet(network.getReportNodeContext().getReportNode());
             network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
         }
         if (steps.isEmpty()) {
@@ -91,7 +91,8 @@ abstract class AbstractTapChangerAdderImpl<
             if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
                 ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
                         + tapPosition + " [" + lowTapPosition + ", "
-                        + highTapPosition + "]", network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
+                        + highTapPosition + "]", network.getMinValidationLevel());
+                NetworkReports.tapPositionIncorrect(network.getReportNodeContext().getReportNode(), tapPosition, lowTapPosition, highTapPosition);
                 network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
             }
         }
