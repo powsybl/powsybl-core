@@ -48,8 +48,9 @@ public class IdentifierSerializer extends StdSerializer<NetworkElementIdentifier
                 jsonGenerator.writeStringField("order", Character.toString(ucteIdentifier.getOrder()));
                 break;
             case ID_WITH_WILDCARDS:
-                jsonGenerator.writeStringField("identifier", ((IdWithWildcardsNetworkElementIdentifier) networkElementIdentifier)
-                    .getIdentifier().replace('.', IdWithWildcardsNetworkElementIdentifier.WILDCARD));
+                IdWithWildcardsNetworkElementIdentifier identifier = (IdWithWildcardsNetworkElementIdentifier) networkElementIdentifier;
+                jsonGenerator.writeStringField("identifier", identifier.getIdentifier());
+                jsonGenerator.writeStringField("wildcard", identifier.getWildcardCharacter());
         }
         jsonGenerator.writeEndObject();
     }
