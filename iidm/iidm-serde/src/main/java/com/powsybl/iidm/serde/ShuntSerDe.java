@@ -178,7 +178,7 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
                     String regId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
                     ThreeSides regSide = context.getReader().readEnumAttribute("side", ThreeSides.class);
                     context.getReader().readEndNode();
-                    toApply.add(sc -> context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefSerDe.resolve(regId, regSide, sc.getNetwork()))));
+                    toApply.add(sc -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> sc.setRegulatingTerminal(TerminalRefSerDe.resolve(regId, regSide, sc.getNetwork()))));
                 }
                 case SHUNT_LINEAR_MODEL -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_LINEAR_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
