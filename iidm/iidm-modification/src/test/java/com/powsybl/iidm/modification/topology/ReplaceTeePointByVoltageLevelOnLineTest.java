@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportBundleBaseName;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -67,7 +67,8 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
 
         Network network = createNetworkAdditionalLine();
 
-        ReportNode reportNode2 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("reportTestLineNotFound2")
                 .build();
         NetworkModification modificationWithError2 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -81,7 +82,8 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, reportNode2)).getMessage().contains("Line line2NotFound is not found"));
         assertEquals("core.iidm.modification.lineNotFound", reportNode2.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode3 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode3 = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("reportTestLineNotFound")
                 .build();
         NetworkModification modificationWithError3 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -95,7 +97,8 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, reportNode3)).getMessage().contains("Line line3NotFound is not found"));
         assertEquals("core.iidm.modification.lineNotFound", reportNode3.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode4 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode4 = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("reportTestBbsNotFound")
                 .build();
         NetworkModification modificationWithError4 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -109,7 +112,8 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network, true, reportNode4)).getMessage().contains("Busbar section notFoundBusbarSection is not found in voltage level VLTEST"));
         assertEquals("core.iidm.modification.busbarSectionNotFound", reportNode4.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode5 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode5 = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("reportTestWrongTeePoint")
                 .build();
         NetworkModification modificationWithError5 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -123,7 +127,8 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError5.apply(network, true, reportNode5)).getMessage().contains("Unable to find the tee point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34"));
         assertEquals("core.iidm.modification.noTeePointAndOrTappedVoltageLevel", reportNode5.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode6 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode6 = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("reportTestBbsInWrongVL")
                 .build();
         NetworkModification modificationWithError6 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -143,7 +148,8 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
 
         Network network = createNetworkAdditionalLine();
 
-        ReportNode reportNode = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("reportTestReplaceTeePointByVoltageLevelOnLineNB")
                 .build();
         NetworkModification modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -172,7 +178,8 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
             .withSectionIndex(1)
             .add();
 
-        ReportNode reportNode = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("reportTestReplaceTeePointByVoltageLevelOnLineNBBb")
                 .build();
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -198,7 +205,8 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
         VoltageLevel vl = network.newVoltageLevel().setId("VL3").setNominalV(380).setTopologyKind(TopologyKind.BUS_BREAKER).add();
         vl.getBusBreakerView().newBus().setId("bus3").add();
 
-        ReportNode reportNode1 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("reportTestUndefinedBus")
                 .build();
         NetworkModification modificationWithError1 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -212,7 +220,8 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, reportNode1)).getMessage().contains("Bus busNotFound is not found in voltage level " + VOLTAGE_LEVEL_ID));
         assertEquals("core.iidm.modification.busNotFound", reportNode1.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode2 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("reportTestBusInWrongVl")
                 .build();
         NetworkModification modificationWithError2 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -226,7 +235,8 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, reportNode2)).getMessage().contains("Bus bus3 is not found in voltage level " + VOLTAGE_LEVEL_ID));
         assertEquals("core.iidm.modification.busNotFound", reportNode2.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode3 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode3 = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("reportTestReplaceTeePointByVoltageLevelOnLineBb")
                 .build();
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()

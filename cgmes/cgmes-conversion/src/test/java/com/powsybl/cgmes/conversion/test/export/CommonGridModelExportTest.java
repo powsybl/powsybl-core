@@ -18,7 +18,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.report.ReportBundleBaseName;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
@@ -448,7 +448,8 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
 
         // Export using a reporter to gather the exported model identifiers
         ReportNode report = ReportNode
-                .newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("rootKey")
                 .build();
 

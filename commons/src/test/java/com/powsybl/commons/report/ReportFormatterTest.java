@@ -20,7 +20,8 @@ class ReportFormatterTest {
 
     @Test
     void test() {
-        ReportNode root = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode root = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("formatTest")
                 .withUntypedValue("doubleDefaultFormat", 4.35684975)
                 .withTypedValue("doubleSpecificFormat", 4.4664798548, TypedValue.ACTIVE_POWER)

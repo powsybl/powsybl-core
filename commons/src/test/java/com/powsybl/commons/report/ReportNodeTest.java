@@ -21,7 +21,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Optional;
 
-import static com.powsybl.commons.report.ReportBundleBaseName.BUNDLE_TEST_BASE_NAME;
+import static com.powsybl.commons.report.PowsyblCoreReportResourceBundles.BUNDLE_TEST_BASE_NAME;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

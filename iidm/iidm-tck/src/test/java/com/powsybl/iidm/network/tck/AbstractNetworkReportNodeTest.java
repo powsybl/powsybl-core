@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.commons.report.ReportBundleBaseName;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReportNodeContext;
@@ -32,14 +32,16 @@ public abstract class AbstractNetworkReportNodeTest {
     public void executeWithReportNodeTest() {
         // Create a network and affect it a reportNode (reportNode1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNode reportNode1 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("key1")
                 .build();
         network.getReportNodeContext().pushReportNode(reportNode1);
         assertTrue(reportNode1.getChildren().isEmpty());
 
         // Create another reportNode (reportNode2)
-        ReportNode reportNode2 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("key2")
                 .build();
         assertTrue(reportNode2.getChildren().isEmpty());
@@ -65,17 +67,20 @@ public abstract class AbstractNetworkReportNodeTest {
     public void multiThreadTest() throws InterruptedException {
         // Create a network and affect it a reportNode (reportNode1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNode reportNode1 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("key1")
                 .build();
         network.getReportNodeContext().pushReportNode(reportNode1);
         assertTrue(reportNode1.getChildren().isEmpty());
 
         // Create 2 other reportNodes (reportNode2 and reportNode3)
-        ReportNode reportNode2 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("key2")
                 .build();
-        ReportNode reportNode3 = ReportNode.newRootReportNode(ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode3 = ReportNode.newRootReportNode()
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
                 .withMessageTemplate("key3")
                 .build();
         assertTrue(reportNode2.getChildren().isEmpty());
