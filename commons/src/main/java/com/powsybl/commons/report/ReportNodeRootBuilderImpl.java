@@ -29,6 +29,7 @@ public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<
         if (withTimestamp) {
             addTimeStampValue(treeContext);
         }
+        updateTreeDictionary(treeContext);
         return reportTreeFactory.createRoot(key, values, treeContext, messageTemplateProvider);
     }
 

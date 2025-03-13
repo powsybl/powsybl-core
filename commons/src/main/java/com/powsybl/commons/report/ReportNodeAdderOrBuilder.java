@@ -15,6 +15,19 @@ public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>>
     T withMessageTemplateProvider(MessageTemplateProvider messageTemplateProvider);
 
     /**
+     * Provide the message template to build the {@link ReportNode} with.
+     * @param key             the key identifying uniquely the message template
+     * @param messageTemplate functional log, which may contain references to values using the <code>${key}</code> syntax,
+     *                        the values mentioned being the values of corresponding {@link ReportNode} and the values of any
+     *                        {@link ReportNode} ancestor of the created {@link ReportNode}
+     * @return a reference to this object
+     * @deprecated This drastically limits the internationalization of the corresponding message.
+     *             Use {@link #withMessageTemplate} instead, and add the templates to a {@link java.util.ResourceBundle}.
+     */
+    @Deprecated(since = "6.7.0")
+    T withMessageTemplate(String key, String messageTemplate);
+
+    /**
      * Provide the message template to build the {@link ReportNode} with, through the referred ResourcesBundle and the
      * key provided. The corresponding functional log may contain references to values using the <code>${key}</code>
      * syntax, the values mentioned being the values of corresponding {@link ReportNode} and the values of any

@@ -75,6 +75,7 @@ public class TreeContextImpl implements TreeContext {
         otherContext.getDictionary().forEach(this::addDictionaryEntry);
     }
 
+    @Override
     public void addDictionaryEntry(String key, MessageTemplateProvider messageTemplateProvider) {
         Objects.requireNonNull(messageTemplateProvider);
         addDictionaryEntry(key, messageTemplateProvider.getTemplate(key, locale));

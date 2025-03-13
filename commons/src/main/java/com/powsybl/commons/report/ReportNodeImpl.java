@@ -51,7 +51,7 @@ public final class ReportNodeImpl implements ReportNode {
 
     static ReportNodeImpl createChildReportNode(String messageKey, Map<String, TypedValue> values, ReportNodeImpl parent,
                                                 MessageTemplateProvider messageTemplateProvider) {
-        ReportNodeImpl child = createReportNode(messageKey, values, parent.getValuesMapsInheritance(), parent.getTreeContextRef(), false, messageTemplateProvider);
+        ReportNodeImpl child = new ReportNodeImpl(messageKey, values, parent.getValuesMapsInheritance(), parent.getTreeContextRef(), false, messageTemplateProvider);
         parent.addChild(child);
         return child;
     }
@@ -59,16 +59,7 @@ public final class ReportNodeImpl implements ReportNode {
     static ReportNodeImpl createRootReportNode(String messageKey, Map<String, TypedValue> values, TreeContext treeContext,
                                                MessageTemplateProvider messageTemplateProvider) {
         RefChain<TreeContext> treeContextRef = new RefChain<>(new RefObj<>(treeContext));
-        return createReportNode(messageKey, values, Collections.emptyList(), treeContextRef, true, messageTemplateProvider);
-    }
-
-    private static ReportNodeImpl createReportNode(String messageKey, Map<String, TypedValue> values,
-                                                   Collection<Map<String, TypedValue>> inheritedValuesMaps, RefChain<TreeContext> treeContextRef,
-                                                   boolean isRoot, MessageTemplateProvider messageTemplateProvider) {
-        Objects.requireNonNull(messageTemplateProvider);
-        TreeContext treeContext = treeContextRef.get();
-        treeContext.addDictionaryEntry(messageKey, messageTemplateProvider);
-        return new ReportNodeImpl(messageKey, values, inheritedValuesMaps, treeContextRef, isRoot, messageTemplateProvider);
+        return new ReportNodeImpl(messageKey, values, Collections.emptyList(), treeContextRef, true, messageTemplateProvider);
     }
 
     /**

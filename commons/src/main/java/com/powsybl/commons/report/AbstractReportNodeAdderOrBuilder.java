@@ -20,6 +20,7 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     protected final Map<String, TypedValue> values = new LinkedHashMap<>();
     protected ReportTreeFactory reportTreeFactory = ReportTreeFactory.DEFAULT;
     protected String key;
+    protected String messageTemplate;
     protected boolean withTimestamp = false;
     protected String timestampPattern;
     protected MessageTemplateProvider messageTemplateProvider;
@@ -27,6 +28,13 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     @Override
     public T withMessageTemplateProvider(MessageTemplateProvider messageTemplateProvider) {
         this.messageTemplateProvider = messageTemplateProvider;
+        return self();
+    }
+
+    @Override
+    public T withMessageTemplate(String key, String messageTemplate) {
+        this.key = key;
+        this.messageTemplate = messageTemplate;
         return self();
     }
 
@@ -132,6 +140,15 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
         this.withTimestamp = true;
         this.timestampPattern = Objects.requireNonNull(pattern);
         return self();
+    }
+
+    protected void updateTreeDictionary(TreeContext treeContext) {
+        if (messageTemplate == null) {
+            treeContext.addDictionaryEntry(key, messageTemplateProvider);
+        } else {
+            treeContext.addDictionaryEntry(key, (k, l) -> messageTemplate);
+            messageTemplateProvider = new MapMessageTemplateProvider(treeContext.getDictionary());
+        }
     }
 
     protected void addTimeStampValue(TreeContext treeContext) {

@@ -26,12 +26,14 @@ public class ReportNodeChildAdderImpl extends AbstractReportNodeAdderOrBuilder<R
 
     @Override
     public ReportNode add() {
+        TreeContext treeContext = parent.getTreeContext();
         if (withTimestamp) {
-            addTimeStampValue(parent.getTreeContext());
+            addTimeStampValue(treeContext);
         }
+        updateTreeDictionary(treeContext);
         ReportTreeFactory childFactory = reportTreeFactory != null
                 ? reportTreeFactory
-                : parent.getTreeContext().getReportTreeFactory();
+                : treeContext.getReportTreeFactory();
         return childFactory.createChild(key, values, parent, messageTemplateProvider);
     }
 
