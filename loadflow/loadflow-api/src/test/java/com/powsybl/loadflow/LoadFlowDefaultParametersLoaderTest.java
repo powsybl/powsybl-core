@@ -59,8 +59,8 @@ class LoadFlowDefaultParametersLoaderTest {
 
         assertThrows(PowsyblException.class, () -> new LoadFlowParameters(loaders, platformConfig));
 
-        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("default-parameters-loader");
-        moduleConfig.setStringProperty("load-flow", "test1");
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow");
+        moduleConfig.setStringProperty("default-parameters-loader", "test1");
 
         LoadFlowParameters parameters = new LoadFlowParameters(loaders, platformConfig);
         List<Extension<LoadFlowParameters>> extensions = parameters.getExtensions().stream().toList();

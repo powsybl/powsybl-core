@@ -207,14 +207,14 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         // Check default-parameters-loader config parameter
         String selectedLoaderName;
         Optional<LoadFlowDefaultParametersLoader> selectedLoader = Optional.empty();
-        Optional<ModuleConfig> module = config.getOptionalModuleConfig("default-parameters-loader");
-        selectedLoaderName = module.map(moduleConfig -> moduleConfig.getStringProperty("load-flow")).orElse(null);
+        Optional<ModuleConfig> module = config.getOptionalModuleConfig("load-flow");
+        selectedLoaderName = module.map(moduleConfig -> moduleConfig.getStringProperty("default-parameters-loader")).orElse(null);
         if (selectedLoaderName != null) {
             selectedLoader = defaultParametersLoaders.stream()
                     .filter(loader -> loader.getSourceName().equals(selectedLoaderName))
                     .findFirst();
             if (selectedLoader.isEmpty()) {
-                LOGGER.warn("Parameter 'load-flow' of module 'default-parameters-loader' ({}) does not match any" +
+                LOGGER.warn("Parameter 'default-parameters-loader' of module 'load-flow' ({}) does not match any" +
                         " LoadFlowDefaultParametersLoader found in the classpath", selectedLoaderName);
             }
         } else {
@@ -223,7 +223,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 List<String> names = defaultParametersLoaders.stream()
                         .map(LoadFlowDefaultParametersLoader::getSourceName).toList();
                 String message = String.format("Multiple default loadflow parameter loader classes have been found in the class path : %s." +
-                                " Specify which one to use with the 'load-flow' parameter of 'default-parameters-loader' module " +
+                                " Specify which one to use with the 'default-parameters-loader' parameter of 'load-flow' module " +
                                 "of Powsybl configuration.", names);
                 throw new PowsyblException(message);
             } else if (numberOfLoadersFound == 1) {
