@@ -130,7 +130,7 @@
         <mockito.version>5.16.0</mockito.version>
         <nativelibloader.version>2.5.0</nativelibloader.version>
         <poi.version>5.4.0</poi.version>
-        <rdf4j.version>4.3.2</rdf4j.version>
+        <rdf4j.version>5.1.2</rdf4j.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>2.0.17</slf4j.version>
         <snakeyaml.version>2.4</snakeyaml.version>
