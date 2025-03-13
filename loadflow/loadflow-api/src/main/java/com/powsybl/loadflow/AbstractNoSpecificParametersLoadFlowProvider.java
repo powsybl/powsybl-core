@@ -53,6 +53,11 @@ public abstract class AbstractNoSpecificParametersLoadFlowProvider implements Lo
     }
 
     @Override
+    public void updateSpecificParameters(Extension<LoadFlowParameters> extension, PlatformConfig config) {
+        // nothing to do
+    }
+
+    @Override
     public List<Parameter> getSpecificParameters() {
         return Collections.emptyList();
     }
