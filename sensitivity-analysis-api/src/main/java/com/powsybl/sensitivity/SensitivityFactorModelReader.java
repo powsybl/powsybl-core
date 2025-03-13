@@ -7,12 +7,6 @@
  */
 package com.powsybl.sensitivity;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.IdBasedBusRef;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyLevel;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -22,11 +16,9 @@ import java.util.Objects;
 public class SensitivityFactorModelReader implements SensitivityFactorReader {
 
     private final List<SensitivityFactor> factors;
-    private final Network network;
 
-    public SensitivityFactorModelReader(List<SensitivityFactor> factors, Network network) {
+    public SensitivityFactorModelReader(List<SensitivityFactor> factors) {
         this.factors = Objects.requireNonNull(factors);
-        this.network = Objects.requireNonNull(network);
     }
 
     @Override
@@ -34,11 +26,6 @@ public class SensitivityFactorModelReader implements SensitivityFactorReader {
         Objects.requireNonNull(handler);
         for (SensitivityFactor factor : factors) {
             String functionId = factor.getFunctionId();
-            if (factor.getFunctionType() == SensitivityFunctionType.BUS_VOLTAGE) {
-                Bus bus = new IdBasedBusRef(factor.getFunctionId()).resolve(network, TopologyLevel.BUS_BRANCH)
-                    .orElseThrow(() -> new PowsyblException("The bus ref for '" + factor.getFunctionId() + "' cannot be resolved."));
-                functionId = bus.getId();
-            }
             handler.onFactor(factor.getFunctionType(), functionId, factor.getVariableType(),
                     factor.getVariableId(), factor.isVariableSet(), factor.getContingencyContext());
         }

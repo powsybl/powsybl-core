@@ -86,7 +86,7 @@ public final class SensitivityAnalysis {
             Objects.requireNonNull(computationManager, "Computation manager should not be null");
             Objects.requireNonNull(reportNode, "ReportNode should not be null");
 
-            SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
+            SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors);
             SensitivityResultModelWriter resultWriter = new SensitivityResultModelWriter(contingencies);
 
             return provider.run(network, workingVariantId, factorReader, resultWriter, contingencies, variableSets, parameters, computationManager, reportNode)
