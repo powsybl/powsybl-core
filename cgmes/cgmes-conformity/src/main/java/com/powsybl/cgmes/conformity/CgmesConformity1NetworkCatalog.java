@@ -129,7 +129,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setB(2.1677e-5)
                 .setPairingKey("TN_Border_ST24")
                 .add();
-        be7.newCurrentLimits().setPermanentLimit(1180)
+        be7.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1180)
                 .beginTemporaryLimit()
                     .setName(CL_0)
                     .setValue(1312.0)
@@ -223,7 +223,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setB(1.49854e-4)
                 .setPairingKey("TN_Border_AL11")
                 .add();
-        be3.newCurrentLimits().setPermanentLimit(1371)
+        be3.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1371)
                 .beginTemporaryLimit()
                     .setName(CL_0)
                     .setValue(1443.0)
@@ -249,7 +249,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setB(6.59734E-5)
                 .setPairingKey("TN_Border_GY11")
                 .add();
-        be5.newCurrentLimits().setPermanentLimit(1804)
+        be5.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1804)
                 .beginTemporaryLimit()
                     .setName(CL_0)
                     .setValue(1876.0)
@@ -275,7 +275,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setB(2.51956e-5)
                 .setPairingKey("TN_Border_MA11")
                 .add();
-        be4.newCurrentLimits().setPermanentLimit(1226)
+        be4.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1226)
                 .beginTemporaryLimit()
                     .setName(CL_0)
                     .setValue(1299.0)
@@ -337,7 +337,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setBus2(busAnvers220.getId())
                 .setVoltageLevel2(vlAnvers220.getId())
                 .add();
-        lineBE2.newCurrentLimits1().setPermanentLimit(1443.0)
+        lineBE2.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(1443.0)
                 .beginTemporaryLimit()
                     .setName(CL_0)
                     .setValue(1574.0)
@@ -349,7 +349,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
-        lineBE2.newCurrentLimits2().setPermanentLimit(1443.0)
+        lineBE2.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(1443.0)
                 .beginTemporaryLimit()
                     .setName(CL_0)
                     .setValue(1574.0)
@@ -386,7 +386,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setBus2(busAnvers220.getId())
                 .setVoltageLevel2(vlAnvers220.getId())
                 .add();
-        lineBE6.newCurrentLimits1().setPermanentLimit(1180.0)
+        lineBE6.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(1180.0)
                 .beginTemporaryLimit()
                     .setName(CL_0)
                     .setValue(1312.0)
@@ -398,7 +398,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
-        lineBE6.newCurrentLimits2().setPermanentLimit(1180.0)
+        lineBE6.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(1180.0)
                 .beginTemporaryLimit()
                     .setName(CL_0)
                     .setValue(1312.0)
@@ -544,7 +544,7 @@ public final class CgmesConformity1NetworkCatalog {
             .setRatedU1(u1)
             .setRatedU2(u2)
             .add();
-        tx.newCurrentLimits1().setPermanentLimit(1308.1)
+        tx.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(1308.1)
             .beginTemporaryLimit()
             .setName(CL_0)
             .setValue(1408.1)
@@ -556,7 +556,7 @@ public final class CgmesConformity1NetworkCatalog {
             .setAcceptableDuration(10)
             .endTemporaryLimit()
             .add();
-        tx.newCurrentLimits2().setPermanentLimit(13746.4)
+        tx.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(13746.4)
             .beginTemporaryLimit()
             .setName(CL_0)
             .setValue(14746.4)
@@ -621,7 +621,7 @@ public final class CgmesConformity1NetworkCatalog {
             .setRatedU1(u1)
             .setRatedU2(u2)
             .add();
-        txBE22.newCurrentLimits2().setPermanentLimit(3411.6)
+        txBE22.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(3411.6)
             .beginTemporaryLimit()
             .setName(CL_0)
             .setValue(3611.6)
@@ -686,7 +686,7 @@ public final class CgmesConformity1NetworkCatalog {
             .setRatedU1(u1)
             .setRatedU2(u2)
             .add();
-        txBE21.newCurrentLimits2().setPermanentLimit(3411.6)
+        txBE21.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(3411.6)
             .beginTemporaryLimit()
             .setName(CL_0)
             .setValue(3611.6)
@@ -770,7 +770,7 @@ public final class CgmesConformity1NetworkCatalog {
             .setVoltageLevel(vlBrussels21.getId())
             .add()
             .add();
-        txBETR3.getLeg1().newCurrentLimits()
+        txBETR3.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
             .setPermanentLimit(938.2)
             .beginTemporaryLimit()
             .setAcceptableDuration(20)
@@ -783,7 +783,7 @@ public final class CgmesConformity1NetworkCatalog {
             .setValue(998.2)
             .endTemporaryLimit()
             .add();
-        txBETR3.getLeg2().newCurrentLimits()
+        txBETR3.getLeg2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
             .setPermanentLimit(1705.8)
             .beginTemporaryLimit()
             .setAcceptableDuration(20)
@@ -796,7 +796,7 @@ public final class CgmesConformity1NetworkCatalog {
             .setValue(1905.8)
             .endTemporaryLimit()
             .add();
-        txBETR3.getLeg3().newCurrentLimits()
+        txBETR3.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
             .setPermanentLimit(17870.4)
             .beginTemporaryLimit()
             .setAcceptableDuration(20)
@@ -830,7 +830,7 @@ public final class CgmesConformity1NetworkCatalog {
         String modelId = "urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73";
         Network network = microBE(modelId);
         DanglingLine be1 = network.getDanglingLine(DANGLING_LINE_ID_1);
-        be1.newCurrentLimits().setPermanentLimit(1443)
+        be1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1443)
                 .beginTemporaryLimit()
                     .setName("CL-4")
                     .setValue(1500.0)
@@ -853,7 +853,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .add();
         TwoWindingsTransformer txBE21 = network.getTwoWindingsTransformer(TWT_ID_2);
-        txBE21.newCurrentLimits1().setPermanentLimit(938.2)
+        txBE21.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(938.2)
                 .beginTemporaryLimit()
                     .setName(CL_0)
                     .setValue(958.2)
@@ -866,7 +866,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .add();
         TwoWindingsTransformer txBE22 = network.getTwoWindingsTransformer(TWT_ID_1);
-        txBE22.newCurrentLimits1().setPermanentLimit(1705.8)
+        txBE22.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(1705.8)
                 .beginTemporaryLimit()
                     .setName(CL_0)
                     .setValue(1805.8)
@@ -997,7 +997,7 @@ public final class CgmesConformity1NetworkCatalog {
         TwoWindingsTransformer txBE22 = network.getTwoWindingsTransformer(TWT_ID_1);
         txBE22.getRatioTapChanger().remove();
         addPhaseTapChangerOnTxBE22(txBE22);
-        txBE22.newCurrentLimits1().setPermanentLimit(1705.8)
+        txBE22.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(1705.8)
                 .beginTemporaryLimit()
                     .setName(CL_2)
                     .setValue(1805.8)
@@ -1009,7 +1009,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
-        txBE22.newCurrentLimits2().setPermanentLimit(3411.6)
+        txBE22.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(3411.6)
                 .beginTemporaryLimit()
                     .setName(CL_2)
                     .setValue(3611.6)
@@ -1025,7 +1025,7 @@ public final class CgmesConformity1NetworkCatalog {
         TwoWindingsTransformer txBE21 = network.getTwoWindingsTransformer(TWT_ID_2);
         txBE21.getPhaseTapChanger().remove();
         addPhaseTapChangerOnTxBE21(txBE21);
-        txBE21.newCurrentLimits1().setPermanentLimit(938.2)
+        txBE21.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(938.2)
                 .beginTemporaryLimit()
                     .setName(CL_2)
                     .setValue(958.2)
@@ -1037,7 +1037,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
-        txBE21.newCurrentLimits2().setPermanentLimit(3411.6)
+        txBE21.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(3411.6)
                 .beginTemporaryLimit()
                     .setName(CL_2)
                     .setValue(3611.6)
@@ -1056,7 +1056,7 @@ public final class CgmesConformity1NetworkCatalog {
         network.getDanglingLine(DANGLING_LINE_ID_1)
                 .setP0(-89.462903)
                 .setQ0(1.519011)
-                .newCurrentLimits()
+                .getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                     .setPermanentLimit(1443)
                     .beginTemporaryLimit()
                         .setName(CL_0)

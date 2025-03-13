@@ -264,11 +264,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
             TwoWindingsTransformer newTwt = pair.getRight().getAdder().add();
             Optional<CurrentLimits> currentLimits1 = pair.getRight().getCurrentLimits1();
             if (currentLimits1.isPresent()) {
-                newTwt.newCurrentLimits1().setPermanentLimit(currentLimits1.get().getPermanentLimit()).add();
+                newTwt.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(currentLimits1.get().getPermanentLimit()).add();
             }
             Optional<CurrentLimits> currentLimits2 = pair.getRight().getCurrentLimits2();
             if (currentLimits2.isPresent()) {
-                newTwt.newCurrentLimits2().setPermanentLimit(currentLimits2.get().getPermanentLimit()).add();
+                newTwt.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(currentLimits2.get().getPermanentLimit()).add();
             }
             pair.getRight().getAliases().forEach(aliasPair -> {
                 if (aliasPair.getLeft() == null) {

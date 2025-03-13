@@ -161,10 +161,10 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNode2(3)
                 .setVoltageLevel2("S1VL2")
                 .add();
-        twt.newCurrentLimits1()
+        twt.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(1031.0)
                 .add();
-        twt.newCurrentLimits2()
+        twt.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(1031.0)
                 .add();
         twt.newPhaseTapChanger()
@@ -545,10 +545,10 @@ public final class FourSubstationsNodeBreakerFactory {
                 .add();
         lineS3S4.getTerminal1().setP(240.0036).setQ(2.1751);
         lineS3S4.getTerminal2().setP(-240.0).setQ(2.5415);
-        lineS3S4.newCurrentLimits1()
+        lineS3S4.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .add();
-        lineS3S4.newCurrentLimits2()
+        lineS3S4.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .beginTemporaryLimit()
                 .setName("IST")
