@@ -28,17 +28,17 @@ class SafeZipInputStreamTest {
     @Test
     void testConstructorWithValidEntryNumber() throws IOException {
         when(zipInputStream.getNextEntry()).thenReturn(new ZipEntry("entry1"), new ZipEntry("entry2"));
-        safeZipInputStream = new SafeZipInputStream(zipInputStream, 100);
+        safeZipInputStream = new SafeZipInputStream(zipInputStream, 1, 100);
         assertNotNull(safeZipInputStream);
     }
 
     @Test
     void testGetNextEntry() throws IOException {
         when(zipInputStream.getNextEntry()).thenReturn(new ZipEntry("entry1"), new ZipEntry("entry2"), null);
-        safeZipInputStream = new SafeZipInputStream(zipInputStream, 100);
+        safeZipInputStream = new SafeZipInputStream(zipInputStream, 3, 100);
         ZipEntry entry1 = safeZipInputStream.getNextEntry();
-        assertEquals("entry1", entry1.getName());
         assertNotNull(entry1);
+        assertEquals("entry1", entry1.getName());
         ZipEntry entry2 = safeZipInputStream.getNextEntry();
         assertNotNull(entry2);
         assertEquals("entry2", entry2.getName());
@@ -47,16 +47,29 @@ class SafeZipInputStreamTest {
     }
 
     @Test
+    void testExceedMaxEntries() throws IOException {
+        when(zipInputStream.getNextEntry()).thenReturn(new ZipEntry("entry1"), new ZipEntry("entry2"), null);
+        safeZipInputStream = new SafeZipInputStream(zipInputStream, 1, 100);
+        ZipEntry entry1 = safeZipInputStream.getNextEntry();
+        assertNotNull(entry1);
+        assertEquals("entry1", entry1.getName());
+        IOException exception = assertThrows(IOException.class, () -> {
+            safeZipInputStream.getNextEntry();
+        });
+        assertEquals("Max entries to read exceeded", exception.getMessage());
+    }
+
+    @Test
     void testReadExceedsMaxBytes() throws IOException {
         when(zipInputStream.read()).thenReturn(1, 1, 1, -1);
 
-        safeZipInputStream = new SafeZipInputStream(zipInputStream, 2);
+        safeZipInputStream = new SafeZipInputStream(zipInputStream, 1, 2);
+        safeZipInputStream.getNextEntry();
         assertEquals(1, safeZipInputStream.read());
         assertEquals(1, safeZipInputStream.read());
         IOException exception = assertThrows(IOException.class, () -> {
             safeZipInputStream.read();
         });
-
         assertEquals("Max bytes to read exceeded", exception.getMessage());
     }
 
@@ -65,12 +78,12 @@ class SafeZipInputStreamTest {
         byte[] buffer = new byte[10];
         when(zipInputStream.read(buffer, 0, 10)).thenReturn(10);
 
-        safeZipInputStream = new SafeZipInputStream(zipInputStream, 5);
+        safeZipInputStream = new SafeZipInputStream(zipInputStream, 1, 5);
+        safeZipInputStream.getNextEntry();
 
         IOException exception = assertThrows(IOException.class, () -> {
             safeZipInputStream.read(buffer, 0, 10);
         });
-
         assertEquals("Max bytes to read exceeded", exception.getMessage());
     }
 }

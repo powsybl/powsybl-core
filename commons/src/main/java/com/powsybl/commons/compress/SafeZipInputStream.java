@@ -16,14 +16,20 @@ import com.powsybl.commons.io.ForwardingInputStream;
 public class SafeZipInputStream extends ForwardingInputStream<ZipInputStream> {
 
     private long bytesRead;
+    private int entriesRead;
     private final long maxBytesToRead;
+    private final int maxEntriesToRead;
 
-    public SafeZipInputStream(ZipInputStream in, long maxBytesToRead) {
+    public SafeZipInputStream(ZipInputStream in, int maxEntriesToRead, long maxBytesToRead) {
         super(in);
+        this.maxEntriesToRead = maxEntriesToRead;
         this.maxBytesToRead = maxBytesToRead;
     }
 
     public ZipEntry getNextEntry() throws IOException {
+        if (++this.entriesRead > this.maxEntriesToRead) {
+            throw new IOException("Max entries to read exceeded");
+        }
         return this.getDelegate().getNextEntry();
     }
 
