@@ -9,7 +9,6 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.jupiter.api.Test;
@@ -23,7 +22,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -31,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class DoubleDataChunkTest {
 
     @Test
-    void baseTest() throws IOException {
+    void baseTest() {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(1, new double[] {1d, 2d, 3d});
         assertEquals(1, chunk.getOffset());
         assertEquals(3, chunk.getLength());
@@ -53,9 +60,9 @@ class DoubleDataChunkTest {
         assertEquals(jsonRef, JsonUtil.toJson(chunk::writeJson));
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:45:00Z"),
                                                                      Duration.ofMinutes(15));
-        assertEquals(ImmutableList.of(new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), 1d),
-                                      new DoublePoint(2, Instant.parse("2015-01-01T00:30:00Z").toEpochMilli(), 2d),
-                                      new DoublePoint(3, Instant.parse("2015-01-01T00:45:00Z").toEpochMilli(), 3d)),
+        assertEquals(List.of(new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z"), 1d),
+                                      new DoublePoint(2, Instant.parse("2015-01-01T00:30:00Z"), 2d),
+                                      new DoublePoint(3, Instant.parse("2015-01-01T00:45:00Z"), 3d)),
                 chunk.stream(index).toList());
     }
 
@@ -105,9 +112,9 @@ class DoubleDataChunkTest {
         // stream test
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:30:00Z"),
                                                                      Duration.ofMinutes(15));
-        assertEquals(ImmutableList.of(new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), 1d),
-                                      new DoublePoint(2, Instant.parse("2015-01-01T00:30:00Z").toEpochMilli(), 2d),
-                                      new DoublePoint(6, Instant.parse("2015-01-01T01:30:00Z").toEpochMilli(), 3d)),
+        assertEquals(List.of(new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z"), 1d),
+                                      new DoublePoint(2, Instant.parse("2015-01-01T00:30:00Z"), 2d),
+                                      new DoublePoint(6, Instant.parse("2015-01-01T01:30:00Z"), 3d)),
                      compressedChunk.stream(index).toList());
     }
 

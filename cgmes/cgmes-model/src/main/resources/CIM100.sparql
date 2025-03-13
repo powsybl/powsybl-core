@@ -26,10 +26,12 @@ GRAPH ?graphBDEQ {
     OPTIONAL { ?BoundaryPoint eu:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNode }
     OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNodeContainer }
     OPTIONAL { ?ConnectivityNode cim:IdentifiedObject.description ?description }
+    OPTIONAL { ?BoundaryPoint eu:BoundaryPoint.isDirectCurrent ?boundaryPointIsDirectCurrent }
 }
 OPTIONAL { GRAPH ?grapBDTP {
     ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
-    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName
+    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName .
+    OPTIONAL { ?TopologicalNode cim:IdentifiedObject.description ?topologicalNodeDescription }
 }}
 }
 
@@ -109,36 +111,61 @@ OPTIONAL { GRAPH ?graphSSH2 {
 }}
 }
 
+# query: staticVarCompensators
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?StaticVarCompensator
+        a cim:StaticVarCompensator ;
+        cim:IdentifiedObject.name ?name ;
+        cim:StaticVarCompensator.capacitiveRating ?capacitiveRating ;
+        cim:StaticVarCompensator.inductiveRating ?inductiveRating ;
+        cim:StaticVarCompensator.slope ?slope .
+    ?Terminal cim:Terminal.ConductingEquipment ?StaticVarCompensator .
+    OPTIONAL { ?StaticVarCompensator cim:StaticVarCompensator.sVCControlMode ?controlMode }
+    OPTIONAL { ?StaticVarCompensator cim:StaticVarCompensator.voltageSetPoint ?voltageSetPoint }
+    OPTIONAL { ?StaticVarCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
+}}
+OPTIONAL { GRAPH ?graphSSH  {
+    ?StaticVarCompensator
+        cim:StaticVarCompensator.q ?q ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled
+}}
+}
+
 # query: operationalLimits
 SELECT *
 WHERE {
 { GRAPH ?graph {
     ?OperationalLimit
-        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType ;
-        cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
+        a ?OperationalLimitSubclass ;
         cim:IdentifiedObject.name ?name ;
-        a ?OperationalLimitSubclass .
-    ?OperationalLimitType
-        a cim:OperationalLimitType ;
-        cim:IdentifiedObject.name ?operationalLimitTypeName .
+        cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
+        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
+    OPTIONAL { ?OperationalLimit eu:IdentifiedObject.shortName ?shortName }
     OPTIONAL { ?OperationalLimit cim:CurrentLimit.normalValue ?normalValue }
+    OPTIONAL { ?OperationalLimit cim:ActivePowerLimit.normalValue ?normalValue }
     OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.normalValue ?normalValue }
     OPTIONAL { ?OperationalLimit cim:VoltageLimit.normalValue ?normalValue }
     OPTIONAL { ?OperationalLimitSet cim:IdentifiedObject.name ?OperationalLimitSetName }
     # operational limit sets can be attached to terminals or equipments
     OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal }
     OPTIONAL { GRAPH ?graph2 {
-        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
-        ?Equipment cim:Equipment.EquipmentContainer ?EquipmentContainer
+        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment
+        OPTIONAL { ?Equipment cim:Equipment.EquipmentContainer ?EquipmentContainer }
     }}
+    ?OperationalLimitType
+        a cim:OperationalLimitType ;
+        cim:IdentifiedObject.name ?operationalLimitTypeName .
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.direction ?direction }
     OPTIONAL { ?OperationalLimitType eu:OperationalLimitType.kind ?limitType }
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
 }}
-{ GRAPH ?graphSSH {
-   OPTIONAL {?OperationalLimit cim:CurrentLimit.value ?value }
-   OPTIONAL {?OperationalLimit cim:ApparentPowerLimit.value ?value }
-   OPTIONAL {?OperationalLimit cim:VoltageLimit.value ?value }
+OPTIONAL { GRAPH ?graphSSH {
+    OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
+    OPTIONAL { ?OperationalLimit cim:ActivePowerLimit.value ?value }
+    OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
+    OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
 }}
 }
 
