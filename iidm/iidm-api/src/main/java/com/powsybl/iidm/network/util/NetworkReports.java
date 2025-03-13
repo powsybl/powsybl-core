@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 
