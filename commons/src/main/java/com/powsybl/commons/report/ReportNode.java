@@ -152,6 +152,16 @@ public interface ReportNode {
     ReportNodeAdder newReportNode();
 
     /**
+     * Create a new adder to create a <code>ReportNode</code> child with a {@link BundleMessageTemplateProvider}, that
+     * is, a message template provider based on a ResourceBundle with given name.
+     *
+     * @return the created <code>ReportNodeAdder</code>
+     */
+    default ReportNodeAdder newReportNode(String bundleBaseName) {
+        return newReportNode().withMessageTemplateProvider(new BundleMessageTemplateProvider(bundleBaseName));
+    }
+
+    /**
      * Get the {@link TreeContext} of the corresponding {@link ReportNode} tree.
      */
     TreeContext getTreeContext();

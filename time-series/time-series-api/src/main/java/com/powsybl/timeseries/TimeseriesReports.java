@@ -45,8 +45,7 @@ public final class TimeseriesReports {
     }
 
     public static ReportNode parseCsvFile(ReportNode reportNode, String filename) {
-        return reportNode.newReportNode()
-                .withMessageTemplateProvider(new BundleMessageTemplateProvider(PowsyblCoreReportResourceBundles.BUNDLE_BASE_NAME))
+        return reportNode.newReportNode(PowsyblCoreReportResourceBundles.BUNDLE_BASE_NAME)
                 .withMessageTemplate("core.timeseries.parseCsvFile")
                 .withTypedValue("filename", filename, TypedValue.FILENAME)
                 .add();
