@@ -37,7 +37,10 @@ import java.io.InputStream;
 import java.nio.file.*;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -405,6 +408,23 @@ class CgmesExportTest {
             // Verify that we re-import the exported CGMES data without problems
             Network networkReimported = Network.read(exportedCgmes, importParams);
             assertNotNull(networkReimported);
+        }
+    }
+
+    @Test
+    void testModelEquipmentOperationProfile() throws IOException {
+        String importDir = "/issues/switches/";
+        Network network = readCgmesResources(importDir, "disconnected_terminal_EQ.xml");
+
+        String exportDir = "/testModelProfile";
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportDir));
+            String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+
+            String regex = "<md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(eqFile);
+            assertEquals(1, matcher.results().count());
         }
     }
 
