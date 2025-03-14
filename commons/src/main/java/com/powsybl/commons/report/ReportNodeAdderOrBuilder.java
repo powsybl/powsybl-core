@@ -12,6 +12,12 @@ import java.util.Locale;
 
 public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>> {
 
+    /**
+     * Provide the message template provider to build the {@link ReportNode} with. This message template provider will
+     * be used for the created {@link ReportNode} and for all its descendents, unless overridden.
+     * @param messageTemplateProvider the provider which gives a message template from a given key
+     * @return a reference to this object
+     */
     T withMessageTemplateProvider(MessageTemplateProvider messageTemplateProvider);
 
     /**

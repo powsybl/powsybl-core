@@ -22,8 +22,6 @@ public interface TreeContext {
 
     TreeContext NO_OP = new TreeContextNoOp();
 
-    ReportTreeFactory getReportTreeFactory();
-
     /**
      * Get the dictionary of message templates indexed by their key.
      */

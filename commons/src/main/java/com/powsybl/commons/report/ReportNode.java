@@ -86,10 +86,9 @@ public interface ReportNode {
      * Create a new builder for creating a root <code>ReportNode</code>.
      * @return a {@link ReportNodeBuilder}
      */
-    static ReportNodeBuilder newRootReportNode(String bundleBaseName, Locale locale) {
+    static ReportNodeBuilder newRootReportNode(String... bundleBaseNames) {
         return new ReportNodeRootBuilderImpl()
-                .withReportTreeFactory(new ReportTreeFactoryImpl(locale))
-                .withMessageTemplateProvider(new BundleMessageTemplateProvider(bundleBaseName));
+                .withMessageTemplateProvider(new MultiBundleMessageTemplateProvider(bundleBaseNames));
     }
 
     /**

@@ -7,34 +7,42 @@
  */
 package com.powsybl.commons.report;
 
-import java.util.Objects;
+import java.util.Locale;
 
 /**
  * A builder to create a root {@link ReportNode} object.
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeBuilder>
-        implements ReportNodeBuilder {
+public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeBuilder> implements ReportNodeBuilder {
+
+    private String defaultTimestampPattern;
+    private Locale locale;
 
     @Override
-    public ReportNodeBuilder withReportTreeFactory(ReportTreeFactory reportTreeFactory) {
-        this.reportTreeFactory = Objects.requireNonNull(reportTreeFactory);
+    public ReportNodeBuilder withDefaultTimestampPattern(String timestampPattern) {
+        this.defaultTimestampPattern = timestampPattern;
+        return this;
+    }
+
+    @Override
+    public ReportNodeBuilder withLocale(Locale locale) {
+        this.locale = locale;
         return this;
     }
 
     @Override
     public ReportNode build() {
-        TreeContext treeContext = reportTreeFactory.createTreeContext();
+        TreeContext treeContext = new TreeContextImpl(locale, defaultTimestampPattern);
         if (withTimestamp) {
             addTimeStampValue(treeContext);
         }
         updateTreeDictionary(treeContext);
-        return reportTreeFactory.createRoot(key, values, treeContext, messageTemplateProvider);
+        return ReportNodeImpl.createRootReportNode(key, values, treeContext, messageTemplateProvider);
     }
 
     @Override
-    public ReportNodeRootBuilderImpl self() {
+    public ReportNodeBuilder self() {
         return this;
     }
 }

@@ -137,7 +137,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         root.include(otherRoot);
         assertEquals(1, root.getChildren().size());
         assertEquals(otherRoot, root.getChildren().get(0));
-        assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) otherRoot).getTreeContextRef().get());
+        assertEquals(root.getTreeContext(), ((ReportNodeImpl) otherRoot).getTreeContextRef().get());
 
         // Other root is not root anymore and can therefore not be added again
         PowsyblException e4 = assertThrows(PowsyblException.class, () -> root.include(otherRoot));
@@ -189,13 +189,13 @@ class ReportNodeTest extends AbstractSerDeTest {
 
         ReportNode childCopied = root.getChildren().get(1);
         assertEquals(childToCopy.getMessageKey(), childCopied.getMessageKey());
-        assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) childCopied).getTreeContextRef().get());
+        assertEquals(root.getTreeContext(), ((ReportNodeImpl) childCopied).getTreeContextRef().get());
 
         // Two limitations of copy current implementation, due to the current ReportNode serialization
         // 1. the inherited values are not kept
         assertNotEquals(childToCopy.getMessage(), childCopied.getMessage());
         // 2. the dictionary contains all the keys from the copied reportNode tree (even the ones from non-copied reportNodes)
-        assertEquals(6, ((ReportNodeImpl) root).getTreeContext().getDictionary().size());
+        assertEquals(6, root.getTreeContext().getDictionary().size());
 
         Path serializedReport = tmpDir.resolve("tmp.json");
         ReportNodeSerializer.write(root, serializedReport);
@@ -272,7 +272,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         String customPattern1 = "dd MMMM yyyy HH:mm:ss XXX";
         DateTimeFormatter customPatternFormatter = DateTimeFormatter.ofPattern(customPattern1, ReportConstants.DEFAULT_LOCALE);
         ReportNode root2 = ReportNode.newRootReportNode(TEST_BASE_NAME)
-                .withReportTreeFactory(new ReportTreeFactoryImpl(null, customPattern1))
+                .withDefaultTimestampPattern(customPattern1)
                 .withTimestamp()
                 .withMessageTemplate("rootTemplate")
                 .build();
@@ -288,7 +288,8 @@ class ReportNodeTest extends AbstractSerDeTest {
         Locale customLocale = Locale.ITALIAN;
         DateTimeFormatter customPatternAndLocaleFormatter1 = DateTimeFormatter.ofPattern(customPattern1, customLocale);
         ReportNode root3 = ReportNode.newRootReportNode(TEST_BASE_NAME)
-                .withReportTreeFactory(new ReportTreeFactoryImpl(customLocale, customPattern1))
+                .withLocale(customLocale)
+                .withDefaultTimestampPattern(customPattern1)
                 .withTimestamp()
                 .withMessageTemplate("rootTemplate")
                 .build();
@@ -312,7 +313,8 @@ class ReportNodeTest extends AbstractSerDeTest {
 
         // with Locale set but no timestamp pattern
         DateTimeFormatter noPatternAndLocaleFormatter = DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN, customLocale);
-        ReportNode root4 = ReportNode.newRootReportNode(TEST_BASE_NAME, customLocale)
+        ReportNode root4 = ReportNode.newRootReportNode(TEST_BASE_NAME)
+                .withLocale(customLocale)
                 .withMessageTemplate("simpleRootTemplate")
                 .withTimestamp()
                 .build();
@@ -321,8 +323,6 @@ class ReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void testLocaleAndi18n() {
-        final String bundleName = "i18n.reports";
-
         // Without giving a locale => default one is en_US
         ReportNode rootReportEnglish = ReportNode.newRootReportNode()
                 .withMessageTemplateProvider(new BundleMessageTemplateProvider(TEST_BASE_NAME))
@@ -334,7 +334,8 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals(Locale.US, rootReportEnglish.getTreeContext().getLocale());
 
         // With french locale
-        ReportNode rootReportFrench = ReportNode.newRootReportNode(TEST_BASE_NAME, Locale.FRENCH)
+        ReportNode rootReportFrench = ReportNode.newRootReportNode(TEST_BASE_NAME)
+                .withLocale(Locale.FRENCH)
                 .withMessageTemplate("rootWithValue")
                 .withUntypedValue("value", 4)
                 .build();
@@ -343,7 +344,8 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals(Locale.FRENCH, rootReportFrench.getTreeContext().getLocale());
 
         // Test giving the specific France locale
-        ReportNode rootReportFrance = ReportNode.newRootReportNode(TEST_BASE_NAME, Locale.FRANCE)
+        ReportNode rootReportFrance = ReportNode.newRootReportNode(TEST_BASE_NAME)
+                .withLocale(Locale.FRANCE)
                 .withMessageTemplate("rootWithValue")
                 .withUntypedValue("value", 4)
                 .build();

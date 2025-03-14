@@ -17,9 +17,9 @@ import java.util.Objects;
 public class ReportNodeChildAdderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeAdder>
         implements ReportNodeAdder {
 
-    private final ReportNode parent;
+    private final ReportNodeImpl parent;
 
-    ReportNodeChildAdderImpl(ReportNode parent, MessageTemplateProvider messageTemplateProvider) {
+    ReportNodeChildAdderImpl(ReportNodeImpl parent, MessageTemplateProvider messageTemplateProvider) {
         this.parent = Objects.requireNonNull(parent);
         this.messageTemplateProvider = messageTemplateProvider;
     }
@@ -31,10 +31,7 @@ public class ReportNodeChildAdderImpl extends AbstractReportNodeAdderOrBuilder<R
             addTimeStampValue(treeContext);
         }
         updateTreeDictionary(treeContext);
-        ReportTreeFactory childFactory = reportTreeFactory != null
-                ? reportTreeFactory
-                : treeContext.getReportTreeFactory();
-        return childFactory.createChild(key, values, parent, messageTemplateProvider);
+        return ReportNodeImpl.createChildReportNode(key, values, parent, messageTemplateProvider);
     }
 
     @Override

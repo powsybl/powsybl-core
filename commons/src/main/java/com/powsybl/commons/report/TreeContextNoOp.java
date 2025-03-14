@@ -19,11 +19,6 @@ import java.util.Map;
 public class TreeContextNoOp implements TreeContext {
 
     @Override
-    public ReportTreeFactory getReportTreeFactory() {
-        return ReportTreeFactory.DEFAULT;
-    }
-
-    @Override
     public Map<String, String> getDictionary() {
         return Map.of();
     }

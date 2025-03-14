@@ -21,20 +21,14 @@ public class TreeContextImpl implements TreeContext {
     private final SortedMap<String, String> dictionary = new TreeMap<>();
     private final Locale locale;
     private final DateTimeFormatter timestampFormatter;
-    private final ReportTreeFactory reportTreeFactory;
 
     public TreeContextImpl() {
-        this(ReportTreeFactory.DEFAULT);
+        this(ReportConstants.DEFAULT_LOCALE, ReportConstants.DEFAULT_TIMESTAMP_PATTERN);
     }
 
-    public TreeContextImpl(ReportTreeFactory reportTreeFactory) {
-        this(ReportConstants.DEFAULT_LOCALE, ReportConstants.DEFAULT_TIMESTAMP_PATTERN, reportTreeFactory);
-    }
-
-    public TreeContextImpl(Locale locale, String timestampPattern, ReportTreeFactory reportTreeFactory) {
+    public TreeContextImpl(Locale locale, String timestampPattern) {
         this.locale = Objects.requireNonNullElse(locale, ReportConstants.DEFAULT_LOCALE);
         this.timestampFormatter = createDateTimeFormatter(timestampPattern, locale);
-        this.reportTreeFactory = Objects.requireNonNull(reportTreeFactory);
     }
 
     private static DateTimeFormatter createDateTimeFormatter(String timestampPattern, Locale locale) {
@@ -48,11 +42,6 @@ public class TreeContextImpl implements TreeContext {
             return DateTimeFormatter.ofPattern(timestampPattern, ReportConstants.DEFAULT_LOCALE);
         }
         return DateTimeFormatter.ofPattern(timestampPattern, locale);
-    }
-
-    @Override
-    public ReportTreeFactory getReportTreeFactory() {
-        return reportTreeFactory;
     }
 
     @Override

@@ -33,15 +33,8 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
     public static final String DICTIONARY_VALUE_ID = "dictionary";
     public static final String DICTIONARY_DEFAULT_NAME = "default";
 
-    private final ReportTreeFactory reportTreeFactory;
-
     ReportNodeDeserializer() {
-        this(ReportTreeFactory.DEFAULT);
-    }
-
-    ReportNodeDeserializer(ReportTreeFactory reportTreeFactory) {
         super(ReportNode.class);
-        this.reportTreeFactory = reportTreeFactory;
     }
 
     @Override
@@ -49,7 +42,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
         ReportNodeImpl reportNode = null;
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new ReportNodeJsonModule());
         ReportNodeVersion version = ReportConstants.CURRENT_VERSION;
-        TreeContext treeContext = reportTreeFactory.createTreeContext();
+        TreeContext treeContext = new TreeContextImpl();
         while (p.nextToken() != JsonToken.END_OBJECT) {
             switch (p.currentName()) {
                 case "version" -> version = ReportNodeVersion.of(p.nextTextValue());

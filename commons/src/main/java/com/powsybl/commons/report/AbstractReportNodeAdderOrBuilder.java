@@ -18,7 +18,6 @@ import java.util.Objects;
 public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>> implements ReportNodeAdderOrBuilder<T> {
 
     protected final Map<String, TypedValue> values = new LinkedHashMap<>();
-    protected ReportTreeFactory reportTreeFactory = ReportTreeFactory.DEFAULT;
     protected String key;
     protected String messageTemplate;
     protected boolean withTimestamp = false;
