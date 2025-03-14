@@ -36,33 +36,27 @@ final class ContextExport {
 
     static class LinkExport {
         private final Map<Integer, Bus> busIToBusView;
-        private final Map<String, Integer> voltageLevelNodeIdToBusI;
+        private final Map<String, Bus> voltageLevelNodeIdToBusView;
 
         LinkExport() {
             this.busIToBusView = new HashMap<>();
-            this.voltageLevelNodeIdToBusI = new HashMap<>();
+            this.voltageLevelNodeIdToBusView = new HashMap<>();
         }
 
-        void addBusViewBusILink(Bus busView, int busI) {
+        void addBusIBusViewLink(int busI, Bus busView) {
             this.busIToBusView.put(busI, busView);
         }
 
         Optional<Bus> getBusView(int busI) {
-            return this.busIToBusView.containsKey(busI) ? Optional.of(this.busIToBusView.get(busI)) : Optional.empty();
+            return Optional.ofNullable(this.busIToBusView.get(busI));
         }
 
-        void addNodeBusILink(VoltageLevel voltageLevel, int node, int busI) {
-            this.voltageLevelNodeIdToBusI.put(AbstractConverter.getNodeId(voltageLevel, node), busI);
-        }
-
-        OptionalInt getBusI(VoltageLevel voltageLevel, int node) {
-            String voltageLevelNodeId = AbstractConverter.getNodeId(voltageLevel, node);
-            return this.voltageLevelNodeIdToBusI.containsKey(voltageLevelNodeId) ? OptionalInt.of(this.voltageLevelNodeIdToBusI.get(voltageLevelNodeId)) : OptionalInt.empty();
+        void addNodeBusViewLink(VoltageLevel voltageLevel, int node, Bus busView) {
+            this.voltageLevelNodeIdToBusView.put(AbstractConverter.getNodeId(voltageLevel, node), busView);
         }
 
         Optional<Bus> getBusView(VoltageLevel voltageLevel, int node) {
-            OptionalInt busI = getBusI(voltageLevel, node);
-            return busI.isPresent() ? getBusView(busI.getAsInt()) : Optional.empty();
+            return Optional.ofNullable(this.voltageLevelNodeIdToBusView.get(AbstractConverter.getNodeId(voltageLevel, node)));
         }
     }
 
