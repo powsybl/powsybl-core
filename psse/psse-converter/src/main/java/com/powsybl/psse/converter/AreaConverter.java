@@ -8,7 +8,6 @@ import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PsseArea;
 import com.powsybl.psse.model.pf.PsseBus;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,7 +25,7 @@ public class AreaConverter extends AbstractConverter {
     }
 
     Area create() {
-        String areaId = "A" + psseArea.getI();
+        String areaId = AREA_ID_PREFIX + psseArea.getI();
         var area = getNetwork().newArea()
                 .setId(areaId)
                 .setAreaType(CONTROL_AREA_TYPE)
@@ -51,24 +50,39 @@ public class AreaConverter extends AbstractConverter {
     }
 
     private void addAreaBoundaries(Area area) {
-        Set<VoltageLevel> voltageLevels = extractVoltageLevels(area);
-        Set<Terminal> boundaryTerminals = findLineBoundaryTerminals(voltageLevels);
+        Set<VoltageLevel> areaVoltageLevels = extractVoltageLevels(area);
+        addLineBoundaryTerminals(area, areaVoltageLevels);
+        addHvdcLinesBoundaryTerminals(area, areaVoltageLevels);
+    }
 
-        for (var terminal : boundaryTerminals) {
-            addAreaBoundary(area, terminal, IS_AC);
+    private void addLineBoundaryTerminals(Area area, Set<VoltageLevel> areaVoltageLevels) {
+        getNetwork().getLines().forEach(line ->
+                processTerminals(line.getTerminal1(), line.getTerminal2(), area, areaVoltageLevels, IS_AC));
+    }
+
+    private void addHvdcLinesBoundaryTerminals(Area area, Set<VoltageLevel> areaVoltageLevels) {
+        getNetwork().getHvdcLines().forEach(line -> processTerminals(
+                line.getConverterStation1().getTerminal(),
+                line.getConverterStation2().getTerminal(),
+                area, areaVoltageLevels, IS_DC));
+    }
+
+    private void processTerminals(Terminal terminal1, Terminal terminal2, Area area, Set<VoltageLevel> areaVoltageLevels,
+                                  boolean isAC) {
+        var boundaryTerminal = boundaryTerminal(terminal1, terminal2, areaVoltageLevels);
+        if (boundaryTerminal != null) {
+            addAreaBoundary(area, boundaryTerminal, isAC);
         }
     }
 
-    private Set<Terminal> findLineBoundaryTerminals(Set<VoltageLevel> voltageLevels) {
-        Set<Terminal> boundaryTerminals = new HashSet<>();
-        getNetwork().getLines().forEach(line -> {
-            boolean isTerminal1InArea = voltageLevels.contains(line.getTerminal1().getVoltageLevel());
-            boolean isTerminal2InArea = voltageLevels.contains(line.getTerminal2().getVoltageLevel());
-            if (isTerminal1InArea != isTerminal2InArea) {
-                boundaryTerminals.add(isTerminal1InArea ? line.getTerminal1() : line.getTerminal2());
-            }
-        });
-        return boundaryTerminals;
+
+    private Terminal boundaryTerminal(Terminal terminal1, Terminal terminal2, Set<VoltageLevel> areaVoltageLevels) {
+        var isTerminal1InArea = areaVoltageLevels.contains(terminal1.getVoltageLevel());
+        var isTerminal2InArea = areaVoltageLevels.contains(terminal2.getVoltageLevel());
+        if (isTerminal1InArea != isTerminal2InArea) {
+            return isTerminal1InArea ? terminal1 : terminal2;
+        }
+        return null;
     }
 
     private Set<VoltageLevel> extractVoltageLevels(Area area) {
@@ -83,7 +97,9 @@ public class AreaConverter extends AbstractConverter {
                 .add();
     }
 
+    private static final String AREA_ID_PREFIX = "A";
     private static final boolean IS_AC = true;
+    private static final boolean IS_DC = false;
     private static final String CONTROL_AREA_TYPE = "ControlArea";
 
     private final PsseArea psseArea;
