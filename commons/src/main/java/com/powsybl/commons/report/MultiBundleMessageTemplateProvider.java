@@ -7,9 +7,6 @@
  */
 package com.powsybl.commons.report;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
@@ -20,8 +17,6 @@ import java.util.ResourceBundle;
  */
 public class MultiBundleMessageTemplateProvider implements MessageTemplateProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MultiBundleMessageTemplateProvider.class);
-
     private final String[] bundleBaseNames;
 
     public MultiBundleMessageTemplateProvider(String... bundleBaseNames) {
@@ -31,10 +26,9 @@ public class MultiBundleMessageTemplateProvider implements MessageTemplateProvid
     @Override
     public String getTemplate(String key, Locale locale) {
         for (String bundleBaseName : bundleBaseNames) {
-            try {
-                return ResourceBundle.getBundle(bundleBaseName, locale).getString(key);
-            } catch (MissingResourceException e) {
-                LOGGER.warn("Could not find template for key '{}'", key, e);
+            ResourceBundle bundle = ResourceBundle.getBundle(bundleBaseName, locale);
+            if (bundle.containsKey(key)) {
+                return bundle.getString(key);
             }
         }
         throw new MissingResourceException("Could not find template for key '{}'", PropertyResourceBundle.class.getName(), key);

@@ -147,7 +147,6 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
             treeContext.addDictionaryEntry(key, messageTemplateProvider);
         } else {
             treeContext.addDictionaryEntry(key, (k, l) -> messageTemplate);
-            messageTemplateProvider = new MapMessageTemplateProvider(treeContext.getDictionary());
         }
     }
 
