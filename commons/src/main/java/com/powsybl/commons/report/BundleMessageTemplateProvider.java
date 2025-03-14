@@ -16,17 +16,28 @@ import java.util.ResourceBundle;
 public class BundleMessageTemplateProvider implements MessageTemplateProvider {
 
     private final String bundleBaseName;
+    private final boolean throwIfUnknownKey;
     private ResourceBundle resourceBundle;
 
     public BundleMessageTemplateProvider(String bundleBaseName) {
+        this(bundleBaseName, false);
+    }
+
+    public BundleMessageTemplateProvider(String bundleBaseName, boolean throwIfUnknownKey) {
         this.bundleBaseName = bundleBaseName;
         this.resourceBundle = ResourceBundle.getBundle(bundleBaseName, ReportConstants.DEFAULT_LOCALE);
+        this.throwIfUnknownKey = throwIfUnknownKey;
     }
 
     @Override
     public String getTemplate(String key, Locale locale) {
         if (!this.resourceBundle.getLocale().equals(locale)) {
             this.resourceBundle = ResourceBundle.getBundle(bundleBaseName, locale);
+        }
+        if (!throwIfUnknownKey) {
+            if (!resourceBundle.containsKey(key)) {
+                return "Unknown key: '" + key + "'";
+            }
         }
         return resourceBundle.getString(key);
     }

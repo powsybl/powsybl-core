@@ -211,7 +211,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
 
         //wrong network
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTestWrongNetwork")
                 .build();
         Network network1 = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
@@ -231,7 +231,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
 
         // not found id
         ReportNode reportNode2 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTestUndefinedId")
                 .build();
         CreateBranchFeederBays modification1 = new CreateBranchFeederBaysBuilder().
@@ -250,7 +250,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
 
         // wrong identifiable type
         ReportNode reportNode3 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTestWrongBbsType")
                 .build();
         CreateBranchFeederBays modification2 = new CreateBranchFeederBaysBuilder().
@@ -356,7 +356,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .setB1(0.0)
                 .setB2(0.0);
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTestCreateLine")
                 .build();
         new CreateBranchFeederBaysBuilder()
@@ -385,7 +385,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .setB1(0.0)
                 .setB2(0.0);
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTestCreateLineWithoutExtensions")
                 .build();
         new CreateBranchFeederBaysBuilder()

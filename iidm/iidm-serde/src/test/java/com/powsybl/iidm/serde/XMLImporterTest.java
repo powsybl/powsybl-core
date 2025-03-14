@@ -253,7 +253,7 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
 
     private void importDataAndTestReportNode(String expectedContentFilename, ReadOnlyDataSource dataSource) throws IOException {
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("test")
                 .build();
         assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reportNode));

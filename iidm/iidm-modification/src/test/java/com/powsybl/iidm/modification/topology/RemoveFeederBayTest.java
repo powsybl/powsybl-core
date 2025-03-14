@@ -147,7 +147,7 @@ class RemoveFeederBayTest {
     void testRemoveBbs() {
         Network network = createNetwork2Feeders();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTestRemoveBbs")
                 .build();
         RemoveFeederBay removeBbs = new RemoveFeederBay("BBS_TEST_1_1");

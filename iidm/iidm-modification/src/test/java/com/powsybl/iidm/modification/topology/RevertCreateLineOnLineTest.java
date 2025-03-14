@@ -43,7 +43,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         network.newLine().setId("LINE34").setR(0.1).setX(0.1).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setNode1(1).setVoltageLevel1("VL3").setNode2(1).setVoltageLevel2("VL4").add();
 
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTestUndefinedLine1")
                 .build();
         final NetworkModification modificationWithError1 = new RevertCreateLineOnLineBuilder()
@@ -73,7 +73,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.lineNotFound", reportNodeChild1b.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode2 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTestUndefinedLine2")
                 .build();
         final NetworkModification modificationWithError2 = new RevertCreateLineOnLineBuilder()
@@ -103,7 +103,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.lineNotFound", reportNodeChild2b.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode3 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTestUndefinedLineToBeDeleted")
                 .build();
         final NetworkModification modificationWithError3 = new RevertCreateLineOnLineBuilder()
@@ -133,7 +133,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.lineNotFound", reportNodeChild3b.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode4 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTestNoTeePointAndOrTappedVoltageLevel")
                 .build();
         final NetworkModification modificationWithError4 = new RevertCreateLineOnLineBuilder()
@@ -163,7 +163,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.noTeePointAndOrTappedVoltageLevel", reportNodeChild4b.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportNodeTestRevertCreateLineOnLine")
                 .build();
         modification = new RevertCreateLineOnLineBuilder()
@@ -186,7 +186,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         modification.apply(network);
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportNodeTestRevertCreateLineOnLineNBBB")
                 .build();
         modification = new RevertCreateLineOnLineBuilder()
@@ -209,7 +209,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         modification.apply(network);
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportNodeTestRevertCreateLineOnLineBB")
                 .build();
         modification = new RevertCreateLineOnLineBuilder()

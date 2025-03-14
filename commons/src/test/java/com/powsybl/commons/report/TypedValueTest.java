@@ -29,7 +29,7 @@ class TypedValueTest {
 
         // Check that is not possible to add a Severity attribute with a TypedValue that is not a severity
         ReportNode root = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("root")
                 .build();
         ReportNodeAdder r1 = root.newReportNode()

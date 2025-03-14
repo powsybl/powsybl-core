@@ -95,7 +95,7 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
     void testRemoveVoltageLevel() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTestRemoveVL")
                 .build();
         addListener(network);

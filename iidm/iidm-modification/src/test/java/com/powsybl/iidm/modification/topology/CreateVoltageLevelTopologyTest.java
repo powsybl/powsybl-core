@@ -66,7 +66,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     void testWithNullSwitchKind() {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
@@ -89,7 +89,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     void testWithUnsupportedSwitchKind() {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
@@ -112,7 +112,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     void testWithNegativeCount() {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTest")
                 .build();
         NetworkModification modification = new CreateVoltageLevelTopologyBuilder()
@@ -162,7 +162,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     void testWithUnexpectedSwitchKindsSize() {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
@@ -185,7 +185,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     void testWithNotExistingVoltageLevel() {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
@@ -221,7 +221,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     void testErrorIfNotSwitchKindsDefinedAndNodeBreaker() {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
@@ -239,7 +239,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     void testWithReportNode() throws IOException {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTestCreateVoltageLevelTopology")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()

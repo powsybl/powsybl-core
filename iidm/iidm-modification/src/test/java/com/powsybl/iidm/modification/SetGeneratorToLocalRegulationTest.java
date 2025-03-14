@@ -53,7 +53,7 @@ class SetGeneratorToLocalRegulationTest {
         assertEquals(21.0, gen4.getTargetV());
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("rootReportNode")
                 .build();
         new SetGeneratorToLocalRegulation("GEN1").apply(network, reportNode);

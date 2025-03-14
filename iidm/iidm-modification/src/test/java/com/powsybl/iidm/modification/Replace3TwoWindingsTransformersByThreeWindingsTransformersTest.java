@@ -278,7 +278,7 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w1.getId()));
         addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w2.getId()));
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("test")
                 .build();
         Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
@@ -305,7 +305,7 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     @Test
     void reportNodeExtensionsTest() throws IOException {
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("test")
                 .build();
         lostTwoWindingsTransformerExtensions(reportNode, "unknownExtension1, unknownExtension2", t2w1.getId());

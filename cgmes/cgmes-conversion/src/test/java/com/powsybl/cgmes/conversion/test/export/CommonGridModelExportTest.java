@@ -449,7 +449,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // Export using a reporter to gather the exported model identifiers
         ReportNode report = ReportNode
                 .newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("rootKey")
                 .build();
 

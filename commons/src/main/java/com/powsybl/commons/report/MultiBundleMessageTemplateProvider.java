@@ -18,9 +18,15 @@ import java.util.ResourceBundle;
 public class MultiBundleMessageTemplateProvider implements MessageTemplateProvider {
 
     private final String[] bundleBaseNames;
+    private final boolean throwIfUnknownKey;
 
     public MultiBundleMessageTemplateProvider(String... bundleBaseNames) {
+        this(false, bundleBaseNames);
+    }
+
+    public MultiBundleMessageTemplateProvider(boolean throwIfUnknownKey, String... bundleBaseNames) {
         this.bundleBaseNames = bundleBaseNames;
+        this.throwIfUnknownKey = throwIfUnknownKey;
     }
 
     @Override
@@ -31,6 +37,10 @@ public class MultiBundleMessageTemplateProvider implements MessageTemplateProvid
                 return bundle.getString(key);
             }
         }
-        throw new MissingResourceException("Could not find template for key '{}'", PropertyResourceBundle.class.getName(), key);
+        if (throwIfUnknownKey) {
+            throw new MissingResourceException("Could not find template for key '{}'", PropertyResourceBundle.class.getName(), key);
+        } else {
+            return "Unknown key: '" + key + "'";
+        }
     }
 }

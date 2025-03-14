@@ -53,7 +53,7 @@ class ReportNodeContextTest {
     void pushAndGetReportNodeTest(String desc, Supplier<ReportNodeContext> contextSupplier) {
         ReportNodeContext reportNodeContext = contextSupplier.get();
         ReportNode reportNode0 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("task0")
                 .build();
         reportNodeContext.pushReportNode(reportNode0);
@@ -61,7 +61,7 @@ class ReportNodeContextTest {
         assertEquals(reportNode0, reportNodeContext.peekReportNode());
 
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("task1")
                 .build();
         reportNodeContext.pushReportNode(reportNode1);
@@ -79,11 +79,11 @@ class ReportNodeContextTest {
         ReportNodeContext reportNodeContext = contextSupplier.get();
 
         ReportNode reportNode0 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("task0")
                 .build();
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("task1")
                 .build();
         reportNodeContext.pushReportNode(reportNode0);
@@ -139,17 +139,17 @@ class ReportNodeContextTest {
 
         // Push reportNodes in the context
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("1")
                 .build();
         reportNodeContext.pushReportNode(reportNode1);
         ReportNode reportNode2 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("2")
                 .build();
         reportNodeContext.pushReportNode(reportNode2);
         ReportNode reportNode3 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("3")
                 .build();
         reportNodeContext.pushReportNode(reportNode3);

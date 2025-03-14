@@ -315,7 +315,7 @@ public abstract class AbstractConnectableTest {
 
         // disconnect the already fully disconnected line 1
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTest")
                 .build();
         network.getReportNodeContext().pushReportNode(reportNode);
@@ -368,7 +368,7 @@ public abstract class AbstractConnectableTest {
 
         // connect the already fully connected line 2
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTest")
                 .build();
         network.getReportNodeContext().pushReportNode(reportNode);

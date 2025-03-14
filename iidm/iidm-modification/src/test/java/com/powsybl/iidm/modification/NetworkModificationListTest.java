@@ -67,7 +67,7 @@ class NetworkModificationListTest {
         assertNotNull(network.getLine("NHV1_NHV2_1"));
         assertTrue(network.getLine("NHV1_NHV2_1").getTerminal1().isConnected());
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("test")
                 .build();
         assertTrue(task.apply(network, LocalComputationManager.getDefault(), true));
@@ -99,7 +99,7 @@ class NetworkModificationListTest {
         NetworkModificationList task = new NetworkModificationList(removal, tripping);
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("test")
                 .build();
         boolean dryRunIsOk = assertDoesNotThrow(() -> task.apply(network, reportNode, true));

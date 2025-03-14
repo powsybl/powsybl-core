@@ -64,7 +64,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
         // Read file with all extensions included (default ImportOptions)
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("root")
                 .build();
         Network networkReadExtensions = NetworkSerDe.read(file,
@@ -85,7 +85,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
         // Read file with only terminalMockNoSerDe and loadZipModel extensions included
         ReportNode reportNode2 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("root")
                 .build();
         ImportOptions notAllExtensions = new ImportOptions()
@@ -113,7 +113,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     void testNotFoundExtension() throws IOException {
         // Read file with all extensions included (default ImportOptions)
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("root")
                 .build();
         Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/notFoundExtension.xml"),

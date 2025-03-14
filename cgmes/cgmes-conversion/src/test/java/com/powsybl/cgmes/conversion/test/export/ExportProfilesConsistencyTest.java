@@ -36,14 +36,14 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
         Network network = importNetwork(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
 
         ReportNode reportNodeOnlySv = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("onlySV")
                 .build();
         exportProfiles(List.of("SV"), network, reportNodeOnlySv);
         assertTrue(inconsistentProfilesReported(reportNodeOnlySv));
 
         ReportNode reportNodeSvAndTp = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("SVandTP")
                 .build();
         exportProfiles(List.of("SV", "TP"), network, reportNodeSvAndTp);

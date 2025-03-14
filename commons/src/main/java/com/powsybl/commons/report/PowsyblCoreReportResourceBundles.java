@@ -15,7 +15,7 @@ public final class PowsyblCoreReportResourceBundles {
     public static final String BUNDLE_BASE_NAME = "com.powsybl.commons.reports";
     public static final String BUNDLE_TEST_BASE_NAME = "i18n.reports";
 
-    public static final MessageTemplateProvider TEST_MESSAGE_TEMPLATE_PROVIDER =
+    public static final MessageTemplateProvider MESSAGE_TEMPLATE_PROVIDER_TEST =
             new MultiBundleMessageTemplateProvider(BUNDLE_BASE_NAME, BUNDLE_TEST_BASE_NAME);
 
     private PowsyblCoreReportResourceBundles() {

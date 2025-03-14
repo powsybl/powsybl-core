@@ -63,7 +63,7 @@ class FunctionalLogsTest {
 
     private ReportNode importReport(GridModelReference testCase) {
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("testFunctionalLogs")
                 .withUntypedValue("name", testCase.name())
                 .build();

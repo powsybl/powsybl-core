@@ -38,7 +38,7 @@ class PostProcessorReportNodeTest extends AbstractSerDeTest {
     void postProcessorWithReportNode() throws IOException {
 
         ReportNode reportRoot = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.TEST_MESSAGE_TEMPLATE_PROVIDER)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("testPostProcessor")
                 .build();
         Network network1 = importer1.importData(null, new NetworkFactoryMock(), null, reportRoot);
