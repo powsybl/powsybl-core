@@ -39,13 +39,13 @@ public final class TimeseriesReports {
 
     public static ReportNode parseCsvString(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplateProvider(new BundleMessageTemplateProvider(PowsyblCoreReportResourceBundles.BUNDLE_BASE_NAME))
+                .withMessageTemplateProvider(new BundleMessageTemplateProvider(PowsyblCoreReportResourceBundles.BASE_NAME))
                 .withMessageTemplate("core.timeseries.parseCsvString")
                 .add();
     }
 
     public static ReportNode parseCsvFile(ReportNode reportNode, String filename) {
-        return reportNode.newReportNode(PowsyblCoreReportResourceBundles.BUNDLE_BASE_NAME)
+        return reportNode.newReportNode(PowsyblCoreReportResourceBundles.BASE_NAME)
                 .withMessageTemplate("core.timeseries.parseCsvFile")
                 .withTypedValue("filename", filename, TypedValue.FILENAME)
                 .add();
