@@ -34,7 +34,9 @@ class TwoTerminalDcConverter extends AbstractConverter {
     }
 
     void create() {
-
+        if (!getContainersMapping().isBusDefined(psseTwoTerminalDc.getRectifier().getIp()) || !getContainersMapping().isBusDefined(psseTwoTerminalDc.getInverter().getIp())) {
+            return;
+        }
         double lossFactor = 0.0;
         String busIdR = getBusId(psseTwoTerminalDc.getRectifier().getIp());
         VoltageLevel voltageLevelR = getNetwork().getVoltageLevel(getContainersMapping().getVoltageLevelId(psseTwoTerminalDc.getRectifier().getIp()));
@@ -105,7 +107,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         return 0.5 * (Math.cos(Math.toRadians(converter.getAnmx())) + Math.cos(Math.toRadians(60.0)));
     }
 
-    static void updateTwoTerminalDcTransmissionLines(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getTwoTerminalDcTransmissionLines().forEach(psseTwoTerminalDc -> {
             String hvdcId = getTwoTerminalDcId(psseTwoTerminalDc.getName());
             HvdcLine hvdcLine = network.getHvdcLine(hvdcId);
