@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportBundleBaseName;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
@@ -75,7 +75,8 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
     void testRemoveHvdcLineUnknownShunt() {
         Network network = HvdcTestNetwork.createLcc();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestRemoveHvdcLineWithUnknownShunt", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("reportTestRemoveHvdcLineWithUnknownShunt")
                 .build();
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds("UnknownShunt").build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reportNode));
@@ -88,7 +89,8 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
     void testRemoveHvdcLineUnknownLine() {
         Network network = Network.create("empty", "test");
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestRemoveHvdcLineUnknownLine", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("reportTestRemoveHvdcLineUnknownLine")
                 .build();
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reportNode));

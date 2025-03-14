@@ -175,8 +175,9 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     static Map<Integer, List<TimeSeries>> parseCsv(String csv, TimeSeriesCsvConfig timeSeriesCsvConfig,
                                                    ReportNode reportNode) {
+        ReportNode parseReportNode = TimeseriesReports.parseCsvString(reportNode);
         try (BufferedReader reader = new BufferedReader(new StringReader(csv))) {
-            return parseCsv(reader, timeSeriesCsvConfig, reportNode);
+            return parseCsv(reader, timeSeriesCsvConfig, parseReportNode);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -184,8 +185,9 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     static Map<Integer, List<TimeSeries>> parseCsv(Path file, TimeSeriesCsvConfig timeSeriesCsvConfig,
                                                    ReportNode reportNode) {
+        ReportNode parseReportNode = TimeseriesReports.parseCsvFile(reportNode, file.toString());
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            return parseCsv(reader, timeSeriesCsvConfig, reportNode);
+            return parseCsv(reader, timeSeriesCsvConfig, parseReportNode);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

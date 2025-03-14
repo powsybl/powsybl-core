@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportBundleBaseName;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
@@ -53,7 +53,8 @@ class SetGeneratorToLocalRegulationTest {
         assertEquals(21.0, gen4.getTargetV());
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("rootReportNode", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("rootReportNode")
                 .build();
         new SetGeneratorToLocalRegulation("GEN1").apply(network, reportNode);
         new SetGeneratorToLocalRegulation("GEN2").apply(network, reportNode);

@@ -13,13 +13,22 @@ import java.util.Locale;
 public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>> {
 
     /**
+     * Provide the message template provider to build the {@link ReportNode} with. This message template provider will
+     * be used for the created {@link ReportNode} and for all its descendents, unless overridden.
+     * @param messageTemplateProvider the provider which gives a message template from a given key
+     * @return a reference to this object
+     */
+    T withMessageTemplateProvider(MessageTemplateProvider messageTemplateProvider);
+
+    /**
      * Provide the message template to build the {@link ReportNode} with.
      * @param key             the key identifying uniquely the message template
      * @param messageTemplate functional log, which may contain references to values using the <code>${key}</code> syntax,
      *                        the values mentioned being the values of corresponding {@link ReportNode} and the values of any
      *                        {@link ReportNode} ancestor of the created {@link ReportNode}
      * @return a reference to this object
-     * @deprecated Use {@link #withLocaleMessageTemplate} instead, adding templates to a {@link java.util.ResourceBundle}
+     * @deprecated This drastically limits the internationalization of the corresponding message.
+     *             Use {@link #withMessageTemplate} instead, and add the templates to a {@link java.util.ResourceBundle}.
      */
     @Deprecated(since = "6.7.0")
     T withMessageTemplate(String key, String messageTemplate);
@@ -29,11 +38,11 @@ public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>>
      * key provided. The corresponding functional log may contain references to values using the <code>${key}</code>
      * syntax, the values mentioned being the values of corresponding {@link ReportNode} and the values of any
      * {@link ReportNode} ancestor of the created {@link ReportNode}.
-     * @param key             the key identifying the message template in the ResourcesBundle
-     * @param bundleBaseName  baseName for ResourcesBundle
+     *
+     * @param key the key identifying the message template in the ResourcesBundle
      * @return a reference to this object
      */
-    T withLocaleMessageTemplate(String key, String bundleBaseName);
+    T withMessageTemplate(String key);
 
     /**
      * Provide one typed string value to build the {@link ReportNode} with.

@@ -45,12 +45,13 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
 
         ReportNode rootReportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("testReportVoltageRegulatingXnode", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("testReportVoltageRegulatingXnode")
                 .withTypedValue("file", "elementName.uct", TypedValue.FILENAME)
                 .build();
 
         rootReportNode.newReportNode()
-                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportTest")
                 .withUntypedValue("nonPrintedString", "Non printed String")
                 .add();
         Optional<ReportNode> reportNode = rootReportNode.getChildren().stream().findFirst();
@@ -73,10 +74,11 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
     void roundTripReportNodeJsonTest() throws Exception {
         String filename = "frVoltageRegulatingXnode.uct";
         ReportNode reportRoot = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("roundTripReportNodeJsonTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("roundTripReportNodeJsonTest")
                 .build();
         reportRoot.newReportNode()
-                .withLocaleMessageTemplate("novalueReport", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("novalueReport")
                 .add();
         Network.read(filename, getClass().getResourceAsStream("/" + filename), reportRoot);
         roundTripTest(reportRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
@@ -123,7 +125,8 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
 
         List<Network> networkList = Collections.synchronizedList(new ArrayList<>());
         ReportNode reportRoot = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("importAllParallel", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("importAllParallel")
                 .withTypedValue("file1", "frVoltageRegulatingXnode.uct", TypedValue.FILENAME)
                 .withTypedValue("file2", "frTestGridForMerging.uct", TypedValue.FILENAME)
                 .withTypedValue("file3", "germanTsos.uct", TypedValue.FILENAME)

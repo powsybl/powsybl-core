@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.commons.report.ReportBundleBaseName;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReportNodeContext;
@@ -33,14 +33,16 @@ public abstract class AbstractNetworkReportNodeTest {
         // Create a network and affect it a reportNode (reportNode1)
         Network network = EurostagTutorialExample1Factory.create();
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("key1", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("key1")
                 .build();
         network.getReportNodeContext().pushReportNode(reportNode1);
         assertTrue(reportNode1.getChildren().isEmpty());
 
         // Create another reportNode (reportNode2)
         ReportNode reportNode2 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("key2", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("key2")
                 .build();
         assertTrue(reportNode2.getChildren().isEmpty());
 
@@ -57,7 +59,7 @@ public abstract class AbstractNetworkReportNodeTest {
 
     private Runnable getTask(Network network) {
         return () -> network.getReportNodeContext().getReportNode().newReportNode()
-                .withLocaleMessageTemplate("reportKey", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("reportKey")
                 .add();
     }
 
@@ -66,17 +68,20 @@ public abstract class AbstractNetworkReportNodeTest {
         // Create a network and affect it a reportNode (reportNode1)
         Network network = EurostagTutorialExample1Factory.create();
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("key1", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("key1")
                 .build();
         network.getReportNodeContext().pushReportNode(reportNode1);
         assertTrue(reportNode1.getChildren().isEmpty());
 
         // Create 2 other reportNodes (reportNode2 and reportNode3)
         ReportNode reportNode2 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("key2", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("key2")
                 .build();
         ReportNode reportNode3 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("key3", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("key3")
                 .build();
         assertTrue(reportNode2.getChildren().isEmpty());
         assertTrue(reportNode3.getChildren().isEmpty());
@@ -93,7 +98,7 @@ public abstract class AbstractNetworkReportNodeTest {
                         latch.countDown();
                         latch.await();
                         network.getReportNodeContext().getReportNode().newReportNode()
-                                .withLocaleMessageTemplate("key2", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                                .withMessageTemplate("key2")
                                 .add();
                     } finally {
                         network.getReportNodeContext().popReportNode();
@@ -106,7 +111,7 @@ public abstract class AbstractNetworkReportNodeTest {
                         latch.countDown();
                         latch.await();
                         network.getReportNodeContext().getReportNode().newReportNode()
-                                .withLocaleMessageTemplate("key3", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                                .withMessageTemplate("key3")
                                 .add();
                     } finally {
                         network.getReportNodeContext().popReportNode();

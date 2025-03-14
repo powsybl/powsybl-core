@@ -7,7 +7,7 @@
  */
 package com.powsybl.timeseries;
 
-import com.powsybl.commons.report.ReportBundleBaseName;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
 import org.junit.jupiter.api.Test;
@@ -367,20 +367,24 @@ class TimeSeriesTest {
 
         // Reporter
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV")
                 .build();
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', true, TimeFormat.FRACTIONS_OF_SECOND, false);
         TimeSeries.parseCsv(csv, timeSeriesCsvConfig, reportNode);
 
-        assertEquals(4, reportNode.getChildren().size());
+        assertEquals(1, reportNode.getChildren().size());
+
+        ReportNode parseReportNode = reportNode.getChildren().get(0);
+        assertEquals(4, parseReportNode.getChildren().size());
         assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line 0.000;-1;1.0;null",
-            reportNode.getChildren().get(0).getMessage());
+            parseReportNode.getChildren().get(0).getMessage());
         assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line 0.001;-1;null;a",
-            reportNode.getChildren().get(1).getMessage());
+            parseReportNode.getChildren().get(1).getMessage());
         assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line 0.002;-1;3.0;b",
-            reportNode.getChildren().get(2).getMessage());
-        assertTrue(Pattern.compile("4 time series loaded from CSV in .* ms").matcher(reportNode.getChildren().get(3).getMessage()).find());
+            parseReportNode.getChildren().get(2).getMessage());
+        assertTrue(Pattern.compile("4 time series loaded from CSV in .* ms").matcher(parseReportNode.getChildren().get(3).getMessage()).find());
     }
 
     @Test
@@ -397,7 +401,8 @@ class TimeSeriesTest {
 
         // Reporter
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV")
                 .build();
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', true, TimeFormat.FRACTIONS_OF_SECOND, true);

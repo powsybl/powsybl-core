@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportBundleBaseName;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -323,7 +323,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportPlannedDisconnectionComplete", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("reportPlannedDisconnectionComplete")
                 .build();
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
             .withIdentifiableId("L1")
@@ -344,7 +345,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestConnectionNoDisconnection", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("reportTestConnectionNoDisconnection")
                 .build();
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
             .withIdentifiableId("L1")
@@ -371,7 +373,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestConnectionDisconnection", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("reportTestConnectionDisconnection")
                 .build();
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
             .withIdentifiableId("L1")
@@ -389,7 +392,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestConnectionNoDisconnection", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("reportTestConnectionNoDisconnection")
                 .build();
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
             .withIdentifiableId("L1")
@@ -416,7 +420,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestConnection", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("reportTestConnection")
                 .build();
         ConnectableConnection modification = new ConnectableConnectionBuilder()
             .withIdentifiableId("L2")
@@ -435,7 +440,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestConnectionNoConnection", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplate("reportTestConnectionNoConnection")
                 .build();
         ConnectableConnection modification = new ConnectableConnectionBuilder()
             .withIdentifiableId("L2")

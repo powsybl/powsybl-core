@@ -10,11 +10,14 @@ package com.powsybl.commons.report;
 /**
  * @author Alice Caron {@literal <alice.caron at rte-france.com>}
  */
-public final class ReportBundleBaseName {
+public final class PowsyblCoreReportResourceBundles {
 
-    public static final String BUNDLE_BASE_NAME = "com.powsybl.commons.reports";
-    public static final String BUNDLE_TEST_BASE_NAME = "i18n.reports";
+    public static final String BASE_NAME = "com.powsybl.commons.reports";
+    public static final String TEST_BASE_NAME = "i18n.reports";
 
-    private ReportBundleBaseName() {
+    public static final MessageTemplateProvider MESSAGE_TEMPLATE_PROVIDER_TEST =
+            new MultiBundleMessageTemplateProvider(BASE_NAME, TEST_BASE_NAME);
+
+    private PowsyblCoreReportResourceBundles() {
     }
 }
