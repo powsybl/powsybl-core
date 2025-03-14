@@ -261,43 +261,82 @@ class ReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void testTimestamps() {
-        DateTimeFormatter defaultDateTimeFormatter = DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN);
+        DateTimeFormatter defaultDateTimeFormatter = DateTimeFormatter.ofPattern(
+                ReportConstants.DEFAULT_TIMESTAMP_PATTERN, ReportConstants.DEFAULT_LOCALE);
 
         ReportNode root1 = ReportNode.newRootReportNode()
-                .withTimestamps(true)
                 .withMessageTemplate("rootTemplate", "Root message")
                 .build();
-        assertHasTimeStamp(root1, defaultDateTimeFormatter);
+        assertHasNoTimeStamp(root1);
 
-        ReportNode child = root1.newReportNode()
+        // No locale set and no timestamp pattern set
+        ReportNode child1 = root1.newReportNode()
                 .withMessageTemplate("child", "Child message")
+                .withTimestamp()
                 .add();
-        assertHasTimeStamp(child, defaultDateTimeFormatter);
+        assertHasTimeStamp(child1, defaultDateTimeFormatter);
 
         Path report = tmpDir.resolve("report");
         ReportNodeSerializer.write(root1, report);
         ReportNode rootRead = ReportNodeDeserializer.read(report);
-        assertHasTimeStamp(rootRead, defaultDateTimeFormatter);
+        assertHasNoTimeStamp(rootRead);
         assertHasTimeStamp(rootRead.getChildren().get(0), defaultDateTimeFormatter);
 
-        String customPattern = "dd MMMM yyyy HH:mm:ss XXX";
-        DateTimeFormatter customPatternFormatter = DateTimeFormatter.ofPattern(customPattern, ReportConstants.DEFAULT_TIMESTAMP_LOCALE);
+        // Default timestamp pattern set but no locale set
+        String customPattern1 = "dd MMMM yyyy HH:mm:ss XXX";
+        DateTimeFormatter customPatternFormatter = DateTimeFormatter.ofPattern(customPattern1, ReportConstants.DEFAULT_LOCALE);
         ReportNode root2 = ReportNode.newRootReportNode()
-                .withTimestamps(true)
-                .withTimestampPattern(customPattern)
+                .withDefaultTimestampPattern(customPattern1)
+                .withTimestamp()
                 .withMessageTemplate("rootTemplate", "Root message")
                 .build();
         assertHasTimeStamp(root2, customPatternFormatter);
 
+        // Child does not inherit timestamp enabled (but still contains the value as inherited!)
+        ReportNode child2 = root2.newReportNode()
+                .withMessageTemplate("child", "Child message")
+                .add();
+        assertHasNoTimeStamp(child2);
+
+        // Both default timestamp pattern and locale set
         Locale customLocale = Locale.ITALIAN;
-        DateTimeFormatter customPatternAndLocaleFormatter = DateTimeFormatter.ofPattern(customPattern, customLocale);
+        DateTimeFormatter customPatternAndLocaleFormatter1 = DateTimeFormatter.ofPattern(customPattern1, customLocale);
         ReportNode root3 = ReportNode.newRootReportNode()
-                .withTimestamps(true)
-                .withTimestampPattern(customPattern, customLocale)
+                .withDefaultTimestampPattern(customPattern1)
+                .withLocale(customLocale)
+                .withTimestamp()
                 .withMessageTemplate("rootTemplate", "Root message")
                 .build();
-        assertHasTimeStamp(root3, customPatternAndLocaleFormatter);
+        assertHasTimeStamp(root3, customPatternAndLocaleFormatter1);
 
+        // Child inherits timestamp pattern and locale
+        ReportNode child3 = root3.newReportNode()
+                .withMessageTemplate("child", "Child message")
+                .withTimestamp()
+                .add();
+        assertHasTimeStamp(child3, customPatternAndLocaleFormatter1);
+
+        // Child might override timestamp pattern
+        String customPattern2 = "eeee dd MMMM yyyy HH:mm:ss XXX";
+        DateTimeFormatter customPatternAndLocaleFormatter2 = DateTimeFormatter.ofPattern(customPattern2, customLocale);
+        ReportNode child4 = root3.newReportNode()
+                .withMessageTemplate("child", "Child message")
+                .withTimestamp(customPattern2)
+                .add();
+        assertHasTimeStamp(child4, customPatternAndLocaleFormatter2);
+
+        // with Locale set but no timestamp pattern
+        DateTimeFormatter noPatternAndLocaleFormatter = DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN, customLocale);
+        ReportNode root4 = ReportNode.newRootReportNode()
+                .withLocale(customLocale)
+                .withMessageTemplate("rootTemplate", "Root message")
+                .withTimestamp()
+                .build();
+        assertHasTimeStamp(root4, noPatternAndLocaleFormatter);
+    }
+
+    private static void assertHasNoTimeStamp(ReportNode root1) {
+        assertFalse(root1.getValues().containsKey(ReportConstants.TIMESTAMP_KEY));
     }
 
     private static void assertHasTimeStamp(ReportNode root, DateTimeFormatter dateTimeFormatter) {

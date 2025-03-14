@@ -363,7 +363,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 3,
@@ -382,7 +382,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 4,
@@ -401,7 +401,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 5,
@@ -420,7 +420,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 6,
@@ -439,7 +439,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 7,
@@ -458,7 +458,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 8,
@@ -477,7 +477,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 9,
@@ -496,7 +496,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 10,
@@ -515,7 +515,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 13,
@@ -534,7 +534,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 14,
@@ -553,7 +553,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 15,
@@ -572,7 +572,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 16,
@@ -591,7 +591,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 18,
@@ -610,7 +610,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 19,
@@ -629,7 +629,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 20,
@@ -648,7 +648,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   } ],
   "fixedShunts" : [ ],

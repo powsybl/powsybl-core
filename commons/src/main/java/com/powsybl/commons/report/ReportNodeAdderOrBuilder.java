@@ -7,6 +7,9 @@
  */
 package com.powsybl.commons.report;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>> {
 
     /**
@@ -134,4 +137,19 @@ public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>>
      * @return a reference to this object
      */
     T withSeverity(String severity);
+
+    /**
+     * Indicate that a timestamp should be added to the {@link ReportNode} with the default pattern from the
+     * corresponding {@link TreeContext}, which is defined when building the root {@link ReportNode}.
+     * @return a reference to this object
+     */
+    T withTimestamp();
+
+    /**
+     * Indicate that a timestamp should be added to the {@link ReportNode}, with a pattern overriding the default
+     * pattern from the {@link TreeContext}.
+     * @param timestampPattern the pattern to use for the timestamp (see {@link DateTimeFormatter#ofPattern(String, Locale)}})
+     * @return a reference to this object
+     */
+    T withTimestamp(String timestampPattern);
 }

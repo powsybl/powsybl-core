@@ -14,8 +14,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.iidm.modification.NetworkModificationImpact.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Benoît Chiquet {@literal <benoit.chiquet at rte-france.com>}
@@ -78,6 +77,7 @@ class PercentChangeLoadModificationTest {
     void shouldThrowWhenLoadNotFound() {
         Network network = EurostagTutorialExample1Factory.create();
         PercentChangeLoadModification modification = new PercentChangeLoadModification("LoadNotFound", 2.5, 2.5);
+        assertDoesNotThrow(() -> modification.apply(network, false, null));
         assertThrows(PowsyblException.class, () -> modification.apply(network, true, null));
     }
 
