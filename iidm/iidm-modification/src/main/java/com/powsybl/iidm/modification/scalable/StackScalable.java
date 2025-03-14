@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class StackScalable extends AbstractCompoundScalable {
+public class StackScalable extends AbstractCompoundScalable {
     private static final double EPSILON = 1e-5;
 
     private final List<Scalable> scalables;

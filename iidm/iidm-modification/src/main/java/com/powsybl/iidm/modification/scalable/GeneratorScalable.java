@@ -21,7 +21,7 @@ import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
-class GeneratorScalable extends AbstractInjectionScalable {
+public class GeneratorScalable extends AbstractInjectionScalable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorScalable.class);
 
@@ -39,7 +39,7 @@ class GeneratorScalable extends AbstractInjectionScalable {
 
         Generator g = n.getGenerator(id);
         if (g != null) {
-            g.setTargetP(0);
+            setTargetP(g, 0);
         }
     }
 
@@ -151,14 +151,14 @@ class GeneratorScalable extends AbstractInjectionScalable {
 
         if (parameters.getScalingConvention() == GENERATOR) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
-            g.setTargetP(oldTargetP + done);
+            setTargetP(g, oldTargetP + done);
         } else {
             done = asked > 0 ? Math.min(asked, availableDown) : -Math.min(-asked, availableUp);
-            g.setTargetP(oldTargetP - done);
+            setTargetP(g, oldTargetP - done);
         }
 
         LOGGER.info("Change active power setpoint of {} from {} to {} (pmax={})",
-                    g.getId(), oldTargetP, g.getTargetP(), g.getMaxP());
+                    g.getId(), oldTargetP, getTargetP(g), g.getMaxP());
 
         return done;
     }
@@ -198,7 +198,15 @@ class GeneratorScalable extends AbstractInjectionScalable {
             LOGGER.warn("Generator {} not found", id);
             return 0.0;
         } else {
-            return scalingConvention == GENERATOR ? generator.getTargetP() : -generator.getTargetP();
+            return scalingConvention == GENERATOR ? getTargetP(generator) : -getTargetP(generator);
         }
+    }
+
+    protected void setTargetP(Generator g, double value) {
+        g.setTargetP(value);
+    }
+
+    protected double getTargetP(Generator g) {
+        return g.getTargetP();
     }
 }
