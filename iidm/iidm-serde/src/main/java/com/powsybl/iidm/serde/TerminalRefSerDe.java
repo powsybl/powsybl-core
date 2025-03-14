@@ -83,7 +83,7 @@ public final class TerminalRefSerDe {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
         ThreeSides side = context.getReader().readEnumAttribute(SIDE, ThreeSides.class);
         context.getReader().readEndNode();
-        context.getEndTasks().add(() -> {
+        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
             Terminal t = resolve(id, side, network);
             endTaskTerminalConsumer.accept(t);
         });

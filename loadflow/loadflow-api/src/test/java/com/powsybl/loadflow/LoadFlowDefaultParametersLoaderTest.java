@@ -9,29 +9,38 @@ package com.powsybl.loadflow;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
 import java.util.List;
 
 import static com.powsybl.loadflow.LoadFlowParameters.load;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
  */
 class LoadFlowDefaultParametersLoaderTest {
 
+    InMemoryPlatformConfig platformConfig;
+
+    @BeforeEach
+    void setUp() {
+        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        platformConfig = new InMemoryPlatformConfig(fileSystem);
+    }
+
     @Test
     void testLoadParametersFromClassPath() {
         LoadFlowDefaultParametersLoaderMock loader = new LoadFlowDefaultParametersLoaderMock("test");
 
-        LoadFlowParameters parameters = new LoadFlowParameters(List.of(loader));
+        LoadFlowParameters parameters = new LoadFlowParameters(List.of(loader), platformConfig);
 
         assertFalse(parameters.isUseReactiveLimits());
         assertEquals(LoadFlowParameters.VoltageInitMode.DC_VALUES, parameters.getVoltageInitMode());
@@ -45,16 +54,20 @@ class LoadFlowDefaultParametersLoaderTest {
     void testConflictBetweenDefaultParametersLoader() {
         LoadFlowDefaultParametersLoaderMock loader1 = new LoadFlowDefaultParametersLoaderMock("test1");
         LoadFlowDefaultParametersLoaderMock loader2 = new LoadFlowDefaultParametersLoaderMock("test2");
+        List<LoadFlowDefaultParametersLoader> loaders = List.of(loader1, loader2);
 
-        LoadFlowParameters parameters = new LoadFlowParameters(List.of(loader1, loader2));
+        assertThrows(PowsyblException.class, () -> new LoadFlowParameters(loaders, platformConfig));
+
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow");
+        moduleConfig.setStringProperty("default-parameters-loader", "test1");
+
+        LoadFlowParameters parameters = new LoadFlowParameters(loaders, platformConfig);
         List<Extension<LoadFlowParameters>> extensions = parameters.getExtensions().stream().toList();
-        assertEquals(0, extensions.size());
+        assertEquals(1, extensions.size());
     }
 
     @Test
     void testCorrectLoadingOrder() {
-        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
         moduleConfig.setStringProperty("voltageInitMode", "PREVIOUS_VALUES");
 
@@ -64,5 +77,29 @@ class LoadFlowDefaultParametersLoaderTest {
         load(parameters, platformConfig);
         assertFalse(parameters.isUseReactiveLimits());
         assertEquals(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES, parameters.getVoltageInitMode());
+    }
+
+    @Test
+    void testProviderParameters() {
+        LoadFlowDefaultParametersLoaderMock loader = new LoadFlowDefaultParametersLoaderMock("test");
+        LoadFlowParameters parameters = new LoadFlowParameters(List.of(loader), platformConfig);
+
+        // LoadFlowDefaultParametersLoaderMock creates provider parameters extensions
+        JsonLoadFlowParametersTest.DummyExtension beforePlatformConfig = parameters.getExtension(JsonLoadFlowParametersTest.DummyExtension.class);
+        assertNotNull(beforePlatformConfig);
+        assertEquals(5, beforePlatformConfig.getParameterDouble());
+        assertEquals("Hello", beforePlatformConfig.getParameterString());
+
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("dummy-extension");
+        moduleConfig.setStringProperty("parameterString", "modified");
+
+        load(parameters, platformConfig);
+        parameters.loadExtensions(platformConfig);
+
+        // loadExtensions only override values that are present in PlatformConfig
+        JsonLoadFlowParametersTest.DummyExtension afterPlatformConfig = parameters.getExtension(JsonLoadFlowParametersTest.DummyExtension.class);
+        assertNotNull(afterPlatformConfig);
+        assertEquals(5, afterPlatformConfig.getParameterDouble());
+        assertEquals("modified", afterPlatformConfig.getParameterString());
     }
 }

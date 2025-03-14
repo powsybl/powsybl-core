@@ -281,7 +281,7 @@ public final class ConnectableSerDeUtil {
         String suffix = index == null ? "" : String.valueOf(index);
         String selectedGroupId = context.getReader().readStringAttribute(SELECTED_GROUP_ID + suffix);
         if (selectedGroupId != null) {
-            context.getEndTasks().add(() -> selectedGroupIdSetter.accept(selectedGroupId));
+            context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> selectedGroupIdSetter.accept(selectedGroupId));
         }
     }
 

@@ -9,8 +9,11 @@ package com.powsybl.loadflow;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.google.common.collect.ImmutableMap;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
@@ -113,7 +116,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
      * Load parameters from a provided platform configuration.
      */
     public static LoadFlowParameters load(PlatformConfig platformConfig) {
-        LoadFlowParameters parameters = new LoadFlowParameters();
+        LoadFlowParameters parameters = new LoadFlowParameters(platformConfig);
         load(parameters, platformConfig);
 
         parameters.loadExtensions(platformConfig);
@@ -190,24 +193,52 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     private double dcPowerFactor = DEFAULT_DC_POWER_FACTOR;
 
     public LoadFlowParameters() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    protected LoadFlowParameters(PlatformConfig config) {
         this(ServiceLoader.load(LoadFlowDefaultParametersLoader.class)
                 .stream()
                 .map(ServiceLoader.Provider::get)
-                .toList());
+                .toList(), config);
     }
 
     public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders) {
-        int numberOfLoadersFound = Objects.requireNonNull(defaultParametersLoaders).size();
-        if (numberOfLoadersFound > 1) {
-            List<String> names = defaultParametersLoaders.stream()
-                    .map(LoadFlowDefaultParametersLoader::getSourceName)
-                    .toList();
-            LOGGER.warn("Multiple default loadflow parameters classes have been found in the class path : {}. No default parameters file loaded",
-                    names);
-        } else if (numberOfLoadersFound == 1) {
-            LoadFlowDefaultParametersLoader loader = defaultParametersLoaders.get(0);
-            JsonLoadFlowParameters.update(this, loader.loadDefaultParametersFromFile());
-            LOGGER.debug("Default loadflow configuration has been updated using the reference file from parameters loader '{}'", loader.getSourceName());
+        this(defaultParametersLoaders, PlatformConfig.defaultConfig());
+    }
+
+    public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders, PlatformConfig config) {
+        // Check default-parameters-loader config parameter
+        String selectedLoaderName;
+        Optional<LoadFlowDefaultParametersLoader> selectedLoader = Optional.empty();
+        Optional<ModuleConfig> module = config.getOptionalModuleConfig("load-flow");
+        selectedLoaderName = module.map(moduleConfig -> moduleConfig.getStringProperty("default-parameters-loader")).orElse(null);
+        if (selectedLoaderName != null) {
+            selectedLoader = defaultParametersLoaders.stream()
+                    .filter(loader -> loader.getSourceName().equals(selectedLoaderName))
+                    .findFirst();
+            if (selectedLoader.isEmpty()) {
+                LOGGER.warn("Parameter 'default-parameters-loader' of module 'load-flow' ({}) does not match any" +
+                        " LoadFlowDefaultParametersLoader found in the classpath", selectedLoaderName);
+            }
+        } else {
+            int numberOfLoadersFound = Objects.requireNonNull(defaultParametersLoaders).size();
+            if (numberOfLoadersFound > 1) {
+                List<String> names = defaultParametersLoaders.stream()
+                        .map(LoadFlowDefaultParametersLoader::getSourceName).toList();
+                String message = String.format("Multiple default loadflow parameter loader classes have been found in the class path : %s." +
+                                " Specify which one to use with the 'default-parameters-loader' parameter of 'load-flow' module " +
+                                "of Powsybl configuration.", names);
+                throw new PowsyblException(message);
+            } else if (numberOfLoadersFound == 1) {
+                selectedLoader = defaultParametersLoaders.stream().findFirst();
+            }
+        }
+
+        if (selectedLoader.isPresent()) {
+            JsonLoadFlowParameters.update(this, selectedLoader.get().loadDefaultParametersFromFile());
+            LOGGER.debug("Default loadflow configuration has been updated using the reference from parameters loader '{}'",
+                    selectedLoader.get().getSourceName());
         }
     }
 
@@ -459,10 +490,14 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return toMap().toString();
     }
 
-    private void loadExtensions(PlatformConfig platformConfig) {
+    protected void loadExtensions(PlatformConfig platformConfig) {
         for (LoadFlowProvider provider : new ServiceLoaderCache<>(LoadFlowProvider.class).getServices()) {
-            provider.loadSpecificParameters(platformConfig).ifPresent(extension ->
-                    addExtension((Class) extension.getClass(), extension));
+            provider.getSpecificParametersClass().ifPresent(clazz -> {
+                Optional<Extension<LoadFlowParameters>> extension = Optional.ofNullable(getExtension(clazz));
+                extension.ifPresentOrElse(ext -> provider.updateSpecificParameters(ext, platformConfig),
+                        () -> provider.loadSpecificParameters(platformConfig)
+                                .ifPresent(ext -> addExtension((Class) ext.getClass(), ext)));
+            });
         }
     }
 }

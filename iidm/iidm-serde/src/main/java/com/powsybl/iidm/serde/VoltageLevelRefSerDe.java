@@ -23,7 +23,7 @@ public final class VoltageLevelRefSerDe {
     public static void readVoltageLevelRef(NetworkDeserializerContext context, Network network, Consumer<VoltageLevel> endTaskTerminalConsumer) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
         context.getReader().readEndNode();
-        context.getEndTasks().add(() -> {
+        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
             VoltageLevel voltageLevel = network.getVoltageLevel(id);
             endTaskTerminalConsumer.accept(voltageLevel);
         });

@@ -36,7 +36,15 @@ public final class NamespaceReader {
         }
     }
 
-    public static Set<String> namespaces1(InputStream is) throws XMLStreamException {
+    public static Set<String> namespacesOrEmpty(InputStream is) {
+        try {
+            return namespaces1(is);
+        } catch (XMLStreamException x) {
+            return Set.of();
+        }
+    }
+
+    private static Set<String> namespaces1(InputStream is) throws XMLStreamException {
         Set<String> found = new HashSet<>();
         XMLStreamReader xmlsr = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
         try {

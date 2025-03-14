@@ -51,6 +51,6 @@ public class AreaBoundarySerDe {
             case BoundaryRefSerDe.ROOT_ELEMENT_NAME -> BoundaryRefSerDe.readBoundaryRef(context, holder.getNetwork(), adder::setBoundary);
             default -> throw new PowsyblException("Unexpected element for AreaBoundary: " + type + ". Should be " + BoundaryRefSerDe.ROOT_ELEMENT_NAME + " or " + TERMINAL_REF);
         }
-        context.getEndTasks().add(adder::add);
+        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, adder::add);
     }
 }

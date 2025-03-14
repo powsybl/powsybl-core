@@ -10,6 +10,7 @@ package com.powsybl.contingency;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -17,6 +18,10 @@ import java.util.List;
 public interface ContingenciesProvider {
 
     List<Contingency> getContingencies(Network network);
+
+    default List<Contingency> getContingencies(Network network, Map<Class<?>, Object> contextObjects) {
+        return getContingencies(network);
+    }
 
     default String asScript() {
         throw new UnsupportedOperationException("Serialization not supported for contingencies provider of type " + this.getClass().getName());

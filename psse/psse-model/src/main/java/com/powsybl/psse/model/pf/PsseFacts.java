@@ -73,7 +73,7 @@ public class PsseFacts extends PsseVersioned {
     private double set2 = 0.0;
 
     @Parsed
-    private double vsref = 0.0;
+    private int vsref = 0;
 
     @Parsed
     @Revision(until = 33)
@@ -234,11 +234,11 @@ public class PsseFacts extends PsseVersioned {
         this.set2 = set2;
     }
 
-    public double getVsref() {
+    public int getVsref() {
         return vsref;
     }
 
-    public void setVsref(double vsref) {
+    public void setVsref(int vsref) {
         this.vsref = vsref;
     }
 

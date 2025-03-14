@@ -360,7 +360,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
                 throw new PowsyblException(String.format("Unknown element name '%s' in 'bus'", elementName));
             }
         });
-        context.getEndTasks().add(() -> {
+        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
             for (int node : busNodes) {
                 Terminal terminal = vl.getNodeBreakerView().getTerminal(node);
                 if (terminal != null) {

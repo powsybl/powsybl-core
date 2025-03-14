@@ -27,12 +27,14 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
 
     private final TreeDataReader reader;
 
-    private final List<Runnable> endTasks = new ArrayList<>();
+    private final List<DeserializationEndTask> endTasks = new ArrayList<>();
     private final ImportOptions options;
 
     private final Map<String, String> extensionVersions;
 
     private ValidationLevel networkValidationLevel;
+
+    private Set<String> ignoredEquipments = new HashSet<>();
 
     public NetworkDeserializerContext(Anonymizer anonymizer, TreeDataReader reader) {
         this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_VERSION, Collections.emptyMap());
@@ -51,12 +53,19 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
         return reader;
     }
 
-    public List<Runnable> getEndTasks() {
-        return endTasks;
+    public void addEndTask(DeserializationEndTask.Step step, Runnable task) {
+        endTasks.add(new DeserializationEndTask(step, task));
     }
 
-    public void executeEndTasks(Network network, ReportNode reportNode) {
-        Networks.executeWithReportNode(network, reportNode, () -> getEndTasks().forEach(Runnable::run));
+    public void executeEndTasks(Network network, DeserializationEndTask.Step step, ReportNode reportNode) {
+        Networks.executeWithReportNode(network, reportNode, () -> endTasks.stream()
+                .filter(t -> t.getStep() == step
+                        || step == DeserializationEndTask.Step.AFTER_EXTENSIONS &&
+                            t.getStep() == DeserializationEndTask.Step.BEFORE_EXTENSIONS && !t.isProcessed()) // If no "extensions" tag was found, BEFORE_EXTENSIONS tasks were not processed.
+                .forEach(t -> {
+                    t.setProcessed(true);
+                    t.getTask().run();
+                }));
     }
 
     @Override
@@ -79,5 +88,13 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
 
     public ValidationLevel getNetworkValidationLevel() {
         return this.networkValidationLevel;
+    }
+
+    public void addIgnoredEquipment(String equipment) {
+        ignoredEquipments.add(equipment);
+    }
+
+    public boolean isIgnoredEquipment(String equipment) {
+        return ignoredEquipments.contains(equipment);
     }
 }
