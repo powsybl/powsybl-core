@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
@@ -64,7 +65,9 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithNullSwitchKind() {
         Network network = createNbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
@@ -74,7 +77,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
         assertDoesNotThrow(() -> modification.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals("All switch kinds must be defined", e.getMessage());
-        assertEquals("undefinedSwitchKind", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.undefinedSwitchKind", reportNode.getChildren().get(0).getMessageKey());
 
         // Check nothing is created if throwException is false
         modification.apply(network);
@@ -84,7 +87,9 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithUnsupportedSwitchKind() {
         Network network = createNbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
@@ -94,7 +99,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
         assertDoesNotThrow(() -> modification.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals("Switch kinds must be DISCONNECTOR or BREAKER", e.getMessage());
-        assertEquals("wrongSwitchKind", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.wrongSwitchKind", reportNode.getChildren().get(0).getMessageKey());
 
         // Check nothing is created if throwException is false
         modification.apply(network);
@@ -104,7 +109,9 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithNegativeCount() {
         Network network = createNbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         NetworkModification modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(-1)
@@ -114,7 +121,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
         assertDoesNotThrow(() -> modification.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals("busbar count must be >= 1", e.getMessage());
-        assertEquals("countLowerThanMin", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.countLowerThanMin", reportNode.getChildren().get(0).getMessageKey());
 
         // Check nothing is created if throwException is false
         modification.apply(network);
@@ -151,7 +158,9 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithUnexpectedSwitchKindsSize() {
         Network network = createNbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
@@ -161,7 +170,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
         assertDoesNotThrow(() -> modification.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals("Unexpected switch kinds count (1). Should be 3", e.getMessage());
-        assertEquals("unexpectedSwitchKindsCount", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.unexpectedSwitchKindsCount", reportNode.getChildren().get(0).getMessageKey());
 
         // Check nothing is created if throwException is false
         modification.apply(network);
@@ -171,7 +180,9 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithNotExistingVoltageLevel() {
         Network network = createNbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId("NOT_EXISTING")
                 .withAlignedBusesOrBusbarCount(3)
@@ -181,7 +192,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
         assertDoesNotThrow(() -> modification.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals("Voltage level NOT_EXISTING is not found", e.getMessage());
-        assertEquals("voltageLevelNotFound", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.voltageLevelNotFound", reportNode.getChildren().get(0).getMessageKey());
     }
 
     @Test
@@ -204,7 +215,9 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testErrorIfNotSwitchKindsDefinedAndNodeBreaker() {
         Network network = createNbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
@@ -213,13 +226,15 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
         assertDoesNotThrow(() -> modification.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
         assertEquals("Unexpected switch kinds count (0). Should be 3", e.getMessage());
-        assertEquals("unexpectedSwitchKindsCount", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.unexpectedSwitchKindsCount", reportNode.getChildren().get(0).getMessageKey());
     }
 
     @Test
     void testWithReportNode() throws IOException {
         Network network = createNbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestCreateVoltageLevelTopology", "Testing reportNode for voltage level topology creation").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("reportTestCreateVoltageLevelTopology", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)

@@ -9,6 +9,7 @@ package com.powsybl.commons.report;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Objects;
 
 /**
@@ -21,11 +22,19 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     protected String messageTemplate;
     protected boolean withTimestamp = false;
     protected String timestampPattern;
+    protected String bundleBaseName;
 
     @Override
     public T withMessageTemplate(String key, String messageTemplate) {
         this.key = key;
         this.messageTemplate = messageTemplate;
+        return self();
+    }
+
+    @Override
+    public T withLocaleMessageTemplate(String key, String bundleBaseName) {
+        this.key = key;
+        this.bundleBaseName = bundleBaseName;
         return self();
     }
 
@@ -125,6 +134,12 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
         this.withTimestamp = true;
         this.timestampPattern = Objects.requireNonNull(pattern);
         return self();
+    }
+
+    protected String getMessageTemplate(TreeContext treeContext) {
+        return bundleBaseName != null
+                ? ResourceBundle.getBundle(bundleBaseName, treeContext.getLocale()).getString(key)
+                : messageTemplate;
     }
 
     protected abstract T self();

@@ -33,7 +33,9 @@ public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<
 
     @Override
     public ReportNode build() {
-        TreeContextImpl treeContext = new TreeContextImpl(locale, defaultTimestampPattern);
+        Locale localeSetOrDefault = this.locale != null ? this.locale : ReportConstants.DEFAULT_LOCALE;
+        TreeContextImpl treeContext = new TreeContextImpl(localeSetOrDefault, defaultTimestampPattern);
+        String messageTemplate = getMessageTemplate(treeContext);
         return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, withTimestamp, timestampPattern, treeContext);
     }
 

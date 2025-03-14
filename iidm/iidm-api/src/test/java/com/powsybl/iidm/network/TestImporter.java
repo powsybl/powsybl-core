@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.report.ReportBundleBaseName;
 import com.powsybl.commons.report.ReportNode;
 
 import java.io.IOException;
@@ -50,7 +51,7 @@ public class TestImporter implements Importer {
     public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
         if (reportNode != null) {
             reportNode.newReportNode()
-                    .withMessageTemplate("test", "Import model ${model}")
+                    .withLocaleMessageTemplate("testImportModel", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                     .withUntypedValue("model", "eurostagTutorialExample1")
                     .add();
         }

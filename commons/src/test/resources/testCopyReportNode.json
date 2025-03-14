@@ -7,11 +7,11 @@
       "existingChild" : "Child message",
       "grandChild" : "Grandchild message",
       "otherRoot" : "Root message containing node to copy",
-      "root" : "Root message with value ${value}"
+      "rootWithValue" : "Root message with value ${value}"
     }
   },
   "reportRoot" : {
-    "messageKey" : "root",
+    "messageKey" : "rootWithValue",
     "values" : {
       "value" : {
         "value" : 2.3203,

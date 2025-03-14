@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.report;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,7 +31,7 @@ class NoOpTest extends AbstractSerDeTest {
     void test() throws IOException {
         ReportNode root = ReportNode.NO_OP;
         ReportNode reportNode = root.newReportNode()
-                .withMessageTemplate("key", "message with value = ${double}")
+                .withLocaleMessageTemplate("key", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withTypedValue("double", 2.0, TypedValue.ACTIVE_POWER)
                 .withTypedValue("float", 2.0f, TypedValue.ACTIVE_POWER)
                 .withTypedValue("int", 4, "counter")
@@ -53,7 +55,9 @@ class NoOpTest extends AbstractSerDeTest {
         assertNull(reportNode.getMessageTemplate());
         assertNull(reportNode.getMessageKey());
 
-        ReportNode reportNodeImplRoot = ReportNode.newRootReportNode().withMessageTemplate("k", "Real root reportNode").build();
+        ReportNode reportNodeImplRoot = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("k", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
         reportNode.include(reportNodeImplRoot);
         assertEquals(Collections.emptyList(), reportNode.getChildren());
 
@@ -73,19 +77,34 @@ class NoOpTest extends AbstractSerDeTest {
     void testTreeContextNoOp() {
         assertEquals(0, TreeContextNoOp.NO_OP.getDictionary().size());
         assertNull(TreeContextNoOp.NO_OP.getDefaultTimestampFormatter());
-        assertNull(TreeContextNoOp.NO_OP.getLocale());
+        assertNotNull(TreeContextNoOp.NO_OP.getLocale());
 
         TreeContextImpl treeContext = new TreeContextImpl();
         treeContext.addDictionaryEntry("key", "value");
-        TreeContextNoOp.NO_OP.merge(treeContext);
-        assertEquals(0, TreeContextNoOp.NO_OP.getDictionary().size());
+        PowsyblException e = assertThrows(PowsyblException.class, () -> TreeContextNoOp.NO_OP.merge(treeContext));
+        assertEquals("Cannot merge a TreeContextNoOp with non TreeContextNoOp", e.getMessage());
+
+        assertEquals(Locale.US, treeContext.getLocale());
+    }
+
+    @Test
+    void testTreeContextMerge() {
+        TreeContextImpl treeContext = new TreeContextImpl();
+
+        assertEquals(0, treeContext.getDictionary().size());
+        assertEquals(ReportConstants.DEFAULT_LOCALE, treeContext.getLocale());
+
+        TreeContextImpl treeContext2 = new TreeContextImpl();
+        treeContext2.addDictionaryEntry("key", "value");
+        treeContext.merge(treeContext2);
+        assertEquals(1, treeContext.getDictionary().size());
     }
 
     @Test
     void testPostponedValuesAdded() throws IOException {
         ReportNode root = ReportNode.NO_OP;
         ReportNode childNode = root.newReportNode()
-                .withMessageTemplate("key", "message with value = ${double}")
+                .withLocaleMessageTemplate("key", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withTimestamp()
                 .withTimestamp("pattern")
                 .add();

@@ -1,5 +1,5 @@
 + Test importing UCTE file elementName.uct
-   Report test ${unknownKey}
+   Testing reportNode
    + Reading UCTE network file
       Fix UCTE nodes
       + Fix UCTE lines

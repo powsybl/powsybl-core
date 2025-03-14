@@ -45,17 +45,17 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
 
         ReportNode rootReportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("testReportVoltageRegulatingXnode", "Test importing UCTE file ${file}")
+                .withLocaleMessageTemplate("testReportVoltageRegulatingXnode", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withTypedValue("file", "elementName.uct", TypedValue.FILENAME)
                 .build();
 
         rootReportNode.newReportNode()
-                .withMessageTemplate("reportTest", "Report test ${unknownKey}")
+                .withLocaleMessageTemplate("reportTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withUntypedValue("nonPrintedString", "Non printed String")
                 .add();
         Optional<ReportNode> reportNode = rootReportNode.getChildren().stream().findFirst();
         assertTrue(reportNode.isPresent());
-        assertEquals("Report test ${unknownKey}", reportNode.get().getMessage());
+        assertEquals("Testing reportNode", reportNode.get().getMessage());
         assertEquals("Non printed String", reportNode.get().getValue("nonPrintedString").map(Object::toString).orElse(null));
 
         new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, rootReportNode);
@@ -72,8 +72,12 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
     @Test
     void roundTripReportNodeJsonTest() throws Exception {
         String filename = "frVoltageRegulatingXnode.uct";
-        ReportNode reportRoot = ReportNode.newRootReportNode().withMessageTemplate("roundTripReportNodeJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct").build();
-        reportRoot.newReportNode().withMessageTemplate("novalueReport", "No value report").add();
+        ReportNode reportRoot = ReportNode.newRootReportNode()
+                .withLocaleMessageTemplate("roundTripReportNodeJsonTest", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .build();
+        reportRoot.newReportNode()
+                .withLocaleMessageTemplate("novalueReport", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .add();
         Network.read(filename, getClass().getResourceAsStream("/" + filename), reportRoot);
         roundTripTest(reportRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
 
@@ -119,7 +123,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
 
         List<Network> networkList = Collections.synchronizedList(new ArrayList<>());
         ReportNode reportRoot = ReportNode.newRootReportNode()
-                .withMessageTemplate("importAllParallel", "Test importing UCTE files in parallel: ${file1}, ${file2}, ${file3}")
+                .withLocaleMessageTemplate("importAllParallel", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
                 .withTypedValue("file1", "frVoltageRegulatingXnode.uct", TypedValue.FILENAME)
                 .withTypedValue("file2", "frTestGridForMerging.uct", TypedValue.FILENAME)
                 .withTypedValue("file3", "germanTsos.uct", TypedValue.FILENAME)
