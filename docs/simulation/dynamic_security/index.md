@@ -9,11 +9,11 @@ The dynamic security analysis is a [security analysis](../security/index.md) usi
 
 ## Inputs
 
-### Dynamic models mapping
-The dynamic models mapping is exactly the same [mapping](../dynamic/index.md#dynamic-models-mapping) used for a dynamic simulation.
+### Dynamic models configuration
+The dynamic models configuration is exactly the same [configuration](../dynamic/index.md#dynamic-models-configuration) used for a dynamic simulation.
 
 ### Other inputs
-Besides dynamic models mapping, the dynamic security analysis requires the same [inputs as the standard one](../security/index.md#inputs).
+Besides dynamic models configuration, the dynamic security analysis requires the same [inputs as the standard one](../security/index.md#inputs).
 
 ## Outputs
 The dynamic security analysis produces the same outputs as the standard one. All outputs can be found [here](../security/index.md#outputs).
