@@ -136,8 +136,8 @@ public class LoadScalable extends AbstractInjectionScalable {
     }
 
     private double shiftLoad(double asked, ScalingParameters parameters, Load l) {
-        double oldP0 = l.getP0();
-        double oldQ0 = l.getQ0();
+        double oldP0 = getP0(l);
+        double oldQ0 = getQ0(l);
         if (oldP0 < minValue || oldP0 > maxValue) {
             LOGGER.error("Error scaling LoadScalable {}: Initial P is not in the range [Pmin, Pmax]", id);
             return 0.;

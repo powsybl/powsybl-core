@@ -136,7 +136,7 @@ public class GeneratorScalable extends AbstractInjectionScalable {
             }
         }
 
-        double oldTargetP = g.getTargetP();
+        double oldTargetP = getTargetP(g);
         double minimumTargetP = minimumTargetP(g);
         double maximumTargetP = maximumTargetP(g);
         if (!parameters.isAllowsGeneratorOutOfActivePowerLimits() && (oldTargetP < minimumTargetP || oldTargetP > maximumTargetP)) {
@@ -183,10 +183,10 @@ public class GeneratorScalable extends AbstractInjectionScalable {
         }
 
         if (askedPower >= 0) {
-            var availablePower = Math.min(generator.getMaxP(), maxValue) - generator.getTargetP();
+            var availablePower = Math.min(generator.getMaxP(), maxValue) - getTargetP(generator);
             return askedPower > availablePower ? availablePower / askedPower : 100.0;
         } else {
-            var availablePower = Math.max(generator.getMinP(), minValue) - generator.getTargetP();
+            var availablePower = Math.max(generator.getMinP(), minValue) - getTargetP(generator);
             return askedPower < availablePower ? availablePower / askedPower : 100.0;
         }
     }
