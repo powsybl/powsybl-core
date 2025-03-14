@@ -78,8 +78,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
                 dictionary = dictionaryEntry.getValue();
             }
         }
-        MessageTemplateProvider mtp = new MapMessageTemplateProvider(dictionary);
-        dictionary.keySet().forEach(k -> treeContext.addDictionaryEntry(k, mtp));
+        dictionary.forEach((k, message) -> treeContext.addDictionaryEntry(k, (key, locale) -> message));
     }
 
     private String getDictionaryName(DeserializationContext ctx) {
