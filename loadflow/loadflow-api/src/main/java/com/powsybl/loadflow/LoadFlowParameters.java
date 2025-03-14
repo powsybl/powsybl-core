@@ -203,7 +203,11 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 .toList(), config);
     }
 
-    protected LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders, PlatformConfig config) {
+    public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders) {
+        this(defaultParametersLoaders, PlatformConfig.defaultConfig());
+    }
+
+    public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders, PlatformConfig config) {
         // Check default-parameters-loader config parameter
         String selectedLoaderName;
         Optional<LoadFlowDefaultParametersLoader> selectedLoader = Optional.empty();
