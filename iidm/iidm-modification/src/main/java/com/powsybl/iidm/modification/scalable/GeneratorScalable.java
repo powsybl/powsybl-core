@@ -25,11 +25,11 @@ public class GeneratorScalable extends AbstractInjectionScalable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorScalable.class);
 
-    GeneratorScalable(String id) {
+    protected GeneratorScalable(String id) {
         super(id);
     }
 
-    GeneratorScalable(String id, double minValue, double maxValue) {
+    protected GeneratorScalable(String id, double minValue, double maxValue) {
         super(id, minValue, maxValue);
     }
 
