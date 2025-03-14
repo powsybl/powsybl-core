@@ -9,10 +9,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
@@ -441,6 +438,117 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         network = createThreeWindingsTransformerNodeBreakerNetwork();
         ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
         replace.apply(network);
+    }
+
+    @Test
+    void replaceDisconnectedNodeBreakerTest() {
+        // In node/breaker topology:
+        // One of the 3 two-winding transformers ("3WT-Leg3") is inverted + its switch is opened and not retained
+        // => no bus in the bus view on side 2 for this transformer. The "well oriented" detection should not fail.
+        Network n = NetworkFactory.findDefault().createNetwork("test", "test");
+        Substation substation = n.newSubstation().setId("SUBSTATION").setCountry(Country.FR).add();
+        VoltageLevel vl1 = substation.newVoltageLevel()
+                .setId("vl1")
+                .setNominalV(132.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl1.getNodeBreakerView().newBusbarSection()
+                .setId("bbsVl1")
+                .setNode(0)
+                .add();
+        vl1.getNodeBreakerView().newSwitch()
+                .setId("sw1")
+                .setKind(SwitchKind.BREAKER).setRetained(false)
+                .setOpen(false)
+                .setNode1(0).setNode2(1)
+                .add();
+
+        VoltageLevel vl2 = substation.newVoltageLevel()
+                .setId("vl2")
+                .setNominalV(33.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl2.getNodeBreakerView().newBusbarSection()
+                .setId("bbsVl2")
+                .setNode(0)
+                .add();
+        vl2.getNodeBreakerView().newSwitch()
+                .setId("sw2")
+                .setKind(SwitchKind.BREAKER).setRetained(false)
+                .setOpen(false)
+                .setNode1(0).setNode2(1)
+                .add();
+
+        VoltageLevel vl3 = substation.newVoltageLevel()
+                .setId("vl3")
+                .setNominalV(11.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl3.getNodeBreakerView().newBusbarSection()
+                .setId("bbsVl3")
+                .setNode(0)
+                .add();
+        vl3.getNodeBreakerView().newSwitch()
+                .setId("sw3")
+                .setKind(SwitchKind.BREAKER).setRetained(false)
+                .setOpen(true) // Opened and not retained
+                .setNode1(0).setNode2(1)
+                .add();
+
+        VoltageLevel vlStar = substation.newVoltageLevel()
+                .setId("vlStar")
+                .setNominalV(20.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vlStar.getNodeBreakerView().newBusbarSection()
+                .setId("bbsStar")
+                .setNode(0)
+                .add();
+        vlStar.getNodeBreakerView().newSwitch()
+                .setId("swStar1")
+                .setKind(SwitchKind.BREAKER).setRetained(false)
+                .setOpen(false)
+                .setNode1(0).setNode2(1)
+                .add();
+        vlStar.getNodeBreakerView().newSwitch()
+                .setId("swStar2")
+                .setKind(SwitchKind.BREAKER).setRetained(false)
+                .setOpen(false)
+                .setNode1(0).setNode2(2)
+                .add();
+        vlStar.getNodeBreakerView().newSwitch()
+                .setId("swStar3")
+                .setKind(SwitchKind.BREAKER).setRetained(false)
+                .setOpen(false)
+                .setNode1(0).setNode2(3)
+                .add();
+
+        substation.newTwoWindingsTransformer()
+                .setId("3WT-Leg1")
+                .setR(17.424).setX(1.7424).setG(0.00573921028466483).setB(0.000573921028466483)
+                .setVoltageLevel1(vl1.getId()).setRatedU1(132.0).setNode1(1)
+                .setVoltageLevel2(vlStar.getId()).setRatedU2(20.0).setNode2(1)
+                .add();
+        substation.newTwoWindingsTransformer()
+                .setId("3WT-Leg2")
+                .setR(1.089).setX(0.1089).setG(0.0).setB(0.0)
+                .setVoltageLevel1(vl2.getId()).setRatedU1(33.0).setNode1(1)
+                .setVoltageLevel2(vlStar.getId()).setRatedU2(20.0).setNode2(2)
+                .add();
+        substation.newTwoWindingsTransformer()
+                .setId("3WT-Leg3")
+                .setR(0.121).setX(0.0121).setG(0.0).setB(0.0)
+                // Inverted
+                .setVoltageLevel1(vlStar.getId()).setRatedU1(20.0).setNode1(3)
+                .setVoltageLevel2(vl3.getId()).setRatedU2(11.0).setNode2(1)
+                .add();
+
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        replace.apply(n);
+
+        assertEquals(3, n.getVoltageLevelCount());
+        assertEquals(0, n.getTwoWindingsTransformerCount());
+        assertEquals(1, n.getThreeWindingsTransformerCount());
     }
 
     @Test

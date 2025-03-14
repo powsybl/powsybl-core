@@ -15,10 +15,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.commons.ref.RefObj;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringSubstitutor;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
@@ -45,22 +49,29 @@ public final class ReportNodeImpl implements ReportNode {
     private boolean isRoot;
     private Collection<Map<String, TypedValue>> valuesMapsInheritance;
 
-    static ReportNodeImpl createChildReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values, ReportNodeImpl parent) {
-        return createReportNode(messageKey, messageTemplate, values, parent.getValuesMapsInheritance(), parent.getTreeContextRef(), false);
+    static ReportNodeImpl createChildReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values,
+                                                boolean withTimestamp, String timestampPattern, ReportNodeImpl parent) {
+        return createReportNode(messageKey, messageTemplate, values, parent.getValuesMapsInheritance(), parent.getTreeContextRef(),
+                withTimestamp, timestampPattern, false);
     }
 
-    static ReportNodeImpl createRootReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values, boolean timestamps, DateTimeFormatter timestampPattern) {
-        RefChain<TreeContextImpl> treeContext = new RefChain<>(new RefObj<>(new TreeContextImpl(timestamps, timestampPattern)));
-        return createReportNode(messageKey, messageTemplate, values, Collections.emptyList(), treeContext, true);
+    static ReportNodeImpl createRootReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values,
+                                               boolean withTimestamp, String timestampPattern, TreeContextImpl treeContext) {
+        RefChain<TreeContextImpl> treeContextRef = new RefChain<>(new RefObj<>(treeContext));
+        return createReportNode(messageKey, messageTemplate, values, Collections.emptyList(), treeContextRef,
+                withTimestamp, timestampPattern, true);
     }
 
     private static ReportNodeImpl createReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values,
                                                    Collection<Map<String, TypedValue>> inheritedValuesMaps, RefChain<TreeContextImpl> treeContextRef,
-                                                   boolean isRoot) {
+                                                   boolean withTimestamp, String timestampPattern, boolean isRoot) {
         TreeContextImpl treeContext = treeContextRef.get();
         treeContext.addDictionaryEntry(Objects.requireNonNull(messageKey), Objects.requireNonNull(messageTemplate));
-        if (treeContext.isTimestampAdded()) {
-            values.put(ReportConstants.TIMESTAMP_KEY, TypedValue.getTimestamp(treeContext.getTimestampFormatter()));
+        if (withTimestamp) {
+            DateTimeFormatter formatter = timestampPattern != null
+                    ? DateTimeFormatter.ofPattern(timestampPattern, treeContext.getLocale())
+                    : treeContext.getDefaultTimestampFormatter();
+            values.put(ReportConstants.TIMESTAMP_KEY, TypedValue.getTimestamp(formatter));
         }
         return new ReportNodeImpl(messageKey, values, inheritedValuesMaps, treeContextRef, isRoot);
     }
@@ -151,15 +162,15 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public void include(ReportNode reportNode) {
-        if (!(reportNode instanceof ReportNodeImpl reportNodeImpl)) {
+    public void include(ReportNode reportRoot) {
+        if (!(reportRoot instanceof ReportNodeImpl reportNodeImpl)) {
             throw new PowsyblException("Cannot mix implementations of ReportNode, included reportNode should be/extend ReportNodeImpl");
         }
         if (!reportNodeImpl.isRoot) {
             throw new PowsyblException("Cannot include non-root reportNode");
         }
-        if (reportNode == this) {
-            throw new PowsyblException("Cannot add a reportNode in itself");
+        if (getTreeContext() == reportNodeImpl.getTreeContext()) {
+            throw new PowsyblException("The given reportNode cannot be included as it is the root of the reportNode");
         }
 
         reportNodeImpl.unroot();
@@ -167,6 +178,24 @@ public final class ReportNodeImpl implements ReportNode {
 
         getTreeContext().merge(reportNodeImpl.getTreeContext());
         reportNodeImpl.treeContext.setRef(treeContext);
+    }
+
+    @Override
+    public void addCopy(ReportNode reportNode) {
+        var om = new ObjectMapper().registerModule(new ReportNodeJsonModule());
+        var sw = new StringWriter();
+
+        try {
+            om.writeValue(sw, reportNode);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        ReportNodeImpl copiedReportNode = (ReportNodeImpl) ReportNodeDeserializer.read(IOUtils.toInputStream(sw.toString(), StandardCharsets.UTF_8));
+        children.add(copiedReportNode);
+
+        getTreeContext().merge(copiedReportNode.getTreeContext());
+        copiedReportNode.treeContext.setRef(treeContext);
     }
 
     private void unroot() {

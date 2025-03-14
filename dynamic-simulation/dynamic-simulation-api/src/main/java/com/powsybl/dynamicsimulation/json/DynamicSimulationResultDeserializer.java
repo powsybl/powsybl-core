@@ -42,8 +42,8 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
     public DynamicSimulationResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
         DynamicSimulationResult.Status status = null;
         String error = "";
-        Map<String, DoubleTimeSeries> curves = new HashMap<>();
-        Map<String, Double> fsv = new HashMap<>();
+        Map<String, DoubleTimeSeries> curves = new LinkedHashMap<>();
+        Map<String, Double> fsv = new LinkedHashMap<>();
         List<TimelineEvent> timeLine = new ArrayList<>();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {

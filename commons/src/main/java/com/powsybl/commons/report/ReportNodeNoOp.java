@@ -26,11 +26,16 @@ public class ReportNodeNoOp implements ReportNode {
 
     @Override
     public TreeContext getTreeContext() {
-        return null;
+        return TreeContext.NO_OP;
     }
 
     @Override
     public void include(ReportNode reportRoot) {
+        // No-op
+    }
+
+    @Override
+    public void addCopy(ReportNode reportNode) {
         // No-op
     }
 
@@ -222,6 +227,16 @@ public class ReportNodeNoOp implements ReportNode {
 
         @Override
         public ReportNodeAdder withSeverity(String severity) {
+            return this;
+        }
+
+        @Override
+        public ReportNodeAdder withTimestamp() {
+            return this;
+        }
+
+        @Override
+        public ReportNodeAdder withTimestamp(String timestampPattern) {
             return this;
         }
     }

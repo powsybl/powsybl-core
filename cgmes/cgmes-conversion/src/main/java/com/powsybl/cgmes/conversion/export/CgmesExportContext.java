@@ -154,6 +154,10 @@ public class CgmesExportContext {
         }
     }
 
+    public ReferenceDataProvider getReferenceDataProvider() {
+        return referenceDataProvider;
+    }
+
     private CgmesTopologyKind networkTopologyKind(Network network) {
         for (VoltageLevel vl : network.getVoltageLevels()) {
             if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
@@ -180,7 +184,6 @@ public class CgmesExportContext {
         addIidmMappingsStaticVarCompensators(network);
         addIidmMappingsEndsAndTapChangers(network);
         addIidmMappingsEquivalentInjection(network);
-        addIidmMappingsControlArea(network);
     }
 
     private void addIidmMappingsSubstations(Network network) {
@@ -533,24 +536,6 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmMappingsControlArea(Network network) {
-        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-        if (cgmesControlAreas == null) {
-            network.newExtension(CgmesControlAreasAdder.class).add();
-            cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-            String cgmesControlAreaId = namingStrategy.getCgmesId(refTyped(network), CONTROL_AREA);
-            cgmesControlAreas.newCgmesControlArea()
-                    .setId(cgmesControlAreaId)
-                    .setName("Network")
-                    .setEnergyIdentificationCodeEic("Network--1")
-                    .add();
-            CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(cgmesControlAreaId);
-            for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
-                cgmesControlArea.add(danglingLine.getTerminal());
-            }
-        }
-    }
-
     public int getCimVersion() {
         return cim.getVersion();
     }
@@ -689,11 +674,7 @@ public class CgmesExportContext {
     }
 
     public boolean writeConnectivityNodes() {
-        boolean writeConnectivityNodes = cim.writeConnectivityNodes();
-        if (!writeConnectivityNodes) {
-            return topologyKind == CgmesTopologyKind.NODE_BREAKER;
-        }
-        return true;
+        return getCimVersion() == 100 || topologyKind == CgmesTopologyKind.NODE_BREAKER;
     }
 
     public Collection<String> getRegionsIds() {

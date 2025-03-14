@@ -145,6 +145,13 @@ public interface ReportNode {
     void include(ReportNode reportRoot);
 
     /**
+     * Copy the given <code>ReportNode</code> and inserts the resulting <code>ReportNode</code> as a child of current <code>ReportNode</code>.
+     *
+     * @param reportNode the <code>ReportNode</code> to copy into the children of current <code>ReportNode</code>
+     */
+    void addCopy(ReportNode reportNode);
+
+    /**
      * Serialize the current report node
      * @param generator the jsonGenerator to use for serialization
      */

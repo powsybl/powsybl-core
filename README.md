@@ -1,7 +1,7 @@
 # PowSyBl Core
 
 
-[![Actions Status](https://github.com/powsybl/powsybl-core/workflows/CI/badge.svg)](https://github.com/powsybl/powsybl-core/actions)
+[![Actions Status](https://github.com/powsybl/powsybl-core/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/powsybl/powsybl-core/actions)
 [![Coverage Status](https://sonarcloud.io/api/project_badges/measure?project=com.powsybl%3Apowsybl-core&metric=coverage)](https://sonarcloud.io/component_measures?id=com.powsybl%3Apowsybl-core&metric=coverage)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=com.powsybl%3Apowsybl-core&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.powsybl%3Apowsybl-core)
 
@@ -62,6 +62,9 @@ on how to run code.
 
 Read [Install](#install) to generate an installed iTools distribution, a standalone external folder that contains all
 the built objects required to run powsybl programs.
+
+## Build the documentation
+To locally build the readthedocs documentation follow the instructions in the [documentation README](https://github.com/powsybl/powsybl-core/blob/main/docs/README.md) page.
 
 ## Install
 An iTools distribution can be generated and installed. The installation is a standalone external folder that contains all
