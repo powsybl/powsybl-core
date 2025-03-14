@@ -86,7 +86,7 @@ The `balanceType` property is an optional property that defines, if `distributed
 - If using `PROPORTIONAL_TO_LOAD` then the participating elements are the loads. The participation factor is computed using the active power $P0$.
 - If using `PROPORTIONAL_TO_CONFORM_LOAD` then the participating elements are the loads which have a conform active power part. The participation factor is computed using the [load detail extension](../../grid_model/extensions.md#load-detail), which specifies the variable and the fixed parts of $P0$. The slack is distributed only on loads that have a variable part. If the extension is not available on a load, the whole $P0$ is considered as a variable.
   
-Some algorithms may not be supported by all LoadFLow providers or all simulation types. If you plan to use it, check the documentation of your LoadFLow provider. In the case of OpenLoadFlow there are limitations for sensitivity analysis, see [OpenLoadFlow sensitivity analysis documentation](https://github.com/powsybl/powsybl-open-loadflow/blob/main/docs/sensitivity/sensitivity.md).
+Some algorithms may not be supported by all LoadFlow providers or all simulation types. If you plan to use it, check the documentation of your LoadFlow provider. In the case of OpenLoadFlow there are limitations for sensitivity analysis, see [OpenLoadFlow sensitivity analysis documentation](inv:powsyblopenloadflow:*:*#sensitivity/sensitivity).
 
 This default value is `PROPORTIONAL_TO_GENERATION_P_MAX`.
 
