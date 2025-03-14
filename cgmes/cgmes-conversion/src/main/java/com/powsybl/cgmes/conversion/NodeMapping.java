@@ -47,10 +47,6 @@ public class NodeMapping {
     }
 
     public int iidmNodeForTerminal(CgmesTerminal t, boolean isSwitchEnd, VoltageLevel vl) {
-        return iidmNodeForTerminal(t, isSwitchEnd, vl, true);
-    }
-
-    public int iidmNodeForTerminal(CgmesTerminal t, boolean isSwitchEnd, VoltageLevel vl, boolean equipmentIsConnected) {
         // Because there are some node-breaker models that, in addition to the information of opened switches also set
         // the terminal.connected property to false, we have decided to create fictitious switches to precisely
         // map this situation to IIDM.
@@ -58,20 +54,17 @@ public class NodeMapping {
 
         var fictSwCreationMode = context.config().getCreateFictitiousSwitchesForDisconnectedTerminalsMode();
         boolean bbsForEveryConnectivityNode = context.config().createBusbarSectionForEveryConnectivityNode();
-        if (!bbsForEveryConnectivityNode && fictSwCreationMode == CgmesImport.FictitiousSwitchesCreationMode.NEVER) {
+        if (!t.connected() && createFictitiousSwitch(fictSwCreationMode, isSwitchEnd)) {
+            createFictitiousSwitch(t, vl);
+        } else {
             if (isSwitchEnd) {
                 // for switches the iidm node is the one from the connectivity node
                 return cgmes2iidm.get(t.connectivityNode());
+            } else if (bbsForEveryConnectivityNode) {
+                createInternalConnection(t, vl);
             } else if (!cgmes2iidm.containsKey(t.id())) {
                 // Create internal connections but only if too many terminals on connectivity node
                 createInternalConnectionsIfNeeded(t.connectivityNode(), vl);
-            }
-        } else {
-            boolean connected = t.connected() && equipmentIsConnected;
-            if (!connected && createFictitiousSwitch(fictSwCreationMode, isSwitchEnd)) {
-                createFictitiousSwitch(t, vl);
-            } else {
-                createInternalConnection(t, vl);
             }
         }
 

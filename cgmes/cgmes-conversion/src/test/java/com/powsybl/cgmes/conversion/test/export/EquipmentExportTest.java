@@ -658,6 +658,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = Cgmes3Catalog.miniGrid().dataSource();
         Properties properties = new Properties();
         properties.setProperty("iidm.import.cgmes.convert-boundary", "true");
+        properties.setProperty("iidm.import.cgmes.create-busbar-section-for-every-connectivity-node", "true");
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
         Network actual = exportImportNodeBreaker(expected, dataSource);
 

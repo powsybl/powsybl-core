@@ -146,12 +146,18 @@ public class TerminalMapping {
         }
     }
 
-    public void buildConnectivityNodeCgmesTerminalsMapping(CgmesTerminal t) {
+    public void buildConnectivityNodeCgmesTerminalsMapping(CgmesTerminal t, Conversion.Config config) {
+        // To avoid creating unnecessary internal connections, we need to compute the mapping of the connectivity nodes to the list
+        // of CgmesTerminals
+        // - this list should not contain switches
+        // - if CgmesImport.FictitiousSwitchesCreationMode.ALWAYS or CgmesImport.FictitiousSwitchesCreationMode.ALWAYS_EXCEPT_SWITCHES,
+        // this list should not contain the disconnected terminals
+        boolean onlyConnected = config.getCreateFictitiousSwitchesForDisconnectedTerminalsMode() != CgmesImport.FictitiousSwitchesCreationMode.NEVER;
         if (CgmesNames.SWITCH_TYPES.contains(t.conductingEquipmentType())) {
             return; // switches do not have terminals in iidm, so we should not count them
         }
         String connectivityNode = t.connectivityNode();
-        if (connectivityNode != null) {
+        if (connectivityNode != null && (!onlyConnected || t.connected())) {
             connectivityNodeTerminalsMapping.computeIfAbsent(connectivityNode, k -> new ArrayList<>(1)).add(t);
         }
     }
