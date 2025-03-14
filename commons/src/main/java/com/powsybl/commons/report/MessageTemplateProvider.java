@@ -7,7 +7,9 @@
  */
 package com.powsybl.commons.report;
 
+import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -18,4 +20,10 @@ public interface MessageTemplateProvider {
     MessageTemplateProvider EMPTY = new EmptyMessageTemplateProvider();
 
     String getTemplate(String key, Locale locale);
+
+    static String getMissingKeyMessage(String key, Locale locale) {
+        String pattern = ResourceBundle.getBundle(PowsyblCoreReportResourceBundles.BASE_NAME, locale)
+                .getString("core.commons.missingKey");
+        return new MessageFormat(pattern, locale).format(key);
+    }
 }

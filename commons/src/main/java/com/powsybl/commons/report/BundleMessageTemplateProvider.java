@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
+ * Bundle message template provider based on a {@link ResourceBundle}.
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class BundleMessageTemplateProvider implements MessageTemplateProvider {
@@ -36,7 +37,7 @@ public class BundleMessageTemplateProvider implements MessageTemplateProvider {
         }
         if (!throwIfUnknownKey) {
             if (!resourceBundle.containsKey(key)) {
-                return "Unknown key: '" + key + "'";
+                return MessageTemplateProvider.getMissingKeyMessage(key, locale);
             }
         }
         return resourceBundle.getString(key);

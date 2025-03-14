@@ -13,6 +13,7 @@ import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 /**
+ * Bundle message template provider based on several {@link ResourceBundle}.
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class MultiBundleMessageTemplateProvider implements MessageTemplateProvider {
@@ -40,7 +41,7 @@ public class MultiBundleMessageTemplateProvider implements MessageTemplateProvid
         if (throwIfUnknownKey) {
             throw new MissingResourceException("Could not find template for key '{}'", PropertyResourceBundle.class.getName(), key);
         } else {
-            return "Unknown key: '" + key + "'";
+            return MessageTemplateProvider.getMissingKeyMessage(key, locale);
         }
     }
 }
