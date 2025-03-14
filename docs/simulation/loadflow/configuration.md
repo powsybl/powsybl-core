@@ -77,15 +77,18 @@ The `distributedSlack` property is an optional property that defines if the acti
 The default value is `true`.
 
 **balanceType**  
-The `balanceType` property is an optional property that defines, if `distributedSlack` parameter is set to true, how to manage the distribution. Several algorithms are supported. All algorithms follow the same scheme: only some elements are participating in the slack distribution, with a given participation factor. Three options are available:
+The `balanceType` property is an optional property that defines, if `distributedSlack` parameter is set to true, how to manage the distribution. Several algorithms are supported. All algorithms follow the same scheme: only some elements are participating in the slack distribution, with a given participation factor. Six options are available:
 - If using `PROPORTIONAL_TO_GENERATION_P_MAX` then the participating elements are the generators. The participation factor is computed using the maximum active power target $MaxP$ and the active power control droop. The default droop value is `4`. If present, the simulator uses the droop of the generator given by the [active power control extension](../../grid_model/extensions.md#active-power-control).
 - If using `PROPORTIONAL_TO_GENERATION_P` then the participating elements are the generators. The participation factor is computed using the active power set point $TargetP$.
-- If using `PROPORTIONAL_TO_GENERATION_REMAINING_MARGIN` then the participating elements are the generators. The participation factor is computed using the difference between the maximum active power target $MaxP$ with active power set point $TargetP$.
+- If using `PROPORTIONAL_TO_GENERATION_REMAINING_MARGIN` then the participating elements are the generators. The participation factor is computed using the difference between the active power limit and active power set point $TargetP$. The limit used is $MaxP$ if production needs to increase and $MinP$ if it needs to decrease.
 - If using `PROPORTIONAL_TO_GENERATION_PARTICIPATION_FACTOR` then the participating elements are the generators. The simulator uses the participation factors of the generators given by the [active power control extension](../../grid_model/extensions.md#active-power-control).
 - If using `PROPORTIONAL_TO_LOAD` then the participating elements are the loads. The participation factor is computed using the active power $P0$.
 - If using `PROPORTIONAL_TO_CONFORM_LOAD` then the participating elements are the loads which have a conform active power part. The participation factor is computed using the [load detail extension](../../grid_model/extensions.md#load-detail), which specifies the variable and the fixed parts of $P0$. The slack is distributed only on loads that have a variable part. If the extension is not available on a load, the whole $P0$ is considered as a variable.
+  
+Some algorithms may not be supported by all LoadFlow providers or all simulation types. If you plan to use it, check the documentation of your LoadFlow provider. In the case of OpenLoadFlow there are limitations for sensitivity analysis, see [OpenLoadFlow sensitivity analysis documentation](inv:powsyblopenloadflow:*:*#sensitivity/sensitivity).
 
 This default value is `PROPORTIONAL_TO_GENERATION_P_MAX`.
+
 
 **countriesToBalance**  
 The `countriesToBalance` property is an optional property that defines the list of [ISO-3166](https://en.wikipedia.org/wiki/ISO_3166-1)
