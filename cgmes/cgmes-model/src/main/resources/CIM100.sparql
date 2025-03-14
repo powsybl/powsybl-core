@@ -8,7 +8,7 @@
 # include: CIM16.sparql
 
 # query: boundaryNodes
-# All pairs (Connectiviy Node, Topological Node) from a graph that has a modeProfile EquipmentBoundary-
+# All pairs (Connectivity Node, Topological Node) from a graph that has a modeProfile EquipmentBoundary-
 # We expect all Connectivity Nodes have 1 and only one corresponding TopologicalNode
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
@@ -98,17 +98,6 @@ WHERE {
     OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.qPercent ?qPercent }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?SynchronousMachine
-        cim:RotatingMachine.p ?p ;
-        cim:RotatingMachine.q ?q ;
-        cim:SynchronousMachine.referencePriority ?referencePriority ;
-        cim:SynchronousMachine.operatingMode ?operatingMode ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled .
-}}
-OPTIONAL { GRAPH ?graphSSH2 {
-    ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF
-}}
 }
 
 # query: staticVarCompensators
@@ -122,14 +111,10 @@ WHERE {
         cim:StaticVarCompensator.inductiveRating ?inductiveRating ;
         cim:StaticVarCompensator.slope ?slope .
     ?Terminal cim:Terminal.ConductingEquipment ?StaticVarCompensator .
+
     OPTIONAL { ?StaticVarCompensator cim:StaticVarCompensator.sVCControlMode ?controlMode }
     OPTIONAL { ?StaticVarCompensator cim:StaticVarCompensator.voltageSetPoint ?voltageSetPoint }
     OPTIONAL { ?StaticVarCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
-}}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?StaticVarCompensator
-        cim:StaticVarCompensator.q ?q ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled
 }}
 }
 
@@ -161,12 +146,6 @@ WHERE {
     OPTIONAL { ?OperationalLimitType eu:OperationalLimitType.kind ?limitType }
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
-    OPTIONAL { ?OperationalLimit cim:ActivePowerLimit.value ?value }
-    OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
-    OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
-}}
 }
 
 # query: switches
@@ -190,8 +169,5 @@ WHERE {
     OPTIONAL { ?Terminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
     FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
         || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2) )
-}}
-OPTIONAL { GRAPH ?graphSSH {
-    ?Switch cim:Switch.open ?open
 }}
 }
