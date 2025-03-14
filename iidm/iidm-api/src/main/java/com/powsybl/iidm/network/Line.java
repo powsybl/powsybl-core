@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.function.Predicate;
+
 /**
  * An AC line.
  * <p>
@@ -33,4 +35,16 @@ public interface Line extends Branch<Line>, Connectable<Line>, MutableLineCharac
     default IdentifiableType getType() {
         return IdentifiableType.LINE;
     }
+
+    boolean connect(boolean propagateDisconnectionIfNeeded);
+
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, boolean propagateDisconnectionIfNeeded);
+
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateDisconnectionIfNeeded);
+
+    boolean disconnect(boolean propagateDisconnectionIfNeeded);
+
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, boolean propagateDisconnectionIfNeeded);
+
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean propagateDisconnectionIfNeeded);
 }
