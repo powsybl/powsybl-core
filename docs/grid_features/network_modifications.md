@@ -153,7 +153,7 @@ switches in other voltage levels.
 The builder to be used to initialize this class takes only the ID of the voltage level to be removed.
 
 #### RemoveSubstation
-This class should be used to remove an entire substations. All the voltage levels of the substation with all their
+This class should be used to remove an entire substation. All the voltage levels of the substation with all their
 connectables are removed. The branches and three-winding transformers are also removed with their switches in the other
 substations.
 The builder takes the ID of the substation as input.
