@@ -53,12 +53,13 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
         String eqFile = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir, exportParams);
         String sshFile = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDir, exportParams);
         String svFile = ConversionUtil.writeCgmesProfile(network, "SV", tmpDir, exportParams);
+        String tpFile = ConversionUtil.writeCgmesProfile(network, "TP", tmpDir, exportParams);
 
         // Assert the exports are valid
         assertValidProfileInHeader(eqFile, topologyKind, cim100Export);
         assertValidCim16EquipmentOperationElements(eqFile, sshFile, svFile, topologyKind, cim100Export);
         assertValidConnectivityElements(eqFile, topologyKind, cim100Export);
-        assertValidTerminalCount(eqFile, topologyKind, cim100Export);
+        assertValidTopologyElements(tpFile, topologyKind, cim100Export);
     }
 
     private void assertValidProfileInHeader(String eqFile, CgmesTopologyKind topologyKind, boolean cim100Export) {
@@ -104,42 +105,50 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
 
     private void assertValidConnectivityElements(String eqFile, CgmesTopologyKind topologyKind, boolean cim100Export) {
         if (topologyKind == CgmesTopologyKind.NODE_BREAKER) {
-            assertEquals(4, getElementCount(eqFile, "ConnectivityNode"));
-            assertEquals(1, getElementCount(eqFile, "Disconnector"));
+            assertEquals(5, getElementCount(eqFile, "ConnectivityNode"));
+            assertEquals(2, getElementCount(eqFile, "Breaker"));
         } else {
-            // In case of a CIM100 bus-branch export, the buses from the BusBreakerView aren't exported as ConnectivityNode
-            int connectivityNodesCount = cim100Export ? 3 : 0;
+            // In case of a CIM16 bus-branch export, the buses from the BusBreakerView aren't exported as ConnectivityNode
+            int connectivityNodesCount = cim100Export ? 4 : 0;
             assertEquals(connectivityNodesCount, getElementCount(eqFile, "ConnectivityNode"));
-            assertEquals(0, getElementCount(eqFile, "Disconnector")); // because it is non-retained
+            assertEquals(1, getElementCount(eqFile, "Breaker")); // because one is non-retained
         }
+        assertValidTerminalCount(eqFile, topologyKind, cim100Export);
     }
 
-    private void assertValidTerminalCount(String eqFile, CgmesTopologyKind topologyKind, boolean cim100Export) {
-        // BusbarSection (2), Generator (1), ACLineSegment (2), ConformLoad (1), NonConformLoad (1) terminals are always exported
-        int terminalCount = 7;
+    private void assertValidTopologyElements(String tpFile, CgmesTopologyKind topologyKind, boolean cim100Export) {
+        // The number of topological nodes is independent from the topology kind or cim version
+        assertEquals(4, getElementCount(tpFile, "TopologicalNode"));
+        assertValidTerminalCount(tpFile, topologyKind, cim100Export);
+    }
+
+    private void assertValidTerminalCount(String eqOrTpFile, CgmesTopologyKind topologyKind, boolean cim100Export) {
+        // BusbarSection (2), Generator (1), ACLineSegment (2), ConformLoad (1), NonConformLoad (1), retained Breaker (2)
+        // terminals are always exported
+        int terminalCount = 9;
         if (topologyKind == CgmesTopologyKind.NODE_BREAKER || cim100Export) {
             // StationSupply (1), GroundDisconnector (2) terminals are exported if not a CIM16 bus-branch export
             terminalCount += 3;
         }
         if (topologyKind == CgmesTopologyKind.NODE_BREAKER) {
-            // non-retained Disconnector (2) terminals are exported if not a bus-branch export
+            // non-retained Breaker (2) terminals are exported if not a bus-branch export
             terminalCount += 2;
         }
 
-        assertEquals(terminalCount, getElementCount(eqFile, "Terminal"));
+        assertEquals(terminalCount, getElementCount(eqOrTpFile, "Terminal"));
     }
 
     private Network mixedTopologyNetwork() {
         Network network = NetworkFactory.findDefault().createNetwork("network", "test");
 
-        //  VL_1: Bus-Breaker                      VL_2: Node-Breaker
+        //    VL_1: Bus-Breaker                            VL_2: Node-Breaker
         //
-        //                  ________LN________
-        //                  |                |    BBS_2A        BBS_2B
-        // ______(BUS)______|__            _(1)____(0)____DIS____(3)________GRDIS__
-        //     |       |                            |             |           |
-        //     |       |                           (2)           (4)         (5)
-        //    GEN     AUX                          LD_C         LD_NC
+        //                           ________LN________
+        //                           |                |    BBS_2A        BBS_2B
+        // ____(GEN-BUS)____BK1____(BUS)_           _(1)____(0)____BK2____(3)________GRDIS__
+        //    |         |                                    |             |           |
+        //    |         |                                   (2)           (4)         (5)
+        //   GEN       AUX                                  LD_C         LD_NC
 
         // Create Substation 1 with a Generator and a station supply Load
         Substation substation1 = network.newSubstation()
@@ -152,6 +161,15 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .add();
         voltageLevel1.getBusBreakerView().newBus()
                 .setId("BUS")
+                .add();
+        voltageLevel1.getBusBreakerView().newBus()
+                .setId("GEN-BUS")
+                .add();
+        voltageLevel1.getBusBreakerView().newSwitch()
+                .setId("BK1")
+                .setBus1("BUS")
+                .setBus2("GEN-BUS")
+                .setOpen(false)
                 .add();
         voltageLevel1.newGenerator()
                 .setId("GEN")
@@ -189,10 +207,10 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setNode(3)
                 .add();
         voltageLevel2.getNodeBreakerView().newSwitch()
+                .setId("BK2")
                 .setNode1(0)
                 .setNode2(3)
-                .setId("DIS")
-                .setKind(SwitchKind.DISCONNECTOR)
+                .setKind(SwitchKind.BREAKER)
                 .setOpen(false)
                 .setRetained(false)
                 .add();
