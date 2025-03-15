@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="twoTerminalDc" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="twoTerminalDcwithTwoAreas" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1">
         <iidm:voltageLevel id="VL1" nominalV="230.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -176,7 +176,7 @@
         </iidm:operationalLimitsGroup2>
     </iidm:line>
     <iidm:hvdcLine id="TwoTerminalDc-EATL P1     " name="EATL P1     " r="7.365" nominalV="240.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="120.0" converterStation1="LccConverter-4-EATL P1     " converterStation2="LccConverter-8-EATL P1     "/>
-    <iidm:area id="A1" name="IEEE 14 Bus Test Case" areaType="ControlArea" interchangeTarget="0.0">
+    <iidm:area id="A1" name="IEEE 14 Bus Test Case area 1" areaType="ControlArea" interchangeTarget="0.0">
         <iidm:voltageLevelRef id="VL1"/>
         <iidm:voltageLevelRef id="VL2"/>
         <iidm:voltageLevelRef id="VL3"/>
@@ -184,8 +184,12 @@
         <iidm:voltageLevelRef id="VL5"/>
         <iidm:voltageLevelRef id="VL6"/>
         <iidm:voltageLevelRef id="VL7"/>
+        <iidm:areaBoundary ac="false" type="terminalRef" id="LccConverter-4-EATL P1     "/>
+    </iidm:area>
+    <iidm:area id="A2" name="IEEE 14 Bus Test Case area 2" areaType="ControlArea" interchangeTarget="0.0">
         <iidm:voltageLevelRef id="VL8"/>
         <iidm:voltageLevelRef id="VL9"/>
+        <iidm:areaBoundary ac="false" type="terminalRef" id="LccConverter-8-EATL P1     "/>
     </iidm:area>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="B1-G1"/>

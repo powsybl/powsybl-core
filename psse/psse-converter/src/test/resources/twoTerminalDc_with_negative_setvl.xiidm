@@ -38,7 +38,7 @@
                 <iidm:bus id="B4" name="Bus 4" v="243.98007619999998" angle="-13.09089157"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B4-L1" loadType="UNDEFINED" p0="47.8" q0="-3.9" bus="B4" connectableBus="B4"/>
-            <iidm:lccConverterStation id="LccConverter-4-EATL P1         " name="EATL P1     " lossFactor="0.0" powerFactor="0.7273804" bus="B4" connectableBus="B4"/>
+            <iidm:lccConverterStation id="LccConverter-4-EATL P1     " name="EATL P1     " lossFactor="0.0" powerFactor="0.7273804" bus="B4" connectableBus="B4"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL7" nominalV="110.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -97,7 +97,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B8" name="Bus 8" v="227.6281066" angle="-5.48014421"/>
             </iidm:busBreakerTopology>
-            <iidm:lccConverterStation id="LccConverter-8-EATL P1         " name="EATL P1     " lossFactor="0.0" powerFactor="0.7183361" bus="B8" connectableBus="B8"/>
+            <iidm:lccConverterStation id="LccConverter-8-EATL P1     " name="EATL P1     " lossFactor="0.0" powerFactor="0.7183361" bus="B8" connectableBus="B8"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S9">
@@ -175,7 +175,18 @@
             <iidm:currentLimits permanentLimit="2509.967539837856"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
-    <iidm:hvdcLine id="TwoTerminalDc-EATL P1         " name="EATL P1     " r="7.365" nominalV="240.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="120.0" converterStation1="LccConverter-4-EATL P1         " converterStation2="LccConverter-8-EATL P1         "/>
+    <iidm:hvdcLine id="TwoTerminalDc-EATL P1     " name="EATL P1     " r="7.365" nominalV="240.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="120.0" converterStation1="LccConverter-4-EATL P1     " converterStation2="LccConverter-8-EATL P1     "/>
+    <iidm:area id="A1" name="IEEE 14 Bus Test Case" areaType="ControlArea" interchangeTarget="0.0">
+        <iidm:voltageLevelRef id="VL1"/>
+        <iidm:voltageLevelRef id="VL2"/>
+        <iidm:voltageLevelRef id="VL3"/>
+        <iidm:voltageLevelRef id="VL4"/>
+        <iidm:voltageLevelRef id="VL5"/>
+        <iidm:voltageLevelRef id="VL6"/>
+        <iidm:voltageLevelRef id="VL7"/>
+        <iidm:voltageLevelRef id="VL8"/>
+        <iidm:voltageLevelRef id="VL9"/>
+    </iidm:area>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="B1-G1"/>
     </iidm:extension>
