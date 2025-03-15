@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.export;
 import com.fasterxml.uuid.Generators;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.powsybl.cgmes.conversion.CgmesExport.ExportParameters;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
@@ -20,6 +21,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
+import com.powsybl.triplestore.api.PropertyBag;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.net.URLEncoder;
@@ -134,28 +136,68 @@ public class CgmesExportContext {
     }
 
     public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider, NamingStrategy namingStrategy) {
+        this(network, referenceDataProvider, namingStrategy, ReportNode.NO_OP, null);
+    }
+
+    public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider,
+                              NamingStrategy namingStrategy, ReportNode reportNode, ExportParameters exportParameters) {
+        setReportNode(reportNode);
         this.referenceDataProvider = referenceDataProvider;
         this.namingStrategy = namingStrategy;
-        CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
-        if (cimCharacteristics != null) {
-            setCimVersion(cimCharacteristics.getCimVersion());
-            topologyKind = cimCharacteristics.getTopologyKind();
-        } else {
-            topologyKind = detectNetworkTopologyKind(network);
-        }
         scenarioTime = network.getCaseDate();
+        addParameters(exportParameters);
+        computeCimVersion(exportParameters, network);
+        computeTopologyKind(exportParameters, network);
+        computeModelingAuthoritySet(exportParameters, referenceDataProvider);
+        computeBoundaryIds(exportParameters, network);
         addIidmMappings(network);
+    }
 
-        if (network.hasProperty(BOUNDARY_EQ_ID_PROPERTY)) {
-            setBoundaryEqId(network.getProperty(BOUNDARY_EQ_ID_PROPERTY));
-        }
-        if (network.hasProperty(BOUNDARY_TP_ID_PROPERTY)) {
-            setBoundaryTpId(network.getProperty(BOUNDARY_TP_ID_PROPERTY));
+    private void addParameters(ExportParameters exportParameters) {
+        if (exportParameters != null) {
+            setExportBoundaryPowerFlows(exportParameters.exportBoundaryPowerFlows());
+            setExportFlowsForSwitches(exportParameters.exportFlowsForSwitches());
+            setExportTransformersWithHighestVoltageAtEnd1(exportParameters.exportTransformersWithHighestVoltageAtEnd1());
+            setExportLoadFlowStatus(exportParameters.exportLoadFlowStatus());
+            setExportAllLimitsGroup(exportParameters.exportAllLimitsGroup());
+            setExportGeneratorsInLocalRegulationMode(exportParameters.exportGeneratorsInLocalRegulationMode());
+            setMaxPMismatchConverged(exportParameters.maxPMismatchConverged());
+            setMaxQMismatchConverged(exportParameters.maxQMismatchConverged());
+            setExportSvInjectionsForSlacks(exportParameters.exportSvInjectionsForSlacks());
+            setEncodeIds(exportParameters.encodeIds());
+            setBusinessProcess(exportParameters.businessProcess());
+            setModelDescription(exportParameters.modelDescription());
+            setModelVersion(exportParameters.modelVersion());
+            setProfiles(exportParameters.profiles());
+            setBaseName(exportParameters.baseName());
+            setUpdateDependencies(exportParameters.updateDependencies());
         }
     }
 
-    public ReferenceDataProvider getReferenceDataProvider() {
-        return referenceDataProvider;
+    private void computeCimVersion(ExportParameters exportParameters, Network network) {
+        if (exportParameters != null && exportParameters.cimVersion() != null) {
+            setCimVersion(Integer.parseInt(exportParameters.cimVersion()));
+        } else if (network.getExtension(CimCharacteristics.class) != null) {
+            setCimVersion(network.getExtension(CimCharacteristics.class).getCimVersion());
+        }
+    }
+
+    private void computeTopologyKind(ExportParameters exportParameters, Network network) {
+        if (exportParameters != null && exportParameters.topologyKind() != null) {
+            setTopologyKind(Enum.valueOf(CgmesTopologyKind.class, exportParameters.topologyKind()));
+        } else if (network.getExtension(CimCharacteristics.class) != null) {
+            setTopologyKind(network.getExtension(CimCharacteristics.class).getTopologyKind());
+        } else {
+            CgmesTopologyKind topologyKindForExport = detectNetworkTopologyKind(network);
+            if (topologyKindForExport == CgmesTopologyKind.MIXED_TOPOLOGY) {
+                if (getCimVersion() < 100) {
+                    topologyKindForExport = CgmesTopologyKind.BUS_BRANCH;
+                } else {
+                    topologyKindForExport = CgmesTopologyKind.NODE_BREAKER;
+                }
+            }
+            setTopologyKind(topologyKindForExport);
+        }
     }
 
     private CgmesTopologyKind detectNetworkTopologyKind(Network network) {
@@ -171,13 +213,43 @@ public class CgmesExportContext {
         } else if (nodeBreakerVoltageLevelsCount == 0 && busBreakerVoltageLevelsCount > 0) {
             return CgmesTopologyKind.BUS_BRANCH;
         } else {
-            // For mixed-topology network, the topology kind is node/breaker for CIM 100 and bus/branch for CIM 16
-            if (getCimVersion() < 100) {
-                return CgmesTopologyKind.BUS_BRANCH;
-            } else {
-                return CgmesTopologyKind.NODE_BREAKER;
+            return CgmesTopologyKind.MIXED_TOPOLOGY;
+        }
+    }
+
+    private void computeModelingAuthoritySet(ExportParameters exportParameters, ReferenceDataProvider referenceDataProvider) {
+        if (exportParameters != null && exportParameters.modelingAuthoritySet() != null) {
+            setModelingAuthoritySet(exportParameters.modelingAuthoritySet());
+        } else if (referenceDataProvider != null) {
+            PropertyBag sourcingActor = referenceDataProvider.getSourcingActor();
+            if (sourcingActor.containsKey("masUri")) {
+                setModelingAuthoritySet(sourcingActor.get("masUri"));
             }
         }
+    }
+
+    private void computeBoundaryIds(ExportParameters exportParameters, Network network) {
+        // Boundary EQ id
+        if (exportParameters != null && exportParameters.boundaryEqId() != null) {
+            setBoundaryEqId(exportParameters.boundaryEqId());
+        } else if (referenceDataProvider != null && referenceDataProvider.getEquipmentBoundaryId() != null) {
+            setBoundaryEqId(referenceDataProvider.getEquipmentBoundaryId());
+        } else if (network.hasProperty(BOUNDARY_EQ_ID_PROPERTY)) {
+            setBoundaryEqId(network.getProperty(BOUNDARY_EQ_ID_PROPERTY));
+        }
+
+        // Boundary TP id
+        if (exportParameters != null && exportParameters.boundaryTpId() != null) {
+            setBoundaryTpId(exportParameters.boundaryTpId());
+        } else if (referenceDataProvider != null && referenceDataProvider.getTopologyBoundaryId() != null) {
+            setBoundaryTpId(referenceDataProvider.getTopologyBoundaryId());
+        } else if (network.hasProperty(BOUNDARY_TP_ID_PROPERTY)) {
+            setBoundaryTpId(network.getProperty(BOUNDARY_TP_ID_PROPERTY));
+        }
+    }
+
+    public ReferenceDataProvider getReferenceDataProvider() {
+        return referenceDataProvider;
     }
 
     public void addIidmMappings(Network network) {
