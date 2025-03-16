@@ -7,9 +7,6 @@
  */
 package com.powsybl.commons.report;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Locale;
 
 /**
@@ -18,11 +15,8 @@ import java.util.Locale;
  */
 public class EmptyMessageTemplateProvider implements MessageTemplateProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmptyMessageTemplateProvider.class);
-
     @Override
     public String getTemplate(String key, Locale locale) {
-        LOGGER.warn("Returning empty template for key {}, please change the MessageTemplateProvider used", key);
-        return "";
+        return MessageTemplateProvider.getMissingKeyMessage(key, locale);
     }
 }
