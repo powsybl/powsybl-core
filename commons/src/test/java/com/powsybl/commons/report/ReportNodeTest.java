@@ -322,6 +322,24 @@ class ReportNodeTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testMissingKey() {
+        // Without giving a locale
+        ReportNode report1 = ReportNode.newRootReportNode()
+                .withMessageTemplate("unknown.key")
+                .build();
+        // translation should fall back to default properties as the key is not defined in the reports_en_US.properties
+        assertEquals("Cannot find message template with key: 'unknown.key'", report1.getMessage());
+
+        // With Locale.FRENCH
+        ReportNode report2 = ReportNode.newRootReportNode()
+                .withLocale(Locale.FRENCH)
+                .withMessageTemplate("unknown.key")
+                .build();
+        // translation should fall back to default properties as the key is not defined in the reports_en_US.properties
+        assertEquals("Template de message non trouvé pour la clé 'unknown.key'", report2.getMessage());
+    }
+
+    @Test
     void testLocaleAndi18n() {
         // Without giving a locale => default one is en_US
         ReportNode rootReportEnglish = ReportNode.newRootReportNode()
