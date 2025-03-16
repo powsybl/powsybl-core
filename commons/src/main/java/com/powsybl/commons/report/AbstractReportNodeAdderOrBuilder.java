@@ -22,11 +22,11 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     protected String messageTemplate;
     protected boolean withTimestamp = false;
     protected String timestampPattern;
-    protected MessageTemplateProvider messageTemplateProvider;
+    protected MessageTemplateProvider messageTemplateProvider = MessageTemplateProvider.EMPTY;
 
     @Override
     public T withMessageTemplateProvider(MessageTemplateProvider messageTemplateProvider) {
-        this.messageTemplateProvider = messageTemplateProvider;
+        this.messageTemplateProvider = Objects.requireNonNull(messageTemplateProvider);
         return self();
     }
 
