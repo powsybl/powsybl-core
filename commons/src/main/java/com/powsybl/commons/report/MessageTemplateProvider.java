@@ -24,6 +24,6 @@ public interface MessageTemplateProvider {
     static String getMissingKeyMessage(String key, Locale locale) {
         String pattern = ResourceBundle.getBundle(PowsyblCoreReportResourceBundles.BASE_NAME, locale)
                 .getString("core.commons.missingKey");
-        return new MessageFormat(pattern, locale).format(key);
+        return new MessageFormat(pattern, locale).format(new Object[]{key});
     }
 }
