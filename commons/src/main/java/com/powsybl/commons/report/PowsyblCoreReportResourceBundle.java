@@ -10,10 +10,10 @@ package com.powsybl.commons.report;
 /**
  * @author Alice Caron {@literal <alice.caron at rte-france.com>}
  */
-public final class PowsyblCoreReportResourceBundles {
+public final class PowsyblCoreReportResourceBundle {
 
     public static final String BASE_NAME = "com.powsybl.commons.reports";
 
-    private PowsyblCoreReportResourceBundles() {
+    private PowsyblCoreReportResourceBundle() {
     }
 }

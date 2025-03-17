@@ -8,8 +8,8 @@
 
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundles;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Injection;
@@ -71,7 +71,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingUp() {
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("scaling")
                 .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
@@ -95,7 +95,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingTargetPMoreThanCurrent() {
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("scaling")
                 .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
@@ -119,7 +119,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingTargetPLessThanCurrent() {
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("scaling")
                 .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
@@ -143,7 +143,7 @@ class StackScalableTest {
 
     @Test
     void testMaxValueBoundsScalingUp() {
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("scaling")
                 .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
@@ -170,7 +170,7 @@ class StackScalableTest {
 
     @Test
     void testMinValueBoundsScalingDown() {
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("scaling")
                 .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
@@ -197,7 +197,7 @@ class StackScalableTest {
 
     @Test
     void testDisableInjections() {
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("scaling")
                 .build();
         List<Injection<?>> injectionsList = Arrays.asList(

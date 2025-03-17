@@ -10,10 +10,10 @@ package com.powsybl.commons.test;
 /**
  * @author Alice Caron {@literal <alice.caron at rte-france.com>}
  */
-public final class PowsyblCoreTestReportResourceBundles {
+public final class PowsyblCoreTestReportResourceBundle {
 
     public static final String TEST_BASE_NAME = "i18n.reports";
 
-    private PowsyblCoreTestReportResourceBundles() {
+    private PowsyblCoreTestReportResourceBundle() {
     }
 }

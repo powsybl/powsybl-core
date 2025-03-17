@@ -8,8 +8,8 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundles;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
@@ -66,7 +66,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithNullSwitchKind() {
         Network network = createNbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
@@ -88,7 +88,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithUnsupportedSwitchKind() {
         Network network = createNbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
@@ -110,7 +110,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithNegativeCount() {
         Network network = createNbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTest")
                 .build();
         NetworkModification modification = new CreateVoltageLevelTopologyBuilder()
@@ -159,7 +159,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithUnexpectedSwitchKindsSize() {
         Network network = createNbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
@@ -181,7 +181,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithNotExistingVoltageLevel() {
         Network network = createNbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
@@ -216,7 +216,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testErrorIfNotSwitchKindsDefinedAndNodeBreaker() {
         Network network = createNbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTest")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
@@ -233,7 +233,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     @Test
     void testWithReportNode() throws IOException {
         Network network = createNbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestCreateVoltageLevelTopology")
                 .build();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
