@@ -10,14 +10,12 @@ package com.powsybl.commons.report;
 import com.google.auto.service.AutoService;
 
 /**
- * @author Alice Caron {@literal <alice.caron at rte-france.com>}
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 @AutoService(ReportResourceBundle.class)
-public final class PowsyblCoreReportResourceBundle implements ReportResourceBundle {
-
-    public static final String BASE_NAME = "com.powsybl.commons.reports";
+public final class MockReportResourceBundle implements ReportResourceBundle {
 
     public String getBaseName() {
-        return BASE_NAME;
+        return "i18n.mock.test";
     }
 }

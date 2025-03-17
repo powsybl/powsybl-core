@@ -373,6 +373,21 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals(Locale.FRANCE, rootReportFrance.getTreeContext().getLocale());
     }
 
+    @Test
+    void testAllBundlesFromClasspath() {
+        ReportNode root = ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("core.iidm.modification.voltageLevelRemoved")
+                .withTypedValue("vlId", "vl1", TypedValue.ID)
+                .build();
+        assertEquals("Voltage level vl1 removed", root.getMessage());
+
+        ReportNode child = root.newReportNode()
+                .withMessageTemplate("mocking.key")
+                .add();
+        assertEquals("Mocking message template", child.getMessage());
+    }
+
     private static void assertHasNoTimeStamp(ReportNode root1) {
         assertFalse(root1.getValues().containsKey(ReportConstants.TIMESTAMP_KEY));
     }
