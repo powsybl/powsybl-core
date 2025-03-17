@@ -106,7 +106,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
     private void assertValidConnectivityElements(String eqFile, CgmesTopologyKind topologyKind, boolean cim100Export) {
         if (topologyKind == CgmesTopologyKind.NODE_BREAKER) {
             assertEquals(5, getElementCount(eqFile, "ConnectivityNode"));
-            assertEquals(2, getElementCount(eqFile, "Breaker"));
+            assertEquals(3, getElementCount(eqFile, "Breaker"));
         } else {
             // In case of a CIM16 bus-branch export, the buses from the BusBreakerView aren't exported as ConnectivityNode
             int connectivityNodesCount = cim100Export ? 4 : 0;
@@ -131,8 +131,8 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
             terminalCount += 3;
         }
         if (topologyKind == CgmesTopologyKind.NODE_BREAKER) {
-            // non-retained Breaker (2) terminals are exported if not a bus-branch export
-            terminalCount += 2;
+            // non-retained Breaker (4) terminals are exported if not a bus-branch export
+            terminalCount += 4;
         }
 
         assertEquals(terminalCount, getElementCount(eqOrTpFile, "Terminal"));
@@ -144,11 +144,11 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
         //    VL_1: Bus-Breaker                            VL_2: Node-Breaker
         //
         //                           ________LN________
-        //                           |                |    BBS_2A        BBS_2B
-        // ____(GEN-BUS)____BK1____(BUS)_           _(1)____(0)____BK2____(3)________GRDIS__
-        //    |         |                                    |             |           |
-        //    |         |                                   (2)           (4)         (5)
-        //   GEN       AUX                                  LD_C         LD_NC
+        //                           |                |    BBS_2A    __BK2__     BBS_2B
+        // ____(GEN-BUS)____BK1____(BUS)_           _(1)____(0)______|     |______(3)________GRDIS__
+        //    |         |                                    |       |_BK3_|       |           |
+        //    |         |                                   (2)                   (4)         (5)
+        //   GEN       AUX                                  LD_C                 LD_NC
 
         // Create Substation 1 with a Generator and a station supply Load
         Substation substation1 = network.newSubstation()
@@ -213,6 +213,15 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setKind(SwitchKind.BREAKER)
                 .setOpen(false)
                 .setRetained(false)
+                .add();
+        voltageLevel2.getNodeBreakerView().newSwitch()
+                .setId("BK3")
+                .setNode1(0)
+                .setNode2(3)
+                .setKind(SwitchKind.BREAKER)
+                .setOpen(false)
+                .setRetained(true) // will be considered non-retained by the export
+                                   // because it has the same topological nodes on each side
                 .add();
         voltageLevel2.newLoad()
                 .setId("LD_C")

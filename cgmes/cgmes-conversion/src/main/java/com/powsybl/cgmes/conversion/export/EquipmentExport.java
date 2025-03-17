@@ -201,7 +201,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static boolean hasDifferentTNsAtBothEnds(Switch sw) {
+    public static boolean hasDifferentTNsAtBothEnds(Switch sw) {
         // The exported Topological Nodes come from IIDM bus/breaker view buses
         Bus bus1 = sw.getVoltageLevel().getBusBreakerView().getBus1(sw.getId());
         Bus bus2 = sw.getVoltageLevel().getBusBreakerView().getBus2(sw.getId());
