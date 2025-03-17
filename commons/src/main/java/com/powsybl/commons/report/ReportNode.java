@@ -74,7 +74,10 @@ public interface ReportNode {
     }
 
     /**
-     * Create a new builder for creating a root <code>ReportNode</code>.
+     * Create a new builder for creating a root <code>ReportNode</code>, based on the {@link ResourceBundle} whose base
+     * name is provided. All the descendants of the root node will use the {@link BundleMessageTemplateProvider}
+     * corresponding to the bundle base name provided as a message template provider, unless overridden.
+     * @param bundleBaseName The base name for the {@link ResourceBundle} to use
      * @return a {@link ReportNodeBuilder}
      */
     static ReportNodeBuilder newRootReportNode(String bundleBaseName) {
@@ -83,7 +86,10 @@ public interface ReportNode {
     }
 
     /**
-     * Create a new builder for creating a root <code>ReportNode</code>.
+     * Create a new builder for creating a root <code>ReportNode</code>, based on the {@link ResourceBundle} whose base
+     * name is provided. All the descendants of the root node will use the {@link MultiBundleMessageTemplateProvider}
+     * corresponding to the bundle base names provided as a message template provider, unless overridden.
+     * @param bundleBaseNames The base names for the {@link ResourceBundle} to use
      * @return a {@link ReportNodeBuilder}
      */
     static ReportNodeBuilder newRootReportNode(String... bundleBaseNames) {
@@ -151,8 +157,10 @@ public interface ReportNode {
     ReportNodeAdder newReportNode();
 
     /**
-     * Create a new adder to create a <code>ReportNode</code> child with a {@link BundleMessageTemplateProvider}, that
-     * is, a message template provider based on a ResourceBundle with given name.
+     * Create a new adder for creating a <code>ReportNode</code> child, based on the {@link ResourceBundle} whose base
+     * name is provided. All the descendants of the created node will use the {@link BundleMessageTemplateProvider}
+     * corresponding to the bundle base name provided as a message template provider, unless overridden.
+     * @param bundleBaseName The base name for the {@link ResourceBundle} to use
      *
      * @return the created <code>ReportNodeAdder</code>
      */
