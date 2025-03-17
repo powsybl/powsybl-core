@@ -310,7 +310,7 @@ public final class ReportNodeImpl implements ReportNode {
         Objects.requireNonNull(treeContext);
         return switch (version) {
             case V_1_0, V_2_0 -> throw new PowsyblException("No backward compatibility of version " + version);
-            case V_2_1 -> parseJsonNode(parser, objectMapper, treeContext);
+            case V_2_1, V_3_0 -> parseJsonNode(parser, objectMapper, treeContext);
         };
     }
 
