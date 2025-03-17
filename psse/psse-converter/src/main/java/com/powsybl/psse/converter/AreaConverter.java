@@ -75,7 +75,6 @@ public class AreaConverter extends AbstractConverter {
         }
     }
 
-
     private Terminal boundaryTerminal(Terminal terminal1, Terminal terminal2, Set<VoltageLevel> areaVoltageLevels) {
         var isTerminal1InArea = areaVoltageLevels.contains(terminal1.getVoltageLevel());
         var isTerminal2InArea = areaVoltageLevels.contains(terminal2.getVoltageLevel());
