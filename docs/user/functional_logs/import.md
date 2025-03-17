@@ -11,7 +11,7 @@ ReportNode.read(inputStream);
 ```
 
 ## Version
-Currently, the only serialized version supported is the version 2.1.
+Currently, the serialized versions supported are the versions 2.1 and 3.0.
 
 ## Dictionaries
 The two methods above look for a `default` dictionary in the `dictionaries` list.
