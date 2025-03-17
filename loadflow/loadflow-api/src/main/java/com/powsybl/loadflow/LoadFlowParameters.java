@@ -10,7 +10,6 @@ package com.powsybl.loadflow;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
@@ -211,8 +210,9 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         // Check default-parameters-loader config parameter
         String selectedLoaderName;
         Optional<LoadFlowDefaultParametersLoader> selectedLoader = Optional.empty();
-        Optional<ModuleConfig> module = config.getOptionalModuleConfig("load-flow");
-        selectedLoaderName = module.map(moduleConfig -> moduleConfig.getStringProperty("default-parameters-loader")).orElse(null);
+        selectedLoaderName = config.getOptionalModuleConfig("load-flow")
+                .flatMap(moduleConfig -> moduleConfig.getOptionalStringProperty("default-parameters-loader"))
+                .orElse(null);
         if (selectedLoaderName != null) {
             selectedLoader = defaultParametersLoaders.stream()
                     .filter(loader -> loader.getSourceName().equals(selectedLoaderName))
