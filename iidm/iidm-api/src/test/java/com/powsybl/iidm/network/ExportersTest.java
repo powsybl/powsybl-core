@@ -11,7 +11,8 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DirectoryDataSource;
-import com.powsybl.commons.report.PowsyblCoreTestReportResourceBundles;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.tools.ExporterMockWithReportNode;
@@ -133,8 +134,7 @@ class ExportersTest extends AbstractConvertersTest {
     void exportWithReportNode() throws Exception {
         Exporter testExporter = new ExporterMockWithReportNode();
         DataSource dataSource = Exporters.createDataSource(path);
-        ReportNode rootReportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreTestReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+        ReportNode rootReportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
                 .withMessageTemplate("reportTest")
                 .build();
         testExporter.export(null, null, dataSource, rootReportNode);

@@ -10,6 +10,7 @@ package com.powsybl.commons.report;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundles;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -21,7 +22,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Optional;
 
-import static com.powsybl.commons.report.PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME;
+import static com.powsybl.commons.test.PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -324,14 +325,14 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testMissingKey() {
         // Without giving a locale
-        ReportNode report1 = ReportNode.newRootReportNode()
+        ReportNode report1 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
                 .withMessageTemplate("unknown.key")
                 .build();
         // translation should fall back to default properties as the key is not defined in the reports_en_US.properties
         assertEquals("Cannot find message template with key: 'unknown.key'", report1.getMessage());
 
         // With Locale.FRENCH
-        ReportNode report2 = ReportNode.newRootReportNode()
+        ReportNode report2 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
                 .withLocale(Locale.FRENCH)
                 .withMessageTemplate("unknown.key")
                 .build();
@@ -342,7 +343,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testLocaleAndi18n() {
         // Without giving a locale => default one is en_US
-        ReportNode rootReportEnglish = ReportNode.newRootReportNode()
+        ReportNode rootReportEnglish = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
                 .withMessageTemplateProvider(new BundleMessageTemplateProvider(TEST_BASE_NAME))
                 .withMessageTemplate("rootWithValue")
                 .withUntypedValue("value", 4)
