@@ -719,7 +719,7 @@ public final class ModificationReports {
     public static void identifiableDisconnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
         ReportNodeAdder adder = reportNode.newReportNode()
                 .withMessageTemplate(getKey(isPlanned, disconnectionSuccessful, side != null))
-                .withUntypedValue("identifiable", identifiable.getId())
+                .withUntypedValue(IDENTIFIABLE, identifiable.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY);
         if (side != null) {
             adder.withUntypedValue("side", side.getNum());
