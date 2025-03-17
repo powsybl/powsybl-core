@@ -514,7 +514,7 @@ public class CgmesExport implements Exporter {
      * @param params The optional parameters to read and store.
      * @return An ExportParameters record.
      */
-    public ExportParameters readExportParameters(Properties params) {
+    private ExportParameters readExportParameters(Properties params) {
         return new ExportParameters(
                 Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig),
                 Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig),
