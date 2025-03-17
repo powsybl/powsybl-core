@@ -173,7 +173,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .add();
         voltageLevel1.newGenerator()
                 .setId("GEN")
-                .setBus("BUS")
+                .setBus("GEN-BUS")
                 .setTargetP(1.0)
                 .setTargetQ(1.0)
                 .setMinP(0.0)
@@ -182,7 +182,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .add();
         voltageLevel1.newLoad()
                 .setId("AUX")
-                .setBus("BUS")
+                .setBus("GEN-BUS")
                 .setP0(0.0)
                 .setQ0(0.0)
                 .setLoadType(LoadType.AUXILIARY)
