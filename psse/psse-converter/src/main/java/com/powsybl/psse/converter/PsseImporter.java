@@ -228,6 +228,12 @@ public class PsseImporter implements Importer {
             new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version, nodeBreakerImport).create();
         }
 
+        // Create areas
+        for (PsseArea psseArea : psseModel.getAreas()) {
+            new AreaConverter(psseArea, psseModel.getBuses(), containersMapping, network).create();
+        }
+
+
         // Attach a slack bus
         new SlackConverter(psseModel.getBuses(), containersMapping, network, nodeBreakerImport).create();
 
