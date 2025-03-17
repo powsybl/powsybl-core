@@ -7,10 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.ReportNodeDeserializer;
-import com.powsybl.commons.report.ReportNodeSerializer;
+import com.powsybl.commons.report.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.ComputationManager;
 import org.junit.jupiter.api.Test;
@@ -38,7 +35,7 @@ class PostProcessorReportNodeTest extends AbstractSerDeTest {
     void postProcessorWithReportNode() throws IOException {
 
         ReportNode reportRoot = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplateProvider(PowsyblCoreTestReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("testPostProcessor")
                 .build();
         Network network1 = importer1.importData(null, new NetworkFactoryMock(), null, reportRoot);

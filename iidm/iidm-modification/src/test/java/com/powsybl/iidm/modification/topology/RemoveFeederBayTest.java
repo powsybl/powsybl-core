@@ -8,10 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
-import com.powsybl.commons.report.ReportConstants;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
+import com.powsybl.commons.report.*;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
@@ -147,7 +144,7 @@ class RemoveFeederBayTest {
     void testRemoveBbs() {
         Network network = createNetwork2Feeders();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplateProvider(PowsyblCoreTestReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("reportTestRemoveBbs")
                 .build();
         RemoveFeederBay removeBbs = new RemoveFeederBay("BBS_TEST_1_1");

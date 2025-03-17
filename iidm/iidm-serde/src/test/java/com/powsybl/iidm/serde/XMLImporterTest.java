@@ -9,7 +9,7 @@ package com.powsybl.iidm.serde;
 
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.*;
-import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
+import com.powsybl.commons.report.PowsyblCoreTestReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -253,7 +253,7 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
 
     private void importDataAndTestReportNode(String expectedContentFilename, ReadOnlyDataSource dataSource) throws IOException {
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplateProvider(PowsyblCoreTestReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("test")
                 .build();
         assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reportNode));

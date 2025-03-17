@@ -12,7 +12,7 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
+import com.powsybl.commons.report.PowsyblCoreTestReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.ExportersServiceLoader;
@@ -36,14 +36,14 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
         Network network = importNetwork(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
 
         ReportNode reportNodeOnlySv = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplateProvider(PowsyblCoreTestReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("onlySV")
                 .build();
         exportProfiles(List.of("SV"), network, reportNodeOnlySv);
         assertTrue(inconsistentProfilesReported(reportNodeOnlySv));
 
         ReportNode reportNodeSvAndTp = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplateProvider(PowsyblCoreTestReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("SVandTP")
                 .build();
         exportProfiles(List.of("SV", "TP"), network, reportNodeSvAndTp);

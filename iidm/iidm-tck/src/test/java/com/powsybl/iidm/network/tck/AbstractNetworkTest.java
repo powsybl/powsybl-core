@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
+import com.powsybl.commons.report.PowsyblCoreTestReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
@@ -603,7 +603,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplateProvider(PowsyblCoreReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
+                .withMessageTemplateProvider(PowsyblCoreTestReportResourceBundles.MESSAGE_TEMPLATE_PROVIDER_TEST)
                 .withMessageTemplate("testReportScadaNetwork")
                 .build();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reportNode));
