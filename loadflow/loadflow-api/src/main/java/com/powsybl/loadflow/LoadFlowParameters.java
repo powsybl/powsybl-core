@@ -51,7 +51,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
          */
         PROPORTIONAL_TO_GENERATION_P_MAX,
         /**
-         * active power slack distribution on generators, proportional to generator maxP - targetP
+         * active power slack distribution on generators, proportional to generator maxP - targetP if active production is increased, and proportional to targetP - minP if decreased.
          */
         PROPORTIONAL_TO_GENERATION_REMAINING_MARGIN,
         /**
