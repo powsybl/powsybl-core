@@ -36,18 +36,4 @@ public final class TimeseriesReports {
                 .withUntypedValue("timing", timing)
                 .add();
     }
-
-    public static ReportNode parseCsvString(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplateProvider(new BundleMessageTemplateProvider(PowsyblCoreReportResourceBundles.BASE_NAME))
-                .withMessageTemplate("core.timeseries.parseCsvString")
-                .add();
-    }
-
-    public static ReportNode parseCsvFile(ReportNode reportNode, String filename) {
-        return reportNode.newReportNode(PowsyblCoreReportResourceBundles.BASE_NAME)
-                .withMessageTemplate("core.timeseries.parseCsvFile")
-                .withTypedValue("filename", filename, TypedValue.FILENAME)
-                .add();
-    }
 }
