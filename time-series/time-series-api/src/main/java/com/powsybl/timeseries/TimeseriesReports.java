@@ -7,8 +7,6 @@
  */
 package com.powsybl.timeseries;
 
-import com.powsybl.commons.report.BundleMessageTemplateProvider;
-import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 
