@@ -8,7 +8,8 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportBundleBaseName;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -66,8 +67,8 @@ class NetworkModificationListTest {
         assertTrue(dryRunIsOk);
         assertNotNull(network.getLine("NHV1_NHV2_1"));
         assertTrue(network.getLine("NHV1_NHV2_1").getTerminal1().isConnected());
-        ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("test", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+                .withMessageTemplate("test")
                 .build();
         assertTrue(task.apply(network, LocalComputationManager.getDefault(), true));
         assertTrue(task.apply(network, LocalComputationManager.getDefault(), reportNode, true));
@@ -97,8 +98,8 @@ class NetworkModificationListTest {
         BranchTripping tripping = new BranchTripping(lineId, "VLHV1");
         NetworkModificationList task = new NetworkModificationList(removal, tripping);
 
-        ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("test", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+                .withMessageTemplate("test")
                 .build();
         boolean dryRunIsOk = assertDoesNotThrow(() -> task.apply(network, reportNode, true));
         // The full dry-run returns that a problem was encountered and that the full NetworkModificationList could not be performed.

@@ -7,7 +7,8 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.report.ReportBundleBaseName;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
@@ -240,8 +241,8 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
         network.getThreeWindingsTransformer(t3w.getId()).setProperty("t3w property2", "t3w-value2");
         network.getThreeWindingsTransformer(t3w.getId()).addAlias("t3w-alias1");
         network.getThreeWindingsTransformer(t3w.getId()).addAlias("t3w-alias2");
-        ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("test", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+                .withMessageTemplate("test")
                 .build();
         ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
         replace.apply(network, reportNode);
@@ -262,8 +263,8 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
 
     @Test
     void reportNodeExtensionsTest() throws IOException {
-        ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("test", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+                .withMessageTemplate("test")
                 .build();
         lostThreeWindingsTransformerExtensions(reportNode, "unknownExtension1, unknownExtension2", t3w.getId());
 

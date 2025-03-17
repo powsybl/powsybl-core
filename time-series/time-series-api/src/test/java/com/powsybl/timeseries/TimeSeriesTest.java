@@ -7,8 +7,9 @@
  */
 package com.powsybl.timeseries;
 
-import com.powsybl.commons.report.ReportBundleBaseName;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundles;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -366,8 +367,8 @@ class TimeSeriesTest {
             """.replaceAll("\n", System.lineSeparator());
 
         // Reporter
-        ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+                .withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV")
                 .build();
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', true, TimeFormat.FRACTIONS_OF_SECOND, false);
@@ -396,8 +397,8 @@ class TimeSeriesTest {
                 """.replaceAll("\n", System.lineSeparator());
 
         // Reporter
-        ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+                .withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV")
                 .build();
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', true, TimeFormat.FRACTIONS_OF_SECOND, true);

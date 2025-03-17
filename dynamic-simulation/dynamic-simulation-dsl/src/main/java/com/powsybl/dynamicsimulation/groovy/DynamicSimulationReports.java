@@ -7,7 +7,7 @@
  */
 package com.powsybl.dynamicsimulation.groovy;
 
-import com.powsybl.commons.report.ReportBundleBaseName;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 
 /**
@@ -16,26 +16,26 @@ import com.powsybl.commons.report.ReportNode;
 public final class DynamicSimulationReports {
 
     public static ReportNode buildRootDynamicSimulationTool() {
-        return ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("core.dynasim.dynamicSimulationTool", ReportBundleBaseName.BUNDLE_BASE_NAME)
+        return ReportNode.newRootReportNode(PowsyblCoreReportResourceBundles.BASE_NAME)
+                .withMessageTemplate("core.dynasim.dynamicSimulationTool")
                 .build();
     }
 
     public static ReportNode supplyGroovyDynamicModels(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withLocaleMessageTemplate("core.dynasim.groovyDynamicModels", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withMessageTemplate("core.dynasim.groovyDynamicModels")
                 .add();
     }
 
     public static ReportNode supplyGroovyEventModels(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withLocaleMessageTemplate("core.dynasim.groovyEventModels", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withMessageTemplate("core.dynasim.groovyEventModels")
                 .add();
     }
 
     public static ReportNode supplyGroovyOutputVariables(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withLocaleMessageTemplate("core.dynasim.groovyOutputVariables", ReportBundleBaseName.BUNDLE_BASE_NAME)
+                .withMessageTemplate("core.dynasim.groovyOutputVariables")
                 .add();
     }
 

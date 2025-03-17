@@ -74,6 +74,24 @@ public interface ReportNode {
     }
 
     /**
+     * Create a new builder for creating a root <code>ReportNode</code>.
+     * @return a {@link ReportNodeBuilder}
+     */
+    static ReportNodeBuilder newRootReportNode(String bundleBaseName) {
+        return new ReportNodeRootBuilderImpl()
+                .withMessageTemplateProvider(new BundleMessageTemplateProvider(bundleBaseName));
+    }
+
+    /**
+     * Create a new builder for creating a root <code>ReportNode</code>.
+     * @return a {@link ReportNodeBuilder}
+     */
+    static ReportNodeBuilder newRootReportNode(String... bundleBaseNames) {
+        return new ReportNodeRootBuilderImpl()
+                .withMessageTemplateProvider(new MultiBundleMessageTemplateProvider(bundleBaseNames));
+    }
+
+    /**
      * Get the message key for current node.
      * Note that each key needs to correspond to a unique message template.
      * This allows to build up a dictionary of message templates indexed by their key.
@@ -131,6 +149,16 @@ public interface ReportNode {
      * @return the created <code>ReportNodeAdder</code>
      */
     ReportNodeAdder newReportNode();
+
+    /**
+     * Create a new adder to create a <code>ReportNode</code> child with a {@link BundleMessageTemplateProvider}, that
+     * is, a message template provider based on a ResourceBundle with given name.
+     *
+     * @return the created <code>ReportNodeAdder</code>
+     */
+    default ReportNodeAdder newReportNode(String bundleBaseName) {
+        return newReportNode().withMessageTemplateProvider(new BundleMessageTemplateProvider(bundleBaseName));
+    }
 
     /**
      * Get the {@link TreeContext} of the corresponding {@link ReportNode} tree.

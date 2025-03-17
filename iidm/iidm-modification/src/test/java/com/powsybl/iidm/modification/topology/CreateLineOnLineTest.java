@@ -8,7 +8,8 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportBundleBaseName;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundles;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundles;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -137,8 +138,8 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         Network network1 = createNbNetworkWithBusbarSection();
         Line line1 = network1.getLine("CJ");
         LineAdder adder1 = createLineAdder(line1, network1);
-        ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestBbsNotExistingNB", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode1 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+                .withMessageTemplate("reportTestBbsNotExistingNB")
                 .build();
         NetworkModification modification1 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
@@ -153,8 +154,8 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         Network network2 = createBbNetwork();
         Line line2 = network2.getLine("NHV1_NHV2_1");
         LineAdder adder2 = createLineAdder(line2, network2);
-        ReportNode reportNode2 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestBbsNotExistingBB", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode2 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+                .withMessageTemplate("reportTestBbsNotExistingBB")
                 .build();
         NetworkModification modification2 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
@@ -166,8 +167,8 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
         assertEquals("core.iidm.modification.notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode3 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestWrongTypeBbs", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode3 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+                .withMessageTemplate("reportTestWrongTypeBbs")
                 .build();
         NetworkModification modification3 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("LOAD")
@@ -179,8 +180,8 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("Unexpected type of identifiable LOAD: LOAD", exception3.getMessage());
         assertEquals("core.iidm.modification.unexpectedIdentifiableType", reportNode3.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode4 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestNullFictitiousSubstationID", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode4 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+                .withMessageTemplate("reportTestNullFictitiousSubstationID")
                 .build();
         NetworkModification modification4 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
@@ -194,8 +195,8 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("Fictitious substation ID must be defined if a fictitious substation is to be created", exception4.getMessage());
         assertEquals("core.iidm.modification.undefinedFictitiousSubstationId", reportNode4.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode5 = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestUndefinedPositionPercent", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode5 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+                .withMessageTemplate("reportTestUndefinedPositionPercent")
                 .build();
         NetworkModification modification5 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
@@ -213,8 +214,8 @@ class CreateLineOnLineTest extends AbstractModificationTest {
     @Test
     void testWithReportNode() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
-        ReportNode reportNode = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("reportTestCreateLineOnLine", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+                .withMessageTemplate("reportTestCreateLineOnLine")
                 .build();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);

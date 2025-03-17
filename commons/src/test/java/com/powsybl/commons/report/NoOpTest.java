@@ -10,6 +10,7 @@ package com.powsybl.commons.report;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundles;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -31,7 +32,7 @@ class NoOpTest extends AbstractSerDeTest {
     void test() throws IOException {
         ReportNode root = ReportNode.NO_OP;
         ReportNode reportNode = root.newReportNode()
-                .withLocaleMessageTemplate("key", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("key")
                 .withTypedValue("double", 2.0, TypedValue.ACTIVE_POWER)
                 .withTypedValue("float", 2.0f, TypedValue.ACTIVE_POWER)
                 .withTypedValue("int", 4, "counter")
@@ -55,8 +56,8 @@ class NoOpTest extends AbstractSerDeTest {
         assertNull(reportNode.getMessageTemplate());
         assertNull(reportNode.getMessageKey());
 
-        ReportNode reportNodeImplRoot = ReportNode.newRootReportNode()
-                .withLocaleMessageTemplate("k", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+        ReportNode reportNodeImplRoot = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundles.TEST_BASE_NAME, PowsyblCoreReportResourceBundles.BASE_NAME)
+                .withMessageTemplate("k")
                 .build();
         reportNode.include(reportNodeImplRoot);
         assertEquals(Collections.emptyList(), reportNode.getChildren());
@@ -104,7 +105,7 @@ class NoOpTest extends AbstractSerDeTest {
     void testPostponedValuesAdded() throws IOException {
         ReportNode root = ReportNode.NO_OP;
         ReportNode childNode = root.newReportNode()
-                .withLocaleMessageTemplate("key", ReportBundleBaseName.BUNDLE_TEST_BASE_NAME)
+                .withMessageTemplate("key")
                 .withTimestamp()
                 .withTimestamp("pattern")
                 .add();
