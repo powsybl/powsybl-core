@@ -35,10 +35,8 @@ public class BundleMessageTemplateProvider implements MessageTemplateProvider {
         if (!this.resourceBundle.getLocale().equals(locale)) {
             this.resourceBundle = ResourceBundle.getBundle(bundleBaseName, locale);
         }
-        if (!throwIfUnknownKey) {
-            if (!resourceBundle.containsKey(key)) {
-                return MessageTemplateProvider.getMissingKeyMessage(key, locale);
-            }
+        if (!throwIfUnknownKey && !resourceBundle.containsKey(key)) {
+            return MessageTemplateProvider.getMissingKeyMessage(key, locale);
         }
         return resourceBundle.getString(key);
     }

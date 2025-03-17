@@ -37,7 +37,7 @@ public class TreeContextNoOp implements TreeContext {
 
     @Override
     public void addDictionaryEntry(String messageKey, MessageTemplateProvider messageTemplateProvider) {
-
+        // No-op
     }
 
     @Override
