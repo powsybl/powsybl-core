@@ -13,10 +13,8 @@ import com.powsybl.cgmes.conversion.export.*;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
-import com.powsybl.cgmes.model.CgmesMetadataModel;
-import com.powsybl.cgmes.model.CgmesMetadataModelImpl;
-import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -27,7 +25,7 @@ import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
-import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +40,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.inconsistentProfilesTPRequiredReport;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.CONTROL_AREA;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -78,6 +78,81 @@ public class CgmesExport implements Exporter {
     public void export(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
         Objects.requireNonNull(network);
 
+        CgmesExportContext context = createContext(network, parameters, reportNode);
+
+        // Export the network
+        if (Parameter.readBoolean(getFormat(), parameters, CGM_EXPORT_PARAMETER, defaultValueConfig)) {
+            exportCGM(network, dataSource, context);
+        } else {
+            exportIGM(network, dataSource, context);
+        }
+    }
+
+    /**
+     * <p>Create a default control area of type interchange.</p>
+     *
+     * <p>Assuming the given network is an IGM (Individual Grid Model),
+     * create a control area of type interchange from its current boundaries.</p>
+     *
+     * <p>An area boundary is created for each dangling line in the model.
+     * The interchange target of the area is set to the sum of flows at boundary side of dangling lines.</p>
+     *
+     * <p>The location of reference data (boundaries files) is determined based on the configuration for the CGMES export module.
+     * The reference data may provide the area EIC code and additional characteristics for the boundaries: if it is AC or DC.
+     * </p>
+     *
+     * @param network The network for which a default control area of type interchange will be created.
+     */
+    public void createDefaultControlAreaInterchange(Network network) {
+        createDefaultControlAreaInterchange(network, null);
+    }
+
+    /**
+     * <p>Create a default control area of type interchange.</p>
+     *
+     * <p>Assuming the given network is an IGM (Individual Grid Model),
+     * create a control area of type interchange from its current boundaries.</p>
+     *
+     * <p>An area boundary is created for each dangling line in the model.
+     * The interchange target of the area is set to the sum of flows at boundary side of dangling lines.</p>
+     *
+     * <p>The location of reference data (boundaries files) is determined based on the based on the parameters passed
+     * and the configuration for the CGMES export module.
+     * The reference data may provide the area EIC code and additional characteristics for the boundaries: if it is AC or DC.
+     * </p>
+     *
+     * @param network The network for which a default control area of type interchange will be created.
+     * @param parameters Optional parameters that influence the creation of default control area.
+     */
+    public void createDefaultControlAreaInterchange(Network network, Properties parameters) {
+        Objects.requireNonNull(network);
+
+        CgmesExportContext context = createContext(network, parameters, ReportNode.NO_OP);
+
+        String controlAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), CONTROL_AREA);
+        Area area = network.newArea()
+                .setAreaType(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)
+                .setId(controlAreaId)
+                .setName("Network")
+                .add();
+        ReferenceDataProvider referenceDataProvider = context.getReferenceDataProvider();
+        if (referenceDataProvider != null && referenceDataProvider.getSourcingActor().containsKey(CgmesNames.ENERGY_IDENT_CODE_EIC)) {
+            area.addAlias(referenceDataProvider.getSourcingActor().get(CgmesNames.ENERGY_IDENT_CODE_EIC), CgmesNames.ENERGY_IDENT_CODE_EIC);
+        }
+        double currentInterchange = 0;
+        Set<String> boundaryDcNodes = getBoundaryDcNodes(referenceDataProvider);
+        for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+            // Our exchange should be referred the boundary
+            area.newAreaBoundary()
+                    .setAc(isAcBoundary(danglingLine, boundaryDcNodes))
+                    .setBoundary(danglingLine.getBoundary())
+                    .add();
+            currentInterchange += danglingLine.getBoundary().getP();
+        }
+        area.setInterchangeTarget(currentInterchange);
+    }
+
+    private CgmesExportContext createContext(Network network, Properties parameters, ReportNode reportNode) {
         // Determine reference data (boundaries, base voltages and other sourcing references) for the export
         String sourcingActorName = Parameter.readString(getFormat(), parameters, SOURCING_ACTOR_PARAMETER, defaultValueConfig);
         String countryName = getCountry(network);
@@ -87,15 +162,39 @@ public class CgmesExport implements Exporter {
         String namingStrategyImpl = Parameter.readString(getFormat(), parameters, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
         UUID uuidNamespace = UUID.fromString(Parameter.readString(getFormat(), parameters, UUID_NAMESPACE_PARAMETER, defaultValueConfig));
         NamingStrategy namingStrategy = NamingStrategyFactory.create(namingStrategyImpl, uuidNamespace);
-        CgmesExportContext context = new CgmesExportContext(network, referenceDataProvider, namingStrategy);
-        addParametersToContext(context, parameters, reportNode, referenceDataProvider);
+        ExportParameters exportParameters = readExportParameters(parameters);
+        return new CgmesExportContext(network, referenceDataProvider, namingStrategy, reportNode, exportParameters);
+    }
 
-        // Export the network
-        if (Parameter.readBoolean(getFormat(), parameters, CGM_EXPORT_PARAMETER, defaultValueConfig)) {
-            exportCGM(network, dataSource, context);
-        } else {
-            exportIGM(network, dataSource, context);
+    private Set<String> getBoundaryDcNodes(ReferenceDataProvider referenceDataProvider) {
+        if (referenceDataProvider == null) {
+            return Collections.emptySet();
         }
+        PropertyBags boundaryNodes = referenceDataProvider.getBoundaryNodes();
+        if (boundaryNodes == null) {
+            return Collections.emptySet();
+        } else {
+            return boundaryNodes.stream()
+                    .filter(CgmesBoundary::isDcNode)
+                    .map(node -> {
+                        List<String> nodeIds = new ArrayList<>();
+                        nodeIds.add(node.getId(CgmesNames.CONNECTIVITY_NODE));
+                        if (node.containsKey(CgmesNames.TOPOLOGICAL_NODE)) {
+                            nodeIds.add(node.getId(CgmesNames.TOPOLOGICAL_NODE));
+                        }
+                        return nodeIds;
+                    })
+                    .flatMap(List::stream)
+                    .collect(Collectors.toSet());
+        }
+    }
+
+    private boolean isAcBoundary(DanglingLine danglingLine, Set<String> boundaryDcNodes) {
+        String dlBoundaryNode = Conversion.getDanglingLineBoundaryNode(danglingLine);
+        if (dlBoundaryNode != null) {
+            return !boundaryDcNodes.contains(dlBoundaryNode);
+        }
+        return true;
     }
 
     /**
@@ -411,75 +510,34 @@ public class CgmesExport implements Exporter {
     }
 
     /**
-     * Read the parameters and store them as properties in the context that is used by the export.
-     * @param context The context that is used by the export.
+     * Read the export parameters and store them in a record.
      * @param params The optional parameters to read and store.
-     * @param reportNode The reportNode used for functional logs.
-     * @param referenceDataProvider The reference data such as boundaries or base voltage.
+     * @return An ExportParameters record.
      */
-    private void addParametersToContext(CgmesExportContext context, Properties params, ReportNode reportNode, ReferenceDataProvider referenceDataProvider) {
-        context.setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
-                .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
-                .setExportTransformersWithHighestVoltageAtEnd1(Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig))
-                .setExportLoadFlowStatus(Parameter.readBoolean(getFormat(), params, EXPORT_LOAD_FLOW_STATUS_PARAMETER, defaultValueConfig))
-                .setExportAllLimitsGroup(Parameter.readBoolean(getFormat(), params, EXPORT_ALL_LIMITS_GROUP_PARAMETER, defaultValueConfig))
-                .setExportGeneratorsInLocalRegulationMode(Parameter.readBoolean(getFormat(), params, EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE_PARAMETER, defaultValueConfig))
-                .setMaxPMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_P_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
-                .setMaxQMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_Q_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
-                .setExportSvInjectionsForSlacks(Parameter.readBoolean(getFormat(), params, EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER, defaultValueConfig))
-                .setEncodeIds(Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig))
-                .setBusinessProcess(Parameter.readString(getFormat(), params, BUSINESS_PROCESS_PARAMETER, defaultValueConfig))
-                .setModelDescription(Parameter.readString(getFormat(), params, MODEL_DESCRIPTION_PARAMETER, defaultValueConfig))
-                .setModelVersion(Parameter.readString(getFormat(), params, MODEL_VERSION_PARAMETER, defaultValueConfig))
-                .setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig))
-                .setProfiles(Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig))
-                .setBaseName(Parameter.readString(getFormat(), params, BASE_NAME_PARAMETER))
-                .setReportNode(reportNode)
-                .setUpdateDependencies(Parameter.readBoolean(getFormat(), params, UPDATE_DEPENDENCIES_PARAMETER, defaultValueConfig));
-
-        // If sourcing actor data has been found and the modeling authority set has not been specified explicitly, set it
-        PropertyBag sourcingActor = referenceDataProvider.getSourcingActor();
-        if (sourcingActor.containsKey("masUri") && context.getModelingAuthoritySet() == null) {
-            context.setModelingAuthoritySet(sourcingActor.get("masUri"));
-        }
-
-        // Set CIM version
-        String cimVersion = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
-        if (cimVersion != null) {
-            context.setCimVersion(Integer.parseInt(cimVersion));
-        }
-
-        // Set boundaries
-        String boundaryEqId = getBoundaryId(CgmesSubset.EQUIPMENT_BOUNDARY, params, BOUNDARY_EQ_ID_PARAMETER, referenceDataProvider);
-        if (boundaryEqId != null && context.getBoundaryEqId() == null) {
-            context.setBoundaryEqId(boundaryEqId);
-        }
-        String boundaryTpId = getBoundaryId(CgmesSubset.TOPOLOGY_BOUNDARY, params, BOUNDARY_TP_ID_PARAMETER, referenceDataProvider);
-        if (boundaryTpId != null && context.getBoundaryTpId() == null) {
-            context.setBoundaryTpId(boundaryTpId);
-        }
-    }
-
-    /**
-     * Get the boundary id for the given subset,
-     * preferentially from the corresponding optional parameter, otherwise from the reference data.
-     * @param subset The boundary subset (EQ_BD or TP_BD) for which the id is being looked for.
-     * @param params The optional parameters set for that export.
-     * @param parameter The boundary ID parameter.
-     * @param referenceDataProvider The reference data such as boundaries or base voltage.
-     * @return If found, the id of the boundary subset, else null.
-     */
-    private String getBoundaryId(CgmesSubset subset, Properties params, Parameter parameter, ReferenceDataProvider referenceDataProvider) {
-        String id = Parameter.readString(getFormat(), params, parameter, defaultValueConfig);
-        // If not specified through a parameter, try to load it from reference data
-        if (id == null && referenceDataProvider != null) {
-            if (CgmesSubset.EQUIPMENT_BOUNDARY.equals(subset)) {
-                id = referenceDataProvider.getEquipmentBoundaryId();
-            } else if (CgmesSubset.TOPOLOGY_BOUNDARY.equals(subset)) {
-                id = referenceDataProvider.getTopologyBoundaryId();
-            }
-        }
-        return id;
+    private ExportParameters readExportParameters(Properties params) {
+        return new ExportParameters(
+                Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig),
+                Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig),
+                Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig),
+                Parameter.readBoolean(getFormat(), params, EXPORT_LOAD_FLOW_STATUS_PARAMETER, defaultValueConfig),
+                Parameter.readBoolean(getFormat(), params, EXPORT_ALL_LIMITS_GROUP_PARAMETER, defaultValueConfig),
+                Parameter.readBoolean(getFormat(), params, EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE_PARAMETER, defaultValueConfig),
+                Parameter.readDouble(getFormat(), params, MAX_P_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig),
+                Parameter.readDouble(getFormat(), params, MAX_Q_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig),
+                Parameter.readBoolean(getFormat(), params, EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER, defaultValueConfig),
+                Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig),
+                Parameter.readString(getFormat(), params, BUSINESS_PROCESS_PARAMETER, defaultValueConfig),
+                Parameter.readString(getFormat(), params, MODEL_DESCRIPTION_PARAMETER, defaultValueConfig),
+                Parameter.readString(getFormat(), params, MODEL_VERSION_PARAMETER, defaultValueConfig),
+                Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig),
+                Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig),
+                Parameter.readString(getFormat(), params, BASE_NAME_PARAMETER),
+                Parameter.readBoolean(getFormat(), params, UPDATE_DEPENDENCIES_PARAMETER, defaultValueConfig),
+                Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig),
+                Parameter.readString(getFormat(), params, TOPOLOGY_KIND_PARAMETER, defaultValueConfig),
+                Parameter.readString(getFormat(), params, BOUNDARY_EQ_ID_PARAMETER, defaultValueConfig),
+                Parameter.readString(getFormat(), params, BOUNDARY_TP_ID_PARAMETER, defaultValueConfig)
+        );
     }
 
     /**
@@ -539,6 +597,7 @@ public class CgmesExport implements Exporter {
     public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
     public static final String NAMING_STRATEGY = "iidm.export.cgmes.naming-strategy";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
+    public static final String TOPOLOGY_KIND = "iidm.export.cgmes.topology-kind";
     public static final String CGM_EXPORT = "iidm.export.cgmes.cgm_export";
     public static final String MODELING_AUTHORITY_SET = "iidm.export.cgmes.modeling-authority-set";
     public static final String MODEL_DESCRIPTION = "iidm.export.cgmes.model-description";
@@ -593,6 +652,12 @@ public class CgmesExport implements Exporter {
             "Profiles to export",
             List.of("EQ", "TP", "SSH", "SV"),
             List.of("EQ", "TP", "SSH", "SV"));
+    private static final Parameter TOPOLOGY_KIND_PARAMETER = new Parameter(
+            TOPOLOGY_KIND,
+            ParameterType.STRING,
+            "Force the topology kind for the export (disable automatic detection)",
+            null,
+            List.of(CgmesTopologyKind.NODE_BREAKER.name(), CgmesTopologyKind.BUS_BRANCH.name()));
     private static final Parameter CGM_EXPORT_PARAMETER = new Parameter(
             CGM_EXPORT,
             ParameterType.BOOLEAN,
@@ -707,6 +772,30 @@ public class CgmesExport implements Exporter {
             MODEL_VERSION_PARAMETER,
             BUSINESS_PROCESS_PARAMETER,
             UPDATE_DEPENDENCIES_PARAMETER);
+
+    public record ExportParameters(
+            boolean exportBoundaryPowerFlows,
+            boolean exportFlowsForSwitches,
+            boolean exportTransformersWithHighestVoltageAtEnd1,
+            boolean exportLoadFlowStatus,
+            boolean exportAllLimitsGroup,
+            boolean exportGeneratorsInLocalRegulationMode,
+            double maxPMismatchConverged,
+            double maxQMismatchConverged,
+            boolean exportSvInjectionsForSlacks,
+            boolean encodeIds,
+            String businessProcess,
+            String modelDescription,
+            String modelVersion,
+            String modelingAuthoritySet,
+            List<String> profiles,
+            String baseName,
+            boolean updateDependencies,
+            String cimVersion,
+            String topologyKind,
+            String boundaryEqId,
+            String boundaryTpId) {
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }

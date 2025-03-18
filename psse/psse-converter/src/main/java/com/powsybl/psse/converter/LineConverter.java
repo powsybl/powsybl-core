@@ -43,6 +43,9 @@ class LineConverter extends AbstractConverter {
     }
 
     void create() {
+        if (!getContainersMapping().isBusDefined(psseLine.getI()) || !getContainersMapping().isBusDefined(psseLine.getJ())) {
+            return;
+        }
         String id = getLineId(psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
 
         String voltageLevel1Id = getContainersMapping().getVoltageLevelId(psseLine.getI());
@@ -123,7 +126,7 @@ class LineConverter extends AbstractConverter {
         }
     }
 
-    static void updateLines(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getNonTransformerBranches().forEach(psseLine -> {
             String lineId = getLineId(psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
             Line line = network.getLine(lineId);

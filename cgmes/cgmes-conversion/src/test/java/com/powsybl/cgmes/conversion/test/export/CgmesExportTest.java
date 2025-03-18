@@ -9,13 +9,13 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
@@ -37,7 +37,10 @@ import java.io.InputStream;
 import java.nio.file.*;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -326,22 +329,24 @@ class CgmesExportTest {
         // Before exporting, we have to define to which point
         // in the external boundary definition we want to associate this dangling line
         // For this test we chose the Conformity MicroGrid BaseCase
-        ResourceSet boundaries = Cgmes3Catalog.microGridBaseCaseBoundaries();
+        ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         String boundaryCN = "b675a570-cb6e-11e1-bcee-406c8f32ef58";
         expected.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, boundaryCN);
         // We inform the identifier of the boundaries we depend on
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.BOUNDARY_EQ_ID, "urn:uuid:536f9bf1-3f8f-a546-87e3-7af2272f29b7");
-        exportParameters.put(CgmesExport.CIM_VERSION, "100");
+        exportParameters.put(CgmesExport.TOPOLOGY_KIND, "NODE_BREAKER");
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
             network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
 
             // To be able to import from the exported CGMES data we must add the external boundary definitions
-            // Because we work with node/breaker we only need the boundary EQ instance file
-            try (InputStream is = boundaries.newInputStream("20171002T0930Z_ENTSO-E_EQ_BD_2.xml")) {
+            try (InputStream is = boundaries.newInputStream("MicroGridTestConfiguration_EQ_BD.xml")) {
                 Files.copy(is, tmpDir.resolve("tmp_EQ_BD.xml"), StandardCopyOption.REPLACE_EXISTING);
+            }
+            try (InputStream is = boundaries.newInputStream("MicroGridTestConfiguration_TP_BD.xml")) {
+                Files.copy(is, tmpDir.resolve("tmp_TP_BD.xml"), StandardCopyOption.REPLACE_EXISTING);
             }
 
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
@@ -366,7 +371,7 @@ class CgmesExportTest {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
             Properties exportParameters = new Properties();
-            exportParameters.put(CgmesExport.CIM_VERSION, "100");
+            exportParameters.put(CgmesExport.TOPOLOGY_KIND, "NODE_BREAKER");
             network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
 
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
@@ -403,6 +408,23 @@ class CgmesExportTest {
             // Verify that we re-import the exported CGMES data without problems
             Network networkReimported = Network.read(exportedCgmes, importParams);
             assertNotNull(networkReimported);
+        }
+    }
+
+    @Test
+    void testModelEquipmentOperationProfile() throws IOException {
+        String importDir = "/issues/switches/";
+        Network network = readCgmesResources(importDir, "disconnected_terminal_EQ.xml");
+
+        String exportDir = "/testModelProfile";
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportDir));
+            String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+
+            String regex = "<md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(eqFile);
+            assertEquals(1, matcher.results().count());
         }
     }
 
@@ -619,6 +641,56 @@ class CgmesExportTest {
             assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
 
+        }
+    }
+
+    @Test
+    void networkWithoutControlAreaInterchange() throws IOException {
+        Network network = DanglingLineNetworkFactory.create();
+        assertEquals(0, network.getAreaCount());
+
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath("/temp"));
+
+            // Exporting with default behaviour, no default control area is written
+            Path tmpDirNoCA = tmpDir.resolve("network-no-ca");
+            Files.createDirectories(tmpDirNoCA);
+            String eqFile = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDirNoCA);
+            assertFalse(eqFile.contains("cim:ControlArea"));
+
+            // Explicit creation of a default control area
+            new CgmesExport().createDefaultControlAreaInterchange(network);
+
+            // Check that a control area definition has been created before export
+            assertEquals(1, network.getAreaCount());
+            Area defaultControlArea = network.getAreas().iterator().next();
+            assertEquals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE, defaultControlArea.getAreaType());
+            assertEquals(1, defaultControlArea.getAreaBoundaryStream().count());
+            assertEquals(-50, defaultControlArea.getInterchangeTarget().orElse(Double.NaN));
+            assertEquals("DL", defaultControlArea.getAreaBoundaryStream().findFirst()
+                    .flatMap(AreaBoundary::getBoundary)
+                    .map(Boundary::getDanglingLine)
+                    .map(DanglingLine::getId)
+                    .orElse(null));
+
+            // Check that exported files now have a control area definition
+            // No default value for tolerance
+            Path tmpDirWithCA = tmpDir.resolve("network-with-ca");
+            Files.createDirectories(tmpDirWithCA);
+            eqFile = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDirWithCA);
+            String sshFile = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDirWithCA);
+            assertTrue(eqFile.contains("<cim:ControlArea rdf:ID=\"_dangling-line_N_CA\">"));
+            assertTrue(sshFile.contains("<cim:ControlArea.netInterchange>-50</cim:ControlArea.netInterchange>"));
+            // No default value for tolerance
+            assertFalse(sshFile.contains("cim:ControlArea.pTolerance"));
+
+            // Check that tolerance is exported only if explicitly defined
+            Area area = network.getAreas().iterator().next();
+            area.setProperty(CgmesNames.P_TOLERANCE, "1.01");
+            Path tmpDirWithCaTolerance = tmpDir.resolve("network-with-ca-tolerance");
+            Files.createDirectories(tmpDirWithCaTolerance);
+            sshFile = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDirWithCaTolerance);
+            assertTrue(sshFile.contains("<cim:ControlArea.pTolerance>1.01</cim:ControlArea.pTolerance>"));
         }
     }
 
