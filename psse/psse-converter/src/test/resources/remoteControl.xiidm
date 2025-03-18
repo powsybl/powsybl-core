@@ -192,6 +192,16 @@
             <iidm:currentLimits permanentLimit="415.18834670544203"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
+    <iidm:area id="A1" name="IEEE 14 Bus Test Case" areaType="ControlArea" interchangeTarget="0.0">
+        <iidm:voltageLevelRef id="VL1"/>
+        <iidm:voltageLevelRef id="VL2"/>
+        <iidm:voltageLevelRef id="VL3"/>
+        <iidm:voltageLevelRef id="VL4"/>
+        <iidm:voltageLevelRef id="VL5"/>
+        <iidm:voltageLevelRef id="VL6"/>
+        <iidm:voltageLevelRef id="VL7-8"/>
+        <iidm:voltageLevelRef id="VL9"/>
+    </iidm:area>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="B1-G1"/>
     </iidm:extension>

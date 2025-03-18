@@ -194,6 +194,16 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void twoAreaCase() throws IOException {
+        importTest("two_area_case", "two_area_case.raw", false);
+    }
+
+    @Test
+    void twoTerminalDcwithTwoAreas() throws IOException {
+        importTest("twoTerminalDcwithTwoAreas", "twoTerminalDcwithTwoAreas.raw", false);
+    }
+
+    @Test
     void importTest14BusesDuplicateIds() throws IOException {
         Network n = importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
         assertNotNull(n.getLoad("B2-L1 "));

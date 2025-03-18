@@ -82,4 +82,13 @@ class ReactiveCapabilityCurveImplTest {
         assertEquals(extrapolate ? 350.0 : 310.0, curve.getMinQ(1500.0, extrapolate), 0.0);
         assertEquals(extrapolate ? 350.0 : 390.0, curve.getMaxQ(1500.0, extrapolate), 0.0);
     }
+
+    @Test
+    void testWithNegativeZeroValue() {
+        ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(0.0, 200.0, 300.0),
+                new PointImpl(200.0, 300.0, 400.0));
+        // "-0.0 == 0.0" (JLS), but "Double.compareTo(-0.0, 0.0) = -1"
+        // This test asserts that -0.0 is considered as equal to 0.0 by the reactive capability curve.
+        assertEquals(200.0, curve.getMinQ(-0.0), 0.0);
+    }
 }

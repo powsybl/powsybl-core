@@ -197,6 +197,19 @@
     <iidm:hvdcLine id="TwoTerminalDc-WATL P1     " name="WATL P1     " r="5.125" nominalV="500.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="280.0" maxP="336.0" converterStation1="LccConverter-12-WATL P1     " converterStation2="LccConverter-14-WATL P1     "/>
     <iidm:hvdcLine id="VscDcTransmissionLine-VDCLINE1" name="VDCLINE1" r="0.71" nominalV="138.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="209.0" maxP="400.0" converterStation1="VscConverter-7-VDCLINE1" converterStation2="VscConverter-9-VDCLINE1"/>
     <iidm:hvdcLine id="VscDcTransmissionLine-VDCLINE2" name="VDCLINE2" r="0.35" nominalV="138.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="250.0" converterStation1="VscConverter-11-VDCLINE2" converterStation2="VscConverter-13-VDCLINE2"/>
+    <iidm:area id="A1" name="IEEE14      " areaType="ControlArea" interchangeTarget="0.0">
+        <iidm:voltageLevelRef id="VL1"/>
+        <iidm:voltageLevelRef id="VL2"/>
+        <iidm:voltageLevelRef id="VL3"/>
+        <iidm:voltageLevelRef id="VL4-7-9"/>
+        <iidm:voltageLevelRef id="VL5-6"/>
+        <iidm:voltageLevelRef id="VL8"/>
+        <iidm:voltageLevelRef id="VL10"/>
+        <iidm:voltageLevelRef id="VL11"/>
+        <iidm:voltageLevelRef id="VL12"/>
+        <iidm:voltageLevelRef id="VL13"/>
+        <iidm:voltageLevelRef id="VL14"/>
+    </iidm:area>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="B1-G1 "/>
     </iidm:extension>
