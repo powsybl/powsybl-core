@@ -7,22 +7,22 @@ import.md
 i18n.md
 ```
 
-powsybl provides an API called `ReportNode` (and a default implementation called `ReportNodeImpl`).
+For functional logging powsybl provides an API called `ReportNode`, and a default implementation called `ReportNodeImpl`.
 In these functional logs we expect non-technical information useful for an end-user, about the various steps which occurred, what was unexpected, what caused an execution failure.
 
 Each `ReportNode` contains
 - several values, indexed by their keys,
-- a functional message, given by a message template, which may contain references to those values or to the values of one of its ancestors,
+- a functional message, given by a message template referenced by a key, which may contain references to those values or to the values of one of its ancestors,
 - a list of `ReportNode` children.
 
 Several `ReportNode` connected together through their children parameter define a tree.
-Each `ReportNode` of such a tree refers to a `TreeContext`, which holds the context related to the tree.
+Each `ReportNode` of such a tree refers to the same `TreeContext`, which holds the context related to the tree.
 
 Each message template is identified by a key.
-This key is used to build a dictionary for the tree, which is carried by the `TreeContext`.
-This allows to serialize in an efficient way the tree (by not repeating the duplicated templates).
+This key corresponds to an internationalized message template: a `ResourceBundle` usually links the key to the template in the desired language (see [i18n page](./i18n.md) for more information).
+A dictionary key / message template is build in the `TreeContext`: this allows to serialize in an efficient way the tree, by not repeating the duplicated templates.
 
-When the children of a `ReportNode` is non-empty, the message of the corresponding `ReportNode` should summarize the children content.
+When a `ReportNode` has several children, the message of the corresponding `ReportNode` should summarize the children content.
 To that end, one or several values can be added after the `ReportNode` construction.
 The summarizing template should be succinct: 120 characters is an indicative limit for the message string length (once formatted).
 
@@ -65,17 +65,31 @@ This father `ReportNode` should carry the `WARN` or `ERROR` severity, whereas th
 This allows to give fine-grained information about an unwanted state, without overwhelming the end-user with numerous `WARN` or `ERROR` reports and while keeping a succinct message for each report.
 
 ## Builders / adders
-The builder API is accessed from a call to `ReportNode.newRootReportNode`.
-It is used to build the root `ReportNode`.
+The builder API is accessed from a call to `ReportNode::newRootReportNode` method.
+This API is used to build the root `ReportNode`.
+
+The following methods are available in the builder API to define the corresponding `ReportNode` tree:
+- `withAllResourceBundlesFromClasspath()`, to set the message template provider as based on all the `ResourceBundle` gathered by the `ServiceLoader` of `ReportResourceBundle` implementations,
+- `withResourceBundles(String... bundleBaseNames)`, to set the message template provider as based on one or several `ResourceBundle`,
+- `withDefaultTimestampPattern(pattern)`, for the pattern to be used in the tree when a timestamp is added,
+- `withLocale(locale)`, for specifying the `Locale` to use in the whole tree:
+    - for message templates (see [i18n page](./i18n.md)),
+    - for timestamps. 
 
 The adder API is accessed from a call to `reportNode.newReportNode()`.
 It is used to add a child to an existing `ReportNode`.
 
-Both API share methods to provide the message template and the typed values:
-- `withMessageTemplate(key, messageTemplate)`,
+Both API share the following methods to provide the message template and the typed values:
+- `withMessageTemplate(key)`, the key referring to a template in a `ResourceBundle` (see [i18n page](./i18n.md)), 
 - `withUntypedValue(key, value)`,
 - `withTypedValue(key, value, type)`,
-- `withSeverity(severity)`.
+- `withTimestamp()`, adding a typed value with node creation timestamp,
+- `withSeverity(severity)`, severity being either a `String` or a `TypedValue`.
+
+For further customization, the following methods are also available:
+- `withMessageTemplateProvider(messageTemplateProvider)`, to specify how to get a message template from a given key and locale for all the descendents of the node to create, unless overridden,
+- `withTimestamp(pattern)`, if a custom pattern has to be used instead of the default one specified at root construction,
+- `withResourceBundles(String... bundleBaseNames)` is also shared by the adder API, to override the resource bundles to use as message template provider for all the descendents of the node to create (unless overridden).
 
 ## Merging ReportNodes
 
@@ -93,21 +107,32 @@ Two known limitations of this method:
 2. the resulting dictionary contains all the keys from the copied `ReportNode` tree, even the ones from non-copied `ReportNode`s.
 
 ## Example
+
+Resource bundle property file in `com/powsybl/commons/reports.properties` which is the default translation values file.
+```properties
+translationKey = Import file ${filename} in ${time} ms
+task1 = Doing first task with double parameter ${parameter}
+task2 = Doing second task, reading ${count} elements, among which ${problematicCount} are problematic
+problematic = Problematic element ${id} with active power ${activePower}
+```
+
 ```java
+String bundleName = "com.powsybl.commons.reports";
+
 ReportNode root = ReportNode.newRootReportNode()
-        .withMessageTemplate("importMessage", "Import file ${filename} in ${time} ms")
+        .withLocaleMessageTemplate("translationKey", bundleName)
         .withTypedValue("filename", "file.txt", TypedValue.FILENAME)
         .build();
 long t0 = System.currentTimeMillis();
 
 ReportNode task1 = root.newReportNode()
-        .withMessageTemplate("task1", "Doing first task with double parameter ${parameter}")
+        .withLocaleMessageTemplate("task1", bundleName)
         .withUntypedValue("parameter", 4.2)
         .withSeverity(TypedValue.INFO_SEVERITY)
         .add();
 
 ReportNode task2 = root.newReportNode()
-        .withMessageTemplate("task2", "Doing second task, reading ${count} elements, among which ${problematicCount} are problematic")
+        .withLocaleMessageTemplate("task2", bundleName)
         .withUntypedValue("count", 102)
         .withUntypedValue("problematicCount", 2)
         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -116,7 +141,7 @@ ReportNode task2 = root.newReportNode()
 // Supposing a list of problematic elements has been build, each containing an id and an active power values
 for (ProblematicElement element : problematicElements) {
     task2.newReportNode()
-            .withMessageTemplate("problematic", "Problematic element ${id} with active power ${activePower}")
+            .withLocaleMessageTemplate("problematic", bundleName)
             .withTypedValue("id", element.getId(), TypedValue.ID)
             .withTypedValue("activePower", element.getActivePower(), TypedValue.ACTIVE_POWER)
             .withSeverity(TypedValue.DETAIL_SEVERITY)

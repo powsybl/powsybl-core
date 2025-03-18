@@ -41,4 +41,6 @@ public interface TreeContext {
      * Merge given {@link TreeContext} with current one.
      */
     void merge(TreeContext treeContext);
+
+    void addDictionaryEntry(String messageKey, MessageTemplateProvider messageTemplateProvider);
 }

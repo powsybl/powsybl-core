@@ -8,10 +8,10 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.util.NetworkReports;
 
 import java.util.HashSet;
 import java.util.List;
@@ -53,11 +53,7 @@ public final class ConnectDisconnectUtil {
         for (Terminal terminal : terminals) {
             // Check if the terminal is already connected
             if (terminal.isConnected()) {
-                reportNode.newReportNode()
-                    .withMessageTemplate("alreadyConnectedTerminal", "A terminal of identifiable ${identifiable} is already connected.")
-                    .withUntypedValue("identifiable", identifiable.getId())
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .add();
+                NetworkReports.alreadyConnectedIdentifiableTerminal(reportNode, identifiable.getId());
                 continue;
             } else {
                 isAlreadyConnected = false;
@@ -118,11 +114,7 @@ public final class ConnectDisconnectUtil {
         for (Terminal terminal : terminals) {
             // Check if the terminal is already disconnected
             if (!terminal.isConnected()) {
-                reportNode.newReportNode()
-                    .withMessageTemplate("alreadyDisconnectedTerminal", "A terminal of identifiable ${identifiable} is already disconnected.")
-                    .withUntypedValue("identifiable", identifiable.getId())
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .add();
+                NetworkReports.alreadyDisconnectedIdentifiableTerminal(reportNode, identifiable.getId());
                 continue;
             }
             // The terminal is connected

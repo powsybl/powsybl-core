@@ -162,7 +162,7 @@ public abstract class AbstractTreeDataImporter implements Importer {
             }
 
             network = NetworkSerDe.read(dataSource, networkFactory, options, ext, reportNode);
-            ReportNode subReportNode = reportNode.newReportNode().withMessageTemplate("xiidmImportDone", "XIIDM import done").add();
+            ReportNode subReportNode = DeserializerReports.doneImportingXiidm(reportNode);
             DeserializerReports.importedNetworkReport(subReportNode, network.getId(), options.getFormat().toString());
             LOGGER.debug("{} import done in {} ms", getFormat(), System.currentTimeMillis() - startTime);
         } catch (IOException e) {

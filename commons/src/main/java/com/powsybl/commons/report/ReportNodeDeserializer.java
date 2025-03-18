@@ -42,7 +42,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
         ReportNodeImpl reportNode = null;
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new ReportNodeJsonModule());
         ReportNodeVersion version = ReportConstants.CURRENT_VERSION;
-        TreeContextImpl treeContext = new TreeContextImpl();
+        TreeContext treeContext = new TreeContextImpl();
         while (p.nextToken() != JsonToken.END_OBJECT) {
             switch (p.currentName()) {
                 case "version" -> version = ReportNodeVersion.of(p.nextTextValue());
@@ -54,7 +54,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
         return reportNode;
     }
 
-    private void readDictionary(JsonParser p, ObjectMapper objectMapper, TreeContextImpl treeContext, String dictionaryName) throws IOException {
+    private void readDictionary(JsonParser p, ObjectMapper objectMapper, TreeContext treeContext, String dictionaryName) throws IOException {
         checkToken(p, JsonToken.START_OBJECT); // remove start object token to read the underlying map
         TypeReference<HashMap<String, HashMap<String, String>>> dictionariesTypeRef = new TypeReference<>() {
         };
@@ -71,7 +71,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
                 dictionary = dictionaryEntry.getValue();
             }
         }
-        dictionary.forEach(treeContext::addDictionaryEntry);
+        dictionary.forEach((k, message) -> treeContext.addDictionaryEntry(k, (key, locale) -> message));
     }
 
     private String getDictionaryName(DeserializationContext ctx) {
