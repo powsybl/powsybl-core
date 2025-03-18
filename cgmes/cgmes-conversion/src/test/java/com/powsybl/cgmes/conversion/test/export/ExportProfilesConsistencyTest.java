@@ -36,13 +36,15 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
     void testSVSmallGridNodeBreaker() {
         Network network = importNetwork(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
 
-        ReportNode reportNodeOnlySv = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNodeOnlySv = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("onlySV")
                 .build();
         exportProfiles(List.of("SV"), network, reportNodeOnlySv);
         assertTrue(inconsistentProfilesReported(reportNodeOnlySv));
 
-        ReportNode reportNodeSvAndTp = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNodeSvAndTp = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("SVandTP")
                 .build();
         exportProfiles(List.of("SV", "TP"), network, reportNodeSvAndTp);

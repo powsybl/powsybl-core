@@ -64,7 +64,8 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         NetworkSerDe.write(network, new ExportOptions().setFormat(format), file);
 
         // Read file with all extensions included (default ImportOptions)
-        ReportNode reportNode1 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("root")
                 .build();
         Network networkReadExtensions = NetworkSerDe.read(file,
@@ -84,7 +85,8 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                 """, TestUtil.normalizeLineSeparator(sw1.toString()));
 
         // Read file with only terminalMockNoSerDe and loadZipModel extensions included
-        ReportNode reportNode2 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("root")
                 .build();
         ImportOptions notAllExtensions = new ImportOptions()
@@ -111,7 +113,8 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testNotFoundExtension() throws IOException {
         // Read file with all extensions included (default ImportOptions)
-        ReportNode reportNode1 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("root")
                 .build();
         Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/notFoundExtension.xml"),

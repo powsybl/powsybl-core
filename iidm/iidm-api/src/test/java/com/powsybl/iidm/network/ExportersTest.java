@@ -134,7 +134,8 @@ class ExportersTest extends AbstractConvertersTest {
     void exportWithReportNode() throws Exception {
         Exporter testExporter = new ExporterMockWithReportNode();
         DataSource dataSource = Exporters.createDataSource(path);
-        ReportNode rootReportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode rootReportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTest")
                 .build();
         testExporter.export(null, null, dataSource, rootReportNode);

@@ -7,8 +7,11 @@
  */
 package com.powsybl.commons.report;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Objects;
 
 public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>> {
 
@@ -19,6 +22,22 @@ public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>>
      * @return a reference to this object
      */
     T withMessageTemplateProvider(MessageTemplateProvider messageTemplateProvider);
+
+    /**
+     * Provide the resource bundles to use as message template provider to build the {@link ReportNode} with.
+     * All the descendants of the root node will use all the {@link java.util.ResourceBundle} whose base names are
+     * provided as message template provider, unless overridden.
+     * @param bundleBaseNames The base names for the {@link java.util.ResourceBundle} to use
+     * @return a {@link ReportNodeBuilder}
+     */
+    default T withResourceBundles(String... bundleBaseNames) {
+        Objects.requireNonNull(bundleBaseNames);
+        return switch (bundleBaseNames.length) {
+            case 0 -> throw new PowsyblException("bundleBaseNames must not be empty");
+            case 1 -> withMessageTemplateProvider(new BundleMessageTemplateProvider(bundleBaseNames[0]));
+            default -> withMessageTemplateProvider(new MultiBundleMessageTemplateProvider(bundleBaseNames));
+        };
+    }
 
     /**
      * Provide the message template to build the {@link ReportNode} with.

@@ -53,14 +53,16 @@ class ReportNodeContextTest {
     @MethodSource("getReportNodeContextStream")
     void pushAndGetReportNodeTest(String desc, Supplier<ReportNodeContext> contextSupplier) {
         ReportNodeContext reportNodeContext = contextSupplier.get();
-        ReportNode reportNode0 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode0 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("task0")
                 .build();
         reportNodeContext.pushReportNode(reportNode0);
         assertEquals(reportNode0, reportNodeContext.getReportNode());
         assertEquals(reportNode0, reportNodeContext.peekReportNode());
 
-        ReportNode reportNode1 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("task1")
                 .build();
         reportNodeContext.pushReportNode(reportNode1);
@@ -77,10 +79,12 @@ class ReportNodeContextTest {
     void popReportNodeTest(String desc, Supplier<ReportNodeContext> contextSupplier) {
         ReportNodeContext reportNodeContext = contextSupplier.get();
 
-        ReportNode reportNode0 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode0 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("task0")
                 .build();
-        ReportNode reportNode1 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("task1")
                 .build();
         reportNodeContext.pushReportNode(reportNode0);
@@ -135,15 +139,18 @@ class ReportNodeContextTest {
         assert ReportNode.NO_OP.equals(reportNodeContext.getReportNode());
 
         // Push reportNodes in the context
-        ReportNode reportNode1 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("1")
                 .build();
         reportNodeContext.pushReportNode(reportNode1);
-        ReportNode reportNode2 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("2")
                 .build();
         reportNodeContext.pushReportNode(reportNode2);
-        ReportNode reportNode3 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode3 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("3")
                 .build();
         reportNodeContext.pushReportNode(reportNode3);

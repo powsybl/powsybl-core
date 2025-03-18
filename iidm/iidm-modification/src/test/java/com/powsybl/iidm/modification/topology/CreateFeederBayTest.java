@@ -137,7 +137,8 @@ class CreateFeederBayTest extends AbstractModificationTest {
     @Test
     void testException() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReportNode reportNode1 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestInvalidNetwork")
                 .build();
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
@@ -159,7 +160,8 @@ class CreateFeederBayTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.networkMismatch", reportNode1.getChildren().get(0).getMessageKey());
 
         // not found id
-        ReportNode reportNode2 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestInvalidId")
                 .build();
         CreateFeederBay modification1 = new CreateFeederBayBuilder()
@@ -174,7 +176,8 @@ class CreateFeederBayTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
 
         // wrong identifiable type
-        ReportNode reportNode3 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode3 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestInvalidType")
                 .build();
         CreateFeederBay modification2 = new CreateFeederBayBuilder()
@@ -453,7 +456,8 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .setQ0(10);
 
         //negative order position
-        ReportNode reportNode1 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestNegativeOrderPosition")
                 .build();
         CreateFeederBay negativeOrderCreate = new CreateFeederBayBuilder()
@@ -467,7 +471,8 @@ class CreateFeederBayTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.unexpectedNegativePositionOrder", reportNode1.getChildren().get(0).getMessageKey());
 
         //null order position
-        ReportNode reportNode2 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestNullOrderPosition")
                 .build();
         CreateFeederBay nullOrderCreate = new CreateFeederBayBuilder()
@@ -483,7 +488,8 @@ class CreateFeederBayTest extends AbstractModificationTest {
     @Test
     void testCreateLoadWithReportNode() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestCreateLoad")
                 .build();
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
@@ -504,7 +510,8 @@ class CreateFeederBayTest extends AbstractModificationTest {
     @Test
     void testCreateLoadWithReportNodeWithoutExtensions() throws IOException {
         Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestCreateLoadWithoutExtensions")
                 .build();
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()

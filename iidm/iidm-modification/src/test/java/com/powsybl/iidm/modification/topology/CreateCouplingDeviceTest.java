@@ -62,7 +62,8 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     void createCouplingDeviceThrowsException() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
-        ReportNode reportNode1 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("testReportNodeWrongBbs")
                 .build();
         NetworkModification couplingDeviceModifWrongBbs = new CreateCouplingDeviceBuilder()
@@ -74,7 +75,8 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
         assertEquals("Bus or busbar section bbs not found", e0.getMessage());
         assertEquals("core.iidm.modification.notFoundBusOrBusbarSection", reportNode1.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode2 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("testReportNodeBbsInDifferentVl")
                 .build();
         NetworkModification couplingDeviceModifBbsInDifferentVl = new CreateCouplingDeviceBuilder()
@@ -86,7 +88,8 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
         assertEquals("bbs1 and bbs5 are in two different voltage levels.", e1.getMessage());
         assertEquals("core.iidm.modification.unexpectedDifferentVoltageLevels", reportNode2.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode3 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode3 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("testReportNodeSameBbs")
                 .build();
         NetworkModification sameBusbarSection = new CreateCouplingDeviceBuilder()
@@ -136,7 +139,8 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     @Test
     void testWithReportNode() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestCreateCouplingDevice")
                 .build();
         new CreateCouplingDeviceBuilder()
@@ -151,7 +155,8 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
     @MethodSource("parameters")
     void createCouplingDeviceThrowsException(String bbs1, String bbs2, String message, String messageKey) {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("ReportNodeTest")
                 .build();
         NetworkModification modification = new CreateCouplingDeviceBuilder()

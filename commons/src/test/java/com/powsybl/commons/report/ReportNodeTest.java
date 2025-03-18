@@ -48,7 +48,8 @@ class ReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void testValues() throws IOException {
-        ReportNode root = ReportNode.newRootReportNode(TEST_BASE_NAME)
+        ReportNode root = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("rootTemplate")
                 .withUntypedValue("doubleUntyped", 4.3)
                 .withTypedValue("doubleTyped", 4.4, TypedValue.ACTIVE_POWER)
@@ -78,7 +79,8 @@ class ReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void testPostponedValues() throws IOException {
-        ReportNode root = ReportNode.newRootReportNode(TEST_BASE_NAME)
+        ReportNode root = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("rootTemplate")
                 .build();
         ReportNode child = root.newReportNode()
@@ -117,11 +119,13 @@ class ReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void testInclude() throws IOException {
-        ReportNode root = ReportNode.newRootReportNode(TEST_BASE_NAME)
+        ReportNode root = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("simpleRootTemplate")
                 .build();
 
-        ReportNode otherRoot = ReportNode.newRootReportNode(TEST_BASE_NAME)
+        ReportNode otherRoot = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("includedRoot")
                 .build();
         ReportNode otherRootChild = otherRoot.newReportNode()
@@ -150,7 +154,8 @@ class ReportNodeTest extends AbstractSerDeTest {
         PowsyblException e5 = assertThrows(PowsyblException.class, () -> root.include(child));
         assertEquals("Cannot include non-root reportNode", e5.getMessage());
 
-        ReportNode yetAnotherRoot = ReportNode.newRootReportNode(TEST_BASE_NAME)
+        ReportNode yetAnotherRoot = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("newRootAboveAll")
                 .build();
         yetAnotherRoot.include(root);
@@ -162,7 +167,8 @@ class ReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void testAddCopy() throws IOException {
-        ReportNode root = ReportNode.newRootReportNode(TEST_BASE_NAME)
+        ReportNode root = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("rootWithValue")
                 .withTypedValue("value", 2.3203, "ROOT_VALUE")
                 .build();
@@ -170,7 +176,8 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .withMessageTemplate("existingChild")
                 .add();
 
-        ReportNode otherRoot = ReportNode.newRootReportNode(TEST_BASE_NAME)
+        ReportNode otherRoot = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("otherRoot")
                 .withTypedValue("value", -915.3, "ROOT_VALUE")
                 .build();
@@ -205,7 +212,8 @@ class ReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void testAddCopyCornerCases() {
-        ReportNode root = ReportNode.newRootReportNode(TEST_BASE_NAME)
+        ReportNode root = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("rootWithValue")
                 .withTypedValue("value", 2.3203, "ROOT_VALUE")
                 .build();
@@ -251,7 +259,8 @@ class ReportNodeTest extends AbstractSerDeTest {
         DateTimeFormatter defaultDateTimeFormatter = DateTimeFormatter.ofPattern(
                 ReportConstants.DEFAULT_TIMESTAMP_PATTERN, ReportConstants.DEFAULT_LOCALE);
 
-        ReportNode root1 = ReportNode.newRootReportNode(TEST_BASE_NAME)
+        ReportNode root1 = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("rootTemplate")
                 .build();
         assertHasNoTimeStamp(root1);
@@ -272,7 +281,8 @@ class ReportNodeTest extends AbstractSerDeTest {
         // Default timestamp pattern set but no locale set
         String customPattern1 = "dd MMMM yyyy HH:mm:ss XXX";
         DateTimeFormatter customPatternFormatter = DateTimeFormatter.ofPattern(customPattern1, ReportConstants.DEFAULT_LOCALE);
-        ReportNode root2 = ReportNode.newRootReportNode(TEST_BASE_NAME)
+        ReportNode root2 = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
                 .withDefaultTimestampPattern(customPattern1)
                 .withTimestamp()
                 .withMessageTemplate("rootTemplate")
@@ -288,7 +298,8 @@ class ReportNodeTest extends AbstractSerDeTest {
         // Both default timestamp pattern and locale set
         Locale customLocale = Locale.ITALIAN;
         DateTimeFormatter customPatternAndLocaleFormatter1 = DateTimeFormatter.ofPattern(customPattern1, customLocale);
-        ReportNode root3 = ReportNode.newRootReportNode(TEST_BASE_NAME)
+        ReportNode root3 = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
                 .withLocale(customLocale)
                 .withDefaultTimestampPattern(customPattern1)
                 .withTimestamp()
@@ -314,7 +325,8 @@ class ReportNodeTest extends AbstractSerDeTest {
 
         // with Locale set but no timestamp pattern
         DateTimeFormatter noPatternAndLocaleFormatter = DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN, customLocale);
-        ReportNode root4 = ReportNode.newRootReportNode(TEST_BASE_NAME)
+        ReportNode root4 = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
                 .withLocale(customLocale)
                 .withMessageTemplate("simpleRootTemplate")
                 .withTimestamp()
@@ -325,14 +337,16 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testMissingKey() {
         // Without giving a locale
-        ReportNode report1 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode report1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("unknown.key")
                 .build();
         // translation should fall back to default properties as the key is not defined in the reports_en_US.properties
         assertEquals("Cannot find message template with key: 'unknown.key'", report1.getMessage());
 
         // With Locale.FRENCH
-        ReportNode report2 = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode report2 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withLocale(Locale.FRENCH)
                 .withMessageTemplate("unknown.key")
                 .build();
@@ -343,7 +357,8 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testLocaleAndi18n() {
         // Without giving a locale => default one is en_US
-        ReportNode rootReportEnglish = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode rootReportEnglish = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplateProvider(new BundleMessageTemplateProvider(TEST_BASE_NAME))
                 .withMessageTemplate("rootWithValue")
                 .withUntypedValue("value", 4)
@@ -353,7 +368,8 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals(Locale.US, rootReportEnglish.getTreeContext().getLocale());
 
         // With french locale
-        ReportNode rootReportFrench = ReportNode.newRootReportNode(TEST_BASE_NAME)
+        ReportNode rootReportFrench = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
                 .withLocale(Locale.FRENCH)
                 .withMessageTemplate("rootWithValue")
                 .withUntypedValue("value", 4)
@@ -363,7 +379,8 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals(Locale.FRENCH, rootReportFrench.getTreeContext().getLocale());
 
         // Test giving the specific France locale
-        ReportNode rootReportFrance = ReportNode.newRootReportNode(TEST_BASE_NAME)
+        ReportNode rootReportFrance = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
                 .withLocale(Locale.FRANCE)
                 .withMessageTemplate("rootWithValue")
                 .withUntypedValue("value", 4)
@@ -383,9 +400,9 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals("Voltage level vl1 removed", root.getMessage());
 
         ReportNode child = root.newReportNode()
-                .withMessageTemplate("mocking.key")
+                .withMessageTemplate("simpleChild")
                 .add();
-        assertEquals("Mocking message template", child.getMessage());
+        assertEquals("Child message", child.getMessage());
     }
 
     private static void assertHasNoTimeStamp(ReportNode root1) {

@@ -16,7 +16,8 @@ import com.powsybl.commons.report.ReportNode;
 public final class DynamicSimulationReports {
 
     public static ReportNode buildRootDynamicSimulationTool() {
-        return ReportNode.newRootReportNode(PowsyblCoreReportResourceBundle.BASE_NAME)
+        return ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("core.dynasim.dynamicSimulationTool")
                 .build();
     }

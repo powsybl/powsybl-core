@@ -35,7 +35,8 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void attachVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportAttachVoltageLevelOnLineNbTest")
                 .build();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
@@ -49,7 +50,8 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void connectVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportConnectVoltageLevelOnLineNbBbTest")
                 .build();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
@@ -63,7 +65,8 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void connectVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportConnectVoltageLevelOnLineBbTest")
                 .build();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
@@ -141,7 +144,8 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     void testExceptions() {
         Network network1 = createNbNetworkWithBusbarSection();
 
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestUndefinedBbs")
                 .build();
         NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
@@ -193,7 +197,8 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void testWithReportNode() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
-        ReportNode report = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode report = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestConnectVoltageLevelOnLine")
                 .build();
         new ConnectVoltageLevelOnLineBuilder()

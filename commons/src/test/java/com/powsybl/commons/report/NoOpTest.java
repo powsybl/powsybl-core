@@ -56,7 +56,8 @@ class NoOpTest extends AbstractSerDeTest {
         assertNull(reportNode.getMessageTemplate());
         assertNull(reportNode.getMessageKey());
 
-        ReportNode reportNodeImplRoot = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNodeImplRoot = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("k")
                 .build();
         reportNode.include(reportNodeImplRoot);

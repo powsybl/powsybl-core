@@ -65,13 +65,12 @@ This father `ReportNode` should carry the `WARN` or `ERROR` severity, whereas th
 This allows to give fine-grained information about an unwanted state, without overwhelming the end-user with numerous `WARN` or `ERROR` reports and while keeping a succinct message for each report.
 
 ## Builders / adders
-The builder API is accessed from a call to one of the `ReportNode::newRootReportNode` methods.
+The builder API is accessed from a call to `ReportNode::newRootReportNode` method.
 This API is used to build the root `ReportNode`.
-The following methods are available:
-- `newRootReportNode()`, to get a builder with no message template provider predefined,
-- `newRootReportNode(bundleBaseName1, ...)`, to get a builder with a message template provider based on one or several `ResourceBundle`.
 
 The following methods are available in the builder API to define the corresponding `ReportNode` tree:
+- `withAllResourceBundlesFromClasspath()`, to set the message template provider as based on all the `ResourceBundle` gathered by the `ServiceLoader` of `ReportResourceBundle` implementations,
+- `withResourceBundles(String... bundleBaseNames)`, to set the message template provider as based on one or several `ResourceBundle`,
 - `withDefaultTimestampPattern(pattern)`, for the pattern to be used in the tree when a timestamp is added,
 - `withLocale(locale)`, for specifying the `Locale` to use in the whole tree:
     - for message templates (see [i18n page](./i18n.md)),
@@ -89,7 +88,8 @@ Both API share the following methods to provide the message template and the typ
 
 For further customization, the following methods are also available:
 - `withMessageTemplateProvider(messageTemplateProvider)`, to specify how to get a message template from a given key and locale for all the descendents of the node to create, unless overridden,
-- `withTimestamp(pattern)`, if a custom pattern has to be used instead of the default one specified at root construction.
+- `withTimestamp(pattern)`, if a custom pattern has to be used instead of the default one specified at root construction,
+- `withResourceBundles(String... bundleBaseNames)` is also shared by the adder API, to override the resource bundles to use as message template provider for all the descendents of the node to create (unless overridden).
 
 ## Merging ReportNodes
 

@@ -75,7 +75,8 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
     @Test
     void testRemoveHvdcLineUnknownShunt() {
         Network network = HvdcTestNetwork.createLcc();
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestRemoveHvdcLineWithUnknownShunt")
                 .build();
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds("UnknownShunt").build();
@@ -88,7 +89,8 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
     @Test
     void testRemoveHvdcLineUnknownLine() {
         Network network = Network.create("empty", "test");
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestRemoveHvdcLineUnknownLine")
                 .build();
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").build();

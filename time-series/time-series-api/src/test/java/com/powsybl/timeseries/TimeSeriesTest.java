@@ -367,7 +367,8 @@ class TimeSeriesTest {
             """.replaceAll("\n", System.lineSeparator());
 
         // Reporter
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV")
                 .build();
 
@@ -397,7 +398,8 @@ class TimeSeriesTest {
                 """.replaceAll("\n", System.lineSeparator());
 
         // Reporter
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV")
                 .build();
 

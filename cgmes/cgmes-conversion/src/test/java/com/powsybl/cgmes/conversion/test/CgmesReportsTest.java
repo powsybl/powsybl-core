@@ -14,7 +14,8 @@ class CgmesReportsTest {
 
     @Test
     void importingCgmesFileReportTest() {
-        ReportNode reportRoot = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportRoot = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build();
         ReadOnlyDataSource ds = new ResourceDataSource("CGMES import file(s)", new ResourceSet("/", "GeneratingUnitTypes.xml", "groundTest.xml"));

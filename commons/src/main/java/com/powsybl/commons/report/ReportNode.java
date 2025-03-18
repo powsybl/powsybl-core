@@ -74,30 +74,6 @@ public interface ReportNode {
     }
 
     /**
-     * Create a new builder for creating a root <code>ReportNode</code>, based on the {@link ResourceBundle} whose base
-     * name is provided. All the descendants of the root node will use the {@link BundleMessageTemplateProvider}
-     * corresponding to the bundle base name provided as a message template provider, unless overridden.
-     * @param bundleBaseName The base name for the {@link ResourceBundle} to use
-     * @return a {@link ReportNodeBuilder}
-     */
-    static ReportNodeBuilder newRootReportNode(String bundleBaseName) {
-        return new ReportNodeRootBuilderImpl()
-                .withMessageTemplateProvider(new BundleMessageTemplateProvider(bundleBaseName));
-    }
-
-    /**
-     * Create a new builder for creating a root <code>ReportNode</code>, based on the {@link ResourceBundle} whose base
-     * name is provided. All the descendants of the root node will use the {@link MultiBundleMessageTemplateProvider}
-     * corresponding to the bundle base names provided as a message template provider, unless overridden.
-     * @param bundleBaseNames The base names for the {@link ResourceBundle} to use
-     * @return a {@link ReportNodeBuilder}
-     */
-    static ReportNodeBuilder newRootReportNode(String... bundleBaseNames) {
-        return new ReportNodeRootBuilderImpl()
-                .withMessageTemplateProvider(new MultiBundleMessageTemplateProvider(bundleBaseNames));
-    }
-
-    /**
      * Get the message key for current node.
      * Note that each key needs to correspond to a unique message template.
      * This allows to build up a dictionary of message templates indexed by their key.

@@ -8,14 +8,15 @@
 package com.powsybl.commons.report;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 @AutoService(ReportResourceBundle.class)
-public final class MockReportResourceBundle implements ReportResourceBundle {
+public final class CommonsTestReportResourceBundle implements ReportResourceBundle {
 
     public String getBaseName() {
-        return "i18n.mock.test";
+        return PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME;
     }
 }

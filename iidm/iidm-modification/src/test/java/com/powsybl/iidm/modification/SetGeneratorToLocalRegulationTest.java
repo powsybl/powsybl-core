@@ -53,7 +53,8 @@ class SetGeneratorToLocalRegulationTest {
         assertNotEquals(gen4.getId(), gen4.getRegulatingTerminal().getConnectable().getId());
         assertEquals(21.0, gen4.getTargetV());
 
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("rootReportNode")
                 .build();
         new SetGeneratorToLocalRegulation("GEN1").apply(network, reportNode);

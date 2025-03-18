@@ -76,7 +76,8 @@ class RemoveSubstationTest extends AbstractModificationTest {
         RemoveSubstation removeUnknown = new RemoveSubstationBuilder()
                 .withSubstationId("UNKNOWN")
                 .build();
-        ReportNode reportNode = ReportNode.newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestRemoveUnknownSubstation")
                 .build();
         Network network = EurostagTutorialExample1Factory.create();

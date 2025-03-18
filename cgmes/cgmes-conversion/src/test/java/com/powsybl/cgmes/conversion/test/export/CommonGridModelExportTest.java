@@ -448,8 +448,8 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "MAS1");
 
         // Export using a reporter to gather the exported model identifiers
-        ReportNode report = ReportNode
-                .newRootReportNode(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+        ReportNode report = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("rootKey")
                 .build();
 
