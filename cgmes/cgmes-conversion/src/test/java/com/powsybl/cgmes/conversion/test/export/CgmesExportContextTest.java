@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.test.export;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
-import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -43,18 +42,6 @@ class CgmesExportContextTest {
         assertEquals(CgmesTopologyKind.BUS_BRANCH, context1.getTopologyKind());
         assertEquals(network.getCaseDate(), context1.getScenarioTime());
         assertEquals("1D", context1.getBusinessProcess());
-
-        network.newExtension(CimCharacteristicsAdder.class)
-            .setCimVersion(14)
-            .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
-            .add();
-
-        CgmesExportContext context2 = new CgmesExportContext(network);
-
-        assertEquals(14, context2.getCimVersion());
-        assertEquals(CgmesNamespace.CIM_14_NAMESPACE, context2.getCim().getNamespace());
-        assertEquals(CgmesTopologyKind.NODE_BREAKER, context2.getTopologyKind());
-        assertEquals(network.getCaseDate(), context2.getScenarioTime());
     }
 
     @Test
@@ -66,23 +53,5 @@ class CgmesExportContextTest {
         assertTrue(Duration.between(ZonedDateTime.now(), context.getScenarioTime()).toMinutes() < 1);
         assertTrue(context.exportBoundaryPowerFlows());
         assertEquals("1D", context.getBusinessProcess());
-    }
-
-    @Test
-    void getSet() {
-        CgmesExportContext context = new CgmesExportContext()
-            .setCimVersion(14)
-            .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
-            .setScenarioTime(ZonedDateTime.parse("2020-09-22T17:21:11.381+02:00"))
-            .setExportBoundaryPowerFlows(true)
-            .setExportFlowsForSwitches(false)
-            .setBusinessProcess("2D");
-
-        assertEquals(14, context.getCimVersion());
-        assertEquals(CgmesNamespace.CIM_14_NAMESPACE, context.getCim().getNamespace());
-        assertEquals(CgmesTopologyKind.NODE_BREAKER, context.getTopologyKind());
-        assertEquals(ZonedDateTime.parse("2020-09-22T17:21:11.381+02:00"), context.getScenarioTime());
-        assertTrue(context.exportBoundaryPowerFlows());
-        assertEquals("2D", context.getBusinessProcess());
     }
 }

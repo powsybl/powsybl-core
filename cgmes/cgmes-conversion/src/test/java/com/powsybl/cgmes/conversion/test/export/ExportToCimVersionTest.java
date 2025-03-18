@@ -10,11 +10,9 @@ package com.powsybl.cgmes.conversion.test.export;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
-import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.jupiter.api.Test;
 
@@ -40,24 +38,6 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
         String baseName = nameEQ.replace("_EQ.xml", "");
         // The baseName of the output files should be taken from the network name or id
         assertEquals(n.getNameOrId(), baseName);
-    }
-
-    @Test
-    void testExportIEEE14Cim14ToCim16() {
-        testExportToCim(ieee14Cim14(), "IEEE14", 16);
-    }
-
-    @Test
-    void testExportIEEE14Cim14ToCim100() {
-        // Testing export to CGMES 3
-        // TODO(Luma) verify that all classes and attributes are valid against profiles (using CIMdesk)
-        // TODO(Luma) Check mRID is exported
-        // TODO(Luma) Check GeneratingUnit.initialP (removed in CIM100)
-        // TODO(Luma) Check the way OperationalLimit TypeName is read
-        // TODO(Luma) Check OperationalLimit value (renamed to normalValue in CIM100)
-        Network network = ieee14Cim14();
-        assertEquals(14, network.getExtension(CimCharacteristics.class).getCimVersion());
-        testExportToCim(network, "IEEE14", 100);
     }
 
     @Test
@@ -89,13 +69,6 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
         n.write("CGMES", params, outputFolder.resolve(basename));
         eqContent = Files.readString(outputFolder.resolve(eqFilename));
         assertTrue(eqContent.contains("<cim:IdentifiedObject.mRID>"));
-    }
-
-    private static Network ieee14Cim14() {
-        ReadOnlyDataSource dataSource = Cim14SmallCasesCatalog.ieee14().dataSource();
-        Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
-        return new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
     }
 
     private void testExportToCim(Network network, String name, int cimVersion) {

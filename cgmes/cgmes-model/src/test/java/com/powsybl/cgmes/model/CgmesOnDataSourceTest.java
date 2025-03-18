@@ -37,14 +37,9 @@ class CgmesOnDataSourceTest {
 
     static Stream<Arguments> provideArguments() {
         return Stream.of(
-                Arguments.of("EQ cim14", "empty_cim14_EQ.xml", "14", true),
                 Arguments.of("EQ cim16", "empty_cim16_EQ.xml", "16", true),
-                Arguments.of("SV cim14", "empty_cim14_SV.xml", "14", false),
                 Arguments.of("cim no rdf cim16", "validCim16InvalidContent_EQ.xml", "16", false),
-                Arguments.of("cim no rdf cim14", "validCim14InvalidContent_EQ.xml", "14", false),
                 Arguments.of("rdf no cim16", "validRdfInvalidContent_EQ.xml", "16", false),
-                Arguments.of("rdf no cim14", "validRdfInvalidContent_EQ.xml", "14", false),
-                Arguments.of("rdf cim16 not cim14", "empty_cim16_EQ.xml", "14", false),
                 Arguments.of("rdf cim14 not cim16", "empty_cim14_EQ.xml", "16", false)
         );
     }
@@ -55,7 +50,7 @@ class CgmesOnDataSourceTest {
         ReadOnlyDataSource dataSource = new ResourceDataSource("incomplete",
                 new ResourceSet("/", filename));
         CgmesOnDataSource cgmesOnDataSource = new CgmesOnDataSource(dataSource);
-        boolean exists = "14".equals(cimVersion) ? cgmesOnDataSource.existsCim14() : cgmesOnDataSource.exists();
+        boolean exists = cgmesOnDataSource.exists();
         assertEquals(expectedExists, exists);
     }
 
