@@ -15,11 +15,15 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
+import java.util.function.Predicate;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getElement;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getElementCount;
@@ -39,6 +43,60 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
         // Assert the CIM 16 and CIM 100 exports with given topology kind are valid
         assertValidExport(network, topologyKind, false);
         assertValidExport(network, topologyKind, true);
+    }
+
+    @Test
+    void nonRetainedOpenTest() throws IOException {
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.TOPOLOGY_KIND, "BUS_BRANCH");
+
+        // We start with a network that has two connected components
+        Network network = nonRetainedOpenNetwork();
+        assertEquals(2, network.getBusView().getConnectedComponents().size());
+
+        Path outputCgmes = Files.createDirectories(tmpDir.resolve("cgmes-non-retained-open"));
+        network.write("CGMES", exportParams, outputCgmes);
+        Network network1 = Network.read(outputCgmes);
+        assertEquals(2, network1.getBusView().getConnectedComponents().size());
+
+        // If we close all switches in our original IIDM network we end up with only one connected component
+        network.getSwitchStream().forEach(sw -> sw.setOpen(false));
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
+
+        // Even if we close all switches in the re-imported network we will have two connected components
+        // In the exported network we can not get all equipment in a single connected component
+        network1.getSwitchStream().forEach(sw -> sw.setOpen(false));
+        assertEquals(2, network1.getBusView().getConnectedComponents().size());
+        // If we force the reconnection of the line we have 3 connected components
+        network1.getLine("LN").getTerminal1().connect();
+        network1.getLine("LN").getTerminal2().connect();
+        assertEquals(3, network1.getBusView().getConnectedComponents().size());
+    }
+
+    @Test
+    void nonRetainedClosedTest() throws IOException {
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.TOPOLOGY_KIND, "BUS_BRANCH");
+
+        // We start with a network that has two connected components
+        Network network = nonRetainedOpenNetwork();
+        assertEquals(2, network.getBusView().getConnectedComponents().size());
+        // Before export, we close all non-retained switches, we still have two connected components
+        network.getSwitchStream().filter(Predicate.not(Switch::isRetained)).forEach(sw -> sw.setOpen(false));
+        assertEquals(2, network.getBusView().getConnectedComponents().size());
+
+        // Export to CGMES as bus/branch and recover the exported network
+        Path outputCgmes = Files.createDirectories(tmpDir.resolve("cgmes-non-retained-closed"));
+        network.write("CGMES", exportParams, outputCgmes);
+        Network network1 = Network.read(outputCgmes);
+        assertEquals(2, network1.getBusView().getConnectedComponents().size());
+
+        // Now if we close all switches in the re-imported network and force the line as connected,
+        // we end up with only one connected component
+        network1.getSwitchStream().forEach(sw -> sw.setOpen(false));
+        network1.getLine("LN").getTerminal1().connect();
+        network1.getLine("LN").getTerminal2().connect();
+        assertEquals(1, network1.getBusView().getConnectedComponents().size());
     }
 
     private void assertValidExport(Network network, CgmesTopologyKind topologyKind, boolean cim100Export) throws IOException {
@@ -278,6 +336,73 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
         line.newApparentPowerLimits1().setPermanentLimit(100).add();
         line.newActivePowerLimits2().setPermanentLimit(100).add();
         line.newApparentPowerLimits2().setPermanentLimit(100).add();
+
+        return network;
+    }
+
+    private Network nonRetainedOpenNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("network-non-retained-open", "test");
+
+        //  --------------  LN  ------------------
+        //  |                                    |
+        // (2)                                  (2)
+        //  |                                    |
+        // [ ] BK_1, retained, open             [ ] BK_2, retained, open
+        //  |                                    |
+        // (1)                                  (1)
+        //  |                                    |
+        //  / DIS_1, open                        / DIS_2, open
+        //  |                                    |
+        // (0)== BB_1                           (0)== BB_2
+        //  |                                    |
+        // (10)                                 (10)
+        //  |                                    |
+        // GEN                                  LOAD
+
+        Substation substation1 = network.newSubstation().setId("ST_1").add();
+        VoltageLevel voltageLevel1 = substation1.newVoltageLevel().setId("VL_1").setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        voltageLevel1.getNodeBreakerView().newBusbarSection().setId("BB_1")
+                .setNode(0).add();
+        voltageLevel1.getNodeBreakerView().newSwitch().setId("DIS_1")
+                .setNode1(0)
+                .setNode2(1)
+                .setOpen(true).setRetained(false).setKind(SwitchKind.DISCONNECTOR).add();
+        voltageLevel1.getNodeBreakerView().newSwitch().setId("BK_1")
+                .setNode1(1)
+                .setNode2(2)
+                .setOpen(true).setRetained(true).setKind(SwitchKind.BREAKER).add();
+        voltageLevel1.newGenerator().setId("GEN")
+                .setNode(10)
+                .setTargetP(1.0).setTargetQ(1.0).setMinP(0.0).setMaxP(2.0).setVoltageRegulatorOn(false).add();
+        voltageLevel1.getNodeBreakerView().newInternalConnection()
+                .setNode1(0)
+                .setNode2(10).add();
+
+        Substation substation2 = network.newSubstation().setId("ST_2").add();
+        VoltageLevel voltageLevel2 = substation2.newVoltageLevel().setId("VL_2").setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        voltageLevel2.getNodeBreakerView().newBusbarSection().setId("BB_2")
+                .setNode(0).add();
+        voltageLevel2.getNodeBreakerView().newSwitch().setId("DIS_2")
+                .setNode1(0)
+                .setNode2(1)
+                .setOpen(true).setRetained(false).setKind(SwitchKind.DISCONNECTOR).add();
+        voltageLevel2.getNodeBreakerView().newSwitch().setId("BK_2")
+                .setNode1(1)
+                .setNode2(2)
+                .setOpen(true).setRetained(true).setKind(SwitchKind.BREAKER).add();
+        voltageLevel2.newLoad().setId("LOAD")
+                .setNode(10)
+                .setP0(1.0).setQ0(1.0).add();
+        voltageLevel2.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(10).add();
+
+        network.newLine().setId("LN")
+                .setVoltageLevel1("VL_1")
+                .setVoltageLevel2("VL_2")
+                .setNode1(2)
+                .setNode2(2)
+                .setR(0.1).setX(1.0).setG1(0.0).setG2(0.0).setB1(0.0).setB2(0.0).add();
 
         return network;
     }
