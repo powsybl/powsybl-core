@@ -12,7 +12,6 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +51,32 @@ class LoadFlowDefaultParametersLoaderTest {
     }
 
     @Test
+    void testWithAModuleButNoProperty() {
+        LoadFlowDefaultParametersLoaderMock loader = new LoadFlowDefaultParametersLoaderMock("test");
+
+        platformConfig.createModuleConfig("load-flow");
+
+        LoadFlowParameters parameters = new LoadFlowParameters(List.of(loader), platformConfig);
+        JsonLoadFlowParametersTest.DummyExtension extension = parameters.getExtension(JsonLoadFlowParametersTest.DummyExtension.class);
+        // The module is present in configuration, but no "default-parameters-loader" is set.
+        // A unique loader is found: it is used.
+        assertNotNull(extension);
+        assertEquals("Hello", extension.getParameterString());
+    }
+
+    @Test
+    void testLoaderButWrongDefault() {
+        LoadFlowDefaultParametersLoaderMock loader = new LoadFlowDefaultParametersLoaderMock("test1");
+
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow");
+        moduleConfig.setStringProperty("default-parameters-loader", "test2");
+
+        LoadFlowParameters parameters = new LoadFlowParameters(List.of(loader), platformConfig);
+        // The loader was not used since it doesn't match the expected one. No exception is thrown.
+        assertNull(parameters.getExtension(JsonLoadFlowParametersTest.DummyExtension.class));
+    }
+
+    @Test
     void testConflictBetweenDefaultParametersLoader() {
         LoadFlowDefaultParametersLoaderMock loader1 = new LoadFlowDefaultParametersLoaderMock("test1");
         LoadFlowDefaultParametersLoaderMock loader2 = new LoadFlowDefaultParametersLoaderMock("test2");
@@ -74,7 +99,7 @@ class LoadFlowDefaultParametersLoaderTest {
 
         LoadFlowDefaultParametersLoaderMock loader = new LoadFlowDefaultParametersLoaderMock("test");
 
-        LoadFlowParameters parameters = new LoadFlowParameters(List.of(loader), PlatformConfig.defaultConfig());
+        LoadFlowParameters parameters = new LoadFlowParameters(List.of(loader));
         load(parameters, platformConfig);
         assertFalse(parameters.isUseReactiveLimits());
         assertEquals(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES, parameters.getVoltageInitMode());
