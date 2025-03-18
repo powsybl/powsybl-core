@@ -87,7 +87,7 @@
                 <iidm:bus id="BUS____9_TN" name="BUS    9" v="14.596500396728516" angle="-14.953522682189941"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD___9_EC" name="LOAD   9" loadType="UNDEFINED" p0="29.5" q0="16.600000381469727" bus="BUS____9_TN" connectableBus="BUS____9_TN" p="29.5" q="16.600000381469727"/>
-            <iidm:shunt id="BANK___9_SC" name="BANK   9" sectionCount="1" voltageRegulatorOn="false" bus="BUS____9_TN" connectableBus="BUS____9_TN">
+            <iidm:shunt id="BANK___9_SC" name="BANK   9" sectionCount="1" voltageRegulatorOn="false" targetDeadband="0.0" bus="BUS____9_TN" connectableBus="BUS____9_TN">
                 <iidm:shuntLinearModel bPerSection="0.09976900368928909" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
