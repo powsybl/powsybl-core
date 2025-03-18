@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-security-analysis</artifactId>
-        <version>6.7.0-SNAPSHOT</version>
+        <version>6.7.0-RC1</version>
     </parent>
 
     <artifactId>powsybl-security-analysis-api</artifactId>
