@@ -7,7 +7,6 @@
  */
 package com.powsybl.commons.report;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
