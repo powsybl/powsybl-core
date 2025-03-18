@@ -5,14 +5,30 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="BLOAD"/>
             </iidm:busBreakerTopology>
-            <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="BLOAD" connectableBus="BLOAD"/>
+            <iidm:load id="LOAD1" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="BLOAD" connectableBus="BLOAD"/>
+            <iidm:load id="LOAD2" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="BLOAD" connectableBus="BLOAD"/>
+            <iidm:load id="LOAD3" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="BLOAD" connectableBus="BLOAD"/>
+            <iidm:load id="LOAD4" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="BLOAD" connectableBus="BLOAD"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:extension id="LOAD">
-        <bar:loadBar/>
+    <iidm:extension id="LOAD1">
+        <bar:loadBar value="12">
+            <bar:point x="6" y="9"/>
+        </bar:loadBar>
         <mockns:terminalMockNoSerDe>
             <mockns:terminal id="LOAD"/>
         </mockns:terminalMockNoSerDe>
         <extZip:loadZipModel a1="1.0" a2="2.0" a3="3.0" a4="4.0" a5="5.0" a6="6.0" v0="0.0"/>
+    </iidm:extension>
+    <iidm:extension id="LOAD2">
+        <bar:loadBar/>
+    </iidm:extension>
+    <iidm:extension id="LOAD3">
+        <bar:loadBar value="12"/>
+    </iidm:extension>
+    <iidm:extension id="LOAD4">
+        <bar:loadBar>
+            <bar:point x="6" y="9"/>
+        </bar:loadBar>
     </iidm:extension>
 </iidm:network>

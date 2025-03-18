@@ -30,8 +30,11 @@ import java.util.*;
  * </ul>
  *
  * <p>When the collection of children of a <code>ReportNode</code> is non-empty, the message of the corresponding
- * <code>ReportNode</code> is expected to summarize the children content. Note that the summarizing
- * template should be succinct: 120 characters is a good limit for the message string length (once formatted).
+ * <code>ReportNode</code> is expected to summarize the children content. In order to help this summary, the
+ * {@link TypedValue} can be provided after the <code>ReportNode</code> creation with {@link #addTypedValue}/
+ * {@link #addUntypedValue} methods.
+ * Note that the summarizing template should be succinct: 120 characters is a good limit for the message string length
+ * (once formatted).
  *
  * <p>The {@link TypedValue} values should have a meaningful type to possibly enrich the message content. Please reuse
  * the generic types provided in {@link TypedValue} when possible.
@@ -40,7 +43,8 @@ import java.util.*;
  * syntax, in order to be later replaced by {@link org.apache.commons.text.StringSubstitutor} for instance when formatting
  * the string for the end user.
  * The <code>ReportNode</code> values may be referred to within the corresponding messageTemplate, or within any of its
- * descendants. Be aware that any descendant might override a value by giving a new value to an existing key.
+ * descendants, even if the value is added afterward.
+ * Be aware that any descendant might override a value by giving a new value to an existing key.
  * All implementations of <code>ReportNode</code> need to take that inheritance into account.
  *
  * <p>Instances of <code>ReportNode</code> are not thread-safe.
@@ -88,7 +92,17 @@ public interface ReportNode {
      * corresponding values, either contained in current node or in one of its parents.
      * @return the message
      */
-    String getMessage();
+    default String getMessage() {
+        return getMessage(ReportFormatter.DEFAULT);
+    }
+
+    /**
+     * Get the message of current node, replacing <code>${key}</code> references in the message template with the
+     * corresponding values, either contained in current node or in one of its parents.
+     * @param formatter the formatter to use to transform any value into a string
+     * @return the message
+     */
+    String getMessage(ReportFormatter formatter);
 
     /**
      * Get the values which belong to current node (does not include the inherited values)
@@ -99,10 +113,10 @@ public interface ReportNode {
     /**
      * Get the value corresponding to the given key
      *
-     * @param valueKey the key to request
+     * @param key the key to request
      * @return the value
      */
-    Optional<TypedValue> getValue(String valueKey);
+    Optional<TypedValue> getValue(String key);
 
     /**
      * Get the children of current node
@@ -131,18 +145,76 @@ public interface ReportNode {
     void include(ReportNode reportRoot);
 
     /**
+     * Copy the given <code>ReportNode</code> and inserts the resulting <code>ReportNode</code> as a child of current <code>ReportNode</code>.
+     *
+     * @param reportNode the <code>ReportNode</code> to copy into the children of current <code>ReportNode</code>
+     */
+    void addCopy(ReportNode reportNode);
+
+    /**
      * Serialize the current report node
      * @param generator the jsonGenerator to use for serialization
      */
     void writeJson(JsonGenerator generator) throws IOException;
 
+    /** Add one typed String value */
+    ReportNode addTypedValue(String key, String value, String type);
+
+    /** Add one untyped String value */
+    ReportNode addUntypedValue(String key, String value);
+
+    /** Add one typed double value */
+    ReportNode addTypedValue(String key, double value, String type);
+
+    /** Add one untyped double value */
+    ReportNode addUntypedValue(String key, double value);
+
+    /** Add one typed float value */
+    ReportNode addTypedValue(String key, float value, String type);
+
+    /** Add one untyped float value */
+    ReportNode addUntypedValue(String key, float value);
+
+    /** Add one typed int value */
+    ReportNode addTypedValue(String key, int value, String type);
+
+    /** Add one untyped int value */
+    ReportNode addUntypedValue(String key, int value);
+
+    /** Add one typed long value */
+    ReportNode addTypedValue(String key, long value, String type);
+
+    /** Add one untyped long value */
+    ReportNode addUntypedValue(String key, long value);
+
+    /** Add one typed boolean value */
+    ReportNode addTypedValue(String key, boolean value, String type);
+
+    /** Add one untyped boolean value */
+    ReportNode addUntypedValue(String key, boolean value);
+
+    /** Add the {@link TypedValue#SEVERITY} typed value associated to {@link ReportConstants#SEVERITY_KEY} key */
+    ReportNode addSeverity(TypedValue severity);
+
+    /** Add the {@link String} value for the {@link TypedValue#SEVERITY} type associated to {@link ReportConstants#SEVERITY_KEY} key */
+    ReportNode addSeverity(String severity);
+
     /**
      * Print to given path the current report node and its descendants
-     * @param path the writer to write to
+     * @param path the path to write to
      */
     default void print(Path path) throws IOException {
+        print(path, ReportFormatter.DEFAULT);
+    }
+
+    /**
+     * Print to given path the current report node and its descendants
+     * @param path the path to write to
+     * @param formatter the formatter to use to print values
+     */
+    default void print(Path path, ReportFormatter formatter) throws IOException {
         try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-            print(writer);
+            print(writer, formatter);
         }
     }
 
@@ -150,5 +222,14 @@ public interface ReportNode {
      * Print to given writer the current report node and its descendants
      * @param writer the writer to write to
      */
-    void print(Writer writer) throws IOException;
+    default void print(Writer writer) throws IOException {
+        print(writer, ReportFormatter.DEFAULT);
+    }
+
+    /**
+     * Print to given writer the current report node and its descendants
+     * @param writer the writer to write to
+     * @param formatter the formatter to use to print values
+     */
+    void print(Writer writer, ReportFormatter formatter) throws IOException;
 }

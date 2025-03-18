@@ -29,7 +29,7 @@
             <iidm:load id="B3-L1 " loadType="UNDEFINED" p0="2.4" q0="1.2" bus="B3" connectableBus="B3"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S4">
+    <iidm:substation id="S4-12">
         <iidm:voltageLevel id="VL4" nominalV="132.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B4" name="Hancock     " v="133.55232" angle="89.1475"/>
@@ -65,7 +65,7 @@
             <iidm:load id="B5-L1 " loadType="UNDEFINED" p0="94.2" q0="19.0" bus="B5" connectableBus="B5"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S6">
+    <iidm:substation id="S6-9-10">
         <iidm:voltageLevel id="VL6" nominalV="132.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B6" name="Roanoke     " v="133.35432" angle="87.367"/>
@@ -252,7 +252,7 @@
             <iidm:load id="B26-L1 " loadType="UNDEFINED" p0="3.5" q0="2.3" bus="B26" connectableBus="B26"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S27">
+    <iidm:substation id="S27-28">
         <iidm:voltageLevel id="VL27" nominalV="33.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B27" name="Cloverdl    " v="33.76725" angle="82.8892"/>
@@ -462,6 +462,38 @@
     <iidm:line id="L-27-29-1 " r="2.393622" x="4.522617" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL27" bus1="B27" connectableBus1="B27" voltageLevelId2="VL29" bus2="B29" connectableBus2="B29"/>
     <iidm:line id="L-27-30-1 " r="3.4869779999999997" x="6.563402999999999" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL27" bus1="B27" connectableBus1="B27" voltageLevelId2="VL30" bus2="B30" connectableBus2="B30"/>
     <iidm:line id="L-29-30-1 " r="2.612511" x="4.936437" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL29" bus1="B29" connectableBus1="B29" voltageLevelId2="VL30" bus2="B30" connectableBus2="B30"/>
+    <iidm:area id="A1" name="1           " areaType="ControlArea" interchangeTarget="0.0">
+        <iidm:voltageLevelRef id="VL1"/>
+        <iidm:voltageLevelRef id="VL2"/>
+        <iidm:voltageLevelRef id="VL3"/>
+        <iidm:voltageLevelRef id="VL4"/>
+        <iidm:voltageLevelRef id="VL5"/>
+        <iidm:voltageLevelRef id="VL6"/>
+        <iidm:voltageLevelRef id="VL7"/>
+        <iidm:voltageLevelRef id="VL8"/>
+        <iidm:voltageLevelRef id="VL9"/>
+        <iidm:voltageLevelRef id="VL10"/>
+        <iidm:voltageLevelRef id="VL11"/>
+        <iidm:voltageLevelRef id="VL12"/>
+        <iidm:voltageLevelRef id="VL13"/>
+        <iidm:voltageLevelRef id="VL14"/>
+        <iidm:voltageLevelRef id="VL15"/>
+        <iidm:voltageLevelRef id="VL16"/>
+        <iidm:voltageLevelRef id="VL17"/>
+        <iidm:voltageLevelRef id="VL18"/>
+        <iidm:voltageLevelRef id="VL19"/>
+        <iidm:voltageLevelRef id="VL20"/>
+        <iidm:voltageLevelRef id="VL21"/>
+        <iidm:voltageLevelRef id="VL22"/>
+        <iidm:voltageLevelRef id="VL23"/>
+        <iidm:voltageLevelRef id="VL24"/>
+        <iidm:voltageLevelRef id="VL25"/>
+        <iidm:voltageLevelRef id="VL26"/>
+        <iidm:voltageLevelRef id="VL27"/>
+        <iidm:voltageLevelRef id="VL28"/>
+        <iidm:voltageLevelRef id="VL29"/>
+        <iidm:voltageLevelRef id="VL30"/>
+    </iidm:area>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="B1-G1 "/>
     </iidm:extension>

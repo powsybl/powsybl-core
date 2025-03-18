@@ -112,7 +112,8 @@ class NetworkModificationListTest {
 
         // If we ignore the dry-run result and try to apply the NetworkModificationList, an exception is thrown and
         // the network is in an "unstable" state.
-        assertThrows(PowsyblException.class, () -> task.apply(network, false), "Branch '" + lineId + "' not found");
+        assertDoesNotThrow(() -> task.apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), ReportNode.NO_OP, false));
+        assertThrows(PowsyblException.class, () -> task.apply(network, true, ReportNode.NO_OP), "Branch '" + lineId + "' not found");
         assertNull(network.getLine("NHV1_NHV2_1"));
     }
 
