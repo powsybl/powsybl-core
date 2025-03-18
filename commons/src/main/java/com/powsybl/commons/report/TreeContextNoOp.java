@@ -30,9 +30,7 @@ public class TreeContextNoOp implements TreeContext {
 
     @Override
     public void merge(TreeContext treeContext) {
-        if (!(treeContext instanceof TreeContextNoOp)) {
-            throw new PowsyblException("Cannot merge a TreeContextNoOp with non TreeContextNoOp");
-        }
+        // No-op
     }
 
     @Override

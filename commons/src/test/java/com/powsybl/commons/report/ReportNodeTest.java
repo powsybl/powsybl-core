@@ -405,6 +405,13 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals("Child message", child.getMessage());
     }
 
+    @Test
+    void testMissingBundleName() {
+        ReportNodeBuilder reportNodeBuilder = ReportNode.newRootReportNode();
+        PowsyblException e = assertThrows(PowsyblException.class, reportNodeBuilder::withResourceBundles);
+        assertEquals("bundleBaseNames must not be empty", e.getMessage());
+    }
+
     private static void assertHasNoTimeStamp(ReportNode root1) {
         assertFalse(root1.getValues().containsKey(ReportConstants.TIMESTAMP_KEY));
     }

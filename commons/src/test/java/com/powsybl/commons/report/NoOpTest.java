@@ -79,14 +79,14 @@ class NoOpTest extends AbstractSerDeTest {
     void testTreeContextNoOp() {
         assertEquals(0, TreeContextNoOp.NO_OP.getDictionary().size());
         assertNull(TreeContextNoOp.NO_OP.getDefaultTimestampFormatter());
-        assertNotNull(TreeContextNoOp.NO_OP.getLocale());
+        assertEquals(Locale.US, TreeContextNoOp.NO_OP.getLocale());
 
-        TreeContextImpl treeContext = new TreeContextImpl();
-        treeContext.addDictionaryEntry("key", "value");
-        PowsyblException e = assertThrows(PowsyblException.class, () -> TreeContextNoOp.NO_OP.merge(treeContext));
-        assertEquals("Cannot merge a TreeContextNoOp with non TreeContextNoOp", e.getMessage());
+        // A TreeContextNoOp.NO_OP should be able to eat another TreeContext without any changes (nor throwing an exception)
+        TreeContextNoOp.NO_OP.merge(new TreeContextImpl());
+        assertEquals(0, TreeContextNoOp.NO_OP.getDictionary().size());
 
-        assertEquals(Locale.US, treeContext.getLocale());
+        TreeContextNoOp.NO_OP.addDictionaryEntry("key", (k, l) -> "value");
+        assertEquals(0, TreeContextNoOp.NO_OP.getDictionary().size());
     }
 
     @Test
