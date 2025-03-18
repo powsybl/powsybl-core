@@ -44,15 +44,15 @@ Available arguments are:
 This option defines the path of the case file on which the simulation is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path. 
 
 `--dynamic-models-file`  
-This option defines the path of the mapping file used to associate dynamic models to static equipments of the network or add dynamic automation systems. At the moment, only groovy scripts are supported. The [dynamic models DSL](../../simulation/dynamic/index.md#dynamic-models-mapping) depends on the simulator used.
+This option defines the path of the file used to associate dynamic models to static equipments of the network or add dynamic automation systems. At the moment, only groovy scripts are supported. The [dynamic models DSL](../../simulation/dynamic/index.md#dynamic-models-configuration) depends on the simulator used.
 
 ### Optional options
 
 `--output-variables-file`  
-This option defines the path of the configuration for the output variables to export at the end of the simulation. This configuration file is a groovy script that respects the [outputVariables DSL](../../simulation/dynamic/index.md#output-variables-configuration) syntax.
+This option defines the path of the configuration for the output variables to export at the end of the simulation. This configuration file is a groovy script that respects the [output variables DSL](../../simulation/dynamic/index.md#output-variables-configuration) syntax.
 
 `--event-models-file`  
-This option defines the path of the configuration for the events to simulate during the simulation. At the moment, only groovy scripts are supported. The [event models DSL](../../simulation/dynamic/index.md#event-models-mapping) depends on the simulator used.
+This option defines the path of the configuration for the events to simulate during the simulation. At the moment, only groovy scripts are supported. The [event models DSL](../../simulation/dynamic/index.md#event-models-configuration) depends on the simulator used.
 
 `--import-parameters`  
 This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
@@ -64,11 +64,10 @@ This option defines the path where to export the [results](#results) of the simu
 This option defines the path of the [parameters](#parameters) file of the simulation. If this option is not used, the simulation is run with the default parameters. 
 
 ## Simulators
-
 The available power flow simulators implementations are described [here](../../simulation/dynamic/index.md#implementations).
 
 ## Parameters
-The available parameters are described [here](../../simulation/dynamic/parameters.md).
+The available parameters are described [here](../../simulation/dynamic/configuration.md).
 
 ## Results
 The expected results are described in the [time domain documentation](../../simulation/dynamic/index.md#outputs)
@@ -98,3 +97,4 @@ dynamic simulation results:
 ```
 
 ## See also
+- [List dynamic simulation models with an iTools command](../../user/itools/list-dynamic-simulation-models.md): learn how to load a list of all dynamic simulation models from the command line.

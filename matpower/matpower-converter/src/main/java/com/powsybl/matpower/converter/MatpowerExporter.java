@@ -43,7 +43,6 @@ public class MatpowerExporter implements Exporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(MatpowerExporter.class);
 
     private static final double BASE_MVA = 100;
-    private static final String FORMAT_VERSION = "2";
     private static final int AREA_NUMBER = 1;
     private static final int LOSS_ZONE = 1;
     private static final int CONNECTED_STATUS = 1;
@@ -347,12 +346,14 @@ public class MatpowerExporter implements Exporter {
                 }
                 mBus.setRealPowerDemand(pDemand);
                 mBus.setReactivePowerDemand(qDemand);
+                double gSum = 0;
                 double bSum = 0;
                 double zb = vl.getNominalV() * vl.getNominalV() / BASE_MVA;
                 for (ShuntCompensator sc : bus.getShuntCompensators()) {
+                    gSum += sc.getG() * zb * BASE_MVA;
                     bSum += sc.getB() * zb * BASE_MVA;
                 }
-                mBus.setShuntConductance(0d);
+                mBus.setShuntConductance(gSum);
                 mBus.setShuntSusceptance(bSum);
                 mBus.setVoltageMagnitude(checkAndFixVoltageMagnitude(bus.getV() / vl.getNominalV()));
                 mBus.setVoltageAngle(checkAndFixVoltageAngle(bus.getAngle()));
@@ -1149,7 +1150,7 @@ public class MatpowerExporter implements Exporter {
 
         MatpowerModel model = new MatpowerModel(network.getId());
         model.setBaseMva(BASE_MVA);
-        model.setVersion(FORMAT_VERSION);
+        model.setVersion(MatpowerFormatVersion.V2);
 
         Context context = new Context(maxGeneratorActivePower, maxGeneratorReactivePower);
         context.findSynchronousComponentsToBeExported(network);

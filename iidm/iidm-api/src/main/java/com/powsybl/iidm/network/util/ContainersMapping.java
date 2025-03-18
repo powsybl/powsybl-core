@@ -30,6 +30,14 @@ public class ContainersMapping {
 
     private final Map<String, String> voltageLevelIdToSubstationId = new HashMap<>();
 
+    public Set<Integer> getBusesSet(String voltageLevelId) {
+        return voltageLevelIdToBusNums.computeIfAbsent(voltageLevelId, k -> new HashSet<>());
+    }
+
+    public boolean isBusDefined(int num) {
+        return busNumToVoltageLevelId.containsKey(num);
+    }
+
     public String getVoltageLevelId(int num) {
         String voltageLevelId = busNumToVoltageLevelId.get(num);
         if (voltageLevelId == null) {
@@ -49,7 +57,7 @@ public class ContainersMapping {
     /**
      * @deprecated Not used anymore. Use
      * {@link ContainersMapping#create(List, List, ToIntFunction, ToIntFunction, ToIntFunction,
-     * Predicate, Predicate, ToDoubleFunction, Function, IntFunction)} instead.
+     * Predicate, Predicate, ToDoubleFunction, Function, Function)} instead.
      */
     @Deprecated(since = "4.9.2")
     public static <N, B> ContainersMapping create(List<N> buses, List<B> branches, ToIntFunction<N> busToNum,

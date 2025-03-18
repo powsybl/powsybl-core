@@ -223,7 +223,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 3,
@@ -242,7 +242,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 4,
@@ -261,7 +261,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 5,
@@ -280,7 +280,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 6,
@@ -299,7 +299,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 9,
@@ -318,7 +318,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 10,
@@ -337,7 +337,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 11,
@@ -356,7 +356,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 12,
@@ -375,7 +375,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 13,
@@ -394,7 +394,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   }, {
     "i" : 14,
@@ -413,7 +413,7 @@
     "intrpt" : 0,
     "dgenp" : 0.0,
     "dgenq" : 0.0,
-    "dgenm" : 0.0,
+    "dgenm" : 0,
     "loadtype" : "            "
   } ],
   "fixedShunts" : [ {
@@ -2095,7 +2095,7 @@
   } ],
   "facts" : [ {
     "name" : "FACTS_DVCE_1",
-    "i" : 153,
+    "i" : 5,
     "j" : 0,
     "mode" : 1,
     "pdes" : 0.0,
@@ -2112,14 +2112,14 @@
     "owner" : 1,
     "set1" : 0.0,
     "set2" : 0.0,
-    "vsref" : 0.0,
+    "vsref" : 0,
     "mname" : "",
-    "fcreg" : 153,
+    "fcreg" : 5,
     "nreg" : 0
   }, {
     "name" : "FACTS_DVCE_2",
-    "i" : 153,
-    "j" : 155,
+    "i" : 7,
+    "j" : 0,
     "mode" : 1,
     "pdes" : 350.0,
     "qdes" : 40.0,
@@ -2135,9 +2135,9 @@
     "owner" : 1,
     "set1" : 0.0,
     "set2" : 0.0,
-    "vsref" : 0.0,
+    "vsref" : 0,
     "mname" : "",
-    "fcreg" : 153,
+    "fcreg" : 7,
     "nreg" : 0
   } ],
   "switchedShunts" : [ ],
@@ -2254,5 +2254,6 @@
     "ia1" : 0.0,
     "ia2" : 0.0,
     "xamult" : 1.0
-  } ]
+  } ],
+  "substations" : [ ]
 }

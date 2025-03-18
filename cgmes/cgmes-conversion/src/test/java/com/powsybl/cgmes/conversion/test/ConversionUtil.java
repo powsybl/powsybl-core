@@ -124,4 +124,17 @@ public final class ConversionUtil {
         }
         return matches;
     }
+
+    public static String getElement(String xmlFile, String className, String rdfId) {
+        String regex = "(<cim:" + className + " (rdf:ID=\"_|rdf:about=\"#_)" + rdfId + "\">.*?</cim:" + className + ">)";
+        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+        return getFirstMatch(xmlFile, pattern);
+    }
+
+    public static long getElementCount(String xmlFile, String className) {
+        String regex = "(<cim:" + className + " (rdf:ID=\"_|rdf:about=\"#_).*?\")>";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(xmlFile);
+        return matcher.results().count();
+    }
 }

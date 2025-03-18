@@ -17,25 +17,24 @@ The inputs of a dynamic simulation are the following:
 - a static network
 - a set of dynamic models provided by the simulator
 - a set of parameters associated to each dynamic model, with carefully chosen values
-- a mapping between static components of the network and dynamic models
 - optionally, a description of events occurring in the dynamic simulation (disconnection of a line, change of tap for a transformer, etc.)
 - a set of parameters for the simulator itself (simulation start and stop time, solver parameters, etc.)
 - a configuration file to configure the output variables to export at the end of the simulation
 
-(dynamic-models-mapping)=
-### Dynamic models mapping
-For the moment, the only way to associate dynamic models to static components is through a groovy script. Note that the syntax of this script is specific to each simulator:
-- [Dynawo dynamic model DSL](inv:powsybldynawo:*:*#dynamic_simulation/dynamic-models-dsl)
+(dynamic-models-configuration)=
+### Dynamic models configuration
+The dynamic models may be provided through a groovy script thanks to the `GroovyDynamicModelsSupplier` provided in powsybl-dynamic-simulation-dsl artifact. Note that the syntax of this groovy script is specific to each simulator.
+See [Dynawo dynamic model configuration](inv:powsybldynawo:*:*#dynamic_simulation/dynamic-models-configuration) for Dynawo specific DSL and others configuration methods. 
 
-(event-models-mapping)=
-### Event models mapping
-For the moment, the only way to add events to the simulation is through a groovy script. Note that the syntax of this script is specific to each simulator:
-- [Dynawo event model DSL](inv:powsybldynawo:*:*#dynamic_simulation/event-models-dsl)
+(event-models-configuration)=
+### Event models configuration
+The event models may be provided through a groovy script thanks to the `GroovyEventModelsSupplier` provided in powsybl-dynamic-simulation-dsl artifact. Note that the syntax of this groovy script is specific to each simulator.
+See [Dynawo event model configuration](inv:powsybldynawo:*:*#dynamic_simulation/event-models-configuration) for Dynawo specific DSL and others configuration methods.
 
 (output-variables-configuration)=
 ### Output variables configuration
-For the moment, the only way to add output variables configuration is to provide a groovy script to the simulation. Note that the syntax of this script is specific to each simulator:
-- [Dynawo output variables DSL](inv:powsybldynawo:*:*#dynamic_simulation/output-variables-dsl)
+The output variables configuration may be provided through a groovy script thanks to the `GroovyOutputVariablesSupplier` provided in powsybl-dynamic-simulation-dsl artifact. Note that the syntax of this groovy script is specific to each simulator.
+See [Dynawo output variables configuration](inv:powsybldynawo:*:*#dynamic_simulation/output-variables-configuration) for Dynawo specific DSL and others configuration methods.
 
 ## Outputs
 
@@ -52,4 +51,5 @@ The outputs of a dynamic simulation are:
 For the moment, the only available implementation is provided by powsybl-dynawo, which links PowSyBl with [Dynaωo](http://dynawo.org) open source suite.
 
 ## Going further
-- [Run a dynamic simulation through an iTools command](../../user/itools/dynamic-simulation.md): Learn how to perform a dynamic simulation from the command line
+- [Run a dynamic simulation through an iTools command](../../user/itools/dynamic-simulation.md): learn how to perform a dynamic simulation from the command line
+- [List dynamic simulation models with an iTools command](../../user/itools/list-dynamic-simulation-models.md): learn how to load a list of all dynamic simulation models from the command line

@@ -5,6 +5,12 @@ The CIM-CGMES importer reads and converts a CIM-CGMES model to the PowSyBl grid 
 - Convert CIM-CGMES data retrieved by SPARQL requests from the created triplestore to PowSyBl grid model
 
 The data in input CIM/XML files uses RDF (Resource Description Framework) syntax. In RDF, data is described making statements about resources using triplet expressions: (subject, predicate, object).
+
+The CIM-CGMES importer supports reading CIM/XML profile files from one of the following data sources:
+- a folder containing all uncompressed profile files
+- a folder containing the zipped profile files, each one being in a separate zip file
+- a zipped file containing all profile files
+
 To describe the conversion from CGMES to PowSyBl, we first introduce some generic considerations about the level of detail of the model (node/breaker or bus/branch), the identity of the equipments and equipment containment in substations and voltage levels. After that, the conversion for every CGMES relevant class is explained. Consistency checks and validations performed during the conversion are mentioned in the corresponding sections.
 
 (cgmes-import-level-of-detail)=
@@ -400,17 +406,16 @@ A PowSyBl [`VoltagePerReactivePowerControl`](../../grid_model/extensions.md#volt
 <span style="color: red">TODO regulation</span>
 
 (cgmes-switch-import)=
-### Switch (Switch, Breaker, Disconnector, LoadBreakSwitch, ProtectedSwitch, GroundDisconnector)
+### Switch (Switch, Breaker, Disconnector, LoadBreakSwitch, ProtectedSwitch, GroundDisconnector, Jumper)
 
-Switches, breakers, disconnectors, load break switches, protected switches and ground disconnectors are
+Switches, breakers, disconnectors, load break switches, protected switches, jumpers and ground disconnectors are
 all imported in the same manner. For convenience purposes, we will now use `Switch` as a say but keep in mind that this section is valid for all these CGMES classes.
 
 If the `Switch` has its ends both inside the same voltage level, it is mapped to a PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch) with attributes as described below:
 - `SwitchKind` is defined depending on the CGMES class
-  - If it is a CGMES `Breaker`, it is `BREAKER`
-  - If it is a CGMES `Disconnector`, it is `DISCONNECTOR`
+  - If it is a CGMES `Breaker`, `Switch` or `ProtectedSwitch`, it is `BREAKER`
+  - If it is a CGMES `Disconnector`, `GroundDisconnector` or `Jumper` it is `DISCONNECTOR`
   - If it is a CGMES `LoadBreakSwitch`, it is `LOAD_BREAK_SWITCH`
-  - Otherwise, it is `BREAKER`
 - `Retained` is copied from CGMES `retained` if defined in node-breaker. Else, it is `false`.
 - `Open` is copied from CGMES SSH `open` if defined. Else, it is copied from CGMES `normalOpen`. If neither are defined, it is `false`.
 
@@ -431,33 +436,19 @@ If the CGMES `Switch` is mapped to a PowSyBl [`DanglingLine`](../../grid_model/n
 - `P0` is copied from CGMES `P` of the terminal at boundary side;
 - `Q0` is copied from CGMES `Q` of the terminal at boundary side
 
+(cgmes-control-area-import)=
+### Control areas
+
+CGMES control areas (objects of class `ControlArea`) are mapped directly to PowSyBl objects of type `Area`.
+
+The control area CGMES `type` is copied as a string in the `areaType` attribute of the PowSyBl `Area`. The CGMES `netInterchange` is copied to the PowSyBl `interchangeTarget`. If CGMES `pTolerance` is defined, its value is copied to a new property named `pTolerance`. Finally, if an attribute `entsoe:IdentifiedObject.energyIdentCodeEic` is found for the CGMES control area, it is added as an alias with `aliasType == "energyIdentCodeEic"`.
+
+The CGMES control area tie flows (objects of class `TieFlow`) are mapped to PowSyBl `Area` boundary items. 
+Boundary items can be terminals (if the corresponding CGMES point can be mapped to a PowSyBl `Terminal`) or boundaries, when the corresponding CGMES point is the boundary side of a dangling line in PowSyBl.
+
 ## Extensions
 
 The CIM-CGMES format contains more information than what the `iidm` grid model needs for calculation. The additional data that are needed to export a network in CIM-CGMES format are stored in several extensions.
-
-(cgmes-control-areas-import)=
-### CGMES control areas
-
-This extension models all the control areas contained in the network as modeled in CIM-CGMES.
-
-| Attribute           | Type                           | Unit | Required | Default value | Description                              |
-|---------------------|--------------------------------|------|----------|---------------|------------------------------------------|
-| CGMES control areas | `Collection<CgmesControlArea>` | -    | no       | -             | The list of control areas in the network |
-
-**CGMES control area**
-
-| Attribute                        | Type       | Unit | Required | Default value | Description                                              |
-|----------------------------------|------------|------|----------|---------------|----------------------------------------------------------|
-| ID                               | String     | -    | yes      | -             | The ID of the control area                               |
-| name                             | String     | -    | no       | -             | The name of the control area                             |
-| Energy Identification Code (EIC) | String     | -    | no       | -             | The EIC control area                                     |
-| net interchange                  | double     | -    | no       | -             | The net interchange of the control area (at its borders) |
-| terminals                        | `Terminal` | -    | no       | -             | Terminals at the border of the control area              |
-| boundaries                       | `Boundary` | -    | no       | -             | Boundaries at the border of the control area             |
-
-It is possible to retrieve a control area by its ID. It is also possible to iterate through all control areas.
-
-This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
 (cgmes-dangling-line-boundary-node-import)=
 ### CGMES dangling line boundary node

@@ -153,6 +153,53 @@ And the file `manualExampleBasename_SV.xml` will contain:
 
 Remember that, in addition to setting the info for metadata models in the IIDM extensions, you could also rely on parameters passed to the export methods.
 
+## Topology kind
+
+The elements written in the exported files depend on the topology kind of the export and on the CIM version.
+By default, the export topology kind is computed from the IIDM network's `VoltageLevel` [connectivity level](../../grid_model/network_subnetwork.md#voltage-level) as follows:
+* If all `VoltageLevel` of the network are at `node/breaker` connectivity level, then the export topology kind is `NODE_BREAKER`
+* If all `VoltageLevel` of the network are at `bus/breaker` connectivity level, then the export topology kind is `BUS_BRANCH`
+* If some `VoltageLevel` of the network are at `node/breaker` and some other at `bus/breaker` connectivity level, then the export's topology kind depends on the CIM version for export: 
+it is `BUS_BRANCH` for CIM 16 and `NODE_BREAKER` for CIM 100
+
+It is however possible to ignore the computed export topology kind and force it to be `NODE_BREAKER` or `BUS_BRANCH` by setting the parameter [`iidm.export.cgmes.topology-kind`](#options).
+
+The various configurations and the differences in what's written are summarized in the following table:
+
+| CIM version | Export<br/>topology kind | Connectivity elements<br/>are written | CIM 16 Equipment Operation<br/>elements are written |
+|-------------|--------------------------|---------------------------------------|-----------------------------------------------------|
+| 16          | `NODE_BREAKER`           | Yes (*)                               | Yes                                                 |
+| 16          | `BUS_BRANCH`             | No                                    | No                                                  |
+| 100         | `NODE_BREAKER`           | Yes (*)                               | Yes                                                 |
+| 100         | `BUS_BRANCH`             | Yes (**)                              | Yes                                                 |
+
+### Connectivity elements
+* Non-retained `Switch` are always written in the case of a `NODE_BREAKER` export, and never written in the case of a `BUS_BRANCH` export
+* `ConnectivityNode` are:
+  * Never exported in the case of a CIM 16 `BUS_BRANCH` export
+  * (*) Always exported in the case of a `NODE_BREAKER` export. If the VoltageLevel's connectivity level is `node/breaker`,
+they are exported from nodes, and if the VoltageLevel's connectivity level is `bus/breaker`, they are exported from buses
+  * (**) Exported from buses of the BusBreakerView in case of a CIM 100 `BUS_BRANCH` export
+
+### CIM 16 Equipment Operation elements
+If the version is CIM 16, a `BUS_BRANCH` export is intrinsically linked to not writing the _operation_ stereotype elements.
+
+This means the following classes are not written:
+* `ConnectivityNode`
+* `StationSupply`
+* `GroundDisconnector`
+* `ActivePowerLimit`
+* `ApparentPowerLimit`
+* `LoadArea`
+* `SubLoadArea`
+* `SvStatus`
+
+As well as the following attributes:
+* `LoadGroup.SubLoadArea`
+* `ControlArea.EnergyArea`
+
+In CIM 100 these elements have been integrated in the core equipment profile and can be written even if the export is `BUS_BRANCH`.
+
 ## Conversion from PowSyBl grid model to CGMES
 
 The following sections describe in detail how each supported PowSyBl network model object is converted to CGMES network components.
@@ -350,13 +397,14 @@ Optional property that defines if power flows at boundary nodes are to be export
 **iidm.export.cgmes.export-power-flows-for-switches**  
 Optional property that defines if power flows of switches are exported in the SV file. `true` by default.
 
-**idm.export.cgmes.naming-strategy**  
+**iidm.export.cgmes.naming-strategy**  
 Optional property that defines which naming strategy is used to transform IIDM identifiers to CGMES identifiers.
 It can be:
 - `identity`: CGMES IDs are the same as IIDM IDs.
 - `cgmes`: new CGMES IDs (new master resource identifiers, cim:mRID) are created for IIDM `Identifiables` if the IIDM IDs are not compliant with CGMES requirements.
-- `cgmes-fix-all-invalid-ids`: ensures that all CGMES IDs in the export will comply with CGMES requirements, for IIDM `Identifiables`and also for its related objects (tap changers, operational limits, regulating controls, reactive capability outputVariables, ...).
-  Its default value is `identity`.
+- `cgmes-fix-all-invalid-ids`: ensures that all CGMES IDs in the export will comply with CGMES requirements, for IIDM `Identifiables`and also for its related objects (tap changers, operational limits, regulating controls, reactive capability outputVariables, ...).  
+
+Its default value is `identity`.
 
 **iidm.export.cgmes.uuid-namespace**  
 Optional property related to the naming strategy specified in `iidm.export.cgmes.naming-strategy`. When new CGMES IDs have to be generated, a mechanism that ensures creation of new, stable identifiers based on IIDM IDs is used (see [RFC 4122](https://datatracker.ietf.org/doc/html/rfc4122)). These new IDs are guaranteed to be unique inside a namespace given by this UUID. By default, it is the name-based UUID fo the text "powsybl.org" in the empty namespace.
@@ -364,6 +412,11 @@ Optional property related to the naming strategy specified in `iidm.export.cgmes
 **iidm.export.cgmes.profiles**  
 Optional property that determines which instance files will be exported.
 By default, it is a full CGMES export: the instance files for the profiles EQ, TP, SSH and SV are exported.
+
+**iidm.export.cgmes.topology-kind**  
+Optional property that defines the topology kind of the export. Allowed values are: `NODE_BREAKER` and `BUS_BRANCH`.
+By default, the export topology kind reflects the network's voltage levels connectivity level detail: node/breaker or bus/breaker.
+This property is used to bypass the natural export topology kind and force a desired one (e.g. export as bus/branch a node/breaker network).
 
 **iidm.export.cgmes.modeling-authority-set**  
 Optional property allowing to write a custom modeling authority set in the exported file headers. `powsybl.org` by default.
@@ -387,11 +440,11 @@ the sums of active power and reactive power at the bus are higher than a thresho
 `iidm.export.cgmes.max-p-mismatch-converged` and `iidm.export.cgmes.max-q-mismatch-converged`.
 This property is set to `true` by default.
 
-**iidm.export.cgmes.export-all-limits-group**
+**iidm.export.cgmes.export-all-limits-group**  
 Optional property that defines whether all OperationalLimitsGroup should be exported, or only the selected (active) ones.
 This property is set to `true` by default, which means all groups are exported (not only the active ones).
 
-**iidm.export.cgmes.export-generators-in-local-regulation-mode**
+**iidm.export.cgmes.export-generators-in-local-regulation-mode**  
 Optional property that allows to export voltage regulating generators in local regulation mode. This doesn't concern reactive power regulating generators.
 If set to true, the generator's regulating terminal is set to the generator's own terminal and the target voltage is rescaled accordingly.
 This property is set to `false` by default.
@@ -420,9 +473,9 @@ Its default value is 1.
 The business process in which the export takes place. This is used to generate unique UUIDs for the EQ, TP, SSH and SV file `FullModel`.
 Its default value is `1D`.
 
-**iidm.export.cgmes.cgm_export**
+**iidm.export.cgmes.cgm_export**  
 Optional property to specify the export use-case: IGM (Individual Grid Model) or CGM (Common Grid Model).
 To export instance files of a CGM, set the value to `True`. The default value is `False` to export network as an IGM.
 
-**iidm.export.cgmes.update-dependencies**
+**iidm.export.cgmes.update-dependencies**  
 Optional property to determine if dependencies in the exported instance files should be managed automatically. The default value is `True`.

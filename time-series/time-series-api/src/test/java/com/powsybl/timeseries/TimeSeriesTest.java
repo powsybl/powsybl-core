@@ -10,6 +10,9 @@ package com.powsybl.timeseries;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,12 +21,24 @@ import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
+import static com.powsybl.timeseries.TimeSeries.writeInstantToString;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -81,7 +96,27 @@ class TimeSeriesTest {
                 "1970-01-01T03:00:00.000+01:00";"2";"6.0";"d"
                 """.replaceAll("\n", System.lineSeparator());
 
-        Arrays.asList(csv, csvWithQuotes).forEach(data -> {
+        String csvMicroseconds = """
+            Time;Version;ts1;ts2
+            1970-01-01T01:00:00.000000+01:00;1;1.0;
+            1970-01-01T02:00:00.000000+01:00;1;;a
+            1970-01-01T03:00:00.000000+01:00;1;3.0;b
+            1970-01-01T01:00:00.000000+01:00;2;4.0;c
+            1970-01-01T02:00:00.000000+01:00;2;5.0;
+            1970-01-01T03:00:00.000000+01:00;2;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
+
+        String csvNanoseconds = """
+            Time;Version;ts1;ts2
+            1970-01-01T01:00:00.000000000+01:00;1;1.0;
+            1970-01-01T02:00:00.000000000+01:00;1;;a
+            1970-01-01T03:00:00.000000000+01:00;1;3.0;b
+            1970-01-01T01:00:00.000000000+01:00;2;4.0;c
+            1970-01-01T02:00:00.000000000+01:00;2;5.0;
+            1970-01-01T03:00:00.000000000+01:00;2;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
+
+        Arrays.asList(csv, csvWithQuotes, csvMicroseconds, csvNanoseconds).forEach(data -> {
             Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(data);
 
             assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
@@ -147,17 +182,36 @@ class TimeSeriesTest {
     void testFractionsOfSecondsRegularTimeSeriesIndexWithDuplicateTime() {
         String csv = """
                 Time;Version;ts1;ts2
-                0.000;1;1.0;
-                0.001;1;;a
-                0.0015;1;;b
-                0.002;1;3.0;b
-                0.000;2;4.0;c
-                0.0002;2;4.5;c
-                0.001;2;5.0;
-                0.002;2;6.0;d
+                0.000000000;1;1.0;
+                0.000000001;1;;a
+                0.0000000012;1;3.0;b
+                0.000000000;2;4.0;c
+                0.000000001;2;5.0;
+                0.0000000012;2;6.0;d
                 """.replaceAll("\n", System.lineSeparator());
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
+
+        assertOnParsedTimeSeries(timeSeriesPerVersion, IrregularTimeSeriesIndex.class);
+    }
+
+    @Test
+    void testFractionsOfSecondsRegularTimeSeriesIndexWithSkippedDuplicateTime() {
+        String csv = """
+                Time;Version;ts1;ts2
+                0.000000000;1;1.0;
+                0.000000001;1;;a
+                0.0000000015;1;;b
+                0.000000002;1;3.0;b
+                0.000000000;2;4.0;c
+                0.0000000002;2;4.5;c
+                0.000000001;2;5.0;
+                0.000000002;2;6.0;d
+                """.replaceAll("\n", System.lineSeparator());
+
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true,
+                TimeFormat.FRACTIONS_OF_SECOND, true, true);
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
         assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
@@ -200,6 +254,72 @@ class TimeSeriesTest {
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
         assertOnParsedTimeSeries(timeSeriesPerVersion, IrregularTimeSeriesIndex.class);
+    }
+
+    @Test
+    void testMilliRegularTimeSeriesIndex() {
+        String csv = """
+            Time;Version;ts1;ts2
+            1737377647003;1;1.0;
+            1737377647004;1;;a
+            1737377647005;1;3.0;b
+            1737377647003;2;4.0;c
+            1737377647004;2;5.0;
+            1737377647005;2;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
+
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.MILLIS, true);
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
+
+        assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
+        RegularTimeSeriesIndex timeSeriesIndex = RegularTimeSeriesIndex.create(Instant.ofEpochMilli(1737377647003L),
+            Instant.ofEpochMilli(1737377647005L),
+            Duration.ofMillis(1));
+        assertEquals(timeSeriesIndex, timeSeriesPerVersion.get(1).get(0).getMetadata().getIndex());
+    }
+
+    @Test
+    void testMicroRegularTimeSeriesIndex() {
+        String csv = """
+            Time;Version;ts1;ts2
+            1737377647000004;1;1.0;
+            1737377647000005;1;;a
+            1737377647000006;1;3.0;b
+            1737377647000004;2;4.0;c
+            1737377647000005;2;5.0;
+            1737377647000006;2;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
+
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.MICROS, true);
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
+
+        assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
+        RegularTimeSeriesIndex timeSeriesIndex = RegularTimeSeriesIndex.create(Instant.ofEpochSecond(1737377647, 4000),
+            Instant.ofEpochSecond(1737377647, 6000),
+            Duration.ofNanos(1000));
+        assertEquals(timeSeriesIndex, timeSeriesPerVersion.get(1).get(0).getMetadata().getIndex());
+    }
+
+    @Test
+    void testNanoRegularTimeSeriesIndex() {
+        String csv = """
+            Time;Version;ts1;ts2
+            1737377647000000001;1;1.0;
+            1737377647000000002;1;;a
+            1737377647000000003;1;3.0;b
+            1737377647000000001;2;4.0;c
+            1737377647000000002;2;5.0;
+            1737377647000000003;2;6.0;d
+            """.replaceAll("\n", System.lineSeparator());
+
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.NANOS, true);
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
+
+        assertOnParsedTimeSeries(timeSeriesPerVersion, RegularTimeSeriesIndex.class);
+        RegularTimeSeriesIndex timeSeriesIndex = RegularTimeSeriesIndex.create(Instant.ofEpochSecond(1737377647, 1),
+            Instant.ofEpochSecond(1737377647, 3),
+            Duration.ofNanos(1));
+        assertEquals(timeSeriesIndex, timeSeriesPerVersion.get(1).get(0).getMetadata().getIndex());
     }
 
     @Test
@@ -371,7 +491,7 @@ class TimeSeriesTest {
             fail();
         } catch (IllegalArgumentException ignored) {
         }
-        TimeSeriesIndex index = new RegularTimeSeriesIndex(10000, 10002, 1);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(10000), Instant.ofEpochMilli(10002), Duration.ofMillis(1));
         List<DoubleTimeSeries> timeSeriesList = Arrays.asList(TimeSeries.createDouble("ts1", index, 1d, 2d, 3d),
                                                               TimeSeries.createDouble("ts1", index, 4d, 5d, 6d));
         try {
@@ -394,5 +514,31 @@ class TimeSeriesTest {
         assertArrayEquals(new double[] {4d, 5d, Double.NaN}, split.get(0).get(1).toArray(), 0d);
         assertArrayEquals(new double[] {Double.NaN, Double.NaN, 3d}, split.get(1).get(0).toArray(), 0d);
         assertArrayEquals(new double[] {Double.NaN, Double.NaN, 6d}, split.get(1).get(1).toArray(), 0d);
+    }
+
+    private static Stream<Arguments> getArgumentsWriteInstantToString() {
+        return Stream.of(
+            Arguments.of(Instant.ofEpochSecond(123456, 7), "123456000000007", 9),
+            Arguments.of(Instant.ofEpochSecond(123456, 7000), "123456000007000", 9),
+            Arguments.of(Instant.ofEpochSecond(123456, 700000000), "123456700000000", 9),
+            Arguments.of(Instant.ofEpochSecond(0, 7), "7", 9),
+            Arguments.of(Instant.ofEpochSecond(0, 7000), "7000", 9),
+            Arguments.of(Instant.ofEpochSecond(0, 700000000), "700000000", 9),
+            Arguments.of(Instant.ofEpochSecond(123456, 7), "123456000000", 6),
+            Arguments.of(Instant.ofEpochSecond(123456, 700), "123456000001", 6), // Case with rounding
+            Arguments.of(Instant.ofEpochSecond(123456, 7000), "123456000007", 6),
+            Arguments.of(Instant.ofEpochSecond(123456, 700000000), "123456700000", 6),
+            Arguments.of(Instant.ofEpochSecond(0, 7), "0", 6),
+            Arguments.of(Instant.ofEpochSecond(0, 700), "1", 6), // Case with rounding
+            Arguments.of(Instant.ofEpochSecond(0, 7000), "7", 6),
+            Arguments.of(Instant.ofEpochSecond(0, 700000000), "700000", 6),
+            Arguments.of(Instant.ofEpochSecond(0, 999999999), "1000000", 6) // Rounding to the next second
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("getArgumentsWriteInstantToString")
+    void testWriteInstantToString(Instant instant, String expected, int precision) {
+        assertEquals(expected, writeInstantToString(instant, precision));
     }
 }
