@@ -117,22 +117,21 @@ problematic = Problematic element ${id} with active power ${activePower}
 ```
 
 ```java
-String bundleName = "com.powsybl.commons.reports";
-
 ReportNode root = ReportNode.newRootReportNode()
-        .withLocaleMessageTemplate("translationKey", bundleName)
+        .withAllResourceBundlesFromClasspath()
+        .withMessageTemplate("translationKey")
         .withTypedValue("filename", "file.txt", TypedValue.FILENAME)
         .build();
 long t0 = System.currentTimeMillis();
 
 ReportNode task1 = root.newReportNode()
-        .withLocaleMessageTemplate("task1", bundleName)
+        .withMessageTemplate("task1")
         .withUntypedValue("parameter", 4.2)
         .withSeverity(TypedValue.INFO_SEVERITY)
         .add();
 
 ReportNode task2 = root.newReportNode()
-        .withLocaleMessageTemplate("task2", bundleName)
+        .withMessageTemplate("task2")
         .withUntypedValue("count", 102)
         .withUntypedValue("problematicCount", 2)
         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -141,7 +140,7 @@ ReportNode task2 = root.newReportNode()
 // Supposing a list of problematic elements has been build, each containing an id and an active power values
 for (ProblematicElement element : problematicElements) {
     task2.newReportNode()
-            .withLocaleMessageTemplate("problematic", bundleName)
+            .withMessageTemplate("problematic")
             .withTypedValue("id", element.getId(), TypedValue.ID)
             .withTypedValue("activePower", element.getActivePower(), TypedValue.ACTIVE_POWER)
             .withSeverity(TypedValue.DETAIL_SEVERITY)
