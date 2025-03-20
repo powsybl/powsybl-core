@@ -61,8 +61,6 @@ public class CgmesOnDataSource {
         if (!namespaces.contains(RDF_NAMESPACE)) {
             return false;
         }
-        // FIXME(Luma) This is legacy behaviour, we do not consider CIM14 valid in this check
-        // But I think we do not need to support 14 separately?
         return namespaces.contains(CIM_16_NAMESPACE) || namespaces.contains(CIM_100_NAMESPACE);
     }
 
