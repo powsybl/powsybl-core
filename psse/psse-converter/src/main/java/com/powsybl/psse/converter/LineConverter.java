@@ -7,15 +7,12 @@
  */
 package com.powsybl.psse.converter;
 
+import com.powsybl.iidm.network.*;
+import com.powsybl.psse.model.pf.PsseRates;
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
 import com.powsybl.psse.model.PsseVersion;
@@ -25,8 +22,7 @@ import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_BRANCH;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
-import java.util.Objects;
-import java.util.OptionalInt;
+import java.util.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -126,6 +122,59 @@ class LineConverter extends AbstractConverter {
         }
     }
 
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+        network.getLines().forEach(line -> psseModel.addNonTransformerBranches(Collections.singletonList(createLine(line, contextExport, perUnitContext))));
+        psseModel.replaceAllNonTransformerBranches(psseModel.getNonTransformerBranches().stream().sorted(Comparator.comparingInt(PsseNonTransformerBranch::getI).thenComparingInt(PsseNonTransformerBranch::getJ).thenComparing(PsseNonTransformerBranch::getCkt)).toList());
+    }
+
+    private static PsseNonTransformerBranch createLine(Line line, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+        PsseNonTransformerBranch psseLine = createDefaultNonTransformerBranch();
+
+        int busI = getTerminalBusI(line.getTerminal1(), contextExport);
+        int busJ = getTerminalBusI(line.getTerminal2(), contextExport);
+        double vNom1 = line.getTerminal1().getVoltageLevel().getNominalV();
+        double vNom2 = line.getTerminal2().getVoltageLevel().getNominalV();
+        Complex transmissionAdmittance = new Complex(line.getR(), line.getX()).reciprocal();
+
+        psseLine.setI(busI);
+        psseLine.setJ(busJ);
+        psseLine.setCkt(contextExport.getFullExport().getEquipmentCkt(line.getId(), IdentifiableType.LINE, busI, busJ));
+        psseLine.setR(impedanceToPerUnitForLinesWithDifferentNominalVoltageAtEnds(line.getR(), vNom1, vNom2, perUnitContext.sBase()));
+        psseLine.setX(impedanceToPerUnitForLinesWithDifferentNominalVoltageAtEnds(line.getX(), vNom1, vNom2, perUnitContext.sBase()));
+        psseLine.setName(fixNonTransformerBranchName(line.getNameOrId()));
+        psseLine.setRates(createRates(line, vNom1, vNom2));
+        psseLine.setGi(admittanceEnd1ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getReal(), line.getG1(), vNom1, vNom2, perUnitContext.sBase()));
+        psseLine.setBi(admittanceEnd1ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getImaginary(), line.getB1(), vNom1, vNom2, perUnitContext.sBase()));
+        psseLine.setGj(admittanceEnd2ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getReal(), line.getG2(), vNom1, vNom2, perUnitContext.sBase()));
+        psseLine.setBj(admittanceEnd2ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getImaginary(), line.getB2(), vNom1, vNom2, perUnitContext.sBase()));
+        psseLine.setSt(getStatus(line.getTerminal1(), line.getTerminal2(), contextExport));
+        return psseLine;
+    }
+
+    private static PsseRates createRates(Line line, double vNominal1, double vNominal2) {
+        PsseRates windingRates = createDefaultRates();
+        line.getApparentPowerLimits1().ifPresent(apparentPowerLimits1 -> setSortedRatesToPsseRates(getSortedRates(apparentPowerLimits1), windingRates));
+        if (line.getApparentPowerLimits1().isEmpty()) {
+            line.getApparentPowerLimits2().ifPresent(apparentPowerLimits2 -> setSortedRatesToPsseRates(getSortedRates(apparentPowerLimits2), windingRates));
+        }
+        if (line.getApparentPowerLimits1().isEmpty() && line.getApparentPowerLimits2().isEmpty()) {
+            line.getCurrentLimits1().ifPresent(currentLimits1 -> setSortedRatesToPsseRates(getSortedRates(currentLimits1, vNominal1), windingRates));
+        }
+        if (line.getApparentPowerLimits1().isEmpty() && line.getApparentPowerLimits2().isEmpty() && line.getCurrentLimits1().isEmpty()) {
+            line.getCurrentLimits2().ifPresent(currentLimits2 -> setSortedRatesToPsseRates(getSortedRates(currentLimits2, vNominal2), windingRates));
+        }
+        if (line.getApparentPowerLimits1().isEmpty() && line.getApparentPowerLimits2().isEmpty() && line.getCurrentLimits1().isEmpty()
+                && line.getCurrentLimits2().isEmpty()) {
+            line.getActivePowerLimits1().ifPresent(activePowerLimits1 -> setSortedRatesToPsseRates(getSortedRates(activePowerLimits1), windingRates));
+        }
+        if (line.getApparentPowerLimits1().isEmpty() && line.getApparentPowerLimits2().isEmpty() && line.getCurrentLimits1().isEmpty()
+                && line.getCurrentLimits2().isEmpty() && line.getActivePowerLimits1().isEmpty()) {
+            line.getActivePowerLimits2().ifPresent(activePowerLimits2 -> setSortedRatesToPsseRates(getSortedRates(activePowerLimits2), windingRates));
+        }
+        return windingRates;
+    }
+
+    // antenna lines are exported as open
     static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getNonTransformerBranches().forEach(psseLine -> {
             String lineId = getLineId(psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
@@ -134,18 +183,9 @@ class LineConverter extends AbstractConverter {
             if (line == null) {
                 psseLine.setSt(0);
             } else {
-                psseLine.setSt(getStatus(line));
+                psseLine.setSt(getUpdatedStatus(line.getTerminal1(), line.getTerminal2()));
             }
         });
-    }
-
-    private static int getStatus(Line line) {
-        if (line.getTerminal1().isConnected() && line.getTerminal1().getBusBreakerView().getBus() != null
-                && line.getTerminal2().isConnected() && line.getTerminal2().getBusBreakerView().getBus() != null) {
-            return 1;
-        } else {
-            return 0;
-        }
     }
 
     private final PsseNonTransformerBranch psseLine;
