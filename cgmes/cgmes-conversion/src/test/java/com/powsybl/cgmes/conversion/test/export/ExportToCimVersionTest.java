@@ -8,8 +8,6 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
@@ -71,31 +69,4 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
         assertTrue(eqContent.contains("<cim:IdentifiedObject.mRID>"));
     }
 
-    private void testExportToCim(Network network, String name, int cimVersion) {
-        String cimZipFilename = name + "_CIM" + cimVersion;
-        Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, Integer.toString(cimVersion));
-        ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), cimZipFilename);
-        new CgmesExport().export(network, params, zip);
-
-        // Reimport and verify contents of Network
-        Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
-        Network networkCimVersion = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve(cimZipFilename + ".zip")), importParams);
-        CimCharacteristics cim = networkCimVersion.getExtension(CimCharacteristics.class);
-
-        assertEquals(cimVersion, cim.getCimVersion());
-        // Initial verification: check that we have the same number of elements in both networks
-        // TODO(Luma) compare the networks
-        // If the original was bus-branch (like IEEE14) and the exported is node-breaker at least compare attributes
-        // or select another network for verification (SmallGrid ?)
-        assertEquals(network.getSubstationCount(), networkCimVersion.getSubstationCount());
-        assertEquals(network.getVoltageLevelCount(), networkCimVersion.getVoltageLevelCount());
-        assertEquals(network.getLineCount(), networkCimVersion.getLineCount());
-        assertEquals(network.getTwoWindingsTransformerCount(), networkCimVersion.getTwoWindingsTransformerCount());
-        assertEquals(network.getThreeWindingsTransformerCount(), networkCimVersion.getThreeWindingsTransformerCount());
-        assertEquals(network.getGeneratorCount(), networkCimVersion.getGeneratorCount());
-        assertEquals(network.getLoadCount(), networkCimVersion.getLoadCount());
-        assertEquals(network.getShuntCompensatorCount(), networkCimVersion.getShuntCompensatorCount());
-    }
 }
