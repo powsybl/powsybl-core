@@ -23,15 +23,7 @@ public enum WindingType {
      * @return The WindingType (PRIMARY/SECONDARY/TERTIARY) corresponding to the given transformer winding/end.
      */
     public static WindingType windingType(PropertyBag end) {
-        if (end.containsKey("windingType")) {
-            // For CIM14 (CIM ENTSOE Profile1) primary is determined by TransformerWinding.windingType
-            return switch (end.getLocal("windingType")) {
-                case "WindingType.primary" -> WindingType.PRIMARY;
-                case "WindingType.secondary" -> WindingType.SECONDARY;
-                case "WindingType.tertiary" -> WindingType.TERTIARY;
-                default -> WindingType.UNKNOWN;
-            };
-        } else if (end.containsKey("endNumber")) {
+        if (end.containsKey("endNumber")) {
             // For CIM16 (CGMES 2.4.15) primary is defined by TransformerEnd.endNumber
             try {
                 return WindingType.values()[end.asInt("endNumber")];

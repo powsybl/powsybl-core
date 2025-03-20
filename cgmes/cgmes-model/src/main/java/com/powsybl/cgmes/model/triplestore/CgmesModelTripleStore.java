@@ -123,7 +123,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         }
         // If we do not have a query for model profiles we assume equipment core is
         // available
-        // (This covers the case for CIM14 files)
         return true;
     }
 
@@ -153,7 +152,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             }
         }
         // If we do not have a query for model profiles we assume no boundary exist
-        // (Maybe for CIM14 data sources we should rely on file names ?)
         return hasEquipmentBoundary && hasTopologyBoundary;
     }
 
@@ -685,7 +683,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         // TODO Remove all contexts that are related to the profile of the subset
         // For example for state variables:
         // <md:Model.profile>http://entsoe.eu/CIM/StateVariables/4/1</md:Model.profile>
-        // For CIM14 data files we do not have the profile,
         Set<String> contextNames = tripleStore.contextNames();
         for (String contextName : contextNames) {
             if (subset.isValidName(contextName)) {

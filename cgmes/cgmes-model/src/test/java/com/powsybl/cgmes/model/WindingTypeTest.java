@@ -28,29 +28,6 @@ class WindingTypeTest {
     static final String END_NUMBER = "endNumber";
 
     @Test
-    void cim14WindingTypeTest() {
-        end1 = new PropertyBag(Collections.singletonList(WINDING_TYPE), true);
-        end1.put(WINDING_TYPE, "http://iec.ch/TC57/2009/CIM-schema-cim14#WindingType.primary");
-        assertEquals(WindingType.PRIMARY, WindingType.windingType(end1));
-        assertEquals(1, WindingType.endNumber(end1));
-
-        end2 = new PropertyBag(Collections.singletonList(WINDING_TYPE), true);
-        end2.put(WINDING_TYPE, "http://iec.ch/TC57/2009/CIM-schema-cim14#WindingType.secondary");
-        assertEquals(WindingType.SECONDARY, WindingType.windingType(end2));
-        assertEquals(2, WindingType.endNumber(end2));
-
-        end3 = new PropertyBag(Collections.singletonList(WINDING_TYPE), true);
-        end3.put(WINDING_TYPE, "http://iec.ch/TC57/2009/CIM-schema-cim14#WindingType.tertiary");
-        assertEquals(WindingType.TERTIARY, WindingType.windingType(end3));
-        assertEquals(3, WindingType.endNumber(end3));
-
-        end4 = new PropertyBag(Collections.singletonList(WINDING_TYPE), true);
-        end4.put(WINDING_TYPE, "Unknown");
-        assertEquals(WindingType.UNKNOWN, WindingType.windingType(end4));
-        assertEquals(0, WindingType.endNumber(end4));
-    }
-
-    @Test
     void cim16WindingTypeTest() {
         end1 = new PropertyBag(Collections.singletonList(END_NUMBER), true);
         end1.put(END_NUMBER, "1");
