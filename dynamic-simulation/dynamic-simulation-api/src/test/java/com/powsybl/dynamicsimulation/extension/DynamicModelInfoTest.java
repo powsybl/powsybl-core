@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
-public class DynamicModelInfoTest {
+class DynamicModelInfoTest {
 
     private Network network;
     private Generator gen;
@@ -47,7 +47,7 @@ public class DynamicModelInfoTest {
     }
 
     @Test
-    public void variantsCloneTest() {
+    void variantsCloneTest() {
         String variant1 = "variant1";
         String variant2 = "variant2";
         String variant3 = "variant3";
