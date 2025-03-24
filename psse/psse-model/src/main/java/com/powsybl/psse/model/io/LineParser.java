@@ -29,7 +29,7 @@ public class LineParser {
         if (it.current() == ',')
             tokens.add(""); // Leading comma = first token is empty
 
-        while (!isIterationEnd(it)) {
+        while (isNotIterationEnd(it)) {
             if (isSeparator(it.current()))
                 parseSeparator(it, tokens);
             else if (isString(it.current()))
@@ -45,8 +45,8 @@ public class LineParser {
         return c == ',' || c == ' ' || c == '\t';
     }
 
-    private boolean isIterationEnd(CharacterIterator it) {
-        return it.current() == CharacterIterator.DONE;
+    private boolean isNotIterationEnd(CharacterIterator it) {
+        return it.current() != CharacterIterator.DONE;
     }
 
     private boolean isString(char c) {
@@ -55,7 +55,7 @@ public class LineParser {
 
     private void parseSeparator(CharacterIterator it, List<String> tokens) {
         boolean wasComma = false;
-        while (!isIterationEnd(it) && isSeparator(it.current())) {
+        while (isNotIterationEnd(it) && isSeparator(it.current())) {
             if (it.current() == ',') {
                 if (wasComma) {
                     tokens.add("");
@@ -69,7 +69,7 @@ public class LineParser {
     private void parseString(CharacterIterator it, List<String> tokens) {
         StringBuilder sb = new StringBuilder();
         it.next(); //skip '
-        while (!isIterationEnd(it) && !isString(it.current())) {
+        while (isNotIterationEnd(it) && !isString(it.current())) {
             sb.append(it.current());
             it.next();
         }
@@ -79,7 +79,7 @@ public class LineParser {
 
     private void parseToken(CharacterIterator it, List<String> tokens) {
         StringBuilder sb = new StringBuilder();
-        while (!isIterationEnd(it) && !isSeparator(it.current())) {
+        while (isNotIterationEnd(it) && !isSeparator(it.current())) {
             sb.append(it.current());
             it.next();
         }
