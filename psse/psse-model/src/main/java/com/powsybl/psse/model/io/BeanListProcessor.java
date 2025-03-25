@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2025, University of West Bohemia (https://www.zcu.cz)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.psse.model.io;
 
 import com.powsybl.psse.model.PsseException;
@@ -5,75 +12,89 @@ import com.univocity.parsers.annotations.Nested;
 import com.univocity.parsers.annotations.Parsed;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+/**
+ * @author Petr Janecek {@literal <pjanecek at ntis.zcu.cz>}
+ */
 public class BeanListProcessor<T> {
+    private static final String NULL_VALUE = "null";
+
     private final Class<T> clazz;
     private final String[] headers;
-    private List<T> beans;
+    private List<T> beans = new ArrayList<>();
     private Field[] fields;
-    private Map<String, Field> nestedMappings = new HashMap<>();
     private Map<Field, Map<String, Field>> nestedFieldMap = new HashMap<>();
-    private List<Field> setToDefault = new ArrayList<>();
+    private List<Field> defaultedFields = new ArrayList<>();
 
     public BeanListProcessor(Class<T> clazz, String[] headers) {
+        if (clazz == null || headers == null || headers.length == 0) {
+            throw new IllegalArgumentException("Class type and headers must be provided");
+        }
         this.clazz = clazz;
         this.headers = headers;
-        beans = new ArrayList<>();
-
         initFields(headers);
     }
 
     private void initFields(String[] headers) {
         fields = new Field[headers.length];
-        for (Field field : clazz.getDeclaredFields()) {
-            Parsed parsedAnnotation = field.getAnnotation(Parsed.class);
-            Nested nestedAnnotation = field.getAnnotation(Nested.class);
-            if (parsedAnnotation != null) {
-                String[] fieldNames = parsedAnnotation.field().length > 0 ? parsedAnnotation.field() : new String[]{field.getName()};
+        Arrays.stream(clazz.getDeclaredFields()).forEach(field -> processFieldAnnotations(headers, field));
+    }
 
-                int colIndex = findHeaderIndex(headers, fieldNames);
+    private void processFieldAnnotations(String[] headers, Field field) {
+        Parsed parsedAnnotation = field.getAnnotation(Parsed.class);
+        Nested nestedAnnotation = field.getAnnotation(Nested.class);
 
-                if (colIndex != -1) {
-                    field.setAccessible(true);
-                    fields[colIndex] = field;
-                } else {
-                    if (!parsedAnnotation.defaultNullRead().equals("null")) {
-                        field.setAccessible(true);
-                        setToDefault.add(field);
-                    }
-                }
-            } else if (nestedAnnotation != null) {
-                processNestedMapping(field, nestedAnnotation);
-            }
+        if (parsedAnnotation != null) {
+            initializeParsedField(headers, field, parsedAnnotation);
+        } else if (nestedAnnotation != null) {
+            initializeNestedMapping(field, nestedAnnotation);
         }
     }
 
-    private void processNestedMapping(Field nestedField, Nested nestedAnnotation) {
-        Map<String, Field> mappings = new HashMap<>();
-        var suffix = nestedAnnotation.args().length > 0 ? nestedAnnotation.args()[0] : "";
+    private void initializeParsedField(String[] headers, Field field, Parsed parsedAnnotation) {
+        String[] fieldNames = parsedAnnotation.field().length > 0 ? parsedAnnotation.field() : new String[]{field.getName()};
+        int columnIndex = findHeaderIndex(headers, fieldNames);
+
+        if (columnIndex != -1) {
+            makeAccessible(field);
+            fields[columnIndex] = field;
+        } else if (!NULL_VALUE.equals(parsedAnnotation.defaultNullRead())) {
+            makeAccessible(field);
+            defaultedFields.add(field);
+        }
+    }
+
+    private void initializeNestedMapping(Field nestedField, Nested nestedAnnotation) {
+        Map<String, Field> headerMappings = new HashMap<>();
+        String suffix = nestedAnnotation.args().length > 0 ? nestedAnnotation.args()[0] : "";
+
         for (Field subField : nestedField.getType().getDeclaredFields()) {
-            Parsed annotation = subField.getAnnotation(Parsed.class);
-            if (annotation != null) {
-                String[] mappedHeaders = annotation.field().length > 0 ? annotation.field() : new String[]{subField.getName()};
+            Parsed parsed = subField.getAnnotation(Parsed.class);
+            if (parsed != null) {
+                String[] mappedHeaders = parsed.field().length > 0 ? parsed.field() : new String[]{subField.getName()};
                 for (String header : mappedHeaders) {
-                    var finalHeader = header.startsWith("wdg") ? "wdg" + suffix + header.substring(3) : header + suffix;
-                    mappings.put(finalHeader, subField);
+                    String finalHeader = header.startsWith("wdg") ? "wdg" + suffix + header.substring(3) : header + suffix;
+                    headerMappings.put(finalHeader, subField);
                 }
             }
         }
-        nestedFieldMap.put(nestedField, mappings);
+        nestedFieldMap.put(nestedField, headerMappings);
     }
 
     private static int findHeaderIndex(String[] headers, String[] fieldNames) {
-        int colIndex = -1;
-        for (String fieldName : fieldNames) {
-            colIndex = Arrays.asList(headers).indexOf(fieldName);
-            if (colIndex != -1) {
-                break;
-            }
+        return Arrays.stream(fieldNames)
+                .mapToInt(fieldName -> Arrays.asList(headers).indexOf(fieldName))
+                .filter(index -> index != -1)
+                .findFirst()
+                .orElse(-1);
+    }
+
+    private void makeAccessible(Field field) {
+        if (!field.isAccessible()) {
+            field.setAccessible(true);
         }
-        return colIndex;
     }
 
     public List<T> getBeans() {
@@ -81,83 +102,104 @@ public class BeanListProcessor<T> {
     }
 
     public void processLine(String[] row) {
+        if (row == null || row.length == 0) {
+            return;
+        }
+
         try {
-            if (row.length == 0) {
-                return;
-            }
-
-            var count = Math.min(row.length, headers.length);
-            T instance = clazz.getDeclaredConstructor().newInstance();
-
-            for (int i = 0; i < count; i++) {
-                if (fields[i] != null) {
-                    setFieldValue(instance, fields[i], row[i]);
-                } else {
-                    String header = headers[i];
-                    for (Map.Entry<Field, Map<String, Field>> entry : nestedFieldMap.entrySet()) {
-                        Field nestedField = entry.getKey();
-                        Map<String, Field> mappings = entry.getValue();
-
-                        if (mappings.containsKey(header)) {
-                            processNestedField(instance, row[i], nestedField, mappings.get(header));
-                            break;
-                        }
-                    }
-                }
-                for (Field field : setToDefault) {
-                    setFieldValue(instance, field, null);
-                }
-            }
-
-            for (int i = count; i < fields.length; i++) {
-                var field = fields[i];
-                if (field != null) {
-                    setFieldValue(instance, field, null);
-                }
-            }
-
+            int maxCount = Math.min(row.length, headers.length);
+            T instance = createNewInstance();
+            applyDefaultedFields(instance);
+            processDataFields(row, maxCount, instance);
+            handleRemainingFields(maxCount, instance);
             beans.add(instance);
         } catch (Exception e) {
-            throw new PsseException("Parsing error:" + e.getMessage());
+            throw new PsseException("Parsing error: " + e.getMessage(), e);
         }
     }
 
-    private void processNestedField(Object instance, String value, Field nestedField, Field subField) throws Exception {
-        Object nestedInstance = getOrCreateNestedInstance(instance, nestedField);
-
-        subField.setAccessible(true);
-        setFieldValue(nestedInstance, subField, value);
+    private T createNewInstance() throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        return clazz.getDeclaredConstructor().newInstance();
     }
 
-    private Object getOrCreateNestedInstance(Object instance, Field nestedField) throws Exception {
-        nestedField.setAccessible(true);
-        Object nestedInstance = nestedField.get(instance);
+    private void applyDefaultedFields(T instance) throws IllegalAccessException {
+        for (Field field : defaultedFields) {
+            setFieldValue(instance, field, null);
+        }
+    }
+
+    private void processDataFields(String[] row, int maxCount, T instance) throws Exception {
+        for (int i = 0; i < maxCount; i++) {
+            if (fields[i] != null) {
+                setFieldValue(instance, fields[i], row[i]);
+            } else {
+                handleNestedFieldMapping(instance, row[i], headers[i]);
+            }
+        }
+    }
+
+    private void handleNestedFieldMapping(Object instance, String value, String header) throws Exception {
+        for (Map.Entry<Field, Map<String, Field>> entry : nestedFieldMap.entrySet()) {
+            Field parentField = entry.getKey();
+            Map<String, Field> subFieldMapping = entry.getValue();
+
+            if (subFieldMapping.containsKey(header)) {
+                handleNestedField(instance, value, parentField, subFieldMapping.get(header));
+                return;
+            }
+        }
+    }
+
+    private void handleRemainingFields(int start, T instance) throws IllegalAccessException {
+        for (int i = start; i < fields.length; i++) {
+            if (fields[i] != null) {
+                setFieldValue(instance, fields[i], null);
+            }
+        }
+    }
+
+    private void handleNestedField(Object parentInstance, String value, Field parentField, Field childField) throws Exception {
+        Object nestedInstance = getOrCreateNestedInstance(parentInstance, parentField);
+        makeAccessible(childField);
+        setFieldValue(nestedInstance, childField, value);
+    }
+
+    private Object getOrCreateNestedInstance(Object parentInstance, Field parentField) throws Exception {
+        makeAccessible(parentField);
+        Object nestedInstance = parentField.get(parentInstance);
+
         if (nestedInstance == null) {
-            nestedInstance = nestedField.getType().getDeclaredConstructor().newInstance();
-            nestedField.setAccessible(true);
-            nestedField.set(instance, nestedInstance);
+            nestedInstance = parentField.getType().getDeclaredConstructor().newInstance();
+            makeAccessible(parentField);
+            parentField.set(parentInstance, nestedInstance);
         }
         return nestedInstance;
     }
 
-    private static void setFieldValue(Object instance, Field field, String val) throws IllegalAccessException {
-        var value = val;
-        if (value == null || value.isEmpty() || value.equals("null")) {
-            value = field.getAnnotation(Parsed.class).defaultNullRead();
-            if (value.equals("null")) {
-                return;
-            }
+    private static void setFieldValue(Object instance, Field field, String value) throws IllegalAccessException {
+        String finalValue = (value == null || value.isEmpty() || NULL_VALUE.equals(value))
+                ? getDefaultValue(field)
+                : value;
+
+        if (finalValue != null) {
+            field.set(instance, parseValue(field.getType(), finalValue));
         }
-        Class<?> type = field.getType();
+    }
+
+    private static String getDefaultValue(Field field) {
+        Parsed annotation = field.getAnnotation(Parsed.class);
+        return annotation != null && !NULL_VALUE.equals(annotation.defaultNullRead()) ? annotation.defaultNullRead() : null;
+    }
+
+    private static Object parseValue(Class<?> type, String value) {
         if (type == int.class || type == Integer.class) {
-            int i = value.contains(".") ? Double.valueOf(value).intValue() : Integer.parseInt(value);
-            field.set(instance, i);
+            return Double.valueOf(value).intValue();
         } else if (type == double.class || type == Double.class) {
-            field.set(instance, Double.parseDouble(value));
+            return Double.parseDouble(value);
         } else if (type == float.class || type == Float.class) {
-            field.set(instance, Float.parseFloat(value));
+            return Float.parseFloat(value);
         } else if (type == String.class) {
-            field.set(instance, value);
+            return value;
         } else {
             throw new IllegalArgumentException("Unsupported field type: " + type);
         }
