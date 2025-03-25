@@ -175,7 +175,7 @@ The various configurations and the differences in what's written are summarized 
 
 Having non-retained open switches in a node/breaker network that is exported as bus/branch may result in multiple connectivity components in the exported network.
 To avoid this, it would be best to close all non-retained switches in the case before exporting it.
-Then, the maximum amount of connectivity will be preserved in the export, and the bus/branch exported files can more easily be used for later calcuations.
+Then, the maximum amount of connectivity will be preserved in the export, and the bus/branch exported files can more easily be used for later calculations.
 
 ### Connectivity elements
 * Non-retained `Switch` are always written in the case of a `NODE_BREAKER` export, and never written in the case of a `BUS_BRANCH` export
