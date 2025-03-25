@@ -557,7 +557,7 @@ class CgmesConformity1ModifiedConversionTest {
         Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbInvalidSvcMode().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator offSvc = modified.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(offSvc);
-        assertEquals(OFF, offSvc.getRegulationMode());
+        assertFalse(offSvc.isRegulating());
     }
 
     @Test
@@ -587,7 +587,7 @@ class CgmesConformity1ModifiedConversionTest {
         Network modified1 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvc().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator off1 = modified1.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(off1);
-        assertEquals(OFF, off1.getRegulationMode());
+        assertFalse(off1.isRegulating());
 
         Network modified2 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControl().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator off2 = modified2.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
@@ -598,7 +598,7 @@ class CgmesConformity1ModifiedConversionTest {
         Network modified3 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControlV().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator off3 = modified3.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(off3);
-        assertEquals(OFF, off3.getRegulationMode());
+        assertFalse(off3.isRegulating());
         assertEquals(231.123, off3.getVoltageSetpoint(), 0.0);
     }
 
