@@ -17,7 +17,6 @@ public class BeanListProcessorTest {
         var columns = parser.parseLine(line);
         assertEquals(9, columns.length);
 
-
         String[] headers = {"i", STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA};
         var processor = new BeanListProcessor<PsseBus>(PsseBus.class, headers);
         processor.processLine(columns);

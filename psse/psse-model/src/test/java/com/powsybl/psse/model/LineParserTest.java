@@ -41,7 +41,6 @@ public class LineParserTest {
         );
     }
 
-
     private void assertParsedLine(String line, String... expectedTokens) {
         final LineParser parser = new LineParser();
 

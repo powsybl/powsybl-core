@@ -17,14 +17,16 @@ import java.util.List;
  */
 public class LineParser {
     public String[] parseLine(String line) {
-        if (line == null || line.trim().isEmpty())
+        if (line == null || line.trim().isEmpty()) {
             return new String[0];
+        }
 
         CharacterIterator it = new StringCharacterIterator(line.trim());
         List<String> tokens = new ArrayList<>();
 
-        if (it.current() == COMMA)
+        if (it.current() == COMMA) {
             tokens.add(""); // Leading comma = first token is empty
+        }
 
         while (hasMoreCharacters(it)) {
             switch (getTokenType(it.current())) {
@@ -43,9 +45,15 @@ public class LineParser {
     }
 
     private TokenType getTokenType(char c) {
-        if (isSeparator(c)) return TokenType.SEPARATOR;
-        if (isString(c)) return TokenType.STRING;
-        if (isComment(c)) return TokenType.COMMENT;
+        if (isSeparator(c)) {
+            return TokenType.SEPARATOR;
+        }
+        if (isString(c)) {
+            return TokenType.STRING;
+        }
+        if (isComment(c)) {
+            return TokenType.COMMENT;
+        }
         return TokenType.TOKEN;
     }
 
@@ -53,11 +61,9 @@ public class LineParser {
         return c == COMMA || c == SPACE || c == TAB;
     }
 
-
     private boolean isString(char c) {
         return c == SINGLE_QUOTE || c == DOUBLE_QUOTE;
     }
-
 
     private boolean isComment(char c) {
         return c == COMMENT_SLASH;

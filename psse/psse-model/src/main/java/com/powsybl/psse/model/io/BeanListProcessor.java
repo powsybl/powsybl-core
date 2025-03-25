@@ -69,7 +69,9 @@ public class BeanListProcessor<T> {
         int colIndex = -1;
         for (String fieldName : fieldNames) {
             colIndex = Arrays.asList(headers).indexOf(fieldName);
-            if (colIndex != -1) break;
+            if (colIndex != -1) {
+                break;
+            }
         }
         return colIndex;
     }
@@ -80,7 +82,9 @@ public class BeanListProcessor<T> {
 
     public void processLine(String[] row) {
         try {
-            if (row.length == 0) return;
+            if (row.length == 0) {
+                return;
+            }
 
             var count = Math.min(row.length, headers.length);
             T instance = clazz.getDeclaredConstructor().newInstance();
@@ -136,12 +140,13 @@ public class BeanListProcessor<T> {
         return nestedInstance;
     }
 
-    private static void setFieldValue(Object instance, Field field, String _value) throws IllegalAccessException {
-        var value = _value;
+    private static void setFieldValue(Object instance, Field field, String val) throws IllegalAccessException {
+        var value = val;
         if (value == null || value.isEmpty() || value.equals("null")) {
             value = field.getAnnotation(Parsed.class).defaultNullRead();
-            if (value.equals("null"))
+            if (value.equals("null")) {
                 return;
+            }
         }
         Class<?> type = field.getType();
         if (type == int.class || type == Integer.class) {
