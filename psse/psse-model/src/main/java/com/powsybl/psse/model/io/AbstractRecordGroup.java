@@ -11,19 +11,15 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.common.processor.BeanWriterProcessor;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 import static com.powsybl.psse.model.io.FileFormat.JSON;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
@@ -162,14 +158,15 @@ public abstract class AbstractRecordGroup<T> {
 
     List<T> parseRecords(List<String> records, String[] headers, Context context) {
         int expectedCount = records.size();
-        BeanListProcessor<T> processor = new BeanListProcessor<>(psseTypeClass(), expectedCount);
-        CsvParserSettings settings = context.getCsvParserSettings();
-        settings.setHeaders(headers);
-        settings.setProcessor(processor);
-        CsvParser parser = new CsvParser(settings);
+        var processor = new BeanListProcessor<T>(resolveGenericClass(), headers);
+
+        var parser = new LineParser();
+
         context.resetCurrentRecordGroup();
+
         for (String record : records) {
             String[] fields = parser.parseLine(record);
+            processor.processLine(fields);
             context.setCurrentRecordNumFields(fields.length);
         }
         List<T> beans = processor.getBeans();
@@ -177,6 +174,14 @@ public abstract class AbstractRecordGroup<T> {
             throw new PsseException("Parsing error");
         }
         return beans;
+    }
+
+    private Class<T> resolveGenericClass() {
+        java.lang.reflect.Type superclass = getClass().getGenericSuperclass();
+        if (superclass instanceof java.lang.reflect.ParameterizedType) {
+            return (Class<T>) ((java.lang.reflect.ParameterizedType) superclass).getActualTypeArguments()[0];
+        }
+        throw new IllegalStateException("Generic type T not specified.");
     }
 
     public String buildRecord(T object, String[] headers, String[] quoteFields, Context context) {

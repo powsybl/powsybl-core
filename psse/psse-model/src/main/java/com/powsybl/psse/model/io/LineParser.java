@@ -50,7 +50,7 @@ public class LineParser {
     }
 
     private boolean isString(char c) {
-        return c == '\'';
+        return c == '\'' || c == '"';
     }
 
     private void parseSeparator(CharacterIterator it, List<String> tokens) {

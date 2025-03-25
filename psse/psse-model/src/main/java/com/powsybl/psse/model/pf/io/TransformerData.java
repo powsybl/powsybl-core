@@ -21,10 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import static com.powsybl.psse.model.PsseVersion.Major.*;
 import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
-import static com.powsybl.psse.model.PsseVersion.Major.V32;
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
-import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
@@ -213,9 +211,9 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
     public static class TransformerWindingRecord {
         @Nested()
-        private PsseTransformerWinding winding;
+        private PsseTransformerWinding winding = new PsseTransformerWinding();
 
         @Nested()
-        private PsseRates windingRates;
+        private PsseRates windingRates = new PsseRates();
     }
 }

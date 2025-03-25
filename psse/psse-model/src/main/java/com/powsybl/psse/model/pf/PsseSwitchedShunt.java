@@ -43,7 +43,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     @Parsed
     private double rmpct = 100.0;
 
-    @Parsed(defaultNullRead = " ")
+    @Parsed(defaultNullRead = "        ")
     private String rmidnt;
 
     @Parsed

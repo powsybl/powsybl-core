@@ -7,15 +7,14 @@
  */
 package com.powsybl.psse.model.pf;
 
-import java.lang.reflect.Field;
-
 import com.powsybl.psse.model.PsseVersioned;
 import com.univocity.parsers.annotations.HeaderTransformer;
 import com.univocity.parsers.annotations.Nested;
 import com.univocity.parsers.annotations.Parsed;
 
+import java.lang.reflect.Field;
+
 /**
- *
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
@@ -42,10 +41,10 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
     private PsseOwnership ownership;
 
     @Nested(headerTransformer = ConverterHeaderTransformer.class, args = "1")
-    private PsseVoltageSourceConverter converter1;
+    private PsseVoltageSourceConverter converter1 = new PsseVoltageSourceConverter();
 
     @Nested(headerTransformer = ConverterHeaderTransformer.class, args = "2")
-    private PsseVoltageSourceConverter converter2;
+    private PsseVoltageSourceConverter converter2 = new PsseVoltageSourceConverter();
 
     public String getName() {
         return name;

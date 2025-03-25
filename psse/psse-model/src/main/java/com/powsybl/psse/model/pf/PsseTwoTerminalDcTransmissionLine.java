@@ -65,10 +65,10 @@ public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
     private double cccacc = 1.0;
 
     @Nested(headerTransformer = ConverterHeaderTransformer.class, args = "r")
-    private PsseTwoTerminalDcConverter rectifier;
+    private PsseTwoTerminalDcConverter rectifier = new PsseTwoTerminalDcConverter();
 
     @Nested(headerTransformer = ConverterHeaderTransformer.class, args = "i")
-    private PsseTwoTerminalDcConverter inverter;
+    private PsseTwoTerminalDcConverter inverter = new PsseTwoTerminalDcConverter();
 
     public String getName() {
         return name;
