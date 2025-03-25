@@ -55,7 +55,7 @@ class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTermi
         public List<PsseTwoTerminalDcTransmissionLine> read(LegacyTextReader reader, Context context) throws IOException {
             List<String> mainRecords = new ArrayList<>();
             List<String> converterRecords = new ArrayList<>();
-            if (!reader.isQRecordFound()) {
+            if (!reader.isEndOfFileFound()) {
                 String line = reader.readUntilFindingARecordLineNotEmpty();
                 while (!reader.endOfBlock(line)) {
                     mainRecords.add(line);

@@ -7,7 +7,6 @@
  */
 package com.powsybl.psse.model.io;
 
-import com.powsybl.psse.model.PsseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +26,7 @@ import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 public class LegacyTextReader {
     private static final Logger LOG = LoggerFactory.getLogger(LegacyTextReader.class);
     private final BufferedReader reader;
-    private boolean qRecordFound;
+    private boolean endOfFileFound;
 
     public LegacyTextReader(BufferedReader reader) {
         this.reader = reader;
@@ -37,8 +36,8 @@ public class LegacyTextReader {
         return reader;
     }
 
-    public boolean isQRecordFound() {
-        return qRecordFound;
+    public boolean isEndOfFileFound() {
+        return endOfFileFound;
     }
 
     // skip lines until a 0 is found.
@@ -61,7 +60,7 @@ public class LegacyTextReader {
 
     public List<String> readRecords() throws IOException {
         List<String> records = new ArrayList<>();
-        if (!isQRecordFound()) {
+        if (!isEndOfFileFound()) {
             String line = readRecordLine();
             while (!endOfBlock(line)) {
                 if (!emptyLine(line)) {
@@ -74,11 +73,22 @@ public class LegacyTextReader {
     }
 
     public boolean endOfBlock(String line) {
-        if (line.trim().equals("Q")) {
-            qRecordFound = true;
+        if (line == null) {
+            endOfFileFound = true;
             return true;
         }
-        return line.trim().equals("0");
+
+        var trimmedLine = line.trim();
+        if (trimmedLine.isEmpty()) {
+            return false;
+        }
+
+        if (trimmedLine.charAt(0) == 'Q') {
+            endOfFileFound = true;
+            return true;
+        }
+
+        return trimmedLine.charAt(0) == '0';
     }
 
     private boolean emptyLine(String line) {
@@ -103,13 +113,13 @@ public class LegacyTextReader {
     public String readRecordLine() throws IOException {
         String line = reader.readLine();
         if (line == null) {
-            throw new PsseException("PSSE. Unexpected end of file");
+            return line;
         }
         if (isRecordLineDefiningTheAttributeFields(line)) {
             return ""; // an empty line must be returned
         }
         StringBuilder newLine = new StringBuilder();
-        Matcher m = FileFormat.LEGACY_TEXT_QUOTED_OR_WHITESPACE.matcher(removeComment(line));
+        Matcher m = FileFormat.LEGACY_TEXT_QUOTED_OR_WHITESPACE.matcher(line);
         while (m.find()) {
             // If current group is quoted, keep it as it is
             if (m.group().indexOf(LEGACY_TEXT.getQuote()) >= 0) {
@@ -126,11 +136,6 @@ public class LegacyTextReader {
     // all the lines beginning with "@!" are record lines defining the attribute fields
     private static boolean isRecordLineDefiningTheAttributeFields(String line) {
         return line.length() >= 2 && line.substring(0, 2).equals("@!");
-    }
-
-    private static String removeComment(String line) {
-        // Only outside quotes
-        return line.replaceAll("('[^']*')|(^/[^/]*)|(/[^/]*)", "$1$2");
     }
 
     private static String replaceSpecialCharacters(String line) {

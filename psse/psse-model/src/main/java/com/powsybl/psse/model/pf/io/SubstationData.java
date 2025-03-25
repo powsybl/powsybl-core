@@ -50,7 +50,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
             SubstationRecordData recordData = new SubstationRecordData();
             List<PsseSubstation> substationList = new ArrayList<>();
 
-            if (!reader.isQRecordFound()) {
+            if (!reader.isEndOfFileFound()) {
                 String line = reader.readUntilFindingARecordLineNotEmpty();
                 while (!reader.endOfBlock(line)) {
                     PsseSubstationRecord substationRecord = recordData.readFromStrings(Collections.singletonList(line), context).get(0);

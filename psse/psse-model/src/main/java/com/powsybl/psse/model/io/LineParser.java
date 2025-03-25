@@ -16,9 +16,6 @@ import java.util.List;
  * @author Petr Janecek {@literal <pjanecek at ntis.zcu.cz>}
  */
 public class LineParser {
-    public LineParser() {
-    }
-
     public String[] parseLine(String line) {
         if (line == null || line.trim().isEmpty())
             return new String[0];
@@ -26,37 +23,50 @@ public class LineParser {
         CharacterIterator it = new StringCharacterIterator(line.trim());
         List<String> tokens = new ArrayList<>();
 
-        if (it.current() == ',')
+        if (it.current() == COMMA)
             tokens.add(""); // Leading comma = first token is empty
 
-        while (isNotIterationEnd(it)) {
-            if (isSeparator(it.current()))
-                parseSeparator(it, tokens);
-            else if (isString(it.current()))
-                parseString(it, tokens);
-            else
-                parseToken(it, tokens);
+        while (hasMoreCharacters(it)) {
+            switch (getTokenType(it.current())) {
+                case SEPARATOR -> parseSeparator(it, tokens);
+                case STRING -> parseQuotedString(it, tokens);
+                case COMMENT -> parseComment(it);
+                default -> parseToken(it, tokens);
+            }
         }
 
         return tokens.toArray(new String[0]);
     }
 
-    private boolean isSeparator(char c) {
-        return c == ',' || c == ' ' || c == '\t';
-    }
-
-    private boolean isNotIterationEnd(CharacterIterator it) {
+    private boolean hasMoreCharacters(CharacterIterator it) {
         return it.current() != CharacterIterator.DONE;
     }
 
+    private TokenType getTokenType(char c) {
+        if (isSeparator(c)) return TokenType.SEPARATOR;
+        if (isString(c)) return TokenType.STRING;
+        if (isComment(c)) return TokenType.COMMENT;
+        return TokenType.TOKEN;
+    }
+
+    private boolean isSeparator(char c) {
+        return c == COMMA || c == SPACE || c == TAB;
+    }
+
+
     private boolean isString(char c) {
-        return c == '\'' || c == '"';
+        return c == SINGLE_QUOTE || c == DOUBLE_QUOTE;
+    }
+
+
+    private boolean isComment(char c) {
+        return c == COMMENT_SLASH;
     }
 
     private void parseSeparator(CharacterIterator it, List<String> tokens) {
         boolean wasComma = false;
-        while (isNotIterationEnd(it) && isSeparator(it.current())) {
-            if (it.current() == ',') {
+        while (hasMoreCharacters(it) && isSeparator(it.current())) {
+            if (it.current() == COMMA) {
                 if (wasComma) {
                     tokens.add("");
                 }
@@ -66,23 +76,40 @@ public class LineParser {
         }
     }
 
-    private void parseString(CharacterIterator it, List<String> tokens) {
+    private void parseQuotedString(CharacterIterator it, List<String> tokens) {
         StringBuilder sb = new StringBuilder();
-        it.next(); //skip '
-        while (isNotIterationEnd(it) && !isString(it.current())) {
+        it.next(); //skip quote
+        while (hasMoreCharacters(it) && !isString(it.current())) {
             sb.append(it.current());
             it.next();
         }
-        it.next(); //skip '
+        it.next(); //skip quote
         tokens.add(sb.toString());
     }
 
     private void parseToken(CharacterIterator it, List<String> tokens) {
         StringBuilder sb = new StringBuilder();
-        while (isNotIterationEnd(it) && !isSeparator(it.current())) {
+        while (hasMoreCharacters(it) && !isSeparator(it.current())) {
             sb.append(it.current());
             it.next();
         }
         tokens.add(sb.toString());
+    }
+
+    private void parseComment(CharacterIterator it) {
+        while (hasMoreCharacters(it)) {
+            it.next();
+        }
+    }
+
+    private static final char COMMA = ',';
+    private static final char SINGLE_QUOTE = '\'';
+    private static final char DOUBLE_QUOTE = '"';
+    private static final char COMMENT_SLASH = '/';
+    private static final char TAB = '\t';
+    private static final char SPACE = ' ';
+
+    private enum TokenType {
+        SEPARATOR, STRING, COMMENT, TOKEN
     }
 }

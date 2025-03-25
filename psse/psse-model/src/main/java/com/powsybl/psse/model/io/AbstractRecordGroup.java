@@ -157,22 +157,15 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     List<T> parseRecords(List<String> records, String[] headers, Context context) {
-        int expectedCount = records.size();
         var processor = new BeanListProcessor<T>(resolveGenericClass(), headers);
-
         var parser = new LineParser();
-
         context.resetCurrentRecordGroup();
 
         for (String record : records) {
             String[] fields = parser.parseLine(record);
             processor.processLine(fields);
-            context.setCurrentRecordNumFields(fields.length);
         }
         List<T> beans = processor.getBeans();
-        if (beans.size() != expectedCount) {
-            throw new PsseException("Parsing error");
-        }
         return beans;
     }
 

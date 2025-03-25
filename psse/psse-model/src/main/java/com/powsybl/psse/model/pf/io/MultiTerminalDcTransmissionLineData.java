@@ -55,7 +55,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
             List<String> busRecords = new ArrayList<>();
             List<String> linkRecords = new ArrayList<>();
 
-            if (!reader.isQRecordFound()) {
+            if (!reader.isEndOfFileFound()) {
                 String line = reader.readUntilFindingARecordLineNotEmpty();
                 while (!reader.endOfBlock(line)) {
                     PsseMultiTerminalDcMain main = mainData.readFromStrings(Collections.singletonList(line), context).get(0);
