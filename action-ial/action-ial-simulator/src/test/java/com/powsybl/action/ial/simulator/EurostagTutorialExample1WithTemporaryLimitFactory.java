@@ -20,7 +20,7 @@ public interface EurostagTutorialExample1WithTemporaryLimitFactory {
         Network network = EurostagTutorialExample1Factory.create();
         // add a temporary limit
         Line l2 = network.getLine("NHV1_NHV2_2");
-        l2.newCurrentLimits1()
+        l2.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
                     .setName("20")
