@@ -14,7 +14,6 @@ import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.Cgme
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
-import com.powsybl.cgmes.model.WindingType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -117,21 +116,21 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         String aliasType;
         for (PropertyBag end : ps) {
             alias = end.getId("TransformerEnd");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END + WindingType.endNumber(end);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END + getEndNumber(end);
             identifiable.addAlias(alias, aliasType);
         }
 
         // Add RatioTapChangers aliases
         for (PropertyBag rtc : context.ratioTapChangers(identifiable.getId())) {
             alias = rtc.getId("RatioTapChanger");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER + WindingType.endNumber(rtc);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER + getEndNumber(rtc);
             identifiable.addAlias(alias, aliasType, context.config().isEnsureIdAliasUnicity());
         }
 
         // Add PhaseTapChangers aliases
         for (PropertyBag ptc : context.phaseTapChangers(identifiable.getId())) {
             alias = ptc.getId("PhaseTapChanger");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER + WindingType.endNumber(ptc);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER + getEndNumber(ptc);
             identifiable.addAlias(alias, aliasType, context.config().isEnsureIdAliasUnicity());
         }
     }
@@ -163,6 +162,14 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                         .setType(tch.getType())
                         .add();
             }
+        }
+    }
+
+    private int getEndNumber(PropertyBag end) {
+        try {
+            return end.asInt("endNumber");
+        } catch (Exception e) {
+            return 0;
         }
     }
 }
