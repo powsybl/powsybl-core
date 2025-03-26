@@ -381,20 +381,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     int iidmNode() {
-        return iidmNode(1, true);
+        return iidmNode(1);
     }
 
     int iidmNode(int n) {
-        return iidmNode(n, true);
-    }
-
-    int iidmNode(int n, boolean equipmentIsConnected) {
         if (!context.nodeBreaker()) {
             throw new ConversionException("Can't request an iidmNode if conversion context is not node-breaker");
         }
         VoltageLevel vl = terminals[n - 1].voltageLevel;
         CgmesTerminal t = terminals[n - 1].t;
-        return context.nodeMapping().iidmNodeForTerminal(t, type.equals("Switch"), vl, equipmentIsConnected);
+        return context.nodeMapping().iidmNodeForTerminal(t, type.equals("Switch"), vl);
     }
 
     String busId() {
@@ -616,24 +612,20 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     public void connect(BranchAdder<?, ?> adder, boolean t1Connected, boolean t2Connected) {
-        connect(adder, t1Connected, t2Connected, true);
-    }
-
-    public void connect(BranchAdder<?, ?> adder, boolean t1Connected, boolean t2Connected, boolean branchIsClosed) {
         if (context.nodeBreaker()) {
             adder
                 .setVoltageLevel1(iidmVoltageLevelId(1))
                 .setVoltageLevel2(iidmVoltageLevelId(2))
-                .setNode1(iidmNode(1, branchIsClosed))
-                .setNode2(iidmNode(2, branchIsClosed));
+                .setNode1(iidmNode(1))
+                .setNode2(iidmNode(2));
         } else {
             String busId1 = busId(1);
             String busId2 = busId(2);
             adder
                 .setVoltageLevel1(iidmVoltageLevelId(1))
                 .setVoltageLevel2(iidmVoltageLevelId(2))
-                .setBus1(t1Connected && branchIsClosed ? busId1 : null)
-                .setBus2(t2Connected && branchIsClosed ? busId2 : null)
+                .setBus1(t1Connected ? busId1 : null)
+                .setBus2(t2Connected ? busId2 : null)
                 .setConnectableBus1(busId1)
                 .setConnectableBus2(busId2);
         }
