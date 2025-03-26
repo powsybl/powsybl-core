@@ -30,7 +30,7 @@ public class LineParser {
 
         while (hasMoreCharacters(it)) {
             switch (getTokenType(it.current())) {
-                case SEPARATOR -> parseSeparator(it, tokens);
+                case SEPARATOR -> parseDelimiter(it, tokens);
                 case STRING -> parseQuotedString(it, tokens);
                 case COMMENT -> parseComment(it);
                 default -> parseToken(it, tokens);
@@ -45,10 +45,10 @@ public class LineParser {
     }
 
     private TokenType getTokenType(char c) {
-        if (isSeparator(c)) {
+        if (isDelimiter(c)) {
             return TokenType.SEPARATOR;
         }
-        if (isString(c)) {
+        if (isQuote(c)) {
             return TokenType.STRING;
         }
         if (isComment(c)) {
@@ -57,21 +57,30 @@ public class LineParser {
         return TokenType.TOKEN;
     }
 
-    private boolean isSeparator(char c) {
+    private boolean isDelimiter(char c) {
         return c == COMMA || c == SPACE || c == TAB;
     }
 
-    private boolean isString(char c) {
+    private boolean isQuote(char c) {
         return c == SINGLE_QUOTE || c == DOUBLE_QUOTE;
+    }
+
+    private boolean isQuoteFollowedDelimiterOrEnd(CharacterIterator it) {
+        if (isQuote(it.current())) {
+            char next = it.next();
+            it.previous();
+            return isDelimiter(next) || next == CharacterIterator.DONE;
+        }
+        return false;
     }
 
     private boolean isComment(char c) {
         return c == COMMENT_SLASH;
     }
 
-    private void parseSeparator(CharacterIterator it, List<String> tokens) {
+    private void parseDelimiter(CharacterIterator it, List<String> tokens) {
         boolean wasComma = false;
-        while (hasMoreCharacters(it) && isSeparator(it.current())) {
+        while (hasMoreCharacters(it) && isDelimiter(it.current())) {
             if (it.current() == COMMA) {
                 if (wasComma) {
                     tokens.add("");
@@ -85,7 +94,7 @@ public class LineParser {
     private void parseQuotedString(CharacterIterator it, List<String> tokens) {
         StringBuilder sb = new StringBuilder();
         it.next(); //skip quote
-        while (hasMoreCharacters(it) && !isString(it.current())) {
+        while (hasMoreCharacters(it) && !isQuoteFollowedDelimiterOrEnd(it)) {
             sb.append(it.current());
             it.next();
         }
@@ -95,7 +104,7 @@ public class LineParser {
 
     private void parseToken(CharacterIterator it, List<String> tokens) {
         StringBuilder sb = new StringBuilder();
-        while (hasMoreCharacters(it) && !isSeparator(it.current())) {
+        while (hasMoreCharacters(it) && !isDelimiter(it.current())) {
             sb.append(it.current());
             it.next();
         }

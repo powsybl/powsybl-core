@@ -164,6 +164,7 @@ public abstract class AbstractRecordGroup<T> {
         for (String record : records) {
             String[] fields = parser.parseLine(record);
             processor.processLine(fields);
+            context.setCurrentRecordNumFields(fields.length);
         }
         List<T> beans = processor.getBeans();
         return beans;

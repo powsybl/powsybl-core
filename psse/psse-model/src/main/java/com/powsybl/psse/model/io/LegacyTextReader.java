@@ -15,9 +15,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-
-import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -79,17 +76,24 @@ public class LegacyTextReader {
         }
 
         var trimmedLine = line.trim();
-        if (trimmedLine.isEmpty()) {
+        if (trimmedLine.trim().isEmpty()) {
             return false;
         }
 
-        if (trimmedLine.charAt(0) == 'Q') {
+        String lineWithoutComment = removeComment(trimmedLine);
+
+        if (lineWithoutComment.equals("Q")) {
             endOfFileFound = true;
             return true;
         }
-
-        return trimmedLine.charAt(0) == '0';
+        return lineWithoutComment.equals("0");
     }
+
+    private String removeComment(String line) {
+        int commentIndex = line.indexOf('/');
+        return commentIndex > 0 ? line.substring(0, commentIndex).trim() : line;
+    }
+
 
     private boolean emptyLine(String line) {
         return line.trim().isEmpty();
@@ -118,27 +122,11 @@ public class LegacyTextReader {
         if (isRecordLineDefiningTheAttributeFields(line)) {
             return ""; // an empty line must be returned
         }
-        StringBuilder newLine = new StringBuilder();
-        Matcher m = FileFormat.LEGACY_TEXT_QUOTED_OR_WHITESPACE.matcher(line);
-        while (m.find()) {
-            // If current group is quoted, keep it as it is
-            if (m.group().indexOf(LEGACY_TEXT.getQuote()) >= 0) {
-                m.appendReplacement(newLine, replaceSpecialCharacters(m.group()));
-            } else {
-                // current group is whitespace, keep a single whitespace
-                m.appendReplacement(newLine, " ");
-            }
-        }
-        m.appendTail(newLine);
-        return newLine.toString().trim();
+        return line.trim();
     }
 
     // all the lines beginning with "@!" are record lines defining the attribute fields
     private static boolean isRecordLineDefiningTheAttributeFields(String line) {
         return line.length() >= 2 && line.substring(0, 2).equals("@!");
-    }
-
-    private static String replaceSpecialCharacters(String line) {
-        return line.replace("\\", "\\\\").replace("$", "\\$");
     }
 }
