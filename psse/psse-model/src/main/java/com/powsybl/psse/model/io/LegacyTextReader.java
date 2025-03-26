@@ -94,7 +94,6 @@ public class LegacyTextReader {
         return commentIndex > 0 ? line.substring(0, commentIndex).trim() : line;
     }
 
-
     private boolean emptyLine(String line) {
         return line.trim().isEmpty();
     }
