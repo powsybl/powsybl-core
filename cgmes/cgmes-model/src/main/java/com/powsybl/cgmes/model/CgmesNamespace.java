@@ -80,13 +80,18 @@ public final class CgmesNamespace {
     }
 
     private abstract static class AbstractCim implements Cim {
-
         private final int version;
         private final String namespace;
+        private final String euPrefix;
+        private final String euNamespace;
+        private final BiMap<String, String> profiles = HashBiMap.create();
 
-        private AbstractCim(int version, String namespace) {
+        private AbstractCim(int version, String namespace, String euPrefix, String euNamespace, Map<String, String> profiles) {
             this.version = version;
             this.namespace = namespace;
+            this.euPrefix = euPrefix;
+            this.euNamespace = euNamespace;
+            this.profiles.putAll(profiles);
         }
 
         @Override
@@ -97,20 +102,6 @@ public final class CgmesNamespace {
         @Override
         public String getNamespace() {
             return namespace;
-        }
-    }
-
-    private abstract static class AbstractCim16AndAbove extends AbstractCim {
-
-        private final String euPrefix;
-        private final String euNamespace;
-        private final BiMap<String, String> profiles = HashBiMap.create();
-
-        private AbstractCim16AndAbove(int version, String namespace, String euPrefix, String euNamespace, Map<String, String> profiles) {
-            super(version, namespace);
-            this.euPrefix = euPrefix;
-            this.euNamespace = euNamespace;
-            this.profiles.putAll(profiles);
         }
 
         @Override
@@ -144,7 +135,7 @@ public final class CgmesNamespace {
         }
     }
 
-    private static final class Cim16 extends AbstractCim16AndAbove {
+    private static final class Cim16 extends AbstractCim {
 
         private Cim16() {
             super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE,
@@ -158,7 +149,7 @@ public final class CgmesNamespace {
         }
     }
 
-    private static final class Cim100 extends AbstractCim16AndAbove {
+    private static final class Cim100 extends AbstractCim {
 
         private Cim100() {
             super(100, CIM_100_NAMESPACE, "eu", EU_NAMESPACE,

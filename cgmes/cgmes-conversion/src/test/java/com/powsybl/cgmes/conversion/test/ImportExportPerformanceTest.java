@@ -41,8 +41,8 @@ class ImportExportPerformanceTest {
     // are equivalent to the original models
 
     @Test
-    void smallcase1() throws IOException {
-        importExport(TripleStoreFactory.onlyDefaultImplementation(), CgmesConformity1Catalog.smallNodeBreaker());
+    void microGridBaseCaseNL() throws IOException {
+        importExport(TripleStoreFactory.onlyDefaultImplementation(), CgmesConformity1Catalog.microGridBaseCaseNL());
     }
 
     private void importExport(List<String> tsImpls, GridModelReference gm) throws IOException {

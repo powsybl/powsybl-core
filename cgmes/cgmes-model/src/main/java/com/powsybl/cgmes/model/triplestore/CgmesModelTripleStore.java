@@ -101,29 +101,22 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public boolean hasEquipmentCore() {
-        if (queryCatalog.containsKey(MODEL_PROFILES)) {
-            PropertyBags r = namedQuery(MODEL_PROFILES);
-            if (r == null) {
-                return false;
-            }
-            for (PropertyBag m : r) {
-                String p = m.get(PROFILE);
-                if (p != null && isEquipmentCore(p)) {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("Model contains Equipment Core data profile in model {}",
-                                m.get(CgmesNames.FULL_MODEL));
-                    }
-                    return true;
-                }
-            }
-
-            // We have a query for model profiles
-            // but none of the FullModel objects contains EquipmentCore profile
+        PropertyBags r = namedQuery(MODEL_PROFILES);
+        if (r == null) {
             return false;
         }
-        // If we do not have a query for model profiles we assume equipment core is
-        // available
-        return true;
+        for (PropertyBag m : r) {
+            String p = m.get(PROFILE);
+            if (p != null && isEquipmentCore(p)) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Model contains Equipment Core data profile in model {}",
+                            m.get(CgmesNames.FULL_MODEL));
+                }
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

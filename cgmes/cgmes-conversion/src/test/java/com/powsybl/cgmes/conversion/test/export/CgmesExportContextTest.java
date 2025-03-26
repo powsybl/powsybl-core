@@ -54,4 +54,22 @@ class CgmesExportContextTest {
         assertTrue(context.exportBoundaryPowerFlows());
         assertEquals("1D", context.getBusinessProcess());
     }
+
+    @Test
+    void getSet() {
+        CgmesExportContext context = new CgmesExportContext()
+            .setCimVersion(100)
+            .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
+            .setScenarioTime(ZonedDateTime.parse("2020-09-22T17:21:11.381+02:00"))
+            .setExportBoundaryPowerFlows(true)
+            .setExportFlowsForSwitches(false)
+            .setBusinessProcess("2D");
+
+        assertEquals(100, context.getCimVersion());
+        assertEquals(CgmesNamespace.CIM_100_NAMESPACE, context.getCim().getNamespace());
+        assertEquals(CgmesTopologyKind.NODE_BREAKER, context.getTopologyKind());
+        assertEquals(ZonedDateTime.parse("2020-09-22T17:21:11.381+02:00"), context.getScenarioTime());
+        assertTrue(context.exportBoundaryPowerFlows());
+        assertEquals("2D", context.getBusinessProcess());
+    }
 }

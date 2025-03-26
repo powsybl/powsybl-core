@@ -37,21 +37,20 @@ class CgmesOnDataSourceTest {
 
     static Stream<Arguments> provideArguments() {
         return Stream.of(
-                Arguments.of("EQ cim16", "empty_cim16_EQ.xml", "16", true),
-                Arguments.of("cim no rdf cim16", "validCim16InvalidContent_EQ.xml", "16", false),
-                Arguments.of("rdf no cim16", "validRdfInvalidContent_EQ.xml", "16", false),
-                Arguments.of("rdf cim14 not cim16", "empty_cim14_EQ.xml", "16", false)
+                Arguments.of("EQ cim16", "empty_cim16_EQ.xml", true),
+                Arguments.of("cim no rdf cim16", "validCim16InvalidContent_EQ.xml", false),
+                Arguments.of("rdf no cim16", "validRdfInvalidContent_EQ.xml", false),
+                Arguments.of("rdf cim14 not cim16", "empty_cim14_EQ.xml", false)
         );
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("provideArguments")
-    void testExists(String testName, String filename, String cimVersion, boolean expectedExists) throws IOException {
+    void testExists(String testName, String filename, boolean expectedExists) throws IOException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("incomplete",
                 new ResourceSet("/", filename));
         CgmesOnDataSource cgmesOnDataSource = new CgmesOnDataSource(dataSource);
-        boolean exists = cgmesOnDataSource.exists();
-        assertEquals(expectedExists, exists);
+        assertEquals(expectedExists, cgmesOnDataSource.exists());
     }
 
     static Stream<Arguments> provideArgumentsForTestXmlMainFileXiidmZip() {
