@@ -153,7 +153,8 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     public T parseSingleRecord(String record, String[] headers, Context context) {
-        return parseRecords(Collections.singletonList(record), headers, context).get(0);
+        var beans = parseRecords(Collections.singletonList(record), headers, context);
+        return beans.size() > 0 ? beans.get(0) : null;
     }
 
     List<T> parseRecords(List<String> records, String[] headers, Context context) {
