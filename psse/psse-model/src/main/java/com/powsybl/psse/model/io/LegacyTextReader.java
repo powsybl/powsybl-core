@@ -118,10 +118,14 @@ public class LegacyTextReader {
         if (line == null) {
             return line;
         }
-        if (isRecordLineDefiningTheAttributeFields(line)) {
+        if (isRecordLineDefiningTheAttributeFields(line) || isCommentLine(line)) {
             return ""; // an empty line must be returned
         }
         return line.trim();
+    }
+
+    private static boolean isCommentLine(String line) {
+        return line.trim().startsWith("/");
     }
 
     // all the lines beginning with "@!" are record lines defining the attribute fields
