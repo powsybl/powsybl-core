@@ -10,7 +10,6 @@ package com.powsybl.psse.model.pf;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
- *
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */

@@ -46,7 +46,7 @@ public class PsseNonTransformerBranch extends PsseVersioned {
     private double b = 0;
 
     @Nested
-    private PsseRates rates;
+    private PsseRates rates = new PsseRates();
 
     @Parsed
     private double gi = 0;
@@ -70,7 +70,7 @@ public class PsseNonTransformerBranch extends PsseVersioned {
     private double len = 0;
 
     @Nested
-    private PsseOwnership ownership;
+    private PsseOwnership ownership = new PsseOwnership();
 
     @Parsed(defaultNullRead = " ")
     @Revision(since = 35)

@@ -13,7 +13,6 @@ import com.powsybl.psse.model.PsseVersion;
 import com.univocity.parsers.common.DataProcessingException;
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.RetryableErrorHandler;
-import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
-import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -84,12 +82,11 @@ public class Context {
     public void detectDelimiter(String record) {
         // The order of delimiters is relevant
         // We pass the delimiters as an array of chars (it will be modified by the parser)
-        csvParserSettings.setDelimiterDetectionEnabled(true, VALID_DELIMITERS.toCharArray());
-        CsvParser parser = new CsvParser(csvParserSettings);
-        parser.parseLine(record);
-        setDelimiter(parser.getDetectedFormat().getDelimiterString().charAt(0));
 
-        csvParserSettings.getFormat().setDelimiter(getDelimiter());
+        int slashIndex = record.indexOf("/");
+        String recordWithoutComment = slashIndex > 0 ? record.substring(0, +slashIndex) : record;
+        char delimiter = recordWithoutComment.contains(",") ? ',' : ' ';
+        setDelimiter(delimiter);
         csvParserSettings.getFormat().setQuote(getFileFormat().getQuote());
         csvParserSettings.setDelimiterDetectionEnabled(false);
         csvParserSettings.setQuoteDetectionEnabled(false);

@@ -7,7 +7,6 @@
  */
 package com.powsybl.psse.model.io;
 
-import com.powsybl.psse.model.PsseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,9 +15,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-
-import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -27,7 +23,7 @@ import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 public class LegacyTextReader {
     private static final Logger LOG = LoggerFactory.getLogger(LegacyTextReader.class);
     private final BufferedReader reader;
-    private boolean qRecordFound;
+    private boolean endOfFileFound;
 
     public LegacyTextReader(BufferedReader reader) {
         this.reader = reader;
@@ -37,8 +33,8 @@ public class LegacyTextReader {
         return reader;
     }
 
-    public boolean isQRecordFound() {
-        return qRecordFound;
+    public boolean isEndOfFileFound() {
+        return endOfFileFound;
     }
 
     // skip lines until a 0 is found.
@@ -61,7 +57,7 @@ public class LegacyTextReader {
 
     public List<String> readRecords() throws IOException {
         List<String> records = new ArrayList<>();
-        if (!isQRecordFound()) {
+        if (!isEndOfFileFound()) {
             String line = readRecordLine();
             while (!endOfBlock(line)) {
                 if (!emptyLine(line)) {
@@ -74,11 +70,28 @@ public class LegacyTextReader {
     }
 
     public boolean endOfBlock(String line) {
-        if (line.trim().equals("Q")) {
-            qRecordFound = true;
+        if (line == null) {
+            endOfFileFound = true;
             return true;
         }
-        return line.trim().equals("0");
+
+        var trimmedLine = line.trim();
+        if (trimmedLine.trim().isEmpty()) {
+            return false;
+        }
+
+        String lineWithoutComment = removeComment(trimmedLine);
+
+        if (lineWithoutComment.equals("Q")) {
+            endOfFileFound = true;
+            return true;
+        }
+        return lineWithoutComment.equals("0");
+    }
+
+    private String removeComment(String line) {
+        int commentIndex = line.indexOf('/');
+        return commentIndex > 0 ? line.substring(0, commentIndex).trim() : line;
     }
 
     private boolean emptyLine(String line) {
@@ -103,37 +116,20 @@ public class LegacyTextReader {
     public String readRecordLine() throws IOException {
         String line = reader.readLine();
         if (line == null) {
-            throw new PsseException("PSSE. Unexpected end of file");
+            return line;
         }
-        if (isRecordLineDefiningTheAttributeFields(line)) {
+        if (isRecordLineDefiningTheAttributeFields(line) || isCommentLine(line)) {
             return ""; // an empty line must be returned
         }
-        StringBuilder newLine = new StringBuilder();
-        Matcher m = FileFormat.LEGACY_TEXT_QUOTED_OR_WHITESPACE.matcher(removeComment(line));
-        while (m.find()) {
-            // If current group is quoted, keep it as it is
-            if (m.group().indexOf(LEGACY_TEXT.getQuote()) >= 0) {
-                m.appendReplacement(newLine, replaceSpecialCharacters(m.group()));
-            } else {
-                // current group is whitespace, keep a single whitespace
-                m.appendReplacement(newLine, " ");
-            }
-        }
-        m.appendTail(newLine);
-        return newLine.toString().trim();
+        return line.trim();
+    }
+
+    private static boolean isCommentLine(String line) {
+        return line.trim().startsWith("/");
     }
 
     // all the lines beginning with "@!" are record lines defining the attribute fields
     private static boolean isRecordLineDefiningTheAttributeFields(String line) {
         return line.length() >= 2 && line.substring(0, 2).equals("@!");
-    }
-
-    private static String removeComment(String line) {
-        // Only outside quotes
-        return line.replaceAll("('[^']*')|(^/[^/]*)|(/[^/]*)", "$1$2");
-    }
-
-    private static String replaceSpecialCharacters(String line) {
-        return line.replace("\\", "\\\\").replace("$", "\\$");
     }
 }

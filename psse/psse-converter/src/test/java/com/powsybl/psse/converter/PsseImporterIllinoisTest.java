@@ -43,7 +43,7 @@ class PsseImporterIllinoisTest extends AbstractSerDeTest {
 
     @Test
     void testLiteratureBasedIeee39() {
-        testInvalid("/illinois/literature-based", "IEEE 39 bus.RAW", "Parsing error");
+        testValid("/illinois/literature-based", "IEEE 39 bus.RAW");
     }
 
     @Test
