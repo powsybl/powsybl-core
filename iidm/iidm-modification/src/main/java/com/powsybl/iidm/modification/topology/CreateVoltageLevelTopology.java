@@ -183,7 +183,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     }
 
     private void createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
-        int node = 0;
+        int node = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
         for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount; sectionNum++) {
             for (int busbarNum = lowBusOrBusbarIndex; busbarNum < lowBusOrBusbarIndex + alignedBusesOrBusbarCount; busbarNum++) {
                 BusbarSection bbs = voltageLevel.getNodeBreakerView().newBusbarSection()
