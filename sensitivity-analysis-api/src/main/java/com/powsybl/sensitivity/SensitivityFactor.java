@@ -57,12 +57,12 @@ public class SensitivityFactor {
      * @param contingencyContext see {@link com.powsybl.contingency.ContingencyContext}
      */
     public SensitivityFactor(SensitivityFunctionType functionType, String functionId, SensitivityVariableType variableType,
-                              String variableId, boolean variableSet, ContingencyContext contingencyContext) {
+                              String variableId, Boolean variableSet, ContingencyContext contingencyContext) {
         this.functionType = Objects.requireNonNull(functionType);
         this.functionId = Objects.requireNonNull(functionId);
         this.variableType = Objects.requireNonNull(variableType);
         this.variableId = Objects.requireNonNull(variableId);
-        this.variableSet = variableSet;
+        this.variableSet = Objects.requireNonNull(variableSet);
         this.contingencyContext = Objects.requireNonNull(contingencyContext);
     }
 
