@@ -126,22 +126,20 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         // and models that have TopologyBoundary profile
         boolean hasEquipmentBoundary = false;
         boolean hasTopologyBoundary = false;
-        if (queryCatalog.containsKey(MODEL_PROFILES)) {
-            PropertyBags r = namedQuery(MODEL_PROFILES);
-            if (r == null) {
-                return false;
+        PropertyBags r = namedQuery(MODEL_PROFILES);
+        if (r == null) {
+            return false;
+        }
+        for (PropertyBag m : r) {
+            String p = m.get(PROFILE);
+            String mid = m.get(CgmesNames.FULL_MODEL);
+            if (p != null && p.contains("/EquipmentBoundary/")) {
+                LOG.info("Model contains EquipmentBoundary data in model {}", mid);
+                hasEquipmentBoundary = true;
             }
-            for (PropertyBag m : r) {
-                String p = m.get(PROFILE);
-                String mid = m.get(CgmesNames.FULL_MODEL);
-                if (p != null && p.contains("/EquipmentBoundary/")) {
-                    LOG.info("Model contains EquipmentBoundary data in model {}", mid);
-                    hasEquipmentBoundary = true;
-                }
-                if (p != null && p.contains("/TopologyBoundary/")) {
-                    LOG.info("Model contains TopologyBoundary data in model {}", mid);
-                    hasTopologyBoundary = true;
-                }
+            if (p != null && p.contains("/TopologyBoundary/")) {
+                LOG.info("Model contains TopologyBoundary data in model {}", mid);
+                hasTopologyBoundary = true;
             }
         }
         // If we do not have a query for model profiles we assume no boundary exist
@@ -159,9 +157,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private boolean computeIsNodeBreaker() {
         // Optimization hint: consider caching the results of the query for model
         // profiles
-        if (!queryCatalog.containsKey(MODEL_PROFILES)) {
-            return false;
-        }
         PropertyBags r = namedQuery(MODEL_PROFILES);
         if (r == null) {
             return false;

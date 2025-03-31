@@ -116,21 +116,21 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         String aliasType;
         for (PropertyBag end : ps) {
             alias = end.getId("TransformerEnd");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END + getEndNumber(end);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END + end.getLocal("endNumber");
             identifiable.addAlias(alias, aliasType);
         }
 
         // Add RatioTapChangers aliases
         for (PropertyBag rtc : context.ratioTapChangers(identifiable.getId())) {
             alias = rtc.getId("RatioTapChanger");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER + getEndNumber(rtc);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER + rtc.getLocal("endNumber");
             identifiable.addAlias(alias, aliasType, context.config().isEnsureIdAliasUnicity());
         }
 
         // Add PhaseTapChangers aliases
         for (PropertyBag ptc : context.phaseTapChangers(identifiable.getId())) {
             alias = ptc.getId("PhaseTapChanger");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER + getEndNumber(ptc);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER + ptc.getLocal("endNumber");
             identifiable.addAlias(alias, aliasType, context.config().isEnsureIdAliasUnicity());
         }
     }
@@ -162,14 +162,6 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                         .setType(tch.getType())
                         .add();
             }
-        }
-    }
-
-    private int getEndNumber(PropertyBag end) {
-        try {
-            return end.asInt("endNumber");
-        } catch (Exception e) {
-            return 0;
         }
     }
 }

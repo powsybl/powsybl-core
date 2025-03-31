@@ -66,8 +66,6 @@ public final class CgmesNamespace {
 
         String getNamespace();
 
-        boolean hasProfiles();
-
         boolean hasProfileUri(String profileUri);
 
         String getProfileUri(String profile);
@@ -112,11 +110,6 @@ public final class CgmesNamespace {
         @Override
         public String getEuNamespace() {
             return euNamespace;
-        }
-
-        @Override
-        public boolean hasProfiles() {
-            return true;
         }
 
         @Override
