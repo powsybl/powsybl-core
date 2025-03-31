@@ -27,6 +27,8 @@ import static com.powsybl.cgmes.model.CgmesNames.*;
  */
 abstract class AbstractTransformerConversion extends AbstractConductingEquipmentConversion {
 
+    protected static final String END_NUMBER = "endNumber";
+
     AbstractTransformerConversion(String type, PropertyBags ends, Context context) {
         super(type, ends, context);
     }
@@ -116,21 +118,21 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         String aliasType;
         for (PropertyBag end : ps) {
             alias = end.getId("TransformerEnd");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END + end.getLocal("endNumber");
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END + end.getLocal(END_NUMBER);
             identifiable.addAlias(alias, aliasType);
         }
 
         // Add RatioTapChangers aliases
         for (PropertyBag rtc : context.ratioTapChangers(identifiable.getId())) {
             alias = rtc.getId("RatioTapChanger");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER + rtc.getLocal("endNumber");
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER + rtc.getLocal(END_NUMBER);
             identifiable.addAlias(alias, aliasType, context.config().isEnsureIdAliasUnicity());
         }
 
         // Add PhaseTapChangers aliases
         for (PropertyBag ptc : context.phaseTapChangers(identifiable.getId())) {
             alias = ptc.getId("PhaseTapChanger");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER + ptc.getLocal("endNumber");
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER + ptc.getLocal(END_NUMBER);
             identifiable.addAlias(alias, aliasType, context.config().isEnsureIdAliasUnicity());
         }
     }

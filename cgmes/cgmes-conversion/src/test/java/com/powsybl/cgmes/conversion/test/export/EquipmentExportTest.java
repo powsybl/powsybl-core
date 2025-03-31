@@ -17,7 +17,6 @@ import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
-import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -1524,18 +1523,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
             EquipmentExport.write(network, writer, context);
         }
         return exportedEq;
-    }
-
-    private Path exportToCgmesTP(Network network) throws IOException, XMLStreamException {
-        // Export CGMES EQ file
-        Path exportedTp = tmpDir.resolve("exportedTp.xml");
-        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedTp))) {
-            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
-            CgmesExportContext context = new CgmesExportContext(network);
-            TopologyExport.write(network, writer, context);
-        }
-
-        return exportedTp;
     }
 
     private boolean compareNetworksEQdata(Network expected, Network actual) {
