@@ -163,7 +163,18 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     }
 
     private static long computePointCount(Instant startTime, Instant endTime, Duration spacing) {
-        return Math.round(((double) (Duration.between(startTime, endTime).toNanos())) / spacing.toNanos()) + 1;
+        // Checks to avoid invalid duration and instants
+        if (startTime == null || endTime == null || spacing == null) {
+            throw new IllegalArgumentException("startTime, endTime, and spacing cannot be null.");
+        }
+        
+        Duration duration = Duration.between(startTime, endTime);
+        Long maxDays = 365L * 200;
+        if (duration > maxDays || spacing > maxDays) {
+            throw new IllegalArgumentException("Time range or spacing exceeds " + maxDays + " days.");
+        }
+        
+        return Math.round(((double) (duration.toNanos())) / spacing.toNanos()) + 1;
     }
 
     @Override
