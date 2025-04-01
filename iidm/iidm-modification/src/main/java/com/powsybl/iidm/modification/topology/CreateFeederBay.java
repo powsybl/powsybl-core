@@ -93,11 +93,6 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
     }
 
     @Override
-    protected int getNode(int side, Connectable<?> connectable) {
-        return ((Injection<?>) connectable).getTerminal().getNodeBreakerView().getNode();
-    }
-
-    @Override
     protected ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder) {
         return connectablePositionAdder.newFeeder();
     }
