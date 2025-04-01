@@ -47,7 +47,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         terminalId = l.getId("Terminal");
         equipmentId = l.getId("Equipment");
         Terminal terminal = null;
-        if (limitSubclass == null || limitSubclass.equals(CgmesNames.ACTIVE_POWER_LIMIT) || limitSubclass.equals(CgmesNames.APPARENT_POWER_LIMIT) || limitSubclass.equals(CgmesNames.CURRENT_LIMIT)) {
+        if (limitSubclass.equals(CgmesNames.ACTIVE_POWER_LIMIT) || limitSubclass.equals(CgmesNames.APPARENT_POWER_LIMIT) || limitSubclass.equals(CgmesNames.CURRENT_LIMIT)) {
             if (terminalId != null) {
                 terminal = context.terminalMapping().findForFlowLimits(terminalId);
             }

@@ -54,10 +54,6 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         testExport(network, ds, NamingStrategyFactory.CGMES_FIX_ALL_INVALID_IDS);
     }
 
-    void testExport(Network network, String namingStrategy) throws IOException {
-        testExport(network, null, namingStrategy);
-    }
-
     void testExport(Network network, ReadOnlyDataSource originalDataSource, String namingStrategy) throws IOException {
         String baseName = network.getNameOrId();
 
