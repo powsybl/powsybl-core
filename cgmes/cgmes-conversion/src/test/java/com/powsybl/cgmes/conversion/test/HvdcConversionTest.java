@@ -89,6 +89,34 @@ class HvdcConversionTest {
     }
 
     @Test
+    void pPccControlKindTest() {
+        // Control kind is active power at Point of Common Coupling on both sides.
+        Network network = readCgmesResources(DIR, "monopole_EQ.xml", "monopole_Ppcc_SSH.xml", "monopole_SV.xml", "monopole_TP.xml");
+
+        // This gives more precise loss and power factor compared to dc voltage control kind at rectifier side.
+        assertTrue(containsLccConverter(network, "CSC_1", "Current source converter 1", "DCL_12", 0.4016, -0.8251));
+        assertTrue(containsLccConverter(network, "CSC_2", "Current source converter 2", "DCL_12", 0.4, 0.9119));
+        assertTrue(containsHvdcLine(network, "DCL_12", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 12", "CSC_1", "CSC_2", 4.64, 100.0, 120.0));
+
+        // This doesn't change calculations when control kind at rectifier side was already active power at point of common coupling.
+        assertTrue(containsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.6, 95.0, 0.0));
+        assertTrue(containsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.6036, 90.0, 0.0));
+        assertTrue(containsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 100.0, 120.0));
+    }
+
+    @Test
+    void qPccControlKindTest() {
+        // Control kind is reactive power at Point of Common Coupling on both sides.
+        // This regulation mode exists only for VSC lines.
+        Network network = readCgmesResources(DIR, "monopole_EQ.xml", "monopole_Qpcc_SSH.xml", "monopole_SV.xml", "monopole_TP.xml");
+
+        // Control variable is reactive power at PCC.
+        assertTrue(containsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.6, 0.0, -22.5));
+        assertTrue(containsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.6036, 0.0, -30.0));
+        assertTrue(containsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 100.0, 120.0));
+    }
+
+    @Test
     void smallNodeBreakerHvdc() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.smallNodeBreakerHvdc(), config);
