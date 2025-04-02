@@ -72,7 +72,6 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
             case "type" -> {
                 // parser.nextTextValue() could returns null
                 String typeStr = Objects.requireNonNull(parser.nextTextValue());
-             
                 if (!typeStr.equals(expectedType)) {
                     throw new IllegalStateException("type should be: " + expectedType);
                 }
