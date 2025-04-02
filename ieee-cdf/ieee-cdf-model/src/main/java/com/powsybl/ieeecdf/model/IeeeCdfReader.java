@@ -38,7 +38,7 @@ public class IeeeCdfReader {
         if (parsedLines.size() == 0) {
             throw new IllegalArgumentException("Failed to parse the IeeeCdfModel");
         }
-        
+
         IeeeCdfTitle title = parsedLines.get(0);
         IeeeCdfModel model = new IeeeCdfModel(title);
 
