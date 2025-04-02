@@ -167,13 +167,13 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         if (startTime == null || endTime == null || spacing == null) {
             throw new IllegalArgumentException("startTime, endTime, and spacing cannot be null.");
         }
-        
+
         Duration duration = Duration.between(startTime, endTime);
         Long maxDays = 365L * 200;
         if (duration > maxDays || spacing > maxDays) {
             throw new IllegalArgumentException("Time range or spacing exceeds " + maxDays + " days.");
         }
-        
+
         return Math.round(((double) (duration.toNanos())) / spacing.toNanos()) + 1;
     }
 
