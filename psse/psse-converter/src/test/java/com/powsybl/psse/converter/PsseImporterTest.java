@@ -210,7 +210,6 @@ class PsseImporterTest extends AbstractSerDeTest {
         importTest("two_area_case_trf3w", "two_area_case_trf3w.raw", false);
     }
 
-
     @Test
     void importTest14BusesDuplicateIds() throws IOException {
         Network n = importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
