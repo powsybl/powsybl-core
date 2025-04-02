@@ -14,7 +14,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.primitives.Doubles;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.timeseries.ast.NodeCalc;
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.ResultIterator;
@@ -262,12 +261,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                             DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES,
                             line));
                     } else {
-                        reportNode.newReportNode()
-                            .withMessageTemplate("invalidVersionNumber", "The version number for a versioned TimeSeries should not be equals to the default version number (${versionNumber}) at line \"${line}\"")
-                            .withSeverity(TypedValue.WARN_SEVERITY)
-                            .withUntypedValue("versionNumber", DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES)
-                            .withUntypedValue("line", line)
-                            .add();
+                        TimeseriesReports.warnsOnTimeseriesVersionNumber(reportNode, DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES, line);
                         LOGGER.warn("The version number for a versioned TimeSeries should not be equals to the default version number ({}) at line \"{}}\"",
                             DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES,
                             line);
@@ -503,12 +497,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         LOGGER.info("{} time series loaded from CSV in {} ms",
                 timeSeriesPerVersion.values().stream().mapToInt(List::size).sum(),
                     timing);
-        reportNode.newReportNode()
-            .withMessageTemplate("timeseriesLoadingTime", "${tsNumber} time series loaded from CSV in ${timing} ms")
-            .withUntypedValue("tsNumber", timeSeriesPerVersion.values().stream().mapToInt(List::size).sum())
-            .withUntypedValue("timing", timing)
-            .add();
-
+        TimeseriesReports.timeseriesLoadingTimeDuration(reportNode, timeSeriesPerVersion.values().stream().mapToInt(List::size).sum(), timing);
         return timeSeriesPerVersion;
     }
 

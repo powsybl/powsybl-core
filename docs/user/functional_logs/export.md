@@ -13,10 +13,10 @@ objectMapper.writeValue(outputStream, reportNode);
 ReportNodeSerializer.write(reportNode, jsonFilePath);
 ```
 
-An example of the current version 2.1 of the serialization is below:
+An example of the current version 3.0 of the serialization is below:
 ```json
 {
-  "version" : "2.1",
+  "version" : "3.0",
   "dictionaries" : {
     "default" : {
       "key1" : "template with typed ${value1}",

@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReportNodeContext;
@@ -31,12 +33,18 @@ public abstract class AbstractNetworkReportNodeTest {
     public void executeWithReportNodeTest() {
         // Create a network and affect it a reportNode (reportNode1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("key1", "name1").build();
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("key1")
+                .build();
         network.getReportNodeContext().pushReportNode(reportNode1);
         assertTrue(reportNode1.getChildren().isEmpty());
 
         // Create another reportNode (reportNode2)
-        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("key2", "name2").build();
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("key2")
+                .build();
         assertTrue(reportNode2.getChildren().isEmpty());
 
         // Execute a task using reportNode2
@@ -51,20 +59,31 @@ public abstract class AbstractNetworkReportNodeTest {
     }
 
     private Runnable getTask(Network network) {
-        return () -> network.getReportNodeContext().getReportNode().newReportNode().withMessageTemplate("reportKey", "message").add();
+        return () -> network.getReportNodeContext().getReportNode().newReportNode()
+                .withMessageTemplate("reportKey")
+                .add();
     }
 
     @Test
     public void multiThreadTest() throws InterruptedException {
         // Create a network and affect it a reportNode (reportNode1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("key1", "name1").build();
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("key1")
+                .build();
         network.getReportNodeContext().pushReportNode(reportNode1);
         assertTrue(reportNode1.getChildren().isEmpty());
 
         // Create 2 other reportNodes (reportNode2 and reportNode3)
-        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("key2", "name2").build();
-        ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("key3", "name3").build();
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("key2")
+                .build();
+        ReportNode reportNode3 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("key3")
+                .build();
         assertTrue(reportNode2.getChildren().isEmpty());
         assertTrue(reportNode3.getChildren().isEmpty());
 
@@ -79,7 +98,9 @@ public abstract class AbstractNetworkReportNodeTest {
                     try {
                         latch.countDown();
                         latch.await();
-                        network.getReportNodeContext().getReportNode().newReportNode().withMessageTemplate("key2", "message2").add();
+                        network.getReportNodeContext().getReportNode().newReportNode()
+                                .withMessageTemplate("key2")
+                                .add();
                     } finally {
                         network.getReportNodeContext().popReportNode();
                     }
@@ -90,7 +111,9 @@ public abstract class AbstractNetworkReportNodeTest {
                     try {
                         latch.countDown();
                         latch.await();
-                        network.getReportNodeContext().getReportNode().newReportNode().withMessageTemplate("key3", "message3").add();
+                        network.getReportNodeContext().getReportNode().newReportNode()
+                                .withMessageTemplate("key3")
+                                .add();
                     } finally {
                         network.getReportNodeContext().popReportNode();
                     }

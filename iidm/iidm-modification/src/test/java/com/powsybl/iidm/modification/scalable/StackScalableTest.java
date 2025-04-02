@@ -8,6 +8,8 @@
 
 package com.powsybl.iidm.modification.scalable;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Injection;
@@ -69,7 +71,10 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingUp() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);
@@ -79,6 +84,7 @@ class StackScalableTest {
         double variationDone = stackScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
+                "STACKING",
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -90,7 +96,10 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingTargetPMoreThanCurrent() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, TARGET_P);
@@ -100,6 +109,7 @@ class StackScalableTest {
         double variationDone = stackScalable.scale(network, 300.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
+                "STACKING",
             scalingParameters.getScalingType(),
             300.0, variationDone);
         assertEquals(140.0, variationDone, 1e-5);
@@ -111,7 +121,10 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingTargetPLessThanCurrent() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, TARGET_P);
@@ -121,6 +134,7 @@ class StackScalableTest {
         double variationDone = stackScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
+                "STACKING",
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(-60.0, variationDone, 1e-5);
@@ -132,7 +146,10 @@ class StackScalableTest {
 
     @Test
     void testMaxValueBoundsScalingUp() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);
@@ -145,6 +162,7 @@ class StackScalableTest {
         double variationDone = stackScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
+                "STACKING",
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(75.0, variationDone, 1e-5);
@@ -156,7 +174,10 @@ class StackScalableTest {
 
     @Test
     void testMinValueBoundsScalingDown() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);
@@ -169,6 +190,7 @@ class StackScalableTest {
         double variationDone = stackScalable.scale(network, -100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
+                "STACKING",
             scalingParameters.getScalingType(),
             -100.0, variationDone);
         assertEquals(-75.0, variationDone, 1e-5);
@@ -180,7 +202,10 @@ class StackScalableTest {
 
     @Test
     void testDisableInjections() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
         List<Injection<?>> injectionsList = Arrays.asList(
             network.getGenerator("g1"), network.getGenerator("g2"),
             network.getDanglingLine("dl1"),
@@ -197,6 +222,7 @@ class StackScalableTest {
         variationDone = stackScalable.scale(network, volumeAsked, scalingParameters);
         scalingReport(reportNode,
             "generators, loads and dangling lines",
+                "STACKING",
             scalingParameters.getScalingType(),
             volumeAsked, variationDone);
         assertEquals(volumeAsked, variationDone, 1e-5);

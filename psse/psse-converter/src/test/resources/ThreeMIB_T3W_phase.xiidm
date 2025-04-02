@@ -131,6 +131,14 @@
             <iidm:currentLimits permanentLimit="12194.792385823277"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
+    <iidm:area id="A1" name="1           " areaType="ControlArea" interchangeTarget="0.0">
+        <iidm:voltageLevelRef id="VL1-2"/>
+        <iidm:voltageLevelRef id="VL3"/>
+        <iidm:voltageLevelRef id="VL4"/>
+        <iidm:voltageLevelRef id="VL5"/>
+        <iidm:voltageLevelRef id="VL6"/>
+        <iidm:voltageLevelRef id="VL7"/>
+    </iidm:area>
     <iidm:extension id="VL6">
         <slt:slackTerminal id="B6-L1 "/>
     </iidm:extension>

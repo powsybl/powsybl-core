@@ -11,6 +11,8 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.model.GridModelReference;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Importers;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class FunctionalLogsTest {
-
     private Properties importParams;
 
     @BeforeEach
@@ -63,7 +64,8 @@ class FunctionalLogsTest {
 
     private ReportNode importReport(GridModelReference testCase) {
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("testFunctionalLogs", "Test importing ${name}")
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testFunctionalLogs")
                 .withUntypedValue("name", testCase.name())
                 .build();
         Importers.importData("CGMES", testCase.dataSource(), importParams, reportNode);
