@@ -170,12 +170,12 @@ public abstract class AbstractRecordGroup<T> {
         context.resetCurrentRecordGroup();
         for (String record : records) {
             String[] fields = parser.parseLine(record);
-            
+
             // CsvParser::parseLine could return null for malformed record
             if (fields == null) {
                 throw new PsseException("Parsing error");
             }
-            
+
             context.setCurrentRecordNumFields(fields.length);
         }
         List<T> beans = processor.getBeans();
