@@ -117,6 +117,61 @@ class HvdcConversionTest {
     }
 
     @Test
+    void inconsistentConverterTypesTest() {
+        // CGMES network:
+        //   A HVDC line (monopole, ground return) linking a CsConverter and a VsConverter.
+        // IIDM network:
+        //   Neither HvdcConverterStation nor HvdcLine are created when inputs are inconsistent.
+        Network network = readCgmesResources(DIR, "inconsistent_converter_types.xml");
+
+        assertEquals(0, network.getHvdcConverterStationCount());
+        assertEquals(0, network.getHvdcLineCount());
+    }
+
+    @Test
+    void missingDCLineSegmentTest() {
+        // CGMES network:
+        //   An EQ file with 4 ACDCConverter, but no DCLineSegment joining them.
+        // IIDM network:
+        //   Neither HvdcConverterStation nor HvdcLine are created when inputs are missing.
+        Network network = readCgmesResources(DIR, "missing_DCLineSegment.xml");
+
+        assertEquals(4, network.getSubstationCount());
+        assertEquals(0, network.getHvdcConverterStationCount());
+        assertEquals(0, network.getHvdcLineCount());
+    }
+
+    @Test
+    void missingAcDcConverterTest() {
+        // CGMES network:
+        //   An EQ file with 2 ACDCConverter and 2 DCLineSegment on one side, but no ACDCConverter on the other side.
+        // IIDM network:
+        //   Neither HvdcConverterStation nor HvdcLine are created when inputs are missing.
+        Network network = readCgmesResources(DIR, "missing_ACDCConverter.xml");
+
+        assertEquals(4, network.getSubstationCount());
+        assertEquals(0, network.getHvdcConverterStationCount());
+        assertEquals(0, network.getHvdcLineCount());
+    }
+
+    @Test
+    void missingPpccTest() {
+        // Control kind is active power at Point of Common Coupling on both sides, but Ppcc values are missing.
+        Network network = readCgmesResources(DIR, "monopole_EQ.xml", "monopole_missing_Ppcc_SSH.xml", "monopole_SV.xml", "monopole_TP.xml");
+
+        // Loss factor can't be calculated when Ppcc is missing. They are set to 0.0 and conversion goes on with these values.
+        assertTrue(containsLccConverter(network, "CSC_1", "Current source converter 1", "DCL_12", 0.0, -0.8251));
+        assertTrue(containsLccConverter(network, "CSC_2", "Current source converter 2", "DCL_12", 0.0, 0.9119));
+        assertTrue(containsHvdcLine(network, "DCL_12", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 12", "CSC_1", "CSC_2", 4.64, 0.0, 0.0));
+
+        // For VSC line, in addition to also set loss factors to 0.0,
+        // it's not possible anymore to compute which side is inverter and which is rectifier without P.
+        assertTrue(containsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.0, 95.0, 0.0));
+        assertTrue(containsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.0, 90.0, 0.0));
+        assertTrue(containsHvdcLine(network, "DCL_34", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 34", "VSC_3", "VSC_4", 9.92, 0.0, 0.0));
+    }
+
+    @Test
     void smallNodeBreakerHvdc() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.smallNodeBreakerHvdc(), config);
