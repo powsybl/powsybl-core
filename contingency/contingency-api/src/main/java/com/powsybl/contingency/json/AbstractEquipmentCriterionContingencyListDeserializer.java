@@ -19,7 +19,6 @@ import com.powsybl.iidm.criteria.RegexCriterion;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  @author Hugo Kulesza hugo.kulesza@rte-france.com
@@ -70,9 +69,7 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
                 return true;
             }
             case "type" -> {
-                // parser.nextTextValue() could returns null
-                String typeStr = Objects.requireNonNull(parser.nextTextValue());
-                if (!typeStr.equals(expectedType)) {
+                if (expectedType == null || !expectedType.equals(parser.nextTextValue())) {
                     throw new IllegalStateException("type should be: " + expectedType);
                 }
                 return true;
