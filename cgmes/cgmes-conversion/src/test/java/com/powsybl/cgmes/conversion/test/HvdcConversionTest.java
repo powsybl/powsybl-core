@@ -172,6 +172,47 @@ class HvdcConversionTest {
     }
 
     @Test
+    void twoDCLineSegmentsTest() {
+        // CGMES network:
+        //   An EQ file with a VSC HVDC line (monopole, ground return). The pole consists of 2 DCLineSegments in parallel:
+        //   - DCLineSegment DCL_34A (r = 3.15).
+        //   - DCLineSegment DCL_34B (r = 6.3).
+        // IIDM network:
+        //   Only 1 HvdcLine (with its 2 VscConverterStation) has been created.
+        //   It is electrically equivalent to the 2 DCLineSegments (r = 2.1).
+        Network network = readCgmesResources(DIR, "two_DCLineSegments.xml");
+
+        // A single HvdcLine has been created with an equivalent resistance (1/rEquivalent = 1/r34A + 1/r34B).
+        assertTrue(containsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34B", 0.0, 0.0, 0.0));
+        assertTrue(containsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34B", 0.0, 0.0, 0.0));
+        assertTrue(containsHvdcLine(network, "DCL_34B", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 34B", "VSC_3", "VSC_4", 2.1, 0.0, 0.0));
+
+        // The other DCLineSegment identifier is kept as an alias.
+        assertEquals("DCL_34A", network.getHvdcLine("DCL_34B").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
+    }
+
+    @Test
+    void twoAcDcConvertersTest() {
+        // CGMES network:
+        //   An EQ file with a LCC HVDC line (monopole, ground return), r = 4.65.
+        //   On each side, there is 2 ACDCConverter in serie (CSC_1A and CSC_1B on side 1, CSC_2A and CSC_2B on side 2).
+        // IIDM network:
+        //   Two HvdcLine have been created, each having a LccConverterStation on each side.
+        //   The two IIDM HvdcLine have double the resistance of the CGMES DCLineSegment so that it is electrically equivalent.
+        Network network = readCgmesResources(DIR, "two_ACDCConverters.xml");
+
+        // HvdcLine DCL_12 (r = 9.3) links LccConverterStation CSC_1A and CSC_2A.
+        assertTrue(containsLccConverter(network, "CSC_1A", "Current source converter 1A", "DCL_12", 0.0, 0.8));
+        assertTrue(containsLccConverter(network, "CSC_2A", "Current source converter 2A", "DCL_12", 0.0, 0.8));
+        assertTrue(containsHvdcLine(network, "DCL_12", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12", "CSC_1A", "CSC_2A", 9.3, 0.0, 0.0));
+
+        // HvdcLine DCL_12-1 (r = 9.3) links LccConverterStation CSC_1B and CSC_2B.
+        assertTrue(containsLccConverter(network, "CSC_1B", "Current source converter 1B", "DCL_12-1", 0.0, 0.8));
+        assertTrue(containsLccConverter(network, "CSC_2B", "Current source converter 2B", "DCL_12-1", 0.0, 0.8));
+        assertTrue(containsHvdcLine(network, "DCL_12-1", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12-1", "CSC_1B", "CSC_2B", 9.3, 0.0, 0.0));
+    }
+
+    @Test
     void smallNodeBreakerHvdc() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.smallNodeBreakerHvdc(), config);
