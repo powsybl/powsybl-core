@@ -213,6 +213,44 @@ class HvdcConversionTest {
     }
 
     @Test
+    void vscWithCapabilityCurveTest() {
+        // CGMES network:
+        //   An EQ file with a VSC HVDC line (monopole, ground return).
+        //   VsConverter VSC_3 has a VsCapabilityCurve.
+        // IIDM network:
+        //   HvdcLine and VscConverterStation have been created.
+        //   VscConverterStation VSC_3 has ReactiveLimits.
+        Network network = readCgmesResources(DIR, "vsCapabilityCurve.xml");
+
+        assertEquals(2, network.getHvdcConverterStationCount());
+        assertEquals(1, network.getHvdcLineCount());
+        assertTrue(containsVsCapabilityCurve(network, "VSC_3", ReactiveLimitsKind.CURVE, 3,
+                List.of(-100.0, 0.0, 100.0),    // list of P values
+                List.of(-25.0, -100.0, -25.0),  // list of Qmin values
+                List.of(25.0, 100.0, 25.0)));   // list of Qmax values
+    }
+
+    @Test
+    void vscWithRemotePccTerminalTest() {
+        // CGMES network:
+        //   A VSC HVDC line DCL_34 (monopole, ground return).
+        //   VsConverter VSC_3 has a remote pccTerminal, VsConverter VSC_4 hasn't.
+        // IIDM network:
+        //   HvdcLine and VscConverterStation have been created.
+        //   VscConverterStation VSC_3 regulating terminal is a remote one, VSC_4 regulating terminal is local.
+        Network network = readCgmesResources(DIR, "remote_pccTerminal_EQ.xml", "remote_pccTerminal_SSH.xml");
+
+        // HVDC line and converters are imported with the same characteristics.
+        assertTrue(containsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.0, 0.0, -22.5));
+        assertTrue(containsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.0, 0.0, -30.0));
+        assertTrue(containsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 100.0, 120.0));
+
+        // VSC_3 regulating terminal is remote, VSC_4 regulating terminal is local.
+        assertEquals("PT_3", network.getVscConverterStation("VSC_3").getRegulatingTerminal().getConnectable().getId());
+        assertEquals("VSC_4", network.getVscConverterStation("VSC_4").getRegulatingTerminal().getConnectable().getId());
+    }
+
+    @Test
     void smallNodeBreakerHvdc() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.smallNodeBreakerHvdc(), config);
