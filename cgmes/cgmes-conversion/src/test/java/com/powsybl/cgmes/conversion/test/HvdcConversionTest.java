@@ -89,6 +89,47 @@ class HvdcConversionTest {
     }
 
     @Test
+    void monopoleWithMetallicReturnTest() {
+        // CGMES network:
+        //   A HVDC monopole with metallic return:
+        //   The positive polarity DCLineSegment DCL_34P has r = 4.94.
+        //   The negative polarity DCLineSegment DCL_34N has r = 4.98.
+        // IIDM network:
+        //   HvdcLine DCL_34N with VscConverterStation VSC_3 and VSC_4.
+        Network network = readCgmesResources(DIR, "monopole_with_metallic_return.xml");
+
+        // A single HvdcLine has been created with an equivalent resistance.
+        assertTrue(containsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34P", 0.0, Double.NaN, 0.0));
+        assertTrue(containsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34P", 0.0, Double.NaN, 0.0));
+        assertTrue(containsHvdcLine(network, "DCL_34P", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 34P", "VSC_3", "VSC_4", 2.48, 0.0, 0.0));
+
+        // The other DCLineSegment identifier is kept as an alias.
+        assertEquals("DCL_34N", network.getHvdcLine("DCL_34P").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
+    }
+
+    @Test
+    void monopoleWith2AcDcConvertersPerUnitTest() {
+        // CGMES network:
+        //   A HVDC monopole with ground return.
+        //   Each converter unit is made of 2 ACDCConverter in series: CSC_1A and CSC_1B, and CSC_2A and CSC_2B.
+        //   The DCLineSegment DCL_12 has r = 4.64 and is the closest to CSC_1A and CSC_2A.
+        // IIDM network:
+        //   - HvdcLine DCL_12 with LccConverterStation CSC_1A and CSC_2A.
+        //   - HvdcLine DCL_12-1 with LccConverterStation CSC_1B and CSC_2B.
+        Network network = readCgmesResources(DIR, "monopole_with_two_ACDCConverters_per_unit.xml");
+
+        // HvdcLine DCL_12 links LccConverterStation CSC_1A and CSC_2A with an equivalent resistance.
+        assertTrue(containsLccConverter(network, "CSC_1A", "Current source converter 1A", "DCL_12", 0.0, 0.8));
+        assertTrue(containsLccConverter(network, "CSC_2A", "Current source converter 2A", "DCL_12", 0.0, 0.8));
+        assertTrue(containsHvdcLine(network, "DCL_12", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12", "CSC_1A", "CSC_2A", 9.28, 0.0, 0.0));
+
+        // HvdcLine DCL_12-1 links LccConverterStation CSC_1B and CSC_2B with an equivalent resistance.
+        assertTrue(containsLccConverter(network, "CSC_1B", "Current source converter 1B", "DCL_12-1", 0.0, 0.8));
+        assertTrue(containsLccConverter(network, "CSC_2B", "Current source converter 2B", "DCL_12-1", 0.0, 0.8));
+        assertTrue(containsHvdcLine(network, "DCL_12-1", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12-1", "CSC_1B", "CSC_2B", 9.28, 0.0, 0.0));
+    }
+
+    @Test
     void pPccControlKindTest() {
         // Control kind is active power at Point of Common Coupling on both sides.
         Network network = readCgmesResources(DIR, "monopole_EQ.xml", "monopole_Ppcc_SSH.xml", "monopole_SV.xml", "monopole_TP.xml");
