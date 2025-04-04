@@ -782,7 +782,7 @@ public final class NetworkSerDe {
         Deque<Network> networks = new ArrayDeque<>(2);
         networks.push(network);
 
-        ReportNode validationReportNode = reportNode.newReportNode().withMessageTemplate("validationWarnings", "Validation warnings").add();
+        ReportNode validationReportNode = DeserializerReports.readWarningValidationPart(reportNode);
         reader.readChildNodes(elementName ->
                 readNetworkElement(elementName, networks, networkFactory, context,
                         extensionNamesImported, extensionNamesNotFound, extensionsSupplier, validationReportNode));
@@ -790,11 +790,11 @@ public final class NetworkSerDe {
         context.executeEndTasks(network, DeserializationEndTask.Step.AFTER_EXTENSIONS, validationReportNode);
 
         if (!extensionNamesImported.isEmpty()) {
-            ReportNode importedExtensionReportNode = reportNode.newReportNode().withMessageTemplate("importedExtensions", "Imported extensions").add();
+            ReportNode importedExtensionReportNode = DeserializerReports.importedExtensions(reportNode);
             logExtensionsImported(importedExtensionReportNode, extensionNamesImported);
         }
         if (!extensionNamesNotFound.isEmpty()) {
-            ReportNode extensionsNotFoundReportNode = reportNode.newReportNode().withMessageTemplate("extensionsNotFound", "Not found extensions").add();
+            ReportNode extensionsNotFoundReportNode = DeserializerReports.notFoundExtensions(reportNode);
             throwExceptionIfOption(context.getOptions(), "Extensions " + extensionNamesNotFound + " " + "not found!");
             logExtensionsNotFound(extensionsNotFoundReportNode, extensionNamesNotFound);
         }
