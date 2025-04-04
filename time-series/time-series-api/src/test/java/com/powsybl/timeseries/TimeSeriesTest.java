@@ -7,7 +7,9 @@
  */
 package com.powsybl.timeseries;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -365,17 +367,20 @@ class TimeSeriesTest {
             """.replaceAll("\n", System.lineSeparator());
 
         // Reporter
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV", "Testing reportNode TimeSeriesImport with wrong version number").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV")
+                .build();
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', true, TimeFormat.FRACTIONS_OF_SECOND, false);
         TimeSeries.parseCsv(csv, timeSeriesCsvConfig, reportNode);
 
         assertEquals(4, reportNode.getChildren().size());
-        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line \"0.000;-1;1.0;null\"",
+        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line 0.000;-1;1.0;null",
             reportNode.getChildren().get(0).getMessage());
-        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line \"0.001;-1;null;a\"",
+        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line 0.001;-1;null;a",
             reportNode.getChildren().get(1).getMessage());
-        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line \"0.002;-1;3.0;b\"",
+        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line 0.002;-1;3.0;b",
             reportNode.getChildren().get(2).getMessage());
         assertTrue(Pattern.compile("4 time series loaded from CSV in .* ms").matcher(reportNode.getChildren().get(3).getMessage()).find());
     }
@@ -393,7 +398,10 @@ class TimeSeriesTest {
                 """.replaceAll("\n", System.lineSeparator());
 
         // Reporter
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV", "Testing reportNode TimeSeriesImport with wrong version number").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV")
+                .build();
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
         TimeSeriesException timeSeriesException = assertThrows(TimeSeriesException.class, () -> TimeSeries.parseCsv(csv, timeSeriesCsvConfig, reportNode));
