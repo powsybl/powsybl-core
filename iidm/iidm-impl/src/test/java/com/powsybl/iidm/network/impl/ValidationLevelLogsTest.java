@@ -8,7 +8,9 @@
 
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
@@ -29,7 +31,11 @@ class ValidationLevelLogsTest {
     void equipmentAndSteadyStateTest() throws IOException {
         // create a network associated with a reportNode
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("testValidationLevelLogs", "Test validationLevel Logs")
+                .withResourceBundles(
+                        PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME,
+                        PowsyblCoreReportResourceBundle.BASE_NAME,
+                        "i18n.iidm-test-reports")
+                .withMessageTemplate("testValidationLevelLogs")
                 .withUntypedValue("name", "test")
                 .build();
 
