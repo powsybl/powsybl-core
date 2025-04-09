@@ -9,6 +9,10 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.iidm.network.Terminal;
 
+/**
+ * @author  Ghazwa Rehili {@literal <ghazwa.rehili at rte-france.com>}
+ */
+
 public class MoveFeederBayBuilder {
     private String connectableId = null;
     private String targetBusOrBusbarSectionId = null;

@@ -54,7 +54,6 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         if (!checkConnectable(throwException, reportNode, connectable)) {
             return;
         }
-
         cleanNodeBreakerTopology(network, connectableId, reportNode);
         connectable.remove();
         removedConnectableReport(reportNode, connectableId);

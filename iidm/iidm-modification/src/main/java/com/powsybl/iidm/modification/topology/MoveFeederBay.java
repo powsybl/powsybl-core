@@ -19,12 +19,15 @@ import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.cleanNodeBreakerTopology;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createTopology;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+import static com.powsybl.iidm.modification.util.ModificationReports.moveFeederBayBusbarSectionReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.notFoundConnectableReport;
 
 /**
  * This modification moves a feeder bay from one busbar section to another.
  * It identifies and updates the relevant switches and connections to achieve the move operation.
  *
- * @author Claude
+ * @author  Ghazwa Rehili {@literal <ghazwa.rehili at rte-france.com>}
  */
 public class MoveFeederBay extends AbstractNetworkModification {
     private final String connectableId;
@@ -49,6 +52,9 @@ public class MoveFeederBay extends AbstractNetworkModification {
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         Connectable<?> connectable = network.getConnectable(connectableId);
+        if (!checkConnectable(throwException, reportNode, connectable)) {
+            return;
+        }
         VoltageLevel voltageLevel = network.getVoltageLevel(targetVoltageLevelId);
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             cleanNodeBreakerTopology(network, connectableId, reportNode);
@@ -83,16 +89,10 @@ public class MoveFeederBay extends AbstractNetworkModification {
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
         NetworkModificationImpact impact = DEFAULT_IMPACT;
 
-        // Check connectable exists and is not a busbar section
+        // Check connectable and target busbar section exists
         Connectable<?> connectable = network.getConnectable(connectableId);
-        if (connectable == null || connectable instanceof BusbarSection) {
-            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            return impact;
-        }
-
-        // Check target busbar section exists
         BusbarSection targetBusbarSection = network.getBusbarSection(targetBusOrBusbarSectionId);
-        if (targetBusbarSection == null) {
+        if (connectable == null || connectable instanceof BusbarSection || targetBusbarSection == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
             return impact;
         }
@@ -114,5 +114,19 @@ public class MoveFeederBay extends AbstractNetworkModification {
         }
 
         return impact;
+    }
+
+    private boolean checkConnectable(boolean throwException, ReportNode reportNode, Connectable<?> connectable) {
+        if (connectable instanceof BusbarSection) {
+            moveFeederBayBusbarSectionReport(reportNode, connectableId);
+            logOrThrow(throwException, "BusbarSection connectables are not allowed as MoveFeederBay input: " + connectableId);
+            return false;
+        }
+        if (connectable == null) {
+            notFoundConnectableReport(reportNode, connectableId);
+            logOrThrow(throwException, "Connectable not found: " + connectableId);
+            return false;
+        }
+        return true;
     }
 }

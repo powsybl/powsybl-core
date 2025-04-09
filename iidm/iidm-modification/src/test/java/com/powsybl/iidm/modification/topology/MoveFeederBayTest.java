@@ -7,11 +7,14 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Ghazwa Rehili {@literal <ghazwa.rehili at rte-france.com>}
@@ -44,5 +47,15 @@ class MoveFeederBayTest {
         new MoveFeederBayBuilder().withConnectableId("GEN").withBusOrBusbarSectionId("NHV1").withVoltageLevelId("VLLOAD")
                 .withTerminal(network.getGenerator("GEN").getTerminal()).build().apply(network);
 
+    }
+
+    @Test
+    void testMoveBbsBreaker() {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestMoveBbs", "Testing reportNode when trying to remove a busbar section").build();
+        MoveFeederBay moveFeederBay = new MoveFeederBayBuilder().withConnectableId("bbs6").withBusOrBusbarSectionId("bbs5").withVoltageLevelId("vl1")
+                .withTerminal(network.getLine("line1").getTerminal1()).build();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> moveFeederBay.apply(network, true, reportNode));
+        assertEquals("BusbarSection connectables are not allowed as MoveFeederBay input: bbs6", e.getMessage());
     }
 }

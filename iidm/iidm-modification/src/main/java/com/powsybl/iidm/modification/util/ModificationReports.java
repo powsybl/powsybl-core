@@ -496,6 +496,14 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void moveFeederBayBusbarSectionReport(ReportNode reportNode, String busbarSectionConnectableId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("moveBayBusbarSectionConnectable", "Cannot move feeder bay for connectable ${connectableId}, as it is a busbarSection")
+                .withUntypedValue(CONNECTABLE_ID, busbarSectionConnectableId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
     public static void noVoltageLevelInCommonReport(ReportNode reportNode, String line1Id, String line2Id) {
         reportNode.newReportNode()
                 .withMessageTemplate("noVoltageLevelInCommon", "Lines ${line1Id} and ${line2Id} should have one and only one voltage level in common at their extremities")
