@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.report;
 
+import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
@@ -14,6 +15,9 @@ import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
@@ -23,6 +27,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import static com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME;
+import static com.powsybl.commons.test.TestUtil.normalizeLineSeparator;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -363,8 +368,12 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .withMessageTemplate("rootWithValue")
                 .withUntypedValue("value", 4)
                 .build();
+        ReportNode childReportEnglish = rootReportEnglish.newReportNode()
+                .withMessageTemplate("rootChild")
+                .add();
         // translation should fall back to default properties as the key is not defined in the reports_en_US.properties
         assertEquals("Root message with value 4", rootReportEnglish.getMessage());
+        assertEquals("Another child", childReportEnglish.getMessage());
         assertEquals(Locale.US, rootReportEnglish.getTreeContext().getLocale());
 
         // With french locale
@@ -374,8 +383,12 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .withMessageTemplate("rootWithValue")
                 .withUntypedValue("value", 4)
                 .build();
+        ReportNode childReportFrench = rootReportFrench.newReportNode()
+                .withMessageTemplate("rootChild")
+                .add();
         // translation should be from the reports_fr.properties file
         assertEquals("Message racine avec la valeur 4", rootReportFrench.getMessage());
+        assertEquals("Message enfant", childReportFrench.getMessage());
         assertEquals(Locale.FRENCH, rootReportFrench.getTreeContext().getLocale());
 
         // Test giving the specific France locale
@@ -388,6 +401,45 @@ class ReportNodeTest extends AbstractSerDeTest {
         // translation should be from the reports_fr.properties file as the key is not defined in the reports_fr_FR.properties
         assertEquals("Message racine avec la valeur 4", rootReportFrance.getMessage());
         assertEquals(Locale.FRANCE, rootReportFrance.getTreeContext().getLocale());
+    }
+
+
+
+    @Test
+    void testIncludeAndCopyRootReportToParentWithGoodLocale() throws IOException {
+        // Root report with french locale
+        ReportNode rootReportFrench = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
+                .withLocale(Locale.FRENCH)
+                .withMessageTemplate("rootWithValue")
+                .withUntypedValue("value", 4)
+                .build();
+        ReportNode childReportFrench = rootReportFrench.newReportNode()
+                .withMessageTemplate("rootChild")
+                .add();
+        // translation should be from the reports_fr.properties file
+        assertEquals("Message racine avec la valeur 4", rootReportFrench.getMessage());
+        assertEquals("Message enfant", childReportFrench.getMessage());
+        assertEquals(Locale.FRENCH, rootReportFrench.getTreeContext().getLocale());
+
+        // other root with english locale
+        ReportNode rootReportEnglish = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
+                .withLocale(rootReportFrench.getTreeContext().getLocale())
+                .withMessageTemplate("simpleChild")
+                .build();
+        assertEquals("Simple message enfant", rootReportEnglish.getMessage());
+        assertEquals(Locale.FRENCH, rootReportEnglish.getTreeContext().getLocale());
+
+        // include english root report as child of French root report
+        rootReportFrench.include(rootReportEnglish);
+        rootReportFrench.addCopy(rootReportEnglish);
+
+        StringWriter sw = new StringWriter();
+        rootReportFrench.print(sw);
+        InputStream refStream = ReportNodeTest.class.getResourceAsStream("/report/internationalization_mixte_locale.txt");
+        String ref = new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8);
+        assertEquals(sw.toString(), ref);
     }
 
     @Test
