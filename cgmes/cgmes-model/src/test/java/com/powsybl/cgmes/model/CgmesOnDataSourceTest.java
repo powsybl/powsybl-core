@@ -37,7 +37,7 @@ class CgmesOnDataSourceTest {
 
     static Stream<Arguments> provideArguments() {
         return Stream.of(
-                Arguments.of("EQ cim14", "empty_cim14_EQ.xml", false),
+                Arguments.of("EQ cim14", "empty_cim14_EQ.xml", false), // CIM14 is not supported
                 Arguments.of("EQ cim16", "empty_cim16_EQ.xml", true),
                 Arguments.of("cim16 no rdf", "validCim16InvalidContent_EQ.xml", false),
                 Arguments.of("rdf no cim16", "validRdfInvalidContent_EQ.xml", false));

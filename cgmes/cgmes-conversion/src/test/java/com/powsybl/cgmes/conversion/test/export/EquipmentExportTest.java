@@ -17,22 +17,26 @@ import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
+import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.XMLImporter;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.xmlunit.diff.DifferenceEvaluator;
@@ -192,6 +196,145 @@ class EquipmentExportTest extends AbstractSerDeTest {
         }
         Network actual = exportImportBusBranch(expected, dataSource);
         assertTrue(compareNetworksEQdata(expected, actual));
+    }
+
+    @Test
+    void nordic32() throws IOException, XMLStreamException {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/", "nordic32.xiidm"));
+        Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+        exportToCgmesEQ(network);
+        exportToCgmesTP(network);
+        // Import EQ & TP file, no additional information (boundaries) are required
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
+
+        // The xiidm file does not contain ratedS values, but during the cgmes export process default values
+        // are exported for each transformer that are reading in the import process.
+        // we reset the default imported ratedS values before comparing
+        TwoWindingsTransformer twta = actual.getTwoWindingsTransformerStream().findFirst().orElseThrow();
+        network.getTwoWindingsTransformers().forEach(twtn -> twtn.setRatedS(twta.getRatedS()));
+
+        // Ignore OperationalLimitsGroup id
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringNonEQ,
+                ExportXmlCompare::ignoringOperationalLimitsGroupId);
+        assertTrue(compareNetworksEQdata(network, actual, knownDiffs));
+    }
+
+    @Test
+    void nordic32SortTransformerEnds() throws IOException, XMLStreamException {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/", "nordic32.xiidm"));
+        Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), importParams);
+        exportToCgmesEQ(network, true);
+        exportToCgmesTP(network);
+        // Import EQ & TP file, no additional information (boundaries) are required
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
+        // Before comparing, interchange ends in twoWindingsTransformers that do not follow the high voltage at end1 rule
+        prepareNetworkForSortedTransformerEndsComparison(network);
+
+        // The xiidm file does not contain ratedS values, but during the cgmes export process default values
+        // are exported for each transformer that are reading in the import process.
+        // we reset the default imported ratedS values before comparing
+        TwoWindingsTransformer twta = actual.getTwoWindingsTransformerStream().findFirst().orElseThrow();
+        network.getTwoWindingsTransformers().forEach(twtn -> twtn.setRatedS(twta.getRatedS()));
+
+        // Ignore OperationalLimitsGroup id
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringNonEQ,
+                ExportXmlCompare::ignoringOperationalLimitsGroupId);
+        assertTrue(compareNetworksEQdata(network, actual, knownDiffs));
+    }
+
+    private void prepareNetworkForSortedTransformerEndsComparison(Network network) {
+        List<Pair<String, TwtRecord>> pairs = new ArrayList<>();
+        network.getTwoWindingsTransformerStream().filter(twt -> twt
+                        .getTerminal1().getVoltageLevel().getNominalV() < twt.getTerminal2().getVoltageLevel().getNominalV())
+                .forEach(twt -> {
+                    TwtRecord twtRecord = obtainRecord(twt);
+                    pairs.add(Pair.of(twt.getId(), twtRecord));
+                });
+
+        pairs.forEach(pair -> {
+            TwoWindingsTransformer twt = network.getTwoWindingsTransformer(pair.getLeft());
+            twt.remove();
+            TwoWindingsTransformer newTwt = pair.getRight().getAdder().add();
+            Optional<CurrentLimits> currentLimits1 = pair.getRight().getCurrentLimits1();
+            if (currentLimits1.isPresent()) {
+                newTwt.newCurrentLimits1().setPermanentLimit(currentLimits1.get().getPermanentLimit()).add();
+            }
+            Optional<CurrentLimits> currentLimits2 = pair.getRight().getCurrentLimits2();
+            if (currentLimits2.isPresent()) {
+                newTwt.newCurrentLimits2().setPermanentLimit(currentLimits2.get().getPermanentLimit()).add();
+            }
+            pair.getRight().getAliases().forEach(aliasPair -> {
+                if (aliasPair.getLeft() == null) {
+                    newTwt.addAlias(aliasPair.getRight());
+                } else {
+                    newTwt.addAlias(aliasPair.getRight(), aliasPair.getLeft());
+                }
+            });
+        });
+    }
+
+    private TwtRecord obtainRecord(TwoWindingsTransformer twt) {
+        Substation substation = twt.getSubstation().orElseThrow();
+        double a0 = twt.getRatedU1() / twt.getRatedU2();
+        double a02 = a0 * a0;
+        TwoWindingsTransformerAdder adder = substation.newTwoWindingsTransformer()
+            .setId(twt.getId())
+            .setName(twt.getNameOrId())
+            .setBus1(twt.getTerminal2().getBusBreakerView().getBus().getId())
+            .setBus2(twt.getTerminal1().getBusBreakerView().getBus().getId())
+            .setR(twt.getR() * a02)
+            .setX(twt.getX() * a02)
+            .setG(twt.getG() / a02)
+            .setB(twt.getB() / a02)
+            .setRatedU1(twt.getRatedU2())
+            .setRatedU2(twt.getRatedU1());
+
+        CurrentLimits currentLimits1 = twt.getCurrentLimits1().orElse(null);
+        CurrentLimits currentLimits2 = twt.getCurrentLimits2().orElse(null);
+
+        List<Pair<String, String>> aliases = new ArrayList<>();
+        twt.getAliases().forEach(alias -> {
+            String type = twt.getAliasType(alias).orElse(null);
+            aliases.add(Pair.of(type, alias));
+        });
+        return new TwtRecord(adder, currentLimits2, currentLimits1, aliases);
+    }
+
+    private static final class TwtRecord {
+        private final TwoWindingsTransformerAdder adder;
+        private final CurrentLimits currentLimits1;
+        private final CurrentLimits currentLimits2;
+        private final List<Pair<String, String>> aliases;
+
+        private TwtRecord(TwoWindingsTransformerAdder adder, CurrentLimits currentLimits1, CurrentLimits currentLimits2,
+            List<Pair<String, String>> aliases) {
+            this.adder = adder;
+            this.currentLimits1 = currentLimits1;
+            this.currentLimits2 = currentLimits2;
+            this.aliases = aliases;
+        }
+
+        private TwoWindingsTransformerAdder getAdder() {
+            return adder;
+        }
+
+        private Optional<CurrentLimits> getCurrentLimits1() {
+            return Optional.ofNullable(currentLimits1);
+        }
+
+        private Optional<CurrentLimits> getCurrentLimits2() {
+            return Optional.ofNullable(currentLimits2);
+        }
+
+        private List<Pair<String, String>> getAliases() {
+            return aliases;
+        }
     }
 
     @Test
@@ -1523,6 +1666,18 @@ class EquipmentExportTest extends AbstractSerDeTest {
             EquipmentExport.write(network, writer, context);
         }
         return exportedEq;
+    }
+
+    private Path exportToCgmesTP(Network network) throws IOException, XMLStreamException {
+        // Export CGMES EQ file
+        Path exportedTp = tmpDir.resolve("exportedTp.xml");
+        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedTp))) {
+            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
+            CgmesExportContext context = new CgmesExportContext(network);
+            TopologyExport.write(network, writer, context);
+        }
+
+        return exportedTp;
     }
 
     private boolean compareNetworksEQdata(Network expected, Network actual) {
