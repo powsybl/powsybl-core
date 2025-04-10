@@ -34,7 +34,7 @@ public class IeeeCdfReader {
         String line = reader.readLine();
 
         // Ensure malformed input does not trigger unexpected ArrayIndexOutOfBoundException
-        List<?> parsedLines = parseLines(Collections.singletonList(line), IeeeCdfTitle.class);
+        List<IeeeCdfTitle> parsedLines = parseLines(Collections.singletonList(line), IeeeCdfTitle.class);
         if (parsedLines.size() == 0) {
             throw new IllegalArgumentException("Failed to parse the IeeeCdfModel");
         }
