@@ -168,9 +168,11 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
             throw new IllegalArgumentException("startTime, endTime, and spacing cannot be null.");
         }
 
+        // Long.MAX_VALUE seconds corresponds to 292 years: Long.MAX_VALUE / (60 * 60 * 24 * 365) = 292.47
+        private Duration maxDays = Duration.ofDays(365L * 200);
         Duration duration = Duration.between(startTime, endTime);
-        Long maxDays = 365L * 200;
-        if (duration > maxDays || spacing > maxDays) {
+
+	if (duration.compareTo(maxDays) > 0 || spacing.compareTo(maxDays) > 0) {
             throw new IllegalArgumentException("Time range or spacing exceeds " + maxDays + " days.");
         }
 
