@@ -154,6 +154,10 @@ public interface CgmesModel {
 
     PropertyBags controlAreas();
 
+    PropertyBags dcSwitches();
+
+    PropertyBags dcGrounds();
+
     PropertyBags acDcConverters();
 
     PropertyBags dcLineSegments();
