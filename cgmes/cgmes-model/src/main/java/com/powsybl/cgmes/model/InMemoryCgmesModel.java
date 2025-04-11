@@ -495,6 +495,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags dcSwitches() {
+        return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags dcGrounds() {
+        return new PropertyBags();
+    }
+
+    @Override
     public PropertyBags acDcConverters() {
         return acDcConverters;
     }
