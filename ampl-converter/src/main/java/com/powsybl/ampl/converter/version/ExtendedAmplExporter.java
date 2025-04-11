@@ -261,7 +261,7 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
     @Override
     public void addAdditionalCellsStaticVarCompensator(TableFormatterHelper formatterHelper,
                                                        StaticVarCompensator svc) {
-        boolean voltageRegulation = svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE);
+        boolean voltageRegulation = svc.isRegulating() && svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE);
         int regulatingBusNum = voltageRegulation && svc.getRegulatingTerminal().isConnected() ?
             getMapper().getInt(AmplSubset.BUS, svc.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
 
