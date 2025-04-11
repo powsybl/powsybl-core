@@ -516,6 +516,11 @@ public class MatpowerExporter implements Exporter {
         public ActivePowerLimitsAdder newActivePowerLimits() {
             throw new UnsupportedOperationException();
         }
+
+        @Override
+        public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private void createLines(Network network, MatpowerModel model, Context context) {

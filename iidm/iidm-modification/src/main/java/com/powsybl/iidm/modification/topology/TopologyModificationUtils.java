@@ -174,11 +174,11 @@ public final class TopologyModificationUtils {
         if (side == TwoSides.ONE) {
             limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits1(), lim));
             limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits1(), lim));
-            limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.newCurrentLimits1(), lim));
+            limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits(), lim));
         } else {
             limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits2(), lim));
             limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits2(), lim));
-            limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.newCurrentLimits2(), lim));
+            limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits(), lim));
         }
     }
 

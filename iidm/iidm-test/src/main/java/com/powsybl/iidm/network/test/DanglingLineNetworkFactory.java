@@ -111,7 +111,7 @@ public final class DanglingLineNetworkFactory {
     }
 
     private static void createDanglingLineCurrentLimits(DanglingLine danglingLine) {
-        danglingLine.newCurrentLimits()
+        danglingLine.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit()
                 .setName("20'")
