@@ -163,7 +163,20 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     }
 
     private static long computePointCount(Instant startTime, Instant endTime, Duration spacing) {
-        return Math.round(((double) (Duration.between(startTime, endTime).toNanos())) / spacing.toNanos()) + 1;
+        // Checks to avoid invalid duration and instants
+        if (startTime == null || endTime == null || spacing == null) {
+            throw new IllegalArgumentException("startTime, endTime, and spacing cannot be null.");
+        }
+
+        // Long.MAX_VALUE seconds corresponds to 292 years: Long.MAX_VALUE / (60 * 60 * 24 * 365) = 292.47
+        private Duration maxDays = Duration.ofDays(365L * 200);
+        Duration duration = Duration.between(startTime, endTime);
+
+	if (duration.compareTo(maxDays) > 0 || spacing.compareTo(maxDays) > 0) {
+            throw new IllegalArgumentException("Time range or spacing exceeds " + maxDays + " days.");
+        }
+
+        return Math.round(((double) (duration.toNanos())) / spacing.toNanos()) + 1;
     }
 
     @Override
