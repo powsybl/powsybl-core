@@ -17,6 +17,8 @@ import com.powsybl.iidm.network.Substation;
  */
 public final class CgmesReports {
 
+    private static final String CONVERTER_IDS = "converterIds";
+
     private CgmesReports() {
     }
 
@@ -214,6 +216,50 @@ public final class CgmesReports {
                 .withTypedValue("cgmesId", description, TypedValue.URN_UUID)
                 .withTypedValue("cgmesSubset", identifier, TypedValue.CGMES_SUBSET)
                 .withTypedValue("networkId", networkId, TypedValue.ID)
+                .add();
+    }
+
+    public static void notVisitedDcEquipmentReport(ReportNode reportNode, String dcEquipmentId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.notVisitedDcEquipment")
+                .withUntypedValue("dcEquipmentId", dcEquipmentId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void dcLineSegmentNotInTwoDCIslandEndReport(ReportNode reportNode, String dcLineSegmentId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.dcLineSegmentNotInTwoDCIslandEnd")
+                .withUntypedValue("dcLineSegmentId", dcLineSegmentId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void multipleAcDcConverterTypesInSameDCIslandReport(ReportNode reportNode, String converterIds) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.multipleACDCConverterTypesInSameDCIsland")
+                .withUntypedValue(CONVERTER_IDS, converterIds)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void unsupportedDcConfigurationReport(ReportNode reportNode, String converterIds, String dcConfiguration) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.unsupportedDcConfiguration")
+                .withUntypedValue(CONVERTER_IDS, converterIds)
+                .withUntypedValue("dcConfiguration", dcConfiguration)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void unexpectedPointToPointDcConfigurationReport(ReportNode reportNode, String converterIds, int numberOfLines, int numberOfConverters1, int numberOfConverters2) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.unexpectedPointToPointDcConfiguration")
+                .withUntypedValue(CONVERTER_IDS, converterIds)
+                .withUntypedValue("numberOfLines", numberOfLines)
+                .withUntypedValue("numberOfConverters1", numberOfConverters1)
+                .withUntypedValue("numberOfConverters2", numberOfConverters2)
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
 }
