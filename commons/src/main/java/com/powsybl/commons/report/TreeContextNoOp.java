@@ -27,12 +27,17 @@ public class TreeContextNoOp implements TreeContext {
     }
 
     @Override
-    public Locale getLocale() {
-        return null;
+    public void merge(TreeContext treeContext) {
+        // No-op
     }
 
     @Override
-    public void merge(TreeContext treeContext) {
-        // no-op
+    public void addDictionaryEntry(String messageKey, MessageTemplateProvider messageTemplateProvider) {
+        // No-op
+    }
+
+    @Override
+    public Locale getLocale() {
+        return ReportConstants.DEFAULT_LOCALE;
     }
 }
