@@ -137,6 +137,18 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     }
 
     @Override
+    protected int getNode(int side, Connectable<?> connectable) {
+        Branch<?> branch = (Branch<?>) connectable;
+        if (side == 1) {
+            return branch.getTerminal1().getNodeBreakerView().getNode();
+        }
+        if (side == 2) {
+            return branch.getTerminal2().getNodeBreakerView().getNode();
+        }
+        throw createSideIllegalStateException(side);
+    }
+
+    @Override
     protected ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder) {
         if (side == 1) {
             return connectablePositionAdder.newFeeder1();

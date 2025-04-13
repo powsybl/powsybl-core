@@ -52,6 +52,8 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     protected abstract ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder);
 
+    protected abstract int getNode(int side, Connectable<?> connectable);
+
     protected AbstractCreateConnectableFeederBays(int... sides) {
         this.sides = Arrays.copyOf(sides, sides.length);
     }
@@ -234,8 +236,9 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 LOGGER.warn("No ConnectablePosition extension found on voltageLevel {}. The ConnectablePosition extension is not created for new feeder {}.", voltageLevel.getId(), connectableId);
                 noConnectablePositionExtension(reportNode, voltageLevel, connectableId);
             }
+            int connectableNode = getNode(side, connectable);
             // create switches and a breaker linking the connectable to the busbar sections.
-            createTopology(side, busOrBusbarSectionId, network, voltageLevel, connectable, namingStrategy, reportNode);
+            createTopology(side, busOrBusbarSectionId, network, voltageLevel, connectableNode, connectable, namingStrategy, reportNode);
         }
         if (createConnectablePosition) {
             connectablePositionAdder.add();

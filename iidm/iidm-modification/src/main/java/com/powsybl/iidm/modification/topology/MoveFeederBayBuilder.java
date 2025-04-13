@@ -15,12 +15,12 @@ import com.powsybl.iidm.network.Terminal;
 
 public class MoveFeederBayBuilder {
     private String connectableId = null;
-    private String targetBusOrBusbarSectionId = null;
+    private String targetBusOrBusBarSectionId = null;
     private String targetVoltageLevelId = null;
     private Terminal terminal = null;
 
     public MoveFeederBay build() {
-        return new MoveFeederBay(connectableId, targetBusOrBusbarSectionId, targetVoltageLevelId, terminal);
+        return new MoveFeederBay(connectableId, targetBusOrBusBarSectionId, targetVoltageLevelId, terminal);
     }
 
     /**
@@ -31,12 +31,12 @@ public class MoveFeederBayBuilder {
         return this;
     }
 
-    public MoveFeederBayBuilder withBusOrBusbarSectionId(String busOrBbs) {
-        this.targetBusOrBusbarSectionId = busOrBbs;
+    public MoveFeederBayBuilder withTargetBusOrBusBarSectionId(String busOrBbsId) {
+        this.targetBusOrBusBarSectionId = busOrBbsId;
         return this;
     }
 
-    public MoveFeederBayBuilder withVoltageLevelId(String voltageLevelId) {
+    public MoveFeederBayBuilder withTargetVoltageLevelId(String voltageLevelId) {
         this.targetVoltageLevelId = voltageLevelId;
         return this;
     }
