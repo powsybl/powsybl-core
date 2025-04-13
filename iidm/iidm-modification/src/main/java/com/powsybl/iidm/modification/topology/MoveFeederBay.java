@@ -13,8 +13,6 @@ import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.cleanNodeBreakerTopology;
@@ -24,60 +22,114 @@ import static com.powsybl.iidm.modification.util.ModificationReports.moveFeederB
 import static com.powsybl.iidm.modification.util.ModificationReports.notFoundConnectableReport;
 
 /**
- * This modification moves a feeder bay from one busbar section to another.
+ * This modification moves a feeder bay from one busBar section to another.
  * It identifies and updates the relevant switches and connections to achieve the move operation.
- *
- * @author  Ghazwa Rehili {@literal <ghazwa.rehili at rte-france.com>}
+ * @author Ghazwa Rehili {@literal <ghazwa.rehili at rte-france.com>}
  */
 public class MoveFeederBay extends AbstractNetworkModification {
     private final String connectableId;
-    private final String targetBusOrBusbarSectionId;
+    private final String targetBusOrBusBarSectionId;
     private final String targetVoltageLevelId;
     private final Terminal terminal;
 
     /**
-     * Constructor
-     * @param connectableId non-null id of the connectable whose feeder bay will be moved (busbar sections are not accepted)
-     * @param terminal non-null id of the terminal
-     * @param targetBusbarSectionId non-null id of the target busbar section
+     * @param connectableId non-null id of the connectable whose feeder bay will be moved (BusOrBusBarSection are not accepted)
+     * @param targetBusOrBusBarId non-null id of the target BusOrBusBar section
      * @param targetVoltageLevelId non-null id of the target voltage Level
+     * @param terminal non-null terminal
      */
-    public MoveFeederBay(String connectableId, String targetBusbarSectionId, String targetVoltageLevelId, Terminal terminal) {
+    MoveFeederBay(String connectableId, String targetBusOrBusBarId, String targetVoltageLevelId, Terminal terminal) {
         this.connectableId = Objects.requireNonNull(connectableId);
-        this.targetBusOrBusbarSectionId = Objects.requireNonNull(targetBusbarSectionId);
+        this.targetBusOrBusBarSectionId = Objects.requireNonNull(targetBusOrBusBarId);
         this.targetVoltageLevelId = Objects.requireNonNull(targetVoltageLevelId);
         this.terminal = Objects.requireNonNull(terminal);
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                      ComputationManager computationManager, ReportNode reportNode) {
+        // Get and validate connectable
         Connectable<?> connectable = network.getConnectable(connectableId);
-        if (!checkConnectable(throwException, reportNode, connectable)) {
+        if (!validateConnectable(connectable, throwException, reportNode)) {
             return;
         }
+
+        // Get voltage level and perform move operation based on topology kind
         VoltageLevel voltageLevel = network.getVoltageLevel(targetVoltageLevelId);
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            cleanNodeBreakerTopology(network, connectableId, reportNode);
-            createTopology(getSideFromTerminal(terminal, connectable), targetBusOrBusbarSectionId, network, voltageLevel, connectable, namingStrategy, reportNode);
-            Map<VoltageLevel, Integer> firstAvailableNodes = new HashMap<>();
-            int connectableNode = firstAvailableNodes.compute(voltageLevel, this::getNextAvailableNode);
-            terminal.getNodeBreakerView().moveConnectable(connectableNode, voltageLevel.getId());
+            moveInNodeBreakerTopology(network, connectable, voltageLevel, namingStrategy, reportNode);
         } else {
-            terminal.getBusBreakerView().moveConnectable(targetBusOrBusbarSectionId, terminal.isConnected());
+            moveInBusBreakerTopology(terminal);
         }
     }
 
+    /**
+     * Moves the connectable in a node-breaker topology
+     */
+    private void moveInNodeBreakerTopology(Network network, Connectable<?> connectable,
+                                           VoltageLevel voltageLevel, NamingStrategy namingStrategy,
+                                           ReportNode reportNode) {
+        // Clean existing topology
+        cleanNodeBreakerTopology(network, connectableId, reportNode);
+
+        // Get node information and create new topology
+        int side = getSideFromTerminal(terminal, connectable);
+        int node = getNode(side, connectable);
+        createTopology(side, targetBusOrBusBarSectionId, network, voltageLevel,
+                node, connectable, namingStrategy, reportNode);
+
+        // Move the connectable to a new node
+        int connectableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+        terminal.getNodeBreakerView().moveConnectable(connectableNode, voltageLevel.getId());
+    }
+
+    /**
+     * Moves the connectable in a bus-breaker topology
+     */
+    private void moveInBusBreakerTopology(Terminal terminal) {
+        terminal.getBusBreakerView().moveConnectable(targetBusOrBusBarSectionId, terminal.isConnected());
+    }
+
+    /**
+     * Determines the side value from a terminal and connectable
+     */
     private int getSideFromTerminal(Terminal terminal, Connectable<?> connectable) {
         if (connectable instanceof Injection<?>) {
             return 0;
-        } else if (connectable instanceof Branch<?>) {
+        } else if (connectable instanceof Branch<?> || connectable instanceof ThreeWindingsTransformer) {
             return terminal.getSide().getNum();
         }
-        throw new IllegalStateException("Unexpected connectable: " + connectable);
+        throw new IllegalStateException("Unsupported connectable type: " + connectable.getClass().getSimpleName());
     }
 
-    private int getNextAvailableNode(VoltageLevel vl, Integer node) {
-        return node == null ? vl.getNodeBreakerView().getMaximumNodeIndex() + 1 : node + 1;
+    /**
+     * Gets the node for a specific side of a connectable
+     */
+    protected int getNode(int side, Connectable<?> connectable) {
+        if (connectable instanceof Injection<?> injection) {
+            if (side == 0) {
+                return injection.getTerminal().getNodeBreakerView().getNode();
+            }
+        } else if (connectable instanceof Branch<?> branch) {
+            if (side == 1) {
+                return branch.getTerminal1().getNodeBreakerView().getNode();
+            }
+            if (side == 2) {
+                return branch.getTerminal2().getNodeBreakerView().getNode();
+            }
+        } else if (connectable instanceof ThreeWindingsTransformer transformer) {
+            if (side == 1) {
+                return transformer.getLeg1().getTerminal().getNodeBreakerView().getNode();
+            }
+            if (side == 2) {
+                return transformer.getLeg2().getTerminal().getNodeBreakerView().getNode();
+            }
+            if (side == 3) {
+                return transformer.getLeg3().getTerminal().getNodeBreakerView().getNode();
+            }
+        }
+        throw new IllegalStateException("Unexpected combination of side (" + side +
+                ") and connectable type: " + connectable.getClass().getSimpleName());
     }
 
     @Override
@@ -87,46 +139,40 @@ public class MoveFeederBay extends AbstractNetworkModification {
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
-        NetworkModificationImpact impact = DEFAULT_IMPACT;
+        impact = DEFAULT_IMPACT;
 
-        // Check connectable and target busbar section exists
+        // Validate connectable and target busOrBusBar section exist
         Connectable<?> connectable = network.getConnectable(connectableId);
-        BusbarSection targetBusbarSection = network.getBusbarSection(targetBusOrBusbarSectionId);
+        BusbarSection targetBusbarSection = network.getBusbarSection(targetBusOrBusBarSectionId);
+
         if (connectable == null || connectable instanceof BusbarSection || targetBusbarSection == null) {
-            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            return impact;
+            return NetworkModificationImpact.CANNOT_BE_APPLIED;
         }
 
-        // Check that at least one terminal is in the same voltage level as the target busbar section
+        // Validate that at least one terminal is in the same voltage level as the target busOrBusBar section
         VoltageLevel targetVoltageLevel = targetBusbarSection.getTerminal().getVoltageLevel();
-        boolean hasTerminalInTargetVoltageLevel = false;
+        boolean hasTerminalInTargetVoltageLevel = connectable.getTerminals().stream()
+                .anyMatch(t -> t.getVoltageLevel().getId().equals(targetVoltageLevel.getId()));
 
-        for (Terminal terminal : connectable.getTerminals()) {
-            if (terminal.getVoltageLevel().getId().equals(targetVoltageLevel.getId())) {
-                hasTerminalInTargetVoltageLevel = true;
-                break;
-            }
-        }
-
-        if (!hasTerminalInTargetVoltageLevel) {
-            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            return impact;
-        }
-
-        return impact;
+        return hasTerminalInTargetVoltageLevel ? impact : NetworkModificationImpact.CANNOT_BE_APPLIED;
     }
 
-    private boolean checkConnectable(boolean throwException, ReportNode reportNode, Connectable<?> connectable) {
-        if (connectable instanceof BusbarSection) {
-            moveFeederBayBusbarSectionReport(reportNode, connectableId);
-            logOrThrow(throwException, "BusbarSection connectables are not allowed as MoveFeederBay input: " + connectableId);
-            return false;
-        }
+    /**
+     * Validates if the connectable is valid for this modification
+     */
+    private boolean validateConnectable(Connectable<?> connectable, boolean throwException, ReportNode reportNode) {
         if (connectable == null) {
             notFoundConnectableReport(reportNode, connectableId);
             logOrThrow(throwException, "Connectable not found: " + connectableId);
             return false;
         }
+
+        if (connectable instanceof BusbarSection) {
+            moveFeederBayBusbarSectionReport(reportNode, connectableId);
+            logOrThrow(throwException, "BusbarSection connectables are not allowed as MoveFeederBay input: " + connectableId);
+            return false;
+        }
+
         return true;
     }
 }

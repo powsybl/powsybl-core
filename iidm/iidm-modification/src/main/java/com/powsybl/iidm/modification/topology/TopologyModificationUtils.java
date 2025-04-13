@@ -689,24 +689,8 @@ public final class TopologyModificationUtils {
         }
     }
 
-    public static int getNode(int side, Connectable<?> connectable) {
-        if (connectable instanceof Injection<?> injection) {
-            return injection.getTerminal().getNodeBreakerView().getNode();
-        } else if (connectable instanceof Branch<?> branch) {
-            if (side == 1) {
-                return branch.getTerminal1().getNodeBreakerView().getNode();
-            }
-            if (side == 2) {
-                return branch.getTerminal2().getNodeBreakerView().getNode();
-            }
-            throw new IllegalStateException("Unexpected side: " + side);
-        }
-        throw new IllegalStateException("Unexpected connectable: " + connectable);
-    }
-
-    public static void createTopology(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
+    public static void createTopology(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, int connectableNode, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
         // Nodes
-        int connectableNode = getNode(side, connectable);
         int forkNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
 
         // Information gathering
