@@ -503,7 +503,7 @@ public final class ModificationReports {
 
     public static void moveFeederBayBusbarSectionReport(ReportNode reportNode, String busbarSectionConnectableId) {
         reportNode.newReportNode()
-                .withMessageTemplate("moveBayBusbarSectionConnectable", "Cannot move feeder bay for connectable ${connectableId}, as it is a busbarSection")
+                .withMessageTemplate("core.iidm.modification.moveBayBusbarSectionConnectable")
                 .withUntypedValue(CONNECTABLE_ID, busbarSectionConnectableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();

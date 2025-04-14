@@ -50,9 +50,9 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     protected abstract ConnectablePosition.Direction getDirection(int side);
 
-    protected abstract ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder);
-
     protected abstract int getNode(int side, Connectable<?> connectable);
+
+    protected abstract ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder);
 
     protected AbstractCreateConnectableFeederBays(int... sides) {
         this.sides = Arrays.copyOf(sides, sides.length);

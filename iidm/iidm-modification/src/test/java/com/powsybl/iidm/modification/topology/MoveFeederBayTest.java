@@ -121,7 +121,7 @@ class MoveFeederBayTest {
     void testMoveBbsBreaker() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("reportTestMoveBbs", "Testing reportNode when trying to move a busbar section")
+                .withMessageTemplate("reportTestMoveBbs")
                 .build();
 
         // Verify initial state
