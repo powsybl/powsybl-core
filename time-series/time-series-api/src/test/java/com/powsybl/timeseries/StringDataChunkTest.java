@@ -198,7 +198,7 @@ class StringDataChunkTest {
     void compressedMergeTest() {
         CompressedStringDataChunk chunk1 = new CompressedStringDataChunk(1, 5, new String[]{"a", "b"}, new int[]{2, 3});
         CompressedStringDataChunk chunk2 = new CompressedStringDataChunk(6, 5, new String[]{"c", "d"}, new int[]{2, 3});
-        CompressedStringDataChunk chunk3 = new CompressedStringDataChunk(11, 3, new String[]{"d", "e"}, new int[]{2, 1});
+        CompressedStringDataChunk chunk3 = new CompressedStringDataChunk(11, 6, new String[]{"d", "e"}, new int[]{5, 1});
 
         //Merge chunk1 + chunk2
         StringDataChunk merge = chunk1.append(chunk2);
@@ -214,9 +214,9 @@ class StringDataChunkTest {
         assertNotNull(merge);
         assertInstanceOf(CompressedStringDataChunk.class, merge);
         assertEquals(6, merge.getOffset());
-        assertEquals(8, merge.getLength());
+        assertEquals(11, merge.getLength());
         assertArrayEquals(new String[] {"c", "d", "e"}, ((CompressedStringDataChunk) merge).getStepValues());
-        assertArrayEquals(new int[] {2, 5, 1}, ((CompressedStringDataChunk) merge).getStepLengths());
+        assertArrayEquals(new int[] {2, 8, 1}, ((CompressedStringDataChunk) merge).getStepLengths());
 
         //Merge chunk1 + chunk3
         try {
