@@ -140,21 +140,26 @@ public class MoveFeederBay extends AbstractNetworkModification {
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
         impact = DEFAULT_IMPACT;
-
-        // Validate connectable and target busOrBusBar section exist
         Connectable<?> connectable = network.getConnectable(connectableId);
         BusbarSection targetBusbarSection = network.getBusbarSection(targetBusOrBusBarSectionId);
 
+        // Check preconditions: valid connectable and target busbar section
         if (connectable == null || connectable instanceof BusbarSection || targetBusbarSection == null) {
-            return NetworkModificationImpact.CANNOT_BE_APPLIED;
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+            return impact;
         }
 
-        // Validate that at least one terminal is in the same voltage level as the target busOrBusBar section
         VoltageLevel targetVoltageLevel = targetBusbarSection.getTerminal().getVoltageLevel();
+
+        // Check if any terminal is in the same voltage level
         boolean hasTerminalInTargetVoltageLevel = connectable.getTerminals().stream()
                 .anyMatch(t -> t.getVoltageLevel().getId().equals(targetVoltageLevel.getId()));
 
-        return hasTerminalInTargetVoltageLevel ? impact : NetworkModificationImpact.CANNOT_BE_APPLIED;
+        if (!hasTerminalInTargetVoltageLevel) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+            return impact;
+        }
+        return impact;
     }
 
     /**
