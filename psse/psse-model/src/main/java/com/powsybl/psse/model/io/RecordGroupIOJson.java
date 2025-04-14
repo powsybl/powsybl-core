@@ -7,7 +7,10 @@
  */
 package com.powsybl.psse.model.io;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -185,8 +188,8 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
             // Table Data objects write every record in a separate line
             if (dpp != null) {
                 dpp.indentArraysWith(recordGroup.identification.getJsonObjectType() == PARAMETER_SET
-                    ? DefaultPrettyPrinter.FixedSpaceIndenter.instance
-                    : DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+                        ? DefaultPrettyPrinter.FixedSpaceIndenter.instance
+                        : DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
             }
             g.writeArrayFieldStart("data");
             for (String s : data) {

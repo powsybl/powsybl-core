@@ -14,7 +14,6 @@ import com.univocity.parsers.annotations.NullString;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
- *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class PsseGenerator extends PsseVersioned {
@@ -74,7 +73,7 @@ public class PsseGenerator extends PsseVersioned {
     private double pb = -9999;
 
     @Nested
-    private PsseOwnership ownership;
+    private PsseOwnership ownership = new PsseOwnership();
 
     @NullString(nulls = {"null"})
     @Parsed
