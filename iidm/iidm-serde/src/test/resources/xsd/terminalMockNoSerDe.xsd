@@ -2,7 +2,7 @@
 <xs:schema version="1.14"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:iidm="http://www.powsybl.org/schema/iidm/1_14"
-           targetNamespace="http://www.powsybl.org/schema/iidm/ext/terminal_mock_no_serde/1_12"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/terminal_mock_no_serde/1_0"
            elementFormDefault="qualified">
     <xs:import namespace="http://www.powsybl.org/schema/iidm/1_14" schemaLocation="iidm_V1_14.xsd"/>
     <xs:element name="terminalMockNoSerDe">

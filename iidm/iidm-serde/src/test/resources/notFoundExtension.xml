@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:bar="http://www.itesla_project.eu/schema/iidm/ext/loadbar/1_0" xmlns:mockns="http://www.powsybl.org/schema/iidm/ext/terminal_mock_no_serde/1_12" xmlns:extZip="http://www.itesla_project.eu/schema/iidm/ext/loadzipmodel/1_0" id="test" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:bar="http://www.itesla_project.eu/schema/iidm/ext/loadbar/1_0" xmlns:mockns="http://www.powsybl.org/schema/iidm/ext/terminal_mock_no_serde/1_0" xmlns:extZip="http://www.itesla_project.eu/schema/iidm/ext/loadzipmodel/1_0" id="test" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="substation" country="FR" tso="RTE" geographicalTags="B">
         <iidm:voltageLevel id="VLLOAD" nominalV="150.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
