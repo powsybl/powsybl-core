@@ -1,0 +1,729 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2019, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<xs:schema version="1.14"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:iidm="http://www.powsybl.org/schema/iidm/equipment/1_14"
+           targetNamespace="http://www.powsybl.org/schema/iidm/equipment/1_14"
+           elementFormDefault="qualified">
+    <xs:simpleType name='nonEmptyString'>
+        <xs:restriction base='xs:string'>
+            <xs:minLength value='1'/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="network" type="iidm:Network"/>
+    <xs:complexType name="Network">
+        <xs:sequence>
+            <xs:element name="alias" type="iidm:Alias" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="network" type="iidm:Network" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="voltageLevel" type="iidm:VoltageLevel" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="substation" type="iidm:Substation" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="twoWindingsTransformer" type="iidm:TwoWindingsTransformer"/>
+                <xs:element name="threeWindingsTransformer" type="iidm:ThreeWindingsTransformer"/>
+            </xs:choice>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="line" type="iidm:Line"/>
+                <xs:element name="tieLine" type="iidm:TieLine"/>
+                <xs:element name="hvdcLine" type="iidm:HvdcLine"/>
+            </xs:choice>
+            <xs:element name="voltageAngleLimit" minOccurs="0" maxOccurs="unbounded" type="iidm:VoltageAngleLimit"/>
+            <xs:element name="area" type="iidm:Area" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="extension" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:any minOccurs="1" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                    <xs:attribute name="id" use="required" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="caseDate" use="required" type="xs:dateTime"/>
+        <xs:attribute name="forecastDistance" use="required" type="xs:int"/>
+        <xs:attribute name="sourceFormat" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="minimumValidationLevel" use="required" type="iidm:nonEmptyString"/>
+    </xs:complexType>
+    <xs:complexType name="Identifiable">
+        <xs:sequence>
+            <xs:element name="alias" type="iidm:Alias" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="name" use="optional" type="xs:string"/>
+        <xs:attribute name="fictitious" use="optional" type="xs:boolean" default="false"/>
+    </xs:complexType>
+    <xs:complexType name="Alias">
+        <xs:simpleContent>
+            <xs:extension base="iidm:nonEmptyString">
+                <xs:attribute name="type" use="optional" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="Property">
+        <xs:attribute name="name" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="value" use="required" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="Substation">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:sequence>
+                    <xs:element name="voltageLevel" type="iidm:VoltageLevel" minOccurs="0" maxOccurs="unbounded" />
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="twoWindingsTransformer" type="iidm:TwoWindingsTransformer" />
+                        <xs:element name="threeWindingsTransformer" type="iidm:ThreeWindingsTransformer" />
+                        <xs:element name="overloadManagementSystem" type="iidm:OverloadManagementSystem" />
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attribute name="tso" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="country" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="geographicalTags" use="optional" type="iidm:nonEmptyString"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="TopologyKind">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="NODE_BREAKER"/>
+            <xs:enumeration value="BUS_BREAKER"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="VoltageLevel">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:sequence>
+                    <xs:choice>
+                        <xs:element name="nodeBreakerTopology" type="iidm:NodeBreakerTopology"/>
+                        <xs:element name="busBreakerTopology" type="iidm:BusBreakerTopology"/>
+                    </xs:choice>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="generator" type="iidm:Generator"/>
+                        <xs:element name="battery" type="iidm:Battery"/>
+                        <xs:element name="load" type="iidm:Load"/>
+                        <xs:element name="shunt" type="iidm:ShuntCompensator"/>
+                        <xs:element name="danglingLine" type="iidm:DanglingLine"/>
+                        <xs:element name="staticVarCompensator" type="iidm:StaticVarCompensator"/>
+                        <xs:element name="vscConverterStation" type="iidm:VscConverterStation"/>
+                        <xs:element name="lccConverterStation" type="iidm:LccConverterStation"/>
+                        <xs:element name="ground" type="iidm:Ground"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attribute name="nominalV" use="required" type="xs:double"/>
+                <xs:attribute name="topologyKind" use="required" type="iidm:TopologyKind"/>
+                <xs:attribute name="lowVoltageLimit" use="optional" type="xs:double"/>
+                <xs:attribute name="highVoltageLimit" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="NodeBreakerTopology">
+        <xs:sequence>
+            <xs:element name="busbarSection" minOccurs="0" maxOccurs="unbounded" type="iidm:BusbarSection"/>
+            <xs:element name="switch" minOccurs="0" maxOccurs="unbounded" type="iidm:SwitchNode"/>
+            <xs:element name="internalConnection" minOccurs="0" maxOccurs="unbounded" type="iidm:InternalConnection"/>
+            <xs:element name="bus" minOccurs="0" maxOccurs="unbounded" type="iidm:CalculatedBus"/>
+            <xs:element name="inj" minOccurs="0" maxOccurs="unbounded" type="iidm:FictitiousInjection"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="BusBreakerTopology">
+        <xs:sequence>
+            <xs:element name="bus" minOccurs="0" maxOccurs="unbounded" type="iidm:Bus"/>
+            <xs:element name="switch" minOccurs="0" maxOccurs="unbounded" type="iidm:SwitchBus"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Bus">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="v" use="optional" type="xs:double"/>
+                <xs:attribute name="angle" use="optional" type="xs:double"/>
+                <xs:attribute name="fictitiousP0" use="optional" type="xs:double"/>
+                <xs:attribute name="fictitiousQ0" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="BusbarSection">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="node" use="required" type="xs:int"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="CalculatedBus">
+        <xs:sequence>
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="nodes" use="required" type="xs:string"/>
+        <xs:attribute name="v" use="optional" type="xs:double"/>
+        <xs:attribute name="angle" use="optional" type="xs:double"/>
+    </xs:complexType>
+    <xs:complexType name="FictitiousInjection">
+        <xs:attribute name="node" use="required" type="xs:int"/>
+        <xs:attribute name="fictitiousP0" use="optional" type="xs:double"/>
+        <xs:attribute name="fictitiousQ0" use="optional" type="xs:double"/>
+    </xs:complexType>
+    <xs:simpleType name="SwitchKind">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="BREAKER"/>
+            <xs:enumeration value="DISCONNECTOR"/>
+            <xs:enumeration value="LOAD_BREAK_SWITCH"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="Switch">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="kind" use="optional" type="iidm:SwitchKind"/>
+                <xs:attribute name="retained" use="required" type="xs:boolean"/>
+                <xs:attribute name="open" use="required" type="xs:boolean"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="SwitchNode">
+        <xs:complexContent>
+            <xs:extension base="iidm:Switch">
+                <xs:attribute name="node1" use="required" type="xs:int"/>
+                <xs:attribute name="node2" use="required" type="xs:int"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="SwitchBus">
+        <xs:complexContent>
+            <xs:extension base="iidm:Switch">
+                <xs:attribute name="bus1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="bus2" use="required" type="iidm:nonEmptyString"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="InternalConnection">
+        <xs:attribute name="node1" use="required" type="xs:int"/>
+        <xs:attribute name="node2" use="required" type="xs:int"/>
+    </xs:complexType>
+    <xs:complexType name="Point">
+        <xs:attribute name="p" use="required" type="xs:double"/>
+        <xs:attribute name="minQ" use="required" type="xs:double"/>
+        <xs:attribute name="maxQ" use="required" type="xs:double"/>
+    </xs:complexType>
+    <xs:complexType name="ReactiveCapabilityCurve">
+        <xs:sequence>
+            <xs:element name="point" minOccurs="2" maxOccurs="unbounded" type="iidm:Point"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="MinMaxReactiveLimits">
+        <xs:attribute name="minQ" use="required" type="xs:double"/>
+        <xs:attribute name="maxQ" use="required" type="xs:double"/>
+    </xs:complexType>
+    <xs:simpleType name="EnergySource">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="HYDRO"/>
+            <xs:enumeration value="NUCLEAR"/>
+            <xs:enumeration value="WIND"/>
+            <xs:enumeration value="THERMAL"/>
+            <xs:enumeration value="SOLAR"/>
+            <xs:enumeration value="OTHER"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="Injection">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="node" use="optional" type="xs:int"/>
+                <xs:attribute name="bus" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="p" use="optional" type="xs:double"/>
+                <xs:attribute name="q" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Generator">
+        <xs:complexContent>
+            <xs:extension base="iidm:Injection">
+                <xs:sequence>
+                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
+                    <xs:choice>
+                        <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
+                        <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attribute name="energySource" use="required" type="iidm:EnergySource"/>
+                <xs:attribute name="maxP" use="required" type="xs:double"/>
+                <xs:attribute name="minP" use="required" type="xs:double"/>
+                <xs:attribute name="ratedS" use="optional" type="xs:double"/>
+                <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
+                <xs:attribute name="targetP" use="optional" type="xs:double"/>
+                <xs:attribute name="targetQ" use="optional" type="xs:double"/>
+                <xs:attribute name="targetV" use="optional" type="xs:double"/>
+                <xs:attribute name="isCondenser" use="optional" type="xs:boolean"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Battery">
+        <xs:complexContent>
+            <xs:extension base="iidm:Injection">
+                <xs:sequence>
+                    <xs:choice>
+                        <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
+                        <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attribute name="targetP" use="optional" type="xs:double"/>
+                <xs:attribute name="targetQ" use="optional" type="xs:double"/>
+                <xs:attribute name="minP" use="required" type="xs:double"/>
+                <xs:attribute name="maxP" use="required" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="LoadType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="UNDEFINED"/>
+            <xs:enumeration value="AUXILIARY"/>
+            <xs:enumeration value="FICTITIOUS"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="Load">
+        <xs:complexContent>
+            <xs:extension base="iidm:Injection">
+                <xs:sequence minOccurs="0">
+                    <xs:choice>
+                        <xs:element name="zipModel" type="iidm:ZipLoadModel"/>
+                        <xs:element name="exponentialModel" type="iidm:ExponentialLoadModel"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attribute name="p0" use="optional" type="xs:double"/>
+                <xs:attribute name="q0" use="optional" type="xs:double"/>
+                <xs:attribute name="loadType" use="required" type="iidm:LoadType"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ZipLoadModel">
+        <xs:attribute name="c0p" use="required" type="xs:double"/>
+        <xs:attribute name="c1p" use="required" type="xs:double"/>
+        <xs:attribute name="c2p" use="required" type="xs:double"/>
+        <xs:attribute name="c0q" use="required" type="xs:double"/>
+        <xs:attribute name="c1q" use="required" type="xs:double"/>
+        <xs:attribute name="c2q" use="required" type="xs:double"/>
+    </xs:complexType>
+    <xs:complexType name="ExponentialLoadModel">
+        <xs:attribute name="np" use="required" type="xs:double"/>
+        <xs:attribute name="nq" use="required" type="xs:double"/>
+    </xs:complexType>
+    <xs:complexType name="ShuntCompensator">
+        <xs:complexContent>
+            <xs:extension base="iidm:Injection">
+                <xs:sequence>
+                    <xs:choice>
+                        <xs:element name="shuntLinearModel" type="iidm:ShuntLinearModel"/>
+                        <xs:element name="shuntNonLinearModel" type="iidm:ShuntNonLinearModel"/>
+                    </xs:choice>
+                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
+                </xs:sequence>
+                <xs:attribute name="sectionCount" use="optional" type="xs:int"/>
+                <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
+                <xs:attribute name="targetV" use="optional" type="xs:double"/>
+                <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ShuntLinearModel">
+        <xs:attribute name="bPerSection" use="required" type="xs:double"/>
+        <xs:attribute name="gPerSection" use="optional" type="xs:double"/>
+        <xs:attribute name="maximumSectionCount" use="required" type="xs:int"/>
+    </xs:complexType>
+    <xs:complexType name="ShuntNonLinearModel">
+        <xs:sequence>
+            <xs:element name="section" maxOccurs="unbounded" type="iidm:ShuntSection" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ShuntSection">
+        <xs:attribute name="b" use="required" type="xs:double"/>
+        <xs:attribute name="g" use="optional" type="xs:double"/>
+    </xs:complexType>
+    <xs:complexType name="LoadingLimit">
+        <xs:sequence>
+            <xs:element name="temporaryLimit" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:attribute name="name" use="required" type="iidm:nonEmptyString"/>
+                    <xs:attribute name="acceptableDuration" use="optional" type="xs:int"/>
+                    <xs:attribute name="value" use="optional" type="xs:double"/>
+                    <xs:attribute name="fictitious" use="optional" type="xs:boolean" default="false"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="permanentLimit" use="optional" type="xs:double"/>
+    </xs:complexType>
+    <xs:complexType name="OperationalLimitsGroup">
+        <xs:sequence>
+            <xs:element name="activePowerLimits" type="iidm:LoadingLimit" minOccurs="0"/>
+            <xs:element name="apparentPowerLimits" type="iidm:LoadingLimit" minOccurs="0"/>
+            <xs:element name="currentLimits" type="iidm:LoadingLimit" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="id" use="required" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="DanglingLine">
+        <xs:complexContent>
+            <xs:extension base="iidm:Injection">
+                <xs:sequence>
+                    <xs:choice minOccurs="0">
+                        <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
+                        <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
+                    </xs:choice>
+                    <xs:element name="operationalLimitsGroup" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="selectedOperationalLimitsGroupId" use="optional" type="xs:string"/>
+                <xs:attribute name="p0" use="optional" type="xs:double"/>
+                <xs:attribute name="q0" use="optional" type="xs:double"/>
+                <xs:attribute name="r" use="required" type="xs:double"/>
+                <xs:attribute name="x" use="required" type="xs:double"/>
+                <xs:attribute name="g" use="required" type="xs:double"/>
+                <xs:attribute name="b" use="required" type="xs:double"/>
+                <xs:attribute name="generationMinP" use="optional" type="xs:double"/>
+                <xs:attribute name="generationMaxP" use="optional" type="xs:double"/>
+                <xs:attribute name="generationVoltageRegulationOn" use="optional" type="xs:boolean"/>
+                <xs:attribute name="generationTargetP" use="optional" type="xs:double"/>
+                <xs:attribute name="generationTargetV" use="optional" type="xs:double"/>
+                <xs:attribute name="generationTargetQ" use="optional" type="xs:double"/>
+                <xs:attribute name="pairingKey" use="optional" type="iidm:nonEmptyString"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="StaticVarCompensatorRegulationMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="VOLTAGE"/>
+            <xs:enumeration value="REACTIVE_POWER"/>
+            <xs:enumeration value="OFF"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="StaticVarCompensator">
+        <xs:complexContent>
+            <xs:extension base="iidm:Injection">
+                <xs:sequence>
+                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
+                </xs:sequence>
+                <xs:attribute name="bMin" use="required" type="xs:double"/>
+                <xs:attribute name="bMax" use="required" type="xs:double"/>
+                <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
+                <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
+                <xs:attribute name="regulationMode" use="optional" type="iidm:StaticVarCompensatorRegulationMode"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Branch">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="node1" use="optional" type="xs:int"/>
+                <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="node2" use="optional" type="xs:int"/>
+                <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="voltageLevelId2" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="p1" use="optional" type="xs:double"/>
+                <xs:attribute name="q1" use="optional" type="xs:double"/>
+                <xs:attribute name="p2" use="optional" type="xs:double"/>
+                <xs:attribute name="q2" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="TwoWindingsTransformer">
+        <xs:complexContent>
+            <xs:extension base="iidm:Branch">
+                <xs:sequence>
+                    <xs:element name="ratioTapChanger" type="iidm:RatioTapChanger" minOccurs="0"/>
+                    <xs:element name="phaseTapChanger" type="iidm:PhaseTapChanger" minOccurs="0"/>
+                    <xs:element name="operationalLimitsGroup1" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="operationalLimitsGroup2" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="selectedOperationalLimitsGroupId1" use="optional" type="xs:string"/>
+                <xs:attribute name="selectedOperationalLimitsGroupId2" use="optional" type="xs:string"/>
+                <xs:attribute name="r" use="required" type="xs:double"/>
+                <xs:attribute name="x" use="required" type="xs:double"/>
+                <xs:attribute name="g" use="required" type="xs:double"/>
+                <xs:attribute name="b" use="required" type="xs:double"/>
+                <xs:attribute name="ratedU1" use="required" type="xs:double"/>
+                <xs:attribute name="ratedU2" use="required" type="xs:double"/>
+                <xs:attribute name="ratedS" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ThreeWindingsTransformer">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:sequence>
+                    <xs:element name="ratioTapChanger1" type="iidm:RatioTapChanger" minOccurs="0"/>
+                    <xs:element name="phaseTapChanger1" type="iidm:PhaseTapChanger" minOccurs="0"/>
+                    <xs:element name="ratioTapChanger2" type="iidm:RatioTapChanger" minOccurs="0"/>
+                    <xs:element name="phaseTapChanger2" type="iidm:PhaseTapChanger" minOccurs="0"/>
+                    <xs:element name="ratioTapChanger3" type="iidm:RatioTapChanger" minOccurs="0"/>
+                    <xs:element name="phaseTapChanger3" type="iidm:PhaseTapChanger" minOccurs="0"/>
+                    <xs:element name="operationalLimitsGroup1" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="operationalLimitsGroup2" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="operationalLimitsGroup3" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="selectedOperationalLimitsGroupId1" use="optional" type="xs:string"/>
+                <xs:attribute name="selectedOperationalLimitsGroupId2" use="optional" type="xs:string"/>
+                <xs:attribute name="selectedOperationalLimitsGroupId3" use="optional" type="xs:string"/>
+                <xs:attribute name="ratedU0" use="required" type="xs:double"/>
+                <xs:attribute name="ratedU1" use="required" type="xs:double"/>
+                <xs:attribute name="ratedU2" use="required" type="xs:double"/>
+                <xs:attribute name="ratedU3" use="required" type="xs:double"/>
+                <xs:attribute name="ratedS1" use="optional" type="xs:double"/>
+                <xs:attribute name="ratedS2" use="optional" type="xs:double"/>
+                <xs:attribute name="ratedS3" use="optional" type="xs:double"/>
+                <xs:attribute name="r1" use="required" type="xs:double"/>
+                <xs:attribute name="r2" use="required" type="xs:double"/>
+                <xs:attribute name="r3" use="required" type="xs:double"/>
+                <xs:attribute name="x1" use="required" type="xs:double"/>
+                <xs:attribute name="x2" use="required" type="xs:double"/>
+                <xs:attribute name="x3" use="required" type="xs:double"/>
+                <xs:attribute name="g1" use="required" type="xs:double"/>
+                <xs:attribute name="g2" use="required" type="xs:double"/>
+                <xs:attribute name="g3" use="required" type="xs:double"/>
+                <xs:attribute name="b1" use="required" type="xs:double"/>
+                <xs:attribute name="b2" use="required" type="xs:double"/>
+                <xs:attribute name="b3" use="required" type="xs:double"/>
+                <xs:attribute name="node1" use="optional" type="xs:int"/>
+                <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="node2" use="optional" type="xs:int"/>
+                <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="voltageLevelId2" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="node3" use="optional" type="xs:int"/>
+                <xs:attribute name="bus3" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus3" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="voltageLevelId3" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="p1" use="optional" type="xs:double"/>
+                <xs:attribute name="q1" use="optional" type="xs:double"/>
+                <xs:attribute name="p2" use="optional" type="xs:double"/>
+                <xs:attribute name="q2" use="optional" type="xs:double"/>
+                <xs:attribute name="p3" use="optional" type="xs:double"/>
+                <xs:attribute name="q3" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="OverloadManagementSystem">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="branchTripping" type="iidm:BranchTripping"/>
+                    <xs:element name="switchTripping" type="iidm:SwitchTripping"/>
+                    <xs:element name="threeWindingsTransformerTripping" type="iidm:ThreeWindingsTransformerTripping"/>
+                </xs:choice>
+                <xs:attribute name="enabled" use="optional" type="xs:boolean"/>
+                <xs:attribute name="monitoredElementId" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="side" use="optional" type="iidm:Side"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Tripping">
+        <xs:attribute name="key" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="name" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="currentLimit" use="required" type="xs:double"/>
+        <xs:attribute name="openAction" use="required" type="xs:boolean"/>
+    </xs:complexType>
+    <xs:complexType name="BranchTripping">
+        <xs:complexContent>
+            <xs:extension base="iidm:Tripping">
+                <xs:attribute name="branchId" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="side" use="optional" type="iidm:Side"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="SwitchTripping">
+        <xs:complexContent>
+            <xs:extension base="iidm:Tripping">
+                <xs:attribute name="switchId" use="required" type="iidm:nonEmptyString"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ThreeWindingsTransformerTripping">
+        <xs:complexContent>
+            <xs:extension base="iidm:Tripping">
+                <xs:attribute name="threeWindingsTransformerId" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="side" use="optional" type="iidm:Side"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="Side">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ONE"/>
+            <xs:enumeration value="TWO"/>
+            <xs:enumeration value="THREE"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="TerminalRef">
+        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="side" use="optional" type="iidm:Side"/>
+    </xs:complexType>
+    <xs:complexType name="RatioTapChangerStep">
+        <xs:attribute name="rho" use="required" type="xs:double"/>
+        <xs:attribute name="r" use="required" type="xs:double"/>
+        <xs:attribute name="x" use="required" type="xs:double"/>
+        <xs:attribute name="g" use="required" type="xs:double"/>
+        <xs:attribute name="b" use="required" type="xs:double"/>
+    </xs:complexType>
+    <xs:complexType name="PhaseTapChangerStep">
+        <xs:attribute name="rho" use="required" type="xs:double"/>
+        <xs:attribute name="alpha" use="required" type="xs:double"/>
+        <xs:attribute name="r" use="required" type="xs:double"/>
+        <xs:attribute name="x" use="required" type="xs:double"/>
+        <xs:attribute name="g" use="required" type="xs:double"/>
+        <xs:attribute name="b" use="required" type="xs:double"/>
+    </xs:complexType>
+    <xs:simpleType name="RatioRegulationMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="VOLTAGE"/>
+            <xs:enumeration value="REACTIVE_POWER"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="RatioTapChanger">
+        <xs:sequence>
+            <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
+            <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:RatioTapChangerStep"/>
+        </xs:sequence>
+        <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
+        <xs:attribute name="tapPosition" use="optional" type="xs:int"/>
+        <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
+        <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
+        <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
+        <xs:attribute name="regulationMode" use="optional" type="iidm:RatioRegulationMode"/>
+        <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
+    </xs:complexType>
+    <xs:simpleType name="PhaseRegulationMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CURRENT_LIMITER"/>
+            <xs:enumeration value="ACTIVE_POWER_CONTROL"/>
+            <xs:enumeration value="FIXED_TAP"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="PhaseTapChanger">
+        <xs:sequence>
+            <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
+            <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:PhaseTapChangerStep"/>
+        </xs:sequence>
+        <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
+        <xs:attribute name="tapPosition" use="optional" type="xs:int"/>
+        <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
+        <xs:attribute name="regulationMode" use="optional" type="iidm:PhaseRegulationMode"/>
+        <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
+        <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
+    </xs:complexType>
+    <xs:complexType name="Line">
+        <xs:complexContent>
+            <xs:extension base="iidm:Branch">
+                <xs:sequence>
+                    <xs:element name="operationalLimitsGroup1" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="operationalLimitsGroup2" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="selectedOperationalLimitsGroupId1" use="optional" type="xs:string"/>
+                <xs:attribute name="selectedOperationalLimitsGroupId2" use="optional" type="xs:string"/>
+                <xs:attribute name="r" use="required" type="xs:double"/>
+                <xs:attribute name="x" use="required" type="xs:double"/>
+                <xs:attribute name="g1" use="required" type="xs:double"/>
+                <xs:attribute name="g2" use="required" type="xs:double"/>
+                <xs:attribute name="b1" use="required" type="xs:double"/>
+                <xs:attribute name="b2" use="required" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="TieLine">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="danglingLineId1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="danglingLineId2" use="required" type="iidm:nonEmptyString"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="ConvertersMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="SIDE_1_RECTIFIER_SIDE_2_INVERTER"/>
+            <xs:enumeration value="SIDE_1_INVERTER_SIDE_2_RECTIFIER"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="HvdcConverterStation">
+        <xs:complexContent>
+            <xs:extension base="iidm:Injection">
+                <xs:attribute name="lossFactor" use="required" type="xs:float"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="VscConverterStation">
+        <xs:complexContent>
+            <xs:extension base="iidm:HvdcConverterStation">
+                <xs:sequence>
+                    <xs:choice>
+                        <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
+                        <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
+                    </xs:choice>
+                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
+                </xs:sequence>
+                <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
+                <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
+                <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="LccConverterStation">
+        <xs:complexContent>
+            <xs:extension base="iidm:HvdcConverterStation">
+                <xs:attribute name="powerFactor" use="required" type="xs:float"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="HvdcLine">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="r" use="required" type="xs:double"/>
+                <xs:attribute name="nominalV" use="required" type="xs:double"/>
+                <xs:attribute name="activePowerSetpoint" use="optional" type="xs:double"/>
+                <xs:attribute name="maxP" use="required" type="xs:double"/>
+                <xs:attribute name="convertersMode" use="required" type="iidm:ConvertersMode"/>
+                <xs:attribute name="converterStation1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="converterStation2" use="required" type="iidm:nonEmptyString"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="VoltageAngleLimit">
+        <xs:sequence>
+            <xs:element name="from" type="iidm:TerminalRef"/>
+            <xs:element name="to" type="iidm:TerminalRef"/>
+        </xs:sequence>
+		<xs:attribute name="id" use="required" type="xs:string"/>
+        <xs:attribute name="highLimit" use="optional" type="xs:double"/>
+        <xs:attribute name="lowLimit" use="optional" type="xs:double"/>
+    </xs:complexType>
+    <xs:complexType name="Ground">
+        <xs:complexContent>
+            <xs:extension base="iidm:Injection">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="VoltageLevelRef">
+        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+    </xs:complexType>
+    <xs:complexType name="AreaBoundary">
+        <xs:attribute name="type" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="side" type="iidm:Side"/>
+        <xs:attribute name="ac" use="required" type="xs:boolean"/>
+    </xs:complexType>
+    <xs:complexType name="Area">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:sequence>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="voltageLevelRef" type="iidm:VoltageLevelRef"/>
+                        <xs:element name="areaBoundary" type="iidm:AreaBoundary"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attribute name="areaType" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="interchangeTarget" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+</xs:schema>
