@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_14" xmlns:bsc="http://www.itesla_project.eu/schema/iidm/ext/battery_short_circuits/1_0" id="fictitious" caseDate="2017-06-25T17:43:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:bsc="http://www.itesla_project.eu/schema/iidm/ext/battery_short_circuits/1_0" id="fictitious" caseDate="2017-06-25T17:43:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="P1" country="FR" tso="R" geographicalTags="A">
         <iidm:voltageLevel id="VLGEN" nominalV="400.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
