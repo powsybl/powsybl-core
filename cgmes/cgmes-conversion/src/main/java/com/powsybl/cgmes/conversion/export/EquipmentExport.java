@@ -115,9 +115,7 @@ public final class EquipmentExport {
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 String cgmesVlId = context.getNamingStrategy().getCgmesId(vl);
                 if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
-                    writeNodes(vl, cgmesVlId, new VoltageLevelAdjacency(vl, context), mapNodeKey2NodeId, cimNamespace, writer, context);
-                    writeSwitchesConnectivity(vl, cgmesVlId, mapNodeKey2NodeId, cimNamespace, writer, context);
-                    writeBusbarSectionsConnectivity(vl, mapNodeKey2NodeId, cimNamespace, writer, context);
+                    writeNodes(vl, cgmesVlId, new VoltageLevelAdjacency(vl.getNodeBreakerView(), context), mapNodeKey2NodeId, cimNamespace, writer, context);
                 } else {
                     writeBuses(vl, cgmesVlId, mapNodeKey2NodeId, cimNamespace, writer, context);
                 }
@@ -125,53 +123,9 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeSwitchesConnectivity(VoltageLevel vl, String cgmesVlId, Map <String, String> mapNodeKey2NodeId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        String[] nodeKeys = new String[2];
-        for (Switch sw : vl.getSwitches()) {
-            fillSwitchNodeKeys(vl, sw, nodeKeys, context);
-            // We have to go through all switches, even if they are not exported as equipment,
-            // to be sure that all required mappings between IIDM node number and CGMES Connectivity Node are created
-            writeSwitchConnectivity(nodeKeys[0], vl, cgmesVlId, mapNodeKey2NodeId, cimNamespace, writer, context);
-            writeSwitchConnectivity(nodeKeys[1], vl, cgmesVlId, mapNodeKey2NodeId, cimNamespace, writer, context);
-        }
-    }
-
-    private static void writeSwitchConnectivity(String nodeKey, VoltageLevel vl, String cgmesVlId, Map <String, String> mapNodeKey2NodeId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        mapNodeKey2NodeId.computeIfAbsent(nodeKey, k -> {
-            try {
-                String node = context.getNamingStrategy().getCgmesId(refTyped(vl), ref(nodeKey), CONNECTIVITY_NODE);
-                ConnectivityNodeEq.write(node, nodeKey, cgmesVlId, cimNamespace, writer, context);
-                return node;
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
-    }
-
-    private static String buildNodeKey(VoltageLevel vl, int node) {
-        return vl.getId() + "_" + node;
-    }
-
-    private static String buildNodeKey(Bus bus) {
-        return bus.getId();
-    }
-
-    private static void writeBusbarSectionsConnectivity(VoltageLevel vl, Map <String, String> mapNodeKey2NodeId, String cimNamespace,
-                                                        XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (BusbarSection bbs : vl.getNodeBreakerView().getBusbarSections()) {
-            String connectivityNodeId = connectivityNodeId(mapNodeKey2NodeId, bbs.getTerminal(), context);
-            if (connectivityNodeId == null) {
-                String node = context.getNamingStrategy().getCgmesId(refTyped(bbs), CONNECTIVITY_NODE);
-                ConnectivityNodeEq.write(node, bbs.getNameOrId(), context.getNamingStrategy().getCgmesId(vl), cimNamespace, writer, context);
-                String key = buildNodeKey(vl, bbs.getTerminal().getNodeBreakerView().getNode());
-                mapNodeKey2NodeId.put(key, node);
-            }
-        }
-    }
-
     private static void writeNodes(VoltageLevel vl, String cgmesVlId, VoltageLevelAdjacency vlAdjacencies, Map <String, String> mapNodeKey2NodeId, String cimNamespace,
                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (List<Integer> nodes : vlAdjacencies.getNodes()) {
+        for (List<Integer> nodes : vlAdjacencies.getAdjacencies()) {
             String cgmesNodeId = context.getNamingStrategy().getCgmesId(refTyped(vl), ref(nodes.get(0)), CONNECTIVITY_NODE);
             ConnectivityNodeEq.write(cgmesNodeId, CgmesExportUtil.format(nodes.get(0)), cgmesVlId, cimNamespace, writer, context);
             for (Integer nodeNumber : nodes) {
@@ -186,6 +140,14 @@ public final class EquipmentExport {
             ConnectivityNodeEq.write(cgmesNodeId, bus.getNameOrId(), cgmesVlId, cimNamespace, writer, context);
             mapNodeKey2NodeId.put(buildNodeKey(bus), cgmesNodeId);
         }
+    }
+
+    private static String buildNodeKey(VoltageLevel vl, int node) {
+        return vl.getId() + "_" + node;
+    }
+
+    private static String buildNodeKey(Bus bus) {
+        return bus.getId();
     }
 
     private static void writeSwitches(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -206,16 +168,6 @@ public final class EquipmentExport {
         Bus bus1 = sw.getVoltageLevel().getBusBreakerView().getBus1(sw.getId());
         Bus bus2 = sw.getVoltageLevel().getBusBreakerView().getBus2(sw.getId());
         return bus1 != bus2;
-    }
-
-    private static void fillSwitchNodeKeys(VoltageLevel vl, Switch sw, String[] nodeKeys, CgmesExportContext context) {
-        if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER) && !context.isBusBranchExport()) {
-            nodeKeys[0] = buildNodeKey(vl, vl.getNodeBreakerView().getNode1(sw.getId()));
-            nodeKeys[1] = buildNodeKey(vl, vl.getNodeBreakerView().getNode2(sw.getId()));
-        } else {
-            nodeKeys[0] = buildNodeKey(vl.getBusBreakerView().getBus1(sw.getId()));
-            nodeKeys[1] = buildNodeKey(vl.getBusBreakerView().getBus2(sw.getId()));
-        }
     }
 
     private static void writeSubstations(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -1476,6 +1428,16 @@ public final class EquipmentExport {
         }
     }
 
+    private static void fillSwitchNodeKeys(VoltageLevel vl, Switch sw, String[] nodeKeys, CgmesExportContext context) {
+        if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER) && !context.isBusBranchExport()) {
+            nodeKeys[0] = buildNodeKey(vl, vl.getNodeBreakerView().getNode1(sw.getId()));
+            nodeKeys[1] = buildNodeKey(vl, vl.getNodeBreakerView().getNode2(sw.getId()));
+        } else {
+            nodeKeys[0] = buildNodeKey(vl.getBusBreakerView().getBus1(sw.getId()));
+            nodeKeys[1] = buildNodeKey(vl.getBusBreakerView().getBus2(sw.getId()));
+        }
+    }
+
     private static void writeTerminal(Terminal t, Map<Terminal, String> mapTerminal2Id, Map<String, String> mapNodeKey2NodeId,
                                       String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         String equipmentId = context.getNamingStrategy().getCgmesId(t.getConnectable());
@@ -1514,83 +1476,66 @@ public final class EquipmentExport {
 
     private static class VoltageLevelAdjacency {
 
-        private final List<List<Integer>> voltageLevelNodes;
+        private final List<List<Integer>> adjacencies;
 
-        VoltageLevelAdjacency(VoltageLevel vl, CgmesExportContext context) {
-            voltageLevelNodes = new ArrayList<>();
-
-            NodeAdjacency adjacency = new NodeAdjacency(vl, context);
+        VoltageLevelAdjacency(VoltageLevel.NodeBreakerView nodeBreakerView, CgmesExportContext context) {
+            adjacencies = new ArrayList<>();
             Set<Integer> visitedNodes = new HashSet<>();
-            adjacency.get().keySet().forEach(node -> {
-                if (visitedNodes.contains(node)) {
-                    return;
+
+            // Build a list of adjacent nodes.
+            for (Integer node : nodeBreakerView.getNodes()) {
+                if (!visitedNodes.contains(node)) {
+                    List<Integer> adjacentNodes = new ArrayList<>(1);
+                    computeAdjacentNodes(nodeBreakerView, List.of(node), adjacentNodes, visitedNodes, context);
+                    adjacencies.add(adjacentNodes);
                 }
-                List<Integer> adjacentNodes = computeAdjacentNodes(node, adjacency, visitedNodes);
-                voltageLevelNodes.add(adjacentNodes);
-            });
-        }
-
-        private List<Integer> computeAdjacentNodes(int nodeId, NodeAdjacency adjacency, Set<Integer> visitedNodes) {
-
-            List<Integer> adjacentNodes = new ArrayList<>();
-            adjacentNodes.add(nodeId);
-            visitedNodes.add(nodeId);
-
-            int k = 0;
-            while (k < adjacentNodes.size()) {
-                Integer node = adjacentNodes.get(k);
-                if (adjacency.get().containsKey(node)) {
-                    adjacency.get().get(node).forEach(adjacent -> {
-                        if (visitedNodes.contains(adjacent)) {
-                            return;
-                        }
-                        adjacentNodes.add(adjacent);
-                        visitedNodes.add(adjacent);
-                    });
-                }
-                k++;
             }
-            return adjacentNodes;
+
+            // Sort adjacencies so that nodes that have been created first are exported first.
+            adjacencies.sort(Comparator.comparing(Collections::min));
         }
 
-        List<List<Integer>> getNodes() {
-            return voltageLevelNodes;
+        public List<List<Integer>> getAdjacencies() {
+            return adjacencies;
         }
-    }
 
-    private static class NodeAdjacency {
+        // Recursively build a list of nodes adjacent to the given ones.
+        // Nodes are adjacent if they are connected through an internal connection or non-exported switch.
+        private void computeAdjacentNodes(VoltageLevel.NodeBreakerView nodeBreakerView,
+                                          List<Integer> nodes,
+                                          List<Integer> adjacentNodes,
+                                          Set<Integer> visitedNodes,
+                                          CgmesExportContext context) {
+            for (Integer node : nodes) {
+                if (!visitedNodes.contains(node)) {
+                    // If the node hasn't been visited yet,
+                    // add it to the list of adjacencies and mark it as visited.
+                    visitedNodes.add(node);
+                    adjacentNodes.add(node);
 
-        private final Map<Integer, List<Integer>> adjacency;
+                    // The next nodes to be checked for adjacency.
+                    List<Integer> nextNodes = new ArrayList<>();
 
-        NodeAdjacency(VoltageLevel vl, CgmesExportContext context) {
-            adjacency = new HashMap<>();
-            if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-                vl.getNodeBreakerView().getInternalConnections().forEach(this::addAdjacency);
-                // When computing the connectivity nodes for the voltage level,
-                // switches that are not exported as equipment (they are fictitious)
-                // are equivalent to internal connections
-                vl.getNodeBreakerView().getSwitchStream()
-                        .filter(Objects::nonNull)
-                        .filter(sw -> !context.isExportedEquipment(sw))
-                        .forEach(this::addAdjacency);
+                    // Get nodes adjacent through internal connections.
+                    nextNodes.addAll(nodeBreakerView.getNodesInternalConnectedTo(node));
+
+                    // Get nodes adjacent through not exported switches (fictitious ones).
+                    nextNodes.addAll(nodeBreakerView.getSwitchStream(node)
+                            .filter(sw -> !context.isExportedEquipment(sw))
+                            .map(sw -> getAdjacentNode(nodeBreakerView, sw, node))
+                            .toList());
+
+                    // Recursively look for more adjacent nodes.
+                    computeAdjacentNodes(nodeBreakerView, nextNodes, adjacentNodes, visitedNodes, context);
+                }
             }
         }
 
-        private void addAdjacency(VoltageLevel.NodeBreakerView.InternalConnection ic) {
-            addAdjacency(ic.getNode1(), ic.getNode2());
-        }
-
-        private void addAdjacency(Switch sw) {
-            addAdjacency(sw.getVoltageLevel().getNodeBreakerView().getNode1(sw.getId()), sw.getVoltageLevel().getNodeBreakerView().getNode2(sw.getId()));
-        }
-
-        private void addAdjacency(int node1, int node2) {
-            adjacency.computeIfAbsent(node1, k -> new ArrayList<>()).add(node2);
-            adjacency.computeIfAbsent(node2, k -> new ArrayList<>()).add(node1);
-        }
-
-        Map<Integer, List<Integer>> get() {
-            return adjacency;
+        private Integer getAdjacentNode(VoltageLevel.NodeBreakerView nodeBreakerView, Switch sw, Integer node) {
+            if (nodeBreakerView.getNode1(sw.getId()) == node) {
+                return nodeBreakerView.getNode2(sw.getId());
+            }
+            return nodeBreakerView.getNode1(sw.getId());
         }
     }
 
