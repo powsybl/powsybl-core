@@ -10,7 +10,6 @@ package com.powsybl.commons.report;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -49,6 +48,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testValues() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
+                .withLocale(Locale.US)
                 .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("rootTemplate")
                 .withUntypedValue("doubleUntyped", 4.3)
@@ -80,6 +80,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testPostponedValues() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
+                .withLocale(Locale.US)
                 .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("rootTemplate")
                 .build();
@@ -120,11 +121,13 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testInclude() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
+                .withLocale(Locale.US)
                 .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("simpleRootTemplate")
                 .build();
 
         ReportNode otherRoot = ReportNode.newRootReportNode()
+                .withLocale(Locale.US)
                 .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("includedRoot")
                 .build();
@@ -155,6 +158,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals("Cannot include non-root reportNode", e5.getMessage());
 
         ReportNode yetAnotherRoot = ReportNode.newRootReportNode()
+                .withLocale(Locale.US)
                 .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("newRootAboveAll")
                 .build();
@@ -168,6 +172,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testAddCopy() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
+                .withLocale(Locale.US)
                 .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("rootWithValue")
                 .withTypedValue("value", 2.3203, "ROOT_VALUE")
@@ -177,6 +182,7 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .add();
 
         ReportNode otherRoot = ReportNode.newRootReportNode()
+                .withLocale(Locale.US)
                 .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("otherRoot")
                 .withTypedValue("value", -915.3, "ROOT_VALUE")
@@ -213,6 +219,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testAddCopyCornerCases() {
         ReportNode root = ReportNode.newRootReportNode()
+                .withLocale(Locale.US)
                 .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("rootWithValue")
                 .withTypedValue("value", 2.3203, "ROOT_VALUE")
@@ -260,6 +267,7 @@ class ReportNodeTest extends AbstractSerDeTest {
                 ReportConstants.DEFAULT_TIMESTAMP_PATTERN, ReportConstants.DEFAULT_LOCALE);
 
         ReportNode root1 = ReportNode.newRootReportNode()
+                .withLocale(Locale.US)
                 .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("rootTemplate")
                 .build();
@@ -299,8 +307,8 @@ class ReportNodeTest extends AbstractSerDeTest {
         Locale customLocale = Locale.ITALIAN;
         DateTimeFormatter customPatternAndLocaleFormatter1 = DateTimeFormatter.ofPattern(customPattern1, customLocale);
         ReportNode root3 = ReportNode.newRootReportNode()
-                .withResourceBundles(TEST_BASE_NAME)
                 .withLocale(customLocale)
+                .withResourceBundles(TEST_BASE_NAME)
                 .withDefaultTimestampPattern(customPattern1)
                 .withTimestamp()
                 .withMessageTemplate("rootTemplate")
@@ -326,8 +334,8 @@ class ReportNodeTest extends AbstractSerDeTest {
         // with Locale set but no timestamp pattern
         DateTimeFormatter noPatternAndLocaleFormatter = DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN, customLocale);
         ReportNode root4 = ReportNode.newRootReportNode()
-                .withResourceBundles(TEST_BASE_NAME)
                 .withLocale(customLocale)
+                .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("simpleRootTemplate")
                 .withTimestamp()
                 .build();
@@ -336,63 +344,142 @@ class ReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void testMissingKey() {
-        // Without giving a locale
+        // Set Locale default as French to be the fallback if English report is found
+        // When the key is not found anywhere in any resource bundle to fallback on, the "core.commons.missingKey" key us the last fallback
+        // this key is loaded from the PowsyblCoreReportResourceBundle.BASE_NAME so always exists
+        Locale.setDefault(Locale.US);
+
+        // With Locale.US:  en_US locale (locale if no JVM default locale is found)
         ReportNode report1 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withLocale(Locale.US)
+                .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("unknown.key")
                 .build();
-        // translation should fall back to default properties as the key is not defined in the reports_en_US.properties
+        // translation should fall back to the given locale 'core.commons.missingKey' template because it is existing for en_US locale
         assertEquals("Cannot find message template with key: 'unknown.key'", report1.getMessage());
 
         // With Locale.FRENCH
         ReportNode report2 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withLocale(Locale.FRENCH)
+                .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("unknown.key")
                 .build();
-        // translation should fall back to default properties as the key is not defined in the reports_en_US.properties
+        // translation should fall back to the given locale 'core.commons.missingKey' template because it is existing for en_US locale
         assertEquals("Template de message non trouvé pour la clé 'unknown.key'", report2.getMessage());
     }
 
     @Test
-    void testLocaleAndi18n() {
-        // Without giving a locale => default one is en_US
-        ReportNode rootReportEnglish = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
-                .withMessageTemplateProvider(new BundleMessageTemplateProvider(TEST_BASE_NAME))
-                .withMessageTemplate("rootWithValue")
-                .withUntypedValue("value", 4)
-                .build();
-        // translation should fall back to default properties as the key is not defined in the reports_en_US.properties
-        assertEquals("Root message with value 4", rootReportEnglish.getMessage());
-        assertEquals(Locale.US, rootReportEnglish.getTreeContext().getLocale());
+    void testNoJVMDefaultFallbackWithLocaleExistingReportButNoTemplateForKey() {
+        // Set Locale default as French to be the fallback if English report is not found
+        // as the English report exists for tests, then the fallback in case the key is not found in the English report
+        // should not be in French but in the default reports.properties
 
-        // With french locale
-        ReportNode rootReportFrench = ReportNode.newRootReportNode()
+        Locale.setDefault(Locale.FRENCH);
+
+        String key = "keyNotExistingInEnglish";
+        ReportNode report1 = ReportNode.newRootReportNode()
+                .withLocale(Locale.US)
                 .withResourceBundles(TEST_BASE_NAME)
-                .withLocale(Locale.FRENCH)
-                .withMessageTemplate("rootWithValue")
+                .withMessageTemplate(key)
+                .build();
+        assertEquals("Root reportNode", report1.getMessage());
+    }
+
+    @Test
+    void testJVMDefaultFallbackWithLocaleNotExistingReport() {
+        //Set Locale default as FRENCH to be the fallback if ITALY report is not found
+        Locale.setDefault(Locale.FRENCH);
+
+        String key = "rootWithValue";
+        ReportNode report1 = ReportNode.newRootReportNode()
+                .withLocale(Locale.ITALY)
+                .withResourceBundles(TEST_BASE_NAME)
+                .withMessageTemplate(key)
                 .withUntypedValue("value", 4)
                 .build();
-        // translation should be from the reports_fr.properties file
-        assertEquals("Message racine avec la valeur 4", rootReportFrench.getMessage());
+        assertEquals("Message racine avec la valeur 4", report1.getMessage());
+    }
+
+    @Test
+    void testFallbacksWhenReportFilesExistForLocaleButNotAlwaysTheKey() {
+        //Set Locale default as FRENCH
+        Locale.setDefault(Locale.FRENCH);
+
+        String key = "rootWithValue";
+        String expectedDefaultMessage = "Message racine avec la valeur 4";
+        int value = 4;
+        // Without giving a locale => default one is JVM default value
+        ReportNode rootReportWithDefaultLocale = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
+                .withMessageTemplate(key)
+                .withUntypedValue("value", value)
+                .build();
+        // translation should fall back to default properties as the locale is not specified
+        assertEquals(ReportConstants.DEFAULT_LOCALE, rootReportWithDefaultLocale.getTreeContext().getLocale());
+        assertEquals(Locale.FRENCH, rootReportWithDefaultLocale.getTreeContext().getLocale());
+        assertEquals(expectedDefaultMessage, rootReportWithDefaultLocale.getMessage());
+
+        // With french locale (which is the default locale in this test)
+        ReportNode rootReportFrench = ReportNode.newRootReportNode()
+                .withLocale(Locale.FRENCH)
+                .withResourceBundles(TEST_BASE_NAME)
+                .withMessageTemplate(key)
+                .withUntypedValue("value", value)
+                .build();
+        // translation should be from the reports_fr.properties file as the report file exists and the key exist in it
+        assertEquals(expectedDefaultMessage, rootReportFrench.getMessage());
         assertEquals(Locale.FRENCH, rootReportFrench.getTreeContext().getLocale());
 
         // Test giving the specific France locale
         ReportNode rootReportFrance = ReportNode.newRootReportNode()
-                .withResourceBundles(TEST_BASE_NAME)
                 .withLocale(Locale.FRANCE)
-                .withMessageTemplate("rootWithValue")
-                .withUntypedValue("value", 4)
+                .withResourceBundles(TEST_BASE_NAME)
+                .withMessageTemplate(key)
+                .withUntypedValue("value", value)
                 .build();
-        // translation should be from the reports_fr.properties file as the key is not defined in the reports_fr_FR.properties
-        assertEquals("Message racine avec la valeur 4", rootReportFrance.getMessage());
+        // translation should be from the reports_fr_FR.properties file as the report file exists and the key is defined in it
+        assertEquals("Message de France racine avec la valeur 4", rootReportFrance.getMessage());
         assertEquals(Locale.FRANCE, rootReportFrance.getTreeContext().getLocale());
+
+        ReportNode rootReportFrance2 = ReportNode.newRootReportNode()
+                .withLocale(Locale.FRANCE)
+                .withResourceBundles(TEST_BASE_NAME)
+                .withMessageTemplate("root")
+                .withUntypedValue("value", value)
+                .build();
+        // translation should be from the reports_fr.properties file as the key is defined in this report but not in the fr_FR one
+        assertEquals("reportNode racine", rootReportFrance2.getMessage());
+        assertEquals(Locale.FRANCE, rootReportFrance2.getTreeContext().getLocale());
+
+        // Test giving the specific US locale
+        ReportNode rootReportEnglish = ReportNode.newRootReportNode()
+                .withLocale(Locale.ENGLISH)
+                .withResourceBundles(TEST_BASE_NAME)
+                .withMessageTemplate(key)
+                .withUntypedValue("value", value)
+                .build();
+        // translation should be from the reports_en.properties file as the key is defined in this existing report
+        assertEquals("Root english message with value 4", rootReportEnglish.getMessage());
+        assertEquals(Locale.ENGLISH, rootReportEnglish.getTreeContext().getLocale());
+
+        ReportNode rootReportEnglish2 = ReportNode.newRootReportNode()
+                .withLocale(Locale.ENGLISH)
+                .withResourceBundles(TEST_BASE_NAME)
+                .withMessageTemplate("root")
+                .withUntypedValue("value", value)
+                .build();
+        // translation should be from the reports.properties file as the reports_en.properties is defined but the key is not in it
+        assertEquals("Root reportNode", rootReportEnglish2.getMessage());
+        assertEquals(Locale.ENGLISH, rootReportEnglish2.getTreeContext().getLocale());
     }
 
     @Test
     void testAllBundlesFromClasspath() {
+        Locale.setDefault(Locale.US);
+
+        // Use a key from the core bundle and one fro mthe test bundle
         ReportNode root = ReportNode.newRootReportNode()
+                .withLocale(Locale.US)
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("core.iidm.modification.voltageLevelRemoved")
                 .withTypedValue("vlId", "vl1", TypedValue.ID)

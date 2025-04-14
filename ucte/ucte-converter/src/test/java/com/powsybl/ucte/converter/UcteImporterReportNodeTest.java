@@ -43,6 +43,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void testReportElementName() throws Exception {
+        Locale.setDefault(Locale.US);
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
 
         ReportNode rootReportNode = ReportNode.newRootReportNode()
@@ -73,6 +74,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void roundTripReportNodeJsonTest() throws Exception {
+        Locale.setDefault(Locale.US);
         String filename = "frVoltageRegulatingXnode.uct";
         ReportNode reportRoot = ReportNode.newRootReportNode()
                 .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
@@ -97,6 +99,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void jsonDeserializeNoSpecifiedDictionary() throws Exception {
+        Locale.setDefault(Locale.US);
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new ReportNodeJsonModule());
         ReportNode rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReportNode.class);
@@ -119,6 +122,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void roundTripReportNodeJsonParallelImportTest() throws InterruptedException, ExecutionException, IOException {
+        Locale.setDefault(Locale.US);
         Path workDir = Files.createDirectory(fileSystem.getPath(WORK_DIR));
         Files.copy(getClass().getResourceAsStream("/frVoltageRegulatingXnode.uct"), fileSystem.getPath(WORK_DIR, "frVoltageRegulatingXnode.uct"));
         Files.copy(getClass().getResourceAsStream("/frTestGridForMerging.uct"), fileSystem.getPath(WORK_DIR, "frTestGridForMerging.uct"));
