@@ -10,6 +10,7 @@ package com.powsybl.commons.report;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -44,6 +45,11 @@ class ReportNodeTest extends AbstractSerDeTest {
             stringUntyped: value
             stringTyped: filename
             severity: INFO""";
+
+    @BeforeEach
+    void setup() {
+        Locale.setDefault(Locale.US);
+    }
 
     @Test
     void testValues() throws IOException {

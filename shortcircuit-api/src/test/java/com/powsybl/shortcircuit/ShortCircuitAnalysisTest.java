@@ -22,6 +22,7 @@ import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -72,6 +73,8 @@ class ShortCircuitAnalysisTest {
 
     @BeforeEach
     void setUp() {
+        Locale.setDefault(Locale.US);
+
         network = Mockito.mock(Network.class);
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);

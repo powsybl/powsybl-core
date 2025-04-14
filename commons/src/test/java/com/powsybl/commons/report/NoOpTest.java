@@ -10,6 +10,7 @@ package com.powsybl.commons.report;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -26,6 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 class NoOpTest extends AbstractSerDeTest {
+
+    @BeforeEach
+    void setup() {
+        Locale.setDefault(Locale.US);
+    }
 
     @Test
     void test() throws IOException {

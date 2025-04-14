@@ -16,6 +16,7 @@ import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.tools.ExporterMockWithReportNode;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -25,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,6 +38,11 @@ class ExportersTest extends AbstractConvertersTest {
 
     private final Exporter testExporter = new TestExporter();
     private final ExportersLoader loader = new ExportersLoaderList(testExporter);
+
+    @BeforeEach
+    void setup() {
+        Locale.setDefault(Locale.US);
+    }
 
     @Test
     void getFormats() {
