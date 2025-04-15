@@ -270,7 +270,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     @Test
     void testTimestamps() {
         DateTimeFormatter defaultDateTimeFormatter = DateTimeFormatter.ofPattern(
-                ReportConstants.DEFAULT_TIMESTAMP_PATTERN, ReportConstants.DEFAULT_LOCALE);
+                ReportConstants.DEFAULT_TIMESTAMP_PATTERN, ReportConstants.getDefaultLocale());
 
         ReportNode root1 = ReportNode.newRootReportNode()
                 .withLocale(Locale.US)
@@ -294,7 +294,7 @@ class ReportNodeTest extends AbstractSerDeTest {
 
         // Default timestamp pattern set but no locale set
         String customPattern1 = "dd MMMM yyyy HH:mm:ss XXX";
-        DateTimeFormatter customPatternFormatter = DateTimeFormatter.ofPattern(customPattern1, ReportConstants.DEFAULT_LOCALE);
+        DateTimeFormatter customPatternFormatter = DateTimeFormatter.ofPattern(customPattern1, ReportConstants.getDefaultLocale());
         ReportNode root2 = ReportNode.newRootReportNode()
                 .withResourceBundles(TEST_BASE_NAME)
                 .withDefaultTimestampPattern(customPattern1)
@@ -421,7 +421,7 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .withUntypedValue("value", value)
                 .build();
         // translation should fall back to default properties as the locale is not specified
-        assertEquals(ReportConstants.DEFAULT_LOCALE, rootReportWithDefaultLocale.getTreeContext().getLocale());
+        assertEquals(ReportConstants.getDefaultLocale(), rootReportWithDefaultLocale.getTreeContext().getLocale());
         assertEquals(Locale.FRENCH, rootReportWithDefaultLocale.getTreeContext().getLocale());
         assertEquals(expectedDefaultMessage, rootReportWithDefaultLocale.getMessage());
 
