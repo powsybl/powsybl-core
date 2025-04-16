@@ -9,6 +9,7 @@ package com.powsybl.commons.report;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.ServiceLoader;
 
 /**
  * A builder to create a {@link ReportNode} object.
@@ -18,33 +19,35 @@ import java.util.Locale;
 public interface ReportNodeBuilder extends ReportNodeAdderOrBuilder<ReportNodeBuilder> {
 
     /**
-     * Sets the pattern and the locale used for formatting timestamps (see {@link DateTimeFormatter#ofPattern(String, Locale)}}), if timestamps are enabled.
-     * If no pattern and locale are given, the default pattern {@link ReportConstants#DEFAULT_TIMESTAMP_PATTERN} and locale
-     * {@link ReportConstants#DEFAULT_TIMESTAMP_LOCALE} are used.
-     *
-     * @param timestampPattern : the pattern to use for the timestamp
-     * @param locale the locale to use for formatting the timestamp
-     * @return a reference to this object
-     */
-    ReportNodeBuilder withTimestampPattern(String timestampPattern, Locale locale);
-
-    /**
-     * Sets the pattern used for timestamps, if timestamps are enabled, with the default Locale {@link ReportConstants#DEFAULT_TIMESTAMP_LOCALE}.
+     * Sets the pattern used for timestamps, when a timestamp is added with {@link ReportNodeAdder#withTimestamp()}.
      * If no pattern is given, the default pattern {@link ReportConstants#DEFAULT_TIMESTAMP_PATTERN} is used.
+     * Note that the {@link Locale} used to format the timestamps is the one set by {@link #withLocale(Locale)}, or,
+     * if not set, the default Locale {@link ReportConstants#DEFAULT_LOCALE}.
      *
      * @param timestampPattern : the pattern to use for the timestamp (see {@link DateTimeFormatter#ofPattern(String, Locale)}})
      * @return a reference to this object
      */
-    default ReportNodeBuilder withTimestampPattern(String timestampPattern) {
-        return withTimestampPattern(timestampPattern, ReportConstants.DEFAULT_TIMESTAMP_LOCALE);
-    }
+    ReportNodeBuilder withDefaultTimestampPattern(String timestampPattern);
 
     /**
-     * Enable timestamps on build ReportNode and all descendants.
+     * Choose which {@link Locale} to use for formatting all the `ReportNode` messages of the tree.
      * @return a reference to this object
      */
-    ReportNodeBuilder withTimestamps(boolean enabled);
+    ReportNodeBuilder withLocale(Locale locale);
 
+    /**
+     * Sets the {@link MessageTemplateProvider} for the whole tree, unless overridden, to the {@link MultiBundleMessageTemplateProvider}
+     * corresponding to all the bundle base names gathered by the {@link java.util.ServiceLoader} of {@link ReportResourceBundle}
+     * implementations.
+     * @return a reference to this object
+     */
+    default ReportNodeBuilder withAllResourceBundlesFromClasspath() {
+        String[] bundleBaseNames = ServiceLoader.load(ReportResourceBundle.class).stream()
+                .map(ServiceLoader.Provider::get)
+                .map(ReportResourceBundle::getBaseName)
+                .toArray(String[]::new);
+        return withMessageTemplateProvider(new MultiBundleMessageTemplateProvider(bundleBaseNames));
+    }
 
     /**
      * Build the corresponding {@link ReportNode}.
