@@ -21,11 +21,13 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
  */
 class LoadData extends AbstractRecordGroup<PsseLoad> {
 
+    static final String[] FIELD_NAMES_LOAD_35 = {"ibus", "loadid", "stat", STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, "yq", STR_OWNER, STR_SCALE, "intrpt", "dgenp", "dgenq", "dgenm", "loadtype"};
+
     LoadData() {
         super(PowerFlowRecordGroup.LOAD);
         withFieldNames(V32, "i", STR_ID, "status", STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, "yq", STR_OWNER, STR_SCALE);
         withFieldNames(V33, "i", STR_ID, "status", STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, "yq", STR_OWNER, STR_SCALE, "intrpt");
-        withFieldNames(V35, "ibus", "loadid", "stat", STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, "yq", STR_OWNER, STR_SCALE, "intrpt", "dgenp", "dgenq", "dgenm", "loadtype");
+        withFieldNames(V35, FIELD_NAMES_LOAD_35);
         withQuotedFields(STR_ID, "loadid", "loadtype");
     }
 
