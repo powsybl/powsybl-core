@@ -385,8 +385,12 @@ public final class ValidationUtil {
 
     private static ValidationLevel checkSvcRegulator(Validable validable, boolean regulating, double voltageSetpoint, double reactivePowerSetpoint,
                                                     StaticVarCompensator.RegulationMode regulationMode, boolean throwException, ReportNode reportNode) {
+
         if (regulating) {
-            if (regulationMode.equals(VOLTAGE) && Double.isNaN(voltageSetpoint)) {
+            if (regulationMode == null) {
+                throwExceptionOrLogError(validable, "Svc regulation mode is not set", throwException, reportNode);
+                return ValidationLevel.EQUIPMENT;
+            } else if (regulationMode.equals(VOLTAGE) && Double.isNaN(voltageSetpoint)) {
                 throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, throwException, reportNode);
                 return ValidationLevel.EQUIPMENT;
             } else if (regulationMode.equals(REACTIVE_POWER) && Double.isNaN(reactivePowerSetpoint)) {
