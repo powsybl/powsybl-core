@@ -9,9 +9,13 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
+import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.EMPTY;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -91,6 +95,24 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         } else {
             return String.format("%s at %s %s", what, type, id);
         }
+    }
+
+    protected static double defaultValue(DefaultValueDouble defaultValue, Context context) {
+        for (Conversion.Config.DefaultValue defaultValueSelector : context.config().updateDefaultValuesPriority()) {
+            if (defaultValueSelector == EQ && defaultValue.equipmentValue != null) {
+                return defaultValue.equipmentValue;
+            } else if (defaultValueSelector == PREVIOUS && defaultValue.previousValue != null) {
+                return defaultValue.previousValue;
+            } else if (defaultValueSelector == DEFAULT && defaultValue.defaultValue != null) {
+                return defaultValue.defaultValue;
+            } else if (defaultValueSelector == EMPTY) {
+                return defaultValue.emptyValue;
+            }
+        }
+        return defaultValue.emptyValue;
+    }
+
+    public record DefaultValueDouble(Double equipmentValue, Double previousValue, Double defaultValue, double emptyValue) {
     }
 
     protected final String id;
