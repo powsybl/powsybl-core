@@ -89,6 +89,11 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         String name = getName();
+        if (regulationMode == null) {
+            this.regulating = false;
+            this.regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
+        }
+
         TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);

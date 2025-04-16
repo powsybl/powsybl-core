@@ -38,7 +38,7 @@ class SvcExportTest extends AbstractSerDeTest {
         Network network = Network.read(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControlV().dataSource(), importParams);
         StaticVarCompensator svc = network.getStaticVarCompensator(svcId);
         assertNotNull(svc);
-        assertNull(svc.getRegulationMode());
+        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
         assertFalse(svc.isRegulating());
         assertEquals(rcId, svc.getProperty(Conversion.PROPERTY_REGULATING_CONTROL));
         assertEquals(231.123, svc.getVoltageSetpoint(), 0.0);
