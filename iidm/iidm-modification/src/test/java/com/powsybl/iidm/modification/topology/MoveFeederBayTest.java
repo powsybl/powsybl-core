@@ -152,7 +152,6 @@ class MoveFeederBayTest {
         ThreeWindingsTransformer transformer = network.getThreeWindingsTransformer("3WT");
 
         // Initial state verification for leg1
-        String leg1InitialVoltageLevel = transformer.getLeg1().getTerminal().getVoltageLevel().getId();
         String leg1InitialBusId = transformer.getLeg1().getTerminal().getBusBreakerView().getBus().getId();
         boolean leg1InitiallyConnected = transformer.getLeg1().getTerminal().isConnected();
 
