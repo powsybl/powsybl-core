@@ -22,6 +22,10 @@ public class ForwardingInputStream<I extends InputStream> extends InputStream {
         this.delegate = Objects.requireNonNull(delegate);
     }
 
+    protected I getDelegate() {
+        return delegate;
+    }
+
     @Override
     public int available() throws IOException {
         return delegate.available();
