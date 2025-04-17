@@ -41,7 +41,6 @@ public class GroovyDynamicModelsSupplier extends AbstractGroovySupplier<DynamicM
 
     @Override
     public List<DynamicModel> get(Network network, ReportNode reportNode) {
-        return evaluateScript(network,
-                createReportNode(reportNode, "groovyDynamicModels", "Groovy Dynamic Models Supplier"));
+        return evaluateScript(network, DynamicSimulationReports.supplyGroovyDynamicModels(reportNode));
     }
 }
