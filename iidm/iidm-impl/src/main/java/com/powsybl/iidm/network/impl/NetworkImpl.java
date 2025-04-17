@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.commons.ref.RefObj;
 import com.powsybl.iidm.network.util.Identifiables;
+import com.powsybl.iidm.network.util.NetworkReports;
 import com.powsybl.iidm.network.util.Networks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1242,10 +1243,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public ValidationLevel runValidationChecks(boolean throwsException, ReportNode reportNode) {
-        ReportNode readReportNode = Objects.requireNonNull(reportNode).newReportNode()
-                .withMessageTemplate("IIDMValidation", "Running validation checks on IIDM network ${networkId}")
-                .withUntypedValue("networkId", id)
-                .add();
+        ReportNode readReportNode = NetworkReports.runIidmNetworkValidationCHecks(reportNode, id);
         validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),
                 true, throwsException ? ValidationUtil.LogLevel.THROW_EXCEPTION : ValidationUtil.LogLevel.LOG_ERROR, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
         return validationLevel;
