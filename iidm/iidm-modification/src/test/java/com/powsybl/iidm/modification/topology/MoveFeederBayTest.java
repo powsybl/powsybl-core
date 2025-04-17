@@ -27,51 +27,32 @@ import static org.junit.jupiter.api.Assertions.*;
 class MoveFeederBayTest {
     private static final String NODE_BREAKER_FILE = "/testNetworkNodeBreaker.xiidm";
 
-    private Network loadNodeBreakerNetwork() {
+    private Network getNodeBreakerNetwork() {
         return Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream(NODE_BREAKER_FILE));
     }
 
     @Test
     void shouldMoveLoadInNodeBreakerNetwork() {
         // Given
-        Network network = loadNodeBreakerNetwork();
+        Network network = getNodeBreakerNetwork();
         Load load = network.getLoad("load1");
-        String initialVoltageLevel = load.getTerminal().getVoltageLevel().getId();
+        String originalBusBarSection = load.getTerminal().getBusBreakerView().getBus().getId();
         int initialNode = load.getTerminal().getNodeBreakerView().getNode();
+        boolean initialConnected = load.getTerminal().isConnected();
 
         // When: move from vl1 to vl2/bbs5
         moveFeederBay(load.getId(), "bbs5", "vl2", load.getTerminal(), network);
 
         // Then
-        assertTerminalMoved(load.getTerminal(), "vl2", initialVoltageLevel, load.getTerminal().getBusBreakerView().getBus().getId(), "bbs5", initialNode);
-        assertFalse(load.getTerminal().isConnected());
+        assertTerminalMoved(load.getTerminal(), "vl2", originalBusBarSection, "bbs5", initialNode, initialConnected);
 
-        // Further move to bbs6
+        // Further move to vl2/bbs6
         int intermediateNode = load.getTerminal().getNodeBreakerView().getNode();
+        String intermediateBusBarSection = load.getTerminal().getBusBreakerView().getBus().getId();
         moveFeederBay(load.getId(), "bbs6", "vl2", load.getTerminal(), network);
 
         // Verify second move
-        assertEquals("vl2", load.getTerminal().getVoltageLevel().getId());
-        assertFalse(load.getTerminal().isConnected());
-        assertNotEquals(intermediateNode, load.getTerminal().getNodeBreakerView().getNode());
-    }
-
-    @Test
-    void shouldMoveLineInNodeBreakerNetwork() {
-        // Given
-        Network network = loadNodeBreakerNetwork();
-        Line line = network.getLine("line1");
-        String initialVoltageLevel = line.getTerminal1().getVoltageLevel().getId();
-        int initialNode = line.getTerminal1().getNodeBreakerView().getNode();
-        String terminal2VoltageLevel = line.getTerminal2().getVoltageLevel().getId();
-
-        // When
-        moveFeederBay(line.getId(), "bbs5", "vl2", line.getTerminal1(), network);
-
-        // Then
-        assertTerminalMoved(line.getTerminal1(), "vl2", initialVoltageLevel, line.getTerminal1().getBusBreakerView().getBus().getId(), "bbs5", initialNode);
-        assertFalse(line.getTerminal1().isConnected());
-        assertEquals(terminal2VoltageLevel, line.getTerminal2().getVoltageLevel().getId());
+        assertTerminalMoved(load.getTerminal(), "vl2", intermediateBusBarSection, "bbs6", intermediateNode, initialConnected);
     }
 
     @Test
@@ -79,70 +60,78 @@ class MoveFeederBayTest {
         // Given
         Network network = EurostagTutorialExample1Factory.create();
         Generator generator = network.getGenerator("GEN");
-        String initialBusId = generator.getTerminal().getBusBreakerView().getBus().getId();
+        String originalBusId = generator.getTerminal().getBusBreakerView().getBus().getId();
         boolean initialConnected = generator.getTerminal().isConnected();
 
         // When
         moveFeederBay(generator.getId(), "NHV1", "VLHV1", generator.getTerminal(), network);
 
         // Then
-        assertEquals("VLHV1", generator.getTerminal().getVoltageLevel().getId());
-        assertEquals("NHV1", generator.getTerminal().getBusBreakerView().getBus().getId());
-        assertNotEquals(initialBusId, generator.getTerminal().getBusBreakerView().getBus().getId());
-        assertEquals(initialConnected, generator.getTerminal().isConnected());
+        assertTerminalMoved(generator.getTerminal(), "VLHV1", originalBusId, "NHV1", 0, initialConnected);
     }
 
     @Test
-    void shouldFailWhenMovingBusbarSection() {
+    void shouldMoveLineInNodeBreakerNetwork() {
         // Given
-        Network network = loadNodeBreakerNetwork();
-        ReportNode reportNode = createReportNode();
-        BusbarSection busbarSection = network.getBusbarSection("bbs6");
-        String initialVoltageLevel = busbarSection.getTerminal().getVoltageLevel().getId();
+        Network network = getNodeBreakerNetwork();
+        Line line = network.getLine("line1");
+        String terminal2VoltageLevel = line.getTerminal2().getVoltageLevel().getId();
+        String originalBusBarSection = line.getTerminal1().getBusBreakerView().getBus().getId();
+        int initialNode = line.getTerminal1().getNodeBreakerView().getNode();
+        boolean initialConnected = line.getTerminal1().isConnected();
 
-        // When/Then
-        MoveFeederBay moveFeederBay = createMoveFeederBay("bbs6", "bbs5", "vl1",
-                network.getLine("line1").getTerminal1());
+        // When: move from vl1 to vl2/bbs5
+        moveFeederBay(line.getId(), "bbs5", "vl2", line.getTerminal1(), network);
 
-        PowsyblException exception = assertThrows(PowsyblException.class,
-                () -> moveFeederBay.apply(network, true, reportNode));
-        assertEquals("BusbarSection connectables are not allowed as MoveFeederBay input: bbs6",
-                exception.getMessage());
-        assertEquals(initialVoltageLevel, busbarSection.getTerminal().getVoltageLevel().getId());
+        // Then
+        assertTerminalMoved(line.getTerminal1(), "vl2", originalBusBarSection, "bbs5", initialNode, initialConnected);
+
+        // Further move to vl2/bbs6
+        int intermediateNode = line.getTerminal1().getNodeBreakerView().getNode();
+        String intermediateBusBarSection = line.getTerminal1().getBusBreakerView().getBus().getId();
+        moveFeederBay(line.getId(), "bbs6", "vl2", line.getTerminal1(), network);
+
+        // Verify second move
+        assertTerminalMoved(line.getTerminal1(), "vl2", intermediateBusBarSection, "bbs6", intermediateNode, initialConnected);
+        assertEquals(terminal2VoltageLevel, line.getTerminal2().getVoltageLevel().getId());
     }
 
     @Test
     void shouldMoveTwoWindingsTransformerInNodeBreakerNetwork() {
         // Given
-        Network network = loadNodeBreakerNetwork();
+        Network network = getNodeBreakerNetwork();
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("trf1");
-        String initialVoltageLevelT1 = transformer.getTerminal1().getVoltageLevel().getId();
-        String voltageLevel2 = transformer.getTerminal2().getVoltageLevel().getId();
+        String terminal2VoltageLevel = transformer.getTerminal2().getVoltageLevel().getId();
+        String originalBusBarSection = transformer.getTerminal1().getBusBreakerView().getBus().getId();
         int initialNode = transformer.getTerminal1().getNodeBreakerView().getNode();
+        boolean initialConnected = transformer.getTerminal1().isConnected();
 
         // When
         moveFeederBay(transformer.getId(), "bbs5", "vl2", transformer.getTerminal1(), network);
 
         // Then
-        assertTerminalMoved(transformer.getTerminal1(), "vl2", initialVoltageLevelT1, transformer.getTerminal1().getBusBreakerView().getBus().getId(), "bbs5", initialNode);
-        assertFalse(transformer.getTerminal1().isConnected());
-        assertEquals(voltageLevel2, transformer.getTerminal2().getVoltageLevel().getId());
+        assertTerminalMoved(transformer.getTerminal1(), "vl2", originalBusBarSection, "bbs5", initialNode, initialConnected);
+        assertEquals(terminal2VoltageLevel, transformer.getTerminal2().getVoltageLevel().getId());
     }
 
     @Test
     void shouldMoveThreeWindingsTransformerLegInNodeBreakerNetwork() {
         // Given
-        Network network = loadNodeBreakerNetwork();
+        Network network = getNodeBreakerNetwork();
         ThreeWindingsTransformer transformer = network.getThreeWindingsTransformer("trf6");
-        String initialVoltageLevel = transformer.getLeg1().getTerminal().getVoltageLevel().getId();
+        String terminal2VoltageLevel = transformer.getLeg2().getTerminal().getVoltageLevel().getId();
+        String terminal3VoltageLevel = transformer.getLeg3().getTerminal().getVoltageLevel().getId();
+        String originalBusBarSection = transformer.getLeg1().getTerminal().getBusBreakerView().getBus().getId();
         int initialNode = transformer.getLeg1().getTerminal().getNodeBreakerView().getNode();
+        boolean initialConnected = transformer.getLeg1().getTerminal().isConnected();
 
         // When
         moveFeederBay(transformer.getId(), "bbs5", "vl2", transformer.getLeg1().getTerminal(), network);
 
         // Then
-        assertTerminalMoved(transformer.getLeg1().getTerminal(), "vl2", initialVoltageLevel, transformer.getLeg1().getTerminal().getBusBreakerView().getBus().getId(), "bbs5", initialNode);
-        assertFalse(transformer.getLeg1().getTerminal().isConnected());
+        assertTerminalMoved(transformer.getLeg1().getTerminal(), "vl2", originalBusBarSection, "bbs5", initialNode, initialConnected);
+        assertEquals(terminal2VoltageLevel, transformer.getLeg2().getTerminal().getVoltageLevel().getId());
+        assertEquals(terminal3VoltageLevel, transformer.getLeg3().getTerminal().getVoltageLevel().getId());
     }
 
     @Test
@@ -175,6 +164,25 @@ class MoveFeederBayTest {
         assertEquals("BUS_132", transformer.getLeg3().getTerminal().getBusBreakerView().getBus().getId());
         assertNotEquals(leg3InitialBusId, transformer.getLeg3().getTerminal().getBusBreakerView().getBus().getId());
         assertEquals(leg3InitiallyConnected, transformer.getLeg3().getTerminal().isConnected());
+    }
+
+    @Test
+    void shouldFailWhenMovingBusbarSection() {
+        // Given
+        Network network = getNodeBreakerNetwork();
+        ReportNode reportNode = createReportNode();
+        BusbarSection busbarSection = network.getBusbarSection("bbs6");
+        String initialVoltageLevel = busbarSection.getTerminal().getVoltageLevel().getId();
+
+        // When/Then
+        MoveFeederBay moveFeederBay = createMoveFeederBay("bbs6", "bbs5", "vl1",
+                network.getLine("line1").getTerminal1());
+
+        PowsyblException exception = assertThrows(PowsyblException.class,
+                () -> moveFeederBay.apply(network, true, reportNode));
+        assertEquals("BusbarSection connectables are not allowed as MoveFeederBay input: bbs6",
+                exception.getMessage());
+        assertEquals(initialVoltageLevel, busbarSection.getTerminal().getVoltageLevel().getId());
     }
 
     @Test
@@ -222,16 +230,15 @@ class MoveFeederBayTest {
                 .build();
     }
 
-    private void assertTerminalMoved(Terminal terminal, String expectedVoltageLevel,
-                                     String originalVoltageLevel, String originalBusBarSection,
-                                     String targetBusBarSection, int originalNode) {
-        assertEquals(expectedVoltageLevel, terminal.getVoltageLevel().getId());
-        assertNotEquals(originalBusBarSection, targetBusBarSection);
-        assertNotEquals(originalVoltageLevel, terminal.getVoltageLevel().getId());
-        assertNotEquals(originalBusBarSection, terminal.getVoltageLevel().getId());
+    private void assertTerminalMoved(Terminal terminal, String targetVoltageLevel,
+                                     String originalBusOrBusBarSection, String targetBusOrBusBarSection,
+                                     int initialNode, boolean initialConnected) {
+        assertEquals(targetVoltageLevel, terminal.getVoltageLevel().getId());
+        assertEquals(initialConnected, terminal.isConnected());
+        assertNotEquals(originalBusOrBusBarSection, targetBusOrBusBarSection);
 
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            assertNotEquals(originalNode, terminal.getNodeBreakerView().getNode());
+            assertNotEquals(initialNode, terminal.getNodeBreakerView().getNode());
         }
     }
 
