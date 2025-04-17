@@ -2,7 +2,7 @@
   "network" : {
     "caseid" : {
       "fields" : [ "ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2" ],
-      "data" : [ 0,100.0,35,0.0,0.0,60.0," 08/19/93 UW ARCHIVE           100.0  1962 W IEEE 14 Bus Test Case","" ]
+      "data" : [ 0,100.0,35,0,0,60.0," 08/19/93 UW ARCHIVE           100.0  1962 W IEEE 14 Bus Test Case","" ]
     },
     "bus" : {
       "fields" : [ "ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va" ],
