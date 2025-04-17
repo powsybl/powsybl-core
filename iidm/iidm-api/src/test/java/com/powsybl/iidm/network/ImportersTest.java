@@ -247,6 +247,21 @@ class ImportersTest extends AbstractConvertersTest {
     }
 
     @Test
+    void updateNetworkWithDefaultServiceLoader() {
+        Network network = Network.read(path, computationManager, importConfigMock, null, networkFactory, loader, ReportNode.NO_OP);
+        assertNotNull(network);
+        Load load = network.getLoad("LOAD");
+        assertNotNull(load);
+
+        // The mocked network simulates P0 is not set in first import, but is read when we call update
+        assertTrue(Double.isNaN(load.getP0()));
+        // The test importer should be loadable with the default importer service loader,
+        // by passing only the data source we will cover the update method overloads
+        network.update(DataSource.fromPath(path));
+        assertEquals(123.0, load.getP0());
+    }
+
+    @Test
     void tryUpdateNetworkUsingImporterWithoutUpdateImplementation() throws IOException {
         Path pathQux = fileSystem.getPath(WORK_DIR + "qux.tstnou");
         Files.createFile(pathQux);
