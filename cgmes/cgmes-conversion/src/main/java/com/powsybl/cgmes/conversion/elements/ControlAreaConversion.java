@@ -34,14 +34,24 @@ public class ControlAreaConversion extends AbstractIdentifiedObjectConversion {
                 .setAreaType(type) // Copy the type defined by CGMES
                 .setId(controlAreaId)
                 .setName(p.getLocal("name"))
-                .setInterchangeTarget(p.asDouble("netInterchange", Double.NaN))
                 .add();
-        if (p.containsKey(CgmesNames.P_TOLERANCE)) {
-            String pTolerance = p.get(CgmesNames.P_TOLERANCE);
-            area.setProperty(CgmesNames.P_TOLERANCE, pTolerance);
-        }
         if (p.containsKey(CgmesNames.ENERGY_IDENT_CODE_EIC)) {
             area.addAlias(p.get(CgmesNames.ENERGY_IDENT_CODE_EIC), CgmesNames.ENERGY_IDENT_CODE_EIC);
         }
+    }
+
+    public static void update(Area area, PropertyBag cgmesData, Context context) {
+        area.setInterchangeTarget(cgmesData.asDouble("netInterchange", defaultValue(getDefaultNetInterchange(area), context)));
+        if (cgmesData.containsKey(CgmesNames.P_TOLERANCE)) {
+            String pTolerance = cgmesData.get(CgmesNames.P_TOLERANCE);
+            area.setProperty(CgmesNames.P_TOLERANCE, pTolerance);
+        }
+    }
+
+    private static DefaultValueDouble getDefaultNetInterchange(Area area) {
+        return new DefaultValueDouble(null,
+                area.getInterchangeTarget().isPresent() ? area.getInterchangeTarget().getAsDouble() : null,
+                Double.NaN,
+                Double.NaN);
     }
 }
