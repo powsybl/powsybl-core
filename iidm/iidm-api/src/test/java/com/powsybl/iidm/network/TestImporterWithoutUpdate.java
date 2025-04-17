@@ -29,7 +29,7 @@ public class TestImporterWithoutUpdate implements Importer {
 
     @Override
     public List<String> getSupportedExtensions() {
-        return List.of("tstnou");
+        return List.of("tst-extension-no-updates");
     }
 
     @Override
@@ -40,7 +40,7 @@ public class TestImporterWithoutUpdate implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            return dataSource == null || dataSource.isDataExtension("tstnou") && dataSource.exists(null, "tstnou");
+            return dataSource == null || dataSource.isDataExtension("tst-extension-no-updates") && dataSource.exists(null, "tst-extension-no-updates");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -253,28 +253,53 @@ class ImportersTest extends AbstractConvertersTest {
         Load load = network.getLoad("LOAD");
         assertNotNull(load);
 
+        ReadOnlyDataSource ds = DataSource.fromPath(path);
+
         // The mocked network simulates P0 is not set in first import, but is read when we call update
         assertTrue(Double.isNaN(load.getP0()));
         // The test importer should be loadable with the default importer service loader,
         // by passing only the data source we will cover the update method overloads
-        network.update(DataSource.fromPath(path));
+        network.update(ds);
+        assertEquals(123.0, load.getP0());
+
+        // Another way of invoking the update, calling directly the importer to cover more overloads
+        load.setP0(0.0);
+        assertEquals(0.0, load.getP0());
+        new TestImporter().update(network, ds, new Properties());
         assertEquals(123.0, load.getP0());
     }
 
     @Test
+    void updateNetworkWithBadData() throws IOException {
+        Network network = Network.read(path, computationManager, importConfigMock, null, networkFactory, loader, ReportNode.NO_OP);
+        assertNotNull(network);
+        Load load = network.getLoad("LOAD");
+        assertNotNull(load);
+
+        Path fileBadData = fileSystem.getPath(WORK_DIR + "bad-data.not-valid-extension-for-test-importer");
+        Files.createFile(fileBadData);
+        ReadOnlyDataSource ds = DataSource.fromPath(fileBadData);
+        PowsyblException e = assertThrows(
+                PowsyblException.class,
+                () -> network.update(ds, computationManager, importConfigMock, null, loader, ReportNode.NO_OP));
+        assertEquals("Unsupported file format or invalid file.", e.getMessage());
+        Files.delete(fileBadData);
+    }
+
+    @Test
     void tryUpdateNetworkUsingImporterWithoutUpdateImplementation() throws IOException {
-        Path pathQux = fileSystem.getPath(WORK_DIR + "qux.tstnou");
-        Files.createFile(pathQux);
+        Path fileQux = fileSystem.getPath(WORK_DIR + "qux.tst-extension-no-updates");
+        Files.createFile(fileQux);
         ImportersLoader loader1 = new ImportersLoaderList(Collections.singletonList(new TestImporterWithoutUpdate()));
-        Network network = Network.read(pathQux, computationManager, importConfigMock, null, networkFactory, loader1, ReportNode.NO_OP);
+        Network network = Network.read(fileQux, computationManager, importConfigMock, null, networkFactory, loader1, ReportNode.NO_OP);
         assertNotNull(network);
 
-        ReadOnlyDataSource ds = DataSource.fromPath(pathQux);
+        ReadOnlyDataSource ds = DataSource.fromPath(fileQux);
         UnsupportedOperationException e = assertThrows(
                 UnsupportedOperationException.class,
                 () -> network.update(ds, computationManager, importConfigMock, null, loader1, ReportNode.NO_OP));
         assertEquals("Importer do not implement updates", e.getMessage());
-        Files.delete(pathQux);
+        Files.delete(fileQux);
     }
 }
 
