@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="RawCaseWithSpecialCharacters" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
-    <iidm:substation id="S1">
+    <iidm:substation id="S1-2-4-7">
         <iidm:voltageLevel id="VL1-2" nominalV="18.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1" name="Bus1\!@     " v="18.72" angle="-6.5957"/>
@@ -53,7 +53,7 @@
             </iidm:operationalLimitsGroup3>
         </iidm:threeWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S3">
+    <iidm:substation id="S3-5">
         <iidm:voltageLevel id="VL3" nominalV="18.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B3" name="Bus3&amp;/(     " v="18.36" angle="-37.1199"/>
@@ -131,6 +131,14 @@
             <iidm:currentLimits permanentLimit="12194.792385823277"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
+    <iidm:area id="A1" name="1           " areaType="ControlArea" interchangeTarget="0.0">
+        <iidm:voltageLevelRef id="VL1-2"/>
+        <iidm:voltageLevelRef id="VL3"/>
+        <iidm:voltageLevelRef id="VL4"/>
+        <iidm:voltageLevelRef id="VL5"/>
+        <iidm:voltageLevelRef id="VL6"/>
+        <iidm:voltageLevelRef id="VL7"/>
+    </iidm:area>
     <iidm:extension id="VL6">
         <slt:slackTerminal id="B6-L1 "/>
     </iidm:extension>
