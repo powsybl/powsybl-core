@@ -9,9 +9,7 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
-import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -60,29 +58,6 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
         Network network = ieee14Cim14();
         assertEquals(14, network.getExtension(CimCharacteristics.class).getCimVersion());
         testExportToCim(network, "IEEE14", 100);
-    }
-
-    @Test
-    void testExportIEEE14ToCim100CheckIsNodeBreaker() {
-        // Testing export to CGMES 3 is interpreted as a node/breaker CGMES model
-        // Input was a bus/branch model
-
-        Network network = ieee14Cim14();
-        CgmesModel cgmesModel14 = network.getExtension(CgmesModelExtension.class).getCgmesModel();
-        assertFalse(cgmesModel14.isNodeBreaker());
-
-        String cimZipFilename = "ieee14_CIM100";
-        Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, "100");
-        ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), cimZipFilename);
-        new CgmesExport().export(network, params, zip);
-
-        Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
-        Network network100 = Network.read(zip, importParams);
-
-        CgmesModel cgmesModel100 = network100.getExtension(CgmesModelExtension.class).getCgmesModel();
-        assertTrue(cgmesModel100.isNodeBreaker());
     }
 
     @Test

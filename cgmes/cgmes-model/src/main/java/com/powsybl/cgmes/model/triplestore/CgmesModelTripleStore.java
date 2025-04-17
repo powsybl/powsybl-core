@@ -180,7 +180,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         if (r == null) {
             return false;
         }
-        if (allEqCgmes3OrGreater(r)) {
+        if (allEqCgmes3OrGreater(r) && !connectivityNodes().isEmpty()) {
             return true;
         }
         // Only consider is node breaker if all models that have profile
