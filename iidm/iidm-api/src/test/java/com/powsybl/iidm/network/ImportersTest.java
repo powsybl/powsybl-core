@@ -10,6 +10,7 @@ package com.powsybl.iidm.network;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DirectoryDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
@@ -24,10 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -243,8 +242,24 @@ class ImportersTest extends AbstractConvertersTest {
 
         // The mocked network simulates P0 is not set in first import, but is read when we call update
         assertTrue(Double.isNaN(load.getP0()));
-        network.update(DataSource.fromPath(path));
+        network.update(DataSource.fromPath(path), computationManager, importConfigMock, null, loader, ReportNode.NO_OP);
         assertEquals(123.0, load.getP0());
+    }
+
+    @Test
+    void tryUpdateNetworkUsingImporterWithoutUpdateImplementation() throws IOException {
+        Path pathQux = fileSystem.getPath(WORK_DIR + "qux.tstnou");
+        Files.createFile(pathQux);
+        ImportersLoader loader1 = new ImportersLoaderList(Collections.singletonList(new TestImporterWithoutUpdate()));
+        Network network = Network.read(pathQux, computationManager, importConfigMock, null, networkFactory, loader1, ReportNode.NO_OP);
+        assertNotNull(network);
+
+        ReadOnlyDataSource ds = DataSource.fromPath(pathQux);
+        UnsupportedOperationException e = assertThrows(
+                UnsupportedOperationException.class,
+                () -> network.update(ds, computationManager, importConfigMock, null, loader1, ReportNode.NO_OP));
+        assertEquals("Importer do not implement updates", e.getMessage());
+        Files.delete(pathQux);
     }
 }
 
