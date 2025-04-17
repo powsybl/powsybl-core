@@ -174,7 +174,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
     void testWithCurrentLimits2() throws IOException {
         var network = EurostagTutorialExample1Factory.create();
         Line line = network.getLine("NHV1_NHV2_1");
-        line.newCurrentLimits1()
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(1000)
                 .beginTemporaryLimit()
                     .setName("20'")
@@ -212,7 +212,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                     .setValue(1500)
                 .endTemporaryLimit()
                 .add();
-        l.newCurrentLimits2()
+        l.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(1000)
                 .add();
         exportToMatAndCompareTo(network, "/sim1-with-apparent-power-limits.json");
