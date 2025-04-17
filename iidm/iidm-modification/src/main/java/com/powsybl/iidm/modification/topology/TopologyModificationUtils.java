@@ -689,10 +689,25 @@ public final class TopologyModificationUtils {
         }
     }
 
-    public static void createTopology(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, int connectableNode, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
-        // Nodes
+    /**
+     * Create topology and generate new connectable node and return it.
+     */
+    public static int createTopologyAndGetConnectableNode(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
         int forkNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+        int connectableNode = forkNode + 1;
+        buildTopology(side, busOrBusbarSectionId, network, voltageLevel, forkNode, connectableNode, connectable, namingStrategy, reportNode);
+        return connectableNode;
+    }
 
+    /**
+     * Create topology by using the provided connectable node (pre-determined connectable node)
+     */
+    public static void createTopologyWithConnectableNode(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, int connectableNode, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
+        int forkNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+        buildTopology(side, busOrBusbarSectionId, network, voltageLevel, forkNode, connectableNode, connectable, namingStrategy, reportNode);
+    }
+
+    private static void buildTopology(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, int forkNode, int connectableNode, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
         // Information gathering
         String baseId = namingStrategy.getSwitchBaseId(connectable, side);
         BusbarSection bbs = network.getBusbarSection(busOrBusbarSectionId);

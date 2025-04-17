@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.*;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.cleanNodeBreakerTopology;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createTopology;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createTopologyAndGetConnectableNode;
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.moveFeederBayBusbarSectionReport;
 import static com.powsybl.iidm.modification.util.ModificationReports.notFoundConnectableReport;
@@ -64,7 +64,7 @@ public class MoveFeederBay extends AbstractNetworkModification {
     }
 
     /**
-     * Moves the connectable in a node-breaker topology
+     * Move the connectable in node-breaker topology
      */
     private void moveInNodeBreakerTopology(Network network, Connectable<?> connectable,
                                            VoltageLevel voltageLevel, NamingStrategy namingStrategy,
@@ -72,26 +72,23 @@ public class MoveFeederBay extends AbstractNetworkModification {
         // Clean existing topology
         cleanNodeBreakerTopology(network, connectableId, reportNode);
 
-        // Get node information and create new topology
+        // Create new topology and Get node information
         int side = getSideFromTerminal(terminal, connectable);
-        int node = getNode(side, connectable);
-        createTopology(side, targetBusOrBusBarSectionId, network, voltageLevel,
-                node, connectable, namingStrategy, reportNode);
+        int connectableNode = createTopologyAndGetConnectableNode(side, targetBusOrBusBarSectionId, network, voltageLevel, connectable, namingStrategy, reportNode);
 
-        // Move the connectable to a new node
-        int connectableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+        // Move the terminal of the connectable to the new node
         terminal.getNodeBreakerView().moveConnectable(connectableNode, voltageLevel.getId());
     }
 
     /**
-     * Moves the connectable in a bus-breaker topology
+     * Move the connectable in bus-breaker topology
      */
     private void moveInBusBreakerTopology(Terminal terminal) {
         terminal.getBusBreakerView().moveConnectable(targetBusOrBusBarSectionId, terminal.isConnected());
     }
 
     /**
-     * Determines the side value from a terminal and connectable
+     * Get the side value
      */
     private int getSideFromTerminal(Terminal terminal, Connectable<?> connectable) {
         if (connectable instanceof Injection<?>) {
@@ -100,36 +97,6 @@ public class MoveFeederBay extends AbstractNetworkModification {
             return terminal.getSide().getNum();
         }
         throw new IllegalStateException("Unsupported connectable type: " + connectable.getClass().getSimpleName());
-    }
-
-    /**
-     * Gets the node for a specific side of a connectable
-     */
-    protected int getNode(int side, Connectable<?> connectable) {
-        if (connectable instanceof Injection<?> injection) {
-            if (side == 0) {
-                return injection.getTerminal().getNodeBreakerView().getNode();
-            }
-        } else if (connectable instanceof Branch<?> branch) {
-            if (side == 1) {
-                return branch.getTerminal1().getNodeBreakerView().getNode();
-            }
-            if (side == 2) {
-                return branch.getTerminal2().getNodeBreakerView().getNode();
-            }
-        } else if (connectable instanceof ThreeWindingsTransformer transformer) {
-            if (side == 1) {
-                return transformer.getLeg1().getTerminal().getNodeBreakerView().getNode();
-            }
-            if (side == 2) {
-                return transformer.getLeg2().getTerminal().getNodeBreakerView().getNode();
-            }
-            if (side == 3) {
-                return transformer.getLeg3().getTerminal().getNodeBreakerView().getNode();
-            }
-        }
-        throw new IllegalStateException("Unexpected combination of side (" + side +
-                ") and connectable type: " + connectable.getClass().getSimpleName());
     }
 
     @Override
@@ -163,7 +130,7 @@ public class MoveFeederBay extends AbstractNetworkModification {
     }
 
     /**
-     * Validates if the connectable is valid for this modification
+     * Check if the connectable is valid for this modification
      */
     private boolean validateConnectable(Connectable<?> connectable, boolean throwException, ReportNode reportNode) {
         if (connectable == null) {
