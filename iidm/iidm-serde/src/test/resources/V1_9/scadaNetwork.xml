@@ -27,7 +27,7 @@
             <iidm:shunt id="shunt" voltageRegulatorOn="true" bus="bus2" connectableBus="bus2">
                 <iidm:shuntLinearModel bPerSection="10.0" maximumSectionCount="1"/>
             </iidm:shunt>
-            <iidm:staticVarCompensator id="svc" bMin="1.1" bMax="3.2" bus="bus2" connectableBus="bus2"/>
+            <iidm:staticVarCompensator id="svc" bMin="1.1" bMax="3.2" regulationMode="VOLTAGE" bus="bus2" connectableBus="bus2"/>
             <iidm:vscConverterStation id="vcs" voltageRegulatorOn="true" lossFactor="80.0" bus="bus2" connectableBus="bus2">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:vscConverterStation>
