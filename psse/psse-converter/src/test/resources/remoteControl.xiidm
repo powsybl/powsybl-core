@@ -32,7 +32,7 @@
             <iidm:load id="B3-L1" loadType="UNDEFINED" p0="94.2" q0="19.0" bus="B3" connectableBus="B3"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S4">
+    <iidm:substation id="S4-7-8-9">
         <iidm:voltageLevel id="VL4" nominalV="230.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B4" name="Bus 4" v="241.7431077" angle="-8.57388999"/>
@@ -107,7 +107,7 @@
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S5">
+    <iidm:substation id="S5-6">
         <iidm:voltageLevel id="VL5" nominalV="230.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B5" name="Bus 5" v="232.3" angle="-6.28249254"/>
@@ -192,6 +192,16 @@
             <iidm:currentLimits permanentLimit="415.18834670544203"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
+    <iidm:area id="A1" name="IEEE 14 Bus Test Case" areaType="ControlArea" interchangeTarget="0.0">
+        <iidm:voltageLevelRef id="VL1"/>
+        <iidm:voltageLevelRef id="VL2"/>
+        <iidm:voltageLevelRef id="VL3"/>
+        <iidm:voltageLevelRef id="VL4"/>
+        <iidm:voltageLevelRef id="VL5"/>
+        <iidm:voltageLevelRef id="VL6"/>
+        <iidm:voltageLevelRef id="VL7-8"/>
+        <iidm:voltageLevelRef id="VL9"/>
+    </iidm:area>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="B1-G1"/>
     </iidm:extension>
