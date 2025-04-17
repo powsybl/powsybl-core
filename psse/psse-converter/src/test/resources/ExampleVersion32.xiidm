@@ -7,7 +7,7 @@
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S2">
+    <iidm:substation id="S2-7">
         <iidm:voltageLevel id="VL2" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B2" name="Bus 2       " v="143.106" angle="0.44"/>
@@ -33,7 +33,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S3">
+    <iidm:substation id="S3-6-8">
         <iidm:voltageLevel id="VL3" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B3" name="Bus 3       " v="142.58159999999998" angle="2.89"/>
@@ -64,7 +64,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S4">
+    <iidm:substation id="S4-5">
         <iidm:voltageLevel id="VL4" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B4" name="Bus 4       " v="140.2218" angle="-1.91"/>
@@ -86,6 +86,16 @@
     <iidm:line id="L-1-4-1 " r="10.2894732" x="42.475737599999995" g1="0.0" b1="1.2917454316320101E-4" g2="0.0" b2="1.2917454316320101E-4" voltageLevelId1="VL1" bus1="B1" connectableBus1="B1" voltageLevelId2="VL4" bus2="B4" connectableBus2="B4"/>
     <iidm:line id="L-2-3-1 " r="8.9487756" x="37.7014068" g1="0.0" b1="1.1499684940138626E-4" g2="0.0" b2="1.1499684940138626E-4" voltageLevelId1="VL2" bus1="B2" connectableBus1="B2" voltageLevelId2="VL3" bus2="B3" connectableBus2="B3"/>
     <iidm:line id="L-3-3-1 " r="11.066468400000002" x="33.578380800000005" g1="0.0" b1="8.926696072253729E-5" g2="0.0" b2="8.926696072253729E-5" voltageLevelId1="VL3" bus1="B3" connectableBus1="B3" voltageLevelId2="VL3" bus2="B3" connectableBus2="B3"/>
+    <iidm:area id="A1" name="IEEE14      " areaType="ControlArea" interchangeTarget="0.0">
+        <iidm:voltageLevelRef id="VL1"/>
+        <iidm:voltageLevelRef id="VL2"/>
+        <iidm:voltageLevelRef id="VL3"/>
+        <iidm:voltageLevelRef id="VL4"/>
+        <iidm:voltageLevelRef id="VL5"/>
+        <iidm:voltageLevelRef id="VL6"/>
+        <iidm:voltageLevelRef id="VL7"/>
+        <iidm:voltageLevelRef id="VL8"/>
+    </iidm:area>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="L-1-2-1 " side="ONE"/>
     </iidm:extension>

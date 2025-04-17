@@ -605,12 +605,14 @@ public final class StateVariablesExport {
     }
 
     private static void writeStatus(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        // create SvStatus, iterate on Connectables, check Terminal status, add to SvStatus
-        network.getConnectableStream().forEach(c -> {
-            if (context.isExportedEquipment(c)) {
-                writeConnectableStatus(c, cimNamespace, writer, context);
-            }
-        });
+        if (!context.isCim16BusBranchExport()) {
+            // create SvStatus, iterate on Connectables, check Terminal status, add to SvStatus
+            network.getConnectableStream().forEach(c -> {
+                if (context.isExportedEquipment(c)) {
+                    writeConnectableStatus(c, cimNamespace, writer, context);
+                }
+            });
+        }
 
         // RK: For dangling lines (boundaries), the AC Line Segment is considered in service if and only if it is connected on the network side.
         // If it is disconnected on the boundary side, it might not appear on the SV file.
