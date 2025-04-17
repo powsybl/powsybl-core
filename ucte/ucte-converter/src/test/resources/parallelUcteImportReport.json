@@ -1,15 +1,15 @@
 {
-  "version" : "2.1",
+  "version" : "3.0",
   "dictionaries" : {
     "default" : {
-      "UcteReading" : "Reading UCTE network file",
-      "fixUcteLines" : "Fix UCTE lines",
-      "fixUcteNodes" : "Fix UCTE nodes",
-      "fixUcteRegulations" : "Fix UCTE regulations",
-      "fixUcteTransformer" : "Fix UCTE transformers",
-      "importAllParallel" : "Test importing UCTE files in parallel: ${file1}, ${file2}, ${file3}",
-      "importDataSource" : "Import data source ${dataSource}",
-      "negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)"
+      "core.iidm.network.importDataSource" : "Import data source ${dataSource}",
+      "core.ucte.UcteReading" : "Reading UCTE network file",
+      "core.ucte.fixUcteLines" : "Fix UCTE lines",
+      "core.ucte.fixUcteNodes" : "Fix UCTE nodes",
+      "core.ucte.fixUcteRegulations" : "Fix UCTE regulations",
+      "core.ucte.fixUcteTransformer" : "Fix UCTE transformers",
+      "core.ucte.negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+      "importAllParallel" : "Test importing UCTE files in parallel: ${file1}, ${file2}, ${file3}"
     }
   },
   "reportRoot" : {
@@ -29,20 +29,20 @@
       }
     },
     "children" : [ {
-      "messageKey" : "importDataSource",
+      "messageKey" : "core.iidm.network.importDataSource",
       "values" : {
         "dataSource" : {
           "value" : "frTestGridForMerging"
         }
       },
       "children" : [ {
-        "messageKey" : "UcteReading",
+        "messageKey" : "core.ucte.UcteReading",
         "children" : [ {
-          "messageKey" : "fixUcteNodes"
+          "messageKey" : "core.ucte.fixUcteNodes"
         }, {
-          "messageKey" : "fixUcteLines",
+          "messageKey" : "core.ucte.fixUcteLines",
           "children" : [ {
-            "messageKey" : "negativeLineResistance",
+            "messageKey" : "core.ucte.negativeLineResistance",
             "values" : {
               "lineId" : {
                 "value" : "FFFFFF11 XXXXXX11 1"
@@ -57,7 +57,7 @@
               }
             }
           }, {
-            "messageKey" : "negativeLineResistance",
+            "messageKey" : "core.ucte.negativeLineResistance",
             "values" : {
               "lineId" : {
                 "value" : "FFFFFF11 XXXXXX12 1"
@@ -73,26 +73,26 @@
             }
           } ]
         }, {
-          "messageKey" : "fixUcteTransformer"
+          "messageKey" : "core.ucte.fixUcteTransformer"
         }, {
-          "messageKey" : "fixUcteRegulations"
+          "messageKey" : "core.ucte.fixUcteRegulations"
         } ]
       } ]
     }, {
-      "messageKey" : "importDataSource",
+      "messageKey" : "core.iidm.network.importDataSource",
       "values" : {
         "dataSource" : {
           "value" : "frVoltageRegulatingXnode"
         }
       },
       "children" : [ {
-        "messageKey" : "UcteReading",
+        "messageKey" : "core.ucte.UcteReading",
         "children" : [ {
-          "messageKey" : "fixUcteNodes"
+          "messageKey" : "core.ucte.fixUcteNodes"
         }, {
-          "messageKey" : "fixUcteLines",
+          "messageKey" : "core.ucte.fixUcteLines",
           "children" : [ {
-            "messageKey" : "negativeLineResistance",
+            "messageKey" : "core.ucte.negativeLineResistance",
             "values" : {
               "lineId" : {
                 "value" : "FFFFFF11 XXXXXX11 1"
@@ -107,7 +107,7 @@
               }
             }
           }, {
-            "messageKey" : "negativeLineResistance",
+            "messageKey" : "core.ucte.negativeLineResistance",
             "values" : {
               "lineId" : {
                 "value" : "FFFFFF11 XXXXXX12 1"
@@ -122,7 +122,7 @@
               }
             }
           }, {
-            "messageKey" : "negativeLineResistance",
+            "messageKey" : "core.ucte.negativeLineResistance",
             "values" : {
               "lineId" : {
                 "value" : "FFFFFF13 XXXXXX13 1"
@@ -137,7 +137,7 @@
               }
             }
           }, {
-            "messageKey" : "negativeLineResistance",
+            "messageKey" : "core.ucte.negativeLineResistance",
             "values" : {
               "lineId" : {
                 "value" : "FFFFFF13 XXXXXX14 1"
@@ -153,28 +153,28 @@
             }
           } ]
         }, {
-          "messageKey" : "fixUcteTransformer"
+          "messageKey" : "core.ucte.fixUcteTransformer"
         }, {
-          "messageKey" : "fixUcteRegulations"
+          "messageKey" : "core.ucte.fixUcteRegulations"
         } ]
       } ]
     }, {
-      "messageKey" : "importDataSource",
+      "messageKey" : "core.iidm.network.importDataSource",
       "values" : {
         "dataSource" : {
           "value" : "germanTsos"
         }
       },
       "children" : [ {
-        "messageKey" : "UcteReading",
+        "messageKey" : "core.ucte.UcteReading",
         "children" : [ {
-          "messageKey" : "fixUcteNodes"
+          "messageKey" : "core.ucte.fixUcteNodes"
         }, {
-          "messageKey" : "fixUcteLines"
+          "messageKey" : "core.ucte.fixUcteLines"
         }, {
-          "messageKey" : "fixUcteTransformer"
+          "messageKey" : "core.ucte.fixUcteTransformer"
         }, {
-          "messageKey" : "fixUcteRegulations"
+          "messageKey" : "core.ucte.fixUcteRegulations"
         } ]
       } ]
     } ]
