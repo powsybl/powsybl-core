@@ -14,6 +14,7 @@ import org.anarres.graphviz.builder.*;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.Objects;
 
 /* Note that this is very similar to GraphvizConnectivity,
@@ -30,7 +31,7 @@ public class GraphvizConnectivitySubstationView {
         this.network = Objects.requireNonNull(network);
     }
 
-    public void write(Writer writer) {
+    public void write(GraphWriter writer) throws UncheckedIOException, NullPointerException {
         Objects.requireNonNull(writer);
         GraphVizGraph graph = new GraphVizGraph();
         GraphVizScope scope = new GraphVizScope.Impl();
@@ -43,9 +44,13 @@ public class GraphvizConnectivitySubstationView {
             }
         }
         try {
+            /* TODO use another writer because this doesn't keep nodes name, it uses it's own internal counter
+             * which means that nodes are named n0, n1, n2 instead of the name used in the actual network
+            **/
             graph.writeTo(writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 }
+
