@@ -141,17 +141,17 @@ public abstract class AbstractNetworkModification implements NetworkModification
     @Override
     public boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         if (dryRun) {
-            ReportNode dryRunReportNode = ModificationReports.reportOnDryRunStart(reportNode, network, getName());
+            ReportNode dryRunReportNode = ModificationReports.reportOnDryRunStart(reportNode, network.getNameOrId(), getName());
             try {
                 //TODO The following copy performs a JSON export/import. It will be more performant to change it to the BIN format.
                 Network dryRunNetwork = NetworkSerDe.copy(network, TreeDataFormat.JSON);
                 dryRunNetwork.setName(network.getNameOrId() + "_Dry-run");
                 apply(dryRunNetwork, namingStrategy, true, computationManager, dryRunReportNode);
             } catch (PowsyblException powsyblException) {
-                ModificationReports.reportOnInconclusiveDryRun(dryRunReportNode, powsyblException.getMessage(), getName());
+                ModificationReports.reportOnInconclusiveDryRun(dryRunReportNode, powsyblException.getMessage(), getName(), network.getNameOrId());
                 return false;
             }
-            ModificationReports.dryRunReportNode(dryRunReportNode);
+            ModificationReports.dryRunReportNode(dryRunReportNode, getName(), network.getNameOrId());
         } else {
             apply(network, namingStrategy, throwException, computationManager, reportNode);
         }

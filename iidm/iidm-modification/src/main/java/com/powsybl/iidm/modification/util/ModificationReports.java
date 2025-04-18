@@ -770,26 +770,29 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void reportOnInconclusiveDryRun(ReportNode reportNode, String cause, String name) {
+    public static void reportOnInconclusiveDryRun(ReportNode reportNode, String cause, String modificationName, String networkName) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.networkModificationDryRun-failure")
                 .withUntypedValue("dryRunError", cause)
-                .withUntypedValue("networkModification", name)
+                .withUntypedValue("networkModification", modificationName)
+                .withUntypedValue("networkNameOrId", networkName)
                 .add();
     }
 
-    public static void dryRunReportNode(ReportNode reportNode) {
+    public static void dryRunReportNode(ReportNode reportNode, String modificationName, String networkName) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.networkModificationDryRun-success")
+                .withUntypedValue("networkModification", modificationName)
+                .withUntypedValue("networkNameOrId", networkName)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 
-    public static ReportNode reportOnDryRunStart(ReportNode reportNode, Network network, String name) {
+    public static ReportNode reportOnDryRunStart(ReportNode reportNode, String networkName, String modificationName) {
         return reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.networkModificationDryRun")
-                .withUntypedValue("networkModification", name)
-                .withUntypedValue("networkNameOrId", network.getNameOrId())
+                .withUntypedValue("networkModification", modificationName)
+                .withUntypedValue("networkNameOrId", networkName)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
