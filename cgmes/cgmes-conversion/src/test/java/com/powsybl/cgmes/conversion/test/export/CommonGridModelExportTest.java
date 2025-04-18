@@ -23,6 +23,7 @@ import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLInputFactory;
@@ -66,6 +67,11 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
     private static final Pattern REGEX_SUPERSEDES = Pattern.compile("Model.Supersedes rdf:resource=\"(.*?)\"");
     private static final Pattern REGEX_PROFILE = Pattern.compile("Model.profile>(.*?)<");
     private static final Pattern REGEX_MAS = Pattern.compile("Model.modelingAuthoritySet>(.*?)<");
+
+    @BeforeEach
+    void setup() {
+        Locale.setDefault(Locale.US);
+    }
 
     @Test
     void testIgmExportNoModelsNoPropertiesVersion() throws IOException {

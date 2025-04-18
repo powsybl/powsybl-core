@@ -24,10 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,6 +51,7 @@ class ImportersTest extends AbstractConvertersTest {
     @BeforeEach
     void setUp() throws IOException {
         super.setUp();
+        Locale.setDefault(Locale.US);
         Files.createFile(fileSystem.getPath(WORK_DIR + FOO_TST));
         Files.createFile(fileSystem.getPath(WORK_DIR + "bar.tst"));
         Files.createFile(fileSystem.getPath(WORK_DIR + "baz.txt"));
