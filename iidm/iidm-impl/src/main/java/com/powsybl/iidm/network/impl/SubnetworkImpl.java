@@ -693,6 +693,146 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
+    public DcNodeAdder newDcNode() {
+        return new DcNodeAdderImpl(rootNetworkRef, ref);
+    }
+
+    @Override
+    public Iterable<DcNode> getDcNodes() {
+        return getDcNodeStream().toList();
+    }
+
+    @Override
+    public Stream<DcNode> getDcNodeStream() {
+        return getNetwork().getDcNodeStream().filter(this::contains);
+    }
+
+    @Override
+    public int getDcNodeCount() {
+        return 0;
+    }
+
+    @Override
+    public DcNode getDcNode(String id) {
+        return null;
+    }
+
+    @Override
+    public DcLineAdder newDcLine() {
+        return new DcLineAdderImpl(rootNetworkRef, ref);
+    }
+
+    @Override
+    public Iterable<DcLine> getDcLines() {
+        return getDcLineStream().toList();
+    }
+
+    @Override
+    public Stream<DcLine> getDcLineStream() {
+        return getNetwork().getDcLineStream().filter(this::contains);
+    }
+
+    @Override
+    public int getDcLineCount() {
+        return 0;
+    }
+
+    @Override
+    public DcLine getDcLine(String id) {
+        return null;
+    }
+
+    @Override
+    public DcSwitchAdder newDcSwitch() {
+        return new DcSwitchAdderImpl(rootNetworkRef, ref);
+    }
+
+    @Override
+    public Iterable<DcSwitch> getDcSwitches() {
+        return getDcSwitchStream().toList();
+    }
+
+    @Override
+    public Stream<DcSwitch> getDcSwitchStream() {
+        return getNetwork().getDcSwitchStream().filter(this::contains);
+    }
+
+    @Override
+    public int getDcSwitchCount() {
+        return 0;
+    }
+
+    @Override
+    public DcSwitch getDcSwitch(String id) {
+        return null;
+    }
+
+    @Override
+    public DcGroundAdder newDcGround() {
+        return new DcGroundAdderImpl(rootNetworkRef, ref);
+    }
+
+    @Override
+    public Iterable<DcGround> getDcGrounds() {
+        return getDcGroundStream().toList();
+    }
+
+    @Override
+    public Stream<DcGround> getDcGroundStream() {
+        return getNetwork().getDcGroundStream().filter(this::contains);
+    }
+
+    @Override
+    public int getDcGroundCount() {
+        return 0;
+    }
+
+    @Override
+    public DcGround getDcGround(String id) {
+        return null;
+    }
+
+    @Override
+    public Iterable<DcLineCommutatedConverter> getDcLineCommutatedConverters() {
+        return getDcLineCommutatedConverterStream().toList();
+    }
+
+    @Override
+    public Stream<DcLineCommutatedConverter> getDcLineCommutatedConverterStream() {
+        return getNetwork().getDcLineCommutatedConverterStream().filter(this::contains);
+    }
+
+    @Override
+    public int getDcLineCommutatedConverterCount() {
+        return 0;
+    }
+
+    @Override
+    public DcLineCommutatedConverter getDcLineCommutatedConverter(String id) {
+        return null;
+    }
+
+    @Override
+    public Iterable<DcVoltageSourceConverter> getDcVoltageSourceConverters() {
+        return getDcVoltageSourceConverterStream().toList();
+    }
+
+    @Override
+    public Stream<DcVoltageSourceConverter> getDcVoltageSourceConverterStream() {
+        return getNetwork().getDcVoltageSourceConverterStream().filter(this::contains);
+    }
+
+    @Override
+    public int getDcVoltageSourceConverterCount() {
+        return 0;
+    }
+
+    @Override
+    public DcVoltageSourceConverter getDcVoltageSourceConverter(String id) {
+        return null;
+    }
+
+    @Override
     public Identifiable<?> getIdentifiable(String id) {
         Identifiable<?> i = getNetwork().getIdentifiable(id);
         return contains(i) ? i : null;
