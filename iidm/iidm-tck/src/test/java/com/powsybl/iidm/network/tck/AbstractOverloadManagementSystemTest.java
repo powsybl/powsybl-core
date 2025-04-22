@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.google.common.collect.ImmutableSet;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.SecurityAnalysisTestNetworkFactory;
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -70,13 +70,18 @@ public abstract class AbstractOverloadManagementSystemTest {
         assertEquals(2, substation.getOverloadManagementSystemCount());
 
         Iterable<OverloadManagementSystem> iterable = substation.getOverloadManagementSystems();
-        List<OverloadManagementSystem> retreived = StreamSupport.stream(iterable.spliterator(), false).toList();
-        assertEquals(2, retreived.size());
-        assertTrue(retreived.containsAll(ImmutableSet.of(oms1, oms2)));
+        List<OverloadManagementSystem> retrieved = StreamSupport.stream(iterable.spliterator(), false).toList();
+        assertEquals(2, retrieved.size());
+        assertTrue(retrieved.containsAll(Set.of(oms1, oms2)));
 
-        retreived = substation.getOverloadManagementSystemStream().toList();
-        assertEquals(2, retreived.size());
-        assertTrue(retreived.containsAll(ImmutableSet.of(oms1, oms2)));
+        retrieved = substation.getOverloadManagementSystemStream().toList();
+        assertEquals(2, retrieved.size());
+        assertTrue(retrieved.containsAll(Set.of(oms1, oms2)));
+
+        retrieved = network.getIdentifiableStream(IdentifiableType.OVERLOAD_MANAGEMENT_SYSTEM)
+            .map(OverloadManagementSystem.class::cast).toList();
+        assertEquals(2, retrieved.size());
+        assertTrue(retrieved.containsAll(Set.of(oms2, oms1)));
 
         assertEquals("OMS1", oms1.getId());
         assertEquals("OMS2", oms2.getId());
