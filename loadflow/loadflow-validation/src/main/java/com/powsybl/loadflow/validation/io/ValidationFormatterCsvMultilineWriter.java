@@ -172,7 +172,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
         write(svcId, "voltageSetpoint", found, svcData.voltageSetpoint, writeValues, voltageSetpoint);
         if (verbose) {
             write(svcId, CONNECTED, found, svcData.connected, writeValues, connected);
-            write(svcId, "regulationMode", found, svcData.regulationMode != null ? svcData.regulationMode.name() : "", writeValues, regulationMode != null ? regulationMode.name() : "");
+            write(svcId, "regulationMode", found, svcData.regulationMode.name(), writeValues, regulationMode != null ? regulationMode.name() : "");
             write(svcId, "regulating", found, svcData.regulating, writeValues, regulating);
             write(svcId, "bMin", found, svcData.bMin, writeValues, bMin);
             write(svcId, "bMax", found, svcData.bMax, writeValues, bMax);

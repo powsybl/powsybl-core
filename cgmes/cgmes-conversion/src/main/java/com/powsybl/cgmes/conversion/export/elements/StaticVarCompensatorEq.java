@@ -51,9 +51,7 @@ public final class StaticVarCompensatorEq {
         }
         writer.writeEndElement();
         writer.writeEmptyElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE);
-        if (svcControlMode != null) {
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + regulationMode(svcControlMode));
-        }
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + regulationMode(svcControlMode));
         writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_VOLTAGESETPOINT);
         writer.writeCharacters(CgmesExportUtil.format(voltageSetPoint));
         writer.writeEndElement();

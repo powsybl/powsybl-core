@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import gnu.trove.list.array.TIntArrayList;
 import org.slf4j.Logger;
@@ -161,6 +162,9 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
         LOG.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", oldRegulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
         if (regulating != null) {
             regulating.fill(0, regulating.size(), false);
+        }
+        if (regulationMode != null) {
+            regulationMode.fill(0, regulationMode.size(), StaticVarCompensator.RegulationMode.VOLTAGE.ordinal());
         }
     }
 
