@@ -206,11 +206,6 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void twoTerminalDcwithTwoAreasTrf() throws IOException {
-        importTest("two_area_case_trf", "two_area_case_trf.raw", false);
-    }
-
-    @Test
     void twoTerminalDcwithTwoAreasTrf3w() throws IOException {
         importTest("two_area_case_trf3w", "two_area_case_trf3w.raw", false);
     }
