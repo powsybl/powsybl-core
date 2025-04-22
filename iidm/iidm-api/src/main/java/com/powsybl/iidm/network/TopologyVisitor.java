@@ -39,4 +39,6 @@ public interface TopologyVisitor {
     }
 
     void visitGround(Ground connectable);
+
+    // TODO: DcLcc & DcVsc
 }

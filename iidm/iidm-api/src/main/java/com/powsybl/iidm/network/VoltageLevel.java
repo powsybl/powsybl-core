@@ -1316,6 +1316,48 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getGroundCount();
 
     /**
+     * Get a builder to create a new DC Line-Commutated Converter.
+     * @return a builder to create a new DC Line-Commutated Converter
+     */
+    DcLineCommutatedConverterAdder newDcLineCommutatedConverter();
+
+    /**
+     * Get DC Line-Commutated Converters.
+     */
+    Iterable<DcLineCommutatedConverter> getDcLineCommutatedConverters();
+
+    /**
+     * Get DC Line-Commutated Converters.
+     */
+    Stream<DcLineCommutatedConverter> getDcLineCommutatedConverterStream();
+
+    /**
+     * Get DC Line-Commutated Converter count.
+     */
+    int getDcLineCommutatedConverterCount();
+
+    /**
+     * Get a builder to create a new DC Voltage-Source Converter.
+     * @return a builder to create a new DC Voltage-Source Converter
+     */
+    DcVoltageSourceConverterAdder newDcVoltageSourceConverter();
+
+    /**
+     * Get DC Voltage-Source Converters.
+     */
+    Iterable<DcVoltageSourceConverter> getDcVoltageSourceConverters();
+
+    /**
+     * Get DC Voltage-Source Converters.
+     */
+    Stream<DcVoltageSourceConverter> getDcVoltageSourceConverterStream();
+
+    /**
+     * Get DC Voltage-Source Converter count.
+     */
+    int getDcVoltageSourceConverterCount();
+
+    /**
      * Remove this voltage level from the network.
      */
     default void remove() {
