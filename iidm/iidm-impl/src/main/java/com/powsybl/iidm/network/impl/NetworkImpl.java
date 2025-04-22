@@ -1252,7 +1252,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public ValidationLevel getValidationLevel() {
         if (validationLevel == null) {
-            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, ValidationUtil.ActionOnError.SILENT, minValidationLevel, ReportNode.NO_OP);
+            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, ValidationUtil.ActionOnError.IGNORE, minValidationLevel, ReportNode.NO_OP);
         }
         return validationLevel;
     }
