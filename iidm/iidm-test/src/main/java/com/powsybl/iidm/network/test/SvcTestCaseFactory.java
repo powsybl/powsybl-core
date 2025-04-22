@@ -213,7 +213,10 @@ public final class SvcTestCaseFactory {
     }
 
     private static Network addOffReactiveTarget(Network network) {
-        return addReactiveTarget(addOffNoTarget(network));
+        addReactiveTarget(addNotRegulating(network));
+        network.getStaticVarCompensator("SVC2")
+                .setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        return network;
     }
 
     public static Network createLocalOffVoltageTarget() {
@@ -229,7 +232,7 @@ public final class SvcTestCaseFactory {
     }
 
     private static Network addOffVoltageTarget(Network network) {
-        return addVoltageTarget(addOffNoTarget(network));
+        return addVoltageTarget(addNotRegulating(network));
     }
 
     public static Network createLocalOffBothTarget() {
@@ -245,21 +248,21 @@ public final class SvcTestCaseFactory {
     }
 
     private static Network addOffBothTarget(Network network) {
-        return addBothTarget(addOffNoTarget(network));
+        return addBothTarget(addNotRegulating(network));
     }
 
     public static Network createLocalOffNoTarget() {
-        return addOffNoTarget(create());
+        return addNotRegulating(create());
     }
 
     public static Network createRemoteOffNoTarget() {
-        return addOffNoTarget(createWithRemoteRegulatingTerminal());
+        return addNotRegulating(createWithRemoteRegulatingTerminal());
     }
 
-    private static Network addOffNoTarget(Network network) {
+    private static Network addNotRegulating(Network network) {
         network.getStaticVarCompensator("SVC2")
                 .setRegulating(false)
-                .setRegulationMode(null)
+                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(Double.NaN)
                 .setReactivePowerSetpoint(Double.NaN);
         return network;
