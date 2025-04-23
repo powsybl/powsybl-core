@@ -158,7 +158,7 @@ connectables are removed. The branches and three-winding transformers are also r
 substations.
 The builder takes the ID of the substation as input.
 
-### Network element repositioning
+### Moving Network element
 The class `com.powsybl.iidm.modification.MoveFeederBay` allows to move feeder bays of connectables 
 (except `BusOrBusBarSection` connectables) from one location to another within a network.
 
