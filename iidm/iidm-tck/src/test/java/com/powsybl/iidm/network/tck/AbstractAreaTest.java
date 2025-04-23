@@ -221,6 +221,7 @@ public abstract class AbstractAreaTest {
         List<Area> areas = List.of(controlAreaA, controlAreaB, regionAB);
         List<String> areaTypes = List.of(CONTROL_AREA_TYPE, REGION_AREA_TYPE);
 
+        assertEquals(areas, network.getIdentifiableStream(IdentifiableType.AREA).toList());
         assertEquals(areas, network.getAreaStream().toList());
         assertEquals(areaTypes, network.getAreaTypeStream().toList());
         assertEquals(areaTypes, network.getAreaTypes());
