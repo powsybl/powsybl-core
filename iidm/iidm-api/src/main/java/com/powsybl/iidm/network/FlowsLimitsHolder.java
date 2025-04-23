@@ -145,6 +145,7 @@ public interface FlowsLimitsHolder {
      * @return an adder allowing to create a new {@link CurrentLimits} in the selected {@link OperationalLimitsGroup}.
      * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits(CurrentLimits)} instead.
      */
+    @Deprecated(since = "6.8.0", forRemoval = true)
     CurrentLimitsAdder newCurrentLimits();
 
     /**
@@ -156,6 +157,7 @@ public interface FlowsLimitsHolder {
      * @return an adder allowing to create a new {@link CurrentLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup}.
      * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits(CurrentLimits)} instead.
      */
+    @Deprecated(since = "6.8.0", forRemoval = true)
     default CurrentLimitsAdder newCurrentLimits(CurrentLimits limits) {
         CurrentLimitsAdder adder = newCurrentLimits();
         return initializeFromLoadingLimits(adder, limits);

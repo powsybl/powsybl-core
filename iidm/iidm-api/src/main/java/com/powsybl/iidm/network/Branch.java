@@ -226,6 +226,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * @return an adder allowing to create a new {@link CurrentLimits} in the selected {@link OperationalLimitsGroup} on side 1.
      * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
      */
+    @Deprecated(since = "6.8.0", forRemoval = true)
     CurrentLimitsAdder newCurrentLimits1();
 
     /**
@@ -237,6 +238,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * @return an adder allowing to create a new {@link CurrentLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 1.
      * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits(CurrentLimits)} instead.
      */
+    @Deprecated(since = "6.8.0", forRemoval = true)
     default CurrentLimitsAdder newCurrentLimits1(CurrentLimits currentLimits) {
         CurrentLimitsAdder currentLimitsAdder = newCurrentLimits1();
         return initializeFromLoadingLimits(currentLimitsAdder, currentLimits);
@@ -422,6 +424,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      CurrentLimits currentLimits
      * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
      */
+    @Deprecated(since = "6.8.0", forRemoval = true)
     CurrentLimitsAdder newCurrentLimits2();
 
     /**
@@ -433,6 +436,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * @return an adder allowing to create a new {@link CurrentLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 2.
      * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits(CurrentLimits)} instead.
      */
+    @Deprecated(since = "6.8.0", forRemoval = true)
     default CurrentLimitsAdder newCurrentLimits2(CurrentLimits currentLimits) {
         CurrentLimitsAdder currentLimitsAdder = newCurrentLimits2();
         return initializeFromLoadingLimits(currentLimitsAdder, currentLimits);
