@@ -33,7 +33,7 @@ public interface NetworkElementIdentifier {
 
     Optional<String> getContingencyId();
 
-    default Boolean isMonoElementContingencies() {
+    default boolean isMonoElementContingencies() {
         return false;
     }
 }

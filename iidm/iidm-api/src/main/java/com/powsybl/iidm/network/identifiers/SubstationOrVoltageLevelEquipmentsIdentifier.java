@@ -79,7 +79,7 @@ public class SubstationOrVoltageLevelEquipmentsIdentifier implements NetworkElem
     }
 
     @Override
-    public Boolean isMonoElementContingencies() {
+    public boolean isMonoElementContingencies() {
         return true;
     }
 }
