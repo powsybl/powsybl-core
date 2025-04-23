@@ -25,10 +25,15 @@ public interface NetworkElementIdentifier {
         ID_BASED,
         VOLTAGE_LEVELS_AND_ORDER,
         LIST,
-        ID_WITH_WILDCARDS
+        ID_WITH_WILDCARDS,
+        SUBSTATION_OR_VOLTAGE_LEVEL_EQUIPMENTS,
     }
 
     IdentifierType getType();
 
     Optional<String> getContingencyId();
+
+    default Boolean isMonoElementContingencies() {
+        return false;
+    }
 }
