@@ -673,11 +673,16 @@ public abstract class AbstractLineTest {
         assertEquals(1000., getLimits(group, limitType).get().getPermanentLimit());
     }
 
-    static Stream<Arguments> getLimitType() {
+    static Stream<Arguments> getPowerLimitType() {
         return Stream.of(
-                Arguments.of(LimitType.CURRENT),
                 Arguments.of(LimitType.APPARENT_POWER),
                 Arguments.of(LimitType.ACTIVE_POWER)
+        );
+    }
+
+    static Stream<Arguments> getLimitType() {
+        return Stream.of(
+                Arguments.of(LimitType.CURRENT)
         );
     }
 
@@ -700,7 +705,7 @@ public abstract class AbstractLineTest {
     }
 
     @ParameterizedTest(name = "{0}")
-    @MethodSource("getLimitType")
+    @MethodSource("getPowerLimitType")
     void dontChangeSelectedOperationalLimitsGroupIfAdderNotUsed(LimitType limitType) {
         Line line = network.newLine()
                 .setId("line")
@@ -721,7 +726,7 @@ public abstract class AbstractLineTest {
     }
 
     @ParameterizedTest(name = "{0}")
-    @MethodSource("getLimitType")
+    @MethodSource("getPowerLimitType")
     void dontChangeDefaultOperationalLimitsGroupIfAdderValidationFails(LimitType limitType) {
         Line line = network.newLine()
                 .setId("line")
@@ -741,5 +746,53 @@ public abstract class AbstractLineTest {
         // The limits' validation of the adder fails. The default group should not be updated.
         assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
         assertTrue(line.getOperationalLimitsGroups1().isEmpty());
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("getLimitType")
+    void addEmptySelectedOperationalLimitsGroupIfAdderNotUsed(LimitType limitType) {
+        Line line = network.newLine()
+                .setId("line")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
+        assertTrue(line.getSelectedOperationalLimitsGroupId1().isEmpty());
+        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
+        LoadingLimitsAdder<?, ?> adder = getAdder(line, limitType);
+        adder.setPermanentLimit(1000.);
+        // The adder is voluntarily NOT added. The default group is updated, but no limit is added.
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isPresent());
+        assertEquals(1, line.getOperationalLimitsGroups1().size());
+        assertEquals("DEFAULT", line.getSelectedOperationalLimitsGroup1().get().getId());
+        assertTrue(line.getSelectedOperationalLimitsGroup1().get().isEmpty());
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("getLimitType")
+    void addEmptyDefaultOperationalLimitsGroupIfAdderValidationFails(LimitType limitType) {
+        Line line = network.newLine()
+                .setId("line")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
+        assertTrue(line.getSelectedOperationalLimitsGroupId1().isEmpty());
+        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
+        LoadingLimitsAdder<?, ?> adder = getAdder(line, limitType);
+        adder.setPermanentLimit(Double.NaN);
+        adder.beginTemporaryLimit().setName("10'").setValue(500.).setAcceptableDuration(600).endTemporaryLimit();
+        assertThrows(ValidationException.class, adder::add);
+        // The limits' validation of the adder fails. The default group is updated, but no limit is added.
+        assertFalse(line.getSelectedOperationalLimitsGroup1().isEmpty());
+        assertEquals(1, line.getOperationalLimitsGroups1().size());
+        assertEquals("DEFAULT", line.getSelectedOperationalLimitsGroup1().get().getId());
+        assertTrue(line.getSelectedOperationalLimitsGroup1().get().isEmpty());
     }
 }
