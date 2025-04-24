@@ -33,6 +33,9 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
     }
 
     void create() {
+        if (!getContainersMapping().isBusDefined(psseFixedShunt.getI())) {
+            return;
+        }
         if (psseFixedShunt.getGl() == 0 && psseFixedShunt.getBl() == 0.0) {
             LOGGER.warn("Shunt ({}) has Gl and Bl = 0, not imported ", psseFixedShunt.getI());
             return;
@@ -63,7 +66,7 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
         adder.add();
     }
 
-    static void updateFixedShunts(Network network, PssePowerFlowModel psseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getFixedShunts().forEach(psseFixedShunt -> {
             String fixedShuntId = getFixedShuntId(psseFixedShunt.getI(), psseFixedShunt.getId());
             ShuntCompensator fixedShunt = network.getShuntCompensator(fixedShuntId);

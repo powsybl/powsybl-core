@@ -27,7 +27,7 @@
             <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="97.0" q0="20.0" bus="B2" connectableBus="B2"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S3">
+    <iidm:substation id="S3-24">
         <iidm:voltageLevel id="VL3" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B3" name="3           " v="119.2251" angle="10.7472"/>
@@ -56,7 +56,7 @@
             <iidm:load id="B4-L1 " loadType="UNDEFINED" p0="74.0" q0="15.0" bus="B4" connectableBus="B4"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S5">
+    <iidm:substation id="S5-9-10-11-12">
         <iidm:voltageLevel id="VL5-9-10" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B5" name="5           " v="127.91634" angle="-0.2237"/>
@@ -511,7 +511,30 @@
             <iidm:currentLimits permanentLimit="1255.1092808470125"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
+    <iidm:area id="A1" name="1           " areaType="ControlArea" interchangeTarget="0.0">
+        <iidm:voltageLevelRef id="VL1"/>
+        <iidm:voltageLevelRef id="VL2"/>
+        <iidm:voltageLevelRef id="VL3"/>
+        <iidm:voltageLevelRef id="VL4"/>
+        <iidm:voltageLevelRef id="VL5-9-10"/>
+        <iidm:voltageLevelRef id="VL6"/>
+        <iidm:voltageLevelRef id="VL7"/>
+        <iidm:voltageLevelRef id="VL8"/>
+        <iidm:voltageLevelRef id="VL11-12"/>
+        <iidm:voltageLevelRef id="VL13"/>
+        <iidm:voltageLevelRef id="VL14"/>
+        <iidm:voltageLevelRef id="VL15"/>
+        <iidm:voltageLevelRef id="VL16"/>
+        <iidm:voltageLevelRef id="VL17"/>
+        <iidm:voltageLevelRef id="VL18"/>
+        <iidm:voltageLevelRef id="VL19"/>
+        <iidm:voltageLevelRef id="VL20"/>
+        <iidm:voltageLevelRef id="VL21"/>
+        <iidm:voltageLevelRef id="VL22"/>
+        <iidm:voltageLevelRef id="VL23"/>
+        <iidm:voltageLevelRef id="VL24"/>
+    </iidm:area>
     <iidm:extension id="VL1">
-        <slt:slackTerminal id="B1-SwSH1"/>
+        <slt:slackTerminal id="B1-G1 "/>
     </iidm:extension>
 </iidm:network>
