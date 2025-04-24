@@ -356,6 +356,7 @@
     </xs:complexType>
     <xs:complexType name="OperationalLimitsGroup">
         <xs:sequence>
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="activePowerLimits" type="iidm:LoadingLimit" minOccurs="0"/>
             <xs:element name="apparentPowerLimits" type="iidm:LoadingLimit" minOccurs="0"/>
             <xs:element name="currentLimits" type="iidm:LoadingLimit" minOccurs="0"/>
