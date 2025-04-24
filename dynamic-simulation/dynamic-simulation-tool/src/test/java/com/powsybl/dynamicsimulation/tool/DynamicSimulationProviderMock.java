@@ -3,6 +3,7 @@ package com.powsybl.dynamicsimulation.tool;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
@@ -25,6 +26,11 @@ public class DynamicSimulationProviderMock implements DynamicSimulationProvider 
 
     @Override
     public Optional<Class<? extends Extension<DynamicSimulationParameters>>> getSpecificParametersClass() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
         return Optional.empty();
     }
 
