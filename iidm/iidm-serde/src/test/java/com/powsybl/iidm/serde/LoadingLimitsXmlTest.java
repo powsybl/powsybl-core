@@ -161,6 +161,29 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
+    void testWithProperties() throws IOException {
+        Network network = DanglingLineNetworkFactory.create();
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        DanglingLine dl = network.getDanglingLine("DL");
+        OperationalLimitsGroup g1 = dl.getOperationalLimitsGroup("DEFAULT").orElseThrow();
+        g1.setProperty("type", "A");
+        g1.setProperty("source", "s1");
+        createLoadingLimits(g1::newCurrentLimits);
+        OperationalLimitsGroup g2 = dl.newOperationalLimitsGroup("GROUP_2");
+        g2.setProperty("type", "B");
+        g2.setProperty("source", "s2");
+        createLoadingLimits(g2::newCurrentLimits);
+        allFormatsRoundTripTest(network, "operational-limits-groups-with-properties.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility from version 1.14
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("operational-limits-groups-with-properties.xml", IidmVersion.V_1_14);
+
+        // properties are not exported for previous versions (no properties in ref files)
+        //testWriteXmlAllPreviousVersions(network, new ExportOptions(), "operational-limits-groups-with-properties.xml", IidmVersion.V_1_14);
+        testWriteVersionedXml(network, new ExportOptions(), "operational-limits-groups-with-properties.xml", IidmVersion.V_1_12, IidmVersion.V_1_13);
+    }
+
+    @Test
     void testImportWithoutPermanentLimit() {
         // Check that import succeeds for versions prior to 1.12
         // (the permanent limit is computed)
