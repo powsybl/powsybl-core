@@ -83,12 +83,8 @@ public abstract class AbstractLccTest {
 
     @Test
     public void testHvdcLineRemove() {
-        try {
-            cs1.remove();
-            fail();
-        } catch (ValidationException e) {
-            // Ignored
-        }
+        ValidationException validationException = assertThrows(ValidationException.class, () -> cs1.remove());
+        assertEquals("lccConverterStation 'C1': Impossible to remove this converter station (still attached to 'L')", validationException.getMessage());
 
         network.getHvdcLine("L").remove();
         assertEquals(0, network.getHvdcLineCount());
@@ -99,7 +95,7 @@ public abstract class AbstractLccTest {
         PowsyblException exception = assertThrows(PowsyblException.class, () -> hvdcLine.getConverterStation1());
         assertEquals("Cannot access converter station of removed hvdc line " + hvdcLine.getId(), exception.getMessage());
 
-        exception = assertThrows(PowsyblException.class, () -> hvdcLine.getConverterStation1());
+        exception = assertThrows(PowsyblException.class, () -> hvdcLine.getConverterStation2());
         assertEquals("Cannot access converter station of removed hvdc line " + hvdcLine.getId(), exception.getMessage());
 
         exception = assertThrows(PowsyblException.class, () -> hvdcLine.getNetwork());
