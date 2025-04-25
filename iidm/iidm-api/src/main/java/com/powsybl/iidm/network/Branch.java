@@ -10,6 +10,8 @@ package com.powsybl.iidm.network;
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoadingLimits;
+
 /**
  * An equipment with two terminals.
  *
@@ -95,7 +97,6 @@ import java.util.Optional;
  *         </tr>
  *     </tbody>
  * </table>
- *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Branch<I extends Branch<I>> extends Identifiable<I> {
@@ -227,22 +228,61 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     CurrentLimitsAdder newCurrentLimits1();
 
     /**
-     * <p>Create an adder to add a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup} on side 1.</p>
+     * <p>Create an adder to add a copy of the {@link CurrentLimits} in parameters in the selected {@link OperationalLimitsGroup} on side 1. </p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
      * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
+     * are valid.</p>
+     * @param currentLimits a set of existing current limits.
+     * @return an adder allowing to create a new {@link CurrentLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 1.
+     */
+    default CurrentLimitsAdder newCurrentLimits1(CurrentLimits currentLimits) {
+        CurrentLimitsAdder currentLimitsAdder = newCurrentLimits1();
+        return initializeFromLoadingLimits(currentLimitsAdder, currentLimits);
+    }
+
+    /**
+     * <p>Create an adder to add a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup} on side 1.</p>
+     * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
+     * This operation is performed when the limits are created via {@link ActivePowerLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup} on side 1.
      */
     ActivePowerLimitsAdder newActivePowerLimits1();
 
     /**
+     * <p>Create an adder to add a copy of the {@link ActivePowerLimits} in parameters in the selected {@link OperationalLimitsGroup} on side 1. </p>
+     * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
+     * This operation is performed when the limits are created via {@link ActivePowerLimitsAdder#add()}, only if the limits to add
+     * are valid.</p>
+     * @param activePowerLimits a set of existing active power limits.
+     * @return an adder allowing to create a new {@link ActivePowerLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 1.
+     */
+    default ActivePowerLimitsAdder newActivePowerLimits1(ActivePowerLimits activePowerLimits) {
+        ActivePowerLimitsAdder activePowerLimitsAdder = newActivePowerLimits1();
+        return initializeFromLoadingLimits(activePowerLimitsAdder, activePowerLimits);
+    }
+
+    /**
      * <p>Create an adder to add a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup} on side 1.</p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
-     * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
+     * This operation is performed when the limits are created via {@link ApparentPowerLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup} on side 1.
      */
     ApparentPowerLimitsAdder newApparentPowerLimits1();
+
+    /**
+     * <p>Create an adder to add a copy of the {@link ApparentPowerLimits} in parameters in the selected {@link OperationalLimitsGroup} on side 1. </p>
+     * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
+     * This operation is performed when the limits are created via {@link ApparentPowerLimitsAdder#add()}, only if the limits to add
+     * are valid.</p>
+     * @param apparentPowerLimits a set of existing apparent power limits.
+     * @return an adder allowing to create a new {@link ApparentPowerLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 1.
+     */
+    default ApparentPowerLimitsAdder newApparentPowerLimits1(ApparentPowerLimits apparentPowerLimits) {
+        ApparentPowerLimitsAdder apparentPowerLimitsAdder = newApparentPowerLimits1();
+        return initializeFromLoadingLimits(apparentPowerLimitsAdder, apparentPowerLimits);
+    }
 
     /**
      * Get the collection of the defined {@link OperationalLimitsGroup} on side 2.
@@ -355,113 +395,122 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     CurrentLimitsAdder newCurrentLimits2();
 
     /**
-     * <p>Create an adder to add a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup} on side 2.</p>
+     * <p>Create an adder to add a copy of the {@link CurrentLimits} in parameters in the selected {@link OperationalLimitsGroup} on side 2. </p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
      * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
+     * are valid.</p>
+     * @param currentLimits a set of existing current limits.
+     * @return an adder allowing to create a new {@link CurrentLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 2.
+     */
+    default CurrentLimitsAdder newCurrentLimits2(CurrentLimits currentLimits) {
+        CurrentLimitsAdder currentLimitsAdder = newCurrentLimits2();
+        return initializeFromLoadingLimits(currentLimitsAdder, currentLimits);
+    }
+
+    /**
+     * <p>Create an adder to add a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup} on side 2.</p>
+     * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
+     * This operation is performed when the limits are created via {@link ActivePowerLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup} on side 2.
      */
     ActivePowerLimitsAdder newActivePowerLimits2();
 
     /**
+     * <p>Create an adder to add a copy of the {@link ActivePowerLimits} in parameters in the selected {@link OperationalLimitsGroup} on side 2. </p>
+     * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
+     * This operation is performed when the limits are created via {@link ActivePowerLimitsAdder#add()}, only if the limits to add
+     * are valid.</p>
+     * @param activePowerLimits a set of existing active power limits.
+     * @return an adder allowing to create a new {@link ActivePowerLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 2.
+     */
+    default ActivePowerLimitsAdder newActivePowerLimits2(ActivePowerLimits activePowerLimits) {
+        ActivePowerLimitsAdder activePowerLimitsAdder = newActivePowerLimits2();
+        return initializeFromLoadingLimits(activePowerLimitsAdder, activePowerLimits);
+    }
+
+    /**
      * <p>Create an adder to add a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup} on side 2.</p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
-     * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
+     * This operation is performed when the limits are created via {@link ApparentPowerLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup} on side 2.
      */
     ApparentPowerLimitsAdder newApparentPowerLimits2();
 
+    /**
+     * <p>Create an adder to add a copy of the {@link ApparentPowerLimits} in parameters in the selected {@link OperationalLimitsGroup} on side 2. </p>
+     * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
+     * This operation is performed when the limits are created via {@link ApparentPowerLimitsAdder#add()}, only if the limits to add
+     * are valid.</p>
+     * @param apparentPowerLimits a set of existing apparent power limits.
+     * @return an adder allowing to create a new {@link ApparentPowerLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 2.
+     */
+    default ApparentPowerLimitsAdder newApparentPowerLimits2(ApparentPowerLimits apparentPowerLimits) {
+        ApparentPowerLimitsAdder apparentPowerLimitsAdder = newApparentPowerLimits2();
+        return initializeFromLoadingLimits(apparentPowerLimitsAdder, apparentPowerLimits);
+    }
+
     default Optional<CurrentLimits> getCurrentLimits(TwoSides side) {
-        switch (side) {
-            case ONE:
-                return getCurrentLimits1();
-            case TWO:
-                return getCurrentLimits2();
-            default:
-                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
-        }
+        return switch (side) {
+            case ONE -> getCurrentLimits1();
+            case TWO -> getCurrentLimits2();
+        };
     }
 
     default Optional<ActivePowerLimits> getActivePowerLimits(TwoSides side) {
-        switch (side) {
-            case ONE:
-                return getActivePowerLimits1();
-            case TWO:
-                return getActivePowerLimits2();
-            default:
-                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
-        }
+        return switch (side) {
+            case ONE -> getActivePowerLimits1();
+            case TWO -> getActivePowerLimits2();
+        };
     }
 
     default Optional<ApparentPowerLimits> getApparentPowerLimits(TwoSides side) {
-        switch (side) {
-            case ONE:
-                return getApparentPowerLimits1();
-            case TWO:
-                return getApparentPowerLimits2();
-            default:
-                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
-        }
+        return switch (side) {
+            case ONE -> getApparentPowerLimits1();
+            case TWO -> getApparentPowerLimits2();
+        };
     }
 
     default Optional<? extends LoadingLimits> getLimits(LimitType type, TwoSides side) {
-        switch (type) {
-            case CURRENT:
-                return getCurrentLimits(side);
-            case ACTIVE_POWER:
-                return getActivePowerLimits(side);
-            case APPARENT_POWER:
-                return getApparentPowerLimits(side);
-            default:
+        return switch (type) {
+            case CURRENT -> getCurrentLimits(side);
+            case ACTIVE_POWER -> getActivePowerLimits(side);
+            case APPARENT_POWER -> getApparentPowerLimits(side);
+            default ->
                 throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
-        }
+        };
     }
 
     default CurrentLimits getNullableCurrentLimits(TwoSides side) {
-        switch (side) {
-            case ONE:
-                return getNullableCurrentLimits1();
-            case TWO:
-                return getNullableCurrentLimits2();
-            default:
-                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
-        }
+        return switch (side) {
+            case ONE -> getNullableCurrentLimits1();
+            case TWO -> getNullableCurrentLimits2();
+        };
     }
 
     default ActivePowerLimits getNullableActivePowerLimits(TwoSides side) {
-        switch (side) {
-            case ONE:
-                return getNullableActivePowerLimits1();
-            case TWO:
-                return getNullableActivePowerLimits2();
-            default:
-                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
-        }
+        return switch (side) {
+            case ONE -> getNullableActivePowerLimits1();
+            case TWO -> getNullableActivePowerLimits2();
+        };
     }
 
     default ApparentPowerLimits getNullableApparentPowerLimits(TwoSides side) {
-        switch (side) {
-            case ONE:
-                return getNullableApparentPowerLimits1();
-            case TWO:
-                return getNullableApparentPowerLimits2();
-            default:
-                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
-        }
+        return switch (side) {
+            case ONE -> getNullableApparentPowerLimits1();
+            case TWO -> getNullableApparentPowerLimits2();
+        };
     }
 
     default LoadingLimits getNullableLimits(LimitType type, TwoSides side) {
-        switch (type) {
-            case CURRENT:
-                return getNullableCurrentLimits(side);
-            case ACTIVE_POWER:
-                return getNullableActivePowerLimits(side);
-            case APPARENT_POWER:
-                return getNullableApparentPowerLimits(side);
-            default:
+        return switch (type) {
+            case CURRENT -> getNullableCurrentLimits(side);
+            case ACTIVE_POWER -> getNullableActivePowerLimits(side);
+            case APPARENT_POWER -> getNullableApparentPowerLimits(side);
+            default ->
                 throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
-        }
+        };
     }
 
     /**

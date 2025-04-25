@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  *
  * <p><code>Importer</code> lookup is based on the <code>ServiceLoader</code>
  * architecture so do not forget to create a
- * <code>META-INF/services/com.powsybl.iidm.importData.Importer</code> file
+ * <code>META-INF/services/com.powsybl.iidm.network.Importer</code> file
  * with the fully qualified name of your <code>Importer</code> implementation.
  *
  * @see java.util.ServiceLoader
@@ -58,6 +58,11 @@ public interface Importer {
         @Override
         public String getFormat() {
             return importer.getFormat();
+        }
+
+        @Override
+        public List<String> getSupportedExtensions() {
+            return importer.getSupportedExtensions();
         }
 
         @Override
@@ -275,6 +280,10 @@ public interface Importer {
      * Get a unique identifier of the format.
      */
     String getFormat();
+
+    default List<String> getSupportedExtensions() {
+        return Collections.emptyList();
+    }
 
     /**
      * Get a description of import parameters

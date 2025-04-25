@@ -34,14 +34,43 @@ public class Parameter {
 
     private final ParameterScope scope;
 
+    private final String categoryKey;
+
     public Parameter(String name, ParameterType type, String description, Object defaultValue,
-                     List<Object> possibleValues, ParameterScope scope) {
+                     List<Object> possibleValues, ParameterScope scope, String categoryKey) {
         names.add(Objects.requireNonNull(name));
         this.type = Objects.requireNonNull(type);
         this.description = Objects.requireNonNull(description);
         this.defaultValue = checkDefaultValue(type, defaultValue);
         this.possibleValues = checkPossibleValues(type, possibleValues, defaultValue);
         this.scope = scope;
+        this.categoryKey = categoryKey;
+    }
+
+    public Parameter(List<String> names, ParameterType type, String description, Object defaultValue,
+                     List<Object> possibleValues, ParameterScope scope, String categoryKey) {
+        Objects.requireNonNull(names);
+        if (names.isEmpty()) {
+            throw new IllegalArgumentException("At least one name is expected.");
+        }
+        Objects.requireNonNull(names.get(0));
+        this.names.addAll(names);
+        this.type = Objects.requireNonNull(type);
+        this.description = Objects.requireNonNull(description);
+        this.defaultValue = checkDefaultValue(type, defaultValue);
+        this.possibleValues = checkPossibleValues(type, possibleValues, defaultValue);
+        this.scope = scope;
+        this.categoryKey = categoryKey;
+    }
+
+    public Parameter(String name, ParameterType type, String description, Object defaultValue,
+                     List<Object> possibleValues, ParameterScope scope) {
+        this(name, type, description, defaultValue, possibleValues, scope, null);
+    }
+
+    public Parameter(String name, ParameterType type, String description, Object defaultValue, ParameterScope scope,
+                     String categoryKey) {
+        this(name, type, description, defaultValue, null, scope, categoryKey);
     }
 
     public Parameter(String name, ParameterType type, String description, Object defaultValue,
@@ -222,5 +251,9 @@ public class Parameter {
 
     public ParameterScope getScope() {
         return scope;
+    }
+
+    public String getCategoryKey() {
+        return categoryKey;
     }
 }

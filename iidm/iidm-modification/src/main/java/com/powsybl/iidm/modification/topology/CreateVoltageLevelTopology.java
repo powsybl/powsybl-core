@@ -7,18 +7,21 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
@@ -57,13 +60,16 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         this.switchKinds = switchKinds;
     }
 
+    @Override
+    public String getName() {
+        return "CreateVoltageLevelTopology";
+    }
+
     private static boolean checkCountAttributes(Integer count, String type, int min, ReportNode reportNode, boolean throwException) {
         if (count < min) {
             LOG.error("{} must be >= {}", type, min);
             countLowerThanMin(reportNode, type, min);
-            if (throwException) {
-                throw new PowsyblException(type + " must be >= " + min);
-            }
+            logOrThrow(throwException, type + " must be >= " + min);
             return false;
         }
         return true;
@@ -80,27 +86,18 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     private static boolean checkSwitchKinds(List<SwitchKind> switchKinds, int sectionCount, ReportNode reportNode, boolean throwException) {
         Objects.requireNonNull(switchKinds, "Undefined switch kinds");
         if (switchKinds.size() != sectionCount - 1) {
-            LOG.error("Unexpected switch kinds count ({}). Should be {}", switchKinds.size(), sectionCount - 1);
             unexpectedSwitchKindsCount(reportNode, switchKinds.size(), sectionCount - 1);
-            if (throwException) {
-                throw new PowsyblException("Unexpected switch kinds count (" + switchKinds.size() + "). Should be " + (sectionCount - 1));
-            }
+            logOrThrow(throwException, "Unexpected switch kinds count (" + switchKinds.size() + "). Should be " + (sectionCount - 1));
             return false;
         }
         if (switchKinds.contains(null)) {
-            LOG.error("All switch kinds must be defined");
             undefinedSwitchKind(reportNode);
-            if (throwException) {
-                throw new PowsyblException("All switch kinds must be defined");
-            }
+            logOrThrow(throwException, "All switch kinds must be defined");
             return false;
         }
         if (switchKinds.stream().anyMatch(kind -> kind != SwitchKind.DISCONNECTOR && kind != SwitchKind.BREAKER)) {
-            LOG.error("Switch kinds must be DISCONNECTOR or BREAKER");
             wrongSwitchKind(reportNode);
-            if (throwException) {
-                throw new PowsyblException("Switch kinds must be DISCONNECTOR or BREAKER");
-            }
+            logOrThrow(throwException, "Switch kinds must be DISCONNECTOR or BREAKER");
             return false;
         }
         return true;
@@ -142,9 +139,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         if (voltageLevel == null) {
             LOG.error("Voltage level {} is not found", voltageLevelId);
             notFoundVoltageLevelReport(reportNode, voltageLevelId);
-            if (throwException) {
-                throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
-            }
+            logOrThrow(throwException, String.format("Voltage level %s is not found", voltageLevelId));
             return;
         }
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
@@ -168,6 +163,23 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         }
         LOG.info("New symmetrical topology in voltage level {}: creation of {} bus(es) or busbar(s) with {} section(s) each.", voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
         createdNewSymmetricalTopology(reportNode, voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        if (!checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, false, ReportNode.NO_OP)) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else {
+            VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+            if (voltageLevel == null ||
+                voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER &&
+                    (switchKinds.size() != sectionCount - 1 || switchKinds.contains(null)
+                        || switchKinds.stream().anyMatch(kind -> kind != SwitchKind.DISCONNECTOR && kind != SwitchKind.BREAKER))) {
+                impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+            }
+        }
+        return impact;
     }
 
     private void createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {

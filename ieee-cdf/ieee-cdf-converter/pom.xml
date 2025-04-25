@@ -13,7 +13,7 @@
     <parent>
         <artifactId>powsybl-ieee-cdf</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>6.8.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-ieee-cdf-converter</artifactId>

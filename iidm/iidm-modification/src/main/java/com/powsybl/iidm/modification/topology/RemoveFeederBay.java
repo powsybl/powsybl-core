@@ -7,10 +7,10 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
 import org.jgrapht.Graph;
@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
@@ -44,6 +45,11 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "RemoveFeederBay";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         Connectable<?> connectable = network.getConnectable(connectableId);
         if (!checkConnectable(throwException, reportNode, connectable)) {
@@ -60,6 +66,16 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         connectable.remove();
         removedConnectableReport(reportNode, connectableId);
         LOGGER.info("Connectable {} removed", connectableId);
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        Connectable<?> connectable = network.getConnectable(connectableId);
+        if (connectable == null || connectable instanceof BusbarSection) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        }
+        return impact;
     }
 
     private Graph<Integer, Object> createGraphFromTerminal(Terminal terminal) {
@@ -184,6 +200,11 @@ public class RemoveFeederBay extends AbstractNetworkModification {
      */
     private void removeAllSwitchesAndInternalConnections(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph,
                                                          int originNode, Object edge, ReportNode reportNode) {
+        // in case of loops inside the traversed bay, the edge might have been already removed
+        if (!graph.containsEdge(edge)) {
+            return;
+        }
+
         Integer oppositeNode = getOppositeNode(graph, originNode, edge);
         removeSwitchOrInternalConnection(nbv, graph, edge, reportNode);
         if (!isBusbarSection(nbv, oppositeNode)) {
@@ -221,19 +242,13 @@ public class RemoveFeederBay extends AbstractNetworkModification {
 
     private boolean checkConnectable(boolean throwException, ReportNode reportNode, Connectable<?> connectable) {
         if (connectable instanceof BusbarSection) {
-            LOGGER.error("BusbarSection connectables are not allowed as RemoveFeederBay input: {}", connectableId);
             removeFeederBayBusbarSectionReport(reportNode, connectableId);
-            if (throwException) {
-                throw new PowsyblException("BusbarSection connectables are not allowed as RemoveFeederBay input: " + connectableId);
-            }
+            logOrThrow(throwException, "BusbarSection connectables are not allowed as RemoveFeederBay input: " + connectableId);
             return false;
         }
         if (connectable == null) {
-            LOGGER.error("Connectable {} not found", connectableId);
             notFoundConnectableReport(reportNode, connectableId);
-            if (throwException) {
-                throw new PowsyblException("Connectable not found: " + connectableId);
-            }
+            logOrThrow(throwException, "Connectable not found: " + connectableId);
             return false;
         }
         return true;

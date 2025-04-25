@@ -59,20 +59,10 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
     protected void writeSubElements(VoltageLevel vl, Container<? extends Identifiable<?>> c, NetworkSerializerContext context) {
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
         switch (topologyLevel) {
-            case NODE_BREAKER:
-                writeNodeBreakerTopology(vl, context);
-                break;
-
-            case BUS_BREAKER:
-                writeBusBreakerTopology(vl, context);
-                break;
-
-            case BUS_BRANCH:
-                writeBusBranchTopology(vl, context);
-                break;
-
-            default:
-                throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
+            case NODE_BREAKER -> writeNodeBreakerTopology(vl, context);
+            case BUS_BREAKER -> writeBusBreakerTopology(vl, context);
+            case BUS_BRANCH -> writeBusBranchTopology(vl, context);
+            default -> throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
         }
 
         writeGenerators(vl, context);
@@ -370,7 +360,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
                 throw new PowsyblException(String.format("Unknown element name '%s' in 'bus'", elementName));
             }
         });
-        context.getEndTasks().add(() -> {
+        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
             for (int node : busNodes) {
                 Terminal terminal = vl.getNodeBreakerView().getTerminal(node);
                 if (terminal != null) {

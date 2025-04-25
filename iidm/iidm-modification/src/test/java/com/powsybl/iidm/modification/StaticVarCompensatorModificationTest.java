@@ -59,7 +59,6 @@ class StaticVarCompensatorModificationTest {
             "An invalid ID should fail to apply.");
         assertDoesNotThrow(() -> modif1.apply(network, false, ReportNode.NO_OP),
             "An invalid ID should not throw if throwException is false.");
-
         StaticVarCompensatorModification modif2 = new StaticVarCompensatorModification(svc.getId(),
             1., 2.);
         modif2.apply(network, true, ReportNode.NO_OP);
@@ -75,5 +74,29 @@ class StaticVarCompensatorModificationTest {
         assertNull(modif.getReactivePowerSetpoint());
         assertEquals(OptionalDouble.of(1.), modif.getOptionalVoltageSetpoint());
         assertEquals(1., modif.getVoltageSetpoint());
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new StaticVarCompensatorModification("ID", 1.0, 1.);
+        assertEquals("StaticVarCompensatorModification", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        NetworkModification modification1 = new StaticVarCompensatorModification("UNKNOWN_ID", 1., 2.);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new StaticVarCompensatorModification("SVC", 0., 0.);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
+
+        NetworkModification modification3 = new StaticVarCompensatorModification("SVC", 1., 0.);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+
+        NetworkModification modification4 = new StaticVarCompensatorModification("SVC", 0., 1.);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
+
+        NetworkModification modification5 = new StaticVarCompensatorModification("SVC", null, null);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification5.hasImpactOnNetwork(network));
     }
 }

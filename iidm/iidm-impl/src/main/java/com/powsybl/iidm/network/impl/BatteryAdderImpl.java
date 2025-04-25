@@ -83,8 +83,8 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, targetP, network.getMinValidationLevel()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, targetQ, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, targetP, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, targetQ, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
@@ -92,7 +92,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, targetQ, minP, maxP);
 
         battery.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(battery);
         network.getListeners().notifyCreation(battery);
         return battery;

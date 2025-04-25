@@ -212,17 +212,19 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         }
 
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, network.getMinValidationLevel()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, network.getMinValidationLevel()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(), network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV,
+                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband,
+                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(),
+                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
         ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(getNetworkRef(),
-                id, getName(), isFictitious(), modelBuilder.build(), sectionCount,
-                regulatingTerminal == null ? terminal : regulatingTerminal,
+                id, getName(), isFictitious(), modelBuilder.build(), sectionCount, regulatingTerminal,
                 voltageRegulatorOn, targetV, targetDeadband);
 
         shunt.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(shunt);
         network.getListeners().notifyCreation(shunt);
         return shunt;

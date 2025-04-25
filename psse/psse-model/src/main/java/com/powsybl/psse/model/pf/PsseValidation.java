@@ -28,36 +28,46 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  */
 public class PsseValidation {
 
-    private final List<String> warnings;
+    private final List<String> validationWarnings;
+    private final List<String> validationErrors;
     private boolean validCase;
     private static final Logger LOGGER = LoggerFactory.getLogger(PsseValidation.class);
 
-    private static final String WARNING_TRANSFORMER_1_PARAMETER = "Transformer: %s Unexpected %s: %.5f";
-    private static final String WARNING_TRANSFORMER_2_PARAMETERS = "Transformer: %s Unexpected %s: %.5f %.5f";
+    private static final String ERROR_TRANSFORMER_1_PARAMETER = "Transformer: %s Unexpected %s: %.5f";
+    private static final String ERROR_TRANSFORMER_2_PARAMETERS = "Transformer: %s Unexpected %s: %.5f %.5f";
 
     public PsseValidation(PssePowerFlowModel model, PsseVersion psseVersion) {
         Objects.requireNonNull(model);
-        warnings = new ArrayList<>();
+        validationWarnings = new ArrayList<>();
+        validationErrors = new ArrayList<>();
         validCase = true;
 
         validate(model, psseVersion);
+        writeValidationWarnings();
+
         if (!validCase) {
-            writeWarnings();
+            writeValidationErrors();
         }
     }
 
-    public List<String> getWarnings() {
-        return warnings;
+    public List<String> getValidationErrors() {
+        return validationErrors;
     }
 
     public boolean isValidCase() {
         return validCase;
     }
 
-    private void writeWarnings() {
-        LOGGER.warn("PSS/E Validation ...");
-        warnings.forEach(LOGGER::warn);
-        LOGGER.warn("PSS/E Validation end. ValidCase {}", validCase);
+    private void writeValidationWarnings() {
+        LOGGER.warn("PSS/E Validation warnings ...");
+        validationWarnings.forEach(LOGGER::warn);
+        LOGGER.warn("PSS/E Validation warnings end.");
+    }
+
+    private void writeValidationErrors() {
+        LOGGER.warn("PSS/E Validation errors ...");
+        validationErrors.forEach(LOGGER::warn);
+        LOGGER.warn("PSS/E Validation errors end. ValidCase {}", validCase);
     }
 
     private void validate(PssePowerFlowModel model, PsseVersion psseVersion) {
@@ -71,6 +81,7 @@ public class PsseValidation {
         validateGenerators(model.getBuses(), model.getGenerators(), buses);
         validateNonTransformerBranches(model.getNonTransformerBranches(), buses);
         validateTransformers(model.getTransformers(), buses);
+        validateTwoTerminalDcTransmissionLines(model.getTwoTerminalDcTransmissionLines(), buses);
 
         validateSwitchedShunts(model.getSwitchedShunts(), buses, psseVersion);
     }
@@ -85,11 +96,11 @@ public class PsseValidation {
 
     private void validateCaseIdentification(PsseCaseIdentification caseIdentification) {
         if (caseIdentification.getSbase() <= 0.0) {
-            warnings.add(String.format(Locale.US, "CaseIdentification: Unexpected Sbase: %.2f", caseIdentification.getSbase()));
+            validationErrors.add(String.format(Locale.US, "CaseIdentification: Unexpected Sbase: %.2f", caseIdentification.getSbase()));
             validCase = false;
         }
         if (caseIdentification.getBasfrq() <= 0.0) {
-            warnings.add(String.format(Locale.US, "CaseIdentification: Unexpected Basfrq: %.2f", caseIdentification.getBasfrq()));
+            validationErrors.add(String.format(Locale.US, "CaseIdentification: Unexpected Basfrq: %.2f", caseIdentification.getBasfrq()));
             validCase = false;
         }
     }
@@ -97,19 +108,18 @@ public class PsseValidation {
     private void validateBuses(List<PsseBus> psseBuses, Map<Integer, List<Integer>> buses) {
         for (Map.Entry<Integer, List<Integer>> entry : buses.entrySet()) {
             if (entry.getValue().size() != 1) {
-                warnings.add(String.format("Bus: %d defined multiple times (%d)", entry.getKey(), entry.getValue().size()));
+                validationErrors.add(String.format("Bus: %d defined multiple times (%d)", entry.getKey(), entry.getValue().size()));
                 validCase = false;
             }
         }
 
-        for (int i = 0; i < psseBuses.size(); i++) {
-            PsseBus psseBus = psseBuses.get(i);
+        for (PsseBus psseBus : psseBuses) {
             if (psseBus.getI() < 1 || psseBus.getI() > 999997) {
-                warnings.add(String.format("Bus: Unexpected I: %d", psseBus.getI()));
+                validationErrors.add(String.format("Bus: Unexpected I: %d", psseBus.getI()));
                 validCase = false;
             }
             if (psseBus.getBaskv() < 0.0) {
-                warnings.add(String.format(Locale.US, "Bus: %d Unexpected Baskv: %.2f", psseBus.getI(), psseBus.getBaskv()));
+                validationErrors.add(String.format(Locale.US, "Bus: %d Unexpected Baskv: %.2f", psseBus.getI(), psseBus.getBaskv()));
                 validCase = false;
             }
         }
@@ -118,11 +128,10 @@ public class PsseValidation {
     private void validateLoads(List<PsseLoad> loads, Map<Integer, List<Integer>> buses) {
         Map<String, List<String>> busesLoads = new HashMap<>();
 
-        for (int i = 0; i < loads.size(); i++) {
-            PsseLoad load = loads.get(i);
+        for (PsseLoad load : loads) {
             if (!buses.containsKey(load.getI())) {
-                warnings.add(String.format("Load: Unexpected I: %d", load.getI()));
-                validCase = false;
+                validationWarnings.add(String.format("Load: bus not found I: %d, Load record %d, %s, ... will be ignored", load.getI(), load.getI(), load.getId()));
+                continue;
             }
             addBusesMap(busesLoads, load.getI(), load.getId());
         }
@@ -133,11 +142,10 @@ public class PsseValidation {
     private void validateFixedShunts(List<PsseFixedShunt> fixedShunts, Map<Integer, List<Integer>> buses) {
         Map<String, List<String>> busesFixedShunts = new HashMap<>();
 
-        for (int i = 0; i < fixedShunts.size(); i++) {
-            PsseFixedShunt fixedShunt = fixedShunts.get(i);
+        for (PsseFixedShunt fixedShunt : fixedShunts) {
             if (!buses.containsKey(fixedShunt.getI())) {
-                warnings.add(String.format("FixedShunt: Unexpected I: %d", fixedShunt.getI()));
-                validCase = false;
+                validationWarnings.add(String.format("FixedShunt: bus not found I: %d, FixedShunt record %d, %s, ... will be ignored", fixedShunt.getI(), fixedShunt.getI(), fixedShunt.getId()));
+                continue;
             }
             addBusesMap(busesFixedShunts, fixedShunt.getI(), fixedShunt.getId());
         }
@@ -149,22 +157,21 @@ public class PsseValidation {
 
         Map<String, List<String>> busesGenerators = new HashMap<>();
 
-        for (int i = 0; i < generators.size(); i++) {
-            PsseGenerator generator = generators.get(i);
+        for (PsseGenerator generator : generators) {
             if (!buses.containsKey(generator.getI())) {
-                warnings.add(String.format("Generator: Unexpected I: %d", generator.getI()));
-                validCase = false;
+                validationWarnings.add(String.format("Generator: bus not found I: %d, Generator record %d, %s, ... will be ignored", generator.getI(), generator.getI(), generator.getId()));
+                continue;
             }
             if (generator.getQt() < generator.getQb()) {
-                warnings.add(String.format(Locale.US, "Generator: %d %s Unexpected Qmin: %.2f Qmax: %.2f", generator.getI(), generator.getId(), generator.getQb(), generator.getQt()));
+                validationErrors.add(String.format(Locale.US, "Generator: %d %s Unexpected Qmin: %.2f Qmax: %.2f", generator.getI(), generator.getId(), generator.getQb(), generator.getQt()));
                 validCase = false;
             }
             if (generator.getIreg() != 0 && !buses.containsKey(generator.getIreg())) {
-                warnings.add(String.format("Generator: %d %s Unexpected IReg: %d", generator.getI(), generator.getId(), generator.getIreg()));
+                validationErrors.add(String.format("Generator: %d %s Unexpected IReg: %d", generator.getI(), generator.getId(), generator.getIreg()));
                 validCase = false;
             }
             if (generator.getPt() < generator.getPb()) {
-                warnings.add(String.format(Locale.US, "Generator: %d %s Unexpected Pmin: %.2f Pmax: %.2f", generator.getI(), generator.getId(), generator.getPb(), generator.getPt()));
+                validationErrors.add(String.format(Locale.US, "Generator: %d %s Unexpected Pmin: %.2f Pmax: %.2f", generator.getI(), generator.getId(), generator.getPb(), generator.getPt()));
                 validCase = false;
             }
             validateGeneratorRegulatingBus(psseBuses, buses, generator);
@@ -180,7 +187,7 @@ public class PsseValidation {
         if (regulatingBus != null
             && (regulatingBus.getIde() == 2 || regulatingBus.getIde() == 3)
             && generator.getVs() <= 0.0) {
-            warnings.add(String.format(Locale.US, "Generator: %d %s Unexpected Voltage setpoint: %.2f", generator.getI(), generator.getId(), generator.getVs()));
+            validationErrors.add(String.format(Locale.US, "Generator: %d %s Unexpected Voltage setpoint: %.2f", generator.getI(), generator.getId(), generator.getVs()));
             validCase = false;
         }
     }
@@ -188,18 +195,12 @@ public class PsseValidation {
     private void validateNonTransformerBranches(List<PsseNonTransformerBranch> nonTransformerBranches, Map<Integer, List<Integer>> buses) {
         Map<String, List<String>> busesNonTransformerBranches = new HashMap<>();
 
-        for (int i = 0; i < nonTransformerBranches.size(); i++) {
-            PsseNonTransformerBranch nonTransformerBranch = nonTransformerBranches.get(i);
-            if (!buses.containsKey(nonTransformerBranch.getI())) {
-                warnings.add(String.format("NonTransformerBranch: Unexpected I: %d", nonTransformerBranch.getI()));
-                validCase = false;
-            }
-            if (!buses.containsKey(nonTransformerBranch.getJ())) {
-                warnings.add(String.format("NonTransformerBranch: Unexpected J: %d", nonTransformerBranch.getJ()));
-                validCase = false;
+        for (PsseNonTransformerBranch nonTransformerBranch : nonTransformerBranches) {
+            if (isNonTransformedBranchBadlyConnected(nonTransformerBranch, buses)) {
+                continue;
             }
             if (nonTransformerBranch.getX() == 0.0) {
-                warnings.add(String.format(Locale.US, "NonTransformerBranch: %d %d %s Unexpected X: %.5f", nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt(), nonTransformerBranch.getX()));
+                validationErrors.add(String.format(Locale.US, "NonTransformerBranch: %d %d %s Unexpected X: %.5f", nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt(), nonTransformerBranch.getX()));
                 validCase = false;
             }
             addBusesMap(busesNonTransformerBranches, nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt());
@@ -208,23 +209,35 @@ public class PsseValidation {
         checkDuplicatesLinks("NonTransformerBranch", "branches", getDuplicates(busesNonTransformerBranches));
     }
 
-    private void validateTransformers(List<PsseTransformer> transformers, Map<Integer, List<Integer>> buses) {
-        List<PsseTransformer> twoWinddingsTransformers = transformers.parallelStream()
-            .filter(transformer -> transformer.getK() == 0).collect(Collectors.toList());
-        validateTwoWindingsTransformers(twoWinddingsTransformers, buses);
+    private boolean isNonTransformedBranchBadlyConnected(PsseNonTransformerBranch nonTransformerBranch, Map<Integer, List<Integer>> buses) {
+        if (!buses.containsKey(nonTransformerBranch.getI())) {
+            validationWarnings.add(String.format("NonTransformerBranch: bus not found I: %d, NonTransformerBranch record %d, %d, %s, ... will be ignored", nonTransformerBranch.getI(), nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt()));
+            return true;
+        }
+        if (!buses.containsKey(nonTransformerBranch.getJ())) {
+            validationWarnings.add(String.format("NonTransformerBranch: bus not found J: %d, NonTransformerBranch record %d, %d, %s, ... will be ignored", nonTransformerBranch.getJ(), nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt()));
+            return true;
+        }
+        return false;
+    }
 
-        List<PsseTransformer> threeWinddingsTransformers = transformers.parallelStream()
-            .filter(transformer -> transformer.getK() != 0).collect(Collectors.toList());
-        validateThreeWindingsTransformers(threeWinddingsTransformers, buses);
+    private void validateTransformers(List<PsseTransformer> transformers, Map<Integer, List<Integer>> buses) {
+        List<PsseTransformer> twoWindingsTransformers = transformers.parallelStream()
+            .filter(transformer -> transformer.getK() == 0).toList();
+        validateTwoWindingsTransformers(twoWindingsTransformers, buses);
+
+        List<PsseTransformer> threeWindingsTransformers = transformers.parallelStream()
+            .filter(transformer -> transformer.getK() != 0).toList();
+        validateThreeWindingsTransformers(threeWindingsTransformers, buses);
     }
 
     private void validateTwoWindingsTransformers(List<PsseTransformer> transformers, Map<Integer, List<Integer>> buses) {
         Map<String, List<String>> busesTransformers = new HashMap<>();
 
-        for (int i = 0; i < transformers.size(); i++) {
-            PsseTransformer transformer = transformers.get(i);
-            validateTransformerBus(buses, transformer.getI(), "I");
-            validateTransformerBus(buses, transformer.getJ(), "J");
+        for (PsseTransformer transformer : transformers) {
+            if (isT2wTransformerBadlyConnected(transformer, buses)) {
+                continue;
+            }
 
             String id = String.format("%d %d %s", transformer.getI(), transformer.getJ(), transformer.getCkt());
             validateTransformerX(id, transformer.getX12(), "X12");
@@ -240,14 +253,25 @@ public class PsseValidation {
         checkDuplicatesLinks("Transformer", "branches", getDuplicates(busesTransformers));
     }
 
+    private boolean isT2wTransformerBadlyConnected(PsseTransformer transformer, Map<Integer, List<Integer>> buses) {
+        if (!buses.containsKey(transformer.getI())) {
+            validationWarnings.add(String.format("Transformer: bus not found I: %d, Transformer record %d, %d, %s, ... will be ignored", transformer.getI(), transformer.getI(), transformer.getJ(), transformer.getCkt()));
+            return true;
+        }
+        if (!buses.containsKey(transformer.getJ())) {
+            validationWarnings.add(String.format("Transformer: bus not found J: %d, Transformer record %d, %d, %s, ... will be ignored", transformer.getJ(), transformer.getI(), transformer.getJ(), transformer.getCkt()));
+            return true;
+        }
+        return false;
+    }
+
     private void validateThreeWindingsTransformers(List<PsseTransformer> transformers, Map<Integer, List<Integer>> buses) {
         Map<String, List<String>> busesTransformers = new HashMap<>();
 
-        for (int i = 0; i < transformers.size(); i++) {
-            PsseTransformer transformer = transformers.get(i);
-            validateTransformerBus(buses, transformer.getI(), "I");
-            validateTransformerBus(buses, transformer.getJ(), "J");
-            validateTransformerBus(buses, transformer.getK(), "K");
+        for (PsseTransformer transformer : transformers) {
+            if (isT3wTransformerBadlyConnected(transformer, buses)) {
+                continue;
+            }
 
             String id = String.format("%d %d %d %s", transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt());
             validateTransformerX(id, transformer.getX12(), "X12");
@@ -280,104 +304,139 @@ public class PsseValidation {
         Map<String, List<String>> duplicatedBusesTransformers = getDuplicates(busesTransformers);
         if (!duplicatedBusesTransformers.isEmpty()) {
             duplicatedBusesTransformers.forEach((key,
-                value) -> warnings.add(String.format(
+                value) -> validationErrors.add(String.format(
                     "Transformer: Multiple branches (%d) between buses %d, %d and %d with the same Id %s",
                     value.size(), firstBus(key), secondBus(key), thirdBus(key), value.get(0))));
             validCase = false;
         }
     }
 
-    private void validateTransformerBus(Map<Integer, List<Integer>> buses, int bus, String busTag) {
-        if (!buses.containsKey(bus)) {
-            warnings.add(String.format("Transformer: Unexpected %s: %d", busTag, bus));
-            validCase = false;
+    private boolean isT3wTransformerBadlyConnected(PsseTransformer transformer, Map<Integer, List<Integer>> buses) {
+        if (!buses.containsKey(transformer.getI())) {
+            validationWarnings.add(String.format("Transformer: bus not found I: %d, Transformer record %d, %d, %d, %s, ... will be ignored", transformer.getI(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
+            return true;
         }
+        if (!buses.containsKey(transformer.getJ())) {
+            validationWarnings.add(String.format("Transformer: bus not found J: %d, Transformer record %d, %d, %d, %s, ... will be ignored", transformer.getJ(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
+            return true;
+        }
+        if (!buses.containsKey(transformer.getK())) {
+            validationWarnings.add(String.format("Transformer: bus not found K: %d, Transformer record %d, %d, %d, %s, ... will be ignored", transformer.getK(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
+            return true;
+        }
+        return false;
     }
 
     private void validateTransformerX(String id, double x, String xTag) {
         if (x == 0.0) {
-            warnings.add(getWarningTransformer1Parameter(id, xTag, x));
+            validationErrors.add(getErrorTransformer1Parameter(id, xTag, x));
             validCase = false;
         }
     }
 
     private void validateTransformerRatio(String id, double ratio, String ratioTag) {
         if (ratio <= 0.0) {
-            warnings.add(getWarningTransformer1Parameter(id, ratioTag, ratio));
+            validationErrors.add(getErrorTransformer1Parameter(id, ratioTag, ratio));
             validCase = false;
         }
     }
 
     private void validateTransformerSbase(String id, int cz, int cm, double sbase, String sbaseTag) {
         if ((cz == 2 || cz == 3 || cm == 2) && sbase <= 0.0) {
-            warnings.add(getWarningTransformer1Parameter(id, sbaseTag, sbase));
+            validationErrors.add(getErrorTransformer1Parameter(id, sbaseTag, sbase));
             validCase = false;
         }
     }
 
     private void validateTransformerWindingVmiVma(String id, int cod, double windingVmi, double windingVma, String windingVmiVmaTag) {
         if (Math.abs(cod) == 1 && (windingVmi <= 0.0 || windingVma <= 0.0 || windingVma < windingVmi)) {
-            warnings.add(getWarningTransformer2Parameters(id, windingVmiVmaTag, windingVmi, windingVma));
+            validationErrors.add(getErrorTransformer2Parameters(id, windingVmiVmaTag, windingVmi, windingVma));
             validCase = false;
         }
         if ((Math.abs(cod) == 2 || Math.abs(cod) == 3 || Math.abs(cod) == 5) && windingVma < windingVmi) {
-            warnings.add(getWarningTransformer2Parameters(id, windingVmiVmaTag, windingVmi, windingVma));
+            validationErrors.add(getErrorTransformer2Parameters(id, windingVmiVmaTag, windingVmi, windingVma));
             validCase = false;
         }
     }
 
     private void validateTransformerWindingRmiRma(String id, int cod, double windingRmi, double windingRma, String windingRmiRmaTag) {
         if ((Math.abs(cod) == 1 || Math.abs(cod) == 2) && (windingRmi <= 0.0 || windingRma <= 0.0 || windingRma < windingRmi)) {
-            warnings.add(getWarningTransformer2Parameters(id, windingRmiRmaTag, windingRmi, windingRma));
+            validationErrors.add(getErrorTransformer2Parameters(id, windingRmiRmaTag, windingRmi, windingRma));
             validCase = false;
         }
         if ((Math.abs(cod) == 3 || Math.abs(cod) == 5) && windingRma < windingRmi) {
-            warnings.add(getWarningTransformer2Parameters(id, windingRmiRmaTag, windingRmi, windingRma));
+            validationErrors.add(getErrorTransformer2Parameters(id, windingRmiRmaTag, windingRmi, windingRma));
             validCase = false;
         }
     }
 
     private void validateTransformerWindingCont(Map<Integer, List<Integer>> buses, String id, int cod, int windingCont, String windingContTag) {
         if (Math.abs(cod) == 1 && (windingCont == 0 || !buses.containsKey(Math.abs(windingCont)))) {
-            warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %d", id, windingContTag, windingCont));
+            validationErrors.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %d", id, windingContTag, windingCont));
             validCase = false;
         }
+    }
+
+    private void validateTwoTerminalDcTransmissionLines(List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcTransmissionLines, Map<Integer, List<Integer>> buses) {
+        Map<String, Integer> twoTerminalDcNames = new HashMap<>();
+        for (PsseTwoTerminalDcTransmissionLine twoTerminalDc : twoTerminalDcTransmissionLines) {
+            if (isTwoTerminalDcTransmissionLineBadlyConnected(twoTerminalDc, buses)) {
+                continue;
+            }
+            twoTerminalDcNames.put(twoTerminalDc.getName(), twoTerminalDcNames.getOrDefault(twoTerminalDc.getName(), 0) + 1);
+        }
+        List<String> duplicatedNames = twoTerminalDcNames.keySet().stream().filter(key -> twoTerminalDcNames.get(key) > 1).toList();
+        if (!duplicatedNames.isEmpty()) {
+            duplicatedNames.forEach(name -> validationErrors.add(String.format("TwoTerminalDcTransmissionLine: This name %s is not unique", name)));
+            validCase = false;
+        }
+    }
+
+    private boolean isTwoTerminalDcTransmissionLineBadlyConnected(PsseTwoTerminalDcTransmissionLine twoTerminalDc, Map<Integer, List<Integer>> buses) {
+        if (!buses.containsKey(twoTerminalDc.getRectifier().getIp())) {
+            validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: %s rectifier bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored", twoTerminalDc.getName(), twoTerminalDc.getRectifier().getIp(), twoTerminalDc.getName()));
+            return true;
+        }
+        if (!buses.containsKey(twoTerminalDc.getInverter().getIp())) {
+            validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: %s inverter bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored", twoTerminalDc.getName(), twoTerminalDc.getInverter().getIp(), twoTerminalDc.getName()));
+            return true;
+        }
+        return false;
     }
 
     private void validateSwitchedShunts(List<PsseSwitchedShunt> switchedShunts, Map<Integer, List<Integer>> buses, PsseVersion psseVersion) {
         Map<String, List<String>> busesSwitchedShunts = new HashMap<>();
 
-        for (int i = 0; i < switchedShunts.size(); i++) {
-            PsseSwitchedShunt switchedShunt = switchedShunts.get(i);
+        for (PsseSwitchedShunt switchedShunt : switchedShunts) {
             if (!buses.containsKey(switchedShunt.getI())) {
-                warnings.add(String.format("SwitchedShunt: Unexpected I: %d", switchedShunt.getI()));
-                validCase = false;
+                validationWarnings.add(String.format("SwitchedShunt: bus not found I: %d, SwitchedShunt record %s, ... will be ignored", switchedShunt.getI(), switchedShuntId(switchedShunt, psseVersion)));
+                continue;
             }
             String id = switchedShuntId(switchedShunt, psseVersion);
             int regulatingBus = switchedShuntRegulatingBus(switchedShunt, psseVersion);
             if (switchedShunt.getModsw() != 0 && regulatingBus != 0 && !buses.containsKey(regulatingBus)) {
-                warnings.add(String.format("SwitchedShunt: %s Unexpected Swrem/Swreg: %d", id, regulatingBus));
+                validationErrors.add(String.format("SwitchedShunt: %s Unexpected Swrem/Swreg: %d", id, regulatingBus));
                 validCase = false;
             }
             if (switchedShunt.getModsw() != 0 && switchedShunt.getVswhi() < switchedShunt.getVswlo()) {
-                warnings.add(String.format(Locale.US, "SwitchedShunt: %s Unexpected Vswlo Vswhi: %.5f %.5f", id, switchedShunt.getVswlo(), switchedShunt.getVswhi()));
+                validationErrors.add(String.format(Locale.US, "SwitchedShunt: %s Unexpected Vswlo Vswhi: %.5f %.5f", id, switchedShunt.getVswlo(), switchedShunt.getVswhi()));
                 validCase = false;
             }
             if ((switchedShunt.getModsw() == 1 || switchedShunt.getModsw() == 2) && (switchedShunt.getVswlo() <= 0.0 || switchedShunt.getVswhi() <= 0.0)) {
-                warnings.add(String.format(Locale.US, "SwitchedShunt: %s Unexpected Vswlo Vswhi: %.5f %.5f", id, switchedShunt.getVswlo(), switchedShunt.getVswhi()));
+                validationErrors.add(String.format(Locale.US, "SwitchedShunt: %s Unexpected Vswlo Vswhi: %.5f %.5f", id, switchedShunt.getVswlo(), switchedShunt.getVswhi()));
                 validCase = false;
             }
             addSwitchedShuntBusesMap(busesSwitchedShunts, switchedShunt, psseVersion);
         }
 
-        Map<String, List<String>> duplicatedBusesFixedShunts = getDuplicates(busesSwitchedShunts);
-        if (!duplicatedBusesFixedShunts.isEmpty()) {
-            duplicatedBusesFixedShunts.forEach((key, value) -> warnings.add(multipleSwitchedShuntString(key, value, psseVersion)));
+        Map<String, List<String>> duplicatedBusesSwitchedShunts = getDuplicates(busesSwitchedShunts);
+        if (!duplicatedBusesSwitchedShunts.isEmpty()) {
+            duplicatedBusesSwitchedShunts.forEach((key, value) -> validationErrors.add(multipleSwitchedShuntString(key, value, psseVersion)));
             validCase = false;
         }
     }
 
-    private static String switchedShuntId(PsseSwitchedShunt switchedShunt, PsseVersion psseVersion) {
+    static String switchedShuntId(PsseSwitchedShunt switchedShunt, PsseVersion psseVersion) {
         if (psseVersion.major() == V35) {
             return String.format("%d %s", switchedShunt.getI(), switchedShunt.getId());
         } else {
@@ -385,7 +444,7 @@ public class PsseValidation {
         }
     }
 
-    private static int switchedShuntRegulatingBus(PsseSwitchedShunt switchedShunt, PsseVersion psseVersion) {
+    static int switchedShuntRegulatingBus(PsseSwitchedShunt switchedShunt, PsseVersion psseVersion) {
         if (psseVersion.major() == V35) {
             return switchedShunt.getSwreg();
         } else {
@@ -464,22 +523,22 @@ public class PsseValidation {
 
     private static int firstBus(String busKey) {
         String[] tokens = busKey.split("-");
-        return Integer.valueOf(tokens[0]);
+        return Integer.parseInt(tokens[0]);
     }
 
     private static int secondBus(String busKey) {
         String[] tokens = busKey.split("-");
-        return Integer.valueOf(tokens[1]);
+        return Integer.parseInt(tokens[1]);
     }
 
     private static int thirdBus(String busKey) {
         String[] tokens = busKey.split("-");
-        return Integer.valueOf(tokens[2]);
+        return Integer.parseInt(tokens[2]);
     }
 
     private void checkDuplicates(String tag, String tagEquipments, Map<String, List<String>> duplicatedBusesEquipments) {
         if (!duplicatedBusesEquipments.isEmpty()) {
-            duplicatedBusesEquipments.forEach((key, value) -> warnings
+            duplicatedBusesEquipments.forEach((key, value) -> validationErrors
                 .add(String.format("%s: Multiple %s (%d) at bus %d with the same Id %s", tag, tagEquipments,
                     value.size(), Integer.valueOf(key), value.get(0))));
             validCase = false;
@@ -488,18 +547,18 @@ public class PsseValidation {
 
     private void checkDuplicatesLinks(String tag, String tagLinks, Map<String, List<String>> duplicatedBusesLinks) {
         if (!duplicatedBusesLinks.isEmpty()) {
-            duplicatedBusesLinks.forEach((key, value) -> warnings
+            duplicatedBusesLinks.forEach((key, value) -> validationErrors
                 .add(String.format("%s: Multiple %s (%d) between buses %d and %d with the same Id %s", tag, tagLinks,
                     value.size(), firstBus(key), secondBus(key), value.get(0))));
             validCase = false;
         }
     }
 
-    private String getWarningTransformer1Parameter(String id, String tag, double param) {
-        return String.format(Locale.US, WARNING_TRANSFORMER_1_PARAMETER, id, tag, param);
+    private String getErrorTransformer1Parameter(String id, String tag, double param) {
+        return String.format(Locale.US, ERROR_TRANSFORMER_1_PARAMETER, id, tag, param);
     }
 
-    private String getWarningTransformer2Parameters(String id, String tag, double param1, double param2) {
-        return String.format(Locale.US, WARNING_TRANSFORMER_2_PARAMETERS, id, tag, param1, param2);
+    private String getErrorTransformer2Parameters(String id, String tag, double param1, double param2) {
+        return String.format(Locale.US, ERROR_TRANSFORMER_2_PARAMETERS, id, tag, param1, param2);
     }
 }

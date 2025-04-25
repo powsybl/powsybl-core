@@ -22,6 +22,34 @@ public interface RatioTapChangerHolder {
     RatioTapChangerAdder newRatioTapChanger();
 
     /**
+     * Get a builder to create and associate a ratio tap changer to the
+     * transformer, initialized with the values of an existing ratio tap changer.
+     */
+    default RatioTapChangerAdder newRatioTapChanger(RatioTapChanger ratioTapChanger) {
+        RatioTapChangerAdder adder = this.newRatioTapChanger()
+                .setRegulationTerminal(ratioTapChanger.getRegulationTerminal())
+                .setRegulationMode(ratioTapChanger.getRegulationMode())
+                .setRegulationValue(ratioTapChanger.getRegulationValue())
+                .setLoadTapChangingCapabilities(ratioTapChanger.hasLoadTapChangingCapabilities())
+                .setTargetV(ratioTapChanger.getTargetV())
+                .setLowTapPosition(ratioTapChanger.getLowTapPosition())
+                .setTapPosition(ratioTapChanger.getTapPosition())
+                .setRegulating(ratioTapChanger.isRegulating())
+                .setTargetDeadband(ratioTapChanger.getTargetDeadband());
+        for (int tapPosition = ratioTapChanger.getLowTapPosition(); tapPosition <= ratioTapChanger.getHighTapPosition(); tapPosition++) {
+            RatioTapChangerStep step = ratioTapChanger.getStep(tapPosition);
+            adder.beginStep()
+                    .setRho(step.getRho())
+                    .setB(step.getB())
+                    .setG(step.getG())
+                    .setX(step.getX())
+                    .setR(step.getR())
+                    .endStep();
+        }
+        return adder;
+    }
+
+    /**
      * Get the ratio tap changer.
      * <p>Could return <code>null</code> if the leg is not associated to a ratio
      * tap changer.

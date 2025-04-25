@@ -13,7 +13,7 @@
     <parent>
         <artifactId>powsybl-iidm</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>6.8.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-iidm-modification</artifactId>
@@ -48,6 +48,10 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-extensions</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-serde</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -93,11 +97,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-serde</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

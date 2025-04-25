@@ -43,8 +43,7 @@ class DynamicSimulationParametersTest {
         fileSystem.close();
     }
 
-    private static void checkValues(DynamicSimulationParameters parameters, int startTime,
-                             int stopTime) {
+    private static void checkValues(DynamicSimulationParameters parameters, double startTime, double stopTime) {
         assertEquals(parameters.getStartTime(), startTime);
         assertEquals(parameters.getStopTime(), stopTime);
     }
@@ -85,8 +84,8 @@ class DynamicSimulationParametersTest {
 
     @Test
     void testToString() {
-        DynamicSimulationParameters parameters = new DynamicSimulationParameters(0, 1000);
-        assertEquals("{startTime=0, stopTime=1000}", parameters.toString());
+        DynamicSimulationParameters parameters = new DynamicSimulationParameters(0, 40.55);
+        assertEquals("{startTime=0.0, stopTime=40.55}", parameters.toString());
     }
 
     @Test

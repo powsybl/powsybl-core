@@ -9,7 +9,6 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.jupiter.api.Test;
@@ -20,11 +19,16 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -56,28 +60,29 @@ class StringDataChunkTest {
         ObjectMapper objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new TimeSeriesJsonModule());
 
-        List<StringDataChunk> chunks = objectMapper.readValue(objectMapper.writeValueAsString(Arrays.asList(chunk)),
+        List<StringDataChunk> chunks = objectMapper.readValue(objectMapper.writeValueAsString(List.of(chunk)),
                                                                TypeFactory.defaultInstance().constructCollectionType(List.class, StringDataChunk.class));
         assertEquals(1, chunks.size());
         assertEquals(chunk, chunks.get(0));
 
         // check base class (DataChunk) deserializer
-        assertTrue(objectMapper.readValue(objectMapper.writeValueAsString(chunk), DataChunk.class) instanceof StringDataChunk);
+        assertInstanceOf(StringDataChunk.class, objectMapper.readValue(objectMapper.writeValueAsString(chunk), DataChunk.class));
 
         // stream test
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:45:00Z"),
                                                                      Duration.ofMinutes(15));
-        assertEquals(ImmutableList.of(new StringPoint(1, Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), "a"),
-                                      new StringPoint(2, Instant.parse("2015-01-01T00:30:00Z").toEpochMilli(), "b"),
-                                      new StringPoint(3, Instant.parse("2015-01-01T00:45:00Z").toEpochMilli(), "c")),
-                chunk.stream(index).collect(Collectors.toList()));
+        assertEquals(
+            List.of(new StringPoint(1, Instant.parse("2015-01-01T00:15:00Z"), "a"),
+                new StringPoint(2, Instant.parse("2015-01-01T00:30:00Z"), "b"),
+                new StringPoint(3, Instant.parse("2015-01-01T00:45:00Z"), "c")),
+            chunk.stream(index).toList());
     }
 
     @Test
     void compressTest() throws IOException {
         UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[] {"aaa", "bbb", "bbb", "bbb", "bbb", "ccc"});
         StringDataChunk maybeCompressedChunk = chunk.tryToCompress();
-        assertTrue(maybeCompressedChunk instanceof CompressedStringDataChunk);
+        assertInstanceOf(CompressedStringDataChunk.class, maybeCompressedChunk);
         CompressedStringDataChunk compressedChunk = (CompressedStringDataChunk) maybeCompressedChunk;
         assertEquals(1, compressedChunk.getOffset());
         assertEquals(6, compressedChunk.getLength());
@@ -99,10 +104,11 @@ class StringDataChunkTest {
         assertEquals(jsonRef, JsonUtil.toJson(compressedChunk::writeJson));
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:30:00Z"),
                                                                      Duration.ofMinutes(15));
-        assertEquals(ImmutableList.of(new StringPoint(1, Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), "aaa"),
-                                      new StringPoint(2, Instant.parse("2015-01-01T00:30:00Z").toEpochMilli(), "bbb"),
-                                      new StringPoint(6, Instant.parse("2015-01-01T01:30:00Z").toEpochMilli(), "ccc")),
-                     compressedChunk.stream(index).collect(Collectors.toList()));
+        assertEquals(
+            List.of(new StringPoint(1, Instant.parse("2015-01-01T00:15:00Z"), "aaa"),
+                new StringPoint(2, Instant.parse("2015-01-01T00:30:00Z"), "bbb"),
+                new StringPoint(6, Instant.parse("2015-01-01T01:30:00Z"), "ccc")),
+            compressedChunk.stream(index).toList());
     }
 
     @Test
@@ -128,10 +134,10 @@ class StringDataChunkTest {
         assertNotNull(split.getChunk1());
         assertNotNull(split.getChunk2());
         assertEquals(1, split.getChunk1().getOffset());
-        assertTrue(split.getChunk1() instanceof UncompressedStringDataChunk);
+        assertInstanceOf(UncompressedStringDataChunk.class, split.getChunk1());
         assertArrayEquals(new String[] {"a"}, ((UncompressedStringDataChunk) split.getChunk1()).getValues());
         assertEquals(2, split.getChunk2().getOffset());
-        assertTrue(split.getChunk2() instanceof UncompressedStringDataChunk);
+        assertInstanceOf(UncompressedStringDataChunk.class, split.getChunk2());
         assertArrayEquals(new String[] {"b", "c"}, ((UncompressedStringDataChunk) split.getChunk2()).getValues());
     }
 
@@ -155,12 +161,12 @@ class StringDataChunkTest {
         assertNotNull(split.getChunk1());
         assertNotNull(split.getChunk2());
         assertEquals(1, split.getChunk1().getOffset());
-        assertTrue(split.getChunk1() instanceof CompressedStringDataChunk);
+        assertInstanceOf(CompressedStringDataChunk.class, split.getChunk1());
         assertEquals(3, ((CompressedStringDataChunk) split.getChunk1()).getUncompressedLength());
         assertArrayEquals(new String[] {"a", "b"}, ((CompressedStringDataChunk) split.getChunk1()).getStepValues());
         assertArrayEquals(new int[] {2, 1}, ((CompressedStringDataChunk) split.getChunk1()).getStepLengths());
         assertEquals(4, split.getChunk2().getOffset());
-        assertTrue(split.getChunk2() instanceof CompressedStringDataChunk);
+        assertInstanceOf(CompressedStringDataChunk.class, split.getChunk2());
         assertEquals(2, ((CompressedStringDataChunk) split.getChunk2()).getUncompressedLength());
         assertArrayEquals(new String[] {"b"}, ((CompressedStringDataChunk) split.getChunk2()).getStepValues());
         assertArrayEquals(new int[] {2}, ((CompressedStringDataChunk) split.getChunk2()).getStepLengths());
@@ -175,7 +181,7 @@ class StringDataChunkTest {
         //Merge chunk1 + chunk2
         StringDataChunk merge = chunk1.append(chunk2);
         assertNotNull(merge);
-        assertTrue(merge instanceof UncompressedStringDataChunk);
+        assertInstanceOf(UncompressedStringDataChunk.class, merge);
         assertEquals(1, merge.getOffset());
         assertArrayEquals(new String[] {"a", "b", "c", "d", "e", "f", "g"}, ((UncompressedStringDataChunk) merge).getValues());
 
@@ -197,7 +203,7 @@ class StringDataChunkTest {
         //Merge chunk1 + chunk2
         StringDataChunk merge = chunk1.append(chunk2);
         assertNotNull(merge);
-        assertTrue(merge instanceof CompressedStringDataChunk);
+        assertInstanceOf(CompressedStringDataChunk.class, merge);
         assertEquals(1, merge.getOffset());
         assertEquals(10, merge.getLength());
         assertArrayEquals(new String[] {"a", "b", "c", "d"}, ((CompressedStringDataChunk) merge).getStepValues());
@@ -206,7 +212,7 @@ class StringDataChunkTest {
         //Merge chunk2 + chunk3
         merge = chunk2.append(chunk3);
         assertNotNull(merge);
-        assertTrue(merge instanceof CompressedStringDataChunk);
+        assertInstanceOf(CompressedStringDataChunk.class, merge);
         assertEquals(6, merge.getOffset());
         assertEquals(8, merge.getLength());
         assertArrayEquals(new String[] {"c", "d", "e"}, ((CompressedStringDataChunk) merge).getStepValues());
@@ -236,7 +242,7 @@ class StringDataChunkTest {
         });
         assertEquals(0, doubleChunks.size());
         assertEquals(1, stringChunks.size());
-        assertTrue(stringChunks.get(0) instanceof UncompressedStringDataChunk);
+        assertInstanceOf(UncompressedStringDataChunk.class, stringChunks.get(0));
         assertArrayEquals(new String[] {"a", null, null}, ((UncompressedStringDataChunk) stringChunks.get(0)).getValues());
     }
 }

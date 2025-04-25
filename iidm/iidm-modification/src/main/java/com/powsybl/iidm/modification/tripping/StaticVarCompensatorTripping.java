@@ -21,6 +21,11 @@ public class StaticVarCompensatorTripping extends AbstractInjectionTripping {
     }
 
     @Override
+    public String getName() {
+        return "StaticVarCompensatorTripping";
+    }
+
+    @Override
     protected StaticVarCompensator getInjection(Network network) {
         StaticVarCompensator injection = network.getStaticVarCompensator(id);
         if (injection == null) {

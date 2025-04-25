@@ -7,6 +7,8 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.HvdcLineModification;
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.HvdcLine;
 
 import java.util.Objects;
@@ -107,5 +109,18 @@ public class HvdcAction extends AbstractAction {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), hvdcId, acEmulationEnabled, activePowerSetpoint, converterMode, droop, p0, relativeValue);
+    }
+
+    @Override
+    public NetworkModification toModification() {
+        return new HvdcLineModification(
+                getHvdcId(),
+                isAcEmulationEnabled().orElse(null),
+                getActivePowerSetpoint().stream().boxed().findFirst().orElse(null),
+                getConverterMode().orElse(null),
+                getDroop().stream().boxed().findFirst().orElse(null),
+                getP0().stream().boxed().findFirst().orElse(null),
+                isRelativeValue().orElse(null)
+        );
     }
 }

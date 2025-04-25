@@ -7,13 +7,9 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.iidm.network.Importer;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.psse.model.PsseException;
@@ -28,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
@@ -44,8 +41,10 @@ class PsseImporterTest extends AbstractSerDeTest {
         Importer importer = new PsseImporter();
         assertEquals("PSS/E", importer.getFormat());
         assertEquals("PSS/E Format to IIDM converter", importer.getComment());
-        assertEquals(1, importer.getParameters().size());
+        assertEquals(List.of("raw", "RAW", "rawx", "RAWX"), importer.getSupportedExtensions());
+        assertEquals(2, importer.getParameters().size());
         assertEquals("psse.import.ignore-base-voltage", importer.getParameters().get(0).getName());
+        assertEquals("psse.import.ignore-node-breaker-topology", importer.getParameters().get(1).getName());
     }
 
     private void testNetwork(Network network) throws IOException {
@@ -195,6 +194,16 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void twoAreaCase() throws IOException {
+        importTest("two_area_case", "two_area_case.raw", false);
+    }
+
+    @Test
+    void twoTerminalDcwithTwoAreas() throws IOException {
+        importTest("twoTerminalDcwithTwoAreas", "twoTerminalDcwithTwoAreas.raw", false);
+    }
+
+    @Test
     void importTest14BusesDuplicateIds() throws IOException {
         Network n = importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
         assertNotNull(n.getLoad("B2-L1 "));
@@ -227,6 +236,39 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertNotNull(n.getLine("L-2-1-11"));
         assertNotNull(n.getTwoWindingsTransformer("T-4-7-1 "));
         assertNotNull(n.getTwoWindingsTransformer("T-4-7-10"));
+    }
+
+    @Test
+    void importTest14BadlyConnectedEquipment() throws IOException {
+        Network n = importTest("IEEE_14_buses_badly_connected_equipment", "IEEE_14_buses_badly_connected_equipment.raw", false);
+
+        // Ensure that the equipment is not imported
+        assertNull(n.getLoad("B200-L1 "));
+        assertNull(n.getShuntCompensator("B200-SH 1"));
+        assertNull(n.getGenerator("B200-G1 "));
+        assertNull(n.getLine("L-200-13-1 "));
+        assertNull(n.getLine("L-13-200-2 "));
+        assertNull(n.getTwoWindingsTransformer("T-7-200-2 "));
+        assertNull(n.getTwoWindingsTransformer("T-200-7-3 "));
+        assertNull(n.getThreeWindingsTransformer("T-200-2-7-1 "));
+        assertNull(n.getThreeWindingsTransformer("T-4-200-7-2 "));
+        assertNull(n.getThreeWindingsTransformer("T-4-2-200-3 "));
+        assertNull(n.getHvdcLine("TwoTerminalDc-EATL P1     "));
+        assertNull(n.getHvdcLine("TwoTerminalDc-EATL P2     "));
+        assertNull(n.getShuntCompensator("B200-SwSH1"));
+    }
+
+    @Test
+    void importTest14BadlyDefinedControlledBuses() throws IOException {
+        Network n = importTest("IEEE_14_buses_badly_defined_controlled_buses", "IEEE_14_buses_badly_defined_controlled_buses.raw", false);
+
+        // Ensure that the equipment is imported
+        assertNotNull(n.getGenerator("B8-G1 "));
+        assertNotNull(n.getTwoWindingsTransformer("T-4-7-1 "));
+        assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
+        assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
+        assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
+        assertNotNull(n.getShuntCompensator("B2-SwSH1"));
     }
 
     @Test
@@ -291,5 +333,43 @@ class PsseImporterTest extends AbstractSerDeTest {
     @Test
     void importTest14ZipLoad() throws IOException {
         importTest("IEEE_14_buses_zip_load", "IEEE_14_buses_zip_load.raw", false);
+    }
+
+    @Test
+    void importTest14NodeBreaker() throws IOException {
+        importTest("IEEE_14_bus_nodeBreaker_rev35", "IEEE_14_bus_nodeBreaker_rev35.raw", false);
+    }
+
+    @Test
+    void importFiveBusNodeBreaker() throws IOException {
+        importTest("five_bus_nodeBreaker_rev35", "five_bus_nodeBreaker_rev35.raw", false);
+    }
+
+    @Test
+    void importTestTransformersWithVoltageControlAndNotDefinedControlledBusV33() {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("TransformersWithVoltageControlAndNotDefinedControlledBus", new ResourceSet("/", "TransformersWithVoltageControlAndNotDefinedControlledBus.raw"));
+        Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), new Properties());
+
+        TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T-1-4-1 ");
+        assertNotNull(t2w);
+        assertNull(t2w.getRatioTapChanger());
+
+        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T-4-2-7-1 ");
+        assertNotNull(t3w);
+        assertNull(t3w.getLeg1().getRatioTapChanger());
+        assertNotNull(t3w.getLeg2().getRatioTapChanger());
+        assertFalse(t3w.getLeg2().getRatioTapChanger().isRegulating());
+        assertNotNull(t3w.getLeg3().getRatioTapChanger());
+        assertFalse(t3w.getLeg3().getRatioTapChanger().isRegulating());
+    }
+
+    @Test
+    void importTwoSubstationsTest() throws IOException {
+        importTest("twoSubstations_rev35", "twoSubstations_rev35.raw", false);
+    }
+
+    @Test
+    void importTwoSubstationsRawxTest() throws IOException {
+        importTest("twoSubstations_rev35", "twoSubstations_rev35.rawx", false);
     }
 }

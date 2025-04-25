@@ -10,6 +10,7 @@ package com.powsybl.matpower.converter;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -42,7 +43,6 @@ public class MatpowerExporter implements Exporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(MatpowerExporter.class);
 
     private static final double BASE_MVA = 100;
-    private static final String FORMAT_VERSION = "2";
     private static final int AREA_NUMBER = 1;
     private static final int LOSS_ZONE = 1;
     private static final int CONNECTED_STATUS = 1;
@@ -100,7 +100,7 @@ public class MatpowerExporter implements Exporter {
 
     @Override
     public List<Parameter> getParameters() {
-        return PARAMETERS;
+        return ConfiguredParameter.load(PARAMETERS, getFormat(), defaultValueConfig);
     }
 
     private static boolean hasSlackExtension(Bus bus) {
@@ -117,11 +117,7 @@ public class MatpowerExporter implements Exporter {
         if (context.refBusId.contains(bus.getId()) || hasSlackExtension(bus)) {
             return MBus.Type.REF;
         }
-        for (Generator g : bus.getGenerators()) {
-            if (g.isVoltageRegulatorOn()) {
-                return MBus.Type.PV;
-            }
-        }
+        // PV buses will be defined at the end of the export process
         return MBus.Type.PQ;
     }
 
@@ -139,6 +135,11 @@ public class MatpowerExporter implements Exporter {
 
         final List<String> generatorIdsConvertedToLoad = new ArrayList<>();
         final Set<Component> synchronousComponentsToBeExported = new HashSet<>();
+        final Map<Integer, List<GenRc>> generatorsToBeExported = new HashMap<>();
+
+        private record GenRc(String id, double targetVpu, double targetP, double minP, double maxP, double targetQ, double minQ, double maxQ,
+                             boolean isValidVoltageRegulation, boolean isRemoteRegulation, double ratedS) {
+        }
 
         public Context(double maxGeneratorActivePowerLimit, double maxGeneratorReactivePowerLimit) {
             this.maxGeneratorActivePowerLimit = maxGeneratorActivePowerLimit;
@@ -336,12 +337,14 @@ public class MatpowerExporter implements Exporter {
                 }
                 mBus.setRealPowerDemand(pDemand);
                 mBus.setReactivePowerDemand(qDemand);
+                double gSum = 0;
                 double bSum = 0;
                 double zb = vl.getNominalV() * vl.getNominalV() / BASE_MVA;
                 for (ShuntCompensator sc : bus.getShuntCompensators()) {
+                    gSum += sc.getG() * zb * BASE_MVA;
                     bSum += sc.getB() * zb * BASE_MVA;
                 }
-                mBus.setShuntConductance(0d);
+                mBus.setShuntConductance(gSum);
                 mBus.setShuntSusceptance(bSum);
                 mBus.setVoltageMagnitude(checkAndFixVoltageMagnitude(bus.getV() / vl.getNominalV()));
                 mBus.setVoltageAngle(checkAndFixVoltageAngle(bus.getAngle()));
@@ -735,35 +738,35 @@ public class MatpowerExporter implements Exporter {
         createTransformerLegs(network, model, context);
     }
 
-    private void createDanglingLineGenerators(Network network, MatpowerModel model, Context context) {
+    private void findDanglingLineGenerators(Network network, Context context) {
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isExported(bus, context)) {
                 var g = dl.getGeneration();
                 if (g != null) {
+                    int busNumber = context.mBusesNumbersByIds.get(dl.getId());
                     VoltageLevel vl = t.getVoltageLevel();
-                    MGen mGen = new MGen();
-                    mGen.setNumber(context.mBusesNumbersByIds.get(dl.getId()));
-                    mGen.setStatus(CONNECTED_STATUS);
-                    mGen.setRealPowerOutput(g.getTargetP());
-                    mGen.setReactivePowerOutput(g.getTargetQ());
-                    mGen.setVoltageMagnitudeSetpoint(g.isVoltageRegulationOn() ? g.getTargetV() / vl.getNominalV() : 0);
-                    mGen.setMinimumRealPowerOutput(Math.max(g.getMinP(), -context.maxGeneratorActivePowerLimit));
-                    mGen.setMaximumRealPowerOutput(Math.min(g.getMaxP(), context.maxGeneratorActivePowerLimit));
-                    mGen.setMinimumReactivePowerOutput(Math.max(g.getReactiveLimits().getMinQ(g.getTargetP()), -context.maxGeneratorReactivePowerLimit));
-                    mGen.setMaximumReactivePowerOutput(Math.min(g.getReactiveLimits().getMaxQ(g.getTargetP()), context.maxGeneratorReactivePowerLimit));
-                    model.addGenerator(mGen);
+                    addMgen(context, busNumber, dl.getId(),
+                            checkAndFixTargetVpu(g.getTargetV() / vl.getNominalV()),
+                            g.getTargetP(),
+                            Math.max(g.getMinP(), -context.maxGeneratorActivePowerLimit),
+                            Math.min(g.getMaxP(), context.maxGeneratorActivePowerLimit),
+                            g.getTargetQ(),
+                            Math.max(g.getReactiveLimits().getMinQ(g.getTargetP()), -context.maxGeneratorReactivePowerLimit),
+                            Math.min(g.getReactiveLimits().getMaxQ(g.getTargetP()), context.maxGeneratorReactivePowerLimit),
+                            g.isVoltageRegulationOn(), false, Double.NaN);
                 }
             }
         }
     }
 
-    private void createGenerators(Network network, MatpowerModel model, Context context) {
+    private void findGenerators(Network network, Context context) {
         for (Generator g : network.getGenerators()) {
             Terminal t = g.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isExported(bus, context)) {
+                int busNumber = context.mBusesNumbersByIds.get(bus.getId());
                 String id = g.getId();
                 double targetP = g.getTargetP();
                 double targetQ = g.getTargetQ();
@@ -773,10 +776,10 @@ public class MatpowerExporter implements Exporter {
                 double maxQ = g.getReactiveLimits().getMaxQ(g.getTargetP());
                 double minQ = g.getReactiveLimits().getMinQ(g.getTargetP());
                 Bus regulatedBus = g.getRegulatingTerminal().getBusView().getBus();
-                boolean voltageRegulation = g.isVoltageRegulatorOn();
+                boolean isValidVoltageRegulation = isValidVoltageRegulation(g.isVoltageRegulatorOn(), regulatedBus);
+                boolean isRemoteRegulation = isRemoteRegulation(bus, regulatedBus);
                 double ratedS = g.getRatedS();
-                addMgen(model, context, bus, id, targetVpu, targetP, minP, maxP, targetQ, Math.min(minQ, maxQ), Math.max(minQ, maxQ), regulatedBus,
-                        voltageRegulation, ratedS);
+                addMgen(context, busNumber, id, targetVpu, targetP, minP, maxP, targetQ, Math.min(minQ, maxQ), Math.max(minQ, maxQ), isValidVoltageRegulation, isRemoteRegulation, ratedS);
             }
         }
     }
@@ -786,11 +789,12 @@ public class MatpowerExporter implements Exporter {
         return generator.getTargetV() / generator.getRegulatingTerminal().getVoltageLevel().getNominalV();
     }
 
-    private void createStaticVarCompensators(Network network, MatpowerModel model, Context context) {
+    private void findStaticVarCompensatorGenerators(Network network, Context context) {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
             Terminal t = svc.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isExported(bus, context)) {
+                int busNumber = context.mBusesNumbersByIds.get(bus.getId());
                 String id = svc.getId();
                 double targetQ;
                 if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svc.getRegulationMode())) {
@@ -803,9 +807,9 @@ public class MatpowerExporter implements Exporter {
                 double maxQ = svc.getBmax() * vSquared;
                 double targetVpu = checkAndFixTargetVpu(findTargetVpu(svc));
                 Bus regulatedBus = svc.getRegulatingTerminal().getBusView().getBus();
-                boolean voltageRegulation = StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode());
-                addMgen(model, context, bus, id, targetVpu, 0, 0, 0, targetQ, minQ,
-                        maxQ, regulatedBus, voltageRegulation, Double.NaN);
+                boolean isValidVoltageRegulation = isValidVoltageRegulation(StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode()), regulatedBus);
+                boolean isRemoteRegulation = isRemoteRegulation(bus, regulatedBus);
+                addMgen(context, busNumber, id, targetVpu, 0, 0, 0, targetQ, minQ, maxQ, isValidVoltageRegulation, isRemoteRegulation, Double.NaN);
             }
         }
     }
@@ -840,8 +844,8 @@ public class MatpowerExporter implements Exporter {
         if (isExportedAsDcLine(rectifierVscConverterStation, inverterVscConverterStation)) {
             createDcLine(rectifierVscConverterStation, inverterVscConverterStation, hvdcLine, model, context);
         } else {
-            createGeneratorOrLoadFromVscConverter(rectifierVscConverterStation, model, context);
-            createGeneratorOrLoadFromVscConverter(inverterVscConverterStation, model, context);
+            createGeneratorOrLoadFromVscConverter(rectifierVscConverterStation, context);
+            createGeneratorOrLoadFromVscConverter(inverterVscConverterStation, context);
         }
     }
 
@@ -935,11 +939,12 @@ public class MatpowerExporter implements Exporter {
         return rectifierTargetP != 0.0 ? (losses - l0) / rectifierTargetP : 0.0;
     }
 
-    private static void createGeneratorOrLoadFromVscConverter(VscConverterStation vscConverterStation, MatpowerModel model, Context context) {
+    private static void createGeneratorOrLoadFromVscConverter(VscConverterStation vscConverterStation, Context context) {
         Terminal terminal = vscConverterStation.getTerminal();
         Bus bus = findBus(terminal);
 
         if (isExported(bus, context)) {
+            int busNumber = context.mBusesNumbersByIds.get(bus.getId());
             String id = vscConverterStation.getId();
             double targetQ = checkAndFixTargetQ(vscConverterStation.getReactivePowerSetpoint());
             double targetVpu = checkAndFixTargetVpu(findTargetVpu(vscConverterStation));
@@ -947,49 +952,76 @@ public class MatpowerExporter implements Exporter {
             double targetP = HvdcUtils.getConverterStationTargetP(vscConverterStation);
             double minQ = checkAndFixMinQ(vscConverterStation.getReactiveLimits().getMinQ(targetP)); // approximation
             double maxQ = checkAndFixMaxQ(vscConverterStation.getReactiveLimits().getMaxQ(targetP)); // approximation
-            boolean voltageRegulation = vscConverterStation.isVoltageRegulatorOn();
+            boolean isValidVoltageRegulation = isValidVoltageRegulation(vscConverterStation.isVoltageRegulatorOn(), regulatedBus);
             double maxP = vscConverterStation.getHvdcLine().getMaxP();
-            addMgen(model, context, bus, id, targetVpu, targetP, -maxP, maxP, targetQ, minQ,
-                    maxQ, regulatedBus, voltageRegulation, Double.NaN);
+            boolean isRemoteRegulation = isRemoteRegulation(bus, regulatedBus);
+            addMgen(context, busNumber, id, targetVpu, targetP, -maxP, maxP, targetQ, minQ, maxQ, isValidVoltageRegulation, isRemoteRegulation, Double.NaN);
         }
     }
 
-    private static void addMgen(MatpowerModel model, Context context, Bus bus,
-                                String id, double targetVpu, double targetP, double minP, double maxP, double targetQ,
-                                double minQ, double maxQ, Bus regulatedBus, boolean voltageRegulation, double ratedS) {
-        int busNum = context.mBusesNumbersByIds.get(bus.getId());
-        MBus mBus = model.getBusByNum(busNum);
-        boolean validVoltageRegulation = voltageRegulation && regulatedBus != null;
-        // Matpower power flow does not support bus with multiple generators that do not have the same voltage regulation
-        // status. if the bus has PV type, all of its generator must have a valid voltage set point.
-        if (!validVoltageRegulation && mBus.getType() == MBus.Type.PV) {
-            // convert to load
-            mBus.setRealPowerDemand(mBus.getRealPowerDemand() - targetP);
-            mBus.setReactivePowerDemand(mBus.getReactivePowerDemand() - targetQ);
-            context.generatorIdsConvertedToLoad.add(id);
-        } else {
-            MGen mGen = new MGen();
-            mGen.setNumber(busNum);
-            mGen.setStatus(CONNECTED_STATUS);
-            mGen.setRealPowerOutput(targetP);
-            mGen.setReactivePowerOutput(Double.isNaN(targetQ) ? 0 : targetQ);
-            if (validVoltageRegulation) {
-                if (!regulatedBus.getId().equals(bus.getId())) {
-                    LOGGER.warn("Generator remote voltage control not supported in Matpower model, control has been localized {}", id);
-                }
-                mGen.setVoltageMagnitudeSetpoint(targetVpu);
+    private static void addMgen(Context context, int busNum, String id, double targetVpu, double targetP, double minP, double maxP,
+                                double targetQ, double minQ, double maxQ, boolean isValidVoltageRegulation, boolean isRemoteRegulation, double ratedS) {
+        Context.GenRc genRc = new Context.GenRc(id, targetVpu, targetP, minP, maxP, targetQ, minQ, maxQ, isValidVoltageRegulation, isRemoteRegulation, ratedS);
+        context.generatorsToBeExported.computeIfAbsent(busNum, k -> new ArrayList<>()).add(genRc);
+    }
+
+    // Matpower power flow does not support bus with multiple generators that do not have the same voltage regulation
+    // status. if the bus has PV type, all of its generator must have a valid voltage set point.
+    private static void createGeneratorsAndDefinePVBuses(MatpowerModel model, Context context) {
+        context.generatorsToBeExported.keySet().stream().sorted().forEach(busNumber -> {
+            List<Context.GenRc> genRcs = context.generatorsToBeExported.get(busNumber);
+            MBus mBus = model.getBusByNum(busNumber);
+            List<Context.GenRc> genRcsWithRegulationOn = genRcs.stream().filter(genRc -> genRc.isValidVoltageRegulation).toList();
+            List<Context.GenRc> genRcsWithRegulationOff = genRcs.stream().filter(genRc -> !genRc.isValidVoltageRegulation).toList();
+            if (genRcsWithRegulationOn.isEmpty()) {
+                genRcsWithRegulationOff.forEach(genRc -> {
+                    MGen mGen = createMGen(model, busNumber, genRc, context);
+                    // we can safely set voltage setpoint to zero, because a PQ bus never go back to PV even if reactive limits
+                    // are activated in Matpower power flow
+                    mGen.setVoltageMagnitudeSetpoint(0);
+                });
             } else {
-                // we can safely set voltage setpoint to zero, because a PQ bus never go back to PV even if reactive limits
-                // are activated in Matpower power flow
-                mGen.setVoltageMagnitudeSetpoint(0);
+                if (mBus.getType().equals(MBus.Type.PQ)) {
+                    mBus.setType(MBus.Type.PV);
+                }
+                genRcsWithRegulationOn.forEach(genRc -> createMGen(model, busNumber, genRc, context));
+
+                genRcsWithRegulationOff.forEach(genRc -> {
+                    mBus.setRealPowerDemand(mBus.getRealPowerDemand() - genRc.targetP);
+                    mBus.setReactivePowerDemand(mBus.getReactivePowerDemand() - genRc.targetQ);
+                    context.generatorIdsConvertedToLoad.add(genRc.id);
+                });
             }
-            mGen.setMinimumRealPowerOutput(Math.max(minP, -context.maxGeneratorActivePowerLimit));
-            mGen.setMaximumRealPowerOutput(Math.min(maxP, context.maxGeneratorActivePowerLimit));
-            mGen.setMinimumReactivePowerOutput(Math.max(minQ, -context.maxGeneratorReactivePowerLimit));
-            mGen.setMaximumReactivePowerOutput(Math.min(maxQ, context.maxGeneratorReactivePowerLimit));
-            mGen.setTotalMbase(Double.isNaN(ratedS) ? 0 : ratedS);
-            model.addGenerator(mGen);
+        });
+    }
+
+    private static MGen createMGen(MatpowerModel model, int busNumber, Context.GenRc genRc, Context context) {
+        MGen mGen = new MGen();
+        mGen.setNumber(busNumber);
+        mGen.setStatus(CONNECTED_STATUS);
+        mGen.setRealPowerOutput(genRc.targetP);
+        mGen.setReactivePowerOutput(Double.isNaN(genRc.targetQ) ? 0 : genRc.targetQ);
+        mGen.setVoltageMagnitudeSetpoint(genRc.targetVpu);
+
+        mGen.setMinimumRealPowerOutput(Math.max(genRc.minP, -context.maxGeneratorActivePowerLimit));
+        mGen.setMaximumRealPowerOutput(Math.min(genRc.maxP, context.maxGeneratorActivePowerLimit));
+        mGen.setMinimumReactivePowerOutput(Math.max(genRc.minQ, -context.maxGeneratorReactivePowerLimit));
+        mGen.setMaximumReactivePowerOutput(Math.min(genRc.maxQ, context.maxGeneratorReactivePowerLimit));
+        mGen.setTotalMbase(Double.isNaN(genRc.ratedS) ? 0 : genRc.ratedS);
+        model.addGenerator(mGen);
+
+        if (genRc.isRemoteRegulation) {
+            LOGGER.warn("Generator remote voltage control not supported in Matpower model, control has been localized {}", genRc.id);
         }
+        return mGen;
+    }
+
+    private static boolean isValidVoltageRegulation(boolean voltageRegulation, Bus regulatedBus) {
+        return voltageRegulation && regulatedBus != null;
+    }
+
+    private static boolean isRemoteRegulation(Bus bus, Bus regulatedBus) {
+        return !(bus != null && regulatedBus != null && bus.getId().equals(regulatedBus.getId()));
     }
 
     private static double checkAndFixVoltageMagnitude(double voltageMagnitude) {
@@ -1061,7 +1093,7 @@ public class MatpowerExporter implements Exporter {
 
         MatpowerModel model = new MatpowerModel(network.getId());
         model.setBaseMva(BASE_MVA);
-        model.setVersion(FORMAT_VERSION);
+        model.setVersion(MatpowerFormatVersion.V2);
 
         Context context = new Context(maxGeneratorActivePower, maxGeneratorReactivePower);
         context.findSynchronousComponentsToBeExported(network);
@@ -1071,10 +1103,12 @@ public class MatpowerExporter implements Exporter {
         context.num = preserveBusIds(network, context);
         createBuses(network, model, context);
         createBranches(network, model, context);
-        createGenerators(network, model, context);
-        createStaticVarCompensators(network, model, context);
-        createDanglingLineGenerators(network, model, context);
+        findGenerators(network, context);
+        findStaticVarCompensatorGenerators(network, context);
+        findDanglingLineGenerators(network, context);
         createDcLines(network, model, context);
+
+        createGeneratorsAndDefinePVBuses(model, context);
 
         if (!context.generatorIdsConvertedToLoad.isEmpty()) {
             LOGGER.debug("{} generators have been converted to a load: {}", context.generatorIdsConvertedToLoad.size(), context.generatorIdsConvertedToLoad);

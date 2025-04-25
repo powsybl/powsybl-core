@@ -18,8 +18,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
 import java.util.stream.Stream;
+import static com.powsybl.iidm.network.tck.AbstractLineTest.areLinesIdentical;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static com.powsybl.iidm.network.tck.AbstractTwoWindingsTransformerTest.areTwoWindingsTransformersIdentical;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -35,6 +37,22 @@ public abstract class AbstractSubnetworksCreationTest {
         network = Network.create("Root", "format0");
         subnetwork1 = network.createSubnetwork("Sub1", "Sub1", "format1");
         subnetwork2 = network.createSubnetwork("Sub2", "Sub2", "format2");
+    }
+
+    @Test
+    public void testAreaCreation() {
+        // On root network level
+        addArea(network, "a0", "Area0", "AreaType0");
+        assertAreaCounts(1, 0, 0);
+        assertAreaTypeCounts(1, 0, 0);
+
+        // On subnetwork level
+        addArea(subnetwork1, "a1", "Area1", "AreaType1");
+        assertAreaCounts(2, 1, 0);
+        assertAreaTypeCounts(2, 1, 0);
+
+        Throwable e = assertThrows(PowsyblException.class, () -> addArea(subnetwork1, "a0", "Area2", "AreaType2"));
+        assertTrue(e.getMessage().contains("The network Root already contains an object 'AreaImpl' with the id 'a0'"));
     }
 
     @Test
@@ -122,6 +140,17 @@ public abstract class AbstractSubnetworksCreationTest {
         // On root network, voltage levels in root network and subnetwork2
         Line l4 = addLine(network, "l4", "vl0_0", "vl2_0");
 
+        // New lines creation using the copying adder
+        Line l5 = subnetwork2.newLine(l2)
+                .setId("l5")
+                .setBus1(getBusId("vl2_0"))
+                .setBus2(getBusId("vl2_1"))
+                .add();
+
+        // Tests if copy proceeds
+        assertNotNull(l5);
+        assertTrue(areLinesIdentical(l2, l5));
+
         // Try to detach all. Some elements prevent it.
         assertFalse(subnetwork1.isDetachable());
         assertFalse(subnetwork2.isDetachable());
@@ -145,7 +174,7 @@ public abstract class AbstractSubnetworksCreationTest {
         // - Check Lines
         assertEquals(1, network.getLineCount());
         assertEquals(1, n1.getLineCount());
-        assertEquals(1, n2.getLineCount());
+        assertEquals(2, n2.getLineCount());
         assertNetworks(network, network, network.getLine("l0"));
         assertNetworks(n1, n1, n1.getLine("l1"));
         assertNetworks(n2, n2, n2.getLine("l2"));
@@ -198,7 +227,17 @@ public abstract class AbstractSubnetworksCreationTest {
         addTwoWindingsTransformer(substation1, "twt1", "vl1_0", 380, "vl1_1", 90);
 
         // On subnetwork2
-        addTwoWindingsTransformer(substation2, "twt2", "vl2_0", 380, "vl2_1", 90);
+        TwoWindingsTransformer transformer1 = addTwoWindingsTransformer(substation2, "twt2", "vl2_0", 380, "vl2_1", 90);
+
+        TwoWindingsTransformer transformer2 = substation2.newTwoWindingsTransformer(transformer1)
+                .setId("twt3")
+                .setBus1(getBusId("vl2_0"))
+                .setBus2(getBusId("vl2_1"))
+                .add();
+
+        // Tests if copy proceeds
+        assertNotNull(transformer2);
+        assertTrue(areTwoWindingsTransformersIdentical(transformer1, transformer2));
 
         // Detach all
         assertTrue(subnetwork1.isDetachable());
@@ -208,7 +247,7 @@ public abstract class AbstractSubnetworksCreationTest {
         // - Check Transformers
         assertEquals(1, network.getTwoWindingsTransformerCount());
         assertEquals(1, n1.getTwoWindingsTransformerCount());
-        assertEquals(1, n2.getTwoWindingsTransformerCount());
+        assertEquals(2, n2.getTwoWindingsTransformerCount());
         assertNetworks(network, network, network.getTwoWindingsTransformer("twt0"));
         assertNetworks(n1, n1, n1.getTwoWindingsTransformer("twt1"));
         assertNetworks(n2, n2, n2.getTwoWindingsTransformer("twt2"));
@@ -444,6 +483,14 @@ public abstract class AbstractSubnetworksCreationTest {
         assertEquals(expected, subnetwork2.getValidationLevel());
     }
 
+    private Area addArea(Network network, String id, String name, String areaType) {
+        return network.newArea()
+                .setId(id)
+                .setName(name)
+                .setAreaType(areaType)
+                .add();
+    }
+
     private Substation addSubstation(Network network, String substationId) {
         return network.newSubstation()
                 .setId(substationId)
@@ -539,6 +586,18 @@ public abstract class AbstractSubnetworksCreationTest {
 
     private String getBusId(String vlId3) {
         return "bus_" + vlId3;
+    }
+
+    void assertAreaTypeCounts(int total, int onSubnetwork1, int onSubnetwork2) {
+        assertEquals(total, network.getAreaTypeCount());
+        assertEquals(onSubnetwork1, subnetwork1.getAreaTypeCount());
+        assertEquals(onSubnetwork2, subnetwork2.getAreaTypeCount());
+    }
+
+    void assertAreaCounts(int total, int onSubnetwork1, int onSubnetwork2) {
+        assertEquals(total, network.getAreaCount());
+        assertEquals(onSubnetwork1, subnetwork1.getAreaCount());
+        assertEquals(onSubnetwork2, subnetwork2.getAreaCount());
     }
 
     void assertSubstationCounts(int total, int onSubnetwork1, int onSubnetwork2) {

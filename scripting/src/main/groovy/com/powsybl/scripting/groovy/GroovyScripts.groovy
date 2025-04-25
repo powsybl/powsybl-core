@@ -7,12 +7,14 @@
  */
 package com.powsybl.scripting.groovy
 
+import com.powsybl.computation.ComputationManager
+import com.powsybl.computation.DefaultComputationManagerConfig
+import groovy.transform.ThreadInterrupt
 import org.codehaus.groovy.control.CompilerConfiguration
+import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
-
-import com.powsybl.computation.DefaultComputationManagerConfig
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -46,14 +48,22 @@ class GroovyScripts {
     }
 
     static void run(Reader codeReader, Binding binding, Iterable<GroovyScriptExtension> extensions, PrintStream out) {
+        run(codeReader, binding, extensions, out, new HashMap<>())
+    }
+
+    static void run(Reader codeReader, Binding binding, Iterable<GroovyScriptExtension> extensions, PrintStream out, Map<Class<?>, Object> contextObjects) {
         assert codeReader
         assert extensions != null
 
         CompilerConfiguration conf = new CompilerConfiguration()
 
+        // Add a check on thread interruption in every loop (for, while) in the script
+        conf.addCompilationCustomizers(new ASTTransformationCustomizer(ThreadInterrupt.class))
+
         // Computation manager
-        DefaultComputationManagerConfig config = DefaultComputationManagerConfig.load();
-        binding.computationManager = config.createShortTimeExecutionComputationManager();
+        DefaultComputationManagerConfig config = DefaultComputationManagerConfig.load()
+        binding.computationManager = config.createShortTimeExecutionComputationManager()
+        contextObjects.put(ComputationManager.class, binding.computationManager)
 
         if (out != null) {
             binding.out = out
@@ -61,9 +71,13 @@ class GroovyScripts {
 
         try {
             // load extensions
-            extensions.forEach { it.load(binding, binding.computationManager) }
+            extensions.forEach { it.load(binding, contextObjects) }
 
             GroovyShell shell = new GroovyShell(binding, conf)
+
+            // Check for thread interruption right before beginning the evaluation
+            if (Thread.currentThread().isInterrupted()) throw new InterruptedException("Execution Interrupted")
+
             shell.evaluate(codeReader)
         } finally {
             extensions.forEach { it.unload() }

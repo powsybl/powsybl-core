@@ -8,6 +8,7 @@
 package com.powsybl.loadflow;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -67,11 +68,7 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     @Override
     public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(PlatformConfig config) {
         DummyExtension extension = new DummyExtension();
-        config.getOptionalModuleConfig("dummy-extension").ifPresent(moduleConfig -> {
-            extension.setParameterDouble(moduleConfig.getDoubleProperty(DOUBLE_PARAMETER_NAME, DummyExtension.PARAMETER_DOUBLE_DEFAULT_VALUE));
-            extension.setParameterBoolean(moduleConfig.getBooleanProperty(BOOLEAN_PARAMETER_NAME, DummyExtension.PARAMETER_BOOLEAN_DEFAULT_VALUE));
-            extension.setParameterString(moduleConfig.getStringProperty(STRING_PARAMETER_NAME, DummyExtension.PARAMETER_STRING_DEFAULT_VALUE));
-        });
+        updateSpecificParameters(extension, config);
         return Optional.of(extension);
     }
 
@@ -100,7 +97,24 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     }
 
     @Override
+    public void updateSpecificParameters(Extension<LoadFlowParameters> extension, PlatformConfig config) {
+        config.getOptionalModuleConfig("dummy-extension").ifPresent(moduleConfig -> {
+            moduleConfig.getOptionalDoubleProperty(DOUBLE_PARAMETER_NAME)
+                    .ifPresent(((DummyExtension) extension)::setParameterDouble);
+            moduleConfig.getOptionalBooleanProperty(BOOLEAN_PARAMETER_NAME)
+                    .ifPresent(((DummyExtension) extension)::setParameterBoolean);
+            moduleConfig.getOptionalStringProperty(STRING_PARAMETER_NAME)
+                    .ifPresent(((DummyExtension) extension)::setParameterString);
+        });
+    }
+
+    @Override
     public List<Parameter> getSpecificParameters() {
         return PARAMETERS;
+    }
+
+    @Override
+    public Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
+        return platformConfig.getOptionalModuleConfig("dummy-extension");
     }
 }

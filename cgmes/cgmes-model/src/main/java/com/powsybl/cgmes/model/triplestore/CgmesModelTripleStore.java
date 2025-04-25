@@ -175,7 +175,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         if (r == null) {
             return false;
         }
-        if (allEqCgmes3OrGreater(r)) {
+        if (allEqCgmes3OrGreater(r) && !connectivityNodes().isEmpty()) {
             return true;
         }
         // Only consider is node breaker if all models that have profile
@@ -468,8 +468,18 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags ratioTapChangerTablePoints() {
+        return namedQuery("ratioTapChangerTablePoints");
+    }
+
+    @Override
     public PropertyBags phaseTapChangers() {
         return namedQuery("phaseTapChangers");
+    }
+
+    @Override
+    public PropertyBags phaseTapChangerTablePoints() {
+        return namedQuery("phaseTapChangerTablePoints");
     }
 
     @Override
@@ -498,9 +508,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags nonlinearShuntCompensatorPoints(String scId) {
-        Objects.requireNonNull(scId);
-        return namedQuery("nonlinearShuntCompensatorPoints", scId);
+    public PropertyBags nonlinearShuntCompensatorPoints() {
+        return namedQuery("nonlinearShuntCompensatorPoints");
     }
 
     @Override
@@ -541,28 +550,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     @Override
     public PropertyBags reactiveCapabilityCurveData() {
         return namedQuery("reactiveCapabilityCurveData");
-    }
-
-    @Override
-    public PropertyBags ratioTapChangerTablesPoints() {
-        return namedQuery("ratioTapChangerTablesPoints");
-    }
-
-    @Override
-    public PropertyBags phaseTapChangerTablesPoints() {
-        return namedQuery("phaseTapChangerTablesPoints");
-    }
-
-    @Override
-    public PropertyBags ratioTapChangerTable(String tableId) {
-        Objects.requireNonNull(tableId);
-        return namedQuery("ratioTapChangerTable", tableId);
-    }
-
-    @Override
-    public PropertyBags phaseTapChangerTable(String tableId) {
-        Objects.requireNonNull(tableId);
-        return namedQuery("phaseTapChangerTable", tableId);
     }
 
     @Override

@@ -14,7 +14,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>6.8.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-ampl-converter</artifactId>
@@ -88,6 +88,11 @@
             <artifactId>powsybl-iidm-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-extensions</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

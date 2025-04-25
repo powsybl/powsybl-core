@@ -49,6 +49,7 @@ public final class InMemoryCgmesModel implements CgmesModel {
     private PropertyBags energyConsumers;
     private PropertyBags energySources;
     private PropertyBags shuntCompensators;
+    private PropertyBags shuntCompensatorPoints;
     private PropertyBags staticVarCompensators;
     private PropertyBags equivalentShunts;
     private PropertyBags synchronousMachinesGenerators;
@@ -90,6 +91,7 @@ public final class InMemoryCgmesModel implements CgmesModel {
         energyConsumers = new PropertyBags();
         energySources = new PropertyBags();
         shuntCompensators = new PropertyBags();
+        shuntCompensatorPoints = new PropertyBags();
         equivalentShunts = new PropertyBags();
         staticVarCompensators = new PropertyBags();
         synchronousMachinesGenerators = new PropertyBags();
@@ -222,6 +224,11 @@ public final class InMemoryCgmesModel implements CgmesModel {
 
     public InMemoryCgmesModel shuntCompensators(String... ids) {
         fakeObjectsFromIdentifiers("ShuntCompensator", ids, shuntCompensators);
+        return this;
+    }
+
+    public InMemoryCgmesModel shuntCompensatorsPoints(String... ids) {
+        fakeObjectsFromIdentifiers("NonlinearShuntCompensatorPoint", ids, shuntCompensatorPoints);
         return this;
     }
 
@@ -395,19 +402,25 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedTransformerEnds() {
-        // FakeCgmesModeldoes not provide grouped transformer ends
-        return Collections.emptyMap();
-    }
-
-    @Override
     public PropertyBags ratioTapChangers() {
         return ratioTapChangers;
     }
 
     @Override
+    public PropertyBags ratioTapChangerTablePoints() {
+        // FakeCgmesModel does not implement ratio tap changer tables
+        return new PropertyBags();
+    }
+
+    @Override
     public PropertyBags phaseTapChangers() {
         return phaseTapChangers;
+    }
+
+    @Override
+    public PropertyBags phaseTapChangerTablePoints() {
+        // FakeCgmesModel does not implement phase tap changer tables
+        return new PropertyBags();
     }
 
     @Override
@@ -431,13 +444,13 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags equivalentShunts() {
-        return equivalentShunts;
+    public PropertyBags nonlinearShuntCompensatorPoints() {
+        return shuntCompensatorPoints;
     }
 
     @Override
-    public PropertyBags nonlinearShuntCompensatorPoints(String scId) {
-        return new PropertyBags();
+    public PropertyBags equivalentShunts() {
+        return equivalentShunts;
     }
 
     @Override
@@ -479,40 +492,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
     public PropertyBags reactiveCapabilityCurveData() {
         // FakeCgmesModel does not implement reactive capability curve
         return new PropertyBags();
-    }
-
-    @Override
-    public PropertyBags ratioTapChangerTablesPoints() {
-        // FakeCgmesModel does not implement ratio tap changer tables
-        return new PropertyBags();
-    }
-
-    @Override
-    public PropertyBags phaseTapChangerTablesPoints() {
-        // FakeCgmesModel does not implement phase tap changer tables
-        return new PropertyBags();
-    }
-
-    @Override
-    public PropertyBags ratioTapChangerTable(String tableId) {
-        // FakeCgmesModel does not implement ratio tap changer tables
-        return new PropertyBags();
-    }
-
-    @Override
-    public PropertyBags phaseTapChangerTable(String tableId) {
-        // FakeCgmesModel does not implement phase tap changer tables
-        return new PropertyBags();
-    }
-
-    @Override
-    public List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
-        return Collections.emptyList();
     }
 
     @Override
@@ -611,6 +590,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
     @Override
     public String voltageLevel(CgmesTerminal t, boolean nodeBreaker) {
         return null;
+    }
+
+    @Override
+    public Optional<String> node(CgmesTerminal t, boolean nodeBreaker) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<CgmesContainer> nodeContainer(String nodeId) {
+        return Optional.empty();
     }
 
     @Override

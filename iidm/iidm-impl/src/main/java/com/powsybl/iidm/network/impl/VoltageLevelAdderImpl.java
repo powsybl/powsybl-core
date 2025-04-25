@@ -94,17 +94,7 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
         ValidationUtil.checkTopologyKind(this, topologyKind);
 
-        VoltageLevelExt voltageLevel;
-        switch (topologyKind) {
-            case NODE_BREAKER:
-                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, subnetworkRef, nominalV, lowVoltageLimit, highVoltageLimit);
-                break;
-            case BUS_BREAKER:
-                voltageLevel = new BusBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, subnetworkRef, nominalV, lowVoltageLimit, highVoltageLimit);
-                break;
-            default:
-                throw new IllegalStateException();
-        }
+        VoltageLevelExt voltageLevel = new VoltageLevelImpl(id, getName(), isFictitious(), substation, networkRef, subnetworkRef, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind);
         getNetwork().getIndex().checkAndAdd(voltageLevel);
         Optional.ofNullable(substation).ifPresent(s -> s.addVoltageLevel(voltageLevel));
         getNetwork().getListeners().notifyCreation(voltageLevel);

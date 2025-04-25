@@ -21,7 +21,7 @@ import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -29,11 +29,11 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
+import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.XMLImporter;
-import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 
@@ -51,10 +51,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.FileSystem;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.writeCgmesProfile;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.getFirstMatch;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -64,6 +69,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     private Properties importParams;
 
+    @Override
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
@@ -154,29 +160,22 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
 
-        network.newExtension(CgmesControlAreasAdder.class).add();
-        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-        CgmesControlArea cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
+        // Define a tie flow at the boundary of a dangling line
+        TieLine tieLine = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        Area area = network.newArea()
                 .setId("controlAreaId")
                 .setName("controlAreaName")
-                .setEnergyIdentificationCodeEic("energyIdentCodeEic")
-                .setNetInterchange(Double.NaN)
+                .setAreaType(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)
+                .setInterchangeTarget(Double.NaN)
+                .addAreaBoundary(tieLine.getDanglingLine2().getBoundary(), true)
                 .add();
-        TieLine tieLine = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
-        cgmesControlArea.add(tieLine.getDanglingLine2().getBoundary());
+        area.addAlias("energyIdentCodeEic", CgmesNames.ENERGY_IDENT_CODE_EIC);
 
-        // TODO(Luma) updated expected result after halves of tie lines are exported as equipment
-        //  instead of an error logged and the tie flow ignored,
-        //  the reimported network control area should contain one tie flow
-        Network actual = exportImportNodeBreaker(network, dataSource);
-        CgmesControlArea actualCgmesControlArea = actual.getExtension(CgmesControlAreas.class).getCgmesControlArea("controlAreaId");
-        boolean tieFlowsAtTieLinesAreSupported = false;
-        if (tieFlowsAtTieLinesAreSupported) {
-            assertEquals(1, actualCgmesControlArea.getBoundaries().size());
-            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getDanglingLine().getId());
-        } else {
-            assertEquals(0, actualCgmesControlArea.getBoundaries().size());
-        }
+        // The reimported network control area should contain one tie flow
+        Network actual = exportImportBusBranch(network, dataSource);
+        Area actualControlArea = actual.getArea("controlAreaId");
+        assertEquals(1, actualControlArea.getAreaBoundaryStream().count());
+        assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualControlArea.getAreaBoundaries().iterator().next().getBoundary().get().getDanglingLine().getId());
     }
 
     @Test
@@ -207,7 +206,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         exportToCgmesEQ(network);
         exportToCgmesTP(network);
         // Import EQ & TP file, no additional information (boundaries) are required
-        Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
 
         // The xiidm file does not contain ratedS values, but during the cgmes export process default values
         // are exported for each transformer that are reading in the import process.
@@ -215,7 +214,13 @@ class EquipmentExportTest extends AbstractSerDeTest {
         TwoWindingsTransformer twta = actual.getTwoWindingsTransformerStream().findFirst().orElseThrow();
         network.getTwoWindingsTransformers().forEach(twtn -> twtn.setRatedS(twta.getRatedS()));
 
-        assertTrue(compareNetworksEQdata(network, actual));
+        // Ignore OperationalLimitsGroup id
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringNonEQ,
+                ExportXmlCompare::ignoringOperationalLimitsGroupId);
+        assertTrue(compareNetworksEQdata(network, actual, knownDiffs));
     }
 
     @Test
@@ -225,7 +230,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         exportToCgmesEQ(network, true);
         exportToCgmesTP(network);
         // Import EQ & TP file, no additional information (boundaries) are required
-        Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
         // Before comparing, interchange ends in twoWindingsTransformers that do not follow the high voltage at end1 rule
         prepareNetworkForSortedTransformerEndsComparison(network);
 
@@ -235,7 +240,13 @@ class EquipmentExportTest extends AbstractSerDeTest {
         TwoWindingsTransformer twta = actual.getTwoWindingsTransformerStream().findFirst().orElseThrow();
         network.getTwoWindingsTransformers().forEach(twtn -> twtn.setRatedS(twta.getRatedS()));
 
-        assertTrue(compareNetworksEQdata(network, actual));
+        // Ignore OperationalLimitsGroup id
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringNonEQ,
+                ExportXmlCompare::ignoringOperationalLimitsGroupId);
+        assertTrue(compareNetworksEQdata(network, actual, knownDiffs));
     }
 
     private void prepareNetworkForSortedTransformerEndsComparison(Network network) {
@@ -352,7 +363,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ThreeWindingsTransformer expected = network.getThreeWindingsTransformer(t3id);
 
         // The 3-winding transformer has a ratio and phase tap changer at every end
-        Network network1 = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
+        Network network1 = new CgmesImport().importData(new DirectoryDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
         ThreeWindingsTransformer actual1 = network1.getThreeWindingsTransformer(t3id);
         for (int k = 1; k <= 3; k++) {
             String aliasType;
@@ -369,7 +380,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         // Export an IIDM Network that has been imported from CGMES,
         // identifiers for tap changers must be preserved
         exportToCgmesEQ(network1);
-        Network network2 = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
+        Network network2 = new CgmesImport().importData(new DirectoryDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
         ThreeWindingsTransformer actual2 = network2.getThreeWindingsTransformer(t3id);
         for (int k = 1; k <= 3; k++) {
             String aliasType;
@@ -572,7 +583,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.NONCONFORM_LOAD), loadsCreatedFromOriginalClassCount(actual, CgmesNames.NONCONFORM_LOAD));
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.STATION_SUPPLY), loadsCreatedFromOriginalClassCount(actual, CgmesNames.STATION_SUPPLY));
 
-        // Avoid comparing targetP and targetQ (reimport does not consider the SSH file);
+        // Areas must be preserved
+        // The input test case contains 2 control areas of type interchange,
+        // that must be exported and reimported
+
+        // Avoid comparing targetP and targetQ, as reimport does not consider the SSH file
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
             actualGenerator.setTargetP(expectedGenerator.getTargetP());
@@ -650,7 +665,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals(generatorsCreatedFromOriginalClassCount(expected, "ExternalNetworkInjection"), generatorsCreatedFromOriginalClassCount(actual, "ExternalNetworkInjection"));
         assertEquals(generatorsCreatedFromOriginalClassCount(expected, "EquivalentInjection"), generatorsCreatedFromOriginalClassCount(actual, "EquivalentInjection"));
 
-        // Avoid comparing targetP and targetQ (reimport does not consider the SSH file);
+        // Avoid comparing targetP and targetQ, as reimport does not consider the SSH file
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
             actualGenerator.setTargetP(expectedGenerator.getTargetP());
@@ -683,11 +698,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridEquivalentShunt";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), new DirectoryDataSource(outputPath, baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
 
         ShuntCompensator expectedEquivalentShunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
         ShuntCompensator actualEquivalentShunt = actual.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
@@ -705,11 +720,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridEquivalentShunt";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), new DirectoryDataSource(outputPath, baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
 
         ShuntCompensator actualEquivalentShunt = actual.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
         assertTrue(equivalentShuntsAreEqual(equivalentShunt, actualEquivalentShunt));
@@ -767,11 +782,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridTapChangerDefineControl";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), new DirectoryDataSource(outputPath, baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
         TwoWindingsTransformer twtActual = actual.getTwoWindingsTransformer("e8a7eaec-51d6-4571-b3d9-c36d52073c33");
 
         assertEquals(twtNetwork.getPhaseTapChanger().getRegulationMode().name(), twtActual.getPhaseTapChanger().getRegulationMode().name());
@@ -812,11 +827,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridTapChangerDefineRatioTapChangerAndPhaseTapChanger";
-        network.write("CGMES", null, new FileDataSource(outputPath, baseName));
+        network.write("CGMES", null, new DirectoryDataSource(outputPath, baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
         TwoWindingsTransformer twtActual = actual.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
 
         assertEquals(twtNetwork.getRatioTapChanger().getTargetV(), twtActual.getRatioTapChanger().getTargetV());
@@ -839,11 +854,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridTapChangerDefineRatioTapChangerAndPhaseTapChangerLeg1";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), new DirectoryDataSource(outputPath, baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
         ThreeWindingsTransformer twtActual = actual.getThreeWindingsTransformer("84ed55f4-61f5-4d9d-8755-bba7b877a246");
 
         checkLeg(twtNetwork.getLeg1(), twtActual.getLeg1());
@@ -860,11 +875,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridTapChangerDefineRatioTapChangerAndPhaseTapChangerLeg2";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), new DirectoryDataSource(outputPath, baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
         ThreeWindingsTransformer twtActual = actual.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
 
         checkLeg(twtNetwork.getLeg2(), twtActual.getLeg2());
@@ -881,11 +896,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridTapChangerDefineRatioTapChangerAndPhaseTapChangerLeg3";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), new DirectoryDataSource(outputPath, baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
         ThreeWindingsTransformer twtActual = actual.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
 
         checkLeg(twtNetwork.getLeg3(), twtActual.getLeg3());
@@ -939,10 +954,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "oneGeneratorFossilFuel";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), new DirectoryDataSource(outputPath, baseName));
 
         // re-import
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the fuelType property
@@ -964,10 +979,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "oneGeneratorFossilHydroPowerPlant";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), new DirectoryDataSource(outputPath, baseName));
 
         // re-import
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the storage kind property
@@ -991,10 +1006,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "oneGeneratorSynchronousMachineKind";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), new DirectoryDataSource(outputPath, baseName));
 
         // re-import
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the synchronous machine kind
@@ -1002,6 +1017,407 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals(expectedSynchronousMachineKind, actualSynchronousMachineKind);
         String actualOperatingMode = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE);
         assertEquals(expectedOperatingMode, actualOperatingMode);
+    }
+
+    @Test
+    void phaseTapChangerTapChangerControlEQTest() throws IOException {
+        String exportFolder = "/test-pst-tcc";
+        String baseName = "testPstTcc";
+        Network network;
+        String eq;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+
+            // PST with FIXED_TAP
+            network = PhaseShifterTestCaseFactory.createWithTargetDeadband();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
+
+            // PST local with ACTIVE_POWER_CONTROL
+            network = PhaseShifterTestCaseFactory.createLocalActivePowerWithTargetDeadband();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
+
+            // PST local with CURRENT_LIMITER
+            network = PhaseShifterTestCaseFactory.createLocalCurrentLimiterWithTargetDeadband();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "currentFlow");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "currentFlow");
+
+            // PST remote with CURRENT_LIMITER
+            network = PhaseShifterTestCaseFactory.createRemoteCurrentLimiterWithTargetDeadband();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "currentFlow");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "currentFlow");
+
+            // PST remote with ACTIVE_POWER_CONTROL
+            network = PhaseShifterTestCaseFactory.createRemoteActivePowerWithTargetDeadband();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "activePower");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "activePower");
+        }
+    }
+
+    @Test
+    void ratioTapChangerTapChangerControlEQTest() throws IOException {
+        String exportFolder = "/test-rtc-tcc";
+        String baseName = "testRtcTcc";
+        Network network;
+        String eq;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+
+            // RTC without control
+            network = EurostagTutorialExample1Factory.createWithoutRtcControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(eq, "_NHV2_NLOAD_RTC_RC", "", "dummy");
+
+            // RTC local with VOLTAGE
+            network = EurostagTutorialExample1Factory.create();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_NHV2_NLOAD_PT_T_2", "voltage");
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_NHV2_NLOAD_PT_T_2", "voltage");
+
+            // RTC local with REACTIVE_POWER
+            network = EurostagTutorialExample1Factory.createWithReactiveTcc();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_NHV2_NLOAD_PT_T_2", "reactivePower");
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_NHV2_NLOAD_PT_T_2", "reactivePower");
+
+            // RTC remote with VOLTAGE
+            network = EurostagTutorialExample1Factory.createRemoteVoltageTcc();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_GEN_SM_T_1", "voltage");
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_GEN_SM_T_1", "voltage");
+
+            // RTC remote with REACTIVE_POWER
+            network = EurostagTutorialExample1Factory.createRemoteReactiveTcc();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_GEN_SM_T_1", "reactivePower");
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_GEN_SM_T_1", "reactivePower");
+
+            // 3w without control
+            network = EurostagTutorialExample1Factory.createWith3wWithoutControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "", "dummy");
+
+            // 3w with local voltage control
+            network = EurostagTutorialExample1Factory.createWith3wWithVoltageControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_NGEN_V2_NHV1_PT_T_1", "voltage");
+
+            // 3w with local reactive control
+            network = EurostagTutorialExample1Factory.create3wWithReactiveTcc();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_NGEN_V2_NHV1_PT_T_1", "reactivePower");
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_NGEN_V2_NHV1_PT_T_1", "reactivePower");
+
+            // 3w with remote voltage
+            network = EurostagTutorialExample1Factory.create3wRemoteVoltageTcc();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_GEN_SM_T_1", "voltage");
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_GEN_SM_T_1", "voltage");
+
+            // 3w with remote reactive
+            network = EurostagTutorialExample1Factory.create3wRemoteReactiveTcc();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_GEN_SM_T_1", "reactivePower");
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_GEN_SM_T_1", "reactivePower");
+        }
+    }
+
+    @Test
+    void staticVarCompensatorRegulatingControlEQTest() throws IOException {
+        String exportFolder = "/test-svc-rc";
+        String baseName = "testSvcRc";
+        Network network;
+        String eq;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+
+            // SVC VOLTAGE
+            // Local
+            network = SvcTestCaseFactory.createLocalVoltageControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "voltage");
+
+            // Remote
+            network = SvcTestCaseFactory.createRemoteVoltageControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+
+            // SVC REACTIVE_POWER
+            // Local
+            network = SvcTestCaseFactory.createLocalReactiveControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "reactivePower");
+
+            // Remote
+            network = SvcTestCaseFactory.createRemoteReactiveControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "reactivePower");
+
+            // SVC OFF
+            // Local
+            network = SvcTestCaseFactory.createLocalOffNoTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "dummy");
+            network = SvcTestCaseFactory.createLocalOffReactiveTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "reactivePower");
+            network = SvcTestCaseFactory.createLocalOffVoltageTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "voltage");
+            network = SvcTestCaseFactory.createLocalOffBothTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "voltage");
+
+            // Remote
+            network = SvcTestCaseFactory.createRemoteOffNoTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+            network = SvcTestCaseFactory.createRemoteOffReactiveTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "reactivePower");
+            network = SvcTestCaseFactory.createRemoteOffVoltageTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+            network = SvcTestCaseFactory.createRemoteOffBothTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+        }
+    }
+
+    @Test
+    void shuntCompensatorRegulatingControlEQTest() throws IOException {
+        String exportFolder = "/test-sc-rc";
+        String baseName = "testScRc";
+        Network network;
+        String eq;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+
+            // SC linear
+            network = ShuntTestCaseFactory.create();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_LOAD_EC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network = ShuntTestCaseFactory.createLocalLinear();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_SHUNT_SC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network = ShuntTestCaseFactory.createDisabledRemoteLinear();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_LOAD_EC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network = ShuntTestCaseFactory.createDisabledLocalLinear();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_SHUNT_SC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network = ShuntTestCaseFactory.createLocalLinearNoTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_SHUNT_RC", "", "");
+
+            network = ShuntTestCaseFactory.createRemoteLinearNoTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_LOAD_EC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            // SC nonlinear
+            network = ShuntTestCaseFactory.createNonLinear();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_LOAD_EC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network = ShuntTestCaseFactory.createLocalNonLinear();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_SHUNT_SC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network = ShuntTestCaseFactory.createDisabledRemoteNonLinear();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_LOAD_EC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network = ShuntTestCaseFactory.createDisabledLocalNonLinear();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_SHUNT_SC_T_1", "voltage");
+
+            network = ShuntTestCaseFactory.createLocalNonLinearNoTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_SHUNT_RC", "", "");
+
+            network = ShuntTestCaseFactory.createRemoteNonLinearNoTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_LOAD_EC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+        }
+    }
+
+    @Test
+    void generatorRegulatingControlEQTest() throws IOException {
+        String exportFolder = "/test-gen-rc";
+        String baseName = "testGenRc";
+        Network network;
+        String eq;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+
+            // Generator local voltage
+            network = EurostagTutorialExample1Factory.create();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+
+            // Generator remote voltage
+            network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+
+            // Generator with remote voltage regulation exported in local regulation mode
+            Properties exportInLocalRegulationModeParams = new Properties();
+            exportInLocalRegulationModeParams.put(CgmesExport.PROFILES, "EQ");
+            exportInLocalRegulationModeParams.put(CgmesExport.EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE, true);
+            network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
+            eq = getEQ(network, baseName, tmpDir, exportInLocalRegulationModeParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+
+            // Generator with local reactive
+            network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "reactivePower");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "reactivePower");
+
+            // Generator with remote reactive
+            network = EurostagTutorialExample1Factory.createWithRemoteReactiveGenerator();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "reactivePower");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "reactivePower");
+
+            // Generator with local reactive and voltage
+            network = EurostagTutorialExample1Factory.createWithLocalReactiveAndVoltageGenerator();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "reactivePower");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+            network.getGenerator("GEN").setVoltageRegulatorOn(true);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+
+            // Generator with remote reactive and voltage
+            network = EurostagTutorialExample1Factory.createWithRemoteReactiveAndVoltageGenerators();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "reactivePower");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+            network.getGenerator("GEN").setVoltageRegulatorOn(true);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+
+            // Generator without control
+            network = EurostagTutorialExample1Factory.createWithoutControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_GEN_RC", "", "dummy");
+
+            // Generator with remote terminal without control
+            network = EurostagTutorialExample1Factory.createRemoteWithoutControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_GEN_RC", "", "dummy");
+
+            // Generator without control capability
+            network = EurostagTutorialExample1Factory.create();
+            network.getGenerator("GEN").newMinMaxReactiveLimits().setMaxQ(0).setMinQ(0).add();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_GEN_RC", "", "dummy");
+        }
+    }
+
+    private void testTcTccWithoutAttribute(String eq, String rcID, String terID, String rcMode) {
+        assertFalse(eq.contains("cim:TapChangerControl rdf:ID=\"" + rcID + "\""));
+        assertFalse(eq.contains("cim:TapChanger.TapChangerControl rdf:resource=\"#" + rcID + "\""));
+        assertFalse(eq.contains("RegulatingControlModeKind." + rcMode));
+        assertFalse(eq.contains("cim:RegulatingControl.Terminal rdf:resource=\"#" + terID + "\""));
+    }
+
+    private void testTcTccWithAttribute(String eq, String rcID, String terID, String rcMode) {
+        assertTrue(eq.contains("cim:TapChangerControl rdf:ID=\"" + rcID + "\""));
+        assertTrue(eq.contains("cim:TapChanger.TapChangerControl rdf:resource=\"#" + rcID + "\""));
+        assertTrue(eq.contains("RegulatingControlModeKind." + rcMode));
+        assertTrue(eq.contains("cim:RegulatingControl.Terminal rdf:resource=\"#" + terID + "\""));
+    }
+
+    private void testRcEqRCWithoutAttribute(String eq, String rcID, String terID, String rcMode) {
+        assertFalse(eq.contains("cim:RegulatingControl rdf:ID=\"" + rcID + "\""));
+        assertFalse(eq.contains("cim:RegulatingCondEq.RegulatingControl rdf:resource=\"#" + rcID + "\""));
+        // dummy kind is used when false assertion would trigger because other RCs are present from other equipment
+        assertFalse(eq.contains("RegulatingControlModeKind." + rcMode));
+        assertFalse(eq.contains("cim:RegulatingControl.Terminal rdf:resource=\"#" + terID + "\""));
+    }
+
+    private void testRcEqRcWithAttribute(String eq, String rcID, String terID, String rcMode) {
+        assertTrue(eq.contains("cim:RegulatingControl rdf:ID=\"" + rcID + "\""));
+        assertTrue(eq.contains("cim:RegulatingCondEq.RegulatingControl rdf:resource=\"#" + rcID + "\""));
+        assertTrue(eq.contains("RegulatingControlModeKind." + rcMode));
+        assertTrue(eq.contains("cim:RegulatingControl.Terminal rdf:resource=\"#" + terID + "\""));
+    }
+
+    private String getEQ(Network network, String baseName, Path tmpDir, Properties exportParams) throws IOException {
+        new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
+        return Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
     }
 
     private Network createOneGeneratorNetwork() {
@@ -1279,6 +1695,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
         // Export original and only EQ
         ExportOptions exportOptions = new ExportOptions();
+        // Do not export extensions
         exportOptions.setExtensions(Collections.emptySet());
         exportOptions.setSorted(true);
 
@@ -1416,11 +1833,137 @@ class EquipmentExportTest extends AbstractSerDeTest {
         for (Load load : network.getLoads()) {
             load.setP0(0.0).setQ0(0.0);
         }
+        for (Area area : network.getAreas()) {
+            area.setInterchangeTarget(0.0);
+        }
 
         network.removeExtension(CgmesModelExtension.class);
         network.removeExtension(CgmesMetadataModels.class);
         network.removeExtension(CimCharacteristics.class);
 
         return network;
+    }
+
+    private static Network allGeneratingUnitTypesNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("network", "test");
+        Substation substation1 = network.newSubstation()
+                .setId("substation1")
+                .setCountry(Country.FR)
+                .setTso("TSO1")
+                .setGeographicalTags("region1")
+                .add();
+        VoltageLevel voltageLevel1 = substation1.newVoltageLevel()
+                .setId("voltageLevel1")
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        VoltageLevel.NodeBreakerView topology1 = voltageLevel1.getNodeBreakerView();
+        topology1.newBusbarSection()
+                .setId("voltageLevel1BusbarSection1")
+                .setNode(0)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("other")
+                .setNode(1)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("nuclear")
+                .setNode(2)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.NUCLEAR)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("thermal")
+                .setNode(3)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.THERMAL)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("hydro")
+                .setNode(4)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.HYDRO)
+                .add();
+        voltageLevel1.newGenerator()
+                .setId("solar")
+                .setNode(5)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.SOLAR)
+                .add();
+        Generator windOnshore = voltageLevel1.newGenerator()
+                .setId("wind_onshore")
+                .setNode(6)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.WIND)
+                .add();
+        Generator windOffshore = voltageLevel1.newGenerator()
+                .setId("wind_offshore")
+                .setNode(7)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .setEnergySource(EnergySource.WIND)
+                .add();
+        topology1.newInternalConnection().setNode1(0).setNode2(1).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(2).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(3).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(4).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(5).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(6).add();
+        topology1.newInternalConnection().setNode1(0).setNode2(7).add();
+        windOnshore.setProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "onshore");
+        windOffshore.setProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "offshore");
+        return network;
+    }
+
+    @Test
+    void generatingUnitTypesTest() throws IOException {
+        Network network = allGeneratingUnitTypesNetwork();
+
+        // Export as cgmes
+        String eqXml = writeCgmesProfile(network, "EQ", tmpDir);
+
+        assertTrue(eqXml.contains("<cim:GeneratingUnit rdf:ID=\"_other_GU\">"));
+        assertTrue(eqXml.contains("<cim:NuclearGeneratingUnit rdf:ID=\"_nuclear_NGU\">"));
+        assertTrue(eqXml.contains("<cim:ThermalGeneratingUnit rdf:ID=\"_thermal_TGU\">"));
+        assertTrue(eqXml.contains("<cim:HydroGeneratingUnit rdf:ID=\"_hydro_HGU\">"));
+        assertTrue(eqXml.contains("<cim:SolarGeneratingUnit rdf:ID=\"_solar_SGU\">"));
+        assertTrue(eqXml.contains("<cim:WindGeneratingUnit rdf:ID=\"_wind_onshore_WGU\">"));
+        assertTrue(eqXml.contains("<cim:WindGeneratingUnit rdf:ID=\"_wind_offshore_WGU\">"));
+
+        String sPattern = "<cim:WindGeneratingUnit rdf:ID=\"${rdfId}\">.*?" +
+                "<cim:WindGeneratingUnit.windGenUnitType rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#WindGenUnitKind.(.*?)\"/>";
+
+        Pattern onshorePattern = Pattern.compile(sPattern.replace("${rdfId}", "_wind_onshore_WGU"), Pattern.DOTALL);
+        assertEquals("onshore", getFirstMatch(eqXml, onshorePattern));
+        Pattern offshorePattern = Pattern.compile(sPattern.replace("${rdfId}", "_wind_offshore_WGU"), Pattern.DOTALL);
+        assertEquals("offshore", getFirstMatch(eqXml, offshorePattern));
     }
 }

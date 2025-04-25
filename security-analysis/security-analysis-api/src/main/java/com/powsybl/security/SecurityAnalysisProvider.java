@@ -11,17 +11,11 @@ import com.google.common.collect.Lists;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
-import com.powsybl.security.limitreduction.LimitReduction;
-import com.powsybl.security.monitor.StateMonitor;
-import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -50,12 +44,16 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
     /**
      * Run an asynchronous single security analysis job.
      * <p>
-     * if there are exceptions thrown. But the original exception would be wrapped in {@link com.powsybl.computation.ComputationException}, and those .out/.err log file's contents
-     * are be collected in the {@link com.powsybl.computation.ComputationException} too.
+     * This method should complete with an exception if there is an exception thrown in the security analysis, in order
+     * to be able to collect execution's logs in that case.
+     * The original exception should be wrapped in {@link com.powsybl.computation.ComputationException}, together with
+     * the out and err logs, within a {@link java.util.concurrent.CompletionException}.
      *
+     * <p>
+     * Example of use:
      * <pre> {@code
      * try {
-     *       SecurityAnalysisResult result = securityAnalysis.run(network, variantId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors).join();
+     *       SecurityAnalysisResult result = securityAnalysis.run(network, variantId, contingenciesProvider, runParameters).join();
      *   } catch (CompletionException e) {
      *       if (e.getCause() instanceof ComputationException) {
      *           ComputationException computationException = (ComputationException) e.getCause();
@@ -75,30 +73,14 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      *
      * @param network IIDM network on which the security analysis will be performed
      * @param workingVariantId network variant ID on which the analysis will be performed
-     * @param detector
-     * @param filter
-     * @param computationManager
-     * @param parameters specific security analysis parameters
      * @param contingenciesProvider provides list of contingencies
-     * @param interceptors
-     * @param monitors stateMonitor that defines the branch bus and threeWindingsTransformer about which informations will be written after security analysis
-     * @param limitReductions list of the limit reductions to apply
-     * @param reportNode the reportNode used for functional logs
+     * @param runParameters runner parameters
      * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers security factor values
      */
     CompletableFuture<SecurityAnalysisReport> run(Network network,
                                                   String workingVariantId,
-                                                  LimitViolationDetector detector,
-                                                  LimitViolationFilter filter,
-                                                  ComputationManager computationManager,
-                                                  SecurityAnalysisParameters parameters,
                                                   ContingenciesProvider contingenciesProvider,
-                                                  List<SecurityAnalysisInterceptor> interceptors,
-                                                  List<OperatorStrategy> operatorStrategies,
-                                                  List<Action> actions,
-                                                  List<StateMonitor> monitors,
-                                                  List<LimitReduction> limitReductions,
-                                                  ReportNode reportNode);
+                                                  SecurityAnalysisRunParameters runParameters);
 
     /**
      * The serializer for implementation-specific parameters, or {@link Optional#empty()} if the implementation

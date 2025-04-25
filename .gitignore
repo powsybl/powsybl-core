@@ -30,3 +30,6 @@ powsybl.log
 # Maven wrapper jar
 .mvn/wrapper/*.jar
 
+# Documentation
+build-docs/
+/docs/_build

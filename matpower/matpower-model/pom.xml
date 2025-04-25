@@ -13,7 +13,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-matpower</artifactId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>6.8.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-matpower-model</artifactId>
@@ -58,6 +58,11 @@
             <groupId>us.hebi.matlab.mat</groupId>
             <artifactId>mfl-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -73,12 +78,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-commons</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

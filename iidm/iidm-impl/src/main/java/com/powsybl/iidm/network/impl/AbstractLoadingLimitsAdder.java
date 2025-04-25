@@ -9,6 +9,9 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.LoadingLimitsUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -18,14 +21,14 @@ import static java.lang.Integer.MAX_VALUE;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> implements LoadingLimitsAdder<L, A> {
-    private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
     protected final Validable validable;
     private final String ownerId;
 
     protected double permanentLimit = Double.NaN;
 
-    protected final TreeMap<Integer, LoadingLimits.TemporaryLimit> temporaryLimits = new TreeMap<>(ACCEPTABLE_DURATION_COMPARATOR);
+    protected final TreeMap<Integer, LoadingLimits.TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
     public class TemporaryLimitAdderImpl<B extends LoadingLimitsAdder<L, B>> implements TemporaryLimitAdder<B> {
 
@@ -74,8 +77,11 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
             if (Double.isNaN(value)) {
                 throw new ValidationException(validable, "temporary limit value is not set");
             }
-            if (value <= 0) {
-                throw new ValidationException(validable, "temporary limit value must be > 0");
+            if (value < 0) {
+                throw new ValidationException(validable, "temporary limit value must be >= 0");
+            }
+            if (value == 0) {
+                LOGGER.info("{}temporary limit value is set to 0", validable.getMessageHeader());
             }
             if (acceptableDuration == null) {
                 throw new ValidationException(validable, "acceptable duration is not set");
@@ -140,15 +146,11 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     }
 
     protected void checkAndUpdateValidationLevel(NetworkImpl network) {
-        network.setValidationLevelIfGreaterThan(checkLoadingLimits(network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
+        network.setValidationLevelIfGreaterThan(checkLoadingLimits(network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
     }
 
-    protected ValidationLevel checkLoadingLimits(boolean throwException, ReportNode reportNode) {
-        return ValidationUtil.checkLoadingLimits(validable, permanentLimit, temporaryLimits.values(), throwException, reportNode);
-    }
-
-    protected ValidationLevel checkLoadingLimits(boolean throwException) {
-        return checkLoadingLimits(throwException, ReportNode.NO_OP);
+    protected ValidationLevel checkLoadingLimits(ValidationLevel validationLevel, ReportNode reportNode) {
+        return ValidationUtil.checkLoadingLimits(validable, permanentLimit, temporaryLimits.values(), validationLevel, reportNode);
     }
 
     private Optional<LoadingLimits.TemporaryLimit> getTemporaryLimitByName(String name) {
@@ -185,4 +187,5 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     public String getOwnerId() {
         return ownerId;
     }
+
 }

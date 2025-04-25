@@ -10,19 +10,21 @@ package com.powsybl.iidm.network;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.tools.ExporterMockWithReportNode;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,9 +33,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ExportersTest extends AbstractConvertersTest {
-
-    private static final String FOO_TST = "foo.tst";
-    private static final String WORK_FOO_TST = "/work/" + FOO_TST;
 
     private final Exporter testExporter = new TestExporter();
     private final ExportersLoader loader = new ExportersLoaderList(testExporter);
@@ -60,23 +59,38 @@ class ExportersTest extends AbstractConvertersTest {
 
     @Test
     void createDataSource1() throws IOException {
-        Files.createFile(fileSystem.getPath(WORK_FOO_TST));
-        DataSource dataSource = Exporters.createDataSource(fileSystem.getPath("/work/"), "foo", null);
+        Files.createFile(path);
+        DataSource dataSource = new DirectoryDataSource(fileSystem.getPath(WORK_FOLDER), FOO_BASENAME);
         assertTrue(dataSource.exists(FOO_TST));
     }
 
     @Test
     void createDataSource2() throws IOException {
-        Files.createFile(fileSystem.getPath(WORK_FOO_TST));
+        Files.createFile(path);
         DataSource dataSource = Exporters.createDataSource(path, null);
         assertTrue(dataSource.exists(FOO_TST));
     }
 
     @Test
     void createDataSource3() throws IOException {
-        Files.createFile(fileSystem.getPath(WORK_FOO_TST));
+        Files.createFile(path);
         DataSource dataSource = Exporters.createDataSource(path);
         assertTrue(dataSource.exists(FOO_TST));
+    }
+
+    @Test
+    void createDataSourceFolder() throws IOException {
+        Path dataFolder = fileSystem.getPath(WORK_FOLDER).resolve("dataFolder");
+        Files.createDirectories(dataFolder);
+        Files.createFile(dataFolder.resolve(FOO_TST));
+        DataSource dataSource = Exporters.createDataSource(dataFolder, null);
+        assertTrue(dataSource.exists(FOO_TST));
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_suffix", "txt", false), StandardCharsets.UTF_8)) {
+            writer.write("foo");
+        }
+        Path outFile = dataFolder.resolve("dataFolder_suffix.txt");
+        assertTrue(Files.exists(outFile));
+        assertEquals(List.of("foo"), Files.readAllLines(outFile));
     }
 
     @Test
@@ -120,11 +134,14 @@ class ExportersTest extends AbstractConvertersTest {
     void exportWithReportNode() throws Exception {
         Exporter testExporter = new ExporterMockWithReportNode();
         DataSource dataSource = Exporters.createDataSource(path);
-        ReportNode rootReportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing exporter reporting").build();
+        ReportNode rootReportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTest")
+                .build();
         testExporter.export(null, null, dataSource, rootReportNode);
         Optional<ReportNode> reportNode = rootReportNode.getChildren().stream().findFirst();
         assertTrue(reportNode.isPresent());
-        assertTrue(reportNode.get() instanceof ReportNode);
+        assertInstanceOf(ReportNode.class, reportNode.get());
 
         StringWriter sw = new StringWriter();
         rootReportNode.print(sw);

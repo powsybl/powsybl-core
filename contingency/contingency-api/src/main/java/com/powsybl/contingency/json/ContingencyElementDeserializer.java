@@ -32,14 +32,14 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
         ContingencyElementType type = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "id" -> id = parser.nextTextValue();
                 case "voltageLevelId" -> voltageLevelId = parser.nextTextValue();
                 case "type" -> {
                     parser.nextToken();
                     type = JsonUtil.readValue(ctx, parser, ContingencyElementType.class);
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
 
@@ -56,9 +56,10 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case TWO_WINDINGS_TRANSFORMER -> new TwoWindingsTransformerContingency(id, voltageLevelId);
                 case THREE_WINDINGS_TRANSFORMER -> new ThreeWindingsTransformerContingency(id);
                 case LOAD -> new LoadContingency(id);
+                case SWITCH -> new SwitchContingency(id);
+                case BATTERY -> new BatteryContingency(id);
                 case BUS -> new BusContingency(id);
                 case TIE_LINE -> new TieLineContingency(id, voltageLevelId);
-                default -> throw new IllegalStateException("Unexpected ContingencyElementType value: " + type);
             };
         }
 

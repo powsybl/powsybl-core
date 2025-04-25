@@ -8,9 +8,13 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.VariantManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -119,7 +123,10 @@ class ShortCircuitAnalysisTest {
 
     @Test
     void testWithReportNode() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testReportShortCircuit", "Test mock short circuit").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testReportShortCircuit")
+                .build();
         ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters, reportNode);
         assertNotNull(result);
         List<ReportNode> children = reportNode.getChildren();
@@ -151,5 +158,26 @@ class ShortCircuitAnalysisTest {
                 .setInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED);
         Exception e0 = assertThrows(PowsyblException.class, () -> ShortCircuitAnalysis.run(network, faults, invalidShortCircuitParameter, computationManager, faultParameters));
         assertEquals("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.", e0.getMessage());
+    }
+
+    @Test
+    void testWithFeederResultsWithoutSide() {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults(null);
+        MagnitudeFeederResult feederResult = (MagnitudeFeederResult) result.getFaultResult("id").getFeederResults().get(0);
+        assertNotNull(feederResult);
+        assertEquals("connectableId", feederResult.getConnectableId());
+        assertEquals(1, feederResult.getCurrent());
+        assertNull(feederResult.getSide());
+    }
+
+    @Test
+    void testWithFeederResultsWithSide() {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults(ThreeSides.ONE);
+        MagnitudeFeederResult feederResult = (MagnitudeFeederResult) result.getFaultResult("id").getFeederResults().get(0);
+        assertNotNull(feederResult);
+        assertEquals("connectableId", feederResult.getConnectableId());
+        assertEquals(1, feederResult.getCurrent());
+        assertEquals(ThreeSides.ONE, feederResult.getSide());
+        assertEquals(TwoSides.ONE, feederResult.getSideAsTwoSides());
     }
 }

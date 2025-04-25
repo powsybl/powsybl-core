@@ -13,6 +13,7 @@ import com.powsybl.commons.report.ReportNode;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -27,6 +28,11 @@ public class TestImporter implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return List.of("tst");
+    }
+
+    @Override
     public String getComment() {
         return "Dummy importer to test Importers";
     }
@@ -34,7 +40,7 @@ public class TestImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            return dataSource == null || dataSource.exists(null, "tst");
+            return dataSource == null || dataSource.isDataExtension("tst") && dataSource.exists(null, "tst");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -44,7 +50,7 @@ public class TestImporter implements Importer {
     public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
         if (reportNode != null) {
             reportNode.newReportNode()
-                    .withMessageTemplate("test", "Import model ${model}")
+                    .withMessageTemplate("testImportModel")
                     .withUntypedValue("model", "eurostagTutorialExample1")
                     .add();
         }

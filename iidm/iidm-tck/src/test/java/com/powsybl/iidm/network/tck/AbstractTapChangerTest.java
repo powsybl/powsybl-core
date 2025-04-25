@@ -16,8 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 public abstract class AbstractTapChangerTest {
@@ -97,7 +95,12 @@ public abstract class AbstractTapChangerTest {
         assertEquals(1.0, neutralStep.getRho(), 0.0);
         phaseTapChanger.setTapPosition(0);
         assertEquals(0, phaseTapChanger.getTapPosition());
-        assertSame(phaseTapChanger.getCurrentStep(), phaseTapChanger.getStep(0));
+        assertEquals(phaseTapChanger.getCurrentStep().getR(), phaseTapChanger.getStep(0).getR(), 0.0);
+        assertEquals(phaseTapChanger.getCurrentStep().getX(), phaseTapChanger.getStep(0).getX(), 0.0);
+        assertEquals(phaseTapChanger.getCurrentStep().getG(), phaseTapChanger.getStep(0).getG(), 0.0);
+        assertEquals(phaseTapChanger.getCurrentStep().getB(), phaseTapChanger.getStep(0).getB(), 0.0);
+        assertEquals(phaseTapChanger.getCurrentStep().getAlpha(), phaseTapChanger.getStep(0).getAlpha(), 0.0);
+        assertEquals(phaseTapChanger.getCurrentStep().getRho(), phaseTapChanger.getStep(0).getRho(), 0.0);
         phaseTapChanger.setRegulationValue(5.0);
         assertEquals(5.0, phaseTapChanger.getRegulationValue(), 0.0);
         phaseTapChanger.setTargetDeadband(0.5);
@@ -159,7 +162,7 @@ public abstract class AbstractTapChangerTest {
         currentStep.setB(5.0);
         currentStep.setAlpha(6.0);
         currentStep.setRho(7.0);
-        verify(mockedListener, times(6)).onUpdate(any(Identifiable.class), anyString(), any(), any());
+        verify(mockedListener, times(6)).onUpdate(any(Identifiable.class), anyString(), nullable(String.class), any(), any());
         // Remove observer
         network.removeListener(mockedListener);
         // Cancel modification
@@ -197,6 +200,92 @@ public abstract class AbstractTapChangerTest {
         assertEquals(0.0, step.getG(), 0.0);
         assertEquals(0.0, step.getB(), 0.0);
         assertEquals(1.0, step.getRho(), 0.0);
+    }
+
+    @Test
+    public void testPhaseTapChangerStepsReplacer() {
+        PhaseTapChanger phaseTapChanger = twt.newPhaseTapChanger()
+                .setTapPosition(1)
+                .setLowTapPosition(0)
+                .setRegulating(true)
+                .setTargetDeadband(1.0)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulationValue(10.0)
+                .setRegulationTerminal(terminal)
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setAlpha(0.0)
+                .setRho(1.0)
+                .endStep()
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setAlpha(5.0)
+                .setRho(6.0)
+                .endStep()
+                .add();
+        assertEquals(2, phaseTapChanger.getStepCount());
+        assertEquals(2, phaseTapChanger.getAllSteps().size());
+        assertEquals(0, phaseTapChanger.getLowTapPosition());
+        assertEquals(1, phaseTapChanger.getHighTapPosition());
+        assertEquals(0, phaseTapChanger.getNeutralPosition().orElseThrow());
+
+        //check neutral step attributes
+        PhaseTapChangerStep neutralStep = phaseTapChanger.getNeutralStep().orElseThrow();
+        assertEquals(0, neutralStep.getAlpha(), 0.0);
+        assertEquals(1, neutralStep.getRho(), 0.0);
+        assertEquals(1, neutralStep.getR(), 0.0);
+        assertEquals(2, neutralStep.getX(), 0.0);
+        assertEquals(3, neutralStep.getG(), 0.0);
+        assertEquals(4, neutralStep.getB(), 0.0);
+
+        //replace steps
+        phaseTapChanger.stepsReplacer()
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setAlpha(5.0)
+                .setRho(6.0)
+                .endStep()
+                .beginStep()
+                .setR(5.0)
+                .setX(6.0)
+                .setG(7.0)
+                .setB(8.0)
+                .setAlpha(6.0)
+                .setRho(7.0)
+                .endStep()
+                .beginStep()
+                .setR(9.0)
+                .setX(10.0)
+                .setG(11.0)
+                .setB(12.0)
+                .setAlpha(0.0)
+                .setRho(1.0)
+                .endStep()
+                .replaceSteps();
+
+        assertEquals(3, phaseTapChanger.getStepCount());
+        assertEquals(3, phaseTapChanger.getAllSteps().size());
+        assertEquals(0, phaseTapChanger.getLowTapPosition());
+        assertEquals(2, phaseTapChanger.getHighTapPosition());
+        assertEquals(2, phaseTapChanger.getNeutralPosition().orElseThrow());
+
+        //check neutral step attributes
+        neutralStep = phaseTapChanger.getNeutralStep().orElseThrow();
+        assertEquals(0, neutralStep.getAlpha(), 0.0);
+        assertEquals(1, neutralStep.getRho(), 0.0);
+        assertEquals(9, neutralStep.getR(), 0.0);
+        assertEquals(10, neutralStep.getX(), 0.0);
+        assertEquals(11, neutralStep.getG(), 0.0);
+        assertEquals(12, neutralStep.getB(), 0.0);
     }
 
     @Test
@@ -376,15 +465,15 @@ public abstract class AbstractTapChangerTest {
 
     @Test
     public void invalidPhaseTapChangerWithoutSteps() {
-        ValidationException e = assertThrows(ValidationException.class, () -> twt.newPhaseTapChanger()
+        PhaseTapChangerAdder phaseTapChangerAdder = twt.newPhaseTapChanger()
                 .setTapPosition(1)
                 .setLowTapPosition(0)
                 .setRegulating(true)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
                 .setRegulationValue(10.0)
-                .setRegulationTerminal(terminal)
-            .add());
-        assertTrue(e.getMessage().contains("phase tap changer shall have at least one step"));
+                .setRegulationTerminal(terminal);
+        ValidationException e = assertThrows(ValidationException.class, phaseTapChangerAdder::add);
+        assertEquals("2 windings transformer 'twt': phase tap changer should have at least one step", e.getMessage());
     }
 
     @Test
@@ -514,6 +603,85 @@ public abstract class AbstractTapChangerTest {
         assertEquals(0.0, step.getX(), 0.0);
         assertEquals(0.0, step.getG(), 0.0);
         assertEquals(0.0, step.getB(), 0.0);
+    }
+
+    @Test
+    public void testRatioTapChangerStepsReplacer() {
+        RatioTapChanger ratioTapChanger = twt.newRatioTapChanger()
+                .setTapPosition(1)
+                .setLowTapPosition(0)
+                .setRegulating(true)
+                .setTargetDeadband(1.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER)
+                .setRegulationValue(10.0)
+                .setRegulationTerminal(terminal)
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRho(1.0)
+                .endStep()
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRho(6.0)
+                .endStep()
+                .add();
+        assertEquals(2, ratioTapChanger.getStepCount());
+        assertEquals(2, ratioTapChanger.getAllSteps().size());
+        assertEquals(0, ratioTapChanger.getLowTapPosition());
+        assertEquals(1, ratioTapChanger.getHighTapPosition());
+        assertEquals(0, ratioTapChanger.getNeutralPosition().orElseThrow());
+
+        //check neutral step attributes
+        RatioTapChangerStep neutralStep = ratioTapChanger.getNeutralStep().orElseThrow();
+        assertEquals(1, neutralStep.getRho());
+        assertEquals(1, neutralStep.getR());
+        assertEquals(2, neutralStep.getX());
+        assertEquals(3, neutralStep.getG());
+        assertEquals(4, neutralStep.getB());
+
+        //replace steps
+        ratioTapChanger.stepsReplacer()
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRho(6.0)
+                .endStep()
+                .beginStep()
+                .setR(5.0)
+                .setX(6.0)
+                .setG(7.0)
+                .setB(8.0)
+                .setRho(7.0)
+                .endStep()
+                .beginStep()
+                .setR(9.0)
+                .setX(10.0)
+                .setG(11.0)
+                .setB(12.0)
+                .setRho(1.0)
+                .endStep()
+                .replaceSteps();
+
+        assertEquals(3, ratioTapChanger.getStepCount());
+        assertEquals(3, ratioTapChanger.getAllSteps().size());
+        assertEquals(0, ratioTapChanger.getLowTapPosition());
+        assertEquals(2, ratioTapChanger.getHighTapPosition());
+        assertEquals(2, ratioTapChanger.getNeutralPosition().orElseThrow());
+
+        //check neutral step attributes
+        neutralStep = ratioTapChanger.getNeutralStep().orElseThrow();
+        assertEquals(1, neutralStep.getRho());
+        assertEquals(9, neutralStep.getR());
+        assertEquals(10, neutralStep.getX());
+        assertEquals(11, neutralStep.getG());
+        assertEquals(12, neutralStep.getB());
     }
 
     @Test

@@ -36,16 +36,16 @@ public class LinePositionImporter {
         this.cgmesGLModel = Objects.requireNonNull(cgmesGLModel);
     }
 
-    public void importPosition() {
+    public void importPositions() {
         Map<Identifiable<?>, SortedMap<Integer, Coordinate>> lineOrDanglingLineCoordinates = new HashMap<>();
 
-        cgmesGLModel.getLinesPositions().forEach(propertyBag -> importPosition(propertyBag, lineOrDanglingLineCoordinates));
+        cgmesGLModel.getLinesPositions().forEach(propertyBag -> importPositions(propertyBag, lineOrDanglingLineCoordinates));
 
         lineOrDanglingLineCoordinates.forEach((lOrDl, coordinates) ->
                 lOrDl.newExtension(LinePositionAdder.class).withCoordinates(coordinates.values().stream().toList()).add());
     }
 
-    private void importPosition(PropertyBag linePositionData, Map<Identifiable<?>, SortedMap<Integer, Coordinate>> lineOrDanglingLineCoordinates) {
+    private void importPositions(PropertyBag linePositionData, Map<Identifiable<?>, SortedMap<Integer, Coordinate>> lineOrDanglingLineCoordinates) {
         Objects.requireNonNull(linePositionData);
         String crsUrn = linePositionData.getId("crsUrn");
         if (!CgmesGLUtils.checkCoordinateSystem(crsUrn)) {

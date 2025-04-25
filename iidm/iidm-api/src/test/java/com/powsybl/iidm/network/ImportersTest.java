@@ -9,6 +9,9 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.computation.ComputationManager;
@@ -91,7 +94,10 @@ class ImportersTest extends AbstractConvertersTest {
     @Test
     void getImporterWithImportConfigAndReportNode() throws IOException {
         Importer importer = Importer.find(loader, TEST_FORMAT, computationManager, importConfigWithPostProcessor);
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testFunctionalLog", "testFunctionalLogs").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testFunctionalLog")
+                .build();
         assertNotNull(importer);
         Network network = importer.importData(null, networkFactory, null, reportNode);
         assertNotNull(network);
@@ -167,7 +173,7 @@ class ImportersTest extends AbstractConvertersTest {
 
     @Test
     void createDataSource1() throws IOException {
-        DataSource dataSource = DataSource.fromPath(fileSystem.getPath(WORK_DIR), "foo");
+        DataSource dataSource = new DirectoryDataSource(fileSystem.getPath(WORK_DIR), "foo");
         assertTrue(dataSource.exists(FOO_TST));
     }
 

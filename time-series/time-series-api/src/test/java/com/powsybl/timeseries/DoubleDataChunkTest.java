@@ -9,7 +9,6 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.jupiter.api.Test;
@@ -22,9 +21,16 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -32,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class DoubleDataChunkTest {
 
     @Test
-    void baseTest() throws IOException {
+    void baseTest() {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(1, new double[] {1d, 2d, 3d});
         assertEquals(1, chunk.getOffset());
         assertEquals(3, chunk.getLength());
@@ -54,17 +60,17 @@ class DoubleDataChunkTest {
         assertEquals(jsonRef, JsonUtil.toJson(chunk::writeJson));
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:45:00Z"),
                                                                      Duration.ofMinutes(15));
-        assertEquals(ImmutableList.of(new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), 1d),
-                                      new DoublePoint(2, Instant.parse("2015-01-01T00:30:00Z").toEpochMilli(), 2d),
-                                      new DoublePoint(3, Instant.parse("2015-01-01T00:45:00Z").toEpochMilli(), 3d)),
-                chunk.stream(index).collect(Collectors.toList()));
+        assertEquals(List.of(new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z"), 1d),
+                                      new DoublePoint(2, Instant.parse("2015-01-01T00:30:00Z"), 2d),
+                                      new DoublePoint(3, Instant.parse("2015-01-01T00:45:00Z"), 3d)),
+                chunk.stream(index).toList());
     }
 
     @Test
     void compressTest() throws IOException {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(1, new double[] {1d, 2d, 2d, 2d, 2d, 3d});
         DoubleDataChunk maybeCompressedChunk = chunk.tryToCompress();
-        assertTrue(maybeCompressedChunk instanceof CompressedDoubleDataChunk);
+        assertInstanceOf(CompressedDoubleDataChunk.class, maybeCompressedChunk);
         CompressedDoubleDataChunk compressedChunk = (CompressedDoubleDataChunk) maybeCompressedChunk;
         assertEquals(1, compressedChunk.getOffset());
         assertEquals(6, compressedChunk.getLength());
@@ -101,15 +107,15 @@ class DoubleDataChunkTest {
         assertEquals(compressedChunk, chunks.get(1));
 
         // check base class (DataChunk) deserializer
-        assertTrue(objectMapper.readValue(objectMapper.writeValueAsString(chunk), DataChunk.class) instanceof DoubleDataChunk);
+        assertInstanceOf(DoubleDataChunk.class, objectMapper.readValue(objectMapper.writeValueAsString(chunk), DataChunk.class));
 
         // stream test
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:30:00Z"),
                                                                      Duration.ofMinutes(15));
-        assertEquals(ImmutableList.of(new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z").toEpochMilli(), 1d),
-                                      new DoublePoint(2, Instant.parse("2015-01-01T00:30:00Z").toEpochMilli(), 2d),
-                                      new DoublePoint(6, Instant.parse("2015-01-01T01:30:00Z").toEpochMilli(), 3d)),
-                     compressedChunk.stream(index).collect(Collectors.toList()));
+        assertEquals(List.of(new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z"), 1d),
+                                      new DoublePoint(2, Instant.parse("2015-01-01T00:30:00Z"), 2d),
+                                      new DoublePoint(6, Instant.parse("2015-01-01T01:30:00Z"), 3d)),
+                     compressedChunk.stream(index).toList());
     }
 
     @Test
@@ -155,10 +161,10 @@ class DoubleDataChunkTest {
         assertNotNull(split.getChunk1());
         assertNotNull(split.getChunk2());
         assertEquals(1, split.getChunk1().getOffset());
-        assertTrue(split.getChunk1() instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, split.getChunk1());
         assertArrayEquals(new double[] {1d}, ((UncompressedDoubleDataChunk) split.getChunk1()).getValues(), 0d);
         assertEquals(2, split.getChunk2().getOffset());
-        assertTrue(split.getChunk2() instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, split.getChunk2());
         assertArrayEquals(new double[] {2d, 3d}, ((UncompressedDoubleDataChunk) split.getChunk2()).getValues(), 0d);
     }
 
@@ -182,12 +188,12 @@ class DoubleDataChunkTest {
         assertNotNull(split.getChunk1());
         assertNotNull(split.getChunk2());
         assertEquals(1, split.getChunk1().getOffset());
-        assertTrue(split.getChunk1() instanceof CompressedDoubleDataChunk);
+        assertInstanceOf(CompressedDoubleDataChunk.class, split.getChunk1());
         assertEquals(3, ((CompressedDoubleDataChunk) split.getChunk1()).getUncompressedLength());
         assertArrayEquals(new double[] {1d, 2d}, ((CompressedDoubleDataChunk) split.getChunk1()).getStepValues(), 0d);
         assertArrayEquals(new int[] {2, 1}, ((CompressedDoubleDataChunk) split.getChunk1()).getStepLengths());
         assertEquals(4, split.getChunk2().getOffset());
-        assertTrue(split.getChunk2() instanceof CompressedDoubleDataChunk);
+        assertInstanceOf(CompressedDoubleDataChunk.class, split.getChunk2());
         assertEquals(2, ((CompressedDoubleDataChunk) split.getChunk2()).getUncompressedLength());
         assertArrayEquals(new double[] {2d}, ((CompressedDoubleDataChunk) split.getChunk2()).getStepValues(), 0d);
         assertArrayEquals(new int[] {2}, ((CompressedDoubleDataChunk) split.getChunk2()).getStepLengths());
@@ -202,7 +208,7 @@ class DoubleDataChunkTest {
         //Merge chunk1 + chunk2
         DoubleDataChunk merge = chunk1.append(chunk2);
         assertNotNull(merge);
-        assertTrue(merge instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, merge);
         assertEquals(1, merge.getOffset());
         assertArrayEquals(new double[] {1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, ((UncompressedDoubleDataChunk) merge).getValues(), 0d);
 
@@ -224,7 +230,7 @@ class DoubleDataChunkTest {
         //Merge chunk1 + chunk2
         DoubleDataChunk merge = chunk1.append(chunk2);
         assertNotNull(merge);
-        assertTrue(merge instanceof CompressedDoubleDataChunk);
+        assertInstanceOf(CompressedDoubleDataChunk.class, merge);
         assertEquals(1, merge.getOffset());
         assertEquals(10, merge.getLength());
         assertArrayEquals(new double[] {1d, 2d, 3d, 4d}, ((CompressedDoubleDataChunk) merge).getStepValues(), 0d);
@@ -233,7 +239,7 @@ class DoubleDataChunkTest {
         //Merge chunk2 + chunk3
         merge = chunk2.append(chunk3);
         assertNotNull(merge);
-        assertTrue(merge instanceof CompressedDoubleDataChunk);
+        assertInstanceOf(CompressedDoubleDataChunk.class, merge);
         assertEquals(6, merge.getOffset());
         assertEquals(8, merge.getLength());
         assertArrayEquals(new double[] {3d, 4d, 5d}, ((CompressedDoubleDataChunk) merge).getStepValues(), 0d);
@@ -268,7 +274,7 @@ class DoubleDataChunkTest {
         });
         assertEquals(1, doubleChunks.size());
         assertEquals(0, stringChunks.size());
-        assertTrue(doubleChunks.get(0) instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, doubleChunks.get(0));
         assertArrayEquals(new double[] {1d, Double.NaN, Double.NaN}, ((UncompressedDoubleDataChunk) doubleChunks.get(0)).getValues(), 0d);
     }
 }

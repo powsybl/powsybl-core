@@ -36,7 +36,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.conversion.CgmesReports.importedCgmesNetworkReport;
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -141,131 +140,177 @@ public class Conversion {
     }
 
     public Network convert(ReportNode reportNode) {
+        // Check presence of report node for functional logs and EQ profile in the data source
         Objects.requireNonNull(reportNode);
-
-        // apply pre-processors before starting the conversion
-        for (CgmesImportPreProcessor preProcessor : preProcessors) {
-            preProcessor.process(cgmes);
-        }
-
-        if (LOG.isTraceEnabled() && cgmes.baseVoltages() != null) {
-            LOG.trace("{}{}{}", "BaseVoltages", System.lineSeparator(), cgmes.baseVoltages().tabulate());
-        }
-        // Check that at least we have an EquipmentCore profile
         if (!cgmes.hasEquipmentCore()) {
             throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
+
+        // Apply preprocessors, which mainly create missing containers
+        ReportNode preProcessorsNode = CgmesReports.applyingPreprocessorsReport(reportNode);
+        for (CgmesImportPreProcessor preProcessor : preProcessors) {
+            CgmesReports.applyingProcessorReport(preProcessorsNode, preProcessor.getName());
+            preProcessor.process(cgmes);
+        }
+        if (LOG.isTraceEnabled() && cgmes.baseVoltages() != null) {
+            LOG.trace("{}{}{}", "BaseVoltages", System.lineSeparator(), cgmes.baseVoltages().tabulate());
+        }
+
+        // Create base network with metadata information
         Network network = createNetwork();
         Context context = createContext(network, reportNode);
         assignNetworkProperties(context);
         addMetadataModels(network, context);
         addCimCharacteristics(network);
+
+        // Build mappings
+        context.pushReportNode(CgmesReports.buildingMappingsReport(reportNode));
+        context.nodeContainerMapping().build();
         BaseVoltageMappingAdder bvAdder = network.newExtension(BaseVoltageMappingAdder.class);
         cgmes.baseVoltages().forEach(bv -> bvAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
         bvAdder.add();
-
-        Function<PropertyBag, AbstractObjectConversion> convf;
-
         cgmes.computedTerminals().forEach(t -> context.terminalMapping().buildTopologicalNodeCgmesTerminalsMapping(t));
         cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().cacheRegulatingControls(p));
+        context.popReportNode();
 
-        // First build all the containers
-        convert(cgmes.substations(), s -> new SubstationConversion(s, context));
-        convert(cgmes.voltageLevels(), vl -> new VoltageLevelConversion(vl, context));
+        // Convert containers
+        convert(cgmes.substations(), CgmesNames.SUBSTATION, context);
+        convert(cgmes.voltageLevels(), CgmesNames.VOLTAGE_LEVEL, context);
         createFictitiousVoltageLevelsForLineContainers(context);
 
-        PropertyBags nodes = context.nodeBreaker()
-                ? cgmes.connectivityNodes()
-                : cgmes.topologicalNodes();
-        String nodeTypeName = context.nodeBreaker()
-                ? "ConnectivityNode"
-                : "TopologicalNode";
-        convert(nodes, n -> new NodeConversion(nodeTypeName, n, context));
+        // Convert topology
+        PropertyBags nodes = context.nodeBreaker() ? cgmes.connectivityNodes() : cgmes.topologicalNodes();
+        if (context.nodeBreaker()) {
+            convert(nodes, CgmesNames.CONNECTIVITY_NODE, context);
+        } else {
+            convert(nodes, CgmesNames.TOPOLOGICAL_NODE, context);
+        }
         if (!context.config().createBusbarSectionForEveryConnectivityNode()) {
-            convert(cgmes.busBarSections(), bbs -> new BusbarSectionConversion(bbs, context));
+            convert(cgmes.busBarSections(), CgmesNames.BUSBAR_SECTION, context);
         }
 
-        convert(cgmes.grounds(), g -> new GroundConversion(g, context));
-        convert(cgmes.energyConsumers(), ec -> new EnergyConsumerConversion(ec, context));
-        convert(cgmes.energySources(), es -> new EnergySourceConversion(es, context));
-        convf = eqi -> new EquivalentInjectionConversion(eqi, context);
-        convert(cgmes.equivalentInjections(), convf);
-        convf = eni -> new ExternalNetworkInjectionConversion(eni, context);
-        convert(cgmes.externalNetworkInjections(), convf);
-        convert(cgmes.shuntCompensators(), sh -> new ShuntConversion(sh, context));
-        convert(cgmes.equivalentShunts(), es -> new EquivalentShuntConversion(es, context));
-        convf = svc -> new StaticVarCompensatorConversion(svc, context);
-        convert(cgmes.staticVarCompensators(), convf);
-        convf = asm -> new AsynchronousMachineConversion(asm, context);
-        convert(cgmes.asynchronousMachines(), convf);
-        convert(cgmes.synchronousMachinesGenerators(), sm -> new SynchronousMachineConversion(sm, context));
-        convert(cgmes.synchronousMachinesCondensers(), sm -> new SynchronousMachineConversion(sm, context));
+        // Convert single terminal equipments
+        convert(cgmes.grounds(), CgmesNames.GROUND, context);
+        convert(cgmes.energyConsumers(), CgmesNames.ENERGY_CONSUMER, context);
+        convert(cgmes.energySources(), CgmesNames.ENERGY_SOURCE, context);
+        convert(cgmes.equivalentInjections(), CgmesNames.EQUIVALENT_INJECTION, context);
+        convert(cgmes.externalNetworkInjections(), CgmesNames.EXTERNAL_NETWORK_INJECTION, context);
+        convert(cgmes.shuntCompensators(), CgmesNames.SHUNT_COMPENSATOR, context);
+        convert(cgmes.equivalentShunts(), CgmesNames.EQUIVALENT_SHUNT, context);
+        convert(cgmes.staticVarCompensators(), CgmesNames.STATIC_VAR_COMPENSATOR, context);
+        convert(cgmes.asynchronousMachines(), CgmesNames.ASYNCHRONOUS_MACHINE, context);
+        convert(cgmes.synchronousMachinesAll(), CgmesNames.SYNCHRONOUS_MACHINE, context);
 
+        // Convert multiple terminals equipments
         // We will delay the conversion of some lines/switches that have an end at boundary
         // They have to be processed after all lines/switches have been reviewed
         // FIXME(Luma) store delayedBoundaryNodes in context
         Set<String> delayedBoundaryNodes = new HashSet<>();
         convertSwitches(context, delayedBoundaryNodes);
         convertACLineSegmentsToLines(context, delayedBoundaryNodes);
-
         convertEquivalentBranchesToLines(context, delayedBoundaryNodes);
-        convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
-
+        convert(cgmes.seriesCompensators(), CgmesNames.SERIES_COMPENSATOR, context);
         convertTransformers(context, delayedBoundaryNodes);
+        context.pushReportNode(CgmesReports.convertingElementTypeReport(reportNode, "equipments at boundaries"));
         delayedBoundaryNodes.forEach(node -> convertEquipmentAtBoundaryNode(context, node));
+        context.popReportNode();
 
+        // Convert DC equipments, limits, SV injections, control areas, regulating controls
+        context.pushReportNode(CgmesReports.convertingElementTypeReport(reportNode, "DC network"));
         CgmesDcConversion cgmesDcConversion = new CgmesDcConversion(cgmes, context);
         cgmesDcConversion.convert();
+        clearUnattachedHvdcConverterStations(network, context);
+        context.popReportNode();
 
-        convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
+        convert(cgmes.operationalLimits(), CgmesNames.OPERATIONAL_LIMIT, context);
         context.loadingLimitsMapping().addAll();
+        setSelectedOperationalLimitsGroup(context);
 
         if (config.convertSvInjections()) {
-            convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
+            convert(cgmes.svInjections(), CgmesNames.SV_INJECTION, context);
         }
-
-        clearUnattachedHvdcConverterStations(network, context); // in case of faulty CGMES files, remove HVDC Converter Stations without HVDC lines
-        voltageAngles(nodes, context);
 
         if (config.importControlAreas()) {
-            network.newExtension(CgmesControlAreasAdder.class).add();
-            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-            cgmes.controlAreas().forEach(ca -> createControlArea(cgmesControlAreas, ca));
-            cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf));
-            cgmesControlAreas.cleanIfEmpty();
+            convert(cgmes.controlAreas(), CgmesNames.CONTROL_AREA, context);
+            convert(cgmes.tieFlows(), CgmesNames.TIE_FLOW, context);
         }
 
-        // set all regulating controls
+        context.pushReportNode(CgmesReports.convertingElementTypeReport(reportNode, CgmesNames.REGULATING_CONTROL));
         context.regulatingControlMapping().setAllRegulatingControls(network);
-        if (context.config().debugTopology()) {
-            debugTopology(context);
-        }
+        context.popReportNode();
 
-        if (config.storeCgmesModelAsNetworkExtension()) {
-            // Store a reference to the original CGMES model inside the IIDM network
-            network.newExtension(CgmesModelExtensionAdder.class).withModel(cgmes).add();
-        }
-
-        // apply post-processors
+        // Fix dangling lines issues
+        context.pushReportNode(CgmesReports.fixingDanglingLinesIssuesReport(reportNode));
         handleDangingLineDisconnectedAtBoundary(network, context);
         adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(network, context);
-        for (CgmesImportPostProcessor postProcessor : postProcessors) {
-            // FIXME generic cgmes models may not have an underlying triplestore
-            // TODO maybe pass the properties to the post processors
-            postProcessor.process(network, cgmes.tripleStore());
-        }
+        context.popReportNode();
 
-        // Complete Voltages and angles in starBus as properties
-        // Complete Voltages and angles in boundary buses
+        // Set voltages and angles
+        context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(reportNode));
+        voltageAngles(nodes, context);
         completeVoltagesAndAngles(network);
+        context.popReportNode();
 
+        // Save/store data for debug or external validation
+        if (config.debugTopology()) {
+            debugTopology(context);
+        }
+        if (config.storeCgmesModelAsNetworkExtension()) {
+            network.newExtension(CgmesModelExtensionAdder.class).withModel(cgmes).add();
+        }
         if (config.storeCgmesConversionContextAsNetworkExtension()) {
-            // Store the terminal mapping in an extension for external validation
             network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();
         }
 
-        importedCgmesNetworkReport(context.getReportNode(), network.getId());
+        ReportNode postProcessorsNode = CgmesReports.applyingPostprocessorsReport(reportNode);
+        for (CgmesImportPostProcessor postProcessor : postProcessors) {
+            // FIXME generic cgmes models may not have an underlying triplestore
+            // TODO maybe pass the properties to the post processors
+            CgmesReports.applyingProcessorReport(postProcessorsNode, postProcessor.getName());
+            postProcessor.process(network, cgmes.tripleStore());
+        }
+
+        CgmesReports.importedCgmesNetworkReport(reportNode, network.getId());
         return network;
+    }
+
+    /**
+     * Retrieve the Collection of OperationalLimitGroups for identifiable that have flow limits
+     * (branch, dangling line, 3w-transformer).
+     * If the collection has only one element, it gets to be the identifiable's selectedGroup.
+     * If there is more than one element in the collection, don't set any as selected.
+     * @param context The conversion's Context.
+     */
+    private void setSelectedOperationalLimitsGroup(Context context) {
+        // Set selected limits group for branches
+        context.network().getBranchStream().map(b -> (Branch<?>) b).forEach(branch -> {
+            // Side 1
+            Collection<OperationalLimitsGroup> limitsHolder1 = branch.getOperationalLimitsGroups1();
+            if (limitsHolder1.size() == 1) {
+                branch.setSelectedOperationalLimitsGroup1(limitsHolder1.iterator().next().getId());
+            }
+            // Side 2
+            Collection<OperationalLimitsGroup> limitsHolder2 = branch.getOperationalLimitsGroups2();
+            if (limitsHolder2.size() == 1) {
+                branch.setSelectedOperationalLimitsGroup2(limitsHolder2.iterator().next().getId());
+            }
+        });
+
+        // Set selected limits group for Dangling lines
+        context.network().getDanglingLineStream().forEach(dl -> {
+            Collection<OperationalLimitsGroup> limitsHolder = dl.getOperationalLimitsGroups();
+            if (limitsHolder.size() == 1) {
+                dl.setSelectedOperationalLimitsGroup(limitsHolder.iterator().next().getId());
+            }
+        });
+
+        // Set selected limits group for 3w transformers legs
+        context.network().getThreeWindingsTransformerStream().flatMap(ThreeWindingsTransformer::getLegStream).forEach(leg -> {
+            Collection<OperationalLimitsGroup> limitsHolder = leg.getOperationalLimitsGroups();
+            if (limitsHolder.size() == 1) {
+                leg.setSelectedOperationalLimitsGroup(limitsHolder.iterator().next().getId());
+            }
+        });
     }
 
     private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {
@@ -351,52 +396,41 @@ public class Conversion {
         network.getTieLines().forEach(tieLine -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()));
     }
 
-    private static void createControlArea(CgmesControlAreas cgmesControlAreas, PropertyBag ca) {
-        String controlAreaId = ca.getId("ControlArea");
-        cgmesControlAreas.newCgmesControlArea()
-                .setId(controlAreaId)
-                .setName(ca.getLocal("name"))
-                .setEnergyIdentificationCodeEic(ca.getLocal("energyIdentCodeEic"))
-                .setNetInterchange(ca.asDouble("netInterchange", Double.NaN))
-                .setPTolerance(ca.asDouble("pTolerance", Double.NaN))
-                .add();
-    }
-
-    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
-        String controlAreaId = tf.getId("ControlArea");
-        CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
-        if (cgmesControlArea == null) {
-            context.ignored("Tie Flow", String.format("Tie Flow %s refers to a non-existing control area", tf.getId("TieFlow")));
-            return;
-        }
-        String terminalId = tf.getId("terminal");
-        Boundary boundary = context.terminalMapping().findBoundary(terminalId, context.cgmes());
-        if (boundary != null) {
-            cgmesControlArea.add(boundary);
-            return;
-        }
-        RegulatingTerminalMapper.mapForTieFlow(terminalId, context).ifPresent(cgmesControlArea::add);
-    }
-
-    private void convert(
-            PropertyBags elements,
-            Function<PropertyBag, AbstractObjectConversion> f) {
-        String logTitle = null;
+    private void convert(PropertyBags elements, String elementType, Context context) {
+        context.pushReportNode(CgmesReports.convertingElementTypeReport(context.getReportNode(), elementType));
         for (PropertyBag element : elements) {
-            AbstractObjectConversion c = f.apply(element);
             if (LOG.isTraceEnabled()) {
-                if (logTitle == null) {
-                    logTitle = c.getClass().getSimpleName();
-                    logTitle = logTitle.replace("Conversion", "");
-                }
-                LOG.trace(element.tabulateLocals(logTitle));
+                LOG.trace(element.tabulateLocals(elementType));
             }
+            AbstractObjectConversion c = switch (elementType) {
+                case CgmesNames.SUBSTATION -> new SubstationConversion(element, context);
+                case CgmesNames.VOLTAGE_LEVEL -> new VoltageLevelConversion(element, context);
+                case CgmesNames.CONNECTIVITY_NODE, CgmesNames.TOPOLOGICAL_NODE -> new NodeConversion(elementType, element, context);
+                case CgmesNames.BUSBAR_SECTION -> new BusbarSectionConversion(element, context);
+                case CgmesNames.GROUND -> new GroundConversion(element, context);
+                case CgmesNames.ENERGY_CONSUMER -> new EnergyConsumerConversion(element, context);
+                case CgmesNames.ENERGY_SOURCE -> new EnergySourceConversion(element, context);
+                case CgmesNames.EQUIVALENT_INJECTION -> new EquivalentInjectionConversion(element, context);
+                case CgmesNames.EXTERNAL_NETWORK_INJECTION -> new ExternalNetworkInjectionConversion(element, context);
+                case CgmesNames.SHUNT_COMPENSATOR -> new ShuntConversion(element, context);
+                case CgmesNames.EQUIVALENT_SHUNT -> new EquivalentShuntConversion(element, context);
+                case CgmesNames.STATIC_VAR_COMPENSATOR -> new StaticVarCompensatorConversion(element, context);
+                case CgmesNames.ASYNCHRONOUS_MACHINE -> new AsynchronousMachineConversion(element, context);
+                case CgmesNames.SYNCHRONOUS_MACHINE -> new SynchronousMachineConversion(element, context);
+                case CgmesNames.SERIES_COMPENSATOR -> new SeriesCompensatorConversion(element, context);
+                case CgmesNames.OPERATIONAL_LIMIT -> new OperationalLimitConversion(element, context);
+                case CgmesNames.SV_INJECTION -> new SvInjectionConversion(element, context);
+                case CgmesNames.CONTROL_AREA -> new ControlAreaConversion(element, context);
+                case CgmesNames.TIE_FLOW -> new TieFlowConversion(element, context);
+                default -> throw new IllegalArgumentException("Invalid elementType.");
+            };
             if (c.insideBoundary()) {
                 c.convertInsideBoundary();
             } else if (c.valid()) {
                 c.convert();
             }
         }
+        context.popReportNode();
     }
 
     private Network createNetwork() {
@@ -407,13 +441,7 @@ public class Conversion {
 
     private Context createContext(Network network, ReportNode reportNode) {
         Context context = new Context(cgmes, config, network, reportNode);
-        context.substationIdMapping().build();
         context.dc().initialize();
-        context.loadRatioTapChangers();
-        context.loadPhaseTapChangers();
-        context.loadRatioTapChangerTables();
-        context.loadPhaseTapChangerTables();
-        context.loadReactiveCapabilityCurveData();
         return context;
     }
 
@@ -526,26 +554,11 @@ public class Conversion {
         }
     }
 
-    private void putVoltageLevelRefByLineContainerIdIfPresent(String lineContainerId, Supplier<String> terminalId1,
-                                                              Supplier<String> terminalId2,
-                                                              Map<String, VoltageLevel> nominalVoltageByLineContainerId,
-                                                              Context context) {
-        String vlId = Optional.ofNullable(context.namingStrategy().getIidmId(VOLTAGE_LEVEL,
-                        context.cgmes().voltageLevel(cgmes.terminal(terminalId1.get()), context.nodeBreaker())))
-                .orElseGet(() -> context.namingStrategy().getIidmId(VOLTAGE_LEVEL,
-                        context.cgmes().voltageLevel(cgmes.terminal(terminalId2.get()), context.nodeBreaker())));
-        if (vlId != null) {
-            VoltageLevel vl = context.network().getVoltageLevel(vlId);
-            if (vl != null) {
-                nominalVoltageByLineContainerId.put(lineContainerId, vl);
-            }
-        }
-    }
-
     private void convertACLineSegmentsToLines(Context context, Set<String> delayedBoundaryNodes) {
+        context.pushReportNode(CgmesReports.convertingElementTypeReport(context.getReportNode(), CgmesNames.AC_LINE_SEGMENT));
         for (PropertyBag line : cgmes.acLineSegments()) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace(line.tabulateLocals("ACLineSegment"));
+                LOG.trace(line.tabulateLocals(CgmesNames.AC_LINE_SEGMENT));
             }
             ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
             if (c.valid()) {
@@ -558,77 +571,29 @@ public class Conversion {
                 }
             }
         }
+        context.popReportNode();
     }
 
+    // Fictitious voltageLevels for Line and Substation(when it includes nodes) containers
     private void createFictitiousVoltageLevelsForLineContainers(Context context) {
-        Map<String, VoltageLevel> voltageLevelRefByLineContainerId = new HashMap<>();
-        PropertyBags acLineSegments = cgmes.acLineSegments();
-        // First we have to iterate over all ACLSs inside Line Containers to find a voltage level reference for each Line Container
-        // There may be ACLSs that have the two nodes in the interior of Line Container and do not help in determining a voltage level reference
-        for (PropertyBag line : acLineSegments) { // Retrieve a voltage level reference for every line container of AC Line Segments outside boundaries
-            String lineContainerId = line.getId("Line");
-            if (lineContainerId != null && !voltageLevelRefByLineContainerId.containsKey(lineContainerId)) {
-                putVoltageLevelRefByLineContainerIdIfPresent(lineContainerId, () -> line.getId("Terminal1"), () -> line.getId("Terminal2"),
-                        voltageLevelRefByLineContainerId, context);
-            }
-        }
-        // Now, iterate again over all ACLSs inside Line Containers to determine specific voltage levels to be created from the reference
-        for (PropertyBag line : acLineSegments) {
-            String lineContainerId = line.getId("Line");
-            if (lineContainerId != null) { // Create fictitious voltage levels for AC line segments inside line containers outside boundaries
-                VoltageLevel vlRef = voltageLevelRefByLineContainerId.get(lineContainerId);
-                if (vlRef != null) {
-                    createLineContainerFictitiousVoltageLevels(context, lineContainerId, vlRef, line);
-                } else {
-                    LOG.error("No fictitious Voltage Level created for Line container {}. No voltage level reference could be found", lineContainerId);
+
+        context.nodeContainerMapping().getFictitiousVoltageLevelsForLineContainersToBeCreated().forEach(fictitiousVoltageLevelId -> {
+            String containerId = context.nodeContainerMapping().getContainerId(fictitiousVoltageLevelId).orElseThrow();
+            String containerName = context.nodeContainerMapping().getContainerName(fictitiousVoltageLevelId).orElseThrow();
+            String referenceVoltageLevelId = context.nodeContainerMapping().getReferenceVoltageLevelId(fictitiousVoltageLevelId).orElseThrow();
+
+            if (context.network().getVoltageLevel(fictitiousVoltageLevelId) == null) {
+                VoltageLevel referenceVoltageLevel = context.network().getVoltageLevel(referenceVoltageLevelId);
+                if (referenceVoltageLevel == null) {
+                    throw new ConversionException("VoltageLevel not found for voltageLevelId: " + referenceVoltageLevelId);
                 }
+                createFictitiousVoltageLevelsForLineContainer(context, fictitiousVoltageLevelId, containerId, containerName, referenceVoltageLevel);
             }
-        }
+        });
     }
 
-    public static String getFictitiousVoltageLevelForNodeInContainer(String containerId, String nodeId) {
-        // We should try to create only one voltage level for each container,
-        // instead of one voltage level for each node
-        LOG.trace("Fictitious voltage level id for container {} node {}", containerId, nodeId);
-        return nodeId + "_VL";
-    }
-
-    static class LineContainerFictitiousVoltageLevelData {
-        String lineId;
-        String lineName;
-        String nodeId;
-        VoltageLevel vl;
-    }
-
-    private LineContainerFictitiousVoltageLevelData voltageLevelDataForACLSinLineContainer(Context context, String lineId, PropertyBag lineSegment, String terminalRef) {
-        LineContainerFictitiousVoltageLevelData vldata = new LineContainerFictitiousVoltageLevelData();
-        vldata.lineId = lineId;
-        vldata.lineName = lineSegment.get("lineName");
-        CgmesTerminal t = cgmes.terminal(lineSegment.getId(terminalRef));
-        vldata.nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
-        String vlId = context.namingStrategy().getIidmId(VOLTAGE_LEVEL, context.cgmes().voltageLevel(t, context.nodeBreaker()));
-        vldata.vl = context.network().getVoltageLevel(
-                Objects.requireNonNullElseGet(vlId, () -> getFictitiousVoltageLevelForNodeInContainer(vldata.lineId, vldata.nodeId)));
-        return vldata;
-    }
-
-    private void createLineContainerFictitiousVoltageLevels(Context context, String lineId, VoltageLevel vlRef, PropertyBag lineSegment) {
-        // Try to obtain data for a potential fictitious voltage level from Terminal1 of AC Line Segment
-        LineContainerFictitiousVoltageLevelData vldata1 = voltageLevelDataForACLSinLineContainer(context, lineId, lineSegment, "Terminal1");
-        // The same, from Terminal2 of AC Line Segment
-        LineContainerFictitiousVoltageLevelData vldata2 = voltageLevelDataForACLSinLineContainer(context, lineId, lineSegment, "Terminal2");
-        // Only create a fictitious voltage levels replacing cim:Line Container if we are NOT at boundaries
-        if (vldata1.vl == null && !context.boundary().containsNode(vldata1.nodeId)) {
-            createLineContainerFictitiousVoltageLevel(context, vldata1, vlRef);
-        }
-        if (vldata2.vl == null && !context.boundary().containsNode(vldata2.nodeId)) {
-            createLineContainerFictitiousVoltageLevel(context, vldata2, vlRef);
-        }
-    }
-
-    private void createLineContainerFictitiousVoltageLevel(Context context, LineContainerFictitiousVoltageLevelData vldata, VoltageLevel vlref) {
-        String id = Conversion.getFictitiousVoltageLevelForNodeInContainer(vldata.lineId, vldata.nodeId);
-        LOG.warn("Fictitious Voltage Level {} created for Line container {} name {} node {}", id, vldata.lineId, vldata.lineName, vldata.nodeId);
+    private void createFictitiousVoltageLevelsForLineContainer(Context context, String fictitiousVoltageLevelId, String containerId, String containerName, VoltageLevel vlref) {
+        LOG.warn("Fictitious Voltage Level {} created for Line container {} name {}", fictitiousVoltageLevelId, containerId, containerName);
         // Nominal voltage and low/high limits are copied from the reference voltage level, if it is given
         VoltageLevel vl = context.network().newVoltageLevel()
                 .setNominalV(vlref.getNominalV())
@@ -638,14 +603,16 @@ public class Conversion {
                                 : TopologyKind.BUS_BREAKER)
                 .setLowVoltageLimit(vlref.getLowVoltageLimit())
                 .setHighVoltageLimit(vlref.getHighVoltageLimit())
-                .setId(id)
-                .setName(vldata.lineName)
+                .setId(fictitiousVoltageLevelId)
+                .setFictitious(true)
+                .setName(containerName)
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
-        vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId", vldata.lineId);
+        vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId", containerId);
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
+        context.pushReportNode(CgmesReports.convertingElementTypeReport(context.getReportNode(), CgmesNames.SWITCH));
         for (PropertyBag sw : cgmes.switches()) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace(sw.tabulateLocals("Switch"));
@@ -661,9 +628,11 @@ public class Conversion {
                 }
             }
         }
+        context.popReportNode();
     }
 
     private void convertEquivalentBranchesToLines(Context context, Set<String> delayedBoundaryNodes) {
+        context.pushReportNode(CgmesReports.convertingElementTypeReport(context.getReportNode(), CgmesNames.EQUIVALENT_BRANCH));
         for (PropertyBag equivalentBranch : cgmes.equivalentBranches()) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace(equivalentBranch.tabulateLocals("EquivalentBranch"));
@@ -679,24 +648,30 @@ public class Conversion {
                 }
             }
         }
+        context.popReportNode();
     }
 
     private void convertTransformers(Context context, Set<String> delayedBoundaryNodes) {
-        cgmes.groupedTransformerEnds().forEach((t, ends) -> {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Transformer {}, {}-winding", t, ends.size());
-                ends.forEach(e -> LOG.trace(e.tabulateLocals("TransformerEnd")));
-            }
-            if (ends.size() == 2) {
-                convertTwoWindingsTransformers(context, ends, delayedBoundaryNodes);
-            } else if (ends.size() == 3) {
-                convertThreeWindingsTransformers(context, ends);
-            } else {
-                String what = "PowerTransformer " + t;
-                Supplier<String> reason = () -> String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
-                context.invalid(what, reason);
-            }
-        });
+        context.pushReportNode(CgmesReports.convertingElementTypeReport(context.getReportNode(), CgmesNames.POWER_TRANSFORMER));
+        cgmes.transformers().stream()
+                .map(t -> context.transformerEnds(t.getId("PowerTransformer")))
+                .forEach(ends -> {
+                    String transformerId = ends.get(0).getId("PowerTransformer");
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Transformer {}, {}-winding", transformerId, ends.size());
+                        ends.forEach(e -> LOG.trace(e.tabulateLocals("TransformerEnd")));
+                    }
+                    if (ends.size() == 2) {
+                        convertTwoWindingsTransformers(context, ends, delayedBoundaryNodes);
+                    } else if (ends.size() == 3) {
+                        convertThreeWindingsTransformers(context, ends);
+                    } else {
+                        String what = "PowerTransformer " + transformerId;
+                        Supplier<String> reason = () -> String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
+                        context.invalid(what, reason);
+                    }
+                });
+        context.popReportNode();
     }
 
     private static void convertTwoWindingsTransformers(Context context, PropertyBags ends, Set<String> delayedBoundaryNodes) {
@@ -803,7 +778,7 @@ public class Conversion {
             // In node-breaker conversion,
             // set (voltage, angle) values after all nodes have been created and connected
             for (PropertyBag n : nodes) {
-                NodeConversion nc = new NodeConversion("ConnectivityNode", n, context);
+                NodeConversion nc = new NodeConversion(CgmesNames.CONNECTIVITY_NODE, n, context);
                 if (!nc.insideBoundary() || nc.insideBoundary() && context.config().convertBoundary()) {
                     nc.setVoltageAngleNodeBreaker();
                 }
@@ -812,9 +787,11 @@ public class Conversion {
     }
 
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
+        // In case of faulty CGMES files, remove HVDC Converter Stations without HVDC lines
         network.getHvdcConverterStationStream()
                 .filter(converter -> converter.getHvdcLine() == null)
                 .forEach(converter -> {
+                    CgmesReports.removingUnattachedHvdcConverterStationReport(context.getReportNode(), converter.getId());
                     context.ignored("HVDC Converter Station " + converter.getId(), "No correct linked HVDC line found.");
                     converter.remove();
                 });
@@ -893,13 +870,11 @@ public class Conversion {
         }
 
         public Config setProfileForInitialValuesShuntSectionsTapPositions(String profileForInitialValuesShuntSectionsTapPositions) {
-            switch (Objects.requireNonNull(profileForInitialValuesShuntSectionsTapPositions)) {
-                case "SSH":
-                case "SV":
-                    this.profileForInitialValuesShuntSectionsTapPositions = StateProfile.valueOf(profileForInitialValuesShuntSectionsTapPositions);
-                    break;
-                default:
-                    throw new CgmesModelException("Unexpected profile used for shunt sections / tap positions state hypothesis: " + profileForInitialValuesShuntSectionsTapPositions);
+            String forInitialValuesShuntSectionsTapPositions = Objects.requireNonNull(profileForInitialValuesShuntSectionsTapPositions);
+            if (forInitialValuesShuntSectionsTapPositions.equals("SSH") || forInitialValuesShuntSectionsTapPositions.equals("SV")) {
+                this.profileForInitialValuesShuntSectionsTapPositions = StateProfile.valueOf(profileForInitialValuesShuntSectionsTapPositions);
+            } else {
+                throw new CgmesModelException("Unexpected profile used for shunt sections / tap positions state hypothesis: " + profileForInitialValuesShuntSectionsTapPositions);
             }
             return this;
         }
@@ -1036,6 +1011,15 @@ public class Conversion {
             return disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected;
         }
 
+        public boolean getCreateFictitiousVoltageLevelsForEveryNode() {
+            return createFictitiousVoltageLevelsForEveryNode;
+        }
+
+        public Config setCreateFictitiousVoltageLevelsForEveryNode(boolean b) {
+            createFictitiousVoltageLevelsForEveryNode = b;
+            return this;
+        }
+
         private boolean convertBoundary = false;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
@@ -1064,6 +1048,7 @@ public class Conversion {
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
 
         private double missingPermanentLimitPercentage = 100;
+        private boolean createFictitiousVoltageLevelsForEveryNode = true;
     }
 
     private final CgmesModel cgmes;
@@ -1074,8 +1059,6 @@ public class Conversion {
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
 
-    private static final String VOLTAGE_LEVEL = "VoltageLevel";
-
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL = "CGMESModelDetail";
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
@@ -1085,9 +1068,12 @@ public class Conversion {
     public static final String PROPERTY_IS_EQUIVALENT_SHUNT = CGMES_PREFIX_ALIAS_PROPERTIES + "isEquivalentShunt";
     public static final String PROPERTY_HYDRO_PLANT_STORAGE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "hydroPlantStorageKind";
     public static final String PROPERTY_FOSSIL_FUEL_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "fuelType";
+    public static final String PROPERTY_WIND_GEN_UNIT_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "windGenUnitType";
     public static final String PROPERTY_CGMES_ORIGINAL_CLASS = CGMES_PREFIX_ALIAS_PROPERTIES + "originalClass";
     public static final String PROPERTY_BUSBAR_SECTION_TERMINALS = CGMES_PREFIX_ALIAS_PROPERTIES + "busbarSectionTerminals";
     public static final String PROPERTY_CGMES_GOVERNOR_SCD = CGMES_PREFIX_ALIAS_PROPERTIES + "governorSCD";
     public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineType";
     public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineOperatingMode";
+    public static final String PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS = CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT_SET + "_identifiers";
+    public static final String PROPERTY_REGULATING_CONTROL = CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL;
 }

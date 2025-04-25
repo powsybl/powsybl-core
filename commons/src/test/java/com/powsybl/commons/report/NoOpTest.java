@@ -7,11 +7,17 @@
  */
 package com.powsybl.commons.report;
 
+import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.ComparisonUtils;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,13 +25,13 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-class NoOpTest {
+class NoOpTest extends AbstractSerDeTest {
 
     @Test
     void test() throws IOException {
         ReportNode root = ReportNode.NO_OP;
         ReportNode reportNode = root.newReportNode()
-                .withMessageTemplate("key", "message with value = ${double}")
+                .withMessageTemplate("key")
                 .withTypedValue("double", 2.0, TypedValue.ACTIVE_POWER)
                 .withTypedValue("float", 2.0f, TypedValue.ACTIVE_POWER)
                 .withTypedValue("int", 4, "counter")
@@ -39,6 +45,7 @@ class NoOpTest {
                 .withUntypedValue("untyped_boolean", true)
                 .withUntypedValue("untyped_string", "vl1")
                 .withSeverity(TypedValue.TRACE_SEVERITY)
+                .withSeverity("Custom severity")
                 .add();
         assertEquals(Collections.emptyList(), root.getChildren());
         assertNotEquals(ReportNode.NO_OP, reportNode);
@@ -48,11 +55,81 @@ class NoOpTest {
         assertNull(reportNode.getMessageTemplate());
         assertNull(reportNode.getMessageKey());
 
-        reportNode.include(ReportNode.newRootReportNode().withMessageTemplate("k", "Real root reportNode").build());
+        ReportNode reportNodeImplRoot = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("k")
+                .build();
+        reportNode.include(reportNodeImplRoot);
         assertEquals(Collections.emptyList(), reportNode.getChildren());
+
+        root.addCopy(reportNodeImplRoot);
+        assertEquals(Collections.emptyList(), root.getChildren());
 
         StringWriter sw = new StringWriter();
         reportNode.print(sw);
+        assertEquals("", sw.toString());
+
+        Path serializedReport = tmpDir.resolve("tmp.json");
+        ReportNodeSerializer.write(root, serializedReport);
+        ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/testReportNodeNoOp.json"), Files.newInputStream(serializedReport));
+    }
+
+    @Test
+    void testTreeContextNoOp() {
+        assertEquals(0, TreeContextNoOp.NO_OP.getDictionary().size());
+        assertNull(TreeContextNoOp.NO_OP.getDefaultTimestampFormatter());
+        assertEquals(Locale.US, TreeContextNoOp.NO_OP.getLocale());
+
+        // A TreeContextNoOp.NO_OP should be able to eat another TreeContext without any changes (nor throwing an exception)
+        TreeContextNoOp.NO_OP.merge(new TreeContextImpl());
+        assertEquals(0, TreeContextNoOp.NO_OP.getDictionary().size());
+
+        TreeContextNoOp.NO_OP.addDictionaryEntry("key", (k, l) -> "value");
+        assertEquals(0, TreeContextNoOp.NO_OP.getDictionary().size());
+    }
+
+    @Test
+    void testTreeContextMerge() {
+        TreeContextImpl treeContext = new TreeContextImpl();
+
+        assertEquals(0, treeContext.getDictionary().size());
+        assertEquals(ReportConstants.DEFAULT_LOCALE, treeContext.getLocale());
+
+        TreeContextImpl treeContext2 = new TreeContextImpl();
+        treeContext2.addDictionaryEntry("key", "value");
+        treeContext.merge(treeContext2);
+        assertEquals(1, treeContext.getDictionary().size());
+    }
+
+    @Test
+    void testPostponedValuesAdded() throws IOException {
+        ReportNode root = ReportNode.NO_OP;
+        ReportNode childNode = root.newReportNode()
+                .withMessageTemplate("key")
+                .withTimestamp()
+                .withTimestamp("pattern")
+                .add();
+        childNode.addTypedValue("double", 2.0, TypedValue.ACTIVE_POWER)
+                .addTypedValue("float", 2.0f, TypedValue.ACTIVE_POWER)
+                .addTypedValue("int", 4, "counter")
+                .addTypedValue("long", 4L, "counter")
+                .addTypedValue("boolean", true, "condition")
+                .addTypedValue("string", "vl1", TypedValue.VOLTAGE_LEVEL)
+                .addUntypedValue("untyped_double", 2.0)
+                .addUntypedValue("untyped_float", 2.0f)
+                .addUntypedValue("untyped_int", 4)
+                .addUntypedValue("untyped_long", 4L)
+                .addUntypedValue("untyped_boolean", true)
+                .addUntypedValue("untyped_string", "vl1")
+                .addSeverity(TypedValue.TRACE_SEVERITY)
+                .addSeverity("Custom severity");
+
+        assertEquals(Collections.emptyMap(), childNode.getValues());
+        assertEquals(Optional.empty(), childNode.getValue("int"));
+        assertNull(childNode.getMessage());
+
+        StringWriter sw = new StringWriter();
+        childNode.print(sw);
         assertEquals("", sw.toString());
     }
 

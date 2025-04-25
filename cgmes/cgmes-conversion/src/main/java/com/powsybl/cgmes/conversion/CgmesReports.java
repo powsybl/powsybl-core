@@ -21,9 +21,60 @@ public final class CgmesReports {
     }
 
     // INFO
+    public static ReportNode applyingPreprocessorsReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.applyingPreprocessors")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void applyingProcessorReport(ReportNode reportNode, String processorName) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.applyingProcessor")
+                .withUntypedValue("processorName", processorName)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode buildingMappingsReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.buildingMappings")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode convertingElementTypeReport(ReportNode reportNode, String elementType) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.convertingElementType")
+                .withUntypedValue("elementType", elementType)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode fixingDanglingLinesIssuesReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.fixingDanglingLinesIssues")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode settingVoltagesAndAnglesReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.settingVoltagesAndAngles")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode applyingPostprocessorsReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.applyingPostprocessors")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
     public static void importedCgmesNetworkReport(ReportNode reportNode, String networkId) {
         reportNode.newReportNode()
-                .withMessageTemplate("importedCgmesNetwork", "CGMES network ${networkId} is imported.")
+                .withMessageTemplate("core.cgmes.conversion.importedCgmesNetwork")
                 .withUntypedValue("networkId", networkId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -32,7 +83,7 @@ public final class CgmesReports {
     // WARN
     public static void badVoltageTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
         reportNode.newReportNode()
-                .withMessageTemplate("badVoltageTargetValueRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target value for voltage: ${targetValue}")
+                .withMessageTemplate("core.cgmes.conversion.badVoltageTargetValueRegulatingControl")
                 .withUntypedValue("equipmentId", eqId)
                 .withTypedValue("targetValue", targetValue, TypedValue.VOLTAGE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -41,7 +92,7 @@ public final class CgmesReports {
 
     public static void badTargetDeadbandRegulatingControlReport(ReportNode reportNode, String eqId, double targetDeadband) {
         reportNode.newReportNode()
-                .withMessageTemplate("badTargetDeadbandRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}")
+                .withMessageTemplate("core.cgmes.conversion.badTargetDeadbandRegulatingControl")
                 .withUntypedValue("equipmentId", eqId)
                 .withTypedValue("targetDeadband", targetDeadband, TypedValue.VOLTAGE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -50,7 +101,7 @@ public final class CgmesReports {
 
     public static void invalidAngleVoltageBusReport(ReportNode reportNode, Bus bus, String nodeId, double v, double angle) {
         reportNode.newReportNode()
-                .withMessageTemplate("invalidAngleVoltageBus", "Node ${nodeId} in substation ${substation}, voltageLevel ${voltageLevel}, bus ${bus} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}")
+                .withMessageTemplate("core.cgmes.conversion.invalidAngleVoltageBus")
                 .withUntypedValue("substation", bus.getVoltageLevel().getSubstation().map(Substation::getNameOrId).orElse("unknown"))
                 .withUntypedValue("voltageLevel", bus.getVoltageLevel().getNameOrId())
                 .withUntypedValue("bus", bus.getId())
@@ -63,7 +114,7 @@ public final class CgmesReports {
 
     public static void invalidAngleVoltageNodeReport(ReportNode reportNode, String nodeId, double v, double angle) {
         reportNode.newReportNode()
-                .withMessageTemplate("invalidAngleVoltageNode", "Node ${nodeId} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}")
+                .withMessageTemplate("core.cgmes.conversion.invalidAngleVoltageNode")
                 .withUntypedValue("nodeId", nodeId)
                 .withTypedValue("voltage", v, TypedValue.VOLTAGE)
                 .withTypedValue("angle", angle, TypedValue.ANGLE)
@@ -71,10 +122,44 @@ public final class CgmesReports {
                 .add();
     }
 
+    public static void removingUnattachedHvdcConverterStationReport(ReportNode reportNode, String converterId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.removingUnattachedHvdcConverterStation")
+                .withUntypedValue("converterId", converterId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void voltageLevelMappingReport(ReportNode reportNode, int voltageLevelMappingSize, String mapAsString) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.voltageLevelMapping")
+                .withUntypedValue("voltageLevelMappingSize", voltageLevelMappingSize)
+                .withUntypedValue("mapAsString", mapAsString)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void substationMappingReport(ReportNode reportNode, int substationMappingSize, String mapAsString) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.substationMapping")
+                .withUntypedValue("substationMappingSize", substationMappingSize)
+                .withUntypedValue("mapAsString", mapAsString)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void nominalVoltageIsZeroReport(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.nominalVoltageIsZero")
+                .withUntypedValue("voltageLevelId", voltageLevelId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     // ERROR
     public static void inconsistentProfilesTPRequiredReport(ReportNode reportNode, String networkId) {
         reportNode.newReportNode()
-                .withMessageTemplate("inconsistentProfilesTPRequired", "Network contains node/breaker ${networkId} information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.")
+                .withMessageTemplate("core.cgmes.conversion.inconsistentProfilesTPRequired")
                 .withUntypedValue("networkId", networkId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
@@ -82,7 +167,7 @@ public final class CgmesReports {
 
     public static void danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(ReportNode reportNode, String danglingLineId) {
         reportNode.newReportNode()
-                .withMessageTemplate("danglingLineDisconnectedAtBoundaryHasBeenDisconnected", "DanglingLine ${danglingLineId} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.")
+                .withMessageTemplate("core.cgmes.conversion.danglingLineDisconnectedAtBoundaryHasBeenDisconnected")
                 .withUntypedValue("danglingLineId", danglingLineId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -90,13 +175,45 @@ public final class CgmesReports {
 
     public static void multipleUnpairedDanglingLinesAtSameBoundaryReport(ReportNode reportNode, String danglingLineId, double p0, double q0, double p0Adjusted, double q0Adjusted) {
         reportNode.newReportNode()
-                .withMessageTemplate("multipleUnpairedDanglingLinesAtSameBoundary", "Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from (${p0}, ${q0}) to (${p0Adjusted}, ${q0Adjusted}) for dangling line ${danglingLineId}.")
+                .withMessageTemplate("core.cgmes.conversion.multipleUnpairedDanglingLinesAtSameBoundary")
                 .withUntypedValue("danglingLineId", danglingLineId)
                 .withUntypedValue("p0", p0)
                 .withUntypedValue("q0", q0)
                 .withUntypedValue("p0Adjusted", p0Adjusted)
                 .withUntypedValue("q0Adjusted", q0Adjusted)
                 .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void missingMandatoryAttributeReport(ReportNode reportNode, String attributeName, String objectClass, String objectId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.missingMandatoryAttribute")
+                .withUntypedValue("attributeName", attributeName)
+                .withUntypedValue("objectClass", objectClass)
+                .withUntypedValue("objectId", objectId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode importingCgmesFileReport(ReportNode reportNode, String basename) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.CGMESConversion")
+                .withUntypedValue("basename", basename)
+                .add();
+    }
+
+    public static ReportNode readingCgmesTriplestoreReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.CGMESTriplestore")
+                .add();
+    }
+
+    public static void exportedModelIdentifierReport(ReportNode reportNode, String description, String identifier, String networkId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.ExportedCgmesId")
+                .withTypedValue("cgmesId", description, TypedValue.URN_UUID)
+                .withTypedValue("cgmesSubset", identifier, TypedValue.CGMES_SUBSET)
+                .withTypedValue("networkId", networkId, TypedValue.ID)
                 .add();
     }
 }

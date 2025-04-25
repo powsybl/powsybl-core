@@ -3,7 +3,7 @@ package com.powsybl.cgmes.conversion.test.export;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.commons.datasource.ZipFileDataSource;
+import com.powsybl.commons.datasource.ZipArchiveDataSource;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Disabled;
@@ -75,10 +75,10 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
             checkAllTerminalsConnected(network, name);
         }
 
-        // Export as CGMES 3
+        // Export as node-breaker
         Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, "100");
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), name);
+        params.put(CgmesExport.TOPOLOGY_KIND, "NODE_BREAKER");
+        ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), name);
         new CgmesExport().export(network, params, zip);
         Properties importParams = new Properties();
         importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");

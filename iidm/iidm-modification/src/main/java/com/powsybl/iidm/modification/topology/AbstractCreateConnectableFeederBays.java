@@ -7,10 +7,10 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
@@ -76,24 +77,39 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         createExtensionAndTopology(connectable, network, namingStrategy, reportNode);
     }
 
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        for (int side : sides) {
+            // Get the busOrBusbarSection corresponding to the side parameter
+            String busOrBusbarSectionId = getBusOrBusbarSectionId(side);
+            Identifiable<?> busOrBusbarSection = network.getIdentifiable(busOrBusbarSectionId);
+
+            if (busOrBusbarSection instanceof BusbarSection) {
+                if (getPositionOrder(side) == null || getPositionOrder(side) < 0) {
+                    impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+                    return impact;
+                }
+            } else if (!(busOrBusbarSection instanceof Bus)) {
+                impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+                return impact;
+            }
+        }
+        return impact;
+    }
+
     private boolean checkOrders(int side, VoltageLevel voltageLevel, ReportNode reportNode, boolean throwException) {
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         Integer positionOrder = getPositionOrder(side);
         if (topologyKind == TopologyKind.NODE_BREAKER) {
             if (positionOrder == null) {
                 unexpectedNullPositionOrder(reportNode, voltageLevel.getId());
-                LOGGER.error("Position order is null for attachment in node-breaker voltage level {}", voltageLevel.getId());
-                if (throwException) {
-                    throw new PowsyblException("Position order is null for attachment in node-breaker voltage level " + voltageLevel.getId());
-                }
+                logOrThrow(throwException, "Position order is null for attachment in node-breaker voltage level " + voltageLevel.getId());
                 return false;
             }
             if (positionOrder < 0) {
                 unexpectedNegativePositionOrder(reportNode, positionOrder, voltageLevel.getId());
-                LOGGER.error("Position order is negative ({}) for attachment in node-breaker voltage level {}", positionOrder, voltageLevel.getId());
-                if (throwException) {
-                    throw new PowsyblException("Position order is negative for attachment in node-breaker voltage level " + voltageLevel.getId() + ": " + positionOrder);
-                }
+                logOrThrow(throwException, "Position order is negative for attachment in node-breaker voltage level " + voltageLevel.getId() + ": " + positionOrder);
                 return false;
             }
         }
@@ -167,11 +183,8 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 int connectableNode = firstAvailableNodes.compute(voltageLevel, this::getNextAvailableNode);
                 setNode(side, connectableNode, voltageLevel.getId());
             } else {
-                LOGGER.error("Unsupported type {} for identifiable {}", busOrBusbarSection.getType(), busOrBusbarSectionId);
                 unsupportedIdentifiableType(reportNode, busOrBusbarSection.getType(), busOrBusbarSectionId);
-                if (throwException) {
-                    throw new PowsyblException(String.format("Unsupported type %s for identifiable %s", busOrBusbarSection.getType(), busOrBusbarSectionId));
-                }
+                logOrThrow(throwException, String.format("Unsupported type %s for identifiable %s", busOrBusbarSection.getType(), busOrBusbarSectionId));
                 return false;
             }
         }
@@ -185,12 +198,9 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     private static boolean checkNetworks(Connectable<?> connectable, Network network, ReportNode reportNode, boolean throwException) {
         if (connectable.getNetwork() != network) {
             connectable.remove();
-            LOGGER.error("Network given in parameters and in connectableAdder are different. Connectable '{}' of type {} was added then removed",
-                    connectable.getId(), connectable.getType());
             networkMismatchReport(reportNode, connectable.getId(), connectable.getType());
-            if (throwException) {
-                throw new PowsyblException("Network given in parameters and in connectableAdder are different. Connectable was added then removed");
-            }
+            logOrThrow(throwException, String.format("Network given in parameters and in connectableAdder are different. Connectable %s of type %s was added then removed",
+                    connectable.getId(), connectable.getType()));
             return false;
         }
         return true;
@@ -224,8 +234,8 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                     createConnectablePosition = true;
                 }
             } else {
-                LOGGER.warn("No order positions found on voltageLevel {}. The extension is not created.", voltageLevel.getId());
-                noConnectablePositionExtension(reportNode, voltageLevel);
+                LOGGER.warn("No ConnectablePosition extension found on voltageLevel {}. The ConnectablePosition extension is not created for new feeder {}.", voltageLevel.getId(), connectableId);
+                noConnectablePositionExtension(reportNode, voltageLevel, connectableId);
             }
             // create switches and a breaker linking the connectable to the busbar sections.
             createTopology(side, network, voltageLevel, connectable, namingStrategy, reportNode);

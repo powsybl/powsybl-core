@@ -24,8 +24,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.network.util.TieLineReports.*;
-
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -87,15 +85,15 @@ public final class TieLineUtil {
                 properties.setProperty(prop, dl1.getProperty(prop));
             } else if (dl1.getProperty(prop).isEmpty()) {
                 LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
-                propertyOnlyOnOneSide(reportNode, prop, dl2.getProperty(prop), 1, dl1.getId(), dl2.getId());
+                NetworkReports.propertyOnlyOnOneSide(reportNode, prop, dl2.getProperty(prop), 1, dl1.getId(), dl2.getId());
                 properties.setProperty(prop, dl2.getProperty(prop));
             } else if (dl2.getProperty(prop).isEmpty()) {
                 LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
-                propertyOnlyOnOneSide(reportNode, prop, dl1.getProperty(prop), 2, dl1.getId(), dl2.getId());
+                NetworkReports.propertyOnlyOnOneSide(reportNode, prop, dl1.getProperty(prop), 2, dl1.getId(), dl2.getId());
                 properties.setProperty(prop, dl1.getProperty(prop));
             } else {
                 LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
-                inconsistentPropertyValues(reportNode, prop, dl1.getProperty(prop), dl2.getProperty(prop), dl1.getId(), dl2.getId());
+                NetworkReports.inconsistentPropertyValues(reportNode, prop, dl1.getProperty(prop), dl2.getProperty(prop), dl1.getId(), dl2.getId());
             }
         });
         dl1Properties.forEach(prop -> properties.setProperty(prop + "_1", dl1.getProperty(prop)));
@@ -110,14 +108,14 @@ public final class TieLineUtil {
         for (String alias : dl1.getAliases()) {
             if (dl2.getAliases().contains(alias)) {
                 LOGGER.debug("Alias '{}' is found in dangling lines '{}' and '{}'. It is moved to their new tie line.", alias, dl1.getId(), dl2.getId());
-                moveCommonAliases(reportNode, alias, dl1.getId(), dl2.getId());
+                NetworkReports.moveCommonAliases(reportNode, alias, dl1.getId(), dl2.getId());
                 String type1 = dl1.getAliasType(alias).orElse("");
                 String type2 = dl2.getAliasType(alias).orElse("");
                 if (type1.equals(type2)) {
                     aliases.put(alias, type1);
                 } else {
                     LOGGER.warn("Inconsistencies found for alias '{}' type in dangling lines '{}' and '{}'. Type is lost.", alias, dl1.getId(), dl2.getId());
-                    inconsistentAliasTypes(reportNode, alias, type1, type2, dl1.getId(), dl2.getId());
+                    NetworkReports.inconsistentAliasTypes(reportNode, alias, type1, type2, dl1.getId(), dl2.getId());
                     aliases.put(alias, "");
                 }
             }
@@ -143,7 +141,7 @@ public final class TieLineUtil {
                     aliases.put(alias1, type + "_1");
                     LOGGER.warn("Inconsistencies found for alias type '{}'('{}' for '{}' and '{}' for '{}'). " +
                             "Types are respectively renamed as '{}_1' and '{}_2'.", type, alias1, dl1.getId(), alias, dl2.getId(), type, type);
-                    inconsistentAliasValues(reportNode, alias1, alias, type, dl1.getId(), dl2.getId());
+                    NetworkReports.inconsistentAliasValues(reportNode, alias1, alias, type, dl1.getId(), dl2.getId());
                     type += "_2";
                 }
                 aliases.put(alias, type);
@@ -278,13 +276,13 @@ public final class TieLineUtil {
     public static double getR(DanglingLine dl1, DanglingLine dl2) {
         LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(dl1, dl2);
         // Add 0.0 to avoid negative zero, tests where the R value is compared as text, fail
-        return adm.y12().negate().reciprocal().getReal() + 0.0;
+        return zeroImpedanceLine(adm) ? 0.0 : adm.y12().negate().reciprocal().getReal() + 0.0;
     }
 
     public static double getX(DanglingLine dl1, DanglingLine dl2) {
         LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(dl1, dl2);
         // Add 0.0 to avoid negative zero, tests where the X value is compared as text, fail
-        return adm.y12().negate().reciprocal().getImaginary() + 0.0;
+        return zeroImpedanceLine(adm) ? 0.0 : adm.y12().negate().reciprocal().getImaginary() + 0.0;
     }
 
     public static double getG1(DanglingLine dl1, DanglingLine dl2) {
@@ -326,7 +324,9 @@ public final class TieLineUtil {
         BranchAdmittanceMatrix adm2 = LinkData.calculateBranchAdmittance(dl2.getR(), dl2.getX(), 1.0, 0.0, 1.0, 0.0,
             new Complex(0.0, 0.0), new Complex(dl2.getG(), dl2.getB()));
 
-        if (zeroImpedanceLine(adm1)) {
+        if (zeroImpedanceLine(adm1) && zeroImpedanceLine(adm2)) {
+            return adm1;
+        } else if (zeroImpedanceLine(adm1)) {
             return adm2;
         } else if (zeroImpedanceLine(adm2)) {
             return adm1;
@@ -353,7 +353,15 @@ public final class TieLineUtil {
         BranchAdmittanceMatrix adm2 = LinkData.calculateBranchAdmittance(dl2.getR(), dl2.getX(), 1.0, 0.0, 1.0, 0.0,
                 new Complex(0.0, 0.0), new Complex(dl2.getG(), dl2.getB()));
 
-        return adm1.y21().multiply(v1).add(adm2.y12().multiply(v2)).negate().divide(adm1.y22().add(adm2.y11()));
+        if (zeroImpedanceLine(adm1) && zeroImpedanceLine(adm2)) {
+            return v1;
+        } else if (zeroImpedanceLine(adm1)) {
+            return v1;
+        } else if (zeroImpedanceLine(adm2)) {
+            return v2;
+        } else {
+            return adm1.y21().multiply(v1).add(adm2.y12().multiply(v2)).negate().divide(adm1.y22().add(adm2.y11()));
+        }
     }
 
     /**

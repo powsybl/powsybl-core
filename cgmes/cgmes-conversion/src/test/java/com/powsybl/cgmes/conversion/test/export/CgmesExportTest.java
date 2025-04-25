@@ -9,13 +9,13 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
@@ -37,7 +37,10 @@ import java.io.InputStream;
 import java.nio.file.*;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -243,69 +246,6 @@ class CgmesExportTest {
     }
 
     @Test
-    void testDoNotExportFictitiousSwitchesCreatedForDisconnectedTerminals() throws IOException {
-        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerTerminalDisconnected().dataSource();
-        Network network = Importers.importData("CGMES", ds, importParams);
-
-        String disconnectedTerminalId = "4dec53ca-3ea6-4bd0-a225-b559c8293e91";
-        String fictitiousSwitchId = "4dec53ca-3ea6-4bd0-a225-b559c8293e91_SW_fict";
-
-        // Verify that a fictitious switch has been created for the disconnected terminal
-        Switch fictitiousSwitch = network.getSwitch(fictitiousSwitchId);
-        assertNotNull(fictitiousSwitch);
-        assertTrue(fictitiousSwitch.isFictitious());
-        assertTrue(fictitiousSwitch.isOpen());
-        assertEquals("true", fictitiousSwitch.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL));
-
-        String exportFolder = "/test-terminal-disconnected-fictitious-switch";
-        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            // Export to CGMES and add boundary EQ for reimport
-            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
-            String baseName = "testTerminalDisconnectedFictitiousSwitchExported";
-            ReadOnlyDataSource exportedCgmes = exportAndAddBoundaries(network, tmpDir, baseName, ds);
-
-            // Check that the exported CGMES model does not contain the fictitious switch
-            // And that the corresponding terminal is disconnected
-            CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, TripleStoreFactory.defaultImplementation());
-            assertTrue(cgmes.isNodeBreaker());
-            assertFalse(cgmes.switches().stream().anyMatch(sw -> sw.getId("Switch").equals(fictitiousSwitchId)));
-            assertFalse(cgmes.terminal(disconnectedTerminalId).connected());
-
-            // Verify that the fictitious switch is created again when we re-import the exported CGMES data
-            Network networkReimported = Network.read(exportedCgmes, importParams);
-            Switch fictitiousSwitchReimported = networkReimported.getSwitch(fictitiousSwitchId);
-            assertNotNull(fictitiousSwitchReimported);
-            assertTrue(fictitiousSwitchReimported.isFictitious());
-            assertTrue(fictitiousSwitchReimported.isOpen());
-            assertEquals("true", fictitiousSwitch.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL));
-
-            // Verify that if close the switch the terminal is exported as connected
-            // And the fictitious switch is not crated when re-importing
-            fictitiousSwitch.setOpen(false);
-            String baseName1 = "testTerminalDisconnectedFictitiousSwitchClosedExported";
-            ReadOnlyDataSource exportedCgmes1 = exportAndAddBoundaries(network, tmpDir, baseName1, ds);
-            CgmesModel cgmes1 = CgmesModelFactory.create(exportedCgmes1, TripleStoreFactory.defaultImplementation());
-            assertTrue(cgmes1.isNodeBreaker());
-            assertFalse(cgmes1.switches().stream().anyMatch(sw -> sw.getId("Switch").equals(fictitiousSwitchId)));
-            assertTrue(cgmes1.terminal(disconnectedTerminalId).connected());
-            Network networkReimported1 = Network.read(exportedCgmes1, importParams);
-            Switch fictitiousSwitchReimported1 = networkReimported1.getSwitch(fictitiousSwitchId);
-            assertNull(fictitiousSwitchReimported1);
-        }
-    }
-
-    private static ReadOnlyDataSource exportAndAddBoundaries(Network network, Path tmpDir, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
-        network.write("CGMES", null, tmpDir.resolve(baseName));
-        String eqbd = originalDataSource.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
-        if (eqbd != null) {
-            try (InputStream is = originalDataSource.newInputStream(eqbd)) {
-                Files.copy(is, tmpDir.resolve(baseName + "_EQ_BD.xml"));
-            }
-        }
-        return new GenericReadOnlyDataSource(tmpDir, baseName);
-    }
-
-    @Test
     void testFromIidmBusBranch() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
@@ -389,22 +329,24 @@ class CgmesExportTest {
         // Before exporting, we have to define to which point
         // in the external boundary definition we want to associate this dangling line
         // For this test we chose the Conformity MicroGrid BaseCase
-        ResourceSet boundaries = Cgmes3Catalog.microGridBaseCaseBoundaries();
+        ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         String boundaryCN = "b675a570-cb6e-11e1-bcee-406c8f32ef58";
         expected.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, boundaryCN);
         // We inform the identifier of the boundaries we depend on
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.BOUNDARY_EQ_ID, "urn:uuid:536f9bf1-3f8f-a546-87e3-7af2272f29b7");
-        exportParameters.put(CgmesExport.CIM_VERSION, "100");
+        exportParameters.put(CgmesExport.TOPOLOGY_KIND, "NODE_BREAKER");
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
             network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
 
             // To be able to import from the exported CGMES data we must add the external boundary definitions
-            // Because we work with node/breaker we only need the boundary EQ instance file
-            try (InputStream is = boundaries.newInputStream("20171002T0930Z_ENTSO-E_EQ_BD_2.xml")) {
+            try (InputStream is = boundaries.newInputStream("MicroGridTestConfiguration_EQ_BD.xml")) {
                 Files.copy(is, tmpDir.resolve("tmp_EQ_BD.xml"), StandardCopyOption.REPLACE_EXISTING);
+            }
+            try (InputStream is = boundaries.newInputStream("MicroGridTestConfiguration_TP_BD.xml")) {
+                Files.copy(is, tmpDir.resolve("tmp_TP_BD.xml"), StandardCopyOption.REPLACE_EXISTING);
             }
 
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
@@ -429,7 +371,7 @@ class CgmesExportTest {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
             Properties exportParameters = new Properties();
-            exportParameters.put(CgmesExport.CIM_VERSION, "100");
+            exportParameters.put(CgmesExport.TOPOLOGY_KIND, "NODE_BREAKER");
             network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
 
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
@@ -446,15 +388,17 @@ class CgmesExportTest {
 
     @Test
     void testLineContainersNotInBoundaries() throws IOException {
-        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerCimLine().dataSource();
-        Network network = Network.read(CgmesConformity1ModifiedCatalog.miniNodeBreakerCimLine().dataSource(), importParams);
+        ReadOnlyDataSource ds = new ResourceDataSource("Node of T-junction in line container",
+                new ResourceSet("/issues/node-containers/", "line_with_t-junction.xml"));
+        Network network = Network.read(ds, importParams);
 
         String exportFolder = "/test-line-containers-not-in-boundaries";
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             // Export to CGMES and add boundary EQ for reimport
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
             String baseName = "testLineContainersNotInBoundaries";
-            ReadOnlyDataSource exportedCgmes = exportAndAddBoundaries(network, tmpDir, baseName, ds);
+            network.write("CGMES", null, tmpDir.resolve(baseName));
+            ReadOnlyDataSource exportedCgmes = new GenericReadOnlyDataSource(tmpDir, baseName);
 
             // Check that the exported CGMES model contains a fictitious substation
             CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, TripleStoreFactory.defaultImplementation());
@@ -468,6 +412,23 @@ class CgmesExportTest {
     }
 
     @Test
+    void testModelEquipmentOperationProfile() throws IOException {
+        String importDir = "/issues/switches/";
+        Network network = readCgmesResources(importDir, "disconnected_terminal_EQ.xml");
+
+        String exportDir = "/testModelProfile";
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportDir));
+            String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+
+            String regex = "<md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(eqFile);
+            assertEquals(1, matcher.results().count());
+        }
+    }
+
+    @Test
     void testModelDescription() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
 
@@ -477,7 +438,7 @@ class CgmesExportTest {
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
             CgmesMetadataModel sshMetadata = network2
@@ -497,7 +458,7 @@ class CgmesExportTest {
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
             CgmesMetadataModel sshMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
@@ -519,7 +480,7 @@ class CgmesExportTest {
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
 
             // check network can be reimported and that ModelDescription still includes end-tag
@@ -561,7 +522,7 @@ class CgmesExportTest {
             Properties exportParams = new Properties();
             // It is enough to check that the MAS has been set correctly in the EQ instance file
             exportParams.put(CgmesExport.PROFILES, "EQ");
-            new CgmesExport(platformConfig).export(network, exportParams, new FileDataSource(tmpDir, network.getNameOrId()));
+            new CgmesExport(platformConfig).export(network, exportParams, new DirectoryDataSource(tmpDir, network.getNameOrId()));
 
             String eq = Files.readString(tmpDir.resolve(network.getNameOrId() + "_EQ.xml"));
             assertTrue(eq.contains("modelingAuthoritySet>http://www.elia.be/OperationalPlanning"));
@@ -614,8 +575,8 @@ class CgmesExportTest {
         Generator generatorNoRcc = network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
         Generator generatorRcc = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
 
-        generatorNoRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
-        generatorRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+        generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+        generatorRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
 
         String exportFolder = "/test-generator-control";
         String baseName = "testGeneratorControl";
@@ -624,37 +585,40 @@ class CgmesExportTest {
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
             Properties exportParams = new Properties();
             exportParams.put(CgmesExport.PROFILES, "EQ");
-            // network.write("CGMES", null, tmpDir.resolve(baseName));
-            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             String eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
 
-            // Check that RC are exported properly
+            // Check that RegulatingControl is properly exported
             assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
-            generatorRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
-            generatorNoRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+            generatorRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+            generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
 
-            // RC shouldn't be exported without targetV
-            double rccTargetV = generatorRcc.getTargetV();
+            // RegulatingControl is exported when targetV is not NaN, even if voltage regulation is disabled
             generatorRcc.setVoltageRegulatorOn(false);
-            generatorRcc.setTargetV(Double.NaN);
-
-            double noRccTargetV = generatorNoRcc.getTargetV();
             generatorNoRcc.setVoltageRegulatorOn(false);
-            generatorNoRcc.setTargetV(Double.NaN);
+            new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
+            eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
+            assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+            generatorRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+            generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
 
-            //network.write("CGMES", null, tmpDir.resolve(baseName));
-            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            // RegulatingControl isn't exported when targetV is NaN
+            double rccTargetV = generatorRcc.getTargetV();
+            generatorRcc.setTargetV(Double.NaN);
+            double noRccTargetV = generatorNoRcc.getTargetV();
+            generatorNoRcc.setTargetV(Double.NaN);
+            new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
-
             generatorRcc.setTargetV(rccTargetV);
             generatorRcc.setVoltageRegulatorOn(true);
             generatorNoRcc.setTargetV(noRccTargetV);
             generatorNoRcc.setVoltageRegulatorOn(true);
 
-            // RC shouldn't be exported when Qmin and Qmax are the same
+            // RegulatingControl isn't exported when Qmin and Qmax are the same
             ReactiveCapabilityCurveAdder rccAdder = generatorRcc.newReactiveCapabilityCurve();
             ReactiveCapabilityCurve rcc = (ReactiveCapabilityCurve) generatorRcc.getReactiveLimits();
             rcc.getPoints().forEach(point -> rccAdder.beginPoint().setP(point.getP()).setMaxQ(point.getMaxQ()).setMinQ(point.getMaxQ()).endPoint());
@@ -664,11 +628,69 @@ class CgmesExportTest {
             mmrlAdder.setMinQ(mmrl.getMinQ());
             mmrlAdder.setMaxQ(mmrl.getMinQ());
             mmrlAdder.add();
-
-            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+
+            // RegulatingControl is however exported when the corresponding CGMES property is present
+            generatorRcc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, "3a3b27be-b18b-4385-b557-6735d733baf0_RC");
+            generatorNoRcc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, "550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC");
+            new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
+            eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
+            assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+
+        }
+    }
+
+    @Test
+    void networkWithoutControlAreaInterchange() throws IOException {
+        Network network = DanglingLineNetworkFactory.create();
+        assertEquals(0, network.getAreaCount());
+
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath("/temp"));
+
+            // Exporting with default behaviour, no default control area is written
+            Path tmpDirNoCA = tmpDir.resolve("network-no-ca");
+            Files.createDirectories(tmpDirNoCA);
+            String eqFile = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDirNoCA);
+            assertFalse(eqFile.contains("cim:ControlArea"));
+
+            // Explicit creation of a default control area
+            new CgmesExport().createDefaultControlAreaInterchange(network);
+
+            // Check that a control area definition has been created before export
+            assertEquals(1, network.getAreaCount());
+            Area defaultControlArea = network.getAreas().iterator().next();
+            assertEquals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE, defaultControlArea.getAreaType());
+            assertEquals(1, defaultControlArea.getAreaBoundaryStream().count());
+            assertEquals(-50, defaultControlArea.getInterchangeTarget().orElse(Double.NaN));
+            assertEquals("DL", defaultControlArea.getAreaBoundaryStream().findFirst()
+                    .flatMap(AreaBoundary::getBoundary)
+                    .map(Boundary::getDanglingLine)
+                    .map(DanglingLine::getId)
+                    .orElse(null));
+
+            // Check that exported files now have a control area definition
+            // No default value for tolerance
+            Path tmpDirWithCA = tmpDir.resolve("network-with-ca");
+            Files.createDirectories(tmpDirWithCA);
+            eqFile = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDirWithCA);
+            String sshFile = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDirWithCA);
+            assertTrue(eqFile.contains("<cim:ControlArea rdf:ID=\"_dangling-line_N_CA\">"));
+            assertTrue(sshFile.contains("<cim:ControlArea.netInterchange>-50</cim:ControlArea.netInterchange>"));
+            // No default value for tolerance
+            assertFalse(sshFile.contains("cim:ControlArea.pTolerance"));
+
+            // Check that tolerance is exported only if explicitly defined
+            Area area = network.getAreas().iterator().next();
+            area.setProperty(CgmesNames.P_TOLERANCE, "1.01");
+            Path tmpDirWithCaTolerance = tmpDir.resolve("network-with-ca-tolerance");
+            Files.createDirectories(tmpDirWithCaTolerance);
+            sshFile = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDirWithCaTolerance);
+            assertTrue(sshFile.contains("<cim:ControlArea.pTolerance>1.01</cim:ControlArea.pTolerance>"));
         }
     }
 

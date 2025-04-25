@@ -12,7 +12,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynamicsimulation.*;
-import com.powsybl.dynamicsimulation.groovy.*;
+import com.powsybl.dynamicsimulation.groovy.DynamicSimulationReports;
+import com.powsybl.dynamicsimulation.groovy.DynamicSimulationSupplierFactory;
 import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 import com.powsybl.iidm.network.ImportConfig;
@@ -25,7 +26,6 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -43,11 +43,10 @@ public class DynamicSimulationTool implements Tool {
     private static final String CASE_FILE = "case-file";
     private static final String DYNAMIC_MODELS_FILE = "dynamic-models-file";
     private static final String EVENT_MODELS_FILE = "event-models-file";
-    private static final String CURVES_FILE = "curves-file";
+    private static final String OUTPUT_VARIABLES_FILE = "output-variables-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_FILE = "output-file";
     private static final String OUTPUT_LOG_FILE = "output-log-file";
-    private static final String GROOVY = "groovy";
 
     @Override
     public Command getCommand() {
@@ -88,8 +87,8 @@ public class DynamicSimulationTool implements Tool {
                     .hasArg()
                     .argName("FILE")
                     .build());
-                options.addOption(Option.builder().longOpt(CURVES_FILE)
-                    .desc("curves description as Groovy file")
+                options.addOption(Option.builder().longOpt(OUTPUT_VARIABLES_FILE)
+                    .desc("output variables description as Groovy file: defines a list of variables to plot or get the final value")
                     .hasArg()
                     .argName("FILE")
                     .build());
@@ -136,18 +135,18 @@ public class DynamicSimulationTool implements Tool {
         DynamicSimulation.Runner runner = DynamicSimulation.find();
 
         Path dydFile = context.getFileSystem().getPath(line.getOptionValue(DYNAMIC_MODELS_FILE));
-        DynamicModelsSupplier dynamicModelsSupplier = createDynamicModelsSupplier(dydFile, runner.getName());
+        DynamicModelsSupplier dynamicModelsSupplier = DynamicSimulationSupplierFactory.createDynamicModelsSupplier(dydFile, runner.getName());
 
         EventModelsSupplier eventSupplier = EventModelsSupplier.empty();
         if (line.hasOption(EVENT_MODELS_FILE)) {
             Path eventFile = context.getFileSystem().getPath(line.getOptionValue(EVENT_MODELS_FILE));
-            eventSupplier = createEventModelsSupplier(eventFile, runner.getName());
+            eventSupplier = DynamicSimulationSupplierFactory.createEventModelsSupplier(eventFile, runner.getName());
         }
 
-        CurvesSupplier curvesSupplier = CurvesSupplier.empty();
-        if (line.hasOption(CURVES_FILE)) {
-            Path curvesFile = context.getFileSystem().getPath(line.getOptionValue(CURVES_FILE));
-            curvesSupplier = createCurvesSupplier(curvesFile, runner.getName());
+        OutputVariablesSupplier outputVariablesSupplier = OutputVariablesSupplier.empty();
+        if (line.hasOption(OUTPUT_VARIABLES_FILE)) {
+            Path outputVariablesFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_VARIABLES_FILE));
+            outputVariablesSupplier = DynamicSimulationSupplierFactory.createOutputVariablesSupplier(outputVariablesFile, runner.getName());
         }
 
         DynamicSimulationParameters params = DynamicSimulationParameters.load();
@@ -156,8 +155,8 @@ public class DynamicSimulationTool implements Tool {
             JsonDynamicSimulationParameters.update(params, parametersFile);
         }
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("dynamicSimulationTool", "Dynamic Simulation Tool").build();
-        DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reportNode);
+        ReportNode reportNode = DynamicSimulationReports.buildRootDynamicSimulationTool();
+        DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, outputVariablesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reportNode);
 
         Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
         if (outputLogFile != null) {
@@ -171,33 +170,6 @@ public class DynamicSimulationTool implements Tool {
             exportResult(result, context, outputFile);
         } else {
             printResult(result, context);
-        }
-    }
-
-    private DynamicModelsSupplier createDynamicModelsSupplier(Path path, String providerName) {
-        String extension = FilenameUtils.getExtension(path.toString());
-        if (extension.equals(GROOVY)) {
-            return new GroovyDynamicModelsSupplier(path, GroovyExtension.find(DynamicModelGroovyExtension.class, providerName));
-        } else {
-            throw new PowsyblException("Unsupported dynamic model format: " + extension);
-        }
-    }
-
-    private EventModelsSupplier createEventModelsSupplier(Path path, String providerName) {
-        String extension = FilenameUtils.getExtension(path.toString());
-        if (extension.equals(GROOVY)) {
-            return new GroovyEventModelsSupplier(path, GroovyExtension.find(EventModelGroovyExtension.class, providerName));
-        } else {
-            throw new PowsyblException("Unsupported events format: " + extension);
-        }
-    }
-
-    private CurvesSupplier createCurvesSupplier(Path path, String providerName) {
-        String extension = FilenameUtils.getExtension(path.toString());
-        if (extension.equals(GROOVY)) {
-            return new GroovyCurvesSupplier(path, GroovyExtension.find(CurveGroovyExtension.class, providerName));
-        } else {
-            throw new PowsyblException("Unsupported curves format: " + extension);
         }
     }
 

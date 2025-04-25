@@ -29,5 +29,14 @@ class UcteVoltageLevelCodeTest {
         assertEquals(27, UcteVoltageLevelCode.VL_27.getVoltageLevel());
         assertEquals(330, UcteVoltageLevelCode.VL_330.getVoltageLevel());
         assertEquals(500, UcteVoltageLevelCode.VL_500.getVoltageLevel());
+
+        assertEquals('0', UcteVoltageLevelCode.voltageLevelCodeFromVoltage(1000));
+        assertEquals('1', UcteVoltageLevelCode.voltageLevelCodeFromVoltage(386));
+        assertEquals('2', UcteVoltageLevelCode.voltageLevelCodeFromVoltage(220));
+        assertEquals('2', UcteVoltageLevelCode.voltageLevelCodeFromVoltage(195));
+        assertEquals('3', UcteVoltageLevelCode.voltageLevelCodeFromVoltage(150));
+        assertEquals('4', UcteVoltageLevelCode.voltageLevelCodeFromVoltage(120));
+        assertEquals('4', UcteVoltageLevelCode.voltageLevelCodeFromVoltage(125));
+        assertEquals('7', UcteVoltageLevelCode.voltageLevelCodeFromVoltage(22));
     }
 }

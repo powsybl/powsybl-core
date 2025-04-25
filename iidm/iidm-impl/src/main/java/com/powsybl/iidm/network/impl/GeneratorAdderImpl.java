@@ -33,6 +33,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private double ratedS = Double.NaN;
 
+    private boolean isCondenser = false;
+
     GeneratorAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
     }
@@ -97,6 +99,12 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
+    public GeneratorAdder setCondenser(boolean isCondenser) {
+        this.isCondenser = isCondenser;
+        return this;
+    }
+
+    @Override
     public GeneratorImpl add() {
         NetworkImpl network = getNetwork();
         if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
@@ -109,19 +117,21 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(this, targetP, network.getMinValidationLevel()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(this, targetP, network.getMinValidationLevel(),
+                network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ,
+                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),
                                     id, getName(), isFictitious(), energySource,
                                     minP, maxP,
-                                    voltageRegulatorOn, regulatingTerminal != null ? regulatingTerminal : terminal,
+                                    voltageRegulatorOn, regulatingTerminal,
                                     targetP, targetQ, targetV,
-                                    ratedS);
+                                    ratedS, isCondenser);
         generator.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(generator);
         network.getListeners().notifyCreation(generator);
         return generator;

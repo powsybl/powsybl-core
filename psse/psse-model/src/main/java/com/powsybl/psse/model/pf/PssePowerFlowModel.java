@@ -60,6 +60,8 @@ public class PssePowerFlowModel {
 
     private final List<PsseInductionMachine> inductionMachines = new ArrayList<>();
 
+    private final List<PsseSubstation> substations = new ArrayList<>();
+
     public PssePowerFlowModel(PsseCaseIdentification caseIdentification) {
         this.caseIdentification = Objects.requireNonNull(caseIdentification);
     }
@@ -69,6 +71,11 @@ public class PssePowerFlowModel {
     }
 
     public void addBuses(List<PsseBus> buses) {
+        this.buses.addAll(modelled(buses));
+    }
+
+    public void replaceAllBuses(List<PsseBus> buses) {
+        this.buses.clear();
         this.buses.addAll(modelled(buses));
     }
 
@@ -220,6 +227,14 @@ public class PssePowerFlowModel {
         return Collections.unmodifiableList(inductionMachines);
     }
 
+    public void addSubstations(List<PsseSubstation> substations) {
+        this.substations.addAll(substations);
+    }
+
+    public List<PsseSubstation> getSubstations() {
+        return Collections.unmodifiableList(substations);
+    }
+
     public PssePowerFlowModel referenceAndCopyPssePowerFlowModel() {
         PssePowerFlowModel newPsseModel = new PssePowerFlowModel(this.getCaseIdentification());
         referencePermanentBlocks(this, newPsseModel);
@@ -229,7 +244,6 @@ public class PssePowerFlowModel {
 
     private static void referencePermanentBlocks(PssePowerFlowModel psseModel, PssePowerFlowModel newPsseModel) {
         newPsseModel.addAreas(psseModel.getAreas());
-        newPsseModel.addTwoTerminalDcTransmissionLines(psseModel.getTwoTerminalDcTransmissionLines());
         newPsseModel.addVoltageSourceConverterDcTransmissionLines(psseModel.getVoltageSourceConverterDcTransmissionLines());
         newPsseModel.addTransformerImpedanceCorrections(psseModel.getTransformerImpedanceCorrections());
         newPsseModel.addMultiTerminalDcTransmissionLines(psseModel.getMultiTerminalDcTransmissionLines());
@@ -250,7 +264,11 @@ public class PssePowerFlowModel {
         psseModel.getGenerators().forEach(psseGenerator -> newPsseModel.generators.add(psseGenerator.copy()));
         psseModel.getNonTransformerBranches().forEach(nonTransformerBranch -> newPsseModel.nonTransformerBranches.add(nonTransformerBranch.copy()));
         psseModel.getTransformers().forEach(psseTransformer -> newPsseModel.transformers.add(psseTransformer.copy()));
+
+        psseModel.getTwoTerminalDcTransmissionLines().forEach(twoTerminalDc -> newPsseModel.twoTerminalDcTransmissionLines.add(twoTerminalDc.copy()));
+
         psseModel.getSwitchedShunts().forEach(psseSwitchedShunt -> newPsseModel.switchedShunts.add(psseSwitchedShunt.copy()));
+        psseModel.getSubstations().forEach(psseSubstation -> newPsseModel.substations.add(psseSubstation.copy()));
     }
 
     private <T extends PsseVersioned> List<T> modelled(List<T> elements) {

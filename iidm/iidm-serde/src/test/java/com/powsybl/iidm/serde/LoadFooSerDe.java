@@ -28,11 +28,14 @@ public class LoadFooSerDe extends AbstractExtensionSerDe<Load, LoadFooExt> {
 
     @Override
     public void write(LoadFooExt loadFoo, SerializerContext context) {
+        // empty extension
     }
 
     @Override
     public LoadFooExt read(Load load, DeserializerContext context) {
         context.getReader().readEndNode();
-        return new LoadFooExt(load);
+        var ext = new LoadFooExt(load);
+        load.addExtension(LoadFooExt.class, ext);
+        return ext;
     }
 }

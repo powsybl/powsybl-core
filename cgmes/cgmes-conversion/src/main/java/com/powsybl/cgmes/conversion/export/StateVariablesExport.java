@@ -7,9 +7,11 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
@@ -47,14 +49,20 @@ public final class StateVariablesExport {
     }
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
+        CgmesMetadataModel model = CgmesExport.initializeModelForExport(
+                network, CgmesSubset.STATE_VARIABLES, context, true, false);
+        write(network, writer, context, model);
+    }
+
+    public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context, CgmesMetadataModel model) {
         try {
             String cimNamespace = context.getCim().getNamespace();
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
 
             if (context.getCimVersion() >= 16) {
-                CgmesExportUtil.writeModelDescription(network, CgmesSubset.STATE_VARIABLES, writer, context.getExportedSVModel(), context);
+                CgmesExportUtil.writeModelDescription(network, CgmesSubset.STATE_VARIABLES, writer, model, context);
                 writeTopologicalIslands(network, context, writer);
-                // Note: unmapped topological nodes (node breaker) & boundary topological nodes are not written in topological islands
+                // Note: unmapped topological nodes (node breaker) are not written in topological islands
             }
 
             writeVoltagesForTopologicalNodes(network, context, writer);
@@ -216,8 +224,8 @@ public final class StateVariablesExport {
             return new TopologicalIsland(key, new ArrayList<>(), context);
         }
 
-        static TopologicalIsland fromTopologicalNode(String topologicalNode, CgmesExportContext context) {
-            return new TopologicalIsland(topologicalNode, Collections.singletonList(topologicalNode), context);
+        static TopologicalIsland fromTopologicalNodes(List<String> topologicalNodes, CgmesExportContext context) {
+            return new TopologicalIsland(topologicalNodes.get(0), topologicalNodes, context);
         }
 
         void addNode(String topologicalNode, Bus bus, boolean updateLoadFlowStatus) {
@@ -284,13 +292,19 @@ public final class StateVariablesExport {
     private static List<TopologicalIsland> buildIslands(Network network, CgmesExportContext context) {
         Map<String, TopologicalIsland> islands = new HashMap<>();
         for (Bus b : network.getBusBreakerView().getBuses()) {
-            String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
+            // Adds the topological node of the bus and of any dangling line connected to this bus (QoCDC 4.0)
+            List<String> topologicalNodeIds = new ArrayList<>();
+            String busTnId = context.getNamingStrategy().getCgmesId(b);
+            topologicalNodeIds.add(busTnId);
+            b.getDanglingLines().forEach(dl -> topologicalNodeIds.add(dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY)));
             if (b.getSynchronousComponent() != null) {
                 String key = String.valueOf(b.getSynchronousComponent().getNum());
                 TopologicalIsland island = islands.computeIfAbsent(key, k -> TopologicalIsland.fromSynchronousComponent(k, context));
-                island.addNode(topologicalNodeId, b, context.isExportLoadFlowStatus());
+                for (String topologicalNodeId : topologicalNodeIds) {
+                    island.addNode(topologicalNodeId, b, context.isExportLoadFlowStatus());
+                }
             } else {
-                islands.put(topologicalNodeId, TopologicalIsland.fromTopologicalNode(topologicalNodeId, context));
+                islands.put(busTnId, TopologicalIsland.fromTopologicalNodes(topologicalNodeIds, context));
             }
         }
         return islands.values().stream().toList();
@@ -448,7 +462,7 @@ public final class StateVariablesExport {
             LOG.warn("Fictitious load does not have a BusView bus. No SvInjection is written");
         } else {
             // SvInjection will be assigned to the first of the TNs mapped to the bus
-            String topologicalNode = bus.getId();
+            String topologicalNode = context.getNamingStrategy().getCgmesId(bus);
 
             // In this special case we use the original CGMES id,
             // to be able to keep track of it in the exported SV file
@@ -591,12 +605,14 @@ public final class StateVariablesExport {
     }
 
     private static void writeStatus(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        // create SvStatus, iterate on Connectables, check Terminal status, add to SvStatus
-        network.getConnectableStream().forEach(c -> {
-            if (context.isExportedEquipment(c)) {
-                writeConnectableStatus(c, cimNamespace, writer, context);
-            }
-        });
+        if (!context.isCim16BusBranchExport()) {
+            // create SvStatus, iterate on Connectables, check Terminal status, add to SvStatus
+            network.getConnectableStream().forEach(c -> {
+                if (context.isExportedEquipment(c)) {
+                    writeConnectableStatus(c, cimNamespace, writer, context);
+                }
+            });
+        }
 
         // RK: For dangling lines (boundaries), the AC Line Segment is considered in service if and only if it is connected on the network side.
         // If it is disconnected on the boundary side, it might not appear on the SV file.

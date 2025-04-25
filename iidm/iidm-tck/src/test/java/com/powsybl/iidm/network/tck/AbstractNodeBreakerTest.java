@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public abstract class AbstractNodeBreakerTest {
 
-    private Network createNetwork() {
+    protected Network createNetwork() {
         Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation()
             .setId("S1")
@@ -312,6 +312,33 @@ public abstract class AbstractNodeBreakerTest {
         return network;
     }
 
+    /**
+     * <pre>
+     *                load
+     *                  |
+     *               ___|___
+     *               |     |
+     *           fd1 x     x fd2
+     * bbs1 _________|__   |
+     *        |            |
+     *        c            |
+     * bbs2 __|____________|__
+     * </pre>
+     */
+    private static Network createNetworkWithLoop() {
+        Network network = Network.create("test", "test");
+        Substation substation = network.newSubstation().setId("s").add();
+        VoltageLevel vl = substation.newVoltageLevel().setId("vl").setNominalV(400).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        VoltageLevel.NodeBreakerView topology = vl.getNodeBreakerView();
+        topology.newBusbarSection().setId("bbs1").setNode(0).add();
+        topology.newBusbarSection().setId("bbs2").setNode(1).add();
+        topology.newDisconnector().setId("fd1").setNode1(0).setNode2(2).add();
+        topology.newDisconnector().setId("fd2").setNode1(1).setNode2(2).add();
+        topology.newBreaker().setId("c").setNode1(0).setNode2(1).add();
+        vl.newLoad().setId("load").setNode(2).setP0(10).setQ0(3).add();
+        return network;
+    }
+
     @Test
     public void connectDisconnectRemove() {
         Network network = createNetwork();
@@ -427,11 +454,19 @@ public abstract class AbstractNodeBreakerTest {
         assertFalse(g2.getTerminal().disconnect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER));
     }
 
-    private static Bus getBus(Injection i) {
+    private static Bus getBusInBusBreakerView(Injection<?> i) {
+        return i.getTerminal().getBusBreakerView().getBus();
+    }
+
+    private static Bus getBusInBusView(Injection<?> i) {
         return i.getTerminal().getBusView().getBus();
     }
 
-    private static Bus getConnectableBus(Injection i) {
+    private static Bus getConnectableBusInBusBreakerView(Injection<?> i) {
+        return i.getTerminal().getBusBreakerView().getConnectableBus();
+    }
+
+    private static Bus getConnectableBusInBusView(Injection<?> i) {
         return i.getTerminal().getBusView().getConnectableBus();
     }
 
@@ -466,7 +501,7 @@ public abstract class AbstractNodeBreakerTest {
 
         // Check thew load is connected to the correct bus bar.
         BusbarSection bb = vl.getNodeBreakerView().getBusbarSection("voltageLevel1BusbarSection1");
-        assertEquals(getBus(bb), getBus(l2));
+        assertEquals(getBusInBusView(bb), getBusInBusView(l2));
     }
 
     @Test
@@ -475,24 +510,39 @@ public abstract class AbstractNodeBreakerTest {
         assertEquals(2, network.getBusView().getBusStream().count());
 
         // load "L0" is connected to bus "VL_0"
-        assertNotNull(getBus(network.getLoad("L0")));
-        assertEquals("VL_0", getConnectableBus(network.getLoad("L0")).getId());
+        Load l0 = network.getLoad("L0");
+        assertNotNull(getBusInBusBreakerView(l0));
+        assertEquals("VL_0", getConnectableBusInBusBreakerView(l0).getId());
+        assertNotNull(getBusInBusView(l0));
+        assertEquals("VL_0", getConnectableBusInBusView(l0).getId());
 
         // load "L1" is connected to bus "VL_1"
-        assertNotNull(getBus(network.getLoad("L1")));
-        assertEquals("VL_1", getConnectableBus(network.getLoad("L1")).getId());
+        Load l1 = network.getLoad("L1");
+        assertNotNull(getBusInBusBreakerView(l1));
+        assertEquals("VL_1", getConnectableBusInBusBreakerView(l1).getId());
+        assertNotNull(getBusInBusView(l1));
+        assertEquals("VL_1", getConnectableBusInBusView(l1).getId());
 
         // load "L2" is not connected but is connectable to bus "VL_1"
-        assertNull(getBus(network.getLoad("L2")));
-        assertEquals("VL_1", getConnectableBus(network.getLoad("L2")).getId());
+        Load l2 = network.getLoad("L2");
+        assertNotNull(getBusInBusBreakerView(l2));
+        assertEquals("VL_4", getConnectableBusInBusBreakerView(l2).getId());
+        assertNull(getBusInBusView(l2));
+        assertEquals("VL_1", getConnectableBusInBusView(l2).getId());
 
         // load "L3" is not connected and has no connectable bus (the first bus is taken as connectable bus in this case)
-        assertNull(getBus(network.getLoad("L3")));
-        assertEquals("VL_0", getConnectableBus(network.getLoad("L3")).getId());
+        Load l3 = network.getLoad("L3");
+        assertNotNull(getBusInBusBreakerView(l3));
+        assertEquals("VL_5", getConnectableBusInBusBreakerView(l3).getId());
+        assertNull(getBusInBusView(l3));
+        assertEquals("VL_0", getConnectableBusInBusView(l3).getId());
 
         // load "L4" is not connected, has no connectable bus and is in a disconnected voltage level
-        assertNull(getBus(network.getLoad("L4")));
-        assertNull(getConnectableBus(network.getLoad("L4")));
+        Load l4 = network.getLoad("L4");
+        assertNotNull(getBusInBusBreakerView(l4));
+        assertEquals("VL2_0", getConnectableBusInBusBreakerView(l4).getId());
+        assertNull(getBusInBusView(l4));
+        assertNull(getConnectableBusInBusView(l4));
     }
 
     @Test
@@ -532,5 +582,20 @@ public abstract class AbstractNodeBreakerTest {
         // Remove substation
         sub.remove();
         assertNull(network.getSubstation("S1"));
+    }
+
+    @Test
+    public void testCalculatedBusTopologyWithLoop() {
+        Network n = createNetworkWithLoop();
+
+        Bus busBbv = n.getBusBreakerView().getBus("vl_0");
+        assertNotNull(busBbv);
+        assertEquals(1, n.getBusBreakerView().getBusCount());
+        assertEquals(3, busBbv.getConnectedTerminalCount());
+
+        Bus busBv = n.getBusView().getBus("vl_0");
+        assertNotNull(busBv);
+        assertEquals(1, n.getBusView().getBusStream().count());
+        assertEquals(3, busBv.getConnectedTerminalCount());
     }
 }

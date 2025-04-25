@@ -8,7 +8,10 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
@@ -208,7 +211,10 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .setB2(0.0);
 
         //wrong network
-        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("reportTestWrongNetwork", "Testing creating line reportNode with wrong network").build();
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestWrongNetwork")
+                .build();
         Network network1 = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         CreateBranchFeederBays modification0 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
@@ -219,12 +225,16 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification0.apply(network1, false, ReportNode.NO_OP));
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, reportNode1));
-        assertEquals("Network given in parameters and in connectableAdder are different. Connectable was added then removed", e0.getMessage());
-        assertEquals("networkMismatch", reportNode1.getChildren().get(0).getMessageKey());
+        assertEquals("Network given in parameters and in connectableAdder are different. Connectable lineTest of type LINE was added then removed", e0.getMessage());
+        assertEquals("core.iidm.modification.networkMismatch", reportNode1.getChildren().get(0).getMessageKey());
 
         // not found id
-        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("reportTestUndefinedId", "Testing creating line reportNode with wrong busbar section ID").build();
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestUndefinedId")
+                .build();
         CreateBranchFeederBays modification1 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("bbs")
@@ -234,12 +244,16 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification1.apply(nbNetwork, false, ReportNode.NO_OP));
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(nbNetwork, true, reportNode2));
         assertEquals("Bus or busbar section bbs not found", e1.getMessage());
-        assertEquals("notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
 
         // wrong identifiable type
-        ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("reportTestWrongBbsType", "Testing creating line reportNode with wrong bbs type").build();
+        ReportNode reportNode3 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestWrongBbsType")
+                .build();
         CreateBranchFeederBays modification2 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("gen1")
@@ -249,9 +263,10 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
+        assertDoesNotThrow(() -> modification2.apply(nbNetwork, false, ReportNode.NO_OP));
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(nbNetwork, true, reportNode3));
         assertEquals("Unsupported type GENERATOR for identifiable gen1", e2.getMessage());
-        assertEquals("unsupportedIdentifiableType", reportNode3.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.unsupportedIdentifiableType", reportNode3.getChildren().get(0).getMessageKey());
     }
 
     @Test
@@ -341,7 +356,10 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .setG2(0.0)
                 .setB1(0.0)
                 .setB2(0.0);
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestCreateLine", "Testing creating line reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestCreateLine")
+                .build();
         new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("bbs5")
@@ -367,7 +385,10 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .setG2(0.0)
                 .setB1(0.0)
                 .setB2(0.0);
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestCreateLineWithoutExtensions", "Testing creating line reportNode without extensions").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestCreateLineWithoutExtensions")
+                .build();
         new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("bbs5")
@@ -379,5 +400,28 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .build()
                 .apply(network, true, reportNode);
         testReportNode(reportNode, "/reportNode/create-line-NB-without-extensions-report.txt");
+    }
+
+    @Test
+    void testGetName() {
+        Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
+        LineAdder lineAdder = network.newLine()
+            .setId("lineTest")
+            .setR(1.0)
+            .setX(1.0)
+            .setG1(0.0)
+            .setG2(0.0)
+            .setB1(0.0)
+            .setB2(0.0);
+        AbstractNetworkModification networkModification = new CreateBranchFeederBaysBuilder()
+            .withBranchAdder(lineAdder)
+            .withBusOrBusbarSectionId1("bbs5")
+            .withPositionOrder1(115)
+            .withDirection1(BOTTOM)
+            .withBusOrBusbarSectionId2("bbs1")
+            .withPositionOrder2(121)
+            .withDirection2(TOP)
+            .build();
+        assertEquals("CreateBranchFeederBays", networkModification.getName());
     }
 }

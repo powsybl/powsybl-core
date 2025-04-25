@@ -9,11 +9,15 @@ package com.powsybl.loadflow;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.google.common.collect.ImmutableMap;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -47,7 +51,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
          */
         PROPORTIONAL_TO_GENERATION_P_MAX,
         /**
-         * active power slack distribution on generators, proportional to generator maxP - targetP
+         * active power slack distribution on generators, proportional to generator maxP - targetP if active production is increased, and proportional to targetP - minP if decreased.
          */
         PROPORTIONAL_TO_GENERATION_REMAINING_MARGIN,
         /**
@@ -68,6 +72,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         MAIN,
         ALL,
     }
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowParameters.class);
 
     // VERSION = 1.0 specificCompatibility
     // VERSION = 1.1 t2wtSplitShuntAdmittance
@@ -109,7 +115,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
      * Load parameters from a provided platform configuration.
      */
     public static LoadFlowParameters load(PlatformConfig platformConfig) {
-        LoadFlowParameters parameters = new LoadFlowParameters();
+        LoadFlowParameters parameters = new LoadFlowParameters(platformConfig);
         load(parameters, platformConfig);
 
         parameters.loadExtensions(platformConfig);
@@ -125,27 +131,31 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         Objects.requireNonNull(parameters);
         Objects.requireNonNull(platformConfig);
 
+        // Only the parameters present in platformConfig will be updated and no default value will be set for the absent parameters
+        // (unlike what is done for the other parameters classes).
+        // This is needed for the LoadFlowDefaultParametersLoader mechanism to work (else the default values defined
+        // by the loader will be overwritten by the hardcoded ones).
         platformConfig.getOptionalModuleConfig("load-flow-default-parameters")
                 .ifPresent(config -> {
-                    parameters.setVoltageInitMode(config.getEnumProperty("voltageInitMode", VoltageInitMode.class, DEFAULT_VOLTAGE_INIT_MODE));
-                    parameters.setTransformerVoltageControlOn(config.getBooleanProperty("transformerVoltageControlOn", DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON));
-                    parameters.setUseReactiveLimits(!config.getBooleanProperty("noGeneratorReactiveLimits", !DEFAULT_USE_REACTIVE_LIMITS)); // overwritten by reactiveLimits
-                    parameters.setUseReactiveLimits(config.getBooleanProperty("useReactiveLimits", DEFAULT_USE_REACTIVE_LIMITS));
-                    parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
-                    // keep old tag name "specificCompatibility" for compatibility
-                    parameters.setTwtSplitShuntAdmittance(config.getBooleanProperty("twtSplitShuntAdmittance", config.getBooleanProperty("specificCompatibility", DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE)));
-                    parameters.setShuntCompensatorVoltageControlOn(config.getBooleanProperty("shuntCompensatorVoltageControlOn",
-                            config.getOptionalBooleanProperty("simulShunt").orElse(DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON)));
-                    parameters.setReadSlackBus(config.getBooleanProperty("readSlackBus", DEFAULT_READ_SLACK_BUS));
-                    parameters.setWriteSlackBus(config.getBooleanProperty("writeSlackBus", DEFAULT_WRITE_SLACK_BUS));
-                    parameters.setDc(config.getBooleanProperty("dc", DEFAULT_DC));
-                    parameters.setDistributedSlack(config.getBooleanProperty("distributedSlack", DEFAULT_DISTRIBUTED_SLACK));
-                    parameters.setBalanceType(config.getEnumProperty("balanceType", BalanceType.class, DEFAULT_BALANCE_TYPE));
-                    parameters.setDcUseTransformerRatio(config.getBooleanProperty("dcUseTransformerRatio", DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT));
-                    parameters.setCountriesToBalance(config.getEnumSetProperty("countriesToBalance", Country.class, DEFAULT_COUNTRIES_TO_BALANCE));
-                    parameters.setConnectedComponentMode(config.getEnumProperty("connectedComponentMode", ConnectedComponentMode.class, DEFAULT_CONNECTED_COMPONENT_MODE));
-                    parameters.setHvdcAcEmulation(config.getBooleanProperty("hvdcAcEmulation", DEFAULT_HVDC_AC_EMULATION_ON));
-                    parameters.setDcPowerFactor(config.getDoubleProperty("dcPowerFactor", DEFAULT_DC_POWER_FACTOR));
+                    config.getOptionalEnumProperty("voltageInitMode", VoltageInitMode.class).ifPresent(parameters::setVoltageInitMode);
+                    config.getOptionalBooleanProperty("transformerVoltageControlOn").ifPresent(parameters::setTransformerVoltageControlOn);
+                    config.getOptionalBooleanProperty("useReactiveLimits").ifPresentOrElse(parameters::setUseReactiveLimits,
+                            () -> config.getOptionalBooleanProperty("noGeneratorReactiveLimits").ifPresent(value -> parameters.setUseReactiveLimits(!value)));
+                    config.getOptionalBooleanProperty("phaseShifterRegulationOn").ifPresent(parameters::setPhaseShifterRegulationOn);
+                    config.getOptionalBooleanProperty("twtSplitShuntAdmittance").ifPresentOrElse(parameters::setTwtSplitShuntAdmittance,
+                            () -> config.getOptionalBooleanProperty("specificCompatibility").ifPresent(parameters::setTwtSplitShuntAdmittance));
+                    config.getOptionalBooleanProperty("shuntCompensatorVoltageControlOn").ifPresentOrElse(parameters::setShuntCompensatorVoltageControlOn,
+                            () -> config.getOptionalBooleanProperty("simulShunt").ifPresent(parameters::setShuntCompensatorVoltageControlOn));
+                    config.getOptionalBooleanProperty("readSlackBus").ifPresent(parameters::setReadSlackBus);
+                    config.getOptionalBooleanProperty("writeSlackBus").ifPresent(parameters::setWriteSlackBus);
+                    config.getOptionalBooleanProperty("dc").ifPresent(parameters::setDc);
+                    config.getOptionalBooleanProperty("distributedSlack").ifPresent(parameters::setDistributedSlack);
+                    config.getOptionalEnumProperty("balanceType", BalanceType.class).ifPresent(parameters::setBalanceType);
+                    config.getOptionalBooleanProperty("dcUseTransformerRatio").ifPresent(parameters::setDcUseTransformerRatio);
+                    config.getOptionalEnumSetProperty("countriesToBalance", Country.class).ifPresent(parameters::setCountriesToBalance);
+                    config.getOptionalEnumProperty("connectedComponentMode", ConnectedComponentMode.class).ifPresent(parameters::setConnectedComponentMode);
+                    config.getOptionalBooleanProperty("hvdcAcEmulation").ifPresent(parameters::setHvdcAcEmulation);
+                    config.getOptionalDoubleProperty("dcPowerFactor").ifPresent(parameters::setDcPowerFactor);
                 });
     }
 
@@ -182,6 +192,54 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     private double dcPowerFactor = DEFAULT_DC_POWER_FACTOR;
 
     public LoadFlowParameters() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    protected LoadFlowParameters(PlatformConfig config) {
+        this(ServiceLoader.load(LoadFlowDefaultParametersLoader.class)
+                .stream()
+                .map(ServiceLoader.Provider::get)
+                .toList(), config);
+    }
+
+    public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders) {
+        this(defaultParametersLoaders, PlatformConfig.defaultConfig());
+    }
+
+    public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders, PlatformConfig config) {
+        // Check default-parameters-loader config parameter
+        String selectedLoaderName;
+        Optional<LoadFlowDefaultParametersLoader> selectedLoader = Optional.empty();
+        selectedLoaderName = config.getOptionalModuleConfig("load-flow")
+                .flatMap(moduleConfig -> moduleConfig.getOptionalStringProperty("default-parameters-loader"))
+                .orElse(null);
+        if (selectedLoaderName != null) {
+            selectedLoader = defaultParametersLoaders.stream()
+                    .filter(loader -> loader.getSourceName().equals(selectedLoaderName))
+                    .findFirst();
+            if (selectedLoader.isEmpty()) {
+                LOGGER.warn("Parameter 'default-parameters-loader' of module 'load-flow' ({}) does not match any" +
+                        " LoadFlowDefaultParametersLoader found in the classpath", selectedLoaderName);
+            }
+        } else {
+            int numberOfLoadersFound = Objects.requireNonNull(defaultParametersLoaders).size();
+            if (numberOfLoadersFound > 1) {
+                List<String> names = defaultParametersLoaders.stream()
+                        .map(LoadFlowDefaultParametersLoader::getSourceName).toList();
+                String message = String.format("Multiple default loadflow parameter loader classes have been found in the class path : %s." +
+                                " Specify which one to use with the 'default-parameters-loader' parameter of 'load-flow' module " +
+                                "of Powsybl configuration.", names);
+                throw new PowsyblException(message);
+            } else if (numberOfLoadersFound == 1) {
+                selectedLoader = defaultParametersLoaders.stream().findFirst();
+            }
+        }
+
+        if (selectedLoader.isPresent()) {
+            JsonLoadFlowParameters.update(this, selectedLoader.get().loadDefaultParametersFromFile());
+            LOGGER.debug("Default loadflow configuration has been updated using the reference from parameters loader '{}'",
+                    selectedLoader.get().getSourceName());
+        }
     }
 
     protected LoadFlowParameters(LoadFlowParameters other) {
@@ -432,10 +490,14 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return toMap().toString();
     }
 
-    private void loadExtensions(PlatformConfig platformConfig) {
+    protected void loadExtensions(PlatformConfig platformConfig) {
         for (LoadFlowProvider provider : new ServiceLoaderCache<>(LoadFlowProvider.class).getServices()) {
-            provider.loadSpecificParameters(platformConfig).ifPresent(extension ->
-                    addExtension((Class) extension.getClass(), extension));
+            provider.getSpecificParametersClass().ifPresent(clazz -> {
+                Optional<Extension<LoadFlowParameters>> extension = Optional.ofNullable(getExtension(clazz));
+                extension.ifPresentOrElse(ext -> provider.updateSpecificParameters(ext, platformConfig),
+                        () -> provider.loadSpecificParameters(platformConfig)
+                                .ifPresent(ext -> addExtension((Class) ext.getClass(), ext)));
+            });
         }
     }
 }

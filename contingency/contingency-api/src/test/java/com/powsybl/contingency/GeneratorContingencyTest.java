@@ -35,7 +35,7 @@ class GeneratorContingencyTest {
         assertEquals(ContingencyElementType.GENERATOR, genContingency.getType());
 
         assertNotNull(genContingency.toModification());
-        assertTrue(genContingency.toModification() instanceof GeneratorTripping);
+        assertInstanceOf(GeneratorTripping.class, genContingency.toModification());
 
         new EqualsTester()
                 .addEqualityGroup(new GeneratorContingency("g1"), new GeneratorContingency("g1"))
