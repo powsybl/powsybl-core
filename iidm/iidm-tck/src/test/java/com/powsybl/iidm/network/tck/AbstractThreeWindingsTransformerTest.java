@@ -133,21 +133,21 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setValue(1200)
             .endTemporaryLimit()
             .add();
-        assertSame(currentLimitsInLeg1, leg1.getCurrentLimits().orElse(null));
+        assertEquals(currentLimitsInLeg1, leg1.getCurrentLimits().orElse(null));
         ActivePowerLimits activePowerLimits1 = leg1.newActivePowerLimits()
                 .setPermanentLimit(400)
                 .add();
-        assertSame(activePowerLimits1, leg1.getActivePowerLimits().orElse(null));
+        assertEquals(activePowerLimits1, leg1.getActivePowerLimits().orElse(null));
         ApparentPowerLimits apparentPowerLimits1 = leg1.newApparentPowerLimits()
                 .setPermanentLimit(2.4)
                 .add();
-        assertSame(apparentPowerLimits1, leg1.getApparentPowerLimits().orElse(null));
+        assertEquals(apparentPowerLimits1, leg1.getApparentPowerLimits().orElse(null));
 
         RatioTapChanger ratioTapChangerInLeg2 = createRatioTapChanger(leg2,
             transformer.getTerminal(ThreeSides.TWO));
 
         assertTrue(leg2.hasRatioTapChanger());
-        assertSame(ratioTapChangerInLeg2, leg2.getRatioTapChanger());
+        assertEquals(ratioTapChangerInLeg2, leg2.getRatioTapChanger());
         CurrentLimits currentLimitsInLeg2 = leg2.newCurrentLimits()
             .setPermanentLimit(100)
             .beginTemporaryLimit()
@@ -156,13 +156,13 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setValue(1200)
             .endTemporaryLimit()
             .add();
-        assertSame(currentLimitsInLeg2, leg2.getCurrentLimits().orElse(null));
+        assertEquals(currentLimitsInLeg2, leg2.getCurrentLimits().orElse(null));
 
         RatioTapChanger ratioTapChangerInLeg3 = createRatioTapChanger(leg3,
             transformer.getTerminal(ThreeSides.THREE));
 
         assertTrue(leg3.getOptionalRatioTapChanger().isPresent());
-        assertSame(ratioTapChangerInLeg3, leg3.getRatioTapChanger());
+        assertEquals(ratioTapChangerInLeg3, leg3.getRatioTapChanger());
         CurrentLimits currentLimitsInLeg3 = leg3.newCurrentLimits()
             .setPermanentLimit(100)
             .beginTemporaryLimit()
@@ -171,22 +171,22 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setValue(1200)
             .endTemporaryLimit()
             .add();
-        assertSame(currentLimitsInLeg3, leg3.getCurrentLimits().orElse(null));
+        assertEquals(currentLimitsInLeg3, leg3.getCurrentLimits().orElse(null));
 
         PhaseTapChanger phaseTapChangerInLeg1 = createPhaseTapChanger(leg1,
             transformer.getTerminal(ThreeSides.ONE));
         assertTrue(leg1.getOptionalPhaseTapChanger().isPresent());
-        assertSame(phaseTapChangerInLeg1, leg1.getPhaseTapChanger());
+        assertEquals(phaseTapChangerInLeg1, leg1.getPhaseTapChanger());
 
         PhaseTapChanger phaseTapChangerInLeg2 = createPhaseTapChanger(leg2,
             transformer.getTerminal(ThreeSides.TWO));
         assertTrue(leg2.hasPhaseTapChanger());
-        assertSame(phaseTapChangerInLeg2, leg2.getPhaseTapChanger());
+        assertEquals(phaseTapChangerInLeg2, leg2.getPhaseTapChanger());
 
         PhaseTapChanger phaseTapChangerInLeg3 = createPhaseTapChanger(leg3,
             transformer.getTerminal(ThreeSides.THREE));
         assertTrue(leg3.getOptionalPhaseTapChanger().isPresent());
-        assertSame(phaseTapChangerInLeg3, leg3.getPhaseTapChanger());
+        assertEquals(phaseTapChangerInLeg3, leg3.getPhaseTapChanger());
 
         // Reuse adder
         ThreeWindingsTransformer transformer2 = transformerAdder.setId(transformer.getId() + "_2").add();
