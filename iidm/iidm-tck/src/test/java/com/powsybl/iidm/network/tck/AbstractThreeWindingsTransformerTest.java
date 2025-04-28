@@ -12,12 +12,17 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
-
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class AbstractThreeWindingsTransformerTest extends AbstractTransformerTest {
 
@@ -61,8 +66,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(1, Iterables.size(vl1.getThreeWindingsTransformers()));
         assertEquals(1, vl1.getThreeWindingsTransformerStream().count());
         assertEquals(1, vl1.getThreeWindingsTransformerCount());
-        assertSame(transformer, vl1.getThreeWindingsTransformers().iterator().next());
-        assertSame(transformer, vl1.getThreeWindingsTransformerStream().findFirst().get());
+        assertEquals(transformer, vl1.getThreeWindingsTransformers().iterator().next());
+        assertEquals(transformer, vl1.getThreeWindingsTransformerStream().findFirst().get());
 
         // leg1 adder
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
@@ -72,7 +77,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(1.1, leg1.getRatedU(), 0.0);
         assertEquals(1.6, leg1.getG(), 0.0);
         assertEquals(1.7, leg1.getB(), 0.0);
-        assertSame(transformer.getTerminal(ThreeSides.ONE), leg1.getTerminal());
+        assertEquals(transformer.getTerminal(ThreeSides.ONE), leg1.getTerminal());
         // leg1 setter getter
         leg1.setR(2.0);
         assertEquals(2.0, leg1.getR(), 0.0);
@@ -99,8 +104,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(3.4, leg3.getX(), 0.0);
         assertEquals(3.5, leg3.getRatedU(), 0.0);
         assertEquals(3.6, leg3.getRatedS(), 0.0);
-        assertSame(transformer.getTerminal(ThreeSides.TWO), leg2.getTerminal());
-        assertSame(transformer.getTerminal(ThreeSides.THREE), leg3.getTerminal());
+        assertEquals(transformer.getTerminal(ThreeSides.TWO), leg2.getTerminal());
+        assertEquals(transformer.getTerminal(ThreeSides.THREE), leg3.getTerminal());
         // leg2/3 setter getter
         leg2.setR(1.0);
         assertEquals(1.0, leg2.getR(), 0.0);
@@ -243,9 +248,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         VoltageLevel vl1 = network.getVoltageLevel("vl1");
         VoltageLevel vl2 = network.getVoltageLevel("vl2");
-        assertSame(vl1, leg1.getTerminal().getVoltageLevel());
-        assertSame(vl2, leg2.getTerminal().getVoltageLevel());
-        assertSame(vl1, leg3.getTerminal().getVoltageLevel());
+        assertEquals(vl1, leg1.getTerminal().getVoltageLevel());
+        assertEquals(vl2, leg2.getTerminal().getVoltageLevel());
+        assertEquals(vl1, leg3.getTerminal().getVoltageLevel());
     }
 
     @Test
@@ -1003,9 +1008,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void getSideFromLeg() {
         ThreeWindingsTransformerAdder transformerAdder = createThreeWindingsTransformerAdder();
         ThreeWindingsTransformer transformer = transformerAdder.add();
-        assertSame(ThreeSides.ONE, transformer.getLeg1().getSide());
-        assertSame(ThreeSides.TWO, transformer.getLeg2().getSide());
-        assertSame(ThreeSides.THREE, transformer.getLeg3().getSide());
+        assertEquals(ThreeSides.ONE, transformer.getLeg1().getSide());
+        assertEquals(ThreeSides.TWO, transformer.getLeg2().getSide());
+        assertEquals(ThreeSides.THREE, transformer.getLeg3().getSide());
     }
 
     private void createThreeWindingsTransformerWithLeg3(double r, double x, double g, double b, double ratedU) {
