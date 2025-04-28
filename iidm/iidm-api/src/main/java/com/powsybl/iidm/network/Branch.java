@@ -261,7 +261,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     /**
      * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exists.
      * Set the {@link OperationalLimitsGroup} as the selected one on side 1.</p>
-     * @param id an ID of {@link OperationalLimitsGroup}
+     * @param limitsGroupId an ID of {@link OperationalLimitsGroup}
      * @return the selected {@link OperationalLimitsGroup} on side 1.
      */
     default OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup1(String limitsGroupId) {
@@ -445,7 +445,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     /**
      * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exists.
      * Set the {@link OperationalLimitsGroup} as the selected one on side 2.</p>
-     * @param id an ID of {@link OperationalLimitsGroup}
+     * @param limitsGroupId an ID of {@link OperationalLimitsGroup}
      * @return the selected {@link OperationalLimitsGroup} on side 1.
      */
     default OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2(String limitsGroupId) {

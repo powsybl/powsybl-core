@@ -96,7 +96,7 @@ public interface FlowsLimitsHolder {
     /**
      * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exists.
      * Set the {@link OperationalLimitsGroup} as the selected one .</p>
-     * @param id an ID of {@link OperationalLimitsGroup}
+     * @param limitsGroupId an ID of {@link OperationalLimitsGroup}
      * @return the selected {@link OperationalLimitsGroup} on side 1.
      */
     default OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup(String limitsGroupId) {
