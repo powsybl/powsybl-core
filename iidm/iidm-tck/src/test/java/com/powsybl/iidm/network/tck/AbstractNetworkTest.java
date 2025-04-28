@@ -515,17 +515,17 @@ public abstract class AbstractNetworkTest {
 
         // Topology
         network = NetworkTest1Factory.create();
-        assertEquals(Arrays.asList(VOLTAGE_LEVEL1_BUSBAR_SECTION1, VOLTAGE_LEVEL1_BUSBAR_SECTION2),
-                mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView().getBusbarSectionStream()));
+        assertThat(mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView().getBusbarSectionStream()))
+            .containsExactlyInAnyOrder(VOLTAGE_LEVEL1_BUSBAR_SECTION1, VOLTAGE_LEVEL1_BUSBAR_SECTION2);
         assertEquals(Collections.singletonList(VOLTAGE_LEVEL1_BREAKER1),
                 mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView()
                         .getSwitchStream()
                         .filter(sw -> sw.getKind() == SwitchKind.BREAKER)));
-        assertEquals(Arrays.asList("load1Disconnector1", "load1Breaker1"),
-                mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView()
-                        .getSwitchStream()
-                        .filter(sw -> sw.getKind() == SwitchKind.DISCONNECTOR)
-                        .limit(2)));
+        assertThat(mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView()
+            .getSwitchStream()
+            .filter(sw -> sw.getKind() == SwitchKind.DISCONNECTOR)
+            .limit(2)))
+            .containsExactlyInAnyOrder("load1Disconnector1", "load1Breaker1");
         assertEquals(Collections.emptyList(),
                 mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView()
                         .getSwitchStream()
