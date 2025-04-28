@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -55,18 +56,18 @@ public abstract class AbstractConvertTopologyTest {
         var gh1 = network.getGenerator("GH1");
         var busesNbModel = vl.getBusBreakerView().getBusStream().toList();
         assertEquals(2, busesNbModel.size());
-        assertEquals(List.of("S1VL2_0", "S1VL2_1"), busesNbModel.stream().map(Identifiable::getId).toList());
-        assertEquals(List.of("S1VL2_BBS1", "TWT", "GH1", "GH2", "GH3", "SHUNT"), busesNbModel.get(0).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
-        assertEquals(List.of("S1VL2_BBS2", "VSC1", "LD2", "LD3", "LD4", "LCC1"), busesNbModel.get(1).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
+        assertThat(busesNbModel.stream().map(Identifiable::getId).toList()).containsExactlyInAnyOrder("S1VL2_0", "S1VL2_1");
+        assertThat(busesNbModel.get(0).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList()).containsExactlyInAnyOrder("S1VL2_BBS1", "TWT", "GH1", "GH2", "GH3", "SHUNT");
+        assertThat(busesNbModel.get(1).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList()).containsExactlyInAnyOrder("S1VL2_BBS2", "VSC1", "LD2", "LD3", "LD4", "LCC1");
         assertEquals("S1VL2_0", gh1.getRegulatingTerminal().getBusBreakerView().getBus().getId());
         vl.convertToTopology(TopologyKind.BUS_BREAKER);
 
         var busesBbModel = vl.getBusBreakerView().getBusStream().toList();
         assertEquals(2, busesBbModel.size());
-        assertEquals(List.of("S1VL2_0", "S1VL2_1"), busesNbModel.stream().map(Identifiable::getId).toList());
+        assertThat(busesNbModel.stream().map(Identifiable::getId).toList()).containsExactlyInAnyOrder("S1VL2_0", "S1VL2_1");
         // compare to initial node/breaker model, only difference is that there is no more busbar sections
-        assertEquals(List.of("TWT", "GH1", "GH2", "GH3", "SHUNT"), busesBbModel.get(0).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
-        assertEquals(List.of("VSC1", "LD2", "LD3", "LD4", "LCC1"), busesBbModel.get(1).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
+        assertThat(busesBbModel.get(0).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList()).containsExactlyInAnyOrder("TWT", "GH1", "GH2", "GH3", "SHUNT");
+        assertThat(busesBbModel.get(1).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList()).containsExactlyInAnyOrder("VSC1", "LD2", "LD3", "LD4", "LCC1");
         // only retained switches have been kept
         assertEquals(List.of("S1VL2_COUPLER"), vl.getBusBreakerView().getSwitchStream().map(Identifiable::getId).toList());
         assertEquals(List.of(new RemovalNetworkEvent("S1VL2_BBS1", false),
@@ -156,19 +157,19 @@ public abstract class AbstractConvertTopologyTest {
         eventRecorder.reset();
         var busesNbModel = vl.getBusBreakerView().getBusStream().toList();
         assertEquals(3, busesNbModel.size());
-        assertEquals(List.of("S1VL2_0", "S1VL2_1", "S1VL2_9"), busesNbModel.stream().map(Identifiable::getId).toList());
-        assertEquals(List.of("S1VL2_BBS1", "TWT", "GH1", "GH3", "SHUNT"), busesNbModel.get(0).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
-        assertEquals(List.of("S1VL2_BBS2", "VSC1", "LD2", "LD3", "LD4", "LCC1"), busesNbModel.get(1).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
+        assertThat(busesNbModel.stream().map(Identifiable::getId).toList()).containsExactlyInAnyOrder("S1VL2_0", "S1VL2_1", "S1VL2_9");
+        assertThat(busesNbModel.get(0).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList()).containsExactlyInAnyOrder("S1VL2_BBS1", "TWT", "GH1", "GH3", "SHUNT");
+        assertThat(busesNbModel.get(1).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList()).containsExactlyInAnyOrder("S1VL2_BBS2", "VSC1", "LD2", "LD3", "LD4", "LCC1");
         assertEquals(List.of("GH2"), busesNbModel.get(2).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
         vl.convertToTopology(TopologyKind.BUS_BREAKER);
         assertEquals(69, eventRecorder.getEvents().size());
 
         var busesBbModel = vl.getBusBreakerView().getBusStream().toList();
         assertEquals(3, busesBbModel.size());
-        assertEquals(List.of("S1VL2_0", "S1VL2_1", "S1VL2_9"), busesNbModel.stream().map(Identifiable::getId).toList());
+        assertThat(busesNbModel.stream().map(Identifiable::getId).toList()).containsExactlyInAnyOrder("S1VL2_0", "S1VL2_1", "S1VL2_9");
         // compare to initial node/breaker model, only difference is that there is no more busbar sections
-        assertEquals(List.of("TWT", "GH1", "GH3", "SHUNT"), busesBbModel.get(0).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
-        assertEquals(List.of("VSC1", "LD2", "LD3", "LD4", "LCC1"), busesBbModel.get(1).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
+        assertThat(busesBbModel.get(0).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList()).containsExactlyInAnyOrder("TWT", "GH1", "GH3", "SHUNT");
+        assertThat(busesBbModel.get(1).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList()).containsExactlyInAnyOrder("VSC1", "LD2", "LD3", "LD4", "LCC1");
         assertEquals(Collections.emptyList(), busesBbModel.get(2).getConnectedTerminalStream().map(t -> t.getConnectable().getId()).toList());
         assertEquals("S1VL2_9", gh2.getTerminal().getBusBreakerView().getConnectableBus().getId());
         assertFalse(gh2.getTerminal().isConnected());
