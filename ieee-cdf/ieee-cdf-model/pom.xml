@@ -13,7 +13,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-ieee-cdf</artifactId>
-        <version>6.7.0</version>
+        <version>6.7.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-ieee-cdf-model</artifactId>
