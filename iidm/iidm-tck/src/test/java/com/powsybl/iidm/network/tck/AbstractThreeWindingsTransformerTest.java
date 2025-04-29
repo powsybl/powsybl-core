@@ -696,7 +696,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .setNode(0)
                 .add();
 
-        ThreeWindingsTransformerAdder adder = substation.newThreeWindingsTransformer()
+        ValidationException e = assertThrows(ValidationException.class, () -> substation.newThreeWindingsTransformer()
             .setId("twt")
             .setName(TWT_NAME)
             .newLeg1()
@@ -707,14 +707,14 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setRatedU(1.1)
             .setRatedS(1.2)
             .setNode(0)
-            .add();
-        ValidationException e = assertThrows(ValidationException.class, adder::add);
+            .add()
+            .add());
         assertTrue(e.getMessage().contains("3 windings transformer leg1 in substation sub: voltage level is not set"));
     }
 
     @Test
     public void invalidLeg1ArgumentVoltageLevelNotFound() {
-        ThreeWindingsTransformerAdder adder = substation.newThreeWindingsTransformer()
+        ValidationException e = assertThrows(ValidationException.class, () -> substation.newThreeWindingsTransformer()
             .setId("twt")
             .setName(TWT_NAME)
             .newLeg1()
@@ -727,14 +727,14 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setVoltageLevel("invalid")
             .setConnectableBus("busA")
             .setBus("busA")
-            .add();
-        ValidationException e = assertThrows(ValidationException.class, adder::add);
+            .add()
+            .add());
         assertTrue(e.getMessage().contains("3 windings transformer leg1 in substation sub: voltage level 'invalid' not found"));
     }
 
     @Test
     public void invalidLeg1ArgumentConnectableBusNotSet() {
-        ThreeWindingsTransformerAdder adder = substation.newThreeWindingsTransformer()
+        ValidationException e = assertThrows(ValidationException.class, () -> substation.newThreeWindingsTransformer()
             .setId("twt")
             .setName(TWT_NAME)
             .newLeg1()
@@ -745,14 +745,14 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setRatedU(1.1)
             .setRatedS(1.2)
             .setVoltageLevel("vl1")
-            .add();
-        ValidationException e = assertThrows(ValidationException.class, adder::add);
+            .add()
+            .add());
         assertTrue(e.getMessage().contains("connectable bus is not set"));
     }
 
     @Test
     public void invalidLeg2NotSet() {
-        ThreeWindingsTransformerAdder adder = substation.newThreeWindingsTransformer()
+        ValidationException e = assertThrows(ValidationException.class, () -> substation.newThreeWindingsTransformer()
             .setId("twt")
             .setName(TWT_NAME)
             .newLeg1()
@@ -765,14 +765,14 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setVoltageLevel("vl1")
             .setConnectableBus("busA")
             .setBus("busA")
-            .add();
-        ValidationException e = assertThrows(ValidationException.class, adder::add);
+            .add()
+            .add());
         assertTrue(e.getMessage().contains(ERROR_LEG2_IS_NOT_SET));
     }
 
     @Test
     public void invalidLeg3NotSet() {
-        ThreeWindingsTransformerAdder adder = substation.newThreeWindingsTransformer()
+        ValidationException e = assertThrows(ValidationException.class, () -> substation.newThreeWindingsTransformer()
             .setId("twt")
             .setName(TWT_NAME)
             .newLeg1()
@@ -795,8 +795,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setRatedS(2.06)
             .setVoltageLevel("vl2")
             .setConnectableBus("busB")
-            .add();
-        ValidationException e = assertThrows(ValidationException.class, adder::add);
+            .add()
+            .add());
         assertTrue(e.getMessage().contains(ERROR_LEG3_IS_NOT_SET));
     }
 
