@@ -179,7 +179,6 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("operational-limits-groups-with-properties.xml", IidmVersion.V_1_14);
 
         // properties are not exported for previous versions (no properties in ref files)
-        //testWriteXmlAllPreviousVersions(network, new ExportOptions(), "operational-limits-groups-with-properties.xml", IidmVersion.V_1_14);
         testWriteVersionedXml(network, new ExportOptions(), "operational-limits-groups-with-properties.xml", IidmVersion.V_1_12, IidmVersion.V_1_13);
     }
 
