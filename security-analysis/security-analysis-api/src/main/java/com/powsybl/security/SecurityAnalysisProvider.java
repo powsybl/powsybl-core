@@ -9,10 +9,9 @@ package com.powsybl.security;
 
 import com.google.common.collect.Lists;
 import com.powsybl.commons.Versionable;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
+import com.powsybl.commons.config.SpecificParametersProvider;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
@@ -35,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNamedProvider {
+public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNamedProvider, SpecificParametersProvider<SecurityAnalysisParameters, Extension<SecurityAnalysisParameters>> {
 
     static List<SecurityAnalysisProvider> findAll() {
         return Lists.newArrayList(ServiceLoader.load(SecurityAnalysisProvider.class, SecurityAnalysisProvider.class.getClassLoader()));
@@ -81,45 +80,6 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
                                                   String workingVariantId,
                                                   ContingenciesProvider contingenciesProvider,
                                                   SecurityAnalysisRunParameters runParameters);
-
-    /**
-     * The serializer for implementation-specific parameters, or {@link Optional#empty()} if the implementation
-     * does not have any specific parameters, or does not support JSON serialization.
-     *
-     * <p>Note that the actual serializer type should be {@code ExtensionJsonSerializer<SecurityAnalysisParameters, MyParametersExtension>}
-     * where {@code MyParametersExtension} is the specific parameters class.
-     *
-     * @return The serializer for implementation-specific parameters.
-     */
-    default Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
-        return Optional.empty();
-    }
-
-    /**
-     * Reads implementation-specific parameters from platform config, or return {@link Optional#empty()}
-     * if the implementation does not have any specific parameters, or does not support loading from config.
-     *
-     * @return The specific parameters read from platform config.
-     */
-    default Optional<Extension<SecurityAnalysisParameters>> loadSpecificParameters(PlatformConfig config) {
-        return Optional.empty();
-    }
-
-    /**
-     * Reads implementation-specific parameters from a Map, or return {@link Optional#empty()}
-     * if the implementation does not have any specific parameters, or does not support loading from config.
-     *
-     * @return The specific parameters read from Map.
-     */
-    default Optional<Extension<SecurityAnalysisParameters>> loadSpecificParameters(Map<String, String> properties) {
-        return Optional.empty();
-    }
-
-    /**
-     * Updates implementation-specific parameters from a Map.
-     */
-    default void updateSpecificParameters(Extension<SecurityAnalysisParameters> extension, Map<String, String> properties) {
-    }
 
     /**
      *
