@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -26,11 +25,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProvider;
-import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
@@ -49,12 +46,6 @@ public final class JsonDynamicSimulationParameters {
      */
     public interface ExtensionSerializer<E extends Extension<DynamicSimulationParameters>> extends ExtensionJsonSerializer<DynamicSimulationParameters, E> {
     }
-
-    /**
-     *  Lazily initialized list of extension serializers.
-     */
-    private static final Supplier<ExtensionProviders<ExtensionSerializer>> SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "dynamic-simulation-parameters"));
 
     private JsonDynamicSimulationParameters() {
     }

@@ -97,7 +97,7 @@ public class DynamicSimulationProviderMock implements DynamicSimulationProvider 
         Optional.ofNullable(properties.get(BOOLEAN_PARAMETER_NAME))
                 .ifPresent(prop -> ((DummyExtension) extension).setParameterBoolean(Boolean.parseBoolean(prop)));
         Optional.ofNullable(properties.get(STRING_PARAMETER_NAME))
-                .ifPresent(prop -> ((DummyExtension) extension).setParameterString(prop));
+                .ifPresent(((DummyExtension) extension)::setParameterString);
     }
 
     @Override
