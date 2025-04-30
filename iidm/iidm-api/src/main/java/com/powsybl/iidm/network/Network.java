@@ -1511,6 +1511,8 @@ public interface Network extends Container<Network> {
             case HVDC_CONVERTER_STATION -> getHvdcConverterStationStream().map(Function.identity());
             case STATIC_VAR_COMPENSATOR -> getStaticVarCompensatorStream().map(Function.identity());
             case GROUND -> getGroundStream().map(Function.identity());
+            case AREA -> getAreaStream().map(Function.identity());
+            case OVERLOAD_MANAGEMENT_SYSTEM -> getOverloadManagementSystemStream().map(Function.identity());
             default -> throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
         };
     }
