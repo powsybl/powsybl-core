@@ -158,8 +158,10 @@ connectables are removed. The branches and three-winding transformers are also r
 substations.
 The builder takes the ID of the substation as input.
 
-### Moving a Network element
-The class `com.powsybl.iidm.modification.MoveFeederBay` allows to move feeder bays of connectables 
+### Moving a network element
+
+#### MoveFeederBay
+This class is used to move feeder bays of connectables 
 (except `BusOrBusBarSection` connectables) from one place to another within a network.
 
 This class allows to move a feeder bay from one busbar section to another within the network.
@@ -176,7 +178,7 @@ from the original busbar section and reconnecting to the target busbar section.
 If the target voltage level topology kind is `BUS_BREAKER`, the connectable is connected to the target bus without additional switches.
 If the target voltage level topology kind is `NODE_BREAKER`, the appropriate disconnectors and breakers are created to connect
 the feeder bay to the target busbar section, maintaining the correct topology.
-This modification ensures that the connectivity of the network is preserved while relocating the feeder bay to its new position.
+This modification ensures that the connectivity of the network is preserved while moving the feeder bay to its new position.
 
 ### Connect a line on a line or a voltage level on a line
 
