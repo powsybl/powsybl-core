@@ -9,19 +9,22 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.contingency.list.IdentifierContingencyList;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.identifiers.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -50,40 +53,23 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
                 "/identifierContingencyList.json");
     }
 
-    @Test
-    void readVersion12() {
+    private static Stream<String> provideFilePathsForTestClass() {
+        return Stream.of(
+            "/identifierContingencyListv1_0.json",
+            "/identifierContingencyListv1_1.json",
+            "/identifierContingencyListv1_2.json"
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideFilePathsForTestClass")
+    void readOldVersions(String filePath) {
         ContingencyList contingencyList = NetworkElementIdentifierContingencyListJsonTest
-            .readJsonInputStream(Objects.requireNonNull(getClass()
-                .getResourceAsStream("/identifierContingencyListv1_2.json")));
+                .readJsonInputStream(Objects.requireNonNull(getClass()
+                        .getResourceAsStream(filePath)));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             WRITER.writeValue(bos, contingencyList);
             ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_3.json"), new ByteArrayInputStream(bos.toByteArray()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Test
-    void readVersion11() {
-        ContingencyList contingencyList = NetworkElementIdentifierContingencyListJsonTest
-                .readJsonInputStream(Objects.requireNonNull(getClass()
-                        .getResourceAsStream("/identifierContingencyListv1_1.json")));
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            WRITER.writeValue(bos, contingencyList);
-            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Test
-    void readVersion10() {
-        ContingencyList contingencyList = NetworkElementIdentifierContingencyListJsonTest
-                .readJsonInputStream(Objects.requireNonNull(getClass()
-                        .getResourceAsStream("/identifierContingencyListv1_0.json")));
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            WRITER.writeValue(bos, contingencyList);
-            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
