@@ -12,9 +12,13 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.triplestore.api.PropertyBags;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -207,5 +211,19 @@ class CgmesMeasurementsTest {
         assertEquals(1, meas.getPropertyNames().size());
         String property = meas.getProperty("cgmesType");
         assertEquals("TestType", property);
+    }
+
+    @Test
+    void testDeprecated() {
+        Properties properties = new Properties();
+        Network network = new CgmesImport().importData(
+                CgmesConformity1ModifiedCatalog.miniNodeBreakerMeasurements().dataSource(),
+                NetworkFactory.findDefault(), properties);
+        assertNotNull(network);
+        PropertyBags pbags = new PropertyBags();
+        Map<String, String> mapping = new HashMap<>();
+        CgmesAnalogPostProcessor.process(network, "paf", "pif", "pouf", "ActivePower", pbags, mapping);
+        CgmesDiscretePostProcessor.process(network, "paf", "pif", "pouf", "ActivePower", pbags, mapping);
+        assertTrue(true);
     }
 }
