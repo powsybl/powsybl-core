@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
+import com.powsybl.iidm.network.util.HvdcUtils;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -339,13 +340,15 @@ public class CgmesDcConversion {
         double pAC1 = getPAc(cconverter1);
         double pAC2 = getPAc(cconverter2);
 
-        LossFactor lossFactor = new LossFactor(context, operatingMode, pAC1, pAC2, poleLossP1, poleLossP2);
+        double resistiveLosses = getResistiveLosses(pAC1, pAC2, poleLossP1, poleLossP2);
+
+        LossFactor lossFactor = new LossFactor(context, operatingMode, pAC1, pAC2, poleLossP1, poleLossP2, resistiveLosses);
         lossFactor.compute();
 
         AcDcConverterConversion acDcConverterConversion1 = new AcDcConverterConversion(cconverter1, converterType, lossFactor.getLossFactor1(), acDcConverterDcTerminal1Id, context);
         AcDcConverterConversion acDcConverterConversion2 = new AcDcConverterConversion(cconverter2, converterType, lossFactor.getLossFactor2(), acDcConverterDcTerminal2Id, context);
-        DcLineSegmentConverter converter1 = new DcLineSegmentConverter(converter1Id, poleLossP1, pAC1);
-        DcLineSegmentConverter converter2 = new DcLineSegmentConverter(converter2Id, poleLossP2, pAC2);
+        DcLineSegmentConverter converter1 = new DcLineSegmentConverter(converter1Id, poleLossP1, pAC1, resistiveLosses);
+        DcLineSegmentConverter converter2 = new DcLineSegmentConverter(converter2Id, poleLossP2, pAC2, resistiveLosses);
         DcLineSegmentConversion dcLineSegmentConversion = new DcLineSegmentConversion(dcLineSegment, operatingMode, r, ratedUdc, converter1, converter2, isDuplicated, context);
 
         if (!acDcConverterConversion1.valid() || !acDcConverterConversion2.valid() || !dcLineSegmentConversion.valid()) {
@@ -371,6 +374,26 @@ public class CgmesDcConversion {
     private static double getPAc(PropertyBag p) {
         // targetPpcc is the real power injection target in the AC grid in CGMES
         return Double.isNaN(p.asDouble(TARGET_PPCC)) ? 0 : p.asDouble(TARGET_PPCC);
+    }
+
+    private double getResistiveLosses(double pAC1, double pAC2, double poleLossP1, double poleLossP2) {
+        if (HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER.equals(operatingMode) && pAC1 != 0.0) {
+            double pDcRectifier = pAC1 - poleLossP1;
+            return HvdcUtils.getHvdcLineLosses(pDcRectifier, ratedUdc, r);
+        } else if (HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER.equals(operatingMode) && pAC2 != 0.0) {
+            double pDcRectifier = pAC2 - poleLossP2;
+            return HvdcUtils.getHvdcLineLosses(pDcRectifier, ratedUdc, r);
+        } else if (HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER.equals(operatingMode) && pAC2 != 0.0) {
+            double pDcInverter = -1 * pAC2 + poleLossP2;
+            double idc = (ratedUdc - Math.sqrt(ratedUdc * ratedUdc - 4 * r * pDcInverter)) / (2 * r);
+            return r * idc * idc;
+        } else if (HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER.equals(operatingMode) && pAC1 != 0.0) {
+            double pDcInverter = -1 * pAC1 + poleLossP1;
+            double idc = (ratedUdc - Math.sqrt(ratedUdc * ratedUdc - 4 * r * pDcInverter)) / (2 * r);
+            return r * idc * idc;
+        } else {
+            return 0.0;
+        }
     }
 
     private static void updatePowerFactor(AcDcConverterConversion acDcConverterConversion) {

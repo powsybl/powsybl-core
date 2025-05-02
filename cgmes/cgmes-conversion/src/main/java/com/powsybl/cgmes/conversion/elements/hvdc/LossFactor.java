@@ -22,7 +22,7 @@ import com.powsybl.iidm.network.HvdcLine;
 class LossFactor {
 
     LossFactor(Context context, HvdcLine.ConvertersMode mode, double pAC1, double pAC2, double poleLossP1,
-        double poleLossP2) {
+        double poleLossP2, double resistiveLosses) {
         Objects.requireNonNull(context);
         Objects.requireNonNull(mode);
         this.context = context;
@@ -33,6 +33,7 @@ class LossFactor {
         this.poleLossP2 = poleLossP2;
         this.lossFactor1 = Double.NaN;
         this.lossFactor2 = Double.NaN;
+        this.resistiveLosses = resistiveLosses;
     }
 
     void compute() {
@@ -43,18 +44,18 @@ class LossFactor {
             // we only keep one as we are not sure if pAC1 and pAC2 are consistent
             if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) { // we ignore pAC2
                 computeLossFactor1(pAC1, poleLossP1, mode);
-                computeLossFactor2FromPAC1(pAC1, poleLossP1, poleLossP2, mode);
+                computeLossFactor2FromPAC1(pAC1, poleLossP1, poleLossP2, mode, resistiveLosses);
             } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) { // we ignore pAC1
-                computeLossFactor1FromPAC2(pAC2, poleLossP1, poleLossP2, mode);
+                computeLossFactor1FromPAC2(pAC2, poleLossP1, poleLossP2, mode, resistiveLosses);
                 computeLossFactor2(pAC2, poleLossP2, mode);
             }
         } else if (pAC1 != 0) { // pAC2 == 0
 
             computeLossFactor1(pAC1, poleLossP1, mode);
-            computeLossFactor2FromPAC1(pAC1, poleLossP1, poleLossP2, mode);
+            computeLossFactor2FromPAC1(pAC1, poleLossP1, poleLossP2, mode, resistiveLosses);
         } else if (pAC2 != 0) { // pAC1 == 0
 
-            computeLossFactor1FromPAC2(pAC2, poleLossP1, poleLossP2, mode);
+            computeLossFactor1FromPAC2(pAC2, poleLossP1, poleLossP2, mode, resistiveLosses);
             computeLossFactor2(pAC2, poleLossP2, mode);
         } else {
             this.lossFactor1 = 0.0;
@@ -90,27 +91,27 @@ class LossFactor {
         }
     }
 
-    private void computeLossFactor1FromPAC2(double pAC2, double poleLossP1, double poleLossP2, HvdcLine.ConvertersMode mode) {
-        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && (Math.abs(pAC2) + poleLossP2 + poleLossP1) != 0) { // pAC2 < 0
+    private void computeLossFactor1FromPAC2(double pAC2, double poleLossP1, double poleLossP2, HvdcLine.ConvertersMode mode, double resistiveLosses) {
+        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && (Math.abs(pAC2) + poleLossP2 + poleLossP1 + resistiveLosses) != 0) { // pAC2 < 0
             // lossFactor1 = poleLossP1 / pAC1 * 100
             // pAC1 = pDC + poleLossP1 = pAC2 + poleLossP2 + poleLossP1
-            this.lossFactor1 = poleLossP1 / (Math.abs(pAC2) + poleLossP2 + poleLossP1) * 100;
-        } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) && (pAC2 - poleLossP2) != 0) { // pAC2 > 0
+            this.lossFactor1 = poleLossP1 / (Math.abs(pAC2) + poleLossP2 + poleLossP1 + resistiveLosses) * 100;
+        } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) && (pAC2 - poleLossP2 - resistiveLosses) != 0) { // pAC2 > 0
             // lossFactor1 = poleLossP1 / pDC * 100
             // pDC = pAC2 - poleLossP2
-            this.lossFactor1 = poleLossP1 / (pAC2 - poleLossP2) * 100;
+            this.lossFactor1 = poleLossP1 / (pAC2 - poleLossP2 - resistiveLosses) * 100;
         }
     }
 
-    private void computeLossFactor2FromPAC1(double pAC1, double poleLossP1, double poleLossP2, HvdcLine.ConvertersMode mode) {
-        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && (pAC1 - poleLossP1) != 0) { // pAC1 > 0
+    private void computeLossFactor2FromPAC1(double pAC1, double poleLossP1, double poleLossP2, HvdcLine.ConvertersMode mode, double resistiveLosses) {
+        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && (pAC1 - poleLossP1 - resistiveLosses) != 0) { // pAC1 > 0
             // lossFactor2 = poleLossP2 / pDC * 100
             // pDC = pAC1 - poleLossP1
-            this.lossFactor2 = poleLossP2 / (pAC1 - poleLossP1) * 100;
-        } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) && (Math.abs(pAC1) + poleLossP1 + poleLossP2) != 0) { // pAC1 < 0
+            this.lossFactor2 = poleLossP2 / (pAC1 - poleLossP1 - resistiveLosses) * 100;
+        } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) && (Math.abs(pAC1) + poleLossP1 + poleLossP2 + resistiveLosses) != 0) { // pAC1 < 0
             // lossFactor2 = poleLossP2 / (pDC + poleLossP2) * 100
             // pDC = pAC1 + poleLossP1
-            this.lossFactor2 = poleLossP2 / (Math.abs(pAC1) + poleLossP1 + poleLossP2) * 100;
+            this.lossFactor2 = poleLossP2 / (Math.abs(pAC1) + poleLossP1 + poleLossP2 + resistiveLosses) * 100;
         }
     }
 
@@ -130,4 +131,5 @@ class LossFactor {
     private final double poleLossP2;
     private double lossFactor1;
     private double lossFactor2;
+    private final double resistiveLosses;
 }
