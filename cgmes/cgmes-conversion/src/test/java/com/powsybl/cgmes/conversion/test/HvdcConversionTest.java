@@ -77,7 +77,7 @@ class HvdcConversionTest extends AbstractSerDeTest {
         // SV gives losses in converters.
         assertContainsLccConverter(network, "CSC_1", "Current source converter 1", "DCL_12", 0.4024, -0.8251);
         assertContainsLccConverter(network, "CSC_2", "Current source converter 2", "DCL_12", 0.4008, 0.8);
-        assertContainsHvdcLine(network, "DCL_12", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 12", "CSC_1", "CSC_2", 4.64, 99.8, 118.8);
+        assertContainsHvdcLine(network, "DCL_12", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 12", "CSC_1", "CSC_2", 4.64, 99.8, 119.76);
 
         assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.6, 95.0, 0.0);
         assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.6036, 90.0, 0.0);

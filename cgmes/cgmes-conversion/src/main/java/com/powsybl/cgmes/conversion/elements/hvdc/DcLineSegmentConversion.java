@@ -57,14 +57,13 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
     public void convert() {
 
         // arbitrary value because there is no maxP attribute in CGMES
-        double maxP = getMaxP(converter1.pAC, converter2.pAC, mode);
+        double maxP = getMaxP();
         missing("maxP", maxP);
 
         HvdcLineAdder adder = context.network().newHvdcLine()
             .setR(r)
             .setNominalV(ratedUdc)
-            .setActivePowerSetpoint(
-                getActivePowerSetpoint(converter1.pAC, converter2.pAC, converter1.poleLossP, converter2.poleLossP, mode))
+            .setActivePowerSetpoint(getActivePowerSetpoint())
             .setMaxP(maxP)
             .setConvertersMode(mode)
             .setConverterStationId1(context.namingStrategy().getIidmId("ACDCConverter", converter1.converterId))
@@ -89,32 +88,22 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         hvdcLine.addAlias(dcNode2 + duplicatedTag, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode" + 2);
     }
 
-    private static double getMaxP(double pAC1, double pAC2, HvdcLine.ConvertersMode mode) {
-        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
-            if (pAC1 != 0) {
-                return DEFAULT_MAXP_FACTOR * pAC1;
-            }
-            return DEFAULT_MAXP_FACTOR * Math.abs(pAC2);
-        }
-        if (pAC2 != 0) {
-            return DEFAULT_MAXP_FACTOR * pAC2;
-        }
-        return DEFAULT_MAXP_FACTOR * Math.abs(pAC1);
+    private double getMaxP() {
+        return DEFAULT_MAXP_FACTOR * getActivePowerSetpoint();
     }
 
-    private static double getActivePowerSetpoint(double pAC1, double pAC2, double poleLossP1, double poleLossP2,
-                                                 HvdcLine.ConvertersMode mode) {
+    private double getActivePowerSetpoint() {
         if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
-            if (pAC1 != 0) {
-                return pAC1;
-            } else if (pAC2 != 0) {
-                return Math.abs(pAC2) + poleLossP2 + poleLossP1;
+            if (converter1.pAC != 0) {
+                return converter1.pAC;
+            } else if (converter2.pAC != 0) {
+                return Math.abs(converter2.pAC) + converter2.poleLossP + converter1.poleLossP;
             }
         } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
-            if (pAC2 != 0) {
-                return pAC2;
-            } else if (pAC1 != 0) {
-                return Math.abs(pAC1) + poleLossP1 + poleLossP2;
+            if (converter2.pAC != 0) {
+                return converter2.pAC;
+            } else if (converter1.pAC != 0) {
+                return Math.abs(converter1.pAC) + converter1.poleLossP + converter2.poleLossP;
             }
         }
         return 0;
