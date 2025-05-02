@@ -97,13 +97,13 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
             if (converter1.pAC != 0) {
                 return converter1.pAC;
             } else if (converter2.pAC != 0) {
-                return Math.abs(converter2.pAC) + converter2.poleLossP + converter1.poleLossP;
+                return Math.abs(converter2.pAC) + converter2.poleLossP + converter2.resistiveLosses + converter1.poleLossP;
             }
         } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
             if (converter2.pAC != 0) {
                 return converter2.pAC;
             } else if (converter1.pAC != 0) {
-                return Math.abs(converter1.pAC) + converter1.poleLossP + converter2.poleLossP;
+                return Math.abs(converter1.pAC) + converter1.poleLossP + converter1.resistiveLosses + converter2.poleLossP;
             }
         }
         return 0;
@@ -113,11 +113,13 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         String converterId;
         double poleLossP;
         double pAC;
+        double resistiveLosses;
 
-        DcLineSegmentConverter(String stationId, double poleLossP, double pAC) {
+        DcLineSegmentConverter(String stationId, double poleLossP, double pAC, double resistiveLosses) {
             this.converterId = stationId;
             this.poleLossP = poleLossP;
             this.pAC = pAC;
+            this.resistiveLosses = resistiveLosses;
         }
     }
 
