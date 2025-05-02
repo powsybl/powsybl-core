@@ -10,12 +10,10 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VoltageLevelAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -76,6 +74,9 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
             identify(adder);
             VoltageLevel vl = adder.add();
             addAliases(vl);
+
+            vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.HIGH_VOLTAGE_LIMIT, String.valueOf(highVoltageLimit));
+            vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.LOW_VOLTAGE_LIMIT, String.valueOf(lowVoltageLimit));
         }
     }
 
@@ -85,6 +86,10 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
             index++;
             vl.addAlias(mergedVl, "MergedVoltageLevel" + index, context.config().isEnsureIdAliasUnicity());
         }
+    }
+
+    public static void update(VoltageLevel voltageLevel, Context context) {
+        OperationalLimitConversion.update(voltageLevel, context);
     }
 
     private final String cgmesSubstationId;
