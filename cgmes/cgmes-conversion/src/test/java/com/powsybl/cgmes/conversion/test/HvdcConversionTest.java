@@ -51,7 +51,7 @@ class HvdcConversionTest extends AbstractSerDeTest {
 
         assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.0, Double.NaN, 0.0);
         assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.0, Double.NaN, 0.0);
-        assertContainsHvdcLine(network, "DCL_34", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 34", "VSC_3", "VSC_4", 9.92, 0.0, 0.0);
+        assertContainsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 0.0, 0.0);
     }
 
     @Test
@@ -97,7 +97,7 @@ class HvdcConversionTest extends AbstractSerDeTest {
         // A single HvdcLine has been created with an equivalent resistance.
         assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34P", 0.0, Double.NaN, 0.0);
         assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34P", 0.0, Double.NaN, 0.0);
-        assertContainsHvdcLine(network, "DCL_34P", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 34P", "VSC_3", "VSC_4", 2.48, 0.0, 0.0);
+        assertContainsHvdcLine(network, "DCL_34P", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34P", "VSC_3", "VSC_4", 2.48, 0.0, 0.0);
 
         // The other DCLineSegment identifier is kept as an alias.
         assertEquals("DCL_34N", network.getHvdcLine("DCL_34P").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
@@ -205,7 +205,7 @@ class HvdcConversionTest extends AbstractSerDeTest {
         // it's not possible anymore to compute which side is inverter and which is rectifier without P.
         assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.0, 95.0, 0.0);
         assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.0, 90.0, 0.0);
-        assertContainsHvdcLine(network, "DCL_34", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 34", "VSC_3", "VSC_4", 9.92, 0.0, 0.0);
+        assertContainsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 0.0, 0.0);
     }
 
     @Test
