@@ -240,29 +240,10 @@ public final class SecurityAnalysisTestNetworkFactory {
 
     public static Network createWithFixedCurrentLimits(NetworkFactory networkFactory) {
         Network network = create(networkFactory);
-        network.getLine(LINE_S1S2V1_1).newCurrentLimits2()
+        network.getLine(LINE_S1S2V1_1).getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(75)
                 .add();
-        network.getLine(LINE_S1S2V1_1).newCurrentLimits1()
-                .setPermanentLimit(75)
-                .beginTemporaryLimit()
-                .setName("10'")
-                .setAcceptableDuration(10 * 60)
-                .setValue(80)
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                .setName("1'")
-                .setAcceptableDuration(60)
-                .setValue(85)
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                .setName("Undefined")
-                .setAcceptableDuration(0)
-                .setValue(Double.MAX_VALUE)
-                .endTemporaryLimit()
-                .add();
-        network.getLine(LINE_S1S2V1_2).newCurrentLimits2().setPermanentLimit(75).add();
-        network.getLine(LINE_S1S2V1_2).newCurrentLimits1()
+        network.getLine(LINE_S1S2V1_1).getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(75)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -280,7 +261,26 @@ public final class SecurityAnalysisTestNetworkFactory {
                 .setValue(Double.MAX_VALUE)
                 .endTemporaryLimit()
                 .add();
-        network.getLine(LINE_S1S2V2).newCurrentLimits1()
+        network.getLine(LINE_S1S2V1_2).getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(75).add();
+        network.getLine(LINE_S1S2V1_2).getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+                .setPermanentLimit(75)
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .setValue(80)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("1'")
+                .setAcceptableDuration(60)
+                .setValue(85)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("Undefined")
+                .setAcceptableDuration(0)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+        network.getLine(LINE_S1S2V2).getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(60)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -288,7 +288,7 @@ public final class SecurityAnalysisTestNetworkFactory {
                 .setValue(80)
                 .endTemporaryLimit()
                 .add();
-        network.getTwoWindingsTransformer(TWT2).newCurrentLimits1().setPermanentLimit(90)
+        network.getTwoWindingsTransformer(TWT2).getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(90)
                 .beginTemporaryLimit()
                 .setName("10'")
                 .setAcceptableDuration(10 * 60)
@@ -300,7 +300,7 @@ public final class SecurityAnalysisTestNetworkFactory {
                 .setValue(110)
                 .endTemporaryLimit()
                 .add();
-        network.getTwoWindingsTransformer(TWT).newCurrentLimits1().setPermanentLimit(92)
+        network.getTwoWindingsTransformer(TWT).getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(92)
                 .beginTemporaryLimit()
                 .setName("10'")
                 .setAcceptableDuration(10 * 60)
