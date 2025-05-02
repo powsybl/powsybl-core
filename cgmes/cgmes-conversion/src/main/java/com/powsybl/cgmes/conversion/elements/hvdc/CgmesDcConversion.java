@@ -180,7 +180,7 @@ public class CgmesDcConversion {
         if (dcLineSegment2 == null) {
             return;
         }
-        this.r = 1.0 / (1.0 / computeR(this.dcLineSegment) + 1.0 / computeR(dcLineSegment2));
+        this.r = computeR(this.dcLineSegment) + computeR(dcLineSegment2);
 
         if (createHvdc()) {
             setCommonDataUsed();

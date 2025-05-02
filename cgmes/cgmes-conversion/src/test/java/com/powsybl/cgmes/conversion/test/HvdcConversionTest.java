@@ -95,12 +95,12 @@ class HvdcConversionTest extends AbstractSerDeTest {
         Network network = readCgmesResources(DIR, "monopole_with_metallic_return.xml");
 
         // A single HvdcLine has been created with an equivalent resistance.
-        assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34P", 0.0, Double.NaN, 0.0);
-        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34P", 0.0, Double.NaN, 0.0);
-        assertContainsHvdcLine(network, "DCL_34P", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34P", "VSC_3", "VSC_4", 2.48, 0.0, 0.0);
+        assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34N", 0.0, Double.NaN, 0.0);
+        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34N", 0.0, Double.NaN, 0.0);
+        assertContainsHvdcLine(network, "DCL_34N", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34N", "VSC_3", "VSC_4", 9.92, 0.0, 0.0);
 
         // The other DCLineSegment identifier is kept as an alias.
-        assertEquals("DCL_34N", network.getHvdcLine("DCL_34P").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
+        assertEquals("DCL_34P", network.getHvdcLine("DCL_34N").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
     }
 
     @Test
