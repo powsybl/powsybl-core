@@ -18,6 +18,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,8 @@ public class Context {
         cachedGroupedReactiveCapabilityCurveData = new HashMap<>();
 
         buildCaches();
+
+        cgmesTerminals = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -101,6 +104,11 @@ public class Context {
             t.setP(f.p());
             t.setQ(f.q());
         }
+    }
+
+    public void convertedTerminalWithOnlyEq(String terminalId, Terminal t, int n) {
+        // Record the mapping between CGMES and IIDM terminals
+        terminalMapping().add(terminalId, t, n);
     }
 
     private boolean setPQAllowed(Terminal t) {
@@ -184,6 +192,21 @@ public class Context {
 
     public PropertyBags reactiveCapabilityCurveData(String curveId) {
         return cachedGroupedReactiveCapabilityCurveData.getOrDefault(curveId, new PropertyBags());
+    }
+
+    public void buildUpdateCache() {
+        buildUpdateCache(cgmesTerminals, cgmes.terminals(), CgmesNames.TERMINAL);
+    }
+
+    private static void buildUpdateCache(Map<String, PropertyBag> cache, PropertyBags cgmesPropertyBags, String tagId) {
+        cgmesPropertyBags.forEach(p -> {
+            String id = p.getId(tagId);
+            cache.put(id, p);
+        });
+    }
+
+    public PropertyBag cgmesTerminal(String id) {
+        return cgmesTerminals.get(id);
     }
 
     // Handling issues found during conversion
@@ -301,6 +324,8 @@ public class Context {
     private final Map<String, PropertyBags> cachedGroupedPhaseTapChangerTablePoints;
     private final Map<String, PropertyBags> cachedGroupedShuntCompensatorPoints;
     private final Map<String, PropertyBags> cachedGroupedReactiveCapabilityCurveData;
+
+    private final Map<String, PropertyBag> cgmesTerminals;
 
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }
