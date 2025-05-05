@@ -83,7 +83,7 @@ public class CgmesMeasurementsPostProcessor implements CgmesImportPostProcessor 
         }
     }
 
-    private static Map<String, String> createTypesMapping(List<String> typesMappingList) {
+    protected static Map<String, String> createTypesMapping(List<String> typesMappingList) {
         if (typesMappingList.isEmpty()) {
             return Collections.emptyMap();
         }
