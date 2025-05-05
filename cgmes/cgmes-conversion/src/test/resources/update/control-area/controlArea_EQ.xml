@@ -1,0 +1,131 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>ControlArea</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest">
+        <cim:IdentifiedObject.name>GeographicalRegionTest</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest">
+        <cim:IdentifiedObject.name>SubGeographicalRegionTest</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest" />
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_Substation1">
+        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:Substation rdf:ID="_Substation2">
+        <cim:IdentifiedObject.name>Substation2</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage400">
+        <cim:IdentifiedObject.name>400.0 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel1">
+        <cim:IdentifiedObject.name>VoltageLevel1</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel2">
+        <cim:IdentifiedObject.name>VoltageLevel2</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation2"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode1">
+        <cim:IdentifiedObject.name>ConnectivityNode1 </cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode2">
+        <cim:IdentifiedObject.name>ConnectivityNode2 </cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel2" />
+    </cim:ConnectivityNode>
+
+    <cim:ACLineSegment rdf:ID="_ACLineSegment-1">
+        <cim:IdentifiedObject.name>ACLineSegment-1</cim:IdentifiedObject.name>
+        <cim:ACLineSegment.b0ch>0.0008</cim:ACLineSegment.b0ch>
+        <cim:ACLineSegment.bch>0.00091</cim:ACLineSegment.bch>
+        <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+        <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+        <cim:ACLineSegment.r>1.50</cim:ACLineSegment.r>
+        <cim:ACLineSegment.r0>7.43</cim:ACLineSegment.r0>
+        <cim:ACLineSegment.shortCircuitEndTemperature>0</cim:ACLineSegment.shortCircuitEndTemperature>
+        <cim:ACLineSegment.x>18.35</cim:ACLineSegment.x>
+        <cim:ACLineSegment.x0>45.59</cim:ACLineSegment.x0>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_ACLineSegment-1-T1">
+        <cim:IdentifiedObject.name>ACLineSegment-1-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment-1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ACLineSegment-1-T2">
+        <cim:IdentifiedObject.name>ACLineSegment-1-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment-1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode-BD"/>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:ID="_ACLineSegment-1-EquivalentInjection">
+        <cim:IdentifiedObject.name>ACLineSegment-1-EquivalentInjection</cim:IdentifiedObject.name>
+        <cim:EquivalentInjection.r>0</cim:EquivalentInjection.r>
+        <cim:EquivalentInjection.r0>0</cim:EquivalentInjection.r0>
+        <cim:EquivalentInjection.r2>0</cim:EquivalentInjection.r2>
+        <cim:EquivalentInjection.regulationCapability>false</cim:EquivalentInjection.regulationCapability>
+        <cim:EquivalentInjection.x>0</cim:EquivalentInjection.x>
+        <cim:EquivalentInjection.x0>0</cim:EquivalentInjection.x0>
+        <cim:EquivalentInjection.x2>0</cim:EquivalentInjection.x2>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_ACLineSegment-1-EquivalentInjection-T">
+        <cim:IdentifiedObject.name>ACLineSegment-1-EquivalentInjection-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment-1-EquivalentInjection"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode-BD"/>
+    </cim:Terminal>
+
+    <cim:ACLineSegment rdf:ID="_ACLineSegment-2">
+        <cim:IdentifiedObject.name>ACLineSegment-2</cim:IdentifiedObject.name>
+        <cim:ACLineSegment.b0ch>0.0008</cim:ACLineSegment.b0ch>
+        <cim:ACLineSegment.bch>0.00091</cim:ACLineSegment.bch>
+        <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+        <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+        <cim:ACLineSegment.r>1.70</cim:ACLineSegment.r>
+        <cim:ACLineSegment.r0>7.43</cim:ACLineSegment.r0>
+        <cim:ACLineSegment.shortCircuitEndTemperature>0</cim:ACLineSegment.shortCircuitEndTemperature>
+        <cim:ACLineSegment.x>17.55</cim:ACLineSegment.x>
+        <cim:ACLineSegment.x0>45.59</cim:ACLineSegment.x0>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_ACLineSegment-2-T1">
+        <cim:IdentifiedObject.name>ACLineSegment-2-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment-2"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ACLineSegment-2-T2">
+        <cim:IdentifiedObject.name>ACLineSegment-2-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment-2"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+
+    <cim:ControlArea rdf:ID="_ControlArea">
+        <cim:IdentifiedObject.name>ControlArea</cim:IdentifiedObject.name>
+        <cim:ControlArea.type rdf:resource="http://iec.ch/TC57/CIM100#ControlAreaTypeKind.Interchange" />
+    </cim:ControlArea>
+    <cim:TieFlow rdf:ID="_ControlArea-TieFlow-1">
+        <cim:IdentifiedObject.name>ControlArea-TieFlow-1</cim:IdentifiedObject.name>
+        <cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
+        <cim:TieFlow.Terminal rdf:resource="#_ACLineSegment-1-T2" />
+        <cim:TieFlow.ControlArea rdf:resource="#_ControlArea" />
+    </cim:TieFlow>
+    <cim:TieFlow rdf:ID="_ControlArea-TieFlow-2">
+        <cim:IdentifiedObject.name>ControlArea-TieFlow-2</cim:IdentifiedObject.name>
+        <cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
+        <cim:TieFlow.Terminal rdf:resource="#_ACLineSegment-2-T1" />
+        <cim:TieFlow.ControlArea rdf:resource="#_ControlArea" />
+    </cim:TieFlow>
+</rdf:RDF>
