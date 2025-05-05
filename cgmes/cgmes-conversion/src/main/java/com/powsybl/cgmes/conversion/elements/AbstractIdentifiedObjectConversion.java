@@ -9,9 +9,13 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
+import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.EMPTY;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -91,6 +95,45 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         } else {
             return String.format("%s at %s %s", what, type, id);
         }
+    }
+
+    protected static double defaultValue(DefaultValueDouble defaultValue, Context context) {
+        Double result = defaultValue(defaultValue.equipmentValue, defaultValue.previousValue, defaultValue.defaultValue, defaultValue.emptyValue, context);
+        return result != null ? result : defaultValue.emptyValue;
+    }
+
+    protected static int defaultValue(DefaultValueInteger defaultValue, Context context) {
+        Integer result = defaultValue(defaultValue.equipmentValue, defaultValue.previousValue, defaultValue.defaultValue, defaultValue.emptyValue, context);
+        return result != null ? result : defaultValue.emptyValue;
+    }
+
+    protected static boolean defaultValue(DefaultValueBoolean defaultValue, Context context) {
+        Boolean result = defaultValue(defaultValue.equipmentValue, defaultValue.previousValue, defaultValue.defaultValue, defaultValue.emptyValue, context);
+        return result != null ? result : defaultValue.emptyValue;
+    }
+
+    private static <T> T defaultValue(T equipmentValue, T previousValue, T defaultValue, T emptyValue, Context context) {
+        for (Conversion.Config.DefaultValue defaultValueSelector : context.config().updateDefaultValuesPriority()) {
+            if (defaultValueSelector == EQ && equipmentValue != null) {
+                return equipmentValue;
+            } else if (defaultValueSelector == PREVIOUS && previousValue != null) {
+                return previousValue;
+            } else if (defaultValueSelector == DEFAULT && defaultValue != null) {
+                return defaultValue;
+            } else if (defaultValueSelector == EMPTY && emptyValue != null) {
+                return emptyValue;
+            }
+        }
+        return emptyValue;
+    }
+
+    public record DefaultValueDouble(Double equipmentValue, Double previousValue, Double defaultValue, double emptyValue) {
+    }
+
+    public record DefaultValueInteger(Integer equipmentValue, Integer previousValue, Integer defaultValue, int emptyValue) {
+    }
+
+    public record DefaultValueBoolean(Boolean equipmentValue, Boolean previousValue, Boolean defaultValue, boolean emptyValue) {
     }
 
     protected final String id;
