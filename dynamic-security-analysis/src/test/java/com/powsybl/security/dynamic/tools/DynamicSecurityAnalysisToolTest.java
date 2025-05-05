@@ -139,6 +139,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
 
         DynamicSecurityAnalysisExecutionInput input = new DynamicSecurityAnalysisExecutionInput();
         tool.updateInput(options, input);
+        assertThat(input.getDynamicModelsSource()).isNull();
         assertThat(input.getViolationTypes()).isEmpty();
         assertThat(input.getResultExtensions()).isEmpty();
         assertThat(input.getContingenciesSource()).isNotPresent();
@@ -151,6 +152,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
         tool.updateInput(options, input);
         assertThat(input.getResultExtensions()).containsExactly("ext1", "ext2");
 
+        parseFile(input, DynamicSecurityAnalysisToolConstants.DYNAMIC_MODELS_FILE_OPTION, "dynamicModels", input::getDynamicModelsSource);
         parseOptionalFile(input, SecurityAnalysisToolConstants.CONTINGENCIES_FILE_OPTION, "contingencies", input::getContingenciesSource);
     }
 
