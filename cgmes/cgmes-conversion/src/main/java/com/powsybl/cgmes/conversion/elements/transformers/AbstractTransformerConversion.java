@@ -14,7 +14,6 @@ import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.Cgme
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
-import com.powsybl.cgmes.model.WindingType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -27,6 +26,8 @@ import static com.powsybl.cgmes.model.CgmesNames.*;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 abstract class AbstractTransformerConversion extends AbstractConductingEquipmentConversion {
+
+    protected static final String END_NUMBER = "endNumber";
 
     AbstractTransformerConversion(String type, PropertyBags ends, Context context) {
         super(type, ends, context);
@@ -117,21 +118,21 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         String aliasType;
         for (PropertyBag end : ps) {
             alias = end.getId("TransformerEnd");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END + WindingType.endNumber(end);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END + end.getLocal(END_NUMBER);
             identifiable.addAlias(alias, aliasType);
         }
 
         // Add RatioTapChangers aliases
         for (PropertyBag rtc : context.ratioTapChangers(identifiable.getId())) {
             alias = rtc.getId("RatioTapChanger");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER + WindingType.endNumber(rtc);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER + rtc.getLocal(END_NUMBER);
             identifiable.addAlias(alias, aliasType, context.config().isEnsureIdAliasUnicity());
         }
 
         // Add PhaseTapChangers aliases
         for (PropertyBag ptc : context.phaseTapChangers(identifiable.getId())) {
             alias = ptc.getId("PhaseTapChanger");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER + WindingType.endNumber(ptc);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER + ptc.getLocal(END_NUMBER);
             identifiable.addAlias(alias, aliasType, context.config().isEnsureIdAliasUnicity());
         }
     }

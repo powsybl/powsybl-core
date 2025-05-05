@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="Nordic32" caseDate="2019-04-01T15:09:55.299+02:00" forecastDistance="0" sourceFormat="CIM1" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="Nordic32" caseDate="2019-04-01T15:09:55.299+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="N1011____SS" name="N1011   _SS" country="NO" geographicalTags="NO">
         <iidm:property name="CGMES.subRegionId" value="SGR_13"/>
         <iidm:voltageLevel id="NG9______VL" name="NG9     _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
