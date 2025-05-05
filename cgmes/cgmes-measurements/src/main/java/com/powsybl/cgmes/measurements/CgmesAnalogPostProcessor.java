@@ -28,9 +28,10 @@ public final class CgmesAnalogPostProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesAnalogPostProcessor.class);
 
-    // To keep public interface compatible even though the public aspect of this method is arguably a "nice to have".
-    // Migration path : as below, turn the PropertyBags into a map before calling the non deprecated method.
-    @Deprecated
+    /**
+     * @deprecated use {{@link #process(Network, String, String, String, String, Map, Map)}} instead.
+     */
+    @Deprecated(since = "6.7.1")
     public static void process(Network network, String id, String terminalId, String powerSystemResourceId,
             String measurementType, PropertyBags bays, Map<String, String> typesMapping) {
 
