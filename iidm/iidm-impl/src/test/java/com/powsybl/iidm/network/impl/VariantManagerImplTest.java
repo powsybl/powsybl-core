@@ -435,4 +435,36 @@ class VariantManagerImplTest {
         variantManager.allowVariantMultiThreadAccess(false);
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager.getWorkingVariantId());
     }
+
+    @Test
+    void testRetainedPropertyStateful() {
+        Network network = Network.create("test", "test");
+        Substation s = network.newSubstation()
+                .setId("S")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl = s.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        Switch b1 = vl.getNodeBreakerView().newBreaker()
+                .setId("B1")
+                .setNode1(0)
+                .setNode2(1)
+                .setOpen(false)
+                .setRetained(true)
+                .add();
+
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "backup");
+
+        assertTrue(b1.isRetained());
+
+        b1.setRetained(false);
+        assertFalse(b1.isRetained());
+
+        variantManager.setWorkingVariant("backup");
+        assertTrue(b1.isRetained());
+    }
 }
