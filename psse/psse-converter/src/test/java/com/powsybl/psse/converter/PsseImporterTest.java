@@ -204,6 +204,11 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void importTest14Delimiter() throws IOException {
+        importTest("IEEE_14_bus_delimiter", "IEEE_14_bus_delimiter.raw", false);
+    }
+
+    @Test
     void importTest14BusesDuplicateIds() throws IOException {
         Network n = importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
         assertNotNull(n.getLoad("B2-L1 "));

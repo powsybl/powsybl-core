@@ -23,7 +23,7 @@ import com.univocity.parsers.annotations.Parsed;
  */
 
 @JsonPropertyOrder(alphabetic = true)
-@JsonIgnoreProperties(value = { "impedances" })
+@JsonIgnoreProperties(value = {"impedances"})
 public class PsseTransformer extends PsseVersioned {
 
     @Override
@@ -68,7 +68,7 @@ public class PsseTransformer extends PsseVersioned {
     @Parsed(field = {"nmetr", "nmet"})
     private int nmetr = 2;
 
-    @Parsed(defaultNullRead = "            ")
+    @Parsed(defaultNullRead = "        ")
     private String name;
 
     @Parsed
@@ -94,22 +94,22 @@ public class PsseTransformer extends PsseVersioned {
     TransformerImpedances impedances;
 
     @Nested(headerTransformer = WindingHeaderTransformer.class, args = "1")
-    private PsseTransformerWinding winding1;
+    private PsseTransformerWinding winding1 = new PsseTransformerWinding();
 
     @Nested(headerTransformer = WindingRatesHeaderTransformer.class, args = "1")
-    private PsseRates winding1Rates;
+    private PsseRates winding1Rates = new PsseRates();
 
     @Nested(headerTransformer = WindingHeaderTransformer.class, args = "2")
-    private PsseTransformerWinding winding2;
+    private PsseTransformerWinding winding2 = new PsseTransformerWinding();
 
     @Nested(headerTransformer = WindingRatesHeaderTransformer.class, args = "2")
-    private PsseRates winding2Rates;
+    private PsseRates winding2Rates = new PsseRates();
 
     @Nested(headerTransformer = WindingHeaderTransformer.class, args = "3")
-    private PsseTransformerWinding winding3;
+    private PsseTransformerWinding winding3 = new PsseTransformerWinding();
 
     @Nested(headerTransformer = WindingRatesHeaderTransformer.class, args = "3")
-    private PsseRates winding3Rates;
+    private PsseRates winding3Rates = new PsseRates();
 
     public int getI() {
         return i;
