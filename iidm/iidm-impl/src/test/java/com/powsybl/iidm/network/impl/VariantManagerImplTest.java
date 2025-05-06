@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
@@ -457,14 +458,18 @@ class VariantManagerImplTest {
                 .add();
 
         VariantManager variantManager = network.getVariantManager();
+        variantManager.allowVariantMultiThreadAccess(true);
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "backup");
 
         assertTrue(b1.isRetained());
+        assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
 
         b1.setRetained(false);
         assertFalse(b1.isRetained());
+        assertEquals(1, Iterables.size(vl.getBusBreakerView().getBuses()));
 
         variantManager.setWorkingVariant("backup");
         assertTrue(b1.isRetained());
+        assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
     }
 }
