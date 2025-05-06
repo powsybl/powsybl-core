@@ -190,7 +190,7 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
             //Step lengths
             newStepLengths = new int[stepLengths.length + chunk.getStepLengths().length - 1];
             System.arraycopy(stepLengths, 0, newStepLengths, 0, stepLengths.length);
-            newStepLengths[stepLengths.length - 1] = stepLengths[stepLengths.length - 1] + newStepLengths[0];
+            newStepLengths[stepLengths.length - 1] = stepLengths[stepLengths.length - 1] + chunk.getStepLengths()[0];
             System.arraycopy(chunk.getStepLengths(), 1, newStepLengths, stepLengths.length, chunk.getStepLengths().length - 1);
 
             //Step values
