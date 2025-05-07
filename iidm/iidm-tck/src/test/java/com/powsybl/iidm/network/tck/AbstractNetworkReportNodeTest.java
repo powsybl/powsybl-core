@@ -14,11 +14,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReportNodeContext;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.util.Networks;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,11 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public abstract class AbstractNetworkReportNodeTest {
-
-    @BeforeEach
-    void setup() {
-        Locale.setDefault(Locale.US);
-    }
 
     @Test
     public void executeWithReportNodeTest() {

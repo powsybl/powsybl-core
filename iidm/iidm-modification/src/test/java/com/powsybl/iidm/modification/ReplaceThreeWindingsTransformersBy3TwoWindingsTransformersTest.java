@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
-import java.util.Locale;
 
 import static com.powsybl.iidm.modification.TransformersTestUtils.*;
 import static com.powsybl.iidm.modification.util.ModificationReports.lostThreeWindingsTransformerExtensions;
@@ -39,7 +38,6 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
 
     @BeforeEach
     public void setUp() {
-        Locale.setDefault(Locale.US);
         Network expectedNetwork = ThreeWindingsTransformerNetworkFactory.create();
         assertEquals(1, expectedNetwork.getThreeWindingsTransformerCount());
         t3w = expectedNetwork.getThreeWindingsTransformer("3WT");

@@ -47,7 +47,6 @@ class ProportionalScalableTest {
 
     @BeforeEach
     void setUp() {
-        Locale.setDefault(Locale.US);
         network = createNetworkwithDanglingLineAndBattery();
         g1 = Scalable.onGenerator("g1");
         g2 = Scalable.onGenerator("g2");

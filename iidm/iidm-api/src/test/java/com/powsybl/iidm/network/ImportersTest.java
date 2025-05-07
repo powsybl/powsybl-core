@@ -51,7 +51,6 @@ class ImportersTest extends AbstractConvertersTest {
     @BeforeEach
     void setUp() throws IOException {
         super.setUp();
-        Locale.setDefault(Locale.US);
         Files.createFile(fileSystem.getPath(WORK_DIR + FOO_TST));
         Files.createFile(fileSystem.getPath(WORK_DIR + "bar.tst"));
         Files.createFile(fileSystem.getPath(WORK_DIR + "baz.txt"));

@@ -13,10 +13,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.util.SwitchPredicates;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,11 +21,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public abstract class AbstractConnectableTest {
-
-    @BeforeEach
-    void setup() {
-        Locale.setDefault(Locale.US);
-    }
 
     public Network createNetwork() {
         Network network = Network.create("test", "test");

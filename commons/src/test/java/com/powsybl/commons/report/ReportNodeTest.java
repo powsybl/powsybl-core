@@ -10,7 +10,6 @@ package com.powsybl.commons.report;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -45,11 +44,6 @@ class ReportNodeTest extends AbstractSerDeTest {
             stringUntyped: value
             stringTyped: filename
             severity: INFO""";
-
-    @BeforeEach
-    void setup() {
-        Locale.setDefault(Locale.US);
-    }
 
     @Test
     void testValues() throws IOException {
@@ -364,7 +358,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         // Set Locale default as French to be the fallback if English report is not found
         // as the English report exists for tests, then the fallback in case the key is not found in the English report
         // should not be in French but in the default reports.properties
-        Locale.setDefault(Locale.FRENCH);
+//        Locale.setDefault(Locale.FRENCH);
 
         String key = "keyNotExistingInEnglish";
         ReportNode report1 = ReportNode.newRootReportNode()

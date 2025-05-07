@@ -20,7 +20,6 @@ import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -41,11 +40,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class UcteImporterReportNodeTest extends AbstractSerDeTest {
 
     private static final String WORK_DIR = "/tmp";
-
-    @BeforeEach
-    void setup() {
-        Locale.setDefault(Locale.US);
-    }
 
     @Test
     void testReportElementName() throws Exception {

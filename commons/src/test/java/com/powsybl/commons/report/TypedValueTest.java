@@ -8,10 +8,8 @@
 package com.powsybl.commons.report;
 
 import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,11 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Luma Zamarreño {@literal <zamarrenolm@aia.es>}
  */
 class TypedValueTest {
-
-    @BeforeEach
-    void setup() {
-        Locale.setDefault(Locale.US);
-    }
 
     @Test
     void testSeverity() {

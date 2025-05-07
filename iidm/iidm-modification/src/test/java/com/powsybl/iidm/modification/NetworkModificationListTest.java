@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,7 +36,6 @@ class NetworkModificationListTest {
 
     @BeforeEach
     void init() {
-        Locale.setDefault(Locale.US);
         network = EurostagTutorialExample1Factory.create();
     }
 

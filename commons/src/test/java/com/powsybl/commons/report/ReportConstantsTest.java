@@ -19,7 +19,6 @@ class ReportConstantsTest extends AbstractSerDeTest {
 
     @Test
     void testGetDefaultReportLocale() {
-        Locale.setDefault(Locale.US);
         assertEquals(Locale.US, ReportConstants.getDefaultLocale());
 
         Locale.setDefault(Locale.FRENCH);

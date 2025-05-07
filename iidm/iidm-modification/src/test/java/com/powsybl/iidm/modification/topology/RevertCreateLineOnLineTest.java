@@ -15,11 +15,9 @@ import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Locale;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,11 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
 class RevertCreateLineOnLineTest extends AbstractModificationTest {
-
-    @BeforeEach
-    void setup() {
-        Locale.setDefault(Locale.US);
-    }
 
     @Test
     void revertCreateLineOnLineNbTest() throws IOException {
