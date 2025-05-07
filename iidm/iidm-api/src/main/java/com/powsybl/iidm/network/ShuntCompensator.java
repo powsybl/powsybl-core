@@ -123,6 +123,19 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     int getSectionCount();
 
     /**
+     * Get the solved count of sections in service.
+     * Please note that sections can only be sequentially in service, i.e., the first sectionCount sections are in service.
+     * <p>
+     * It is expected to be greater than one and lesser than or equal to the
+     * maximum section count.
+     * It can be null if no calculation has been launched on the network.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    Integer getSolvedSectionCount();
+
+    /**
      * Get the count of sections in service if it is defined.
      * Otherwise, get an empty optional.
      * <p>
@@ -157,6 +170,27 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     default ShuntCompensator unsetSectionCount() {
         throw ValidationUtil.createUnsetMethodException();
     }
+
+    /**
+     * Change the solved count of sections in service.
+     * Please note sections can only be sequentially in service, i.e., the first sectionCount sections are in service.
+     * <p>
+     * Depends on the working variant.
+     *
+     * @see VariantManager
+     * @param solvedSectionCount the number of solved sections in service
+     * @return the shunt compensator to chain method calls.
+     */
+    ShuntCompensator setSolvedSectionCount(int solvedSectionCount);
+
+    /**
+     * Unset the solved count of sections in service.
+     * Note: this can be done <b>only</b> in SCADA validation level.
+     */
+    default ShuntCompensator unsetSolvedSectionCount() {
+        throw ValidationUtil.createUnsetMethodException();
+    }
+
 
     /**
      * Get the susceptance (in S) of the shunt in its current state i.e. the sum of the sections' susceptances for all sections in service.

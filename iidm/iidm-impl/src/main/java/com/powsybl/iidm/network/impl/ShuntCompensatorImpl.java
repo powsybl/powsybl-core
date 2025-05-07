@@ -32,6 +32,9 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     /* the current number of section switched on */
     private final ArrayList<Integer> sectionCount;
 
+    /* the solved number of section switched on */
+    private final ArrayList<Integer> solvedSectionCount;
+
     /* the target voltage value */
     private final TDoubleArrayList targetV;
 
@@ -40,8 +43,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     ShuntCompensatorImpl(Ref<NetworkImpl> network,
                          String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
-                         Integer sectionCount, TerminalExt regulatingTerminal, Boolean voltageRegulatorOn,
-                         double targetV, double targetDeadband) {
+                         Integer sectionCount, Integer solvedSectionCount, TerminalExt regulatingTerminal,
+                         Boolean voltageRegulatorOn, double targetV, double targetDeadband) {
         super(network, id, name, fictitious);
         this.network = network;
         int variantArraySize = this.network.get().getVariantManager().getVariantArraySize();
@@ -50,10 +53,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         this.sectionCount = new ArrayList<>(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
+        this.solvedSectionCount = new ArrayList<>(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.sectionCount.add(sectionCount);
             this.targetV.add(targetV);
             this.targetDeadband.add(targetDeadband);
+            this.solvedSectionCount.add(solvedSectionCount);
         }
         this.model = Objects.requireNonNull(model).attach(this);
     }
@@ -70,6 +75,11 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
             throw ValidationUtil.createUndefinedValueGetterException();
         }
         return section;
+    }
+
+    @Override
+    public Integer getSolvedSectionCount() {
+        return solvedSectionCount.get(network.get().getVariantIndex());
     }
 
     @Override
@@ -108,6 +118,28 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("sectionCount", variantId, oldValue, null);
+        return this;
+    }
+
+    @Override
+    public ShuntCompensatorImpl setSolvedSectionCount(int solvedSectionCount) {
+        NetworkImpl n = getNetwork();
+        if (solvedSectionCount < 0 || solvedSectionCount > model.getMaximumSectionCount()) {
+            throw new ValidationException(this, "unexpected solved section number (" + solvedSectionCount + "): no existing associated section");
+        }
+        int variantIndex = n.getVariantIndex();
+        Integer oldValue = this.solvedSectionCount.set(variantIndex, solvedSectionCount);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("solvedSectionCount", variantId, oldValue, solvedSectionCount);
+        return this;
+    }
+
+    @Override
+    public ShuntCompensator unsetSolvedSectionCount() {
+        int variantIndex = network.get().getVariantIndex();
+        Integer oldValue = this.solvedSectionCount.set(variantIndex, null);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("solvedSectionCount", variantId, oldValue, null);
         return this;
     }
 

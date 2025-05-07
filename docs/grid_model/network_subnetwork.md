@@ -374,6 +374,7 @@ Shunt compensators follow a passive-sign convention:
 |-----------------------|------|---------------------------------------------------------------|
 | $MaximumSectionCount$ | -    | The maximum number of sections that may be switched on        |
 | $SectionCount$        | -    | The current number of sections that are switched on           |
+| $SolvedSectionCount$  | -    | The number of sections after a calculation (loadflow)         | 
 | $B$                   | S    | The susceptance of the shunt compensator in its current state |
 | $G$                   | S    | The conductance of the shunt compensator in its current state |
 | $TargetV$             | kV   | The voltage target                                            |
