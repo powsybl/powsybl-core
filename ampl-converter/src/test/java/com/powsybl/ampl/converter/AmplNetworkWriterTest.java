@@ -114,7 +114,6 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
     @Test
     void writeSVC() throws IOException {
         Network network = SvcTestCaseFactory.createWithMoreSVCs();
-
         MemDataSource dataSource = new MemDataSource();
         export(network, properties, dataSource);
 
