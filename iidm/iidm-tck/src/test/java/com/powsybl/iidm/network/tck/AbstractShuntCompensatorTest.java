@@ -63,6 +63,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals("shuntName", shuntCompensator.getOptionalName().orElse(null));
         assertEquals(SHUNT, shuntCompensator.getId());
         assertEquals(6, shuntCompensator.getSectionCount());
+        assertNull(shuntCompensator.getSolvedSectionCount());
         assertEquals(10, shuntCompensator.getMaximumSectionCount());
         assertEquals(30.0, shuntCompensator.getB(), 0.0);
         assertEquals(24.0, shuntCompensator.getG(), 0.0);
@@ -519,6 +520,21 @@ public abstract class AbstractShuntCompensatorTest {
         ShuntCompensator sbNonLinear = createNonLinearShunt("SHUNT_B_NL", "SHUNT", terminal, true, 200, 10, 2.0, Double.NaN);
         sbNonLinear.getTerminal().setP(10);
         assertEquals(10, sbNonLinear.getTerminal().getP(), 0.0);
+    }
+
+    @Test
+    public void testSolvedSectionCount() {
+        ShuntCompensatorAdder adder = createShuntAdder(SHUNT, "shuntName", 6, terminal, true, 200, 10);
+        adder.newLinearModel()
+            .setBPerSection(5.0)
+            .setGPerSection(4.0)
+            .setMaximumSectionCount(10)
+            .add();
+        adder.setSolvedSectionCount(5);
+        adder.add();
+        assertEquals(5, network.getShuntCompensator(SHUNT).getSolvedSectionCount());
+        network.getShuntCompensator(SHUNT).setSolvedSectionCount(6);
+        assertEquals(6, network.getShuntCompensator(SHUNT).getSolvedSectionCount());
     }
 
     private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int sectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
