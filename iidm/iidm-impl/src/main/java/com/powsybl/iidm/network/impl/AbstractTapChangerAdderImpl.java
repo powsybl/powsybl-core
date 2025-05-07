@@ -37,6 +37,7 @@ abstract class AbstractTapChangerAdderImpl<
     private double targetDeadband = Double.NaN;
     private TerminalExt regulationTerminal;
     private boolean loadTapChangingCapabilities;
+    private Integer solvedTapPosition;
 
     protected AbstractTapChangerAdderImpl(H parent, boolean loadTapChangingCapabilities) {
         this.parent = parent;
@@ -51,6 +52,11 @@ abstract class AbstractTapChangerAdderImpl<
 
     public A setTapPosition(int tapPosition) {
         this.tapPosition = tapPosition;
+        return self();
+    }
+
+    public A setSolvedTapPosition(int solvedTapPosition) {
+        this.solvedTapPosition = solvedTapPosition;
         return self();
     }
 
@@ -101,12 +107,18 @@ abstract class AbstractTapChangerAdderImpl<
                 network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
             }
         }
+        if (solvedTapPosition != null) {
+            int highTapPosition = lowTapPosition + steps.size() - 1;
+            if (solvedTapPosition < lowTapPosition || solvedTapPosition > highTapPosition) {
+                LOGGER.warn("{} has incorrect solved tap position {}. It is not within bounds [{}, {}].", parent, solvedTapPosition, lowTapPosition, highTapPosition);
+            }
+        }
 
         network.setValidationLevelIfGreaterThan(checkTapChangerRegulation(parent, regulationValue, regulating, loadTapChangingCapabilities, regulationTerminal));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, getValidableType(), regulating,
                 targetDeadband, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
-        T tapChanger = createTapChanger(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, loadTapChangingCapabilities, regulationValue, targetDeadband);
+        T tapChanger = createTapChanger(parent, lowTapPosition, steps, regulationTerminal, tapPosition, solvedTapPosition, regulating, loadTapChangingCapabilities, regulationValue, targetDeadband);
 
         Set<TapChanger<?, ?, ?, ?>> otherTapChangers = new HashSet<>(parent.getAllTapChangers());
         otherTapChangers.remove(tapChanger);
@@ -121,7 +133,7 @@ abstract class AbstractTapChangerAdderImpl<
         return tapChanger;
     }
 
-    protected abstract T createTapChanger(H parent, int lowTapPosition, List<S> steps, TerminalExt regulationTerminal, Integer tapPosition, boolean regulating, boolean loadTapChangingCapabilities, double regulationValue, double targetDeadband);
+    protected abstract T createTapChanger(H parent, int lowTapPosition, List<S> steps, TerminalExt regulationTerminal, Integer tapPosition, Integer solvedTapPosition, boolean regulating, boolean loadTapChangingCapabilities, double regulationValue, double targetDeadband);
 
     protected abstract A self();
 
