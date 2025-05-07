@@ -23,6 +23,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     private static final String ATTR_LOW_TAP_POSITION = "lowTapPosition";
     private static final String ATTR_TAP_POSITION = "tapPosition";
+    private static final String ATTR_SOLVED_TAP_POSITION = "solvedTapPosition";
     private static final String ATTR_REGULATING = "regulating";
     private static final String ELEM_TERMINAL_REF = "terminalRef";
     private static final String ATTR_REGULATION_MODE = "regulationMode";
@@ -68,6 +69,8 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         context.getWriter().writeIntAttribute(ATTR_LOW_TAP_POSITION, tc.getLowTapPosition());
         var tp = tc.findTapPosition();
         context.getWriter().writeOptionalIntAttribute(ATTR_TAP_POSITION, tp.isPresent() ? tp.getAsInt() : null);
+        var solvedTp = tc.findSolvedTapPosition();
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> context.getWriter().writeOptionalIntAttribute(ATTR_SOLVED_TAP_POSITION, solvedTp.isPresent() ? solvedTp.getAsInt() : null));
         writeTargetDeadband(tc.getTargetDeadband(), context);
     }
 
@@ -214,11 +217,13 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         boolean regulating = context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING).orElse(false);
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
         OptionalInt tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
+        OptionalInt solvedTapPosition = context.getReader().readOptionalIntAttribute(ATTR_SOLVED_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context, regulating);
         adder.setLowTapPosition(lowTapPosition)
                 .setTargetDeadband(targetDeadband)
                 .setRegulating(regulating);
         tapPosition.ifPresent(adder::setTapPosition);
+        solvedTapPosition.ifPresent(adder::setSolvedTapPosition);
     }
 
     protected static void readPhaseTapChanger(TwoWindingsTransformer twt, NetworkDeserializerContext context) {

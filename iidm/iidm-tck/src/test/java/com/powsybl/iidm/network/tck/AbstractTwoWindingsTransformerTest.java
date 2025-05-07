@@ -106,12 +106,14 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         ratioTapChangerInLeg1.setTargetV(12).setTapPosition(2);
         assertEquals(ratioTapChangerInLeg1.getTargetV(), twoWindingsTransformer.getRatioTapChanger().getTargetV(), 0.0);
         assertEquals(ratioTapChangerInLeg1.getTapPosition(), twoWindingsTransformer.getRatioTapChanger().getTapPosition());
+        assertTrue(ratioTapChangerInLeg1.findSolvedTapPosition().isEmpty());
 
         PhaseTapChanger phaseTapChangerInLeg1 = createPhaseTapChanger(twoWindingsTransformer, twoWindingsTransformer.getTerminal(TwoSides.TWO));
         assertTrue(twoWindingsTransformer.getOptionalPhaseTapChanger().isPresent());
         phaseTapChangerInLeg1.setTapPosition(2).setTargetDeadband(1);
         assertEquals(phaseTapChangerInLeg1.getTargetDeadband(), twoWindingsTransformer.getPhaseTapChanger().getTargetDeadband(), 0.0);
         assertEquals(phaseTapChangerInLeg1.getTapPosition(), twoWindingsTransformer.getPhaseTapChanger().getTapPosition());
+        assertTrue(phaseTapChangerInLeg1.findSolvedTapPosition().isEmpty());
     }
 
     @Test
@@ -315,6 +317,25 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertTrue(areLimitsIdentical(limits1, limits3));
     }
 
+    @Test
+    void createTwoWindingsTransformerWithSolvedTapPosition() {
+        createTwoWindingTransformer("twt", TWT_NAME, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
+
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("twt");
+
+        RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(twoWindingsTransformer, twoWindingsTransformer.getTerminal(TwoSides.ONE), false, 1);
+        assertTrue(twoWindingsTransformer.getOptionalRatioTapChanger().isPresent());
+        assertEquals(1, twoWindingsTransformer.getRatioTapChanger().getSolvedTapPosition());
+        ratioTapChangerInLeg1.setSolvedTapPosition(2);
+        assertEquals(2, ratioTapChangerInLeg1.getSolvedTapPosition());
+
+        PhaseTapChanger phaseTapChangerInLeg1 = createPhaseTapChanger(twoWindingsTransformer, twoWindingsTransformer.getTerminal(TwoSides.TWO), false, 1);
+        assertTrue(twoWindingsTransformer.getOptionalPhaseTapChanger().isPresent());
+        assertEquals(1, twoWindingsTransformer.getPhaseTapChanger().getSolvedTapPosition());
+        phaseTapChangerInLeg1.setSolvedTapPosition(2);
+        assertEquals(2, phaseTapChangerInLeg1.getSolvedTapPosition());
+    }
+
     private void createTwoWindingTransformer(String id, String name, double r, double x, double g, double b,
                                              double ratedU1, double ratedU2, double ratedS) {
         substation.newTwoWindingsTransformer()
@@ -335,11 +356,15 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     }
 
     private RatioTapChanger createRatioTapChanger(TwoWindingsTransformer transformer, Terminal terminal) {
-        return createRatioTapChanger(transformer, terminal, false);
+        return createRatioTapChanger(transformer, terminal, false, null);
     }
 
     private RatioTapChanger createRatioTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating) {
-        return transformer.newRatioTapChanger()
+        return createRatioTapChanger(transformer, terminal, regulating, null);
+    }
+
+    private RatioTapChanger createRatioTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating, Integer solvedTapPosition) {
+        RatioTapChangerAdder adder = transformer.newRatioTapChanger()
                 .setRegulationValue(200.0)
                 .setLoadTapChangingCapabilities(false)
                 .setLowTapPosition(0)
@@ -367,8 +392,11 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .setG(0.0)
                 .setB(0.0)
                 .setRho(1.0)
-                .endStep()
-                .add();
+                .endStep();
+        if (solvedTapPosition != null) {
+            adder.setSolvedTapPosition(solvedTapPosition);
+        }
+        return adder.add();
     }
 
     private PhaseTapChanger createPhaseTapChanger(TwoWindingsTransformer transformer, Terminal terminal) {
@@ -376,7 +404,11 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     }
 
     private PhaseTapChanger createPhaseTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating) {
-        return transformer.newPhaseTapChanger()
+        return createPhaseTapChanger(transformer, terminal, regulating, null);
+    }
+
+    private PhaseTapChanger createPhaseTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating, Integer solvedTapPosition) {
+        PhaseTapChangerAdder adder = transformer.newPhaseTapChanger()
                 .setRegulationValue(200.0)
                 .setLowTapPosition(0)
                 .setTapPosition(0)
@@ -407,8 +439,11 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .setB(0.0)
                 .setRho(1.0)
                 .setAlpha(10.0)
-                .endStep()
-                .add();
+                .endStep();
+        if (solvedTapPosition != null) {
+            adder.setSolvedTapPosition(solvedTapPosition);
+        }
+        return adder.add();
     }
 
 }

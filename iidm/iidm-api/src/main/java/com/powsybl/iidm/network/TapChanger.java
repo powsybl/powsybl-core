@@ -57,6 +57,26 @@ public interface TapChanger<
     }
 
     /**
+     * Get the solved tap position.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     * </p>
+     */
+    Integer getSolvedTapPosition();
+
+    /**
+     * Get an optional containing the solved tap position if it is defined.
+     * Otherwise, get an empty optional.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default OptionalInt findSolvedTapPosition() {
+        return OptionalInt.of(getSolvedTapPosition());
+    }
+
+    /**
      * Set the current tap position.
      * <p>
      * It is expected to be contained between the lowest and the highest tap position.
@@ -73,6 +93,25 @@ public interface TapChanger<
      * Note: this can be done <b>only</b> in SCADA validation level.
      */
     default C unsetTapPosition() {
+        throw ValidationUtil.createUnsetMethodException();
+    }
+
+    /**
+     * Set the solved tap position.
+     * <p>
+     * It is expected to be contained between the lowest and the highest tap position.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     *
+     * @param solvedTapPosition the solved tap position
+     */
+    C setSolvedTapPosition(int solvedTapPosition);
+
+    /**
+     * Unset the solved tap position: solved tap position is now undefined.
+     */
+    default C unsetSolvedTapPosition() {
         throw ValidationUtil.createUnsetMethodException();
     }
 
