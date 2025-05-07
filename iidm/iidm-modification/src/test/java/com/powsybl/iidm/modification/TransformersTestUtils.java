@@ -46,7 +46,7 @@ final class TransformersTestUtils {
                 .setTapPosition(2)
                 .setRegulationTerminal(terminal)
                 .setRegulationValue(10.0)
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setTargetDeadband(0.5)
                 .setRegulating(false)
                 .beginStep()

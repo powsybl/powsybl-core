@@ -129,7 +129,7 @@ public final class PhaseShifterTestCaseFactory {
         ps1.newPhaseTapChanger()
                 .setTapPosition(1)
                 .setRegulationTerminal(ps1.getTerminal2())
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(200)
                 .beginStep()
                     .setAlpha(-20.0)

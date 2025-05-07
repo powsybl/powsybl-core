@@ -155,7 +155,6 @@ class CgmesExportTest {
             assertTrue(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameWithRc, "SSH"));
 
             transformer.getPhaseTapChanger().setRegulating(false);
-            transformer.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
             String baseNameNoRc = baseName + "-no-rc";
             n.write("CGMES", null, tmpDir.resolve(baseNameNoRc));
             assertFalse(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc, "EQ"));

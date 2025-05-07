@@ -407,14 +407,14 @@ Class: `PhaseShifterOptimizeTap`
 #### Fixed tap modification
 This modification updates the phase tap changer of a given two-winding transformer phase shifter id.
 
-It updates its `tapPosition` with the given value and set the phase tap changer as not regulating with a `FIXED_TAP` regulation mode.
+It updates its `tapPosition` with the given value and set the phase tap changer as not regulating.
 
 Class: `PhaseShifterSetAsFixedTap`
 
 #### Shift tap modification
 This modification is used to update the phase tap changer of a given two-winding transformer phase shifter id.
 
-It sets the phase tap changer as not regulating with a `FIXED_TAP` regulation mode and updates its `tapPosition` by adjusting it with the given `tapDelta` applied on the current tap position. The resulting tap position is bounded by the phase tap changer lowest and highest possible positions.
+It sets the phase tap changer as not regulating and updates its `tapPosition` by adjusting it with the given `tapDelta` applied on the current tap position. The resulting tap position is bounded by the phase tap changer lowest and highest possible positions.
 
 Class: `PhaseShifterShiftTap`
 

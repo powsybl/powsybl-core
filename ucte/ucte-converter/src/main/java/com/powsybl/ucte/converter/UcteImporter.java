@@ -521,7 +521,7 @@ public class UcteImporter implements Importer {
                 .setTargetDeadband(0.0)
                 .setRegulationTerminal(transformer.getTerminal1());
         } else {
-            ptca.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
+            ptca.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
         }
 
         // By default, regulation is disabled because of some data inconsistency in live process

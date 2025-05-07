@@ -353,8 +353,8 @@ PowSyBl [`ThreeWindingsTransformer`](../../grid_model/network_subnetwork.md#thre
 If the network comes from a CIM-CGMES model and the tap changer has initially a `TapChangerControl`, it always has at export
 too. Otherwise, a `TapChangerControl` is exported for the tap changer if it is considered as defined. A `RatioTapChanger`
 is considered as defined if it has a valid regulation value, a valid target deadband and a non-null regulating terminal.
-A `PhaseTapChanger` is considered as defined if it has a regulation mode different of `FIXED_TAP`, a valid regulation value,
-a valid target deadband, and a non-null regulating terminal.
+A `PhaseTapChanger` is considered as defined if it has a valid regulation value,
+a valid target deadband, and a non-null regulating terminal. By default its regulation mode is set to `CURRENT_LIMITER`.
 
 In a `RatioTapChanger`, the `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when
 `RatioTapChanger` `regulationMode` is set to `REACTIVE_POWER`, and with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage` when
