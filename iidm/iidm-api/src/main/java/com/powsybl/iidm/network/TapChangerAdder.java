@@ -30,6 +30,8 @@ public interface TapChangerAdder<
 
     S setTapPosition(int tapPosition);
 
+    S setSolvedTapPosition(int solvedTapPosition);
+
     S setRegulating(boolean regulating);
 
     S setRegulationTerminal(Terminal regulationTerminal);
