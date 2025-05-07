@@ -23,10 +23,12 @@ import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
 import com.powsybl.iidm.network.impl.extensions.ConnectablePositionImpl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.lang3.Range;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.Locale;
 import java.util.Optional;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsAfter;
@@ -40,6 +42,11 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 class CreateFeederBayTest extends AbstractModificationTest {
+
+    @BeforeEach
+    void setup() {
+        Locale.setDefault(Locale.US);
+    }
 
     @Test
     void baseNodeBreakerLoadTest() throws IOException {

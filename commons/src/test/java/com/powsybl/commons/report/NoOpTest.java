@@ -10,6 +10,7 @@ package com.powsybl.commons.report;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -26,6 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 class NoOpTest extends AbstractSerDeTest {
+
+    @BeforeEach
+    void setup() {
+        Locale.setDefault(Locale.US);
+    }
 
     @Test
     void test() throws IOException {
@@ -93,7 +99,7 @@ class NoOpTest extends AbstractSerDeTest {
         TreeContextImpl treeContext = new TreeContextImpl();
 
         assertEquals(0, treeContext.getDictionary().size());
-        assertEquals(ReportConstants.DEFAULT_LOCALE, treeContext.getLocale());
+        assertEquals(ReportConstants.getDefaultLocale(), treeContext.getLocale());
 
         TreeContextImpl treeContext2 = new TreeContextImpl();
         treeContext2.addDictionaryEntry("key", "value");

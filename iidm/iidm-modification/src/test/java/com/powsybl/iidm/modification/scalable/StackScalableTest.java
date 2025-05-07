@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkwithDanglingLineAndBattery;
@@ -47,6 +48,7 @@ class StackScalableTest {
 
     @BeforeEach
     void setUp() {
+        Locale.setDefault(Locale.US);
 
         network = createNetworkwithDanglingLineAndBattery();
         g1 = Scalable.onGenerator("g1"); //initial targetP : 80MW

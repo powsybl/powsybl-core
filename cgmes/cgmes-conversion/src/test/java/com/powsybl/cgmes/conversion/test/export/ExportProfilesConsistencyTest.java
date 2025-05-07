@@ -19,9 +19,11 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.ExportersServiceLoader;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -31,6 +33,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class ExportProfilesConsistencyTest extends AbstractSerDeTest {
+
+    @BeforeEach
+    void setup() {
+        Locale.setDefault(Locale.US);
+    }
 
     @Test
     void testSVSmallGridNodeBreaker() {
