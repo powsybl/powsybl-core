@@ -51,6 +51,8 @@ public interface ContingencyElement {
             return new BusContingency(identifiable.getId());
         } else if (identifiable instanceof TieLine) {
             return new TieLineContingency(identifiable.getId());
+        } else if (identifiable instanceof HvdcConverterStation hvdcConverterStation) {
+            return new HvdcLineContingency(hvdcConverterStation.getHvdcLine().getId());
         } else {
             throw new PowsyblException(identifiable.getId() + " can not be a ContingencyElement");
         }
