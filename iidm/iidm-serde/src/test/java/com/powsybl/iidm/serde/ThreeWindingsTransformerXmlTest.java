@@ -63,7 +63,7 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
                 .setLowTapPosition(1)
                 .setRegulating(false)
                 .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .beginStep().setRho(1.f).setAlpha(-50f).setR(0.1f).setX(0.1f).setG(0.1f).setB(0.1f).endStep()
                 .beginStep().setRho(1.f).setAlpha(-25f).setR(0.1f).setX(0.1f).setG(0.1f).setB(0.1f).endStep()
                 .add();

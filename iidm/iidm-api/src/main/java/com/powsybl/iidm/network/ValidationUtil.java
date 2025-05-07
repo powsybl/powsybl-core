@@ -493,16 +493,12 @@ public final class ValidationUtil {
                 throwExceptionOrLogError(validable, "regulation cannot be enabled on phase tap changer without load tap changing capabilities", actionOnError, reportNode);
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
             }
-            if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && Double.isNaN(regulationValue)) {
+            if (Double.isNaN(regulationValue)) {
                 throwExceptionOrLogError(validable, "phase regulation is on and threshold/setpoint value is not set", actionOnError, reportNode);
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
             }
-            if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && regulationTerminal == null) {
+            if (regulationTerminal == null) {
                 throwExceptionOrLogError(validable, "phase regulation is on and regulated terminal is not set", actionOnError, reportNode);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
-            }
-            if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
-                throwExceptionOrLogError(validable, "phase regulation cannot be on if mode is FIXED", actionOnError, reportNode);
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
             }
         }

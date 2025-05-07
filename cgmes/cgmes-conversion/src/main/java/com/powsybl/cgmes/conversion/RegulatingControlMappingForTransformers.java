@@ -239,16 +239,12 @@ public class RegulatingControlMappingForTransformers {
 
     private boolean setPtcRegulatingControlCurrentFlow(String ptcId, boolean regulating, boolean ltcFlag, RegulatingControl control,
                                                        PhaseTapChanger ptc, Context context) {
-        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
-                PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
-        return setPtcRegulatingControl(ptcId, regulating, regulationMode, control, ptc, context);
+        return setPtcRegulatingControl(ptcId, getPtcRegulating(ltcFlag, regulating), PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, control, ptc, context);
     }
 
     private boolean setPtcRegulatingControlActivePower(String ptcId, boolean regulating, boolean ltcFlag, RegulatingControl control,
                                                        PhaseTapChanger ptc, Context context) {
-        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
-        return setPtcRegulatingControl(ptcId, regulating, regulationMode, control, ptc, context);
+        return setPtcRegulatingControl(ptcId, getPtcRegulating(ltcFlag, regulating), PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, control, ptc, context);
     }
 
     private boolean setPtcRegulatingControl(String ptcId, boolean regulating, PhaseTapChanger.RegulationMode regulationMode,
@@ -262,12 +258,6 @@ public class RegulatingControlMappingForTransformers {
             return false;
         }
 
-        boolean fixedRegulating = regulating;
-        if (regulating && regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
-            context.fixed(ptcId, "RegulationMode: regulating is set to true whereas regulationMode is set to FIXED_TAP: regulating fixed to false");
-            fixedRegulating = false;
-        }
-
         boolean validTargetDeadband = control.targetDeadband >= 0;
         if (!validTargetDeadband) {
             context.invalid(ptcId, "Regulating control has a bad target deadband " + control.targetDeadband);
@@ -279,13 +269,12 @@ public class RegulatingControlMappingForTransformers {
                 .setRegulationValue(control.targetValue * mappedRegulatingTerminal.getSign())
                 .setTargetDeadband(validTargetDeadband ? control.targetDeadband : Double.NaN)
                 .setRegulationMode(regulationMode)
-                .setRegulating(fixedRegulating && validTargetDeadband);
+                .setRegulating(regulating && validTargetDeadband);
 
         return true;
     }
 
-    private PhaseTapChanger.RegulationMode getPtcRegulatingMode(boolean ltcFlag,
-                                                                PhaseTapChanger.RegulationMode regulationMode) {
+    private boolean getPtcRegulating(boolean ltcFlag, boolean regulating) {
         // According to the following CGMES documentation:
         // IEC TS 61970-600-1, Edition 1.0, 2017-07.
         // "Energy management system application program interface (EMS-API)
@@ -310,15 +299,9 @@ public class RegulatingControlMappingForTransformers {
         // Although this combination has been observed in TYNDP test cases,
         // we will forbid it until an explicit ltcFlag is added to IIDM,
         // in the meanwhile, when ltcFlag == False,
-        // we avoid regulation by setting RegulationMode in IIDM to FIXED_TAP
+        // we avoid regulation by setting regulating to false
 
-        // rca.regulationMode has been initialized to FIXED_TAP
-
-        PhaseTapChanger.RegulationMode finalRegulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
-        if (ltcFlag) {
-            finalRegulationMode = regulationMode;
-        }
-        return finalRegulationMode;
+        return ltcFlag && regulating;
     }
 
     private RegulatingControl getTapChangerControl(CgmesRegulatingControl rc) {

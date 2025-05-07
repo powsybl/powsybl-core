@@ -158,7 +158,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), name);
 
         RegulationMode regMode = ptc.getRegulationMode();
-        Boolean optionalRegulatingValue = !ptc.hasLoadTapChangingCapabilities() || regMode == null || regMode == RegulationMode.FIXED_TAP ? null : ptc.isRegulating();
+        Boolean optionalRegulatingValue = !ptc.hasLoadTapChangingCapabilities() || regMode == null ? null : ptc.isRegulating();
         context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, optionalRegulatingValue);
 
         writeTapChanger(ptc, context);
