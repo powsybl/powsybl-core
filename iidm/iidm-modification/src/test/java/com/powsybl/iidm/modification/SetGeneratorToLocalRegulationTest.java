@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.time.ZonedDateTime;
-import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,7 +31,6 @@ class SetGeneratorToLocalRegulationTest {
 
     @BeforeEach
     void setUp() {
-        Locale.setDefault(Locale.US);
         network = createTestNetwork();
     }
 

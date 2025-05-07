@@ -11,7 +11,6 @@ import com.powsybl.commons.report.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.computation.ComputationManager;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -19,7 +18,6 @@ import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,11 +31,6 @@ class PostProcessorReportNodeTest extends AbstractSerDeTest {
     private final ImportersLoader loader = new ImportersLoaderList(Collections.singletonList(testImporter), Collections.singletonList(importPostProcessorMock));
     private final ComputationManager computationManager = Mockito.mock(ComputationManager.class);
     private final Importer importer1 = Importer.addPostProcessors(loader, testImporter, computationManager, "testReportNode");
-
-    @BeforeEach
-    void setup() {
-        Locale.setDefault(Locale.US);
-    }
 
     @Test
     void postProcessorWithReportNode() throws IOException {

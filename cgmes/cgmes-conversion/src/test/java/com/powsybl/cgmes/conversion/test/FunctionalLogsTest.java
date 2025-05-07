@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.Locale;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,7 +33,6 @@ class FunctionalLogsTest {
 
     @BeforeEach
     void setUp() {
-        Locale.setDefault(Locale.US);
         importParams = new Properties();
         importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
     }

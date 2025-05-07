@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -57,7 +56,6 @@ class DynamicSimulationToolTest extends AbstractToolTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        Locale.setDefault(Locale.US);
         Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/network.xiidm")), fileSystem.getPath("/network.xiidm"));
         Files.createFile(fileSystem.getPath("/dynamicModels.groovy"));
         Files.createFile(fileSystem.getPath("/eventModels.groovy"));

@@ -8,7 +8,6 @@
 package com.powsybl.commons.report;
 
 import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
@@ -19,11 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 class ReportFormatterTest {
-
-    @BeforeEach
-    void setup() {
-        Locale.setDefault(Locale.US);
-    }
 
     @Test
     void test() {

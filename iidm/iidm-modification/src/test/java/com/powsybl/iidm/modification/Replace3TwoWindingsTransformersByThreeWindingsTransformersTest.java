@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
-import java.util.Locale;
 
 import static com.powsybl.iidm.modification.TransformersTestUtils.*;
 import static com.powsybl.iidm.modification.TransformersTestUtils.addPhaseTapChanger;
@@ -41,7 +40,6 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
 
     @BeforeEach
     public void setUp() {
-        Locale.setDefault(Locale.US);
         Network expectedNetwork = createSetUpNetwork();
         assertEquals(3, expectedNetwork.getTwoWindingsTransformerCount());
         t2w1 = expectedNetwork.getTwoWindingsTransformer("3WT-Leg1");

@@ -25,7 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.TestUtil.normalizeLineSeparator;
@@ -94,7 +93,6 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
-        Locale.setDefault(Locale.US);
         // create test files
         //   /test0.xiidm
         //   /test1.iidm
