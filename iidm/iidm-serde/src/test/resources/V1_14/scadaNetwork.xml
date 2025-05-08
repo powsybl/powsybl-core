@@ -41,7 +41,7 @@
             <iidm:ratioTapChanger lowTapPosition="0" loadTapChangingCapabilities="false" regulating="true">
                 <iidm:step r="1.0" x="1.0" g="0.0" b="0.0" rho="1.0"/>
             </iidm:ratioTapChanger>
-            <iidm:phaseTapChanger lowTapPosition="0">
+            <iidm:phaseTapChanger lowTapPosition="0" loadTapChangingCapabilities="true">
                 <iidm:step r="1.0" x="1.0" g="0.0" b="0.0" rho="1.0" alpha="1.0"/>
             </iidm:phaseTapChanger>
         </iidm:twoWindingsTransformer>
@@ -49,7 +49,7 @@
             <iidm:ratioTapChanger1 lowTapPosition="0" loadTapChangingCapabilities="false" regulating="true">
                 <iidm:step r="1.0" x="1.0" g="0.0" b="0.0" rho="1.0"/>
             </iidm:ratioTapChanger1>
-            <iidm:phaseTapChanger2 lowTapPosition="0">
+            <iidm:phaseTapChanger2 lowTapPosition="0" loadTapChangingCapabilities="true">
                 <iidm:step r="1.0" x="1.0" g="0.0" b="0.0" rho="1.0" alpha="1.0"/>
             </iidm:phaseTapChanger2>
         </iidm:threeWindingsTransformer>

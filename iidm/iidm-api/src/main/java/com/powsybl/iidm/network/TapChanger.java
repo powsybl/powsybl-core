@@ -23,6 +23,17 @@ public interface TapChanger<
     A extends TapChangerStepAdder<A, R>> {
 
     /**
+     * Get the load tap changing capabilities status.
+     */
+    boolean hasLoadTapChangingCapabilities();
+
+    /**
+     * Set the load tap changing capabilities status.
+     * @return itself for method chaining.
+     */
+    C setLoadTapChangingCapabilities(boolean status);
+
+    /**
      * Get the lowest tap position corresponding to the first step of the tap changer.
      */
     int getLowTapPosition();
