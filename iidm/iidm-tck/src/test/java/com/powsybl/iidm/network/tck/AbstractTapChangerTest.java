@@ -51,6 +51,7 @@ public abstract class AbstractTapChangerTest {
         // adder
         PhaseTapChanger phaseTapChanger = twt.newPhaseTapChanger()
                                                 .setTapPosition(1)
+                                                .setLoadTapChangingCapabilities(true)
                                                 .setLowTapPosition(0)
                                                 .setRegulating(true)
                                                 .setTargetDeadband(1.0)
@@ -78,6 +79,7 @@ public abstract class AbstractTapChangerTest {
         assertEquals(2, phaseTapChanger.getAllSteps().size());
         assertEquals(0, phaseTapChanger.getLowTapPosition());
         assertEquals(1, phaseTapChanger.getHighTapPosition());
+        assertTrue(phaseTapChanger.hasLoadTapChangingCapabilities());
         assertTrue(phaseTapChanger.isRegulating());
         assertEquals(1.0, phaseTapChanger.getTargetDeadband(), 0.0);
         assertEquals(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, phaseTapChanger.getRegulationMode());
@@ -107,6 +109,8 @@ public abstract class AbstractTapChangerTest {
         assertEquals(0.5, phaseTapChanger.getTargetDeadband(), 0.0);
         phaseTapChanger.setRegulating(false);
         assertFalse(phaseTapChanger.isRegulating());
+        phaseTapChanger.setLoadTapChangingCapabilities(false);
+        assertFalse(phaseTapChanger.hasLoadTapChangingCapabilities());
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
         Terminal terminal2 = twt.getTerminal2();
@@ -203,6 +207,36 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
+    public void testAdderDefaultLoadTapChangingCapabilities() {
+        PhaseTapChanger phaseTapChanger = twt.newPhaseTapChanger()
+                .setTapPosition(0)
+                .setLowTapPosition(0)
+                .setRegulating(true)
+                .setTargetDeadband(1.0)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulationValue(10.0)
+                .setRegulationTerminal(terminal)
+                .beginStep()
+                    .setAlpha(0.0)
+                .endStep()
+                .add();
+        assertTrue(phaseTapChanger.hasLoadTapChangingCapabilities());
+    }
+
+    @Test
+    public void testAdderNoLoadTapChangingCapabilities() {
+        PhaseTapChanger phaseTapChanger = twt.newPhaseTapChanger()
+                .setTapPosition(0)
+                .setLowTapPosition(0)
+                .setLoadTapChangingCapabilities(false)
+                .beginStep()
+                    .setAlpha(0.0)
+                .endStep()
+                .add();
+        assertFalse(phaseTapChanger.hasLoadTapChangingCapabilities());
+    }
+
+    @Test
     public void testPhaseTapChangerStepsReplacer() {
         PhaseTapChanger phaseTapChanger = twt.newPhaseTapChanger()
                 .setTapPosition(1)
@@ -290,42 +324,42 @@ public abstract class AbstractTapChangerTest {
 
     @Test
     public void invalidTapPositionPhase() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(3, 0, false,
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(3, 0, true, false,
                 PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, 1.0, terminal));
         assertTrue(e.getMessage().contains("incorrect tap position"));
     }
 
     @Test
     public void invalidNullModePhase() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, true,
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, true, true,
                 null, 1.0, 1.0, terminal));
         assertTrue(e.getMessage().contains("phase regulation mode is not set"));
     }
 
     @Test
     public void invalidRegulatingValuePhase() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, true,
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, true, true,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, Double.NaN, 1.0, terminal));
         assertTrue(e.getMessage().contains("phase regulation is on and threshold/setpoint value is not set"));
     }
 
     @Test
     public void invalidNullRegulatingTerminalPhase() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, true,
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, true, true,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, 1.0, null));
         assertTrue(e.getMessage().contains("phase regulation is on and regulated terminal is not set"));
     }
 
     @Test
     public void invalidModePhase() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, true,
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, true, true,
                 PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, 1.0, terminal));
         assertTrue(e.getMessage().contains("phase regulation cannot be on if mode is FIXED"));
     }
 
     @Test
     public void invalidTargetDeadbandPtc() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, false,
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, true, false,
                 PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, -1.0, terminal));
         assertTrue(e.getMessage().contains("2 windings transformer 'twt': Unexpected value for target deadband of phase tap changer: -1.0"));
     }
@@ -333,7 +367,7 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void testTapChangerSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createPhaseTapChangerWith2Steps(1, 0, false,
+        createPhaseTapChangerWith2Steps(1, 0, false, false,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, 1.0, terminal);
         createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, terminal);
         createThreeWindingTransformer();
@@ -433,12 +467,13 @@ public abstract class AbstractTapChangerTest {
         }
     }
 
-    private void createPhaseTapChangerWith2Steps(int tapPosition, int lowTap, boolean isRegulating,
+    private void createPhaseTapChangerWith2Steps(int tapPosition, int lowTap, boolean loadTapChangingCapabilities, boolean isRegulating,
                                                 PhaseTapChanger.RegulationMode mode, double value, double deadband,
                                                  Terminal terminal) {
         twt.newPhaseTapChanger()
                 .setTapPosition(tapPosition)
                 .setLowTapPosition(lowTap)
+                .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
                 .setRegulating(isRegulating)
                 .setRegulationMode(mode)
                 .setRegulationValue(value)
