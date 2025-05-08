@@ -438,7 +438,7 @@ public final class ValidationUtil {
         }
     }
 
-    private static ValidationLevel errorOrWarningForRtc(Validable validable, boolean loadTapChangingCapabilities, String message, ActionOnError actionOnError, ReportNode reportNode) {
+    private static ValidationLevel errorOrWarningForTapChanger(Validable validable, boolean loadTapChangingCapabilities, String message, ActionOnError actionOnError, ReportNode reportNode) {
         if (loadTapChangingCapabilities) {
             throwExceptionOrLogError(validable, message, actionOnError, reportNode);
             return ValidationLevel.EQUIPMENT;
@@ -464,16 +464,16 @@ public final class ValidationUtil {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         if (regulating) {
             if (Objects.isNull(regulationMode)) {
-                validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForRtc(validable, loadTapChangingCapabilities, "regulation mode of regulating ratio tap changer must be given", actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForTapChanger(validable, loadTapChangingCapabilities, "regulation mode of regulating ratio tap changer must be given", actionOnError, reportNode));
             }
             if (Double.isNaN(regulationValue)) {
-                validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForRtc(validable, loadTapChangingCapabilities, "a regulation value has to be set for a regulating ratio tap changer", actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForTapChanger(validable, loadTapChangingCapabilities, "a regulation value has to be set for a regulating ratio tap changer", actionOnError, reportNode));
             }
             if (regulationMode == RatioTapChanger.RegulationMode.VOLTAGE && regulationValue <= 0) {
                 throw new ValidationException(validable, "bad target voltage " + regulationValue);
             }
             if (regulationTerminal == null) {
-                validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForRtc(validable, loadTapChangingCapabilities, "a regulation terminal has to be set for a regulating ratio tap changer", actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForTapChanger(validable, loadTapChangingCapabilities, "a regulation terminal has to be set for a regulating ratio tap changer", actionOnError, reportNode));
             }
         }
         if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
@@ -483,32 +483,28 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
-                                                                 double regulationValue, boolean regulating, Terminal regulationTerminal,
+                                                                 double regulationValue, boolean regulating, boolean loadTapChangingCapabilities, Terminal regulationTerminal,
                                                                  Network network, ValidationLevel validationLevel, ReportNode reportNode) {
-        return checkPhaseTapChangerRegulation(validable, regulationMode, regulationValue, regulating, regulationTerminal,
+        return checkPhaseTapChangerRegulation(validable, regulationMode, regulationValue, regulating, loadTapChangingCapabilities, regulationTerminal,
                 network, checkValidationActionOnError(validationLevel), reportNode);
     }
 
     private static ValidationLevel checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
-                                                                  double regulationValue, boolean regulating, Terminal regulationTerminal,
+                                                                  double regulationValue, boolean regulating, boolean loadTapChangingCapabilities, Terminal regulationTerminal,
                                                                   Network network, ActionOnError actionOnError, ReportNode reportNode) {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         if (regulationMode == null) {
-            throwExceptionOrLogError(validable, "phase regulation mode is not set", actionOnError, reportNode);
-            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+            validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForTapChanger(validable, loadTapChangingCapabilities, "phase regulation mode is not set", actionOnError, reportNode));
         }
         if (regulating && regulationMode != null) {
             if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && Double.isNaN(regulationValue)) {
-                throwExceptionOrLogError(validable, "phase regulation is on and threshold/setpoint value is not set", actionOnError, reportNode);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+                validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForTapChanger(validable, loadTapChangingCapabilities, "phase regulation is on and threshold/setpoint value is not set", actionOnError, reportNode));
             }
             if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && regulationTerminal == null) {
-                throwExceptionOrLogError(validable, "phase regulation is on and regulated terminal is not set", actionOnError, reportNode);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+                validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForTapChanger(validable, loadTapChangingCapabilities, "phase regulation is on and regulated terminal is not set", actionOnError, reportNode));
             }
             if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
-                throwExceptionOrLogError(validable, "phase regulation cannot be on if mode is FIXED", actionOnError, reportNode);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+                validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForTapChanger(validable, loadTapChangingCapabilities, "phase regulation cannot be on if mode is FIXED", actionOnError, reportNode));
             }
         }
         if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
@@ -639,7 +635,7 @@ public final class ValidationUtil {
             throwExceptionOrLogError(validable, "tap position is not set", actionOnError, reportNode);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
-        validationLevel = ValidationLevel.min(validationLevel, checkPhaseTapChangerRegulation(validable, ptc.getRegulationMode(), ptc.getRegulationValue(), ptc.isRegulating(), ptc.getRegulationTerminal(), network, actionOnError, reportNode));
+        validationLevel = ValidationLevel.min(validationLevel, checkPhaseTapChangerRegulation(validable, ptc.getRegulationMode(), ptc.getRegulationValue(), ptc.isRegulating(), ptc.hasLoadTapChangingCapabilities(), ptc.getRegulationTerminal(), network, actionOnError, reportNode));
         validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "phase tap changer", ptc.isRegulating(), ptc.getTargetDeadband(), actionOnError, reportNode));
         return validationLevel;
     }

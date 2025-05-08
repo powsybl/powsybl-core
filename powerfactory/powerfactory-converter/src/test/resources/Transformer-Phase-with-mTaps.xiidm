@@ -30,7 +30,7 @@
             <iidm:load id="lod_3_1" loadType="UNDEFINED" p0="50.0" q0="25.0" node="5"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="trf_2_3_1" r="0.0" x="7.392000213382751" g="0.0" b="-0.0" ratedU1="400.0" ratedU2="400.0" ratedS="1524.0" node1="2" voltageLevelId1="VL14" node2="6" voltageLevelId2="VL14">
-            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" regulationMode="FIXED_TAP">
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulationMode="FIXED_TAP">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="10.0"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="0.8799999952316284"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-10.0"/>
