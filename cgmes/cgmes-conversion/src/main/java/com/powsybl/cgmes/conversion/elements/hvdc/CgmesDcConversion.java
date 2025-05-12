@@ -164,7 +164,7 @@ public class CgmesDcConversion {
         if (!convertCommonData(acDcConverterNodes, adjacency, acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId)) {
             return;
         }
-        this.r = 2.0 * computeR(this.dcLineSegment);
+        this.r = computeR(this.dcLineSegment) / 2.0;
 
         if (createHvdc(isDuplicated)) {
             setCommonDataUsed();
