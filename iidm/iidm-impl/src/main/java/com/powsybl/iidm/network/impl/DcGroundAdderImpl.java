@@ -8,11 +8,11 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.DcGround;
-import com.powsybl.iidm.network.DcGroundAdder;
-import com.powsybl.iidm.network.DcNode;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.DcUtils;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -51,15 +51,13 @@ public class DcGroundAdderImpl extends AbstractIdentifiableAdder<DcGroundAdderIm
 
     @Override
     public DcGround add() {
-        // TODO
-        //  check R > 0
-        //  check dcNode found
         String id = checkAndGetUniqueId();
+        DcNode dcNode = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNodeId, "dcNodeId");
+        DcUtils.checkSameParentNetwork(this.getParentNetwork(), this, dcNode);
+        ValidationUtil.checkRPositive(this, r);
         DcGroundImpl dcGround = new DcGroundImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), r);
-        DcNode dcNode = getNetwork().getDcNode(this.dcNodeId);
         DcTerminalImpl dcTerminal = new DcTerminalImpl(networkRef, dcNode, connected);
         dcGround.addDcTerminal(dcTerminal);
-
         getNetwork().getIndex().checkAndAdd(dcGround);
         getNetwork().getListeners().notifyCreation(dcGround);
         return dcGround;
@@ -68,6 +66,10 @@ public class DcGroundAdderImpl extends AbstractIdentifiableAdder<DcGroundAdderIm
     @Override
     protected NetworkImpl getNetwork() {
         return networkRef.get();
+    }
+
+    private Network getParentNetwork() {
+        return Optional.ofNullable((Network) subnetworkRef.get()).orElse(getNetwork());
     }
 
     @Override

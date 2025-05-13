@@ -288,7 +288,7 @@ public abstract class AbstractDcLineTest {
         // test cannot create DcLine in netWithSubnet referencing nodes of subnetwork1
         adder.setDcNode1Id(dcNode1Subnet1.getId()).setDcNode2Id(dcNode2Subnet1.getId());
         PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Line 'dcLineAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode2Subnetwork1' are in network 'subnetwork1' but DC Line is in 'test'", e2.getMessage());
+        assertEquals("DC Line 'dcLineAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode2Subnetwork1' are in network 'subnetwork1' but DC Equipment is in 'test'", e2.getMessage());
 
         // test cannot create DcLine across subnetwork1 & netWithSubnet
         adder.setDcNode2Id(dcNodeRootNetwork.getId());

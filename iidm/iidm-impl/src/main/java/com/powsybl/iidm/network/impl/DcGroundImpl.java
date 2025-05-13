@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.DcGround;
 import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -30,17 +31,22 @@ public class DcGroundImpl extends AbstractDcConnectable<DcGround> implements DcG
 
     @Override
     public DcTerminal getDcTerminal() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "terminal");
         return this.dcTerminals.get(0);
     }
 
     @Override
     public double getR() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "r");
         return this.r;
     }
 
     @Override
     public void setR(double r) {
-        // todo checks
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "r");
+        ValidationUtil.checkRPositive(this, r);
+        double oldValue = this.r;
         this.r = r;
+        getNetwork().getListeners().notifyUpdate(this, "r", oldValue, r);
     }
 }
