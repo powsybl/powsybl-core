@@ -7,7 +7,6 @@
  */
 package com.powsybl.dynamicsimulation.groovy;
 
-import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 
 /**
@@ -17,7 +16,7 @@ public final class DynamicSimulationReports {
 
     public static ReportNode buildRootDynamicSimulationTool() {
         return ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("core.dynasim.dynamicSimulationTool")
                 .build();
     }
