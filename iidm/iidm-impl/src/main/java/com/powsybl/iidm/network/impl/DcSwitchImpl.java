@@ -7,12 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.DcSwitch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -47,21 +47,15 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
         }
     }
 
-    void throwIfRemoved(String attribute) {
-        if (removed) {
-            throw new PowsyblException("Cannot access " + attribute + " of removed DC Switch " + id);
-        }
-    }
-
     @Override
     public NetworkImpl getNetwork() {
-        throwIfRemoved("network");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "network");
         return networkRef.get();
     }
 
     @Override
     public Network getParentNetwork() {
-        throwIfRemoved("network");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "network");
         return Optional.ofNullable((Network) subnetworkRef.get()).orElse(getNetwork());
     }
 
@@ -76,47 +70,51 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
 
     @Override
     public DcNode getDcNode1() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "dcNode1");
         return this.dcNode1;
     }
 
     @Override
     public DcNode getDcNode2() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "dcNode2");
         return this.dcNode2;
     }
 
     @Override
     public boolean isRetained() {
-        if (removed) {
-            throw new PowsyblException("Cannot access removed equipment " + getId());
-        }
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "retained");
         return this.retained.get(getVariantManagerHolder().getVariantIndex());
     }
 
     @Override
     public DcSwitch setRetained(boolean retained) {
-        if (removed) {
-            throw new PowsyblException("Cannot modify removed equipment " + getId());
-        }
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "retained");
         int variantIndex = getVariantManagerHolder().getVariantIndex();
-        this.retained.set(variantIndex, retained);
+        boolean oldValue = this.retained.get(variantIndex);
+        if (oldValue != retained) {
+            this.retained.set(variantIndex, retained);
+            String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
+            getNetwork().getListeners().notifyUpdate(this, "retained", variantId, oldValue, retained);
+        }
         return this;
     }
 
     @Override
     public boolean isOpen() {
-        if (removed) {
-            throw new PowsyblException("Cannot access removed equipment " + getId());
-        }
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "open");
         return this.open.get(getVariantManagerHolder().getVariantIndex());
     }
 
     @Override
     public DcSwitch setOpen(boolean open) {
-        if (removed) {
-            throw new PowsyblException("Cannot modify removed equipment " + getId());
-        }
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "open");
         int variantIndex = getVariantManagerHolder().getVariantIndex();
-        this.open.set(variantIndex, open);
+        boolean oldValue = this.open.get(variantIndex);
+        if (oldValue != open) {
+            this.open.set(variantIndex, open);
+            String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
+            getNetwork().getListeners().notifyUpdate(this, "open", variantId, oldValue, open);
+        }
         return this;
     }
 
