@@ -20,9 +20,11 @@ import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,6 +32,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Anis Touri {@literal <anis-1.touri@rte-france.com>}
  */
 class RemoveHvdcLineTest extends AbstractSerDeTest {
+
+    @BeforeEach
+    void setup() {
+        Locale.setDefault(Locale.US);
+    }
 
     @Test
     void testRemoveHvdcLineLcc() {

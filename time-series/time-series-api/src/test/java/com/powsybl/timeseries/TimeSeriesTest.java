@@ -11,6 +11,7 @@ import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -26,11 +27,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -46,6 +43,11 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class TimeSeriesTest {
+
+    @BeforeEach
+    void setup() {
+        Locale.setDefault(Locale.US);
+    }
 
     private void assertOnParsedTimeSeries(Map<Integer, List<TimeSeries>> timeSeriesPerVersion, Class<?> className) {
         assertEquals(2, timeSeriesPerVersion.size());
