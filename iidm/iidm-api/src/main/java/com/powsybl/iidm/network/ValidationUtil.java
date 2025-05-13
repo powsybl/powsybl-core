@@ -290,7 +290,7 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkRStrictlyPositive(Validable validable, double r) {
+    public static void checkRPositive(Validable validable, double r) {
         if (Double.isNaN(r) || r < 0) {
             throw new ValidationException(validable, "r is invalid");
         }
