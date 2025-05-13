@@ -40,6 +40,18 @@ public final class ValidationUtil {
     private ValidationUtil() {
     }
 
+    public static void checkAccessOfRemovedEquipment(String id, boolean removed) {
+        if (removed) {
+            throw new PowsyblException("Cannot access removed equipment " + id);
+        }
+    }
+
+    public static void checkModifyOfRemovedEquipment(String id, boolean removed) {
+        if (removed) {
+            throw new PowsyblException("Cannot modify removed equipment " + id);
+        }
+    }
+
     public static void checkAccessOfRemovedEquipment(String id, boolean removed, String attribute) {
         if (removed) {
             throw new PowsyblException("Cannot access " + attribute + " of removed equipment " + id);
@@ -274,6 +286,12 @@ public final class ValidationUtil {
 
     public static void checkR(Validable validable, double r) {
         if (Double.isNaN(r)) {
+            throw new ValidationException(validable, "r is invalid");
+        }
+    }
+
+    public static void checkRStrictlyPositive(Validable validable, double r) {
+        if (Double.isNaN(r) || r < 0) {
             throw new ValidationException(validable, "r is invalid");
         }
     }
