@@ -15,7 +15,7 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.report.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
@@ -46,7 +46,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
 
         ReportNode rootReportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("testReportVoltageRegulatingXnode")
                 .withTypedValue("file", "elementName.uct", TypedValue.FILENAME)
                 .build();
@@ -75,7 +75,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
     void roundTripReportNodeJsonTest() throws Exception {
         String filename = "frVoltageRegulatingXnode.uct";
         ReportNode reportRoot = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("roundTripReportNodeJsonTest")
                 .build();
         reportRoot.newReportNode()
@@ -126,7 +126,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
 
         List<Network> networkList = Collections.synchronizedList(new ArrayList<>());
         ReportNode reportRoot = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("importAllParallel")
                 .withTypedValue("file1", "frVoltageRegulatingXnode.uct", TypedValue.FILENAME)
                 .withTypedValue("file2", "frTestGridForMerging.uct", TypedValue.FILENAME)
