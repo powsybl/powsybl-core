@@ -40,6 +40,18 @@ public final class ValidationUtil {
     private ValidationUtil() {
     }
 
+    public static void checkAccessOfRemovedEquipment(String id, boolean removed, String attribute) {
+        if (removed) {
+            throw new PowsyblException("Cannot access " + attribute + " of removed equipment " + id);
+        }
+    }
+
+    public static void checkModifyOfRemovedEquipment(String id, boolean removed, String attribute) {
+        if (removed) {
+            throw new PowsyblException("Cannot modify " + attribute + " of removed equipment " + id);
+        }
+    }
+
     public static PowsyblException createUndefinedValueGetterException() {
         return new PowsyblException("This getter cannot be used if the value is not defined");
     }

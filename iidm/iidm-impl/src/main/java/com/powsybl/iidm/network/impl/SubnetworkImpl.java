@@ -709,12 +709,13 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public int getDcNodeCount() {
-        return 0;
+        return (int) getDcNodeStream().count();
     }
 
     @Override
     public DcNode getDcNode(String id) {
-        return null;
+        DcNode n = getNetwork().getDcNode(id);
+        return contains(n) ? n : null;
     }
 
     @Override

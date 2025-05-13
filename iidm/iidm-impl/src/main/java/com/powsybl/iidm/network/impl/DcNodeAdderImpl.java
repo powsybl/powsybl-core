@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.DcNodeAdder;
+import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -34,7 +35,8 @@ public class DcNodeAdderImpl extends AbstractIdentifiableAdder<DcNodeAdderImpl> 
     @Override
     public DcNode add() {
         String id = checkAndGetUniqueId();
-        // TODO: check nominalV !nan && > 0
+        ValidationUtil.checkNominalV(this, nominalV);
+
         DcNode dcNode = new DcNodeImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), nominalV);
         NetworkImpl network = networkRef.get();
         network.getIndex().checkAndAdd(dcNode);
