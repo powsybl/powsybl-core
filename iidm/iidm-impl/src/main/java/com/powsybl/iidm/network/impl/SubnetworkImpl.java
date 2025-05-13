@@ -735,12 +735,13 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public int getDcLineCount() {
-        return 0;
+        return (int) getDcLineStream().count();
     }
 
     @Override
     public DcLine getDcLine(String id) {
-        return null;
+        DcLine l = getNetwork().getDcLine(id);
+        return contains(l) ? l : null;
     }
 
     @Override
@@ -760,12 +761,13 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public int getDcSwitchCount() {
-        return 0;
+        return (int) getDcSwitchStream().count();
     }
 
     @Override
     public DcSwitch getDcSwitch(String id) {
-        return null;
+        DcSwitch s = getNetwork().getDcSwitch(id);
+        return contains(s) ? s : null;
     }
 
     @Override
@@ -785,12 +787,13 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public int getDcGroundCount() {
-        return 0;
+        return (int) getDcGroundStream().count();
     }
 
     @Override
     public DcGround getDcGround(String id) {
-        return null;
+        DcGround g = getNetwork().getDcGround(id);
+        return contains(g) ? g : null;
     }
 
     @Override
@@ -805,12 +808,13 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public int getDcLineCommutatedConverterCount() {
-        return 0;
+        return (int) getDcLineCommutatedConverterStream().count();
     }
 
     @Override
     public DcLineCommutatedConverter getDcLineCommutatedConverter(String id) {
-        return null;
+        DcLineCommutatedConverter c = getNetwork().getDcLineCommutatedConverter(id);
+        return contains(c) ? c : null;
     }
 
     @Override
@@ -825,12 +829,13 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public int getDcVoltageSourceConverterCount() {
-        return 0;
+        return (int) getDcVoltageSourceConverterStream().count();
     }
 
     @Override
     public DcVoltageSourceConverter getDcVoltageSourceConverter(String id) {
-        return null;
+        DcVoltageSourceConverter c = getNetwork().getDcVoltageSourceConverter(id);
+        return contains(c) ? c : null;
     }
 
     @Override

@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
 
@@ -32,26 +31,21 @@ abstract class AbstractDcConnectable<I extends DcConnectable<I>> extends Abstrac
         this.subnetworkRef = subnetworkRef;
     }
 
-    void throwIfRemoved(String attribute) {
-        if (removed) {
-            throw new PowsyblException("Cannot access " + attribute + " of removed equipment " + id);
-        }
-    }
-
     @Override
     public Network getParentNetwork() {
-        throwIfRemoved("network");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "network");
         return Optional.ofNullable((Network) subnetworkRef.get()).orElse(getNetwork());
     }
 
     @Override
     public NetworkImpl getNetwork() {
-        throwIfRemoved("network");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "network");
         return networkRef.get();
     }
 
     @Override
     public List<DcTerminal> getDcTerminals() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "dcTerminals");
         return this.dcTerminals;
     }
 
@@ -69,5 +63,6 @@ abstract class AbstractDcConnectable<I extends DcConnectable<I>> extends Abstrac
 
         network.getListeners().notifyAfterRemoval(id);
         removed = true;
+        dcTerminals.forEach(DcTerminal::remove);
     }
 }

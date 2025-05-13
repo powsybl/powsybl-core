@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -25,8 +26,8 @@ public abstract class AbstractDcNodeTest {
     @Test
     public void testBase() {
         Network network = Network.create("test", "test");
-        String dcNode1Id = "dcNode1";
 
+        String dcNode1Id = "dcNode1";
         DcNode dcNode1 = network.newDcNode().setId(dcNode1Id).setNominalV(500.).add();
         assertSame(IdentifiableType.DC_NODE, dcNode1.getType());
         assertEquals(dcNode1.getId(), dcNode1Id);
@@ -172,5 +173,11 @@ public abstract class AbstractDcNodeTest {
         assertNull(subnetwork2.getDcNode(dcNode1Subnet1.getId()));
         assertNull(subnetwork2.getDcNode(dcNode2Subnet1.getId()));
         assertSame(dcNode1Subnet2, subnetwork2.getDcNode(dcNode1Subnet2.getId()));
+    }
+
+    @Test
+    @Disabled("TODO: cannot remove DcNode referenced by DcLine/DcGround/DcSwitch")
+    public void testRemoveDcNodeStillReferenced() {
+        // TODO
     }
 }

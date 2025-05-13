@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.DcLine;
 import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -30,21 +31,26 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
 
     @Override
     public DcTerminal getDcTerminal1() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "terminal1");
         return this.dcTerminals.get(0);
     }
 
     @Override
     public DcTerminal getDcTerminal2() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "terminal2");
         return this.dcTerminals.get(1);
     }
 
     @Override
     public double getR() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "r");
         return this.r;
     }
 
     @Override
     public void setR(double r) {
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "r");
+        ValidationUtil.checkRStrictlyPositive(this, r);
         this.r = r;
     }
 }

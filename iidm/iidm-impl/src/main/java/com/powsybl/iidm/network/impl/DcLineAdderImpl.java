@@ -8,11 +8,10 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.DcLine;
-import com.powsybl.iidm.network.DcLineAdder;
-import com.powsybl.iidm.network.DcNode;
+import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -24,9 +23,9 @@ public class DcLineAdderImpl extends AbstractIdentifiableAdder<DcLineAdderImpl> 
 
     private double r = Double.NaN;
     private String dcNode1Id;
-    private Boolean connected1;
+    private boolean connected1 = true;
     private String dcNode2Id;
-    private Boolean connected2;
+    private boolean connected2 = true;
 
     DcLineAdderImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef) {
         this.networkRef = ref;
@@ -63,11 +62,35 @@ public class DcLineAdderImpl extends AbstractIdentifiableAdder<DcLineAdderImpl> 
         return this;
     }
 
+    private DcNode checkAndGetDcNode(String dcNodeId, String attribute) {
+        if (dcNodeId == null) {
+            throw new ValidationException(this, attribute + " is not set");
+        }
+        DcNode dcNode = getNetwork().getParentNetwork().getDcNode(dcNodeId);
+        if (dcNode == null) {
+            throw new ValidationException(this, "DcNode '" + dcNodeId + "' not found");
+        }
+        return dcNode;
+    }
+
+    private void checkSameParentNetwork(DcNode dcNode1, DcNode dcNode2) {
+        if (dcNode1.getParentNetwork() != dcNode2.getParentNetwork()) {
+            throw new ValidationException(this, "DC Nodes '" + dcNode1.getId() + "' and '" + dcNode2.getId() +
+                    "' are in different networks '" + dcNode1.getParentNetwork().getId() + "' and '" + dcNode2.getParentNetwork().getId() + "'");
+        }
+        if (getParentNetwork() != dcNode1.getParentNetwork()) {
+            throw new ValidationException(this, "DC Nodes '" + dcNode1.getId() + "' and '" + dcNode2.getId() +
+                    "' are in network '" + dcNode1.getParentNetwork().getId() + "' but DC Line is in '" + getParentNetwork().getId() + "'");
+        }
+    }
+
     @Override
     public DcLine add() {
         String id = checkAndGetUniqueId();
-        DcNode dcNode1 = getNetwork().getDcNode(this.dcNode1Id);
-        DcNode dcNode2 = getNetwork().getDcNode(this.dcNode2Id);
+        DcNode dcNode1 = checkAndGetDcNode(this.dcNode1Id, "dcNode1Id");
+        DcNode dcNode2 = checkAndGetDcNode(this.dcNode2Id, "dcNode2Id");
+        checkSameParentNetwork(dcNode1, dcNode2);
+        ValidationUtil.checkRStrictlyPositive(this, this.r);
         DcLineImpl dcLine = new DcLineImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), this.r);
         DcTerminalImpl dcTerminal1 = new DcTerminalImpl(networkRef, dcNode1, connected1);
         DcTerminalImpl dcTerminal2 = new DcTerminalImpl(networkRef, dcNode2, connected2);
@@ -81,6 +104,10 @@ public class DcLineAdderImpl extends AbstractIdentifiableAdder<DcLineAdderImpl> 
     @Override
     protected NetworkImpl getNetwork() {
         return networkRef.get();
+    }
+
+    private Network getParentNetwork() {
+        return Optional.ofNullable((Network) subnetworkRef.get()).orElse(getNetwork());
     }
 
     @Override

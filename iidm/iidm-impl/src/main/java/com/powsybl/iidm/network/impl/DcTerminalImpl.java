@@ -7,12 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.DcConnectable;
 import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.Objects;
 
@@ -43,33 +43,25 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
 
     @Override
     public DcConnectable getDcConnectable() {
-        if (removed) {
-            throw new PowsyblException("Cannot access removed equipment " + dcConnectable.getId());
-        }
+        ValidationUtil.checkAccessOfRemovedEquipment(dcConnectable.getId(), this.removed);
         return this.dcConnectable;
     }
 
     @Override
     public DcNode getDcNode() {
-        if (removed) {
-            throw new PowsyblException("Cannot access removed equipment " + dcConnectable.getId());
-        }
+        ValidationUtil.checkAccessOfRemovedEquipment(dcConnectable.getId(), this.removed);
         return this.dcNode;
     }
 
     @Override
     public boolean isConnected() {
-        if (removed) {
-            throw new PowsyblException("Cannot access removed equipment " + dcConnectable.getId());
-        }
+        ValidationUtil.checkAccessOfRemovedEquipment(dcConnectable.getId(), this.removed);
         return this.connected.get(getVariantManagerHolder().getVariantIndex());
     }
 
     @Override
     public DcTerminal setConnected(boolean connected) {
-        if (removed) {
-            throw new PowsyblException("Cannot modify removed equipment " + dcConnectable.getId());
-        }
+        ValidationUtil.checkModifyOfRemovedEquipment(dcConnectable.getId(), this.removed);
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         this.connected.set(variantIndex, connected);
         return this;
