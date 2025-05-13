@@ -8,9 +8,10 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.DcNode;
-import com.powsybl.iidm.network.DcSwitch;
-import com.powsybl.iidm.network.DcSwitchAdder;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.DcUtils;
+
+import java.util.Optional;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -56,8 +57,15 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
     @Override
     public DcSwitch add() {
         String id = checkAndGetUniqueId();
-        DcNode dcNode1 = getNetwork().getDcNode(this.dcNode1Id);
-        DcNode dcNode2 = getNetwork().getDcNode(this.dcNode2Id);
+        DcNode dcNode1 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode1Id, "dcNode1Id");
+        DcNode dcNode2 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode2Id, "dcNode2Id");
+        DcUtils.checkSameParentNetwork(this.getParentNetwork(), this, dcNode1, dcNode2);
+        if (retained == null) {
+            throw new ValidationException(this, "retained is not set");
+        }
+        if (open == null) {
+            throw new ValidationException(this, "open is not set");
+        }
         DcSwitch dcSwitch = new DcSwitchImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), dcNode1, dcNode2, retained, open);
         getNetwork().getIndex().checkAndAdd(dcSwitch);
         getNetwork().getListeners().notifyCreation(dcSwitch);
@@ -67,6 +75,10 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
     @Override
     protected NetworkImpl getNetwork() {
         return networkRef.get();
+    }
+
+    private Network getParentNetwork() {
+        return Optional.ofNullable((Network) subnetworkRef.get()).orElse(getNetwork());
     }
 
     @Override
