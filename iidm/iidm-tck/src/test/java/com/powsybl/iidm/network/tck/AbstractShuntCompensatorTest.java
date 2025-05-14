@@ -531,10 +531,17 @@ public abstract class AbstractShuntCompensatorTest {
             .setMaximumSectionCount(10)
             .add();
         adder.setSolvedSectionCount(5);
-        adder.add();
+        ShuntCompensator shuntCompensator = adder.add();
         assertEquals(5, network.getShuntCompensator(SHUNT).getSolvedSectionCount());
-        network.getShuntCompensator(SHUNT).setSolvedSectionCount(6);
-        assertEquals(6, network.getShuntCompensator(SHUNT).getSolvedSectionCount());
+        shuntCompensator.setSolvedSectionCount(6);
+        assertEquals(6, shuntCompensator.getSolvedSectionCount());
+
+        // Check exception if solved section count negative or too high
+        assertThrows(ValidationException.class, () -> shuntCompensator.setSolvedSectionCount(-1));
+        assertThrows(ValidationException.class, () -> shuntCompensator.setSolvedSectionCount(50));
+
+        shuntCompensator.unsetSolvedSectionCount();
+        assertNull(shuntCompensator.getSolvedSectionCount());
     }
 
     private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int sectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
