@@ -140,55 +140,42 @@ public abstract class AbstractDcSwitchTest {
         assertNull(network.getDcSwitch(dcSwitch2Id));
         assertEquals(0, network.getDcSwitchCount());
 
-        PowsyblException e1 = assertThrows(PowsyblException.class, () -> dcSwitch1.setOpen(true));
-        assertEquals("Cannot modify open of removed equipment dcSwitch1", e1.getMessage());
+        assertThrows(PowsyblException.class, () -> dcSwitch1.setOpen(true), "Cannot modify open of removed equipment dcSwitch1");
 
-        PowsyblException e2 = assertThrows(PowsyblException.class, dcSwitch1::isOpen);
-        assertEquals("Cannot access open of removed equipment dcSwitch1", e2.getMessage());
+        assertThrows(PowsyblException.class, dcSwitch1::isOpen, "Cannot access open of removed equipment dcSwitch1");
 
-        PowsyblException e3 = assertThrows(PowsyblException.class, () -> dcSwitch1.setRetained(true));
-        assertEquals("Cannot modify retained of removed equipment dcSwitch1", e3.getMessage());
+        assertThrows(PowsyblException.class, () -> dcSwitch1.setRetained(true), "Cannot modify retained of removed equipment dcSwitch1");
 
-        PowsyblException e4 = assertThrows(PowsyblException.class, dcSwitch1::isRetained);
-        assertEquals("Cannot access retained of removed equipment dcSwitch1", e4.getMessage());
+        assertThrows(PowsyblException.class, dcSwitch1::isRetained, "Cannot access retained of removed equipment dcSwitch1");
 
-        PowsyblException e5 = assertThrows(PowsyblException.class, dcSwitch1::getDcNode1);
-        assertEquals("Cannot access dcNode1 of removed equipment dcSwitch1", e5.getMessage());
+        assertThrows(PowsyblException.class, dcSwitch1::getDcNode1, "Cannot access dcNode1 of removed equipment dcSwitch1");
 
-        PowsyblException e6 = assertThrows(PowsyblException.class, dcSwitch1::getDcNode2);
-        assertEquals("Cannot access dcNode2 of removed equipment dcSwitch1", e6.getMessage());
+        assertThrows(PowsyblException.class, dcSwitch1::getDcNode2, "Cannot access dcNode2 of removed equipment dcSwitch1");
     }
 
     @Test
     public void testCreationError() {
         DcSwitchAdder adder = network.newDcSwitch();
 
-        PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch id is not set", e1.getMessage());
+        assertThrows(PowsyblException.class, adder::add, "DC Switch id is not set");
 
         adder.setId("dcSwitch");
-        PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitch': dcNode1Id is not set", e2.getMessage());
+        assertThrows(PowsyblException.class, adder::add, "DC Switch 'dcSwitch': dcNode1Id is not set");
 
         adder.setDcNode1Id("notExists");
-        PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitch': DcNode 'notExists' not found", e3.getMessage());
+        assertThrows(PowsyblException.class, adder::add, "DC Switch 'dcSwitch': DcNode 'notExists' not found");
 
         adder.setDcNode1Id(dcNode1.getId());
-        PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitch': dcNode2Id is not set", e4.getMessage());
+        assertThrows(PowsyblException.class, adder::add, "DC Switch 'dcSwitch': dcNode2Id is not set");
 
         adder.setDcNode2Id("notExists");
-        PowsyblException e5 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitch': DcNode 'notExists' not found", e5.getMessage());
+        assertThrows(PowsyblException.class, adder::add, "DC Switch 'dcSwitch': DcNode 'notExists' not found");
 
         adder.setDcNode2Id(dcNode2.getId());
-        PowsyblException e6 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitch': retained is not set", e6.getMessage());
+        assertThrows(PowsyblException.class, adder::add, "DC Switch 'dcSwitch': retained is not set");
 
         adder.setRetained(false);
-        PowsyblException e7 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitch': open is not set", e7.getMessage());
+        assertThrows(PowsyblException.class, adder::add, "DC Switch 'dcSwitch': open is not set");
     }
 
     @Test
@@ -272,17 +259,66 @@ public abstract class AbstractDcSwitchTest {
                 .setDcNode1Id(dcNode1Subnet1.getId())
                 .setDcNode2Id(dcNode1Subnet2.getId())
                 .setRetained(false).setOpen(false);
-        PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode1Subnetwork2' are in different networks 'subnetwork1' and 'subnetwork2'", e1.getMessage());
+        assertThrows(PowsyblException.class, adder::add,
+                "DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode1Subnetwork2' are in different networks 'subnetwork1' and 'subnetwork2'");
 
         // test cannot create DcSwitch in netWithSubnet referencing nodes of subnetwork1
         adder.setDcNode1Id(dcNode1Subnet1.getId()).setDcNode2Id(dcNode2Subnet1.getId());
-        PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode2Subnetwork1' are in network 'subnetwork1' but DC Equipment is in 'test'", e2.getMessage());
+        assertThrows(PowsyblException.class, adder::add,
+                "DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode2Subnetwork1' are in network 'subnetwork1' but DC Equipment is in 'test'");
 
         // test cannot create DcSwitch across subnetwork1 & netWithSubnet
         adder.setDcNode2Id(dcNodeRootNetwork.getId());
-        PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNodeRootNetwork' are in different networks 'subnetwork1' and 'test'", e3.getMessage());
+        assertThrows(PowsyblException.class, adder::add,
+                "DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNodeRootNetwork' are in different networks 'subnetwork1' and 'test'");
+    }
+
+    @Test
+    public void testSetterGetterInMultiVariants() {
+        VariantManager variantManager = network.getVariantManager();
+
+        DcSwitch dcSwitch = network.newDcSwitch()
+                .setId("dcSwitch")
+                .setDcNode1Id(dcNode1.getId())
+                .setDcNode2Id(dcNode2.getId())
+                .setOpen(false)
+                .setRetained(false)
+                .add();
+
+        List<String> variantsToAdd = List.of("s1", "s2", "s3", "s4");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+
+        variantManager.setWorkingVariant("s4");
+        // check values cloned by extend
+        assertFalse(dcSwitch.isOpen());
+        assertFalse(dcSwitch.isRetained());
+
+        // change values in s4
+        dcSwitch.setOpen(true)
+                .setRetained(true);
+
+        // remove s2
+        variantManager.removeVariant("s2");
+
+        variantManager.cloneVariant("s4", "s2b");
+        variantManager.setWorkingVariant("s2b");
+        // check values cloned by allocate
+        assertTrue(dcSwitch.isOpen());
+        assertTrue(dcSwitch.isRetained());
+
+        // recheck initial variant value
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertFalse(dcSwitch.isOpen());
+        assertFalse(dcSwitch.isRetained());
+
+        // remove working variant s4
+        variantManager.setWorkingVariant("s4");
+        variantManager.removeVariant("s4");
+        assertThrows(PowsyblException.class, dcSwitch::isOpen, "Variant index not set");
+        assertThrows(PowsyblException.class, dcSwitch::isRetained, "Variant index not set");
+
+        // check we delete a single variant's values
+        variantManager.setWorkingVariant("s3");
+        assertFalse(dcSwitch.isOpen());
     }
 }
