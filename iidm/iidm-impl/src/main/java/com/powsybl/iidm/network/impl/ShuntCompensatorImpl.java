@@ -266,10 +266,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         sectionCount.ensureCapacity(sectionCount.size() + number);
+        solvedSectionCount.ensureCapacity(solvedSectionCount.size() + number);
         targetV.ensureCapacity(targetV.size() + number);
         targetDeadband.ensureCapacity(targetDeadband.size() + number);
         for (int i = 0; i < number; i++) {
             sectionCount.add(sectionCount.get(sourceIndex));
+            solvedSectionCount.ensureCapacity(solvedSectionCount.get(sourceIndex));
             targetV.add(targetV.get(sourceIndex));
             targetDeadband.add(targetDeadband.get(sourceIndex));
         }
@@ -282,6 +284,9 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         List<Integer> tmpInt = new ArrayList<>(sectionCount.subList(0, sectionCount.size() - number));
         sectionCount.clear();
         sectionCount.addAll(tmpInt);
+        List<Integer> solvedSectionCountTmp = new ArrayList<>(solvedSectionCount.subList(0, solvedSectionCount.size() - number));
+        solvedSectionCount.clear();
+        solvedSectionCount.addAll(solvedSectionCountTmp);
         targetV.remove(targetV.size() - number, number);
         targetDeadband.remove(targetDeadband.size() - number, number);
         regulatingPoint.reduceVariantArraySize(number);
@@ -298,6 +303,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
             sectionCount.set(index, sectionCount.get(sourceIndex));
+            solvedSectionCount.set(index, solvedSectionCount.get(sourceIndex));
             targetV.set(index, targetV.get(sourceIndex));
             targetDeadband.set(index, targetDeadband.get(sourceIndex));
         }
