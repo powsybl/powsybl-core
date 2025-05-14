@@ -43,6 +43,23 @@ public interface Switch extends Identifiable<Switch> {
     void setOpen(boolean open);
 
     /**
+     * Get the solved open status of the switch.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    Boolean isSolvedOpen();
+
+    /**
+     * Change the switch solved status.
+     * <p>
+     * Depends on the working variant.
+     * @param solvedOpen the new switch status
+     * @see VariantManager
+     */
+    void setSolvedOpen(Boolean solvedOpen);
+
+    /**
      * Get the retain status of the switch. A retained switch is a switch that
      * will be part of the bus/breaker topology.
      */
