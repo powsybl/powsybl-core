@@ -168,7 +168,6 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     public C unsetSolvedTapPosition() {
         NetworkImpl n = getNetwork();
-        ValidationUtil.throwExceptionOrLogError(parent, "solved tap position has been unset", n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = network.get().getVariantIndex();
         Integer oldValue = this.solvedTapPosition.set(variantIndex, null);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -195,8 +194,9 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             throwIncorrectTapPosition(getTapPosition(), newHighTapPosition);
         }
         // We check if the solved tap position is still correct
-        if (getSolvedTapPosition() != null && getSolvedTapPosition() > newHighTapPosition) {
-            throwIncorrectSolvedTapPosition(getTapPosition(), newHighTapPosition);
+        OptionalInt solvedTapPosition = findSolvedTapPosition();
+        if (solvedTapPosition.isPresent() && solvedTapPosition.getAsInt() > newHighTapPosition) {
+            throwIncorrectSolvedTapPosition(solvedTapPosition.getAsInt(), newHighTapPosition);
         }
 
         this.steps = steps;
