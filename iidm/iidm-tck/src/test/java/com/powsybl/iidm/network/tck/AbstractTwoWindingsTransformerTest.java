@@ -323,17 +323,27 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
 
         TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("twt");
 
-        RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(twoWindingsTransformer, twoWindingsTransformer.getTerminal(TwoSides.ONE), false, 1);
+        RatioTapChanger ratioTapChanger = createRatioTapChanger(twoWindingsTransformer, twoWindingsTransformer.getTerminal(TwoSides.ONE), false, 1);
         assertTrue(twoWindingsTransformer.getOptionalRatioTapChanger().isPresent());
         assertEquals(1, twoWindingsTransformer.getRatioTapChanger().getSolvedTapPosition());
-        ratioTapChangerInLeg1.setSolvedTapPosition(2);
-        assertEquals(2, ratioTapChangerInLeg1.getSolvedTapPosition());
+        ratioTapChanger.setSolvedTapPosition(2);
+        assertEquals(2, ratioTapChanger.getSolvedTapPosition());
 
-        PhaseTapChanger phaseTapChangerInLeg1 = createPhaseTapChanger(twoWindingsTransformer, twoWindingsTransformer.getTerminal(TwoSides.TWO), false, 1);
+        PhaseTapChanger phaseTapChanger = createPhaseTapChanger(twoWindingsTransformer, twoWindingsTransformer.getTerminal(TwoSides.TWO), false, 1);
         assertTrue(twoWindingsTransformer.getOptionalPhaseTapChanger().isPresent());
         assertEquals(1, twoWindingsTransformer.getPhaseTapChanger().getSolvedTapPosition());
-        phaseTapChangerInLeg1.setSolvedTapPosition(2);
-        assertEquals(2, phaseTapChangerInLeg1.getSolvedTapPosition());
+        phaseTapChanger.setSolvedTapPosition(2);
+        assertEquals(2, phaseTapChanger.getSolvedTapPosition());
+
+        // Check throws exception if invalid solved tap position
+        assertThrows(ValidationException.class, () -> ratioTapChanger.setSolvedTapPosition(50));
+        assertThrows(ValidationException.class, () -> phaseTapChanger.setSolvedTapPosition(50));
+
+        // Unset solved tap position
+        ratioTapChanger.unsetSolvedTapPosition();
+        assertNull(ratioTapChanger.getSolvedTapPosition());
+        phaseTapChanger.unsetSolvedTapPosition();
+        assertNull(phaseTapChanger.getSolvedTapPosition());
     }
 
     private void createTwoWindingTransformer(String id, String name, double r, double x, double g, double b,
