@@ -10,8 +10,6 @@ package com.powsybl.iidm.network;
 /**
  * A DC equipment connection point in a DC system.
  *
- * TODO: multivariant p & i
- *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public interface DcTerminal {
@@ -27,15 +25,49 @@ public interface DcTerminal {
     DcNode getDcNode();
 
     /**
-     * @return true if the DC Terminal is connected to the DC node. Depends on the working variant.
+     * @return true if the DC Terminal is connected to the DC node.<br/>
+     * Depends on the working variant.
+     * @see VariantManager
      */
     boolean isConnected();
 
     /**
-     * @param connected new connected status. Depends on the working variant.
+     * @param connected new connected status.<br/>
+     *                  Depends on the working variant.
      * @return self for method chaining
+     * @see VariantManager
      */
     DcTerminal setConnected(boolean connected);
+
+    /**
+     * @return the active power in MW injected at the terminal.<br/>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    double getP();
+
+    /**
+     * @param p new active power in MW injected at the terminal.<br/>
+     * Depends on the working variant.
+     * @return self for method chaining
+     * @see VariantManager
+     */
+    DcTerminal setP(double p);
+
+    /**
+     * @return the current in A at the terminal.<br/>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    double getI();
+
+    /**
+     * @param i new current in A injected at the terminal.<br/>
+     * Depends on the working variant.
+     * @return self for method chaining
+     * @see VariantManager
+     */
+    DcTerminal setI(double i);
 
     void remove();
 }
