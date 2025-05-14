@@ -44,6 +44,8 @@ public abstract class AbstractDcGroundTest {
         assertSame(IdentifiableType.DC_GROUND, dcGround1.getType());
         assertEquals(dcGround1Id, dcGround1.getId());
         assertTrue(dcGround1.getDcTerminal().isConnected());
+        assertEquals(1, dcGround1.getDcTerminals().size());
+        assertSame(dcGround1.getDcTerminals().get(0), dcGround1.getDcTerminal());
         assertSame(dcGround1, dcGround1.getDcTerminal().getDcConnectable());
         assertSame(dcNode, dcGround1.getDcTerminal().getDcNode());
         assertEquals(1, network.getDcGroundCount());

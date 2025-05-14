@@ -49,6 +49,9 @@ public abstract class AbstractDcLineTest {
         assertEquals(dcLine1Id, dcLine1.getId());
         assertTrue(dcLine1.getDcTerminal1().isConnected());
         assertTrue(dcLine1.getDcTerminal2().isConnected());
+        assertEquals(2, dcLine1.getDcTerminals().size());
+        assertSame(dcLine1.getDcTerminals().get(0), dcLine1.getDcTerminal1());
+        assertSame(dcLine1.getDcTerminals().get(1), dcLine1.getDcTerminal2());
         assertSame(dcNode1, dcLine1.getDcTerminal1().getDcNode());
         assertSame(dcNode2, dcLine1.getDcTerminal2().getDcNode());
         assertSame(dcLine1, dcLine1.getDcTerminal1().getDcConnectable());

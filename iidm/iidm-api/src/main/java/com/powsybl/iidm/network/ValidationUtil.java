@@ -448,6 +448,12 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkDoubleParamPositive(Validable validable, double param, String paramName) {
+        if (Double.isNaN(param) || param < 0) {
+            throw new ValidationException(validable, paramName + " is invalid");
+        }
+    }
+
     private static ValidationLevel errorOrWarningForRtc(Validable validable, boolean loadTapChangingCapabilities, String message, boolean throwException, ReportNode reportNode) {
         if (loadTapChangingCapabilities) {
             throwExceptionOrLogError(validable, message, throwException, reportNode);
