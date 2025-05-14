@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.DcConnectable;
 import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.DcTerminal;
 import com.powsybl.iidm.network.ValidationUtil;
+import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Objects;
 
@@ -24,6 +25,8 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     private Ref<? extends VariantManagerHolder> network;
     private DcConnectable dcConnectable;
     private final DcNode dcNode;
+    protected final TDoubleArrayList p;
+    protected final TDoubleArrayList i;
     private final TBooleanArrayList connected;
     private boolean removed = false;
 
@@ -32,8 +35,12 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         this.dcNode = Objects.requireNonNull(dcNode);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
         this.connected = new TBooleanArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
+        p = new TDoubleArrayList(variantArraySize);
+        i = new TDoubleArrayList(variantArraySize);
+        for (int iVar = 0; iVar < variantArraySize; iVar++) {
             this.connected.add(connected);
+            this.p.add(Double.NaN);
+            this.i.add(Double.NaN);
         }
     }
 
@@ -54,6 +61,36 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     }
 
     @Override
+    public double getP() {
+        ValidationUtil.checkAccessOfRemovedEquipment(dcConnectable.getId(), this.removed);
+        return this.p.get(getVariantManagerHolder().getVariantIndex());
+    }
+
+    @Override
+    public DcTerminal setP(double p) {
+        ValidationUtil.checkModifyOfRemovedEquipment(dcConnectable.getId(), this.removed);
+        int variantIndex = getVariantManagerHolder().getVariantIndex();
+        this.p.set(variantIndex, p);
+        // TODO notification
+        return this;
+    }
+
+    @Override
+    public double getI() {
+        ValidationUtil.checkAccessOfRemovedEquipment(dcConnectable.getId(), this.removed);
+        return this.i.get(getVariantManagerHolder().getVariantIndex());
+    }
+
+    @Override
+    public DcTerminal setI(double i) {
+        ValidationUtil.checkModifyOfRemovedEquipment(dcConnectable.getId(), this.removed);
+        int variantIndex = getVariantManagerHolder().getVariantIndex();
+        this.i.set(variantIndex, i);
+        // TODO notification
+        return this;
+    }
+
+    @Override
     public boolean isConnected() {
         ValidationUtil.checkAccessOfRemovedEquipment(dcConnectable.getId(), this.removed);
         return this.connected.get(getVariantManagerHolder().getVariantIndex());
@@ -64,6 +101,7 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         ValidationUtil.checkModifyOfRemovedEquipment(dcConnectable.getId(), this.removed);
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         this.connected.set(variantIndex, connected);
+        // TODO notification
         return this;
     }
 
@@ -75,15 +113,21 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         connected.ensureCapacity(connected.size() + number);
-        for (int i = 0; i < number; i++) {
+        p.ensureCapacity(p.size() + number);
+        i.ensureCapacity(i.size() + number);
+        for (int iVar = 0; iVar < number; iVar++) {
             connected.add(connected.get(sourceIndex));
+            p.add(p.get(sourceIndex));
+            i.add(i.get(sourceIndex));
         }
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        for (int i = 0; i < number; i++) {
+        for (int iVar = 0; iVar < number; iVar++) {
             connected.removeAt(connected.size() - 1);
+            p.removeAt(i.size() - 1);
+            i.removeAt(i.size() - 1);
         }
     }
 
@@ -96,6 +140,8 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
             connected.set(index, connected.get(sourceIndex));
+            p.set(index, p.get(sourceIndex));
+            i.set(index, i.get(sourceIndex));
         }
     }
 

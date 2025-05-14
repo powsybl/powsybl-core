@@ -34,6 +34,8 @@ public abstract class AbstractDcTerminalTest {
                 .setR(1.1)
                 .add();
         DcTerminal dcLineTerminal = dcLine.getDcTerminal1();
+        assertTrue(Double.isNaN(dcLineTerminal.getP()));
+        assertTrue(Double.isNaN(dcLineTerminal.getI()));
         checkDcTerminalInMultiVariant(network, dcLineTerminal);
     }
 
@@ -54,11 +56,16 @@ public abstract class AbstractDcTerminalTest {
                 .setDcNode2Id(dcNode2.getId())
                 .add();
         DcTerminal dcConverterTerminal = converter.getDcTerminal1();
+        assertTrue(Double.isNaN(dcConverterTerminal.getP()));
+        assertTrue(Double.isNaN(dcConverterTerminal.getI()));
         checkDcTerminalInMultiVariant(network, dcConverterTerminal);
     }
 
     private static void checkDcTerminalInMultiVariant(Network network, DcTerminal dcTerminal) {
-        dcTerminal.setConnected(true);
+        dcTerminal
+                .setConnected(true)
+                .setP(10.)
+                .setI(5.);
 
         VariantManager variantManager = network.getVariantManager();
 
@@ -68,9 +75,14 @@ public abstract class AbstractDcTerminalTest {
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertTrue(dcTerminal.isConnected());
+        assertEquals(10.0, dcTerminal.getP(), 1e-6);
+        assertEquals(5.0, dcTerminal.getI(), 1e-6);
 
         // change values in s4
-        dcTerminal.setConnected(false);
+        dcTerminal
+                .setConnected(false)
+                .setP(-20.)
+                .setI(-10.);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -79,18 +91,26 @@ public abstract class AbstractDcTerminalTest {
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
         assertFalse(dcTerminal.isConnected());
+        assertEquals(-20.0, dcTerminal.getP(), 1e-6);
+        assertEquals(-10.0, dcTerminal.getI(), 1e-6);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertTrue(dcTerminal.isConnected());
+        assertEquals(10.0, dcTerminal.getP(), 1e-6);
+        assertEquals(5.0, dcTerminal.getI(), 1e-6);
 
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
         assertThrows(PowsyblException.class, dcTerminal::isConnected, "Variant index not set");
+        assertThrows(PowsyblException.class, dcTerminal::getP, "Variant index not set");
+        assertThrows(PowsyblException.class, dcTerminal::getI, "Variant index not set");
 
         // check we delete a single variant's values
         variantManager.setWorkingVariant("s3");
         assertTrue(dcTerminal.isConnected());
+        assertEquals(10.0, dcTerminal.getP(), 1e-6);
+        assertEquals(5.0, dcTerminal.getI(), 1e-6);
     }
 }
