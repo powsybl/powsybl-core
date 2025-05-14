@@ -22,7 +22,7 @@ import java.util.Optional;
  */
 abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractConnectable<I> implements DcConverter<I>, MultiVariantObject {
 
-    protected final List<DcTerminal> dcTerminals = new ArrayList<>();
+    protected final List<DcTerminalImpl> dcTerminals = new ArrayList<>();
 
     private double idleLoss;
     private double switchingLoss;
@@ -66,7 +66,7 @@ abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractCon
     @Override
     public List<DcTerminal> getDcTerminals() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "dcTerminals");
-        return this.dcTerminals;
+        return List.copyOf(dcTerminals);
     }
 
     void addDcTerminal(DcTerminalImpl dcTerminal) {
@@ -120,6 +120,42 @@ abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractCon
         this.resistiveLoss = resistiveLoss;
         getNetwork().getListeners().notifyUpdate(this, "resistiveLoss", oldValue, resistiveLoss);
         return (I) this;
+    }
+
+    @Override
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+
+        for (DcTerminalImpl t : dcTerminals) {
+            t.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        }
+    }
+
+    @Override
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
+
+        for (DcTerminalImpl t : dcTerminals) {
+            t.reduceVariantArraySize(number);
+        }
+    }
+
+    @Override
+    public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
+
+        for (DcTerminalImpl t : dcTerminals) {
+            t.deleteVariantArrayElement(index);
+        }
+    }
+
+    @Override
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
+
+        for (DcTerminalImpl t : dcTerminals) {
+            t.allocateVariantArrayElement(indexes, sourceIndex);
+        }
     }
 
     @Override
