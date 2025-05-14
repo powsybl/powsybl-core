@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
+
 /**
  * A switch to connect equipments in a substation.
  *
@@ -51,6 +53,17 @@ public interface Switch extends Identifiable<Switch> {
     Boolean isSolvedOpen();
 
     /**
+     * Get the solved open status of the switch if it is defined. Otherwise, get an empty Optional.
+     *
+     * <p>
+     *     Depends on the working variant.
+     * </p>
+     */
+    default Optional<Boolean> findSolvedOpen() {
+        return isSolvedOpen() == null ? Optional.empty() : Optional.of(isSolvedOpen());
+    }
+
+    /**
      * Change the switch solved status.
      * <p>
      * Depends on the working variant.
@@ -58,6 +71,11 @@ public interface Switch extends Identifiable<Switch> {
      * @see VariantManager
      */
     void setSolvedOpen(Boolean solvedOpen);
+
+    /**
+     * Unset the switch solved status.
+     */
+    void unsetSolvedOpen();
 
     /**
      * Get the retain status of the switch. A retained switch is a switch that
