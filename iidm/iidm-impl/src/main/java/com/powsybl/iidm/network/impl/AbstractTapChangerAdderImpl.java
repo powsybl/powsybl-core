@@ -94,16 +94,15 @@ abstract class AbstractTapChangerAdderImpl<
         }
         int highTapPosition = lowTapPosition + steps.size() - 1;
         if (tapPosition != null && (tapPosition < lowTapPosition || tapPosition > highTapPosition)) {
-                ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
-                        + tapPosition + " [" + lowTapPosition + ", "
-                        + highTapPosition + "]", network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
-                network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
-            }
+            ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
+                + tapPosition + " [" + lowTapPosition + ", "
+                + highTapPosition + "]", network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
+            network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
+        }
 
         if (solvedTapPosition != null && (solvedTapPosition < lowTapPosition || solvedTapPosition > highTapPosition)) {
-                LOGGER.warn("{} has incorrect solved tap position {}. It is not within bounds [{}, {}].", parent, solvedTapPosition, lowTapPosition, highTapPosition);
-            }
-
+            LOGGER.warn("{} has incorrect solved tap position {}. It is not within bounds [{}, {}].", parent, solvedTapPosition, lowTapPosition, highTapPosition);
+        }
 
         network.setValidationLevelIfGreaterThan(checkTapChangerRegulation(parent, regulationValue, regulating, regulationTerminal));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, getValidableType(), regulating,
