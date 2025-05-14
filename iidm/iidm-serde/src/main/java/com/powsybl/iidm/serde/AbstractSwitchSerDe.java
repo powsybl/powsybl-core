@@ -31,7 +31,7 @@ abstract class AbstractSwitchSerDe<A extends IdentifiableAdder<Switch, A>> exten
         context.getWriter().writeEnumAttribute("kind", s.getKind());
         context.getWriter().writeBooleanAttribute("retained", s.isRetained());
         context.getWriter().writeBooleanAttribute("open", s.isOpen());
-
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> context.getWriter().writeOptionalBooleanAttribute("solvedOpen", s.isSolvedOpen()));
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> context.getWriter().writeBooleanAttribute("fictitious", s.isFictitious(), false));
     }
 
