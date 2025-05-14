@@ -123,6 +123,17 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     int getSectionCount();
 
     /**
+     * Get the count of sections in service if it is defined.
+     * Otherwise, get an empty optional.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default OptionalInt findSectionCount() {
+        return OptionalInt.of(getSectionCount());
+    }
+
+    /**
      * Get the solved count of sections in service.
      * Please note that sections can only be sequentially in service, i.e., the first sectionCount sections are in service.
      * <p>
@@ -136,13 +147,13 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     Integer getSolvedSectionCount();
 
     /**
-     * Get the count of sections in service if it is defined.
+     * Get the solved count of sections in service if it is defined.
      * Otherwise, get an empty optional.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
      */
-    default OptionalInt findSectionCount() {
+    default OptionalInt findSolvedSectionCount() {
         return OptionalInt.of(getSectionCount());
     }
 
@@ -185,7 +196,6 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
      * Unset the solved count of sections in service.
-     * Note: this can be done <b>only</b> in SCADA validation level.
      */
     default ShuntCompensator unsetSolvedSectionCount() {
         throw ValidationUtil.createUnsetMethodException();
