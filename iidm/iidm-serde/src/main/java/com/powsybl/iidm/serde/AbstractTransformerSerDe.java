@@ -69,8 +69,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         context.getWriter().writeIntAttribute(ATTR_LOW_TAP_POSITION, tc.getLowTapPosition());
         var tp = tc.findTapPosition();
         context.getWriter().writeOptionalIntAttribute(ATTR_TAP_POSITION, tp.isPresent() ? tp.getAsInt() : null);
-        var solvedTp = tc.findSolvedTapPosition();
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> context.getWriter().writeOptionalIntAttribute(ATTR_SOLVED_TAP_POSITION, solvedTp.isPresent() ? solvedTp.getAsInt() : null));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
+            var solvedTp = tc.findSolvedTapPosition();
+            context.getWriter().writeOptionalIntAttribute(ATTR_SOLVED_TAP_POSITION, solvedTp.isPresent() ? solvedTp.getAsInt() : null);
+        });
         writeTargetDeadband(tc.getTargetDeadband(), context);
     }
 
