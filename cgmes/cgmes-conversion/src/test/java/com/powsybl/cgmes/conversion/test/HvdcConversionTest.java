@@ -13,10 +13,14 @@ import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Map;
 import java.util.Properties;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
@@ -91,7 +95,7 @@ class HvdcConversionTest extends AbstractSerDeTest {
         //   The positive polarity DCLineSegment DCL_34P has r = 4.94.
         //   The negative polarity DCLineSegment DCL_34N has r = 4.98.
         // IIDM network:
-        //   HvdcLine DCL_34P with VscConverterStation VSC_3 and VSC_4.
+        //   HvdcLine DCL_34N with VscConverterStation VSC_3 and VSC_4.
         Network network = readCgmesResources(DIR, "monopole_with_metallic_return.xml");
 
         // A single HvdcLine has been created with an equivalent resistance.
@@ -174,6 +178,41 @@ class HvdcConversionTest extends AbstractSerDeTest {
     }
 
     @Test
+    void invalidDcConfigurationTest() throws IOException {
+        // CGMES network:
+        //   An EQ file with a HVDC bipole, but also some configuration errors:
+        //   - Some connections are missing so that there is 2 DCIsland.
+        //     o The biggest island has a 1 converter / 1 dc line / 2 converters configuration.
+        //     o The smallest island has a 1 converter / 1 dc line configuration.
+        //   - There are different converter types on each side of the bipole.
+        //   - There is a completely isolated dc switch.
+        // IIDM network:
+        //   Neither HvdcConverterStation nor HvdcLine are created when DCConfiguration is invalid.
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testFunctionalLogs")
+                .withUntypedValue("name", "invalidDcConfiguration")
+                .build();
+        Network network = readCgmesResources(reportNode, DIR, "invalid_DCConfiguration.xml");
+
+        assertEquals(2, network.getSubstationCount());
+        assertEquals(0, network.getHvdcConverterStationCount());
+        assertEquals(0, network.getHvdcLineCount());
+
+        String logs = "";
+        try (StringWriter sw = new StringWriter()) {
+            reportNode.print(sw);
+            logs = sw.toString();
+        }
+        assertTrue(logs.contains("DCEquipment DCSW is discarded as it couldn't be attached to any DCIsland."));
+        assertTrue(logs.contains("ACDCConverters: CSC_1N, CSC_1P, VSC_2P are of different types and are in the same DCIsland."));
+        assertTrue(logs.contains("DCLineSegment: DCL_12N is not in 2 DCIslandEnd."));
+        assertTrue(logs.contains("DCIsland made of ACDCConverters: VSC_2N has unsupported BACK_TO_BACK DCConfiguration."));
+        assertTrue(logs.contains("DCIsland made of ACDCConverters: CSC_1N, CSC_1P, VSC_2P has unexpected POINT_TO_POINT DCConfiguration: " +
+                "1 converter(s)/1 line(s)/2 converter(s)."));
+    }
+
+    @Test
     void pPccControlKindTest() {
         // Control kind is active power at Point of Common Coupling on both sides.
         Network network = readCgmesResources(DIR, "monopole_EQ.xml", "monopole_Ppcc_SSH.xml", "monopole_SV.xml", "monopole_TP.xml");
@@ -199,44 +238,6 @@ class HvdcConversionTest extends AbstractSerDeTest {
         assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.6, 0.0, -22.5);
         assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.6085, 0.0, -30.0);
         assertContainsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 100.0, 120.0);
-    }
-
-    @Test
-    void inconsistentConverterTypesTest() {
-        // CGMES network:
-        //   A HVDC line (monopole, ground return) linking a CsConverter and a VsConverter.
-        // IIDM network:
-        //   Neither HvdcConverterStation nor HvdcLine are created when inputs are inconsistent.
-        Network network = readCgmesResources(DIR, "inconsistent_converter_types.xml");
-
-        assertEquals(0, network.getHvdcConverterStationCount());
-        assertEquals(0, network.getHvdcLineCount());
-    }
-
-    @Test
-    void missingDCLineSegmentTest() {
-        // CGMES network:
-        //   An EQ file with 4 ACDCConverter, but no DCLineSegment joining them.
-        // IIDM network:
-        //   Neither HvdcConverterStation nor HvdcLine are created when inputs are missing.
-        Network network = readCgmesResources(DIR, "missing_DCLineSegment.xml");
-
-        assertEquals(4, network.getSubstationCount());
-        assertEquals(0, network.getHvdcConverterStationCount());
-        assertEquals(0, network.getHvdcLineCount());
-    }
-
-    @Test
-    void missingAcDcConverterTest() {
-        // CGMES network:
-        //   An EQ file with 2 ACDCConverter and 2 DCLineSegment on one side, but no ACDCConverter on the other side.
-        // IIDM network:
-        //   Neither HvdcConverterStation nor HvdcLine are created when inputs are missing.
-        Network network = readCgmesResources(DIR, "missing_ACDCConverter.xml");
-
-        assertEquals(4, network.getSubstationCount());
-        assertEquals(0, network.getHvdcConverterStationCount());
-        assertEquals(0, network.getHvdcLineCount());
     }
 
     @Test
