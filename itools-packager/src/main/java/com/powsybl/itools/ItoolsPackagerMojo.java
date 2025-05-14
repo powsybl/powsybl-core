@@ -171,7 +171,7 @@ public class ItoolsPackagerMojo extends AbstractMojo {
 
     private void addLicenseFiles(Path packageDir) {
         // List of the license files to copy
-        List<String> licenseFiles = Arrays.asList("LICENSE.txt", "NOTICE", "NOTICE.txt", "LICENSES.txt");
+        List<String> licenseFiles = Arrays.asList("LICENSE.txt", "THIRD-PARTY.txt");
 
         // Get the root directory of the project
         File projectRoot = project.getBasedir();
