@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -22,19 +24,24 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     private final TBooleanArrayList open;
 
+    private final ArrayList<Boolean> solvedOpen;
+
     private final TBooleanArrayList retained;
 
     SwitchImpl(VoltageLevelExt voltageLevel,
-               String id, String name, boolean fictitious, SwitchKind kind, final boolean open, boolean retained) {
+               String id, String name, boolean fictitious, SwitchKind kind, final boolean open,
+               Boolean solvedOpen, boolean retained) {
         super(id, name, fictitious);
         this.voltageLevel = voltageLevel;
         this.kind = kind;
         int variantArraySize = voltageLevel.getNetwork().getVariantManager().getVariantArraySize();
         this.open = new TBooleanArrayList(variantArraySize);
+        this.solvedOpen = new ArrayList(variantArraySize);
         this.retained = new TBooleanArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.open.add(open);
             this.retained.add(retained);
+            this.solvedOpen.add(solvedOpen);
         }
     }
 
@@ -73,6 +80,24 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
             voltageLevel.getTopologyModel().invalidateCache(isRetained());
             String variantId = network.getVariantManager().getVariantId(index);
             network.getListeners().notifyUpdate(this, "open", variantId, oldValue, open);
+        }
+    }
+
+    @Override
+    public Boolean isSolvedOpen() {
+        return solvedOpen.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public void setSolvedOpen(Boolean solvedOpen) {
+        NetworkImpl network = getNetwork();
+        int index = network.getVariantIndex();
+        boolean oldValue = this.solvedOpen.get(index);
+        if (oldValue != solvedOpen) {
+            this.solvedOpen.set(index, solvedOpen);
+            voltageLevel.getTopologyModel().invalidateCache(isRetained()); //TODO: remove?
+            String variantId = network.getVariantManager().getVariantId(index);
+            network.getListeners().notifyUpdate(this, "solvedOpen", variantId, oldValue, solvedOpen);
         }
     }
 
