@@ -208,7 +208,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(transformer.getTerminal("vl1").getBusBreakerView().getConnectableBus(),
             transformer.getLeg1().getTerminal().getBusBreakerView().getConnectableBus());
         String message = assertThrows(PowsyblException.class, () -> transformer.getTerminal("vl2")).getMessage();
-        assertEquals("two of the three terminals are connected to the same voltage level vl2", message);
+        assertEquals("Two of the three terminals are connected to the same voltage level vl2", message);
 
         VoltageLevel voltageLevelC = substation.newVoltageLevel()
             .setId("vl3").setName("vl3")
@@ -272,7 +272,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .add()
             .add();
         message = assertThrows(PowsyblException.class, () -> transformer4.getTerminal("vl1")).getMessage();
-        assertEquals("the three terminals are connected to the same voltage level vl1", message);
+        assertEquals("The three terminals are connected to the same voltage level vl1", message);
     }
 
     @Test

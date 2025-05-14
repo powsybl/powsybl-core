@@ -390,9 +390,9 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         boolean side2 = getLeg2().getTerminal().getVoltageLevel().getId().equals(voltageLevelId);
         boolean side3 = getLeg3().getTerminal().getVoltageLevel().getId().equals(voltageLevelId);
         if (side1 && side2 && side3) {
-            throw new PowsyblException("the three terminals are connected to the same voltage level " + voltageLevelId);
+            throw new PowsyblException("The three terminals are connected to the same voltage level " + voltageLevelId);
         } else if (side1 && side2 || side3 && side1 || side2 && side3) {
-            throw new PowsyblException("two of the three terminals are connected to the same voltage level " + voltageLevelId);
+            throw new PowsyblException("Two of the three terminals are connected to the same voltage level " + voltageLevelId);
         } else if (side1) {
             return getLeg1().getTerminal();
         } else if (side2) {
