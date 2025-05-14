@@ -126,6 +126,54 @@ class HvdcConversionTest extends AbstractSerDeTest {
     }
 
     @Test
+    void bipoleTest() {
+        // CGMES network:
+        //   A HVDC bipole:
+        //   - Positive dc pole is made of DCLineSegment DCL_12P with CsConverter CSC_1P and CSC_2P.
+        //   - Negative dc pole is made of DCLineSegment DCL_12N with CsConverter CSC_1N and CSC_2N.
+        // IIDM network:
+        //   - HvdcLine DCL_12P with LccConverterStation CSC_1P and CSC_2P.
+        //   - HvdcLine DCL_12N with LccConverterStation CSC_1N and CSC_2N.
+        Network network = readCgmesResources(DIR, "bipole.xml");
+
+        // Positive dc pole.
+        assertContainsLccConverter(network, "CSC_1P", "Current source converter 1P", "DCL_12P", 0.0, 0.8);
+        assertContainsLccConverter(network, "CSC_2P", "Current source converter 2P", "DCL_12P", 0.0, 0.8);
+        assertContainsHvdcLine(network, "DCL_12P", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12P", "CSC_1P", "CSC_2P", 4.64, 0.0, 0.0);
+
+        // Negative dc pole.
+        assertContainsLccConverter(network, "CSC_1N", "Current source converter 1N", "DCL_12N", 0.0, 0.8);
+        assertContainsLccConverter(network, "CSC_2N", "Current source converter 2N", "DCL_12N", 0.0, 0.8);
+        assertContainsHvdcLine(network, "DCL_12N", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12N", "CSC_1N", "CSC_2N", 4.64, 0.0, 0.0);
+    }
+
+    @Test
+    void bipoleWithDedicatedMetallicReturnTest() {
+        // CGMES network:
+        //   A HVDC bipole with a dedicated metallic return line:
+        //   - Positive dc pole is made of DCLineSegment DCL_12P with CsConverter CSC_1P and CSC_2P.
+        //   - Negative dc pole is made of DCLineSegment DCL_12N with CsConverter CSC_1N and CSC_2N.
+        //   - DCLineSegment DCL_12G is a dedicated metallic return line.
+        // IIDM network:
+        //   - HvdcLine DCL_12P with LccConverterStation CSC_1P and CSC_2P.
+        //   - HvdcLine DCL_12N with LccConverterStation CSC_1N and CSC_2N.
+        Network network = readCgmesResources(DIR, "bipole_with_dedicated_metallic_return.xml");
+
+        // Positive dc pole.
+        assertContainsLccConverter(network, "CSC_1P", "Current source converter 1P", "DCL_12P", 0.0, 0.8);
+        assertContainsLccConverter(network, "CSC_2P", "Current source converter 2P", "DCL_12P", 0.0, 0.8);
+        assertContainsHvdcLine(network, "DCL_12P", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12P", "CSC_1P", "CSC_2P", 4.64, 0.0, 0.0);
+
+        // Negative dc pole.
+        assertContainsLccConverter(network, "CSC_1N", "Current source converter 1N", "DCL_12N", 0.0, 0.8);
+        assertContainsLccConverter(network, "CSC_2N", "Current source converter 2N", "DCL_12N", 0.0, 0.8);
+        assertContainsHvdcLine(network, "DCL_12N", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12N", "CSC_1N", "CSC_2N", 4.64, 0.0, 0.0);
+
+        // The dedicated metallic return line identifier is kept as an alias.
+        assertEquals("DCL_12G", network.getHvdcLine("DCL_12N").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
+    }
+
+    @Test
     void pPccControlKindTest() {
         // Control kind is active power at Point of Common Coupling on both sides.
         Network network = readCgmesResources(DIR, "monopole_EQ.xml", "monopole_Ppcc_SSH.xml", "monopole_SV.xml", "monopole_TP.xml");
