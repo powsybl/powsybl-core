@@ -127,7 +127,6 @@
         <maven.core.version>3.8.5</maven.core.version>
         <maven.plugin.annotations.version>3.13.0</maven.plugin.annotations.version>
         <maven.plugin.testing.harness.version>3.3.0</maven.plugin.testing.harness.version>
-        <maven.plugin.license>2.5.0</maven.plugin.license>
         <mfl.version>0.5.15</mfl.version>
         <mockito.version>5.12.0</mockito.version>
         <nativelibloader.version>2.5.0</nativelibloader.version>
@@ -150,72 +149,6 @@
 
         <powsyblmathnative.version>1.4.0</powsyblmathnative.version>
     </properties>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <version>${maven.plugin.license}</version>
-                <executions>
-                    <execution>
-                        <id>generate-third-party</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>aggregate-add-third-party</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Required parameters -->
-                            <outputDirectory>${project.basedir}</outputDirectory>
-                            <thirdPartyFilename>THIRD-PARTY.txt</thirdPartyFilename>
-                            <!-- Optional parameters -->
-                            <deployMissingFile>true</deployMissingFile>
-                            <excludedGroups>^com\.powsybl</excludedGroups>
-                            <excludedScopes>test,provided</excludedScopes>
-                            <excludeTransitiveDependencies>true</excludeTransitiveDependencies>
-                            <failOnBlacklist>false</failOnBlacklist>
-                            <failOnMissing>true</failOnMissing>
-                            <fileTemplate>/org/codehaus/mojo/license/third-party-file-groupByMultiLicense.ftl</fileTemplate>
-                            <includeOptional>true</includeOptional>
-                            <missingFile>${project.basedir}/THIRD-PARTY.properties</missingFile>
-                            <sortArtifactByName>false</sortArtifactByName>
-                            <useMissingFile>true</useMissingFile>
-                            <licenseMerges>
-                                <licenseMerge>Apache License, Version 2.0|Apache 2</licenseMerge>
-                                <licenseMerge>Apache License, Version 2.0|Apache 2.0</licenseMerge>
-                                <licenseMerge>Apache License, Version 2.0|Apache-2.0</licenseMerge>
-                                <licenseMerge>Apache License, Version 2.0|The Apache License, Version 2.0</licenseMerge>
-                                <licenseMerge>Apache License, Version 2.0|The Apache Software License, Version 2.0</licenseMerge>
-                                <licenseMerge>Apache License, Version 2.0|Apache Software Licenses</licenseMerge>
-                                <licenseMerge>Eclipse Distribution License - v 1.0|Eclipse Distribution License v1.0</licenseMerge>
-                                <licenseMerge>Eclipse Distribution License - v 1.0|EDL 1.0</licenseMerge>
-                                <licenseMerge>Eclipse Public License - v 1.0|Eclipse Public License 1.0</licenseMerge>
-                                <licenseMerge>Eclipse Public License - v 1.0|Eclipse Public License, Version 1.0</licenseMerge>
-                                <licenseMerge>Eclipse Public License - v 2.0|Eclipse Public License (EPL) 2.0</licenseMerge>
-                                <licenseMerge>Eclipse Public License - v 2.0|Eclipse Public License v2.0</licenseMerge>
-                                <licenseMerge>MIT License|MIT</licenseMerge>
-                                <licenseMerge>MIT License|The MIT License</licenseMerge>
-                                <licenseMerge>BSD 2-clause License|BSD 2-Clause License</licenseMerge>
-                                <licenseMerge>BSD 2-clause License|BSD</licenseMerge>
-                                <licenseMerge>BSD 2-clause License|Simplified BSD License</licenseMerge>
-                                <licenseMerge>BSD 3-clause License|BSD 3-clause</licenseMerge>
-                                <licenseMerge>BSD 3-clause License|BSD licence</licenseMerge>
-                                <licenseMerge>BSD 3-clause License|BSD License</licenseMerge>
-                                <licenseMerge>BSD 3-clause License|Revised BSD License</licenseMerge>
-                                <licenseMerge>BSD 3-clause License|New BSD License</licenseMerge>
-                                <licenseMerge>BSD 3-clause License|The BSD License</licenseMerge>
-                                <licenseMerge>GNU Lesser General Public License v2.1|LGPL-2.1-or-later</licenseMerge>
-                                <licenseMerge>GNU Lesser General Public License v2.1|GNU Lesser General Public License Version 2.1, February 1999</licenseMerge>
-                                <licenseMerge>GNU Lesser General Public License v2.1|GNU Lesser General Public License 2.1</licenseMerge>
-                                <licenseMerge>GNU Lesser General Public License v2.1|GNU Lesser Public License</licenseMerge>
-                                <licenseMerge>GNU Lesser General Public License v2.1|GNU Lesser General Public License</licenseMerge>
-                            </licenseMerges>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
     <profiles>
         <profile>
