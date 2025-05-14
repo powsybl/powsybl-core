@@ -70,10 +70,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         context.getWriter().writeIntAttribute(ATTR_LOW_TAP_POSITION, tc.getLowTapPosition());
         var tp = tc.findTapPosition();
         context.getWriter().writeOptionalIntAttribute(ATTR_TAP_POSITION, tp.isPresent() ? tp.getAsInt() : null);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
-            var solvedTp = tc.findSolvedTapPosition();
-            context.getWriter().writeOptionalIntAttribute(ATTR_SOLVED_TAP_POSITION, solvedTp.isPresent() ? solvedTp.getAsInt() : null);
-        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> context.getWriter().writeOptionalIntAttribute(ATTR_SOLVED_TAP_POSITION, tc.getSolvedTapPosition()));
         writeTargetDeadband(tc.getTargetDeadband(), context);
     }
 
@@ -266,7 +263,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         boolean regulating = context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING).orElse(false);
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
         OptionalInt tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
-        OptionalInt solvedTapPosition = context.getReader().readOptionalIntAttribute(ATTR_SOLVED_TAP_POSITION);
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
+            OptionalInt solvedTapPosition = context.getReader().readOptionalIntAttribute(ATTR_SOLVED_TAP_POSITION);
+            solvedTapPosition.ifPresent(adder::setSolvedTapPosition);
+        });
         double targetDeadband = readTargetDeadband(context, regulating);
         adder.setLowTapPosition(lowTapPosition)
                 .setTargetDeadband(targetDeadband)
