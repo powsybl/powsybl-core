@@ -271,7 +271,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         targetDeadband.ensureCapacity(targetDeadband.size() + number);
         for (int i = 0; i < number; i++) {
             sectionCount.add(sectionCount.get(sourceIndex));
-            solvedSectionCount.ensureCapacity(solvedSectionCount.get(sourceIndex));
+            solvedSectionCount.add(solvedSectionCount.get(sourceIndex));
             targetV.add(targetV.get(sourceIndex));
             targetDeadband.add(targetDeadband.get(sourceIndex));
         }
