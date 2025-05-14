@@ -237,7 +237,7 @@ public abstract class AbstractDcSwitchTest {
         subnetwork1.getDcSwitches().forEach(dcSwitch -> assertTrue(dcSwitchListSubnet1.contains(dcSwitch)));
         subnetwork1.getDcSwitchStream().forEach(dcSwitch -> assertTrue(dcSwitchListSubnet1.contains(dcSwitch)));
         assertEquals(2, subnetwork1.getIdentifiableStream(IdentifiableType.DC_SWITCH).count());
-        subnetwork1.getIdentifiableStream(IdentifiableType.DC_SWITCH).forEach(dcNode -> assertTrue(dcSwitchListSubnet1.contains((DcSwitch) dcNode)));
+        subnetwork1.getIdentifiableStream(IdentifiableType.DC_SWITCH).forEach(dcSwitch -> assertTrue(dcSwitchListSubnet1.contains((DcSwitch) dcSwitch)));
         assertEquals(2, subnetwork1.getDcSwitchCount());
         assertSame(dcSwitch1Subnet1, subnetwork1.getDcSwitch(dcSwitch1Subnet1.getId()));
         assertSame(dcSwitch2Subnet1, subnetwork1.getDcSwitch(dcSwitch2Subnet1.getId()));

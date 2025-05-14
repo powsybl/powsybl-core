@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.DcUtils;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -117,14 +118,6 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
         return Optional.empty();
     }
 
-    protected String checkAndGetDcNode1() {
-        return dcNode1Id;
-    }
-
-    protected String checkAndGetDcNode2() {
-        return dcNode2Id;
-    }
-
     public T setIdleLoss(double idleLoss) {
         this.idleLoss = idleLoss;
         return (T) this;
@@ -142,6 +135,9 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
 
     protected void checkAndAdd(AbstractDcConverter<?> dcConverter) {
         TerminalExt terminal1 = checkAndGetTerminal1();
+        DcNode dcNode1 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode1Id, "dcNode1Id");
+        DcNode dcNode2 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode2Id, "dcNode2Id");
+        DcUtils.checkSameParentNetwork(voltageLevel.getParentNetwork(), this, dcNode1, dcNode2);
         Optional<TerminalExt> terminal2 = checkAndGetTerminal2();
         dcConverter.addTerminal(terminal1);
         voltageLevel.getTopologyModel().attach(terminal1, false);
@@ -149,8 +145,6 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
             dcConverter.addTerminal(terminal);
             voltageLevel.getTopologyModel().attach(terminal, false);
         });
-        DcNode dcNode1 = getNetwork().getDcNode(checkAndGetDcNode1());
-        DcNode dcNode2 = getNetwork().getDcNode(checkAndGetDcNode2());
         DcTerminalImpl dcTerminal1 = new DcTerminalImpl(voltageLevel.getNetworkRef(), dcNode1, dcConnected1);
         DcTerminalImpl dcTerminal2 = new DcTerminalImpl(voltageLevel.getNetworkRef(), dcNode2, dcConnected2);
         dcConverter.addDcTerminal(dcTerminal1);

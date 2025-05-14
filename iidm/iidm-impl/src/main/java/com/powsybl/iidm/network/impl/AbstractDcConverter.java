@@ -11,6 +11,7 @@ import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.DcConverter;
 import com.powsybl.iidm.network.DcTerminal;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,11 +38,13 @@ abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractCon
 
     @Override
     public Terminal getTerminal1() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "terminal1");
         return getTerminals().get(0);
     }
 
     @Override
     public Optional<Terminal> getTerminal2() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "terminal2");
         if (terminals.size() > 1) {
             return Optional.of(terminals.get(1));
         }
@@ -50,16 +53,19 @@ abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractCon
 
     @Override
     public DcTerminal getDcTerminal1() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "dcTerminal1");
         return this.dcTerminals.get(0);
     }
 
     @Override
     public DcTerminal getDcTerminal2() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "dcTerminal2");
         return this.dcTerminals.get(1);
     }
 
     @Override
     public List<DcTerminal> getDcTerminals() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "dcTerminals");
         return this.dcTerminals;
     }
 
@@ -70,37 +76,55 @@ abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractCon
 
     @Override
     public double getIdleLoss() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "idleLoss");
         return this.idleLoss;
     }
 
     @Override
     public I setIdleLoss(double idleLoss) {
-        // todo: validation / positive
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "idleLoss");
+        ValidationUtil.checkDoubleParamPositive(this, idleLoss, "idleLoss");
+        double oldValue = this.idleLoss;
         this.idleLoss = idleLoss;
+        getNetwork().getListeners().notifyUpdate(this, "idleLoss", oldValue, idleLoss);
         return (I) this;
     }
 
     @Override
     public double getSwitchingLoss() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "switchingLoss");
         return this.switchingLoss;
     }
 
     @Override
     public I setSwitchingLoss(double switchingLoss) {
-        // todo: validation / positive
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "switchingLoss");
+        ValidationUtil.checkDoubleParamPositive(this, switchingLoss, "switchingLoss");
+        double oldValue = this.switchingLoss;
         this.switchingLoss = switchingLoss;
+        getNetwork().getListeners().notifyUpdate(this, "switchingLoss", oldValue, switchingLoss);
         return (I) this;
     }
 
     @Override
     public double getResistiveLoss() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "resistiveLoss");
         return this.resistiveLoss;
     }
 
     @Override
     public I setResistiveLoss(double resistiveLoss) {
-        // todo: validation / positive
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "resistiveLoss");
+        ValidationUtil.checkDoubleParamPositive(this, resistiveLoss, "resistiveLoss");
+        double oldValue = this.resistiveLoss;
         this.resistiveLoss = resistiveLoss;
+        getNetwork().getListeners().notifyUpdate(this, "resistiveLoss", oldValue, resistiveLoss);
         return (I) this;
+    }
+
+    @Override
+    public void remove() {
+        super.remove();
+        dcTerminals.forEach(DcTerminal::remove);
     }
 }
