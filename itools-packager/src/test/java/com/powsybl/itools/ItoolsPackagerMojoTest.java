@@ -79,4 +79,12 @@ public class ItoolsPackagerMojoTest extends AbstractMojoTestCase {
         mojo.execute();
         assertTrue(new File(TARGET, DEFAULT_PACKAGE_NAME + ".tgz").exists());
     }
+
+    public void testLicenseFiles() throws Exception {
+        super.configureMojo(mojo, configuration);
+        assertNotNull(mojo);
+        mojo.execute();
+        assertTrue(new File(TARGET, DEFAULT_PACKAGE_NAME + "/LICENSE.txt").exists());
+        assertTrue(new File(TARGET, DEFAULT_PACKAGE_NAME + "/THIRD-PARTY.txt").exists());
+    }
 }
