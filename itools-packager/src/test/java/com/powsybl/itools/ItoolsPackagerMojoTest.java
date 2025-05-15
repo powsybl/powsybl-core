@@ -67,7 +67,7 @@ public class ItoolsPackagerMojoTest extends AbstractMojoTestCase {
 
     protected MavenProject readMavenProject2() throws Exception {
         MavenExecutionRequest request = new DefaultMavenExecutionRequest();
-        File basedir2 = new File("src/test/resources/directory/test-maven-project-2/");
+        File basedir2 = new File("src/test/resources/test-maven-project-2/");
         File pomXml2 = new File(basedir2, "pom.xml");
         request.setBaseDirectory(basedir2);
         ProjectBuildingRequest projectBuildingRequest = request.getProjectBuildingRequest();
@@ -108,7 +108,7 @@ public class ItoolsPackagerMojoTest extends AbstractMojoTestCase {
         super.configureMojo(mojo, configuration);
         assertNotNull(mojo);
         mojo.execute();
-        File target2 = new File("src/test/resources/directory/test-maven-project-2/target/");
+        File target2 = new File("src/test/resources/test-maven-project-2/target/");
         assertTrue(new File(target2, DEFAULT_PACKAGE_NAME + "/LICENSE.txt").exists());
         assertFalse(new File(target2, DEFAULT_PACKAGE_NAME + "/THIRD-PARTY.txt").exists());
         FileUtils.deleteDirectory(target2); // cleanup
