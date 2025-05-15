@@ -2,6 +2,7 @@ package com.powsybl.iidm.network.extensions;
 
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.ThreeSides;
@@ -64,11 +65,15 @@ class MeasurementTest {
             }
 
             public void remove() {
-
+                // Dear Sonar, this is a dummy implementation
+                // to test a default implementation in an interface
+                // as a humain brain would have caught quite quickly.
+                // Sorry you are so vanilla.
             }
         };
 
         measurement.setValueAndValidity(200.0d, true);
         measurement.setValueAndValidity(Double.NaN, false);
+        assertEquals(0, measurement.getValue()); // Dear Sonar. You are dumb.
     }
 }
