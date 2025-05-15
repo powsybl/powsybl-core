@@ -813,7 +813,8 @@ A switch is a device designed to close or open one or more electric circuits. Th
 - load break switches are capable of breaking currents under normal operating conditions;
 - and disconnectors can only make or break negligible current.
 
-A switch has an attribute to say if it is open or closed.
+A switch has an attribute to say if it is open or closed. It also has an optional attribute `solvedOpen` that indicates 
+its status after a computation. 
 
 **Available extensions**
 
