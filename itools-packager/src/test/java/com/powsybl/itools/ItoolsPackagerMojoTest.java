@@ -65,6 +65,18 @@ public class ItoolsPackagerMojoTest extends AbstractMojoTestCase {
         return project;
     }
 
+    protected MavenProject readMavenProject2() throws Exception {
+        MavenExecutionRequest request = new DefaultMavenExecutionRequest();
+        File basedir2 = new File("src/test/resources/directory/test-maven-project-2/");
+        File pomXml2 = new File(basedir2, "pom.xml");
+        request.setBaseDirectory(basedir2);
+        ProjectBuildingRequest projectBuildingRequest = request.getProjectBuildingRequest();
+        projectBuildingRequest.setRepositorySession(new DefaultRepositorySystemSession());
+        MavenProject project = lookup(ProjectBuilder.class).build(pomXml2, projectBuildingRequest).getProject();
+        assertNotNull(project);
+        return project;
+    }
+
     public void testDefaultConfiguration() throws Exception {
         super.configureMojo(mojo, configuration);
         assertNotNull(mojo);
@@ -86,5 +98,19 @@ public class ItoolsPackagerMojoTest extends AbstractMojoTestCase {
         mojo.execute();
         assertTrue(new File(TARGET, DEFAULT_PACKAGE_NAME + "/LICENSE.txt").exists());
         assertTrue(new File(TARGET, DEFAULT_PACKAGE_NAME + "/THIRD-PARTY.txt").exists());
+    }
+
+    public void testMissingLicenseFile() throws Exception {
+        MavenProject project = readMavenProject2();
+        MavenSession session = newMavenSession(project);
+        MojoExecution execution = newMojoExecution("package-zip");
+        mojo = (ItoolsPackagerMojo) lookupConfiguredMojo(session, execution);
+        super.configureMojo(mojo, configuration);
+        assertNotNull(mojo);
+        mojo.execute();
+        File target2 = new File("src/test/resources/directory/test-maven-project-2/target/");
+        assertTrue(new File(target2, DEFAULT_PACKAGE_NAME + "/LICENSE.txt").exists());
+        assertFalse(new File(target2, DEFAULT_PACKAGE_NAME + "/THIRD-PARTY.txt").exists());
+        FileUtils.deleteDirectory(target2); // cleanup
     }
 }
