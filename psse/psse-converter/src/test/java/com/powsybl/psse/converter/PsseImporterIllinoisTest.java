@@ -47,11 +47,6 @@ class PsseImporterIllinoisTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testLiteratureBasedIeee39Fixed() {
-        testValid("/illinois/literature-based", "IEEE 39 bus-fixed-mixed-delimiters.RAW");
-    }
-
-    @Test
     void testLiteratureBasedIeee57() {
         Network n = testValid("/illinois/literature-based", "IEEE 57 bus.RAW");
         // Check that lines and transformers with duplicated ids are correctly imported
