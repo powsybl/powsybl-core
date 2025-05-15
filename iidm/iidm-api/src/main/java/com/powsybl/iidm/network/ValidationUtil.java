@@ -78,8 +78,18 @@ public final class ValidationUtil {
         }
     }
 
+    private static void throwExceptionOrIgnore(Validable validable, String message, ActionOnError actionOnError) {
+        if (actionOnError == ActionOnError.THROW_EXCEPTION) {
+            throw new ValidationException(validable, message);
+        }
+    }
+
+    public static void throwExceptionOrIgnore(Validable validable, String message, ValidationLevel validationLevel) {
+        throwExceptionOrIgnore(validable, message, checkValidationActionOnError(validationLevel));
+    }
+
     public static void throwExceptionOrLogError(Validable validable, String message, ValidationLevel validationLevel, ReportNode reportNode) {
-        throwExceptionOrLogError(validable, message, checkValidationActionOnError(validationLevel), reportNode);
+        throwExceptionOrLogError(validable, message, validationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS ? ActionOnError.THROW_EXCEPTION : ActionOnError.LOG_ERROR, reportNode);
     }
 
     private static void throwExceptionOrLogErrorForInvalidValue(Validable validable, double value, String valueName, ActionOnError actionOnError, ReportNode reportNode) {
