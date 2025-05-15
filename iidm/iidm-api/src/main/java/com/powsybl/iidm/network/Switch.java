@@ -94,4 +94,8 @@ public interface Switch extends Identifiable<Switch> {
     default IdentifiableType getType() {
         return IdentifiableType.SWITCH;
     }
+
+    default void setOpenToSolvedOpen() {
+        this.findSolvedOpen().ifPresent(this::setOpen);
+    }
 }
