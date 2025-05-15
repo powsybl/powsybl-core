@@ -103,8 +103,9 @@ class MeasurementTest {
         }
 
         private void systematicCheck(double v, boolean valid) {
-            if (Double.isNaN(v) && valid)
+            if (Double.isNaN(v) && valid) {
                 throw new PowsyblException("NaN is not valid");
+            }
         }
 
         public ThreeSides getSide() {
