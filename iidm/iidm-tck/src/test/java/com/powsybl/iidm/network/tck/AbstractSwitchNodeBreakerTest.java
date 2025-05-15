@@ -12,8 +12,9 @@ import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractSwitchNodeBreakerTest {
 
@@ -48,5 +49,18 @@ public abstract class AbstractSwitchNodeBreakerTest {
             .setNode2(newNode2)
             .add());
         assertEquals("Switch 'Sw1': kind is not set", e.getMessage());
+    }
+
+    @Test
+    public void switchWithSolvedOpen() {
+        Switch disconnector = network.getSwitch("R");
+        disconnector.setSolvedOpen(true);
+
+        assertTrue(disconnector.isSolvedOpen());
+        assertEquals(Optional.of(true), disconnector.findSolvedOpen());
+
+        disconnector.unsetSolvedOpen();
+        assertNull(disconnector.isSolvedOpen());
+        assertFalse(disconnector.findSolvedOpen().isPresent());
     }
 }
