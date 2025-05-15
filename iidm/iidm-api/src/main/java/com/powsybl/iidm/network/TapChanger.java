@@ -241,4 +241,8 @@ public interface TapChanger<
         }
         return steps;
     }
+
+    default void setTapPositiontoSolvedTapPosition() {
+        this.findSolvedTapPosition().ifPresent(this::setTapPosition);
+    }
 }
