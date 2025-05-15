@@ -25,9 +25,23 @@ public interface DcConverter<I extends DcConverter<I>> extends Connectable<I>, D
 
     Optional<Terminal> getTerminal2();
 
+    /**
+     * Get the side the terminal is connected to.
+     */
+    TwoSides getSide(Terminal terminal);
+
+    Terminal getTerminal(TwoSides side);
+
     DcTerminal getDcTerminal1();
 
     DcTerminal getDcTerminal2();
+
+    /**
+     * Get the side the DC terminal is connected to.
+     */
+    TwoSides getSide(DcTerminal dcTerminal);
+
+    DcTerminal getDcTerminal(TwoSides side);
 
     I setIdleLoss(double idleLoss);
 

@@ -10,7 +10,10 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.DcLine;
 import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.ValidationUtil;
+
+import java.util.Objects;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -39,6 +42,30 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
     public DcTerminal getDcTerminal2() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "terminal2");
         return this.dcTerminals.get(1);
+    }
+
+    @Override
+    public DcTerminal getDcTerminal(TwoSides side) {
+        Objects.requireNonNull(side);
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "terminal");
+        if (side == TwoSides.ONE) {
+            return this.dcTerminals.get(0);
+        } else if (side == TwoSides.TWO) {
+            return this.dcTerminals.get(1);
+        }
+        throw new IllegalStateException("Unexpected side: " + side);
+    }
+
+    @Override
+    public TwoSides getSide(DcTerminal dcTerminal) {
+        Objects.requireNonNull(dcTerminal);
+        if (getDcTerminal1() == dcTerminal) {
+            return TwoSides.ONE;
+        } else if (getDcTerminal2() == dcTerminal) {
+            return TwoSides.TWO;
+        } else {
+            throw new IllegalStateException("The DC terminal is not connected to this DC line");
+        }
     }
 
     @Override

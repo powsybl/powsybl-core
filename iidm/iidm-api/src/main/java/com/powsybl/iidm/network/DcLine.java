@@ -24,6 +24,10 @@ public interface DcLine extends DcConnectable<DcLine> {
 
     DcTerminal getDcTerminal2();
 
+    DcTerminal getDcTerminal(TwoSides side);
+
+    TwoSides getSide(DcTerminal dcTerminal);
+
     double getR();
 
     void setR(double r);
