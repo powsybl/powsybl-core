@@ -203,7 +203,8 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
                 AbstractConnectable connectable = terminal.getConnectable();
                 switch (connectable.getType()) {
                     case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION,
-                         DANGLING_LINE, LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR -> feederCount++;
+                         DANGLING_LINE, LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR,
+                         DC_LINE_COMMUTATED_CONVERTER, DC_VOLTAGE_SOURCE_CONVERTER -> feederCount++;
                     case GROUND -> {
                         // Do nothing
                     }

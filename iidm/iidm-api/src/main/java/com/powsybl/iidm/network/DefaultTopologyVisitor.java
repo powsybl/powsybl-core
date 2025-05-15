@@ -72,4 +72,9 @@ public class DefaultTopologyVisitor implements TopologyVisitor {
     public void visitGround(Ground ground) {
         // empty default implementation
     }
+
+    @Override
+    public void visitDcConverter(DcConverter<?> converter, TwoSides side) {
+        // empty default implementation
+    }
 }

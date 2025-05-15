@@ -294,6 +294,10 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                 case STATIC_VAR_COMPENSATOR -> visitor.visitStaticVarCompensator((StaticVarCompensator) connectable);
                 case HVDC_CONVERTER_STATION -> visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
                 case GROUND -> visitor.visitGround((GroundImpl) connectable);
+                case DC_LINE_COMMUTATED_CONVERTER, DC_VOLTAGE_SOURCE_CONVERTER -> {
+                    DcConverter<?> converter = (DcConverter<?>) connectable;
+                    visitor.visitDcConverter(converter, converter.getSide(terminal));
+                }
                 default -> throw new IllegalStateException();
             }
         }
