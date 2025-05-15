@@ -130,7 +130,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * @see VariantManager
      */
     default OptionalInt findSectionCount() {
-        return OptionalInt.of(getSectionCount());
+        return OptionalInt.of(getSolvedSectionCount());
     }
 
     /**
