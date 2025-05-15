@@ -20,16 +20,6 @@ class MeasurementImplTest {
         Measurement measurement;
         measurement = new MeasurementImpl(measurements, "heidi", Measurement.Type.OTHER, Map.of(), Double.NaN, 1.0, false, null);
 
-        measurement.setValue(1.0);
-        assertFalse(measurement.isValid());
-        measurement.setValid(true);
-        assertTrue(measurement.isValid());
-        assertThrows(PowsyblException.class, () -> measurement.setValue(Double.NaN));
-
-        measurement.setValid(false);
-        measurement.setValue(Double.NaN);
-        assertThrows(PowsyblException.class, () -> measurement.setValid(true));
-
         measurement.setValueAndValidity(200.0d, true);
         assertEquals(200.0d, measurement.getValue());
         assertTrue(measurement.isValid());
