@@ -130,7 +130,7 @@
         <mfl.version>0.5.15</mfl.version>
         <mockito.version>5.12.0</mockito.version>
         <nativelibloader.version>2.5.0</nativelibloader.version>
-        <poi.version>5.2.5</poi.version>
+        <poi.version>5.4.1</poi.version>
         <rdf4j.version>5.1.3</rdf4j.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>2.0.13</slf4j.version>
