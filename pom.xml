@@ -130,7 +130,6 @@
         <mockito.version>5.17.0</mockito.version>
         <nativelibloader.version>2.5.0</nativelibloader.version>
         <poi.version>5.4.1</poi.version>
-        <!-- rdf4j introduces performance regressions - it has to be tested specifically -->
         <rdf4j.version>4.3.2</rdf4j.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>2.0.17</slf4j.version>
