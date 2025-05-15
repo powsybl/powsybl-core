@@ -145,8 +145,8 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
             dcConverter.addTerminal(terminal);
             voltageLevel.getTopologyModel().attach(terminal, false);
         });
-        DcTerminalImpl dcTerminal1 = new DcTerminalImpl(voltageLevel.getNetworkRef(), dcNode1, dcConnected1);
-        DcTerminalImpl dcTerminal2 = new DcTerminalImpl(voltageLevel.getNetworkRef(), dcNode2, dcConnected2);
+        DcTerminalImpl dcTerminal1 = new DcTerminalImpl(voltageLevel.getNetworkRef(), TwoSides.ONE, dcNode1, dcConnected1);
+        DcTerminalImpl dcTerminal2 = new DcTerminalImpl(voltageLevel.getNetworkRef(), TwoSides.TWO, dcNode2, dcConnected2);
         dcConverter.addDcTerminal(dcTerminal1);
         dcConverter.addDcTerminal(dcTerminal2);
         getNetwork().getIndex().checkAndAdd(dcConverter);

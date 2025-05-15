@@ -8,13 +8,11 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.DcConverter;
-import com.powsybl.iidm.network.DcTerminal;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -52,6 +50,30 @@ abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractCon
     }
 
     @Override
+    public TwoSides getSide(Terminal terminal) {
+        Objects.requireNonNull(terminal);
+        if (getTerminal1() == terminal) {
+            return TwoSides.ONE;
+        } else if (getTerminal2().orElse(null) == terminal) {
+            return TwoSides.TWO;
+        } else {
+            throw new IllegalStateException("The terminal is not connected to this DC converter");
+        }
+    }
+
+    @Override
+    public Terminal getTerminal(TwoSides side) {
+        Objects.requireNonNull(side);
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "terminal");
+        if (side == TwoSides.ONE) {
+            return getTerminal1();
+        } else if (side == TwoSides.TWO) {
+            return getTerminal2().orElse(null);
+        }
+        throw new IllegalStateException("Unexpected side: " + side);
+    }
+
+    @Override
     public DcTerminal getDcTerminal1() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "dcTerminal1");
         return this.dcTerminals.get(0);
@@ -61,6 +83,30 @@ abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractCon
     public DcTerminal getDcTerminal2() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "dcTerminal2");
         return this.dcTerminals.get(1);
+    }
+
+    @Override
+    public TwoSides getSide(DcTerminal dcTerminal) {
+        Objects.requireNonNull(dcTerminal);
+        if (getDcTerminal1() == dcTerminal) {
+            return TwoSides.ONE;
+        } else if (getDcTerminal2() == dcTerminal) {
+            return TwoSides.TWO;
+        } else {
+            throw new IllegalStateException("The DC terminal is not connected to this DC converter");
+        }
+    }
+
+    @Override
+    public DcTerminal getDcTerminal(TwoSides side) {
+        Objects.requireNonNull(side);
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "terminal");
+        if (side == TwoSides.ONE) {
+            return this.dcTerminals.get(0);
+        } else if (side == TwoSides.TWO) {
+            return this.dcTerminals.get(1);
+        }
+        throw new IllegalStateException("Unexpected side: " + side);
     }
 
     @Override

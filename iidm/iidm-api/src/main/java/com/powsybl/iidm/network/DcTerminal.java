@@ -20,6 +20,11 @@ public interface DcTerminal {
     DcConnectable getDcConnectable();
 
     /**
+     * @return the DC equipment side
+     */
+    TwoSides getSide();
+
+    /**
      * @return the DC node the DC terminal connects to
      */
     DcNode getDcNode();

@@ -110,6 +110,21 @@ public abstract class AbstractDcConverterTest {
 
     private void checkBaseCommonLccVsc() {
         assertEquals("converterA", dcConverterA.getId());
+
+        assertSame(TwoSides.ONE, dcConverterA.getDcTerminal1().getSide());
+        assertSame(TwoSides.TWO, dcConverterA.getDcTerminal2().getSide());
+        assertSame(TwoSides.ONE, dcConverterA.getSide(dcConverterA.getDcTerminal1()));
+        assertSame(TwoSides.TWO, dcConverterA.getSide(dcConverterA.getDcTerminal2()));
+        assertSame(dcConverterA.getDcTerminal1(), dcConverterA.getDcTerminal(TwoSides.ONE));
+        assertSame(dcConverterA.getDcTerminal2(), dcConverterA.getDcTerminal(TwoSides.TWO));
+
+        assertSame(ThreeSides.ONE, dcConverterA.getTerminal1().getSide());
+        assertSame(ThreeSides.TWO, dcConverterA.getTerminal2().orElseThrow().getSide());
+        assertSame(TwoSides.ONE, dcConverterA.getSide(dcConverterA.getTerminal1()));
+        assertSame(TwoSides.TWO, dcConverterA.getSide(dcConverterA.getTerminal2().orElseThrow()));
+        assertSame(dcConverterA.getTerminal1(), dcConverterA.getTerminal(TwoSides.ONE));
+        assertSame(dcConverterA.getTerminal2().orElseThrow(), dcConverterA.getTerminal(TwoSides.TWO));
+
         assertSame(b1a, dcConverterA.getTerminal1().getBusBreakerView().getBus());
         assertTrue(dcConverterA.getTerminal2().isPresent());
         assertSame(b2a, dcConverterA.getTerminal2().orElseThrow().getBusBreakerView().getBus());
