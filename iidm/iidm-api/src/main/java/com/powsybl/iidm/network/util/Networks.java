@@ -450,4 +450,14 @@ public final class Networks {
         }
         return newReportNodeContext != null ? newReportNodeContext : reportNodeContext;
     }
+
+    /**
+     * This method replaces the "input" status of switches, tap changer position and shunt section count by their solved values if they are present.
+     */
+    public static void applySolvedValues(Network network) {
+        network.getSwitchStream().forEach(Switch::setOpenToSolvedOpen);
+        network.getTwoWindingsTransformerStream().map(RatioTapChangerHolder::getRatioTapChanger).filter(Objects::nonNull).forEach(TapChanger::setTapPositiontoSolvedTapPosition);
+        network.getTwoWindingsTransformerStream().map(PhaseTapChangerHolder::getPhaseTapChanger).filter(Objects::nonNull).forEach(TapChanger::setTapPositiontoSolvedTapPosition);
+        network.getShuntCompensatorStream().forEach(ShuntCompensator::setSectionCountToSolvedSectionCount);
+    }
 }
