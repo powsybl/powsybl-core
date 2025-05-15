@@ -508,4 +508,29 @@ public abstract class AbstractDcConverterTest {
         PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet1' and 'dcNode1Root' are in different networks 'subnetwork1' and 'test'", e3.getMessage());
     }
+
+    @Test
+    public void testVscReactiveLimits() {
+        dcConverterA = createDcVscA(vla);
+        DcVoltageSourceConverter vsc = (DcVoltageSourceConverter) dcConverterA;
+
+        assertSame(ReactiveLimitsKind.MIN_MAX, vsc.getReactiveLimits().getKind());
+        assertEquals(-Double.MAX_VALUE, vsc.getReactiveLimits().getMinQ(0));
+        assertEquals(Double.MAX_VALUE, vsc.getReactiveLimits().getMaxQ(0));
+        assertSame(vsc.getReactiveLimits(), vsc.getReactiveLimits(MinMaxReactiveLimits.class));
+
+        vsc.newMinMaxReactiveLimits().setMinQ(-100.).setMaxQ(150.).add();
+        assertEquals(-100., vsc.getReactiveLimits().getMinQ(0));
+        assertEquals(150, vsc.getReactiveLimits().getMaxQ(0));
+
+        vsc.newReactiveCapabilityCurve()
+                .beginPoint().setP(-100.).setMinQ(-80).setMaxQ(70.).endPoint()
+                .beginPoint().setP(0.).setMinQ(-100).setMaxQ(90.).endPoint()
+                .beginPoint().setP(100.).setMinQ(-70).setMaxQ(60.).endPoint()
+                .add();
+        assertSame(ReactiveLimitsKind.CURVE, vsc.getReactiveLimits().getKind());
+        assertEquals(-90., vsc.getReactiveLimits().getMinQ(-50));
+        assertEquals(80, vsc.getReactiveLimits().getMaxQ(-50));
+        assertSame(vsc.getReactiveLimits(), vsc.getReactiveLimits(ReactiveCapabilityCurve.class));
+    }
 }

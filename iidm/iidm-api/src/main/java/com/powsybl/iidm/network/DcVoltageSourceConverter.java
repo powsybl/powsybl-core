@@ -9,11 +9,11 @@ package com.powsybl.iidm.network;
 
 /**
  * todo:
- *   reactivelimits
+ *   V / Q control at Pcc
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcVoltageSourceConverter extends DcConverter<DcVoltageSourceConverter> {
+public interface DcVoltageSourceConverter extends DcConverter<DcVoltageSourceConverter>, ReactiveLimitsHolder {
 
     @Override
     default IdentifiableType getType() {

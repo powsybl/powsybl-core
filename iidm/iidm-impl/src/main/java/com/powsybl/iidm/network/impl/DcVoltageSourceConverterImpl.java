@@ -9,19 +9,48 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.DcVoltageSourceConverter;
+import com.powsybl.iidm.network.ReactiveLimits;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class DcVoltageSourceConverterImpl extends AbstractDcConverter<DcVoltageSourceConverter> implements DcVoltageSourceConverter {
+public class DcVoltageSourceConverterImpl extends AbstractDcConverter<DcVoltageSourceConverter> implements DcVoltageSourceConverter, ReactiveLimitsOwner {
+
+    private final ReactiveLimitsHolderImpl reactiveLimits;
 
     DcVoltageSourceConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
                                  double idleLoss, double switchingLoss, double resistiveLoss) {
         super(ref, id, name, fictitious, idleLoss, switchingLoss, resistiveLoss);
+        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
     }
 
     @Override
     protected String getTypeDescription() {
         return "DC Voltage Source Converter";
+    }
+
+    @Override
+    public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
+        return new ReactiveCapabilityCurveAdderImpl(this);
+    }
+
+    @Override
+    public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
+        return new MinMaxReactiveLimitsAdderImpl(this);
+    }
+
+    @Override
+    public void setReactiveLimits(ReactiveLimits reactiveLimits) {
+        this.reactiveLimits.setReactiveLimits(reactiveLimits);
+    }
+
+    @Override
+    public ReactiveLimits getReactiveLimits() {
+        return reactiveLimits.getReactiveLimits();
+    }
+
+    @Override
+    public <L extends ReactiveLimits> L getReactiveLimits(Class<L> type) {
+        return reactiveLimits.getReactiveLimits(type);
     }
 }
