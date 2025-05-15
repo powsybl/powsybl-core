@@ -432,6 +432,8 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
             SwitchAdder setOpen(boolean open);
 
+            SwitchAdder setSolvedOpen(Boolean solvedOpen);
+
             SwitchAdder setRetained(boolean retained);
 
             @Override
@@ -692,6 +694,8 @@ public interface VoltageLevel extends Container<VoltageLevel> {
             SwitchAdder setBus2(String bus2);
 
             SwitchAdder setOpen(boolean open);
+
+            SwitchAdder setSolvedOpen(Boolean solvedOpen);
 
             @Override
             Switch add();
