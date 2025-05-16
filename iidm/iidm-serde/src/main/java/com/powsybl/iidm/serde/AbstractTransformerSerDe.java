@@ -8,6 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.binary.BinReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
@@ -185,15 +186,31 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     protected static void readPhaseTapChanger(String name, PhaseTapChangerAdder adder, Terminal terminal, NetworkDeserializerContext context) {
         readTapChangerAttributes(adder, context);
 
+        // Set regulation according to IIDM version
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
+            adder.setRegulationMode(null);
+            if (context.getReader() instanceof BinReader) {
+                adder.setRegulationMode(context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, PhaseTapChanger.RegulationMode.class));
+            } else {
+                String readRegulationMode = context.getReader().readStringAttribute(ATTR_REGULATION_MODE);
+                if (readRegulationMode != null) {
+                    if ("FIXED_TAP".equals(readRegulationMode)) {
+                        adder.setRegulationMode(RegulationMode.CURRENT_LIMITER)
+                                .setRegulating(false);
+                    } else {
+                        adder.setRegulationMode(RegulationMode.valueOf(readRegulationMode));
+                    }
+                }
+            }
+        });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
             boolean loadTapChangingCapabilities = context.getReader().readBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES);
             adder.setLoadTapChangingCapabilities(loadTapChangingCapabilities);
+            adder.setRegulationMode(context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, PhaseTapChanger.RegulationMode.class));
         });
 
-        PhaseTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, PhaseTapChanger.RegulationMode.class);
         double regulationValue = context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE);
-        adder.setRegulationMode(regulationMode)
-                .setRegulationValue(regulationValue);
+        adder.setRegulationValue(regulationValue);
 
         boolean[] hasTerminalRef = new boolean[1];
         context.getReader().readChildNodes(elementName -> {
