@@ -128,7 +128,7 @@ public class LegacyTextReader {
     }
 
     private static String removeComment(String line) {
-        return line.replaceAll("('[^']*')|([^/']+)|(/.*)", "$1$2");
+        return line.replaceAll(FileFormat.REMOVE_COMMENT_REGEX, "$1$2");
     }
 
     // Compact spaces, remove spaces before the comma, and replace space with comma outside quoted text
@@ -138,7 +138,7 @@ public class LegacyTextReader {
         }
 
         StringBuilder result = new StringBuilder();
-        Pattern pattern = Pattern.compile("'[^']*'|[^']+");
+        Pattern pattern = FileFormat.LEGACY_QUOTED_OR_NON_QUOTED_TEXT;
         Matcher matcher = pattern.matcher(line.trim());
 
         while (matcher.find()) {
@@ -158,7 +158,7 @@ public class LegacyTextReader {
 
     // all the lines beginning with "@!" are record lines defining the attribute fields
     private static boolean isRecordLineDefiningTheAttributeFields(String line) {
-        return line.length() >= 2 && line.startsWith("@!");
+        return line.startsWith("@!");
     }
 
     private static String replaceSpecialCharacters(String line) {
