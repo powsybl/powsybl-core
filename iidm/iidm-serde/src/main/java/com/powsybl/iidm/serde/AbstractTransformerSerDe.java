@@ -206,8 +206,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
             boolean loadTapChangingCapabilities = context.getReader().readBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES);
             adder.setLoadTapChangingCapabilities(loadTapChangingCapabilities);
-            adder.setRegulationMode(context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, PhaseTapChanger.RegulationMode.class));
-        });
+            adder.setRegulationMode(context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, RegulationMode.class));        });
 
         double regulationValue = context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE);
         adder.setRegulationValue(regulationValue);

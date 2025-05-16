@@ -27,7 +27,7 @@
             <iidm:load id="lod_3_1" loadType="UNDEFINED" p0="50.0" q0="25.0" node="4"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="trf_2_3_1" r="0.08272846419289497" x="8.356852297791427" g="3.1227095417161836E-4" b="-0.002902681037437016" ratedU1="165.0" ratedU2="165.0" ratedS="400.0" node1="2" voltageLevelId1="VL65" node2="6" voltageLevelId2="VL65">
-            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulationMode="FIXED_TAP">
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulationMode="CURRENT_LIMITER" regulating="false">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="9.98"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="5.002"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-9.98"/>

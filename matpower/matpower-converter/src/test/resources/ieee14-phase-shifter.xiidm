@@ -46,7 +46,7 @@
             </iidm:shunt>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-4-7" r="0.0" x="0.0020912" g="0.0" b="0.0" ratedU1="0.978" ratedU2="1.0" voltageLevelId1="VL-4" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId2="VL-4" bus2="BUS-7" connectableBus2="BUS-7">
-            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulationMode="FIXED_TAP">
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulationMode="CURRENT_LIMITER" regulating="false">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="5.0"/>
             </iidm:phaseTapChanger>
         </iidm:twoWindingsTransformer>

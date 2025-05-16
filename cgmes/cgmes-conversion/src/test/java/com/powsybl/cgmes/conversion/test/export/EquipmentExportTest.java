@@ -1021,40 +1021,48 @@ class EquipmentExportTest extends AbstractSerDeTest {
             Properties exportParams = new Properties();
             exportParams.put(CgmesExport.PROFILES, "EQ");
 
-            // PST with FIXED_TAP
+            // PST with no regulation mode but regulating true => set to CURRENT_LIMITER mode
             network = PhaseShifterTestCaseFactory.createWithTargetDeadband();
+            assertTrue(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithoutAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "currentFlow");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "currentFlow");
 
             // PST local with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createLocalActivePowerWithTargetDeadband();
+            assertTrue(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
-            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
 
             // PST local with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createLocalCurrentLimiterWithTargetDeadband();
+            assertTrue(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "currentFlow");
-            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "currentFlow");
 
             // PST remote with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createRemoteCurrentLimiterWithTargetDeadband();
+            assertTrue(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "currentFlow");
-            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "currentFlow");
 
             // PST remote with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createRemoteActivePowerWithTargetDeadband();
+            assertTrue(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "activePower");
-            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "activePower");
         }

@@ -137,7 +137,7 @@ class CgmesExportTest {
     }
 
     @Test
-    void testPhaseTapChangerFixedTapNotExported() throws IOException, XMLStreamException {
+    void testPhaseTapChangerRegulatingControlAlwaysExported() throws IOException, XMLStreamException {
         ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
         Network n = Importers.importData("CGMES", ds, importParams);
         TwoWindingsTransformer transformer = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
@@ -151,14 +151,15 @@ class CgmesExportTest {
             // With original regulating mode the regulating control should be written in the EQ output
             String baseNameWithRc = baseName + "-with-rc";
             n.write("CGMES", null, tmpDir.resolve(baseNameWithRc));
+            assertTrue(transformer.getPhaseTapChanger().isRegulating());
             assertTrue(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameWithRc, "EQ"));
             assertTrue(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameWithRc, "SSH"));
 
             transformer.getPhaseTapChanger().setRegulating(false);
             String baseNameNoRc = baseName + "-no-rc";
             n.write("CGMES", null, tmpDir.resolve(baseNameNoRc));
-            assertFalse(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc, "EQ"));
-            assertFalse(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc, "SSH"));
+            assertTrue(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc, "EQ"));
+            assertTrue(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc, "SSH"));
         }
     }
 
