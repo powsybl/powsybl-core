@@ -20,8 +20,8 @@ import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 class PhaseShifterXmlTest extends AbstractIidmSerDeTest {
     @Test
     void roundTripTest() throws IOException {
-        // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedXmlTest("phaseShifterRoundTripRef.xml");
+        // backward and current compatibility
+        allFormatsRoundTripFromVersionedXmlTest("phaseShifterRoundTripRef.xml", IidmVersion.values());
 
         allFormatsRoundTripTest(PhaseShifterTestCaseFactory.createWithTargetDeadband(), "phaseShifterRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
