@@ -32,13 +32,13 @@ class FoafOptionalsTest {
     void testAllQuads() {
         Expected expected = new Expected().expect(
                 "o",
-                "Alice",
-                "Bob",
-                "SweetCaroline",
-                "Wonderland",
                 "mailto:alice@example",
+                "Alice",
+                "Wonderland",
                 "mailto:bob@example",
-                "mailto:carol@example");
+                "Bob",
+                "mailto:carol@example",
+                "SweetCaroline");
         tester.testQuery("SELECT * { GRAPH ?g { ?s ?p ?o }}", expected);
     }
 
@@ -52,7 +52,7 @@ class FoafOptionalsTest {
     void testMultipleOptionals() {
         Expected expected = new Expected()
                 .expect("name", "Alice", "Bob", null)
-                .expect("nick", "SweetCaroline", "Wonderland", null);
+                .expect("nick", "Wonderland", null, "SweetCaroline");
         tester.testQuery(queries.get("multipleOptionals"), expected);
     }
 
@@ -65,7 +65,7 @@ class FoafOptionalsTest {
     @Test
     void testOptionalWithUnion() {
         Expected expected = new Expected()
-                .expect("label", "Alice", "Bob", "SweetCaroline", "Wonderland");
+                .expect("label", "Alice", "Wonderland", "Bob", "SweetCaroline");
         tester.testQuery(queries.get("optionalWithUnion"), expected);
     }
 
@@ -73,7 +73,7 @@ class FoafOptionalsTest {
     void testNestedOptionals() {
         Expected expected = new Expected()
                 .expect("name", "Alice", null, null)
-                .expect("nick", "SweetCaroline", "Wonderland", null);
+                .expect("nick", "Wonderland", null, "SweetCaroline");
         tester.testQuery(queries.get("nestedOptionals"), expected);
     }
 
@@ -87,7 +87,7 @@ class FoafOptionalsTest {
 
     @Test
     void testOptionalNestedFilter() {
-        Expected expected = new Expected().expect("name", "Bob", null, null);
+        Expected expected = new Expected().expect("name", null, "Bob", null);
         tester.testQuery(queries.get("optionalNestedFilter"), expected);
     }
 
