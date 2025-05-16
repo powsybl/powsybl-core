@@ -114,7 +114,7 @@ action('disconnect-generator') {
 Changing the tap position of a phase tap changer is really useful to change how the active power is spread over parallel branches.
 
 #### phaseShifterFixedTap
-The `phaseShifterFixedTap` task is used to set the tap position to a fixed value. As power flow simulator could change the tap position during the simulation, it's necessary to also change the regulation's mode of the tap changer to `FIXED_TAP`.
+The `phaseShifterFixedTap` task is used to set the tap position to a fixed value. As power flow simulator could change the tap position during the simulation, it's necessary to also change the regulating value to false in this case.
 ```groovy
 action('fix-tap-position') {
     description "Set the tap position of TWT to tap 10"
@@ -125,7 +125,7 @@ action('fix-tap-position') {
 ```
 
 #### phaseShifterTap
-The `phaseShifterTap` task is used to increment or decrement the tap position. As power flow simulator could change the tap position during the simulation, it's necessary to also change the regulation's mode of the tap changer to `FIXED_TAP`. If the new tap position is lower than the minimal tap position, or greater than the maximal tap position, the tap position is adjusted to be in the bounds.
+The `phaseShifterTap` task is used to increment or decrement the tap position. As power flow simulator could change the tap position during the simulation, it's necessary to also change the  regulating value to false in this case. If the new tap position is lower than the minimal tap position, or greater than the maximal tap position, the tap position is adjusted to be in the bounds.
 ```groovy
 action('increment-tap-position') {
     description "Increment the tap position of TWT by 4"
