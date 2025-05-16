@@ -239,7 +239,7 @@ public class RegulatingControlMappingForTransformers {
 
     private boolean setPtcRegulatingControlCurrentFlow(String ptcId, boolean regulating, boolean ltcFlag, RegulatingControl control,
                                                        PhaseTapChanger ptc, Context context) {
-        return setPtcRegulatingControl(ptcId, getPtcRegulating(ltcFlag, regulating), PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, control, ptc, context);
+        return setPtcRegulatingControl(ptcId, getPtcRegulating(ltcFlag, regulating), PhaseTapChanger.RegulationMode.CURRENT_LIMITER, control, ptc, context);
     }
 
     private boolean setPtcRegulatingControlActivePower(String ptcId, boolean regulating, boolean ltcFlag, RegulatingControl control,

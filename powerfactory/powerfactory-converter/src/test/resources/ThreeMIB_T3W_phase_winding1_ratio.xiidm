@@ -74,7 +74,7 @@
         <iidm:twoWindingsTransformer id="trf_5_3_1" r="0.0" x="0.036288000154495244" g="0.0" b="-0.0" ratedU1="500.0" ratedU2="18.0" ratedS="100.0" node1="11" voltageLevelId1="VL35" node2="9" voltageLevelId2="VL32"/>
         <iidm:twoWindingsTransformer id="trf_5_7_1" r="0.0" x="0.028672000122070315" g="0.0" b="-0.0" ratedU1="500.0" ratedU2="16.0" ratedS="100.0" node1="12" voltageLevelId1="VL35" node2="3" voltageLevelId2="VL38"/>
         <iidm:threeWindingsTransformer id="tr3_4_2_7_1" r1="-7.799049110263946E-7" x1="1.1395922102037156E-4" g1="0.14457200622558594" b1="-0.10790173166599534" ratedU1="515.0" ratedS1="101.0" r2="2.5065552122616057E-6" x2="1.9130867337766516E-4" g2="0.0" b2="0.0" ratedU2="18.360000610351562" ratedS2="201.0" r3="8.390848909671972E-7" x3="5.517907605617501E-4" g3="0.0" b3="0.0" ratedU3="15.680000305175781" ratedS3="301.0" ratedU0="1.0" node1="3" voltageLevelId1="VL35" node2="5" voltageLevelId2="VL32" node3="2" voltageLevelId3="VL38">
-            <iidm:phaseTapChanger1 lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulationMode="FIXED_TAP">
+            <iidm:phaseTapChanger1 lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulationMode="CURRENT_LIMITER" regulating="false">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-0.0"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-2.0"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-25.0"/>
