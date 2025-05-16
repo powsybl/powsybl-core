@@ -19,6 +19,7 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.util.HvdcUtils;
 import com.powsybl.iidm.network.util.SwitchesFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -677,19 +678,21 @@ public final class StateVariablesExport {
 
     private static double getPoleLossP(HvdcConverterStation<?> converterStation) {
         double poleLoss;
+        HvdcLine hvdcLine = converterStation.getHvdcLine();
         if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
             double p = converterStation.getTerminal().getP();
             if (Double.isNaN(p)) {
-                p = converterStation.getHvdcLine().getActivePowerSetpoint();
+                p = hvdcLine.getActivePowerSetpoint();
             }
             poleLoss = p * converterStation.getLossFactor() / 100;
         } else {
             double p = converterStation.getTerminal().getP();
             if (Double.isNaN(p)) {
-                p = converterStation.getHvdcLine().getActivePowerSetpoint();
+                p = hvdcLine.getActivePowerSetpoint();
             }
             double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
-            double pDCInverter = Math.abs(p) * (1 - otherConverterStationLossFactor / 100);
+            double pDCRectifier = Math.abs(p) * (1 - otherConverterStationLossFactor / 100);
+            double pDCInverter = pDCRectifier - HvdcUtils.getHvdcLineLosses(pDCRectifier, hvdcLine.getNominalV(), hvdcLine.getR());
             poleLoss = pDCInverter * converterStation.getLossFactor() / 100;
         }
         return poleLoss;
