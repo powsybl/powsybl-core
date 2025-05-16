@@ -140,42 +140,55 @@ public abstract class AbstractDcSwitchTest {
         assertNull(network.getDcSwitch(dcSwitch2Id));
         assertEquals(0, network.getDcSwitchCount());
 
-        assertThrows(PowsyblException.class, () -> dcSwitch1.setOpen(true), "Cannot modify open of removed equipment dcSwitch1");
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> dcSwitch1.setOpen(true));
+        assertEquals("Cannot modify open of removed equipment dcSwitch1", e1.getMessage());
 
-        assertThrows(PowsyblException.class, dcSwitch1::isOpen, "Cannot access open of removed equipment dcSwitch1");
+        PowsyblException e2 = assertThrows(PowsyblException.class, dcSwitch1::isOpen);
+        assertEquals("Cannot access open of removed equipment dcSwitch1", e2.getMessage());
 
-        assertThrows(PowsyblException.class, () -> dcSwitch1.setRetained(true), "Cannot modify retained of removed equipment dcSwitch1");
+        PowsyblException e3 = assertThrows(PowsyblException.class, () -> dcSwitch1.setRetained(true));
+        assertEquals("Cannot modify retained of removed equipment dcSwitch1", e3.getMessage());
 
-        assertThrows(PowsyblException.class, dcSwitch1::isRetained, "Cannot access retained of removed equipment dcSwitch1");
+        PowsyblException e4 = assertThrows(PowsyblException.class, dcSwitch1::isRetained);
+        assertEquals("Cannot access retained of removed equipment dcSwitch1", e4.getMessage());
 
-        assertThrows(PowsyblException.class, dcSwitch1::getDcNode1, "Cannot access dcNode1 of removed equipment dcSwitch1");
+        PowsyblException e5 = assertThrows(PowsyblException.class, dcSwitch1::getDcNode1);
+        assertEquals("Cannot access dcNode1 of removed equipment dcSwitch1", e5.getMessage());
 
-        assertThrows(PowsyblException.class, dcSwitch1::getDcNode2, "Cannot access dcNode2 of removed equipment dcSwitch1");
+        PowsyblException e6 = assertThrows(PowsyblException.class, dcSwitch1::getDcNode2);
+        assertEquals("Cannot access dcNode2 of removed equipment dcSwitch1", e6.getMessage());
     }
 
     @Test
     public void testCreationError() {
         DcSwitchAdder adder = network.newDcSwitch();
 
-        assertThrows(PowsyblException.class, adder::add, "DC Switch id is not set");
+        PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Switch id is not set", e1.getMessage());
 
         adder.setId("dcSwitch");
-        assertThrows(PowsyblException.class, adder::add, "DC Switch 'dcSwitch': dcNode1Id is not set");
+        PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Switch 'dcSwitch': dcNode1Id is not set", e2.getMessage());
 
         adder.setDcNode1Id("notExists");
-        assertThrows(PowsyblException.class, adder::add, "DC Switch 'dcSwitch': DcNode 'notExists' not found");
+        PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Switch 'dcSwitch': DcNode 'notExists' not found", e3.getMessage());
 
         adder.setDcNode1Id(dcNode1.getId());
-        assertThrows(PowsyblException.class, adder::add, "DC Switch 'dcSwitch': dcNode2Id is not set");
+        PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Switch 'dcSwitch': dcNode2Id is not set", e4.getMessage());
 
         adder.setDcNode2Id("notExists");
-        assertThrows(PowsyblException.class, adder::add, "DC Switch 'dcSwitch': DcNode 'notExists' not found");
+        PowsyblException e5 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Switch 'dcSwitch': DcNode 'notExists' not found", e5.getMessage());
 
         adder.setDcNode2Id(dcNode2.getId());
-        assertThrows(PowsyblException.class, adder::add, "DC Switch 'dcSwitch': retained is not set");
+        PowsyblException e6 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Switch 'dcSwitch': retained is not set", e6.getMessage());
 
         adder.setRetained(false);
-        assertThrows(PowsyblException.class, adder::add, "DC Switch 'dcSwitch': open is not set");
+        PowsyblException e7 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Switch 'dcSwitch': open is not set", e7.getMessage());
     }
 
     @Test
@@ -259,18 +272,19 @@ public abstract class AbstractDcSwitchTest {
                 .setDcNode1Id(dcNode1Subnet1.getId())
                 .setDcNode2Id(dcNode1Subnet2.getId())
                 .setRetained(false).setOpen(false);
-        assertThrows(PowsyblException.class, adder::add,
-                "DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode1Subnetwork2' are in different networks 'subnetwork1' and 'subnetwork2'");
+
+        PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode1Subnetwork2' are in different networks 'subnetwork1' and 'subnetwork2'", e1.getMessage());
 
         // test cannot create DcSwitch in netWithSubnet referencing nodes of subnetwork1
         adder.setDcNode1Id(dcNode1Subnet1.getId()).setDcNode2Id(dcNode2Subnet1.getId());
-        assertThrows(PowsyblException.class, adder::add,
-                "DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode2Subnetwork1' are in network 'subnetwork1' but DC Equipment is in 'test'");
+        PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode2Subnetwork1' are in network 'subnetwork1' but DC Equipment is in 'test'", e2.getMessage());
 
         // test cannot create DcSwitch across subnetwork1 & netWithSubnet
         adder.setDcNode2Id(dcNodeRootNetwork.getId());
-        assertThrows(PowsyblException.class, adder::add,
-                "DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNodeRootNetwork' are in different networks 'subnetwork1' and 'test'");
+        PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNodeRootNetwork' are in different networks 'subnetwork1' and 'test'", e3.getMessage());
     }
 
     @Test

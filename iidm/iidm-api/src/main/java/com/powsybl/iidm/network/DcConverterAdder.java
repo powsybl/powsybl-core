@@ -37,4 +37,12 @@ public interface DcConverterAdder<T extends DcConverter<? super T> & Connectable
     A setSwitchingLoss(double switchingLoss);
 
     A setResistiveLoss(double resistiveLoss);
+
+    A setPccTerminal(Terminal pccTerminal);
+
+    A setControlMode(DcConverter.ControlMode controlMode);
+
+    A setTargetP(double targetP);
+
+    A setTargetVdc(double targetVdc);
 }

@@ -16,8 +16,10 @@ import com.powsybl.iidm.network.*;
 public class DcLineCommutatedConverterImpl extends AbstractDcConverter<DcLineCommutatedConverter> implements DcLineCommutatedConverter {
 
     DcLineCommutatedConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
-                                  double idleLoss, double switchingLoss, double resistiveLoss) {
-        super(ref, id, name, fictitious, idleLoss, switchingLoss, resistiveLoss);
+                                  double idleLoss, double switchingLoss, double resistiveLoss,
+                                  TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc) {
+        super(ref, id, name, fictitious, idleLoss, switchingLoss, resistiveLoss,
+                pccTerminal, controlMode, targetP, targetVdc);
     }
 
     @Override

@@ -54,6 +54,9 @@ public abstract class AbstractDcTerminalTest {
                 .setBus2(b2.getId())
                 .setDcNode1Id(dcNode1.getId())
                 .setDcNode2Id(dcNode2.getId())
+                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.)
                 .add();
         DcTerminal dcConverterTerminal = converter.getDcTerminal1();
         assertTrue(Double.isNaN(dcConverterTerminal.getP()));
