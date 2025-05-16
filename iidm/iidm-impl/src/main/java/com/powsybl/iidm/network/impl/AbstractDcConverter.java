@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
+import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +27,30 @@ abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractCon
     private double switchingLoss;
     private double resistiveLoss;
 
+    private final RegulatingPoint pccRegulatingPoint;
+
+    // attributes depending on the variant
+
+    private final TDoubleArrayList targetP;
+
+    private final TDoubleArrayList targetVdc;
+
     AbstractDcConverter(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
-                        double idleLoss, double switchingLoss, double resistiveLoss) {
+                        double idleLoss, double switchingLoss, double resistiveLoss,
+                        TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc) {
         super(ref, id, name, fictitious);
         this.idleLoss = idleLoss;
         this.switchingLoss = switchingLoss;
         this.resistiveLoss = resistiveLoss;
+        int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
+        this.targetP = new TDoubleArrayList(variantArraySize);
+        this.targetVdc = new TDoubleArrayList(variantArraySize);
+        pccRegulatingPoint = new RegulatingPoint(id, () -> null, variantArraySize, controlMode.ordinal(), ControlMode.V_DC.ordinal(), false);
+        pccRegulatingPoint.setRegulatingTerminal(pccTerminal);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.targetP.add(targetP);
+            this.targetVdc.add(targetVdc);
+        }
     }
 
     @Override
@@ -169,21 +188,105 @@ abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractCon
     }
 
     @Override
+    public I setPccTerminal(Terminal pccTerminal) {
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "pccTerminal");
+        // todo checks
+        Terminal oldValue = pccRegulatingPoint.getRegulatingTerminal();
+        pccRegulatingPoint.setRegulatingTerminal((TerminalExt) pccTerminal);
+        notifyUpdate("pccTerminal", oldValue, pccRegulatingPoint.getRegulatingTerminal());
+        return (I) this;
+    }
+
+    @Override
+    public Terminal getPccTerminal() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "pccTerminal");
+        return pccRegulatingPoint.getRegulatingTerminal();
+    }
+
+    @Override
+    public I setControlMode(ControlMode controlMode) {
+        Objects.requireNonNull(controlMode);
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "controlMode");
+        NetworkImpl n = getNetwork();
+        // todo checks
+        int variantIndex = n.getVariantIndex();
+        int oldValueOrdinal = pccRegulatingPoint.setRegulationMode(variantIndex, controlMode.ordinal());
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("controlMode", variantId, ControlMode.values()[oldValueOrdinal], controlMode);
+        return (I) this;
+    }
+
+    @Override
+    public ControlMode getControlMode() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "controlMode");
+        int variantIndex = getNetwork().getVariantIndex();
+        return ControlMode.values()[pccRegulatingPoint.getRegulationMode(variantIndex)];
+    }
+
+    @Override
+    public I setTargetP(double targetP) {
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "targetP");
+        // todo: validation
+        NetworkImpl n = getNetwork();
+        int variantIndex = n.getVariantIndex();
+        double oldValue = this.targetP.set(variantIndex, targetP);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        notifyUpdate("targetP", variantId, oldValue, targetP);
+        return (I) this;
+    }
+
+    @Override
+    public double getTargetP() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "targetP");
+        return targetP.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public I setTargetVdc(double targetVdc) {
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "targetVdc");
+        // todo: validation
+        NetworkImpl n = getNetwork();
+        int variantIndex = n.getVariantIndex();
+        double oldValue = this.targetVdc.set(variantIndex, targetVdc);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        notifyUpdate("targetP", variantId, oldValue, targetP);
+        return (I) this;
+    }
+
+    @Override
+    public double getTargetVdc() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "targetVdc");
+        return targetVdc.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        targetP.ensureCapacity(targetP.size() + number);
+        targetVdc.ensureCapacity(targetVdc.size() + number);
+        for (int i = 0; i < number; i++) {
+            targetP.add(targetP.get(sourceIndex));
+            targetVdc.add(targetVdc.get(sourceIndex));
+        }
 
         for (DcTerminalImpl t : dcTerminals) {
             t.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
+        pccRegulatingPoint.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
+        targetP.remove(targetP.size() - number, number);
+        targetVdc.remove(targetVdc.size() - number, number);
 
         for (DcTerminalImpl t : dcTerminals) {
             t.reduceVariantArraySize(number);
         }
+        pccRegulatingPoint.reduceVariantArraySize(number);
     }
 
     @Override
@@ -193,20 +296,27 @@ abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractCon
         for (DcTerminalImpl t : dcTerminals) {
             t.deleteVariantArrayElement(index);
         }
+        pccRegulatingPoint.deleteVariantArrayElement(index);
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
+        for (int index : indexes) {
+            targetP.set(index, targetP.get(sourceIndex));
+            targetVdc.set(index, targetVdc.get(sourceIndex));
+        }
 
         for (DcTerminalImpl t : dcTerminals) {
             t.allocateVariantArrayElement(indexes, sourceIndex);
         }
+        pccRegulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
     }
 
     @Override
     public void remove() {
         super.remove();
         dcTerminals.forEach(DcTerminal::remove);
+        pccRegulatingPoint.remove();
     }
 }

@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -152,7 +153,10 @@ public abstract class AbstractDcConverterTest {
         return voltageLevel.newDcLineCommutatedConverter()
                 .setIdleLoss(0.01)
                 .setSwitchingLoss(0.02)
-                .setResistiveLoss(0.03);
+                .setResistiveLoss(0.03)
+                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.);
     }
 
     private DcLineCommutatedConverter createDcLccA(VoltageLevel voltageLevel) {
@@ -185,7 +189,10 @@ public abstract class AbstractDcConverterTest {
         return voltageLevel.newDcVoltageSourceConverter()
                 .setIdleLoss(0.01)
                 .setSwitchingLoss(0.02)
-                .setResistiveLoss(0.03);
+                .setResistiveLoss(0.03)
+                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.);
     }
 
     private DcVoltageSourceConverter createDcVscA(VoltageLevel voltageLevel) {
@@ -359,6 +366,9 @@ public abstract class AbstractDcConverterTest {
                 .setBus2(b2Subnet1.getId())
                 .setDcNode1Id(dcNode1Subnet1.getId())
                 .setDcNode2Id(dcNode2Subnet1.getId())
+                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.)
                 .add();
         DcLineCommutatedConverter converterSubnet2 = vlSubnet2
                 .newDcLineCommutatedConverter()
@@ -367,6 +377,9 @@ public abstract class AbstractDcConverterTest {
                 .setBus2(b2Subnet2.getId())
                 .setDcNode1Id(dcNode1Subnet2.getId())
                 .setDcNode2Id(dcNode2Subnet2.getId())
+                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.)
                 .add();
 
         List<DcLineCommutatedConverter> dcConverterList = List.of(converterSubnet1, converterSubnet2);
@@ -428,6 +441,9 @@ public abstract class AbstractDcConverterTest {
                 .setBus2(b2Subnet1.getId())
                 .setDcNode1Id(dcNode1Subnet1.getId())
                 .setDcNode2Id(dcNode2Subnet1.getId())
+                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.)
                 .add();
         DcVoltageSourceConverter converterSubnet2 = vlSubnet2
                 .newDcVoltageSourceConverter()
@@ -436,6 +452,9 @@ public abstract class AbstractDcConverterTest {
                 .setBus2(b2Subnet2.getId())
                 .setDcNode1Id(dcNode1Subnet2.getId())
                 .setDcNode2Id(dcNode2Subnet2.getId())
+                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.)
                 .add();
 
         List<DcVoltageSourceConverter> dcConverterList = List.of(converterSubnet1, converterSubnet2);
@@ -492,7 +511,10 @@ public abstract class AbstractDcConverterTest {
                 .setBus1(b1Subnet1.getId())
                 .setBus2(b2Subnet1.getId())
                 .setDcNode1Id(dcNode1Subnet1.getId())
-                .setDcNode2Id(dcNode1Subnet2.getId());
+                .setDcNode2Id(dcNode1Subnet2.getId())
+                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.);
 
         // test cannot create Converter across subnetwork1 & subnetwork2
         PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
@@ -532,5 +554,77 @@ public abstract class AbstractDcConverterTest {
         assertEquals(-90., vsc.getReactiveLimits().getMinQ(-50));
         assertEquals(80, vsc.getReactiveLimits().getMaxQ(-50));
         assertSame(vsc.getReactiveLimits(), vsc.getReactiveLimits(ReactiveCapabilityCurve.class));
+    }
+
+    @Test
+    public void testCreationError() {
+        DcLineCommutatedConverterAdder adder = vla.newDcLineCommutatedConverter();
+
+        // TODO
+    }
+
+    @Test
+    public void testSingleAcTerminal() {
+        dcConverterA = vla.newDcVoltageSourceConverter()
+                .setId("converterA")
+                .setBus1(b1a.getId())
+                .setDcNode1Id(dcNode1a.getId())
+                .setDcNode2Id(dcNode2a.getId())
+                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.)
+                .add();
+        assertTrue(dcConverterA.getTerminal2().isEmpty());
+        assertNull(dcConverterA.getTerminal(TwoSides.TWO));
+        assertSame(dcConverterA.getPccTerminal(), dcConverterA.getTerminal1());
+    }
+
+    @Test
+    public void testSetterGetterInMultiVariants() {
+        dcConverterA = vla.newDcVoltageSourceConverter()
+                .setId("converterA")
+                .setBus1(b1a.getId())
+                .setDcNode1Id(dcNode1a.getId())
+                .setDcNode2Id(dcNode2a.getId())
+                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.)
+                .add();
+        List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+
+        variantManager.setWorkingVariant("s4");
+        // check values cloned by extend
+        assertEquals(DcConverter.ControlMode.P_PCC, dcConverterA.getControlMode());
+        assertEquals(100.0, dcConverterA.getTargetP(), 0.0);
+        assertEquals(500.0, dcConverterA.getTargetVdc(), 0.0);
+        // change values in s4
+        dcConverterA.setControlMode(DcConverter.ControlMode.V_DC);
+        dcConverterA.setTargetP(-50.);
+        dcConverterA.setTargetVdc(495.);
+
+        // remove s2
+        variantManager.removeVariant("s2");
+
+        variantManager.cloneVariant("s4", "s2b");
+        variantManager.setWorkingVariant("s2b");
+        // check values cloned by allocate
+        assertEquals(DcConverter.ControlMode.V_DC, dcConverterA.getControlMode());
+        assertEquals(-50., dcConverterA.getTargetP(), 0.0);
+        assertEquals(495., dcConverterA.getTargetVdc(), 0.0);
+
+        // recheck initial variant value
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(DcConverter.ControlMode.P_PCC, dcConverterA.getControlMode());
+        assertEquals(100.0, dcConverterA.getTargetP(), 0.0);
+        assertEquals(500.0, dcConverterA.getTargetVdc(), 0.0);
+
+        // remove working variant s4
+        variantManager.setWorkingVariant("s4");
+        variantManager.removeVariant("s4");
+        assertThrows(PowsyblException.class, dcConverterA::getControlMode, "Variant index not set");
+        assertThrows(PowsyblException.class, dcConverterA::getTargetP, "Variant index not set");
+        assertThrows(PowsyblException.class, dcConverterA::getTargetVdc, "Variant index not set");
     }
 }

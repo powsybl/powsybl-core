@@ -28,8 +28,10 @@ public class DcVoltageSourceConverterAdderImpl extends AbstractDcConverterAdder<
         // TODO checks
         // TODO / note: dcNodes and voltage level must be in same network
         String id = checkAndGetUniqueId();
+        super.preCheck();
         DcVoltageSourceConverterImpl dcVsConverter = new DcVoltageSourceConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
-                idleLoss, switchingLoss, resistiveLoss);
+                idleLoss, switchingLoss, resistiveLoss,
+                pccTerminal, controlMode, targetP, targetVdc);
         super.checkAndAdd(dcVsConverter);
         return dcVsConverter;
     }

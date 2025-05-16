@@ -10,16 +10,16 @@ package com.powsybl.iidm.network;
 import java.util.Optional;
 
 /**
- * todo:
- *   converter PccTerminal (as TerminalRef)
- *   converter modes P / Udc - multi variant
- *   converter set-point P (MW) / Udc (kV) - multi variant
- *
  * todo ? do we need converter DC nodes polarities ? (pos/neg/middle)
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public interface DcConverter<I extends DcConverter<I>> extends Connectable<I>, DcConnectable<I> {
+
+    enum ControlMode {
+        P_PCC,
+        V_DC
+    }
 
     Terminal getTerminal1();
 
@@ -54,4 +54,20 @@ public interface DcConverter<I extends DcConverter<I>> extends Connectable<I>, D
     I setResistiveLoss(double resistiveLoss);
 
     double getResistiveLoss();
+
+    I setPccTerminal(Terminal pccTerminal);
+
+    Terminal getPccTerminal();
+
+    I setControlMode(ControlMode controlMode);
+
+    ControlMode getControlMode();
+
+    I setTargetP(double targetP);
+
+    double getTargetP();
+
+    I setTargetVdc(double targetVdc);
+
+    double getTargetVdc();
 }

@@ -41,6 +41,11 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
     protected double switchingLoss = 0;
     protected double resistiveLoss = 0;
 
+    protected TerminalExt pccTerminal;
+    protected DcConverter.ControlMode controlMode;
+    protected double targetP = Double.NaN;
+    protected double targetVdc = Double.NaN;
+
     AbstractDcConverterAdder(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
     }
@@ -133,12 +138,51 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
         return (T) this;
     }
 
+    public T setPccTerminal(Terminal pccTerminal) {
+        this.pccTerminal = (TerminalExt) pccTerminal;
+        return (T) this;
+    }
+
+    public T setControlMode(DcConverter.ControlMode controlMode) {
+        this.controlMode = controlMode;
+        return (T) this;
+    }
+
+    public T setTargetP(double targetP) {
+        this.targetP = targetP;
+        return (T) this;
+    }
+
+    public T setTargetVdc(double targetVdc) {
+        this.targetVdc = targetVdc;
+        return (T) this;
+    }
+
+    protected void preCheck() {
+        // todo checks/validation refinement:
+        //  - mode P_PCC requires pccTerminal defined as branch terminal, or can be converter terminal only if converter has single AC terminal
+        //  - pccTerminal in same parent network as converter
+        if (controlMode == null) {
+            throw new ValidationException(this, "controlMode is not set");
+        }
+        if (Double.isNaN(targetP)) {
+            throw new ValidationException(this, "targetP is not set");
+        }
+        if (Double.isNaN(targetVdc)) {
+            throw new ValidationException(this, "targetVdc is not set");
+        }
+    }
+
     protected void checkAndAdd(AbstractDcConverter<?> dcConverter) {
         TerminalExt terminal1 = checkAndGetTerminal1();
         DcNode dcNode1 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode1Id, "dcNode1Id");
         DcNode dcNode2 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode2Id, "dcNode2Id");
         DcUtils.checkSameParentNetwork(voltageLevel.getParentNetwork(), this, dcNode1, dcNode2);
         Optional<TerminalExt> terminal2 = checkAndGetTerminal2();
+        if (pccTerminal == null && terminal2.isEmpty()) {
+            // default to use terminal1 as pccTerminal, only if converter has only 1 AC Terminal
+            dcConverter.setPccTerminal(terminal1);
+        }
         dcConverter.addTerminal(terminal1);
         voltageLevel.getTopologyModel().attach(terminal1, false);
         terminal2.ifPresent(terminal -> {
