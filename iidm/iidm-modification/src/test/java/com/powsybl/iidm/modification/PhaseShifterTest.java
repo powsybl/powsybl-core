@@ -64,7 +64,7 @@ class PhaseShifterTest {
 
         twoWindingsTransformer.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
         NetworkModification modification6 = new PhaseShifterSetAsFixedTap("TWT", 32);
-        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification6.hasImpactOnNetwork(network));
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification6.hasImpactOnNetwork(network));
 
         twoWindingsTransformer.getRatioTapChanger().setRegulating(false);
         twoWindingsTransformer.getPhaseTapChanger().setRegulationValue(225);
@@ -87,7 +87,7 @@ class PhaseShifterTest {
 
         twoWindingsTransformer.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
         NetworkModification modification4 = new PhaseShifterShiftTap("TWT", 1);
-        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
 
         twoWindingsTransformer.getRatioTapChanger().setRegulating(false);
         twoWindingsTransformer.getPhaseTapChanger().setRegulationValue(225);
