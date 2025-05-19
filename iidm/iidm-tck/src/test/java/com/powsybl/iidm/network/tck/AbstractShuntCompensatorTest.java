@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -535,6 +536,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(5, network.getShuntCompensator(SHUNT).getSolvedSectionCount());
         shuntCompensator.setSolvedSectionCount(6);
         assertEquals(6, shuntCompensator.getSolvedSectionCount());
+        assertEquals(Optional.of(6), shuntCompensator.findSolvedSectionCount());
 
         // Check exception if solved section count negative or too high
         assertThrows(ValidationException.class, () -> shuntCompensator.setSolvedSectionCount(-1));
@@ -542,6 +544,20 @@ public abstract class AbstractShuntCompensatorTest {
 
         shuntCompensator.unsetSolvedSectionCount();
         assertNull(shuntCompensator.getSolvedSectionCount());
+    }
+
+    @Test
+    public void testSolvedSectionCountUndefined() {
+        ShuntCompensatorAdder adder = createShuntAdder(SHUNT, "shuntName", 6, terminal, true, 200, 10);
+        adder.newLinearModel()
+            .setBPerSection(5.0)
+            .setGPerSection(4.0)
+            .setMaximumSectionCount(10)
+            .add();
+        ShuntCompensator shuntCompensator = adder.add();
+        assertTrue(shuntCompensator.findSolvedSectionCount().isEmpty());
+        assertNull(shuntCompensator.getSolvedSectionCount());
+
     }
 
     private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int sectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
