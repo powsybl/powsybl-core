@@ -44,6 +44,7 @@ public class SingleNominalVoltageCriterion implements Criterion {
     }
 
     protected static Double getNominalVoltage(Identifiable<?> identifiable, IdentifiableType type) {
+        // TODO DcConverter
         return switch (type) {
             case LINE, TIE_LINE -> getNominalVoltage(((Branch<?>) identifiable).getTerminal1().getVoltageLevel());
             case HVDC_LINE -> getNominalVoltage(((HvdcLine) identifiable).getConverterStation1().getTerminal().getVoltageLevel());
