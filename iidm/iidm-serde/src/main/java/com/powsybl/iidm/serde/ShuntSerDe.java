@@ -71,6 +71,7 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
             OptionalInt sectionCount = sc.findSectionCount();
             context.getWriter().writeOptionalIntAttribute("sectionCount", sectionCount.isPresent() ? sectionCount.getAsInt() : null);
         });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> context.getWriter().writeOptionalIntAttribute("solvedSectionCount", sc.getSolvedSectionCount()));
         IidmSerDeUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
         IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetV", sc.getTargetV(),
                 IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
@@ -149,6 +150,10 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
             OptionalInt sectionCount = context.getReader().readOptionalIntAttribute("sectionCount");
             sectionCount.ifPresent(adder::setSectionCount);
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
+            OptionalInt solvedSectionCount = context.getReader().readOptionalIntAttribute("solvedSectionCount");
+            solvedSectionCount.ifPresent(adder::setSolvedSectionCount);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> {
             boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
