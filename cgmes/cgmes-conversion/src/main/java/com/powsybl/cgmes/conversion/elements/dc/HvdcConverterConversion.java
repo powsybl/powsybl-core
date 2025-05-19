@@ -9,17 +9,15 @@
 package com.powsybl.cgmes.conversion.elements.dc;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForVscConverters;
 import com.powsybl.cgmes.conversion.elements.AbstractReactiveLimitsOwnerConversion;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.LccConverterStationAdder;
-import com.powsybl.iidm.network.VscConverterStation;
-import com.powsybl.iidm.network.VscConverterStationAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 
-import static com.powsybl.cgmes.model.CgmesNames.VS_CONVERTER;
+import static com.powsybl.cgmes.model.CgmesNames.*;
 
 /**
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
@@ -63,6 +61,13 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
             addAliasesAndProperties(c);
             convertedTerminals(c.getTerminal());
         }
+    }
+
+    @Override
+    protected void addAliasesAndProperties(Identifiable<?> identifiable) {
+        super.addAliasesAndProperties(identifiable);
+        identifiable.addAlias(converter.getId(DC_TERMINAL1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1);
+        identifiable.addAlias(converter.getId(DC_TERMINAL2), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2);
     }
 
     private double getPowerFactor() {
