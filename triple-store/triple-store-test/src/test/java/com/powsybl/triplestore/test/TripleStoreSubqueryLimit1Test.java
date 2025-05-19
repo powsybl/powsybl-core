@@ -12,6 +12,9 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ */
 class TripleStoreSubqueryLimit1Test {
 
     private static final TripleStoreTester.Expected EXPECTED_MIN_ID_PROJECTS = new TripleStoreTester.Expected()
