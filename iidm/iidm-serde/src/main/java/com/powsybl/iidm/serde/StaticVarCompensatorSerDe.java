@@ -25,6 +25,7 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
     static final String ARRAY_ELEMENT_NAME = "staticVarCompensators";
 
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
+    private static final String REGULATION_MODE = "regulationMode";
 
     @Override
     protected String getRootElementName() {
@@ -46,13 +47,13 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
 
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
             if (svc.isRegulating()) {
-                context.getWriter().writeEnumAttribute("regulationMode", svc.getRegulationMode());
+                context.getWriter().writeEnumAttribute(REGULATION_MODE, svc.getRegulationMode());
             } else {
-                context.getWriter().writeEnumAttribute("regulationMode", null);
+                context.getWriter().writeEnumAttribute(REGULATION_MODE, null);
             }
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
-            context.getWriter().writeEnumAttribute("regulationMode", svc.getRegulationMode());
+            context.getWriter().writeEnumAttribute(REGULATION_MODE, svc.getRegulationMode());
             context.getWriter().writeBooleanAttribute("regulating", svc.isRegulating());
         });
         writeNodeOrBus(null, svc.getTerminal(), context);
@@ -85,7 +86,7 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
         double voltageSetpoint = context.getReader().readDoubleAttribute(voltageSetpointName[0]);
         double reactivePowerSetpoint = context.getReader().readDoubleAttribute(reactivePowerSetpointName[0]);
 
-        StaticVarCompensator.RegulationMode regulationMode = context.getReader().readEnumAttribute("regulationMode", StaticVarCompensator.RegulationMode.class);
+        StaticVarCompensator.RegulationMode regulationMode = context.getReader().readEnumAttribute(REGULATION_MODE, StaticVarCompensator.RegulationMode.class);
         final boolean[] regulating = new boolean[1];
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
             regulating[0] = regulationMode != null;
