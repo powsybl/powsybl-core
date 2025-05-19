@@ -245,6 +245,8 @@ Every _Area interchange_ single line record represents one area in PowSyBl grid 
 - **VoltageLevels** - a set of voltage levels of the area. The set is created from `VoltageLevels` objects that
   correspond
   to PSS®E buses within the given area.
-- **AreaBoundaries** – a list of area boundaries. Boundary terminals are determined from the boundary (AC) lines and
-  HVDC lines. The boundary lines are always identified such that one of their terminals belongs to the area. This
-  terminal is marked as a boundary terminal and included to area boundaries.
+- **AreaBoundaries** – a list of area boundaries. Boundary terminals are determined from the boundary (AC) lines, 
+  HVDC lines and transformers. The boundary lines or boundary transformers are always identified such that one of
+  their terminals belongs to the area. This  terminal is marked as a boundary terminal and included to area boundaries.
+  Similarly, three-winding transformers are considered boundary transformers only if some, but not all, of their
+  terminals belong to the area.
