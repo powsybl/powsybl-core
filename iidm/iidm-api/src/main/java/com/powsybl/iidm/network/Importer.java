@@ -367,6 +367,6 @@ public interface Importer {
      * @param parameters some properties to configure the import
      */
     default void update(Network network, ReadOnlyDataSource dataSource, Properties parameters) {
-        throw new UnsupportedOperationException("Importer do not implement updates");
+        update(network, dataSource, parameters, ReportNode.NO_OP);
     }
 }
