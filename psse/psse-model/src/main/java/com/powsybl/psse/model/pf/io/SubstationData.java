@@ -19,6 +19,7 @@ import java.util.List;
 
 import static com.powsybl.psse.model.pf.PsseSubstation.*;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I_NODE;
 
 /**
  *
@@ -26,6 +27,17 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class SubstationData extends AbstractRecordGroup<PsseSubstation> {
+
+    static final String[] FIELD_NAMES_SUBSTATION = {"is", "name", "lati", "long", "srg"};
+    static final String[] FIELD_NAMES_SUBSTATION_NODE = {"ni", "name", "i", "status", "vm", "va"};
+    static final String[] FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES = {"ni", "nj", "ckt", "name", "type", "status", "nstat", "x", "rate1", "rate2", "rate3"};
+    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_ONE_BUS = {"i", "ni", "type", "id"};
+    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_TWO_BUSES = {"i", "ni", "type", "j", "id"};
+    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_THREE_BUSES = {"i", "ni", "type", "j", "k", "id"};
+    static final String[] FIELD_NAMES_SUBSTATION_RAWX = {"isub", "name", "lati", "long", "srg"};
+    static final String[] FIELD_NAMES_SUBSTATION_NODE_RAWX = {"isub", STR_I_NODE, "name", "ibus", "stat", "vm", "va"};
+    static final String[] FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES_RAWX = {"isub", STR_I_NODE, "jnode", "swdid", "name", "type", "stat", "nstat", "xpu", "rsetnam"};
+    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_RAWX = {"isub", STR_I_NODE, "type", "eqid", "ibus", "jbus", "kbus"};
 
     SubstationData() {
         super(SUBSTATION);
@@ -142,7 +154,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationNodeData extends AbstractRecordGroup<PsseSubstationNode> {
             SubstationNodeData() {
-                super(INTERNAL_SUBSTATION_NODE, "ni", "name", "i", "status", "vm", "va");
+                super(INTERNAL_SUBSTATION_NODE, FIELD_NAMES_SUBSTATION_NODE);
                 withQuotedFields(QUOTED_FIELDS);
             }
 
@@ -154,7 +166,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationSwitchingDeviceData extends AbstractRecordGroup<PsseSubstationSwitchingDevice> {
             SubstationSwitchingDeviceData() {
-                super(INTERNAL_SUBSTATION_SWITCHING_DEVICE, "ni", "nj", "ckt", "name", "type", "status", "nstat", "x", "rate1", "rate2", "rate3");
+                super(INTERNAL_SUBSTATION_SWITCHING_DEVICE, FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES);
                 withQuotedFields(QUOTED_FIELDS_SWITCHING_DEVICES);
             }
 
@@ -178,7 +190,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationEquipmentTerminalDataOneBus extends AbstractRecordGroup<PsseSubstationEquipmentTerminal> {
             SubstationEquipmentTerminalDataOneBus() {
-                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS, "i", "ni", "type", "id");
+                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS, FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_ONE_BUS);
                 withQuotedFields(QUOTED_FIELDS);
             }
 
@@ -190,7 +202,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationEquipmentTerminalDataTwoBuses extends AbstractRecordGroup<PsseSubstationEquipmentTerminal> {
             SubstationEquipmentTerminalDataTwoBuses() {
-                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES, "i", "ni", "type", "j", "id");
+                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES, FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_TWO_BUSES);
                 withQuotedFields(QUOTED_FIELDS);
             }
 
@@ -202,7 +214,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationEquipmentTerminalDataThreeBuses extends AbstractRecordGroup<PsseSubstationEquipmentTerminal> {
             SubstationEquipmentTerminalDataThreeBuses() {
-                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES, "i", "ni", "type", "j", "k", "id");
+                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES, FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_THREE_BUSES);
                 withQuotedFields(QUOTED_FIELDS);
             }
 
@@ -308,7 +320,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
     private static class SubstationRecordData extends AbstractRecordGroup<PsseSubstationRecord> {
         SubstationRecordData() {
-            super(SUBSTATION, "is", "name", "lati", "long", "srg");
+            super(SUBSTATION, FIELD_NAMES_SUBSTATION);
             withQuotedFields(QUOTED_FIELDS);
         }
 
