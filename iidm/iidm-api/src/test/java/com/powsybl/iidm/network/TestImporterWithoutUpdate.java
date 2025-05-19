@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -17,19 +17,19 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
+ * @author Luma Zamarreno {@literal <zamarrenolm at aia.es>}
  */
 @AutoService(Importer.class)
-public class TestImporter implements Importer {
+public class TestImporterWithoutUpdate implements Importer {
 
     @Override
     public String getFormat() {
-        return "TST";
+        return "TST-without-update";
     }
 
     @Override
     public List<String> getSupportedExtensions() {
-        return List.of("tst");
+        return List.of("tst-extension-no-updates");
     }
 
     @Override
@@ -40,7 +40,7 @@ public class TestImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            return dataSource == null || dataSource.isDataExtension("tst") && dataSource.exists(null, "tst");
+            return dataSource == null || dataSource.isDataExtension("tst-extension-no-updates") && dataSource.exists(null, "tst-extension-no-updates");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -50,25 +50,12 @@ public class TestImporter implements Importer {
     public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
         if (reportNode != null) {
             reportNode.newReportNode()
-                    .withMessageTemplate("testImportModel")
-                    .withUntypedValue("model", "eurostagTutorialExample1")
+                    .withMessageTemplate("testImportModelWithoutUpdate")
+                    .withUntypedValue("model", "empty-network")
                     .add();
         }
         return networkFactory.createNetwork("mock", "test");
     }
 
-    @Override
-    public void update(Network network, ReadOnlyDataSource dataSource, Properties parameters, ReportNode reportNode) {
-        if (reportNode != null) {
-            reportNode.newReportNode()
-                    .withMessageTemplate("testUpdateModel")
-                    .withUntypedValue("model", "eurostagTutorialExample1")
-                    .add();
-        }
-        // Update a load in the network
-        Load load = network.getLoad("LOAD");
-        if (load != null) {
-            load.setP0(123.0);
-        }
-    }
+    // We intentionally do not implement the update method defined in the Importer interface
 }
