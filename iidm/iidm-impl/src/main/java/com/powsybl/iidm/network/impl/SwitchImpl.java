@@ -10,6 +10,11 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -22,19 +27,24 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     private final TBooleanArrayList open;
 
+    private final ArrayList<Boolean> solvedOpen;
+
     private final TBooleanArrayList retained;
 
     SwitchImpl(VoltageLevelExt voltageLevel,
-               String id, String name, boolean fictitious, SwitchKind kind, final boolean open, boolean retained) {
+               String id, String name, boolean fictitious, SwitchKind kind, final boolean open,
+               Boolean solvedOpen, boolean retained) {
         super(id, name, fictitious);
         this.voltageLevel = voltageLevel;
         this.kind = kind;
         int variantArraySize = voltageLevel.getNetwork().getVariantManager().getVariantArraySize();
         this.open = new TBooleanArrayList(variantArraySize);
+        this.solvedOpen = new ArrayList(variantArraySize);
         this.retained = new TBooleanArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.open.add(open);
             this.retained.add(retained);
+            this.solvedOpen.add(solvedOpen);
         }
     }
 
@@ -77,6 +87,38 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
     }
 
     @Override
+    public Boolean isSolvedOpen() {
+        return solvedOpen.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public Optional<Boolean> findSolvedOpen() {
+        Boolean so = solvedOpen.get(getNetwork().getVariantIndex());
+        return so == null ? Optional.empty() : Optional.of(so);
+    }
+
+    @Override
+    public void setSolvedOpen(Boolean solvedOpen) {
+        NetworkImpl network = getNetwork();
+        int index = network.getVariantIndex();
+        Boolean oldValue = this.solvedOpen.get(index);
+        if (!Objects.equals(oldValue, solvedOpen)) {
+            this.solvedOpen.set(index, solvedOpen);
+            String variantId = network.getVariantManager().getVariantId(index);
+            network.getListeners().notifyUpdate(this, "solvedOpen", variantId, oldValue, solvedOpen);
+        }
+    }
+
+    @Override
+    public void unsetSolvedOpen() {
+        NetworkImpl network = getNetwork();
+        int variantIndex = network.getVariantIndex();
+        Boolean oldValue = this.solvedOpen.set(variantIndex, null);
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
+        network.getListeners().notifyUpdate(this, "solvedOpen", variantId, oldValue, solvedOpen);
+    }
+
+    @Override
     public boolean isRetained() {
         return retained.get(getNetwork().getVariantIndex());
     }
@@ -116,6 +158,10 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         open.fill(initVariantArraySize, initVariantArraySize + number, open.get(sourceIndex));
         retained.ensureCapacity(retained.size() + number);
         retained.fill(initVariantArraySize, initVariantArraySize + number, retained.get(sourceIndex));
+        solvedOpen.ensureCapacity(solvedOpen.size() + number);
+        for (int i = 0; i < number; i++) {
+            solvedOpen.add(solvedOpen.get(sourceIndex));
+        }
     }
 
     @Override
@@ -124,6 +170,9 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
         open.remove(open.size() - number, number);
         retained.remove(retained.size() - number, number);
+        List<Boolean> solvedOpenTmp = new ArrayList<>(solvedOpen.subList(0, solvedOpen.size() - number));
+        solvedOpen.clear();
+        solvedOpen.addAll(solvedOpenTmp);
     }
 
     @Override
@@ -139,6 +188,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         for (int index : indexes) {
             open.set(index, open.get(sourceIndex));
             retained.set(index, retained.get(sourceIndex));
+            solvedOpen.set(index, solvedOpen.get(sourceIndex));
         }
     }
 
