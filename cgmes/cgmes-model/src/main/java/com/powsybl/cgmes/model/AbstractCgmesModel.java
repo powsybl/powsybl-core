@@ -51,14 +51,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public CgmesDcTerminal dcTerminal(String dcTerminalId) {
-        if (cachedDcTerminals == null) {
-            cachedDcTerminals = computeDcTerminals();
-        }
-        return cachedDcTerminals.get(dcTerminalId);
-    }
-
-    @Override
     public String substation(CgmesTerminal t, boolean nodeBreaker) {
         CgmesContainer c = container(t, nodeBreaker);
         if (c == null) {
@@ -164,18 +156,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return ts;
     }
 
-    private Map<String, CgmesDcTerminal> computeDcTerminals() {
-        Map<String, CgmesDcTerminal> ts = new HashMap<>();
-        dcTerminals().forEach(t -> {
-            CgmesDcTerminal td = new CgmesDcTerminal(t);
-            if (ts.containsKey(td.id())) {
-                return;
-            }
-            ts.put(td.id(), td);
-        });
-        return ts;
-    }
-
     // TODO(Luma): better caches create an object "Cache" that is final ...
     // (avoid filling all places with if cached == null...)
     private Map<String, CgmesContainer> computeContainers() {
@@ -239,7 +219,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         cachedConnectivityNodes = null;
         cachedTopologicalNodes = null;
         cachedNodesById = null;
-        cachedDcTerminals = null;
     }
 
     private final Properties properties;
@@ -253,8 +232,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     protected PropertyBags cachedConnectivityNodes;
     protected PropertyBags cachedTopologicalNodes;
     private Map<String, PropertyBag> cachedNodesById;
-    // equipmentId, sequenceNumber, terminalId
-    private Map<String, CgmesDcTerminal> cachedDcTerminals;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesModel.class);
     private static final String SUBSTATION = "Substation";

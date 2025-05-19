@@ -587,12 +587,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public CgmesDcTerminal dcTerminal(String dcTerminalId) {
-        // FakeCgmesModel does not provide info on dcTerminals
-        return null;
-    }
-
-    @Override
     public String substation(CgmesTerminal t, boolean nodeBreaker) {
         return null;
     }
