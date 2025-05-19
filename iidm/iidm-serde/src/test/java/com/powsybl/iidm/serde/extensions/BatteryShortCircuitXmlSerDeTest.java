@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.IidmVersion;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -52,7 +53,8 @@ class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
 
         // Use an extension version which serialization name is not the default
         ExportOptions exportOptions = new ExportOptions()
-                .addExtensionVersion(BatteryShortCircuit.NAME, "1.0-legacy");
+                .addExtensionVersion(BatteryShortCircuit.NAME, "1.0-legacy")
+                .setVersion(IidmVersion.V_1_13.toString("."));
         Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/batteryShortCircuitRef_V1_0-legacy.xml", exportOptions);
 
         Battery bat2 = network2.getBattery("BAT");
@@ -73,7 +75,8 @@ class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
 
         // Use an extension version which serialization name is not the default
         ExportOptions exportOptions = new ExportOptions()
-                .addExtensionVersion(BatteryShortCircuit.NAME, "1.0-legacy-2");
+                .addExtensionVersion(BatteryShortCircuit.NAME, "1.0-legacy-2")
+                .setVersion(IidmVersion.V_1_13.toString("."));
         Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/batteryShortCircuitRef_V1_0-legacy-2.xml", exportOptions);
 
         Battery bat2 = network2.getBattery("BAT");
