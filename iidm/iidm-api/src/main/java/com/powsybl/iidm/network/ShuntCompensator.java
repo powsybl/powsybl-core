@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
 import java.util.OptionalInt;
 
 /**
@@ -153,8 +154,8 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    default OptionalInt findSolvedSectionCount() {
-        return OptionalInt.of(getSolvedSectionCount());
+    default Optional<Integer> findSolvedSectionCount() {
+        return Optional.ofNullable(getSolvedSectionCount());
     }
 
     /**
