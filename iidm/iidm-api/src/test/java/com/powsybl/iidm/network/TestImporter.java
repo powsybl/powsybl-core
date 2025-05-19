@@ -10,6 +10,7 @@ package com.powsybl.iidm.network;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -61,7 +62,8 @@ public class TestImporter implements Importer {
     public void update(Network network, ReadOnlyDataSource dataSource, Properties parameters, ReportNode reportNode) {
         if (reportNode != null) {
             reportNode.newReportNode()
-                    .withMessageTemplate("test", "Update model ${model}")
+                    .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME)
+                    .withMessageTemplate("testUpdateModel")
                     .withUntypedValue("model", "eurostagTutorialExample1")
                     .add();
         }
