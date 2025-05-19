@@ -28,28 +28,28 @@ class StaticVarCompensatorTest {
         assertEquals(7, network.getStaticVarCompensatorCount());
 
         StaticVarCompensator svc = network.getStaticVarCompensator("StaticVarCompensator");
-        assertTrue(checkControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, Double.NaN, Double.NaN, false));
+        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, Double.NaN, Double.NaN, false);
 
         svc = network.getStaticVarCompensator("StaticVarCompensator-voltageSetPoint");
-        assertTrue(checkControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, Double.NaN, Double.NaN, false));
+        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, Double.NaN, Double.NaN, false);
 
         svc = network.getStaticVarCompensator("StaticVarCompensator-voltage-svcControlMode");
-        assertTrue(checkControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, Double.NaN, Double.NaN, false));
+        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, Double.NaN, Double.NaN, false);
 
         svc = network.getStaticVarCompensator("StaticVarCompensator-voltageSetPoint-svcControlMode");
-        assertTrue(checkControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, 405.0, Double.NaN, false));
+        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, 405.0, Double.NaN, false);
 
         svc = network.getStaticVarCompensator("StaticVarCompensator-voltageSetPoint-svcControlMode-on");
-        assertTrue(checkControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, 405.0, Double.NaN, true));
+        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, 405.0, Double.NaN, true);
 
         svc = network.getStaticVarCompensator("StaticVarCompensator-reactivePower-svcControlMode");
-        assertTrue(checkControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, Double.NaN, Double.NaN, false));
+        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, Double.NaN, Double.NaN, false);
 
         svc = network.getStaticVarCompensator("StaticVarCompensator-reactivePower-svcControlMode-on");
-        assertTrue(checkControl(svc, StaticVarCompensator.RegulationMode.REACTIVE_POWER, Double.NaN, 10.0, true));
+        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.REACTIVE_POWER, Double.NaN, 10.0, true);
     }
 
-    private static boolean checkControl(StaticVarCompensator staticVarCompensator, StaticVarCompensator.RegulationMode defaultRegulationMode, double defaultTargetV, double defaultTargetQ, boolean regulating) {
+    private static void assertExpectedControl(StaticVarCompensator staticVarCompensator, StaticVarCompensator.RegulationMode defaultRegulationMode, double defaultTargetV, double defaultTargetQ, boolean regulating) {
         assertNotNull(staticVarCompensator);
         assertNotNull(staticVarCompensator.getRegulatingTerminal());
         double tol = 0.0000001;
@@ -57,6 +57,5 @@ class StaticVarCompensatorTest {
         assertEquals(defaultTargetQ, staticVarCompensator.getReactivePowerSetpoint(), tol);
         assertEquals(defaultRegulationMode, staticVarCompensator.getRegulationMode());
         assertEquals(regulating, staticVarCompensator.isRegulating());
-        return true;
     }
 }

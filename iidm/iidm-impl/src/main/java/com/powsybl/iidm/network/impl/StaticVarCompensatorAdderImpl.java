@@ -89,8 +89,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         String name = getName();
-        if (regulationMode == null) {
-            this.regulating = false;
+        if (!regulating && regulationMode == null) {
             this.regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
         }
 

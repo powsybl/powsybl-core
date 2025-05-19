@@ -73,8 +73,8 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
                 svc.setRegulating(false);
             } else {
                 svc.setReactivePowerSetpoint(-q);
-                svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
             }
+            svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
         }
 
         Terminal t = svc.getTerminal();

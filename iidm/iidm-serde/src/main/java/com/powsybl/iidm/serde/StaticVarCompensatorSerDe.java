@@ -44,7 +44,17 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
         context.getWriter().writeDoubleAttribute(voltageSetpointName[0], svc.getVoltageSetpoint());
         context.getWriter().writeDoubleAttribute(reactivePowerSetpointName[0], svc.getReactivePowerSetpoint());
 
-        context.getWriter().writeEnumAttribute("regulationMode", svc.getRegulationMode());
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
+            if (svc.isRegulating()) {
+                context.getWriter().writeEnumAttribute("regulationMode", svc.getRegulationMode());
+            } else {
+                context.getWriter().writeEnumAttribute("regulationMode", null);
+            }
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
+            context.getWriter().writeEnumAttribute("regulationMode", svc.getRegulationMode());
+            context.getWriter().writeBooleanAttribute("regulating", svc.isRegulating());
+        });
         writeNodeOrBus(null, svc.getTerminal(), context);
         writePQ(null, svc.getTerminal(), context.getWriter());
     }
@@ -76,11 +86,21 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
         double reactivePowerSetpoint = context.getReader().readDoubleAttribute(reactivePowerSetpointName[0]);
 
         StaticVarCompensator.RegulationMode regulationMode = context.getReader().readEnumAttribute("regulationMode", StaticVarCompensator.RegulationMode.class);
+        final boolean[] regulating = new boolean[1];
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
+            regulating[0] = regulationMode != null;
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
+            regulating[0] = context.getReader().readBooleanAttribute("regulating");
+        });
+
         adder.setBmin(bMin)
                 .setBmax(bMax)
                 .setVoltageSetpoint(voltageSetpoint)
                 .setReactivePowerSetpoint(reactivePowerSetpoint)
-                .setRegulationMode(regulationMode);
+                .setRegulationMode(regulationMode)
+                .setRegulating(regulating[0]);
+
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         StaticVarCompensator svc = adder.add();
         readPQ(null, svc.getTerminal(), context.getReader());

@@ -104,7 +104,7 @@
                 <iidm:shuntLinearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
             </iidm:shunt>
             <iidm:danglingLine id="newDanglingLine" p0="50.0" q0="60.0" r="10.0" x="20.0" g="30.0" b="40.0" node="22"/>
-            <iidm:staticVarCompensator id="newStaticVarCompensator" bMin="2.0E-4" bMax="8.0E-4" voltageSetpoint="390.0" reactivePowerSetpoint="1.0" regulationMode="VOLTAGE" node="26"/>
+            <iidm:staticVarCompensator id="newStaticVarCompensator" bMin="2.0E-4" bMax="8.0E-4" voltageSetpoint="390.0" reactivePowerSetpoint="1.0" regulationMode="VOLTAGE" regulating="false" node="26"/>
             <iidm:vscConverterStation id="newVscConverterStation" voltageRegulatorOn="true" lossFactor="1.1" voltageSetpoint="405.0" node="30">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:vscConverterStation>
