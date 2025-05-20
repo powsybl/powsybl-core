@@ -10,8 +10,8 @@ package com.powsybl.security;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.*;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 
