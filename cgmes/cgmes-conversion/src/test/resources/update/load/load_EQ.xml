@@ -78,10 +78,10 @@
     <cim:LoadResponseCharacteristic rdf:ID="_ConformLoad_LoadResponseCharacteristic">
         <cim:IdentifiedObject.name>ConformLoad_LoadResponseCharacteristic</cim:IdentifiedObject.name>
         <cim:LoadResponseCharacteristic.exponentModel>false</cim:LoadResponseCharacteristic.exponentModel>
-        <cim:LoadResponseCharacteristic.pConstantCurrent>0.3</cim:LoadResponseCharacteristic.pConstantCurrent>
+        <cim:LoadResponseCharacteristic.pConstantCurrent>0.2</cim:LoadResponseCharacteristic.pConstantCurrent>
         <cim:LoadResponseCharacteristic.pConstantImpedance>0</cim:LoadResponseCharacteristic.pConstantImpedance>
         <cim:LoadResponseCharacteristic.pConstantPower>0.8</cim:LoadResponseCharacteristic.pConstantPower>
-        <cim:LoadResponseCharacteristic.qConstantCurrent>0.4</cim:LoadResponseCharacteristic.qConstantCurrent>
+        <cim:LoadResponseCharacteristic.qConstantCurrent>0.3</cim:LoadResponseCharacteristic.qConstantCurrent>
         <cim:LoadResponseCharacteristic.qConstantImpedance>0</cim:LoadResponseCharacteristic.qConstantImpedance>
         <cim:LoadResponseCharacteristic.qConstantPower>0.7</cim:LoadResponseCharacteristic.qConstantPower>
     </cim:LoadResponseCharacteristic>
