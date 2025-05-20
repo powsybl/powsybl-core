@@ -172,12 +172,12 @@ public final class TopologyModificationUtils {
 
     public static void addLoadingLimits(Line created, LoadingLimitsBags limits, TwoSides side) {
         if (side == TwoSides.ONE) {
-            limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits1(), lim));
-            limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits1(), lim));
+            limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits(), lim));
+            limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits(), lim));
             limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits(), lim));
         } else {
-            limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits2(), lim));
-            limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits2(), lim));
+            limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits(), lim));
+            limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits(), lim));
             limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits(), lim));
         }
     }

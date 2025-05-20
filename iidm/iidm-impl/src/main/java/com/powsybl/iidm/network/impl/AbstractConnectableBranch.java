@@ -99,7 +99,7 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        return getOperationalLimitsHolder1().newCurrentLimits();
+        return getOperationalLimitsHolder1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
     @Override
@@ -114,12 +114,12 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return getOperationalLimitsHolder1().newActivePowerLimits();
+        return getOperationalLimitsHolder1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return getOperationalLimitsHolder1().newApparentPowerLimits();
+        return getOperationalLimitsHolder1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     private FlowsLimitsHolder getOperationalLimitsHolder2() {
@@ -168,17 +168,17 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        return getOperationalLimitsHolder2().newCurrentLimits();
+        return getOperationalLimitsHolder2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return getOperationalLimitsHolder2().newActivePowerLimits();
+        return getOperationalLimitsHolder2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return getOperationalLimitsHolder2().newApparentPowerLimits();
+        return getOperationalLimitsHolder2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override

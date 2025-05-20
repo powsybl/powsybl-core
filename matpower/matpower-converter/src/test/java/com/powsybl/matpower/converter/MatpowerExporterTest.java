@@ -204,7 +204,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
     void testWithApparentPowerLimits() throws IOException {
         var network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         var l = network.getLine("NHV1_NHV2_1");
-        l.newApparentPowerLimits1()
+        l.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits()
                 .setPermanentLimit(1000)
                 .beginTemporaryLimit()
                     .setName("1'")

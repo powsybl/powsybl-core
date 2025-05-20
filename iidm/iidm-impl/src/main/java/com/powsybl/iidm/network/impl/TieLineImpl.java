@@ -286,17 +286,17 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        return danglingLine1.newCurrentLimits();
+        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return danglingLine1.newActivePowerLimits();
+        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return danglingLine1.newApparentPowerLimits();
+        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override
@@ -341,17 +341,17 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        return danglingLine2.newCurrentLimits();
+        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return danglingLine2.newActivePowerLimits();
+        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return danglingLine2.newApparentPowerLimits();
+        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override

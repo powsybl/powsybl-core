@@ -121,12 +121,12 @@ public abstract class AbstractDanglingLineTest {
                 .add();
         assertEquals(100.0, danglingLine.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
-        danglingLine.newActivePowerLimits()
+        danglingLine.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(60.0)
                 .add();
         assertEquals(60.0, danglingLine.getActivePowerLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
-        danglingLine.newApparentPowerLimits()
+        danglingLine.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(132.0)
                 .add();
         assertEquals(132.0, danglingLine.getApparentPowerLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);

@@ -134,11 +134,11 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .endTemporaryLimit()
             .add();
         assertSame(currentLimitsInLeg1, leg1.getCurrentLimits().orElse(null));
-        ActivePowerLimits activePowerLimits1 = leg1.newActivePowerLimits()
+        ActivePowerLimits activePowerLimits1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(400)
                 .add();
         assertSame(activePowerLimits1, leg1.getActivePowerLimits().orElse(null));
-        ApparentPowerLimits apparentPowerLimits1 = leg1.newApparentPowerLimits()
+        ApparentPowerLimits apparentPowerLimits1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(2.4)
                 .add();
         assertSame(apparentPowerLimits1, leg1.getApparentPowerLimits().orElse(null));
@@ -1059,7 +1059,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .endTemporaryLimit();
         currentLimitsAdder1.add();
 
-        ActivePowerLimitsAdder activePowerLimitsAdder1 = leg1.newActivePowerLimits()
+        ActivePowerLimitsAdder activePowerLimitsAdder1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                 .setName("TL1")
@@ -1068,7 +1068,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .endTemporaryLimit();
         activePowerLimitsAdder1.add();
 
-        ApparentPowerLimitsAdder apparentPowerLimitsAdder1 = leg1.newApparentPowerLimits()
+        ApparentPowerLimitsAdder apparentPowerLimitsAdder1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                 .setName("TL1")
@@ -1087,13 +1087,13 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertTrue(optionalCurrentLimits2.isPresent());
         CurrentLimits currentLimits2 = optionalCurrentLimits2.get();
 
-        ActivePowerLimitsAdder activePowerLimitsAdder2 = leg2.newActivePowerLimits(activePowerLimits1);
+        ActivePowerLimitsAdder activePowerLimitsAdder2 = leg2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(activePowerLimits1);
         activePowerLimitsAdder2.add();
         Optional<ActivePowerLimits> optionalActivePowerLimits2 = leg2.getActivePowerLimits();
         assertTrue(optionalActivePowerLimits2.isPresent());
         ActivePowerLimits activePowerLimits2 = optionalActivePowerLimits2.get();
 
-        ApparentPowerLimitsAdder apparentPowerLimitsAdder2 = leg2.newApparentPowerLimits(apparentPowerLimits1);
+        ApparentPowerLimitsAdder apparentPowerLimitsAdder2 = leg2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(apparentPowerLimits1);
         apparentPowerLimitsAdder2.add();
         Optional<ApparentPowerLimits> optionalApparentPowerLimits2 = leg2.getApparentPowerLimits();
         assertTrue(optionalApparentPowerLimits2.isPresent());

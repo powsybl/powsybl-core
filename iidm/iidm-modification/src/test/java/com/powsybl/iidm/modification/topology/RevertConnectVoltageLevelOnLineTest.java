@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
@@ -77,12 +76,12 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         // create limits on tee point side
         Line line1 = network.getLine("CJ_1");
         Line line2 = network.getLine("CJ_2");
-        line1.newActivePowerLimits2().setPermanentLimit(100.).beginTemporaryLimit().setName("limit1").setValue(500).setAcceptableDuration(1200).endTemporaryLimit().add();
-        line1.newApparentPowerLimits2().setPermanentLimit(200.).add();
+        line1.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits().setPermanentLimit(100.).beginTemporaryLimit().setName("limit1").setValue(500).setAcceptableDuration(1200).endTemporaryLimit().add();
+        line1.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits().setPermanentLimit(200.).add();
         line1.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(100.).beginTemporaryLimit().setName("limit3").setValue(900).setAcceptableDuration(60).endTemporaryLimit().add();
 
-        line2.newActivePowerLimits1().setPermanentLimit(600.).beginTemporaryLimit().setName("limit4").setValue(1000).setAcceptableDuration(300).endTemporaryLimit().add();
-        line2.newApparentPowerLimits1().setPermanentLimit(800.).add();
+        line2.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits().setPermanentLimit(600.).beginTemporaryLimit().setName("limit4").setValue(1000).setAcceptableDuration(300).endTemporaryLimit().add();
+        line2.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits().setPermanentLimit(800.).add();
         line2.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(900.).beginTemporaryLimit().setName("limit6").setValue(400).setAcceptableDuration(1200).endTemporaryLimit().add();
 
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRevertConnectVoltageLevelOnLine", "Testing reportNode to revert connecting a voltage level on a line in node/breaker network").build();

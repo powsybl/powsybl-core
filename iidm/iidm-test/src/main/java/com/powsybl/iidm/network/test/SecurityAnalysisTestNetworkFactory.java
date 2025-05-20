@@ -321,11 +321,11 @@ public final class SecurityAnalysisTestNetworkFactory {
 
     public static Network createWithFixedPowerLimits(NetworkFactory networkFactory) {
         Network network = create(networkFactory);
-        network.getTwoWindingsTransformer(TWT).newActivePowerLimits1().setPermanentLimit(71).add();
-        network.getTwoWindingsTransformer(TWT2).newActivePowerLimits1().setPermanentLimit(55).add();
-        network.getLine(LINE_S1S2V1_1).newActivePowerLimits1().setPermanentLimit(55).add();
-        network.getLine(LINE_S1S2V1_2).newActivePowerLimits1().setPermanentLimit(55).add();
-        network.getLine(LINE_S1S2V2).newActivePowerLimits1().setPermanentLimit(30).add();
+        network.getTwoWindingsTransformer(TWT).getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits().setPermanentLimit(71).add();
+        network.getTwoWindingsTransformer(TWT2).getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits().setPermanentLimit(55).add();
+        network.getLine(LINE_S1S2V1_1).getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits().setPermanentLimit(55).add();
+        network.getLine(LINE_S1S2V1_2).getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits().setPermanentLimit(55).add();
+        network.getLine(LINE_S1S2V2).getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits().setPermanentLimit(30).add();
         return network;
     }
 }

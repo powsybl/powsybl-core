@@ -360,8 +360,8 @@ public class MatpowerImporter implements Importer {
                 // there is probably something to fix on IIDM API to not have sided apparent
                 // power limits. Apparent power does not depend on voltage so it does not make
                 // sens to associate the limit to a branch side.
-                createApparentPowerLimits(mBranch, branch.newApparentPowerLimits1());
-                createApparentPowerLimits(mBranch, branch.newApparentPowerLimits2());
+                createApparentPowerLimits(mBranch, branch.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits());
+                createApparentPowerLimits(mBranch, branch.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits());
             }
         }
     }

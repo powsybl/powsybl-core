@@ -170,11 +170,11 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
                 }
                 case ACTIVE_POWER_LIMITS -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(dl.newActivePowerLimits(), context));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(dl.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
                 }
                 case APPARENT_POWER_LIMITS -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(dl.newApparentPowerLimits(), context));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(dl.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
                 }
                 case CURRENT_LIMITS -> readCurrentLimits(dl.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> {

@@ -26,6 +26,9 @@ import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public abstract class AbstractLineTest {
@@ -673,24 +676,19 @@ public abstract class AbstractLineTest {
         assertEquals(1000., getLimits(group, limitType).get().getPermanentLimit());
     }
 
-    static Stream<Arguments> getPowerLimitType() {
-        return Stream.of(
-                Arguments.of(LimitType.APPARENT_POWER),
-                Arguments.of(LimitType.ACTIVE_POWER)
-        );
-    }
-
     static Stream<Arguments> getLimitType() {
         return Stream.of(
-                Arguments.of(LimitType.CURRENT)
+                Arguments.of(LimitType.CURRENT),
+                Arguments.of(LimitType.ACTIVE_POWER),
+                Arguments.of(LimitType.APPARENT_POWER)
         );
     }
 
     private LoadingLimitsAdder<?, ?> getAdder(Line l, LimitType limitType) {
         return switch (limitType) {
             case CURRENT -> l.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
-            case ACTIVE_POWER -> l.newActivePowerLimits1();
-            case APPARENT_POWER -> l.newApparentPowerLimits1();
+            case ACTIVE_POWER -> l.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits();
+            case APPARENT_POWER -> l.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits();
             default -> throw new IllegalArgumentException("Invalid type");
         };
     }
@@ -702,50 +700,6 @@ public abstract class AbstractLineTest {
             case APPARENT_POWER -> group.getApparentPowerLimits().map(LoadingLimits.class::cast);
             default -> throw new IllegalArgumentException("Invalid type");
         };
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("getPowerLimitType")
-    void dontChangeSelectedOperationalLimitsGroupIfAdderNotUsed(LimitType limitType) {
-        Line line = network.newLine()
-                .setId("line")
-                .setName(LINE_NAME)
-                .setR(1.0)
-                .setX(2.0)
-                .setBus1("busA")
-                .setBus2("busB")
-                .add();
-        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
-        assertTrue(line.getSelectedOperationalLimitsGroupId1().isEmpty());
-        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
-        LoadingLimitsAdder<?, ?> adder = getAdder(line, limitType);
-        adder.setPermanentLimit(1000.);
-        // The adder is voluntarily NOT added. The default group should not be updated.
-        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
-        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("getPowerLimitType")
-    void dontChangeDefaultOperationalLimitsGroupIfAdderValidationFails(LimitType limitType) {
-        Line line = network.newLine()
-                .setId("line")
-                .setName(LINE_NAME)
-                .setR(1.0)
-                .setX(2.0)
-                .setBus1("busA")
-                .setBus2("busB")
-                .add();
-        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
-        assertTrue(line.getSelectedOperationalLimitsGroupId1().isEmpty());
-        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
-        LoadingLimitsAdder<?, ?> adder = getAdder(line, limitType);
-        adder.setPermanentLimit(Double.NaN);
-        adder.beginTemporaryLimit().setName("10'").setValue(500.).setAcceptableDuration(600).endTemporaryLimit();
-        assertThrows(ValidationException.class, adder::add);
-        // The limits' validation of the adder fails. The default group should not be updated.
-        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
-        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
     }
 
     @ParameterizedTest(name = "{0}")

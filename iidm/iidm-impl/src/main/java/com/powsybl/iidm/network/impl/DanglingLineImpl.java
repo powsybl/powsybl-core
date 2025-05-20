@@ -482,17 +482,17 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        return operationalLimitsGroups.newCurrentLimits();
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        return operationalLimitsGroups.newActivePowerLimits();
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return operationalLimitsGroups.newApparentPowerLimits();
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override

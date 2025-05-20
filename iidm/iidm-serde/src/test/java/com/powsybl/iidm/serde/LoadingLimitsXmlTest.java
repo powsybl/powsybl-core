@@ -31,9 +31,9 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         Network network = DanglingLineNetworkFactory.create();
         network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
         DanglingLine dl = network.getDanglingLine("DL");
-        createLoadingLimits(dl::newActivePowerLimits);
-        createLoadingLimits(dl::newApparentPowerLimits);
         OperationalLimitsGroup operationalLimitsGroup = dl.getOrCreateSelectedOperationalLimitsGroup();
+        createLoadingLimits(operationalLimitsGroup::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup::newApparentPowerLimits);
         createLoadingLimits(operationalLimitsGroup::newCurrentLimits);
         allFormatsRoundTripTest(network, "dl-loading-limits.xml", CURRENT_IIDM_VERSION);
 
@@ -62,22 +62,22 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
         Line line = network.getLine("NHV1_NHV2_2");
-        createLoadingLimits(line::newActivePowerLimits1);
-        createLoadingLimits(line::newActivePowerLimits2);
-        createLoadingLimits(line::newApparentPowerLimits1);
-        createLoadingLimits(line::newApparentPowerLimits2);
         OperationalLimitsGroup operationalLimitsGroup1 = line.getOrCreateSelectedOperationalLimitsGroup1();
-        createLoadingLimits(operationalLimitsGroup1::newCurrentLimits);
         OperationalLimitsGroup operationalLimitsGroup2 = line.getOrCreateSelectedOperationalLimitsGroup2();
+        createLoadingLimits(operationalLimitsGroup1::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup2::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup1::newApparentPowerLimits);
+        createLoadingLimits(operationalLimitsGroup2::newApparentPowerLimits);
+        createLoadingLimits(operationalLimitsGroup1::newCurrentLimits);
         createLoadingLimits(operationalLimitsGroup2::newCurrentLimits);
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NGEN_NHV1");
-        createLoadingLimits(twt::newActivePowerLimits1);
-        createLoadingLimits(twt::newActivePowerLimits2);
-        createLoadingLimits(twt::newApparentPowerLimits1);
-        createLoadingLimits(twt::newApparentPowerLimits2);
         operationalLimitsGroup1 = twt.getOrCreateSelectedOperationalLimitsGroup1();
-        createLoadingLimits(operationalLimitsGroup1::newCurrentLimits);
         operationalLimitsGroup2 = twt.getOrCreateSelectedOperationalLimitsGroup2();
+        createLoadingLimits(operationalLimitsGroup1::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup2::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup1::newApparentPowerLimits);
+        createLoadingLimits(operationalLimitsGroup2::newApparentPowerLimits);
+        createLoadingLimits(operationalLimitsGroup1::newCurrentLimits);
         createLoadingLimits(operationalLimitsGroup2::newCurrentLimits);
         allFormatsRoundTripTest(network, "eurostag-loading-limits.xml", CURRENT_IIDM_VERSION);
 
@@ -105,12 +105,12 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
     void testTieLine() throws IOException {
         Network network = NetworkSerDe.read(getVersionedNetworkAsStream("tieline.xml", CURRENT_IIDM_VERSION));
         TieLine tl = network.getTieLine("NHV1_NHV2_1");
-        createLoadingLimits(tl.getDanglingLine1()::newActivePowerLimits);
-        createLoadingLimits(tl.getDanglingLine2()::newActivePowerLimits);
-        createLoadingLimits(tl.getDanglingLine1()::newApparentPowerLimits);
-        createLoadingLimits(tl.getDanglingLine2()::newApparentPowerLimits);
         OperationalLimitsGroup operationalLimitsGroup1 = tl.getOrCreateSelectedOperationalLimitsGroup1();
         OperationalLimitsGroup operationalLimitsGroup2 = tl.getOrCreateSelectedOperationalLimitsGroup2();
+        createLoadingLimits(operationalLimitsGroup1::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup2::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup1::newApparentPowerLimits);
+        createLoadingLimits(operationalLimitsGroup2::newApparentPowerLimits);
         createLoadingLimits(operationalLimitsGroup1::newCurrentLimits);
         createLoadingLimits(operationalLimitsGroup2::newCurrentLimits);
         allFormatsRoundTripTest(network, "tl-loading-limits.xml", CURRENT_IIDM_VERSION);
@@ -139,12 +139,12 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
     void testThreeWindingsTransformer() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
-        createLoadingLimits(() -> twt.getLeg1().newActivePowerLimits());
-        createLoadingLimits(() -> twt.getLeg1().newApparentPowerLimits());
-        createLoadingLimits(() -> twt.getLeg2().newActivePowerLimits());
-        createLoadingLimits(() -> twt.getLeg2().newApparentPowerLimits());
-        createLoadingLimits(() -> twt.getLeg3().newActivePowerLimits());
-        createLoadingLimits(() -> twt.getLeg3().newApparentPowerLimits());
+        createLoadingLimits(() -> twt.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits());
+        createLoadingLimits(() -> twt.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits());
+        createLoadingLimits(() -> twt.getLeg2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits());
+        createLoadingLimits(() -> twt.getLeg2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits());
+        createLoadingLimits(() -> twt.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits());
+        createLoadingLimits(() -> twt.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits());
         allFormatsRoundTripTest(network, "t3w-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
