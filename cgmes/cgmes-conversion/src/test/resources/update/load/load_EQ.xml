@@ -90,4 +90,41 @@
         <cim:Terminal.ConductingEquipment rdf:resource="#_ConformLoad" />
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
     </cim:Terminal>
+    <cim:EnergyConsumer rdf:ID="_EnergyConsumerOnlyEQ">
+        <cim:IdentifiedObject.name>EnergyConsumerOnlyEQ</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_EnergyConsumerOnlyEQ_T">
+        <cim:IdentifiedObject.name>EnergyConsumer_T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_EnergyConsumerOnlyEQ" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+    <cim:AsynchronousMachine rdf:ID="_AsynchronousMachineOnlyEQ">
+        <cim:IdentifiedObject.name>AsynchronousMachineOnlyEQ</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+        <cim:RotatingMachine.ratedPowerFactor>0.89</cim:RotatingMachine.ratedPowerFactor>
+        <cim:RotatingMachine.ratedS>2.321</cim:RotatingMachine.ratedS>
+        <cim:RotatingMachine.ratedU>10</cim:RotatingMachine.ratedU>
+        <cim:AsynchronousMachine.converterFedDrive>false</cim:AsynchronousMachine.converterFedDrive>
+        <cim:AsynchronousMachine.efficiency>96.8</cim:AsynchronousMachine.efficiency>
+        <cim:AsynchronousMachine.iaIrRatio>5.2</cim:AsynchronousMachine.iaIrRatio>
+        <cim:AsynchronousMachine.polePairNumber>2</cim:AsynchronousMachine.polePairNumber>
+        <cim:AsynchronousMachine.ratedMechanicalPower>2</cim:AsynchronousMachine.ratedMechanicalPower>
+        <cim:AsynchronousMachine.reversible>false</cim:AsynchronousMachine.reversible>
+        <cim:AsynchronousMachine.rxLockedRotorRatio>0.1</cim:AsynchronousMachine.rxLockedRotorRatio>
+    </cim:AsynchronousMachine>
+    <cim:Terminal rdf:ID="_AsynchronousMachineOnlyEQ_T">
+        <cim:IdentifiedObject.name>AsynchronousMachine_T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_AsynchronousMachineOnlyEQ" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+    <cim:EnergySource rdf:ID="_EnergySourceOnlyEQ">
+        <cim:IdentifiedObject.name>EnergySourceOnlyEq</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1"/>
+    </cim:EnergySource>
+    <cim:Terminal rdf:ID="_EnergySourceOnlyEQ_T">
+        <cim:IdentifiedObject.name>EnergySource_T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_EnergySourceOnlyEQ" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
 </rdf:RDF>
