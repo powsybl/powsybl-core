@@ -91,6 +91,7 @@
     <properties>
         <java.version>17</java.version>
 
+        <argLine/> <!--  This is required for later correct replacement of argline -->
         <sonar.coverage.jacoco.xmlReportPaths>
             ../distribution-core/target/site/jacoco-aggregate/jacoco.xml,
             ../../distribution-core/target/site/jacoco-aggregate/jacoco.xml,
@@ -190,7 +191,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <argLine>-Duser.language=en -Duser.region=US</argLine>
+                            <argLine>@{argLine} -Duser.language=en -Duser.region=US</argLine>
                             <excludedGroups>dockerTests</excludedGroups>
                         </configuration>
                     </plugin>
