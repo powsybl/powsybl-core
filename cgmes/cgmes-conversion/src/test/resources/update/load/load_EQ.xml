@@ -70,4 +70,24 @@
         <cim:Terminal.ConductingEquipment rdf:resource="#_AsynchronousMachine" />
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
     </cim:Terminal>
+    <cim:ConformLoad rdf:ID="_ConformLoad">
+        <cim:IdentifiedObject.name>ConformLoad</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+        <cim:EnergyConsumer.LoadResponse rdf:resource="#_ConformLoad_LoadResponseCharacteristic" />
+    </cim:ConformLoad>
+    <cim:LoadResponseCharacteristic rdf:ID="_ConformLoad_LoadResponseCharacteristic">
+        <cim:IdentifiedObject.name>ConformLoad_LoadResponseCharacteristic</cim:IdentifiedObject.name>
+        <cim:LoadResponseCharacteristic.exponentModel>false</cim:LoadResponseCharacteristic.exponentModel>
+        <cim:LoadResponseCharacteristic.pConstantCurrent>0.2</cim:LoadResponseCharacteristic.pConstantCurrent>
+        <cim:LoadResponseCharacteristic.pConstantImpedance>0</cim:LoadResponseCharacteristic.pConstantImpedance>
+        <cim:LoadResponseCharacteristic.pConstantPower>0.8</cim:LoadResponseCharacteristic.pConstantPower>
+        <cim:LoadResponseCharacteristic.qConstantCurrent>0.3</cim:LoadResponseCharacteristic.qConstantCurrent>
+        <cim:LoadResponseCharacteristic.qConstantImpedance>0</cim:LoadResponseCharacteristic.qConstantImpedance>
+        <cim:LoadResponseCharacteristic.qConstantPower>0.7</cim:LoadResponseCharacteristic.qConstantPower>
+    </cim:LoadResponseCharacteristic>
+    <cim:Terminal rdf:ID="_ConformLoad_T">
+        <cim:IdentifiedObject.name>ConformLoad_T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ConformLoad" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
 </rdf:RDF>

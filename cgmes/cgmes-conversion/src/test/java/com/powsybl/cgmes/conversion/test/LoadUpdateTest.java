@@ -28,7 +28,7 @@ class LoadUpdateTest {
     @Test
     void importEqTest() {
         Network network = readCgmesResources(DIR, "load_EQ.xml");
-        assertEquals(3, network.getLoadCount());
+        assertEquals(4, network.getLoadCount());
 
         Load loadEnergyConsumer = network.getLoad("EnergyConsumer");
         assertTrue(checkEq(loadEnergyConsumer));
@@ -38,12 +38,15 @@ class LoadUpdateTest {
 
         Load loadAsynchronousMachine = network.getLoad("AsynchronousMachine");
         assertTrue(checkEq(loadAsynchronousMachine));
+
+        Load conformLoad = network.getLoad("ConformLoad");
+        assertTrue(checkEq(conformLoad));
     }
 
     @Test
     void importEqAndSshTogetherTest() {
         Network network = readCgmesResources(DIR, "load_EQ.xml", "load_SSH.xml");
-        assertEquals(3, network.getLoadCount());
+        assertEquals(4, network.getLoadCount());
 
         Load loadEnergyConsumer = network.getLoad("EnergyConsumer");
         assertTrue(checkSsh(loadEnergyConsumer, 10.0, 5.0));
@@ -53,12 +56,15 @@ class LoadUpdateTest {
 
         Load loadAsynchronousMachine = network.getLoad("AsynchronousMachine");
         assertTrue(checkSsh(loadAsynchronousMachine, 200.0, 50.0));
+
+        Load conformLoad = network.getLoad("ConformLoad");
+        assertTrue(checkSsh(conformLoad, 486.0, 230.0));
     }
 
     @Test
     void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "load_EQ.xml");
-        assertEquals(3, network.getLoadCount());
+        assertEquals(4, network.getLoadCount());
 
         Load loadEnergyConsumer = network.getLoad("EnergyConsumer");
         assertTrue(checkEq(loadEnergyConsumer));
@@ -66,23 +72,28 @@ class LoadUpdateTest {
         assertTrue(checkEq(loadEnergySource));
         Load loadAsynchronousMachine = network.getLoad("AsynchronousMachine");
         assertTrue(checkEq(loadAsynchronousMachine));
+        Load conformLoad = network.getLoad("ConformLoad");
+        assertTrue(checkEq(conformLoad));
 
         readCgmesResources(network, DIR, "load_SSH.xml");
 
         assertTrue(checkSsh(loadEnergyConsumer, 10.0, 5.0));
         assertTrue(checkSsh(loadEnergySource, -200.0, -90.0));
         assertTrue(checkSsh(loadAsynchronousMachine, 200.0, 50.0));
+        assertTrue(checkSsh(conformLoad, 486.0, 230.0));
 
         readCgmesResources(network, DIR, "load_SSH_1.xml");
 
         assertTrue(checkSsh(loadEnergyConsumer, 10.5, 5.5));
         assertTrue(checkSsh(loadEnergySource, -200.5, -90.5));
         assertTrue(checkSsh(loadAsynchronousMachine, 200.5, 50.5));
+        assertTrue(checkSsh(conformLoad, 490.0, 235.0));
 
         readCgmesResources(network, DIR, "load_SV.xml");
         assertTrue(checkFlows(loadEnergyConsumer.getTerminal(), 100.0, 50.0));
         assertTrue(checkFlows(loadEnergySource.getTerminal(), 20.0, 10.0));
         assertTrue(checkFlows(loadAsynchronousMachine.getTerminal(), 10.0, 5.0));
+        assertTrue(checkFlows(conformLoad.getTerminal(), -490.0, -235.0));
     }
 
     private static boolean checkEq(Load load) {
