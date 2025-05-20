@@ -88,12 +88,8 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
 
         StaticVarCompensator.RegulationMode regulationMode = context.getReader().readEnumAttribute(REGULATION_MODE, StaticVarCompensator.RegulationMode.class);
         final boolean[] regulating = new boolean[1];
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
-            regulating[0] = regulationMode != null;
-        });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
-            regulating[0] = context.getReader().readBooleanAttribute("regulating");
-        });
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> regulating[0] = regulationMode != null);
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> regulating[0] = context.getReader().readBooleanAttribute("regulating"));
 
         adder.setBmin(bMin)
                 .setBmax(bMax)
