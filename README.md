@@ -1,7 +1,7 @@
 # PowSyBl Core
 
 
-[![Actions Status](https://github.com/powsybl/powsybl-core/workflows/CI/badge.svg)](https://github.com/powsybl/powsybl-core/actions)
+[![Actions Status](https://github.com/powsybl/powsybl-core/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/powsybl/powsybl-core/actions)
 [![Coverage Status](https://sonarcloud.io/api/project_badges/measure?project=com.powsybl%3Apowsybl-core&metric=coverage)](https://sonarcloud.io/component_measures?id=com.powsybl%3Apowsybl-core&metric=coverage)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=com.powsybl%3Apowsybl-core&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.powsybl%3Apowsybl-core)
 
@@ -136,7 +136,7 @@ This is needed to download the Maven Wrapper distribution ;
 Notes:
 - The 4 `XXX` occurrences should be replaced with your configuration;
 - The `-Djdk.http.auth.tunneling.disabledSchemes=` option should be left empty;
-- Windows users should use `mvnw.cmd` instead of `./mwn`.
+- Windows users should use `mvnw.cmd` instead of `./mvnw`.
 
 This second step is required to download the Maven distribution.
 

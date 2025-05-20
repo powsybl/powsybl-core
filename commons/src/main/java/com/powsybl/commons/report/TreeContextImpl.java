@@ -19,20 +19,29 @@ import java.util.*;
 public class TreeContextImpl implements TreeContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(TreeContextImpl.class);
     private final SortedMap<String, String> dictionary = new TreeMap<>();
-    private final boolean timestamps;
+    private final Locale locale;
     private final DateTimeFormatter timestampFormatter;
 
     public TreeContextImpl() {
-        this(false);
+        this(ReportConstants.DEFAULT_LOCALE, ReportConstants.DEFAULT_TIMESTAMP_PATTERN);
     }
 
-    public TreeContextImpl(boolean timestamps) {
-        this(timestamps, ReportConstants.DEFAULT_TIMESTAMP_FORMATTER);
+    public TreeContextImpl(Locale locale, String timestampPattern) {
+        this.locale = Objects.requireNonNullElse(locale, ReportConstants.DEFAULT_LOCALE);
+        this.timestampFormatter = createDateTimeFormatter(timestampPattern, locale);
     }
 
-    public TreeContextImpl(boolean timestamps, DateTimeFormatter dateTimeFormatter) {
-        this.timestamps = timestamps;
-        this.timestampFormatter = Objects.requireNonNull(dateTimeFormatter);
+    private static DateTimeFormatter createDateTimeFormatter(String timestampPattern, Locale locale) {
+        if (timestampPattern == null && locale == null) {
+            return ReportConstants.DEFAULT_TIMESTAMP_FORMATTER;
+        }
+        if (timestampPattern == null) {
+            return DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN, locale);
+        }
+        if (locale == null) {
+            return DateTimeFormatter.ofPattern(timestampPattern, ReportConstants.DEFAULT_LOCALE);
+        }
+        return DateTimeFormatter.ofPattern(timestampPattern, locale);
     }
 
     @Override
@@ -41,13 +50,13 @@ public class TreeContextImpl implements TreeContext {
     }
 
     @Override
-    public DateTimeFormatter getTimestampFormatter() {
+    public DateTimeFormatter getDefaultTimestampFormatter() {
         return timestampFormatter;
     }
 
     @Override
-    public boolean isTimestampAdded() {
-        return timestamps;
+    public Locale getLocale() {
+        return locale;
     }
 
     @Override
@@ -55,7 +64,15 @@ public class TreeContextImpl implements TreeContext {
         otherContext.getDictionary().forEach(this::addDictionaryEntry);
     }
 
+    @Override
+    public void addDictionaryEntry(String key, MessageTemplateProvider messageTemplateProvider) {
+        Objects.requireNonNull(messageTemplateProvider);
+        addDictionaryEntry(key, messageTemplateProvider.getTemplate(key, locale));
+    }
+
     public synchronized void addDictionaryEntry(String key, String messageTemplate) {
+        Objects.requireNonNull(key);
+        Objects.requireNonNull(messageTemplate);
         dictionary.merge(key, messageTemplate, (prevMsg, newMsg) -> mergeEntries(key, prevMsg, newMsg));
     }
 
