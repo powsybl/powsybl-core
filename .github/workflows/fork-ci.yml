@@ -60,7 +60,7 @@ jobs:
             let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
                owner: "powsybl",
                repo: "powsybl-core",
-               run_id: 15158317092,
+               run_id: 15160840553,
             });
             let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
               return artifact.name.startsWith("data-for-sonar-analysis-")
