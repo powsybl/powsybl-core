@@ -68,7 +68,7 @@ jobs:
             let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
                owner: "powsybl",
                repo: "powsybl-core",
-               run_id: 15160840553,
+               run_id: 15162448074,
             });
             let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
               return artifact.name.startsWith("data-for-sonar-analysis-")
@@ -114,25 +114,25 @@ jobs:
             echo "Warning: Jacoco report not found at expected location"
           fi
           echo "Finding sources and binaries..."
-          SOURCES=$(find . -type d -path "*/main/java" | paste -sd "," -)
+          SOURCES=$(find . -type d -path "*/main/java" | sort -u | paste -sd "," -)
           if [ -z "$SOURCES" ]; then
             echo "Warning: No source directories found!"
           else
             echo "SOURCES : $SOURCES"
           fi
-          GENERATED=$(find . -type d -path "*/target/generated-sources" | paste -sd "," -)
+          GENERATED=$(find . -type d -path "*/target/generated-sources" | sort -u | paste -sd "," -)
           if [ -z "$GENERATED" ]; then
             echo "Warning: No generated source directories found!"
           else
             echo "GENERATED : $GENERATED"
           fi
-          TESTS=$(find . -type f -path "*/test/java/*.java" -exec dirname {} \; | sort -u | paste -sd "," -)
+          TESTS=$(find . -type d -path "*/test/java" | sort -u | paste -sd "," -)
           if [ -z "$TESTS" ]; then
             echo "Warning: No test directories found!"
           else
             echo "TESTS : $TESTS"
           fi
-          BINARIES=$(find . -type d -path "*/target/classes" | paste -sd "," -)
+          BINARIES=$(find . -type d -path "*/target/classes" | sort -u | paste -sd "," -)
           if [ -z "$BINARIES" ]; then
             echo "Warning: No binaries directories found!"
           else
