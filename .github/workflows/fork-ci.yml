@@ -101,12 +101,8 @@ jobs:
           cp -r ${{ runner.temp }}/extracted/* .
           ls -la distribution-core/target/site/jacoco-aggregate/ || echo "Jacoco report directory not found"
 
-      - name: Run Sonar Analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Prepare Sonar Analysis
         run: |
-          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.1.0.4889-linux-x64.zip
-          unzip sonar-scanner-cli-*.zip
           echo "Checking required directories..."
           if [ -f "distribution-core/target/site/jacoco-aggregate/jacoco.xml" ]; then
             echo "Jacoco report found"
@@ -119,45 +115,55 @@ jobs:
             echo "Warning: No source directories found!"
           else
             echo "SOURCES : $SOURCES"
+            echo "SOURCES=$SOURCES" >> $GITHUB_ENV
           fi
           GENERATED=$(find . -type d -path "*/target/generated-sources" | sort -u | paste -sd "," -)
           if [ -z "$GENERATED" ]; then
             echo "Warning: No generated source directories found!"
           else
             echo "GENERATED : $GENERATED"
+            echo "GENERATED=$GENERATED" >> $GITHUB_ENV
           fi
           TESTS=$(find . -type d -path "*/test/java" | sort -u | paste -sd "," -)
           if [ -z "$TESTS" ]; then
             echo "Warning: No test directories found!"
           else
             echo "TESTS : $TESTS"
+            echo "TESTS=$TESTS" >> $GITHUB_ENV
           fi
           BINARIES=$(find . -type d -path "*/target/classes" | sort -u | paste -sd "," -)
           if [ -z "$BINARIES" ]; then
             echo "Warning: No binaries directories found!"
           else
             echo "BINARIES : $BINARIES"
+            echo "BINARIES=$BINARIES" >> $GITHUB_ENV
           fi
           LIBRARIES="distribution-core/target/dependency"
           if [ -z "$LIBRARIES" ]; then
             echo "Warning: No libraries directory found!"
           else
             echo "LIBRARIES : $LIBRARIES"
+            echo "LIBRARIES=$LIBRARIES" >> $GITHUB_ENV
           fi
-          echo "Running Sonar analysis..."
-          ./sonar-scanner-*/bin/sonar-scanner \
-            -Dsonar.projectKey=com.powsybl:powsybl-core \
-            -Dsonar.organization=powsybl-ci-github \
-            -Dsonar.sources="$SOURCES" \
-            -Dsonar.generatedSources="$GENERATED" \
-            -Dsonar.tests="$TESTS" \
-            -Dsonar.java.binaries="$BINARIES" \
-            -Dsonar.java.libraries="$LIBRARIES" \
-            -Dsonar.java.test.libraries="$LIBRARIES" \
-            -Dsonar.coverage.jacoco.xmlReportPaths="distribution-core/target/site/jacoco-aggregate/jacoco.xml" \
-            -Dsonar.pullrequest.key="${{ env.PR_NUMBER }}" \
-            -Dsonar.pullrequest.branch="$(git rev-parse --abbrev-ref HEAD)" \
-            -Dsonar.pullrequest.base="main" \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.scm.provider=git \
+
+      - name: Run Sonar Analysis
+        uses: SonarSource/sonarqube-scan-action@2500896589ef8f7247069a56136f8dc177c27ccf # v5.2.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=com.powsybl:powsybl-core
+            -Dsonar.organization=powsybl-ci-github
+            -Dsonar.sources="${{ env.SOURCES }}"
+            -Dsonar.generatedSources="${{ env.GENERATED }}"
+            -Dsonar.tests="${{ env.TESTS }}"
+            -Dsonar.java.binaries="${{ env.BINARIES }}"
+            -Dsonar.java.libraries="${{ env.LIBRARIES }}"
+            -Dsonar.java.test.libraries="${{ env.LIBRARIES }}"
+            -Dsonar.coverage.jacoco.xmlReportPaths="distribution-core/target/site/jacoco-aggregate/jacoco.xml"
+            -Dsonar.pullrequest.key="${{ env.PR_NUMBER }}"
+            -Dsonar.pullrequest.branch="$(git rev-parse --abbrev-ref HEAD)"
+            -Dsonar.pullrequest.base="main"
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.scm.provider=git
             -Dsonar.log.level=debug
