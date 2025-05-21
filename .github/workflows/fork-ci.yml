@@ -1,0 +1,50 @@
+name: CI on forks - build and tests
+
+on:
+  pull_request:
+
+permissions: {}
+
+jobs:
+  build:
+    name: Build OS ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93 # v4.0.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build with Maven (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: ./mvnw --batch-mode -Dpowsybl.docker-unit-tests.skip=false -Pjacoco install
+
+#      - name: Save PR number to file
+#        if: matrix.os == 'ubuntu-latest'
+#        env:
+#          PR_NUMBER: ${{ github.event.number }}
+#        run: |
+#          mkdir -p ./pr
+#          echo $PR_NUMBER > ./pr/pr_number
+
+#      - name: Save JacocoReport
+#        if: github.event_name == 'pull_request' && matrix.os == 'ubuntu-latest'
+#        run: |
+#          cp distribution-core/target/site/jacoco-aggregate/jacoco.xml ./pr
+
+      - name: Save classes and Jacoco report
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-for-sonar-analysis-${{ github.event.pull_request.number }}
+          path: |
+            */target/classes
+            distribution-core/target/site/jacoco-aggregate/jacoco.xml
+
