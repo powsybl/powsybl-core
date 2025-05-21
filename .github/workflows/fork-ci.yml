@@ -91,7 +91,6 @@ jobs:
         run: |
           wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.1.0.4889-linux-x64.zip
           unzip sonar-scanner-cli-*.zip
-          export PATH="$PWD/sonar-scanner-*/bin:$PATH"
           echo "Checking required directories..."
           if [ -f "distribution-core/target/site/jacoco-aggregate/jacoco.xml" ]; then
             echo "Jacoco report found"
@@ -102,7 +101,7 @@ jobs:
           SOURCES=$(find . -name src -type d -path "*/main/*" -print | paste -sd "," -)
           BINARIES=$(find . -type d -path "*/target/classes" | paste -sd "," -)
           echo "Running Sonar analysis..."
-          sonar-scanner \
+          ./sonar-scanner-*/bin/sonar-scanner \
             -Dsonar.projectKey=com.powsybl:powsybl-core \
             -Dsonar.organization=powsybl-ci-github \
             -Dsonar.sources="$SOURCES" \
