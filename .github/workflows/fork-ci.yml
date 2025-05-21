@@ -88,6 +88,8 @@ jobs:
           ls -la distribution-core/target/site/jacoco-aggregate/ || echo "Jacoco report directory not found"
 
       - name: Run Sonar Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.1.0.4889-linux-x64.zip
           unzip sonar-scanner-cli-*.zip
@@ -110,6 +112,5 @@ jobs:
             -Dsonar.pullrequest.key="${{ env.PR_NUMBER }}" \
             -Dsonar.pullrequest.branch="$(git rev-parse --abbrev-ref HEAD)" \
             -Dsonar.pullrequest.base="main" \
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.scm.provider=git
