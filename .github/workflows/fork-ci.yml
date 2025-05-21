@@ -103,14 +103,20 @@ jobs:
           SOURCES=$(find . -type d -path "*/main/java" | paste -sd "," -)
           if [ -z "$SOURCES" ]; then
             echo "Warning: No source directories found!"
+          else
+            echo "SOURCES : $SOURCES"
           fi
           TESTS=$(find . -type d -path "*/test/java" | paste -sd "," -)
           if [ -z "$TESTS" ]; then
             echo "Warning: No test directories found!"
+          else
+            echo "TESTS : $TESTS"
           fi
           BINARIES=$(find . -type d -path "*/target/classes" | paste -sd "," -)
           if [ -z "$BINARIES" ]; then
             echo "Warning: No binaries directories found!"
+          else
+            echo "BINARIES : $BINARIES"
           fi
           echo "Running Sonar analysis..."
           ./sonar-scanner-*/bin/sonar-scanner \
@@ -124,4 +130,5 @@ jobs:
             -Dsonar.pullrequest.branch="$(git rev-parse --abbrev-ref HEAD)" \
             -Dsonar.pullrequest.base="main" \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.scm.provider=git
+            -Dsonar.scm.provider=git \
+            -Dsonar.log.level=debug
