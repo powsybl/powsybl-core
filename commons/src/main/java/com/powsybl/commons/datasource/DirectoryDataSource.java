@@ -59,6 +59,11 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
                         boolean allFiles, DataSourceObserver observer) {
         super(directory, baseName, dataExtension, compressionFormat, observer);
         this.allFiles = allFiles;
+        if (true) {
+            System.out.println("DirectoryDataSource true");
+        } else {
+            System.out.println("DirectoryDataSource false");
+        }
     }
 
     public boolean isAllFiles() {
