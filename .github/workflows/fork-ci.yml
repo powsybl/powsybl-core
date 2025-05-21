@@ -110,7 +110,6 @@ jobs:
             -Dsonar.pullrequest.key="${{ env.PR_NUMBER }}" \
             -Dsonar.pullrequest.branch="$(git rev-parse --abbrev-ref HEAD)" \
             -Dsonar.pullrequest.base="main" \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.scm.provider=git \
-            -Dsonar.verbose=true
+            -Dsonar.scm.provider=git
