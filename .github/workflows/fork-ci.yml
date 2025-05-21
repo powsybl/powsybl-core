@@ -33,6 +33,8 @@ jobs:
           name: data-for-sonar-analysis-${{ github.event.pull_request.number }}
           path: |
             */target/classes
+            */*/target/classes
+            */*/*/target/classes
             distribution-core/target/site/jacoco-aggregate/jacoco.xml
 
   sonar:
