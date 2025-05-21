@@ -86,3 +86,32 @@ jobs:
           unzip -q ${{ runner.temp }}/artifacts/sonar-data.zip -d ${{ runner.temp }}/extracted
           cp -r ${{ runner.temp }}/extracted/* .
           ls -la distribution-core/target/site/jacoco-aggregate/ || echo "Jacoco report directory not found"
+
+      - name: Run Sonar Analysis
+        run: |
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.1.0.4889-linux-x64.zip
+          unzip sonar-scanner-cli-*.zip
+          export PATH="$PWD/sonar-scanner-*/bin:$PATH"
+          echo "Checking required directories..."
+          if [ -f "distribution-core/target/site/jacoco-aggregate/jacoco.xml" ]; then
+            echo "Jacoco report found"
+          else
+            echo "Warning: Jacoco report not found at expected location"
+          fi
+          echo "Finding sources and binaries..."
+          SOURCES=$(find . -name src -type d -path "*/main/*" -print | paste -sd "," -)
+          BINARIES=$(find . -type d -path "*/target/classes" | paste -sd "," -)
+          echo "Running Sonar analysis..."
+          sonar-scanner \
+            -Dsonar.projectKey=com.powsybl:powsybl-core \
+            -Dsonar.organization=powsybl-ci-github \
+            -Dsonar.sources="$SOURCES" \
+            -Dsonar.java.binaries="$BINARIES" \
+            -Dsonar.coverage.jacoco.xmlReportPaths="distribution-core/target/site/jacoco-aggregate/jacoco.xml" \
+            -Dsonar.pullrequest.key="${{ env.PR_NUMBER }}" \
+            -Dsonar.pullrequest.branch="$(git rev-parse --abbrev-ref HEAD)" \
+            -Dsonar.pullrequest.base="main" \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.scm.provider=git \
+            -Dsonar.verbose=true
