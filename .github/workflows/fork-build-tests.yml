@@ -42,6 +42,7 @@ jobs:
         run: ./mvnw dependency:copy-dependencies
 
       - name: Save classes and Jacoco report
+        if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: data-for-sonar-analysis-${{ github.event.pull_request.number }}
