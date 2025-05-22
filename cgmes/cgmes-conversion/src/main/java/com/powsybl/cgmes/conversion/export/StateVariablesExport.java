@@ -687,13 +687,15 @@ public final class StateVariablesExport {
             poleLoss = p * converterStation.getLossFactor() / 100;
         } else {
             double p = converterStation.getTerminal().getP();
-            if (Double.isNaN(p)) {
+            if (!Double.isNaN(p)) {
+                poleLoss = Math.abs(p) * converterStation.getLossFactor() / (100 - converterStation.getLossFactor());
+            } else {
                 p = hvdcLine.getActivePowerSetpoint();
+                double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
+                double pDCRectifier = Math.abs(p) * (1 - otherConverterStationLossFactor / 100);
+                double pDCInverter = pDCRectifier - HvdcUtils.getHvdcLineLosses(pDCRectifier, hvdcLine.getNominalV(), hvdcLine.getR());
+                poleLoss = pDCInverter * converterStation.getLossFactor() / 100;
             }
-            double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
-            double pDCRectifier = Math.abs(p) * (1 - otherConverterStationLossFactor / 100);
-            double pDCInverter = pDCRectifier - HvdcUtils.getHvdcLineLosses(pDCRectifier, hvdcLine.getNominalV(), hvdcLine.getR());
-            poleLoss = pDCInverter * converterStation.getLossFactor() / 100;
         }
         return poleLoss;
     }
