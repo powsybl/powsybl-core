@@ -35,7 +35,7 @@ public interface SpecificParametersProvider<T extends Extendable<T>, E extends E
      * Reads implementation-specific parameters from platform config, or return {@link Optional#empty()}
      * if the implementation does not have any specific parameters, or does not support loading from config.
      */
-    default Optional<Extension<T>> loadSpecificParameters(PlatformConfig config) {
+    default Optional<E> loadSpecificParameters(PlatformConfig config) {
         return Optional.empty();
     }
 
@@ -43,7 +43,7 @@ public interface SpecificParametersProvider<T extends Extendable<T>, E extends E
      * Reads implementation-specific parameters from a Map, or return {@link Optional#empty()}
      * if the implementation does not have any specific parameters, or does not support loading from config.
      */
-    default Optional<Extension<T>> loadSpecificParameters(Map<String, String> properties) {
+    default Optional<E> loadSpecificParameters(Map<String, String> properties) {
         return Optional.empty();
     }
 
