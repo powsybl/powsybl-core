@@ -57,11 +57,6 @@ class DataSourceTest {
     void testClass(String fileName, Class<? extends DataSource> dataSourceClass) throws IOException {
         // File path
         Path filePath = directory.resolve(fileName);
-        if ("test".equals(fileName)) {
-            System.out.println("DataSourceTest true");
-        } else {
-            System.out.println("DataSourceTest false");
-        }
 
         // Assert exception when the file does not exist
         PowsyblException exception = assertThrows(PowsyblException.class, () -> DataSource.fromPath(filePath));

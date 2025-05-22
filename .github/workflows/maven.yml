@@ -16,6 +16,7 @@ jobs:
   build:
     name: Build OS ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    if: github.event.pull_request.head.repo.fork == false
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -43,12 +44,12 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: ./mvnw --batch-mode install
 
-#      - name: Run SonarCloud analysis
-#        if: matrix.os == 'ubuntu-latest'
-#        run: >
-#          ./mvnw --batch-mode -DskipTests sonar:sonar
-#          -Dsonar.host.url=https://sonarcloud.io
-#          -Dsonar.organization=powsybl-ci-github
-#          -Dsonar.projectKey=com.powsybl:powsybl-core
-#        env:
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Run SonarCloud analysis
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          ./mvnw --batch-mode -DskipTests sonar:sonar
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.organization=powsybl-ci-github
+          -Dsonar.projectKey=com.powsybl:powsybl-core
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

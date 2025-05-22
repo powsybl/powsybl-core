@@ -1,58 +1,71 @@
-name: CI on forks - build and tests
+name: CI on forks - Sonar analysis
 
 on:
-  pull_request:
+  workflow_run:
+    workflows: [CI on forks - build and tests]
+    types:
+      - completed
 
 permissions: {}
 
 jobs:
-  build:
-    name: Build OS ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93 # v4.0.0
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Build with Maven (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: ./mvnw --batch-mode -Dpowsybl.docker-unit-tests.skip=false -Pjacoco install
-
-      - name: Regroup dependencies in target folders
-        if: matrix.os == 'ubuntu-latest'
-        run: ./mvnw dependency:copy-dependencies
-
-      - name: Save classes and Jacoco report
-        uses: actions/upload-artifact@v4
-        with:
-          name: data-for-sonar-analysis-${{ github.event.pull_request.number }}
-          path: |
-            */target/classes
-            */*/target/classes
-            */*/*/target/classes
-            */target/generated-sources
-            */*/target/generated-sources
-            */*/*/target/generated-sources
-            distribution-core/target/dependency
-            distribution-core/target/site/jacoco-aggregate/jacoco.xml
-
   sonar:
+    name: Run Sonar Analysis for forks
     runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.event == 'pull_request' && 
+      github.event.workflow_run.conclusion == 'success'
     steps:
+      - name: Download PR information
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: context.payload.workflow_run.id,
+            });
+            let prInfoArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+              return artifact.name.startsWith("pr-info-")
+            })[0];
+            if (!prInfoArtifact) {
+              core.setFailed("❌ No PR info artifact found");
+              return;
+            }
+            let download = await github.rest.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: prInfoArtifact.id,
+               archive_format: 'zip',
+            });
+            const fs = require('fs');
+            const path = require('path');
+            const temp = '${{ runner.temp }}/pr-info';
+            if (!fs.existsSync(temp)){
+              fs.mkdirSync(temp, { recursive: true });
+            }
+            fs.writeFileSync(path.join(temp, 'pr-info.zip'), Buffer.from(download.data));
+            console.log("PR information downloaded");
+
+      - name: Extract PR Information
+        run: |
+          mkdir -p ${{ runner.temp }}/pr-info-extracted
+          unzip -q ${{ runner.temp }}/pr-info/pr-info.zip -d ${{ runner.temp }}/pr-info-extracted
+          REPO_NAME=$(cat ${{ runner.temp }}/pr-info-extracted/repo-name)
+          HEAD_REF=$(cat ${{ runner.temp }}/pr-info-extracted/head-ref)
+          PR_NUMBER=$(cat ${{ runner.temp }}/pr-info-extracted/pr-number)
+          BASE_REF=$(cat ${{ runner.temp }}/pr-info-extracted/base-ref)
+          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
+          echo "HEAD_REF=$HEAD_REF" >> $GITHUB_ENV
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV 
+          echo "BASE_REF=$BASE_REF" >> $GITHUB_ENV
+          echo "PR information extracted: $REPO_NAME $HEAD_REF $PR_NUMBER $BASE_REF"
+
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
-          ref: nro/forks
-          repository: powsybl/powsybl-core
+          ref: ${{ env.HEAD_REF }}
+          repository: ${{ env.REPO_NAME }}
           fetch-depth: 0
 
       - name: Set up JDK 17
@@ -66,9 +79,9 @@ jobs:
         with:
           script: |
             let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
-               owner: "powsybl",
-               repo: "powsybl-core",
-               run_id: 15164026447,
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: context.payload.workflow_run.id,
             });
             let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
               return artifact.name.startsWith("data-for-sonar-analysis-")
@@ -81,8 +94,8 @@ jobs:
             console.log(`PR number: ${prNumber}`);
             core.exportVariable('PR_NUMBER', prNumber);
             let download = await github.rest.actions.downloadArtifact({
-               owner: "powsybl",
-               repo: "powsybl-core",
+               owner: context.repo.owner,
+               repo: context.repo.repo,
                artifact_id: matchArtifact.id,
                archive_format: 'zip',
             });
@@ -163,7 +176,33 @@ jobs:
             -Dsonar.coverage.jacoco.xmlReportPaths="distribution-core/target/site/jacoco-aggregate/jacoco.xml"
             -Dsonar.pullrequest.key="${{ env.PR_NUMBER }}"
             -Dsonar.pullrequest.branch="$(git rev-parse --abbrev-ref HEAD)"
-            -Dsonar.pullrequest.base="main"
+            -Dsonar.pullrequest.base="${{ env.BASE_REF }}"
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.scm.provider=git
-            -Dsonar.log.level=debug
+
+      - name: Delete artifacts used in analysis
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const runId = ${{ github.event.workflow_run.id }};
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: runId
+            });
+            for (const artifact of artifacts.data.artifacts) {
+              if (
+                artifact.name.startsWith("data-for-sonar-analysis-") ||
+                artifact.name.startsWith("pr-info-")
+              ) {
+                console.log(`Deleting artifact: ${artifact.name} (ID: ${artifact.id})`);
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id
+                });
+              }
+            }
