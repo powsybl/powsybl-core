@@ -384,12 +384,12 @@ public class CgmesDcConversion {
             double pDcRectifier = pAC2 - poleLossP2;
             return HvdcUtils.getHvdcLineLosses(pDcRectifier, ratedUdc, r);
         } else if (HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER.equals(operatingMode) && pAC2 != 0.0) {
-            double pDcInverter = -1 * pAC2 + poleLossP2;
-            double idc = (ratedUdc - Math.sqrt(ratedUdc * ratedUdc - 4 * r * pDcInverter)) / (2 * r);
+            double pDcInverter = -1 * (Math.abs(pAC2) + poleLossP2);
+            double idc = (ratedUdc - Math.sqrt(ratedUdc * ratedUdc + 4 * r * pDcInverter)) / (2 * r);
             return r * idc * idc;
         } else if (HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER.equals(operatingMode) && pAC1 != 0.0) {
-            double pDcInverter = -1 * pAC1 + poleLossP1;
-            double idc = (ratedUdc - Math.sqrt(ratedUdc * ratedUdc - 4 * r * pDcInverter)) / (2 * r);
+            double pDcInverter = -1 * (Math.abs(pAC1) + poleLossP1);
+            double idc = (ratedUdc - Math.sqrt(ratedUdc * ratedUdc + 4 * r * pDcInverter)) / (2 * r);
             return r * idc * idc;
         } else {
             return 0.0;
