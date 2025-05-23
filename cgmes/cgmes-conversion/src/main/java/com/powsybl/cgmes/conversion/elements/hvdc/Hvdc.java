@@ -145,7 +145,7 @@ class Hvdc {
     }
 
     private static Optional<String> nextDcLineSegment(HvdcEnd hvdc1, Set<String> used) {
-        return hvdc1.dcLineSegmentsEnd.stream().filter(adConverterEnd -> !used.contains(adConverterEnd)).findAny();
+        return hvdc1.dcLineSegmentsEnd.stream().filter(adConverterEnd -> !used.contains(adConverterEnd)).sorted().findFirst();
     }
 
     private static HvdcConverter computeConverter(NodeEquipment nodeEquipment, String dcLineSegment, HvdcEnd hvdc1,
