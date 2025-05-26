@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.util.Identifiables;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -29,7 +28,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected boolean fictitious = false;
 
-    protected final Properties properties = new Properties();
+    protected final PropertiesContainer properties = new PropertiesContainer(this);
 
     private final Set<String> aliasesWithoutType = new HashSet<>();
     private final Map<String, String> aliasesByType = new HashMap<>();
@@ -170,55 +169,42 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     }
 
     public Properties getProperties() {
-        return properties;
+        return properties.getProperties();
     }
 
     @Override
     public boolean hasProperty() {
-        return !properties.isEmpty();
+        return properties.hasProperty();
     }
 
     @Override
     public boolean hasProperty(String key) {
-        return properties.containsKey(key);
+        return properties.hasProperty(key);
     }
 
     @Override
     public String getProperty(String key) {
-        Object val = properties.get(key);
-        return val != null ? val.toString() : null;
+        return properties.getProperty(key);
     }
 
     @Override
     public String getProperty(String key, String defaultValue) {
-        Object val = properties.getOrDefault(key, defaultValue);
-        return val != null ? val.toString() : null;
+        return properties.getProperty(key, defaultValue);
     }
 
     @Override
     public String setProperty(String key, String value) {
-        String oldValue = (String) properties.put(key, value);
-        if (Objects.isNull(oldValue)) {
-            getNetwork().getListeners().notifyPropertyAdded(this, () -> getPropertyStringForNotification(key), value);
-        } else {
-            getNetwork().getListeners().notifyPropertyReplaced(this, () -> getPropertyStringForNotification(key), oldValue, value);
-        }
-        return oldValue;
+        return properties.setProperty(key, value);
     }
 
     @Override
     public boolean removeProperty(String key) {
-        Object oldValue = properties.remove(key);
-        if (oldValue != null) {
-            getNetwork().getListeners().notifyPropertyRemoved(this, () -> getPropertyStringForNotification(key), oldValue);
-            return true;
-        }
-        return false;
+        return properties.removeProperty(key);
     }
 
     @Override
     public Set<String> getPropertyNames() {
-        return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
+        return properties.getPropertyNames();
     }
 
     @Override
@@ -276,9 +262,5 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
             return true;
         }
         return false;
-    }
-
-    private static String getPropertyStringForNotification(String key) {
-        return "properties[" + key + "]";
     }
 }

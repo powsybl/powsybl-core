@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -490,5 +492,35 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         assertNull(t.checkTemporaryLimits3(LimitType.ACTIVE_POWER));
         assertFalse(t.checkPermanentLimit3(LimitType.APPARENT_POWER));
         assertNull(t.checkTemporaryLimits3(LimitType.APPARENT_POWER));
+    }
+
+    @Test
+    public void propertiesTests() {
+        Network network = createNetworkWithOperationalLimitsGroupsOnLine();
+        Line l = network.getLine("L");
+        OperationalLimitsGroup group = l.getOperationalLimitsGroup1("1").orElseThrow();
+        assertFalse(group.hasProperty());
+        String property1 = "property_1";
+        String property2 = "property_2";
+
+        group.setProperty(property1, "A");
+        assertAll(
+                () -> assertTrue(group.hasProperty()),
+                () -> assertTrue(group.hasProperty(property1)),
+                () -> assertFalse(group.hasProperty(property2)),
+                () -> assertEquals(Set.of(property1), group.getPropertyNames()),
+                () -> assertEquals("A", group.getProperty(property1)),
+                () -> assertNull(group.getProperty(property2)),
+                () -> assertEquals("DEFAULT", group.getProperty(property2, "DEFAULT")));
+
+        assertDoesNotThrow(() -> group.removeProperty(property2));
+        assertEquals(Set.of(property1), group.getPropertyNames());
+
+        group.removeProperty(property1);
+        assertAll(
+                () -> assertFalse(group.hasProperty()),
+                () -> assertFalse(group.hasProperty(property1)),
+                () -> assertEquals(Set.of(), group.getPropertyNames()),
+                () -> assertNull(group.getProperty(property1)));
     }
 }
