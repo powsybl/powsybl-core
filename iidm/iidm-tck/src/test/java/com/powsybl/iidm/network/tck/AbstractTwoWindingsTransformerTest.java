@@ -369,10 +369,6 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         return createRatioTapChanger(transformer, terminal, false, null);
     }
 
-    private RatioTapChanger createRatioTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating) {
-        return createRatioTapChanger(transformer, terminal, regulating, null);
-    }
-
     private RatioTapChanger createRatioTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating, Integer solvedTapPosition) {
         RatioTapChangerAdder adder = transformer.newRatioTapChanger()
                 .setRegulationValue(200.0)
@@ -410,11 +406,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     }
 
     private PhaseTapChanger createPhaseTapChanger(TwoWindingsTransformer transformer, Terminal terminal) {
-        return createPhaseTapChanger(transformer, terminal, false);
-    }
-
-    private PhaseTapChanger createPhaseTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating) {
-        return createPhaseTapChanger(transformer, terminal, regulating, null);
+        return createPhaseTapChanger(transformer, terminal, false, null);
     }
 
     private PhaseTapChanger createPhaseTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating, Integer solvedTapPosition) {

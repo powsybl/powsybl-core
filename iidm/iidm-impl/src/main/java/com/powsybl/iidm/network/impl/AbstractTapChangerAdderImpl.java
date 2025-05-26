@@ -55,7 +55,7 @@ abstract class AbstractTapChangerAdderImpl<
         return self();
     }
 
-    public A setSolvedTapPosition(int solvedTapPosition) {
+    public A setSolvedTapPosition(Integer solvedTapPosition) {
         this.solvedTapPosition = solvedTapPosition;
         return self();
     }
