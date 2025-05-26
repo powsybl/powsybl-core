@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck.extensions;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkEventRecorder;
+import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.events.ExtensionCreationNetworkEvent;
 import com.powsybl.iidm.network.events.ExtensionRemovalNetworkEvent;
 import com.powsybl.iidm.network.events.ExtensionUpdateNetworkEvent;
@@ -17,7 +18,6 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,7 +53,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
     }
 
     @Test
-    public void test() throws IOException {
+    public void test() {
         assertEquals(1, control.getControlZones().size());
         assertTrue(control.getControlZone("z1").isPresent());
         ControlZone z1 = control.getControlZones().get(0);
@@ -77,7 +77,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
         network.addListener(eventRecorder);
         ControlZone controlZone = control.getControlZones().get(0);
         controlZone.getPilotPoint().setTargetV(16);
-        assertEquals(List.of(new ExtensionUpdateNetworkEvent("sim1", "secondaryVoltageControl", "pilotPointTargetV", null,
+        assertEquals(List.of(new ExtensionUpdateNetworkEvent("sim1", "secondaryVoltageControl", "pilotPointTargetV", "InitialState",
                 new PilotPoint.TargetVoltageEvent("z1", 15d), new PilotPoint.TargetVoltageEvent("z1", 16d))),
                 eventRecorder.getEvents());
     }
@@ -89,7 +89,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
         ControlZone controlZone = control.getControlZones().get(0);
         ControlUnit controlUnit = controlZone.getControlUnits().get(0);
         controlUnit.setParticipate(true);
-        assertEquals(List.of(new ExtensionUpdateNetworkEvent("sim1", "secondaryVoltageControl", "controlUnitParticipate", null,
+        assertEquals(List.of(new ExtensionUpdateNetworkEvent("sim1", "secondaryVoltageControl", "controlUnitParticipate", "InitialState",
                         new ControlUnit.ParticipateEvent("z1", "GEN", false), new ControlUnit.ParticipateEvent("z1", "GEN", true))),
                 eventRecorder.getEvents());
     }
@@ -119,5 +119,40 @@ public abstract class AbstractSecondaryVoltageControlTest {
             .add();
         assertEquals(List.of(new ExtensionCreationNetworkEvent("sim1", "secondaryVoltageControl")),
                 eventRecorder.getEvents());
+    }
+
+    @Test
+    public void variantTest() {
+        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v");
+        ControlZone z1 = control.getControlZones().get(0);
+        assertEquals(15d, z1.getPilotPoint().getTargetV(), 0d);
+        ControlUnit cu1 = z1.getControlUnits().get(0);
+        ControlUnit cu2 = z1.getControlUnits().get(1);
+        assertFalse(cu1.isParticipate());
+        assertTrue(cu2.isParticipate());
+        // try to change value on new variant
+        network.getVariantManager().setWorkingVariant("v");
+        NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
+        network.addListener(eventRecorder);
+        z1.getPilotPoint().setTargetV(16d);
+        assertEquals(16d, z1.getPilotPoint().getTargetV(), 0d);
+        cu1.setParticipate(true);
+        cu2.setParticipate(false);
+        assertTrue(cu1.isParticipate());
+        assertFalse(cu2.isParticipate());
+        // check events are correctly tagged with variant id
+        assertEquals(List.of(
+                new ExtensionUpdateNetworkEvent("sim1", "secondaryVoltageControl", "pilotPointTargetV", "v",
+                        new PilotPoint.TargetVoltageEvent("z1", 15d), new PilotPoint.TargetVoltageEvent("z1", 16d)),
+                new ExtensionUpdateNetworkEvent("sim1", "secondaryVoltageControl", "controlUnitParticipate", "v",
+                        new ControlUnit.ParticipateEvent("z1", "GEN", false), new ControlUnit.ParticipateEvent("z1", "GEN", true)),
+                new ExtensionUpdateNetworkEvent("sim1", "secondaryVoltageControl", "controlUnitParticipate", "v",
+                        new ControlUnit.ParticipateEvent("z1", "GEN2", true), new ControlUnit.ParticipateEvent("z1", "GEN2", false))),
+                eventRecorder.getEvents());
+        // check the initial variant is unchanged
+        network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(15d, z1.getPilotPoint().getTargetV(), 0d);
+        assertFalse(cu1.isParticipate());
+        assertTrue(cu2.isParticipate());
     }
 }
