@@ -88,7 +88,7 @@ class HvdcConversionTest {
         //   The positive polarity DCLineSegment DCL_34P has r = 4.94.
         //   The negative polarity DCLineSegment DCL_34N has r = 4.98.
         // IIDM network:
-        //   HvdcLine DCL_34N with VscConverterStation VSC_3 and VSC_4.
+        //   HvdcLine DCL_34P with VscConverterStation VSC_3 and VSC_4.
         Network network = readCgmesResources(DIR, "monopole_with_metallic_return.xml");
 
         // A single HvdcLine has been created with an equivalent resistance.
