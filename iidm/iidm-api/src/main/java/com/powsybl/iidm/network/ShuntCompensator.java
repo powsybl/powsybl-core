@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
 import java.util.OptionalInt;
 
 /**
@@ -134,6 +135,30 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     }
 
     /**
+     * Get the solved count of sections in service.
+     * Please note that sections can only be sequentially in service, i.e., the first sectionCount sections are in service.
+     * <p>
+     * It is expected to be greater than one and lesser than or equal to the
+     * maximum section count.
+     * It can be null if no calculation has been launched on the network.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    Integer getSolvedSectionCount();
+
+    /**
+     * Get the solved count of sections in service if it is defined.
+     * Otherwise, get an empty optional.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default Optional<Integer> findSolvedSectionCount() {
+        return Optional.ofNullable(getSolvedSectionCount());
+    }
+
+    /**
      * Get the maximum number of sections that can be in service
      */
     int getMaximumSectionCount();
@@ -157,6 +182,26 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     default ShuntCompensator unsetSectionCount() {
         throw ValidationUtil.createUnsetMethodException();
     }
+
+    /**
+     * Change the solved count of sections in service.
+     * Please note sections can only be sequentially in service, i.e., the first sectionCount sections are in service.
+     * <p>
+     * Depends on the working variant.
+     *
+     * @see VariantManager
+     * @param solvedSectionCount the number of solved sections in service
+     * @return the shunt compensator to chain method calls.
+     */
+    ShuntCompensator setSolvedSectionCount(int solvedSectionCount);
+
+    /**
+     * Unset the solved count of sections in service.
+     */
+    default ShuntCompensator unsetSolvedSectionCount() {
+        throw ValidationUtil.createUnsetMethodException();
+    }
+
 
     /**
      * Get the susceptance (in S) of the shunt in its current state i.e. the sum of the sections' susceptances for all sections in service.
