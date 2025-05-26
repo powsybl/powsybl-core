@@ -13,6 +13,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import static com.powsybl.security.dynamic.tools.DynamicSecurityAnalysisToolConstants.DYNAMIC_MODELS_FILE_OPTION;
+import static com.powsybl.security.dynamic.tools.DynamicSecurityAnalysisToolConstants.EVENT_MODELS_FILE_OPTION;
 
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
@@ -38,6 +39,11 @@ public class DynamicSecurityAnalysisCommand extends SecurityAnalysisCommand impl
                 .hasArg()
                 .argName("FILE")
                 .required()
+                .build());
+        options.addOption(Option.builder().longOpt(EVENT_MODELS_FILE_OPTION)
+                .desc("dynamic event models description as a Groovy file: defines the dynamic event models to be associated to chosen equipments of the network")
+                .hasArg()
+                .argName("FILE")
                 .build());
         return options;
     }
