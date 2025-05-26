@@ -358,15 +358,21 @@ class ReportNodeTest extends AbstractSerDeTest {
         // Set Locale default as French to be the fallback if English report is not found
         // as the English report exists for tests, then the fallback in case the key is not found in the English report
         // should not be in French but in the default reports.properties
-//        Locale.setDefault(Locale.FRENCH);
+        Locale previousLocale = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.FRENCH);
 
-        String key = "keyNotExistingInEnglish";
-        ReportNode report1 = ReportNode.newRootReportNode()
-                .withLocale(Locale.US)
-                .withResourceBundles(TEST_BASE_NAME)
-                .withMessageTemplate(key)
-                .build();
-        assertEquals("Root reportNode", report1.getMessage());
+            String key = "keyNotExistingInEnglish";
+            ReportNode report1 = ReportNode.newRootReportNode()
+                    .withLocale(Locale.US)
+                    .withResourceBundles(TEST_BASE_NAME)
+                    .withMessageTemplate(key)
+                    .build();
+            assertEquals("Root reportNode", report1.getMessage());
+        } finally {
+            // Restore previous Locale for the other tests
+            Locale.setDefault(previousLocale);
+        }
     }
 
     @Test
