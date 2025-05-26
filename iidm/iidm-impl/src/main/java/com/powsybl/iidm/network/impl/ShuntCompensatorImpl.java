@@ -58,7 +58,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
             this.sectionCount.add(sectionCount);
             this.targetV.add(targetV);
             this.targetDeadband.add(targetDeadband);
-            this.solvedSectionCount.add(solvedSectionCount);
+            this.solvedSectionCount.add(checkSolvedSectionCount(solvedSectionCount, model.getMaximumSectionCount()));
         }
         this.model = Objects.requireNonNull(model).attach(this);
     }
@@ -124,11 +124,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensatorImpl setSolvedSectionCount(int solvedSectionCount) {
         NetworkImpl n = getNetwork();
-        if (solvedSectionCount < 0 || solvedSectionCount > model.getMaximumSectionCount()) {
-            throw new ValidationException(this, "unexpected solved section number (" + solvedSectionCount + "): no existing associated section");
-        }
         int variantIndex = n.getVariantIndex();
-        Integer oldValue = this.solvedSectionCount.set(variantIndex, solvedSectionCount);
+        Integer oldValue = this.solvedSectionCount.set(variantIndex, checkSolvedSectionCount(solvedSectionCount, this.model.getMaximumSectionCount()));
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("solvedSectionCount", variantId, oldValue, solvedSectionCount);
         return this;
@@ -312,5 +309,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     protected String getTypeDescription() {
         return "Shunt compensator";
+    }
+
+    private Integer checkSolvedSectionCount(Integer solvedSectionCount, int maximumSectionCount) {
+        if (solvedSectionCount != null && (solvedSectionCount < 0 || solvedSectionCount > maximumSectionCount)) {
+            throw new ValidationException(this, "unexpected solved section number (" + solvedSectionCount + "): no existing associated section");
+        }
+        return solvedSectionCount;
     }
 }
