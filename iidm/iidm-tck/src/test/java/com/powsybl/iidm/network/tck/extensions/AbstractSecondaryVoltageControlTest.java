@@ -130,6 +130,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
         ControlUnit cu2 = z1.getControlUnits().get(1);
         assertFalse(cu1.isParticipate());
         assertTrue(cu2.isParticipate());
+
         // try to change value on new variant
         network.getVariantManager().setWorkingVariant("v");
         NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
@@ -140,6 +141,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
         cu2.setParticipate(false);
         assertTrue(cu1.isParticipate());
         assertFalse(cu2.isParticipate());
+
         // check events are correctly tagged with variant id
         assertEquals(List.of(
                 new ExtensionUpdateNetworkEvent("sim1", "secondaryVoltageControl", "pilotPointTargetV", "v",
@@ -149,7 +151,22 @@ public abstract class AbstractSecondaryVoltageControlTest {
                 new ExtensionUpdateNetworkEvent("sim1", "secondaryVoltageControl", "controlUnitParticipate", "v",
                         new ControlUnit.ParticipateEvent("z1", "GEN2", true), new ControlUnit.ParticipateEvent("z1", "GEN2", false))),
                 eventRecorder.getEvents());
+
         // check the initial variant is unchanged
+        network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(15d, z1.getPilotPoint().getTargetV(), 0d);
+        assertFalse(cu1.isParticipate());
+        assertTrue(cu2.isParticipate());
+
+        // check variant copy
+        network.getVariantManager().cloneVariant("v", "v2");
+        network.getVariantManager().setWorkingVariant("v2");
+        assertEquals(16d, z1.getPilotPoint().getTargetV(), 0d);
+        assertTrue(cu1.isParticipate());
+        assertFalse(cu2.isParticipate());
+
+        // remove variant
+        network.getVariantManager().removeVariant("v2");
         network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(15d, z1.getPilotPoint().getTargetV(), 0d);
         assertFalse(cu1.isParticipate());
