@@ -165,11 +165,17 @@ public abstract class AbstractSecondaryVoltageControlTest {
         assertTrue(cu1.isParticipate());
         assertFalse(cu2.isParticipate());
 
-        // remove variant
-        network.getVariantManager().removeVariant("v2");
-        network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertEquals(15d, z1.getPilotPoint().getTargetV(), 0d);
-        assertFalse(cu1.isParticipate());
-        assertTrue(cu2.isParticipate());
+        // remove variant 'v' and check 'v2' is unchanged
+        network.getVariantManager().removeVariant("v");
+        assertEquals(16d, z1.getPilotPoint().getTargetV(), 0d);
+        assertTrue(cu1.isParticipate());
+        assertFalse(cu2.isParticipate());
+
+        // re-clone initial variant on 'v'
+        network.getVariantManager().cloneVariant("v2", "v");
+        network.getVariantManager().setWorkingVariant("v");
+        assertEquals(16d, z1.getPilotPoint().getTargetV(), 0d);
+        assertTrue(cu1.isParticipate());
+        assertFalse(cu2.isParticipate());
     }
 }
