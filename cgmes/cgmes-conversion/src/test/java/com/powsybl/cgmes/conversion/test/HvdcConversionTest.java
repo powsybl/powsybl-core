@@ -8,12 +8,15 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.IOException;
 import java.util.Map;
+import java.util.Properties;
 
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +27,7 @@ import com.powsybl.cgmes.conversion.Conversion;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
-class HvdcConversionTest {
+class HvdcConversionTest extends AbstractSerDeTest {
 
     private static final String DIR = "/issues/hvdc/";
     private static final double TOLERANCE = 0.001;
@@ -206,7 +209,7 @@ class HvdcConversionTest {
     }
 
     @Test
-    void vscWithCapabilityCurveTest() {
+    void vscWithCapabilityCurveTest() throws IOException {
         // CGMES network:
         //   An EQ file with a VSC HVDC line (monopole, ground return).
         //   VsConverter VSC_3 has a VsCapabilityCurve.
@@ -223,6 +226,15 @@ class HvdcConversionTest {
                 0.0, new double[]{-100.0, 100.0},
                 100.0, new double[]{-25.0, 25.0}
         ));
+
+        // Curve and CurveData are correctly exported to CGMES.
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir, new Properties());
+        assertEquals(1, getElementCount(eqFile, "VsCapabilityCurve"));
+        assertTrue(getElement(eqFile, "VsConverter", "VSC_3").contains("VsConverter.CapabilityCurve"));
+        assertEquals(3, getElementCount(eqFile, "CurveData"));
+        assertContainsCurveData(eqFile, "VSC_3_DCCS_0_RCC_CP", "-100", "-25", "25");
+        assertContainsCurveData(eqFile, "VSC_3_DCCS_1_RCC_CP", "0", "-100", "100");
+        assertContainsCurveData(eqFile, "VSC_3_DCCS_2_RCC_CP", "100", "-25", "25");
     }
 
     @Test
@@ -291,5 +303,12 @@ class HvdcConversionTest {
             assertEquals(point.getMinQ(), values.get(pValue)[0]);
             assertEquals(point.getMaxQ(), values.get(pValue)[1]);
         }
+    }
+
+    private void assertContainsCurveData(String eqFile, String curveDataId, String xValue, String y1Value, String y2Value) {
+        String curveData = getElement(eqFile, "CurveData", curveDataId);
+        assertTrue(curveData.contains("<cim:CurveData.xvalue>" + xValue + "</cim:CurveData.xvalue>"));
+        assertTrue(curveData.contains("<cim:CurveData.y1value>" + y1Value + "</cim:CurveData.y1value>"));
+        assertTrue(curveData.contains("<cim:CurveData.y2value>" + y2Value + "</cim:CurveData.y2value>"));
     }
 }
