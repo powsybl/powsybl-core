@@ -95,6 +95,8 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
         private boolean open = false;
 
+        private Boolean solvedOpen = null;
+
         private boolean retained = false;
 
         private SwitchAdderImpl() {
@@ -148,6 +150,12 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         }
 
         @Override
+        public SwitchAdder setSolvedOpen(Boolean solvedOpen) {
+            this.solvedOpen = solvedOpen;
+            return this;
+        }
+
+        @Override
         public SwitchAdder setRetained(boolean retained) {
             this.retained = retained;
             return this;
@@ -168,7 +176,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             if (kind == null) {
                 throw new ValidationException(this, "kind is not set");
             }
-            SwitchImpl aSwitch = new SwitchImpl(voltageLevel, id, getName(), isFictitious(), kind, open, retained);
+            SwitchImpl aSwitch = new SwitchImpl(voltageLevel, id, getName(), isFictitious(), kind, open, solvedOpen, retained);
             graph.addVertexIfNotPresent(node1);
             graph.addVertexIfNotPresent(node2);
             graph.addEdge(node1, node2, aSwitch);
