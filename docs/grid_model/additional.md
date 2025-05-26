@@ -188,6 +188,7 @@ A phase tap changer is described by a set of tap positions (or steps) within whi
 - the lowest tap position
 - the highest tap position
 - the position index of the current tap (which has to be within the highest and lowest tap position bounds)
+- the solved position index of the tap that represents the index after a calculation
 - whether the tap changer is regulating or not
 - the regulation mode, which can be `CURRENT_LIMITER`, `ACTIVE_POWER_CONTROL` or `FIXED_TAP`: the tap changer either regulates the current or the active power.
 - the regulation value (either a current value in `A` or an active power value in `MW`)
@@ -261,6 +262,7 @@ A ratio tap changer is described by a set of tap positions (or steps) within whi
 - the lowest tap position
 - the highest tap position
 - the position index of the current tap (which has to be within the highest and lowest tap position bounds)
+- the solved position index of the tap that represents the index after a calculation
 - whether the tap changer is regulating or not
 - the regulation mode, which can be `VOLTAGE` or `REACTIVE_POWER`: the tap changer either regulates the voltage or the reactive power
 - the regulation value (either a voltage value in `kV` or a reactive power value in `MVar`)
