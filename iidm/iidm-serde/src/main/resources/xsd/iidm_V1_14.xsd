@@ -322,6 +322,7 @@
                     <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
                 </xs:sequence>
                 <xs:attribute name="sectionCount" use="required" type="xs:int"/>
+                <xs:attribute name="solvedSectionCount" type="xs:int"/>
                 <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
                 <xs:attribute name="targetV" use="optional" type="xs:double"/>
                 <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
