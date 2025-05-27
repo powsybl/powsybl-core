@@ -39,6 +39,7 @@ import java.util.Objects;
  * When structural ratio is moved from one side to the other a correction is applied to transmission impedance (r, x) and shunt admittance (g and b). <br>
  * When tapChanger is moved the transmission impedance and shunt admittance corrections are managed as step correction
  * expressed as percentage deviation of nominal value.
+ * //TODO: how to deal with solvedtapposition???
  * <p>
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -220,6 +221,7 @@ public class TapChangerConversion {
         });
         tapChanger.setLowTapPosition(tc.getLowTapPosition());
         tapChanger.setTapPosition(tc.getTapPosition());
+        tapChanger.setSolvedTapPosition(tc.getSolvedTapPosition());
     }
 
     /**
@@ -395,10 +397,12 @@ public class TapChangerConversion {
         boolean isTapChangerControlEnabled = rtc.isTapChangerControlEnabled();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
+        int solvedTapPosition = rtc.getSolvedTapPosition();
         String type = rtc.getType();
         TapChanger hiddenCombinedTapChanger = rtc.getHiddenCombinedTapChanger();
         tapChanger.setLowTapPosition(lowStep)
             .setTapPosition(position)
+            .setSolvedTapPosition(solvedTapPosition)
             .setLtcFlag(isLtcFlag)
             .setId(id)
             .setRegulating(isRegulating)

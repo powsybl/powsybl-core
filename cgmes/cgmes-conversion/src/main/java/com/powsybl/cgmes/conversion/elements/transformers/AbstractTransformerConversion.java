@@ -36,7 +36,8 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         boolean isLtcFlag = rtc.isLtcFlag();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
-        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
+        Integer solvedPosition = rtc.getSolvedTapPosition();
+        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
 
         rtc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
@@ -61,7 +62,8 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     protected static void setToIidmPhaseTapChanger(TapChanger ptc, PhaseTapChangerAdder ptca, Context context) {
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
-        ptca.setLowTapPosition(lowStep).setTapPosition(position);
+        Integer solvedTapPosition = ptc.getSolvedTapPosition();
+        ptca.setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedTapPosition);
 
         ptc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
@@ -159,7 +161,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                         .setId(tch.getId())
                         .setCombinedTapChangerId(tc.getId())
                         .setHiddenStatus(true)
-                        .setStep(tch.getTapPosition())
+                        .setStep(tch.getTapPosition()) //TODO
                         .setType(tch.getType())
                         .add();
             }

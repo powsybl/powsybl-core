@@ -47,28 +47,21 @@ abstract class AbstractCgmesTapChangerBuilder {
         return new CgmesPhaseTapChangerBuilder(phaseTapChanger, xtx, context);
     }
 
-    protected int initialTapPosition(int defaultStep) {
-        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
-            case SSH:
-                return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP, defaultStep)));
-            case SV:
-                return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.SV_TAP_STEP, p.asDouble(CgmesNames.STEP, defaultStep)));
-            default:
-                throw new CgmesModelException("Unexpected profile used for initial values: " + context.config().getProfileForInitialValuesShuntSectionsTapPositions());
-        }
-    }
-
     protected TapChanger build() {
         lowStep = p.asInt(CgmesNames.LOW_STEP);
         highStep = p.asInt(CgmesNames.HIGH_STEP);
         addSteps();
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
         int normalStep = p.asInt(CgmesNames.NORMAL_STEP, neutralStep);
-        int position = initialTapPosition(normalStep);
+        int position = AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP, normalStep)));
         if (position > highStep || position < lowStep) {
             position = neutralStep;
         }
-        tapChanger.setLowTapPosition(lowStep).setTapPosition(position);
+        int solvedPosition = AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.SV_TAP_STEP, p.asDouble(CgmesNames.STEP, normalStep)));
+        if (solvedPosition > highStep || solvedPosition < lowStep) {
+            solvedPosition = neutralStep;
+        }
+        tapChanger.setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
 
         boolean ltcFlag = p.asBoolean(CgmesNames.LTC_FLAG, false);
         tapChanger.setLtcFlag(ltcFlag);
