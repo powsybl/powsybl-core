@@ -407,7 +407,7 @@
                 <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
                 <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
                 <xs:attribute name="regulationMode" use="required" type="iidm:StaticVarCompensatorRegulationMode"/>
-                <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
+                <xs:attribute name="regulating" use="required" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
