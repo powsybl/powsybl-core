@@ -39,6 +39,7 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
 
     public static final double DEFAULT_START_TIME = 0d;
     public static final double DEFAULT_STOP_TIME = 10d;
+    public static final String DEFAULT_DEBUG_DIR = null;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
         .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "dynamic-simulation-parameters"));
@@ -67,12 +68,15 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
             .ifPresent(config -> {
                 parameters.setStartTime(config.getDoubleProperty("startTime", DEFAULT_START_TIME));
                 parameters.setStopTime(config.getDoubleProperty("stopTime", DEFAULT_STOP_TIME));
+                parameters.setDebugDir(config.getStringProperty("debugDir", DEFAULT_DEBUG_DIR));
             });
     }
 
     private double startTime;
 
     private double stopTime;
+
+    private String debugDir;
 
     /**
      * Constructor with given parameters
@@ -82,7 +86,7 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
      * @param stopTime  instant of time at which the dynamic simulation ends, in
      *                  seconds
      */
-    public DynamicSimulationParameters(double startTime, double stopTime) {
+    public DynamicSimulationParameters(double startTime, double stopTime, String debugDir) {
         if (startTime < 0) {
             throw new IllegalStateException("Start time should be zero or positive");
         }
@@ -91,16 +95,22 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
         }
         this.startTime = startTime;
         this.stopTime = stopTime;
+        this.debugDir = debugDir;
+    }
+
+    public DynamicSimulationParameters(double startTime, double stopTime) {
+        this(startTime, stopTime, null);
     }
 
     public DynamicSimulationParameters() {
-        this(DEFAULT_START_TIME, DEFAULT_STOP_TIME);
+        this(DEFAULT_START_TIME, DEFAULT_STOP_TIME, DEFAULT_DEBUG_DIR);
     }
 
     protected DynamicSimulationParameters(DynamicSimulationParameters other) {
         Objects.requireNonNull(other);
         startTime = other.startTime;
         stopTime = other.stopTime;
+        debugDir = other.debugDir;
     }
 
     public double getStartTime() {
@@ -139,10 +149,25 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
         return this;
     }
 
+    public String getDebugDir() {
+        return debugDir;
+    }
+
+    /**
+     *
+     * @param debugDir the debug directory where execution files will be dumped
+     * @return
+     */
+    public DynamicSimulationParameters setDebugDir(String debugDir) {
+        this.debugDir = debugDir;
+        return this;
+    }
+
     protected Map<String, Object> toMap() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("startTime", startTime);
         map.put("stopTime", stopTime);
+        map.put("debugDir", debugDir);
         return Collections.unmodifiableMap(map);
     }
 

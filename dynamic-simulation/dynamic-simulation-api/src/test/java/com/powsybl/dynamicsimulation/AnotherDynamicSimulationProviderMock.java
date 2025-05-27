@@ -35,9 +35,4 @@ public class AnotherDynamicSimulationProviderMock implements DynamicSimulationPr
         return CompletableFuture.completedFuture(DynamicSimulationResultImpl.createSuccessResult(Collections.emptyMap(), DynamicSimulationResult.emptyTimeLine()));
     }
 
-    @Override
-    public CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, OutputVariablesSupplier outputVariablesSupplier, String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters, ReportNode reportNode, String debugDir) {
-        return run(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, workingVariantId, computationManager, parameters, reportNode);
-    }
-
 }

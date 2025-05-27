@@ -202,15 +202,21 @@ public class LocalComputationManager implements ComputationManager {
                 }
                 postProcess(executionParameters.workingDir, executionParameters.commandExecution, idx, exitValue,
                     executionParameters.errors, executionParameters.monitor);
-                if (executionParameters.debugDir != null) {
-                    FileUtil.copyDir(executionParameters.workingDir, executionParameters.debugDir);
-                }
+
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 LOGGER.warn(e.getMessage(), e);
             } catch (Exception e) {
                 LOGGER.warn(e.getMessage(), e);
             } finally {
+                //                if (executionParameters.debugDir != null) {
+                if (true) {
+                    try {
+                        FileUtil.copyDir(executionParameters.workingDir, executionParameters.debugDir);
+                    } catch (IOException e) {
+                        LOGGER.warn(e.getMessage(), e);
+                    }
+                }
                 executionParameters.latch.countDown();
                 exit();
             }
@@ -367,8 +373,9 @@ public class LocalComputationManager implements ComputationManager {
             List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
 
             ExecutionReport report;
+
             try {
-                report = execute(workingDir.toPath(), Path.of(environment.getDebugDir()), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
+                report = execute(workingDir.toPath(), /*Path.of(environment.getDebugDir())*/Path.of("/tmp/toto"), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
             } catch (InterruptedException exc) {
                 localCommandExecutor.stop(workingDir.toPath());
                 throw exc;

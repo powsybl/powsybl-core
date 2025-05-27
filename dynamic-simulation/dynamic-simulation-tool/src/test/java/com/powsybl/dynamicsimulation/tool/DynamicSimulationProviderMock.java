@@ -18,11 +18,6 @@ public class DynamicSimulationProviderMock implements DynamicSimulationProvider 
     }
 
     @Override
-    public CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, OutputVariablesSupplier outputVariablesSupplier, String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters, ReportNode reportNode, String debugDir) {
-        return run(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, workingVariantId, computationManager, parameters, reportNode);
-    }
-
-    @Override
     public String getName() {
         return "Mock";
     }
