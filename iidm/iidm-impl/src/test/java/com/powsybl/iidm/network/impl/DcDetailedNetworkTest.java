@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -19,12 +19,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DcDetailedNetworkTest {
 
     @Test
-    void test() {
+    void testLccMonopoleGroundReturn() {
         Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
         assertEquals(2, network.getBusView().getSynchronousComponents().size());
         assertEquals(3, network.getSubnetworks().size());
         assertEquals(4, network.getDcNodeCount());
         assertEquals(1, network.getDcLineCount());
         assertEquals(2, network.getDcLineCommutatedConverterCount());
+        assertTrue(network.getDcGround("dcGroundFr").getDcTerminal().isConnected());
+        assertTrue(network.getDcGround("dcGroundGb").getDcTerminal().isConnected());
+    }
+
+    @Test
+    void testLccMonopoleMetallicReturn() {
+        Network network = DcDetailedNetworkFactory.createLccMonopoleMetallicReturn();
+        assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        assertEquals(3, network.getSubnetworks().size());
+        assertEquals(4, network.getDcNodeCount());
+        assertEquals(2, network.getDcLineCount());
+        assertEquals(2, network.getDcLineCommutatedConverterCount());
+        assertTrue(network.getDcGround("dcGroundFr").getDcTerminal().isConnected());
+        assertFalse(network.getDcGround("dcGroundGb").getDcTerminal().isConnected());
     }
 }

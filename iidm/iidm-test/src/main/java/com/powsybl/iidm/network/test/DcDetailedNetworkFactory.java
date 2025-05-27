@@ -246,14 +246,11 @@ public final class DcDetailedNetworkFactory {
         }
     }
 
-    public static Network createLccMonopoleGroundReturn() {
-        return createLccMonopoleGroundReturn(NetworkFactory.findDefault());
-    }
-
-    public static Network createLccMonopoleGroundReturn(NetworkFactory networkFactory) {
+    private static Network createLccMonopoleBase(NetworkFactory networkFactory, String dcNetworkId) {
         Objects.requireNonNull(networkFactory);
+        Objects.requireNonNull(dcNetworkId);
 
-        Network dcNetwork = networkFactory.createNetwork("LccMonopoleGroundReturn", "test");
+        Network dcNetwork = networkFactory.createNetwork(dcNetworkId, "test");
         Network fr = createSimpleAcNetworkWithDanglingLines(networkFactory, Country.FR, Map.of("xNodeDc1fr", 200.));
         Network gb = createSimpleAcNetworkWithDanglingLines(networkFactory, Country.GB, Map.of("xNodeDc1gb", -200.));
         addDcAcElements(dcNetwork, Country.FR, "xNodeDc1fr", -200., Mode.TWO_T2WT);
@@ -318,5 +315,34 @@ public final class DcDetailedNetworkFactory {
                 .setTargetP(-200.)
                 .add();
         return Network.merge(dcNetwork, fr, gb);
+    }
+
+    public static Network createLccMonopoleGroundReturn() {
+        return createLccMonopoleGroundReturn(NetworkFactory.findDefault());
+    }
+
+    public static Network createLccMonopoleGroundReturn(NetworkFactory networkFactory) {
+        Objects.requireNonNull(networkFactory);
+        return createLccMonopoleBase(networkFactory, "LccMonopoleGroundReturn");
+    }
+
+    public static Network createLccMonopoleMetallicReturn() {
+        return createLccMonopoleMetallicReturn(NetworkFactory.findDefault());
+    }
+
+    public static Network createLccMonopoleMetallicReturn(NetworkFactory networkFactory) {
+        Objects.requireNonNull(networkFactory);
+        Network network = createLccMonopoleBase(networkFactory, "LccMonopoleMetallicReturn");
+        network.getDcGround("dcGroundGb").getDcTerminal().setConnected(false);
+        network.getSubnetwork("LccMonopoleMetallicReturn")
+                .newDcLine()
+                .setId("dcLine2")
+                .setDcNode1Id("dcNodeFrNeg")
+                .setConnected1(true)
+                .setDcNode2Id("dcNodeGbNeg")
+                .setConnected2(true)
+                .setR(5.0)
+                .add();
+        return network;
     }
 }
