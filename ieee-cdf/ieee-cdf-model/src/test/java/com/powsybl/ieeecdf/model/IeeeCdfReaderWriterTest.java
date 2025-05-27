@@ -117,4 +117,13 @@ class IeeeCdfReaderWriterTest {
             assertEquals(5, tieLine.getCircuitNumber());
         }
     }
+
+    @Test
+    void testInvalidFile() throws IOException {
+        try (BufferedReader reader = new BufferedReader(new StringReader(""))) {
+            IeeeCdfReader r = new IeeeCdfReader();
+            IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> r.read(reader));
+            assertEquals("Failed to parse the IeeeCdfModel", e.getMessage());
+        }
+    }
 }
