@@ -552,13 +552,13 @@ public final class StateVariablesExport {
         if (twt.hasPhaseTapChanger()) {
             int endNumber = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1).isPresent() ? 1 : 2;
             String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber);
-            writeSvTapStep(ptcId, twt.getPhaseTapChanger().getTapPosition(), cimNamespace, writer, context);
+            writeSvTapStep(ptcId, twt.getPhaseTapChanger().findSolvedTapPosition().orElse(twt.getPhaseTapChanger().getTapPosition()), cimNamespace, writer, context);
             writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
         }
         if (twt.hasRatioTapChanger()) {
             int endNumber = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1).isPresent() ? 1 : 2;
             String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber);
-            writeSvTapStep(rtcId, twt.getRatioTapChanger().getTapPosition(), cimNamespace, writer, context);
+            writeSvTapStep(rtcId, twt.getRatioTapChanger().findSolvedTapPosition().orElse(twt.getRatioTapChanger().getTapPosition()), cimNamespace, writer, context);
             writeSvTapStepHidden(twt, rtcId, cimNamespace, writer, context);
         }
     }
