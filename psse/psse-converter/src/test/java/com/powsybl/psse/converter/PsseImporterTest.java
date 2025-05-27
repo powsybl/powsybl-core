@@ -15,6 +15,7 @@ import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.RecordGroupIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
 import java.time.ZonedDateTime;
@@ -371,5 +372,48 @@ class PsseImporterTest extends AbstractSerDeTest {
     @Test
     void importTwoSubstationsRawxTest() throws IOException {
         importTest("twoSubstations_rev35", "twoSubstations_rev35.rawx", false);
+    }
+
+    @Test
+    void emptyRecordParsingTest() {
+        DummyRecordGroup group = new DummyRecordGroup();
+        Context context = new Context();
+        assertThatExceptionOfType(PsseException.class)
+                .isThrownBy(() -> group.parseSingleRecord(null, new String[]{"field"}, context))
+                .withMessage("Parsing error");
+    }
+
+    public record DummyRecord(String field) {
+    }
+
+    public static class DummyRecordGroup extends AbstractRecordGroup<DummyRecord> {
+        public DummyRecordGroup() {
+            super(new RecordGroupIdentification() {
+                @Override
+                public String getDataName() {
+                    return "dummy";
+                }
+
+                @Override
+                public String getJsonNodeName() {
+                    return "dummyJson";
+                }
+
+                @Override
+                public String getLegacyTextName() {
+                    return "dummyLegacy";
+                }
+
+                @Override
+                public RecordGroupIdentification.JsonObjectType getJsonObjectType() {
+                    return RecordGroupIdentification.JsonObjectType.DATA_TABLE;
+                }
+            }, "field");
+        }
+
+        @Override
+        protected Class<DummyRecord> psseTypeClass() {
+            return DummyRecord.class;
+        }
     }
 }
