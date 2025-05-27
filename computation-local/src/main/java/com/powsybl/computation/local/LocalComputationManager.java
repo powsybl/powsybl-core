@@ -202,7 +202,6 @@ public class LocalComputationManager implements ComputationManager {
                 }
                 postProcess(executionParameters.workingDir, executionParameters.commandExecution, idx, exitValue,
                     executionParameters.errors, executionParameters.monitor);
-
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 LOGGER.warn(e.getMessage(), e);
