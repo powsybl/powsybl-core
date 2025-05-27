@@ -136,7 +136,7 @@ This is needed to download the Maven Wrapper distribution ;
 Notes:
 - The 4 `XXX` occurrences should be replaced with your configuration;
 - The `-Djdk.http.auth.tunneling.disabledSchemes=` option should be left empty;
-- Windows users should use `mvnw.cmd` instead of `./mwn`.
+- Windows users should use `mvnw.cmd` instead of `./mvnw`.
 
 This second step is required to download the Maven distribution.
 
