@@ -85,6 +85,7 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
      *                  seconds
      * @param stopTime  instant of time at which the dynamic simulation ends, in
      *                  seconds
+     * @param debugDir the debug directory where execution files will be dumped
      */
     public DynamicSimulationParameters(double startTime, double stopTime, String debugDir) {
         if (startTime < 0) {
