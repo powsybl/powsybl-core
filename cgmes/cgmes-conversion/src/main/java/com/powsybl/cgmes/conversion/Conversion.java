@@ -875,7 +875,7 @@ public class Conversion {
         /**
          * Specifies the default behavior to apply when updating equipment attributes
          * and no value is provided.
-         * <p>
+         * <br/>
          * The available options are:
          * <ul>
          *   <li><b>EQ</b>: Uses the default value received from the EQ file.</li>
