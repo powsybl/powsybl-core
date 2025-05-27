@@ -174,7 +174,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         Duration duration = Duration.between(startTime, endTime);
 
         if (duration.compareTo(MAX_DAYS) > 0 || spacing.compareTo(MAX_DAYS) > 0) {
-            throw new IllegalArgumentException("Time range or spacing exceeds " + MAX_DAYS + " days.");
+            throw new IllegalArgumentException("Time range or spacing exceeds " + MAX_DAYS.toDays() + " days.");
         }
 
         return Math.round(((double) (duration.toNanos())) / spacing.toNanos()) + 1;
