@@ -209,8 +209,7 @@ public class LocalComputationManager implements ComputationManager {
             } catch (Exception e) {
                 LOGGER.warn(e.getMessage(), e);
             } finally {
-                //                if (executionParameters.debugDir != null) {
-                if (true) {
+                if (executionParameters.debugDir != null) {
                     try {
                         FileUtil.copyDir(executionParameters.workingDir, executionParameters.debugDir);
                     } catch (IOException e) {
@@ -375,7 +374,7 @@ public class LocalComputationManager implements ComputationManager {
             ExecutionReport report;
 
             try {
-                report = execute(workingDir.toPath(), /*Path.of(environment.getDebugDir())*/Path.of("/tmp/toto"), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
+                report = execute(workingDir.toPath(), Path.of(environment.getDebugDir()), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
             } catch (InterruptedException exc) {
                 localCommandExecutor.stop(workingDir.toPath());
                 throw exc;
