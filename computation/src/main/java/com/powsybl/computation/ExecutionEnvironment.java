@@ -34,10 +34,20 @@ public class ExecutionEnvironment {
 
     private boolean debug;
 
+    private String debugDir;
+
+    public ExecutionEnvironment(Map<String, String> variables, String workingDirPrefix, boolean debug, String debugDir) {
+        this.variables = Objects.requireNonNull(variables);
+        this.workingDirPrefix = Objects.requireNonNull(workingDirPrefix);
+        this.debug = debug;
+        this.debugDir = debugDir;
+    }
+
     public ExecutionEnvironment(Map<String, String> variables, String workingDirPrefix, boolean debug) {
         this.variables = Objects.requireNonNull(variables);
         this.workingDirPrefix = Objects.requireNonNull(workingDirPrefix);
         this.debug = debug;
+        this.debugDir = null;
     }
 
     public Map<String, String> getVariables() {
@@ -65,5 +75,9 @@ public class ExecutionEnvironment {
     public ExecutionEnvironment setDebug(boolean debug) {
         this.debug = debug;
         return this;
+    }
+
+    public String getDebugDir() {
+        return debugDir;
     }
 }
