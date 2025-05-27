@@ -161,10 +161,6 @@ public class Conversion {
         Network network = createNetwork();
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
 
-        // FIXME(Luma) we are not reusing conversion objects,
-        //  so it is safe to store the context as an attribute for later use in update
-        //  to do things right the context should have been created in the constructor,
-        //  together with the empty network
         Context context = createContext(network, reportNode);
 
         assignNetworkProperties(context);
@@ -280,19 +276,12 @@ public class Conversion {
 
         CgmesReports.importedCgmesNetworkReport(reportNode, network.getId());
 
-        // FIXME(Luma) in the first step, the Conversion object has used only info from EQ,
-        //  we call the update method on the same conversion object,
-        //  that has the context created during the convert (first) step
-        //  and all the data already loaded in the triplestore,
-        //  we only need to switch to a different set of queries
         updateWithAllInputs(network, context, reportNode);
 
         return network;
     }
 
     private void updateWithAllInputs(Network network, Context convertContext, ReportNode reportNode) {
-        // FIXME(Luma) Before switching to update we must invalidate all caches of the cgmes model
-        //  and change the query catalog to "update" mode
         if (!sshOrSvIsIncludedInCgmesModel(this.cgmes)) {
             return;
         }
@@ -305,6 +294,7 @@ public class Conversion {
         update(network, updateContext, reportNode);
     }
 
+    // TODO Remove CIM14 support after PR #3375 (Drop support for CIM14) has been merged into the main branch
     private static boolean sshOrSvIsIncludedInCgmesModel(CgmesModel cgmes) {
         return cgmes.version().contains("CIM14")
                 || cgmes.fullModels().stream()
@@ -882,6 +872,18 @@ public class Conversion {
             SV
         }
 
+        /**
+         * Specifies the default behavior to apply when updating equipment attributes
+         * and no value is provided.
+         * <p>
+         * The available options are:
+         * <ul>
+         *   <li><b>EQ</b>: Uses the default value received from the EQ file.</li>
+         *   <li><b>DEFAULT</b>: Assigns a predefined default value.</li>
+         *   <li><b>EMPTY</b>: Leaves the attribute empty (e.g., {@code Double.NaN}) if allowed.</li>
+         *   <li><b>PREVIOUS</b>: Reuses the value from the previous update.</li>
+         * </ul>
+         */
         public enum DefaultValue {
             EQ,
             DEFAULT,

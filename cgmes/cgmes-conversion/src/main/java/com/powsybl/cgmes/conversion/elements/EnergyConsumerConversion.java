@@ -142,18 +142,18 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         double qFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.Q_FIXED));
 
         PowerFlow updatedPowerFlow = updatedPowerFlow(load, cgmesData, context);
-        load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : defaultValue(getDefaultP(load, pFixed), context));
-        load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : defaultValue(getDefaultQ(load, qFixed), context));
+        load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : getDefaultP(load, pFixed, context));
+        load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : getDefaultQ(load, qFixed, context));
 
         updateLoadDetail(load, load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS), pFixed, qFixed);
     }
 
-    private static DefaultValueDouble getDefaultP(Load load, double pFixed) {
-        return new DefaultValueDouble(pFixed, load.getP0(), 0.0, Double.NaN);
+    private static double getDefaultP(Load load, double pFixed, Context context) {
+        return getDefaultValue(pFixed, load.getP0(), 0.0, Double.NaN, context);
     }
 
-    private static DefaultValueDouble getDefaultQ(Load load, double qFixed) {
-        return new DefaultValueDouble(qFixed, load.getQ0(), 0.0, Double.NaN);
+    private static double getDefaultQ(Load load, double qFixed, Context context) {
+        return getDefaultValue(qFixed, load.getQ0(), 0.0, Double.NaN, context);
     }
 
     private static void updateLoadDetail(Load load, String type, double pFixed, double qFixed) {

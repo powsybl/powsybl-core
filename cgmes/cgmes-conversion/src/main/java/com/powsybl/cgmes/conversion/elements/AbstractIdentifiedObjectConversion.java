@@ -14,8 +14,9 @@ import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.util.List;
+
 import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
-import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.EMPTY;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -97,22 +98,25 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         }
     }
 
-    protected static double defaultValue(DefaultValueDouble defaultValue, Context context) {
-        for (Conversion.Config.DefaultValue defaultValueSelector : context.config().updateDefaultValuesPriority()) {
-            if (defaultValueSelector == EQ && defaultValue.equipmentValue != null) {
-                return defaultValue.equipmentValue;
-            } else if (defaultValueSelector == PREVIOUS && defaultValue.previousValue != null) {
-                return defaultValue.previousValue;
-            } else if (defaultValueSelector == DEFAULT && defaultValue.defaultValue != null) {
-                return defaultValue.defaultValue;
-            } else if (defaultValueSelector == EMPTY) {
-                return defaultValue.emptyValue;
-            }
-        }
-        return defaultValue.emptyValue;
+    protected static double getDefaultValue(Double equipmentValue, Double previousValue, Double defaultValue, double emptyValue, Context context) {
+        return getDefaultValue(equipmentValue, previousValue, defaultValue, emptyValue, context.config().updateDefaultValuesPriority());
     }
 
-    public record DefaultValueDouble(Double equipmentValue, Double previousValue, Double defaultValue, double emptyValue) {
+    private static double getDefaultValue(Double equipmentValue, Double previousValue,
+                                          Double defaultValue, double emptyValue,
+                                          List<Conversion.Config.DefaultValue> selectors) {
+        for (Conversion.Config.DefaultValue selector : selectors) {
+            if (selector == EQ && equipmentValue != null) {
+                return equipmentValue;
+            } else if (selector == PREVIOUS && previousValue != null) {
+                return previousValue;
+            } else if (selector == DEFAULT && defaultValue != null) {
+                return defaultValue;
+            } else if (selector == EMPTY) {
+                return emptyValue;
+            }
+        }
+        return emptyValue;
     }
 
     protected final String id;

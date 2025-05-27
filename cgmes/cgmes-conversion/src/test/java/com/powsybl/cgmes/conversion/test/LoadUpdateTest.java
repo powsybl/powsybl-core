@@ -31,25 +31,25 @@ class LoadUpdateTest {
         assertEquals(7, network.getLoadCount());
 
         Load loadEnergyConsumer = network.getLoad("EnergyConsumer");
-        assertTrue(checkEq(loadEnergyConsumer));
+        assertEq(loadEnergyConsumer);
 
         Load loadEnergySource = network.getLoad("EnergySource");
-        assertTrue(checkEq(loadEnergySource));
+        assertEq(loadEnergySource);
 
         Load loadAsynchronousMachine = network.getLoad("AsynchronousMachine");
-        assertTrue(checkEq(loadAsynchronousMachine));
+        assertEq(loadAsynchronousMachine);
 
         Load conformLoad = network.getLoad("ConformLoad");
-        assertTrue(checkEq(conformLoad));
+        assertEq(conformLoad);
 
         Load loadEnergyConsumerOnlyEQ = network.getLoad("EnergyConsumerOnlyEQ");
-        assertTrue(checkEq(loadEnergyConsumerOnlyEQ));
+        assertEq(loadEnergyConsumerOnlyEQ);
 
         Load loadEnergySourceOnlyEQ = network.getLoad("EnergySourceOnlyEQ");
-        assertTrue(checkEq(loadEnergySourceOnlyEQ));
+        assertEq(loadEnergySourceOnlyEQ);
 
         Load loadAsynchronousMachineOnlyEQ = network.getLoad("AsynchronousMachineOnlyEQ");
-        assertTrue(checkEq(loadAsynchronousMachineOnlyEQ));
+        assertEq(loadAsynchronousMachineOnlyEQ);
     }
 
     @Test
@@ -58,25 +58,25 @@ class LoadUpdateTest {
         assertEquals(7, network.getLoadCount());
 
         Load loadEnergyConsumer = network.getLoad("EnergyConsumer");
-        assertTrue(checkSsh(loadEnergyConsumer, 10.0, 5.0));
+        assertSsh(loadEnergyConsumer, 10.0, 5.0);
 
         Load loadEnergySource = network.getLoad("EnergySource");
-        assertTrue(checkSsh(loadEnergySource, -200.0, -90.0));
+        assertSsh(loadEnergySource, -200.0, -90.0);
 
         Load loadAsynchronousMachine = network.getLoad("AsynchronousMachine");
-        assertTrue(checkSsh(loadAsynchronousMachine, 200.0, 50.0));
+        assertSsh(loadAsynchronousMachine, 200.0, 50.0);
 
         Load conformLoad = network.getLoad("ConformLoad");
-        assertTrue(checkSsh(conformLoad, 486.0, 230.0));
+        assertSsh(conformLoad, 486.0, 230.0);
 
         Load loadEnergyConsumerOnlyEQ = network.getLoad("EnergyConsumerOnlyEQ");
-        assertTrue(checkSsh(loadEnergyConsumerOnlyEQ, 0.0, 0.0));
+        assertSsh(loadEnergyConsumerOnlyEQ, 0.0, 0.0);
 
         Load loadEnergySourceOnlyEQ = network.getLoad("EnergySourceOnlyEQ");
-        assertTrue(checkSsh(loadEnergySourceOnlyEQ, 0.0, 0.0));
+        assertSsh(loadEnergySourceOnlyEQ, 0.0, 0.0);
 
         Load loadAsynchronousMachineOnlyEQ = network.getLoad("AsynchronousMachineOnlyEQ");
-        assertTrue(checkSsh(loadAsynchronousMachineOnlyEQ, 0.0, 0.0));
+        assertSsh(loadAsynchronousMachineOnlyEQ, 0.0, 0.0);
     }
 
     @Test
@@ -85,52 +85,60 @@ class LoadUpdateTest {
         assertEquals(7, network.getLoadCount());
 
         Load loadEnergyConsumer = network.getLoad("EnergyConsumer");
-        assertTrue(checkEq(loadEnergyConsumer));
+        assertEq(loadEnergyConsumer);
         Load loadEnergySource = network.getLoad("EnergySource");
-        assertTrue(checkEq(loadEnergySource));
+        assertEq(loadEnergySource);
         Load loadAsynchronousMachine = network.getLoad("AsynchronousMachine");
-        assertTrue(checkEq(loadAsynchronousMachine));
+        assertEq(loadAsynchronousMachine);
         Load conformLoad = network.getLoad("ConformLoad");
-        assertTrue(checkEq(conformLoad));
+        assertEq(conformLoad);
         Load loadEnergyConsumerOnlyEQ = network.getLoad("EnergyConsumerOnlyEQ");
-        assertTrue(checkEq(loadEnergyConsumerOnlyEQ));
+        assertEq(loadEnergyConsumerOnlyEQ);
         Load loadEnergySourceOnlyEQ = network.getLoad("EnergySourceOnlyEQ");
-        assertTrue(checkEq(loadEnergySourceOnlyEQ));
+        assertEq(loadEnergySourceOnlyEQ);
         Load loadAsynchronousMachineOnlyEQ = network.getLoad("AsynchronousMachineOnlyEQ");
-        assertTrue(checkEq(loadAsynchronousMachineOnlyEQ));
+        assertEq(loadAsynchronousMachineOnlyEQ);
 
         readCgmesResources(network, DIR, "load_SSH.xml");
 
-        assertTrue(checkSsh(loadEnergyConsumer, 10.0, 5.0));
-        assertTrue(checkSsh(loadEnergySource, -200.0, -90.0));
-        assertTrue(checkSsh(loadAsynchronousMachine, 200.0, 50.0));
-        assertTrue(checkSsh(conformLoad, 486.0, 230.0));
-        assertTrue(checkSsh(loadEnergyConsumerOnlyEQ, 0.0, 0.0));
-        assertTrue(checkSsh(loadEnergySourceOnlyEQ, 0.0, 0.0));
-        assertTrue(checkSsh(loadAsynchronousMachineOnlyEQ, 0.0, 0.0));
+        assertSsh(loadEnergyConsumer, 10.0, 5.0);
+        assertSsh(loadEnergySource, -200.0, -90.0);
+        assertSsh(loadAsynchronousMachine, 200.0, 50.0);
+        assertSsh(conformLoad, 486.0, 230.0);
+        assertSsh(loadEnergyConsumerOnlyEQ, 0.0, 0.0);
+        assertSsh(loadEnergySourceOnlyEQ, 0.0, 0.0);
+        assertSsh(loadAsynchronousMachineOnlyEQ, 0.0, 0.0);
 
         readCgmesResources(network, DIR, "load_SSH_1.xml");
 
-        assertTrue(checkSsh(loadEnergyConsumer, 10.5, 5.5));
-        assertTrue(checkSsh(loadEnergySource, -200.5, -90.5));
-        assertTrue(checkSsh(loadAsynchronousMachine, 200.5, 50.5));
-        assertTrue(checkSsh(conformLoad, 490.0, 235.0));
-        assertTrue(checkSsh(loadEnergyConsumerOnlyEQ, 0.0, 0.0));
-        assertTrue(checkSsh(loadEnergySourceOnlyEQ, 0.0, 0.0));
-        assertTrue(checkSsh(loadAsynchronousMachineOnlyEQ, 0.0, 0.0));
+        assertSsh(loadEnergyConsumer, 10.5, 5.5);
+        assertSsh(loadEnergySource, -200.5, -90.5);
+        assertSsh(loadAsynchronousMachine, 200.5, 50.5);
+        assertSsh(conformLoad, 490.0, 235.0);
+        assertSsh(loadEnergyConsumerOnlyEQ, 0.0, 0.0);
+        assertSsh(loadEnergySourceOnlyEQ, 0.0, 0.0);
+        assertSsh(loadAsynchronousMachineOnlyEQ, 0.0, 0.0);
+
+        assertFlows(loadEnergyConsumer.getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(loadEnergySource.getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(loadAsynchronousMachine.getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(conformLoad.getTerminal(), Double.NaN, Double.NaN);
+        assertSsh(loadEnergyConsumerOnlyEQ, 0.0, 0.0);
+        assertSsh(loadEnergySourceOnlyEQ, 0.0, 0.0);
+        assertSsh(loadAsynchronousMachineOnlyEQ, 0.0, 0.0);
 
         readCgmesResources(network, DIR, "load_SV.xml");
 
-        assertTrue(checkFlows(loadEnergyConsumer.getTerminal(), 100.0, 50.0));
-        assertTrue(checkFlows(loadEnergySource.getTerminal(), 20.0, 10.0));
-        assertTrue(checkFlows(loadAsynchronousMachine.getTerminal(), 10.0, 5.0));
-        assertTrue(checkFlows(conformLoad.getTerminal(), -490.0, -235.0));
-        assertTrue(checkSsh(loadEnergyConsumerOnlyEQ, 0.0, 0.0));
-        assertTrue(checkSsh(loadEnergySourceOnlyEQ, 0.0, 0.0));
-        assertTrue(checkSsh(loadAsynchronousMachineOnlyEQ, 0.0, 0.0));
+        assertFlows(loadEnergyConsumer.getTerminal(), 100.0, 50.0);
+        assertFlows(loadEnergySource.getTerminal(), 20.0, 10.0);
+        assertFlows(loadAsynchronousMachine.getTerminal(), 10.0, 5.0);
+        assertFlows(conformLoad.getTerminal(), -490.0, -235.0);
+        assertSsh(loadEnergyConsumerOnlyEQ, 0.0, 0.0);
+        assertSsh(loadEnergySourceOnlyEQ, 0.0, 0.0);
+        assertSsh(loadAsynchronousMachineOnlyEQ, 0.0, 0.0);
     }
 
-    private static boolean checkEq(Load load) {
+    private static void assertEq(Load load) {
         assertNotNull(load);
         assertTrue(Double.isNaN(load.getP0()));
         assertTrue(Double.isNaN(load.getQ0()));
@@ -139,20 +147,17 @@ class LoadUpdateTest {
             assertNotNull(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.P_FIXED));
             assertNotNull(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.Q_FIXED));
         }
-        return true;
     }
 
-    private static boolean checkSsh(Load load, double p0, double q0) {
+    private static void assertSsh(Load load, double p0, double q0) {
         assertNotNull(load);
         assertEquals(p0, load.getP0());
         assertEquals(q0, load.getQ0());
-        return true;
     }
 
-    private static boolean checkFlows(Terminal terminal, double p, double q) {
+    private static void assertFlows(Terminal terminal, double p, double q) {
         double tol = 0.0000001;
         assertEquals(p, terminal.getP(), tol);
         assertEquals(q, terminal.getQ(), tol);
-        return true;
     }
 }
