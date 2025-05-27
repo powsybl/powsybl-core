@@ -11,7 +11,6 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.iidm.network.ShuntCompensatorNonLinearModelAdder;
@@ -31,25 +30,15 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         super(CgmesNames.SHUNT_COMPENSATOR, sh, context);
     }
 
-    private int getSections(PropertyBag p, int normalSections) {
-        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
-            case SSH:
-                return fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
-            case SV:
-                return fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
-            default:
-                throw new PowsyblException("Unexpected profile used for initial values");
-        }
-    }
-
     @Override
     public void convert() {
         int maximumSections = p.asInt("maximumSections", 0);
         int normalSections = p.asInt("normalSections", 0);
-        int sections = getSections(p, normalSections);
+        int sections = fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
+        int solvedSections = fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
         sections = Math.abs(sections);
         maximumSections = Math.max(maximumSections, sections);
-        ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator().setSectionCount(sections);
+        ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator().setSectionCount(sections).setSolvedSectionCount(solvedSections);
         String shuntType = p.getId("type");
         if ("LinearShuntCompensator".equals(shuntType)) {
             double bPerSection = p.asDouble(CgmesNames.B_PER_SECTION, Float.MIN_VALUE);
