@@ -276,12 +276,12 @@ public class Conversion {
 
         CgmesReports.importedCgmesNetworkReport(reportNode, network.getId());
 
-        updateWithAllInputs(network, context, reportNode);
+        updateWithAllInputs(network, reportNode);
 
         return network;
     }
 
-    private void updateWithAllInputs(Network network, Context convertContext, ReportNode reportNode) {
+    private void updateWithAllInputs(Network network, ReportNode reportNode) {
         if (!sshOrSvIsIncludedInCgmesModel(this.cgmes)) {
             return;
         }
@@ -310,7 +310,7 @@ public class Conversion {
     }
 
     private void update(Network network, Context updateContext, ReportNode reportNode) {
-        // FIXME(Luma) Inspect the contents of the loaded data
+        // Inspect the contents of the loaded data
         if (LOG.isDebugEnabled()) {
             PropertyBags nts = cgmes.numObjectsByType();
             LOG.debug("CGMES objects read for the update:");

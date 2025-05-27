@@ -30,26 +30,7 @@ class LoadUpdateTest {
         Network network = readCgmesResources(DIR, "load_EQ.xml");
         assertEquals(7, network.getLoadCount());
 
-        Load loadEnergyConsumer = network.getLoad("EnergyConsumer");
-        assertEq(loadEnergyConsumer);
-
-        Load loadEnergySource = network.getLoad("EnergySource");
-        assertEq(loadEnergySource);
-
-        Load loadAsynchronousMachine = network.getLoad("AsynchronousMachine");
-        assertEq(loadAsynchronousMachine);
-
-        Load conformLoad = network.getLoad("ConformLoad");
-        assertEq(conformLoad);
-
-        Load loadEnergyConsumerOnlyEQ = network.getLoad("EnergyConsumerOnlyEQ");
-        assertEq(loadEnergyConsumerOnlyEQ);
-
-        Load loadEnergySourceOnlyEQ = network.getLoad("EnergySourceOnlyEQ");
-        assertEq(loadEnergySourceOnlyEQ);
-
-        Load loadAsynchronousMachineOnlyEQ = network.getLoad("AsynchronousMachineOnlyEQ");
-        assertEq(loadAsynchronousMachineOnlyEQ);
+        assertEq(network);
     }
 
     @Test
@@ -57,85 +38,74 @@ class LoadUpdateTest {
         Network network = readCgmesResources(DIR, "load_EQ.xml", "load_SSH.xml");
         assertEquals(7, network.getLoadCount());
 
-        Load loadEnergyConsumer = network.getLoad("EnergyConsumer");
-        assertSsh(loadEnergyConsumer, 10.0, 5.0);
-
-        Load loadEnergySource = network.getLoad("EnergySource");
-        assertSsh(loadEnergySource, -200.0, -90.0);
-
-        Load loadAsynchronousMachine = network.getLoad("AsynchronousMachine");
-        assertSsh(loadAsynchronousMachine, 200.0, 50.0);
-
-        Load conformLoad = network.getLoad("ConformLoad");
-        assertSsh(conformLoad, 486.0, 230.0);
-
-        Load loadEnergyConsumerOnlyEQ = network.getLoad("EnergyConsumerOnlyEQ");
-        assertSsh(loadEnergyConsumerOnlyEQ, 0.0, 0.0);
-
-        Load loadEnergySourceOnlyEQ = network.getLoad("EnergySourceOnlyEQ");
-        assertSsh(loadEnergySourceOnlyEQ, 0.0, 0.0);
-
-        Load loadAsynchronousMachineOnlyEQ = network.getLoad("AsynchronousMachineOnlyEQ");
-        assertSsh(loadAsynchronousMachineOnlyEQ, 0.0, 0.0);
+        assertFirstSsh(network);
     }
 
     @Test
     void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "load_EQ.xml");
         assertEquals(7, network.getLoadCount());
-
-        Load loadEnergyConsumer = network.getLoad("EnergyConsumer");
-        assertEq(loadEnergyConsumer);
-        Load loadEnergySource = network.getLoad("EnergySource");
-        assertEq(loadEnergySource);
-        Load loadAsynchronousMachine = network.getLoad("AsynchronousMachine");
-        assertEq(loadAsynchronousMachine);
-        Load conformLoad = network.getLoad("ConformLoad");
-        assertEq(conformLoad);
-        Load loadEnergyConsumerOnlyEQ = network.getLoad("EnergyConsumerOnlyEQ");
-        assertEq(loadEnergyConsumerOnlyEQ);
-        Load loadEnergySourceOnlyEQ = network.getLoad("EnergySourceOnlyEQ");
-        assertEq(loadEnergySourceOnlyEQ);
-        Load loadAsynchronousMachineOnlyEQ = network.getLoad("AsynchronousMachineOnlyEQ");
-        assertEq(loadAsynchronousMachineOnlyEQ);
+        assertEq(network);
 
         readCgmesResources(network, DIR, "load_SSH.xml");
-
-        assertSsh(loadEnergyConsumer, 10.0, 5.0);
-        assertSsh(loadEnergySource, -200.0, -90.0);
-        assertSsh(loadAsynchronousMachine, 200.0, 50.0);
-        assertSsh(conformLoad, 486.0, 230.0);
-        assertSsh(loadEnergyConsumerOnlyEQ, 0.0, 0.0);
-        assertSsh(loadEnergySourceOnlyEQ, 0.0, 0.0);
-        assertSsh(loadAsynchronousMachineOnlyEQ, 0.0, 0.0);
+        assertFirstSsh(network);
 
         readCgmesResources(network, DIR, "load_SSH_1.xml");
-
-        assertSsh(loadEnergyConsumer, 10.5, 5.5);
-        assertSsh(loadEnergySource, -200.5, -90.5);
-        assertSsh(loadAsynchronousMachine, 200.5, 50.5);
-        assertSsh(conformLoad, 490.0, 235.0);
-        assertSsh(loadEnergyConsumerOnlyEQ, 0.0, 0.0);
-        assertSsh(loadEnergySourceOnlyEQ, 0.0, 0.0);
-        assertSsh(loadAsynchronousMachineOnlyEQ, 0.0, 0.0);
-
-        assertFlows(loadEnergyConsumer.getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(loadEnergySource.getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(loadAsynchronousMachine.getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(conformLoad.getTerminal(), Double.NaN, Double.NaN);
-        assertSsh(loadEnergyConsumerOnlyEQ, 0.0, 0.0);
-        assertSsh(loadEnergySourceOnlyEQ, 0.0, 0.0);
-        assertSsh(loadAsynchronousMachineOnlyEQ, 0.0, 0.0);
+        assertSecondSsh(network);
+        assertFlowsBeforeSv(network);
 
         readCgmesResources(network, DIR, "load_SV.xml");
+        assertFlowsAfterSv(network);
+    }
 
-        assertFlows(loadEnergyConsumer.getTerminal(), 100.0, 50.0);
-        assertFlows(loadEnergySource.getTerminal(), 20.0, 10.0);
-        assertFlows(loadAsynchronousMachine.getTerminal(), 10.0, 5.0);
-        assertFlows(conformLoad.getTerminal(), -490.0, -235.0);
-        assertSsh(loadEnergyConsumerOnlyEQ, 0.0, 0.0);
-        assertSsh(loadEnergySourceOnlyEQ, 0.0, 0.0);
-        assertSsh(loadAsynchronousMachineOnlyEQ, 0.0, 0.0);
+    private static void assertEq(Network network) {
+        assertEq(network.getLoad("EnergyConsumer"));
+        assertEq(network.getLoad("EnergySource"));
+        assertEq(network.getLoad("AsynchronousMachine"));
+        assertEq(network.getLoad("ConformLoad"));
+        assertEq(network.getLoad("EnergyConsumerOnlyEQ"));
+        assertEq(network.getLoad("EnergySourceOnlyEQ"));
+        assertEq(network.getLoad("AsynchronousMachineOnlyEQ"));
+    }
+
+    void assertFirstSsh(Network network) {
+        assertSsh(network.getLoad("EnergyConsumer"), 10.0, 5.0);
+        assertSsh(network.getLoad("EnergySource"), -200.0, -90.0);
+        assertSsh(network.getLoad("AsynchronousMachine"), 200.0, 50.0);
+        assertSsh(network.getLoad("ConformLoad"), 486.0, 230.0);
+        assertSsh(network.getLoad("EnergyConsumerOnlyEQ"), 0.0, 0.0);
+        assertSsh(network.getLoad("EnergySourceOnlyEQ"), 0.0, 0.0);
+        assertSsh(network.getLoad("AsynchronousMachineOnlyEQ"), 0.0, 0.0);
+    }
+
+    void assertSecondSsh(Network network) {
+        assertSsh(network.getLoad("EnergyConsumer"), 10.5, 5.5);
+        assertSsh(network.getLoad("EnergySource"), -200.5, -90.5);
+        assertSsh(network.getLoad("AsynchronousMachine"), 200.5, 50.5);
+        assertSsh(network.getLoad("ConformLoad"), 490.0, 235.0);
+        assertSsh(network.getLoad("EnergyConsumerOnlyEQ"), 0.0, 0.0);
+        assertSsh(network.getLoad("EnergySourceOnlyEQ"), 0.0, 0.0);
+        assertSsh(network.getLoad("AsynchronousMachineOnlyEQ"), 0.0, 0.0);
+    }
+
+    void assertFlowsBeforeSv(Network network) {
+        assertFlows(network.getLoad("EnergyConsumer").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getLoad("EnergySource").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getLoad("AsynchronousMachine").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getLoad("ConformLoad").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getLoad("EnergyConsumerOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getLoad("EnergySourceOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getLoad("AsynchronousMachineOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
+    }
+
+    void assertFlowsAfterSv(Network network) {
+        assertFlows(network.getLoad("EnergyConsumer").getTerminal(), 100.0, 50.0);
+        assertFlows(network.getLoad("EnergySource").getTerminal(), 20.0, 10.0);
+        assertFlows(network.getLoad("AsynchronousMachine").getTerminal(), 10.0, 5.0);
+        assertFlows(network.getLoad("ConformLoad").getTerminal(), -490.0, -235.0);
+        assertFlows(network.getLoad("EnergyConsumerOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getLoad("EnergySourceOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getLoad("AsynchronousMachineOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
     }
 
     private static void assertEq(Load load) {
