@@ -93,20 +93,19 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
     }
 
     private double getActivePowerSetpoint() {
-        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
-            if (converter1.pAC != 0) {
-                return converter1.pAC;
-            } else if (converter2.pAC != 0) {
-                return Math.abs(converter2.pAC) + converter2.poleLossP + converter2.resistiveLosses + converter1.poleLossP;
-            }
-        } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
-            if (converter2.pAC != 0) {
-                return converter2.pAC;
-            } else if (converter1.pAC != 0) {
-                return Math.abs(converter1.pAC) + converter1.poleLossP + converter1.resistiveLosses + converter2.poleLossP;
-            }
+        return switch (mode) {
+            case SIDE_1_RECTIFIER_SIDE_2_INVERTER -> getActivePowerSetpoint(converter1, converter2);
+            case SIDE_1_INVERTER_SIDE_2_RECTIFIER -> getActivePowerSetpoint(converter2, converter1);
+        };
+    }
+
+    private static double getActivePowerSetpoint(DcLineSegmentConverter rectifier, DcLineSegmentConverter inverter) {
+        if (rectifier.pAC != 0.0) {
+            return rectifier.pAC;
+        } else if (inverter.pAC != 0.0) {
+            return Math.abs(inverter.pAC) + inverter.poleLossP + inverter.resistiveLosses + rectifier.poleLossP;
         }
-        return 0;
+        return 0.0;
     }
 
     static class DcLineSegmentConverter {
