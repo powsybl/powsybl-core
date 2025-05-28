@@ -113,13 +113,8 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
             RegulationModeSerDe regulationModeSerDe = context.getReader().readEnumAttribute(REGULATION_MODE, RegulationModeSerDe.class);
             if (regulationModeSerDe != null) {
-                if (!RegulationModeSerDe.OFF.equals(regulationModeSerDe)) {
-                    adder.setRegulationMode(RegulationModeSerDe.convertToRegulationMode(regulationModeSerDe));
-                    adder.setRegulating(true);
-                } else {
-                    adder.setRegulationMode(RegulationModeSerDe.convertToRegulationMode(regulationModeSerDe));
-                    adder.setRegulating(false);
-                }
+                adder.setRegulationMode(RegulationModeSerDe.convertToRegulationMode(regulationModeSerDe));
+                adder.setRegulating(!RegulationModeSerDe.OFF.equals(regulationModeSerDe));
             }
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
