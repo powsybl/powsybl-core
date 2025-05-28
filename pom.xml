@@ -114,7 +114,7 @@
         <gdata.version>1.47.1_1</gdata.version>
         <!-- graphviz-builder seems abandoned - to be replaced ? -->
         <graphviz-builder.version>1.0.12</graphviz-builder.version>
-        <groovy.version>4.0.26</groovy.version>
+        <groovy.version>4.0.27</groovy.version>
         <guava.version>33.4.8-jre</guava.version>
         <jackson.version>2.19.0</jackson.version>
         <jama.version>1.0.3</jama.version>
@@ -127,7 +127,7 @@
         <maven.plugin.annotations.version>3.15.1</maven.plugin.annotations.version>
         <maven.plugin.testing.harness.version>3.3.0</maven.plugin.testing.harness.version>
         <mfl.version>0.5.15</mfl.version>
-        <mockito.version>5.17.0</mockito.version>
+        <mockito.version>5.18.0</mockito.version>
         <nativelibloader.version>2.5.0</nativelibloader.version>
         <poi.version>5.4.1</poi.version>
         <rdf4j.version>4.3.2</rdf4j.version>
@@ -142,7 +142,7 @@
         <trove4j.version>3.0.3</trove4j.version>
         <!-- univocity-parsers seems abandoned - to be replaced ? -->
         <univocity-parsers.version>2.9.0</univocity-parsers.version>
-        <xmlunit.version>2.10.0</xmlunit.version>
+        <xmlunit.version>2.10.2</xmlunit.version>
         <xz.version>1.10</xz.version>
         <zstdjni.version>1.5.7-3</zstdjni.version>
 
