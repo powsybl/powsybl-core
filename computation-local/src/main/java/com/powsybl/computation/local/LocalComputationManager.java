@@ -16,14 +16,12 @@ import com.powsybl.commons.io.WorkingDirectory;
 import com.powsybl.computation.*;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -146,7 +144,7 @@ public class LocalComputationManager implements ComputationManager {
 
     }
 
-    private ExecutionReport execute(Path workingDir, List<CommandExecution> commandExecutionList, Map<String, String> variables, ComputationParameters computationParameters, ExecutionMonitor monitor)
+    private ExecutionReport execute(Path workingDir, Path debugDir, List<CommandExecution> commandExecutionList, Map<String, String> variables, ComputationParameters computationParameters, ExecutionMonitor monitor)
             throws InterruptedException {
         // TODO concurrent
         List<ExecutionError> errors = new ArrayList<>();
@@ -155,7 +153,7 @@ public class LocalComputationManager implements ComputationManager {
         for (CommandExecution commandExecution : commandExecutionList) {
             Command command = commandExecution.getCommand();
             CountDownLatch latch = new CountDownLatch(commandExecution.getExecutionCount());
-            ExecutionParameters executionParameters = new ExecutionParameters(workingDir, commandExecution, variables, computationParameters, executionSubmitter,
+            ExecutionParameters executionParameters = new ExecutionParameters(workingDir, debugDir, commandExecution, variables, computationParameters, executionSubmitter,
                 command, latch, errors, monitor);
             IntStream.range(0, commandExecution.getExecutionCount()).forEach(idx -> performSingleExecution(executionParameters, idx));
             latch.await();
@@ -173,7 +171,7 @@ public class LocalComputationManager implements ComputationManager {
         return new DefaultExecutionReport(workingDir, errors);
     }
 
-    private record ExecutionParameters(Path workingDir, CommandExecution commandExecution,
+    private record ExecutionParameters(Path workingDir, Path debugDir, CommandExecution commandExecution,
                                        Map<String, String> variables, ComputationParameters computationParameters,
                                        ExecutorService executionSubmitter, Command command, CountDownLatch latch,
                                        List<ExecutionError> errors, ExecutionMonitor monitor) {
@@ -207,6 +205,15 @@ public class LocalComputationManager implements ComputationManager {
             } catch (Exception e) {
                 LOGGER.warn(e.getMessage(), e);
             } finally {
+                if (executionParameters.debugDir != null) {
+                    try {
+                        File sourceFile = executionParameters.workingDir.toFile();
+                        File destinationFile = executionParameters.debugDir.resolve(executionParameters.workingDir.getFileName()).toFile();
+                        FileUtils.copyDirectory(sourceFile, destinationFile);
+                    } catch (IOException e) {
+                        LOGGER.warn(e.getMessage(), e);
+                    }
+                }
                 executionParameters.latch.countDown();
                 exit();
             }
@@ -363,8 +370,9 @@ public class LocalComputationManager implements ComputationManager {
             List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
 
             ExecutionReport report;
+
             try {
-                report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
+                report = execute(workingDir.toPath(), environment.getDebugDir() != null ? config.getLocalDir().getFileSystem().getPath(environment.getDebugDir()) : null, commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
             } catch (InterruptedException exc) {
                 localCommandExecutor.stop(workingDir.toPath());
                 throw exc;
