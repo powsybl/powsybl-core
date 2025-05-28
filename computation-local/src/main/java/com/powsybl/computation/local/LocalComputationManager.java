@@ -12,19 +12,16 @@ import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.WorkingDirectory;
 import com.powsybl.computation.*;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -210,7 +207,9 @@ public class LocalComputationManager implements ComputationManager {
             } finally {
                 if (executionParameters.debugDir != null) {
                     try {
-                        FileUtil.copyDir(executionParameters.workingDir, executionParameters.debugDir);
+                        File sourceFile = executionParameters.workingDir.toFile();
+                        File destinationFile = executionParameters.debugDir.resolve(executionParameters.workingDir.getFileName()).toFile();
+                        FileUtils.copyDirectory(sourceFile, destinationFile);
                     } catch (IOException e) {
                         LOGGER.warn(e.getMessage(), e);
                     }
@@ -373,7 +372,7 @@ public class LocalComputationManager implements ComputationManager {
             ExecutionReport report;
 
             try {
-                report = execute(workingDir.toPath(), Path.of(environment.getDebugDir()), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
+                report = execute(workingDir.toPath(), environment.getDebugDir() != null ? config.getLocalDir().getFileSystem().getPath(environment.getDebugDir()) : null, commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
             } catch (InterruptedException exc) {
                 localCommandExecutor.stop(workingDir.toPath());
                 throw exc;
