@@ -15,6 +15,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.TreeMap;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -96,6 +97,7 @@ class ReactiveCapabilityCurveImplTest {
 
     @Test
     void testMinQStrictlySuperiorToMaxQ() {
-        assertThrows(IllegalStateException.class, () -> createCurve(new PointImpl(100, 200, 100), new PointImpl(200, 100, 400)));
+        assertThrows(IllegalStateException.class, () -> new PointImpl(100, 200, 100));
+        assertDoesNotThrow(() -> new PointImpl(100, 200, 100, false));
     }
 }

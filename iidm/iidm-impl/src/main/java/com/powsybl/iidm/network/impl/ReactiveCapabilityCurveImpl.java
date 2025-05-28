@@ -46,8 +46,12 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         private double maxQ;
 
         PointImpl(double p, double minQ, double maxQ) {
-            if (minQ > maxQ) {
-                throw new IllegalStateException("minQ should be inferior or equal to maxQ");
+            this(p, minQ, maxQ, true);
+        }
+
+        PointImpl(double p, double minQ, double maxQ, boolean shouldCheckMinMaxValues) {
+            if (shouldCheckMinMaxValues && minQ > maxQ) {
+                throw new IllegalStateException("maximum reactive power is expected to be greater than or equal to minimum reactive power");
             }
             this.p = p;
             this.minQ = minQ;
