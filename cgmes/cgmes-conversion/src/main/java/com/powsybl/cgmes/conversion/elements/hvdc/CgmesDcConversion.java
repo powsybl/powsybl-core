@@ -376,24 +376,29 @@ public class CgmesDcConversion {
         return Double.isNaN(p.asDouble(TARGET_PPCC)) ? 0 : p.asDouble(TARGET_PPCC);
     }
 
+    record ConverterData(double pAc, double poleLossP) {
+    }
+
     private double getResistiveLosses(double pAC1, double pAC2, double poleLossP1, double poleLossP2) {
-        if (HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER.equals(operatingMode) && pAC1 != 0.0) {
-            double pDcRectifier = pAC1 - poleLossP1;
+        ConverterData converter1 = new ConverterData(pAC1, poleLossP1);
+        ConverterData converter2 = new ConverterData(pAC2, poleLossP2);
+
+        return switch (operatingMode) {
+            case SIDE_1_RECTIFIER_SIDE_2_INVERTER -> getResistiveLosses(converter1, converter2);
+            case SIDE_1_INVERTER_SIDE_2_RECTIFIER -> getResistiveLosses(converter2, converter1);
+        };
+    }
+
+    private double getResistiveLosses(ConverterData rectifier, ConverterData inverter) {
+        if (rectifier.pAc != 0.0) {
+            double pDcRectifier = rectifier.pAc - rectifier.poleLossP;
             return HvdcUtils.getHvdcLineLosses(pDcRectifier, ratedUdc, r);
-        } else if (HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER.equals(operatingMode) && pAC2 != 0.0) {
-            double pDcRectifier = pAC2 - poleLossP2;
-            return HvdcUtils.getHvdcLineLosses(pDcRectifier, ratedUdc, r);
-        } else if (HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER.equals(operatingMode) && pAC2 != 0.0) {
-            double pDcInverter = -1 * (Math.abs(pAC2) + poleLossP2);
-            double idc = (ratedUdc - Math.sqrt(ratedUdc * ratedUdc + 4 * r * pDcInverter)) / (2 * r);
+        } else if (inverter.pAc != 0.0) {
+            double pDcInverter = -1 * (Math.abs(inverter.pAc) + inverter.poleLossP);
+            double idc = (ratedUdc - Math.sqrt(ratedUdc * ratedUdc - 4 * r * Math.abs(pDcInverter))) / (2 * r);
             return r * idc * idc;
-        } else if (HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER.equals(operatingMode) && pAC1 != 0.0) {
-            double pDcInverter = -1 * (Math.abs(pAC1) + poleLossP1);
-            double idc = (ratedUdc - Math.sqrt(ratedUdc * ratedUdc + 4 * r * pDcInverter)) / (2 * r);
-            return r * idc * idc;
-        } else {
-            return 0.0;
         }
+        return 0.0;
     }
 
     private static void updatePowerFactor(AcDcConverterConversion acDcConverterConversion) {
