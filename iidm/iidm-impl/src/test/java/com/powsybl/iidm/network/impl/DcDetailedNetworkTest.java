@@ -7,9 +7,14 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,5 +45,45 @@ class DcDetailedNetworkTest {
         assertEquals(2, network.getDcLineCommutatedConverterCount());
         assertTrue(network.getDcGround("dcGroundFr").getDcTerminal().isConnected());
         assertFalse(network.getDcGround("dcGroundGb").getDcTerminal().isConnected());
+    }
+
+    @Test
+    void testEquipmentTopologyVisitor() {
+        Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
+        List<Connectable<?>> visited = new ArrayList<>();
+        TopologyVisitor topologyVisitor = new AbstractEquipmentTopologyVisitor() {
+            @Override
+            public <I extends Connectable<I>> void visitEquipment(Connectable<I> eq) {
+                if (eq instanceof DcConverter<?>) {
+                    visited.add(eq);
+                }
+            }
+        };
+        network.getVoltageLevel("VLDC-FR-xNodeDc1fr-150")
+                .visitEquipments(topologyVisitor);
+        assertEquals(2, visited.size());
+        visited.forEach(c -> assertSame(network.getDcLineCommutatedConverter("CsFr"), c));
+    }
+
+    @Test
+    void testTerminalTopologyVisitor() {
+        Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
+        List<Terminal> visited = new ArrayList<>();
+        TopologyVisitor topologyVisitor = new AbstractTerminalTopologyVisitor() {
+            @Override
+            public void visitTerminal(Terminal t) {
+                if (t.getConnectable() instanceof DcConverter<?>) {
+                    visited.add(t);
+                }
+            }
+        };
+        network.getVoltageLevel("VLDC-FR-xNodeDc1fr-150")
+                .visitEquipments(topologyVisitor);
+        assertEquals(2, visited.size());
+        var csFr = network.getDcLineCommutatedConverter("CsFr");
+        visited.forEach(t -> assertSame(csFr, t.getConnectable()));
+        var terminalBySide = visited.stream().collect(Collectors.toMap(Terminal::getSide, Function.identity()));
+        assertSame(csFr.getTerminal1(), terminalBySide.get(ThreeSides.ONE));
+        assertSame(csFr.getTerminal2().orElseThrow(), terminalBySide.get(ThreeSides.TWO));
     }
 }
