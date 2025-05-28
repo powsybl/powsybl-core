@@ -132,10 +132,10 @@ public final class DcDetailedNetworkFactory {
                 .add();
         if (mode == Mode.ONE_T2WT) {
             Bus bDc1501 = vldc150.getBusBreakerView().newBus()
-                    .setId("BUSDC-" + country.name() + "-" + xNode + "-150-1")
+                    .setId("BUSDC-" + country.name() + "-" + xNode + "-150")
                     .add();
             s.newTwoWindingsTransformer()
-                    .setId("TRDC-" + country.name() + "-" + xNode + "-1")
+                    .setId("TRDC-" + country.name() + "-" + xNode)
                     .setVoltageLevel1(vldc400.getId())
                     .setBus1(bDc400.getId())
                     .setConnectableBus1(bDc400.getId())
@@ -322,7 +322,6 @@ public final class DcDetailedNetworkFactory {
     }
 
     public static Network createLccMonopoleGroundReturn(NetworkFactory networkFactory) {
-        Objects.requireNonNull(networkFactory);
         return createLccMonopoleBase(networkFactory, "LccMonopoleGroundReturn");
     }
 
@@ -331,7 +330,6 @@ public final class DcDetailedNetworkFactory {
     }
 
     public static Network createLccMonopoleMetallicReturn(NetworkFactory networkFactory) {
-        Objects.requireNonNull(networkFactory);
         Network network = createLccMonopoleBase(networkFactory, "LccMonopoleMetallicReturn");
         network.getDcGround("dcGroundGb").getDcTerminal().setConnected(false);
         network.getSubnetwork("LccMonopoleMetallicReturn")
@@ -342,6 +340,102 @@ public final class DcDetailedNetworkFactory {
                 .setDcNode2Id("dcNodeGbNeg")
                 .setConnected2(true)
                 .setR(5.0)
+                .add();
+        return network;
+    }
+
+    private static Network createVscMonopoleBase(NetworkFactory networkFactory, String dcNetworkId) {
+        Objects.requireNonNull(networkFactory);
+        Objects.requireNonNull(dcNetworkId);
+
+        Network dcNetwork = networkFactory.createNetwork(dcNetworkId, "test");
+        Network fr = createSimpleAcNetworkWithDanglingLines(networkFactory, Country.FR, Map.of("xNodeDc1fr", 200.));
+        Network gb = createSimpleAcNetworkWithDanglingLines(networkFactory, Country.GB, Map.of("xNodeDc1gb", -200.));
+        addDcAcElements(dcNetwork, Country.FR, "xNodeDc1fr", -200., Mode.ONE_T2WT);
+        addDcAcElements(dcNetwork, Country.GB, "xNodeDc1gb", 200., Mode.ONE_T2WT);
+
+        DcNode dcNodeFrPos = dcNetwork.newDcNode()
+                .setId("dcNodeFrPos")
+                .setNominalV(250.)
+                .add();
+        DcNode dcNodeFrNeg = dcNetwork.newDcNode()
+                .setId("dcNodeFrNeg")
+                .setNominalV(250.)
+                .add();
+        DcNode dcNodeGbPos = dcNetwork.newDcNode()
+                .setId("dcNodeGbPos")
+                .setNominalV(250.)
+                .add();
+        DcNode dcNodeGbNeg = dcNetwork.newDcNode()
+                .setId("dcNodeGbNeg")
+                .setNominalV(250.)
+                .add();
+        dcNetwork.newDcLine()
+                .setId("dcLinePos")
+                .setDcNode1Id(dcNodeFrPos.getId())
+                .setDcNode2Id(dcNodeGbPos.getId())
+                .setR(5.0)
+                .add();
+        dcNetwork.newDcLine()
+                .setId("dcLineNeg")
+                .setDcNode1Id(dcNodeFrNeg.getId())
+                .setDcNode2Id(dcNodeGbNeg.getId())
+                .setR(5.0)
+                .add();
+        dcNetwork.getVoltageLevel("VLDC-FR-xNodeDc1fr-150").newDcVoltageSourceConverter()
+                .setId("VsFr")
+                .setBus1("BUSDC-FR-xNodeDc1fr-150")
+                .setDcNode1Id(dcNodeFrNeg.getId())
+                .setDcNode2Id(dcNodeFrPos.getId())
+                .setControlMode(DcConverter.ControlMode.V_DC)
+                .setPccTerminal(dcNetwork.getTwoWindingsTransformer("TRDC-FR-xNodeDc1fr").getTerminal1())
+                .setTargetVdc(500.)
+                .setTargetP(200.)
+                .add();
+        dcNetwork.getVoltageLevel("VLDC-GB-xNodeDc1gb-150").newDcVoltageSourceConverter()
+                .setId("VsGb")
+                .setBus1("BUSDC-GB-xNodeDc1gb-150")
+                .setDcNode1Id(dcNodeGbNeg.getId())
+                .setDcNode2Id(dcNodeGbPos.getId())
+                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setPccTerminal(dcNetwork.getTwoWindingsTransformer("TRDC-GB-xNodeDc1gb").getTerminal1())
+                .setTargetVdc(500.)
+                .setTargetP(-200.)
+                .add();
+        return Network.merge(dcNetwork, fr, gb);
+    }
+
+    public static Network createVscSymmetricalMonopole() {
+        return createVscSymmetricalMonopole(NetworkFactory.findDefault());
+    }
+
+    public static Network createVscSymmetricalMonopole(NetworkFactory networkFactory) {
+        return createVscMonopoleBase(networkFactory, "VscSymmetricalMonopole");
+    }
+
+    public static Network createVscAsymmetricalMonopole() {
+        return createVscAsymmetricalMonopole(NetworkFactory.findDefault());
+    }
+
+    public static Network createVscAsymmetricalMonopole(NetworkFactory networkFactory) {
+        Network network = createVscMonopoleBase(networkFactory, "VscAsymmetricalMonopole");
+        Network dcNetwork = network.getSubnetwork("VscAsymmetricalMonopole");
+        dcNetwork.getDcLine("dcLineNeg").remove();
+        dcNetwork.getDcNode("dcNodeFrPos").setNominalV(500.);
+        dcNetwork.getDcNode("dcNodeGbPos").setNominalV(500.);
+        dcNetwork.getDcNode("dcNodeFrNeg").setNominalV(1.);
+        dcNetwork.getDcNode("dcNodeGbNeg").setNominalV(1.);
+        dcNetwork.newDcGround()
+                .setId("dcGroundFr")
+                .setDcNodeId("dcNodeFrNeg")
+                .setConnected(true)
+                .setR(0.0)
+                .add();
+        dcNetwork.newDcGround()
+                .setId("dcGroundGb")
+                .setDcNodeId("dcNodeGbNeg")
+                .setConnected(true)
+                .setR(0.0)
                 .add();
         return network;
     }

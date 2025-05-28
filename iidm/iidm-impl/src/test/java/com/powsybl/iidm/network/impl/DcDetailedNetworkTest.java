@@ -31,6 +31,7 @@ class DcDetailedNetworkTest {
         assertEquals(4, network.getDcNodeCount());
         assertEquals(1, network.getDcLineCount());
         assertEquals(2, network.getDcLineCommutatedConverterCount());
+        assertEquals(2, network.getDcGroundCount());
         assertTrue(network.getDcGround("dcGroundFr").getDcTerminal().isConnected());
         assertTrue(network.getDcGround("dcGroundGb").getDcTerminal().isConnected());
     }
@@ -43,8 +44,31 @@ class DcDetailedNetworkTest {
         assertEquals(4, network.getDcNodeCount());
         assertEquals(2, network.getDcLineCount());
         assertEquals(2, network.getDcLineCommutatedConverterCount());
+        assertEquals(2, network.getDcGroundCount());
         assertTrue(network.getDcGround("dcGroundFr").getDcTerminal().isConnected());
         assertFalse(network.getDcGround("dcGroundGb").getDcTerminal().isConnected());
+    }
+
+    @Test
+    void testVscSymmetricalMonopole() {
+        Network network = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
+        assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        assertEquals(3, network.getSubnetworks().size());
+        assertEquals(4, network.getDcNodeCount());
+        assertEquals(2, network.getDcLineCount());
+        assertEquals(2, network.getDcVoltageSourceConverterCount());
+        assertEquals(0, network.getDcGroundCount());
+    }
+
+    @Test
+    void testVscAsymmetricalMonopole() {
+        Network network = DcDetailedNetworkFactory.createVscAsymmetricalMonopole();
+        assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        assertEquals(3, network.getSubnetworks().size());
+        assertEquals(4, network.getDcNodeCount());
+        assertEquals(1, network.getDcLineCount());
+        assertEquals(2, network.getDcVoltageSourceConverterCount());
+        assertEquals(2, network.getDcGroundCount());
     }
 
     @Test
