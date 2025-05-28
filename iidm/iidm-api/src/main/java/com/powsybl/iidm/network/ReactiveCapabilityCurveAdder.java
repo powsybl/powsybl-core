@@ -27,4 +27,6 @@ public interface ReactiveCapabilityCurveAdder {
     PointAdder beginPoint();
 
     ReactiveCapabilityCurve add();
+
+    ReactiveCapabilityCurveAdder setShouldCheckMinMaxValues(boolean shouldCheckMinMaxValues);
 }

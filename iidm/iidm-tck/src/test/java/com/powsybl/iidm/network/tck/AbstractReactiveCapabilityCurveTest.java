@@ -10,16 +10,18 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
+import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
 import static com.powsybl.iidm.network.ReactiveLimitsKind.CURVE;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class AbstractReactiveCapabilityCurveTest {
 
@@ -123,16 +125,14 @@ public abstract class AbstractReactiveCapabilityCurveTest {
         assertTrue(e.getMessage().contains("min Q is not set"));
     }
 
-    @Disabled(value = "To be reactivated in IIDM v1.1")
     @Test
     public void invalidMinQGreaterThanMaxQ() {
-        ValidationException e = assertThrows(ValidationException.class, () -> generator.newReactiveCapabilityCurve()
-                    .beginPoint()
-                        .setP(1.0)
-                        .setMaxQ(5.0)
-                        .setMinQ(50.0)
-                    .endPoint()
-                .add());
+        ReactiveCapabilityCurveAdder.PointAdder pointAdder = generator.newReactiveCapabilityCurve()
+            .beginPoint()
+            .setP(1.0)
+            .setMaxQ(5.0)
+            .setMinQ(50.0);
+        ValidationException e = assertThrows(ValidationException.class, pointAdder::endPoint);
         assertTrue(e.getMessage().contains("maximum reactive power is expected to be greater than or equal to minimum reactive power"));
     }
 
