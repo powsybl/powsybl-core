@@ -105,3 +105,89 @@ WHERE {
     ?x foaf:lastName ?y .
     FILTER (?y = "Channing")
 }
+
+# query: projects
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT *
+WHERE {
+    ?Person a foaf:Person ;
+        foaf:name ?name ;
+        foaf:pastProject ?Project .
+    ?Project a foaf:Project ;
+        foaf:name ?projectName .
+}
+
+# query: minProjectRightQuery
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT *
+WHERE {
+    ?Person a foaf:Person ;
+        foaf:name ?name .
+    OPTIONAL {
+        {
+            SELECT ?Person (MIN(?Project) AS ?Project)
+            WHERE {
+                ?Person foaf:pastProject ?Project .
+            }
+            GROUP BY ?Person
+        }
+        ?Project foaf:name ?projectName .
+    }
+}
+
+# query: firstProjectBadQueryAndReturnsWrongResults
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT *
+WHERE {
+    ?Person a foaf:Person ;
+        foaf:name ?name .
+    OPTIONAL {
+        {
+            SELECT ?Project ?projectName
+            WHERE {
+                ?Person foaf:pastProject ?Project .
+                ?Project foaf:name ?projectName .
+            }
+            LIMIT 1
+        }
+    }
+}
+
+# query: firstProjectBadQueryButReturnsRightResults
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT *
+WHERE {
+    ?Person a foaf:Person ;
+        foaf:name ?name .
+    OPTIONAL {
+        {
+            SELECT ?Project
+            WHERE {
+                ?Person foaf:pastProject ?Project .
+            }
+            LIMIT 1
+        }
+        ?Project foaf:name ?projectName .
+    }
+}
+
+# query: firstProjectBadQueryNoOptionalAndReturnsWrongResults
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT *
+WHERE {
+    ?Person a foaf:Person ;
+        foaf:name ?name .
+    {
+        {
+            SELECT ?Project
+            WHERE {
+                ?Person foaf:pastProject ?Project .
+            }
+            LIMIT 1
+        }
+        ?Project foaf:name ?projectName .
+    }
+}
+
+
+
