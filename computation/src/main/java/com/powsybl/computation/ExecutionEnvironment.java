@@ -44,10 +44,7 @@ public class ExecutionEnvironment {
     }
 
     public ExecutionEnvironment(Map<String, String> variables, String workingDirPrefix, boolean debug) {
-        this.variables = Objects.requireNonNull(variables);
-        this.workingDirPrefix = Objects.requireNonNull(workingDirPrefix);
-        this.debug = debug;
-        this.debugDir = null;
+        this(variables, workingDirPrefix, debug, null);
     }
 
     public Map<String, String> getVariables() {
