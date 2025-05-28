@@ -19,8 +19,8 @@ import java.util.Objects;
  */
 public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
 
-    private Ref<? extends VariantManagerHolder> network;
-    private DcConnectable dcConnectable;
+    private final Ref<? extends VariantManagerHolder> network;
+    private DcConnectable<?> dcConnectable;
     private final TwoSides side;
     private final DcNode dcNode;
     protected final TDoubleArrayList p;
@@ -75,8 +75,9 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     public DcTerminal setP(double p) {
         ValidationUtil.checkModifyOfRemovedEquipment(dcConnectable.getId(), this.removed);
         int variantIndex = getVariantManagerHolder().getVariantIndex();
-        this.p.set(variantIndex, p);
-        // TODO notification
+        double oldValue = this.p.set(variantIndex, p);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "p" + getAttributeSideSuffix(), variantId, oldValue, p);
         return this;
     }
 
@@ -90,8 +91,9 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     public DcTerminal setI(double i) {
         ValidationUtil.checkModifyOfRemovedEquipment(dcConnectable.getId(), this.removed);
         int variantIndex = getVariantManagerHolder().getVariantIndex();
-        this.i.set(variantIndex, i);
-        // TODO notification
+        double oldValue = this.i.set(variantIndex, i);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "i" + getAttributeSideSuffix(), variantId, oldValue, i);
         return this;
     }
 
@@ -105,8 +107,9 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     public DcTerminal setConnected(boolean connected) {
         ValidationUtil.checkModifyOfRemovedEquipment(dcConnectable.getId(), this.removed);
         int variantIndex = getVariantManagerHolder().getVariantIndex();
-        this.connected.set(variantIndex, connected);
-        // TODO notification
+        boolean oldValue = this.connected.set(variantIndex, connected);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "connected" + getAttributeSideSuffix(), variantId, oldValue, connected);
         return this;
     }
 
@@ -152,5 +155,18 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
 
     <I extends DcConnectable<I>> void setDcConnectable(DcConnectable<I> dcConnectable) {
         this.dcConnectable = dcConnectable;
+    }
+
+    NetworkImpl getNetwork() {
+        if (dcConnectable instanceof AbstractDcConnectable<?> abstractDcConnectable) {
+            return abstractDcConnectable.getNetwork();
+        } else if (dcConnectable instanceof AbstractDcConverter<?> abstractDcConverter) {
+            return abstractDcConverter.getNetwork();
+        }
+        throw new IllegalStateException("Unexpected dcConnectable type: " + dcConnectable.getClass().getName());
+    }
+
+    String getAttributeSideSuffix() {
+        return "" + (side != null ? side.getNum() : "");
     }
 }
