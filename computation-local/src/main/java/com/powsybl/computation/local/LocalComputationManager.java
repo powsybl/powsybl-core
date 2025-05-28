@@ -211,7 +211,7 @@ public class LocalComputationManager implements ComputationManager {
                         File destinationFile = executionParameters.debugDir.resolve(executionParameters.workingDir.getFileName()).toFile();
                         FileUtils.copyDirectory(sourceFile, destinationFile);
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        LOGGER.warn(e.getMessage(), e);
                     }
                 }
                 executionParameters.latch.countDown();
