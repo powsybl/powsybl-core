@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
+import com.powsybl.iidm.network.util.HvdcUtils;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,7 +164,7 @@ public class CgmesDcConversion {
         if (!convertCommonData(acDcConverterNodes, adjacency, acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId)) {
             return;
         }
-        this.r = 2.0 * computeR(this.dcLineSegment);
+        this.r = computeR(this.dcLineSegment) / 2.0;
 
         if (createHvdc(isDuplicated)) {
             setCommonDataUsed();
@@ -179,7 +180,7 @@ public class CgmesDcConversion {
         if (dcLineSegment2 == null) {
             return;
         }
-        this.r = 1.0 / (1.0 / computeR(this.dcLineSegment) + 1.0 / computeR(dcLineSegment2));
+        this.r = computeR(this.dcLineSegment) + computeR(dcLineSegment2);
 
         if (createHvdc()) {
             setCommonDataUsed();
@@ -256,18 +257,15 @@ public class CgmesDcConversion {
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             } else if (rectifier(mode1) && inverter(mode2)) {
                 return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
-            } else if (cconverter1.asDouble(TARGET_PPCC) == 0 && cconverter2.asDouble(TARGET_PPCC) == 0) {
-                // Both ends are rectifier or inverter
-                return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             } else {
                 LOG.warn("Undefined converter mode for the HVDC, assumed to be of type \"Side1 Rectifier - Side2 Inverter\"");
                 return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
             }
         } else {
-            if (cconverter1.asDouble(TARGET_PPCC) > 0 || cconverter2.asDouble(TARGET_PPCC) < 0) {
-                return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
-            } else {
+            if (cconverter1.asDouble(TARGET_PPCC) < 0 || cconverter2.asDouble(TARGET_PPCC) > 0) {
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
+            } else {
+                return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
             }
         }
     }
@@ -342,13 +340,15 @@ public class CgmesDcConversion {
         double pAC1 = getPAc(cconverter1);
         double pAC2 = getPAc(cconverter2);
 
-        LossFactor lossFactor = new LossFactor(context, operatingMode, pAC1, pAC2, poleLossP1, poleLossP2);
+        double resistiveLosses = getResistiveLosses(pAC1, pAC2, poleLossP1, poleLossP2);
+
+        LossFactor lossFactor = new LossFactor(context, operatingMode, pAC1, pAC2, poleLossP1, poleLossP2, resistiveLosses);
         lossFactor.compute();
 
         AcDcConverterConversion acDcConverterConversion1 = new AcDcConverterConversion(cconverter1, converterType, lossFactor.getLossFactor1(), acDcConverterDcTerminal1Id, context);
         AcDcConverterConversion acDcConverterConversion2 = new AcDcConverterConversion(cconverter2, converterType, lossFactor.getLossFactor2(), acDcConverterDcTerminal2Id, context);
-        DcLineSegmentConverter converter1 = new DcLineSegmentConverter(converter1Id, poleLossP1, pAC1);
-        DcLineSegmentConverter converter2 = new DcLineSegmentConverter(converter2Id, poleLossP2, pAC2);
+        DcLineSegmentConverter converter1 = new DcLineSegmentConverter(converter1Id, poleLossP1, pAC1, resistiveLosses);
+        DcLineSegmentConverter converter2 = new DcLineSegmentConverter(converter2Id, poleLossP2, pAC2, resistiveLosses);
         DcLineSegmentConversion dcLineSegmentConversion = new DcLineSegmentConversion(dcLineSegment, operatingMode, r, ratedUdc, converter1, converter2, isDuplicated, context);
 
         if (!acDcConverterConversion1.valid() || !acDcConverterConversion2.valid() || !dcLineSegmentConversion.valid()) {
@@ -374,6 +374,31 @@ public class CgmesDcConversion {
     private static double getPAc(PropertyBag p) {
         // targetPpcc is the real power injection target in the AC grid in CGMES
         return Double.isNaN(p.asDouble(TARGET_PPCC)) ? 0 : p.asDouble(TARGET_PPCC);
+    }
+
+    record ConverterData(double pAc, double poleLossP) {
+    }
+
+    private double getResistiveLosses(double pAC1, double pAC2, double poleLossP1, double poleLossP2) {
+        ConverterData converter1 = new ConverterData(pAC1, poleLossP1);
+        ConverterData converter2 = new ConverterData(pAC2, poleLossP2);
+
+        return switch (operatingMode) {
+            case SIDE_1_RECTIFIER_SIDE_2_INVERTER -> getResistiveLosses(converter1, converter2);
+            case SIDE_1_INVERTER_SIDE_2_RECTIFIER -> getResistiveLosses(converter2, converter1);
+        };
+    }
+
+    private double getResistiveLosses(ConverterData rectifier, ConverterData inverter) {
+        if (rectifier.pAc != 0.0) {
+            double pDcRectifier = rectifier.pAc - rectifier.poleLossP;
+            return HvdcUtils.getHvdcLineLosses(pDcRectifier, ratedUdc, r);
+        } else if (inverter.pAc != 0.0) {
+            double pDcInverter = -1 * (Math.abs(inverter.pAc) + inverter.poleLossP);
+            double idc = (ratedUdc - Math.sqrt(ratedUdc * ratedUdc - 4 * r * Math.abs(pDcInverter))) / (2 * r);
+            return r * idc * idc;
+        }
+        return 0.0;
     }
 
     private static void updatePowerFactor(AcDcConverterConversion acDcConverterConversion) {
