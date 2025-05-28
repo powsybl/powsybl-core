@@ -54,7 +54,6 @@ public class PhaseShifterShiftTap extends AbstractNetworkModification {
             } else {
                 adjustTapPosition(phaseTapChanger);
                 phaseTapChanger.setRegulating(false);
-                phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
             }
         }
     }
@@ -75,8 +74,7 @@ public class PhaseShifterShiftTap extends AbstractNetworkModification {
             int tapPosition = Math.min(Math.max(phaseTapChanger.getTapPosition() + tapDelta,
                 phaseTapChanger.getLowTapPosition()), phaseTapChanger.getHighTapPosition());
             if (areValuesEqual(tapPosition, phaseTapChanger.getTapPosition(), false)
-                && !phaseTapChanger.isRegulating()
-                && phaseTapChanger.getRegulationMode() == PhaseTapChanger.RegulationMode.FIXED_TAP) {
+                && !phaseTapChanger.isRegulating()) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         }
