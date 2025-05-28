@@ -39,4 +39,6 @@ public interface TopologyVisitor {
     }
 
     void visitGround(Ground connectable);
+
+    void visitDcConverter(DcConverter<?> converter, TwoSides side);
 }

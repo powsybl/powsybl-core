@@ -40,6 +40,30 @@ public final class ValidationUtil {
     private ValidationUtil() {
     }
 
+    public static void checkAccessOfRemovedEquipment(String id, boolean removed) {
+        if (removed) {
+            throw new PowsyblException("Cannot access removed equipment " + id);
+        }
+    }
+
+    public static void checkModifyOfRemovedEquipment(String id, boolean removed) {
+        if (removed) {
+            throw new PowsyblException("Cannot modify removed equipment " + id);
+        }
+    }
+
+    public static void checkAccessOfRemovedEquipment(String id, boolean removed, String attribute) {
+        if (removed) {
+            throw new PowsyblException("Cannot access " + attribute + " of removed equipment " + id);
+        }
+    }
+
+    public static void checkModifyOfRemovedEquipment(String id, boolean removed, String attribute) {
+        if (removed) {
+            throw new PowsyblException("Cannot modify " + attribute + " of removed equipment " + id);
+        }
+    }
+
     public static PowsyblException createUndefinedValueGetterException() {
         return new PowsyblException("This getter cannot be used if the value is not defined");
     }
@@ -266,6 +290,12 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkRPositive(Validable validable, double r) {
+        if (Double.isNaN(r) || r < 0) {
+            throw new ValidationException(validable, "r is invalid");
+        }
+    }
+
     public static void checkX(Validable validable, double x) {
         if (Double.isNaN(x)) {
             throw new ValidationException(validable, "x is invalid");
@@ -435,6 +465,12 @@ public final class ValidationUtil {
     public static void checkBmax(Validable validable, double bMax) {
         if (Double.isNaN(bMax)) {
             throw new ValidationException(validable, "bmax is invalid");
+        }
+    }
+
+    public static void checkDoubleParamPositive(Validable validable, double param, String paramName) {
+        if (Double.isNaN(param) || param < 0) {
+            throw new ValidationException(validable, paramName + " is invalid");
         }
     }
 
