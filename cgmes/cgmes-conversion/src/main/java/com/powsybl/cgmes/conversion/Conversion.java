@@ -84,6 +84,8 @@ import static java.util.stream.Collectors.groupingBy;
  */
 public class Conversion {
 
+    private static final String QUERY_CATALOG_NAME_UPDATE = "-update";
+
     public enum Xfmr2RatioPhaseInterpretationAlternative {
         END1, END2, END1_END2, X
     }
@@ -285,8 +287,7 @@ public class Conversion {
         if (!sshOrSvIsIncludedInCgmesModel(this.cgmes)) {
             return;
         }
-        this.cgmes.invalidateCaches();
-        this.cgmes.setQueryCatalog("-update");
+        this.cgmes.setQueryCatalog(QUERY_CATALOG_NAME_UPDATE);
         Context updateContext = createUpdateContext(network, reportNode);
 
         // add processes to create new equipment using update data (ssh and sv data)

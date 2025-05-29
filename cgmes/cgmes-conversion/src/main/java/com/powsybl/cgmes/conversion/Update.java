@@ -25,6 +25,8 @@ import java.util.*;
 
 public final class Update {
 
+    private static final PropertyBag EMPTY_PROPERTY_BAG = new PropertyBag(Collections.emptyList(), false);
+
     private Update() {
     }
 
@@ -60,10 +62,6 @@ public final class Update {
     }
 
     private static PropertyBag getPropertyBag(String identifiableId, Map<String, PropertyBag> equipmentIdPropertyBag) {
-        return equipmentIdPropertyBag.getOrDefault(identifiableId, emptyPropertyBag());
-    }
-
-    private static PropertyBag emptyPropertyBag() {
-        return new PropertyBag(Collections.emptyList(), false);
+        return equipmentIdPropertyBag.getOrDefault(identifiableId, EMPTY_PROPERTY_BAG);
     }
 }

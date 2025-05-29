@@ -34,6 +34,8 @@ import java.util.Optional;
  */
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
 
+    private static final PropertyBag EMPTY_PROPERTY_BAG = new PropertyBag(Collections.emptyList(), false);
+
     protected AbstractConductingEquipmentConversion(
             String type,
             PropertyBag p,
@@ -555,9 +557,12 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     private static PropertyBags getCgmesTerminals(Connectable<?> connectable, Context context, int numTerminals) {
         PropertyBags propertyBags = new PropertyBags();
-        getTerminalTags(numTerminals).forEach(terminalTag -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + terminalTag)
-                .ifPresent(cgmesTerminalId -> propertyBags.add(getCgmesTerminal(cgmesTerminalId, context))));
+        getTerminalTags(numTerminals).forEach(terminalTag -> propertyBags.add(
+                connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + terminalTag)
+                        .map(cgmesTerminalId -> getCgmesTerminal(cgmesTerminalId, context))
+                        .orElseGet(() -> EMPTY_PROPERTY_BAG)));
         return propertyBags;
+
     }
 
     private static List<String> getTerminalTags(int numTerminals) {
@@ -573,7 +578,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     private static PropertyBag getCgmesTerminal(String cgmesTerminalId, Context context) {
         return context.cgmesTerminal(cgmesTerminalId) != null
                 ? context.cgmesTerminal(cgmesTerminalId)
-                : new PropertyBag(Collections.emptyList(), false);
+                : EMPTY_PROPERTY_BAG;
     }
 
     private final int numTerminals;
