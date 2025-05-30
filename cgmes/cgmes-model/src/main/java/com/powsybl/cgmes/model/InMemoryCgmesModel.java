@@ -64,6 +64,7 @@ public final class InMemoryCgmesModel implements CgmesModel {
     private PropertyBags tieFlows;
     private PropertyBags numObjectsByType;
     private PropertyBags modelProfiles;
+    private PropertyBags svVoltages;
 
     public InMemoryCgmesModel() {
         properties = new Properties();
@@ -106,6 +107,7 @@ public final class InMemoryCgmesModel implements CgmesModel {
         tieFlows = new PropertyBags();
         numObjectsByType = new PropertyBags();
         modelProfiles = new PropertyBags();
+        svVoltages = new PropertyBags();
     }
 
     @Override
@@ -512,6 +514,11 @@ public final class InMemoryCgmesModel implements CgmesModel {
     @Override
     public PropertyBags tieFlows() {
         return tieFlows;
+    }
+
+    @Override
+    public PropertyBags svVoltages() {
+        return svVoltages;
     }
 
     @Override
