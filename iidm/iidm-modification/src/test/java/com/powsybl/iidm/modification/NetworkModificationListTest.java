@@ -13,7 +13,7 @@ import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
+import com.powsybl.iidm.modification.topology.NamingStrategiesFactory;
 import com.powsybl.iidm.modification.topology.RemoveFeederBay;
 import com.powsybl.iidm.modification.topology.RemoveFeederBayBuilder;
 import com.powsybl.iidm.modification.tripping.BranchTripping;
@@ -63,7 +63,7 @@ class NetworkModificationListTest {
         BranchTripping tripping = new BranchTripping(lineId, "VLHV1");
         RemoveFeederBay removal = new RemoveFeederBayBuilder().withConnectableId(lineId).build();
         NetworkModificationList task = new NetworkModificationList(tripping, tripping, removal);
-        boolean dryRunIsOk = assertDoesNotThrow(() -> task.apply(network, new DefaultNamingStrategy(), true));
+        boolean dryRunIsOk = assertDoesNotThrow(() -> task.apply(network, NamingStrategiesFactory.getDefault(), true));
         assertTrue(dryRunIsOk);
         assertNotNull(network.getLine("NHV1_NHV2_1"));
         assertTrue(network.getLine("NHV1_NHV2_1").getTerminal1().isConnected());
@@ -75,10 +75,10 @@ class NetworkModificationListTest {
         assertTrue(task.apply(network, LocalComputationManager.getDefault(), reportNode, true));
         assertTrue(task.apply(network, false, reportNode, true));
         assertTrue(task.apply(network, false, LocalComputationManager.getDefault(), reportNode, true));
-        assertTrue(task.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), true));
-        assertTrue(task.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), reportNode, true));
-        assertTrue(task.apply(network, new DefaultNamingStrategy(), reportNode, true));
-        assertTrue(task.apply(network, new DefaultNamingStrategy(), false, reportNode, true));
+        assertTrue(task.apply(network, NamingStrategiesFactory.getDefault(), LocalComputationManager.getDefault(), true));
+        assertTrue(task.apply(network, NamingStrategiesFactory.getDefault(), LocalComputationManager.getDefault(), reportNode, true));
+        assertTrue(task.apply(network, NamingStrategiesFactory.getDefault(), reportNode, true));
+        assertTrue(task.apply(network, NamingStrategiesFactory.getDefault(), false, reportNode, true));
         StringWriter sw1 = new StringWriter();
         reportNode.getChildren().get(reportNode.getChildren().size() - 1).print(sw1);
         assertEquals("""
@@ -120,7 +120,7 @@ class NetworkModificationListTest {
 
         // If we ignore the dry-run result and try to apply the NetworkModificationList, an exception is thrown and
         // the network is in an "unstable" state.
-        assertDoesNotThrow(() -> task.apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), ReportNode.NO_OP, false));
+        assertDoesNotThrow(() -> task.apply(network, NamingStrategiesFactory.getDefault(), false, LocalComputationManager.getDefault(), ReportNode.NO_OP, false));
         assertThrows(PowsyblException.class, () -> task.apply(network, true, ReportNode.NO_OP), "Branch '" + lineId + "' not found");
         assertNull(network.getLine("NHV1_NHV2_1"));
     }

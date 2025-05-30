@@ -12,7 +12,7 @@ import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
+import com.powsybl.iidm.modification.topology.NamingStrategiesFactory;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.serde.NetworkSerDe;
@@ -30,62 +30,62 @@ public abstract class AbstractNetworkModification implements NetworkModification
 
     @Override
     public void apply(Network network) {
-        apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), ReportNode.NO_OP);
+        apply(network, NamingStrategiesFactory.getDefault(), false, LocalComputationManager.getDefault(), ReportNode.NO_OP);
     }
 
     @Override
     public boolean apply(Network network, boolean dryRun) {
-        return apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), ReportNode.NO_OP, dryRun);
+        return apply(network, NamingStrategiesFactory.getDefault(), false, LocalComputationManager.getDefault(), ReportNode.NO_OP, dryRun);
     }
 
     @Override
     public void apply(Network network, ComputationManager computationManager) {
-        apply(network, new DefaultNamingStrategy(), false, computationManager, ReportNode.NO_OP);
+        apply(network, NamingStrategiesFactory.getDefault(), false, computationManager, ReportNode.NO_OP);
     }
 
     @Override
     public boolean apply(Network network, ComputationManager computationManager, boolean dryRun) {
-        return apply(network, new DefaultNamingStrategy(), false, computationManager, ReportNode.NO_OP, dryRun);
+        return apply(network, NamingStrategiesFactory.getDefault(), false, computationManager, ReportNode.NO_OP, dryRun);
     }
 
     @Override
     public void apply(Network network, ComputationManager computationManager, ReportNode reportNode) {
-        apply(network, new DefaultNamingStrategy(), false, computationManager, reportNode);
+        apply(network, NamingStrategiesFactory.getDefault(), false, computationManager, reportNode);
     }
 
     @Override
     public boolean apply(Network network, ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
-        return apply(network, new DefaultNamingStrategy(), false, computationManager, reportNode, dryRun);
+        return apply(network, NamingStrategiesFactory.getDefault(), false, computationManager, reportNode, dryRun);
     }
 
     @Override
     public void apply(Network network, ReportNode reportNode) {
-        apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), reportNode);
+        apply(network, NamingStrategiesFactory.getDefault(), false, LocalComputationManager.getDefault(), reportNode);
     }
 
     @Override
     public boolean apply(Network network, ReportNode reportNode, boolean dryRun) {
-        return apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), reportNode, dryRun);
+        return apply(network, NamingStrategiesFactory.getDefault(), false, LocalComputationManager.getDefault(), reportNode, dryRun);
     }
 
     @Override
     public void apply(Network network, boolean throwException, ReportNode reportNode) {
-        apply(network, new DefaultNamingStrategy(), throwException, LocalComputationManager.getDefault(), reportNode);
+        apply(network, NamingStrategiesFactory.getDefault(), throwException, LocalComputationManager.getDefault(), reportNode);
     }
 
     @Override
     public boolean apply(Network network, boolean throwException, ReportNode reportNode, boolean dryRun) {
-        return apply(network, new DefaultNamingStrategy(), throwException, LocalComputationManager.getDefault(), reportNode, dryRun);
+        return apply(network, NamingStrategiesFactory.getDefault(), throwException, LocalComputationManager.getDefault(), reportNode, dryRun);
     }
 
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
-        apply(network, new DefaultNamingStrategy(), throwException, computationManager, reportNode);
+        apply(network, NamingStrategiesFactory.getDefault(), throwException, computationManager, reportNode);
     }
 
     @Override
     public boolean apply(Network network, boolean throwException, ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
-        return apply(network, new DefaultNamingStrategy(), throwException, computationManager, reportNode, dryRun);
+        return apply(network, NamingStrategiesFactory.getDefault(), throwException, computationManager, reportNode, dryRun);
     }
 
     @Override

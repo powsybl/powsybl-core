@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.iidm.network.Network;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
@@ -17,21 +18,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 class DefaultNamingStrategyTest {
+
+    private NamingStrategy namingStrategy;
+
+    @BeforeEach
+    void setUp() {
+        namingStrategy = NamingStrategiesFactory.getDefault();
+    }
+
     @Test
     void testName() {
-        NamingStrategy namingStrategy = new DefaultNamingStrategy();
         assertEquals("Default", namingStrategy.getName());
     }
 
     @Test
     void testDisconnector() {
-        NamingStrategy namingStrategy = new DefaultNamingStrategy();
         assertEquals("test_DISCONNECTOR_5_6", namingStrategy.getDisconnectorId("test", 5, 6));
     }
 
     @Test
     void testDisconnectorWithBbs() {
-        NamingStrategy namingStrategy = new DefaultNamingStrategy();
         Network network = createNbNetwork();
 
         assertEquals("test_DISCONNECTOR_5_6", namingStrategy.getDisconnectorId(network.getBusbarSection("D"), "test", 5, 6, 0));
@@ -39,8 +45,6 @@ class DefaultNamingStrategyTest {
 
     @Test
     void testBreaker() {
-        NamingStrategy namingStrategy = new DefaultNamingStrategy();
-
 //        // Full Id
         assertEquals("test_BREAKER", namingStrategy.getBreakerId("test"));
 //        assertEquals("test_BREAKER_5", namingStrategy.getBreakerId("test", 5));
@@ -49,8 +53,6 @@ class DefaultNamingStrategyTest {
 
     @Test
     void testSwitch() {
-        NamingStrategy namingStrategy = new DefaultNamingStrategy();
-
         // Full Id
         assertEquals("test_SW", namingStrategy.getSwitchId("test"));
         assertEquals("test_SW_5", namingStrategy.getSwitchId("test", 5));
@@ -59,14 +61,11 @@ class DefaultNamingStrategyTest {
 
     @Test
     void testBusBar() {
-        NamingStrategy namingStrategy = new DefaultNamingStrategy();
-
         assertEquals("test_5_6", namingStrategy.getBusbarId("test", 5, 6));
     }
 
     @Test
     void testSwitchBaseId() {
-        NamingStrategy namingStrategy = new DefaultNamingStrategy();
         Network network = createNbNetwork();
 
         // On Connectable
