@@ -796,7 +796,7 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static ReportNode reportOnDryRunStart(ReportNode reportNode, String networkName, String modificationName) {
+    public static ReportNode reportOnDryRunStart(ReportNode reportNode, String modificationName, String networkName) {
         return reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.networkModificationDryRun")
                 .withUntypedValue("networkModification", modificationName)
