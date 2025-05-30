@@ -34,4 +34,8 @@ public class ServiceLoaderCache<S> {
         return services;
     }
 
+    public synchronized void clearCache() {
+        services = null;
+    }
+
 }
