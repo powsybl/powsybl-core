@@ -47,10 +47,6 @@ public class CgmesExportContext {
 
     private static final String GENERATING_UNIT = "GeneratingUnit";
 
-    private static final String DCNODE = "DCNode";
-    private static final String DCTERMINAL = "DCTerminal";
-    private static final String ACDCCONVERTERDCTERMINAL = "ACDCConverterDCTerminal";
-
     private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
     private static final String REGION_ID = "regionId";
     private static final String REGION_NAME = "regionName";
@@ -403,15 +399,15 @@ public class CgmesExportContext {
 
     private void addIidmMappingsHvdcTerminals(Network network) {
         for (HvdcLine line : network.getHvdcLines()) {
-            String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCTERMINAL + "1").orElse(null);
+            String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL1).orElse(null);
             if (dcTerminal1 == null) {
                 dcTerminal1 = namingStrategy.getCgmesId(refTyped(line), TERMINAL, ref(1));
-                line.addAlias(dcTerminal1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCTERMINAL + "1");
+                line.addAlias(dcTerminal1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1);
             }
-            String dcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCTERMINAL + "2").orElse(null);
+            String dcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElse(null);
             if (dcTerminal2 == null) {
                 dcTerminal2 = namingStrategy.getCgmesId(refTyped(line), TERMINAL, ref(2));
-                line.addAlias(dcTerminal2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCTERMINAL + "2");
+                line.addAlias(dcTerminal2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2);
             }
             String acdcConverter1DcTerminal1 = line.getConverterStation1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElse(null);
             if (acdcConverter1DcTerminal1 == null) {

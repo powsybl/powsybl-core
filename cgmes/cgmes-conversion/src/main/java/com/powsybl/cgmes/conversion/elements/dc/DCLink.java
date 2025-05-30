@@ -132,7 +132,7 @@ public class DCLink {
             pDcRectifier = targetP - getPoleLossesRectifier();
             pDcInverter = -1 * (pDcRectifier - resistiveLossesFromPdcRectifier(pDcRectifier));
         } else if (getTargetPpccInverter() != 0.0) {
-            pDcInverter = getTargetPpccInverter() - getPoleLossesInverter();
+            pDcInverter = -1 * (Math.abs(getTargetPpccInverter()) + getPoleLossesInverter());
             pDcRectifier = Math.abs(pDcInverter) + resistiveLossesFromPdcInverter(pDcInverter);
             targetP = pDcRectifier + getPoleLossesRectifier();
         } else {

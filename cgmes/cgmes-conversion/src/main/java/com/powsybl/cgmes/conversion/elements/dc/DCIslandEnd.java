@@ -33,6 +33,9 @@ public record DCIslandEnd(Set<DCEquipment> dcEquipments) {
     }
 
     public List<DCEquipment> getDcLineSegments() {
+        // Return DCLineSegment sorted by total distance to converters (furthest to nearest), then by id.
+        // This allows DMR in case of bipole configuration to be the last element of the list as
+        // since it's central, it's the closest to all converters.
         return dcEquipments.stream()
                 .filter(DCEquipment::isLine)
                 .sorted(Comparator.comparing(this::getTotalDistanceToConverters).reversed()
@@ -46,7 +49,8 @@ public record DCIslandEnd(Set<DCEquipment> dcEquipments) {
                 .filter(e -> e.getKey().isConverter()
                         && !e.getKey().equals(dcEquipment)
                         && !usedConverters.contains(e.getKey()))
-                .min(Map.Entry.comparingByValue())
+                .min(Map.Entry.<DCEquipment, Integer>comparingByValue()
+                        .thenComparing(e -> e.getKey().id()))
                 .map(Map.Entry::getKey)
                 .orElseThrow();
         usedConverters.add(nearestConverter);
@@ -63,18 +67,18 @@ public record DCIslandEnd(Set<DCEquipment> dcEquipments) {
 
     private Map<DCEquipment, Integer> getEquipmentDistances(DCEquipment dcEquipment) {
         Map<DCEquipment, Integer> equipmentDistances = new HashMap<>();
-        computeEquipmentDistances(Map.of(dcEquipment, 0), equipmentDistances);
+        computeEquipmentDistances(dcEquipment, 0, equipmentDistances);
         return equipmentDistances;
     }
 
-    private void computeEquipmentDistances(Map<DCEquipment, Integer> adjacentDcEquipments, Map<DCEquipment, Integer> equipmentDistances) {
-        for (Map.Entry<DCEquipment, Integer> adjacentDcEquipment : adjacentDcEquipments.entrySet()) {
-            if (equipmentDistances.computeIfAbsent(adjacentDcEquipment.getKey(), v -> Integer.MAX_VALUE) > adjacentDcEquipment.getValue()) {
-                equipmentDistances.put(adjacentDcEquipment.getKey(), adjacentDcEquipment.getValue());
-                Map<DCEquipment, Integer> nextDcEquipments = dcEquipments.stream()
-                        .filter(e -> e != adjacentDcEquipment.getKey() && e.isAdjacentTo(adjacentDcEquipment.getKey()))
-                        .collect(Collectors.toMap(e -> e, e -> adjacentDcEquipment.getValue() + 1));
-                computeEquipmentDistances(nextDcEquipments, equipmentDistances);
+    private void computeEquipmentDistances(DCEquipment dcEquipment, int distance, Map<DCEquipment, Integer> equipmentDistances) {
+        if (!equipmentDistances.containsKey(dcEquipment) || equipmentDistances.get(dcEquipment) > distance) {
+            equipmentDistances.put(dcEquipment, distance);
+            Set<DCEquipment> nextDcEquipments = dcEquipments.stream()
+                    .filter(e -> e != dcEquipment && e.isAdjacentTo(dcEquipment))
+                    .collect(Collectors.toSet());
+            for (DCEquipment nextDcEquipment : nextDcEquipments) {
+                computeEquipmentDistances(nextDcEquipment, distance + 1, equipmentDistances);
             }
         }
     }

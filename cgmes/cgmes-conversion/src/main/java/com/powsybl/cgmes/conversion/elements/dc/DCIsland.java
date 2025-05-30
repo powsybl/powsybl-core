@@ -11,7 +11,6 @@ package com.powsybl.cgmes.conversion.elements.dc;
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.Context;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,12 +34,11 @@ public record DCIsland(Set<DCIslandEnd> dcIslandEnds) {
     private boolean validDcLineSegments(Context context) {
         // Check that each DCLineSegment is present in exactly 2 DCIslandEnd.
         boolean valid = true;
-        Map<DCEquipment, Integer> dcLineSegmentsOccurrences = new HashMap<>();
-        dcIslandEnds.stream()
+        Map<DCEquipment, Long> dcLineSegmentsOccurrences = dcIslandEnds.stream()
                 .flatMap(end -> end.dcEquipments().stream())
                 .filter(DCEquipment::isLine)
-                .forEach(l -> dcLineSegmentsOccurrences.put(l, dcLineSegmentsOccurrences.computeIfAbsent(l, e -> 0) + 1));
-        for (Map.Entry<DCEquipment, Integer> dcLineSegmentOccurrences : dcLineSegmentsOccurrences.entrySet()) {
+                .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
+        for (Map.Entry<DCEquipment, Long> dcLineSegmentOccurrences : dcLineSegmentsOccurrences.entrySet()) {
             if (dcLineSegmentOccurrences.getValue() != 2) {
                 CgmesReports.dcLineSegmentNotInTwoDCIslandEndReport(context.getReportNode(), dcLineSegmentOccurrences.getKey().id());
                 valid = false;
