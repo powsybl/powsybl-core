@@ -84,7 +84,8 @@ import static java.util.stream.Collectors.groupingBy;
  */
 public class Conversion {
 
-    private static final String QUERY_CATALOG_NAME_UPDATE = "-update";
+    public static final String QUERY_CATALOG_NAME_INIT = "";
+    public static final String QUERY_CATALOG_NAME_UPDATE = "-update";
 
     public enum Xfmr2RatioPhaseInterpretationAlternative {
         END1, END2, END1_END2, X

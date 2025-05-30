@@ -560,7 +560,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         getTerminalTags(numTerminals).forEach(terminalTag -> propertyBags.add(
                 connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + terminalTag)
                         .map(cgmesTerminalId -> getCgmesTerminal(cgmesTerminalId, context))
-                        .orElseGet(() -> EMPTY_PROPERTY_BAG)));
+                        .orElse(EMPTY_PROPERTY_BAG)));
         return propertyBags;
 
     }
