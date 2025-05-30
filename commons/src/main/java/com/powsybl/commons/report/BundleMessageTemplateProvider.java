@@ -26,7 +26,7 @@ public class BundleMessageTemplateProvider implements MessageTemplateProvider {
 
     public BundleMessageTemplateProvider(String bundleBaseName, boolean throwIfUnknownKey) {
         this.bundleBaseName = bundleBaseName;
-        this.resourceBundle = ResourceBundle.getBundle(bundleBaseName, ReportConstants.DEFAULT_LOCALE);
+        this.resourceBundle = ResourceBundle.getBundle(bundleBaseName, ReportConstants.getDefaultLocale());
         this.throwIfUnknownKey = throwIfUnknownKey;
     }
 

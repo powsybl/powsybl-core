@@ -17,10 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.powsybl.iidm.modification.scalable.ProportionalScalable.DistributionMode.*;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkwithDanglingLineAndBattery;
@@ -50,7 +47,6 @@ class ProportionalScalableTest {
 
     @BeforeEach
     void setUp() {
-
         network = createNetworkwithDanglingLineAndBattery();
         g1 = Scalable.onGenerator("g1");
         g2 = Scalable.onGenerator("g2");

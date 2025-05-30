@@ -47,7 +47,6 @@ class StackScalableTest {
 
     @BeforeEach
     void setUp() {
-
         network = createNetworkwithDanglingLineAndBattery();
         g1 = Scalable.onGenerator("g1"); //initial targetP : 80MW
         g2 = Scalable.onGenerator("g2"); //initial targetP : 50MW
