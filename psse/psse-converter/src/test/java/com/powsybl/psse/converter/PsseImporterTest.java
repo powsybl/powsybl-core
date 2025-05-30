@@ -7,7 +7,9 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
@@ -17,13 +19,13 @@ import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Properties;
 
@@ -201,6 +203,11 @@ class PsseImporterTest extends AbstractSerDeTest {
     @Test
     void twoTerminalDcwithTwoAreas() throws IOException {
         importTest("twoTerminalDcwithTwoAreas", "twoTerminalDcwithTwoAreas.raw", false);
+    }
+
+    @Test
+    void twoTerminalDcwithTwoAreasTrf3w() throws IOException {
+        importTest("two_area_case_trf3w", "two_area_case_trf3w.raw", false);
     }
 
     @Test
