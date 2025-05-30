@@ -10,6 +10,7 @@ package com.powsybl.contingency;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.contingency.list.IdentifierContingencyList;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.identifiers.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -221,5 +222,56 @@ class NetworkElementIdentifierContingencyListTest {
 
         String message3 = assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("TEST_WITH_NO_WILDCARDS")).getMessage();
         assertEquals("There is no wildcard in your identifier, please use IdBasedNetworkElementIdentifier instead", message3);
+    }
+
+    @Test
+    void testSimpleIdentifierWithVoltageLevelId() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        List<NetworkElementIdentifier> networkElementIdentifierList = new ArrayList<>();
+        // Voltage Level
+        networkElementIdentifierList.add(new SubstationOrVoltageLevelEquipmentsIdentifier("S1VL1"));
+        IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        Assertions.assertEquals(3, contingencies.size());
+        List<String> contingenciesEquipments = contingencies.stream().map(Contingency::getId).toList();
+        Assertions.assertTrue(contingenciesEquipments.containsAll(List.of("TWT", "LD1", "S1VL1_BBS")));
+
+        networkElementIdentifierList = new ArrayList<>();
+        networkElementIdentifierList.add(new SubstationOrVoltageLevelEquipmentsIdentifier("S1VL1", Set.of(IdentifiableType.LOAD)));
+        contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
+        contingencies = contingencyList.getContingencies(network);
+        Assertions.assertEquals(1, contingencies.size());
+        contingenciesEquipments = contingencies.stream().map(Contingency::getId).toList();
+        Assertions.assertTrue(contingenciesEquipments.contains("LD1"));
+
+        // Substation
+        networkElementIdentifierList = new ArrayList<>();
+        networkElementIdentifierList.add(new SubstationOrVoltageLevelEquipmentsIdentifier("S1"));
+        contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
+        contingencies = contingencyList.getContingencies(network);
+        Assertions.assertEquals(14, contingencies.size());
+        contingenciesEquipments = contingencies.stream().map(Contingency::getId).toList();
+        Assertions.assertTrue(contingenciesEquipments.containsAll(List.of("GH2", "LD2", "HVDC1", "TWT", "LD3", "S1VL2_BBS2",
+            "S1VL2_BBS1", "LD1", "SHUNT", "HVDC2", "GH3", "LD4", "S1VL1_BBS", "GH1")));
+
+        networkElementIdentifierList = new ArrayList<>();
+        networkElementIdentifierList.add(new SubstationOrVoltageLevelEquipmentsIdentifier("S1", Set.of(IdentifiableType.LOAD)));
+        contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
+        contingencies = contingencyList.getContingencies(network);
+        Assertions.assertEquals(4, contingencies.size());
+        contingenciesEquipments = contingencies.stream().map(Contingency::getId).toList();
+        Assertions.assertTrue(contingenciesEquipments.containsAll(List.of("LD2", "LD3", "LD1", "LD4")));
+
+        // not Found
+        networkElementIdentifierList = new ArrayList<>();
+        networkElementIdentifierList.add(new SubstationOrVoltageLevelEquipmentsIdentifier("Random"));
+        contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
+        contingencies = contingencyList.getContingencies(network);
+        Assertions.assertEquals(0, contingencies.size());
+        Map<String, Set<String>> notFoundElements = contingencyList.getNotFoundElements(network);
+        Assertions.assertEquals(1, notFoundElements.size());
+        Assertions.assertNotNull(notFoundElements.get("Random"));
+        Assertions.assertEquals(Set.of("Random"), notFoundElements.get("Random"));
+
     }
 }
