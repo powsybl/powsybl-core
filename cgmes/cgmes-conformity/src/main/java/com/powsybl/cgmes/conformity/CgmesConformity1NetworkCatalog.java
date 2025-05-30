@@ -1251,9 +1251,12 @@ public final class CgmesConformity1NetworkCatalog {
                         n, rho, Math.toDegrees(alpha), xn, dx);
             }
         }
+
         ptca.setRegulating(regulating)
                 .setRegulationMode(mode)
-                .setRegulationValue(regulationValue)
+                .setRegulationValue(mode == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && regulationValue < 0
+                        ? Math.abs(regulationValue)
+                        : regulationValue)
                 .setTargetDeadband(targetDeadband)
                 .setRegulationTerminal(tx.getTerminal2())
                 .add();
