@@ -54,7 +54,7 @@ public class DCConversion {
         cgmesDcGrounds = cgmesModel.dcGrounds();
     }
 
-    public void computeDcData() {
+    private void computeDcData() {
         computeDcEquipments();
         computeDcIslandEnds();
         computeDcIslands();
@@ -98,7 +98,8 @@ public class DCConversion {
                 .forEach(acDcConverter -> {
                     if (!visitedDcEquipments.contains(acDcConverter)) {
                         Set<DCEquipment> dcIslandEnd = new HashSet<>();
-                        getAdjacentDcEquipments(Set.of(acDcConverter), dcIslandEnd, visitedDcEquipments);
+                        getAdjacentDcEquipments(acDcConverter, dcIslandEnd);
+                        visitedDcEquipments.addAll(dcIslandEnd);
                         dcIslandEnds.add(new DCIslandEnd(dcIslandEnd));
                     }
                 });
@@ -110,18 +111,17 @@ public class DCConversion {
                 CgmesReports.notVisitedDcEquipmentReport(context.getReportNode(), dcEquipment.id()));
     }
 
-    private void getAdjacentDcEquipments(Set<DCEquipment> adjacentDcEquipments, Set<DCEquipment> dcIslandEnd, Set<DCEquipment> visitedDcEquipments) {
+    private void getAdjacentDcEquipments(DCEquipment dcEquipment, Set<DCEquipment> dcIslandEnd) {
         // Recursively get all adjacent DCEquipment.
         // DCLineSegment are included but not traversed.
-        for (DCEquipment adjacentDcEquipment : adjacentDcEquipments) {
-            if (!dcIslandEnd.contains(adjacentDcEquipment)) {
-                dcIslandEnd.add(adjacentDcEquipment);
-                visitedDcEquipments.add(adjacentDcEquipment);
-                if (!adjacentDcEquipment.isLine()) {
-                    Set<DCEquipment> nextDcEquipments = dcEquipments.stream()
-                            .filter(e -> e != adjacentDcEquipment && e.isAdjacentTo(adjacentDcEquipment))
-                            .collect(Collectors.toSet());
-                    getAdjacentDcEquipments(nextDcEquipments, dcIslandEnd, visitedDcEquipments);
+        if (!dcIslandEnd.contains(dcEquipment)) {
+            dcIslandEnd.add(dcEquipment);
+            if (!dcEquipment.isLine()) {
+                Set<DCEquipment> nextAdjacentDcEquipments = dcEquipments.stream()
+                        .filter(e -> e != dcEquipment && e.isAdjacentTo(dcEquipment) && !dcIslandEnd.contains(e))
+                        .collect(Collectors.toSet());
+                for (DCEquipment nextAdjacentDcEquipment : nextAdjacentDcEquipments) {
+                    getAdjacentDcEquipments(nextAdjacentDcEquipment, dcIslandEnd);
                 }
             }
         }
@@ -133,27 +133,27 @@ public class DCConversion {
         dcIslandEnds.forEach(dcIslandEnd -> {
             if (!visitedDcIslandEnds.contains(dcIslandEnd)) {
                 Set<DCIslandEnd> dcIsland = new HashSet<>();
-                getAdjacentDcIslandEnds(Set.of(dcIslandEnd), dcIsland, visitedDcIslandEnds);
+                getAdjacentDcIslandEnds(dcIslandEnd, dcIsland);
+                visitedDcIslandEnds.addAll(dcIsland);
                 dcIslands.add(new DCIsland(dcIsland));
             }
         });
     }
 
-    private void getAdjacentDcIslandEnds(Set<DCIslandEnd> adjacentDcIslandEnds, Set<DCIslandEnd> dcIsland, Set<DCIslandEnd> visitedDcIslandEnds) {
+    private void getAdjacentDcIslandEnds(DCIslandEnd dcIslandEnd, Set<DCIslandEnd> dcIsland) {
         // Recursively get all adjacent DCIslandEnd.
-        for (DCIslandEnd adjacentDcIslandEnd : adjacentDcIslandEnds) {
-            if (!visitedDcIslandEnds.contains(adjacentDcIslandEnd)) {
-                dcIsland.add(adjacentDcIslandEnd);
-                visitedDcIslandEnds.add(adjacentDcIslandEnd);
-                Set<DCIslandEnd> nextDcIslandEnds = dcIslandEnds.stream()
-                        .filter(end -> end != adjacentDcIslandEnd && end.isAdjacentTo(adjacentDcIslandEnd))
-                        .collect(Collectors.toSet());
-                getAdjacentDcIslandEnds(nextDcIslandEnds, dcIsland, visitedDcIslandEnds);
+        if (!dcIsland.contains(dcIslandEnd)) {
+            dcIsland.add(dcIslandEnd);
+            Set<DCIslandEnd> nextAdjacentDcIslandEnds = dcIslandEnds.stream()
+                    .filter(end -> end != dcIslandEnd && end.isAdjacentTo(dcIslandEnd) && !dcIsland.contains(end))
+                    .collect(Collectors.toSet());
+            for (DCIslandEnd nextAdjacentDcIslandEnd : nextAdjacentDcIslandEnds) {
+                getAdjacentDcIslandEnds(nextAdjacentDcIslandEnd, dcIsland);
             }
         }
     }
 
-    public void convert() {
+    private void convert() {
         for (DCIsland dcIsland : dcIslands) {
             if (dcIsland.valid(context)) {
                 convertDcLinks(dcIsland);
