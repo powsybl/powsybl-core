@@ -26,6 +26,9 @@ import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public abstract class AbstractLineTest {
@@ -131,7 +134,7 @@ public abstract class AbstractLineTest {
         acLine.setB2(b2);
         assertEquals(b2, acLine.getB2(), 0.0);
 
-        CurrentLimits currentLimits1 = acLine.newCurrentLimits1()
+        CurrentLimits currentLimits1 = acLine.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(100)
                 .beginTemporaryLimit()
                 .setName("5'")
@@ -139,7 +142,7 @@ public abstract class AbstractLineTest {
                 .setValue(1400)
                 .endTemporaryLimit()
                 .add();
-        CurrentLimits currentLimits2 = acLine.newCurrentLimits2()
+        CurrentLimits currentLimits2 = acLine.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(50)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -676,16 +679,16 @@ public abstract class AbstractLineTest {
     static Stream<Arguments> getLimitType() {
         return Stream.of(
                 Arguments.of(LimitType.CURRENT),
-                Arguments.of(LimitType.APPARENT_POWER),
-                Arguments.of(LimitType.ACTIVE_POWER)
+                Arguments.of(LimitType.ACTIVE_POWER),
+                Arguments.of(LimitType.APPARENT_POWER)
         );
     }
 
     private LoadingLimitsAdder<?, ?> getAdder(Line l, LimitType limitType) {
         return switch (limitType) {
-            case CURRENT -> l.newCurrentLimits1();
-            case ACTIVE_POWER -> l.newActivePowerLimits1();
-            case APPARENT_POWER -> l.newApparentPowerLimits1();
+            case CURRENT -> l.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
+            case ACTIVE_POWER -> l.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits();
+            case APPARENT_POWER -> l.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits();
             default -> throw new IllegalArgumentException("Invalid type");
         };
     }
@@ -701,7 +704,7 @@ public abstract class AbstractLineTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getLimitType")
-    void dontChangeSelectedOperationalLimitsGroupIfAdderNotUsed(LimitType limitType) {
+    void addEmptySelectedOperationalLimitsGroupIfAdderNotUsed(LimitType limitType) {
         Line line = network.newLine()
                 .setId("line")
                 .setName(LINE_NAME)
@@ -715,14 +718,16 @@ public abstract class AbstractLineTest {
         assertTrue(line.getOperationalLimitsGroups1().isEmpty());
         LoadingLimitsAdder<?, ?> adder = getAdder(line, limitType);
         adder.setPermanentLimit(1000.);
-        // The adder is voluntarily NOT added. The default group should not be updated.
-        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
-        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
+        // The adder is voluntarily NOT added. The default group is updated, but no limit is added.
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isPresent());
+        assertEquals(1, line.getOperationalLimitsGroups1().size());
+        assertEquals("DEFAULT", line.getSelectedOperationalLimitsGroup1().get().getId());
+        assertTrue(line.getSelectedOperationalLimitsGroup1().get().isEmpty());
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getLimitType")
-    void dontChangeDefaultOperationalLimitsGroupIfAdderValidationFails(LimitType limitType) {
+    void addEmptyDefaultOperationalLimitsGroupIfAdderValidationFails(LimitType limitType) {
         Line line = network.newLine()
                 .setId("line")
                 .setName(LINE_NAME)
@@ -738,8 +743,10 @@ public abstract class AbstractLineTest {
         adder.setPermanentLimit(Double.NaN);
         adder.beginTemporaryLimit().setName("10'").setValue(500.).setAcceptableDuration(600).endTemporaryLimit();
         assertThrows(ValidationException.class, adder::add);
-        // The limits' validation of the adder fails. The default group should not be updated.
-        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
-        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
+        // The limits' validation of the adder fails. The default group is updated, but no limit is added.
+        assertFalse(line.getSelectedOperationalLimitsGroup1().isEmpty());
+        assertEquals(1, line.getOperationalLimitsGroups1().size());
+        assertEquals("DEFAULT", line.getSelectedOperationalLimitsGroup1().get().getId());
+        assertTrue(line.getSelectedOperationalLimitsGroup1().get().isEmpty());
     }
 }
