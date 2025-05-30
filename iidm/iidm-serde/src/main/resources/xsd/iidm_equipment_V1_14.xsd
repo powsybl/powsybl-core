@@ -393,7 +393,6 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="VOLTAGE"/>
             <xs:enumeration value="REACTIVE_POWER"/>
-            <xs:enumeration value="OFF"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="StaticVarCompensator">
