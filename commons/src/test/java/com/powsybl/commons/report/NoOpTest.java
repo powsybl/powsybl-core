@@ -9,7 +9,7 @@ package com.powsybl.commons.report;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -56,7 +56,7 @@ class NoOpTest extends AbstractSerDeTest {
         assertNull(reportNode.getMessageKey());
 
         ReportNode reportNodeImplRoot = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("k")
                 .build();
         reportNode.include(reportNodeImplRoot);
