@@ -177,6 +177,9 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
         PhaseTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, PhaseTapChanger.RegulationMode.class);
         double regulationValue = context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE);
+        if (regulationMode == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && regulationValue < 0) {
+            regulationValue = Math.abs(regulationValue);
+        }
         adder.setRegulationMode(regulationMode)
                 .setRegulationValue(regulationValue);
 
