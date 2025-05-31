@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion.elements.dc;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -43,12 +44,11 @@ public record DCIslandEnd(Set<DCEquipment> dcEquipments) {
                 .toList();
     }
 
-    public DCEquipment getNearestConverter(DCEquipment dcEquipment, Set<DCEquipment> usedConverters) {
+    public DCEquipment getNearestConverter(DCEquipment dcEquipment, Predicate<DCEquipment> isEligibleConverter, Set<DCEquipment> usedConverters) {
         DCEquipment nearestConverter = getEquipmentDistances(dcEquipment)
                 .entrySet().stream()
-                .filter(e -> e.getKey().isConverter()
-                        && !e.getKey().equals(dcEquipment)
-                        && !usedConverters.contains(e.getKey()))
+                .filter(e -> isEligibleConverter.test(e.getKey())
+                        && !e.getKey().equals(dcEquipment))
                 .min(Map.Entry.<DCEquipment, Integer>comparingByValue()
                         .thenComparing(e -> e.getKey().id()))
                 .map(Map.Entry::getKey)
@@ -72,7 +72,7 @@ public record DCIslandEnd(Set<DCEquipment> dcEquipments) {
     }
 
     private void computeEquipmentDistances(DCEquipment dcEquipment, int distance, Map<DCEquipment, Integer> equipmentDistances) {
-        if (!equipmentDistances.containsKey(dcEquipment) || equipmentDistances.get(dcEquipment) > distance) {
+        if (equipmentDistances.computeIfAbsent(dcEquipment, e -> Integer.MAX_VALUE) > distance) {
             equipmentDistances.put(dcEquipment, distance);
             Set<DCEquipment> nextDcEquipments = dcEquipments.stream()
                     .filter(e -> e != dcEquipment && e.isAdjacentTo(dcEquipment))

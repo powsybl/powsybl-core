@@ -16,10 +16,10 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.model.CgmesNames.*;
-import static java.lang.Math.min;
 
 /**
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
@@ -162,6 +162,43 @@ public class DCConversion {
     }
 
     private void convertDcLinks(DCIsland dcIsland) {
+        // Get island poles.
+        List<DCPole> dcPoles = getDcPoles(dcIsland);
+        List<DCLink> dcLinks = new ArrayList<>();
+        for (DCPole dcPole : dcPoles) {
+            // Create 1 or 2 DCLink per pole, depending on the number of bridges per pole.
+            PropertyBag converter1 = getConverterBag(dcPole.getConverter1A());
+            PropertyBag converter2 = getConverterBag(dcPole.getConverter2A());
+            PropertyBag dcLine1 = getDcLineSegmentBag(dcPole.getDcLine1());
+            PropertyBag dcLine2 = null;
+            if (dcPole.getDcLine2() != null) {
+                dcLine2 = getDcLineSegmentBag(dcPole.getDcLine2());
+                if (dcPole.isHalfOfBipole()) {
+                    // The Dedicated Metallic Return line of a bipole is retrieved solely to keep its id as an alias.
+                    // Its resistance should not be taken into account since there is no flow through it in nominal cases.
+                    dcLine2.put("r", "0");
+                }
+            }
+            if (dcPole.getConverter1B() == null) {
+                dcLinks.add(new DCLink(converter1, converter2, dcLine1, dcLine2));
+            } else {
+                PropertyBag converter1B = getConverterBag(dcPole.getConverter1B());
+                PropertyBag converter2B = getConverterBag(dcPole.getConverter2B());
+                PropertyBag dcLine1B = splitDcLineSegmentBag(dcLine1);
+                dcLinks.add(new DCLink(converter1, converter2, dcLine1, dcLine2));
+                dcLinks.add(new DCLink(converter1B, converter2B, dcLine1B, null));
+            }
+        }
+
+        // Convert DCLink.
+        dcLinks.forEach(dcLink -> {
+            new HvdcConverterConversion(dcLink.getConverter1(), dcLink.getLossFactor1(), context).convert();
+            new HvdcConverterConversion(dcLink.getConverter2(), dcLink.getLossFactor2(), context).convert();
+            new HvdcLineConversion(dcLink, context).convert();
+        });
+    }
+
+    private List<DCPole> getDcPoles(DCIsland dcIsland) {
         // Sort island ends so that the lowest converter id is on side 1.
         List<DCIslandEnd> islandEnds = dcIsland.dcIslandEnds().stream()
                 .sorted(Comparator.comparing(e -> e.getAcDcConverters().stream()
@@ -175,70 +212,76 @@ public class DCConversion {
         List<DCEquipment> converters2 = islandEnds.get(1).getAcDcConverters();
         List<DCEquipment> dcLineSegments = islandEnds.get(0).getDcLineSegments();
 
-        // Separate elements into DCLink (2 converters, 1 line and an optional second line).
-        List<DCLink> dcLinks = new ArrayList<>();
-        if (converters1.size() == 1 && dcLineSegments.size() == 2) {
-            // This is a monopole with a metallic return line.
-            // Create a DCLink for the pole. Add the metallic return line.
-            PropertyBag converter1 = getConverterBag(converters1.get(0));
-            PropertyBag converter2 = getConverterBag(converters2.get(0));
-            PropertyBag dcLine1 = getDcLineSegmentBag(dcLineSegments.get(0));
-            PropertyBag dcLine2 = getDcLineSegmentBag(dcLineSegments.get(1));
-
-            dcLinks.add(new DCLink(converter1, converter2, dcLine1, dcLine2));
-        } else if (converters1.size() == min(dcLineSegments.size(), 2)) {
-            // This is either a monopole or a bipole.
-            // Create a DCLink per pole. In case of a bipole with DMR line, add it to the first pole.
-            Set<DCEquipment> usedConverters1 = new HashSet<>();
-            Set<DCEquipment> usedConverters2 = new HashSet<>();
-            PropertyBag dMRLine = dcLineSegments.size() == 3 ? getDMRLineBag(dcLineSegments.get(2)) : null;
-            for (DCEquipment dcLineEq : dcLineSegments.stream().limit(2).toList()) {
-                DCEquipment converter1Eq = islandEnds.get(0).getNearestConverter(dcLineEq, usedConverters1);
-                DCEquipment converter2Eq = islandEnds.get(1).getNearestConverter(dcLineEq, usedConverters2);
-
-                PropertyBag converter1 = getConverterBag(converter1Eq);
-                PropertyBag converter2 = getConverterBag(converter2Eq);
-                PropertyBag dcLine = getDcLineSegmentBag(dcLineEq);
-
-                dcLinks.add(new DCLink(converter1, converter2, dcLine, dMRLine));
-                dMRLine = null;
+        // Break down the DCIsland into multiple DCPole.
+        List<DCPole> dcPoles = new ArrayList<>();
+        if (dcIsland.isMonopole(dcLineSegments.size(), converters1.size())) {
+            DCPole dcPole = new DCPole(converters1.get(0), converters2.get(0), dcLineSegments.get(0), false);
+            if (dcLineSegments.size() == 2) {
+                dcPole.addMetallicReturnLine(dcLineSegments.get(1));
+            } else if (converters1.size() == 2) {
+                dcPole.addSecondBridge(converters1.get(1), converters2.get(1));
             }
-        } else if (converters1.size() == 2 * min(dcLineSegments.size(), 2)) {
-            // This is either a monopole or a bipole, but each pole has 2 ACDCConverter per unit
-            // (each pole has 2 * 6-pulses bridges instead of 1 * 12-pulses bridge).
-            // Create 2 DCLink per pole. In case of a bipole with DMR line, add it to the first DCLink of the first pole.
-            Set<DCEquipment> usedConverters1 = new HashSet<>();
-            Set<DCEquipment> usedConverters2 = new HashSet<>();
-            PropertyBag dMRLine = dcLineSegments.size() == 3 ? getDMRLineBag(dcLineSegments.get(2)) : null;
-            for (DCEquipment dcLineEq : dcLineSegments.stream().limit(2).toList()) {
-                DCEquipment converter1AEq = islandEnds.get(0).getNearestConverter(dcLineEq, usedConverters1);
-                DCEquipment converter2AEq = islandEnds.get(1).getNearestConverter(dcLineEq, usedConverters2);
-                DCEquipment converter1BEq = islandEnds.get(0).getNearestConverter(converter1AEq, usedConverters1);
-                DCEquipment converter2BEq = islandEnds.get(1).getNearestConverter(converter2AEq, usedConverters2);
-
-                PropertyBag converter1A = getConverterBag(converter1AEq);
-                PropertyBag converter2A = getConverterBag(converter2AEq);
-                PropertyBag dcLineA = getDcLineSegmentBag(dcLineEq);
-                PropertyBag converter1B = getConverterBag(converter1BEq);
-                PropertyBag converter2B = getConverterBag(converter2BEq);
-                PropertyBag dcLineB = splitDcLineSegmentBag(dcLineA);
-
-                dcLinks.add(new DCLink(converter1A, converter2A, dcLineA, dMRLine));
-                dcLinks.add(new DCLink(converter1B, converter2B, dcLineB, null));
-                dMRLine = null;
-            }
+            dcPoles.add(dcPole);
         } else {
-            throw new PowsyblException(String.format("Invalid DCConfiguration. Number of converters1: %d, "
-                            + "Number of converters2: %d, number of dc lines: %d",
-                    converters1.size(), converters2.size(), dcLineSegments.size()));
+            // There are multiple poles.
+            // This can be a simple bipole, or multiple bipoles connected via a shared Dedicated Metallic Return.
+            // We assume there is one (and just one) DMR in case there is more than 2 dc lines.
+            DCEquipment dMRLine = null;
+            List<DCEquipment> energizedLines = new ArrayList<>(dcLineSegments);
+            if (dcLineSegments.size() > 2) {
+                dMRLine = getDMRLine(dcIsland, dcLineSegments);
+                energizedLines.remove(dMRLine);
+            }
+
+            // For each energized line, find the nearest converter on each side.
+            Set<DCEquipment> usedConverters1 = new HashSet<>();
+            Set<DCEquipment> usedConverters2 = new HashSet<>();
+            for (DCEquipment dcLineSegment : energizedLines) {
+                Predicate<DCEquipment> eligibleConverter1 = e -> e.isConverter() && !usedConverters1.contains(e);
+                DCEquipment converter1 = islandEnds.get(0).getNearestConverter(dcLineSegment, eligibleConverter1, usedConverters1);
+
+                Predicate<DCEquipment> eligibleConverter2 = e -> e.type().equals(converter1.type()) && !usedConverters2.contains(e);
+                DCEquipment converter2 = islandEnds.get(1).getNearestConverter(dcLineSegment, eligibleConverter2, usedConverters2);
+
+                dcPoles.add(new DCPole(converter1, converter2, dcLineSegment, true));
+            }
+
+            // In case of multiple converters (bridges) per pole, add the second converter pair to an existing pole.
+            Set<DCEquipment> unmappedConverters1 = new HashSet<>(converters1);
+            Set<DCEquipment> eligibleConverters1A = new HashSet<>(usedConverters1);
+            unmappedConverters1.removeAll(usedConverters1);
+            for (DCEquipment converter1B : unmappedConverters1) {
+                Predicate<DCEquipment> eligibleConverter1A = e -> e.type().equals(converter1B.type()) && eligibleConverters1A.contains(e);
+                DCEquipment converter1A = islandEnds.get(0).getNearestConverter(converter1B, eligibleConverter1A, usedConverters1);
+                usedConverters1.add(converter1B);
+                eligibleConverters1A.remove(converter1A);
+
+                DCPole dcPole = dcPoles.stream().filter(p -> p.getConverter1A().equals(converter1A)).findFirst().orElseThrow();
+                DCEquipment converter2A = dcPole.getConverter2A();
+
+                Predicate<DCEquipment> eligibleConverter2B = e -> e.type().equals(converter1B.type()) && !usedConverters2.contains(e);
+                DCEquipment converter2B = islandEnds.get(1).getNearestConverter(converter2A, eligibleConverter2B, usedConverters2);
+
+                dcPole.addSecondBridge(converter1B, converter2B);
+            }
+
+            // Add DMR line to the first pole.
+            dcPoles.get(0).addMetallicReturnLine(dMRLine);
         }
 
-        // Convert DCLink.
-        dcLinks.forEach(dcLink -> {
-            new HvdcConverterConversion(dcLink.getConverter1(), dcLink.getLossFactor1(), context).convert();
-            new HvdcConverterConversion(dcLink.getConverter2(), dcLink.getLossFactor2(), context).convert();
-            new HvdcLineConversion(dcLink, context).convert();
-        });
+        return dcPoles;
+    }
+
+    private DCEquipment getDMRLine(DCIsland dcIsland, List<DCEquipment> dcLineSegments) {
+        // Either the DMR line is clearly identifiable since it's the only grounded line of the island.
+        // Or it's not, and the most central line (the last one since they are sorted) is considered to be the DMR.
+        List<DCEquipment> groundedLines = dcLineSegments.stream()
+                .filter(dcIsland::isGrounded)
+                .toList();
+        if (groundedLines.size() == 1) {
+            return groundedLines.get(0);
+        }
+        return dcLineSegments.get(dcLineSegments.size() - 1);
     }
 
     private PropertyBag splitDcLineSegmentBag(PropertyBag dcLineSegment) {
@@ -252,14 +295,6 @@ public class DCConversion {
         otherDcLineSegment.put(DC_TERMINAL2, otherDcLineSegment.get(DC_TERMINAL2) + "-1");
         otherDcLineSegment.put("name", otherDcLineSegment.get("name") + "-1");
         return otherDcLineSegment;
-    }
-
-    private PropertyBag getDMRLineBag(DCEquipment dcLineSegment) {
-        // The Dedicated Metallic Return line is retrieved solely to keep its id as an alias.
-        // Its resistance should not be taken into account since there is no flow through it in nominal cases.
-        PropertyBag metallicReturnLineBag = getDcLineSegmentBag(dcLineSegment);
-        metallicReturnLineBag.put("r", "0");
-        return metallicReturnLineBag;
     }
 
     private PropertyBag getConverterBag(DCEquipment acDcConverter) {

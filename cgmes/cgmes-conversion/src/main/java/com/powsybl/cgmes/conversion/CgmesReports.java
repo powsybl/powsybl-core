@@ -235,9 +235,9 @@ public final class CgmesReports {
                 .add();
     }
 
-    public static void multipleAcDcConverterTypesInSameDCIslandReport(ReportNode reportNode, String converterIds) {
+    public static void inconsistentNumberOfConvertersReport(ReportNode reportNode, String converterIds) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.cgmes.conversion.multipleACDCConverterTypesInSameDCIsland")
+                .withMessageTemplate("core.cgmes.conversion.inconsistentNumberOfConverters")
                 .withUntypedValue(CONVERTER_IDS, converterIds)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -252,13 +252,12 @@ public final class CgmesReports {
                 .add();
     }
 
-    public static void unexpectedPointToPointDcConfigurationReport(ReportNode reportNode, String converterIds, int numberOfLines, int numberOfConverters1, int numberOfConverters2) {
+    public static void unexpectedPointToPointDcConfigurationReport(ReportNode reportNode, String converterIds, int numberOfLines, int numberOfConverterPairs) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.unexpectedPointToPointDcConfiguration")
                 .withUntypedValue(CONVERTER_IDS, converterIds)
                 .withUntypedValue("numberOfLines", numberOfLines)
-                .withUntypedValue("numberOfConverters1", numberOfConverters1)
-                .withUntypedValue("numberOfConverters2", numberOfConverters2)
+                .withUntypedValue("numberOfConverterPairs", numberOfConverterPairs)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }

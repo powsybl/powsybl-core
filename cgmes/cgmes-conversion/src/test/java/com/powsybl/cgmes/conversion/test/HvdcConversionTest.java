@@ -178,6 +178,28 @@ class HvdcConversionTest extends AbstractSerDeTest {
     }
 
     @Test
+    void skagerrak() {
+        // CGMES network:
+        //   Two HVDC bipoles with a common DMR line.
+        //   - SK12 is a LCC bipole with 2 bridges per unit.
+        //   - SK34 is a bipole where pole 3 is LCC (2 bridges) and pole 4 is VSC.
+        //   - DCL_G is the DMR line common to SK12 and SK34.
+        // IIDM network:
+        //   - 6 LCC HvdcLine (SK1, SK2, SK3, each *2).
+        //   - 1 VSC HvdcLine (SK4).
+        Network network = readCgmesResources(DIR, "skagerrak.xml");
+
+        assertEquals(6, network.getHvdcLineStream()
+                .filter(l -> HvdcConverterStation.HvdcType.LCC.equals(l.getConverterStation1().getHvdcType()))
+                .count());
+        assertEquals(1, network.getHvdcLineStream()
+                .filter(l -> HvdcConverterStation.HvdcType.VSC.equals(l.getConverterStation1().getHvdcType()))
+                .count());
+
+        assertEquals("DCL_G", network.getHvdcLine("DCL_1").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
+    }
+
+    @Test
     void invalidDcConfigurationTest() throws IOException {
         // CGMES network:
         //   An EQ file with a HVDC bipole, but also some configuration errors:
@@ -205,11 +227,10 @@ class HvdcConversionTest extends AbstractSerDeTest {
             logs = sw.toString();
         }
         assertTrue(logs.contains("DCEquipment DCSW is discarded as it couldn't be attached to any DCIsland."));
-        assertTrue(logs.contains("ACDCConverters: CSC_1N, CSC_1P, VSC_2P are of different types and are in the same DCIsland."));
+        assertTrue(logs.contains("DCIsland made of ACDCConverters: CSC_1N, CSC_1P, VSC_2P has a POINT_TO_POINT configuration " +
+                "but doesn't have the same number of converters of same type on each side."));
         assertTrue(logs.contains("DCLineSegment: DCL_12N is not in 2 DCIslandEnd."));
         assertTrue(logs.contains("DCIsland made of ACDCConverters: VSC_2N has unsupported BACK_TO_BACK DCConfiguration."));
-        assertTrue(logs.contains("DCIsland made of ACDCConverters: CSC_1N, CSC_1P, VSC_2P has unexpected POINT_TO_POINT DCConfiguration: " +
-                "1 converter(s)/1 line(s)/2 converter(s)."));
     }
 
     @Test

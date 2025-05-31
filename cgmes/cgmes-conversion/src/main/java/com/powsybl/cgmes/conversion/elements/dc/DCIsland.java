@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.elements.dc.DCConfiguration.*;
-import static com.powsybl.cgmes.model.CgmesNames.*;
 
 /**
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
@@ -48,18 +47,17 @@ public record DCIsland(Set<DCIslandEnd> dcIslandEnds) {
     }
 
     private boolean validAcDcConverters(Context context) {
-        // Check that there is only one converter type overall in the DCIsland.
-        Set<DCEquipment> csConverters = dcIslandEnds.stream()
-                .flatMap(end -> end.dcEquipments().stream())
-                .filter(e -> CS_CONVERTER.equals(e.type()))
-                .collect(Collectors.toSet());
-        Set<DCEquipment> vsConverters = dcIslandEnds.stream()
-                .flatMap(end -> end.dcEquipments().stream())
-                .filter(e -> VS_CONVERTER.equals(e.type()))
-                .collect(Collectors.toSet());
-        if (!csConverters.isEmpty() && !vsConverters.isEmpty()) {
-            CgmesReports.multipleAcDcConverterTypesInSameDCIslandReport(context.getReportNode(), getConverterIds());
-            return false;
+        DCConfiguration dcConfiguration = getDcConfiguration();
+        if (dcConfiguration == POINT_TO_POINT) {
+            List<DCIslandEnd> ends = dcIslandEnds.stream().toList();
+            long numberOfCsConverters1 = ends.get(0).dcEquipments().stream().filter(DCEquipment::isCsConverter).count();
+            long numberOfCsConverters2 = ends.get(1).dcEquipments().stream().filter(DCEquipment::isCsConverter).count();
+            long numberOfVsConverters1 = ends.get(0).dcEquipments().stream().filter(DCEquipment::isVsConverter).count();
+            long numberOfVsConverters2 = ends.get(1).dcEquipments().stream().filter(DCEquipment::isVsConverter).count();
+            if (numberOfCsConverters1 != numberOfCsConverters2 || numberOfVsConverters1 != numberOfVsConverters2) {
+                CgmesReports.inconsistentNumberOfConvertersReport(context.getReportNode(), getConverterIds());
+                return false;
+            }
         }
         return true;
     }
@@ -72,16 +70,16 @@ public record DCIsland(Set<DCIslandEnd> dcIslandEnds) {
         } else {
             List<DCIslandEnd> ends = dcIslandEnds.stream().toList();
             int numberOfLines = ends.get(0).getDcLineSegments().size();
-            int numberOfConverters = ends.get(0).getAcDcConverters().size();
-            int numberOfConvertersOtherEnd = ends.get(1).getAcDcConverters().size();
-            if (!isMonopole(numberOfLines, numberOfConverters, numberOfConvertersOtherEnd)
-                    && !isBipole(numberOfLines, numberOfConverters, numberOfConvertersOtherEnd)) {
+            int numberOfConverterPairs = ends.get(0).getAcDcConverters().size();
+            if (numberOfLines > numberOfConverterPairs + 1 || numberOfConverterPairs > 2 * numberOfLines) {
+                // There is more line that the number of converters + a metallic return line
+                // or there is more converter pairs than 2 bridges per dc line.
                 CgmesReports.unexpectedPointToPointDcConfigurationReport(
-                        context.getReportNode(), getConverterIds(), numberOfLines, numberOfConverters, numberOfConvertersOtherEnd);
+                        context.getReportNode(), getConverterIds(), numberOfLines, numberOfConverterPairs);
                 return false;
             }
-            return true;
         }
+        return true;
     }
 
     private DCConfiguration getDcConfiguration() {
@@ -94,19 +92,10 @@ public record DCIsland(Set<DCIslandEnd> dcIslandEnds) {
         }
     }
 
-    private boolean isMonopole(int numberOfLines, int numberOfConverters, int numberOfConvertersOtherEnd) {
-        return numberOfConverters == numberOfConvertersOtherEnd &&
-                (numberOfLines == 1 && numberOfConverters == 1          // 1 bridge with ground return.
-                 || numberOfLines == 1 && numberOfConverters == 2       // 2 bridges with ground return.
-                 || numberOfLines == 2 && numberOfConverters == 1);     // 1 bridge with metallic return.
-    }
-
-    private boolean isBipole(int numberOfLines, int numberOfConverters, int numberOfConvertersOtherEnd) {
-        return numberOfConverters == numberOfConvertersOtherEnd &&
-                (numberOfLines == 2 && numberOfConverters == 2          // 1 bridge per pole.
-                || numberOfLines == 2 && numberOfConverters == 4        // 2 bridges per pole.
-                || numberOfLines == 3 && numberOfConverters == 2        // 1 bridge per pole, and a metallic return.
-                || numberOfLines == 3 && numberOfConverters == 4);      // 2 bridges per pole, and a metallic return.
+    public boolean isMonopole(int numberOfLines, int numberOfConverters) {
+        return numberOfLines == 1 && numberOfConverters == 1        // 1 bridge with ground return.
+                || numberOfLines == 1 && numberOfConverters == 2    // 2 bridges with ground return.
+                || numberOfLines == 2 && numberOfConverters == 1;   // 1 bridge with metallic return.
     }
 
     private String getConverterIds() {
@@ -117,5 +106,12 @@ public record DCIsland(Set<DCIslandEnd> dcIslandEnds) {
                         .map(DCEquipment::id)
                         .sorted()
                         .toList());
+    }
+
+    public boolean isGrounded(DCEquipment dcEquipment) {
+        return dcIslandEnds.stream()
+                .flatMap(e -> e.dcEquipments().stream())
+                .filter(DCEquipment::isGround)
+                .anyMatch(g -> g.isAdjacentTo(dcEquipment));
     }
 }

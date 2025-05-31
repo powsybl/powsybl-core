@@ -21,12 +21,24 @@ public record DCEquipment(String id, String type, String node1, String node2) {
                 || node2 != null && (node2.equals(otherDcEquipment.node1) || node2.equals(otherDcEquipment.node2));
     }
 
+    public boolean isCsConverter() {
+        return CS_CONVERTER.equals(type);
+    }
+
+    public boolean isVsConverter() {
+        return VS_CONVERTER.equals(type);
+    }
+
     public boolean isConverter() {
-        return VS_CONVERTER.equals(type) || CS_CONVERTER.equals(type);
+        return isCsConverter() || isVsConverter();
     }
 
     public boolean isLine() {
         return DC_LINE_SEGMENT.equals(type);
+    }
+
+    public boolean isGround() {
+        return DC_GROUND.equals(type);
     }
 
 }
