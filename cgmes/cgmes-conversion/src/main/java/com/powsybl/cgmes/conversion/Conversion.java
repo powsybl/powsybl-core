@@ -320,7 +320,7 @@ public class Conversion {
         temporaryComputeFlowsDanglingLines(network, updateContext);
 
         // Set voltages and angles, then complete
-        updateVoltageAndAnglesAndComplete(network, updateContext);
+        updateAndCompleteVoltageAndAngles(network, updateContext);
 
         network.runValidationChecks(false, reportNode);
         network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);

@@ -913,6 +913,17 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return targetDeadband >= 0.0;
     }
 
+    /**
+     * Specifies when to use the default value.
+     * <br/>
+     * The available options are:
+     * <ul>
+     *   <li><b>NEVER</b>: The default value is never used.</li>
+     *   <li><b>NOT_DEFINED</b>: The default value is used only when the property is not defined.</li>
+     *   <li><b>NOT_VALID</b>: The default value is used when the property is defined but contains an invalid value.</li>
+     *   <li><b>ALWAYS</b>: The default value is always used, regardless of the property's state.</li>
+     * </ul>
+     */
     protected enum DefaultValueUse {
         NEVER,
         NOT_DEFINED,

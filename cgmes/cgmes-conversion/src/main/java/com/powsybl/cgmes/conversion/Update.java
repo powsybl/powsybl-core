@@ -73,7 +73,7 @@ public final class Update {
         network.getDanglingLines().forEach(danglingLine -> computeFlowsOnModelSide(danglingLine, context));
     }
 
-    public static void updateVoltageAndAnglesAndComplete(Network network, Context context) {
+    public static void updateAndCompleteVoltageAndAngles(Network network, Context context) {
         context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(context.getReportNode()));
         // update voltage and angles
         network.getBusView().getBuses().forEach(bus -> NodeConversion.update(bus, context));
