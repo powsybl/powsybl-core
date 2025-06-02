@@ -66,6 +66,13 @@ public abstract class AbstractDcConverterTest {
 
         checkBaseCommonLccVsc();
 
+        // default values
+        assertSame(DcLineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR, ((DcLineCommutatedConverter) dcConverterA).getReactiveModel());
+        assertEquals(0.5, ((DcLineCommutatedConverter) dcConverterA).getPowerFactor());
+        // explicitly set values
+        assertSame(DcLineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR, ((DcLineCommutatedConverter) dcConverterB).getReactiveModel());
+        assertEquals(0.6, ((DcLineCommutatedConverter) dcConverterB).getPowerFactor());
+
         List<DcLineCommutatedConverter> dcConverterList = List.of((DcLineCommutatedConverter) dcConverterA, (DcLineCommutatedConverter) dcConverterB);
         assertEquals(2, ((Collection<?>) network.getDcLineCommutatedConverters()).size());
         network.getDcLineCommutatedConverters().forEach(dcConverter -> assertTrue(dcConverterList.contains(dcConverter)));
@@ -182,6 +189,8 @@ public abstract class AbstractDcConverterTest {
                 .setDcNode2Id(dcNode2b.getId())
                 .setDcConnected1(false)
                 .setDcConnected2(false)
+                .setReactiveModel(DcLineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR)
+                .setPowerFactor(0.6)
                 .add();
     }
 
@@ -257,7 +266,31 @@ public abstract class AbstractDcConverterTest {
 
         PowsyblException e6 = assertThrows(PowsyblException.class, () -> dcConverterA.setResistiveLoss(-1.0));
         assertEquals("DC Line Commutated Converter 'converterA': resistiveLoss is invalid", e6.getMessage());
+    }
 
+    @Test
+    public void testLccGetterSetter() {
+        dcConverterA = createDcLccA(vla);
+        DcLineCommutatedConverter lccA = (DcLineCommutatedConverter) dcConverterA;
+
+        assertEquals(0.5, lccA.getPowerFactor());
+        assertEquals(DcLineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR, lccA.getReactiveModel());
+
+        lccA.setPowerFactor(0.55).setReactiveModel(DcLineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR);
+        assertEquals(0.55, lccA.getPowerFactor());
+        assertEquals(DcLineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR, lccA.getReactiveModel());
+
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> lccA.setPowerFactor(-0.1));
+        assertEquals("DC Line Commutated Converter 'converterA': power factor is invalid, it must be between 0 and 1", e1.getMessage());
+
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> lccA.setPowerFactor(1.1));
+        assertEquals("DC Line Commutated Converter 'converterA': power factor is invalid, it must be between 0 and 1", e2.getMessage());
+
+        PowsyblException e3 = assertThrows(PowsyblException.class, () -> lccA.setPowerFactor(Double.NaN));
+        assertEquals("DC Line Commutated Converter 'converterA': power factor is invalid", e3.getMessage());
+
+        PowsyblException e4 = assertThrows(PowsyblException.class, () -> lccA.setReactiveModel(null));
+        assertEquals("DC Line Commutated Converter 'converterA': reactiveModel is not set", e4.getMessage());
     }
 
     @Test

@@ -589,6 +589,20 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkPositivePowerFactor(Validable validable, double powerFactor) {
+        if (Double.isNaN(powerFactor)) {
+            throw new ValidationException(validable, "power factor is invalid");
+        } else if (powerFactor < 0 || powerFactor > 1) {
+            throw new ValidationException(validable, "power factor is invalid, it must be between 0 and 1");
+        }
+    }
+
+    public static void checkLccReactiveModel(Validable validable, DcLineCommutatedConverter.ReactiveModel reactiveModel) {
+        if (reactiveModel == null) {
+            throw new ValidationException(validable, "reactiveModel is not set");
+        }
+    }
+
     public static ValidationLevel checkLoadingLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
                                                      ValidationLevel validationLevel, ReportNode reportNode) {
         return checkLoadingLimits(validable, permanentLimit, temporaryLimits, checkValidationActionOnError(validationLevel), reportNode);

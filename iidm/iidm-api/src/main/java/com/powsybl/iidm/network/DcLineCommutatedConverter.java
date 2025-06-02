@@ -8,15 +8,34 @@
 package com.powsybl.iidm.network;
 
 /**
- * todo:
- *   reactive power consumption model
- *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public interface DcLineCommutatedConverter extends DcConverter<DcLineCommutatedConverter> {
+
+    enum ReactiveModel {
+        FIXED_POWER_FACTOR,
+        CALCULATED_POWER_FACTOR,
+    }
 
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.DC_LINE_COMMUTATED_CONVERTER;
     }
+
+    ReactiveModel getReactiveModel();
+
+    DcLineCommutatedConverter setReactiveModel(ReactiveModel reactiveModel);
+
+    /**
+     * Get power factor (ratio of the active power and the apparent power)
+     * @return the power factor.
+     */
+    double getPowerFactor();
+
+    /**
+     * Set the power factor. Has to be greater that zero.
+     * @param powerFactor the new power factor
+     * @return the converter itself to allow method chaining
+     */
+    DcLineCommutatedConverter setPowerFactor(double powerFactor);
 }

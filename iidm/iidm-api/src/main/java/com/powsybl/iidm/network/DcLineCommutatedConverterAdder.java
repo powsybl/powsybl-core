@@ -12,4 +12,8 @@ package com.powsybl.iidm.network;
  */
 public interface DcLineCommutatedConverterAdder extends DcConverterAdder<DcLineCommutatedConverter, DcLineCommutatedConverterAdder> {
 
+    DcLineCommutatedConverterAdder setReactiveModel(DcLineCommutatedConverter.ReactiveModel reactiveModel);
+
+    DcLineCommutatedConverterAdder setPowerFactor(double powerFactor);
+
 }

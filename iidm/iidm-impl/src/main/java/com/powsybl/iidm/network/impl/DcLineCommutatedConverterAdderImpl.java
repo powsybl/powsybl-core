@@ -14,6 +14,10 @@ import com.powsybl.iidm.network.*;
  */
 public class DcLineCommutatedConverterAdderImpl extends AbstractDcConverterAdder<DcLineCommutatedConverterAdderImpl> implements DcLineCommutatedConverterAdder {
 
+    private DcLineCommutatedConverter.ReactiveModel reactiveModel = DcLineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR;
+
+    private double powerFactor = 0.5;
+
     DcLineCommutatedConverterAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
     }
@@ -24,14 +28,29 @@ public class DcLineCommutatedConverterAdderImpl extends AbstractDcConverterAdder
     }
 
     @Override
+    public DcLineCommutatedConverterAdder setReactiveModel(DcLineCommutatedConverter.ReactiveModel reactiveModel) {
+        this.reactiveModel = reactiveModel;
+        return this;
+    }
+
+    @Override
+    public DcLineCommutatedConverterAdder setPowerFactor(double powerFactor) {
+        this.powerFactor = powerFactor;
+        return this;
+    }
+
+    @Override
     public DcLineCommutatedConverter add() {
         // TODO checks
         // TODO / note: dcNodes and voltage level must be in same network
         String id = checkAndGetUniqueId();
         super.preCheck();
+        ValidationUtil.checkPositivePowerFactor(this, powerFactor);
+        ValidationUtil.checkLccReactiveModel(this, reactiveModel);
         DcLineCommutatedConverterImpl dcCsConverter = new DcLineCommutatedConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
                 idleLoss, switchingLoss, resistiveLoss,
-                pccTerminal, controlMode, targetP, targetVdc);
+                pccTerminal, controlMode, targetP, targetVdc,
+                reactiveModel, powerFactor);
         super.checkAndAdd(dcCsConverter);
         return dcCsConverter;
     }
