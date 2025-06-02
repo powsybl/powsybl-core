@@ -36,6 +36,8 @@ import java.util.Optional;
  */
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
 
+    private static final PropertyBag EMPTY_PROPERTY_BAG = new PropertyBag(Collections.emptyList(), false);
+
     protected AbstractConductingEquipmentConversion(
             String type,
             PropertyBag p,
@@ -593,9 +595,12 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     private static PropertyBags getCgmesTerminals(Connectable<?> connectable, Context context, int numTerminals) {
         PropertyBags propertyBags = new PropertyBags();
-        getTerminalTags(numTerminals).forEach(terminalTag -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + terminalTag)
-                .ifPresent(cgmesTerminalId -> propertyBags.add(getCgmesTerminal(cgmesTerminalId, context))));
+        getTerminalTags(numTerminals).forEach(terminalTag -> propertyBags.add(
+                connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + terminalTag)
+                        .map(cgmesTerminalId -> getCgmesTerminal(cgmesTerminalId, context))
+                        .orElse(EMPTY_PROPERTY_BAG)));
         return propertyBags;
+
     }
 
     private static List<String> getTerminalTags(int numTerminals) {
@@ -611,7 +616,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     private static PropertyBag getCgmesTerminal(String cgmesTerminalId, Context context) {
         return context.cgmesTerminal(cgmesTerminalId) != null
                 ? context.cgmesTerminal(cgmesTerminalId)
-                : new PropertyBag(Collections.emptyList(), false);
+                : EMPTY_PROPERTY_BAG;
     }
 
     private final int numTerminals;
@@ -858,36 +863,36 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
     }
 
-    protected static double findTargetV(PropertyBag regulatingControl, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
+    protected static double findTargetV(PropertyBag regulatingControl, double defaultValue, DefaultValueUse use, Context context) {
         return findTargetV(regulatingControl, CgmesNames.TARGET_VALUE, defaultValue, use, context);
     }
 
-    protected static double findTargetV(PropertyBag regulatingControl, String propertyTag, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
+    protected static double findTargetV(PropertyBag regulatingControl, String propertyTag, double defaultValue, DefaultValueUse use, Context context) {
         double targetV = regulatingControl.asDouble(propertyTag);
-        return useDefaultValue(regulatingControl.containsKey(propertyTag), isValidTargetV(targetV), use) ? defaultValue(defaultValue, context) : targetV;
+        return useDefaultValue(regulatingControl.containsKey(propertyTag), isValidTargetV(targetV), use) ? defaultValue : targetV;
     }
 
-    protected static double findTargetValue(PropertyBag regulatingControl, int terminalSign, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
+    protected static double findTargetValue(PropertyBag regulatingControl, int terminalSign, double defaultValue, DefaultValueUse use, Context context) {
         return findTargetValue(regulatingControl, CgmesNames.TARGET_VALUE, terminalSign, defaultValue, use, context);
     }
 
-    protected static double findTargetValue(PropertyBag regulatingControl, String propertyTag, int terminalSign, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
+    protected static double findTargetValue(PropertyBag regulatingControl, String propertyTag, int terminalSign, double defaultValue, DefaultValueUse use, Context context) {
         double targetValue = regulatingControl.asDouble(propertyTag);
-        return useDefaultValue(regulatingControl.containsKey(propertyTag), isValidTargetValue(targetValue), use) ? defaultValue(defaultValue, context) : targetValue * terminalSign;
+        return useDefaultValue(regulatingControl.containsKey(propertyTag), isValidTargetValue(targetValue), use) ? defaultValue : targetValue * terminalSign;
     }
 
-    protected static double findTargetDeadband(PropertyBag regulatingControl, DefaultValueDouble defaultValue, DefaultValueUse use, Context context) {
+    protected static double findTargetDeadband(PropertyBag regulatingControl, double defaultValue, DefaultValueUse use, Context context) {
         double targetDeadband = regulatingControl.asDouble(CgmesNames.TARGET_DEADBAND);
-        return useDefaultValue(regulatingControl.containsKey(CgmesNames.TARGET_DEADBAND), isValidTargetDeadband(targetDeadband), use) ? defaultValue(defaultValue, context) : targetDeadband;
+        return useDefaultValue(regulatingControl.containsKey(CgmesNames.TARGET_DEADBAND), isValidTargetDeadband(targetDeadband), use) ? defaultValue : targetDeadband;
     }
 
-    protected static boolean findRegulatingOn(PropertyBag regulatingControl, DefaultValueBoolean defaultValue, DefaultValueUse use, Context context) {
+    protected static boolean findRegulatingOn(PropertyBag regulatingControl, boolean defaultValue, DefaultValueUse use, Context context) {
         return findRegulatingOn(regulatingControl, CgmesNames.ENABLED, defaultValue, use, context);
     }
 
-    protected static boolean findRegulatingOn(PropertyBag regulatingControl, String propertyTag, DefaultValueBoolean defaultValue, DefaultValueUse use, Context context) {
+    protected static boolean findRegulatingOn(PropertyBag regulatingControl, String propertyTag, boolean defaultValue, DefaultValueUse use, Context context) {
         Optional<Boolean> isRegulatingOn = regulatingControl.asBoolean(propertyTag);
-        return useDefaultValue(isRegulatingOn.isPresent(), true, use) ? defaultValue(defaultValue, context) : isRegulatingOn.orElse(false);
+        return useDefaultValue(isRegulatingOn.isPresent(), true, use) ? defaultValue : isRegulatingOn.orElse(false);
     }
 
     private static boolean useDefaultValue(boolean isDefined, boolean isValid, DefaultValueUse use) {

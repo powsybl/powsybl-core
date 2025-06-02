@@ -190,23 +190,23 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     private static <C extends Connectable<C>> void updateRatioTapChanger(Connectable<C> tw, RatioTapChanger rtc, String end, Context context, boolean isRegulatingAllowed) {
         String ratioTapChangerId = findTapChangerId(tw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + end);
 
-        DefaultValueInteger defaultTapPosition = getDefaultTapPosition(tw, rtc, ratioTapChangerId);
+        int defaultTapPosition = getDefaultTapPosition(tw, rtc, ratioTapChangerId, context);
         int tapPosition = findCgmesRatioTapChanger(ratioTapChangerId, context)
                 .map(propertyBag -> findTapPosition(propertyBag, defaultTapPosition, context))
-                .orElse(defaultValue(defaultTapPosition, context));
-        int validTapPosition = isValidTapPosition(rtc, tapPosition) ? tapPosition : defaultValue(defaultTapPosition, context);
+                .orElse(defaultTapPosition);
+        int validTapPosition = isValidTapPosition(rtc, tapPosition) ? tapPosition : defaultTapPosition;
         rtc.setTapPosition(validTapPosition);
 
         if (regulatingControlIsDefined(rtc.getRegulationTerminal())) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, ratioTapChangerId, context);
-            DefaultValueDouble defaultTargetV = getDefaultTargetV(rtc);
-            double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetV, context));
+            double defaultTargetV = getDefaultTargetV(rtc, context);
+            double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultTargetV);
 
-            DefaultValueDouble defaultTargetDeadband = getDefaultTargetDeadband(rtc);
-            double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetDeadband, context));
+            double defaultTargetDeadband = getDefaultTargetDeadband(rtc, context);
+            double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultTargetDeadband);
 
-            DefaultValueBoolean defaultRegulatingOn = getDefaultRegulatingOn(rtc);
-            boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultRegulatingOn, context));
+            boolean defaultRegulatingOn = getDefaultRegulatingOn(rtc, context);
+            boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultRegulatingOn);
 
             // We always keep the targetValue
             // It targetValue is not valid, emit a warning and deactivate regulating control
@@ -237,23 +237,23 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     private static <C extends Connectable<C>> void updatePhaseTapChanger(Connectable<C> tw, PhaseTapChanger ptc, String end, Context context, boolean isRegulatingAllowed) {
         String phaseTapChangerId = findTapChangerId(tw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + end);
 
-        DefaultValueInteger defaultTapPosition = getDefaultTapPosition(tw, ptc, phaseTapChangerId);
+        int defaultTapPosition = getDefaultTapPosition(tw, ptc, phaseTapChangerId, context);
         int tapPosition = findCgmesPhaseTapChanger(phaseTapChangerId, context)
                 .map(propertyBag -> findTapPosition(propertyBag, defaultTapPosition, context))
-                .orElse(defaultValue(defaultTapPosition, context));
-        int validTapPosition = isValidTapPosition(ptc, tapPosition) ? tapPosition : defaultValue(defaultTapPosition, context);
+                .orElse(defaultTapPosition);
+        int validTapPosition = isValidTapPosition(ptc, tapPosition) ? tapPosition : defaultTapPosition;
         ptc.setTapPosition(validTapPosition);
 
         if (regulatingControlIsDefined(ptc.getRegulationTerminal())) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, phaseTapChangerId, context);
-            DefaultValueDouble defaultTargetValue = getDefaultTargetValue(ptc);
-            double targetValue = cgmesRegulatingControl.map(propertyBag -> findTargetValue(propertyBag, findTerminalSign(tw, end), defaultTargetValue, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetValue, context));
+            double defaultTargetValue = getDefaultTargetValue(ptc, context);
+            double targetValue = cgmesRegulatingControl.map(propertyBag -> findTargetValue(propertyBag, findTerminalSign(tw, end), defaultTargetValue, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultTargetValue);
 
-            DefaultValueDouble defaultTargetDeadband = getDefaultTargetDeadband(ptc);
-            double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetDeadband, context));
+            double defaultTargetDeadband = getDefaultTargetDeadband(ptc, context);
+            double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultTargetDeadband);
 
-            DefaultValueBoolean defaultRegulatingOn = getDefaultRegulatingOn(ptc);
-            boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultRegulatingOn, context));
+            boolean defaultRegulatingOn = getDefaultRegulatingOn(ptc, context);
+            boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultRegulatingOn);
 
             boolean fixedRegulating = regulatingOn;
             if (regulatingOn && ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.FIXED_TAP) {
@@ -298,16 +298,17 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         return phaseTapChangerId != null ? Optional.ofNullable(context.phaseTapChanger(phaseTapChangerId)) : Optional.empty();
     }
 
-    private static int findTapPosition(PropertyBag p, DefaultValueInteger defaultTapPosition, Context context) {
+    private static int findTapPosition(PropertyBag p, int defaultTapPosition, Context context) {
         OptionalInt tapPosition = findTapPosition(p, context);
-        return tapPosition.isPresent() ? tapPosition.getAsInt() : defaultValue(defaultTapPosition, context);
+        return tapPosition.isPresent() ? tapPosition.getAsInt() : defaultTapPosition;
     }
 
-    private static <C extends Connectable<C>> DefaultValueInteger getDefaultTapPosition(Connectable<C> tw, com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, String tapChangerId) {
-        return new DefaultValueInteger(getNormalStep(tw, tapChangerId),
+    private static <C extends Connectable<C>> int getDefaultTapPosition(Connectable<C> tw, com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, String tapChangerId, Context context) {
+        return getDefaultValue(getNormalStep(tw, tapChangerId),
                 tapChanger.getTapPosition(),
                 tapChanger.getNeutralPosition().orElse(getNormalStep(tw, tapChangerId)),
-                tapChanger.getNeutralPosition().orElse(getNormalStep(tw, tapChangerId)));
+                tapChanger.getNeutralPosition().orElse(getNormalStep(tw, tapChangerId)),
+                context);
     }
 
     private static boolean isValidTapPosition(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, int tapPosition) {
@@ -361,21 +362,21 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         return false;
     }
 
-    private static DefaultValueDouble getDefaultTargetV(com.powsybl.iidm.network.RatioTapChanger ratioTapChanger) {
-        return new DefaultValueDouble(null, ratioTapChanger.getTargetV(), Double.NaN, Double.NaN);
+    private static double getDefaultTargetV(com.powsybl.iidm.network.RatioTapChanger ratioTapChanger, Context context) {
+        return getDefaultValue(null, ratioTapChanger.getTargetV(), Double.NaN, Double.NaN, context);
     }
 
-    private static DefaultValueDouble getDefaultTargetValue(com.powsybl.iidm.network.PhaseTapChanger phaseTapChanger) {
-        return new DefaultValueDouble(null, phaseTapChanger.getRegulationValue(), Double.NaN, Double.NaN);
+    private static double getDefaultTargetValue(com.powsybl.iidm.network.PhaseTapChanger phaseTapChanger, Context context) {
+        return getDefaultValue(null, phaseTapChanger.getRegulationValue(), Double.NaN, Double.NaN, context);
     }
 
     // targetDeadBand is optional in Cgmes and mandatory in IIDM then a default value is provided when it is not defined in Cgmes
-    private static DefaultValueDouble getDefaultTargetDeadband(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger) {
-        return new DefaultValueDouble(0.0, tapChanger.getTargetDeadband(), 0.0, 0.0);
+    private static double getDefaultTargetDeadband(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, Context context) {
+        return getDefaultValue(0.0, tapChanger.getTargetDeadband(), 0.0, 0.0, context);
     }
 
-    private static DefaultValueBoolean getDefaultRegulatingOn(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger) {
-        return new DefaultValueBoolean(false, tapChanger.isRegulating(), false, false);
+    private static boolean getDefaultRegulatingOn(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, Context context) {
+        return getDefaultValue(false, tapChanger.isRegulating(), false, false, context);
     }
 
     static boolean checkOnlyOneEnabled(boolean isAllowedToRegulate, boolean previousTapChangerIsRegulatingOn) {

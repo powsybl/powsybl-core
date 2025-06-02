@@ -55,7 +55,7 @@ public final class CgmesReports {
 
     public static ReportNode updatingElementTypeReport(ReportNode reportNode, String elementType) {
         return reportNode.newReportNode()
-                .withMessageTemplate("updatingElementType", "Updating ${elementType}.")
+                .withMessageTemplate("core.cgmes.update.updatingElementType")
                 .withUntypedValue("elementType", elementType)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
