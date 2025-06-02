@@ -233,3 +233,18 @@ When a three-winding transformer is modeled, the two-winding transformer steps s
 ### Slack bus
 
 The buses defined as slack terminal are the buses with type code  `3` (field `IDE` in the _Bus Data_ record).
+
+
+### _Area data_
+
+Every _Area interchange_ single line record represents one area in PowSyBl grid model with the following attributes:
+
+- **AreaType** - always set to "ControlArea"
+- **InterchangeTarget** - target active power interchange. It is copied from PSS®E field `PDES`
+- **Name** - area name. It is copied from PSS®E field `ARNAME`
+- **VoltageLevels** - a set of voltage levels of the area. The set is created from `VoltageLevels` objects that
+  correspond
+  to PSS®E buses within the given area.
+- **AreaBoundaries** – a list of area boundaries. Boundary terminals are determined from the boundary (AC) lines and
+  HVDC lines. The boundary lines are always identified such that one of their terminals belongs to the area. This
+  terminal is marked as a boundary terminal and included to area boundaries.

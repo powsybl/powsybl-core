@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.report;
 
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -21,11 +22,24 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     protected String messageTemplate;
     protected boolean withTimestamp = false;
     protected String timestampPattern;
+    protected MessageTemplateProvider messageTemplateProvider = MessageTemplateProvider.EMPTY;
+
+    @Override
+    public T withMessageTemplateProvider(MessageTemplateProvider messageTemplateProvider) {
+        this.messageTemplateProvider = Objects.requireNonNull(messageTemplateProvider);
+        return self();
+    }
 
     @Override
     public T withMessageTemplate(String key, String messageTemplate) {
         this.key = key;
         this.messageTemplate = messageTemplate;
+        return self();
+    }
+
+    @Override
+    public T withMessageTemplate(String key) {
+        this.key = key;
         return self();
     }
 
@@ -125,6 +139,21 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
         this.withTimestamp = true;
         this.timestampPattern = Objects.requireNonNull(pattern);
         return self();
+    }
+
+    protected void updateTreeDictionary(TreeContext treeContext) {
+        if (messageTemplate == null) {
+            treeContext.addDictionaryEntry(key, messageTemplateProvider);
+        } else {
+            treeContext.addDictionaryEntry(key, (k, l) -> messageTemplate);
+        }
+    }
+
+    protected void addTimeStampValue(TreeContext treeContext) {
+        DateTimeFormatter formatter = timestampPattern != null
+                ? DateTimeFormatter.ofPattern(timestampPattern, treeContext.getLocale())
+                : treeContext.getDefaultTimestampFormatter();
+        values.put(ReportConstants.TIMESTAMP_KEY, TypedValue.getTimestamp(formatter));
     }
 
     protected abstract T self();
