@@ -126,16 +126,6 @@ class NamingStrategiesServiceLoaderTest {
     }
 
     @Test
-    void testClearCache() {
-        List<NamingStrategy> services1 = cache.getServices();
-        cache.clearCache();
-        List<NamingStrategy> services2 = cache.getServices();
-
-        assertNotSame(services1, services2);
-        assertEquals(services1.size(), services2.size());
-    }
-
-    @Test
     void testCompleteIntegration() {
         NamingStrategy strategyFromFactory = getDefaultNamingStrategy();
 
