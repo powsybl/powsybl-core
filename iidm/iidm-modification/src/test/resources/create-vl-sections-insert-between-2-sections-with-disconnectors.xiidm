@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="test" caseDate="2023-12-13T10:05:55.570Z" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="S1" country="FR">
+        <iidm:voltageLevel id="VL1" nominalV="1.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="BBS11" node="0"/>
+                <iidm:busbarSection id="BBS21" node="1"/>
+                <iidm:busbarSection id="BBS31" node="2"/>
+                <iidm:busbarSection id="BBS12" node="3"/>
+                <iidm:busbarSection id="BBS22" node="4"/>
+                <iidm:busbarSection id="BBS32" node="5"/>
+                <iidm:busbarSection id="BBS13" node="6"/>
+                <iidm:busbarSection id="BBS23" node="7"/>
+                <iidm:busbarSection id="BBS33" node="8"/>
+                <iidm:busbarSection id="VL1_BBS_52" name="52" node="52"/>
+                <iidm:busbarSection id="VL1_BBS_53" name="53" node="53"/>
+                <iidm:busbarSection id="VL1_BBS_54" name="54" node="54"/>
+                <iidm:switch id="D_BBS11_BBS12" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:switch id="VL1_DISCONNECTOR_3_52" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="52"/>
+                <iidm:switch id="VL1_DISCONNECTOR_52_6" kind="DISCONNECTOR" retained="false" open="false" node1="52" node2="6"/>
+                <iidm:switch id="VL1_DISCONNECTOR_4_53" kind="DISCONNECTOR" retained="false" open="false" node1="4" node2="53"/>
+                <iidm:switch id="D_BBS21_BBS22" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="4"/>
+                <iidm:switch id="VL1_DISCONNECTOR_53_7" kind="DISCONNECTOR" retained="false" open="false" node1="53" node2="7"/>
+                <iidm:switch id="VL1_DISCONNECTOR_5_54" kind="DISCONNECTOR" retained="false" open="false" node1="5" node2="54"/>
+                <iidm:switch id="VL1_DISCONNECTOR_54_8" kind="DISCONNECTOR" retained="false" open="false" node1="54" node2="8"/>
+                <iidm:switch id="D_BBS31_BBS32" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="5"/>
+                <iidm:switch id="D_11_GEN_1" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="30"/>
+                <iidm:switch id="D_21_GEN_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="30"/>
+                <iidm:switch id="D_31_GEN_1" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="30"/>
+                <iidm:switch id="B_GEN_1" kind="BREAKER" retained="false" open="false" node1="30" node2="31"/>
+                <iidm:switch id="D_12_GEN_2" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="40"/>
+                <iidm:switch id="D_22_GEN_2" kind="DISCONNECTOR" retained="false" open="false" node1="4" node2="40"/>
+                <iidm:switch id="D_32_GEN_2" kind="DISCONNECTOR" retained="false" open="false" node1="5" node2="40"/>
+                <iidm:switch id="B_GEN_2" kind="BREAKER" retained="false" open="false" node1="40" node2="41"/>
+                <iidm:switch id="D_13_GEN_3" kind="DISCONNECTOR" retained="false" open="false" node1="6" node2="50"/>
+                <iidm:switch id="D_23_GEN_3" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="50"/>
+                <iidm:switch id="D_33_GEN_3" kind="DISCONNECTOR" retained="false" open="false" node1="8" node2="50"/>
+                <iidm:switch id="B_GEN_3" kind="BREAKER" retained="false" open="false" node1="50" node2="51"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="GEN_1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="31">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:generator>
+            <iidm:generator id="GEN_2" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="41">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:generator>
+            <iidm:generator id="GEN_3" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="51">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:extension id="BBS22">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="2"/>
+    </iidm:extension>
+    <iidm:extension id="BBS21">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="BBS23">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="4"/>
+    </iidm:extension>
+    <iidm:extension id="VL1_BBS_54">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="3"/>
+    </iidm:extension>
+    <iidm:extension id="VL1_BBS_53">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="3"/>
+    </iidm:extension>
+    <iidm:extension id="VL1_BBS_52">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="3"/>
+    </iidm:extension>
+    <iidm:extension id="BBS31">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="BBS11">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="BBS33">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="4"/>
+    </iidm:extension>
+    <iidm:extension id="BBS32">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="2"/>
+    </iidm:extension>
+    <iidm:extension id="BBS13">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="4"/>
+    </iidm:extension>
+    <iidm:extension id="BBS12">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="2"/>
+    </iidm:extension>
+</iidm:network>

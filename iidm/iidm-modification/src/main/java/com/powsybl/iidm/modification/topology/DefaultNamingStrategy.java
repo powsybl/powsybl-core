@@ -22,6 +22,7 @@ public class DefaultNamingStrategy implements NamingStrategy {
     private static final String BREAKER_NAMEBASE = "BREAKER";
     private static final String SWITCH_NAMEBASE = "SW";
     private static final String BUS_NAMEBASE = "BUS";
+    private static final String BUSBAR_SECTION_NAMEBASE = "BBS";
 
     @Override
     public final String getName() {
@@ -86,6 +87,11 @@ public class DefaultNamingStrategy implements NamingStrategy {
     @Override
     public final String getBusbarId(String baseId, List<SwitchKind> switchKindList, int id1Num, int id2Num) {
         return baseId + SEPARATOR + id1Num + SEPARATOR + id2Num;
+    }
+
+    @Override
+    public final String getBusbarId(String baseId, int idNum) {
+        return baseId + SEPARATOR + BUSBAR_SECTION_NAMEBASE + SEPARATOR + idNum;
     }
 
     @Override

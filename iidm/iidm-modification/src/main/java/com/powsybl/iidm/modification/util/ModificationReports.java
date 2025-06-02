@@ -37,6 +37,7 @@ public final class ModificationReports {
     public static final String LINE_3_ID = "line3Id";
     public static final String ORIGINAL_LINE_ID = "originalLineId";
     public static final String CONNECTABLE_TYPE = "connectableType";
+    public static final String BUSBAR_SECTION_ID = "busbarSectionId";
 
     // INFO
     public static void createdConnectable(ReportNode reportNode, Connectable<?> connectable) {
@@ -443,6 +444,14 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void notFoundBusbarSectionReport(ReportNode reportNode, String identifiableId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.notFoundBusbarSection")
+            .withUntypedValue(IDENTIFIABLE_ID, identifiableId)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
     public static void notFoundShuntReport(ReportNode reportNode, String shuntId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.notFoundShunt")
@@ -573,7 +582,7 @@ public final class ModificationReports {
     public static void notFoundBusbarSectionInVoltageLevelReport(ReportNode reportNode, String busbarSectionId, String voltageLevelId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.busbarSectionNotFound")
-                .withUntypedValue("busbarSectionId", busbarSectionId)
+                .withUntypedValue(BUSBAR_SECTION_ID, busbarSectionId)
                 .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
@@ -832,4 +841,20 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void busbarSectionsWithoutPositionReport(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.busbarSectionsWithoutPosition")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void failToInsertBusbarSectionReport(ReportNode reportNode, String voltageLevelId, String busbarSectionId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.failToInsertBusbarSection")
+            .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+            .withUntypedValue(BUSBAR_SECTION_ID, busbarSectionId)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
 }
