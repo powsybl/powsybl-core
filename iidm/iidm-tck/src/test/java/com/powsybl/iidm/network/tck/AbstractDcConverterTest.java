@@ -213,6 +213,8 @@ public abstract class AbstractDcConverterTest {
                 .setDcNode2Id(dcNode2a.getId())
                 .setDcConnected1(true)
                 .setDcConnected2(true)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.0)
                 .add();
     }
 
@@ -225,6 +227,8 @@ public abstract class AbstractDcConverterTest {
                 .setDcNode2Id(dcNode2b.getId())
                 .setDcConnected1(false)
                 .setDcConnected2(false)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.0)
                 .add();
     }
 
@@ -477,6 +481,8 @@ public abstract class AbstractDcConverterTest {
                 .setControlMode(DcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.0)
                 .add();
         DcVoltageSourceConverter converterSubnet2 = vlSubnet2
                 .newDcVoltageSourceConverter()
@@ -488,6 +494,8 @@ public abstract class AbstractDcConverterTest {
                 .setControlMode(DcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.0)
                 .add();
 
         List<DcVoltageSourceConverter> dcConverterList = List.of(converterSubnet1, converterSubnet2);
@@ -547,7 +555,9 @@ public abstract class AbstractDcConverterTest {
                 .setDcNode2Id(dcNode1Subnet2.getId())
                 .setControlMode(DcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
-                .setTargetVdc(500.);
+                .setTargetVdc(500.)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.0);
 
         // test cannot create Converter across subnetwork1 & subnetwork2
         PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
@@ -606,6 +616,8 @@ public abstract class AbstractDcConverterTest {
                 .setControlMode(DcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.0)
                 .add();
         assertTrue(dcConverterA.getTerminal2().isEmpty());
         assertNull(dcConverterA.getTerminal(TwoSides.TWO));
@@ -622,6 +634,8 @@ public abstract class AbstractDcConverterTest {
                 .setControlMode(DcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.0)
                 .add();
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         VariantManager variantManager = network.getVariantManager();

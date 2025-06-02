@@ -8,9 +8,6 @@
 package com.powsybl.iidm.network;
 
 /**
- * todo:
- *   V / Q control at Pcc
- *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public interface DcVoltageSourceConverter extends DcConverter<DcVoltageSourceConverter>, ReactiveLimitsHolder {
@@ -19,4 +16,51 @@ public interface DcVoltageSourceConverter extends DcConverter<DcVoltageSourceCon
     default IdentifiableType getType() {
         return IdentifiableType.DC_VOLTAGE_SOURCE_CONVERTER;
     }
+
+    /**
+     * Check if voltage regulator is on.
+     * @return true if voltage regulator is on, false otherwise
+     */
+    boolean isVoltageRegulatorOn();
+
+    /**
+     * Set voltage regulator status.
+     * @param voltageRegulatorOn the new voltage regulator status
+     * @return the converter itself to allow method chaining
+     */
+    DcVoltageSourceConverter setVoltageRegulatorOn(boolean voltageRegulatorOn);
+
+    /**
+     * Get the voltage setpoint (Kv).
+     * @return the voltage setpoint
+     */
+    double getVoltageSetpoint();
+
+    /**
+     * Set the voltage setpoint (Kv).
+     * @param voltageSetpoint the voltage setpoint
+     * @return the converter itself to allow method chaining
+     */
+    DcVoltageSourceConverter setVoltageSetpoint(double voltageSetpoint);
+
+    /**
+     * Get the reactive power setpoint (MVar).
+     * @return the reactive power setpoint
+     */
+    double getReactivePowerSetpoint();
+
+    /**
+     * Set the reactive power setpoint (MVar).
+     * @param reactivePowerSetpoint the reactive power setpoint
+     * @return the converter itself to allow method chaining
+     */
+    DcVoltageSourceConverter setReactivePowerSetpoint(double reactivePowerSetpoint);
+
+    /**
+     * Get the terminal used for regulation.
+     * @return the terminal used for regulation
+     */
+    Terminal getRegulatingTerminal();
+
+    DcVoltageSourceConverter setRegulatingTerminal(Terminal regulatingTerminal);
 }

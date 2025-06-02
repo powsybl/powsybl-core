@@ -382,25 +382,35 @@ public final class DcDetailedNetworkFactory {
                 .setDcNode2Id(dcNodeGbNeg.getId())
                 .setR(5.0)
                 .add();
+        Terminal frPccTerminal = dcNetwork.getTwoWindingsTransformer("TRDC-FR-xNodeDc1fr").getTerminal1();
         dcNetwork.getVoltageLevel("VLDC-FR-xNodeDc1fr-150").newDcVoltageSourceConverter()
                 .setId("VsFr")
                 .setBus1("BUSDC-FR-xNodeDc1fr-150")
                 .setDcNode1Id(dcNodeFrNeg.getId())
                 .setDcNode2Id(dcNodeFrPos.getId())
                 .setControlMode(DcConverter.ControlMode.V_DC)
-                .setPccTerminal(dcNetwork.getTwoWindingsTransformer("TRDC-FR-xNodeDc1fr").getTerminal1())
+                .setPccTerminal(frPccTerminal)
                 .setTargetVdc(500.)
                 .setTargetP(200.)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.0)
+                .setVoltageSetpoint(400.)
+                .setRegulatingTerminal(frPccTerminal)
                 .add();
+        Terminal gbPccTerminal = dcNetwork.getTwoWindingsTransformer("TRDC-GB-xNodeDc1gb").getTerminal1();
         dcNetwork.getVoltageLevel("VLDC-GB-xNodeDc1gb-150").newDcVoltageSourceConverter()
                 .setId("VsGb")
                 .setBus1("BUSDC-GB-xNodeDc1gb-150")
                 .setDcNode1Id(dcNodeGbNeg.getId())
                 .setDcNode2Id(dcNodeGbPos.getId())
                 .setControlMode(DcConverter.ControlMode.P_PCC)
-                .setPccTerminal(dcNetwork.getTwoWindingsTransformer("TRDC-GB-xNodeDc1gb").getTerminal1())
+                .setPccTerminal(gbPccTerminal)
                 .setTargetVdc(500.)
                 .setTargetP(-200.)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.0)
+                .setVoltageSetpoint(400.)
+                .setRegulatingTerminal(gbPccTerminal)
                 .add();
         return Network.merge(dcNetwork, fr, gb);
     }

@@ -12,4 +12,12 @@ package com.powsybl.iidm.network;
  */
 public interface DcVoltageSourceConverterAdder extends DcConverterAdder<DcVoltageSourceConverter, DcVoltageSourceConverterAdder> {
 
+    DcVoltageSourceConverterAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
+
+    DcVoltageSourceConverterAdder setVoltageSetpoint(double voltageSetpoint);
+
+    DcVoltageSourceConverterAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
+
+    DcVoltageSourceConverterAdder setRegulatingTerminal(Terminal regulatingTerminal);
+
 }

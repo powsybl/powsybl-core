@@ -14,6 +14,11 @@ import com.powsybl.iidm.network.*;
  */
 public class DcVoltageSourceConverterAdderImpl extends AbstractDcConverterAdder<DcVoltageSourceConverterAdderImpl> implements DcVoltageSourceConverterAdder {
 
+    private Boolean voltageRegulatorOn;
+    private double voltageSetpoint = Double.NaN;
+    private double reactivePowerSetpoint = Double.NaN;
+    private TerminalExt regulatingTerminal;
+
     DcVoltageSourceConverterAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
     }
@@ -24,14 +29,46 @@ public class DcVoltageSourceConverterAdderImpl extends AbstractDcConverterAdder<
     }
 
     @Override
+    public DcVoltageSourceConverterAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        this.voltageRegulatorOn = voltageRegulatorOn;
+        return this;
+    }
+
+    @Override
+    public DcVoltageSourceConverterAdder setVoltageSetpoint(double voltageSetpoint) {
+        this.voltageSetpoint = voltageSetpoint;
+        return this;
+    }
+
+    @Override
+    public DcVoltageSourceConverterAdder setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        this.reactivePowerSetpoint = reactivePowerSetpoint;
+        return this;
+    }
+
+    @Override
+    public DcVoltageSourceConverterAdder setRegulatingTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = (TerminalExt) regulatingTerminal;
+        return this;
+    }
+
+    @Override
     public DcVoltageSourceConverter add() {
         // TODO checks
         // TODO / note: dcNodes and voltage level must be in same network
         String id = checkAndGetUniqueId();
         super.preCheck();
+        NetworkImpl network = getNetwork();
+        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
+            voltageRegulatorOn = false;
+        }
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint,
+                reactivePowerSetpoint, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
         DcVoltageSourceConverterImpl dcVsConverter = new DcVoltageSourceConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
                 idleLoss, switchingLoss, resistiveLoss,
-                pccTerminal, controlMode, targetP, targetVdc);
+                pccTerminal, controlMode, targetP, targetVdc,
+                voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint, regulatingTerminal);
         super.checkAndAdd(dcVsConverter);
         return dcVsConverter;
     }
