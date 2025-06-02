@@ -13,7 +13,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
-import com.powsybl.iidm.modification.topology.NamingStrategiesFactory;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
@@ -22,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_PQ_RATIO;
 import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q;
+import static com.powsybl.iidm.modification.topology.NamingStrategiesManager.getDefaultNamingStrategy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -75,14 +75,14 @@ class ApplyActionToNetworkTest {
         ComputationManager computationManager = LocalComputationManager.getDefault();
         assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
         assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
-        disconnection.apply(network, NamingStrategiesFactory.getDefault(), true, computationManager, ReportNode.NO_OP);
+        disconnection.apply(network, getDefaultNamingStrategy(), true, computationManager, ReportNode.NO_OP);
         assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
         assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
 
         // Connection
         TerminalsConnectionAction connectionAction = new TerminalsConnectionAction("id", "NHV1_NHV2_1", false);
         NetworkModification connection = connectionAction.toModification();
-        connection.apply(network, NamingStrategiesFactory.getDefault(), true, computationManager, ReportNode.NO_OP);
+        connection.apply(network, getDefaultNamingStrategy(), true, computationManager, ReportNode.NO_OP);
         assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
         assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
     }

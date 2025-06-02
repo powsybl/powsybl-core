@@ -13,13 +13,13 @@ public interface NamingStrategiesLoader {
 
     List<NamingStrategy> loadNamingStrategies();
 
-    NamingStrategy getDefault();
+    NamingStrategy getDefaultNamingStrategy();
 
-    Optional<NamingStrategy> findByName(String name);
+    Optional<NamingStrategy> findNamingStrategyByName(String name);
 
     Set<String> getAvailableStrategyNames();
 
-    default List<NamingStrategy> findAll() {
+    default List<NamingStrategy> findAllNamingStrategies() {
         return loadNamingStrategies();
     }
 }

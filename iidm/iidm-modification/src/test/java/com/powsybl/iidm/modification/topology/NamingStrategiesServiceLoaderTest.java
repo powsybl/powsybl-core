@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.modification.topology.NamingStrategiesManager.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -38,7 +39,7 @@ class NamingStrategiesServiceLoaderTest {
 
     @Test
     void testGetDefault() {
-        NamingStrategy defaultStrategy = loader.getDefault();
+        NamingStrategy defaultStrategy = loader.getDefaultNamingStrategy();
 
         assertNotNull(defaultStrategy);
         assertNotNull(defaultStrategy.getName());
@@ -47,7 +48,7 @@ class NamingStrategiesServiceLoaderTest {
 
     @Test
     void testGetDefaultPrefersDefault() {
-        NamingStrategy defaultStrategy = loader.getDefault();
+        NamingStrategy defaultStrategy = loader.getDefaultNamingStrategy();
 
         List<NamingStrategy> allStrategies = loader.loadNamingStrategies();
         if (allStrategies.size() > 1) {
@@ -62,18 +63,18 @@ class NamingStrategiesServiceLoaderTest {
 
     @Test
     void testFindByName() {
-        Optional<NamingStrategy> found = loader.findByName("Default");
+        Optional<NamingStrategy> found = loader.findNamingStrategyByName("Default");
         assertTrue(found.isPresent());
         assertEquals("Default", found.get().getName());
 
-        Optional<NamingStrategy> notFound = loader.findByName("NonExistent");
+        Optional<NamingStrategy> notFound = loader.findNamingStrategyByName("NonExistent");
         assertFalse(notFound.isPresent());
     }
 
     @Test
     void testFindAll() {
         List<NamingStrategy> strategies1 = loader.loadNamingStrategies();
-        List<NamingStrategy> strategies2 = loader.findAll();
+        List<NamingStrategy> strategies2 = loader.findAllNamingStrategies();
 
         assertEquals(strategies1.size(), strategies2.size());
         assertTrue(strategies1.containsAll(strategies2));
@@ -136,19 +137,19 @@ class NamingStrategiesServiceLoaderTest {
 
     @Test
     void testCompleteIntegration() {
-        NamingStrategy strategyFromFactory = NamingStrategiesFactory.getDefault();
+        NamingStrategy strategyFromFactory = getDefaultNamingStrategy();
 
         NamingStrategiesServiceLoader serviceLoader = new NamingStrategiesServiceLoader();
-        NamingStrategy strategyFromLoader = serviceLoader.getDefault();
+        NamingStrategy strategyFromLoader = serviceLoader.getDefaultNamingStrategy();
 
         assertEquals(strategyFromFactory.getName(), strategyFromLoader.getName());
     }
 
     @Test
     void testConsistencyBetweenMethods() {
-        NamingStrategy defaultStrategy = NamingStrategiesFactory.getDefault();
-        Optional<NamingStrategy> foundStrategy = NamingStrategiesFactory.findByName("Default");
-        List<NamingStrategy> allStrategies = NamingStrategiesFactory.findAll();
+        NamingStrategy defaultStrategy = getDefaultNamingStrategy();
+        Optional<NamingStrategy> foundStrategy = findNamingStrategyByName("Default");
+        List<NamingStrategy> allStrategies = findAllNamingStrategies();
 
         assertTrue(foundStrategy.isPresent());
         assertEquals(defaultStrategy.getName(), foundStrategy.get().getName());
@@ -160,8 +161,8 @@ class NamingStrategiesServiceLoaderTest {
         long startTime = System.currentTimeMillis();
 
         for (int i = 0; i < 100; i++) {
-            NamingStrategiesFactory.getDefault();
-            NamingStrategiesFactory.findAll();
+            getDefaultNamingStrategy();
+            findAllNamingStrategies();
         }
 
         long duration = System.currentTimeMillis() - startTime;

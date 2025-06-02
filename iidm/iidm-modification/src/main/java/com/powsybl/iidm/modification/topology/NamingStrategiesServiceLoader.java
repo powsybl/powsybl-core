@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
  * @author Ghazwa Rehili {@literal <ghazwa.rehili at rte-france.com>}
  */
 public class NamingStrategiesServiceLoader implements NamingStrategiesLoader {
+
     private static final ServiceLoaderCache<NamingStrategy> NAMING_STRATEGY_CACHE = new ServiceLoaderCache<>(NamingStrategy.class);
 
     @Override
@@ -20,17 +21,17 @@ public class NamingStrategiesServiceLoader implements NamingStrategiesLoader {
     }
 
     @Override
-    public NamingStrategy getDefault() {
+    public NamingStrategy getDefaultNamingStrategy() {
         List<NamingStrategy> strategies = loadNamingStrategies();
 
         return strategies.stream()
-                .filter(strategy -> NamingStrategyConstants.NAME.equals(strategy.getName()))
+                .filter(strategy -> DefaultNamingStrategy.STRATEGY_NAME.equals(strategy.getName()))
                 .findFirst()
                 .orElse(strategies.get(0));
     }
 
     @Override
-    public Optional<NamingStrategy> findByName(String name) {
+    public Optional<NamingStrategy> findNamingStrategyByName(String name) {
         if (name == null || name.trim().isEmpty()) {
             return Optional.empty();
         }

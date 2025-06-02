@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Optional;
 
+import static com.powsybl.iidm.modification.topology.NamingStrategiesManager.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -14,27 +15,26 @@ class NamingStrategiesFactoryTest {
 
     @Test
     void testGetDefaultNotNull() {
-        NamingStrategy strategy = NamingStrategiesFactory.getDefault();
+        NamingStrategy strategy = getDefaultNamingStrategy();
         assertNotNull(strategy);
     }
 
     @Test
     void testFindByNameDefault() {
-        Optional<NamingStrategy> strategy = NamingStrategiesFactory.findByName("Default");
+        Optional<NamingStrategy> strategy = findNamingStrategyByName("Default");
         assertTrue(strategy.isPresent());
         assertEquals("Default", strategy.get().getName());
     }
 
     @Test
     void testFindByNameNullAndEmpty() {
-        assertFalse(NamingStrategiesFactory.findByName(null).isPresent());
-        assertFalse(NamingStrategiesFactory.findByName("NonExistent").isPresent());
-        assertFalse(NamingStrategiesFactory.findByName(" ").isPresent());
+        assertFalse(findNamingStrategyByName(null).isPresent());
+        assertFalse(findNamingStrategyByName(" ").isPresent());
     }
 
     @Test
     void testFindAllStrategies() {
-        List<NamingStrategy> strategies = NamingStrategiesFactory.findAll();
+        List<NamingStrategy> strategies = findAllNamingStrategies();
         assertNotNull(strategies);
         assertFalse(strategies.isEmpty());
         assertTrue(strategies.stream().anyMatch(s -> "Default".equals(s.getName())));

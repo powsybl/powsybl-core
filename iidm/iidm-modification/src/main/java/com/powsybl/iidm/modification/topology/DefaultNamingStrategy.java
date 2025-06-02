@@ -8,7 +8,10 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.List;
 
@@ -19,15 +22,16 @@ import java.util.List;
 @AutoService(NamingStrategy.class)
 public class DefaultNamingStrategy implements NamingStrategy {
 
-    private static final String SEPARATOR = NamingStrategyConstants.SEPARATOR;
-    private static final String DISCONNECTOR_NAMEBASE = NamingStrategyConstants.DISCONNECTOR_NAMEBASE;
-    private static final String BREAKER_NAMEBASE = NamingStrategyConstants.BREAKER_NAMEBASE;
-    private static final String SWITCH_NAMEBASE = NamingStrategyConstants.SWITCH_NAMEBASE;
-    private static final String BUS_NAMEBASE = NamingStrategyConstants.BUS_NAMEBASE;
+    public static final String STRATEGY_NAME = "Default";
+    public static final String SEPARATOR = "_";
+    public static final String DISCONNECTOR_NAMEBASE = "DISCONNECTOR";
+    public static final String BREAKER_NAMEBASE = "BREAKER";
+    public static final String SWITCH_NAMEBASE = "SW";
+    public static final String BUS_NAMEBASE = "BUS";
 
     @Override
     public final String getName() {
-        return NamingStrategyConstants.NAME;
+        return STRATEGY_NAME;
     }
 
     @Override
