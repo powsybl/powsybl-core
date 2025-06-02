@@ -200,13 +200,13 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         if (regulatingControlIsDefined(rtc.getRegulationTerminal())) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, ratioTapChangerId, context);
             double defaultTargetV = getDefaultTargetV(rtc, context);
-            double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultTargetV);
+            double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
 
             double defaultTargetDeadband = getDefaultTargetDeadband(rtc, context);
-            double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultTargetDeadband);
+            double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetDeadband);
 
             boolean defaultRegulatingOn = getDefaultRegulatingOn(rtc, context);
-            boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultRegulatingOn);
+            boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
             // We always keep the targetValue
             // It targetValue is not valid, emit a warning and deactivate regulating control
@@ -247,13 +247,13 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         if (regulatingControlIsDefined(ptc.getRegulationTerminal())) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, phaseTapChangerId, context);
             double defaultTargetValue = getDefaultTargetValue(ptc, context);
-            double targetValue = cgmesRegulatingControl.map(propertyBag -> findTargetValue(propertyBag, findTerminalSign(tw, end), defaultTargetValue, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultTargetValue);
+            double targetValue = cgmesRegulatingControl.map(propertyBag -> findTargetValue(propertyBag, findTerminalSign(tw, end), defaultTargetValue, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetValue);
 
             double defaultTargetDeadband = getDefaultTargetDeadband(ptc, context);
-            double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultTargetDeadband);
+            double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetDeadband);
 
             boolean defaultRegulatingOn = getDefaultRegulatingOn(ptc, context);
-            boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultRegulatingOn);
+            boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
             boolean fixedRegulating = regulatingOn;
             if (regulatingOn && ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.FIXED_TAP) {

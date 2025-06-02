@@ -863,34 +863,34 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
     }
 
-    protected static double findTargetV(PropertyBag regulatingControl, double defaultValue, DefaultValueUse use, Context context) {
-        return findTargetV(regulatingControl, CgmesNames.TARGET_VALUE, defaultValue, use, context);
+    protected static double findTargetV(PropertyBag regulatingControl, double defaultValue, DefaultValueUse use) {
+        return findTargetV(regulatingControl, CgmesNames.TARGET_VALUE, defaultValue, use);
     }
 
-    protected static double findTargetV(PropertyBag regulatingControl, String propertyTag, double defaultValue, DefaultValueUse use, Context context) {
+    protected static double findTargetV(PropertyBag regulatingControl, String propertyTag, double defaultValue, DefaultValueUse use) {
         double targetV = regulatingControl.asDouble(propertyTag);
         return useDefaultValue(regulatingControl.containsKey(propertyTag), isValidTargetV(targetV), use) ? defaultValue : targetV;
     }
 
-    protected static double findTargetValue(PropertyBag regulatingControl, int terminalSign, double defaultValue, DefaultValueUse use, Context context) {
-        return findTargetValue(regulatingControl, CgmesNames.TARGET_VALUE, terminalSign, defaultValue, use, context);
+    protected static double findTargetValue(PropertyBag regulatingControl, int terminalSign, double defaultValue, DefaultValueUse use) {
+        return findTargetValue(regulatingControl, CgmesNames.TARGET_VALUE, terminalSign, defaultValue, use);
     }
 
-    protected static double findTargetValue(PropertyBag regulatingControl, String propertyTag, int terminalSign, double defaultValue, DefaultValueUse use, Context context) {
+    protected static double findTargetValue(PropertyBag regulatingControl, String propertyTag, int terminalSign, double defaultValue, DefaultValueUse use) {
         double targetValue = regulatingControl.asDouble(propertyTag);
         return useDefaultValue(regulatingControl.containsKey(propertyTag), isValidTargetValue(targetValue), use) ? defaultValue : targetValue * terminalSign;
     }
 
-    protected static double findTargetDeadband(PropertyBag regulatingControl, double defaultValue, DefaultValueUse use, Context context) {
+    protected static double findTargetDeadband(PropertyBag regulatingControl, double defaultValue, DefaultValueUse use) {
         double targetDeadband = regulatingControl.asDouble(CgmesNames.TARGET_DEADBAND);
         return useDefaultValue(regulatingControl.containsKey(CgmesNames.TARGET_DEADBAND), isValidTargetDeadband(targetDeadband), use) ? defaultValue : targetDeadband;
     }
 
-    protected static boolean findRegulatingOn(PropertyBag regulatingControl, boolean defaultValue, DefaultValueUse use, Context context) {
-        return findRegulatingOn(regulatingControl, CgmesNames.ENABLED, defaultValue, use, context);
+    protected static boolean findRegulatingOn(PropertyBag regulatingControl, boolean defaultValue, DefaultValueUse use) {
+        return findRegulatingOn(regulatingControl, CgmesNames.ENABLED, defaultValue, use);
     }
 
-    protected static boolean findRegulatingOn(PropertyBag regulatingControl, String propertyTag, boolean defaultValue, DefaultValueUse use, Context context) {
+    protected static boolean findRegulatingOn(PropertyBag regulatingControl, String propertyTag, boolean defaultValue, DefaultValueUse use) {
         Optional<Boolean> isRegulatingOn = regulatingControl.asBoolean(propertyTag);
         return useDefaultValue(isRegulatingOn.isPresent(), true, use) ? defaultValue : isRegulatingOn.orElse(false);
     }
