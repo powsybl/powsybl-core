@@ -132,7 +132,7 @@ public class LegacyTextReader {
     }
 
     // Compact spaces, remove spaces before the comma, and replace space with comma outside quoted text
-    private static String processText(String line) {
+    protected static String processText(String line) {
         if (line == null || line.isEmpty()) {
             return line;
         }
