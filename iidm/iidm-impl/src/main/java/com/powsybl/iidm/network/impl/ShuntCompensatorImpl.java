@@ -102,8 +102,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensator unsetSectionCount() {
         NetworkImpl n = getNetwork();
-        ValidationUtil.throwExceptionOrLogError(this, "count of sections in service has been unset", n.getMinValidationLevel(),
-                n.getReportNodeContext().getReportNode());
+        ValidationUtil.throwExceptionOrIgnore(this, "count of sections in service has been unset", n.getMinValidationLevel());
         int variantIndex = network.get().getVariantIndex();
         Integer oldValue = this.sectionCount.set(variantIndex, null);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
