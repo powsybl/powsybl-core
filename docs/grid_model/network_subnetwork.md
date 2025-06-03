@@ -254,16 +254,33 @@ In the grid model, loads comprise the following metadata:
 ## Battery
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Battery.html)
 
-A battery on the electric grid is an energy storage device that is either capable of capturing energy from the grid or of injecting it into the grid. The electric energy on the grid side is thus transformed into chemical energy on the battery side and vice versa. The power flow is bidirectional, and it is controlled via a power electronic converter.
+A battery on the electric grid is an energy storage device that is either capable of capturing energy from the grid or
+of injecting it into the grid. The electric energy on the grid side is thus transformed into chemical energy on the
+battery side and vice versa. The power flow is bidirectional, and it is controlled via a power electronic converter.
 
 **Characteristics**
 
-| Attribute | Unit | Description                 |
-|-----------|------|-----------------------------|
-| $P0$      | MW   | The Constant active power   |
-| $Q0$      | MVar | The Constant reactive power |
-| $MinP$    | MW   | The Minimal active power    |
-| $MaxP$    | MW   | The Maximum active power    |
+| Attribute        | Unit | Description                                       |
+|------------------|------|---------------------------------------------------|
+| $TargetP$        | MW   | The active power target                           |
+| $TargetQ$        | MVar | The reactive power target                         |
+| $MinP$           | MW   | The Minimal active power (charging limit)         |
+| $MaxP$           | MW   | The Maximum active power (discharging limit)      |
+| $ReactiveLimits$ | MVar | Operational limits of the battery (P/Q/V diagram) |
+
+The values `TargetP`, `TargetQ`, `MinP`, `MaxP`, are required.
+The minimum active power output cannot be greater than the maximum active power output.
+
+All attributes follow the generator sign convention: a positive value means an injection into the bus.
+Positive values for `TargetP` and `TargetQ` mean negative values at the flow observed at the battery `Terminal`,
+as `Terminal` flow always follows load sign convention.
+The minimum active power output cannot be greater than the maximum active power output.
+`MinP` represents the battery charging active power limit, and is typically negative.
+`MaxP` represents discharge active power limit, and is typically positive.
+
+The [reactive limits](./additional.md#reactive-limits) of the battery are optional, if they are not given the battery
+is considered with unlimited reactive power. Reactive limits can be given as a pair of [min/max values](./additional.md#min-max-reactive-limits) or as
+a [reactive capability curve](./additional.md#reactive-capability-curve).
 
 **Available extensions**
 
