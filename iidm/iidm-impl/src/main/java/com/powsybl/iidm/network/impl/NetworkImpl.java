@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.commons.ref.RefObj;
 import com.powsybl.iidm.network.util.Identifiables;
+import com.powsybl.iidm.network.util.NetworkReports;
 import com.powsybl.iidm.network.util.Networks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1242,19 +1243,16 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public ValidationLevel runValidationChecks(boolean throwsException, ReportNode reportNode) {
-        ReportNode readReportNode = Objects.requireNonNull(reportNode).newReportNode()
-                .withMessageTemplate("IIDMValidation", "Running validation checks on IIDM network ${networkId}")
-                .withUntypedValue("networkId", id)
-                .add();
+        ReportNode readReportNode = NetworkReports.runIidmNetworkValidationCHecks(reportNode, id);
         validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),
-                true, throwsException, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
+                true, throwsException ? ValidationUtil.ActionOnError.THROW_EXCEPTION : ValidationUtil.ActionOnError.LOG_ERROR, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
         return validationLevel;
     }
 
     @Override
     public ValidationLevel getValidationLevel() {
         if (validationLevel == null) {
-            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, minValidationLevel, ReportNode.NO_OP);
+            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, ValidationUtil.ActionOnError.IGNORE, minValidationLevel, ReportNode.NO_OP);
         }
         return validationLevel;
     }

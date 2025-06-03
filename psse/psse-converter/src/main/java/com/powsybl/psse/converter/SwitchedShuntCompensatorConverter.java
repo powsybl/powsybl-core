@@ -35,6 +35,9 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     void create() {
+        if (!getContainersMapping().isBusDefined(psseSwitchedShunt.getI())) {
+            return;
+        }
         List<ShuntBlock> shuntBlocks = defineShuntBlocks(psseSwitchedShunt, version);
         if (shuntBlocks.isEmpty()) {
             return;

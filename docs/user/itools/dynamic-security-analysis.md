@@ -49,7 +49,7 @@ Allowed EXTENSIONS values are []
 This option defines the path of the case file on which the security analysis is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path.
 
 `--dynamic-models-file`  
-This option defines the path of the mapping file used to associate dynamic models to static equipments of the network or add dynamic automation systems. At the moment, only groovy scripts are supported. The [dynamic models DSL](../../simulation/dynamic/index.md#dynamic-models-mapping) depends on the simulator used.
+This option defines the path of the file used to associate dynamic models to static equipments of the network or add dynamic automation systems. At the moment, only groovy scripts are supported. The [dynamic models DSL](../../simulation/dynamic/index.md#dynamic-models-mapping) depends on the simulator used.
 
 ### Optional arguments
 
