@@ -147,7 +147,8 @@ public class LegacyTextReader {
                 result.append(part);
             } else {
                 // Outside quotes: process the txt
-                result.append(part.replaceAll("\\s+,", ",")
+                // On the next line: "(?<=\S|^)" = backtracking protection. The previous char should be a non-white char or a line start.
+                result.append(part.replaceAll("(?<=\\S|^)\\s+,", ",") // see comment above
                         .replaceAll(",\\s+", ",")
                         .replaceAll("\\s+", ","));
             }
