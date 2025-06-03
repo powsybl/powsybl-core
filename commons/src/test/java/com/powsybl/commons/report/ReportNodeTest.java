@@ -11,6 +11,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -358,9 +360,8 @@ class ReportNodeTest extends AbstractSerDeTest {
         // Set Locale default as French to be the fallback if English report is not found
         // as the English report exists for tests, then the fallback in case the key is not found in the English report
         // should not be in French but in the default reports.properties
-        Locale previousLocale = Locale.getDefault();
-        try {
-            Locale.setDefault(Locale.FRENCH);
+        try (MockedStatic<com.powsybl.commons.report.ReportConstants> mocked = Mockito.mockStatic(ReportConstants.class)) {
+            mocked.when(ReportConstants::getDefaultLocale).thenReturn(Locale.FRENCH);
 
             String key = "keyNotExistingInEnglish";
             ReportNode report1 = ReportNode.newRootReportNode()
@@ -369,9 +370,6 @@ class ReportNodeTest extends AbstractSerDeTest {
                     .withMessageTemplate(key)
                     .build();
             assertEquals("Root reportNode", report1.getMessage());
-        } finally {
-            // Restore previous Locale for the other tests
-            Locale.setDefault(previousLocale);
         }
     }
 
@@ -398,10 +396,9 @@ class ReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void testFallbacksWhenReportFilesExistForLocaleButNotAlwaysTheKey() {
-        Locale previousLocale = Locale.getDefault();
-        try {
-            //Set Locale default as FRENCH
-            Locale.setDefault(Locale.FRENCH);
+        // Mock the default Locale (to FRENCH) returned by ReportConstants and used to define the ReportNode locale if locale is not provided
+        try (MockedStatic<com.powsybl.commons.report.ReportConstants> mocked = Mockito.mockStatic(ReportConstants.class)) {
+            mocked.when(ReportConstants::getDefaultLocale).thenReturn(Locale.FRENCH);
 
             String key = "rootWithValue";
             String expectedDefaultMessage = "Message racine avec la valeur 4";
@@ -469,9 +466,6 @@ class ReportNodeTest extends AbstractSerDeTest {
             // translation should be from the reports.properties file as the reports_en.properties is defined but the key is not in it
             assertEquals("Root reportNode", rootReportEnglish2.getMessage());
             assertEquals(Locale.ENGLISH, rootReportEnglish2.getTreeContext().getLocale());
-        } finally {
-            // Restore previous Locale for the other tests
-            Locale.setDefault(previousLocale);
         }
     }
 
