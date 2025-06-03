@@ -28,5 +28,15 @@ public interface ReactiveCapabilityCurveAdder {
 
     ReactiveCapabilityCurve add();
 
+    /**
+     * Sets whether the validation for checking minQ and maxQ values should be performed when adding a reactive
+     * capability curve.
+     *
+     * <p>This method is used only for retroactive compatibility of IIDM files for custom IIDM implementations.
+     * It should not be called manually.</p>
+     *
+     * @param shouldCheckMinMaxValues a boolean indicating whether to check for minQ and maxQ values
+     * @return the current instance of the {@code ReactiveCapabilityCurveAdder} for method chaining
+     */
     ReactiveCapabilityCurveAdder setShouldCheckMinMaxValues(boolean shouldCheckMinMaxValues);
 }
