@@ -12,12 +12,10 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.identifiers.NetworkElementIdentifier.IdentifierType.ID_WITH_WILDCARDS;
 
@@ -68,17 +66,12 @@ public class IdWithWildcardsNetworkElementIdentifier implements NetworkElementId
         }
         // Escape all non wildcard characters
         String[] chunks = originalIdentifier.split(Pattern.quote(wildcardCharacter));
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < chunks.length; i++) {
-            if (i != 0) {
-                sb.append('.');
-            }
-            sb.append(Pattern.quote(chunks[i]));
-        }
+        StringJoiner sj = new StringJoiner(".");
+        Stream.of(chunks).forEach(c -> sj.add(Pattern.quote(c)));
         if (originalIdentifier.endsWith(wildcardCharacter)) {
-            sb.append('.');
+            sj.add("");
         }
-        identifierPattern = sb.toString();
+        identifierPattern = sj.toString();
     }
 
     @Override
