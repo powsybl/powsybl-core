@@ -43,7 +43,7 @@ jobs:
 
       - name: Save classes and Jacoco report
         if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: data-for-sonar-analysis-${{ github.event.pull_request.number }}
           path: |
@@ -62,12 +62,13 @@ jobs:
           mkdir -p pr-info
           echo "${{ github.event.pull_request.head.repo.full_name }}" > pr-info/repo-name
           echo "${{ github.event.pull_request.head.ref }}" > pr-info/head-ref
+          echo "${{ github.event.pull_request.head.sha }}" > pr-info/head-sha
           echo "${{ github.event.pull_request.number }}" > pr-info/pr-number
           echo "${{ github.event.pull_request.base.ref }}" > pr-info/base-ref
 
       - name: Upload PR Information
         if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: pr-info-${{ github.event.pull_request.number }}
           path: pr-info/
