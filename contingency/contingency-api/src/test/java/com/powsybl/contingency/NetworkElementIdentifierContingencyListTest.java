@@ -227,6 +227,12 @@ class NetworkElementIdentifierContingencyListTest {
         Assertions.assertEquals(2, identifiables.size());
         assertTrue(identifiables.containsAll(Arrays.asList(".NHV1 2 .NHV2 2", ".NHV1 3 .NHV2 1")));
 
+        // Test with no wildcard in final position
+        elementIdentifier = new IdWithWildcardsNetworkElementIdentifier(".NHV1 ? .NHV2 2");
+        identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
+        Assertions.assertEquals(1, identifiables.size());
+        assertTrue(identifiables.contains(".NHV1 2 .NHV2 2"));
+
         String message3 = assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("TEST_WITH_NO_WILDCARDS")).getMessage();
         assertEquals("There is no wildcard in your identifier, please use IdBasedNetworkElementIdentifier instead", message3);
     }

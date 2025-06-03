@@ -69,8 +69,14 @@ public class IdWithWildcardsNetworkElementIdentifier implements NetworkElementId
         // Escape all non wildcard characters
         String[] chunks = originalIdentifier.split(Pattern.quote(wildcardCharacter));
         StringBuilder sb = new StringBuilder();
-        for (String chunk : chunks) {
-            sb.append(Pattern.quote(chunk)).append('.');
+        for (int i = 0; i < chunks.length; i++) {
+            if (i != 0) {
+                sb.append('.');
+            }
+            sb.append(Pattern.quote(chunks[i]));
+        }
+        if (originalIdentifier.endsWith(wildcardCharacter)) {
+            sb.append('.');
         }
         identifierPattern = sb.toString();
     }
