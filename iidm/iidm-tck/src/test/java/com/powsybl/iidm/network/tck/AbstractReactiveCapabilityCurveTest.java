@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 
 import static com.powsybl.iidm.network.ReactiveLimitsKind.CURVE;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -134,6 +135,21 @@ public abstract class AbstractReactiveCapabilityCurveTest {
             .setMinQ(50.0);
         ValidationException e = assertThrows(ValidationException.class, pointAdder::endPoint);
         assertTrue(e.getMessage().contains("maximum reactive power is expected to be greater than or equal to minimum reactive power"));
+    }
+
+    @Test
+    public void setShouldCheckMinMaxValuesTest() {
+        ReactiveCapabilityCurveAdder curveAdder = generator.newReactiveCapabilityCurve();
+        ReactiveCapabilityCurveAdder.PointAdder pointAdder = curveAdder
+            .beginPoint()
+            .setP(1.0)
+            .setMaxQ(5.0)
+            .setMinQ(50.0);
+        assertThrows(ValidationException.class, pointAdder::endPoint);
+
+        // Deactivate the check on min/max values
+        curveAdder.setShouldCheckMinMaxValues(false);
+        assertDoesNotThrow(pointAdder::endPoint);
     }
 
     @Test
