@@ -132,7 +132,7 @@ public class LegacyTextReader {
     }
 
     // Compact spaces, remove spaces before the comma, and replace space with comma outside quoted text
-    private static String processText(String line) {
+    protected static String processText(String line) {
         if (line == null || line.isEmpty()) {
             return line;
         }
@@ -147,7 +147,8 @@ public class LegacyTextReader {
                 result.append(part);
             } else {
                 // Outside quotes: process the txt
-                result.append(part.replaceAll("\\s+,", ",")
+                // On the next line: "(?<=\S|^)" = backtracking protection. The previous char should be a non-white char or a line start.
+                result.append(part.replaceAll("(?<=\\S|^)\\s+,", ",") // see comment above
                         .replaceAll(",\\s+", ",")
                         .replaceAll("\\s+", ","));
             }
