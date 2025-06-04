@@ -16,6 +16,9 @@ import java.util.List;
  */
 public interface DcConnectable<I extends DcConnectable<I>> extends Identifiable<I> {
 
+    /**
+     * @return the DC Terminals of the DC connectable
+     */
     List<DcTerminal> getDcTerminals();
 
     /**

@@ -77,5 +77,8 @@ public interface DcNode extends Identifiable<DcNode> {
      */
     DcNode setNominalV(double nominalV);
 
+    /**
+     * remove the DcNode from the network
+     */
     void remove();
 }

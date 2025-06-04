@@ -8,6 +8,127 @@
 package com.powsybl.iidm.network;
 
 /**
+ * DC Voltage Source Converter
+ *
+ * <p> To create a DcVoltageSourceConverter, see {@link DcVoltageSourceConverterAdder}
+ *
+ * <p>
+ *  Characteristics
+ * </p>
+ *
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Default value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the Converter</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the Converter</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">IdleLoss</td>
+ *             <td style="border: 1px solid black">Double</td>
+ *             <td style="border: 1px solid black">MW</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black">0 MW</td>
+ *             <td style="border: 1px solid black">Converter Idle loss</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">SwitchingLoss</td>
+ *             <td style="border: 1px solid black">Double</td>
+ *             <td style="border: 1px solid black">MW/A</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black">0 MW/A</td>
+ *             <td style="border: 1px solid black">Converter Switching loss</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">ResistiveLoss</td>
+ *             <td style="border: 1px solid black">Double</td>
+ *             <td style="border: 1px solid black">&Omega;</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black">0 &Omega;</td>
+ *             <td style="border: 1px solid black">Converter Resistive loss</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">PccTerminal</td>
+ *             <td style="border: 1px solid black">Terminal</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The converter's point of common coupling (PCC) terminal</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">ControlMode</td>
+ *             <td style="border: 1px solid black">ControlMode</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The converter's control mode</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">TargetP</td>
+ *             <td style="border: 1px solid black">MW</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Active power target at point of common coupling, load sign convention</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">TargetVdc</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">DC voltage target</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">VoltageRegulatorOn</td>
+ *             <td style="border: 1px solid black">boolean</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The voltage regulator status</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">VoltageSetpoint</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">only if VoltageRegulatorOn is set to true</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The voltage setpoint</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">ReactivePowerSetpoint</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">MVar</td>
+ *             <td style="border: 1px solid black">only if VoltageRegulatorOn is set to false</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">The reactive power setpoint</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
+ * @see DcVoltageSourceConverterAdder
+ *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public interface DcVoltageSourceConverter extends DcConverter<DcVoltageSourceConverter>, ReactiveLimitsHolder {
@@ -62,5 +183,9 @@ public interface DcVoltageSourceConverter extends DcConverter<DcVoltageSourceCon
      */
     Terminal getRegulatingTerminal();
 
+    /**
+     * Set the terminal used for regulation.
+     * @return the converter itself to allow method chaining
+     */
     DcVoltageSourceConverter setRegulatingTerminal(Terminal regulatingTerminal);
 }

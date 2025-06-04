@@ -10,19 +10,32 @@ package com.powsybl.iidm.network;
 import java.util.Optional;
 
 /**
- * todo ? do we need converter DC nodes polarities ? (pos/neg/middle)
- *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public interface DcConverter<I extends DcConverter<I>> extends Connectable<I>, DcConnectable<I> {
 
+    /**
+     * Control Mode of the DC converter
+     */
     enum ControlMode {
+        /**
+         * Controlling active power at Point of Common Coupling
+         */
         P_PCC,
+        /**
+         * Controlling DC Voltage
+         */
         V_DC
     }
 
+    /**
+     * Get the first AC terminal.
+     */
     Terminal getTerminal1();
 
+    /**
+     * Get the optional second AC terminal.
+     */
     Optional<Terminal> getTerminal2();
 
     /**
@@ -30,10 +43,19 @@ public interface DcConverter<I extends DcConverter<I>> extends Connectable<I>, D
      */
     TwoSides getSide(Terminal terminal);
 
+    /**
+     * Get the terminal at provided side.
+     */
     Terminal getTerminal(TwoSides side);
 
+    /**
+     * Get the first DC terminal.
+     */
     DcTerminal getDcTerminal1();
 
+    /**
+     * Get the second DC terminal.
+     */
     DcTerminal getDcTerminal2();
 
     /**
@@ -41,33 +63,78 @@ public interface DcConverter<I extends DcConverter<I>> extends Connectable<I>, D
      */
     TwoSides getSide(DcTerminal dcTerminal);
 
+    /**
+     * Get the DC terminal at provided side.
+     */
     DcTerminal getDcTerminal(TwoSides side);
 
+    /**
+     * Get the idle loss (MW).
+     */
     I setIdleLoss(double idleLoss);
 
+    /**
+     * Set the idle loss (MW).
+     */
     double getIdleLoss();
 
+    /**
+     * Get the switching loss (MW/A).
+     */
     I setSwitchingLoss(double switchingLoss);
 
+    /**
+     * Set the switching loss (MW/A).
+     */
     double getSwitchingLoss();
 
+    /**
+     * Set the resistive loss (&#937;).
+     */
     I setResistiveLoss(double resistiveLoss);
 
+    /**
+     * Get the resistive loss (&#937;).
+     */
     double getResistiveLoss();
 
+    /**
+     * Set the point of common coupling terminal
+     */
     I setPccTerminal(Terminal pccTerminal);
 
+    /**
+     * Get the point of common coupling terminal
+     */
     Terminal getPccTerminal();
 
+    /**
+     * Set the control mode of the converter
+     */
     I setControlMode(ControlMode controlMode);
 
+    /**
+     * Get the control mode of the converter
+     */
     ControlMode getControlMode();
 
+    /**
+     * Set the target active power at point of common coupling (MW)
+     */
     I setTargetP(double targetP);
 
+    /**
+     * Get the target active power at point of common coupling (MW)
+     */
     double getTargetP();
 
+    /**
+     * Set the target DC voltage (kV DC)
+     */
     I setTargetVdc(double targetVdc);
 
+    /**
+     * Get the target DC voltage (kV DC)
+     */
     double getTargetVdc();
 }

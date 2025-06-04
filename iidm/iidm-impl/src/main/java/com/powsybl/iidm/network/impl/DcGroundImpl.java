@@ -42,11 +42,12 @@ public class DcGroundImpl extends AbstractDcConnectable<DcGround> implements DcG
     }
 
     @Override
-    public void setR(double r) {
+    public DcGround setR(double r) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "r");
         ValidationUtil.checkRPositive(this, r);
         double oldValue = this.r;
         this.r = r;
         getNetwork().getListeners().notifyUpdate(this, "r", oldValue, r);
+        return this;
     }
 }

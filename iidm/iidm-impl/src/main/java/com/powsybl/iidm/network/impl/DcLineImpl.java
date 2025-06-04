@@ -75,11 +75,12 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
     }
 
     @Override
-    public void setR(double r) {
+    public DcLine setR(double r) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "r");
         ValidationUtil.checkRPositive(this, r);
         double oldValue = this.r;
         this.r = r;
         getNetwork().getListeners().notifyUpdate(this, "r", oldValue, r);
+        return this;
     }
 }

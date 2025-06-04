@@ -66,9 +66,19 @@ public interface DcGround extends DcConnectable<DcGround> {
         return IdentifiableType.DC_GROUND;
     }
 
+    /**
+     * @return the DC Ground Terminal
+     */
     DcTerminal getDcTerminal();
 
+    /**
+     * @return the DC Ground resistance in &#937;.
+     */
     double getR();
 
-    void setR(double r);
+    /**
+     * @param r the new DC Ground resistance in &#937;.
+     * @return self for method chaining
+     */
+    DcGround setR(double r);
 }

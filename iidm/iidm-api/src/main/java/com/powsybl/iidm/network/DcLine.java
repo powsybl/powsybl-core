@@ -8,8 +8,54 @@
 package com.powsybl.iidm.network;
 
 /**
- * todo ?
- *   rename to (concrete) DcBranch and add type enum DC_LINE / DC_SERIES_DEVICE ?
+ * DC nodes are points where terminals of DC conducting equipment are connected together with zero impedance.
+ *
+ * <p> To create a DcLine, see {@link DcLineAdder}
+ *
+ * <p>
+ *  Characteristics
+ * </p>
+ *
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Default value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the DcLine</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the DcLine</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">R</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">&Omega;</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> 0 </td>
+ *             <td style="border: 1px solid black">DC Line resistance</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
+ * @see DcLineAdder
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -20,15 +66,36 @@ public interface DcLine extends DcConnectable<DcLine> {
         return IdentifiableType.DC_LINE;
     }
 
+    /**
+     * @return the first DC Line Terminal
+     */
     DcTerminal getDcTerminal1();
 
+    /**
+     * @return the second DC Line Terminal
+     */
     DcTerminal getDcTerminal2();
 
+    /**
+     * @param side DC Line side
+     * @return the DC Terminal at provided side
+     */
     DcTerminal getDcTerminal(TwoSides side);
 
+    /**
+     * @param dcTerminal DC Terminal of the DC Line
+     * @return the DC Line side of the provided DC Terminal
+     */
     TwoSides getSide(DcTerminal dcTerminal);
 
+    /**
+     * @return the DC Line resistance in &#937;.
+     */
     double getR();
 
-    void setR(double r);
+    /**
+     * @param r the new DC Line resistance in &#937;.
+     * @return self for method chaining
+     */
+    DcLine setR(double r);
 }
