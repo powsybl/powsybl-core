@@ -177,7 +177,7 @@ The &rho; of each step is calculated according to the following formula: $\rho =
 
 (ucte-angle-regulation-conversion)=
 #### Angle regulation
-If an angle regulation is defined for a transformer, it is converted into a [phase tap changer](../../grid_model/additional.md#phase-tap-changer), with a `CURRENT_LIMITER` regulation mode withe `regulating=false`.
+If an angle regulation is defined for a transformer, it is converted into a [phase tap changer](../../grid_model/additional.md#phase-tap-changer), with a `CURRENT_LIMITER` regulation mode with `regulating=false`.
 &rho; and &alpha; of each step are calculated according to the following formulas:
 - for an asymmetrical regulation (e.g. $\Theta \ne 90°$)
 
