@@ -20,6 +20,8 @@ import java.util.Objects;
  */
 public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine {
 
+    public static final String R_ATTRIBUTE = "r";
+
     private double r;
 
     DcLineImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, double r) {
@@ -70,17 +72,17 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
 
     @Override
     public double getR() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "r");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, R_ATTRIBUTE);
         return this.r;
     }
 
     @Override
     public DcLine setR(double r) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "r");
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, R_ATTRIBUTE);
         ValidationUtil.checkRPositive(this, r);
         double oldValue = this.r;
         this.r = r;
-        getNetwork().getListeners().notifyUpdate(this, "r", oldValue, r);
+        getNetwork().getListeners().notifyUpdate(this, R_ATTRIBUTE, oldValue, r);
         return this;
     }
 }

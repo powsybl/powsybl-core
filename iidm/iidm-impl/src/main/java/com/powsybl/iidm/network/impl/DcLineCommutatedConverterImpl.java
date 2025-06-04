@@ -15,8 +15,9 @@ import com.powsybl.iidm.network.*;
  */
 public class DcLineCommutatedConverterImpl extends AbstractDcConverter<DcLineCommutatedConverter> implements DcLineCommutatedConverter {
 
-    public static final String REACTIVE_MODEL = "reactiveModel";
-    public static final String POWER_FACTOR = "powerFactor";
+    public static final String REACTIVE_MODEL_ATTRIBUTE = "reactiveModel";
+    public static final String POWER_FACTOR_ATTRIBUTE = "powerFactor";
+
     private ReactiveModel reactiveModel;
 
     private double powerFactor;
@@ -37,33 +38,33 @@ public class DcLineCommutatedConverterImpl extends AbstractDcConverter<DcLineCom
 
     @Override
     public ReactiveModel getReactiveModel() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, REACTIVE_MODEL);
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, REACTIVE_MODEL_ATTRIBUTE);
         return this.reactiveModel;
     }
 
     @Override
     public DcLineCommutatedConverter setReactiveModel(ReactiveModel reactiveModel) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, REACTIVE_MODEL);
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, REACTIVE_MODEL_ATTRIBUTE);
         ValidationUtil.checkLccReactiveModel(this, reactiveModel);
         ReactiveModel oldValue = this.reactiveModel;
         this.reactiveModel = reactiveModel;
-        getNetwork().getListeners().notifyUpdate(this, REACTIVE_MODEL, oldValue, reactiveModel);
+        getNetwork().getListeners().notifyUpdate(this, REACTIVE_MODEL_ATTRIBUTE, oldValue, reactiveModel);
         return this;
     }
 
     @Override
     public double getPowerFactor() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, POWER_FACTOR);
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, POWER_FACTOR_ATTRIBUTE);
         return this.powerFactor;
     }
 
     @Override
     public DcLineCommutatedConverter setPowerFactor(double powerFactor) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, POWER_FACTOR);
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, POWER_FACTOR_ATTRIBUTE);
         ValidationUtil.checkPositivePowerFactor(this, powerFactor);
         double oldValue = this.powerFactor;
         this.powerFactor = powerFactor;
-        getNetwork().getListeners().notifyUpdate(this, POWER_FACTOR, oldValue, powerFactor);
+        getNetwork().getListeners().notifyUpdate(this, POWER_FACTOR_ATTRIBUTE, oldValue, powerFactor);
         return this;
     }
 

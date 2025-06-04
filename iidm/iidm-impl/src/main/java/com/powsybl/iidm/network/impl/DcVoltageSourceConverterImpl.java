@@ -19,10 +19,11 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 public class DcVoltageSourceConverterImpl extends AbstractDcConverter<DcVoltageSourceConverter> implements DcVoltageSourceConverter, ReactiveLimitsOwner {
 
-    public static final String VOLTAGE_REGULATOR_ON = "voltageRegulatorOn";
-    public static final String VOLTAGE_SETPOINT = "voltageSetpoint";
-    public static final String REACTIVE_POWER_SETPOINT = "reactivePowerSetpoint";
-    public static final String REGULATING_TERMINAL = "regulatingTerminal";
+    public static final String VOLTAGE_REGULATOR_ON_ATTRIBUTE = "voltageRegulatorOn";
+    public static final String VOLTAGE_SETPOINT_ATTRIBUTE = "voltageSetpoint";
+    public static final String REACTIVE_POWER_SETPOINT_ATTRIBUTE = "reactivePowerSetpoint";
+    public static final String REGULATING_TERMINAL_ATTRIBUTE = "regulatingTerminal";
+
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
     private final TDoubleArrayList reactivePowerSetpoint;
@@ -54,13 +55,13 @@ public class DcVoltageSourceConverterImpl extends AbstractDcConverter<DcVoltageS
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, VOLTAGE_REGULATOR_ON);
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, VOLTAGE_REGULATOR_ON_ATTRIBUTE);
         return regulatingPoint.isRegulating(getNetwork().getVariantIndex());
     }
 
     @Override
     public DcVoltageSourceConverterImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, VOLTAGE_REGULATOR_ON);
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, VOLTAGE_REGULATOR_ON_ATTRIBUTE);
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex),
@@ -69,19 +70,19 @@ public class DcVoltageSourceConverterImpl extends AbstractDcConverter<DcVoltageS
         this.regulatingPoint.setRegulating(variantIndex, voltageRegulatorOn);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
-        notifyUpdate(VOLTAGE_REGULATOR_ON, variantId, oldValue, voltageRegulatorOn);
+        notifyUpdate(VOLTAGE_REGULATOR_ON_ATTRIBUTE, variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 
     @Override
     public double getVoltageSetpoint() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, VOLTAGE_SETPOINT);
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, VOLTAGE_SETPOINT_ATTRIBUTE);
         return this.voltageSetpoint.get(getNetwork().getVariantIndex());
     }
 
     @Override
     public DcVoltageSourceConverterImpl setVoltageSetpoint(double voltageSetpoint) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, VOLTAGE_SETPOINT);
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, VOLTAGE_SETPOINT_ATTRIBUTE);
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex), voltageSetpoint, reactivePowerSetpoint.get(variantIndex),
@@ -89,19 +90,19 @@ public class DcVoltageSourceConverterImpl extends AbstractDcConverter<DcVoltageS
         double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
-        notifyUpdate(VOLTAGE_SETPOINT, variantId, oldValue, voltageSetpoint);
+        notifyUpdate(VOLTAGE_SETPOINT_ATTRIBUTE, variantId, oldValue, voltageSetpoint);
         return this;
     }
 
     @Override
     public double getReactivePowerSetpoint() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, REACTIVE_POWER_SETPOINT);
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, REACTIVE_POWER_SETPOINT_ATTRIBUTE);
         return reactivePowerSetpoint.get(getNetwork().getVariantIndex());
     }
 
     @Override
     public DcVoltageSourceConverterImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, REACTIVE_POWER_SETPOINT);
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, REACTIVE_POWER_SETPOINT_ATTRIBUTE);
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex), voltageSetpoint.get(variantIndex), reactivePowerSetpoint,
@@ -109,7 +110,7 @@ public class DcVoltageSourceConverterImpl extends AbstractDcConverter<DcVoltageS
         double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
-        notifyUpdate(REACTIVE_POWER_SETPOINT, variantId, oldValue, reactivePowerSetpoint);
+        notifyUpdate(REACTIVE_POWER_SETPOINT_ATTRIBUTE, variantId, oldValue, reactivePowerSetpoint);
         return this;
     }
 
@@ -170,17 +171,17 @@ public class DcVoltageSourceConverterImpl extends AbstractDcConverter<DcVoltageS
 
     @Override
     public TerminalExt getRegulatingTerminal() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, REGULATING_TERMINAL);
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, REGULATING_TERMINAL_ATTRIBUTE);
         return regulatingPoint.getRegulatingTerminal();
     }
 
     @Override
     public DcVoltageSourceConverterImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, REGULATING_TERMINAL);
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, REGULATING_TERMINAL_ATTRIBUTE);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         Terminal oldValue = regulatingPoint.getRegulatingTerminal();
         regulatingPoint.setRegulatingTerminal((TerminalExt) regulatingTerminal);
-        notifyUpdate(REGULATING_TERMINAL, oldValue, regulatingTerminal);
+        notifyUpdate(REGULATING_TERMINAL_ATTRIBUTE, oldValue, regulatingTerminal);
         return this;
     }
 
