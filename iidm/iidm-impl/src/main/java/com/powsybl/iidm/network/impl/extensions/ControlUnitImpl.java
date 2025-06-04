@@ -7,8 +7,10 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 
+import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.extensions.ControlUnit;
 import com.powsybl.iidm.network.impl.NetworkImpl;
+import com.powsybl.iidm.network.impl.VariantManagerHolder;
 
 import java.util.Objects;
 
@@ -19,17 +21,25 @@ class ControlUnitImpl implements ControlUnit {
 
     private final String id;
 
-    private boolean participate;
+    private final TBooleanArrayList participate;
 
     private ControlZoneImpl controlZone;
 
-    public ControlUnitImpl(String id, boolean participate) {
+    public ControlUnitImpl(String id, boolean participate, VariantManagerHolder variantManagerHolder) {
         this.id = Objects.requireNonNull(id);
-        this.participate = participate;
+        int variantArraySize = variantManagerHolder.getVariantManager().getVariantArraySize();
+        this.participate = new TBooleanArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.participate.add(participate);
+        }
     }
 
     public void setControlZone(ControlZoneImpl controlZone) {
         this.controlZone = Objects.requireNonNull(controlZone);
+    }
+
+    protected int getVariantIndex() {
+        return controlZone.getSecondaryVoltageControl().getVariantManagerHolder().getVariantIndex();
     }
 
     @Override
@@ -39,17 +49,37 @@ class ControlUnitImpl implements ControlUnit {
 
     @Override
     public boolean isParticipate() {
-        return participate;
+        return participate.get(getVariantIndex());
     }
 
     @Override
     public void setParticipate(boolean participate) {
-        if (participate != this.participate) {
-            this.participate = participate;
+        int variantIndex = getVariantIndex();
+        boolean oldParticipate = this.participate.get(variantIndex);
+        if (participate != oldParticipate) {
+            this.participate.set(variantIndex, participate);
             SecondaryVoltageControlImpl secondaryVoltageControl = controlZone.getSecondaryVoltageControl();
             NetworkImpl network = (NetworkImpl) secondaryVoltageControl.getExtendable();
-            network.getListeners().notifyExtensionUpdate(secondaryVoltageControl, "controlUnitParticipate", null,
-                    new ParticipateEvent(controlZone.getName(), id, !this.participate), new ParticipateEvent(controlZone.getName(), id, this.participate));
+            String variantId = network.getVariantManager().getVariantId(variantIndex);
+            network.getListeners().notifyExtensionUpdate(secondaryVoltageControl, "controlUnitParticipate", variantId,
+                    new ParticipateEvent(controlZone.getName(), id, oldParticipate), new ParticipateEvent(controlZone.getName(), id, participate));
+        }
+    }
+
+    void extendVariantArraySize(int number, int sourceIndex) {
+        participate.ensureCapacity(participate.size() + number);
+        for (int i = 0; i < number; ++i) {
+            participate.add(participate.get(sourceIndex));
+        }
+    }
+
+    void reduceVariantArraySize(int number) {
+        participate.remove(participate.size() - number, number);
+    }
+
+    void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        for (int index : indexes) {
+            participate.set(index, participate.get(sourceIndex));
         }
     }
 }
