@@ -63,7 +63,7 @@ abstract class AbstractDcConnectable<I extends DcConnectable<I>> extends Abstrac
 
         network.getListeners().notifyAfterRemoval(id);
         removed = true;
-        dcTerminals.forEach(DcTerminal::remove);
+        dcTerminals.forEach(DcTerminalImpl::remove);
     }
 
     @Override

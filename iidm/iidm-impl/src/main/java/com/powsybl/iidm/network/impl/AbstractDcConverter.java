@@ -322,7 +322,7 @@ abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractCon
 
     @Override
     public void remove() {
-        dcTerminals.forEach(DcTerminal::remove);
+        dcTerminals.forEach(DcTerminalImpl::remove);
         pccRegulatingPoint.remove();
         super.remove();
     }

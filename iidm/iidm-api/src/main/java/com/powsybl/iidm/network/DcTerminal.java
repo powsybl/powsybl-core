@@ -73,6 +73,4 @@ public interface DcTerminal {
      * @see VariantManager
      */
     DcTerminal setI(double i);
-
-    void remove();
 }
