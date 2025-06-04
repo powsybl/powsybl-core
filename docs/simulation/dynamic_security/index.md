@@ -12,6 +12,9 @@ The dynamic security analysis is a [security analysis](../security/index.md) usi
 ### Dynamic models configuration
 The dynamic models configuration is exactly the same [configuration](../dynamic/index.md#dynamic-models-configuration) used for a dynamic simulation.
 
+### Event models configuration
+The event models configuration is exactly the same [configuration](../dynamic/index.md#event-models-configuration) used for a dynamic simulation.
+
 ### Other inputs
 Besides dynamic models configuration, the dynamic security analysis requires the same [inputs as the standard one](../security/index.md#inputs).
 
