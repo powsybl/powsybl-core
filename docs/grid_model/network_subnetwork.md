@@ -269,12 +269,12 @@ battery side and vice versa. The power flow is bidirectional, and it is controll
 | $ReactiveLimits$ | MVar | Operational limits of the battery (P/Q/V diagram) |
 
 The values `TargetP`, `TargetQ`, `MinP`, `MaxP`, are required.
-The minimum active power output cannot be greater than the maximum active power output.
 
 All attributes follow the generator sign convention: a positive value means an injection into the bus.
 Positive values for `TargetP` and `TargetQ` mean negative values at the flow observed at the battery `Terminal`,
 as `Terminal` flow always follows load sign convention.
-The minimum active power output cannot be greater than the maximum active power output.
+
+The minimum active power output `MinP` cannot be greater than the maximum active power output `MaxP`.
 `MinP` represents the battery charging active power limit, and is typically negative.
 `MaxP` represents discharge active power limit, and is typically positive.
 
