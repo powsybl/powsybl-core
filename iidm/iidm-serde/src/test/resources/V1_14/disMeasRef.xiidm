@@ -196,7 +196,7 @@
                 <iidm:bus v="400.0" angle="-1.1259" nodes="0,1,2,3,4,5,6"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="LD6" loadType="UNDEFINED" p0="240.0" q0="10.0" node="2" p="240.0" q="10.0"/>
-            <iidm:staticVarCompensator id="SVC" bMin="-0.05" bMax="0.05" voltageSetpoint="400.0" regulationMode="VOLTAGE" node="4" q="-12.5415"/>
+            <iidm:staticVarCompensator id="SVC" bMin="-0.05" bMax="0.05" voltageSetpoint="400.0" regulationMode="VOLTAGE" regulating="false" node="4" q="-12.5415"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:line id="LINE_S2S3" r="0.009999999" x="19.100000024" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="6" voltageLevelId1="S2VL1" node2="2" voltageLevelId2="S3VL1" p1="109.8893" q1="190.0229" p2="-109.8864" q2="-184.5171"/>

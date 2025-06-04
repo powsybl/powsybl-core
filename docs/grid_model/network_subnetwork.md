@@ -446,8 +446,9 @@ In IIDM the static VAR compensator also comprises some metadata:
 - The regulation mode, which can be:
     - `VOLTAGE`
     - `REACTIVE_POWER`
-    - `OFF`  
-      Note that it is different from the generator regulation definition, which is only done through a boolean. `OFF` is equivalent to a disconnected element.
+
+- The participation in regulation (through a boolean)
+
 - The regulating terminal, which can be local or remote: it is the specific connection point on the network where the setpoint is measured.
 
 **Available extensions**
