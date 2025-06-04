@@ -56,37 +56,37 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
 
     public T setDcNode1Id(String dcNode1Id) {
         this.dcNode1Id = Objects.requireNonNull(dcNode1Id);
-        return (T) this;
+        return self();
     }
 
     public T setDcConnected1(boolean dcConnected1) {
         this.dcConnected1 = dcConnected1;
-        return (T) this;
+        return self();
     }
 
     public T setDcNode2Id(String dcNode2Id) {
         this.dcNode2Id = Objects.requireNonNull(dcNode2Id);
-        return (T) this;
+        return self();
     }
 
     public T setDcConnected2(boolean dcConnected2) {
         this.dcConnected2 = dcConnected2;
-        return (T) this;
+        return self();
     }
 
     public T setNode1(int node1) {
         this.node1 = node1;
-        return (T) this;
+        return self();
     }
 
     public T setBus1(String bus1) {
         this.bus1 = bus1;
-        return (T) this;
+        return self();
     }
 
     public T setConnectableBus1(String connectableBus1) {
         this.connectableBus1 = connectableBus1;
-        return (T) this;
+        return self();
     }
 
     protected TerminalExt checkAndGetTerminal1() {
@@ -99,17 +99,17 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
 
     public T setNode2(int node2) {
         this.node2 = node2;
-        return (T) this;
+        return self();
     }
 
     public T setBus2(String bus2) {
         this.bus2 = bus2;
-        return (T) this;
+        return self();
     }
 
     public T setConnectableBus2(String connectableBus2) {
         this.connectableBus2 = connectableBus2;
-        return (T) this;
+        return self();
     }
 
     protected Optional<TerminalExt> checkAndGetTerminal2() {
@@ -125,37 +125,37 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
 
     public T setIdleLoss(double idleLoss) {
         this.idleLoss = idleLoss;
-        return (T) this;
+        return self();
     }
 
     public T setSwitchingLoss(double switchingLoss) {
         this.switchingLoss = switchingLoss;
-        return (T) this;
+        return self();
     }
 
     public T setResistiveLoss(double resistiveLoss) {
         this.resistiveLoss = resistiveLoss;
-        return (T) this;
+        return self();
     }
 
     public T setPccTerminal(Terminal pccTerminal) {
         this.pccTerminal = (TerminalExt) pccTerminal;
-        return (T) this;
+        return self();
     }
 
     public T setControlMode(DcConverter.ControlMode controlMode) {
         this.controlMode = controlMode;
-        return (T) this;
+        return self();
     }
 
     public T setTargetP(double targetP) {
         this.targetP = targetP;
-        return (T) this;
+        return self();
     }
 
     public T setTargetVdc(double targetVdc) {
         this.targetVdc = targetVdc;
-        return (T) this;
+        return self();
     }
 
     protected void preCheck() {
@@ -196,4 +196,6 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
         getNetwork().getIndex().checkAndAdd(dcConverter);
         getNetwork().getListeners().notifyCreation(dcConverter);
     }
+
+    protected abstract T self();
 }

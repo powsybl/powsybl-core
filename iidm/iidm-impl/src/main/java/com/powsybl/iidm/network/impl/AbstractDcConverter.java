@@ -21,6 +21,13 @@ import java.util.Optional;
  */
 abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractConnectable<I> implements DcConverter<I>, MultiVariantObject {
 
+    public static final String IDLE_LOSS = "idleLoss";
+    public static final String SWITCHING_LOSS = "switchingLoss";
+    public static final String RESISTIVE_LOSS = "resistiveLoss";
+    public static final String PCC_TERMINAL = "pccTerminal";
+    public static final String CONTROL_MODE = "controlMode";
+    public static final String TARGET_P = "targetP";
+    public static final String TARGET_VDC = "targetVdc";
     protected final List<DcTerminalImpl> dcTerminals = new ArrayList<>();
 
     private double idleLoss;
@@ -141,123 +148,123 @@ abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractCon
 
     @Override
     public double getIdleLoss() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "idleLoss");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, IDLE_LOSS);
         return this.idleLoss;
     }
 
     @Override
     public I setIdleLoss(double idleLoss) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "idleLoss");
-        ValidationUtil.checkDoubleParamPositive(this, idleLoss, "idleLoss");
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, IDLE_LOSS);
+        ValidationUtil.checkDoubleParamPositive(this, idleLoss, IDLE_LOSS);
         double oldValue = this.idleLoss;
         this.idleLoss = idleLoss;
-        getNetwork().getListeners().notifyUpdate(this, "idleLoss", oldValue, idleLoss);
-        return (I) this;
+        getNetwork().getListeners().notifyUpdate(this, IDLE_LOSS, oldValue, idleLoss);
+        return self();
     }
 
     @Override
     public double getSwitchingLoss() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "switchingLoss");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, SWITCHING_LOSS);
         return this.switchingLoss;
     }
 
     @Override
     public I setSwitchingLoss(double switchingLoss) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "switchingLoss");
-        ValidationUtil.checkDoubleParamPositive(this, switchingLoss, "switchingLoss");
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, SWITCHING_LOSS);
+        ValidationUtil.checkDoubleParamPositive(this, switchingLoss, SWITCHING_LOSS);
         double oldValue = this.switchingLoss;
         this.switchingLoss = switchingLoss;
-        getNetwork().getListeners().notifyUpdate(this, "switchingLoss", oldValue, switchingLoss);
-        return (I) this;
+        getNetwork().getListeners().notifyUpdate(this, SWITCHING_LOSS, oldValue, switchingLoss);
+        return self();
     }
 
     @Override
     public double getResistiveLoss() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "resistiveLoss");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, RESISTIVE_LOSS);
         return this.resistiveLoss;
     }
 
     @Override
     public I setResistiveLoss(double resistiveLoss) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "resistiveLoss");
-        ValidationUtil.checkDoubleParamPositive(this, resistiveLoss, "resistiveLoss");
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, RESISTIVE_LOSS);
+        ValidationUtil.checkDoubleParamPositive(this, resistiveLoss, RESISTIVE_LOSS);
         double oldValue = this.resistiveLoss;
         this.resistiveLoss = resistiveLoss;
-        getNetwork().getListeners().notifyUpdate(this, "resistiveLoss", oldValue, resistiveLoss);
-        return (I) this;
+        getNetwork().getListeners().notifyUpdate(this, RESISTIVE_LOSS, oldValue, resistiveLoss);
+        return self();
     }
 
     @Override
     public I setPccTerminal(Terminal pccTerminal) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "pccTerminal");
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, PCC_TERMINAL);
         // todo checks
         Terminal oldValue = pccRegulatingPoint.getRegulatingTerminal();
         pccRegulatingPoint.setRegulatingTerminal((TerminalExt) pccTerminal);
-        notifyUpdate("pccTerminal", oldValue, pccRegulatingPoint.getRegulatingTerminal());
-        return (I) this;
+        notifyUpdate(PCC_TERMINAL, oldValue, pccRegulatingPoint.getRegulatingTerminal());
+        return self();
     }
 
     @Override
     public Terminal getPccTerminal() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "pccTerminal");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, PCC_TERMINAL);
         return pccRegulatingPoint.getRegulatingTerminal();
     }
 
     @Override
     public I setControlMode(ControlMode controlMode) {
         Objects.requireNonNull(controlMode);
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "controlMode");
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, CONTROL_MODE);
         NetworkImpl n = getNetwork();
         // todo checks
         int variantIndex = n.getVariantIndex();
         int oldValueOrdinal = pccRegulatingPoint.setRegulationMode(variantIndex, controlMode.ordinal());
         String variantId = n.getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("controlMode", variantId, ControlMode.values()[oldValueOrdinal], controlMode);
-        return (I) this;
+        notifyUpdate(CONTROL_MODE, variantId, ControlMode.values()[oldValueOrdinal], controlMode);
+        return self();
     }
 
     @Override
     public ControlMode getControlMode() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "controlMode");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, CONTROL_MODE);
         int variantIndex = getNetwork().getVariantIndex();
         return ControlMode.values()[pccRegulatingPoint.getRegulationMode(variantIndex)];
     }
 
     @Override
     public I setTargetP(double targetP) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "targetP");
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, TARGET_P);
         // todo: validation
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         double oldValue = this.targetP.set(variantIndex, targetP);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
-        notifyUpdate("targetP", variantId, oldValue, targetP);
-        return (I) this;
+        notifyUpdate(TARGET_P, variantId, oldValue, targetP);
+        return self();
     }
 
     @Override
     public double getTargetP() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "targetP");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, TARGET_P);
         return targetP.get(getNetwork().getVariantIndex());
     }
 
     @Override
     public I setTargetVdc(double targetVdc) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "targetVdc");
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, TARGET_VDC);
         // todo: validation
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         double oldValue = this.targetVdc.set(variantIndex, targetVdc);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
-        notifyUpdate("targetP", variantId, oldValue, targetP);
-        return (I) this;
+        notifyUpdate(TARGET_VDC, variantId, oldValue, targetVdc);
+        return self();
     }
 
     @Override
     public double getTargetVdc() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "targetVdc");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, TARGET_VDC);
         return targetVdc.get(getNetwork().getVariantIndex());
     }
 
@@ -315,8 +322,10 @@ abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractCon
 
     @Override
     public void remove() {
-        super.remove();
         dcTerminals.forEach(DcTerminal::remove);
         pccRegulatingPoint.remove();
+        super.remove();
     }
+
+    protected abstract I self();
 }

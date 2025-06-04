@@ -54,4 +54,9 @@ public class DcLineCommutatedConverterAdderImpl extends AbstractDcConverterAdder
         super.checkAndAdd(dcCsConverter);
         return dcCsConverter;
     }
+
+    @Override
+    protected DcLineCommutatedConverterAdderImpl self() {
+        return this;
+    }
 }

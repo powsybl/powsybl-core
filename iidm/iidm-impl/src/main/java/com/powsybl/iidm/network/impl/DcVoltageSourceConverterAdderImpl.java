@@ -72,4 +72,9 @@ public class DcVoltageSourceConverterAdderImpl extends AbstractDcConverterAdder<
         super.checkAndAdd(dcVsConverter);
         return dcVsConverter;
     }
+
+    @Override
+    protected DcVoltageSourceConverterAdderImpl self() {
+        return this;
+    }
 }

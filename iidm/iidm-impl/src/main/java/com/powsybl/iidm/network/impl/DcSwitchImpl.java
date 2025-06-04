@@ -22,6 +22,8 @@ import java.util.Optional;
  */
 public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSwitch, MultiVariantObject {
 
+    public static final String RETAINED = "retained";
+    public static final String OPEN = "open";
     private final Ref<NetworkImpl> networkRef;
     private final Ref<SubnetworkImpl> subnetworkRef;
     private final DcNode dcNode1;
@@ -82,38 +84,38 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
 
     @Override
     public boolean isRetained() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "retained");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, RETAINED);
         return this.retained.get(getVariantManagerHolder().getVariantIndex());
     }
 
     @Override
     public DcSwitch setRetained(boolean retained) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "retained");
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, RETAINED);
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         boolean oldValue = this.retained.get(variantIndex);
         if (oldValue != retained) {
             this.retained.set(variantIndex, retained);
             String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
-            getNetwork().getListeners().notifyUpdate(this, "retained", variantId, oldValue, retained);
+            getNetwork().getListeners().notifyUpdate(this, RETAINED, variantId, oldValue, retained);
         }
         return this;
     }
 
     @Override
     public boolean isOpen() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "open");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, OPEN);
         return this.open.get(getVariantManagerHolder().getVariantIndex());
     }
 
     @Override
     public DcSwitch setOpen(boolean open) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "open");
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, OPEN);
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         boolean oldValue = this.open.get(variantIndex);
         if (oldValue != open) {
             this.open.set(variantIndex, open);
             String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
-            getNetwork().getListeners().notifyUpdate(this, "open", variantId, oldValue, open);
+            getNetwork().getListeners().notifyUpdate(this, OPEN, variantId, oldValue, open);
         }
         return this;
     }

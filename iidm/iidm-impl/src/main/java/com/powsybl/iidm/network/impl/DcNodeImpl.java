@@ -20,6 +20,7 @@ import java.util.Optional;
  */
 public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode {
 
+    public static final String NOMINAL_V = "nominalV";
     private final Ref<NetworkImpl> networkRef;
     private final Ref<SubnetworkImpl> subnetworkRef;
     protected boolean removed = false;
@@ -51,17 +52,17 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode {
 
     @Override
     public double getNominalV() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "nominalV");
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, NOMINAL_V);
         return this.nominalV;
     }
 
     @Override
     public DcNode setNominalV(double nominalV) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "nominalV");
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, NOMINAL_V);
         ValidationUtil.checkNominalV(this, nominalV);
         double oldValue = this.nominalV;
         this.nominalV = nominalV;
-        getNetwork().getListeners().notifyUpdate(this, "nominalV", oldValue, nominalV);
+        getNetwork().getListeners().notifyUpdate(this, NOMINAL_V, oldValue, nominalV);
         return this;
     }
 
