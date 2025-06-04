@@ -57,7 +57,7 @@ class AmplNetworkReaderTest {
         twt.getLeg1().newPhaseTapChanger()
                 .setTapPosition(1)
                 .setRegulationTerminal(twt.getTerminal(ThreeSides.TWO))
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(200)
                 .beginStep()
                     .setAlpha(-20.0)
