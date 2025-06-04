@@ -46,6 +46,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: data-for-sonar-analysis-${{ github.event.pull_request.number }}
+          retention-days: 1
           path: |
             */target/classes
             */*/target/classes
@@ -72,3 +73,4 @@ jobs:
         with:
           name: pr-info-${{ github.event.pull_request.number }}
           path: pr-info/
+          retention-days: 1
