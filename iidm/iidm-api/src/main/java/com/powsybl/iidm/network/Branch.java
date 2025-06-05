@@ -245,21 +245,21 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     }
 
     /**
-     * <p>Get the {@link OperationalLimitsGroup} corresponding to the default ID or create a new one if it does not exists.
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the default ID or create a new one if it does not exist.
      * Set the {@link OperationalLimitsGroup} as the selected one on side 1.</p>
      * @return the selected {@link OperationalLimitsGroup} on side 1.
      */
     OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup1();
 
     /**
-     * <p>Get the {@link OperationalLimitsGroup} corresponding to the default ID or create a new one if it does not exists.
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the default ID or create a new one if it does not exist.
      * Set the {@link OperationalLimitsGroup} as the selected one on side 2.</p>
      * @return the selected {@link OperationalLimitsGroup} on side 2.
      */
     OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2();
 
     /**
-     * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exists.
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exist.
      * Set the {@link OperationalLimitsGroup} as the selected one on side 1.</p>
      * @param limitsGroupId an ID of {@link OperationalLimitsGroup}
      * @return the selected {@link OperationalLimitsGroup} on side 1.
@@ -451,7 +451,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     }
 
     /**
-     * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exists.
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exist.
      * Set the {@link OperationalLimitsGroup} as the selected one on side 2.</p>
      * @param limitsGroupId an ID of {@link OperationalLimitsGroup}
      * @return the selected {@link OperationalLimitsGroup} on side 1.
