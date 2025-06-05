@@ -386,12 +386,16 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     @Override
     public Terminal getTerminal(String voltageLevelId) {
         Objects.requireNonNull(voltageLevelId);
-        boolean isLeg1ConnectedToVoltageLevel = isLegOnVoltageLevel(getLeg1(), voltageLevelId);
-        boolean isLeg2ConnectedToVoltageLevel = isLegOnVoltageLevel(getLeg2(), voltageLevelId);
-        boolean isLeg3ConnectedToVoltageLevel = isLegOnVoltageLevel(getLeg3(), voltageLevelId);
-        if (isLeg1ConnectedToVoltageLevel && isLeg2ConnectedToVoltageLevel && isLeg3ConnectedToVoltageLevel) {
+        boolean isLeg1ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg1(), voltageLevelId);
+        boolean isLeg2ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg2(), voltageLevelId);
+        boolean isLeg3ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg3(), voltageLevelId);
+        if (isLeg1ConnectedToVoltageLevel &&
+            isLeg2ConnectedToVoltageLevel &&
+            isLeg3ConnectedToVoltageLevel) {
             throw new PowsyblException("The three terminals are connected to the same voltage level " + voltageLevelId);
-        } else if (isLeg1ConnectedToVoltageLevel && isLeg2ConnectedToVoltageLevel || isLeg3ConnectedToVoltageLevel && isLeg1ConnectedToVoltageLevel || isLeg2ConnectedToVoltageLevel && isLeg3ConnectedToVoltageLevel) {
+        } else if (isLeg1ConnectedToVoltageLevel && isLeg2ConnectedToVoltageLevel ||
+            isLeg3ConnectedToVoltageLevel && isLeg1ConnectedToVoltageLevel ||
+            isLeg2ConnectedToVoltageLevel && isLeg3ConnectedToVoltageLevel) {
             throw new PowsyblException("Two of the three terminals are connected to the same voltage level " + voltageLevelId);
         } else if (isLeg1ConnectedToVoltageLevel) {
             return getLeg1().getTerminal();
@@ -404,7 +408,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
     }
 
-    private boolean isLegOnVoltageLevel(ThreeWindingsTransformer.Leg leg, String voltageLevelId) {
+    private boolean isLegConnectedToVoltageLevel(ThreeWindingsTransformer.Leg leg, String voltageLevelId) {
         return Optional.ofNullable(leg.getTerminal().getVoltageLevel())
             .map(vl -> voltageLevelId.equals(vl.getId()))
             .orElse(Boolean.FALSE);
