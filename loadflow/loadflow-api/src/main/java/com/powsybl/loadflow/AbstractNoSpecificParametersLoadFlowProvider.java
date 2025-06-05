@@ -9,11 +9,8 @@ package com.powsybl.loadflow;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.parameters.Parameter;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -28,37 +25,12 @@ public abstract class AbstractNoSpecificParametersLoadFlowProvider implements Lo
     }
 
     @Override
-    public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(PlatformConfig config) {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(Map<String, String> properties) {
-        return Optional.empty();
-    }
-
-    @Override
     public Map<String, String> createMapFromSpecificParameters(Extension<LoadFlowParameters> extension) {
         return Collections.emptyMap();
     }
 
     @Override
-    public void updateSpecificParameters(Extension<LoadFlowParameters> extension, Map<String, String> properties) {
-        // nothing to do
-    }
-
-    @Override
     public void updateSpecificParameters(Extension<LoadFlowParameters> extension, PlatformConfig config) {
         // nothing to do
-    }
-
-    @Override
-    public List<Parameter> getSpecificParameters() {
-        return Collections.emptyList();
     }
 }
