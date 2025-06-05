@@ -81,8 +81,8 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
 
     private static void updateSections(ShuntCompensator shuntCompensator, PropertyBag cgmesData, Context context) {
         int normalSections = Integer.parseInt(shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_SECTIONS));
-        DefaultValueInteger defaultSections = getDefaultSections(shuntCompensator, normalSections);
-        int sections = getSections(cgmesData, context).orElse(defaultValue(defaultSections, context));
+        int defaultSections = getDefaultSections(shuntCompensator, normalSections, context);
+        int sections = getSections(cgmesData, context).orElse(defaultSections);
         shuntCompensator.setSectionCount(Math.min(sections, shuntCompensator.getMaximumSectionCount()));
     }
 
@@ -94,8 +94,8 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         return Double.isFinite(sections) ? OptionalInt.of(Math.abs(fromContinuous(sections))) : OptionalInt.empty();
     }
 
-    private static DefaultValueInteger getDefaultSections(ShuntCompensator shuntCompensator, int normalSections) {
-        return new DefaultValueInteger(normalSections, shuntCompensator.getSectionCount(), 0, 0);
+    private static int getDefaultSections(ShuntCompensator shuntCompensator, int normalSections, Context context) {
+        return getDefaultValue(normalSections, shuntCompensator.getSectionCount(), 0, 0, context);
     }
 
     private static void updateRegulatingControl(ShuntCompensator shuntCompensator, boolean controlEnabled, Context context) {
@@ -104,14 +104,14 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
             return;
         }
 
-        DefaultValueDouble defaultTargetV = getDefaultTargetV(shuntCompensator);
-        DefaultValueDouble defaultTargetDeadband = getDefaultTargetDeadband(shuntCompensator);
-        DefaultValueBoolean defaultRegulatingOn = getDefaultRegulatingOn(shuntCompensator);
+        double defaultTargetV = getDefaultTargetV(shuntCompensator, context);
+        double defaultTargetDeadband = getDefaultTargetDeadband(shuntCompensator, context);
+        boolean defaultRegulatingOn = getDefaultRegulatingOn(shuntCompensator, context);
 
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(shuntCompensator, context);
-        double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetV, context));
-        double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetDeadband, context));
-        boolean enabled = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultRegulatingOn, context));
+        double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
+        double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetDeadband);
+        boolean enabled = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
         setRegulation(shuntCompensator, targetV, targetDeadband, controlEnabled && enabled && isValidTargetV(targetV) && isValidTargetDeadband(targetDeadband));
     }
@@ -124,16 +124,16 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         }
     }
 
-    private static DefaultValueDouble getDefaultTargetV(ShuntCompensator shuntCompensator) {
-        return new DefaultValueDouble(null, shuntCompensator.getTargetV(), Double.NaN, Double.NaN);
+    private static double getDefaultTargetV(ShuntCompensator shuntCompensator, Context context) {
+        return getDefaultValue(null, shuntCompensator.getTargetV(), Double.NaN, Double.NaN, context);
     }
 
-    private static DefaultValueDouble getDefaultTargetDeadband(ShuntCompensator shuntCompensator) {
-        return new DefaultValueDouble(null, shuntCompensator.getTargetDeadband(), 0.0, 0.0);
+    private static double getDefaultTargetDeadband(ShuntCompensator shuntCompensator, Context context) {
+        return getDefaultValue(null, shuntCompensator.getTargetDeadband(), 0.0, 0.0, context);
     }
 
-    private static DefaultValueBoolean getDefaultRegulatingOn(ShuntCompensator shuntCompensator) {
-        return new DefaultValueBoolean(null, shuntCompensator.isVoltageRegulatorOn(), false, false);
+    private static boolean getDefaultRegulatingOn(ShuntCompensator shuntCompensator, Context context) {
+        return getDefaultValue(null, shuntCompensator.isVoltageRegulatorOn(), false, false, context);
     }
 
     private static boolean isDefaultRegulatingControl(ShuntCompensator shuntCompensator, boolean controlEnabled) {

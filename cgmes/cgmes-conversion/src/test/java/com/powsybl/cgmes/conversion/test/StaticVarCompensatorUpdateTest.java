@@ -30,8 +30,7 @@ class StaticVarCompensatorUpdateTest {
         Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml");
         assertEquals(1, network.getStaticVarCompensatorCount());
 
-        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator("StaticVarCompensator");
-        assertTrue(checkEq(staticVarCompensator));
+        assertEq(network);
     }
 
     @Test
@@ -39,8 +38,7 @@ class StaticVarCompensatorUpdateTest {
         Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml");
         assertEquals(1, network.getStaticVarCompensatorCount());
 
-        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator("StaticVarCompensator");
-        assertTrue(checkSsh(staticVarCompensator, Double.NaN, 405.0, StaticVarCompensator.RegulationMode.VOLTAGE));
+        assertFirstSsh(network);
     }
 
     @Test
@@ -48,20 +46,40 @@ class StaticVarCompensatorUpdateTest {
         Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml");
         assertEquals(1, network.getStaticVarCompensatorCount());
 
-        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator("StaticVarCompensator");
-        assertTrue(checkEq(staticVarCompensator));
+        assertEq(network);
 
         readCgmesResources(network, DIR, "staticVarCompensator_SSH.xml");
-        assertTrue(checkSsh(staticVarCompensator, Double.NaN, 405.0, StaticVarCompensator.RegulationMode.VOLTAGE));
+        assertFirstSsh(network);
 
         readCgmesResources(network, DIR, "staticVarCompensator_SSH_1.xml");
-        assertTrue(checkSsh(staticVarCompensator, Double.NaN, 400.0, StaticVarCompensator.RegulationMode.OFF));
+        assertSecondSsh(network);
 
+        assertFlowsBeforeSv(network);
         readCgmesResources(network, DIR, "staticVarCompensator_SV.xml");
-        assertTrue(checkFlows(staticVarCompensator.getTerminal(), 0.0, -50.0));
+        assertFlowsAfterSv(network);
     }
 
-    private static boolean checkEq(StaticVarCompensator staticVarCompensator) {
+    private static void assertEq(Network network) {
+        assertEq(network.getStaticVarCompensator("StaticVarCompensator"));
+    }
+
+    private static void assertFirstSsh(Network network) {
+        assertSsh(network.getStaticVarCompensator("StaticVarCompensator"), Double.NaN, 405.0, StaticVarCompensator.RegulationMode.VOLTAGE);
+    }
+
+    private static void assertSecondSsh(Network network) {
+        assertSsh(network.getStaticVarCompensator("StaticVarCompensator"), Double.NaN, 400.0, StaticVarCompensator.RegulationMode.OFF);
+    }
+
+    private static void assertFlowsBeforeSv(Network network) {
+        assertFlows(network.getStaticVarCompensator("StaticVarCompensator").getTerminal(), Double.NaN, Double.NaN);
+    }
+
+    private static void assertFlowsAfterSv(Network network) {
+        assertFlows(network.getStaticVarCompensator("StaticVarCompensator").getTerminal(), 0.0, -50.0);
+    }
+
+    private static void assertEq(StaticVarCompensator staticVarCompensator) {
         assertNotNull(staticVarCompensator);
         assertTrue(Double.isNaN(staticVarCompensator.getReactivePowerSetpoint()));
         assertTrue(Double.isNaN(staticVarCompensator.getVoltageSetpoint()));
@@ -70,22 +88,19 @@ class StaticVarCompensatorUpdateTest {
 
         assertNotNull(staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE));
         assertNotNull(staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL));
-        return true;
     }
 
-    private static boolean checkSsh(StaticVarCompensator staticVarCompensator, double targetQ, double targetV, StaticVarCompensator.RegulationMode regulationMode) {
+    private static void assertSsh(StaticVarCompensator staticVarCompensator, double targetQ, double targetV, StaticVarCompensator.RegulationMode regulationMode) {
         assertNotNull(staticVarCompensator);
         double tol = 0.0000001;
         assertEquals(targetQ, staticVarCompensator.getReactivePowerSetpoint(), tol);
         assertEquals(targetV, staticVarCompensator.getVoltageSetpoint(), tol);
         assertEquals(regulationMode, staticVarCompensator.getRegulationMode());
-        return true;
     }
 
-    private static boolean checkFlows(Terminal terminal, double p, double q) {
+    private static void assertFlows(Terminal terminal, double p, double q) {
         double tol = 0.0000001;
         assertEquals(p, terminal.getP(), tol);
         assertEquals(q, terminal.getQ(), tol);
-        return true;
     }
 }

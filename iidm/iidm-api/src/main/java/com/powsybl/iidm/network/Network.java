@@ -40,7 +40,7 @@ import java.util.stream.Stream;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -1534,6 +1534,8 @@ public interface Network extends Container<Network> {
             case HVDC_CONVERTER_STATION -> getHvdcConverterStationStream().map(Function.identity());
             case STATIC_VAR_COMPENSATOR -> getStaticVarCompensatorStream().map(Function.identity());
             case GROUND -> getGroundStream().map(Function.identity());
+            case AREA -> getAreaStream().map(Function.identity());
+            case OVERLOAD_MANAGEMENT_SYSTEM -> getOverloadManagementSystemStream().map(Function.identity());
             default -> throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
         };
     }

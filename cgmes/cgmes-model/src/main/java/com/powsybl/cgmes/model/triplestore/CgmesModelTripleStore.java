@@ -56,6 +56,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public void setQueryCatalog(String queryCatalogName) {
+        this.invalidateCaches();
         this.queryCatalog = queryCatalogFor(this.cimVersion, queryCatalogName);
     }
 
@@ -775,11 +776,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return modelId() + "_" + subset + ".xml";
     }
 
-    private QueryCatalog queryCatalogFor(int cimVersion, String name) {
+    private QueryCatalog queryCatalogFor(int cimVersion, String queryCatalogName) {
         QueryCatalog qc = null;
         String resourceName = null;
         if (cimVersion > 0) {
-            resourceName = String.format("CIM%d%s.sparql", cimVersion, name);
+            resourceName = String.format("CIM%d%s.sparql", cimVersion, queryCatalogName);
         }
         if (resourceName != null) {
             qc = new QueryCatalog(resourceName);

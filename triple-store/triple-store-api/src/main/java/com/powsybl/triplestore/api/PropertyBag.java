@@ -100,7 +100,7 @@ public class PropertyBag extends HashMap<String, String> {
         }
     }
 
-    public OptionalDouble getDouble(String property) {
+    public OptionalDouble asOptionalDouble(String property) {
         if (!containsKey(property)) {
             return OptionalDouble.empty();
         }

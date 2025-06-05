@@ -134,13 +134,13 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
 
     public static void update(DanglingLine danglingLine, PropertyBag cgmesData, Context context) {
         updateTerminals(danglingLine, context, danglingLine.getTerminal());
-        boolean isClosed = !cgmesData.asBoolean("open").orElse(defaultValue(defaultOpen(), context));
+        boolean isClosed = !cgmesData.asBoolean("open").orElse(defaultOpen(context));
         updateTargetsAndRegulationAndOperationalLimits(danglingLine, isBoundaryTerminalConnected(danglingLine, context) && isClosed, context);
         computeFlowsOnModelSide(danglingLine, context);
     }
 
-    private static DefaultValueBoolean defaultOpen() {
-        return new DefaultValueBoolean(null, false, false, false);
+    private static boolean defaultOpen(Context context) {
+        return getDefaultValue(null, false, false, false, context);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);

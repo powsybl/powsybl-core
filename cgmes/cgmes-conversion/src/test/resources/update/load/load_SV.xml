@@ -24,4 +24,9 @@
         <cim:SvPowerFlow.q>5.0</cim:SvPowerFlow.q>
         <cim:SvPowerFlow.Terminal rdf:resource="#_AsynchronousMachine_T" />
     </cim:SvPowerFlow>
+    <cim:SvPowerFlow rdf:ID="_ConformLoad_T-SvPowerFlow">
+        <cim:SvPowerFlow.p>-490.0</cim:SvPowerFlow.p>
+        <cim:SvPowerFlow.q>-235.0</cim:SvPowerFlow.q>
+        <cim:SvPowerFlow.Terminal rdf:resource="#_ConformLoad_T" />
+    </cim:SvPowerFlow>
 </rdf:RDF>
