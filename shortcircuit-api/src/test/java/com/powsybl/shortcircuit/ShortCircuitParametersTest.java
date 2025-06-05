@@ -330,6 +330,27 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
     }
 
     @Test
+    void readVersion14() {
+        ShortCircuitParameters parameters = JsonShortCircuitParameters
+                .read(getClass().getResourceAsStream("/ShortCircuitParametersVersion14.json"));
+        assertNotNull(parameters);
+        assertFalse(parameters.isWithLimitViolations());
+        assertFalse(parameters.isWithVoltageResult());
+        assertTrue(parameters.isWithFeederResult());
+        assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
+        assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
+        assertEquals(0.7, parameters.getSubTransientCoefficient(), 0);
+        assertFalse(parameters.isDetailedReport());
+        assertEquals(InitialVoltageProfileMode.CONFIGURED, parameters.getInitialVoltageProfileMode());
+        assertEquals(1, parameters.getVoltageRanges().size());
+        VoltageRange voltageRange = parameters.getVoltageRanges().get(0);
+        assertEquals(Range.of(380., 410.), voltageRange.getRange());
+        assertEquals(1.05, voltageRange.getRangeCoefficient());
+        assertEquals(380., voltageRange.getVoltage());
+        assertEquals("/tmp/debugDir", parameters.getDebugDir());
+    }
+
+    @Test
     void readExtension() {
         ShortCircuitParameters parameters = JsonShortCircuitParameters.read(getClass().getResourceAsStream("/ShortCircuitParametersExtensionUpdate.json"));
         assertEquals(1, parameters.getExtensions().size());
