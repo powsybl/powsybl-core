@@ -32,14 +32,7 @@ class GeneratorUpdateTest {
         Network network = readCgmesResources(DIR, "generator_EQ.xml");
         assertEquals(3, network.getGeneratorCount());
 
-        Generator synchronousMachine = network.getGenerator("SynchronousMachine");
-        assertTrue(checkEq(synchronousMachine));
-
-        Generator externalNetworkInjection = network.getGenerator("ExternalNetworkInjection");
-        assertTrue(checkEq(externalNetworkInjection));
-
-        Generator equivalentInjection = network.getGenerator("EquivalentInjection");
-        assertTrue(checkEq(equivalentInjection));
+        assertEq(network);
     }
 
     @Test
@@ -47,14 +40,7 @@ class GeneratorUpdateTest {
         Network network = readCgmesResources(DIR, "generator_EQ.xml", "generator_SSH.xml");
         assertEquals(3, network.getGeneratorCount());
 
-        Generator synchronousMachine = network.getGenerator("SynchronousMachine");
-        assertTrue(checkSsh(synchronousMachine, 160.0, 0.0, 405.0, true, 0.0, 0));
-
-        Generator externalNetworkInjection = network.getGenerator("ExternalNetworkInjection");
-        assertTrue(checkSsh(externalNetworkInjection, -0.0, -0.0, Double.NaN, false, 0.0, 0));
-
-        Generator equivalentInjection = network.getGenerator("EquivalentInjection");
-        assertTrue(checkSsh(equivalentInjection, -184.0, 0.0, Double.NaN, false, 0.0, 0));
+        assertFirstSsh(network);
     }
 
     @Test
@@ -62,32 +48,50 @@ class GeneratorUpdateTest {
         Network network = readCgmesResources(DIR, "generator_EQ.xml");
         assertEquals(3, network.getGeneratorCount());
 
-        Generator synchronousMachine = network.getGenerator("SynchronousMachine");
-        assertTrue(checkEq(synchronousMachine));
-        Generator externalNetworkInjection = network.getGenerator("ExternalNetworkInjection");
-        assertTrue(checkEq(externalNetworkInjection));
-        Generator equivalentInjection = network.getGenerator("EquivalentInjection");
-        assertTrue(checkEq(equivalentInjection));
+        assertEq(network);
 
         readCgmesResources(network, DIR, "generator_SSH.xml");
-
-        assertTrue(checkSsh(synchronousMachine, 160.0, 0.0, 405.0, true, 0.0, 0));
-        assertTrue(checkSsh(externalNetworkInjection, -0.0, -0.0, Double.NaN, false, 0.0, 0));
-        assertTrue(checkSsh(equivalentInjection, -184.0, 0.0, Double.NaN, false, 0.0, 0));
+        assertFirstSsh(network);
 
         readCgmesResources(network, DIR, "generator_SSH_1.xml");
+        assertSecondSsh(network);
 
-        assertTrue(checkSsh(synchronousMachine, 165.0, -5.0, 410.0, true, 0.9, 1));
-        assertTrue(checkSsh(externalNetworkInjection, -10.0, -5.0, Double.NaN, false, 0.0, 0));
-        assertTrue(checkSsh(equivalentInjection, -174.0, -5.0, Double.NaN, false, 0.0, 0));
-
+        assertFlowsBeforeSv(network);
         readCgmesResources(network, DIR, "generator_SV.xml");
-        assertTrue(checkFlows(synchronousMachine.getTerminal(), 100.0, -50.0));
-        assertTrue(checkFlows(externalNetworkInjection.getTerminal(), 250.0, -30.0));
-        assertTrue(checkFlows(equivalentInjection.getTerminal(), 150.0, 50.0));
+        assertFlowsAfterSv(network);
     }
 
-    private static boolean checkEq(Generator generator) {
+    private static void assertEq(Network network) {
+        assertEq(network.getGenerator("SynchronousMachine"));
+        assertEq(network.getGenerator("ExternalNetworkInjection"));
+        assertEq(network.getGenerator("EquivalentInjection"));
+    }
+
+    private static void assertFirstSsh(Network network) {
+        assertSsh(network.getGenerator("SynchronousMachine"), 160.0, 0.0, 405.0, true, 0.0, 0);
+        assertSsh(network.getGenerator("ExternalNetworkInjection"), -0.0, -0.0, Double.NaN, false, 0.0, 0);
+        assertSsh(network.getGenerator("EquivalentInjection"), -184.0, 0.0, Double.NaN, false, 0.0, 0);
+    }
+
+    private static void assertSecondSsh(Network network) {
+        assertSsh(network.getGenerator("SynchronousMachine"), 165.0, -5.0, 410.0, true, 0.9, 1);
+        assertSsh(network.getGenerator("ExternalNetworkInjection"), -10.0, -5.0, Double.NaN, false, 0.0, 0);
+        assertSsh(network.getGenerator("EquivalentInjection"), -174.0, -5.0, Double.NaN, false, 0.0, 0);
+    }
+
+    private static void assertFlowsBeforeSv(Network network) {
+        assertFlows(network.getGenerator("SynchronousMachine").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getGenerator("ExternalNetworkInjection").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getGenerator("EquivalentInjection").getTerminal(), Double.NaN, Double.NaN);
+    }
+
+    private static void assertFlowsAfterSv(Network network) {
+        assertFlows(network.getGenerator("SynchronousMachine").getTerminal(), 100.0, -50.0);
+        assertFlows(network.getGenerator("ExternalNetworkInjection").getTerminal(), 250.0, -30.0);
+        assertFlows(network.getGenerator("EquivalentInjection").getTerminal(), 150.0, 50.0);
+    }
+
+    private static void assertEq(Generator generator) {
         assertNotNull(generator);
         assertTrue(Double.isNaN(generator.getTargetP()));
         assertTrue(Double.isNaN(generator.getTargetQ()));
@@ -99,10 +103,9 @@ class GeneratorUpdateTest {
         if (originalClass.equals(CgmesNames.SYNCHRONOUS_MACHINE)) {
             assertNotNull(generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE));
         }
-        return true;
     }
 
-    private static boolean checkSsh(Generator generator, double targetP, double targetQ, double targetV, boolean isRegulatingOn, double normalPF, int referencePriority) {
+    private static void assertSsh(Generator generator, double targetP, double targetQ, double targetV, boolean isRegulatingOn, double normalPF, int referencePriority) {
         assertNotNull(generator);
         double tol = 0.0000001;
         assertEquals(targetP, generator.getTargetP(), tol);
@@ -115,13 +118,11 @@ class GeneratorUpdateTest {
             assertEquals(normalPF, activePowerControl.getParticipationFactor());
         }
         assertEquals(referencePriority, ReferencePriority.get(generator));
-        return true;
     }
 
-    private static boolean checkFlows(Terminal terminal, double p, double q) {
+    private static void assertFlows(Terminal terminal, double p, double q) {
         double tol = 0.0000001;
         assertEquals(p, terminal.getP(), tol);
         assertEquals(q, terminal.getQ(), tol);
-        return true;
     }
 }
