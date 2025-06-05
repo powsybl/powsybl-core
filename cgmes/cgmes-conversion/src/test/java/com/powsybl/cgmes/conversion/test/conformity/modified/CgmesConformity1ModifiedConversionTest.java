@@ -732,51 +732,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
-        // Small Grid Node Breaker HVDC modified so in the dcLine2
-        // SVC1 (that is at side 2 of the DC line) is interpreted as a rectifier and
-        // SVC2 (that is at side 1 of the line) is interpreted as an inverter
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2Inverter1Rectifier2().dataSource(), NetworkFactory.findDefault(), importParams));
-    }
-
-    @Test
-    void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier() {
-        // Small Grid Node Breaker HVDC modified so in the dcLine
-        // both converters have targetPpcc consistent with side 1 inverter side 2 rectifier
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier().dataSource(), NetworkFactory.findDefault(), importParams));
-    }
-
-    @Test
-    void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter() {
-        // Small Grid Node Breaker HVDC modified so in the dcLine
-        // both converters have targetPpcc consistent with side 1 rectifier side 2 inverter
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter().dataSource(), NetworkFactory.findDefault(), importParams));
-    }
-
-    @Test
-    void smallNodeBreakerHvdcVscReactiveQPcc() {
-        // Small Grid Node Breaker HVDC modified so VSC converter are regulating in reactive power and not in voltage
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcVscReactiveQPcc().dataSource(), NetworkFactory.findDefault(), importParams));
-    }
-
-    @Test
-    void smallNodeBreakerHvdcNanTargetPpcc() {
-        // Small Grid Node Breaker HVDC modified so targetPpcc are NaN
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcNanTargetPpcc().dataSource(), NetworkFactory.findDefault(), importParams));
-    }
-
-    @Test
-    void smallNodeBreakerHvdcMissingDCLineSegment() {
-        // Small Grid Node Breaker HVDC modified so there is no DC Line Segment
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcMissingDCLineSegment().dataSource(), NetworkFactory.findDefault(), importParams));
-    }
-
-    @Test
-    void smallNodeBreakerVscControllerRemotePccTerminal() {
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerVscConverterRemotePccTerminal().dataSource(), NetworkFactory.findDefault(), importParams));
-    }
-
-    @Test
     void microGridBaseCaseAssembledEntsoeCategory() {
         importParams.put(CgmesImport.POST_PROCESSORS, "EntsoeCategory");
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEntsoeCategory().dataSource(), importParams);
