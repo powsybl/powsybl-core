@@ -30,6 +30,7 @@ public class DynamicSecurityAnalysisParameters extends AbstractExtendable<Dynami
 
     private DynamicSimulationParameters dynamicSimulationParameters = new DynamicSimulationParameters();
     private ContingenciesParameters contingenciesParameters = new ContingenciesParameters();
+    private String debugDir;
 
     public static class ContingenciesParameters {
 
@@ -109,6 +110,15 @@ public class DynamicSecurityAnalysisParameters extends AbstractExtendable<Dynami
 
     public DynamicSecurityAnalysisParameters setDynamicContingenciesParameters(ContingenciesParameters contingenciesParameters) {
         this.contingenciesParameters = contingenciesParameters;
+        return this;
+    }
+
+    public String getDebugDir() {
+        return debugDir;
+    }
+
+    public DynamicSecurityAnalysisParameters setDebugDir(String debugDir) {
+        this.debugDir = debugDir;
         return this;
     }
 
