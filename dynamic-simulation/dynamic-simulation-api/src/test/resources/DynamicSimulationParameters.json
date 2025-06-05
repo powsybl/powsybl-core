@@ -1,5 +1,6 @@
 {
-  "version" : "1.0",
+  "version" : "1.1",
   "startTime" : 0.0,
-  "stopTime" : 1.0
+  "stopTime" : 1.0,
+  "debugDir" : "/tmp/debugDir"
 }
