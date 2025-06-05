@@ -340,7 +340,7 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
         }
 
         ExecutionReport executionReport2 = new DefaultExecutionReport(workingDir, Collections.singletonList(new ExecutionError(Mockito.mock(Command.class), 0, 42)));
-        assertThatExceptionOfType(ComputationException.class).isThrownBy(() -> handler2.after(workingDir,executionReport2));
+        assertThatExceptionOfType(ComputationException.class).isThrownBy(() -> handler2.after(workingDir, executionReport2));
 
         try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_0_result.json"))) {
             exporter.export(resultForContingency("c1"), writer);
