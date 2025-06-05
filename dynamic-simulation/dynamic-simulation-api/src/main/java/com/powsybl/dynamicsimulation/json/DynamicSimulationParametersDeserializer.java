@@ -55,6 +55,11 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
                     parameters.setStopTime(parser.readValueAs(Integer.class));
                     break;
 
+                case "debugDir":
+                    parser.nextToken();
+                    parameters.setDebugDir(parser.readValueAs(String.class));
+                    break;
+
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonDynamicSimulationParameters.getExtensionSerializers());

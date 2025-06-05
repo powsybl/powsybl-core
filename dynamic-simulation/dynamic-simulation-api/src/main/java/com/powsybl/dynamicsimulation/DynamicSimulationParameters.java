@@ -35,7 +35,9 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
         extends ExtensionConfigLoader<DynamicSimulationParameters, E> {
     }
 
-    public static final String VERSION = "1.0";
+    // VERSION = 1.0 startTime, stopTime
+    // VERSION = 1.1 debugDir
+    public static final String VERSION = "1.1";
 
     public static final double DEFAULT_START_TIME = 0d;
     public static final double DEFAULT_STOP_TIME = 10d;

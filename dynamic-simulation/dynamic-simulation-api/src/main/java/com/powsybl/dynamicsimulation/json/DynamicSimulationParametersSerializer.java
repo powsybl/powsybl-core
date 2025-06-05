@@ -32,6 +32,7 @@ public class DynamicSimulationParametersSerializer extends StdSerializer<Dynamic
         jsonGenerator.writeStringField("version", DynamicSimulationParameters.VERSION);
         jsonGenerator.writeNumberField("startTime", parameters.getStartTime());
         jsonGenerator.writeNumberField("stopTime", parameters.getStopTime());
+        jsonGenerator.writeStringField("debugDir", parameters.getDebugDir());
 
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonDynamicSimulationParameters.getExtensionSerializers());
 
