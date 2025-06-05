@@ -98,20 +98,20 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     }
 
     private static double getPowerFactor(PropertyBag cgmesDataConverter, LccConverterStation lccConverter, Context context) {
-        DefaultValueDouble defaultPowerFactor = getDefaultPowerFactor(lccConverter);
+        double defaultPowerFactor = getDefaultPowerFactor(lccConverter, context);
 
         double p = cgmesDataConverter.asDouble("p");
         double q = cgmesDataConverter.asDouble("q");
         if (Double.isFinite(p) && Double.isFinite(q)) {
             double hypot = Math.hypot(p, q);
-            return hypot != 0.0 ? p / hypot : defaultValue(defaultPowerFactor, context);
+            return hypot != 0.0 ? p / hypot : defaultPowerFactor;
         } else {
-            return defaultValue(defaultPowerFactor, context);
+            return defaultPowerFactor;
         }
     }
 
-    private static DefaultValueDouble getDefaultPowerFactor(LccConverterStation lccConverter) {
-        return new DefaultValueDouble(null, (double) lccConverter.getPowerFactor(), DEFAULT_POWER_FACTOR, DEFAULT_POWER_FACTOR);
+    private static double getDefaultPowerFactor(LccConverterStation lccConverter, Context context) {
+        return getDefaultValue(null, (double) lccConverter.getPowerFactor(), DEFAULT_POWER_FACTOR, DEFAULT_POWER_FACTOR, context);
     }
 
     static void update(VscConverterStation vscConverter, PropertyBag cgmesDataConverter, double lossFactor, Context context) {
@@ -119,8 +119,8 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
         VscRegulation vscRegulation = getVscRegulation(cgmesDataConverter, vscConverter, context);
         if (vscRegulation == VscRegulation.VOLTAGE) {
-            DefaultValueDouble defaultTargetV = getDefaultTargetV(vscConverter);
-            double targetV = findTargetV(cgmesDataConverter, "targetUpcc", defaultTargetV, DefaultValueUse.NOT_DEFINED, context);
+            double defaultTargetV = getDefaultTargetV(vscConverter, context);
+            double targetV = findTargetV(cgmesDataConverter, "targetUpcc", defaultTargetV, DefaultValueUse.NOT_DEFINED);
             if (isValidTargetV(targetV)) {
                 vscConverter.setVoltageSetpoint(targetV).setReactivePowerSetpoint(0.0).setVoltageRegulatorOn(true);
                 return;
@@ -145,27 +145,27 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     }
 
     private static VscRegulation getDefaultVscRegulation(VscConverterStation vscConverter, Context context) {
-        DefaultValueBoolean defaultVoltageRegulationOn = getDefaultVoltageRegulationOn(vscConverter);
-        return defaultValue(defaultVoltageRegulationOn, context) ? VscRegulation.VOLTAGE : VscRegulation.REACTIVE_POWER;
+        boolean defaultVoltageRegulationOn = getDefaultVoltageRegulationOn(vscConverter, context);
+        return defaultVoltageRegulationOn ? VscRegulation.VOLTAGE : VscRegulation.REACTIVE_POWER;
     }
 
-    private static DefaultValueBoolean getDefaultVoltageRegulationOn(VscConverterStation vscConverter) {
-        return new DefaultValueBoolean(false, vscConverter.isVoltageRegulatorOn(), false, false);
+    private static boolean getDefaultVoltageRegulationOn(VscConverterStation vscConverter, Context context) {
+        return getDefaultValue(false, vscConverter.isVoltageRegulatorOn(), false, false, context);
     }
 
-    private static DefaultValueDouble getDefaultTargetV(VscConverterStation vscConverter) {
-        return new DefaultValueDouble(null, vscConverter.getVoltageSetpoint(), Double.NaN, Double.NaN);
+    private static double getDefaultTargetV(VscConverterStation vscConverter, Context context) {
+        return getDefaultValue(null, vscConverter.getVoltageSetpoint(), Double.NaN, Double.NaN, context);
     }
 
     // targetQ = - targetQpcc then we considered - terminalSign
     private static double getValidTargetQ(PropertyBag cgmesDataConverter, VscConverterStation vscConverter, Context context) {
-        DefaultValueDouble defaultTargetQ = getDefaultTargetQ(vscConverter);
-        return findTargetQ(cgmesDataConverter, "targetQpcc", -findTerminalSign(vscConverter), defaultTargetQ, DefaultValueUse.NOT_VALID, context);
+        double defaultTargetQ = getDefaultTargetQ(vscConverter, context);
+        return findTargetQ(cgmesDataConverter, "targetQpcc", -findTerminalSign(vscConverter), defaultTargetQ, DefaultValueUse.NOT_VALID);
     }
 
-    private static DefaultValueDouble getDefaultTargetQ(VscConverterStation vscConverter) {
+    private static double getDefaultTargetQ(VscConverterStation vscConverter, Context context) {
         double previousTargetQ = Double.isFinite(vscConverter.getReactivePowerSetpoint()) ? vscConverter.getReactivePowerSetpoint() : 0.0;
-        return new DefaultValueDouble(0.0, previousTargetQ, 0.0, 0.0);
+        return getDefaultValue(0.0, previousTargetQ, 0.0, 0.0, context);
     }
 
     private final HvdcType converterType;

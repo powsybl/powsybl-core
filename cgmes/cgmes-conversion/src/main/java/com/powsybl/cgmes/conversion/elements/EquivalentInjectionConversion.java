@@ -167,10 +167,10 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             targetQ = -updatedPowerFlow.q();
         }
 
-        DefaultValueDouble defaultTargetV = getDefaultTargetV(generator);
-        double targetV = findTargetV(cgmesData, CgmesNames.REGULATION_TARGET, defaultTargetV, DefaultValueUse.NOT_DEFINED, context);
-        DefaultValueBoolean defaultRegulatingOn = getDefaultRegulatingOn(generator);
-        boolean regulatingOn = findRegulatingOn(cgmesData, CgmesNames.REGULATION_STATUS, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context);
+        double defaultTargetV = getDefaultTargetV(generator, context);
+        double targetV = findTargetV(cgmesData, CgmesNames.REGULATION_TARGET, defaultTargetV, DefaultValueUse.NOT_DEFINED);
+        boolean defaultRegulatingOn = getDefaultRegulatingOn(generator, context);
+        boolean regulatingOn = findRegulatingOn(cgmesData, CgmesNames.REGULATION_STATUS, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED);
 
         generator.setTargetP(targetP)
                 .setTargetQ(targetQ)
@@ -178,12 +178,12 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
                 .setVoltageRegulatorOn(regulatingOn && regulationCapability && isValidTargetV(targetV));
     }
 
-    private static DefaultValueDouble getDefaultTargetV(Generator generator) {
-        return new DefaultValueDouble(null, generator.getTargetV(), Double.NaN, Double.NaN);
+    private static double getDefaultTargetV(Generator generator, Context context) {
+        return getDefaultValue(null, generator.getTargetV(), Double.NaN, Double.NaN, context);
     }
 
-    private static DefaultValueBoolean getDefaultRegulatingOn(Generator generator) {
-        return new DefaultValueBoolean(false, generator.isVoltageRegulatorOn(), false, false);
+    private static boolean getDefaultRegulatingOn(Generator generator, Context context) {
+        return getDefaultValue(false, generator.isVoltageRegulatorOn(), false, false, context);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(EquivalentInjectionConversion.class);
