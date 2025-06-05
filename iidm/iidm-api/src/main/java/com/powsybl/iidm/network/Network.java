@@ -1262,6 +1262,162 @@ public interface Network extends Container<Network> {
     Ground getGround(String id);
 
     /**
+     * Get a builder to create a new DC Node.
+     * @return a builder to create a new DC Node
+     */
+    DcNodeAdder newDcNode();
+
+    /**
+     * Get all DC Nodes.
+     */
+    Iterable<DcNode> getDcNodes();
+
+    /**
+     * Get all DC Nodes.
+     */
+    Stream<DcNode> getDcNodeStream();
+
+    /**
+     * Get the DC Node count.
+     */
+    int getDcNodeCount();
+
+    /**
+     * Get a DC Node.
+     *
+     * @param id the id or an alias of the DC Node
+     */
+    DcNode getDcNode(String id);
+
+    /**
+     * Get a builder to create a new DC Line.
+     * @return a builder to create a new DC Line
+     */
+    DcLineAdder newDcLine();
+
+    /**
+     * Get all DC Lines.
+     */
+    Iterable<DcLine> getDcLines();
+
+    /**
+     * Get all DC Lines.
+     */
+    Stream<DcLine> getDcLineStream();
+
+    /**
+     * Get the DC Line count.
+     */
+    int getDcLineCount();
+
+    /**
+     * Get a DC Line.
+     *
+     * @param id the id or an alias of the DC Line
+     */
+    DcLine getDcLine(String id);
+
+    /**
+     * Get a builder to create a new DC Switch.
+     * @return a builder to create a new DC Switch
+     */
+    DcSwitchAdder newDcSwitch();
+
+    /**
+     * Get all DC Switches.
+     */
+    Iterable<DcSwitch> getDcSwitches();
+
+    /**
+     * Get all DC Switches.
+     */
+    Stream<DcSwitch> getDcSwitchStream();
+
+    /**
+     * Get the DC Switch count.
+     */
+    int getDcSwitchCount();
+
+    /**
+     * Get a DC Switch.
+     *
+     * @param id the id or an alias of the DC Switch
+     */
+    DcSwitch getDcSwitch(String id);
+
+    /**
+     * Get a builder to create a new DC Ground.
+     * @return a builder to create a new DC Ground
+     */
+    DcGroundAdder newDcGround();
+
+    /**
+     * Get all DC Grounds.
+     */
+    Iterable<DcGround> getDcGrounds();
+
+    /**
+     * Get all DC Grounds.
+     */
+    Stream<DcGround> getDcGroundStream();
+
+    /**
+     * Get the DC Ground count.
+     */
+    int getDcGroundCount();
+
+    /**
+     * Get a DC Ground.
+     *
+     * @param id the id or an alias of the DC Ground
+     */
+    DcGround getDcGround(String id);
+
+    /**
+     * Get all DC Line-Commutated Converters.
+     */
+    Iterable<DcLineCommutatedConverter> getDcLineCommutatedConverters();
+
+    /**
+     * Get all DC Line-Commutated Converters.
+     */
+    Stream<DcLineCommutatedConverter> getDcLineCommutatedConverterStream();
+
+    /**
+     * Get the DC Line-Commutated Converter count.
+     */
+    int getDcLineCommutatedConverterCount();
+
+    /**
+     * Get a DC Line-Commutated Converter.
+     *
+     * @param id the id or an alias of the DC Line-Commutated Converter
+     */
+    DcLineCommutatedConverter getDcLineCommutatedConverter(String id);
+
+    /**
+     * Get all DC Voltage-Source Converters.
+     */
+    Iterable<DcVoltageSourceConverter> getDcVoltageSourceConverters();
+
+    /**
+     * Get all DC Voltage-Source Converters.
+     */
+    Stream<DcVoltageSourceConverter> getDcVoltageSourceConverterStream();
+
+    /**
+     * Get the DC Voltage-Source Converter count.
+     */
+    int getDcVoltageSourceConverterCount();
+
+    /**
+     * Get a DC Voltage-Source Converter.
+     *
+     * @param id the id or an alias of the DC Voltage-Source Converter
+     */
+    DcVoltageSourceConverter getDcVoltageSourceConverter(String id);
+
+    /**
      * * Get an identifiable by its ID or alias
      *
      * @param id the id or an alias of the identifiable
@@ -1536,6 +1692,12 @@ public interface Network extends Container<Network> {
             case GROUND -> getGroundStream().map(Function.identity());
             case AREA -> getAreaStream().map(Function.identity());
             case OVERLOAD_MANAGEMENT_SYSTEM -> getOverloadManagementSystemStream().map(Function.identity());
+            case DC_NODE -> getDcNodeStream().map(Function.identity());
+            case DC_LINE -> getDcLineStream().map(Function.identity());
+            case DC_GROUND -> getDcGroundStream().map(Function.identity());
+            case DC_SWITCH -> getDcSwitchStream().map(Function.identity());
+            case DC_LINE_COMMUTATED_CONVERTER -> getDcLineCommutatedConverterStream().map(Function.identity());
+            case DC_VOLTAGE_SOURCE_CONVERTER -> getDcVoltageSourceConverterStream().map(Function.identity());
             default -> throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
         };
     }
