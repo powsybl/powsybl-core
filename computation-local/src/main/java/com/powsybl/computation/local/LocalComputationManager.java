@@ -372,7 +372,12 @@ public class LocalComputationManager implements ComputationManager {
             ExecutionReport report;
 
             try {
-                report = execute(workingDir.toPath(), environment.getDebugDir() != null ? config.getLocalDir().getFileSystem().getPath(environment.getDebugDir()) : null, commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
+                report = execute(workingDir.toPath(),
+                        environment.getDebugDir() != null ? config.getLocalDir().getFileSystem().getPath(environment.getDebugDir()) : null,
+                        commandExecutionList,
+                        environment.getVariables(),
+                        parameters,
+                        handler::onExecutionCompletion);
             } catch (InterruptedException exc) {
                 localCommandExecutor.stop(workingDir.toPath());
                 throw exc;
