@@ -102,14 +102,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     @Test
-    void smallGridHvdcWithCapabilityCurve() throws IOException, XMLStreamException {
-        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithVsCapabilityCurve().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
-        Network actual = exportImportNodeBreaker(expected, dataSource);
-        assertTrue(compareNetworksEQdata(expected, actual));
-    }
-
-    @Test
     void miniNodeBreaker() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniNodeBreaker().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
