@@ -36,7 +36,6 @@ import java.util.Optional;
  */
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
 
-    private static final String CONNECTED = "connected";
     private static final PropertyBag EMPTY_PROPERTY_BAG = new PropertyBag(Collections.emptyList(), false);
 
     protected AbstractConductingEquipmentConversion(
