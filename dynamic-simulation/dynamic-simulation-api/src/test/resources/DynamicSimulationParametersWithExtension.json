@@ -2,7 +2,6 @@
   "version" : "1.1",
   "startTime" : 0.0,
   "stopTime" : 10.0,
-  "debugDir" : null,
   "extensions" : {
     "dummy-extension" : { }
   }
