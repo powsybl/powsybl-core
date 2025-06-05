@@ -14,8 +14,9 @@ import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.util.List;
+
 import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
-import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.EMPTY;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -97,43 +98,34 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         }
     }
 
-    protected static double defaultValue(DefaultValueDouble defaultValue, Context context) {
-        Double result = defaultValue(defaultValue.equipmentValue, defaultValue.previousValue, defaultValue.defaultValue, defaultValue.emptyValue, context);
-        return result != null ? result : defaultValue.emptyValue;
+    protected static double getDefaultValue(Double equipmentValue, Double previousValue, Double defaultValue, double emptyValue, Context context) {
+        Double value = getDefaultValue(equipmentValue, previousValue, defaultValue, emptyValue, context.config().updateDefaultValuesPriority());
+        return value != null ? value : emptyValue;
     }
 
-    protected static int defaultValue(DefaultValueInteger defaultValue, Context context) {
-        Integer result = defaultValue(defaultValue.equipmentValue, defaultValue.previousValue, defaultValue.defaultValue, defaultValue.emptyValue, context);
-        return result != null ? result : defaultValue.emptyValue;
+    protected static int getDefaultValue(Integer equipmentValue, Integer previousValue, Integer defaultValue, int emptyValue, Context context) {
+        Integer value = getDefaultValue(equipmentValue, previousValue, defaultValue, emptyValue, context.config().updateDefaultValuesPriority());
+        return value != null ? value : emptyValue;
     }
 
-    protected static boolean defaultValue(DefaultValueBoolean defaultValue, Context context) {
-        Boolean result = defaultValue(defaultValue.equipmentValue, defaultValue.previousValue, defaultValue.defaultValue, defaultValue.emptyValue, context);
-        return result != null ? result : defaultValue.emptyValue;
+    protected static boolean getDefaultValue(Boolean equipmentValue, Boolean previousValue, Boolean defaultValue, boolean emptyValue, Context context) {
+        Boolean value = getDefaultValue(equipmentValue, previousValue, defaultValue, emptyValue, context.config().updateDefaultValuesPriority());
+        return value != null ? value : emptyValue;
     }
 
-    private static <T> T defaultValue(T equipmentValue, T previousValue, T defaultValue, T emptyValue, Context context) {
-        for (Conversion.Config.DefaultValue defaultValueSelector : context.config().updateDefaultValuesPriority()) {
-            if (defaultValueSelector == EQ && equipmentValue != null) {
+    private static <T> T getDefaultValue(T equipmentValue, T previousValue, T defaultValue, T emptyValue, List<Conversion.Config.DefaultValue> selectors) {
+        for (Conversion.Config.DefaultValue selector : selectors) {
+            if (selector == EQ && equipmentValue != null) {
                 return equipmentValue;
-            } else if (defaultValueSelector == PREVIOUS && previousValue != null) {
+            } else if (selector == PREVIOUS && previousValue != null) {
                 return previousValue;
-            } else if (defaultValueSelector == DEFAULT && defaultValue != null) {
+            } else if (selector == DEFAULT && defaultValue != null) {
                 return defaultValue;
-            } else if (defaultValueSelector == EMPTY && emptyValue != null) {
+            } else if (selector == EMPTY) {
                 return emptyValue;
             }
         }
         return emptyValue;
-    }
-
-    public record DefaultValueDouble(Double equipmentValue, Double previousValue, Double defaultValue, double emptyValue) {
-    }
-
-    public record DefaultValueInteger(Integer equipmentValue, Integer previousValue, Integer defaultValue, int emptyValue) {
-    }
-
-    public record DefaultValueBoolean(Boolean equipmentValue, Boolean previousValue, Boolean defaultValue, boolean emptyValue) {
     }
 
     protected final String id;
