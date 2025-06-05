@@ -164,6 +164,8 @@ public final class CgmesNames {
     public static final String CONTROL_ENABLED = "controlEnabled";
     public static final String REACTIVE_POWER = "reactivepower";
     public static final String VOLTAGE_TAG = "voltage";
+    public static final String CONNECTED = "connected";
+    public static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
 
     public static final String ENERGY_IDENT_CODE_EIC = "energyIdentCodeEic";
     public static final String P_TOLERANCE = "pTolerance";
