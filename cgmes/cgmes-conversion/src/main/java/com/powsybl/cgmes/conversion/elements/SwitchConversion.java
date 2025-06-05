@@ -106,7 +106,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         } else {
             warnDanglingLineCreated();
             String eqInstance = p.get("graph");
-            danglingLine = convertToDanglingLine(eqInstance, boundarySide);
+            danglingLine = convertToDanglingLine(eqInstance, boundarySide, CgmesNames.SWITCH);
         }
     }
 
@@ -130,6 +130,17 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
 
     private void warnDanglingLineCreated() {
         fixed("Dangling line with low impedance", "Connected to a boundary node");
+    }
+
+    public static void update(DanglingLine danglingLine, PropertyBag cgmesData, Context context) {
+        updateTerminals(danglingLine, context, danglingLine.getTerminal());
+        boolean isClosed = !cgmesData.asBoolean("open").orElse(defaultOpen(context));
+        updateTargetsAndRegulationAndOperationalLimits(danglingLine, isBoundaryTerminalConnected(danglingLine, context) && isClosed, context);
+        computeFlowsOnModelSide(danglingLine, context);
+    }
+
+    private static boolean defaultOpen(Context context) {
+        return getDefaultValue(null, false, false, false, context);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);
