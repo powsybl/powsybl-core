@@ -4,28 +4,17 @@
   "name" : "list1",
   "identifiers" : [ {
     "type" : "ID_BASED",
-    "contingencyId" : "contingencyId1",
     "identifier" : "identifier"
   }, {
-    "type" : "ID_BASED",
-    "identifier" : "identifier2"
-  }, {
     "type" : "VOLTAGE_LEVELS_AND_ORDER",
-    "contingencyId" : "contingencyId2",
     "voltageLevelId1" : "vl1",
     "voltageLevelId2" : "vl2",
     "order" : "1"
   }, {
     "type" : "LIST",
-    "contingencyId" : "contingencyId3",
     "identifierList" : [ {
       "type" : "ID_BASED",
       "identifier" : "identifier"
     } ]
-  }, {
-    "type" : "ID_WITH_WILDCARDS",
-    "contingencyId" : "contingencyId4",
-    "identifier" : "identifier?",
-    "wildcard" : "?"
   } ]
 }

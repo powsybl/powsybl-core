@@ -46,7 +46,7 @@ import java.util.stream.Stream;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -126,7 +126,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      *             <th style="border: 1px solid black">Type</th>
      *             <th style="border: 1px solid black">Unit</th>
      *             <th style="border: 1px solid black">Required</th>
-     *             <th style="border: 1px solid black">Defaut value</th>
+     *             <th style="border: 1px solid black">Default value</th>
      *             <th style="border: 1px solid black">Description</th>
      *         </tr>
      *     </thead>
