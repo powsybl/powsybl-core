@@ -46,15 +46,15 @@ public class EnergySourceConversion extends AbstractConductingEquipmentConversio
         updateTerminals(load, context, load.getTerminal());
 
         PowerFlow updatedPowerFlow = updatedPowerFlow(load, cgmesData, context);
-        load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : defaultValue(getDefaultP(load), context));
-        load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : defaultValue(getDefaultQ(load), context));
+        load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : getDefaultP(load, context));
+        load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : getDefaultQ(load, context));
     }
 
-    private static DefaultValueDouble getDefaultP(Load load) {
-        return new DefaultValueDouble(null, load.getP0(), 0.0, Double.NaN);
+    private static double getDefaultP(Load load, Context context) {
+        return getDefaultValue(null, load.getP0(), 0.0, Double.NaN, context);
     }
 
-    private static DefaultValueDouble getDefaultQ(Load load) {
-        return new DefaultValueDouble(null, load.getQ0(), 0.0, Double.NaN);
+    private static double getDefaultQ(Load load, Context context) {
+        return getDefaultValue(null, load.getQ0(), 0.0, Double.NaN, context);
     }
 }

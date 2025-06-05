@@ -88,8 +88,8 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             setDefaultVoltageControl(staticVarCompensator, defaultEquipmentTargetV, context);
             return;
         }
-        DefaultValueBoolean defaultRegulatingOn = getDefaultRegulatingOn(staticVarCompensator);
-        boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultRegulatingOn, context));
+        boolean defaultRegulatingOn = getDefaultRegulatingOn(staticVarCompensator, context);
+        boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
         if (isDefaultReactivePowerControl(regulatingOn, controlEnabled, defaultRegulationMode, defaultQ)) {
             setDefaultReactivePowerControl(staticVarCompensator, defaultQ, context);
             return;
@@ -97,14 +97,14 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
 
         String selectedMode = mode != null ? mode : defaultRegulationMode;
         if (selectedMode != null && isControlModeVoltage(selectedMode.toLowerCase())) {
-            DefaultValueDouble defaultTargetV = getDefaultTargetV(staticVarCompensator, defaultEquipmentTargetV);
-            double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetV, context));
+            double defaultTargetV = getDefaultTargetV(staticVarCompensator, defaultEquipmentTargetV, context);
+            double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
             StaticVarCompensator.RegulationMode regulationMode = controlEnabled && regulatingOn && isValidTargetV(targetV) ? StaticVarCompensator.RegulationMode.VOLTAGE : StaticVarCompensator.RegulationMode.OFF;
 
             setRegulation(staticVarCompensator, staticVarCompensator.getReactivePowerSetpoint(), targetV, regulationMode);
         } else if (selectedMode != null && isControlModeReactivePower(selectedMode.toLowerCase())) {
-            DefaultValueDouble defaultTargetQ = getDefaultTargetQ(staticVarCompensator, defaultQ);
-            double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, 1, defaultTargetQ, DefaultValueUse.NOT_DEFINED, context)).orElse(defaultValue(defaultTargetQ, context));
+            double defaultTargetQ = getDefaultTargetQ(staticVarCompensator, defaultQ, context);
+            double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, 1, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
             StaticVarCompensator.RegulationMode regulationMode = controlEnabled && regulatingOn && isValidTargetQ(targetQ) ? StaticVarCompensator.RegulationMode.REACTIVE_POWER : StaticVarCompensator.RegulationMode.OFF;
 
             setRegulation(staticVarCompensator, targetQ, staticVarCompensator.getVoltageSetpoint(), regulationMode);
@@ -152,17 +152,17 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
         return defaultTargetVoltage != null ? Double.parseDouble(defaultTargetVoltage) : Double.NaN;
     }
 
-    private static DefaultValueDouble getDefaultTargetV(StaticVarCompensator staticVarCompensator, double defaultEquipmentTargetV) {
-        return new DefaultValueDouble(defaultEquipmentTargetV, staticVarCompensator.getVoltageSetpoint(), Double.NaN, Double.NaN);
+    private static double getDefaultTargetV(StaticVarCompensator staticVarCompensator, double defaultEquipmentTargetV, Context context) {
+        return getDefaultValue(defaultEquipmentTargetV, staticVarCompensator.getVoltageSetpoint(), Double.NaN, Double.NaN, context);
     }
 
-    private static DefaultValueDouble getDefaultTargetQ(StaticVarCompensator staticVarCompensator, double defaultTargetQ) {
-        return new DefaultValueDouble(null, staticVarCompensator.getReactivePowerSetpoint(), defaultTargetQ, Double.NaN);
+    private static double getDefaultTargetQ(StaticVarCompensator staticVarCompensator, double defaultTargetQ, Context context) {
+        return getDefaultValue(null, staticVarCompensator.getReactivePowerSetpoint(), defaultTargetQ, Double.NaN, context);
     }
 
-    private static DefaultValueBoolean getDefaultRegulatingOn(StaticVarCompensator staticVarCompensator) {
-        return new DefaultValueBoolean(null,
+    private static boolean getDefaultRegulatingOn(StaticVarCompensator staticVarCompensator, Context context) {
+        return getDefaultValue(null,
                 staticVarCompensator.getRegulationMode() != StaticVarCompensator.RegulationMode.OFF,
-                false, false);
+                false, false, context);
     }
 }
