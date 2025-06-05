@@ -7,8 +7,6 @@
  */
 package com.powsybl.security.dynamic.distributed;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -134,8 +132,8 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
                 .setDynamicModelsSource(ByteSource.wrap("dynamic models definition".getBytes(StandardCharsets.UTF_8)))
                 .setEventModelsSource(ByteSource.wrap("event models definition".getBytes(StandardCharsets.UTF_8)))
                 .setContingenciesSource(ByteSource.wrap("contingencies definition".getBytes(StandardCharsets.UTF_8)))
-                .addResultExtensions(ImmutableList.of("ext1", "ext2"))
-                .addViolationTypes(ImmutableList.of(LimitViolationType.CURRENT))
+                .addResultExtensions(List.of("ext1", "ext2"))
+                .addViolationTypes(List.of(LimitViolationType.CURRENT))
                 .setActions(List.of(action))
                 .setOperatorStrategies(List.of(strategy))
                 .setLimitReductions(List.of(limitReduction));
@@ -176,8 +174,8 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
                 .setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID)
                 .setDynamicModelsSource(ByteSource.wrap("dynamic models definition".getBytes(StandardCharsets.UTF_8)))
                 .setContingenciesSource(ByteSource.wrap("contingencies definition".getBytes(StandardCharsets.UTF_8)))
-                .addResultExtensions(ImmutableList.of("ext1", "ext2"))
-                .addViolationTypes(ImmutableList.of(LimitViolationType.CURRENT));
+                .addResultExtensions(List.of("ext1", "ext2"))
+                .addViolationTypes(List.of(LimitViolationType.CURRENT));
         ExecutionHandler<SecurityAnalysisReport> handler = DynamicSecurityAnalysisExecutionHandlers.distributed(input, 3);
 
         List<CommandExecution> commandExecutions = handler.before(workingDir);
@@ -279,10 +277,8 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
         DynamicSecurityAnalysisExecutionInput input = new DynamicSecurityAnalysisExecutionInput();
 
         ExecutionHandler<SecurityAnalysisReport> handler3 = DynamicSecurityAnalysisExecutionHandlers.distributed(input, 2);
-        assertThatExceptionOfType(ComputationException.class).isThrownBy(() -> {
-            Command cmd = Mockito.mock(Command.class);
-            handler3.after(workingDir, new DefaultExecutionReport(workingDir, Collections.singletonList(new ExecutionError(cmd, 0, 42))));
-        })
+        ExecutionReport executionReport = new DefaultExecutionReport(workingDir, Collections.singletonList(new ExecutionError(Mockito.mock(Command.class), 0, 42)));
+        assertThatExceptionOfType(ComputationException.class).isThrownBy(() -> handler3.after(workingDir, executionReport))
             .withMessageContaining("An error occurred during security analysis command execution")
             .withStackTraceContaining("Error during the execution in directory  /work exit codes: Task 0 : 42");
 
@@ -319,7 +315,7 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
     void distributedAfterWithLogs() throws IOException {
         JsonSecurityAnalysisResultExporter exporter = new JsonSecurityAnalysisResultExporter();
 
-        Set<String> expectedLogs = ImmutableSet.of("logs_0.zip",
+        Set<String> expectedLogs = Set.of("logs_0.zip",
                 "dynamic-security-analysis-task_0.out",
                 "dynamic-security-analysis-task_0.err",
                 "logs_1.zip",
@@ -332,8 +328,9 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
         DynamicSecurityAnalysisExecutionInput input = new DynamicSecurityAnalysisExecutionInput()
                 .setWithLogs(true);
         ExecutionHandler<SecurityAnalysisReport> handler2 = DynamicSecurityAnalysisExecutionHandlers.distributed(input, 2);
+        ExecutionReport executionReport = new DefaultExecutionReport(workingDir);
         try {
-            handler2.after(workingDir, new DefaultExecutionReport(workingDir));
+            handler2.after(workingDir, executionReport);
             fail();
         } catch (ComputationException ce) {
             assertEquals("logs", ce.getErrLogs().get("dynamic-security-analysis-task_0.err"));
@@ -342,14 +339,8 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
             assertEquals("logs", ce.getOutLogs().get("dynamic-security-analysis-task_1.out"));
         }
 
-        try {
-            Command cmd = Mockito.mock(Command.class);
-            handler2.after(workingDir, new DefaultExecutionReport(workingDir, Collections.singletonList(new ExecutionError(cmd, 0, 42))));
-            fail();
-        } catch (Exception e) {
-            // ignored
-            assertInstanceOf(ComputationException.class, e);
-        }
+        ExecutionReport executionReport2 = new DefaultExecutionReport(workingDir, Collections.singletonList(new ExecutionError(Mockito.mock(Command.class), 0, 42)));
+        assertThatExceptionOfType(ComputationException.class).isThrownBy(() -> handler2.after(workingDir,executionReport2));
 
         try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_0_result.json"))) {
             exporter.export(resultForContingency("c1"), writer);
@@ -380,7 +371,7 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
     void forwardedAfterWithLogs() throws IOException {
         JsonSecurityAnalysisResultExporter exporter = new JsonSecurityAnalysisResultExporter();
 
-        Set<String> expectedLogs = ImmutableSet.of("logs.zip",
+        Set<String> expectedLogs = Set.of("logs.zip",
                 "dynamic-security-analysis.out",
                 "dynamic-security-analysis.err");
 
@@ -392,9 +383,9 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
                 .setWithLogs(true);
 
         ExecutionHandler<SecurityAnalysisReport> handler2 = DynamicSecurityAnalysisExecutionHandlers.forwarded(input, 2);
-
+        ExecutionReport executionReport = new DefaultExecutionReport(workingDir);
         assertThatExceptionOfType(ComputationException.class)
-                .isThrownBy(() -> handler2.after(workingDir, new DefaultExecutionReport(workingDir)))
+                .isThrownBy(() -> handler2.after(workingDir, executionReport))
                 .withStackTraceContaining("NoSuchFile")
                 .withStackTraceContaining("result.json")
                 .satisfies(ce -> {
