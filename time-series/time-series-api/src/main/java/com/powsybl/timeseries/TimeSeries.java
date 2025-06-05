@@ -265,6 +265,9 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                         LOGGER.warn("The version number for a versioned TimeSeries should not be equals to the default version number ({}) at line \"{}}\"",
                             DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES,
                             line);
+
+                        // TODO - remove this test
+                        LOGGER.info("TODO - remove this test");
                     }
                 }
             }
