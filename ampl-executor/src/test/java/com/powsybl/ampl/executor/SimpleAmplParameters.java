@@ -74,6 +74,11 @@ public class SimpleAmplParameters implements AmplParameters {
     }
 
     @Override
+    public String getDebugDir() {
+        return null;
+    }
+
+    @Override
     public AmplExportConfig getAmplExportConfig() {
         return new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.defaultVersion(), false);
     }
