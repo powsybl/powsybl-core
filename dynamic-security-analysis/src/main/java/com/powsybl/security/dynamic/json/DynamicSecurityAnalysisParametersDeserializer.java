@@ -27,6 +27,9 @@ import static com.powsybl.security.dynamic.json.JsonDynamicSecurityAnalysisParam
  */
 public class DynamicSecurityAnalysisParametersDeserializer extends StdDeserializer<DynamicSecurityAnalysisParameters> {
 
+    private static final String CONTEXT_NAME = "DynamicSecurityAnalysisParameters";
+    private static final String TAG = "Tag: ";
+
     DynamicSecurityAnalysisParametersDeserializer() {
         super(DynamicSecurityAnalysisParameters.class);
     }
@@ -47,14 +50,21 @@ public class DynamicSecurityAnalysisParametersDeserializer extends StdDeserializ
                     version = parser.getValueAsString();
                     break;
                 case "dynamic-simulation-parameters":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.0");
                     parser.nextToken();
                     JsonDynamicSimulationParameters.deserialize(parser, deserializationContext, parameters.getDynamicSimulationParameters());
                     break;
                 case "contingencies-parameters":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.0");
                     parser.nextToken();
                     parameters.setDynamicContingenciesParameters(JsonUtil.readValue(deserializationContext,
                             parser,
                             DynamicSecurityAnalysisParameters.ContingenciesParameters.class));
+                    break;
+                case "debugDir":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
+                    parser.nextToken();
+                    parameters.setDebugDir(parser.readValueAs(String.class));
                     break;
                 case "extensions":
                     parser.nextToken();
@@ -64,10 +74,7 @@ public class DynamicSecurityAnalysisParametersDeserializer extends StdDeserializ
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
-        if (version == null || !version.equals("1.0")) {
-            //Only 1.0 version is supported for now
-            throw new IllegalStateException("Version different than 1.0 not supported.");
-        }
+
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
         return parameters;
     }

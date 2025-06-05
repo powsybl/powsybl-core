@@ -32,6 +32,9 @@ public class DynamicSecurityAnalysisParametersSerializer extends StdSerializer<D
         jsonGenerator.writeFieldName("dynamic-simulation-parameters");
         JsonDynamicSimulationParameters.serialize(parameters.getDynamicSimulationParameters(), jsonGenerator, serializerProvider);
         serializerProvider.defaultSerializeField("contingencies-parameters", parameters.getDynamicContingenciesParameters(), jsonGenerator);
+        if (parameters.getDebugDir() != null) {
+            jsonGenerator.writeStringField("debugDir", parameters.getDebugDir());
+        }
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonDynamicSecurityAnalysisParameters.getExtensionSerializers()::get);
         jsonGenerator.writeEndObject();
     }
