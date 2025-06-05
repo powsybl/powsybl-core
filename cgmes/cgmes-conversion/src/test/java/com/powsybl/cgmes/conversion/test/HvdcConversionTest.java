@@ -47,11 +47,11 @@ class HvdcConversionTest extends AbstractSerDeTest {
         // Converter's loss factor, power factor, modes and line's active power setpoint and max value get default value.
         assertContainsLccConverter(network, "CSC_1", "Current source converter 1", "DCL_12", 0.0, 0.8);
         assertContainsLccConverter(network, "CSC_2", "Current source converter 2", "DCL_12", 0.0, 0.8);
-        assertContainsHvdcLine(network, "DCL_12", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12", "CSC_1", "CSC_2", 4.64, 0.0, 0.0);
+        assertContainsHvdcLine(network, "DCL_12", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12", "CSC_1", "CSC_2", 4.64, Double.NaN, 0.0);
 
         assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.0, Double.NaN, 0.0);
         assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.0, Double.NaN, 0.0);
-        assertContainsHvdcLine(network, "DCL_34", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 34", "VSC_3", "VSC_4", 9.92, 0.0, 0.0);
+        assertContainsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, Double.NaN, 0.0);
     }
 
     @Test
@@ -97,7 +97,7 @@ class HvdcConversionTest extends AbstractSerDeTest {
         // A single HvdcLine has been created with an equivalent resistance.
         assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34P", 0.0, Double.NaN, 0.0);
         assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34P", 0.0, Double.NaN, 0.0);
-        assertContainsHvdcLine(network, "DCL_34P", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 34P", "VSC_3", "VSC_4", 2.48, 0.0, 0.0);
+        assertContainsHvdcLine(network, "DCL_34P", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34P", "VSC_3", "VSC_4", 2.48, Double.NaN, 0.0);
 
         // The other DCLineSegment identifier is kept as an alias.
         assertEquals("DCL_34N", network.getHvdcLine("DCL_34P").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
@@ -117,12 +117,12 @@ class HvdcConversionTest extends AbstractSerDeTest {
         // HvdcLine DCL_12 links LccConverterStation CSC_1A and CSC_2A with an equivalent resistance.
         assertContainsLccConverter(network, "CSC_1A", "Current source converter 1A", "DCL_12", 0.0, 0.8);
         assertContainsLccConverter(network, "CSC_2A", "Current source converter 2A", "DCL_12", 0.0, 0.8);
-        assertContainsHvdcLine(network, "DCL_12", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12", "CSC_1A", "CSC_2A", 9.28, 0.0, 0.0);
+        assertContainsHvdcLine(network, "DCL_12", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12", "CSC_1A", "CSC_2A", 9.28, Double.NaN, 0.0);
 
         // HvdcLine DCL_12-1 links LccConverterStation CSC_1B and CSC_2B with an equivalent resistance.
         assertContainsLccConverter(network, "CSC_1B", "Current source converter 1B", "DCL_12-1", 0.0, 0.8);
         assertContainsLccConverter(network, "CSC_2B", "Current source converter 2B", "DCL_12-1", 0.0, 0.8);
-        assertContainsHvdcLine(network, "DCL_12-1", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12-1", "CSC_1B", "CSC_2B", 9.28, 0.0, 0.0);
+        assertContainsHvdcLine(network, "DCL_12-1", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12-1", "CSC_1B", "CSC_2B", 9.28, Double.NaN, 0.0);
     }
 
     @Test

@@ -7,10 +7,8 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -25,11 +23,6 @@ import java.util.Map;
 
 public class RegulatingControlMappingForVscConverters {
 
-    enum VscRegulation {
-        REACTIVE_POWER,
-        VOLTAGE
-    }
-
     RegulatingControlMappingForVscConverters(Context context) {
         this.context = context;
         mapping = new HashMap<>();
@@ -37,31 +30,15 @@ public class RegulatingControlMappingForVscConverters {
 
     public static void initialize(VscConverterStationAdder adder) {
         adder.setVoltageRegulatorOn(false)
-            .setReactivePowerSetpoint(0.0);
+                .setReactivePowerSetpoint(0.0);
     }
 
     public void add(String vscConverterId, PropertyBag sm) {
         if (mapping.containsKey(vscConverterId)) {
             throw new CgmesModelException("VscConverter already added, IIDM VscConverter Id: " + vscConverterId);
         }
-
-        CgmesRegulatingControlForVscConverter rd = new CgmesRegulatingControlForVscConverter();
-        rd.vscRegulation = sm.getLocal("qPccControl");
-        rd.voltageSetpoint = sm.asDouble("targetUpcc");
-        rd.reactivePowerSetpoint = -sm.asDouble("targetQpcc");
-        rd.pccTerminal = sm.getId("PccTerminal");
-        mapping.put(vscConverterId, rd);
-    }
-
-    private static VscRegulation decodeVscRegulation(String qPccControl) {
-        if (qPccControl != null) {
-            if (qPccControl.endsWith("voltagePcc")) {
-                return VscRegulation.VOLTAGE;
-            } else if (qPccControl.endsWith("reactivePcc")) {
-                return VscRegulation.REACTIVE_POWER;
-            }
-        }
-        return null;
+        String pccTerminal = sm.getId("PccTerminal");
+        mapping.put(vscConverterId, pccTerminal);
     }
 
     void applyRegulatingControls(Network network) {
@@ -69,58 +46,23 @@ public class RegulatingControlMappingForVscConverters {
     }
 
     private void apply(VscConverterStation vscConverter) {
-        CgmesRegulatingControlForVscConverter rd = mapping.get(vscConverter.getId());
-        apply(vscConverter, rd);
+        String pccTerminal = mapping.get(vscConverter.getId());
+        apply(vscConverter, pccTerminal);
     }
 
-    private void apply(VscConverterStation vscConverter, CgmesRegulatingControlForVscConverter rc) {
-        if (rc == null) {
+    private void apply(VscConverterStation vscConverter, String pccTerminal) {
+        if (pccTerminal == null) {
             return;
         }
-
-        VscRegulation vscRegulation = decodeVscRegulation(rc.vscRegulation);
-        if (vscRegulation == VscRegulation.VOLTAGE) {
-            setRegulatingControlVoltage(rc, vscConverter);
-        } else if (vscRegulation == VscRegulation.REACTIVE_POWER) {
-            setRegulatingControlReactivePower(rc, vscConverter);
-        } else {
-            String what = rc.vscRegulation;
-            if (rc.vscRegulation == null) {
-                what = "EmptyVscRegulation";
-            }
-            context.ignored(what, "Unsupported regulation mode for vscConverter " + vscConverter.getId());
-        }
-    }
-
-    private void setRegulatingControlVoltage(CgmesRegulatingControlForVscConverter rc, VscConverterStation vscConverter) {
-        Terminal regulatingTerminal = RegulatingTerminalMapper
-                .mapForVoltageControl(rc.pccTerminal, context)
-                .orElse(vscConverter.getTerminal());
+        RegulatingTerminalMapper.TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
+                .mapForFlowControl(pccTerminal, context)
+                .orElseGet(() -> new RegulatingTerminalMapper.TerminalAndSign(vscConverter.getTerminal(), 1));
         vscConverter
-            .setVoltageSetpoint(rc.voltageSetpoint)
-            .setReactivePowerSetpoint(0.0)
-            .setRegulatingTerminal(regulatingTerminal)
-            .setVoltageRegulatorOn(true);
+                .setRegulatingTerminal(mappedRegulatingTerminal.getTerminal())
+                .setVoltageRegulatorOn(false);
+        vscConverter.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign", String.valueOf(mappedRegulatingTerminal.getSign()));
     }
 
-    private void setRegulatingControlReactivePower(CgmesRegulatingControlForVscConverter rc, VscConverterStation vscConverter) {
-        TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
-                .mapForFlowControl(rc.pccTerminal, context)
-                .orElseGet(() -> new TerminalAndSign(vscConverter.getTerminal(), 1));
-        vscConverter
-            .setVoltageSetpoint(0.0)
-            .setReactivePowerSetpoint(rc.reactivePowerSetpoint * mappedRegulatingTerminal.getSign())
-            .setRegulatingTerminal(mappedRegulatingTerminal.getTerminal())
-            .setVoltageRegulatorOn(false);
-    }
-
-    private static class CgmesRegulatingControlForVscConverter {
-        String vscRegulation;
-        double voltageSetpoint;
-        double reactivePowerSetpoint;
-        String pccTerminal;
-    }
-
-    private final Map<String, CgmesRegulatingControlForVscConverter> mapping;
+    private final Map<String, String> mapping;
     private final Context context;
 }
