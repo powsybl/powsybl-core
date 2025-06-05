@@ -55,7 +55,7 @@ public final class CgmesReports {
 
     public static ReportNode updatingElementTypeReport(ReportNode reportNode, String elementType) {
         return reportNode.newReportNode()
-                .withMessageTemplate("updatingElementType", "Updating ${elementType}.")
+                .withMessageTemplate("core.cgmes.update.updatingElementType")
                 .withUntypedValue("elementType", elementType)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -116,6 +116,22 @@ public final class CgmesReports {
                 .withUntypedValue("targetDeadband", targetDeadband)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
+    }
+
+    /**
+     * @deprecated Not used anymore. Use {@link #invalidAngleVoltageReport(ReportNode, String, double , double)}
+     */
+    @Deprecated(since = "6.8.0")
+    public static void invalidAngleVoltageBusReport(ReportNode reportNode, Bus bus, String nodeId, double v, double angle) {
+        throw new ConversionException("Deprecated. Not used anymore");
+    }
+
+    /**
+     * @deprecated Not used anymore. Use {@link #invalidAngleVoltageReport(ReportNode, String, double , double)}
+     */
+    @Deprecated(since = "6.8.0")
+    public static void invalidAngleVoltageNodeReport(ReportNode reportNode, String nodeId, double v, double angle) {
+        throw new ConversionException("Deprecated. Not used anymore");
     }
 
     public static void invalidAngleVoltageReport(ReportNode reportNode, Bus bus, String topologicalNode, double v, double angle) {
