@@ -102,7 +102,7 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
     }
 
     public DynamicSimulationParameters(double startTime, double stopTime) {
-        this(startTime, stopTime, null);
+        this(startTime, stopTime, DEFAULT_DEBUG_DIR);
     }
 
     public DynamicSimulationParameters() {
