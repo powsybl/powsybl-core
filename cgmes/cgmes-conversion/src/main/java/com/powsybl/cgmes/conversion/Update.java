@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -27,6 +27,7 @@ import java.util.*;
 public final class Update {
 
     private static final String UNEXPECTED_ORIGINAL_CLASS = "Unexpected originalClass ";
+    private static final PropertyBag EMPTY_PROPERTY_BAG = new PropertyBag(Collections.emptyList(), false);
 
     private Update() {
     }
@@ -217,7 +218,7 @@ public final class Update {
         context.popReportNode();
     }
 
-    public static void updateVoltageAndAnglesAndComplete(Network network, Context context) {
+    public static void updateAndCompleteVoltageAndAngles(Network network, Context context) {
         context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(context.getReportNode()));
         // update voltage and angles
         network.getBusView().getBuses().forEach(bus -> NodeConversion.update(bus, context));
@@ -239,20 +240,16 @@ public final class Update {
     }
 
     private static PropertyBag getPropertyBag(String identifiableId, Map<String, PropertyBag> equipmentIdPropertyBag) {
-        return equipmentIdPropertyBag.containsKey(identifiableId) ? equipmentIdPropertyBag.get(identifiableId) : emptyPropertyBag();
+        return equipmentIdPropertyBag.getOrDefault(identifiableId, EMPTY_PROPERTY_BAG);
     }
 
     private static PropertyBag getEquivalentInjectionPropertyBag(String equivalentInjectionId, Context context) {
         PropertyBag cgmesData = context.equivalentInjection(equivalentInjectionId);
-        return cgmesData != null ? cgmesData : emptyPropertyBag();
+        return cgmesData != null ? cgmesData : EMPTY_PROPERTY_BAG;
     }
 
     private static PropertyBag getSwitchPropertyBag(String switchId, Context context) {
         PropertyBag cgmesData = context.cgmesSwitch(switchId);
-        return cgmesData != null ? cgmesData : emptyPropertyBag();
-    }
-
-    private static PropertyBag emptyPropertyBag() {
-        return new PropertyBag(Collections.emptyList(), false);
+        return cgmesData != null ? cgmesData : EMPTY_PROPERTY_BAG;
     }
 }

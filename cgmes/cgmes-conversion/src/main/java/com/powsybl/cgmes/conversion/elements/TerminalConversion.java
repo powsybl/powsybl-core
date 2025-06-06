@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.getDefaultIsOpen;
-import static com.powsybl.cgmes.conversion.elements.AbstractIdentifiedObjectConversion.defaultValue;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -160,7 +159,7 @@ public final class TerminalConversion {
     }
 
     public static void update(Switch sw, Context context) {
-        boolean isOpen = getIsTerminalOpen(sw, context).orElse(defaultValue(getDefaultIsOpen(sw), context));
+        boolean isOpen = getIsTerminalOpen(sw, context).orElse(getDefaultIsOpen(sw, context));
         sw.setOpen(isOpen);
     }
 

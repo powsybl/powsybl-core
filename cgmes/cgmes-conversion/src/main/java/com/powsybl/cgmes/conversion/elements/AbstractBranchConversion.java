@@ -115,7 +115,7 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
     }
 
     protected static void updateBranch(Switch sw, Context context) {
-        boolean isOpen = isOpenFromBothTerminalStatus(sw, context).orElse(defaultValue(getDefaultIsOpen(sw), context));
+        boolean isOpen = isOpenFromBothTerminalStatus(sw, context).orElse(getDefaultIsOpen(sw, context));
         sw.setOpen(isOpen);
     }
 }

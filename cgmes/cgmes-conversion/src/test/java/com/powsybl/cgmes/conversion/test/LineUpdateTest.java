@@ -30,19 +30,7 @@ class LineUpdateTest {
         Network network = readCgmesResources(DIR, "line_EQ.xml");
         assertEquals(3, network.getLineCount());
 
-        Line acLineSegment = network.getLine("ACLineSegment");
-        assertTrue(checkEq(acLineSegment));
-        assertTrue(checkDefinedCurrentLimits(acLineSegment,
-                new CurrentLimit(796.0, 900, 1990.0),
-                new CurrentLimit(796.0, 900, 1990.0)));
-
-        Line equivalentBranch = network.getLine("EquivalentBranch");
-        assertTrue(checkEq(equivalentBranch));
-        assertTrue(checkNotDefinedLimits(equivalentBranch));
-
-        Line seriesCompensator = network.getLine("SeriesCompensator");
-        assertTrue(checkEq(seriesCompensator));
-        assertTrue(checkNotDefinedLimits(seriesCompensator));
+        assertEq(network);
     }
 
     @Test
@@ -50,19 +38,7 @@ class LineUpdateTest {
         Network network = readCgmesResources(DIR, "line_EQ.xml", "line_SSH.xml");
         assertEquals(3, network.getLineCount());
 
-        Line acLineSegment = network.getLine("ACLineSegment");
-        assertTrue(checkSsh(acLineSegment));
-        assertTrue(checkDefinedCurrentLimits(acLineSegment,
-                new CurrentLimit(797.0, 900, 1991.0),
-                new CurrentLimit(795.0, 900, 1989.0)));
-
-        Line equivalentBranch = network.getLine("EquivalentBranch");
-        assertTrue(checkSsh(equivalentBranch));
-        assertTrue(checkNotDefinedLimits(equivalentBranch));
-
-        Line seriesCompensator = network.getLine("SeriesCompensator");
-        assertTrue(checkSsh(seriesCompensator));
-        assertTrue(checkNotDefinedLimits(seriesCompensator));
+        assertFirstSsh(network);
     }
 
     @Test
@@ -70,135 +46,130 @@ class LineUpdateTest {
         Network network = readCgmesResources(DIR, "line_EQ.xml");
         assertEquals(3, network.getLineCount());
 
-        Line acLineSegment = network.getLine("ACLineSegment");
-        Line equivalentBranch = network.getLine("EquivalentBranch");
-        Line seriesCompensator = network.getLine("SeriesCompensator");
-        assertTrue(checkEq(acLineSegment, equivalentBranch, seriesCompensator));
+        assertEq(network);
 
         readCgmesResources(network, DIR, "line_SSH.xml");
-        assertTrue(checkSsh(acLineSegment, equivalentBranch, seriesCompensator));
+        assertFirstSsh(network);
 
         readCgmesResources(network, DIR, "line_SSH_1.xml");
-        assertTrue(checkSsh1(acLineSegment, equivalentBranch, seriesCompensator));
+        assertSecondSsh(network);
 
+        assertFlowsBeforeSv(network);
         readCgmesResources(network, DIR, "line_SV.xml");
-        assertTrue(checkFlows(acLineSegment.getTerminal1(), 275.0, 50.0, acLineSegment.getTerminal2(), -275.1, -50.1));
-        assertTrue(checkFlows(equivalentBranch.getTerminal1(), 175.0, 40.0, equivalentBranch.getTerminal2(), -175.1, -40.1));
-        assertTrue(checkFlows(seriesCompensator.getTerminal1(), 75.0, 30.0, seriesCompensator.getTerminal2(), -75.1, -30.1));
+        assertFlowsAfterSv(network);
     }
 
-    private static boolean checkEq(Line acLineSegment, Line equivalentBranch, Line seriesCompensator) {
-        assertTrue(checkEq(acLineSegment));
-        assertTrue(checkDefinedCurrentLimits(acLineSegment,
+    private static void assertEq(Network network) {
+        assertEq(network.getLine("ACLineSegment"));
+        assertDefinedCurrentLimits(network.getLine("ACLineSegment"),
                 new CurrentLimit(796.0, 900, 1990.0),
-                new CurrentLimit(796.0, 900, 1990.0)));
+                new CurrentLimit(796.0, 900, 1990.0));
 
-        assertTrue(checkEq(equivalentBranch));
-        assertTrue(checkNotDefinedLimits(equivalentBranch));
+        assertEq(network.getLine("EquivalentBranch"));
+        assertNotDefinedLimits(network.getLine("EquivalentBranch"));
 
-        assertTrue(checkEq(seriesCompensator));
-        assertTrue(checkNotDefinedLimits(seriesCompensator));
-        return true;
+        assertEq(network.getLine("SeriesCompensator"));
+        assertNotDefinedLimits(network.getLine("SeriesCompensator"));
     }
 
-    private static boolean checkSsh(Line acLineSegment, Line equivalentBranch, Line seriesCompensator) {
-        assertTrue(checkSsh(acLineSegment));
-        assertTrue(checkDefinedCurrentLimits(acLineSegment,
+    private static void assertFirstSsh(Network network) {
+        assertSsh(network.getLine("ACLineSegment"));
+        assertDefinedCurrentLimits(network.getLine("ACLineSegment"),
                 new CurrentLimit(797.0, 900, 1991.0),
-                new CurrentLimit(795.0, 900, 1989.0)));
+                new CurrentLimit(795.0, 900, 1989.0));
 
-        assertTrue(checkSsh(equivalentBranch));
-        assertTrue(checkNotDefinedLimits(equivalentBranch));
+        assertSsh(network.getLine("EquivalentBranch"));
+        assertNotDefinedLimits(network.getLine("EquivalentBranch"));
 
-        assertTrue(checkSsh(seriesCompensator));
-        assertTrue(checkNotDefinedLimits(seriesCompensator));
-        return true;
+        assertSsh(network.getLine("SeriesCompensator"));
+        assertNotDefinedLimits(network.getLine("SeriesCompensator"));
     }
 
-    private static boolean checkSsh1(Line acLineSegment, Line equivalentBranch, Line seriesCompensator) {
-        assertTrue(checkSsh(acLineSegment));
-        assertTrue(checkDefinedCurrentLimits(acLineSegment,
+    private static void assertSecondSsh(Network network) {
+        assertSsh(network.getLine("ACLineSegment"));
+        assertDefinedCurrentLimits(network.getLine("ACLineSegment"),
                 new CurrentLimit(798.0, 900, 1992.0),
-                new CurrentLimit(794.0, 900, 1988.0)));
+                new CurrentLimit(794.0, 900, 1988.0));
 
-        assertTrue(checkSsh(equivalentBranch));
-        assertTrue(checkNotDefinedLimits(equivalentBranch));
+        assertSsh(network.getLine("EquivalentBranch"));
+        assertNotDefinedLimits(network.getLine("EquivalentBranch"));
 
-        assertTrue(checkSsh(seriesCompensator));
-        assertTrue(checkNotDefinedLimits(seriesCompensator));
-        return true;
+        assertSsh(network.getLine("SeriesCompensator"));
+        assertNotDefinedLimits(network.getLine("SeriesCompensator"));
     }
 
-    private static boolean checkEq(Line line) {
+    private static void assertFlowsBeforeSv(Network network) {
+        assertFlows(network.getLine("ACLineSegment").getTerminal1(), Double.NaN, Double.NaN, network.getLine("ACLineSegment").getTerminal2(), Double.NaN, Double.NaN);
+        assertFlows(network.getLine("EquivalentBranch").getTerminal1(), Double.NaN, Double.NaN, network.getLine("EquivalentBranch").getTerminal2(), Double.NaN, Double.NaN);
+        assertFlows(network.getLine("SeriesCompensator").getTerminal1(), Double.NaN, Double.NaN, network.getLine("SeriesCompensator").getTerminal2(), Double.NaN, Double.NaN);
+    }
+
+    private static void assertFlowsAfterSv(Network network) {
+        assertFlows(network.getLine("ACLineSegment").getTerminal1(), 275.0, 50.0, network.getLine("ACLineSegment").getTerminal2(), -275.1, -50.1);
+        assertFlows(network.getLine("EquivalentBranch").getTerminal1(), 175.0, 40.0, network.getLine("EquivalentBranch").getTerminal2(), -175.1, -40.1);
+        assertFlows(network.getLine("SeriesCompensator").getTerminal1(), 75.0, 30.0, network.getLine("SeriesCompensator").getTerminal2(), -75.1, -30.1);
+    }
+
+    private static void assertEq(Line line) {
         assertNotNull(line);
         assertNotNull(line.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
-        return true;
     }
 
-    private static boolean checkSsh(Line line) {
+    private static void assertSsh(Line line) {
         assertNotNull(line);
-        return true;
     }
 
-    private static boolean checkDefinedCurrentLimits(Line line, CurrentLimit currentLimit1, CurrentLimit currentLimit2) {
+    private static void assertDefinedCurrentLimits(Line line, CurrentLimit currentLimit1, CurrentLimit currentLimit2) {
         assertEquals(1, line.getOperationalLimitsGroups1().size());
-        assertTrue(checkDefinedCurrentLimitsSide(line, TwoSides.ONE, currentLimit1));
+        assertDefinedCurrentLimitsSide(line, TwoSides.ONE, currentLimit1);
         assertEquals(1, line.getOperationalLimitsGroups2().size());
-        assertTrue(checkDefinedCurrentLimitsSide(line, TwoSides.TWO, currentLimit2));
+        assertDefinedCurrentLimitsSide(line, TwoSides.TWO, currentLimit2);
 
-        assertTrue(checkNotDefinedApparentPowerLimits(line));
-        assertTrue(checkNotDefinedActivePowerLimits(line));
-        return true;
+        assertNotDefinedApparentPowerLimits(line);
+        assertNotDefinedActivePowerLimits(line);
     }
 
-    private static boolean checkDefinedCurrentLimitsSide(Line line, TwoSides side, CurrentLimit currentLimit) {
+    private static void assertDefinedCurrentLimitsSide(Line line, TwoSides side, CurrentLimit currentLimit) {
         assertNotNull(line.getCurrentLimits(side).orElse(null));
         if (line.getCurrentLimits(side).isPresent()) {
             assertEquals(currentLimit.ptalValue, line.getCurrentLimits(side).get().getPermanentLimit());
             assertEquals(1, line.getCurrentLimits(side).get().getTemporaryLimits().size());
             assertEquals(currentLimit.tatlDuration, line.getCurrentLimits(side).get().getTemporaryLimits().iterator().next().getAcceptableDuration());
             assertEquals(currentLimit.tatlValue, line.getCurrentLimits(side).get().getTemporaryLimits().iterator().next().getValue());
-            return true;
         }
-        return false;
     }
 
-    private static boolean checkNotDefinedLimits(Line line) {
+    private static void assertNotDefinedLimits(Line line) {
         assertEquals(0, line.getOperationalLimitsGroups1().size());
         assertEquals(0, line.getOperationalLimitsGroups2().size());
-        assertTrue(checkNotDefinedCurrentLimits(line));
-        assertTrue(checkNotDefinedApparentPowerLimits(line));
-        assertTrue(checkNotDefinedActivePowerLimits(line));
-        return true;
+        assertNotDefinedCurrentLimits(line);
+        assertNotDefinedApparentPowerLimits(line);
+        assertNotDefinedActivePowerLimits(line);
     }
 
-    private static boolean checkNotDefinedCurrentLimits(Line line) {
+    private static void assertNotDefinedCurrentLimits(Line line) {
         assertNull(line.getCurrentLimits1().orElse(null));
         assertNull(line.getCurrentLimits2().orElse(null));
-        return true;
     }
 
-    private static boolean checkNotDefinedApparentPowerLimits(Line line) {
+    private static void assertNotDefinedApparentPowerLimits(Line line) {
         assertNull(line.getApparentPowerLimits1().orElse(null));
         assertNull(line.getApparentPowerLimits2().orElse(null));
-        return true;
     }
 
-    private static boolean checkNotDefinedActivePowerLimits(Line line) {
+    private static void assertNotDefinedActivePowerLimits(Line line) {
         assertNull(line.getActivePowerLimits1().orElse(null));
         assertNull(line.getActivePowerLimits2().orElse(null));
-        return true;
     }
 
     private record CurrentLimit(double ptalValue, int tatlDuration, double tatlValue) {
     }
 
-    private static boolean checkFlows(Terminal terminal1, double p1, double q1, Terminal terminal2, double p2, double q2) {
+    private static void assertFlows(Terminal terminal1, double p1, double q1, Terminal terminal2, double p2, double q2) {
         double tol = 0.0000001;
         assertEquals(p1, terminal1.getP(), tol);
         assertEquals(q1, terminal1.getQ(), tol);
         assertEquals(p2, terminal2.getP(), tol);
         assertEquals(q2, terminal2.getQ(), tol);
-        return true;
     }
 }
