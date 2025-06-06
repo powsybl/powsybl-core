@@ -558,6 +558,16 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags dcSwitches() {
+        return namedQuery("dcSwitches");
+    }
+
+    @Override
+    public PropertyBags dcGrounds() {
+        return namedQuery("dcGrounds");
+    }
+
+    @Override
     public PropertyBags acDcConverters() {
         return namedQuery("acDcConverters");
     }
