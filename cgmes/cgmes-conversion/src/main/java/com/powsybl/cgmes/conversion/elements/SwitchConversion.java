@@ -125,19 +125,19 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
 
     public static void update(DanglingLine danglingLine, PropertyBag cgmesData, Context context) {
         updateTerminals(danglingLine, context, danglingLine.getTerminal());
-        boolean isClosed = !cgmesData.asBoolean(CgmesNames.OPEN).orElse(defaultValue(defaultOpen(), context));
+        boolean isClosed = !cgmesData.asBoolean(CgmesNames.OPEN).orElse(defaultOpen(context));
         updateTargetsAndRegulationAndOperationalLimits(danglingLine, isBoundaryTerminalConnected(danglingLine, context) && isClosed, context);
         computeFlowsOnModelSide(danglingLine, context);
     }
 
-    private static DefaultValueBoolean defaultOpen() {
-        return new DefaultValueBoolean(null, false, false, false);
+    private static boolean defaultOpen(Context context) {
+        return getDefaultValue(null, false, false, false, context);
     }
 
     public static void update(Switch sw, PropertyBag cgmesData, Context context) {
         boolean isOpenFromBothTerminalStatus = sw.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER
                 && isOpenFromBothTerminalStatus(sw, context).orElse(false);
-        boolean isOpen = cgmesData.asBoolean(CgmesNames.OPEN).orElse(defaultValue(getDefaultIsOpen(sw), context));
+        boolean isOpen = cgmesData.asBoolean(CgmesNames.OPEN).orElse(getDefaultIsOpen(sw, context));
         sw.setOpen(isOpen || isOpenFromBothTerminalStatus);
     }
 

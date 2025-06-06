@@ -26,14 +26,12 @@ class BusbarSectionUpdateTest {
         Network network = readCgmesResources(DIR, "busbarSection_EQ.xml");
         assertEquals(1, network.getBusbarSectionCount());
 
-        BusbarSection busbarSection = network.getBusbarSection("BusbarSection");
-        assertTrue(checkEq(busbarSection));
+        assertEq(network.getBusbarSection("BusbarSection"));
     }
 
-    private static boolean checkEq(BusbarSection busbarSection) {
+    private static void assertEq(BusbarSection busbarSection) {
         assertNotNull(busbarSection);
         assertNotNull(busbarSection.getTerminal());
         assertTrue(busbarSection.getTerminal().isConnected());
-        return true;
     }
 }
