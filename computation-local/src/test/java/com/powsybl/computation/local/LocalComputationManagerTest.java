@@ -133,7 +133,7 @@ class LocalComputationManagerTest {
                             assertEquals("prog1_cmd", report.getErrors().get(0).getCommand().getId());
                             assertEquals(0, report.getErrors().get(0).getIndex());
                             assertEquals(1, report.getErrors().get(0).getExitCode());
-                            assertTrue(Files.exists(config.getLocalDir().getFileSystem().getPath((DEBUG_DIR + workingDir.getFileName()))));
+                            assertTrue(Files.exists(config.getLocalDir().getFileSystem().getPath(DEBUG_DIR).resolve(workingDir)));
                             return null;
                         }
                     }).join();
