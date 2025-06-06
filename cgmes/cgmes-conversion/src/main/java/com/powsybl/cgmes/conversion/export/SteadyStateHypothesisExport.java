@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
+import com.powsybl.iidm.network.util.HvdcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -683,8 +684,10 @@ public final class SteadyStateHypothesisExport {
             if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
                 ppcc = converterStation.getHvdcLine().getActivePowerSetpoint();
             } else {
+                HvdcLine hvdcLine = converterStation.getHvdcLine();
                 double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
-                double pDCInverter = converterStation.getHvdcLine().getActivePowerSetpoint() * (1 - otherConverterStationLossFactor / 100);
+                double pDCRectifier = hvdcLine.getActivePowerSetpoint() * (1 - otherConverterStationLossFactor / 100);
+                double pDCInverter = pDCRectifier - HvdcUtils.getHvdcLineLosses(pDCRectifier, hvdcLine.getNominalV(), hvdcLine.getR());
                 double poleLoss = converterStation.getLossFactor() / 100 * pDCInverter;
                 ppcc = -(pDCInverter - poleLoss);
             }
