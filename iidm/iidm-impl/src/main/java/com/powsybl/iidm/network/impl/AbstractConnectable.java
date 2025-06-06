@@ -231,6 +231,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
             this,
             getTerminals(side),
             isTypeSwitchToOperate,
+            false,
             getNetwork().getReportNodeContext().getReportNode());
     }
 
@@ -250,6 +251,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
             this,
             getTerminals(side),
             isSwitchOpenable,
+            false,
             getNetwork().getReportNodeContext().getReportNode());
     }
 

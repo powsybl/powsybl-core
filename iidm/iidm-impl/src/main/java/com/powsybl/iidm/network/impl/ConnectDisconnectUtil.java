@@ -40,7 +40,9 @@ public final class ConnectDisconnectUtil {
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been connected, else {@code false}.
      */
-    static boolean connectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals, Predicate<Switch> isTypeSwitchToOperate, ReportNode reportNode) {
+    static boolean connectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals,
+                                       Predicate<Switch> isTypeSwitchToOperate, boolean propagateDisconnectionIfNeeded,
+                                       ReportNode reportNode) {
 
         // Booleans
         boolean isAlreadyConnected = true;
@@ -102,7 +104,9 @@ public final class ConnectDisconnectUtil {
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been disconnected, else {@code false}.
      */
-    static boolean disconnectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals, Predicate<Switch> isSwitchOpenable, ReportNode reportNode) {
+    static boolean disconnectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals,
+                                          Predicate<Switch> isSwitchOpenable, boolean propagateDisconnectionIfNeeded,
+                                          ReportNode reportNode) {
         // Booleans
         boolean isAlreadyDisconnected = true;
         boolean isNowDisconnected = true;
