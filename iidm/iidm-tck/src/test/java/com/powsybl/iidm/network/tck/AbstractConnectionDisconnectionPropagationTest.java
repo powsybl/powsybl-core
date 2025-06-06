@@ -462,6 +462,39 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
         return network;
     }
 
+    /**
+     * <pre>
+     *     BBS1 (VL1)          BBS2 (VL2)
+     *     ----0-----          ----0-----
+     *         |                   |
+     *     D_L1_BBS1           D_L1_BBS2
+     *         |                   |
+     *         1                   1
+     *         |                   |
+     *      B_L1_VL1           B_L1_VL2
+     *         |                   |
+     *         2 (VL1)       (VL2) 2
+     *         |                   |
+     *       L1_1                L1_2
+     *         |                   |
+     * (L1_VL) 0--------1----------2 (L1_VL)
+     *                  |
+     *                  3 (L1_VL)
+     *                  |
+     *               testLine
+     *                  |
+     *                  2 (VL3)
+     *                  |
+     *              L1_BREAKER
+     *                  |
+     *                  1
+     *                  |
+     *          L1_DISCONNECTOR_2_0
+     *                  |
+     *       -----------0------------
+     *              BBS3 (VL3)
+     * </pre>
+     */
     private Network createNetworkWithTeePoint() {
         // Base network
         Network network = createBaseNetwork();
@@ -552,6 +585,33 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
         return network;
     }
 
+    /**
+     * <pre>
+     *     BBS1 (VL1)                 BBS2 (VL2)
+     *     ----0-----                 ----0-----
+     *         |                          |
+     *     D_L1_BBS1                  D_L1_BBS2
+     *         |                          |
+     *         1                          1
+     *         |                          |
+     *      B_L1_VL1                  B_L1_VL2
+     *         |                          |
+     *         2    (VL1)    |   (VL2)    2
+     *         |    -------  |  ------    |
+     *       L1_1                        L1_2
+     *         |    ------------------    |
+     *         1           (VL3)          4
+     *         |                          |
+     *    L1_1_BREAKER              L1_2_BREAKER
+     *         |                          |
+     *         2                          3
+     *         |                          |
+     * L1_1_DISCONNECTOR_2_0     L1_2_DISCONNECTOR_3_0
+     *         |                          |
+     *         ---------------0------------
+     *                       BBS3
+     * </pre>
+     */
     private Network createNetworkWithFictitiousVoltageLevel() {
         Network network = createBaseNetwork();
 
