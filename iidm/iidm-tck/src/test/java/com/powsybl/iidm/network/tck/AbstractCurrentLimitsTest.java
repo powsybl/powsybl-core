@@ -61,7 +61,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
                 .setB1(0.0)
                 .setB2(0.0)
                 .add();
-        l.newCurrentLimits1()
+        l.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(1000.0)
                 .beginTemporaryLimit()
                     .setName("20'")
@@ -143,7 +143,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
                 .setBus("B3")
                 .add()
                 .add();
-        transformer.getLeg1().newCurrentLimits()
+        transformer.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(1000.0)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -161,7 +161,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
                 .setValue(1600.0)
                 .endTemporaryLimit()
                 .add();
-        transformer.getLeg2().newCurrentLimits()
+        transformer.getLeg2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(1000.0)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -179,7 +179,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
                 .setValue(1600.0)
                 .endTemporaryLimit()
                 .add();
-        transformer.getLeg3().newCurrentLimits()
+        transformer.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(1000.0)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -323,7 +323,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     @Test
     public void testLimitWithoutTempLimit() {
         Line l = createNetwork().getLine("L");
-        l.newCurrentLimits1().setPermanentLimit(1000.0).add();
+        l.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(1000.0).add();
         l.getTerminal1().getBusBreakerView().getBus().setV(390.0);
         l.getTerminal1().setP(800.0).setQ(400.0); // i = 1324.0969
         assertTrue(l.isOverloaded());
@@ -332,7 +332,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     @Test
     public void testSetterGetter() {
         Line line = createNetwork().getLine("L");
-        CurrentLimitsAdder currentLimitsAdder = line.newCurrentLimits1()
+        CurrentLimitsAdder currentLimitsAdder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                                         .setPermanentLimit(100.0)
                                             .beginTemporaryLimit()
                                             .setName("20'")
@@ -436,7 +436,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     @Test
     public void ensureNameUnicity() {
         Line line = createNetwork().getLine("L");
-        CurrentLimitsAdder adder = line.newCurrentLimits1()
+        CurrentLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit()
                     .setName("TL")
@@ -470,7 +470,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     @Test
     public void testNameDuplicationIsAllowed() {
         Line line = createNetwork().getLine("L");
-        CurrentLimits currentLimits = line.newCurrentLimits1()
+        CurrentLimits currentLimits = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit()
                     .setName("TL")
@@ -491,14 +491,14 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     @Test
     public void testAdderGetOwner() {
         Line line = createNetwork().getLine("L");
-        CurrentLimitsAdder adder = line.newCurrentLimits1();
+        CurrentLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
         assertEquals("L", adder.getOwnerId());
     }
 
     @Test
     public void testAdderGetTemporaryLimitValue() {
         Line line = createNetwork().getLine("L");
-        CurrentLimitsAdder adder = line.newCurrentLimits1()
+        CurrentLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                     .setName("TL1")
@@ -519,7 +519,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     @Test
     public void testAdderGetTemporaryLimitAcceptableDuration() {
         Line line = createNetwork().getLine("L");
-        CurrentLimitsAdder adder = line.newCurrentLimits1()
+        CurrentLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                     .setName("TL1")
@@ -540,7 +540,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     @Test
     public void testAdderGetLowestTemporaryLimitValue() {
         Line line = createNetwork().getLine("L");
-        CurrentLimitsAdder adder = line.newCurrentLimits1();
+        CurrentLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
         assertEquals(Double.NaN, adder.getLowestTemporaryLimitValue(), 0.0);
 
         adder.setPermanentLimit(1000.)
@@ -561,7 +561,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     @Test
     public void testAdderHasTemporaryLimits() {
         Line line = createNetwork().getLine("L");
-        CurrentLimitsAdder adder = line.newCurrentLimits1();
+        CurrentLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
         assertFalse(adder.hasTemporaryLimits());
 
         adder.setPermanentLimit(1000.)
@@ -576,7 +576,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     @Test
     public void testAdderRemoveTemporaryLimit() {
         Line line = createNetwork().getLine("L");
-        CurrentLimitsAdder adder = line.newCurrentLimits1()
+        CurrentLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                     .setName("TL1")
@@ -618,7 +618,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     @Test
     public void testAdderFixPermanentLimit() {
         Line line = createNetwork().getLine("L");
-        CurrentLimitsAdder adder = line.newCurrentLimits1()
+        CurrentLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(Double.NaN)
                 .beginTemporaryLimit()
                     .setName("TL1")
@@ -644,7 +644,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     @Test
     public void testAdderPermanentLimitAlreadySet() {
         Line line = createNetwork().getLine("L");
-        CurrentLimitsAdder adder = line.newCurrentLimits1()
+        CurrentLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                     .setName("TL1")
@@ -658,7 +658,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     @Test
     public void testAdderSetPermanentLimitWithInfiniteDurationValue() {
         Line line = createNetwork().getLine("L");
-        CurrentLimitsAdder adder = line.newCurrentLimits1()
+        CurrentLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(Double.NaN)
                 .beginTemporaryLimit()
                     .setName("INFINITE")
@@ -683,7 +683,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     @Test
     public void testAdderWithValueZero() {
         Line line = createNetwork().getLine("L");
-        CurrentLimitsAdder adder = line.newCurrentLimits1()
+        CurrentLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(0)
                 .beginTemporaryLimit()
                     .setName("TEST")
@@ -702,7 +702,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     public void testAdderByCopy() {
         // First limit
         Line line = createNetwork().getLine("L");
-        CurrentLimitsAdder adder = line.newCurrentLimits1()
+        CurrentLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                 .setName("TL1")
@@ -723,7 +723,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
         CurrentLimits limits1 = line.getCurrentLimits1().get();
 
         // Second limit
-        CurrentLimitsAdder adder2 = line.newCurrentLimits2(limits1);
+        CurrentLimitsAdder adder2 = line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits(limits1);
 
         adder2.add();
 
@@ -734,17 +734,17 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
         // Tests
         assertTrue(areLimitsIdentical(limits1, limits2));
 
-        adder = line.newCurrentLimits1(limits2);
+        adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits(limits2);
         adder.add();
 
         assertTrue(areLimitsIdentical(limits1, limits2));
-        assertFalse(line.newCurrentLimits1(null).hasTemporaryLimits());
+        assertFalse(line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits(null).hasTemporaryLimits());
     }
 
     @Test
     public void testSetTemporaryLimitValue() {
         Line line = createNetwork().getLine("L");
-        CurrentLimitsAdder adder = line.newCurrentLimits1()
+        CurrentLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                 .setName("TL1")
