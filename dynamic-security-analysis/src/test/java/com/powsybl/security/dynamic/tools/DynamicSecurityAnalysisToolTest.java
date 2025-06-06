@@ -16,6 +16,7 @@ import com.powsybl.computation.ComputationExceptionBuilder;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
+import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.dynamicsimulation.groovy.DynamicSimulationSupplierFactory;
 import com.powsybl.iidm.network.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
@@ -61,12 +62,14 @@ import static org.mockito.Mockito.*;
 class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
 
     private static final String OUTPUT_LOG_FILENAME = "out.zip";
-
     private static final String DYNAMIC_MODEL_FILENAME = "dynamicModel";
+    private static final String EVENT_MODEL_FILENAME = "eventModel";
 
     private DynamicSecurityAnalysisTool tool;
     private ByteSource dynamicModels;
+    private ByteSource eventModels;
     private DynamicModelsSupplier dynamicModelsSupplier;
+    private EventModelsSupplier eventModelsSupplier;
 
     @Override
     @BeforeEach
@@ -76,6 +79,9 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
         Files.createFile(fileSystem.getPath("network.xml"));
         dynamicModels = FileUtil.asByteSource(Files.write(fileSystem.getPath(DYNAMIC_MODEL_FILENAME), "test".getBytes()));
         dynamicModelsSupplier = DynamicSimulationSupplierFactory.createDynamicModelsSupplier(dynamicModels.openBufferedStream(), "DynamicSecurityAnalysisToolProviderMock");
+        eventModels = FileUtil.asByteSource(Files.write(fileSystem.getPath(EVENT_MODEL_FILENAME), "testEvent".getBytes()));
+        eventModelsSupplier = DynamicSimulationSupplierFactory.createEventModelsSupplier(eventModels.openBufferedStream(), "DynamicSecurityAnalysisToolProviderMock");
+
     }
 
     @Override
@@ -87,7 +93,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
     public void assertCommand() {
         Command command = tool.getCommand();
         Options options = command.getOptions();
-        assertCommand(command, "dynamic-security-analysis", 15, 2);
+        assertCommand(command, "dynamic-security-analysis", 16, 2);
         assertOption(options, "case-file", true, true);
         assertOption(options, "dynamic-models-file", true, true);
         assertOption(options, "parameters-file", false, true);
@@ -101,6 +107,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
         assertOption(options, "external", false, false);
         assertOption(options, "log-file", false, true);
         assertOption(options, "monitoring-file", false, true);
+        assertOption(options, "event-models-file", false, true);
     }
 
     @Test
@@ -140,6 +147,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
         DynamicSecurityAnalysisExecutionInput input = new DynamicSecurityAnalysisExecutionInput();
         tool.updateInput(options, input);
         assertThat(input.getDynamicModelsSource()).isNull();
+        assertThat(input.getEventModelsSource()).isNotPresent();
         assertThat(input.getViolationTypes()).isEmpty();
         assertThat(input.getResultExtensions()).isEmpty();
         assertThat(input.getContingenciesSource()).isNotPresent();
@@ -151,9 +159,9 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
         options = mockOptions(Map.of(SecurityAnalysisToolConstants.WITH_EXTENSIONS_OPTION, "ext1,ext2"));
         tool.updateInput(options, input);
         assertThat(input.getResultExtensions()).containsExactly("ext1", "ext2");
-
         parseFile(input, DynamicSecurityAnalysisToolConstants.DYNAMIC_MODELS_FILE_OPTION, "dynamicModels", input::getDynamicModelsSource);
         parseOptionalFile(input, SecurityAnalysisToolConstants.CONTINGENCIES_FILE_OPTION, "contingencies", input::getContingenciesSource);
+        parseOptionalFile(input, DynamicSecurityAnalysisToolConstants.EVENT_MODELS_FILE_OPTION, "eventModels", input::getEventModelsSource);
     }
 
     void parseOptionalFile(DynamicSecurityAnalysisExecutionInput input, String optionName, String fileName, Supplier<Optional<ByteSource>> getSource) throws IOException {
@@ -163,15 +171,18 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
         Files.write(fileSystem.getPath(fileName), "test".getBytes());
         ToolOptions options = mockOptions(Map.of(optionName, fileName));
         tool.updateInput(options, input);
-        assertThat(getSource.get()).isPresent();
-        if (getSource.get().isPresent()) {
-            assertEquals("test", new String(getSource.get().get().read()));
-        } else {
-            fail();
-        }
+        assertThat(getSource.get()).isPresent()
+                .map(a -> {
+                    try {
+                        return new String(a.read());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .hasValue("test");
     }
 
-    ToolOptions parseFile(DynamicSecurityAnalysisExecutionInput input, String optionName, String fileName, Supplier<ByteSource> getSource) throws IOException {
+    void parseFile(DynamicSecurityAnalysisExecutionInput input, String optionName, String fileName, Supplier<ByteSource> getSource) throws IOException {
         ToolOptions invalidOptions = mockOptions(Map.of(optionName, fileName));
         assertThatIllegalArgumentException().isThrownBy(() -> tool.updateInput(invalidOptions, input));
 
@@ -180,13 +191,13 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
         tool.updateInput(options, input);
         assertNotNull(getSource.get());
         assertEquals("test", new String(getSource.get().read()));
-        return options;
     }
 
     @Test
     void buildPreprocessedInput() {
         DynamicSecurityAnalysisExecutionInput executionInput = new DynamicSecurityAnalysisExecutionInput()
                 .setDynamicModelsSource(dynamicModels)
+                .setEventModelsSource(eventModels)
                 .setNetworkVariant(mock(Network.class), "")
                 .setParameters(new DynamicSecurityAnalysisParameters());
 
@@ -226,6 +237,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
              ComputationManager cm = mock(ComputationManager.class)) {
             CommandLine cl = mockCommandLine(Map.of("case-file", "network.xml",
                     DynamicSecurityAnalysisToolConstants.DYNAMIC_MODELS_FILE_OPTION, DYNAMIC_MODEL_FILENAME,
+                    DynamicSecurityAnalysisToolConstants.EVENT_MODELS_FILE_OPTION, EVENT_MODEL_FILENAME,
                     SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME),
                     Set.of("skip-postproc"));
 
@@ -233,7 +245,9 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
 
             DynamicSecurityAnalysisExecutionBuilder builderRun = new DynamicSecurityAnalysisExecutionBuilder(ExternalSecurityAnalysisConfig::new,
                     "DynamicSecurityAnalysisToolProviderMock",
-                    (executionInput, providerName) -> new DynamicSecurityAnalysisInput(executionInput.getNetworkVariant(), dynamicModelsSupplier));
+                    (executionInput, providerName) ->
+                            new DynamicSecurityAnalysisInput(executionInput.getNetworkVariant(), dynamicModelsSupplier)
+                                    .setEventModels(eventModelsSupplier));
 
             // Check runWithLog execution
             tool.run(cl, context, builderRun,
@@ -258,7 +272,8 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
             // exception happens
             DynamicSecurityAnalysisExecutionBuilder builderException = new DynamicSecurityAnalysisExecutionBuilder(ExternalSecurityAnalysisConfig::new,
                     "DynamicSecurityAnalysisToolExceptionProviderMock",
-                    (executionInput, providerName) -> new DynamicSecurityAnalysisInput(executionInput.getNetworkVariant(), dynamicModelsSupplier));
+                    (executionInput, providerName) ->
+                            new DynamicSecurityAnalysisInput(executionInput.getNetworkVariant(), dynamicModelsSupplier));
 
             ImportersLoaderList importers = new ImportersLoaderList(new NetworkImporterMock());
             try {

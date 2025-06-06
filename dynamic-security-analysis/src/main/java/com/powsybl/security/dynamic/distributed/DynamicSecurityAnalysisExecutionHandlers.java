@@ -21,7 +21,7 @@ import com.powsybl.security.dynamic.execution.DynamicSecurityAnalysisExecutionIn
 public final class DynamicSecurityAnalysisExecutionHandlers {
 
     private static final String DSA_TASK_CMD_ID = "dynamic-security-analysis-task";
-    private static final String DSA_CMD_ID = "dynamic_security-analysis";
+    private static final String DSA_CMD_ID = "dynamic-security-analysis";
 
     private static final String TASK_COUNT_ERROR_MESSAGE = "Number of subtasks must be 1 or greater, was %s.";
 
