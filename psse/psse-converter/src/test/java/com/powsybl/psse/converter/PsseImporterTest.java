@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.io.RecordGroupIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
