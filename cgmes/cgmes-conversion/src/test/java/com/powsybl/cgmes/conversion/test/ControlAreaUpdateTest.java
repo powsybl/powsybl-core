@@ -28,8 +28,7 @@ class ControlAreaUpdateTest {
         Network network = readCgmesResources(DIR, "controlArea_EQ.xml", "controlArea_EQ_BD.xml");
         assertEquals(1, network.getAreaCount());
 
-        Area area = network.getArea("ControlArea");
-        assertTrue(checkEq(area));
+        assertEq(network.getArea("ControlArea"));
     }
 
     @Test
@@ -37,8 +36,7 @@ class ControlAreaUpdateTest {
         Network network = readCgmesResources(DIR, "controlArea_EQ.xml", "controlArea_EQ_BD.xml", "controlArea_SSH.xml");
         assertEquals(1, network.getAreaCount());
 
-        Area area = network.getArea("ControlArea");
-        assertTrue(checkSsh(area, 235.0, 10.0));
+        assertSsh(network.getArea("ControlArea"), 235.0, 10.0);
     }
 
     @Test
@@ -46,17 +44,16 @@ class ControlAreaUpdateTest {
         Network network = readCgmesResources(DIR, "controlArea_EQ.xml", "controlArea_EQ_BD.xml");
         assertEquals(1, network.getAreaCount());
 
-        Area area = network.getArea("ControlArea");
-        assertTrue(checkEq(area));
+        assertEq(network.getArea("ControlArea"));
 
         readCgmesResources(network, DIR, "controlArea_SSH.xml");
-        assertTrue(checkSsh(area, 235.0, 10.0));
+        assertSsh(network.getArea("ControlArea"), 235.0, 10.0);
 
         readCgmesResources(network, DIR, "controlArea_SSH_1.xml");
-        assertTrue(checkSsh(area, 200.0, 1.1));
+        assertSsh(network.getArea("ControlArea"), 200.0, 1.1);
     }
 
-    private static boolean checkEq(Area area) {
+    private static void assertEq(Area area) {
         assertNotNull(area);
         assertEquals("ControlAreaTypeKind.Interchange", area.getAreaType());
         assertEquals(2, area.getAreaBoundaryStream().count());
@@ -66,16 +63,14 @@ class ControlAreaUpdateTest {
         assertEquals(0.0, area.getAcInterchange());
         assertEquals(0.0, area.getDcInterchange());
         assertEquals(0.0, area.getInterchange());
-        return true;
     }
 
-    private static boolean checkSsh(Area area, double interchangeTarget, double pTolerance) {
+    private static void assertSsh(Area area, double interchangeTarget, double pTolerance) {
         assertNotNull(area);
         double tol = 0.0000001;
         assertTrue(area.getInterchangeTarget().isPresent());
         assertEquals(interchangeTarget, area.getInterchangeTarget().orElseThrow(), tol);
         assertNotNull(area.getProperty(CgmesNames.P_TOLERANCE));
         assertEquals(pTolerance, Double.parseDouble(area.getProperty(CgmesNames.P_TOLERANCE)));
-        return true;
     }
 }
