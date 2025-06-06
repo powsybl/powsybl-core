@@ -1245,14 +1245,14 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     public ValidationLevel runValidationChecks(boolean throwsException, ReportNode reportNode) {
         ReportNode readReportNode = NetworkReports.runIidmNetworkValidationCHecks(reportNode, id);
         validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),
-                true, throwsException ? ValidationUtil.LogLevel.THROW_EXCEPTION : ValidationUtil.LogLevel.LOG_ERROR, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
+                true, throwsException ? ValidationUtil.ActionOnError.THROW_EXCEPTION : ValidationUtil.ActionOnError.LOG_ERROR, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
         return validationLevel;
     }
 
     @Override
     public ValidationLevel getValidationLevel() {
         if (validationLevel == null) {
-            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, ValidationUtil.LogLevel.NONE, minValidationLevel, ReportNode.NO_OP);
+            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, ValidationUtil.ActionOnError.IGNORE, minValidationLevel, ReportNode.NO_OP);
         }
         return validationLevel;
     }
