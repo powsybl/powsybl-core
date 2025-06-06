@@ -375,7 +375,7 @@ public class LocalComputationManager implements ComputationManager {
 
             try {
                 report = execute(workingDir.toPath(),
-                        environment.getDebugDir() != null ? config.getLocalDir().getFileSystem().getPath(environment.getDebugDir()) : null,
+                        environment.getDumpDir() != null ? config.getLocalDir().getFileSystem().getPath(environment.getDumpDir()) : null,
                         commandExecutionList,
                         environment.getVariables(),
                         parameters,
