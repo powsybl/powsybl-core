@@ -368,6 +368,42 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
         switchList.forEach(s -> assertFalse(network.getSwitch(s).isOpen()));
     }
 
+    @Test
+    void disconnectionOnTwoTeePointsTestWithPropagation() {
+        // Network
+        Network network = createNetworkWithTwoTeePoints();
+
+        // Switch that will be operated
+        List<String> switchList = List.of("B_L1_VL1", "B_L1_VL2", "L1_VL3_BREAKER", "L1_VL4_BREAKER");
+
+        // Lines
+        Line line1 = network.getLine("L1_1");
+        Line line2 = network.getLine("L1_2");
+        Line line3 = network.getLine("L1_3");
+        Line line4 = network.getLine("L1_4");
+        Line line5 = network.getLine("L1_mid");
+        List<Line> lines = List.of(line1, line2, line3, line4, line5);
+
+        // Check that the 3 lines are connected on both sides
+        lines.forEach(line -> line.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected())));
+
+        // Check the switches that will be opened are close for now
+        switchList.forEach(s -> assertFalse(network.getSwitch(s).isOpen()));
+
+        // Disconnect the line works with the propagation
+        assertTrue(line1.disconnect(SwitchPredicates.IS_NONFICTIONAL, true));
+
+        // Check that the 3 lines are disconnected on one side only
+        assertLineConnection(line1, false, true);
+        assertLineConnection(line2, true, false);
+        assertLineConnection(line3, true, false);
+        assertLineConnection(line4, true, false);
+        assertLineConnection(line5, true, true);
+
+        // Check the switches that were opened
+        switchList.forEach(s -> assertTrue(network.getSwitch(s).isOpen()));
+    }
+
     private Network createBaseNetwork() {
         Network network = Network.create("test", "test");
         // Substations
@@ -678,6 +714,205 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
 
         // Set VL3 fictitious
         vl3.setFictitious(true);
+
+        return network;
+    }
+
+    /**
+     * <pre>
+     *      BBS1 (VL1)                                         BBS2 (VL2)
+     *      ----0-----                                         ----0-----
+     *          |                                                  |
+     *      D_L1_BBS1                                          D_L1_BBS2
+     *          |                                                  |
+     *          1                                                  1
+     *          |                                                  |
+     *       B_L1_VL1                                          B_L1_VL2
+     *          |                                                  |
+     *          2 (VL1)                                      (VL2) 2
+     *          |                                                  |
+     *        L1_1                                               L1_2
+     *          |                                                  |
+     * (L1_VL1) 0--------1----------2--L1_mid--0--------1----------2 (L1_VL2)
+     *                   |                              |
+     *                   3 (L1_VL1)            (L1_VL2) 3
+     *                   |                              |
+     *                 L1_3                           L1_4
+     *                   |                              |
+     *                   1 (VL3)                  (VL4) 1
+     *                   |                              |
+     *             L1_VL3_BREAKER                 L1_VL4_BREAKER
+     *                   |                              |
+     *                   2                              2
+     *                   |                              |
+     *         L1_VL3_DISCONNECTOR_2_0        L1_VL4_DISCONNECTOR_2_0
+     *                   |                              |
+     *           --------0----------            --------0----------
+     *               BBS3 (VL3)                     BBS4 (VL4)
+     * </pre>
+     */
+    private Network createNetworkWithTwoTeePoints() {
+        // Base network
+        Network network = createBaseNetwork();
+
+        // Fictitious voltage levels
+        VoltageLevel fictitiousVl1 = network.newVoltageLevel()
+            .setId("L1_VL1")
+            .setNominalV(1.0)
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .setFictitious(true)
+            .add();
+        VoltageLevel fictitiousVl2 = network.newVoltageLevel()
+            .setId("L1_VL2")
+            .setNominalV(1.0)
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .setFictitious(true)
+            .add();
+
+        // Fictitious topology - L1_VL1
+        fictitiousVl1.getNodeBreakerView()
+            .newInternalConnection()
+            .setNode1(0)
+            .setNode2(1)
+            .add();
+        fictitiousVl1.getNodeBreakerView()
+            .newInternalConnection()
+            .setNode1(1)
+            .setNode2(2)
+            .add();
+        fictitiousVl1.getNodeBreakerView()
+            .newInternalConnection()
+            .setNode1(1)
+            .setNode2(3)
+            .add();
+
+        // Fictitious topology - L1_VL2
+        fictitiousVl2.getNodeBreakerView()
+            .newInternalConnection()
+            .setNode1(0)
+            .setNode2(1)
+            .add();
+        fictitiousVl2.getNodeBreakerView()
+            .newInternalConnection()
+            .setNode1(1)
+            .setNode2(2)
+            .add();
+        fictitiousVl2.getNodeBreakerView()
+            .newInternalConnection()
+            .setNode1(1)
+            .setNode2(3)
+            .add();
+
+        // New Substation and voltage level
+        Substation s4 = network.newSubstation()
+            .setId("S4")
+            .setCountry(Country.FR)
+            .add();
+        VoltageLevel vl4 = s4.newVoltageLevel()
+            .setId("VL4")
+            .setNominalV(1.0)
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .add();
+
+        // VL3 - Breakers and disconnectors
+        VoltageLevel vl3 = network.getVoltageLevel("VL3");
+        vl3.getNodeBreakerView().newBreaker()
+            .setId("L1_VL3_BREAKER")
+            .setNode1(1)
+            .setNode2(2)
+            .setOpen(false)
+            .setRetained(true)
+            .setFictitious(false)
+            .add();
+        vl3.getNodeBreakerView().newDisconnector()
+            .setId("L1_VL3_DISCONNECTOR_2_0")
+            .setNode1(2)
+            .setNode2(0)
+            .setOpen(false)
+            .add();
+
+        // VL4 - Breakers and disconnectors
+        vl4.getNodeBreakerView().newBreaker()
+            .setId("L1_VL4_BREAKER")
+            .setNode1(1)
+            .setNode2(2)
+            .setOpen(false)
+            .setRetained(true)
+            .setFictitious(false)
+            .add();
+        vl4.getNodeBreakerView().newDisconnector()
+            .setId("L1_VL4_DISCONNECTOR_2_0")
+            .setNode1(2)
+            .setNode2(0)
+            .setOpen(false)
+            .add();
+
+        // Lines
+        network.newLine()
+            .setId("L1_1")
+            .setR(0.5)
+            .setX(1.0)
+            .setG1(1.5)
+            .setG2(1.75)
+            .setB1(2.0)
+            .setB2(2.25)
+            .setVoltageLevel1("VL1")
+            .setVoltageLevel2("L1_VL1")
+            .setNode1(2)
+            .setNode2(0)
+            .add();
+        network.newLine()
+            .setId("L1_2")
+            .setR(0.5)
+            .setX(1.0)
+            .setG1(1.5)
+            .setG2(1.75)
+            .setB1(2.0)
+            .setB2(2.25)
+            .setVoltageLevel1("L1_VL2")
+            .setVoltageLevel2("VL2")
+            .setNode1(2)
+            .setNode2(2)
+            .add();
+        network.newLine()
+            .setId("L1_3")
+            .setR(1.0)
+            .setX(2.0)
+            .setG1(3.0)
+            .setG2(3.5)
+            .setB1(4.0)
+            .setB2(4.5)
+            .setVoltageLevel1("L1_VL1")
+            .setVoltageLevel2("VL3")
+            .setNode1(3)
+            .setNode2(1)
+            .add();
+        network.newLine()
+            .setId("L1_4")
+            .setR(1.0)
+            .setX(2.0)
+            .setG1(3.0)
+            .setG2(3.5)
+            .setB1(4.0)
+            .setB2(4.5)
+            .setVoltageLevel1("L1_VL2")
+            .setVoltageLevel2("VL4")
+            .setNode1(3)
+            .setNode2(1)
+            .add();
+        network.newLine()
+            .setId("L1_mid")
+            .setR(1.0)
+            .setX(2.0)
+            .setG1(3.0)
+            .setG2(3.5)
+            .setB1(4.0)
+            .setB2(4.5)
+            .setVoltageLevel1("L1_VL1")
+            .setVoltageLevel2("L1_VL2")
+            .setNode1(2)
+            .setNode2(0)
+            .add();
 
         return network;
     }
