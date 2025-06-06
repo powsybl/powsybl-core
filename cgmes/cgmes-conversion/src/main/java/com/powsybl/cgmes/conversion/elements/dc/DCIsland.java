@@ -92,12 +92,6 @@ public record DCIsland(Set<DCIslandEnd> dcIslandEnds) {
         }
     }
 
-    public boolean isMonopole(int numberOfLines, int numberOfConverters) {
-        return numberOfLines == 1 && numberOfConverters == 1        // 1 bridge with ground return.
-                || numberOfLines == 1 && numberOfConverters == 2    // 2 bridges with ground return.
-                || numberOfLines == 2 && numberOfConverters == 1;   // 1 bridge with metallic return.
-    }
-
     private String getConverterIds() {
         return String.join(", ",
                 dcIslandEnds.stream()

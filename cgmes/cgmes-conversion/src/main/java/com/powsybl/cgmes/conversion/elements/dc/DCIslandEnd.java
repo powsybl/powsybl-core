@@ -44,8 +44,8 @@ public record DCIslandEnd(Set<DCEquipment> dcEquipments) {
                 .toList();
     }
 
-    public DCEquipment getNearestConverter(DCEquipment dcEquipment, Predicate<DCEquipment> isEligibleConverter, Set<DCEquipment> usedConverters) {
-        DCEquipment nearestConverter = getEquipmentDistances(dcEquipment)
+    public DCEquipment getNearestConverter(DCEquipment dcEquipment, Predicate<DCEquipment> isEligibleConverter) {
+        return getEquipmentDistances(dcEquipment)
                 .entrySet().stream()
                 .filter(e -> isEligibleConverter.test(e.getKey())
                         && !e.getKey().equals(dcEquipment))
@@ -53,8 +53,6 @@ public record DCIslandEnd(Set<DCEquipment> dcEquipments) {
                         .thenComparing(e -> e.getKey().id()))
                 .map(Map.Entry::getKey)
                 .orElseThrow();
-        usedConverters.add(nearestConverter);
-        return nearestConverter;
     }
 
     private Integer getTotalDistanceToConverters(DCEquipment dcEquipment) {

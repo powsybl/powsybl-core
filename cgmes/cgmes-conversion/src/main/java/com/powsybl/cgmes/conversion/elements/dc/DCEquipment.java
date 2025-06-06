@@ -21,6 +21,10 @@ public record DCEquipment(String id, String type, String node1, String node2) {
                 || node2 != null && (node2.equals(otherDcEquipment.node1) || node2.equals(otherDcEquipment.node2));
     }
 
+    public boolean isConnectedTo(String node) {
+        return node.equals(node1) || node.equals(node2);
+    }
+
     public boolean isCsConverter() {
         return CS_CONVERTER.equals(type);
     }
