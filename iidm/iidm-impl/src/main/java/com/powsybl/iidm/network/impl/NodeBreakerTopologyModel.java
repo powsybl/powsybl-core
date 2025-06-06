@@ -1171,7 +1171,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
      * @param isSwitchOperable the predicate defining if a switch can be operated
      * @return <code>true</code> if the switch is open and cannot be operated
      */
-    private boolean checkNonClosableSwitch(SwitchImpl sw, Predicate<? super SwitchImpl> isSwitchOperable) {
+    private boolean checkNonClosableSwitch(SwitchImpl sw, Predicate<Switch> isSwitchOperable) {
         return SwitchPredicates.IS_OPEN.test(sw) && isSwitchOperable.negate().test(sw);
     }
 
@@ -1199,7 +1199,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
      * @return <code>true</code> if the terminal has been connected, <code>false</code> if it hasn't or if it was already connected
      */
     @Override
-    public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOperable) {
+    public boolean connect(TerminalExt terminal, Predicate<Switch> isSwitchOperable) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
@@ -1221,7 +1221,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         }
     }
 
-    boolean getConnectingSwitches(Terminal terminal, Predicate<? super SwitchImpl> isSwitchOperable, Set<SwitchImpl> switchForConnection) {
+    boolean getConnectingSwitches(Terminal terminal, Predicate<Switch> isSwitchOperable, Set<SwitchImpl> switchForConnection) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
@@ -1256,7 +1256,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     @Override
-    public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable) {
+    public boolean disconnect(TerminalExt terminal, Predicate<Switch> isSwitchOpenable) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
@@ -1278,7 +1278,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         }
     }
 
-    boolean getDisconnectingSwitches(Terminal terminal, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchForDisconnection) {
+    boolean getDisconnectingSwitches(Terminal terminal, Predicate<Switch> isSwitchOpenable, Set<SwitchImpl> switchForDisconnection) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
@@ -1307,7 +1307,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
      * @param switchesToOpen set of switches to be opened
      * @return true if the path can be opened, else false
      */
-    boolean identifySwitchToOpenPath(TIntArrayList path, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
+    boolean identifySwitchToOpenPath(TIntArrayList path, Predicate<Switch> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
         for (int i = 0; i < path.size(); i++) {
             int e = path.get(i);
             SwitchImpl sw = graph.getEdgeObject(e);

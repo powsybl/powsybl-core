@@ -916,7 +916,7 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     @Override
-    public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate) {
+    public boolean connect(TerminalExt terminal, Predicate<Switch> isTypeSwitchToOperate) {
         return connect(terminal);
     }
 
@@ -938,7 +938,7 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     @Override
-    public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable) {
+    public boolean disconnect(TerminalExt terminal, Predicate<Switch> isSwitchOpenable) {
         return disconnect(terminal);
     }
 
