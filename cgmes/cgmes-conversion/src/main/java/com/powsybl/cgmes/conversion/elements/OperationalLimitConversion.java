@@ -293,7 +293,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     // Cgmes 2.6 value is defined in EQ file
     // Cgmes 3.0 normalValue is defined in EQ file and value in SSH
     private static double getNormalValueFromEQ(PropertyBag p) {
-        return p.getDouble("normalValue").orElse(p.getDouble("value").orElse(Double.NaN));
+        return p.asOptionalDouble("normalValue").orElse(p.asOptionalDouble("value").orElse(Double.NaN));
     }
 
     private void convertVoltageLimit(double value) {
@@ -544,14 +544,14 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private static double getValue(PR propertyNameData, Identifiable<?> identifiable, double previousValue, Context context) {
         String operationalLimitId = getOperationalLimitId(getPropertyName(propertyNameData, CgmesNames.OPERATIONAL_LIMIT), identifiable);
-        DefaultValueDouble defaultLimitValue = getDefaultValue(getNormalValue(getPropertyName(propertyNameData, CgmesNames.NORMAL_VALUE), identifiable), previousValue);
-        return updatedValue(operationalLimitId, context).orElse(defaultValue(defaultLimitValue, context));
+        double defaultLimitValue = getDefaultValue(getNormalValue(getPropertyName(propertyNameData, CgmesNames.NORMAL_VALUE), identifiable), previousValue, context);
+        return updatedValue(operationalLimitId, context).orElse(defaultLimitValue);
     }
 
     private static double getValue(TPR temporaryPropertyNameData, Identifiable<?> identifiable, double previousValue, Context context) {
         String operationalLimitId = getOperationalLimitId(getPropertyName(temporaryPropertyNameData, CgmesNames.OPERATIONAL_LIMIT), identifiable);
-        DefaultValueDouble defaultLimitValue = getDefaultValue(getNormalValue(getPropertyName(temporaryPropertyNameData, CgmesNames.NORMAL_VALUE), identifiable), previousValue);
-        return updatedValue(operationalLimitId, context).orElse(defaultValue(defaultLimitValue, context));
+        double defaultLimitValue = getDefaultValue(getNormalValue(getPropertyName(temporaryPropertyNameData, CgmesNames.NORMAL_VALUE), identifiable), previousValue, context);
+        return updatedValue(operationalLimitId, context).orElse(defaultLimitValue);
     }
 
     private static OptionalDouble updatedValue(String operationalLimitId, Context context) {
@@ -559,7 +559,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (p == null) {
             return OptionalDouble.empty();
         }
-        return p.getDouble("value");
+        return p.asOptionalDouble("value");
     }
 
     private static String getOperationalLimitId(String propertyName, Identifiable<?> identifiable) {
@@ -587,8 +587,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 + tpr.duration;
     }
 
-    private static DefaultValueDouble getDefaultValue(Double normalValue, double previousValue) {
-        return new DefaultValueDouble(normalValue, previousValue, normalValue, normalValue != null ? normalValue : previousValue);
+    private static double getDefaultValue(Double normalValue, double previousValue, Context context) {
+        return getDefaultValue(normalValue, previousValue, normalValue, normalValue != null ? normalValue : previousValue, context);
     }
 
     private static double getValue(VoltageLevel voltageLevel, String limitType, double previousValue, Context context) {
@@ -598,8 +598,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             String operationalLimitId = getOperationalLimitId(getPropertyName(vr, CgmesNames.OPERATIONAL_LIMIT), voltageLevel);
             Double normalValue = getNormalValue(getPropertyName(vr, CgmesNames.NORMAL_VALUE), voltageLevel);
             Double voltageLevelNormalValue = getVoltageLevelNormalValue(voltageLevel, limitType);
-            DefaultValueDouble defaultLimitValue = getDefaultValue(normalValue != null ? normalValue : voltageLevelNormalValue, previousValue);
-            return updatedValue(operationalLimitId, context).orElse(defaultValue(defaultLimitValue, context));
+            double defaultLimitValue = getDefaultValue(normalValue != null ? normalValue : voltageLevelNormalValue, previousValue, context);
+            return updatedValue(operationalLimitId, context).orElse(defaultLimitValue);
         } else {
             return previousValue;
         }

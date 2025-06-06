@@ -28,21 +28,7 @@ class DanglingLineUpdateTest {
         Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml");
         assertEquals(4, network.getDanglingLineCount());
 
-        DanglingLine acLineSegment = network.getDanglingLine("ACLineSegment");
-        assertTrue(checkEq(acLineSegment));
-        assertTrue(checkNotDefinedLimits(acLineSegment));
-
-        DanglingLine equivalentBranch = network.getDanglingLine("EquivalentBranch");
-        assertTrue(checkEq(equivalentBranch));
-        assertTrue(checkNotDefinedLimits(equivalentBranch));
-
-        DanglingLine powerTransformer = network.getDanglingLine("PowerTransformer");
-        assertTrue(checkEq(powerTransformer));
-        assertTrue(checkNotDefinedLimits(powerTransformer));
-
-        DanglingLine breaker = network.getDanglingLine("Breaker");
-        assertTrue(checkEq(breaker));
-        assertTrue(checkDefinedActivePowerLimits(breaker, new ActivePowerLimit(90.0, 900, 108.0)));
+        assertEq(network);
     }
 
     @Test
@@ -50,21 +36,7 @@ class DanglingLineUpdateTest {
         Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml");
         assertEquals(4, network.getDanglingLineCount());
 
-        DanglingLine acLineSegment = network.getDanglingLine("ACLineSegment");
-        assertTrue(checkSsh(acLineSegment, 284.5, 70.5, false, Double.NaN, Double.NaN, Double.NaN, false));
-        assertTrue(checkNotDefinedLimits(acLineSegment));
-
-        DanglingLine equivalentBranch = network.getDanglingLine("EquivalentBranch");
-        assertTrue(checkSsh(equivalentBranch, 0.0, 0.0, true, -275.0, -50.0, 405.0, true));
-        assertTrue(checkNotDefinedLimits(equivalentBranch));
-
-        DanglingLine powerTransformer = network.getDanglingLine("PowerTransformer");
-        assertTrue(checkSsh(powerTransformer, 0.0, 0.0, true, -100.0, -25.0, 225.0, true));
-        assertTrue(checkNotDefinedLimits(powerTransformer));
-
-        DanglingLine breaker = network.getDanglingLine("Breaker");
-        assertTrue(checkSsh(breaker, 0.0, 0.0, true, -10.0, -5.0, 402.0, true));
-        assertTrue(checkDefinedActivePowerLimits(breaker, new ActivePowerLimit(89.0, 900, 107.0)));
+        assertFirstSsh(network);
     }
 
     @Test
@@ -72,17 +44,13 @@ class DanglingLineUpdateTest {
         Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml");
         assertEquals(4, network.getDanglingLineCount());
 
-        DanglingLine acLineSegment = network.getDanglingLine("ACLineSegment");
-        DanglingLine equivalentBranch = network.getDanglingLine("EquivalentBranch");
-        DanglingLine powerTransformer = network.getDanglingLine("PowerTransformer");
-        DanglingLine breaker = network.getDanglingLine("Breaker");
-        assertTrue(checkEq(acLineSegment, equivalentBranch, powerTransformer, breaker));
+        assertEq(network);
 
         readCgmesResources(network, DIR, "danglingLine_SSH.xml");
-        assertTrue(checkSsh(acLineSegment, equivalentBranch, powerTransformer, breaker));
+        assertFirstSsh(network);
 
         readCgmesResources(network, DIR, "danglingLine_SSH_1.xml");
-        assertTrue(checkSsh1(acLineSegment, equivalentBranch, powerTransformer, breaker));
+        assertSecondSsh(network);
     }
 
     @Test
@@ -99,7 +67,7 @@ class DanglingLineUpdateTest {
         DanglingLine equivalentBranch = network.getDanglingLine("EquivalentBranch");
         assertEquals(275.1, equivalentBranch.getTerminal().getP(), tol);
         assertEquals(50.5, equivalentBranch.getTerminal().getQ(), tol);
-        assertTrue(checkBusVoltage(equivalentBranch.getTerminal().getBusView().getBus(), 400.5, -3.0));
+        assertBusVoltage(equivalentBranch.getTerminal().getBusView().getBus(), 400.5, -3.0);
         assertTrue(checkBoundaryBusVoltage(equivalentBranch, 388.0868627936761, -5.9167013802728095));
 
         DanglingLine powerTransformer = network.getDanglingLine("PowerTransformer");
@@ -141,7 +109,7 @@ class DanglingLineUpdateTest {
 
         assertEquals(275.1, equivalentBranch.getTerminal().getP(), tol);
         assertEquals(50.5, equivalentBranch.getTerminal().getQ(), tol);
-        assertTrue(checkBusVoltage(equivalentBranch.getTerminal().getBusView().getBus(), 400.5, -3.0));
+        assertBusVoltage(equivalentBranch.getTerminal().getBusView().getBus(), 400.5, -3.0);
         assertTrue(checkBoundaryBusVoltage(equivalentBranch, 388.0868627936761, -5.9167013802728095));
 
         assertTrue(Double.isNaN(powerTransformer.getTerminal().getP()));
@@ -151,52 +119,49 @@ class DanglingLineUpdateTest {
         assertEquals(5.0, breaker.getTerminal().getQ(), tol);
     }
 
-    private static boolean checkEq(DanglingLine acLineSegment, DanglingLine equivalentBranch, DanglingLine powerTransformer, DanglingLine breaker) {
-        assertTrue(checkEq(acLineSegment));
-        assertTrue(checkNotDefinedLimits(acLineSegment));
+    private static void assertEq(Network network) {
+        assertEq(network.getDanglingLine("ACLineSegment"));
+        assertNotDefinedLimits(network.getDanglingLine("ACLineSegment"));
 
-        assertTrue(checkEq(equivalentBranch));
-        assertTrue(checkNotDefinedLimits(equivalentBranch));
+        assertEq(network.getDanglingLine("EquivalentBranch"));
+        assertNotDefinedLimits(network.getDanglingLine("EquivalentBranch"));
 
-        assertTrue(checkEq(powerTransformer));
-        assertTrue(checkNotDefinedLimits(powerTransformer));
+        assertEq(network.getDanglingLine("PowerTransformer"));
+        assertNotDefinedLimits(network.getDanglingLine("PowerTransformer"));
 
-        assertTrue(checkEq(breaker));
-        assertTrue(checkDefinedActivePowerLimits(breaker, new ActivePowerLimit(90.0, 900, 108.0)));
-        return true;
+        assertEq(network.getDanglingLine("Breaker"));
+        assertDefinedActivePowerLimits(network.getDanglingLine("Breaker"), new ActivePowerLimit(90.0, 900, 108.0));
     }
 
-    private static boolean checkSsh(DanglingLine acLineSegment, DanglingLine equivalentBranch, DanglingLine powerTransformer, DanglingLine breaker) {
-        assertTrue(checkSsh(acLineSegment, 284.5, 70.5, false, Double.NaN, Double.NaN, Double.NaN, false));
-        assertTrue(checkNotDefinedLimits(acLineSegment));
+    private static void assertFirstSsh(Network network) {
+        assertSsh(network.getDanglingLine("ACLineSegment"), 284.5, 70.5, false, Double.NaN, Double.NaN, Double.NaN, false);
+        assertNotDefinedLimits(network.getDanglingLine("ACLineSegment"));
 
-        assertTrue(checkSsh(equivalentBranch, 0.0, 0.0, true, -275.0, -50.0, 405.0, true));
-        assertTrue(checkNotDefinedLimits(equivalentBranch));
+        assertSsh(network.getDanglingLine("EquivalentBranch"), 0.0, 0.0, true, -275.0, -50.0, 405.0, true);
+        assertNotDefinedLimits(network.getDanglingLine("EquivalentBranch"));
 
-        assertTrue(checkSsh(powerTransformer, 0.0, 0.0, true, -100.0, -25.0, 225.0, true));
-        assertTrue(checkNotDefinedLimits(powerTransformer));
+        assertSsh(network.getDanglingLine("PowerTransformer"), 0.0, 0.0, true, -100.0, -25.0, 225.0, true);
+        assertNotDefinedLimits(network.getDanglingLine("PowerTransformer"));
 
-        assertTrue(checkSsh(breaker, 0.0, 0.0, true, -10.0, -5.0, 402.0, true));
-        assertTrue(checkDefinedActivePowerLimits(breaker, new ActivePowerLimit(89.0, 900, 107.0)));
-        return true;
+        assertSsh(network.getDanglingLine("Breaker"), 0.0, 0.0, true, -10.0, -5.0, 402.0, true);
+        assertDefinedActivePowerLimits(network.getDanglingLine("Breaker"), new ActivePowerLimit(89.0, 900, 107.0));
     }
 
-    private static boolean checkSsh1(DanglingLine acLineSegment, DanglingLine equivalentBranch, DanglingLine powerTransformer, DanglingLine breaker) {
-        assertTrue(checkSsh(acLineSegment, 280.0, 70.0, false, Double.NaN, Double.NaN, Double.NaN, false));
-        assertTrue(checkNotDefinedLimits(acLineSegment));
+    private static void assertSecondSsh(Network network) {
+        assertSsh(network.getDanglingLine("ACLineSegment"), 280.0, 70.0, false, Double.NaN, Double.NaN, Double.NaN, false);
+        assertNotDefinedLimits(network.getDanglingLine("ACLineSegment"));
 
-        assertTrue(checkSsh(equivalentBranch, 0.0, 0.0, true, -270.0, -55.0, 410.0, false));
-        assertTrue(checkNotDefinedLimits(equivalentBranch));
+        assertSsh(network.getDanglingLine("EquivalentBranch"), 0.0, 0.0, true, -270.0, -55.0, 410.0, false);
+        assertNotDefinedLimits(network.getDanglingLine("EquivalentBranch"));
 
-        assertTrue(checkSsh(powerTransformer, 0.0, 0.0, true, -105.0, -20.0, 227.0, true));
-        assertTrue(checkNotDefinedLimits(powerTransformer));
+        assertSsh(network.getDanglingLine("PowerTransformer"), 0.0, 0.0, true, -105.0, -20.0, 227.0, true);
+        assertNotDefinedLimits(network.getDanglingLine("PowerTransformer"));
 
-        assertTrue(checkSsh(breaker, 0.0, 0.0, true, -15.0, -3.0, 403.0, true));
-        assertTrue(checkDefinedActivePowerLimits(breaker, new ActivePowerLimit(91.0, 900, 109.0)));
-        return true;
+        assertSsh(network.getDanglingLine("Breaker"), 0.0, 0.0, true, -15.0, -3.0, 403.0, true);
+        assertDefinedActivePowerLimits(network.getDanglingLine("Breaker"), new ActivePowerLimit(91.0, 900, 109.0));
     }
 
-    private static boolean checkEq(DanglingLine danglingLine) {
+    private static void assertEq(DanglingLine danglingLine) {
         assertNotNull(danglingLine);
         assertTrue(Double.isNaN(danglingLine.getP0()));
         assertTrue(Double.isNaN(danglingLine.getQ0()));
@@ -207,10 +172,9 @@ class DanglingLineUpdateTest {
             assertFalse(danglingLine.getGeneration().isVoltageRegulationOn());
         }
         assertNotNull(danglingLine.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
-        return true;
     }
 
-    private static boolean checkSsh(DanglingLine danglingLine, double p0, double q0, boolean withGeneration, double targetP, double targetQ, double targetV, boolean isRegulatingOn) {
+    private static void assertSsh(DanglingLine danglingLine, double p0, double q0, boolean withGeneration, double targetP, double targetQ, double targetV, boolean isRegulatingOn) {
         assertNotNull(danglingLine);
         double tol = 0.0000001;
         assertEquals(p0, danglingLine.getP0(), tol);
@@ -224,10 +188,9 @@ class DanglingLineUpdateTest {
         } else {
             assertNull(danglingLine.getGeneration());
         }
-        return true;
     }
 
-    private static boolean checkDefinedActivePowerLimits(DanglingLine danglingLine, ActivePowerLimit activePowerLimit) {
+    private static void assertDefinedActivePowerLimits(DanglingLine danglingLine, ActivePowerLimit activePowerLimit) {
         assertNull(danglingLine.getCurrentLimits().orElse(null));
         assertNull(danglingLine.getApparentPowerLimits().orElse(null));
 
@@ -238,26 +201,22 @@ class DanglingLineUpdateTest {
             assertEquals(1, danglingLine.getActivePowerLimits().get().getTemporaryLimits().size());
             assertEquals(activePowerLimit.tatlDuration, danglingLine.getActivePowerLimits().get().getTemporaryLimits().iterator().next().getAcceptableDuration());
             assertEquals(activePowerLimit.tatlValue, danglingLine.getActivePowerLimits().get().getTemporaryLimits().iterator().next().getValue());
-            return true;
         }
-        return false;
     }
 
-    private static boolean checkNotDefinedLimits(DanglingLine danglingLine) {
+    private static void assertNotDefinedLimits(DanglingLine danglingLine) {
         assertNull(danglingLine.getCurrentLimits().orElse(null));
         assertNull(danglingLine.getApparentPowerLimits().orElse(null));
         assertNull(danglingLine.getActivePowerLimits().orElse(null));
-        return true;
     }
 
     private record ActivePowerLimit(double ptalValue, int tatlDuration, double tatlValue) {
     }
 
-    private static boolean checkBusVoltage(Bus bus, double v, double angle) {
+    private static void assertBusVoltage(Bus bus, double v, double angle) {
         double tol = 0.0000001;
         assertEquals(v, bus.getV(), tol);
         assertEquals(angle, bus.getAngle(), tol);
-        return true;
     }
 
     private static boolean checkBoundaryBusVoltage(DanglingLine danglingLine, double v, double angle) {

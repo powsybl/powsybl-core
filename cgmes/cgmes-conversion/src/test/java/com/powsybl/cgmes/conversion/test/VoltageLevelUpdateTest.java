@@ -28,8 +28,7 @@ class VoltageLevelUpdateTest {
         Network network = readCgmesResources(DIR, "voltageLevel_EQ.xml");
         assertEquals(1, network.getVoltageLevelCount());
 
-        VoltageLevel voltageLevel = network.getVoltageLevel("VoltageLevel");
-        assertTrue(checkEq(voltageLevel, 395.0, 425.0));
+        assertEq(network.getVoltageLevel("VoltageLevel"), 395.0, 425.0);
     }
 
     @Test
@@ -37,8 +36,7 @@ class VoltageLevelUpdateTest {
         Network network = readCgmesResources(DIR, "voltageLevel_EQ.xml", "voltageLevel_SSH.xml");
         assertEquals(1, network.getVoltageLevelCount());
 
-        VoltageLevel voltageLevel = network.getVoltageLevel("VoltageLevel");
-        assertTrue(checkSsh(voltageLevel, 405.0, 435.0));
+        assertSsh(network.getVoltageLevel("VoltageLevel"), 405.0, 435.0);
     }
 
     @Test
@@ -46,17 +44,16 @@ class VoltageLevelUpdateTest {
         Network network = readCgmesResources(DIR, "voltageLevel_EQ.xml");
         assertEquals(1, network.getVoltageLevelCount());
 
-        VoltageLevel voltageLevel = network.getVoltageLevel("VoltageLevel");
-        assertTrue(checkEq(voltageLevel, 395.0, 425.0));
+        assertEq(network.getVoltageLevel("VoltageLevel"), 395.0, 425.0);
 
         readCgmesResources(network, DIR, "voltageLevel_SSH.xml");
-        assertTrue(checkSsh(voltageLevel, 405.0, 435.0));
+        assertSsh(network.getVoltageLevel("VoltageLevel"), 405.0, 435.0);
 
         readCgmesResources(network, DIR, "voltageLevel_SSH_1.xml");
-        assertTrue(checkSsh(voltageLevel, 400.0, 430.0));
+        assertSsh(network.getVoltageLevel("VoltageLevel"), 400.0, 430.0);
     }
 
-    private static boolean checkEq(VoltageLevel voltageLevel, double lowVoltageLimit, double highVoltageLimit) {
+    private static void assertEq(VoltageLevel voltageLevel, double lowVoltageLimit, double highVoltageLimit) {
         assertNotNull(voltageLevel);
         assertNotNull(voltageLevel.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.LOW_VOLTAGE_LIMIT));
         assertNotNull(voltageLevel.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.HIGH_VOLTAGE_LIMIT));
@@ -67,15 +64,13 @@ class VoltageLevelUpdateTest {
         assertTrue(voltageLevel.getPropertyNames().stream().anyMatch(propertyName -> propertyName.contains(CgmesNames.NORMAL_VALUE + "_") && propertyName.contains(CgmesNames.LOW_VOLTAGE_LIMIT)));
         assertTrue(voltageLevel.getPropertyNames().stream().anyMatch(propertyName -> propertyName.contains(CgmesNames.NORMAL_VALUE + "_") && propertyName.contains(CgmesNames.HIGH_VOLTAGE_LIMIT)));
 
-        checkSsh(voltageLevel, lowVoltageLimit, highVoltageLimit);
-        return true;
+        assertSsh(voltageLevel, lowVoltageLimit, highVoltageLimit);
     }
 
-    private static boolean checkSsh(VoltageLevel voltageLevel, double lowVoltageLimit, double highVoltageLimit) {
+    private static void assertSsh(VoltageLevel voltageLevel, double lowVoltageLimit, double highVoltageLimit) {
         assertNotNull(voltageLevel);
         double tol = 0.0000001;
         assertEquals(lowVoltageLimit, voltageLevel.getLowVoltageLimit(), tol);
         assertEquals(highVoltageLimit, voltageLevel.getHighVoltageLimit(), tol);
-        return true;
     }
 }

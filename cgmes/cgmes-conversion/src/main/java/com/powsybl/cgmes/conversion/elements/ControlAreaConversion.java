@@ -41,17 +41,17 @@ public class ControlAreaConversion extends AbstractIdentifiedObjectConversion {
     }
 
     public static void update(Area area, PropertyBag cgmesData, Context context) {
-        area.setInterchangeTarget(cgmesData.asDouble("netInterchange", defaultValue(getDefaultNetInterchange(area), context)));
+        area.setInterchangeTarget(cgmesData.asDouble("netInterchange", getDefaultNetInterchange(area, context)));
         if (cgmesData.containsKey(CgmesNames.P_TOLERANCE)) {
             String pTolerance = cgmesData.get(CgmesNames.P_TOLERANCE);
             area.setProperty(CgmesNames.P_TOLERANCE, pTolerance);
         }
     }
 
-    private static DefaultValueDouble getDefaultNetInterchange(Area area) {
-        return new DefaultValueDouble(null,
+    private static double getDefaultNetInterchange(Area area, Context context) {
+        return getDefaultValue(null,
                 area.getInterchangeTarget().isPresent() ? area.getInterchangeTarget().getAsDouble() : null,
                 Double.NaN,
-                Double.NaN);
+                Double.NaN, context);
     }
 }
