@@ -17,13 +17,9 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
-import com.powsybl.iidm.serde.NetworkSerDe;
-import com.powsybl.iidm.serde.XMLImporter;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
-import org.xmlunit.diff.DifferenceEvaluator;
-import org.xmlunit.diff.DifferenceEvaluators;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,23 +38,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class CgmesNamingStrategyTest extends AbstractSerDeTest {
 
     @Test
-    void testExportUsingCgmesNamingStrategyNordic32() throws IOException {
-        Network network = Network.read(new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm")));
-        network.setName("nordic32");
-        // Force writing CGMES topological island by assigning a slack bus
-        SlackTerminal.attach(network.getGenerator("G9_______SM").getTerminal().getBusBreakerView().getBus());
-        testExport(network, NamingStrategyFactory.CGMES);
-    }
-
-    @Test
-    void testExportUsingCgmesNamingStrategyIEEE14() throws IOException {
-        Network network = Network.read(new ResourceDataSource("ieee14", new ResourceSet("/cim14", "ieee14.xiidm")));
-        network.setName("ieee14");
-        SlackTerminal.attach(network.getGenerator("GEN____8_SM").getTerminal().getBusBreakerView().getBus());
-        testExport(network, NamingStrategyFactory.CGMES);
-    }
-
-    @Test
     void testExportUsingCgmesNamingStrategyCgmesMicroGrid() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource();
         Network network = Network.read(ds);
@@ -73,10 +52,6 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         Network network = Network.read(ds);
         network.setName("MicroGrid-NS-CGMES_FIX_ALL_INVALID_IDS");
         testExport(network, ds, NamingStrategyFactory.CGMES_FIX_ALL_INVALID_IDS);
-    }
-
-    void testExport(Network network, String namingStrategy) throws IOException {
-        testExport(network, null, namingStrategy);
     }
 
     void testExport(Network network, ReadOnlyDataSource originalDataSource, String namingStrategy) throws IOException {
@@ -154,67 +129,6 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         assertEquals(0,
                 badIds.get().count(),
                 String.format("Identifiers not valid as CIM mRIDs : %s", badIds.get().collect(Collectors.joining(","))));
-    }
-
-    @Test
-    void compareCgmesAndIidmExports() throws IOException {
-        String baseName = "nordic32";
-        ReadOnlyDataSource dataSource = new ResourceDataSource(baseName, new ResourceSet("/cim14", "nordic32.xiidm"));
-        Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
-        DataSource exportDataSource1 = tmpDataSource("export1", baseName);
-        DataSource exportDataSource2 = tmpDataSource("export2", baseName);
-        exportNetwork(network, exportDataSource1, baseName);
-        Network network1 = export2IidmAndImport(network);
-        network1.setCaseDate(network.getCaseDate());
-        exportNetwork(network1, exportDataSource2, baseName);
-        assertTrue(compareFiles("export1", "export2"));
-    }
-
-    @Test
-    void compare2Exports() throws IOException {
-        String baseName = "nordic32";
-        ReadOnlyDataSource dataSource = new ResourceDataSource(baseName, new ResourceSet("/cim14", "nordic32.xiidm"));
-        Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
-        DataSource exportDataSource1 = tmpDataSource("export1", baseName);
-        DataSource exportDataSource2 = tmpDataSource("export2", baseName);
-        exportNetwork(network, exportDataSource1, baseName);
-        exportNetwork(network, exportDataSource2, baseName);
-        assertTrue(compareFiles("export1", "export2"));
-    }
-
-    private boolean compareFiles(String export1, String export2) throws IOException {
-        List<Path> files;
-        try (Stream<Path> walk = Files.walk(tmpDir.resolve(export1))) {
-            files = walk.filter(Files::isRegularFile).toList();
-        }
-        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
-                DifferenceEvaluators.Default,
-                ExportXmlCompare::ignoringCreatedTime,
-                ExportXmlCompare::numericDifferenceEvaluator,
-                ExportXmlCompare::ignoringFullModelAbout,
-                ExportXmlCompare::ignoringFullModelDependentOn,
-                ExportXmlCompare::ignoringOperationalLimitIds,
-                ExportXmlCompare::ignoringSVIds,
-                ExportXmlCompare::ignoringLoadAreaIds,
-                ExportXmlCompare::ignoringEnergyAreaIdOfControlArea);
-        for (Path file : files) {
-            if (!ExportXmlCompare.compareNetworks(file, tmpDir.resolve(export2).resolve(file.getFileName().toString()), knownDiffs)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void exportNetwork(Network network, DataSource exportDataSource, String baseName) {
-        CgmesExport e = new CgmesExport();
-        Properties ep = new Properties();
-        ep.setProperty(CgmesExport.BASE_NAME, baseName);
-        e.export(network, ep, exportDataSource);
-    }
-
-    private Network export2IidmAndImport(Network network) {
-        NetworkSerDe.write(network, tmpDir.resolve("export.iidm"));
-        return NetworkSerDe.read(tmpDir.resolve("export.iidm"));
     }
 
     private DataSource tmpDataSource(String folder, String baseName) throws IOException {

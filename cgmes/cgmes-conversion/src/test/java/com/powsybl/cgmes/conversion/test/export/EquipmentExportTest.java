@@ -28,7 +28,6 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.ExportOptions;
@@ -193,7 +192,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     @Test
     void nordic32() throws IOException, XMLStreamException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
+        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         exportToCgmesEQ(network);
         exportToCgmesTP(network);
@@ -217,7 +216,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     @Test
     void nordic32SortTransformerEnds() throws IOException, XMLStreamException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
+        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), importParams);
         exportToCgmesEQ(network, true);
         exportToCgmesTP(network);
