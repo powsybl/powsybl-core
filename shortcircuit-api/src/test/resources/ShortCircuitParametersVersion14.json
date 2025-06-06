@@ -12,19 +12,12 @@
   "withVSCConverterStations" : true,
   "withNeutralPosition" : false,
   "initialVoltageProfileMode" : "CONFIGURED",
+  "detailedReport" : false,
   "voltageRanges" : [ {
     "minimumNominalVoltage" : 380.0,
     "maximumNominalVoltage" : 410.0,
-    "voltageRangeCoefficient" : 1.05
-  }, {
-    "minimumNominalVoltage" : 0.0,
-    "maximumNominalVoltage" : 225.0,
-    "voltageRangeCoefficient" : 1.1
-  }, {
-    "minimumNominalVoltage" : 230.0,
-    "maximumNominalVoltage" : 375.0,
-    "voltageRangeCoefficient" : 1.09
+    "voltageRangeCoefficient" : 1.05,
+    "voltage" : 380.0
   } ],
-  "detailedReport" : true,
-  "debugDir" : null
+  "debugDir" : "/tmp/debugDir"
 }

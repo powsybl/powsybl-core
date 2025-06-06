@@ -43,9 +43,10 @@ class DynamicSimulationParametersTest {
         fileSystem.close();
     }
 
-    private static void checkValues(DynamicSimulationParameters parameters, double startTime, double stopTime) {
+    private static void checkValues(DynamicSimulationParameters parameters, double startTime, double stopTime, String debugDir) {
         assertEquals(parameters.getStartTime(), startTime);
         assertEquals(parameters.getStopTime(), stopTime);
+        assertEquals(parameters.getDebugDir(), debugDir);
     }
 
     @Test
@@ -53,7 +54,8 @@ class DynamicSimulationParametersTest {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
         DynamicSimulationParameters.load(parameters, platformConfig);
         checkValues(parameters, DynamicSimulationParameters.DEFAULT_START_TIME,
-                DynamicSimulationParameters.DEFAULT_STOP_TIME);
+                DynamicSimulationParameters.DEFAULT_STOP_TIME,
+                DynamicSimulationParameters.DEFAULT_DEBUG_DIR);
     }
 
     @Test
@@ -85,42 +87,47 @@ class DynamicSimulationParametersTest {
     @Test
     void testToString() {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters(0, 40.55);
-        assertEquals("{startTime=0.0, stopTime=40.55}", parameters.toString());
+        assertEquals("{startTime=0.0, stopTime=40.55, debugDir=null}", parameters.toString());
     }
 
     @Test
     void checkConfig() {
         int startTime = 1;
         int stopTime = 100;
+        String debugDir = "debugDir";
 
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("dynamic-simulation-default-parameters");
         moduleConfig.setStringProperty("startTime", Integer.toString(startTime));
         moduleConfig.setStringProperty("stopTime", Integer.toString(stopTime));
+        moduleConfig.setStringProperty("debugDir", debugDir);
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
         DynamicSimulationParameters.load(parameters, platformConfig);
-        checkValues(parameters, startTime, stopTime);
+        checkValues(parameters, startTime, stopTime, debugDir);
     }
 
     @Test
     void checkSetters() {
         int startTime = 1;
         int stopTime = 100;
+        String debugDir = "debugDir";
 
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
         DynamicSimulationParameters.load(parameters, platformConfig);
         parameters.setStartTime(startTime);
         parameters.setStopTime(stopTime);
+        parameters.setDebugDir(debugDir);
 
-        checkValues(parameters, startTime, stopTime);
+        checkValues(parameters, startTime, stopTime, debugDir);
     }
 
     @Test
     void checkClone() {
         int startTime = 1;
         int stopTime = 100;
-        DynamicSimulationParameters parameters = new DynamicSimulationParameters(startTime, stopTime);
+        String debugDir = "debugDir";
+        DynamicSimulationParameters parameters = new DynamicSimulationParameters(startTime, stopTime, debugDir);
         DynamicSimulationParameters parametersCloned = parameters.copy();
-        checkValues(parametersCloned, parameters.getStartTime(), parameters.getStopTime());
+        checkValues(parametersCloned, parameters.getStartTime(), parameters.getStopTime(), parameters.getDebugDir());
     }
 
     @Test

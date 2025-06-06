@@ -29,7 +29,7 @@ public final class AmplModelRunner {
 
     public static CompletableFuture<AmplResults> runAsync(Network network, String variantId, AmplModel model, ComputationManager manager,
                                                           AmplParameters parameters) {
-        ExecutionEnvironment env = new ExecutionEnvironment(Collections.emptyMap(), "ampl_", parameters.isDebug());
+        ExecutionEnvironment env = new ExecutionEnvironment(Collections.emptyMap(), "ampl_", parameters.isDebug(), parameters.getDebugDir());
         AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, AmplConfig.load(),
                 parameters);
         return manager.execute(env, handler);
