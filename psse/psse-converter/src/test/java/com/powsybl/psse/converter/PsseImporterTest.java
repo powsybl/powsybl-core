@@ -379,4 +379,9 @@ class PsseImporterTest extends AbstractSerDeTest {
     void importTwoSubstationsRawxTest() throws IOException {
         importTest("twoSubstations_rev35", "twoSubstations_rev35.rawx", false);
     }
+
+    @Test
+    void importTest14Delimiter() throws IOException {
+        importTest("IEEE_14_bus_delimiter", "IEEE_14_bus_delimiter.raw", false);
+    }
 }
