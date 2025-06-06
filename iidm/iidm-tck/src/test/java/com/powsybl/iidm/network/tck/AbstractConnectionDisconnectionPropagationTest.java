@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public abstract class AbstractConnectionDisconnectionPropagationTest {
 
     @Test
-    void disconnectionOnTeePointTestWithNoPropagation() {
+    void disconnectionOnTeePointTestWithoutPropagation() {
         // Network
         Network network = createNetworkWithTeePoint();
 
@@ -206,7 +206,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
-    void disconnectionThroughVoltageLevelTestWithNoPropagation() {
+    void disconnectionThroughVoltageLevelTestWithoutPropagation() {
         // Network
         Network network = createNetworkWithFictitiousVoltageLevel();
 
