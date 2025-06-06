@@ -98,7 +98,7 @@ class LocalComputationManagerTest {
             }
         };
         try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
-            computationManager.execute(new ExecutionEnvironment(ImmutableMap.of("var1", "val1"), PREFIX, false),
+            computationManager.execute(new ExecutionEnvironment(ImmutableMap.of("var1", "val1"), PREFIX, false, "/tmp/debugDir"),
                     new AbstractExecutionHandler<Object>() {
                         @Override
                         public List<CommandExecution> before(Path workingDir) throws IOException {
@@ -131,7 +131,6 @@ class LocalComputationManagerTest {
                             assertEquals("prog1_cmd", report.getErrors().get(0).getCommand().getId());
                             assertEquals(0, report.getErrors().get(0).getIndex());
                             assertEquals(1, report.getErrors().get(0).getExitCode());
-
                             return null;
                         }
                     }).join();

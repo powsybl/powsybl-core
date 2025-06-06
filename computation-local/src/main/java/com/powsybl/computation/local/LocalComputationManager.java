@@ -12,11 +12,11 @@ import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.WorkingDirectory;
 import com.powsybl.computation.*;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,9 +207,11 @@ public class LocalComputationManager implements ComputationManager {
             } finally {
                 if (executionParameters.debugDir != null) {
                     try {
-                        File sourceFile = executionParameters.workingDir.toFile();
-                        File destinationFile = executionParameters.debugDir.resolve(executionParameters.workingDir.getFileName()).toFile();
-                        FileUtils.copyDirectory(sourceFile, destinationFile);
+                        Path sourcePath = executionParameters.workingDir;
+                        Path destinationPath = executionParameters.debugDir.resolve(executionParameters.workingDir.getFileName());
+                        FileUtil.createDirectory(destinationPath);
+                        FileUtil.copyDir(sourcePath, destinationPath);
+
                     } catch (IOException e) {
                         LOGGER.warn(e.getMessage(), e);
                     }
