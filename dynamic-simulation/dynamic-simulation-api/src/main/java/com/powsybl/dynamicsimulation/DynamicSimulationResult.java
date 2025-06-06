@@ -13,8 +13,6 @@ import java.util.Map;
 
 import com.powsybl.timeseries.DoubleTimeSeries;
 
-import static com.powsybl.dynamicsimulation.DynamicSimulationResult.Status.SUCCESS;
-
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
@@ -29,14 +27,6 @@ public interface DynamicSimulationResult {
     Status getStatus();
 
     String getStatusText();
-
-    /**
-     * @deprecated use DynamicSimulationResult.Status instead
-     */
-    @Deprecated(since = "6.1.0")
-    default boolean isOk() {
-        return SUCCESS == getStatus();
-    }
 
     Map<String, DoubleTimeSeries> getCurves();
 
