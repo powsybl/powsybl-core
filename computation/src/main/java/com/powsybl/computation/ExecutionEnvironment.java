@@ -18,6 +18,7 @@ import java.util.Objects;
  *   <li>a map of environment variables</li>
  *   <li>a prefix for the execution working directory</li>
  *   <li>a debug indicator</li>
+     <li>the directory where execution files will be dumped</li>
  * </ul>
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -32,8 +33,17 @@ public class ExecutionEnvironment {
 
     private String workingDirPrefix;
 
+    /**
+     * If debug=true, execution files generated for and by the binary model will not be removed after the computation. There are available in the workingDir.
+     * If debug=false, execution files are removed from the workingDir after computation.
+     */
     private boolean debug;
 
+    /**
+     * If dumpDir is filled, in/out execution files are dumped in dumpDir.
+     * If dumpDir=null, nothing is dumped.
+     * debug and dumpDir have fully independent behaviors.
+     */
     private String dumpDir;
 
     public ExecutionEnvironment(Map<String, String> variables, String workingDirPrefix, boolean debug, String dumpDir) {

@@ -144,7 +144,7 @@ public class LocalComputationManager implements ComputationManager {
 
     }
 
-    private ExecutionReport execute(Path workingDir, Path debugDir, List<CommandExecution> commandExecutionList, Map<String, String> variables, ComputationParameters computationParameters, ExecutionMonitor monitor)
+    private ExecutionReport execute(Path workingDir, Path dumpDir, List<CommandExecution> commandExecutionList, Map<String, String> variables, ComputationParameters computationParameters, ExecutionMonitor monitor)
             throws InterruptedException {
         // TODO concurrent
         List<ExecutionError> errors = new ArrayList<>();
@@ -153,7 +153,7 @@ public class LocalComputationManager implements ComputationManager {
         for (CommandExecution commandExecution : commandExecutionList) {
             Command command = commandExecution.getCommand();
             CountDownLatch latch = new CountDownLatch(commandExecution.getExecutionCount());
-            ExecutionParameters executionParameters = new ExecutionParameters(workingDir, debugDir, commandExecution, variables, computationParameters, executionSubmitter,
+            ExecutionParameters executionParameters = new ExecutionParameters(workingDir, dumpDir, commandExecution, variables, computationParameters, executionSubmitter,
                 command, latch, errors, monitor);
             IntStream.range(0, commandExecution.getExecutionCount()).forEach(idx -> performSingleExecution(executionParameters, idx));
             latch.await();
@@ -171,7 +171,7 @@ public class LocalComputationManager implements ComputationManager {
         return new DefaultExecutionReport(workingDir, errors);
     }
 
-    private record ExecutionParameters(Path workingDir, Path debugDir, CommandExecution commandExecution,
+    private record ExecutionParameters(Path workingDir, Path dumpDir, CommandExecution commandExecution,
                                        Map<String, String> variables, ComputationParameters computationParameters,
                                        ExecutorService executionSubmitter, Command command, CountDownLatch latch,
                                        List<ExecutionError> errors, ExecutionMonitor monitor) {
@@ -205,10 +205,10 @@ public class LocalComputationManager implements ComputationManager {
             } catch (Exception e) {
                 LOGGER.warn(e.getMessage(), e);
             } finally {
-                if (executionParameters.debugDir != null) {
+                if (executionParameters.dumpDir != null) {
                     try {
                         Path sourcePath = executionParameters.workingDir;
-                        Path destinationPath = executionParameters.debugDir.resolve(executionParameters.workingDir.getFileName());
+                        Path destinationPath = executionParameters.dumpDir.resolve(executionParameters.workingDir.getFileName());
                         FileUtil.createDirectory(destinationPath);
                         FileUtil.copyDir(sourcePath, destinationPath);
 
