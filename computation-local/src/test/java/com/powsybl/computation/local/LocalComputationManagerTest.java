@@ -46,6 +46,8 @@ class LocalComputationManagerTest {
 
     private Path localDir;
 
+    private static final String DEBUG_DIR = "/tmp/debugDir";
+
     private LocalComputationConfig config;
 
     @BeforeEach
@@ -98,7 +100,7 @@ class LocalComputationManagerTest {
             }
         };
         try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
-            computationManager.execute(new ExecutionEnvironment(ImmutableMap.of("var1", "val1"), PREFIX, false, "/tmp/debugDir"),
+            computationManager.execute(new ExecutionEnvironment(ImmutableMap.of("var1", "val1"), PREFIX, false, DEBUG_DIR),
                     new AbstractExecutionHandler<Object>() {
                         @Override
                         public List<CommandExecution> before(Path workingDir) throws IOException {
@@ -131,6 +133,7 @@ class LocalComputationManagerTest {
                             assertEquals("prog1_cmd", report.getErrors().get(0).getCommand().getId());
                             assertEquals(0, report.getErrors().get(0).getIndex());
                             assertEquals(1, report.getErrors().get(0).getExitCode());
+                            assertTrue(Files.exists(config.getLocalDir().getFileSystem().getPath((DEBUG_DIR + workingDir.getFileName()))));
                             return null;
                         }
                     }).join();
