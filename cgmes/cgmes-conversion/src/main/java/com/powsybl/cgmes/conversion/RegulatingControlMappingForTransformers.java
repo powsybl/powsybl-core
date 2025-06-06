@@ -275,10 +275,14 @@ public class RegulatingControlMappingForTransformers {
             context.invalid(ptcId, "Regulating control has a bad target deadband " + control.targetDeadband);
             badTargetDeadbandRegulatingControlReport(context.getReportNode(), ptcId, control.targetDeadband);
         }
-
+        double regulationValue = control.targetValue * mappedRegulatingTerminal.getSign();
+        if (regulationMode == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && regulationValue < 0) {
+            context.fixed(ptcId, "Regulating value is negative while regulationMode is set to CURRENT_LIMITER : fixed to absolute value");
+            regulationValue = Math.abs(regulationValue);
+        }
         // Order is important
         ptc.setRegulationTerminal(mappedRegulatingTerminal.getTerminal())
-                .setRegulationValue(control.targetValue * mappedRegulatingTerminal.getSign())
+                .setRegulationValue(regulationValue)
                 .setTargetDeadband(validTargetDeadband ? control.targetDeadband : Double.NaN)
                 .setRegulationMode(regulationMode)
                 .setRegulating(fixedRegulating && validTargetDeadband);
