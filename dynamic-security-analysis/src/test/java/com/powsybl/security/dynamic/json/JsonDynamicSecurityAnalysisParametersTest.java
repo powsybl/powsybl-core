@@ -29,7 +29,7 @@ class JsonDynamicSecurityAnalysisParametersTest extends AbstractSerDeTest {
         parameters.getDynamicSimulationParameters().setStopTime(20.5);
         parameters.getDynamicContingenciesParameters().setContingenciesStartTime(5.5);
         parameters.setDebugDir("/tmp/debugDir");
-        roundTripTest(parameters, JsonDynamicSecurityAnalysisParameters::write, JsonDynamicSecurityAnalysisParameters::read, "/DynamicSecurityAnalysisParametersV11.json");
+        roundTripTest(parameters, JsonDynamicSecurityAnalysisParameters::write, JsonDynamicSecurityAnalysisParameters::read, "/DynamicSecurityAnalysisParameters.json");
     }
 
     @Test
