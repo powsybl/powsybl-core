@@ -9,14 +9,11 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.modification.topology.AbstractModificationTest;
-import com.powsybl.iidm.modification.topology.CreateFeederBayBuilder;
-import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
-import com.powsybl.iidm.modification.topology.NamingStrategy;
+import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
@@ -25,9 +22,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
+import static com.powsybl.iidm.modification.topology.NamingStrategiesManager.getDefaultNamingStrategy;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -596,9 +593,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(false)
             .build();
 
-        NamingStrategy namingStrategy = new DefaultNamingStrategy();
         ComputationManager computationManager = LocalComputationManager.getDefault();
-        assertDoesNotThrow(() -> disconnection.apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP));
+        assertDoesNotThrow(() -> disconnection.apply(network, getDefaultNamingStrategy(), false, computationManager, ReportNode.NO_OP));
         PowsyblException disconnectionException = assertThrows(PowsyblException.class, () -> disconnection.apply(network, true, ReportNode.NO_OP));
         assertEquals("Identifiable 'ELEMENT_NOT_PRESENT' not found", disconnectionException.getMessage());
 
@@ -607,7 +603,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
-        assertDoesNotThrow(() -> connection.apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP));
+        assertDoesNotThrow(() -> connection.apply(network, getDefaultNamingStrategy(), false, computationManager, ReportNode.NO_OP));
         PowsyblException connectionException = assertThrows(PowsyblException.class, () -> connection.apply(network, true, ReportNode.NO_OP));
         assertEquals("Identifiable 'ELEMENT_NOT_PRESENT' not found", connectionException.getMessage());
     }
@@ -620,9 +616,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(false)
             .build();
 
-        NamingStrategy namingStrategy = new DefaultNamingStrategy();
         ComputationManager computationManager = LocalComputationManager.getDefault();
-        assertDoesNotThrow(() -> disconnection.apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP));
+        assertDoesNotThrow(() -> disconnection.apply(network, getDefaultNamingStrategy(), false, computationManager, ReportNode.NO_OP));
         PowsyblException disconnectionException = assertThrows(PowsyblException.class, () -> disconnection.apply(network, true, ReportNode.NO_OP));
         assertEquals("Disconnection not implemented for identifiable 'S1'", disconnectionException.getMessage());
 
@@ -632,7 +627,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withOnlyBreakersOperable(true)
             .build();
 
-        assertDoesNotThrow(() -> connection.apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP));
+        assertDoesNotThrow(() -> connection.apply(network, getDefaultNamingStrategy(), false, computationManager, ReportNode.NO_OP));
         PowsyblException connectionException = assertThrows(PowsyblException.class, () -> connection.apply(network, true, ReportNode.NO_OP));
         assertEquals("Connection not implemented for identifiable 'S1'", connectionException.getMessage());
     }
