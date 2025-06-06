@@ -182,7 +182,7 @@ public class CgmesImport implements Importer {
     @Override
     public void update(Network network, ReadOnlyDataSource ds, Properties p, ReportNode reportNode) {
         TripleStoreOptions tripleStoreOptions = new TripleStoreOptions();
-        tripleStoreOptions.setQueryCatalog("-update");
+        tripleStoreOptions.setQueryCatalog(Conversion.QUERY_CATALOG_NAME_UPDATE);
         ReadOnlyDataSource alternativeDataSourceForBoundary = null;
         CgmesModel cgmes = CgmesModelFactory.create(
                 ds,

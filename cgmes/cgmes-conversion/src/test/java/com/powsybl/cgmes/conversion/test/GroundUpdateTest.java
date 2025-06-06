@@ -26,8 +26,7 @@ class GroundUpdateTest {
         Network network = readCgmesResources(DIR, "ground_EQ.xml");
         assertEquals(1, network.getGroundCount());
 
-        Ground ground = network.getGround("Ground");
-        assertTrue(checkEq(ground));
+        assertEq(network.getGround("Ground"));
     }
 
     @Test
@@ -35,8 +34,7 @@ class GroundUpdateTest {
         Network network = readCgmesResources(DIR, "ground_EQ.xml", "ground_SSH.xml");
         assertEquals(1, network.getGroundCount());
 
-        Ground ground = network.getGround("Ground");
-        assertTrue(checkSsh(ground));
+        assertSsh(network.getGround("Ground"));
     }
 
     @Test
@@ -44,26 +42,23 @@ class GroundUpdateTest {
         Network network = readCgmesResources(DIR, "ground_EQ.xml");
         assertEquals(1, network.getGroundCount());
 
-        Ground ground = network.getGround("Ground");
-        assertTrue(checkEq(ground));
+        assertEq(network.getGround("Ground"));
 
         readCgmesResources(network, DIR, "ground_SSH.xml");
-        assertTrue(checkSsh(ground));
+        assertSsh(network.getGround("Ground"));
 
         readCgmesResources(network, DIR, "ground_SSH_1.xml");
-        assertTrue(checkSsh(ground));
+        assertSsh(network.getGround("Ground"));
     }
 
-    private static boolean checkEq(Ground ground) {
+    private static void assertEq(Ground ground) {
         assertNotNull(ground);
         assertNotNull(ground.getTerminal());
         assertTrue(ground.getTerminal().isConnected());
-        return true;
     }
 
-    private static boolean checkSsh(Ground ground) {
+    private static void assertSsh(Ground ground) {
         assertNotNull(ground);
         assertTrue(ground.getTerminal().isConnected());
-        return true;
     }
 }

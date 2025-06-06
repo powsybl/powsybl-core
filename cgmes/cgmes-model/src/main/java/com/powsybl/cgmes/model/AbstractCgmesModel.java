@@ -231,8 +231,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         }
     }
 
-    @Override
-    public void invalidateCaches() {
+    protected void invalidateCaches() {
         cachedTerminals = null;
         cachedContainers = null;
         cachedBaseVoltages = null;

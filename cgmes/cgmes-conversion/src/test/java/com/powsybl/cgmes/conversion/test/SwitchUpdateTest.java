@@ -29,11 +29,7 @@ class SwitchUpdateTest {
         Network network = readCgmesResources(DIR, "switch_EQ.xml");
         assertEquals(2, network.getSwitchCount());
 
-        Switch seriesCompensator = network.getSwitch("SeriesCompensator");
-        assertTrue(checkEq(seriesCompensator));
-
-        Switch breaker = network.getSwitch("Breaker");
-        assertTrue(checkEq(breaker));
+        assertEq(network);
     }
 
     @Test
@@ -41,20 +37,7 @@ class SwitchUpdateTest {
         Network network = readCgmesResources(DIR, "switch_EQ.xml", "switch_SSH.xml");
         assertEquals(5, network.getSwitchCount());
 
-        Switch seriesCompensator = network.getSwitch("SeriesCompensator");
-        assertTrue(checkSsh(seriesCompensator, true));
-
-        Switch breaker = network.getSwitch("Breaker");
-        assertTrue(checkSsh(breaker, false));
-
-        Switch seriesCompensatorFict = network.getSwitch("SeriesCompensator-T1_SW_fict");
-        assertTrue(checkSsh(seriesCompensatorFict, true));
-
-        Switch breakerFict = network.getSwitch("Breaker-T2_SW_fict");
-        assertTrue(checkSsh(breakerFict, true));
-
-        Switch energyConsumerFict = network.getSwitch("EnergyConsumer-T_SW_fict");
-        assertTrue(checkSsh(energyConsumerFict, true));
+        assertEqSsh(network);
     }
 
     @Test
@@ -62,28 +45,10 @@ class SwitchUpdateTest {
         Network network = readCgmesResources(DIR, "switch_EQ.xml", "switch_SSH.xml");
         assertEquals(5, network.getSwitchCount());
 
-        Switch seriesCompensator = network.getSwitch("SeriesCompensator");
-        assertTrue(checkSsh(seriesCompensator, true));
-
-        Switch breaker = network.getSwitch("Breaker");
-        assertTrue(checkSsh(breaker, false));
-
-        Switch seriesCompensatorFict = network.getSwitch("SeriesCompensator-T1_SW_fict");
-        assertTrue(checkSsh(seriesCompensatorFict, true));
-
-        Switch breakerFict = network.getSwitch("Breaker-T2_SW_fict");
-        assertTrue(checkSsh(breakerFict, true));
-
-        Switch energyConsumerFict = network.getSwitch("EnergyConsumer-T_SW_fict");
-        assertTrue(checkSsh(energyConsumerFict, true));
+        assertEqSsh(network);
 
         readCgmesResources(network, DIR, "switch_SSH_1.xml");
-
-        assertTrue(checkSsh(seriesCompensator, false));
-        assertTrue(checkSsh(breaker, true));
-        assertTrue(checkSsh(seriesCompensatorFict, false));
-        assertTrue(checkSsh(breakerFict, false));
-        assertTrue(checkSsh(energyConsumerFict, false));
+        assertEqSshSsh1(network);
     }
 
     @Test
@@ -91,32 +56,54 @@ class SwitchUpdateTest {
         Network network = readCgmesResources(DIR, "switch_EQ.xml");
         assertEquals(2, network.getSwitchCount());
 
-        Switch seriesCompensator = network.getSwitch("SeriesCompensator");
-        assertTrue(checkEq(seriesCompensator));
-        Switch breaker = network.getSwitch("Breaker");
-        assertTrue(checkEq(breaker));
+        assertEq(network);
 
         readCgmesResources(network, DIR, "switch_SSH.xml");
-
-        assertTrue(checkSsh(seriesCompensator, true));
-        assertTrue(checkSsh(breaker, false));
+        assertFirstSsh(network);
 
         readCgmesResources(network, DIR, "switch_SSH_1.xml");
-
-        assertTrue(checkSsh(seriesCompensator, false));
-        assertTrue(checkSsh(breaker, true));
+        assertSecondSsh(network);
     }
 
-    private static boolean checkEq(Switch sw) {
+    private static void assertEq(Network network) {
+        assertEq(network.getSwitch("SeriesCompensator"));
+        assertEq(network.getSwitch("Breaker"));
+    }
+
+    private static void assertEqSsh(Network network) {
+        assertSsh(network.getSwitch("SeriesCompensator"), true);
+        assertSsh(network.getSwitch("Breaker"), false);
+        assertSsh(network.getSwitch("SeriesCompensator-T1_SW_fict"), true);
+        assertSsh(network.getSwitch("Breaker-T2_SW_fict"), true);
+        assertSsh(network.getSwitch("EnergyConsumer-T_SW_fict"), true);
+    }
+
+    private static void assertEqSshSsh1(Network network) {
+        assertSsh(network.getSwitch("SeriesCompensator"), false);
+        assertSsh(network.getSwitch("Breaker"), true);
+        assertSsh(network.getSwitch("SeriesCompensator-T1_SW_fict"), false);
+        assertSsh(network.getSwitch("Breaker-T2_SW_fict"), false);
+        assertSsh(network.getSwitch("EnergyConsumer-T_SW_fict"), false);
+    }
+
+    private static void assertFirstSsh(Network network) {
+        assertSsh(network.getSwitch("SeriesCompensator"), true);
+        assertSsh(network.getSwitch("Breaker"), false);
+    }
+
+    private static void assertSecondSsh(Network network) {
+        assertSsh(network.getSwitch("SeriesCompensator"), false);
+        assertSsh(network.getSwitch("Breaker"), true);
+    }
+
+    private static void assertEq(Switch sw) {
         assertNotNull(sw);
         assertNotNull(sw.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
         assertNotNull(sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN));
-        return true;
     }
 
-    private static boolean checkSsh(Switch sw, boolean isOpen) {
+    private static void assertSsh(Switch sw, boolean isOpen) {
         assertNotNull(sw);
         assertEquals(isOpen, sw.isOpen());
-        return true;
     }
 }

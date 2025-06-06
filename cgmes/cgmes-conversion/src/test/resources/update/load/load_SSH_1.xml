@@ -32,4 +32,11 @@
     <cim:Terminal rdf:about="#_AsynchronousMachine_T">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
+    <cim:ConformLoad rdf:about="#_ConformLoad">
+        <cim:EnergyConsumer.p>490</cim:EnergyConsumer.p>
+        <cim:EnergyConsumer.q>235</cim:EnergyConsumer.q>
+    </cim:ConformLoad>
+    <cim:Terminal rdf:about="#_ConformLoad_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
 </rdf:RDF>
