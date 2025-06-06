@@ -35,6 +35,7 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     private ValidationLevel networkValidationLevel;
 
     private Set<String> ignoredEquipments = new HashSet<>();
+    private EnumSet<DeserializationEndTask.Step> alreadyProcessedEndTasksSteps = EnumSet.noneOf(DeserializationEndTask.Step.class);
 
     public NetworkDeserializerContext(Anonymizer anonymizer, TreeDataReader reader) {
         this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_VERSION, Collections.emptyMap());
@@ -58,6 +59,11 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     }
 
     public void executeEndTasks(Network network, DeserializationEndTask.Step step, ReportNode reportNode) {
+        if (alreadyProcessedEndTasksSteps.contains(step)) {
+            // Skip if step was already processed
+            return;
+        }
+        alreadyProcessedEndTasksSteps.add(step);
         Networks.executeWithReportNode(network, reportNode, () -> endTasks.stream()
                 .filter(t -> t.getStep() == step
                         || step == DeserializationEndTask.Step.AFTER_EXTENSIONS &&
