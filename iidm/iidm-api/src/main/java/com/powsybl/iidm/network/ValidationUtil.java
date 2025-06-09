@@ -498,25 +498,39 @@ public final class ValidationUtil {
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
         if (regulating && regulationMode != null) {
-            if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && Double.isNaN(regulationValue)) {
-                throwExceptionOrLogError(validable, "phase regulation is on and threshold/setpoint value is not set", actionOnError, reportNode);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
-            }
-            if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && regulationTerminal == null) {
-                throwExceptionOrLogError(validable, "phase regulation is on and regulated terminal is not set", actionOnError, reportNode);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
-            }
-            if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
-                throwExceptionOrLogError(validable, "phase regulation cannot be on if mode is FIXED", actionOnError, reportNode);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
-            }
-            if (regulationMode == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && regulationValue < 0) {
-                throwExceptionOrLogError(validable, "phase tap changer in CURRENT_LIMITER mode must have a non-negative regulation value", actionOnError, reportNode);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
-            }
+            validationLevel = checkRegulatinPhaseTapChanger(validable, regulationMode, regulationValue, regulationTerminal, actionOnError, reportNode);
         }
         if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
             throw new ValidationException(validable, "phase regulation terminal is not part of the network");
+        }
+        return validationLevel;
+    }
+
+    private static ValidationLevel checkRegulatinPhaseTapChanger(Validable validable,
+            PhaseTapChanger.RegulationMode regulationMode,
+            double regulationValue, Terminal regulationTerminal,
+            ActionOnError actionOnError, ReportNode reportNode) {
+        ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+        if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && Double.isNaN(regulationValue)) {
+            throwExceptionOrLogError(validable, "phase regulation is on and threshold/setpoint value is not set",
+                    actionOnError, reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && regulationTerminal == null) {
+            throwExceptionOrLogError(validable, "phase regulation is on and regulated terminal is not set",
+                    actionOnError, reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
+            throwExceptionOrLogError(validable, "phase regulation cannot be on if mode is FIXED", actionOnError,
+                    reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        if (regulationMode == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && regulationValue < 0) {
+            throwExceptionOrLogError(validable,
+                    "phase tap changer in CURRENT_LIMITER mode must have a non-negative regulation value",
+                    actionOnError, reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
         return validationLevel;
     }
