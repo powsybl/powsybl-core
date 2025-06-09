@@ -498,7 +498,7 @@ public final class ValidationUtil {
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
         if (regulating && regulationMode != null) {
-            validationLevel = checkRegulatinPhaseTapChanger(validable, regulationMode, regulationValue, regulationTerminal, actionOnError, reportNode);
+            validationLevel = checkRegulatingPhaseTapChanger(validable, regulationMode, regulationValue, regulationTerminal, actionOnError, reportNode);
         }
         if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
             throw new ValidationException(validable, "phase regulation terminal is not part of the network");
@@ -506,7 +506,7 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    private static ValidationLevel checkRegulatinPhaseTapChanger(Validable validable,
+    private static ValidationLevel checkRegulatingPhaseTapChanger(Validable validable,
             PhaseTapChanger.RegulationMode regulationMode,
             double regulationValue, Terminal regulationTerminal,
             ActionOnError actionOnError, ReportNode reportNode) {
