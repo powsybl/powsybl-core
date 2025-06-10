@@ -560,27 +560,27 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
             network = SvcTestCaseFactory.createLocalOffReactiveTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "350", "M");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "350", "M");
             network = SvcTestCaseFactory.createLocalOffVoltageTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "390", "k");
             network = SvcTestCaseFactory.createLocalOffBothTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "390", "k");
 
             // Remote
             network = SvcTestCaseFactory.createRemoteOffNoTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "0", "k");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "0", "k");
             network = SvcTestCaseFactory.createRemoteOffReactiveTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "350", "M");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "350", "M");
             network = SvcTestCaseFactory.createRemoteOffVoltageTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "390", "k");
             network = SvcTestCaseFactory.createRemoteOffBothTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "390", "k");
         }
     }
 

@@ -177,7 +177,8 @@ public final class SvcTestCaseFactory {
     private static Network addVoltageControl(Network network) {
         addVoltageTarget(network);
         network.getStaticVarCompensator("SVC2")
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulating(true);
         return network;
     }
 
@@ -196,7 +197,8 @@ public final class SvcTestCaseFactory {
     private static Network addReactiveControl(Network network) {
         addReactiveTarget(network);
         network.getStaticVarCompensator("SVC2")
-                .setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+                .setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
+                .setRegulating(true);
         return network;
     }
 
@@ -215,7 +217,8 @@ public final class SvcTestCaseFactory {
     private static Network addOffReactiveTarget(Network network) {
         addReactiveTarget(addNotRegulating(network));
         network.getStaticVarCompensator("SVC2")
-                .setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+                .setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
+                .setRegulating(true);
         return network;
     }
 
