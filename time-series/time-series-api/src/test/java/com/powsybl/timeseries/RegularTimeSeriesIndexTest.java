@@ -207,6 +207,16 @@ class RegularTimeSeriesIndexTest {
         return Stream.of(jsonException1, jsonException2, jsonException3);
     }
 
+    @Test
+    void testContructorErrorMaxDaysReached() {
+        Duration duration = Duration.ofDays(210 * 365);
+        Instant i0 = Instant.ofEpochMilli(0);
+        Instant i1 = Instant.ofEpochMilli(210L * 365 * 24 * 60 * 60 * 1000 + 1);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new RegularTimeSeriesIndex(i0, i1, duration));
+        assertEquals("Time range or spacing exceeds 73000 days.", exception.getMessage());
+    }
+
     @ParameterizedTest
     @MethodSource("provideWrongJson")
     void testParsingError(String json) {
