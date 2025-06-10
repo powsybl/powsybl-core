@@ -370,17 +370,17 @@ Shunt compensators follow a passive-sign convention:
 
 **Characteristics**
 
-| Attribute             | Unit | Description                                                   |
-|-----------------------|------|---------------------------------------------------------------|
-| $MaximumSectionCount$ | -    | The maximum number of sections that may be switched on        |
-| $SectionCount$        | -    | The current number of sections that are switched on           |
-| $SolvedSectionCount$  | -    | The number of sections after a calculation (loadflow)         | 
-| $B$                   | S    | The susceptance of the shunt compensator in its current state |
-| $G$                   | S    | The conductance of the shunt compensator in its current state |
-| $TargetV$             | kV   | The voltage target                                            |
-| $TargetDeadband$      | kV   | The deadband used to avoid excessive update of controls       |
-| $RegulatingTerminal$  | -    | Associated node or bus for which voltage is to be regulated   |
-| $VoltageRegulatorOn$  | -    | True if the shunt compensator regulates voltage               |
+| Attribute             | Unit | Description                                                                    |
+|-----------------------|------|--------------------------------------------------------------------------------|
+| $MaximumSectionCount$ | -    | The maximum number of sections that may be switched on                         |
+| $SectionCount$        | -    | The current number of sections that are switched on (input of the calculation) |
+| $SolvedSectionCount$  | -    | The calculated number of sections that are switched on (after a load flow)     | 
+| $B$                   | S    | The susceptance of the shunt compensator in its current state                  |
+| $G$                   | S    | The conductance of the shunt compensator in its current state                  |
+| $TargetV$             | kV   | The voltage target                                                             |
+| $TargetDeadband$      | kV   | The deadband used to avoid excessive update of controls                        |
+| $RegulatingTerminal$  | -    | Associated node or bus for which voltage is to be regulated                    |
+| $VoltageRegulatorOn$  | -    | True if the shunt compensator regulates voltage                                |
 
 - For Linear Shunt Compensators
 
