@@ -23,6 +23,7 @@ import java.util.OptionalInt;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -94,6 +95,6 @@ class SensitivityFactorTest extends AbstractSerDeTest {
         JsonFactory factory = new JsonFactory();
         JsonParser parser = factory.createParser(new StringReader(json));
         parser.nextToken();
-        SensitivityFactor.parseJson(parser);
+        assertThrows(NullPointerException.class, SensitivityFactor.parseJson(parser));
     }
 }
