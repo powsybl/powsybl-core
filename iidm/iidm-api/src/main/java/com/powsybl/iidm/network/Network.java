@@ -40,7 +40,7 @@ import java.util.stream.Stream;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -399,6 +399,29 @@ public interface Network extends Container<Network> {
 
     static void readAll(Path dir, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
         readAll(dir, false, LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), consumer);
+    }
+
+    default void update(ReadOnlyDataSource dataSource) {
+        update(dataSource, null);
+    }
+
+    default void update(ReadOnlyDataSource dataSource, Properties properties) {
+        update(dataSource, properties, ReportNode.NO_OP);
+    }
+
+    default void update(ReadOnlyDataSource dataSource, Properties parameters, ReportNode reportNode) {
+        update(dataSource, LocalComputationManager.getDefault(), ImportConfig.load(), parameters,
+                new ImportersServiceLoader(), reportNode);
+    }
+
+    default void update(ReadOnlyDataSource dataSource, ComputationManager computationManager, ImportConfig config, Properties parameters,
+                        ImportersLoader loader, ReportNode reportNode) {
+        Importer importer = Importer.find(dataSource, loader, computationManager, config);
+        if (importer != null) {
+            importer.update(this, dataSource, parameters, reportNode);
+        } else {
+            throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
+        }
     }
 
     /**
@@ -1511,6 +1534,8 @@ public interface Network extends Container<Network> {
             case HVDC_CONVERTER_STATION -> getHvdcConverterStationStream().map(Function.identity());
             case STATIC_VAR_COMPENSATOR -> getStaticVarCompensatorStream().map(Function.identity());
             case GROUND -> getGroundStream().map(Function.identity());
+            case AREA -> getAreaStream().map(Function.identity());
+            case OVERLOAD_MANAGEMENT_SYSTEM -> getOverloadManagementSystemStream().map(Function.identity());
             default -> throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
         };
     }
