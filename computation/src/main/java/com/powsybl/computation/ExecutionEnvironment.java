@@ -35,12 +35,12 @@ public class ExecutionEnvironment {
 
     /**
      * If debug=true, execution files generated for and by the binary model will not be removed after the computation. There are available in the workingDir.
-     * If debug=false, execution files are removed from the workingDir after computation.
+     * If debug=false, the workingDir which contains execution files is removed after computation.
      */
     private boolean debug;
 
     /**
-     * If dumpDir is filled, in/out execution files are dumped in dumpDir.
+     * If dumpDir is provided, in/out execution files are dumped in dumpDir.
      * If dumpDir=null, nothing is dumped.
      * debug and dumpDir have fully independent behaviors.
      */
