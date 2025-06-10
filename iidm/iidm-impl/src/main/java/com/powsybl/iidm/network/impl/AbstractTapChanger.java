@@ -194,9 +194,9 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             throwIncorrectTapPosition(getTapPosition(), newHighTapPosition);
         }
         // We check if the solved tap position is still correct
-        OptionalInt solvedTapPosition = findSolvedTapPosition();
-        if (solvedTapPosition.isPresent() && solvedTapPosition.getAsInt() > newHighTapPosition) {
-            throwIncorrectSolvedTapPosition(solvedTapPosition.getAsInt(), newHighTapPosition);
+        OptionalInt solvedTap = findSolvedTapPosition();
+        if (solvedTap.isPresent() && solvedTap.getAsInt() > newHighTapPosition) {
+            throwIncorrectSolvedTapPosition(solvedTap.getAsInt(), newHighTapPosition);
         }
 
         this.steps = steps;
