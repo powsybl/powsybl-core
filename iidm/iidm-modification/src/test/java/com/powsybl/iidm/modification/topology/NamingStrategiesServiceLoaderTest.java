@@ -112,4 +112,10 @@ class NamingStrategiesServiceLoaderTest {
         assertTrue(foundStrategy.isPresent());
         assertEquals(defaultStrategy.getName(), foundStrategy.get().getName());
     }
+
+    @Test
+    void testFindByNameNullAndEmpty() {
+        assertFalse(loader.findNamingStrategyByName(null).isPresent());
+        assertFalse(loader.findNamingStrategyByName(" ").isPresent());
+    }
 }
