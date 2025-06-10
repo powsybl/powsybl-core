@@ -398,13 +398,16 @@ public final class ValidationUtil {
         checkRatedU(validable, ratedU2, "2");
     }
 
-    public static ValidationLevel checkSvcRegulator(Validable validable, boolean regulating, double voltageSetpoint, double reactivePowerSetpoint,
+    public static ValidationLevel checkSvcRegulator(Validable validable, Boolean regulating, double voltageSetpoint, double reactivePowerSetpoint,
                                                     StaticVarCompensator.RegulationMode regulationMode, ValidationLevel validationLevel, ReportNode reportNode) {
         return checkSvcRegulator(validable, regulating, voltageSetpoint, reactivePowerSetpoint, regulationMode, checkValidationActionOnError(validationLevel), reportNode);
     }
 
-    private static ValidationLevel checkSvcRegulator(Validable validable, boolean regulating, double voltageSetpoint, double reactivePowerSetpoint,
+    private static ValidationLevel checkSvcRegulator(Validable validable, Boolean regulating, double voltageSetpoint, double reactivePowerSetpoint,
                                                      StaticVarCompensator.RegulationMode regulationMode, ActionOnError actionOnError, ReportNode reportNode) {
+        if (regulating == null) {
+            throw new ValidationException(validable, "regulating is not set");
+        }
         if (regulationMode == null) {
             throwExceptionOrLogError(validable, "Regulation mode is invalid", actionOnError, reportNode);
             return ValidationLevel.EQUIPMENT;

@@ -206,6 +206,9 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     @Override
     public StaticVarCompensator setRegulating(boolean regulating) {
+        NetworkImpl n = getNetwork();
+        ValidationUtil.checkSvcRegulator(this, regulating, getVoltageSetpoint(), getReactivePowerSetpoint(), getRegulationMode(),
+                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = getNetwork().getVariantIndex();
         this.regulatingPoint.setRegulating(variantIndex, regulating);
         return this;

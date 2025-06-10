@@ -7,10 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensatorAdder;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 
@@ -31,7 +28,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     private TerminalExt regulatingTerminal;
 
-    private boolean regulating;
+    private Boolean regulating;
 
     StaticVarCompensatorAdderImpl(VoltageLevelExt vl) {
         this.voltageLevel = Objects.requireNonNull(vl);
@@ -89,7 +86,10 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         String name = getName();
-        if (!regulating && regulationMode == null) {
+        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && regulating == null) {
+            regulating = false;
+        }
+        if (regulationMode == null) {
             this.regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
         }
 

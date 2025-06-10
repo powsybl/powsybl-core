@@ -110,6 +110,11 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
         double voltageSetpoint = context.getReader().readDoubleAttribute(voltageSetpointName[0]);
         double reactivePowerSetpoint = context.getReader().readDoubleAttribute(reactivePowerSetpointName[0]);
 
+        adder.setBmin(bMin)
+                .setBmax(bMax)
+                .setVoltageSetpoint(voltageSetpoint)
+                .setReactivePowerSetpoint(reactivePowerSetpoint);
+
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
             RegulationModeSerDe regulationModeSerDe = context.getReader().readEnumAttribute(REGULATION_MODE, RegulationModeSerDe.class);
             if (regulationModeSerDe != null) {
@@ -121,11 +126,6 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
             adder.setRegulationMode(context.getReader().readEnumAttribute(REGULATION_MODE, StaticVarCompensator.RegulationMode.class));
             adder.setRegulating(context.getReader().readBooleanAttribute(REGULATING, false));
         });
-
-        adder.setBmin(bMin)
-                .setBmax(bMax)
-                .setVoltageSetpoint(voltageSetpoint)
-                .setReactivePowerSetpoint(reactivePowerSetpoint);
 
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         StaticVarCompensator svc = adder.add();

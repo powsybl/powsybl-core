@@ -127,8 +127,8 @@ public class RegulatingControlMappingForStaticVarCompensators {
         svc.setVoltageSetpoint(targetVoltage);
         svc.setReactivePowerSetpoint(targetReactivePower);
         svc.setRegulatingTerminal(regulatingTerminal);
-        svc.setRegulating(regulating);
         svc.setRegulationMode(regulationMode);
+        svc.setRegulating(regulating);
         return okSet;
     }
 
@@ -171,8 +171,8 @@ public class RegulatingControlMappingForStaticVarCompensators {
         }
         svc.setVoltageSetpoint(targetVoltage);
         svc.setReactivePowerSetpoint(targetReactivePower);
-        svc.setRegulating(regulating);
         svc.setRegulationMode(regulationMode);
+        svc.setRegulating(regulating);
     }
 
     // SVCControlMode and voltageSetPoint are optional in Cgmes 3.0
