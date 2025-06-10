@@ -180,7 +180,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
-    public ShuntCompensatorAdder setSolvedSectionCount(int solvedSectionCount) {
+    public ShuntCompensatorAdder setSolvedSectionCount(Integer solvedSectionCount) {
         this.solvedSectionCount = solvedSectionCount;
         return this;
     }

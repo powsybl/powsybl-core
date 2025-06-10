@@ -113,6 +113,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
      * Get the count of sections in service.
+     * This value is the input for calculations.
      * Please note sections can only be sequentially in service i.e. the first sectionCount sections are in service.
      * <p>
      * It is expected to be greater than one and lesser than or equal to the
@@ -135,11 +136,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     }
 
     /**
-     * Get the solved count of sections in service.
-     * Please note that sections can only be sequentially in service, i.e., the first sectionCount sections are in service.
+     * Get the solved count of sections in service. This count represent the result count after a calculation (load flow).
      * <p>
-     * It is expected to be greater than one and lesser than or equal to the
-     * maximum section count.
+     * It is expected to be greater than one and lesser than or equal to the maximum section count.
      * It can be null if no calculation has been launched on the network.
      * <p>
      * Depends on the working variant.
@@ -193,7 +192,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * @param solvedSectionCount the number of solved sections in service
      * @return the shunt compensator to chain method calls.
      */
-    ShuntCompensator setSolvedSectionCount(int solvedSectionCount);
+    ShuntCompensator setSolvedSectionCount(Integer solvedSectionCount);
 
     /**
      * Unset the solved count of sections in service.
