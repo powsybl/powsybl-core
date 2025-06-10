@@ -58,6 +58,7 @@ public interface TapChanger<
 
     /**
      * Get the solved tap position.
+     * Can be null if no calculation has been done on the network.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
