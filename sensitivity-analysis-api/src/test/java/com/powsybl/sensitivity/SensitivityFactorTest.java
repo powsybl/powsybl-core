@@ -95,6 +95,7 @@ class SensitivityFactorTest extends AbstractSerDeTest {
         JsonFactory factory = new JsonFactory();
         JsonParser parser = factory.createParser(new StringReader(json));
         parser.nextToken();
-        assertThrows(NullPointerException.class, () -> SensitivityFactor.parseJson(parser));
+        Exception e = assertThrows(NullPointerException.class, () -> SensitivityFactor.parseJson(parser));
+        assertEquals("Parameter variableSet is missing", e.getMessage());
     }
 }
