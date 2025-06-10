@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Default implementation of NamingStrategies using ServiceLoaderCache.
  * @author Ghazwa Rehili {@literal <ghazwa.rehili at rte-france.com>}
  */
 public class NamingStrategiesServiceLoader {
