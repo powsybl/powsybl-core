@@ -20,6 +20,7 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -49,12 +50,12 @@ public class XmlReader extends AbstractTreeDataReader {
 
     @Override
     public Map<String, String> readExtensionVersions() {
+        int namespaceCount = reader.getNamespaceCount();
+        List<String> namespaceUris = IntStream.range(0, namespaceCount).boxed().map(reader::getNamespaceURI).toList();
         Map<String, String> versions = new HashMap<>();
         for (ExtensionSerDe<?, ?> e : extensionProviders) {
-            String namespaceUri = reader.getNamespaceURI(e.getNamespacePrefix());
-            if (namespaceUri != null) {
-                versions.put(e.getExtensionName(), e.getVersion(namespaceUri));
-            }
+            e.getNamespaceUriStream().filter(namespaceUris::contains).findFirst()
+                    .ifPresent(uri -> versions.put(e.getExtensionName(), e.getVersion(uri)));
         }
         return versions;
     }
@@ -149,6 +150,11 @@ public class XmlReader extends AbstractTreeDataReader {
     @Override
     public void readChildNodes(ChildNodeReader childNodeReader) {
         XmlUtil.readSubElements(reader, childNodeReader);
+    }
+
+    @Override
+    public void skipNode() {
+        readChildNodes(elementName -> skipNode());
     }
 
     @Override

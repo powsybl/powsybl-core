@@ -19,9 +19,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.powsybl.iidm.modification.util.ModificationLogs.busOrBbsDoesNotExist;
-import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.busOrBbsDoesNotExist;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * Adds a coupling device between two busbar sections. If topology extensions are present, then it creates open
@@ -93,7 +94,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             LOGGER.error("Voltage level associated to {} or {} not found.", busOrBbs1, busOrBbs2);
             notFoundBusOrBusbarSectionVoltageLevelReport(reportNode, busOrBbsId1, busOrBbsId2);
             if (throwException) {
-                throw new PowsyblException(String.format("Voltage level associated to %s or %s not found.", busOrBbs1, busOrBbs2));
+                throw new PowsyblException(String.format("Voltage level associated to %s or %s not found.", busOrBbs1.getId(), busOrBbs2.getId()));
             }
             return;
         }
@@ -115,7 +116,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             // busbar sections exist: voltage level is NODE_BREAKER
             applyOnBusbarSections(voltageLevel1, voltageLevel2, bbs1, bbs2, namingStrategy, reportNode);
         }
-        LOGGER.info("New coupling device was added to voltage level {} between {} and {}", voltageLevel1.getId(), busOrBbs1, busOrBbs2);
+        LOGGER.info("New coupling device was added to voltage level {} between {} and {}", voltageLevel1.getId(), busOrBbs1.getId(), busOrBbs2.getId());
         newCouplingDeviceAddedReport(reportNode, voltageLevel1.getId(), busOrBbsId1, busOrBbsId2);
     }
 
@@ -247,11 +248,8 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             return true;
         }
         if (bbs1 == bbs2) {
-            LOGGER.error("No coupling device can be created on a same busbar section or bus ({})", busOrBbsId1);
             noCouplingDeviceOnSameBusOrBusbarSection(reportNode, busOrBbsId1);
-            if (throwException) {
-                throw new PowsyblException(String.format("No coupling device can be created on a same bus or busbar section (%s)", busOrBbsId1));
-            }
+            logOrThrow(throwException, String.format("No coupling device can be created on a same bus or busbar section (%s)", busOrBbsId1));
             return true;
         }
         return false;

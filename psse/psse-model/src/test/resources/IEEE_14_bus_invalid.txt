@@ -3,26 +3,19 @@ CaseIdentification: Unexpected Basfrq: -60.00
 Bus: 2 defined multiple times (2)
 Bus: Unexpected I: 0
 Bus: 0 Unexpected Baskv: -38.00
-Load: Unexpected I: 16
 Load: Multiple loads (2) at bus 2 with the same Id 1 
-FixedShunt: Unexpected I: 19
 FixedShunt: Multiple fixed shunts (2) at bus 9 with the same Id  1
 Generator: 1 1  Unexpected Voltage setpoint: 0.00
 Generator: 2 1  Unexpected Pmin: 110000.00 Pmax: 10000.00
 Generator: 3 1  Unexpected Qmin: 60.00 Qmax: 40.00
-Generator: Unexpected I: 16
 Generator: 8 1  Unexpected IReg: 20
 Generator: Multiple generators (2) at bus 8 with the same Id 1 
-NonTransformerBranch: Unexpected I: 22
-NonTransformerBranch: Unexpected J: 23
 NonTransformerBranch: 7 8 1  Unexpected X: 0.00000
 NonTransformerBranch: Multiple branches (2) between buses 1 and 2 with the same Id 1 
-Transformer: Unexpected I: 24
-Transformer: Unexpected J: 19
-Transformer: 24 19 1  Unexpected X12: 0.00000
-Transformer: 24 19 1  Unexpected ratio: -0.96000
-Transformer: 24 19 1  Unexpected winding1 Vmi Vma: 0.51000 0.50000
-Transformer: 24 19 1  Unexpected winding1 Rmi Rma: 1.51000 1.50000
+Transformer: 4 9 1  Unexpected X12: 0.00000
+Transformer: 4 9 1  Unexpected ratio: -0.96000
+Transformer: 4 9 1  Unexpected winding1 Vmi Vma: 0.51000 0.50000
+Transformer: 4 9 1  Unexpected winding1 Rmi Rma: 1.51000 1.50000
 Transformer: 5 6 1  Unexpected sbase12: -100.00000
 Transformer: 5 6 1  Unexpected winding1 Vmi Vma: 0.51000 0.00000
 Transformer: 5 6 1  Unexpected winding1 Rmi Rma: 0.51000 0.50000
@@ -34,29 +27,25 @@ Transformer: 7 2 4 1  Unexpected winding3 Vmi Vma: 0.90000 0.30000
 Transformer: 7 2 4 1  Unexpected winding1 Rmi Rma: 0.90000 0.10000
 Transformer: 7 2 4 1  Unexpected winding2 Rmi Rma: 0.89264 0.09385
 Transformer: 7 2 4 1  Unexpected winding3 Rmi Rma: 0.90422 0.09191
-Transformer: Unexpected I: 24
-Transformer: Unexpected J: 22
-Transformer: Unexpected K: 17
-Transformer: 24 22 17 1  Unexpected X12: 0.00000
-Transformer: 24 22 17 1  Unexpected X31: 0.00000
-Transformer: 24 22 17 1  Unexpected X23: 0.00000
-Transformer: 24 22 17 1  Unexpected winding1 ratio: 0.00000
-Transformer: 24 22 17 1  Unexpected winding2 ratio: -1.05727
-Transformer: 24 22 17 1  Unexpected winding3 ratio: -0.96874
-Transformer: 24 22 17 1  Unexpected sbase12: -500.00000
-Transformer: 24 22 17 1  Unexpected sbase23: 0.00000
-Transformer: 24 22 17 1  Unexpected sbase31: -180.00000
-Transformer: 24 22 17 1  Unexpected winding1 Vmi Vma: 0.90000 0.10000
-Transformer: 24 22 17 1  Unexpected winding2 Vmi Vma: 0.90000 0.20000
-Transformer: 24 22 17 1  Unexpected winding3 Vmi Vma: 0.90000 -1.10000
-Transformer: 24 22 17 1  Unexpected winding1 Rmi Rma: 1.90000 1.10000
-Transformer: 24 22 17 1  Unexpected winding2 Rmi Rma: 1.89264 1.09385
-Transformer: 24 22 17 1  Unexpected winding3 Rmi Rma: 1.90422 1.09191
-Transformer: 24 22 17 1  Unexpected winding1 Cont: 17
-Transformer: 24 22 17 1  Unexpected winding2 Cont: 22
-Transformer: 24 22 17 1  Unexpected winding3 Cont: 0
+Transformer: 4 2 7 2  Unexpected X12: 0.00000
+Transformer: 4 2 7 2  Unexpected X31: 0.00000
+Transformer: 4 2 7 2  Unexpected X23: 0.00000
+Transformer: 4 2 7 2  Unexpected winding1 ratio: 0.00000
+Transformer: 4 2 7 2  Unexpected winding2 ratio: -1.05727
+Transformer: 4 2 7 2  Unexpected winding3 ratio: -0.96874
+Transformer: 4 2 7 2  Unexpected sbase12: -500.00000
+Transformer: 4 2 7 2  Unexpected sbase23: 0.00000
+Transformer: 4 2 7 2  Unexpected sbase31: -180.00000
+Transformer: 4 2 7 2  Unexpected winding1 Vmi Vma: 0.90000 0.10000
+Transformer: 4 2 7 2  Unexpected winding2 Vmi Vma: 0.90000 0.20000
+Transformer: 4 2 7 2  Unexpected winding3 Vmi Vma: 0.90000 -1.10000
+Transformer: 4 2 7 2  Unexpected winding1 Rmi Rma: 1.90000 1.10000
+Transformer: 4 2 7 2  Unexpected winding2 Rmi Rma: 1.89264 1.09385
+Transformer: 4 2 7 2  Unexpected winding3 Rmi Rma: 1.90422 1.09191
+Transformer: 4 2 7 2  Unexpected winding1 Cont: 17
+Transformer: 4 2 7 2  Unexpected winding2 Cont: 22
+Transformer: 4 2 7 2  Unexpected winding3 Cont: 0
 Transformer: Multiple branches (2) between buses 2, 4 and 7 with the same Id 1 
-SwitchedShunt: Unexpected I: 17
 SwitchedShunt: 6 Unexpected Swrem/Swreg: 17
 SwitchedShunt: 6 Unexpected Vswlo Vswhi: 1.99000 1.00000
 SwitchedShunt: Multiple fixed shunts (2) at bus 6

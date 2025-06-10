@@ -650,9 +650,8 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
         List<TopologyModelInfos> oldTopologyModelInfos = new ArrayList<>();
         for (Terminal oldTerminal : topologyModel.getTerminals()) {
             Bus connectableBus = oldTerminal.getBusBreakerView().getConnectableBus();
-            String connectableBusId = connectableBus == null ? null : connectableBus.getId();
             boolean connected = oldTerminal.isConnected();
-            oldTopologyModelInfos.add(new TopologyModelInfos((TerminalExt) oldTerminal, connectableBusId, connected));
+            oldTopologyModelInfos.add(new TopologyModelInfos((TerminalExt) oldTerminal, connectableBus.getId(), connected));
         }
 
         for (var infos : oldTopologyModelInfos) {

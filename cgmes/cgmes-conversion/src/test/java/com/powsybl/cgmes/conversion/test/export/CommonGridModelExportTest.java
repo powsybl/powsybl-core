@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CgmesMetadataModelsAdder;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
@@ -19,6 +18,8 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
@@ -58,7 +59,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class CommonGridModelExportTest extends AbstractSerDeTest {
-
     private static final Pattern REGEX_SCENARIO_TIME = Pattern.compile("Model.scenarioTime>(.*?)<");
     private static final Pattern REGEX_DESCRIPTION = Pattern.compile("Model.description>(.*?)<");
     private static final Pattern REGEX_VERSION = Pattern.compile("Model.version>(.*?)<");
@@ -448,9 +448,9 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "MAS1");
 
         // Export using a reporter to gather the exported model identifiers
-        ReportNode report = ReportNode
-                .newRootReportNode()
-                .withMessageTemplate("rootKey", "")
+        ReportNode report = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("rootKey")
                 .build();
 
         MemDataSource memDataSource = new MemDataSource();
@@ -495,11 +495,11 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // Obtain exported model identifiers from reporter
         Set<String> exportedModelIdsFromReporter = new HashSet<>();
         for (ReportNode n : report.getChildren()) {
-            if (CgmesExportUtil.REPORT_NODE_KEY_EXPORTED_CGMES_ID.equals(n.getMessageKey())) {
-                cgmesId = n.getValue(CgmesExportUtil.REPORT_VALUE_EXPORTED_CGMES_ID).orElseThrow().toString();
+            if ("core.cgmes.conversion.ExportedCgmesId".equals(n.getMessageKey())) {
+                cgmesId = n.getValue("cgmesId").orElseThrow().toString();
                 exportedModelIdsFromReporter.add(cgmesId);
-                String subset = n.getValue(CgmesExportUtil.REPORT_VALUE_EXPORTED_CGMES_SUBSET).orElseThrow().toString();
-                String networkId = n.getValue(CgmesExportUtil.REPORT_VALUE_EXPORTED_CGMES_NETWORK_ID).orElseThrow().toString();
+                String subset = n.getValue("cgmesSubset").orElseThrow().toString();
+                String networkId = n.getValue("networkId").orElseThrow().toString();
                 assertEquals(exportedModelId2Subset.get(cgmesId), subset);
                 assertEquals(exportedModelId2NetworkId.get(cgmesId), networkId);
             }
@@ -595,15 +595,10 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
     private static Optional<Integer> readVersion(InputStream is) {
         try {
             XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
-            boolean insideModelVersion = false;
             while (reader.hasNext()) {
                 int next = reader.next();
                 if (next == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals("Model.version")) {
-                    insideModelVersion = true;
-                } else if (next == XMLStreamConstants.END_ELEMENT) {
-                    insideModelVersion = false;
-                } else if (next == XMLStreamConstants.CHARACTERS && insideModelVersion) {
-                    String version = reader.getText();
+                    String version = reader.getElementText();
                     reader.close();
                     return Optional.of(Integer.parseInt(version));
                 }

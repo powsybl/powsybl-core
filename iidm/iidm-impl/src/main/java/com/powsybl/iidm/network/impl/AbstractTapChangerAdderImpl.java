@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.NetworkReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,8 +79,7 @@ abstract class AbstractTapChangerAdderImpl<
     public T add() {
         NetworkImpl network = getNetwork();
         if (tapPosition == null) {
-            ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel(),
-                    network.getReportNodeContext().getReportNode());
+            ValidationUtil.throwExceptionOrIgnore(parent, "tap position is not set", network.getMinValidationLevel());
             network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
         }
         if (steps.isEmpty()) {
@@ -89,9 +88,9 @@ abstract class AbstractTapChangerAdderImpl<
         if (tapPosition != null) {
             int highTapPosition = lowTapPosition + steps.size() - 1;
             if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
-                ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
+                ValidationUtil.throwExceptionOrIgnore(parent, "incorrect tap position "
                         + tapPosition + " [" + lowTapPosition + ", "
-                        + highTapPosition + "]", network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
+                        + highTapPosition + "]", network.getMinValidationLevel());
                 network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
             }
         }
@@ -109,11 +108,7 @@ abstract class AbstractTapChangerAdderImpl<
 
         if (parent.hasPhaseTapChanger() && parent.hasRatioTapChanger()) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
-            network.getReportNodeContext().getReportNode().newReportNode()
-                    .withMessageTemplate("validationWarning", "${parent} has both Ratio and Phase Tap Changer.")
-                    .withUntypedValue("parent", parent.getMessageHeader())
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .add();
+            NetworkReports.parentHasBothRatioAndPhaseTapChanger(network.getReportNodeContext().getReportNode(), parent.getMessageHeader());
         }
 
         return tapChanger;

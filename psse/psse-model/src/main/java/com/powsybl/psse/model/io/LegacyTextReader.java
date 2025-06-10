@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 
@@ -92,7 +93,7 @@ public class LegacyTextReader {
 
     public String readUntilFindingARecordLineNotEmpty() throws IOException {
         String line = readRecordLine();
-        while (emptyLine(line)) {
+        while (emptyLine(line) || isRecordLineDefiningTheAttributeFields(line)) {
             line = readRecordLine();
         }
         return line;
@@ -103,13 +104,16 @@ public class LegacyTextReader {
     public String readRecordLine() throws IOException {
         String line = reader.readLine();
         if (line == null) {
-            throw new PsseException("PSSE. Unexpected end of file");
+            if (qRecordFound) {
+                throw new PsseException("PSSE. Unexpected end of file");
+            }
+            return "Q";
         }
         if (isRecordLineDefiningTheAttributeFields(line)) {
             return ""; // an empty line must be returned
         }
         StringBuilder newLine = new StringBuilder();
-        Matcher m = FileFormat.LEGACY_TEXT_QUOTED_OR_WHITESPACE.matcher(removeComment(line));
+        Matcher m = FileFormat.LEGACY_TEXT_QUOTED_OR_WHITESPACE.matcher(processText(removeComment(line)));
         while (m.find()) {
             // If current group is quoted, keep it as it is
             if (m.group().indexOf(LEGACY_TEXT.getQuote()) >= 0) {
@@ -123,14 +127,39 @@ public class LegacyTextReader {
         return newLine.toString().trim();
     }
 
-    // all the lines beginning with "@!" are record lines defining the attribute fields
-    private static boolean isRecordLineDefiningTheAttributeFields(String line) {
-        return line.length() >= 2 && line.substring(0, 2).equals("@!");
+    private static String removeComment(String line) {
+        return line.replaceAll(FileFormat.REMOVE_COMMENT_REGEX, "$1$2");
     }
 
-    private static String removeComment(String line) {
-        // Only outside quotes
-        return line.replaceAll("('[^']*')|(^/[^/]*)|(/[^/]*)", "$1$2");
+    // Compact spaces, remove spaces before the comma, and replace space with comma outside quoted text
+    protected static String processText(String line) {
+        if (line == null || line.isEmpty()) {
+            return line;
+        }
+
+        StringBuilder result = new StringBuilder();
+        Pattern pattern = FileFormat.LEGACY_QUOTED_OR_NON_QUOTED_TEXT;
+        Matcher matcher = pattern.matcher(line.trim());
+
+        while (matcher.find()) {
+            String part = matcher.group();
+            if (part.startsWith("'") && part.endsWith("'")) {
+                result.append(part);
+            } else {
+                // Outside quotes: process the txt
+                // On the next line: "(?<=\S|^)" = backtracking protection. The previous char should be a non-white char or a line start.
+                result.append(part.replaceAll("(?<=\\S|^)\\s+,", ",") // see comment above
+                        .replaceAll(",\\s+", ",")
+                        .replaceAll("\\s+", ","));
+            }
+        }
+
+        return result.toString();
+    }
+
+    // all the lines beginning with "@!" are record lines defining the attribute fields
+    private static boolean isRecordLineDefiningTheAttributeFields(String line) {
+        return line.startsWith("@!");
     }
 
     private static String replaceSpecialCharacters(String line) {

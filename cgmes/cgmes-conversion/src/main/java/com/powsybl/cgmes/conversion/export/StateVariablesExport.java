@@ -19,6 +19,7 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.util.HvdcUtils;
 import com.powsybl.iidm.network.util.SwitchesFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -605,12 +606,14 @@ public final class StateVariablesExport {
     }
 
     private static void writeStatus(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        // create SvStatus, iterate on Connectables, check Terminal status, add to SvStatus
-        network.getConnectableStream().forEach(c -> {
-            if (context.isExportedEquipment(c)) {
-                writeConnectableStatus(c, cimNamespace, writer, context);
-            }
-        });
+        if (!context.isCim16BusBranchExport()) {
+            // create SvStatus, iterate on Connectables, check Terminal status, add to SvStatus
+            network.getConnectableStream().forEach(c -> {
+                if (context.isExportedEquipment(c)) {
+                    writeConnectableStatus(c, cimNamespace, writer, context);
+                }
+            });
+        }
 
         // RK: For dangling lines (boundaries), the AC Line Segment is considered in service if and only if it is connected on the network side.
         // If it is disconnected on the boundary side, it might not appear on the SV file.
@@ -675,20 +678,24 @@ public final class StateVariablesExport {
 
     private static double getPoleLossP(HvdcConverterStation<?> converterStation) {
         double poleLoss;
+        HvdcLine hvdcLine = converterStation.getHvdcLine();
         if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
             double p = converterStation.getTerminal().getP();
             if (Double.isNaN(p)) {
-                p = converterStation.getHvdcLine().getActivePowerSetpoint();
+                p = hvdcLine.getActivePowerSetpoint();
             }
             poleLoss = p * converterStation.getLossFactor() / 100;
         } else {
             double p = converterStation.getTerminal().getP();
-            if (Double.isNaN(p)) {
-                p = converterStation.getHvdcLine().getActivePowerSetpoint();
+            if (!Double.isNaN(p)) {
+                poleLoss = Math.abs(p) * converterStation.getLossFactor() / (100 - converterStation.getLossFactor());
+            } else {
+                p = hvdcLine.getActivePowerSetpoint();
+                double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
+                double pDCRectifier = Math.abs(p) * (1 - otherConverterStationLossFactor / 100);
+                double pDCInverter = pDCRectifier - HvdcUtils.getHvdcLineLosses(pDCRectifier, hvdcLine.getNominalV(), hvdcLine.getR());
+                poleLoss = pDCInverter * converterStation.getLossFactor() / 100;
             }
-            double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
-            double pDCInverter = Math.abs(p) * (1 - otherConverterStationLossFactor / 100);
-            poleLoss = pDCInverter * converterStation.getLossFactor() / 100;
         }
         return poleLoss;
     }

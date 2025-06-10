@@ -19,6 +19,7 @@ import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -32,19 +33,61 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
     private final String namespacePrefix;
     private final Map<IidmVersion, ImmutableSortedSet<String>> extensionVersions = new EnumMap<>(IidmVersion.class);
     private final BiMap<String, String> namespaceUris = HashBiMap.create();
+    private final Map<String, String> serializationNameByVersion = new HashMap<>();
+    private final Map<String, String> namespacePrefixByVersion = new HashMap<>();
+
+    public record AlternativeSerializationData(String name, List<String> versions, String namespacePrefix) {
+        public AlternativeSerializationData(String name, List<String> versions) {
+            this(name, versions, null);
+        }
+    }
 
     protected AbstractVersionableNetworkExtensionSerDe(String extensionName, Class<? super E> extensionClass, String namespacePrefix,
                                                        Map<IidmVersion, ImmutableSortedSet<String>> extensionVersions, Map<String, String> namespaceUris) {
+        this(extensionName, extensionClass, namespacePrefix, extensionVersions, namespaceUris, null);
+    }
+
+    protected AbstractVersionableNetworkExtensionSerDe(String extensionName, Class<? super E> extensionClass, String namespacePrefix,
+                                                       Map<IidmVersion, ImmutableSortedSet<String>> extensionVersions,
+                                                       Map<String, String> namespaceUris,
+                                                       List<AlternativeSerializationData> alternativeSerializationData) {
         this.extensionName = Objects.requireNonNull(extensionName);
         this.extensionClass = Objects.requireNonNull(extensionClass);
         this.namespacePrefix = Objects.requireNonNull(namespacePrefix);
         this.extensionVersions.putAll(Objects.requireNonNull(extensionVersions));
         this.namespaceUris.putAll(Objects.requireNonNull(namespaceUris));
+
+        if (alternativeSerializationData != null) {
+            Set<String> names = new HashSet<>();
+            for (AlternativeSerializationData data : alternativeSerializationData) {
+                if (!names.add(data.name())) {
+                    throw new IllegalArgumentException("Duplicate alternative serialization name: " + data.name());
+                }
+                data.versions().forEach(version -> {
+                    this.serializationNameByVersion.put(version, data.name());
+                    if (data.namespacePrefix() != null) {
+                        this.namespacePrefixByVersion.put(version, data.namespacePrefix());
+                    }
+                });
+            }
+        }
     }
 
     @Override
     public String getExtensionName() {
         return extensionName;
+    }
+
+    @Override
+    public String getSerializationName(String extensionVersion) {
+        return serializationNameByVersion.getOrDefault(extensionVersion, extensionName);
+    }
+
+    @Override
+    public Set<String> getSerializationNames() {
+        Set<String> names = new HashSet<>(serializationNameByVersion.values());
+        names.add(extensionName);
+        return names;
     }
 
     @Override
@@ -60,6 +103,11 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
     @Override
     public String getNamespaceUri() {
         return getNamespaceUri(getVersion());
+    }
+
+    @Override
+    public Stream<String> getNamespaceUriStream() {
+        return namespaceUris.values().stream().distinct();
     }
 
     @Override
@@ -125,6 +173,11 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
     @Override
     public String getNamespacePrefix() {
         return namespacePrefix;
+    }
+
+    @Override
+    public String getNamespacePrefix(String extensionVersion) {
+        return namespacePrefixByVersion.getOrDefault(extensionVersion, namespacePrefix);
     }
 
     @Override

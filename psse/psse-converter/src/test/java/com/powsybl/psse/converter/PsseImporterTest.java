@@ -7,23 +7,27 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.RecordGroupIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Properties;
 
@@ -194,6 +198,21 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void twoAreaCase() throws IOException {
+        importTest("two_area_case", "two_area_case.raw", false);
+    }
+
+    @Test
+    void twoTerminalDcwithTwoAreas() throws IOException {
+        importTest("twoTerminalDcwithTwoAreas", "twoTerminalDcwithTwoAreas.raw", false);
+    }
+
+    @Test
+    void twoTerminalDcwithTwoAreasTrf3w() throws IOException {
+        importTest("two_area_case_trf3w", "two_area_case_trf3w.raw", false);
+    }
+
+    @Test
     void importTest14BusesDuplicateIds() throws IOException {
         Network n = importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
         assertNotNull(n.getLoad("B2-L1 "));
@@ -226,6 +245,39 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertNotNull(n.getLine("L-2-1-11"));
         assertNotNull(n.getTwoWindingsTransformer("T-4-7-1 "));
         assertNotNull(n.getTwoWindingsTransformer("T-4-7-10"));
+    }
+
+    @Test
+    void importTest14BadlyConnectedEquipment() throws IOException {
+        Network n = importTest("IEEE_14_buses_badly_connected_equipment", "IEEE_14_buses_badly_connected_equipment.raw", false);
+
+        // Ensure that the equipment is not imported
+        assertNull(n.getLoad("B200-L1 "));
+        assertNull(n.getShuntCompensator("B200-SH 1"));
+        assertNull(n.getGenerator("B200-G1 "));
+        assertNull(n.getLine("L-200-13-1 "));
+        assertNull(n.getLine("L-13-200-2 "));
+        assertNull(n.getTwoWindingsTransformer("T-7-200-2 "));
+        assertNull(n.getTwoWindingsTransformer("T-200-7-3 "));
+        assertNull(n.getThreeWindingsTransformer("T-200-2-7-1 "));
+        assertNull(n.getThreeWindingsTransformer("T-4-200-7-2 "));
+        assertNull(n.getThreeWindingsTransformer("T-4-2-200-3 "));
+        assertNull(n.getHvdcLine("TwoTerminalDc-EATL P1     "));
+        assertNull(n.getHvdcLine("TwoTerminalDc-EATL P2     "));
+        assertNull(n.getShuntCompensator("B200-SwSH1"));
+    }
+
+    @Test
+    void importTest14BadlyDefinedControlledBuses() throws IOException {
+        Network n = importTest("IEEE_14_buses_badly_defined_controlled_buses", "IEEE_14_buses_badly_defined_controlled_buses.raw", false);
+
+        // Ensure that the equipment is imported
+        assertNotNull(n.getGenerator("B8-G1 "));
+        assertNotNull(n.getTwoWindingsTransformer("T-4-7-1 "));
+        assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
+        assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
+        assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
+        assertNotNull(n.getShuntCompensator("B2-SwSH1"));
     }
 
     @Test
@@ -318,5 +370,63 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertFalse(t3w.getLeg2().getRatioTapChanger().isRegulating());
         assertNotNull(t3w.getLeg3().getRatioTapChanger());
         assertFalse(t3w.getLeg3().getRatioTapChanger().isRegulating());
+    }
+
+    @Test
+    void importTwoSubstationsTest() throws IOException {
+        importTest("twoSubstations_rev35", "twoSubstations_rev35.raw", false);
+    }
+
+    @Test
+    void importTwoSubstationsRawxTest() throws IOException {
+        importTest("twoSubstations_rev35", "twoSubstations_rev35.rawx", false);
+    }
+
+    @Test
+    void importTest14Delimiter() throws IOException {
+        importTest("IEEE_14_bus_delimiter", "IEEE_14_bus_delimiter.raw", false);
+    }
+
+    @Test
+    void emptyRecordParsingTest() {
+        DummyRecordGroup group = new DummyRecordGroup();
+        Context context = new Context();
+        assertThatExceptionOfType(PsseException.class)
+                .isThrownBy(() -> group.parseSingleRecord(null, new String[]{"field"}, context))
+                .withMessage("Parsing error");
+    }
+
+    public record DummyRecord(String field) {
+    }
+
+    public static class DummyRecordGroup extends AbstractRecordGroup<DummyRecord> {
+        public DummyRecordGroup() {
+            super(new RecordGroupIdentification() {
+                @Override
+                public String getDataName() {
+                    return "dummy";
+                }
+
+                @Override
+                public String getJsonNodeName() {
+                    return "dummyJson";
+                }
+
+                @Override
+                public String getLegacyTextName() {
+                    return "dummyLegacy";
+                }
+
+                @Override
+                public RecordGroupIdentification.JsonObjectType getJsonObjectType() {
+                    return RecordGroupIdentification.JsonObjectType.DATA_TABLE;
+                }
+            }, "field");
+        }
+
+        @Override
+        protected Class<DummyRecord> psseTypeClass() {
+            return DummyRecord.class;
+        }
     }
 }

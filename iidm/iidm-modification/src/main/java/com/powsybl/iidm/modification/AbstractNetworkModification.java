@@ -10,22 +10,19 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
+import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public abstract class AbstractNetworkModification implements NetworkModification {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractNetworkModification.class);
     protected static final NetworkModificationImpact DEFAULT_IMPACT = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
     protected static final double EPSILON = 1e-10;
 
@@ -144,21 +141,17 @@ public abstract class AbstractNetworkModification implements NetworkModification
     @Override
     public boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         if (dryRun) {
-            ReportNode dryRunReportNode = reportOnDryRunStart(network, reportNode);
+            ReportNode dryRunReportNode = ModificationReports.reportOnDryRunStart(reportNode, network, getName());
             try {
                 //TODO The following copy performs a JSON export/import. It will be more performant to change it to the BIN format.
                 Network dryRunNetwork = NetworkSerDe.copy(network, TreeDataFormat.JSON);
                 dryRunNetwork.setName(network.getNameOrId() + "_Dry-run");
                 apply(dryRunNetwork, namingStrategy, true, computationManager, dryRunReportNode);
             } catch (PowsyblException powsyblException) {
-                reportOnInconclusiveDryRun(dryRunReportNode, powsyblException.getMessage());
+                ModificationReports.reportOnInconclusiveDryRun(dryRunReportNode, powsyblException.getMessage(), getName());
                 return false;
             }
-            dryRunReportNode.newReportNode()
-                .withMessageTemplate("networkModificationDryRun-success",
-                    "Dry-run: Network modifications can successfully be applied on network '${networkNameOrId}'")
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+            ModificationReports.dryRunReportNode(dryRunReportNode);
         } else {
             apply(network, namingStrategy, throwException, computationManager, reportNode);
         }
@@ -166,43 +159,10 @@ public abstract class AbstractNetworkModification implements NetworkModification
     }
 
     /**
-     * Utility during apply functions, logs or throw the message.
-     *
-     * @param throwException if true will throw {@link com.powsybl.commons.PowsyblException} with the given message
-     */
-    protected void logOrThrow(boolean throwException, String message) {
-        if (throwException) {
-            throw new PowsyblException(message);
-        } else {
-            LOGGER.warn("Error while applying modification : {}", message);
-        }
-    }
-
-    /**
      * Returns the name of the network modification. That name corresponds to the type of network modification
      * @return the name of the network modification
      */
     public abstract String getName();
-
-    protected ReportNode reportOnDryRunStart(Network network, ReportNode reportNode) {
-        String templateKey = "networkModificationDryRun";
-        String messageTemplate = "Dry-run: Checking if network modification ${networkModification} can be applied on network '${networkNameOrId}'";
-        return reportNode.newReportNode()
-            .withMessageTemplate(templateKey, messageTemplate)
-            .withUntypedValue("networkModification", getName())
-            .withUntypedValue("networkNameOrId", network.getNameOrId())
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
-    }
-
-    protected void reportOnInconclusiveDryRun(ReportNode reportNode, String cause) {
-        reportNode.newReportNode()
-            .withMessageTemplate("networkModificationDryRun-failure",
-                "Dry-run failed for ${networkModification}. The issue is: ${dryRunError}")
-            .withUntypedValue("dryRunError", cause)
-            .withUntypedValue("networkModification", getName())
-            .add();
-    }
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
