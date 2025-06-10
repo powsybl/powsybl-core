@@ -95,6 +95,6 @@ class SensitivityFactorTest extends AbstractSerDeTest {
         JsonFactory factory = new JsonFactory();
         JsonParser parser = factory.createParser(new StringReader(json));
         parser.nextToken();
-        assertThrows(NullPointerException.class, SensitivityFactor.parseJson(parser));
+        assertThrows(NullPointerException.class, () -> SensitivityFactor.parseJson(parser));
     }
 }
