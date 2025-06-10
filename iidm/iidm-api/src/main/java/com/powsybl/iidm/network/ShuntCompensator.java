@@ -192,7 +192,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * @param solvedSectionCount the number of solved sections in service
      * @return the shunt compensator to chain method calls.
      */
-    ShuntCompensator setSolvedSectionCount(Integer solvedSectionCount);
+    ShuntCompensator setSolvedSectionCount(int solvedSectionCount);
 
     /**
      * Unset the solved count of sections in service.
