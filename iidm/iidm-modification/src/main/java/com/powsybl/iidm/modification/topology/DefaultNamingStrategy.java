@@ -7,11 +7,8 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.iidm.network.*;
 import com.google.auto.service.AutoService;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.List;
 
