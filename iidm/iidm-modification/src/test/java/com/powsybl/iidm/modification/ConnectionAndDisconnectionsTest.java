@@ -594,6 +594,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withIdentifiableId("ELEMENT_NOT_PRESENT")
             .withFictitiousSwitchesOperable(false)
             .build();
+
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
         ComputationManager computationManager = LocalComputationManager.getDefault();
         assertDoesNotThrow(() -> disconnection.apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP));

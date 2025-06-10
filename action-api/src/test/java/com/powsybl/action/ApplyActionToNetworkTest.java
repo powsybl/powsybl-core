@@ -14,6 +14,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
@@ -72,17 +73,18 @@ class ApplyActionToNetworkTest {
         // Disconnection
         TerminalsConnectionAction disconnectionAction = new TerminalsConnectionAction("id", "NHV1_NHV2_1", true);
         NetworkModification disconnection = disconnectionAction.toModification();
+        NamingStrategy namingStrategy = new DefaultNamingStrategy();
         ComputationManager computationManager = LocalComputationManager.getDefault();
         assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
         assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
-        disconnection.apply(network, new DefaultNamingStrategy(), true, computationManager, ReportNode.NO_OP);
+        disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP);
         assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
         assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
 
         // Connection
         TerminalsConnectionAction connectionAction = new TerminalsConnectionAction("id", "NHV1_NHV2_1", false);
         NetworkModification connection = connectionAction.toModification();
-        connection.apply(network, new DefaultNamingStrategy(), true, computationManager, ReportNode.NO_OP);
+        connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP);
         assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
         assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
     }
