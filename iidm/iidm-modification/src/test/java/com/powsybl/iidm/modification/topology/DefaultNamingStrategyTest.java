@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.iidm.modification.topology.NamingStrategiesManager.getDefaultNamingStrategy;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -24,7 +23,7 @@ class DefaultNamingStrategyTest {
 
     @BeforeEach
     void setUp() {
-        namingStrategy = getDefaultNamingStrategy();
+        namingStrategy = new DefaultNamingStrategy();
     }
 
     @Test

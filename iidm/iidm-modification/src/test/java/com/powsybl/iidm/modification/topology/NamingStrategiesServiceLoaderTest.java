@@ -8,9 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.modification.topology.NamingStrategiesManager.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -29,7 +27,7 @@ class NamingStrategiesServiceLoaderTest {
 
     @Test
     void testLoadNamingStrategies() {
-        List<NamingStrategy> strategies = loader.loadNamingStrategies();
+        List<NamingStrategy> strategies = loader.findAllNamingStrategies();
 
         assertNotNull(strategies);
         assertFalse(strategies.isEmpty());
@@ -39,7 +37,7 @@ class NamingStrategiesServiceLoaderTest {
 
     @Test
     void testGetDefault() {
-        NamingStrategy defaultStrategy = loader.getDefaultNamingStrategy();
+        NamingStrategy defaultStrategy = new DefaultNamingStrategy();
 
         assertNotNull(defaultStrategy);
         assertNotNull(defaultStrategy.getName());
@@ -48,9 +46,9 @@ class NamingStrategiesServiceLoaderTest {
 
     @Test
     void testGetDefaultPrefersDefault() {
-        NamingStrategy defaultStrategy = loader.getDefaultNamingStrategy();
+        NamingStrategy defaultStrategy = new DefaultNamingStrategy();
 
-        List<NamingStrategy> allStrategies = loader.loadNamingStrategies();
+        List<NamingStrategy> allStrategies = loader.findAllNamingStrategies();
         if (allStrategies.size() > 1) {
             boolean hasDefaultStrategy = allStrategies.stream()
                     .anyMatch(s -> "Default".equals(s.getName()));
@@ -72,29 +70,8 @@ class NamingStrategiesServiceLoaderTest {
     }
 
     @Test
-    void testFindAll() {
-        List<NamingStrategy> strategies1 = loader.loadNamingStrategies();
-        List<NamingStrategy> strategies2 = loader.findAllNamingStrategies();
-
-        assertEquals(strategies1.size(), strategies2.size());
-        assertTrue(strategies1.containsAll(strategies2));
-    }
-
-    @Test
-    void testGetAvailableStrategyNames() {
-        List<NamingStrategy> strategies = loader.loadNamingStrategies();
-        Set<String> expectedNames = strategies.stream()
-                .map(NamingStrategy::getName)
-                .collect(Collectors.toSet());
-
-        Set<String> actualNames = loader.getAvailableStrategyNames();
-
-        assertEquals(expectedNames, actualNames);
-    }
-
-    @Test
     void testNoDuplicateNames() {
-        List<NamingStrategy> strategies = loader.loadNamingStrategies();
+        List<NamingStrategy> strategies = loader.findAllNamingStrategies();
 
         Set<String> names = new HashSet<>();
         for (NamingStrategy strategy : strategies) {
@@ -126,37 +103,13 @@ class NamingStrategiesServiceLoaderTest {
     }
 
     @Test
-    void testCompleteIntegration() {
-        NamingStrategy strategyFromFactory = getDefaultNamingStrategy();
-
-        NamingStrategiesServiceLoader serviceLoader = new NamingStrategiesServiceLoader();
-        NamingStrategy strategyFromLoader = serviceLoader.getDefaultNamingStrategy();
-
-        assertEquals(strategyFromFactory.getName(), strategyFromLoader.getName());
-    }
-
-    @Test
     void testConsistencyBetweenMethods() {
-        NamingStrategy defaultStrategy = getDefaultNamingStrategy();
-        Optional<NamingStrategy> foundStrategy = findNamingStrategyByName("Default");
-        List<NamingStrategy> allStrategies = findAllNamingStrategies();
+        NamingStrategy defaultStrategy = new DefaultNamingStrategy();
+        Optional<NamingStrategy> foundStrategy = loader.findNamingStrategyByName("Default");
+        List<NamingStrategy> allStrategies = loader.findAllNamingStrategies();
 
+        assertTrue(allStrategies.stream().anyMatch(strategy -> strategy.getName().equals(defaultStrategy.getName())));
         assertTrue(foundStrategy.isPresent());
         assertEquals(defaultStrategy.getName(), foundStrategy.get().getName());
-        assertTrue(allStrategies.contains(defaultStrategy));
-    }
-
-    @Test
-    void testPerformanceNoUnnecessaryReloading() {
-        long startTime = System.currentTimeMillis();
-
-        for (int i = 0; i < 100; i++) {
-            getDefaultNamingStrategy();
-            findAllNamingStrategies();
-        }
-
-        long duration = System.currentTimeMillis() - startTime;
-
-        assertTrue(duration < 1000, "Operations should be fast due to caching");
     }
 }

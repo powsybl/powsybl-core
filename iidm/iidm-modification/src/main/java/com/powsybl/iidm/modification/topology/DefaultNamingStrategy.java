@@ -23,11 +23,11 @@ import java.util.List;
 public class DefaultNamingStrategy implements NamingStrategy {
 
     public static final String STRATEGY_NAME = "Default";
-    public static final String SEPARATOR = "_";
-    public static final String DISCONNECTOR_NAMEBASE = "DISCONNECTOR";
-    public static final String BREAKER_NAMEBASE = "BREAKER";
-    public static final String SWITCH_NAMEBASE = "SW";
-    public static final String BUS_NAMEBASE = "BUS";
+    private static final String SEPARATOR = "_";
+    private static final String DISCONNECTOR_NAMEBASE = "DISCONNECTOR";
+    private static final String BREAKER_NAMEBASE = "BREAKER";
+    private static final String SWITCH_NAMEBASE = "SW";
+    private static final String BUS_NAMEBASE = "BUS";
 
     @Override
     public final String getName() {

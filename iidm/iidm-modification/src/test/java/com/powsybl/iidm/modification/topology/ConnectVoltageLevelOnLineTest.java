@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
-import static com.powsybl.iidm.modification.topology.NamingStrategiesManager.getDefaultNamingStrategy;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,7 +43,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
                 .build();
-        modification.apply(network, getDefaultNamingStrategy(), false, reportNode);
+        modification.apply(network, new DefaultNamingStrategy(), false, reportNode);
         writeXmlTest(network, "/fictitious-line-split-vl.xml");
     }
 
@@ -59,7 +58,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
-        modification.apply(network, getDefaultNamingStrategy(), reportNode);
+        modification.apply(network, new DefaultNamingStrategy(), reportNode);
         writeXmlTest(network, "/eurostag-line-split-nb-vl.xml");
     }
 
@@ -74,7 +73,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withBusbarSectionOrBusId("bus")
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
-        modification.apply(network, getDefaultNamingStrategy(), LocalComputationManager.getDefault(), reportNode);
+        modification.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), reportNode);
         writeXmlTest(network, "/eurostag-line-split-bb-vl.xml");
     }
 
@@ -126,7 +125,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine2Name("FICT2LName")
                 .withLine(network.getLine("CJ"))
                 .build();
-        modification.apply(network, getDefaultNamingStrategy(), LocalComputationManager.getDefault());
+        modification.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault());
         writeXmlTest(network, "/fictitious-line-split-vl-complete.xml");
     }
 
@@ -186,12 +185,12 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
-        modification1.apply(network, getDefaultNamingStrategy());
+        modification1.apply(network, new DefaultNamingStrategy());
         NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("LOAD")
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
-        modification2.apply(network, getDefaultNamingStrategy(), LocalComputationManager.getDefault());
+        modification2.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault());
         writeXmlTest(network, "/eurostag-tutorial-example1.xml");
     }
 
@@ -205,7 +204,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
-                .build().apply(network, getDefaultNamingStrategy(), true, report);
+                .build().apply(network, new DefaultNamingStrategy(), true, report);
         testReportNode(report, "/reportNode/connect-voltage-level-on-line-NB-report.txt");
     }
 
