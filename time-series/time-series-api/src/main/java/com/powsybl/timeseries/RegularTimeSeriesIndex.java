@@ -35,6 +35,9 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     public static final String TYPE = "regularIndex";
 
+    // Long.MAX_VALUE seconds corresponds to 292 years: Long.MAX_VALUE / (60 * 60 * 24 * 365) = 292.47
+    private static final Duration MAX_DAYS = Duration.ofDays(365L * 200);
+
     private final Instant startInstant;
     private final Instant endInstant;
     private final Duration timeStep;
@@ -163,7 +166,18 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     }
 
     private static long computePointCount(Instant startTime, Instant endTime, Duration spacing) {
-        return Math.round(((double) (Duration.between(startTime, endTime).toNanos())) / spacing.toNanos()) + 1;
+        // Checks to avoid invalid duration and instants
+        if (startTime == null || endTime == null || spacing == null) {
+            throw new IllegalArgumentException("startTime, endTime, and spacing cannot be null.");
+        }
+
+        Duration duration = Duration.between(startTime, endTime);
+
+        if (duration.compareTo(MAX_DAYS) > 0 || spacing.compareTo(MAX_DAYS) > 0) {
+            throw new IllegalArgumentException("Time range or spacing exceeds " + MAX_DAYS.toDays() + " days.");
+        }
+
+        return Math.round(((double) (duration.toNanos())) / spacing.toNanos()) + 1;
     }
 
     @Override
