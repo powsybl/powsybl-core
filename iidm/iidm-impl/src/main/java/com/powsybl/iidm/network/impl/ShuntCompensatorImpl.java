@@ -122,7 +122,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public ShuntCompensatorImpl setSolvedSectionCount(Integer solvedSectionCount) {
+    public ShuntCompensatorImpl setSolvedSectionCount(int solvedSectionCount) {
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         Integer oldValue = this.solvedSectionCount.set(variantIndex, checkSolvedSectionCount(solvedSectionCount, this.model.getMaximumSectionCount()));
