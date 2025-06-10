@@ -7,6 +7,8 @@
  */
 package com.powsybl.sensitivity;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
@@ -15,6 +17,7 @@ import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 import java.util.OptionalInt;
 
@@ -74,5 +77,23 @@ class SensitivityFactorTest extends AbstractSerDeTest {
         ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
         roundTripTest(factor, (factor1, jsonFile) -> JsonUtil.writeJson(jsonFile, factor1, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityFactor.class, objectMapper), "/factorRef.json");
+    }
+
+    @Test
+    void testNullVariableSet() throws IOException {
+        String json = """
+            {
+              "functionType": "BUS_VOLTAGE",
+              "functionId": "branch1",
+              "variableType": "BUS_TARGET_VOLTAGE",
+              "variableId": "gen1",
+              "contingencyContextType": "NONE"
+            }
+            """;
+
+        JsonFactory factory = new JsonFactory();
+        JsonParser parser = factory.createParser(new StringReader(json));
+        parser.nextToken();
+        SensitivityFactor.parseJson(parser);
     }
 }

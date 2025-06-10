@@ -57,12 +57,12 @@ public class SensitivityFactor {
      * @param contingencyContext see {@link com.powsybl.contingency.ContingencyContext}
      */
     public SensitivityFactor(SensitivityFunctionType functionType, String functionId, SensitivityVariableType variableType,
-                              String variableId, Boolean variableSet, ContingencyContext contingencyContext) {
+                              String variableId, boolean variableSet, ContingencyContext contingencyContext) {
         this.functionType = Objects.requireNonNull(functionType);
         this.functionId = Objects.requireNonNull(functionId);
         this.variableType = Objects.requireNonNull(variableType);
         this.variableId = Objects.requireNonNull(variableId);
-        this.variableSet = Objects.requireNonNull(variableSet);
+        this.variableSet = variableSet;
         this.contingencyContext = Objects.requireNonNull(contingencyContext);
     }
 
@@ -157,7 +157,8 @@ public class SensitivityFactor {
                 if (token == JsonToken.FIELD_NAME) {
                     parseJson(parser, context);
                 } else if (token == JsonToken.END_OBJECT) {
-                    return new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
+                    boolean variableSet = Objects.requireNonNull(context.variableSet);
+                    return new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, variableSet,
                             new ContingencyContext(context.contingencyId, context.contingencyContextType));
                 }
             }
