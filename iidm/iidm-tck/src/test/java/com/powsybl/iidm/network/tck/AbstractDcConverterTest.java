@@ -26,13 +26,22 @@ public abstract class AbstractDcConverterTest {
 
     private Network network;
     private VoltageLevel vla;
+    private VoltageLevel vlax;
     private Bus b1a;
     private Bus b2a;
+    private Bus b1ax;
+    private Bus b2ax;
+    private Load lax;
+    private Line lineax;
     private DcNode dcNode1a;
     private DcNode dcNode2a;
     private VoltageLevel vlb;
+    private VoltageLevel vlbx;
     private Bus b1b;
     private Bus b2b;
+    private Bus b1bx;
+    private Bus b2bx;
+    private Line linebx;
     private DcNode dcNode1b;
     private DcNode dcNode2b;
     private DcConverter<?> dcConverterA;
@@ -53,6 +62,111 @@ public abstract class AbstractDcConverterTest {
         b2b = vlb.getBusBreakerView().newBus().setId("B2B").add();
         dcNode1b = network.newDcNode().setId("dcNode1b").setNominalV(1.).add();
         dcNode2b = network.newDcNode().setId("dcNode2b").setNominalV(500.).add();
+
+        vlax = sa.newVoltageLevel().setId("VLA400").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(400).add();
+        b1ax = vlax.getBusBreakerView().newBus().setId("B1AX").add();
+        b2ax = vlax.getBusBreakerView().newBus().setId("B2AX").add();
+
+        lax = vlax.newLoad()
+                .setId("LAX")
+                .setBus(b1ax.getId())
+                .setP0(0.0).setQ0(0.0)
+                .add();
+        lineax = network.newLine()
+                .setId("LINEAX")
+                .setVoltageLevel1(vlax.getId())
+                .setBus1(b1ax.getId())
+                .setConnectableBus1(b1ax.getId())
+                .setVoltageLevel2(vlax.getId())
+                .setBus2(b2ax.getId())
+                .setConnectableBus2(b2ax.getId())
+                .setR(0.3)
+                .setX(3.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
+                .add();
+        sa.newTwoWindingsTransformer()
+                .setId("TRA1")
+                .setVoltageLevel1(vlax.getId())
+                .setBus1(b1ax.getId())
+                .setConnectableBus1(b1ax.getId())
+                .setRatedU1(400.0)
+                .setVoltageLevel2(vla.getId())
+                .setBus2(b1a.getId())
+                .setConnectableBus2(b1a.getId())
+                .setRatedU2(150)
+                .setR(0.1)
+                .setX(5.0)
+                .setG(0.0)
+                .setB(0.0)
+                .add();
+        sa.newTwoWindingsTransformer()
+                .setId("TRA2")
+                .setVoltageLevel1(vlax.getId())
+                .setBus1(b1ax.getId())
+                .setConnectableBus1(b1ax.getId())
+                .setRatedU1(400.0)
+                .setVoltageLevel2(vla.getId())
+                .setBus2(b2a.getId())
+                .setConnectableBus2(b2a.getId())
+                .setRatedU2(150)
+                .setR(0.1)
+                .setX(5.0)
+                .setG(0.0)
+                .setB(0.0)
+                .add();
+
+        vlbx = sb.newVoltageLevel().setId("VLB400").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(400).add();
+        b1bx = vlbx.getBusBreakerView().newBus().setId("B1BX").add();
+        b2bx = vlbx.getBusBreakerView().newBus().setId("B2BX").add();
+
+        linebx = network.newLine()
+                .setId("LINEBX")
+                .setVoltageLevel1(vlbx.getId())
+                .setBus1(b1bx.getId())
+                .setConnectableBus1(b1bx.getId())
+                .setVoltageLevel2(vlbx.getId())
+                .setBus2(b2bx.getId())
+                .setConnectableBus2(b2bx.getId())
+                .setR(0.3)
+                .setX(3.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
+                .add();
+        sb.newTwoWindingsTransformer()
+                .setId("TRB1")
+                .setVoltageLevel1(vlbx.getId())
+                .setBus1(b1bx.getId())
+                .setConnectableBus1(b1bx.getId())
+                .setRatedU1(400.0)
+                .setVoltageLevel2(vlb.getId())
+                .setBus2(b1b.getId())
+                .setConnectableBus2(b1b.getId())
+                .setRatedU2(150)
+                .setR(0.1)
+                .setX(5.0)
+                .setG(0.0)
+                .setB(0.0)
+                .add();
+        sb.newTwoWindingsTransformer()
+                .setId("TRB2")
+                .setVoltageLevel1(vlbx.getId())
+                .setBus1(b1bx.getId())
+                .setConnectableBus1(b1bx.getId())
+                .setRatedU1(400.0)
+                .setVoltageLevel2(vlb.getId())
+                .setBus2(b2b.getId())
+                .setConnectableBus2(b2b.getId())
+                .setRatedU2(150)
+                .setR(0.1)
+                .setX(5.0)
+                .setG(0.0)
+                .setB(0.0)
+                .add();
     }
 
     @Test
@@ -177,6 +291,7 @@ public abstract class AbstractDcConverterTest {
                 .setDcNode2Id(dcNode2a.getId())
                 .setDcConnected1(true)
                 .setDcConnected2(true)
+                .setPccTerminal(lineax.getTerminal1())
                 .add();
     }
 
@@ -189,6 +304,7 @@ public abstract class AbstractDcConverterTest {
                 .setDcNode2Id(dcNode2b.getId())
                 .setDcConnected1(false)
                 .setDcConnected2(false)
+                .setPccTerminal(linebx.getTerminal1())
                 .setReactiveModel(DcLineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR)
                 .setPowerFactor(0.6)
                 .add();
@@ -213,6 +329,7 @@ public abstract class AbstractDcConverterTest {
                 .setDcNode2Id(dcNode2a.getId())
                 .setDcConnected1(true)
                 .setDcConnected2(true)
+                .setPccTerminal(lineax.getTerminal1())
                 .setVoltageRegulatorOn(false)
                 .setReactivePowerSetpoint(0.0)
                 .add();
@@ -227,6 +344,7 @@ public abstract class AbstractDcConverterTest {
                 .setDcNode2Id(dcNode2b.getId())
                 .setDcConnected1(false)
                 .setDcConnected2(false)
+                .setPccTerminal(linebx.getTerminal1())
                 .setVoltageRegulatorOn(false)
                 .setReactivePowerSetpoint(0.0)
                 .add();
@@ -386,13 +504,11 @@ public abstract class AbstractDcConverterTest {
         Substation sSubnet1 = subnetwork1.newSubstation().setId("SSubnetwork1").add();
         VoltageLevel vlSubnet1 = sSubnet1.newVoltageLevel().setId("VLSubnet1").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(175).add();
         Bus b1Subnet1 = vlSubnet1.getBusBreakerView().newBus().setId("B1Subnet1").add();
-        Bus b2Subnet1 = vlSubnet1.getBusBreakerView().newBus().setId("B2Subnet1").add();
         DcNode dcNode1Subnet1 = subnetwork1.newDcNode().setId("dcNode1Subnet1").setNominalV(1.).add();
         DcNode dcNode2Subnet1 = subnetwork1.newDcNode().setId("dcNode2Subnet1").setNominalV(500.).add();
         Substation sSubnet2 = subnetwork2.newSubstation().setId("SSubnetwork2").add();
         VoltageLevel vlSubnet2 = sSubnet2.newVoltageLevel().setId("VLSubnet2").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(175).add();
         Bus b1Subnet2 = vlSubnet2.getBusBreakerView().newBus().setId("B1Subnet2").add();
-        Bus b2Subnet2 = vlSubnet2.getBusBreakerView().newBus().setId("B2Subnet2").add();
         DcNode dcNode1Subnet2 = subnetwork2.newDcNode().setId("dcNode1Subnet2").setNominalV(1.).add();
         DcNode dcNode2Subnet2 = subnetwork2.newDcNode().setId("dcNode2Subnet2").setNominalV(500.).add();
 
@@ -400,7 +516,6 @@ public abstract class AbstractDcConverterTest {
                 .newDcLineCommutatedConverter()
                 .setId("converterSubnet1")
                 .setBus1(b1Subnet1.getId())
-                .setBus2(b2Subnet1.getId())
                 .setDcNode1Id(dcNode1Subnet1.getId())
                 .setDcNode2Id(dcNode2Subnet1.getId())
                 .setControlMode(DcConverter.ControlMode.P_PCC)
@@ -411,7 +526,6 @@ public abstract class AbstractDcConverterTest {
                 .newDcLineCommutatedConverter()
                 .setId("converterSubnet2")
                 .setBus1(b1Subnet2.getId())
-                .setBus2(b2Subnet2.getId())
                 .setDcNode1Id(dcNode1Subnet2.getId())
                 .setDcNode2Id(dcNode2Subnet2.getId())
                 .setControlMode(DcConverter.ControlMode.P_PCC)
@@ -461,13 +575,11 @@ public abstract class AbstractDcConverterTest {
         Substation sSubnet1 = subnetwork1.newSubstation().setId("SSubnetwork1").add();
         VoltageLevel vlSubnet1 = sSubnet1.newVoltageLevel().setId("VLSubnet1").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(175).add();
         Bus b1Subnet1 = vlSubnet1.getBusBreakerView().newBus().setId("B1Subnet1").add();
-        Bus b2Subnet1 = vlSubnet1.getBusBreakerView().newBus().setId("B2Subnet1").add();
         DcNode dcNode1Subnet1 = subnetwork1.newDcNode().setId("dcNode1Subnet1").setNominalV(1.).add();
         DcNode dcNode2Subnet1 = subnetwork1.newDcNode().setId("dcNode2Subnet1").setNominalV(500.).add();
         Substation sSubnet2 = subnetwork2.newSubstation().setId("SSubnetwork2").add();
         VoltageLevel vlSubnet2 = sSubnet2.newVoltageLevel().setId("VLSubnet2").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(175).add();
         Bus b1Subnet2 = vlSubnet2.getBusBreakerView().newBus().setId("B1Subnet2").add();
-        Bus b2Subnet2 = vlSubnet2.getBusBreakerView().newBus().setId("B2Subnet2").add();
         DcNode dcNode1Subnet2 = subnetwork2.newDcNode().setId("dcNode1Subnet2").setNominalV(1.).add();
         DcNode dcNode2Subnet2 = subnetwork2.newDcNode().setId("dcNode2Subnet2").setNominalV(500.).add();
 
@@ -475,7 +587,6 @@ public abstract class AbstractDcConverterTest {
                 .newDcVoltageSourceConverter()
                 .setId("converterSubnet1")
                 .setBus1(b1Subnet1.getId())
-                .setBus2(b2Subnet1.getId())
                 .setDcNode1Id(dcNode1Subnet1.getId())
                 .setDcNode2Id(dcNode2Subnet1.getId())
                 .setControlMode(DcConverter.ControlMode.P_PCC)
@@ -488,7 +599,6 @@ public abstract class AbstractDcConverterTest {
                 .newDcVoltageSourceConverter()
                 .setId("converterSubnet2")
                 .setBus1(b1Subnet2.getId())
-                .setBus2(b2Subnet2.getId())
                 .setDcNode1Id(dcNode1Subnet2.getId())
                 .setDcNode2Id(dcNode2Subnet2.getId())
                 .setControlMode(DcConverter.ControlMode.P_PCC)
@@ -540,7 +650,6 @@ public abstract class AbstractDcConverterTest {
         Substation sSubnet1 = subnetwork1.newSubstation().setId("SSubnetwork1").add();
         VoltageLevel vlSubnet1 = sSubnet1.newVoltageLevel().setId("VLSubnet1").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(175).add();
         Bus b1Subnet1 = vlSubnet1.getBusBreakerView().newBus().setId("B1Subnet1").add();
-        Bus b2Subnet1 = vlSubnet1.getBusBreakerView().newBus().setId("B2Subnet1").add();
         DcNode dcNode1Root = netWithSubnet.newDcNode().setId("dcNode1Root").setNominalV(1.).add();
         DcNode dcNode1Subnet1 = subnetwork1.newDcNode().setId("dcNode1Subnet1").setNominalV(1.).add();
         DcNode dcNode1Subnet2 = subnetwork2.newDcNode().setId("dcNode1Subnet2").setNominalV(1.).add();
@@ -550,7 +659,6 @@ public abstract class AbstractDcConverterTest {
                 .newDcVoltageSourceConverter()
                 .setId("converterAcrossSubnets")
                 .setBus1(b1Subnet1.getId())
-                .setBus2(b2Subnet1.getId())
                 .setDcNode1Id(dcNode1Subnet1.getId())
                 .setDcNode2Id(dcNode1Subnet2.getId())
                 .setControlMode(DcConverter.ControlMode.P_PCC)
@@ -601,9 +709,56 @@ public abstract class AbstractDcConverterTest {
 
     @Test
     public void testCreationError() {
-        DcLineCommutatedConverterAdder adder = vla.newDcLineCommutatedConverter();
+        DcLineCommutatedConverterAdder adder = vla.newDcLineCommutatedConverter()
+                .setId("converterA")
+                .setBus1(b1a.getId())
+                .setBus2(b2a.getId());
 
-        // TODO
+        PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Line Commutated Converter 'converterA': controlMode is not set", e1.getMessage());
+
+        adder.setControlMode(DcConverter.ControlMode.V_DC);
+        PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Line Commutated Converter 'converterA': targetP is not set", e2.getMessage());
+
+        adder.setTargetP(200.);
+        PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Line Commutated Converter 'converterA': targetVdc is not set", e3.getMessage());
+
+        adder.setTargetVdc(200.);
+        PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Line Commutated Converter 'converterA': converter has two AC terminals and pccTerminal is not set", e4.getMessage());
+
+        adder.setPccTerminal(lax.getTerminal());
+        PowsyblException e5 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Line Commutated Converter 'converterA': converter has two AC terminals and pccTerminal is not a line or transformer terminal", e5.getMessage());
+
+        adder.setBus2(null);
+        PowsyblException e6 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Line Commutated Converter 'converterA': pccTerminal is not a line or transformer or the converter terminal", e6.getMessage());
+
+        adder.setPccTerminal(lineax.getTerminal1());
+        PowsyblException e7 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Line Commutated Converter 'converterA': dcNode1Id is not set", e7.getMessage());
+
+        adder.setDcNode1Id(dcNode1a.getId());
+        PowsyblException e8 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Line Commutated Converter 'converterA': dcNode2Id is not set", e8.getMessage());
+
+        adder.setDcNode2Id(dcNode2a.getId());
+        Network subnet = network.createSubnetwork("subNet", "subNetName", "code");
+        VoltageLevel subNetVl = subnet.newVoltageLevel().setId("subNetVl").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(400.).add();
+        Bus subnetB1 = subNetVl.getBusBreakerView().newBus().setId("subNetB1").add();
+        Bus subnetB2 = subNetVl.getBusBreakerView().newBus().setId("subNetB2").add();
+        Line subNetLine = subnet.newLine().setId("subNetLine")
+                .setBus1(subnetB1.getId())
+                .setBus2(subnetB2.getId())
+                .setR(0.).setX(1.0).setB1(0.).setB2(0.).setG1(0.).setG2(0.)
+                .add();
+
+        adder.setPccTerminal(subNetLine.getTerminal1());
+        PowsyblException e9 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Line Commutated Converter 'converterA': pccTerminal is not in the same parent network as the voltage level", e9.getMessage());
     }
 
     @Test

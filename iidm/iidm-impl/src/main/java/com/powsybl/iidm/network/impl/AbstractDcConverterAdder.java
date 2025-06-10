@@ -159,9 +159,7 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
     }
 
     protected void preCheck() {
-        // todo checks/validation refinement:
-        //  - mode P_PCC requires pccTerminal defined as branch terminal, or can be converter terminal only if converter has single AC terminal
-        //  - pccTerminal in same parent network as converter
+        boolean twoAcTerminals = (bus2 != null || node2 != null);
         if (controlMode == null) {
             throw new ValidationException(this, "controlMode is not set");
         }
@@ -170,6 +168,20 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
         }
         if (Double.isNaN(targetVdc)) {
             throw new ValidationException(this, "targetVdc is not set");
+        }
+        if (twoAcTerminals && pccTerminal == null) {
+            throw new ValidationException(this, "converter has two AC terminals and pccTerminal is not set");
+        }
+        if (pccTerminal != null) {
+            var c = pccTerminal.getConnectable();
+            if (twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer)) {
+                throw new ValidationException(this, "converter has two AC terminals and pccTerminal is not a line or transformer terminal");
+            } else if (!twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer || c instanceof DcConverter<?>)) {
+                throw new ValidationException(this, "pccTerminal is not a line or transformer or the converter terminal");
+            }
+            if (c.getParentNetwork() != voltageLevel.getParentNetwork()) {
+                throw new ValidationException(this, "pccTerminal is not in the same parent network as the voltage level");
+            }
         }
     }
 

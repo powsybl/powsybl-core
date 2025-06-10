@@ -45,13 +45,11 @@ public abstract class AbstractDcTerminalTest {
         Substation sa = network.newSubstation().setId("S").add();
         VoltageLevel vl = sa.newVoltageLevel().setId("VL").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(175).add();
         Bus b1 = vl.getBusBreakerView().newBus().setId("B1").add();
-        Bus b2 = vl.getBusBreakerView().newBus().setId("B2").add();
         DcNode dcNode1 = network.newDcNode().setId("dcNode1").setNominalV(500.).add();
         DcNode dcNode2 = network.newDcNode().setId("dcNode2").setNominalV(500.).add();
         DcLineCommutatedConverter converter = vl.newDcLineCommutatedConverter()
                 .setId("dcConverter")
                 .setBus1(b1.getId())
-                .setBus2(b2.getId())
                 .setDcNode1Id(dcNode1.getId())
                 .setDcNode2Id(dcNode2.getId())
                 .setControlMode(DcConverter.ControlMode.P_PCC)
