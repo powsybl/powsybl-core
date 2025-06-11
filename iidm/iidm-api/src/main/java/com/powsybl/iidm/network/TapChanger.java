@@ -31,7 +31,7 @@ public interface TapChanger<
      * Set the load tap changing capabilities status.
      * @return itself for method chaining.
      */
-    C setLoadTapChangingCapabilities(boolean status);
+    C setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities);
 
     /**
      * Get the lowest tap position corresponding to the first step of the tap changer.
