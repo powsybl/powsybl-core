@@ -44,7 +44,7 @@ class NamingStrategiesServiceLoaderTest {
         assertTrue(found.isPresent());
         assertEquals(DEFAULT, found.get().getName());
 
-        assertFalse(loader.findNamingStrategyByName("NonExistent").isPresent());
+        assertFalse(loader.findNamingStrategyByName("NotFound").isPresent());
         assertFalse(loader.findNamingStrategyByName(null).isPresent());
         assertFalse(loader.findNamingStrategyByName(" ").isPresent());
     }
