@@ -15,9 +15,12 @@ another line, and the connection of a voltage level to a line.
 All these classes rely on a builder to create the modification and then apply it on the network.
 
 ### Naming strategy
-The naming strategy ensures all created elements follow the same naming pattern and meaningful naming of network elements 
-created during topology modifications. When creating complex network modifications that involve multiple interconnected elements
-and maintaining a clear naming convention.
+The naming strategy aims at clarifying and facilitating the naming of the different network elements created via the different
+`com.powsybl.iidm.modification.NetworkModification` classes. Based on the name of the network element the user wishes to create 
+(a VoltageLevel, a BranchFeederBay, etc.), all the other elements created during the NetworkModification will be given a name 
+using this name as baseline and prefixes/suffixes according to the naming strategy chosen by the user. 
+The naming strategy can be either the default one `com.powsybl.iidm.modification.topology.DefaultNamingStrategy` 
+or a new implementation of the present class provided by the user.
 
 #### Default naming strategy
 The `DefaultNamingStrategy` implements a simple naming convention following the pattern: 
@@ -27,10 +30,11 @@ For example, a voltage level might be named "SUBSTATION_VL" while a second volta
 and a feeder bay could be named "LINE_BAY_1".
 The default implementation uses underscores as separators and appends element types and indices when necessary to ensure unique naming.
 
-Custom strategies: we can implement their own naming strategies by creating classes that implement the `NamingStrategy` interface. 
+#### Custom strategies
+we can implement their own naming strategies by creating classes that implement the `NamingStrategy` interface. 
 This allows for organization-specific naming conventions, different separator characters, or specialized formatting rules.
 
-### Naming strategies service loader
+#### Naming strategies service loader
 The `NamingStrategiesServiceLoader` enables dynamic discovery of available naming strategies through Java's ServiceLoader mechanism.
 
 ### Network element creation
