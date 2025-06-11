@@ -51,7 +51,7 @@ The parameters may also be overridden with a JSON file, in which case the config
 `stopTime` defines when the simulation stops, in seconds. The default value of this property is `1`.
 
 **debugDir**
-This property indicates a directory path where debug files will be dumped. If `null`, no file is dumped.
+This property specifies the directory path where debug files will be dumped. If `null`, no files will be dumped.
 
 ### Specific parameters
 Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:
