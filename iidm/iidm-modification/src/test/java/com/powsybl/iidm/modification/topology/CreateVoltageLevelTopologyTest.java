@@ -357,4 +357,31 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
         assertEquals(2, network.getVoltageLevel("C").getNodeBreakerView().getBusbarSectionCount());
     }
 
+    @Test
+    void testWithAlreadyExistingTopologyAndWrongPosition() {
+        Network network = createNbNetwork();
+        // Add busbar section position extension to the busbar section of voltage level C
+        network.getBusbarSection("D").newExtension(BusbarSectionPositionAdder.class)
+            .withBusbarIndex(1)
+            .withSectionIndex(1)
+            .add();
+
+        // Add a busbar section with one section with the same indexes as the the busbar section D with default naming strategy
+        CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
+            .withVoltageLevelId("C")
+            .withAlignedBusesOrBusbarCount(1)
+            .withSectionCount(1)
+            .withLowSectionIndex(1)
+            .withLowBusOrBusbarIndex(1)
+            .build();
+        assertThrows(PowsyblException.class, () -> modification.apply(network, true, ReportNode.NO_OP));
+
+        // Check that nothing is added if throwException is false
+        modification.apply(network, false, ReportNode.NO_OP);
+
+        BusbarSection bbs = network.getBusbarSection("C_2_1");
+        assertNull(bbs);
+        assertEquals(1, network.getVoltageLevel("C").getNodeBreakerView().getBusbarSectionCount());
+    }
+
 }
