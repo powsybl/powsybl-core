@@ -139,11 +139,11 @@ Here is an example of this JSON file:
 ````
 
 **detailedReport**
-This property indicates if the computation should be done with detailed reporting. If `true`, detailed reports are returned.
-If `false`, synthesized reports are returned.
+This property indicates if the computation should produce detailed reporting. If `true`, detailed reports are returned.
+If `false`, summarized reports are returned.
 
 **debugDir**
-This property indicates a directory path where debug files will be dumped. If `null`, no file is dumped.
+This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
 
 (shortcircuit-fault-parameters)=
 ## FaultParameters

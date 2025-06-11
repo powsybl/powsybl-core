@@ -55,7 +55,7 @@ The parameters may also be overridden with a JSON file, in which case the config
 `contingencies-start-time` defines when the contingencies start, in seconds. The default value of this property is `5`.
 
 **debugDir**
-This property indicates a directory path where debug files will be dumped. If `null`, no file is dumped.
+This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
 
 ### Examples
 
