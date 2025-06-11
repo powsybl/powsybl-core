@@ -136,6 +136,10 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         List<BusbarSection> busbarSectionsList = !isAllBusbars() ? List.of(referenceBusbarSection) : getParallelBusbarSections(vl, referenceBusbarSectionPosition);
 
         int nextSectionIndex = findNextSectionIndex(vl, referenceBusbarSectionPosition);
+        final SwitchKind switchKind1 = isCreateTheBusbarSectionsAfterTheReferenceBusbarSection() ? getLeftSwitchKind() : getRightSwitchKind();
+        final boolean switchFictitious1 = isCreateTheBusbarSectionsAfterTheReferenceBusbarSection() ? isLeftSwitchFictitious() : isRightSwitchFictitious();
+        final SwitchKind switchKind2 = isCreateTheBusbarSectionsAfterTheReferenceBusbarSection() ? getRightSwitchKind() : getLeftSwitchKind();
+        final boolean switchFictitious2 = isCreateTheBusbarSectionsAfterTheReferenceBusbarSection() ? isRightSwitchFictitious() : isLeftSwitchFictitious();
 
         busbarSectionsList.forEach(busbarSection -> {
             BusbarSectionPosition busbarSectionPosition = busbarSection.getExtension(BusbarSectionPosition.class);
@@ -145,13 +149,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
                 BusbarSection newBusbarSection = createBusbarSection(vl, namingStrategy, busbarSectionPosition);
 
                 // create new switches between busbarSection and newBusbarSection
-                createSwitchesBetweenBusbarSections(vl, busbarSection, newBusbarSection, namingStrategy,
-                                                    isCreateTheBusbarSectionsAfterTheReferenceBusbarSection()
-                                                        ? getLeftSwitchKind()
-                                                        : getRightSwitchKind(),
-                                                    isCreateTheBusbarSectionsAfterTheReferenceBusbarSection()
-                                                        ? isLeftSwitchFictitious()
-                                                        : isRightSwitchFictitious());
+                createSwitchesBetweenBusbarSections(vl, busbarSection, newBusbarSection, namingStrategy, switchKind1, switchFictitious1);
             } else {
                 // here, we insert a new busbar section and new switches between 2 existing busbar sections
                 // we need to remove existing switches between busbarSection and the neighbour busbar section,
@@ -174,22 +172,10 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
                 BusbarSection newBusbarSection = createBusbarSection(vl, namingStrategy, busbarSectionPosition);
 
                 // create new switches between busbarSection and newBusbarSection
-                createSwitchesBetweenBusbarSections(vl, busbarSection, newBusbarSection, namingStrategy,
-                                                    isCreateTheBusbarSectionsAfterTheReferenceBusbarSection()
-                                                        ? getLeftSwitchKind()
-                                                        : getRightSwitchKind(),
-                                                   isCreateTheBusbarSectionsAfterTheReferenceBusbarSection()
-                                                        ? isLeftSwitchFictitious()
-                                                        : isRightSwitchFictitious());
+                createSwitchesBetweenBusbarSections(vl, busbarSection, newBusbarSection, namingStrategy, switchKind1, switchFictitious1);
 
                 // create new switches between newBusbarSection and neighbourBusbarSection
-                createSwitchesBetweenBusbarSections(vl, newBusbarSection, neighbourBusbarSection, namingStrategy,
-                                                    isCreateTheBusbarSectionsAfterTheReferenceBusbarSection()
-                                                        ? getRightSwitchKind()
-                                                        : getLeftSwitchKind(),
-                                                   isCreateTheBusbarSectionsAfterTheReferenceBusbarSection()
-                                                        ? isRightSwitchFictitious()
-                                                        : isLeftSwitchFictitious());
+                createSwitchesBetweenBusbarSections(vl, newBusbarSection, neighbourBusbarSection, namingStrategy, switchKind2, switchFictitious2);
             }
         });
     }
@@ -335,7 +321,6 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         //      add first disconnector
         createNBDisconnector(busbarSection1Node, firstDisconnectorNode2, namingStrategy.getDisconnectorBetweenChunksId(busbarSection1, vl.getId(), busbarSection1Node, firstDisconnectorNode2), vl.getNodeBreakerView(), false, fictitious);
 
-        //if (getLeftSwitchKind() == SwitchKind.BREAKER || getRightSwitchKind() == SwitchKind.BREAKER) {
         if (switchKind == SwitchKind.BREAKER) {
             //      add breaker
             int breakerNode2 = vl.getNodeBreakerView().getMaximumNodeIndex() + 1;
