@@ -39,15 +39,15 @@
                 <iidm:switch id="D_23_GEN_3" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="50"/>
                 <iidm:switch id="D_33_GEN_3" kind="DISCONNECTOR" retained="false" open="false" node1="8" node2="50"/>
                 <iidm:switch id="B_GEN_3" kind="BREAKER" retained="false" open="false" node1="50" node2="51"/>
-                <iidm:switch id="VL1_DISCONNECTOR_52_53" kind="DISCONNECTOR" retained="false" open="false" node1="52" node2="53"/>
+                <iidm:switch id="VL1_DISCONNECTOR_0_53" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="53"/>
                 <iidm:switch id="VL1_BREAKER_53_54" kind="BREAKER" retained="true" open="false" node1="53" node2="54"/>
-                <iidm:switch id="VL1_DISCONNECTOR_54_0" kind="DISCONNECTOR" retained="false" open="false" node1="54" node2="0"/>
-                <iidm:switch id="VL1_DISCONNECTOR_55_56" kind="DISCONNECTOR" retained="false" open="false" node1="55" node2="56"/>
+                <iidm:switch id="VL1_DISCONNECTOR_54_52" kind="DISCONNECTOR" retained="false" open="false" node1="54" node2="52"/>
+                <iidm:switch id="VL1_DISCONNECTOR_1_56" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="56"/>
                 <iidm:switch id="VL1_BREAKER_56_57" kind="BREAKER" retained="true" open="false" node1="56" node2="57"/>
-                <iidm:switch id="VL1_DISCONNECTOR_57_1" kind="DISCONNECTOR" retained="false" open="false" node1="57" node2="1"/>
-                <iidm:switch id="VL1_DISCONNECTOR_58_59" kind="DISCONNECTOR" retained="false" open="false" node1="58" node2="59"/>
+                <iidm:switch id="VL1_DISCONNECTOR_57_55" kind="DISCONNECTOR" retained="false" open="false" node1="57" node2="55"/>
+                <iidm:switch id="VL1_DISCONNECTOR_2_59" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="59"/>
                 <iidm:switch id="VL1_BREAKER_59_60" kind="BREAKER" retained="true" open="false" node1="59" node2="60"/>
-                <iidm:switch id="VL1_DISCONNECTOR_60_2" kind="DISCONNECTOR" retained="false" open="false" node1="60" node2="2"/>
+                <iidm:switch id="VL1_DISCONNECTOR_60_58" kind="DISCONNECTOR" retained="false" open="false" node1="60" node2="58"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="GEN_1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="31">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
