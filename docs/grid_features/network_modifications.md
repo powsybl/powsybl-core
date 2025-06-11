@@ -20,7 +20,7 @@ The naming strategy aims at clarifying and facilitating the naming of the differ
 (a VoltageLevel, a BranchFeederBay, etc.), all the other elements created during the NetworkModification will be given a name 
 using this name as baseline and prefixes/suffixes according to the naming strategy chosen by the user. 
 The naming strategy can be either the default one `com.powsybl.iidm.modification.topology.DefaultNamingStrategy` 
-or a new implementation of the present class provided by the user.
+or a new implementation of the `NamingStrategy` interface.
 
 #### Default naming strategy
 The `DefaultNamingStrategy` implements a simple naming convention following the pattern: 
@@ -31,7 +31,7 @@ and a feeder bay could be named "LINE_BAY_1".
 The default implementation uses underscores as separators and appends element types and indices when necessary to ensure unique naming.
 
 #### Custom strategies
-we can implement their own naming strategies by creating classes that implement the `NamingStrategy` interface. 
+Other Naming strategies can be implemented based on the `NamingStrategy` interface. 
 This allows for organization-specific naming conventions, different separator characters, or specialized formatting rules.
 
 #### Naming strategies service loader
