@@ -23,12 +23,11 @@ The naming strategy can be either the default one `com.powsybl.iidm.modification
 or a new implementation of the `NamingStrategy` interface.
 
 #### Default naming strategy
+Default naming strategy used if no other naming strategy is specified.
 The `DefaultNamingStrategy` implements a simple naming convention following the pattern: 
 base name + separator + element type + optional index.
-
-For example, a voltage level might be named "SUBSTATION_VL" while a second voltage level would be "SUBSTATION_VL_2", 
-and a feeder bay could be named "LINE_BAY_1".
-The default implementation uses underscores as separators and appends element types and indices when necessary to ensure unique naming.
+The default implementation uses underscores as separators and appends element types and indices when necessary 
+to ensure unique naming.
 
 #### Custom strategies
 Other Naming strategies can be implemented based on the `NamingStrategy` interface. 
