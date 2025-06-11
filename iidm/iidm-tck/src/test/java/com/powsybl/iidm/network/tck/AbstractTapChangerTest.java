@@ -51,7 +51,6 @@ public abstract class AbstractTapChangerTest {
         // adder
         PhaseTapChanger phaseTapChanger = twt.newPhaseTapChanger()
                                                 .setTapPosition(1)
-                                                .setLoadTapChangingCapabilities(true)
                                                 .setLowTapPosition(0)
                                                 .setRegulating(true)
                                                 .setTargetDeadband(1.0)
