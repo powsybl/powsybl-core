@@ -26,6 +26,7 @@ You may configure some generic parameters for all implementations:
 dynamic-simulation-default-parameters:
     startTime: 0
     stopTime: 1
+    debugDir: /tmp/debugDir
 ```
 
 The parameters may also be overridden with a JSON file, in which case the configuration will look like:
@@ -34,6 +35,7 @@ The parameters may also be overridden with a JSON file, in which case the config
   "version" : "1.0",
   "startTime" : 0,
   "stopTime" : 1,
+  "debugDir": "/tmp/debugDir",
   "extensions" : {
     ...
   }
@@ -48,6 +50,9 @@ The parameters may also be overridden with a JSON file, in which case the config
 **stopTime**  
 `stopTime` defines when the simulation stops, in seconds. The default value of this property is `1`.
 
+**debugDir**
+This property indicates a directory path where debug files will be dumped. If `null`, no file is dumped.
+
 ### Specific parameters
 Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:
 - [Dynawo](inv:powsybldynawo:*:*#dynamic_simulation/configuration)
@@ -59,6 +64,7 @@ Some implementations use specific parameters that can be defined in the configur
 dynamic-simulation-default-parameters:
   startTime: 0
   stopTime: 3600
+  debugDir: /tmp/debugDir
 ```
 
 **XML configuration:**
@@ -66,5 +72,6 @@ dynamic-simulation-default-parameters:
 <dynamic-simulation-default-parameters>
   <startTime>0</startTime>
   <stopTime>3600</stopTime>
+  <debugDir>/tmp/debugDir</debugDir>
 </dynamic-simulation-default-parameters>
 ```

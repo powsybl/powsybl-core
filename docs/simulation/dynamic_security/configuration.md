@@ -30,6 +30,7 @@ dynamic-simulation-default-parameters:
 
 dynamic-security-analysis-default-parameters:
   contingencies-start-time: 10
+  debugDir: /tmp/debugDir
 ```
 
 The parameters may also be overridden with a JSON file, in which case the configuration will look like:
@@ -43,7 +44,8 @@ The parameters may also be overridden with a JSON file, in which case the config
   },
   "contingencies-parameters" : {
     "contingencies-start-time" : 5.5
-  }
+  },
+  "debugDir": "/tmp/debugDir"
 }
 ```
 
@@ -52,17 +54,22 @@ The parameters may also be overridden with a JSON file, in which case the config
 **contingencies-start-time**  
 `contingencies-start-time` defines when the contingencies start, in seconds. The default value of this property is `5`.
 
+**debugDir**
+This property indicates a directory path where debug files will be dumped. If `null`, no file is dumped.
+
 ### Examples
 
 **YAML configuration:**
 ```yaml
 dynamic-security-analysis-default-parameters:
   contingencies-start-time: 10
+  debugDir: /tmp/debugDir
 ```
 
 **XML configuration:**
 ```xml
 <dynamic-security-analysis-default-parameters>
   <contingencies-start-time>10</contingencies-start-time>
+  <debugDir>/tmp/debugDir</debugDir>
 </dynamic-security-analysis-default-parameters>
 ```
