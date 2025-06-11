@@ -22,6 +22,9 @@ import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.Coordinate;
+import com.powsybl.iidm.network.extensions.SubstationPosition;
+import com.powsybl.iidm.network.impl.extensions.SubstationPositionImpl;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -49,6 +52,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CgmesExportTest {
 
     private Properties importParams;
+    private static final Coordinate SUBSTATION_1 = new Coordinate(51.380348205566406, 0.5492960214614868);
 
     @BeforeEach
     void setUp() {
@@ -526,6 +530,26 @@ class CgmesExportTest {
 
             String eq = Files.readString(tmpDir.resolve(network.getNameOrId() + "_EQ.xml"));
             assertTrue(eq.contains("modelingAuthoritySet>http://www.elia.be/OperationalPlanning"));
+        }
+    }
+
+    @Test
+    void testExporGLProfle() throws IOException {
+        Network network = NetworkTest1Factory.create("minimal-network");
+        Substation substation1 = network.getSubstation("nminimal-network_substation1");
+        SubstationPosition substationPosition1 = new SubstationPositionImpl(substation1, SUBSTATION_1);
+        substation1.addExtension(SubstationPosition.class, substationPosition1);
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectories(fileSystem.getPath("/work"));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "GL");
+            DataSource exportDatasource = new DirectoryDataSource(tmpDir, network.getNameOrId());
+            new CgmesExport().export(network, exportParams, exportDatasource);
+            String gl = Files.readString(tmpDir.resolve(network.getNameOrId() + "_GL.xml"));
+            assertTrue(gl.contains("md:Model.profile>http://entsoe.eu/CIM/GeographicalLocation/2/1"));
+            assertTrue(gl.contains("cim:CoordinateSystem.crsUrn>urn:ogc:def:crs:EPSG::4326"));
+            assertTrue(gl.contains("cim:PositionPoint.xPosition>0.5492960214614868"));
+            assertTrue(gl.contains("cim:PositionPoint.yPosition>51.380348205566406"));
         }
     }
 
