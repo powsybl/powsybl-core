@@ -10,9 +10,11 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.ConnectionElementsContainer;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -231,6 +233,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
             this,
             getTerminals(side),
             isTypeSwitchToOperate,
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()),
+            true,
             false,
             getNetwork().getReportNodeContext().getReportNode());
     }
@@ -251,6 +255,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
             this,
             getTerminals(side),
             isSwitchOpenable,
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()),
+            true,
             false,
             getNetwork().getReportNodeContext().getReportNode());
     }

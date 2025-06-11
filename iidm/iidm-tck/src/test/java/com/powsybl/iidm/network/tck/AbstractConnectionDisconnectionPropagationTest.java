@@ -299,11 +299,11 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
         assertLineConnection(line1, false, true);
         assertLineConnection(line2, true, false);
 
-        // Try to connect the line without propagation - it should fail due to the fictitious switch
-        assertFalse(line1.connect(SwitchPredicates.IS_NONFICTIONAL, false));
+        // Try to connect the line without propagation - it should work, but only line1 will be connected
+        assertTrue(line1.connect(SwitchPredicates.IS_NONFICTIONAL, false));
 
-        // Check that the 2 lines are disconnected on one side only
-        assertLineConnection(line1, false, true);
+        // Check that line1 is fully connected, but line2 is connected on one side only
+        assertLineConnection(line1, true, true);
         assertLineConnection(line2, true, false);
     }
 
@@ -384,7 +384,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
         Line line5 = network.getLine("L1_mid");
         List<Line> lines = List.of(line1, line2, line3, line4, line5);
 
-        // Check that the 3 lines are connected on both sides
+        // Check that all the lines are connected on both sides
         lines.forEach(line -> line.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected())));
 
         // Check the switches that will be opened are close for now
@@ -402,6 +402,33 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
 
         // Check the switches that were opened
         switchList.forEach(s -> assertTrue(network.getSwitch(s).isOpen()));
+    }
+
+    @Test
+    void disconnectionOnTwoTeePointsTestWithPropagationButFictitiousSwitches() {
+        // Network
+        Network network = createNetworkWithTwoTeePoints();
+
+        // Lines
+        Line line1 = network.getLine("L1_1");
+        Line line2 = network.getLine("L1_2");
+        Line line3 = network.getLine("L1_3");
+        Line line4 = network.getLine("L1_4");
+        Line line5 = network.getLine("L1_mid");
+        List<Line> lines = List.of(line1, line2, line3, line4, line5);
+
+        // Check that all the lines are connected on both sides
+        lines.forEach(line -> line.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected())));
+
+        // Set the switches in VL2 as fictitious
+        network.getSwitch("D_L1_BBS2").setFictitious(true);
+        network.getSwitch("B_L1_VL2").setFictitious(true);
+
+        // Disconnect the line works with the propagation
+        assertFalse(line1.disconnect(SwitchPredicates.IS_NONFICTIONAL, true));
+
+        // Check that all the lines are still connected on both sides
+        lines.forEach(line -> line.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected())));
     }
 
     private Network createBaseNetwork() {
@@ -751,7 +778,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
      *               BBS3 (VL3)                     BBS4 (VL4)
      * </pre>
      */
-    private Network createNetworkWithTwoTeePoints() {
+    public Network createNetworkWithTwoTeePoints() {
         // Base network
         Network network = createBaseNetwork();
 
@@ -812,6 +839,15 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
             .setId("VL4")
             .setNominalV(1.0)
             .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .add();
+        BusbarSection bbs4 = vl4.getNodeBreakerView()
+            .newBusbarSection()
+            .setId("BBS4")
+            .setNode(0)
+            .add();
+        bbs4.newExtension(BusbarSectionPositionAdder.class)
+            .withBusbarIndex(1)
+            .withSectionIndex(1)
             .add();
 
         // VL3 - Breakers and disconnectors

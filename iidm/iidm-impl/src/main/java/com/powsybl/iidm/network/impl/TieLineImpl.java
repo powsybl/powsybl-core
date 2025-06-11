@@ -10,11 +10,13 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.ConnectionElementsContainer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.iidm.network.util.TieLineUtil;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -181,6 +183,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
             this,
             getTerminalsOfDanglingLines(side),
             isTypeSwitchToOperate,
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()),
+            true,
             false,
             getNetwork().getReportNodeContext().getReportNode());
     }
@@ -201,6 +205,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
             this,
             getTerminalsOfDanglingLines(side),
             isSwitchOpenable,
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()),
+            true,
             false,
             getNetwork().getReportNodeContext().getReportNode());
     }

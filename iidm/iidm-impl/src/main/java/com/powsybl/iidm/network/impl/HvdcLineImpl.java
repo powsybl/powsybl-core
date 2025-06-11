@@ -9,10 +9,12 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.ConnectionElementsContainer;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -251,6 +253,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
             this,
             getTerminalsOfConverterStations(side),
             isTypeSwitchToOperate,
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()),
+            true,
             false,
             getNetwork().getReportNodeContext().getReportNode());
     }
@@ -271,6 +275,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
             this,
             getTerminalsOfConverterStations(side),
             isSwitchOpenable,
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()),
+            true,
             false,
             getNetwork().getReportNodeContext().getReportNode());
     }

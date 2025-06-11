@@ -7,11 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.util.ConnectionElementsContainer;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 
 import java.util.function.Predicate;
@@ -138,16 +139,15 @@ class LineImpl extends AbstractConnectableBranch<Line> implements Line {
     }
 
     @Override
-    public boolean connect(Predicate<Switch> isSwitchOpenable, boolean propagateDisconnectionIfNeeded) {
-        return connect(isSwitchOpenable, null, propagateDisconnectionIfNeeded);
-    }
-
-    @Override
-    public boolean connect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean propagateDisconnectionIfNeeded) {
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side,
+                           boolean propagateDisconnectionIfNeeded, boolean connectFromHere,
+                           ConnectionElementsContainer connectionElementsContainer) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminals(side),
-            isSwitchOpenable,
+            isTypeSwitchToOperate,
+            connectionElementsContainer,
+            connectFromHere,
             propagateDisconnectionIfNeeded,
             getNetwork().getReportNodeContext().getReportNode());
     }
@@ -158,16 +158,15 @@ class LineImpl extends AbstractConnectableBranch<Line> implements Line {
     }
 
     @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable, boolean propagateDisconnectionIfNeeded) {
-        return disconnect(isSwitchOpenable, null, propagateDisconnectionIfNeeded);
-    }
-
-    @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean propagateDisconnectionIfNeeded) {
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side,
+                              boolean propagateDisconnectionIfNeeded, boolean disconnectFromHere,
+                              ConnectionElementsContainer connectionElementsContainer) {
         return ConnectDisconnectUtil.disconnectAllTerminals(
             this,
             getTerminals(side),
             isSwitchOpenable,
+            connectionElementsContainer,
+            disconnectFromHere,
             propagateDisconnectionIfNeeded,
             getNetwork().getReportNodeContext().getReportNode());
     }

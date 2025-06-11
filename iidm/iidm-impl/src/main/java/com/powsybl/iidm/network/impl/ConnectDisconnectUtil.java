@@ -11,11 +11,11 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.util.ConnectionElementsContainer;
 import com.powsybl.iidm.network.util.NetworkReports;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import static com.powsybl.iidm.network.TopologyKind.BUS_BREAKER;
@@ -41,20 +41,22 @@ public final class ConnectDisconnectUtil {
      * @return {@code true} if all the specified terminals have been connected, else {@code false}.
      */
     static boolean connectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals,
-                                       Predicate<Switch> isTypeSwitchToOperate, boolean propagateDisconnectionIfNeeded,
+                                       Predicate<Switch> isTypeSwitchToOperate,
+                                       ConnectionElementsContainer connectionElementsContainer,
+                                       boolean operateSwitchesFromHere, boolean propagateConnectionIfNeeded,
                                        ReportNode reportNode) {
 
         // Booleans
         boolean isAlreadyConnected = true;
         boolean isNowConnected = true;
 
-        // Initialisation of a list to open in case some terminals are in node-breaker view
-        Set<SwitchImpl> switchForDisconnection = new HashSet<>();
+        // Initialize a list of switches to close and of bus-breaker terminals to connect
+        ConnectionElementsContainer localConnectionElementsContainer = new ConnectionElementsContainer(new HashSet<>(), new HashSet<>());
 
         // We try to connect each terminal
         for (Terminal terminal : terminals) {
             // Check if the terminal is already connected
-            if (terminal.isConnected()) {
+            if (terminal.isConnected() && (!propagateConnectionIfNeeded || !terminal.getVoltageLevel().isFictitious())) {
                 NetworkReports.alreadyConnectedIdentifiableTerminal(reportNode, identifiable.getId());
                 continue;
             } else {
@@ -64,9 +66,12 @@ public final class ConnectDisconnectUtil {
             // If it's a node-breaker terminal, the switches to connect are added to a set
             if (terminal.getVoltageLevel().getTopologyKind() == NODE_BREAKER) {
                 NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) terminal.getVoltageLevel()).getTopologyModel();
-                isNowConnected = topologyModel.getConnectingSwitches(terminal, isTypeSwitchToOperate, switchForDisconnection);
+                isNowConnected = topologyModel.canTheTerminalBeConnected(terminal, isTypeSwitchToOperate, propagateConnectionIfNeeded,
+                    localConnectionElementsContainer);
+            } else if (terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER) {
+                // If it's a bus-breaker terminal, the terminal is just added to the set
+                localConnectionElementsContainer.busBreakerTerminalsToOperate().add(terminal);
             }
-            // If it's a bus-breaker terminal, there is nothing to do
 
             // Exit if the terminal cannot be connected
             if (!isNowConnected) {
@@ -79,17 +84,17 @@ public final class ConnectDisconnectUtil {
             return false;
         }
 
-        // Connect all bus-breaker terminals
-        for (Terminal terminal : terminals) {
-            if (!terminal.isConnected()
-                && terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER) {
-                // At this point, isNowConnected should always stay true but let's be careful
-                isNowConnected = isNowConnected && terminal.connect(isTypeSwitchToOperate);
-            }
+        if (operateSwitchesFromHere) {
+            // Close all switches on node-breaker terminals to connect the network element
+            localConnectionElementsContainer.switchesToOperate().forEach(sw -> sw.setOpen(false));
+
+            // Connect all bus-breaker terminals
+            localConnectionElementsContainer.busBreakerTerminalsToOperate().forEach(t -> t.connect(isTypeSwitchToOperate));
+        } else {
+            // Add the switches and the bus-breaker terminals to the sets
+            connectionElementsContainer.addAll(localConnectionElementsContainer);
         }
 
-        // Disconnect all switches on node-breaker terminals
-        switchForDisconnection.forEach(sw -> sw.setOpen(false));
         return isNowConnected;
     }
 
@@ -105,14 +110,15 @@ public final class ConnectDisconnectUtil {
      * @return {@code true} if all the specified terminals have been disconnected, else {@code false}.
      */
     static boolean disconnectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals,
-                                          Predicate<Switch> isSwitchOpenable, boolean propagateDisconnectionIfNeeded,
+                                          Predicate<Switch> isSwitchOpenable,
+                                          ConnectionElementsContainer connectionElementsContainer,
+                                          boolean operateSwitchesFromHere, boolean propagateDisconnectionIfNeeded,
                                           ReportNode reportNode) {
         // Booleans
         boolean isAlreadyDisconnected = true;
-        boolean isNowDisconnected = true;
 
-        // Initialisation of a list to open in case some terminals are in node-breaker view
-        Set<SwitchImpl> switchForDisconnection = new HashSet<>();
+        // Initialize a list of switches to open and of bus-breaker terminals to disconnect
+        ConnectionElementsContainer localConnectionElementsContainer = new ConnectionElementsContainer(new HashSet<>(), new HashSet<>());
 
         // We try to disconnect each terminal
         for (Terminal terminal : terminals) {
@@ -127,12 +133,14 @@ public final class ConnectDisconnectUtil {
             // If it's a node-breaker terminal, the switches to disconnect are added to a set
             if (terminal.getVoltageLevel().getTopologyKind() == NODE_BREAKER) {
                 NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) terminal.getVoltageLevel()).getTopologyModel();
-                if (!topologyModel.getDisconnectingSwitches(terminal, isSwitchOpenable, switchForDisconnection)) {
+                if (!topologyModel.canTheTerminalBeDisconnected(terminal, isSwitchOpenable, propagateDisconnectionIfNeeded, localConnectionElementsContainer)) {
                     // Exit if the terminal cannot be disconnected
                     return false;
                 }
+            } else if (terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER) {
+                // If it's a bus-breaker terminal, the terminal is just added to the set
+                localConnectionElementsContainer.busBreakerTerminalsToOperate().add(terminal);
             }
-            // If it's a bus-breaker terminal, there is nothing to do
         }
 
         // Exit if the connectable is already fully disconnected
@@ -140,16 +148,17 @@ public final class ConnectDisconnectUtil {
             return false;
         }
 
-        // Disconnect all bus-breaker terminals
-        for (Terminal terminal : terminals) {
-            if (terminal.isConnected()
-                && terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER) {
-                // At this point, isNowDisconnected should always stay true but let's be careful
-                isNowDisconnected = isNowDisconnected && terminal.disconnect(isSwitchOpenable);
-            }
+        if (operateSwitchesFromHere) {
+            // Open all switches on node-breaker terminals to disconnect the network element
+            localConnectionElementsContainer.switchesToOperate().forEach(sw -> sw.setOpen(true));
+
+            // Connect all bus-breaker terminals
+            localConnectionElementsContainer.busBreakerTerminalsToOperate().forEach(t -> t.disconnect(isSwitchOpenable));
+        } else {
+            // Add the switches and the bus-breaker terminals to the sets
+            connectionElementsContainer.addAll(localConnectionElementsContainer);
         }
-        // Disconnect all switches on node-breaker terminals
-        switchForDisconnection.forEach(sw -> sw.setOpen(true));
-        return isNowDisconnected;
+
+        return true;
     }
 }
