@@ -14,11 +14,11 @@ import com.powsybl.iidm.network.SwitchKind;
  */
 public class CreateVoltageLevelSectionsBuilder {
 
-    private String bbsId;
+    private String referenceBusbarSectionId;
 
-    private boolean after = true;
+    private boolean createTheBusbarSectionsAfterTheReferenceBusbarSection = true;
 
-    private boolean busbarOnly = false;
+    private boolean allBusbars = true;
 
     private SwitchKind leftSwitchKind = SwitchKind.DISCONNECTOR;
 
@@ -29,21 +29,21 @@ public class CreateVoltageLevelSectionsBuilder {
     private boolean rightSwitchFictitious = false;
 
     public CreateVoltageLevelSections build() {
-        return new CreateVoltageLevelSections(bbsId, after, busbarOnly, leftSwitchKind, rightSwitchKind, leftSwitchFictitious, rightSwitchFictitious);
+        return new CreateVoltageLevelSections(referenceBusbarSectionId, createTheBusbarSectionsAfterTheReferenceBusbarSection, allBusbars, leftSwitchKind, rightSwitchKind, leftSwitchFictitious, rightSwitchFictitious);
     }
 
-    public CreateVoltageLevelSectionsBuilder withBbsId(String bbsId) {
-        this.bbsId = bbsId;
+    public CreateVoltageLevelSectionsBuilder withReferenceBusbarSectionId(String referenceBusbarSectionId) {
+        this.referenceBusbarSectionId = referenceBusbarSectionId;
         return this;
     }
 
-    public CreateVoltageLevelSectionsBuilder withAfter(boolean after) {
-        this.after = after;
+    public CreateVoltageLevelSectionsBuilder withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(boolean createTheBusbarSectionsAfterTheReferenceBusbarSection) {
+        this.createTheBusbarSectionsAfterTheReferenceBusbarSection = createTheBusbarSectionsAfterTheReferenceBusbarSection;
         return this;
     }
 
-    public CreateVoltageLevelSectionsBuilder withBusbarOnly(boolean busbarOnly) {
-        this.busbarOnly = busbarOnly;
+    public CreateVoltageLevelSectionsBuilder withAllBusbars(boolean allBusbars) {
+        this.allBusbars = allBusbars;
         return this;
     }
 

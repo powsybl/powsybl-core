@@ -35,7 +35,7 @@ public final class ModificationLogs {
         logOrThrow(throwException, String.format("Bus or busbar section %s not found", bbsId));
     }
 
-    public static void bbsDoesNotExist(String bbsId, ReportNode reportNode, boolean throwException) {
+    public static void busbarSectionDoesNotExist(String bbsId, ReportNode reportNode, boolean throwException) {
         ModificationReports.notFoundBusbarSectionReport(reportNode, bbsId);
         logOrThrow(throwException, String.format("Busbar section %s not found", bbsId));
     }
