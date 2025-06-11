@@ -464,6 +464,9 @@ public class CgmesExport implements Exporter {
                 case STATE_VARIABLES:
                     StateVariablesExport.write(network, writer, context, model);
                     break;
+                case GEOGRAPHICAL_LOCATION:
+                    GeographicalLocationExporter.write(network, dataSource);
+                    break;
                 default:
                     throw new IllegalArgumentException("Invalid subset, one of the following value is expected: EQ/TP/SSH/SV.");
             }
@@ -651,7 +654,7 @@ public class CgmesExport implements Exporter {
             ParameterType.STRING_LIST,
             "Profiles to export",
             List.of("EQ", "TP", "SSH", "SV"),
-            List.of("EQ", "TP", "SSH", "SV"));
+            List.of("EQ", "TP", "SSH", "SV", "GL"));
     private static final Parameter TOPOLOGY_KIND_PARAMETER = new Parameter(
             TOPOLOGY_KIND,
             ParameterType.STRING,
