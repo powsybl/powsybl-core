@@ -27,6 +27,7 @@ import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
