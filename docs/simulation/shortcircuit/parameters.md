@@ -139,7 +139,7 @@ Here is an example of this JSON file:
 ````
 
 **detailedReport**
-This property indicates if the computation should produce detailed reporting. If `true`, detailed reports are returned.
+This property indicates whether the computation should produce detailed reporting. If `true`, detailed reports are returned.
 If `false`, summarized reports are returned.
 
 **debugDir**
