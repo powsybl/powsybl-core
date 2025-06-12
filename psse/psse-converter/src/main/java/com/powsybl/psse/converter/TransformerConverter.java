@@ -100,6 +100,8 @@ class TransformerConverter extends AbstractConverter {
         // As vn2 is used to convert to eu, only the ratio remains to be applied
         TapChanger tapChangerAdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittanceBetweenRatioAndTransmissionImpedance(tapChangerAdjustedRatio);
 
+        String name = psseTransformer.getName();
+
         TwoWindingsTransformerAdder adder = voltageLevel2.getSubstation()
                 .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
                 .newTwoWindingsTransformer()
@@ -112,7 +114,8 @@ class TransformerConverter extends AbstractConverter {
                 .setR(z.getReal())
                 .setX(z.getImaginary())
                 .setG(ysh.getReal())
-                .setB(ysh.getImaginary());
+                .setB(ysh.getImaginary())
+                .setName(name);
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_TWO_WINDING, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getCkt());
         OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI()));
@@ -200,12 +203,15 @@ class TransformerConverter extends AbstractConverter {
         // move ysh between w1 and z
         TapChanger tapChanger1AdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittanceBetweenRatioAndTransmissionImpedance(tapChanger1);
 
+        String name = psseTransformer.getName();
+
         ThreeWindingsTransformerAdder adder = voltageLevel1.getSubstation()
                 .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
                 .newThreeWindingsTransformer()
                 .setRatedU0(v0)
                 .setEnsureIdUnicity(true)
-                .setId(id);
+                .setId(id)
+                .setName(name);
         ThreeWindingsTransformerAdder.LegAdder legAdder1 = adder
                 .newLeg1()
                 .setR(z1.getReal())
