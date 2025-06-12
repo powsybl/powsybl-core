@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Optional;
 import java.util.OptionalInt;
 
 /**
@@ -136,9 +135,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     }
 
     /**
-     * Get the solved count of sections in service. This count represent the result count after a calculation (load flow).
+     * Get the solved count of sections in service. This value represents the result count after a calculation (load flow).
      * <p>
-     * It is expected to be greater than one and lesser than or equal to the maximum section count.
+     * It is expected to be greater or equal to zero and lesser than or equal to the maximum section count.
      * It can be null if no calculation has been launched on the network.
      * <p>
      * Depends on the working variant.
@@ -153,8 +152,8 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    default Optional<Integer> findSolvedSectionCount() {
-        return Optional.ofNullable(getSolvedSectionCount());
+    default OptionalInt findSolvedSectionCount() {
+        return getSolvedSectionCount() != null ? OptionalInt.of(getSolvedSectionCount()) : OptionalInt.empty();
     }
 
     /**

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.OptionalInt;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -536,11 +536,17 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(5, network.getShuntCompensator(SHUNT).getSolvedSectionCount());
         shuntCompensator.setSolvedSectionCount(6);
         assertEquals(6, shuntCompensator.getSolvedSectionCount());
-        assertEquals(Optional.of(6), shuntCompensator.findSolvedSectionCount());
+        assertEquals(OptionalInt.of(6), shuntCompensator.findSolvedSectionCount());
 
         // Check exception if solved section count negative or too high
+        int maxSectionCount = shuntCompensator.getMaximumSectionCount();
         assertThrows(ValidationException.class, () -> shuntCompensator.setSolvedSectionCount(-1));
-        assertThrows(ValidationException.class, () -> shuntCompensator.setSolvedSectionCount(50));
+        assertThrows(ValidationException.class, () -> shuntCompensator.setSolvedSectionCount(maxSectionCount + 1));
+
+        shuntCompensator.setSolvedSectionCount(0);
+        assertEquals(0, shuntCompensator.getSolvedSectionCount());
+        shuntCompensator.setSolvedSectionCount(maxSectionCount);
+        assertEquals(shuntCompensator.getMaximumSectionCount(), shuntCompensator.getSolvedSectionCount());
 
         shuntCompensator.unsetSolvedSectionCount();
         assertNull(shuntCompensator.getSolvedSectionCount());
