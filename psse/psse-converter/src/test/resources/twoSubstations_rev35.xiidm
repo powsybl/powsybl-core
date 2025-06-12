@@ -101,7 +101,7 @@
             </iidm:nodeBreakerTopology>
             <iidm:load id="B5-L1 " loadType="UNDEFINED" p0="6.428" q0="-2.763" node="26"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-2-3-3 " r="0.01602" x="0.63918" g="0.0" b="0.0" ratedU1="220.0" ratedU2="15.0" voltageLevelId1="VL2" node1="3" voltageLevelId2="VL3" node2="11" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-2-3-3 " name="T2D-S2-220-15                           " r="0.01602" x="0.63918" g="0.0" b="0.0" ratedU1="220.0" ratedU2="15.0" voltageLevelId1="VL2" node1="3" voltageLevelId2="VL3" node2="11" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="8.513889000000008" b="8.513889000000008" rho="0.9599692809830085"/>
             </iidm:ratioTapChanger>
@@ -112,7 +112,7 @@
                 <iidm:currentLimits permanentLimit="2309.401076758503"/>
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
-        <iidm:threeWindingsTransformer id="T-2-4-5-2 " r1="1.2550000000000001E-4" x1="0.0032341" g1="0.0" b1="0.0" ratedU1="220.0" r2="6.86E-5" x2="-1.940000000000003E-4" g2="0.0" b2="0.0" ratedU2="45.0" r3="7.36E-5" x3="0.0019041000000000004" g3="0.0" b3="0.0" ratedU3="10.0" ratedU0="1.0" voltageLevelId1="VL2" node1="4" voltageLevelId2="VL4" node2="19" voltageLevelId3="VL5" node3="25" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT" selectedOperationalLimitsGroupId3="DEFAULT">
+        <iidm:threeWindingsTransformer id="T-2-4-5-2 " name="T3D-S2-220-45-10                        " r1="1.2550000000000001E-4" x1="0.0032341" g1="0.0" b1="0.0" ratedU1="220.0" r2="6.86E-5" x2="-1.940000000000003E-4" g2="0.0" b2="0.0" ratedU2="45.0" r3="7.36E-5" x3="0.0019041000000000004" g3="0.0" b3="0.0" ratedU3="10.0" ratedU0="1.0" voltageLevelId1="VL2" node1="4" voltageLevelId2="VL4" node2="19" voltageLevelId3="VL5" node3="25" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT" selectedOperationalLimitsGroupId3="DEFAULT">
             <iidm:property name="v" value="0.96964"/>
             <iidm:property name="angle" value="-4.1061"/>
             <iidm:ratioTapChanger1 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
@@ -135,7 +135,7 @@
             </iidm:operationalLimitsGroup3>
         </iidm:threeWindingsTransformer>
     </iidm:substation>
-    <iidm:line id="L-1-2-3 " r="25.75364" x="62.30532" g1="0.0" b1="1.3481404958677687E-5" g2="0.0" b2="1.3481404958677687E-5" voltageLevelId1="VL1" node1="3" voltageLevelId2="VL2" node2="5" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+    <iidm:line id="L-1-2-3 " name="LINE-S1-220-S2-220                      " r="25.75364" x="62.30532" g1="0.0" b1="1.3481404958677687E-5" g2="0.0" b2="1.3481404958677687E-5" voltageLevelId1="VL1" node1="3" voltageLevelId2="VL2" node2="5" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
             <iidm:currentLimits permanentLimit="236.1887464866651"/>
         </iidm:operationalLimitsGroup1>

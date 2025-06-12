@@ -11,7 +11,7 @@
             </iidm:generator>
             <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="21.7" q0="12.7" bus="B2" connectableBus="B2"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-1-2-1 " r="0.0" x="39.8248128" g="0.0" b="0.0" ratedU1="138.0" ratedU2="138.0" bus1="B1" connectableBus1="B1" voltageLevelId1="VL1-2" bus2="B2" connectableBus2="B2" voltageLevelId2="VL1-2">
+        <iidm:twoWindingsTransformer id="T-1-2-1 " name="        " r="0.0" x="39.8248128" g="0.0" b="0.0" ratedU1="138.0" ratedU2="138.0" voltageLevelId1="VL1-2" bus1="B1" connectableBus1="B1" voltageLevelId2="VL1-2" bus2="B2" connectableBus2="B2">
             <iidm:phaseTapChanger lowTapPosition="0" tapPosition="0" regulationMode="FIXED_TAP">
                 <iidm:step r="0.0" x="0.0" g="-4.351599999999978" b="-4.351599999999978" rho="1.0224948875255624" alpha="-2.0"/>
             </iidm:phaseTapChanger>
