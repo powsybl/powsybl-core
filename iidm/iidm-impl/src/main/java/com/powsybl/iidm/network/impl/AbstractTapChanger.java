@@ -131,7 +131,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     public C unsetTapPosition() {
         NetworkImpl n = getNetwork();
-        ValidationUtil.throwExceptionOrLogError(parent, "tap position has been unset", n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        ValidationUtil.throwExceptionOrIgnore(parent, "tap position has been unset", n.getMinValidationLevel());
         int variantIndex = network.get().getVariantIndex();
         Integer oldValue = this.tapPosition.set(variantIndex, null);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
