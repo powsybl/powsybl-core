@@ -760,12 +760,22 @@ public final class TopologyModificationUtils {
      */
     public static void cleanNodeBreakerTopology(Network network, String connectableId, ReportNode reportNode, Terminal terminal) {
         Connectable<?> connectable = network.getConnectable(connectableId);
-        for (Terminal t : connectable.getTerminals()) {
-            if (t.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER && (terminal == null || terminal.equals(t))) {
-                Graph<Integer, Object> graph = createGraphFromTerminal(t);
-                int node = t.getNodeBreakerView().getNode();
-                cleanTopology(t.getVoltageLevel().getNodeBreakerView(), graph, node, connectableId, reportNode);
+        if (terminal != null) {
+            if (terminal.getConnectable().getId().equals(connectableId)) {
+                cleanNodeBreakerTopologyForTerminal(terminal, connectableId, reportNode);
             }
+        } else {
+            for (Terminal t : connectable.getTerminals()) {
+                cleanNodeBreakerTopologyForTerminal(t, connectableId, reportNode);
+            }
+        }
+    }
+
+    private static void cleanNodeBreakerTopologyForTerminal(Terminal t, String connectableId, ReportNode reportNode) {
+        if (t.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            Graph<Integer, Object> graph = createGraphFromTerminal(t);
+            int node = t.getNodeBreakerView().getNode();
+            cleanTopology(t.getVoltageLevel().getNodeBreakerView(), graph, node, connectableId, reportNode);
         }
     }
 
