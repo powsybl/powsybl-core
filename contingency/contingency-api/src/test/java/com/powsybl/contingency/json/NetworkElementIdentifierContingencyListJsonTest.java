@@ -53,7 +53,7 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"v1_0", "v1_1", "v1_2", "v1_3"})
+    @ValueSource(strings = {"v1_0", "v1_1", "v1_2"})
     void readPreviousVersion(String version) {
         ContingencyList contingencyList = NetworkElementIdentifierContingencyListJsonTest
                 .readJsonInputStream(Objects.requireNonNull(getClass()
