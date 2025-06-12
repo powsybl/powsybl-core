@@ -51,14 +51,14 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn, true);
         regulatingPoint.setRegulatingTerminal(regulatingTerminal);
         this.sectionCount = new ArrayList<>(variantArraySize);
+        this.solvedSectionCount = new ArrayList<>(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
-        this.solvedSectionCount = new ArrayList<>(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.sectionCount.add(sectionCount);
+            this.solvedSectionCount.add(checkSolvedSectionCount(solvedSectionCount, model.getMaximumSectionCount()));
             this.targetV.add(targetV);
             this.targetDeadband.add(targetDeadband);
-            this.solvedSectionCount.add(checkSolvedSectionCount(solvedSectionCount, model.getMaximumSectionCount()));
         }
         this.model = Objects.requireNonNull(model).attach(this);
     }
@@ -133,9 +133,10 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensator unsetSolvedSectionCount() {
-        int variantIndex = network.get().getVariantIndex();
+        NetworkImpl n = getNetwork();
+        int variantIndex = n.getVariantIndex();
         Integer oldValue = this.solvedSectionCount.set(variantIndex, null);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("solvedSectionCount", variantId, oldValue, null);
         return this;
     }

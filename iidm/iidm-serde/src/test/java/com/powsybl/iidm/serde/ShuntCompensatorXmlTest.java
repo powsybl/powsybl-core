@@ -95,7 +95,7 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTest(network, "shuntWithSolvedSectionCountRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("shuntRoundTripRef.xml", IidmVersion.V_1_14);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("shuntWithSolvedSectionCountRoundTripRef.xml", IidmVersion.V_1_14);
     }
 
     private void write(Network network, String version) {
