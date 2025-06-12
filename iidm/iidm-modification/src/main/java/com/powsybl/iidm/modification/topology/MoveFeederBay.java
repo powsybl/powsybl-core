@@ -70,7 +70,7 @@ public class MoveFeederBay extends AbstractNetworkModification {
                                            VoltageLevel voltageLevel, NamingStrategy namingStrategy,
                                            ReportNode reportNode) {
         // Clean existing topology
-        cleanNodeBreakerTopology(network, connectableId, reportNode, terminal);
+        cleanNodeBreakerTopology(connectableId, reportNode, terminal);
 
         // Create new topology and Get node information
         int side = getSideFromTerminal(terminal, connectable);

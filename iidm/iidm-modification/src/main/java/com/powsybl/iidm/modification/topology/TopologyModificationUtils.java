@@ -752,22 +752,19 @@ public final class TopologyModificationUtils {
     }
 
     public static void cleanNodeBreakerTopology(Network network, String connectableId, ReportNode reportNode) {
-        cleanNodeBreakerTopology(network, connectableId, reportNode, null);
+        Connectable<?> connectable = network.getConnectable(connectableId);
+        for (Terminal t : connectable.getTerminals()) {
+            cleanNodeBreakerTopologyForTerminal(t, connectableId, reportNode);
+        }
     }
 
     /**
      * Cleans up the topology for a node-breaker topology
      */
-    public static void cleanNodeBreakerTopology(Network network, String connectableId, ReportNode reportNode, Terminal terminal) {
-        Connectable<?> connectable = network.getConnectable(connectableId);
-        if (terminal != null) {
-            if (terminal.getConnectable().getId().equals(connectableId)) {
-                cleanNodeBreakerTopologyForTerminal(terminal, connectableId, reportNode);
-            }
-        } else {
-            for (Terminal t : connectable.getTerminals()) {
-                cleanNodeBreakerTopologyForTerminal(t, connectableId, reportNode);
-            }
+    public static void cleanNodeBreakerTopology(String connectableId, ReportNode reportNode, Terminal terminal) {
+        Objects.requireNonNull(terminal);
+        if (terminal.getConnectable().getId().equals(connectableId)) {
+            cleanNodeBreakerTopologyForTerminal(terminal, connectableId, reportNode);
         }
     }
 
