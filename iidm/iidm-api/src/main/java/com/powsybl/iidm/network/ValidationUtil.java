@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.Set;
 
 /**
@@ -624,9 +625,16 @@ public final class ValidationUtil {
 
     private static ValidationLevel checkRtc(Validable validable, RatioTapChanger rtc, Network network, ActionOnError actionOnError, ReportNode reportNode) {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
-        if (rtc.findTapPosition().isEmpty()) {
+        OptionalInt tapPositionOpt = rtc.findTapPosition();
+        if (tapPositionOpt.isEmpty()) {
             throwExceptionOrLogError(validable, "tap position is not set", actionOnError, reportNode);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        } else {
+            int tapPosition = tapPositionOpt.getAsInt();
+            if (tapPosition < rtc.getLowTapPosition() || tapPosition > rtc.getHighTapPosition()) {
+                throwExceptionOrLogError(validable, "incorrect tap position: it is not between min and max positions", actionOnError, reportNode);
+                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+            }
         }
         validationLevel = ValidationLevel.min(validationLevel, checkRatioTapChangerRegulation(validable, rtc.isRegulating(), rtc.hasLoadTapChangingCapabilities(), rtc.getRegulationTerminal(), rtc.getRegulationMode(), rtc.getRegulationValue(), network, actionOnError, reportNode));
         validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "ratio tap changer", rtc.isRegulating(), rtc.getTargetDeadband(), actionOnError, reportNode));
@@ -635,9 +643,16 @@ public final class ValidationUtil {
 
     private static ValidationLevel checkPtc(Validable validable, PhaseTapChanger ptc, Network network, ActionOnError actionOnError, ReportNode reportNode) {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
-        if (ptc.findTapPosition().isEmpty()) {
+        OptionalInt tapPositionOpt = ptc.findTapPosition();
+        if (tapPositionOpt.isEmpty()) {
             throwExceptionOrLogError(validable, "tap position is not set", actionOnError, reportNode);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        } else {
+            int tapPosition = tapPositionOpt.getAsInt();
+            if (tapPosition < ptc.getLowTapPosition() || tapPosition > ptc.getHighTapPosition()) {
+                throwExceptionOrLogError(validable, "incorrect tap position: it is not between min and max positions", actionOnError, reportNode);
+                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+            }
         }
         validationLevel = ValidationLevel.min(validationLevel, checkPhaseTapChangerRegulation(validable, ptc.getRegulationMode(), ptc.getRegulationValue(), ptc.isRegulating(), ptc.getRegulationTerminal(), network, actionOnError, reportNode));
         validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "phase tap changer", ptc.isRegulating(), ptc.getTargetDeadband(), actionOnError, reportNode));

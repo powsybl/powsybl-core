@@ -784,6 +784,17 @@ public abstract class AbstractTapChangerTest {
         assertNull(rtc.getRegulationTerminal());
     }
 
+    @Test
+    public void createInvalidTapChangerEquipmentLevel() {
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        createRatioTapChangerWith3Steps(0, 1, true, false, 10.0, 1.0, terminal);
+        RatioTapChanger rtc = network.getTwoWindingsTransformer("twt").getRatioTapChanger();
+        rtc.setTapPosition(4);
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+        assertEquals(4, rtc.getTapPosition());
+    }
+
     private void createRatioTapChangerWith3Steps(int low, int tap, boolean load, boolean regulating,
                                                  double targetV, double deadband, Terminal terminal) {
         createRatioTapChangerWith3Steps(low, tap, load, regulating, RatioTapChanger.RegulationMode.VOLTAGE, targetV, deadband, terminal);
