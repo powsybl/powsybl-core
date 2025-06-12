@@ -370,7 +370,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     }
 
     private RatioTapChanger createRatioTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating, Integer solvedTapPosition) {
-        RatioTapChangerAdder adder = transformer.newRatioTapChanger()
+        return transformer.newRatioTapChanger()
                 .setRegulationValue(200.0)
                 .setLoadTapChangingCapabilities(false)
                 .setLowTapPosition(0)
@@ -398,11 +398,9 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .setG(0.0)
                 .setB(0.0)
                 .setRho(1.0)
-                .endStep();
-        if (solvedTapPosition != null) {
-            adder.setSolvedTapPosition(solvedTapPosition);
-        }
-        return adder.add();
+                .endStep()
+                .setSolvedTapPosition(solvedTapPosition)
+                .add();
     }
 
     private PhaseTapChanger createPhaseTapChanger(TwoWindingsTransformer transformer, Terminal terminal) {
@@ -410,7 +408,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     }
 
     private PhaseTapChanger createPhaseTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating, Integer solvedTapPosition) {
-        PhaseTapChangerAdder adder = transformer.newPhaseTapChanger()
+        return transformer.newPhaseTapChanger()
                 .setRegulationValue(200.0)
                 .setLowTapPosition(0)
                 .setTapPosition(0)
@@ -441,11 +439,9 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .setB(0.0)
                 .setRho(1.0)
                 .setAlpha(10.0)
-                .endStep();
-        if (solvedTapPosition != null) {
-            adder.setSolvedTapPosition(solvedTapPosition);
-        }
-        return adder.add();
+                .endStep()
+                .setSolvedTapPosition(solvedTapPosition)
+                .add();
     }
 
 }

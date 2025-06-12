@@ -47,7 +47,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected AbstractTapChanger(H parent,
                                  int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
-                                 Integer tapPosition, boolean regulating, double targetDeadband, String type, Integer solvedTapPosition) {
+                                 Integer tapPosition, Integer solvedTapPosition, boolean regulating, double targetDeadband, String type) {
         // The Ref object should be the one corresponding to the subnetwork of the tap changer holder
         // (to avoid errors when the subnetwork is detached)
         this.network = parent.getParentNetwork().getRootNetworkRef();
@@ -59,12 +59,12 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         regulatingPoint = createRegulatingPoint(variantArraySize, regulating);
         regulatingPoint.setRegulatingTerminal(regulationTerminal);
         this.tapPosition = new ArrayList<>(variantArraySize);
-        this.targetDeadband = new TDoubleArrayList(variantArraySize);
         this.solvedTapPosition = new ArrayList<>(variantArraySize);
+        this.targetDeadband = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.tapPosition.add(tapPosition);
-            this.targetDeadband.add(targetDeadband);
             this.solvedTapPosition.add(solvedTapPosition);
+            this.targetDeadband.add(targetDeadband);
         }
         this.type = Objects.requireNonNull(type);
         relativeNeutralPosition = getRelativeNeutralPosition();

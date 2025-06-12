@@ -30,7 +30,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
                         List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal,
                         Integer tapPosition, Integer solvedTapPosition, Boolean regulating,
                         RegulationMode regulationMode, double regulationValue, double targetDeadband) {
-        super(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, targetDeadband, "phase tap changer", solvedTapPosition);
+        super(parent, lowTapPosition, steps, regulationTerminal, tapPosition, solvedTapPosition, regulating, targetDeadband, "phase tap changer");
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.regulationMode = regulationMode;
         this.regulationValue = new TDoubleArrayList(variantArraySize);
