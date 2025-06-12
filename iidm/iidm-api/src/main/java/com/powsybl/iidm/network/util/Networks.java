@@ -455,9 +455,20 @@ public final class Networks {
      * This method replaces the "input" status of switches, tap changer position and shunt section count by their solved values if they are present.
      */
     public static void applySolvedValues(Network network) {
-        network.getSwitchStream().forEach(Switch::setOpenToSolvedOpen);
-        network.getTwoWindingsTransformerStream().map(RatioTapChangerHolder::getRatioTapChanger).filter(Objects::nonNull).forEach(TapChanger::setTapPositiontoSolvedTapPosition);
-        network.getTwoWindingsTransformerStream().map(PhaseTapChangerHolder::getPhaseTapChanger).filter(Objects::nonNull).forEach(TapChanger::setTapPositiontoSolvedTapPosition);
-        network.getShuntCompensatorStream().forEach(ShuntCompensator::setSectionCountToSolvedSectionCount);
+
+        // Two-windings transformers
+        network.getTwoWindingsTransformerStream().map(RatioTapChangerHolder::getRatioTapChanger).filter(Objects::nonNull).forEach(TapChanger::applySolvedValues);
+        network.getTwoWindingsTransformerStream().map(PhaseTapChangerHolder::getPhaseTapChanger).filter(Objects::nonNull).forEach(TapChanger::applySolvedValues);
+
+        // Three-windings transformers
+        network.getThreeWindingsTransformerStream().flatMap(ThreeWindingsTransformer::getLegStream).map(RatioTapChangerHolder::getRatioTapChanger).filter(Objects::nonNull).forEach(TapChanger::applySolvedValues);
+        network.getThreeWindingsTransformerStream().flatMap(ThreeWindingsTransformer::getLegStream).map(PhaseTapChangerHolder::getPhaseTapChanger).filter(Objects::nonNull).forEach(TapChanger::applySolvedValues);
+
+        // Shunt compensators, generators, batteries, loads and dangling lines
+        network.getShuntCompensatorStream().forEach(ShuntCompensator::applySolvedValues);
+        network.getGeneratorStream().forEach(Generator::applySolvedValues);
+        network.getBatteryStream().forEach(Battery::applySolvedValues);
+        network.getLoadStream().forEach(Load::applySolvedValues);
+        network.getDanglingLineStream().forEach(DanglingLine::applySolvedValues);
     }
 }
