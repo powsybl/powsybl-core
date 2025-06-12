@@ -19,6 +19,11 @@ import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -74,14 +79,38 @@ class MoveFeederBayTest {
     void shouldMoveLineInNodeBreakerNetwork() {
         // Given
         Network network = getNodeBreakerNetwork();
+        // line between vl1 and vlSubst2
         Line line = network.getLine("line1");
+        Set<String> switchesOnVlSubst21BeforeModification =
+            StreamSupport.stream(network.getVoltageLevel("vlSubst2").getSwitches().spliterator(), false)
+                .map(Switch::getId)
+                .collect(Collectors.toSet());
+        Set<String> switchesOnVl1BeforeModification =
+            StreamSupport.stream(network.getVoltageLevel("vl1").getSwitches().spliterator(), false)
+                .map(Switch::getId)
+                .collect(Collectors.toSet());
         String terminal2VoltageLevel = line.getTerminal2().getVoltageLevel().getId();
         String originalBusBarSection = line.getTerminal1().getBusBreakerView().getBus().getId();
         int initialNode = line.getTerminal1().getNodeBreakerView().getNode();
         boolean initialConnected = line.getTerminal1().isConnected();
+        assertTrue(switchesOnVlSubst21BeforeModification.containsAll(List.of("dline21_2", "bline21_2")));
+        assertTrue(switchesOnVl1BeforeModification.containsAll(List.of("dline11_2", "bline11_2")));
 
         // When: move from vl1 to vl2/bbs5
         moveFeederBay(line.getId(), "bbs5", "vl2", line.getTerminal1(), network);
+
+        // checking switch on vlSubst2 are not deleted
+        Set<String> switchesOnVlSubst2AfterModification =
+            StreamSupport.stream(network.getVoltageLevel("vlSubst2").getSwitches().spliterator(), false)
+                .map(Switch::getId)
+                .collect(Collectors.toSet());
+        Set<String> switchesOnVl1AfterModification =
+            StreamSupport.stream(network.getVoltageLevel("vlSubst2").getSwitches().spliterator(), false)
+                .map(Switch::getId)
+                .collect(Collectors.toSet());
+        assertTrue(switchesOnVlSubst2AfterModification.containsAll(List.of("dline21_2", "bline21_2")));
+        assertFalse(switchesOnVl1AfterModification.contains("dline11_2"));
+        assertFalse(switchesOnVl1AfterModification.contains("bline11_2"));
 
         // Then
         assertTerminalMoved(line.getTerminal1(), "vl2", originalBusBarSection, "bbs5", initialNode, initialConnected);
