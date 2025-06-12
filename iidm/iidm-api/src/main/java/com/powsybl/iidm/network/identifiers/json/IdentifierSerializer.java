@@ -53,7 +53,7 @@ public class IdentifierSerializer extends StdSerializer<NetworkElementIdentifier
                 break;
             case SUBSTATION_OR_VOLTAGE_LEVEL_EQUIPMENTS:
                 SubstationOrVoltageLevelEquipmentsIdentifier substIdentifier = (SubstationOrVoltageLevelEquipmentsIdentifier) networkElementIdentifier;
-                jsonGenerator.writeStringField("voltageLevelId1", substIdentifier.getSubstationOrVoltageLevelId());
+                jsonGenerator.writeStringField("substationOrVoltageLevelId", substIdentifier.getSubstationOrVoltageLevelId());
                 serializerProvider.defaultSerializeField("voltageLevelIdentifiableTypes", substIdentifier.getVoltageLevelIdentifiableTypes(), jsonGenerator);
                 break;
         }

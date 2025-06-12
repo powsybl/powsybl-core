@@ -29,7 +29,7 @@
   }, {
     "type" : "SUBSTATION_OR_VOLTAGE_LEVEL_EQUIPMENTS",
     "contingencyId" : "substationId",
-    "voltageLevelId1" : "substationId",
+    "substationOrVoltageLevelId" : "substationId",
     "voltageLevelIdentifiableTypes" : [ "LINE" ]
   } ]
 }
