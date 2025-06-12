@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.*;
 import java.util.*;
@@ -90,9 +92,10 @@ public class JsonActionTest extends AbstractSerDeTest {
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }
 
-    @Test
-    void actionsReadV10() {
-        ActionList actionList = ActionList.readJsonInputStream(getClass().getResourceAsStream("/ActionFileTestV1.0.json"));
+    @ParameterizedTest
+    @ValueSource(strings = {"/ActionFileTestV1.0.json", "/ActionFileTestV1.1.json"})
+    void actionsReadOldVersion(String path) {
+        ActionList actionList = ActionList.readJsonInputStream(getClass().getResourceAsStream(path));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             actionList.writeJsonOutputStream(bos);
             ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/ActionFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
