@@ -761,7 +761,7 @@ public final class TopologyModificationUtils {
     /**
      * Cleans up the topology for a node-breaker topology
      */
-    public static void cleanNodeBreakerTopology(String connectableId, ReportNode reportNode, Terminal terminal) {
+    public static void cleanNodeBreakerTopology(Terminal terminal, String connectableId, ReportNode reportNode) {
         Objects.requireNonNull(terminal);
         if (terminal.getConnectable().getId().equals(connectableId)) {
             cleanNodeBreakerTopologyForTerminal(terminal, connectableId, reportNode);
