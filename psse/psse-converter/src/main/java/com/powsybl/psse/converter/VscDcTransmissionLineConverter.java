@@ -97,13 +97,13 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
     }
 
     private static double getLossFactor1(PsseVoltageSourceConverter converter1, double activePowerSetpoint, ConvertersMode convertersMode) {
-        return convertersMode.equals(ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+        return convertersMode == ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER
                 ? getLossFactor(converter1, activePowerSetpoint, true)
                 : getLossFactor(converter1, activePowerSetpoint, false);
     }
 
     private static double getLossFactor2(PsseVoltageSourceConverter converter2, double activePowerSetpoint, ConvertersMode convertersMode) {
-        return convertersMode.equals(ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+        return convertersMode == ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER
                 ? getLossFactor(converter2, activePowerSetpoint, false)
                 : getLossFactor(converter2, activePowerSetpoint, true);
     }

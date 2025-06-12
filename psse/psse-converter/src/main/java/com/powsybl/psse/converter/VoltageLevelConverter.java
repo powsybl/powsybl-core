@@ -63,7 +63,7 @@ class VoltageLevelConverter extends AbstractConverter {
         }
 
         // Add slack control data
-        if (voltageLevel.getTopologyKind().equals(TopologyKind.NODE_BREAKER) && psseBus.getIde() == 3) {
+        if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER && psseBus.getIde() == 3) {
             nodeBreakerImport.addSlackControl(psseBus.getI(), voltageLevelId, findSlackNode(nodeBreakerValidation, psseBus.getI()));
         }
         return voltageLevel;
@@ -569,7 +569,7 @@ class VoltageLevelConverter extends AbstractConverter {
 
     private static List<Integer> getTwoOtherBusesPreservingOrder(Identifiable<?> identifiable, List<Terminal> terminals, NodeBusR nodeBusR, ContextExport contextExport) {
         List<Integer> buses = new ArrayList<>();
-        if (identifiable.getType().equals(IdentifiableType.DANGLING_LINE)) {
+        if (identifiable.getType() == IdentifiableType.DANGLING_LINE) {
             // busJ associated with boundary side of the dangling lines
             buses.add(contextExport.getFullExport().getBusI((DanglingLine) identifiable).orElseThrow());
         } else {
@@ -615,7 +615,7 @@ class VoltageLevelConverter extends AbstractConverter {
 
     static void updateSubstations(Network network, ContextExport contextExport) {
         network.getVoltageLevels().forEach(voltageLevel -> {
-            if (voltageLevel.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+            if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
                 Set<Integer> buses = new HashSet<>(extractBusesFromVoltageLevelId(voltageLevel.getId()));
                 contextExport.getUpdateExport().getPsseSubstation(voltageLevel).ifPresent(psseSubstation -> updateSubstation(voltageLevel, psseSubstation, buses, contextExport));
             }

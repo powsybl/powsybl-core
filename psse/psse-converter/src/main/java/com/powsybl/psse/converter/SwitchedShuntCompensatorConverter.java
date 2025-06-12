@@ -326,7 +326,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     private static void setShuntBlocks(ShuntCompensator shuntCompensator, PsseSwitchedShunt psseSwitchedShunt) {
-        if (shuntCompensator.getModelType().equals(ShuntCompensatorModelType.LINEAR)) {
+        if (shuntCompensator.getModelType() == ShuntCompensatorModelType.LINEAR) {
             ShuntCompensatorLinearModel linearModel = (ShuntCompensatorLinearModel) shuntCompensator.getModel();
             setShuntBlocksForLinearModel(linearModel, shuntCompensator.getMaximumSectionCount(), shuntCompensator.getTerminal().getVoltageLevel().getNominalV(), psseSwitchedShunt);
         } else {

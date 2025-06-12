@@ -225,7 +225,7 @@ public abstract class AbstractConverter {
     }
 
     static boolean isTwoTerminalDcTransmissionLine(HvdcLine hvdcLine) {
-        return hvdcLine.getConverterStation1().getHvdcType().equals(HvdcConverterStation.HvdcType.LCC);
+        return hvdcLine.getConverterStation1().getHvdcType() == HvdcConverterStation.HvdcType.LCC;
     }
 
     static boolean isVscDcTransmissionLine(HvdcLine hvdcLine) {
@@ -236,10 +236,10 @@ public abstract class AbstractConverter {
         List<String> equipmentListToBeExported = new ArrayList<>();
         for (Connectable<?> connectable : voltageLevel.getConnectables()) {
             if (isEquipmentToBeExported(connectable.getType())) {
-                if (connectable.getType().equals(IdentifiableType.HVDC_CONVERTER_STATION)) {
+                if (connectable.getType() == IdentifiableType.HVDC_CONVERTER_STATION) {
                     HvdcConverterStation<?> converterStation = (HvdcConverterStation<?>) connectable;
                     equipmentListToBeExported.add(converterStation.getHvdcLine().getId());
-                } else if (connectable.getType().equals(IdentifiableType.DANGLING_LINE)) {
+                } else if (connectable.getType() == IdentifiableType.DANGLING_LINE) {
                     DanglingLine danglingLine = (DanglingLine) connectable;
                     if (danglingLine.isPaired()) {
                         TieLine tieLine = danglingLine.getTieLine().orElseThrow();
@@ -271,11 +271,11 @@ public abstract class AbstractConverter {
             terminals.addAll(connectable.getTerminals());
         } else {
             Identifiable<?> identifiable = voltageLevel.getNetwork().getIdentifiable(equipmentId);
-            if (identifiable != null && identifiable.getType().equals(IdentifiableType.HVDC_LINE)) {
+            if (identifiable != null && identifiable.getType() == IdentifiableType.HVDC_LINE) {
                 HvdcLine hvdcLine = (HvdcLine) identifiable;
                 terminals.add(hvdcLine.getConverterStation1().getTerminal());
                 terminals.add(hvdcLine.getConverterStation2().getTerminal());
-            } else if (identifiable != null && identifiable.getType().equals(IdentifiableType.TIE_LINE)) {
+            } else if (identifiable != null && identifiable.getType() == IdentifiableType.TIE_LINE) {
                 TieLine tieLine = (TieLine) identifiable;
                 terminals.add(tieLine.getDanglingLine1().getTerminal());
                 terminals.add(tieLine.getDanglingLine2().getTerminal());
@@ -338,7 +338,8 @@ public abstract class AbstractConverter {
     }
 
     static Terminal findTerminalNode(VoltageLevel voltageLevel, int node) {
-        return voltageLevel.getNodeBreakerView().getOptionalTerminal(node).orElse(Networks.getEquivalentTerminal(voltageLevel, node));
+        return voltageLevel.getNodeBreakerView().getOptionalTerminal(node)
+                .orElseGet(() -> Networks.getEquivalentTerminal(voltageLevel, node));
     }
 
     static Optional<Bus> findBusViewNode(VoltageLevel voltageLevel, int node) {
@@ -427,7 +428,7 @@ public abstract class AbstractConverter {
     // node numbers in psse must be between 1 and 999
     // node psse 999 is used for mapping the node 0 of iidm
     static boolean exportVoltageLevelAsNodeBreaker(VoltageLevel voltageLevel) {
-        return voltageLevel.getTopologyKind().equals(TopologyKind.NODE_BREAKER)
+        return voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER
                 && voltageLevel.getNodeBreakerView().getSwitchCount() > 0
                 && maxNode(voltageLevel) <= getMaxPsseNodeBySubstation();
     }

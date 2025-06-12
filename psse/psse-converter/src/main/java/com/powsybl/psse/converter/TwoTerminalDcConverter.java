@@ -131,7 +131,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         psseTwoTerminalDc.setCccitmx(20);
         psseTwoTerminalDc.setCccacc(1.0);
 
-        if (hvdcLine.getConvertersMode().equals(ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
+        if (hvdcLine.getConvertersMode() == ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
             psseTwoTerminalDc.setRectifier(findConverter((LccConverterStation) hvdcLine.getConverterStation1(), contextExport));
             psseTwoTerminalDc.setInverter(findConverter((LccConverterStation) hvdcLine.getConverterStation2(), contextExport));
         } else {
