@@ -23,7 +23,7 @@ The naming strategy can be either the default one `com.powsybl.iidm.modification
 or a new implementation of the `NamingStrategy` interface.
 
 #### Default naming strategy
-Default naming strategy used if no other naming strategy is specified.
+Default naming strategy is used if no other naming strategy is specified.
 The `DefaultNamingStrategy` implements a simple naming convention following the pattern: 
 base name + separator + element type + optional index.
 The default implementation uses underscores as separators and appends element types and indices when necessary 
