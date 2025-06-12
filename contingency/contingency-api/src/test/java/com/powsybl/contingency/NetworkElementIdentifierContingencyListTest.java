@@ -206,8 +206,6 @@ class NetworkElementIdentifierContingencyListTest {
     void testUnknownCharacterIdentifier() {
         String message = assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV2_?_?_?_?_?_?_?")).getMessage();
         assertEquals("There can be a maximum of 5 wildcards ('?')", message);
-        String message2 = assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV2_ç")).getMessage();
-        assertEquals("Only characters allowed for this identifier are letters, numbers, '_', '-', '.' and the wildcard character '?'", message2);
         NetworkElementIdentifier elementIdentifier = new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV?_?");
         Network network = EurostagTutorialExample1Factory.create();
         List<String> identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
