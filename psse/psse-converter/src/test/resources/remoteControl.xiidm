@@ -74,7 +74,7 @@
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T-4-8-1" r="0.0" x="67.29778" g="0.0" b="0.0" ratedU1="230.0" ratedU2="110.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL7-8" bus2="B8" connectableBus2="B8" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
-            <iidm:ratioTapChanger regulating="true" lowTapPosition="0" tapPosition="0" targetDeadband="0.3999999999999986" loadTapChangingCapabilities="false" regulationMode="VOLTAGE" regulationValue="20.2">
+            <iidm:ratioTapChanger regulating="true" lowTapPosition="0" tapPosition="0" targetDeadband="0.3999999999999986" loadTapChangingCapabilities="true" regulationMode="VOLTAGE" regulationValue="20.2">
                 <iidm:terminalRef id="B9-L1"/>
                 <iidm:step r="0.0" x="0.0" g="-6.1039000000000065" b="-6.1039000000000065" rho="1.0319917440660475"/>
                 <iidm:step r="0.0" x="0.0" g="-3.960000000000008" b="-3.960000000000008" rho="1.0204081632653061"/>
