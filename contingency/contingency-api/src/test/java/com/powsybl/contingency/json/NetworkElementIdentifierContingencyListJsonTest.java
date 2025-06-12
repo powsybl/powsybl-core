@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.identifiers.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -53,23 +54,16 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
                 "/identifierContingencyList.json");
     }
 
-    private static Stream<String> provideFilePathsForTestClass() {
-        return Stream.of(
-            "/identifierContingencyListv1_0.json",
-            "/identifierContingencyListv1_1.json",
-            "/identifierContingencyListv1_2.json"
-        );
-    }
-
     @ParameterizedTest
-    @MethodSource("provideFilePathsForTestClass")
-    void readOldVersions(String filePath) {
+    @ValueSource(strings = {"v1_0", "v1_1", "v1_2", "v1_3"})
+    void readPreviousVersion(String version) {
         ContingencyList contingencyList = NetworkElementIdentifierContingencyListJsonTest
                 .readJsonInputStream(Objects.requireNonNull(getClass()
-                        .getResourceAsStream(filePath)));
+                        .getResourceAsStream("/identifierContingencyList" + version + ".json")));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             WRITER.writeValue(bos, contingencyList);
-            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_3.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/identifierContingencyListReferenceForPreviousVersion.json"),
+                    new ByteArrayInputStream(bos.toByteArray()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

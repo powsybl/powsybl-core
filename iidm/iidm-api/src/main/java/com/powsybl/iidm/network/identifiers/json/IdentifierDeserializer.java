@@ -41,6 +41,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
         String voltageLevelId2 = null;
         String contingencyId = null;
         String substationOrVoltageLevelId = null;
+        String wildcard = IdWithWildcardsNetworkElementIdentifier.DEFAULT_WILDCARD_CHARACTER;
         String version = JsonUtil.getSourceVersion(deserializationContext, IDENTIFIER_LIST_VERSION);
         List<NetworkElementIdentifier> networkElementIdentifierList = Collections.emptyList();
         Set<IdentifiableType> voltageLevelIdentifiableTypes = Collections.emptySet();
@@ -71,6 +72,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                     }
                     order = orderStr.charAt(0);
                 }
+                case "wildcard" -> wildcard = parser.nextTextValue();
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
@@ -82,7 +84,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
             case LIST -> new NetworkElementIdentifierContingencyList(networkElementIdentifierList, contingencyId);
             case VOLTAGE_LEVELS_AND_ORDER ->
                 new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order, contingencyId);
-            case ID_WITH_WILDCARDS -> new IdWithWildcardsNetworkElementIdentifier(identifier, contingencyId);
+            case ID_WITH_WILDCARDS -> new IdWithWildcardsNetworkElementIdentifier(identifier, wildcard, contingencyId);
             case SUBSTATION_OR_VOLTAGE_LEVEL_EQUIPMENTS -> new SubstationOrVoltageLevelEquipmentsIdentifier(substationOrVoltageLevelId, voltageLevelIdentifiableTypes);
         };
     }

@@ -25,7 +25,8 @@
   }, {
     "type" : "ID_WITH_WILDCARDS",
     "contingencyId" : "contingencyId4",
-    "identifier" : "identifier?"
+    "identifier" : "identifier?",
+    "wildcard" : "?"
   }, {
     "type" : "SUBSTATION_OR_VOLTAGE_LEVEL_EQUIPMENTS",
     "contingencyId" : "substationId",
