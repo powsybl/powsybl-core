@@ -8,6 +8,7 @@
 package com.powsybl.psse.model;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
 import java.lang.reflect.Field;
@@ -28,6 +29,7 @@ public class PsseVersioned {
         this.model = Objects.requireNonNull(model);
     }
 
+    @JsonIgnore
     public PssePowerFlowModel getModel() {
         return model;
     }
