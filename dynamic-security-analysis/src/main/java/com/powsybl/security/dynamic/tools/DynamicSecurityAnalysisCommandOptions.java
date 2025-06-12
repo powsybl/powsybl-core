@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.dynamic.distributed;
+package com.powsybl.security.dynamic.tools;
 
 import com.powsybl.computation.SimpleCommand;
 import com.powsybl.computation.SimpleCommandBuilder;
@@ -14,6 +14,7 @@ import com.powsybl.security.distributed.AbstractSecurityAnalysisCommandOptions;
 import java.nio.file.Path;
 
 import static com.powsybl.security.dynamic.tools.DynamicSecurityAnalysisToolConstants.DYNAMIC_MODELS_FILE_OPTION;
+import static com.powsybl.security.dynamic.tools.DynamicSecurityAnalysisToolConstants.EVENT_MODELS_FILE_OPTION;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -25,6 +26,7 @@ public class DynamicSecurityAnalysisCommandOptions extends AbstractSecurityAnaly
 
     private static final String ITOOLS_COMMAND_NAME = "dynamic-security-analysis";
     private Path dynamicModelsFile;
+    private Path eventModelsFile;
 
     public DynamicSecurityAnalysisCommandOptions() {
         super(ITOOLS_COMMAND_NAME);
@@ -35,10 +37,16 @@ public class DynamicSecurityAnalysisCommandOptions extends AbstractSecurityAnaly
         return this;
     }
 
+    public DynamicSecurityAnalysisCommandOptions eventModelsFile(Path eventModelsFile) {
+        this.eventModelsFile = requireNonNull(eventModelsFile);
+        return this;
+    }
+
     @Override
     public SimpleCommand toCommand() {
         SimpleCommandBuilder commandBuilder = toCommandBuilder()
                 .option(DYNAMIC_MODELS_FILE_OPTION, pathToString(dynamicModelsFile));
+        setOptionIfPresent(commandBuilder, EVENT_MODELS_FILE_OPTION, eventModelsFile, this::pathToString);
         return commandBuilder.build();
     }
 
