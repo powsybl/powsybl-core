@@ -154,6 +154,10 @@ public interface CgmesModel {
 
     PropertyBags controlAreas();
 
+    PropertyBags dcSwitches();
+
+    PropertyBags dcGrounds();
+
     PropertyBags acDcConverters();
 
     PropertyBags dcLineSegments();
@@ -175,8 +179,6 @@ public interface CgmesModel {
     default PropertyBags grounds() {
         return new PropertyBags();
     }
-
-    CgmesDcTerminal dcTerminal(String dcTerminalId);
 
     void clear(CgmesSubset subset);
 
