@@ -331,6 +331,10 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
         return IdentifiableType.SHUNT_COMPENSATOR;
     }
 
+    default void applySolvedValues() {
+        setSectionCountToSolvedSectionCount();
+    }
+
     default void setSectionCountToSolvedSectionCount() {
         OptionalInt solvedSectionCount = this.findSolvedSectionCount();
         if (solvedSectionCount.isPresent()) {

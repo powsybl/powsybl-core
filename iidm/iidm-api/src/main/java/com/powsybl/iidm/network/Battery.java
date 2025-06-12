@@ -179,4 +179,17 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
     default IdentifiableType getType() {
         return IdentifiableType.BATTERY;
     }
+
+    default void applySolvedValues() {
+        setTargetPToP();
+        setTargetQToQ();
+    }
+
+    default void setTargetPToP() {
+        this.setTargetP(this.getTerminal().getP());
+    }
+
+    default void setTargetQToQ() {
+        this.setTargetQ(this.getTerminal().getQ());
+    }
 }

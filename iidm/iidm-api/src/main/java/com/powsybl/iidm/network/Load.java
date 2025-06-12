@@ -118,4 +118,17 @@ public interface Load extends Injection<Load> {
     }
 
     Optional<LoadModel> getModel();
+
+    default void applySolvedValues() {
+        setP0ToP();
+        setQ0ToQ();
+    }
+
+    default void setP0ToP() {
+        this.setP0(this.getTerminal().getP());
+    }
+
+    default void setQ0ToQ() {
+        this.setQ0(this.getTerminal().getQ());
+    }
 }
