@@ -37,6 +37,13 @@ public interface AmplParameters {
     boolean isDebug();
 
     /**
+     * Get the directory where execution files will be dumped
+     *
+     * @return the debug directory
+     */
+    String getDebugDir();
+
+    /**
      * Configuration for AmplExporter
      */
     AmplExportConfig getAmplExportConfig();

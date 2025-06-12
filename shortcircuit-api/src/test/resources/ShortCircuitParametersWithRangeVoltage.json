@@ -1,5 +1,5 @@
 {
-  "version" : "1.3",
+  "version" : "1.4",
   "withLimitViolations" : true,
   "withVoltageResult" : true,
   "withFeederResult" : true,
@@ -22,5 +22,6 @@
     "voltageRangeCoefficient" : 1.1,
     "voltage" : 140.0
   } ],
-  "detailedReport" : true
+  "detailedReport" : true,
+  "debugDir" : null
 }
