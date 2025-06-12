@@ -75,7 +75,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, NetworkSerializerContext context) {
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), name);
 
-        Boolean optionalRegulatingValue = rtc.hasLoadTapChangingCapabilities() ? rtc.isRegulating() : null;
+        Boolean optionalRegulatingValue = !rtc.hasLoadTapChangingCapabilities() ? null : rtc.isRegulating();
         context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, optionalRegulatingValue);
 
         writeTapChanger(rtc, context);
