@@ -30,7 +30,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
                         List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean loadTapChangingCapabilities,
                         Integer tapPosition, Integer solvedTapPosition, Boolean regulating, RatioTapChanger.RegulationMode regulationMode, double regulationValue, double targetDeadband) {
-        super(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, targetDeadband, "ratio tap changer", solvedTapPosition);
+        super(parent, lowTapPosition, steps, regulationTerminal, tapPosition, solvedTapPosition, regulating, targetDeadband, "ratio tap changer");
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.regulationMode = regulationMode;
