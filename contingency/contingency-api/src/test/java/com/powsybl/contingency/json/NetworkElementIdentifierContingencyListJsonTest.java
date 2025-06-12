@@ -18,14 +18,12 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.identifiers.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
