@@ -75,7 +75,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, NetworkSerializerContext context) {
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), name);
 
-        Boolean optionalRegulatingValue = rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating() ? rtc.isRegulating() : null;
+        Boolean optionalRegulatingValue = rtc.hasLoadTapChangingCapabilities() ? rtc.isRegulating() : null;
         context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, optionalRegulatingValue);
 
         writeTapChanger(rtc, context);
@@ -100,7 +100,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     protected static void readRatioTapChanger(String elementName, RatioTapChangerAdder adder, Terminal terminal, NetworkDeserializerContext context) {
-        readTapChangerAttributes(adder, context);
+        boolean regulating = readTapChangerAttributes(adder, context);
 
         boolean loadTapChangingCapabilities = context.getReader().readBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES);
         adder.setLoadTapChangingCapabilities(loadTapChangingCapabilities);
@@ -117,6 +117,12 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
             double regulationValue = context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE);
             adder.setRegulationMode(regulationMode)
                     .setRegulationValue(regulationValue);
+        });
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
+            // starting v1.14 it is forbidden to be regulating without on-load tap changing capabilities
+            if (!loadTapChangingCapabilities && regulating) {
+                adder.setRegulating(false);
+            }
         });
 
         boolean[] hasTerminalRef = new boolean[1];
@@ -152,7 +158,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), name);
 
         RegulationMode regMode = ptc.getRegulationMode();
-        Boolean optionalRegulatingValue = !ptc.hasLoadTapChangingCapabilities() || (regMode == null || regMode == RegulationMode.FIXED_TAP) && !ptc.isRegulating() ? null : ptc.isRegulating();
+        Boolean optionalRegulatingValue = !ptc.hasLoadTapChangingCapabilities() || regMode == null || regMode == RegulationMode.FIXED_TAP ? null : ptc.isRegulating();
         context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, optionalRegulatingValue);
 
         writeTapChanger(ptc, context);
@@ -219,7 +225,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         });
     }
 
-    private static void readTapChangerAttributes(TapChangerAdder<?, ?, ?, ?, ?, ?> adder, NetworkDeserializerContext context) {
+    private static boolean readTapChangerAttributes(TapChangerAdder<?, ?, ?, ?, ?, ?> adder, NetworkDeserializerContext context) {
         boolean regulating = context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING).orElse(false);
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
         OptionalInt tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
@@ -228,6 +234,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
                 .setTargetDeadband(targetDeadband)
                 .setRegulating(regulating);
         tapPosition.ifPresent(adder::setTapPosition);
+        return regulating;
     }
 
     protected static void readPhaseTapChanger(TwoWindingsTransformer twt, NetworkDeserializerContext context) {
