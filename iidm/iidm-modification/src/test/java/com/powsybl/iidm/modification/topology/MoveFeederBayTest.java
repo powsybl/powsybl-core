@@ -99,6 +99,8 @@ class MoveFeederBayTest {
         // When: move from vl1 to vl2/bbs5
         moveFeederBay(line.getId(), "bbs5", "vl2", line.getTerminal1(), network);
 
+        // Then
+        assertTerminalMoved(line.getTerminal1(), "vl2", originalBusBarSection, "bbs5", initialNode, initialConnected);
         // checking switch on vlSubst2 are not deleted
         Set<String> switchesOnVlSubst2AfterModification =
             StreamSupport.stream(network.getVoltageLevel("vlSubst2").getSwitches().spliterator(), false)
@@ -111,9 +113,6 @@ class MoveFeederBayTest {
         assertTrue(switchesOnVlSubst2AfterModification.containsAll(List.of("dline21_2", "bline21_2")));
         assertFalse(switchesOnVl1AfterModification.contains("dline11_2"));
         assertFalse(switchesOnVl1AfterModification.contains("bline11_2"));
-
-        // Then
-        assertTerminalMoved(line.getTerminal1(), "vl2", originalBusBarSection, "bbs5", initialNode, initialConnected);
 
         // Further move to vl2/bbs6
         int intermediateNode = line.getTerminal1().getNodeBreakerView().getNode();
