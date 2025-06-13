@@ -143,6 +143,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportBusBranch(expected, dataSource);
+        actual.getTwoWindingsTransformerStream().map(RatioTapChangerHolder::getRatioTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
+        actual.getTwoWindingsTransformerStream().map(PhaseTapChangerHolder::getPhaseTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
+        expected.getTwoWindingsTransformerStream().map(RatioTapChangerHolder::getRatioTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
+        expected.getTwoWindingsTransformerStream().map(PhaseTapChangerHolder::getPhaseTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
         assertTrue(compareNetworksEQdata(expected, actual));
     }
 
@@ -174,6 +178,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridType4BE().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportBusBranch(expected, dataSource);
+        actual.getTwoWindingsTransformerStream().map(RatioTapChangerHolder::getRatioTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
+        actual.getTwoWindingsTransformerStream().map(PhaseTapChangerHolder::getPhaseTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
+        expected.getTwoWindingsTransformerStream().map(RatioTapChangerHolder::getRatioTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
+        expected.getTwoWindingsTransformerStream().map(PhaseTapChangerHolder::getPhaseTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
         assertTrue(compareNetworksEQdata(expected, actual));
     }
 
@@ -187,6 +195,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
             danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
         }
         Network actual = exportImportBusBranch(expected, dataSource);
+        actual.getTwoWindingsTransformerStream().map(RatioTapChangerHolder::getRatioTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
+        actual.getTwoWindingsTransformerStream().map(PhaseTapChangerHolder::getPhaseTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
+        expected.getTwoWindingsTransformerStream().map(RatioTapChangerHolder::getRatioTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
+        expected.getTwoWindingsTransformerStream().map(PhaseTapChangerHolder::getPhaseTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
         assertTrue(compareNetworksEQdata(expected, actual));
     }
 
@@ -559,6 +571,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEConformNonConformLoads().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportBusBranch(expected, dataSource);
+        actual.getTwoWindingsTransformerStream().map(RatioTapChangerHolder::getRatioTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
+        actual.getTwoWindingsTransformerStream().map(PhaseTapChangerHolder::getPhaseTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
+        expected.getTwoWindingsTransformerStream().map(RatioTapChangerHolder::getRatioTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
+        expected.getTwoWindingsTransformerStream().map(PhaseTapChangerHolder::getPhaseTapChanger).filter(Objects::nonNull).forEach(TapChanger::unsetSolvedTapPosition);
         assertTrue(compareNetworksEQdata(expected, actual));
     }
 
