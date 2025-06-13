@@ -768,11 +768,11 @@ public final class TopologyModificationUtils {
         }
     }
 
-    private static void cleanNodeBreakerTopologyForTerminal(Terminal t, String connectableId, ReportNode reportNode) {
-        if (t.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            Graph<Integer, Object> graph = createGraphFromTerminal(t);
-            int node = t.getNodeBreakerView().getNode();
-            cleanTopology(t.getVoltageLevel().getNodeBreakerView(), graph, node, connectableId, reportNode);
+    private static void cleanNodeBreakerTopologyForTerminal(Terminal terminal, String connectableId, ReportNode reportNode) {
+        if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            Graph<Integer, Object> graph = createGraphFromTerminal(terminal);
+            int node = terminal.getNodeBreakerView().getNode();
+            cleanTopology(terminal.getVoltageLevel().getNodeBreakerView(), graph, node, connectableId, reportNode);
         }
     }
 
