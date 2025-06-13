@@ -101,30 +101,22 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public boolean hasEquipmentCore() {
-        if (queryCatalog.containsKey(MODEL_PROFILES)) {
-            PropertyBags r = namedQuery(MODEL_PROFILES);
-            if (r == null) {
-                return false;
-            }
-            for (PropertyBag m : r) {
-                String p = m.get(PROFILE);
-                if (p != null && isEquipmentCore(p)) {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("Model contains Equipment Core data profile in model {}",
-                                m.get(CgmesNames.FULL_MODEL));
-                    }
-                    return true;
-                }
-            }
-
-            // We have a query for model profiles
-            // but none of the FullModel objects contains EquipmentCore profile
+        PropertyBags r = namedQuery(MODEL_PROFILES);
+        if (r == null) {
             return false;
         }
-        // If we do not have a query for model profiles we assume equipment core is
-        // available
-        // (This covers the case for CIM14 files)
-        return true;
+        for (PropertyBag m : r) {
+            String p = m.get(PROFILE);
+            if (p != null && isEquipmentCore(p)) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Model contains Equipment Core data profile in model {}",
+                            m.get(CgmesNames.FULL_MODEL));
+                }
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -134,26 +126,23 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         // and models that have TopologyBoundary profile
         boolean hasEquipmentBoundary = false;
         boolean hasTopologyBoundary = false;
-        if (queryCatalog.containsKey(MODEL_PROFILES)) {
-            PropertyBags r = namedQuery(MODEL_PROFILES);
-            if (r == null) {
-                return false;
+        PropertyBags r = namedQuery(MODEL_PROFILES);
+        if (r == null) {
+            return false;
+        }
+        for (PropertyBag m : r) {
+            String p = m.get(PROFILE);
+            String mid = m.get(CgmesNames.FULL_MODEL);
+            if (p != null && p.contains("/EquipmentBoundary/")) {
+                LOG.info("Model contains EquipmentBoundary data in model {}", mid);
+                hasEquipmentBoundary = true;
             }
-            for (PropertyBag m : r) {
-                String p = m.get(PROFILE);
-                String mid = m.get(CgmesNames.FULL_MODEL);
-                if (p != null && p.contains("/EquipmentBoundary/")) {
-                    LOG.info("Model contains EquipmentBoundary data in model {}", mid);
-                    hasEquipmentBoundary = true;
-                }
-                if (p != null && p.contains("/TopologyBoundary/")) {
-                    LOG.info("Model contains TopologyBoundary data in model {}", mid);
-                    hasTopologyBoundary = true;
-                }
+            if (p != null && p.contains("/TopologyBoundary/")) {
+                LOG.info("Model contains TopologyBoundary data in model {}", mid);
+                hasTopologyBoundary = true;
             }
         }
         // If we do not have a query for model profiles we assume no boundary exist
-        // (Maybe for CIM14 data sources we should rely on file names ?)
         return hasEquipmentBoundary && hasTopologyBoundary;
     }
 
@@ -168,14 +157,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private boolean computeIsNodeBreaker() {
         // Optimization hint: consider caching the results of the query for model
         // profiles
-        if (!queryCatalog.containsKey(MODEL_PROFILES)) {
-            return false;
-        }
         PropertyBags r = namedQuery(MODEL_PROFILES);
         if (r == null) {
             return false;
         }
-        if (allEqCgmes3OrGreater(r)) {
+        if (allEqCgmes3OrGreater(r) && !connectivityNodes().isEmpty()) {
             return true;
         }
         // Only consider is node breaker if all models that have profile
@@ -685,7 +671,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         // TODO Remove all contexts that are related to the profile of the subset
         // For example for state variables:
         // <md:Model.profile>http://entsoe.eu/CIM/StateVariables/4/1</md:Model.profile>
-        // For CIM14 data files we do not have the profile,
         Set<String> contextNames = tripleStore.contextNames();
         for (String contextName : contextNames) {
             if (subset.isValidName(contextName)) {

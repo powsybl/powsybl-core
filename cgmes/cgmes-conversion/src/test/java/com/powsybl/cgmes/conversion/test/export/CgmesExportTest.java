@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
@@ -19,7 +18,6 @@ import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.*;
-import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.*;
@@ -38,7 +36,10 @@ import java.io.InputStream;
 import java.nio.file.*;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -204,15 +205,6 @@ class CgmesExportTest {
         testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 100);
     }
 
-    @Test
-    void testPhaseTapChangerType14() throws IOException {
-        ReadOnlyDataSource ds = Cim14SmallCasesCatalog.m7buses().dataSource();
-        String transformerId = "FP.AND11-FTDPRA11-1_PT";
-        String phaseTapChangerId = "FP.AND11-FTDPRA11-1_PTC_OR";
-        testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 16, importParams);
-        testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 100, importParams);
-    }
-
     private void testPhaseTapChangerType(ReadOnlyDataSource ds, String transformerId, String phaseTapChangerId, int cimVersion) throws IOException {
         testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, cimVersion, importParams);
     }
@@ -327,22 +319,24 @@ class CgmesExportTest {
         // Before exporting, we have to define to which point
         // in the external boundary definition we want to associate this dangling line
         // For this test we chose the Conformity MicroGrid BaseCase
-        ResourceSet boundaries = Cgmes3Catalog.microGridBaseCaseBoundaries();
+        ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         String boundaryCN = "b675a570-cb6e-11e1-bcee-406c8f32ef58";
         expected.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, boundaryCN);
         // We inform the identifier of the boundaries we depend on
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.BOUNDARY_EQ_ID, "urn:uuid:536f9bf1-3f8f-a546-87e3-7af2272f29b7");
-        exportParameters.put(CgmesExport.CIM_VERSION, "100");
+        exportParameters.put(CgmesExport.TOPOLOGY_KIND, "NODE_BREAKER");
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
             network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
 
             // To be able to import from the exported CGMES data we must add the external boundary definitions
-            // Because we work with node/breaker we only need the boundary EQ instance file
-            try (InputStream is = boundaries.newInputStream("20171002T0930Z_ENTSO-E_EQ_BD_2.xml")) {
+            try (InputStream is = boundaries.newInputStream("MicroGridTestConfiguration_EQ_BD.xml")) {
                 Files.copy(is, tmpDir.resolve("tmp_EQ_BD.xml"), StandardCopyOption.REPLACE_EXISTING);
+            }
+            try (InputStream is = boundaries.newInputStream("MicroGridTestConfiguration_TP_BD.xml")) {
+                Files.copy(is, tmpDir.resolve("tmp_TP_BD.xml"), StandardCopyOption.REPLACE_EXISTING);
             }
 
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
@@ -367,7 +361,7 @@ class CgmesExportTest {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
             Properties exportParameters = new Properties();
-            exportParameters.put(CgmesExport.CIM_VERSION, "100");
+            exportParameters.put(CgmesExport.TOPOLOGY_KIND, "NODE_BREAKER");
             network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
 
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
@@ -404,6 +398,23 @@ class CgmesExportTest {
             // Verify that we re-import the exported CGMES data without problems
             Network networkReimported = Network.read(exportedCgmes, importParams);
             assertNotNull(networkReimported);
+        }
+    }
+
+    @Test
+    void testModelEquipmentOperationProfile() throws IOException {
+        String importDir = "/issues/switches/";
+        Network network = readCgmesResources(importDir, "disconnected_terminal_EQ.xml");
+
+        String exportDir = "/testModelProfile";
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportDir));
+            String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+
+            String regex = "<md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(eqFile);
+            assertEquals(1, matcher.results().count());
         }
     }
 
