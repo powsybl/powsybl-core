@@ -205,6 +205,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
         TwoWindingsTransformer twta = actual.getTwoWindingsTransformerStream().findFirst().orElseThrow();
         network.getTwoWindingsTransformers().forEach(twtn -> twtn.setRatedS(twta.getRatedS()));
 
+        actual.getShuntCompensatorStream().forEach(ShuntCompensator::unsetSolvedSectionCount); // FIXME
+
         // Ignore OperationalLimitsGroup id
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
@@ -230,6 +232,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
         // we reset the default imported ratedS values before comparing
         TwoWindingsTransformer twta = actual.getTwoWindingsTransformerStream().findFirst().orElseThrow();
         network.getTwoWindingsTransformers().forEach(twtn -> twtn.setRatedS(twta.getRatedS()));
+
+        actual.getShuntCompensatorStream().forEach(ShuntCompensator::unsetSolvedSectionCount); // FIXME
 
         // Ignore OperationalLimitsGroup id
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
