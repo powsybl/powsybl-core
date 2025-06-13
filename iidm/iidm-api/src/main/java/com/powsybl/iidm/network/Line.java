@@ -7,6 +7,11 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.util.ConnectionElementsContainer;
+
+import java.util.HashSet;
+import java.util.function.Predicate;
+
 /**
  * An AC line.
  * <p>
@@ -33,4 +38,34 @@ public interface Line extends Branch<Line>, Connectable<Line>, MutableLineCharac
     default IdentifiableType getType() {
         return IdentifiableType.LINE;
     }
+
+    boolean connect(boolean propagateDisconnectionIfNeeded);
+
+    default boolean connect(Predicate<Switch> isTypeSwitchToOperate, boolean propagateDisconnectionIfNeeded) {
+        return connect(isTypeSwitchToOperate, null, propagateDisconnectionIfNeeded);
+    }
+
+    default boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateDisconnectionIfNeeded) {
+        return connect(isTypeSwitchToOperate, side, propagateDisconnectionIfNeeded, true,
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()));
+    }
+
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side,
+                    boolean propagateDisconnectionIfNeeded, boolean connectFromHere,
+                    ConnectionElementsContainer connectionElementsContainer);
+
+    boolean disconnect(boolean propagateDisconnectionIfNeeded);
+
+    default boolean disconnect(Predicate<Switch> isSwitchOpenable, boolean propagateDisconnectionIfNeeded) {
+        return disconnect(isSwitchOpenable, null, propagateDisconnectionIfNeeded);
+    }
+
+    default boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean propagateDisconnectionIfNeeded) {
+        return disconnect(isSwitchOpenable, side, propagateDisconnectionIfNeeded, true,
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()));
+    }
+
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side,
+                       boolean propagateDisconnectionIfNeeded, boolean disconnectFromHere,
+                       ConnectionElementsContainer connectionElementsContainer);
 }
