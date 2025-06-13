@@ -7,26 +7,22 @@
  */
 package com.powsybl.psse.converter;
 
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.ContainersMapping;
+import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
+import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.pf.PsseBus;
+import com.powsybl.psse.model.pf.PsseNonTransformerBranch;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
-import com.powsybl.psse.model.PsseVersion;
-import com.powsybl.psse.model.pf.PsseNonTransformerBranch;
-import com.powsybl.psse.model.pf.PssePowerFlowModel;
-
-import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_BRANCH;
-import static com.powsybl.psse.model.PsseVersion.Major.V35;
-
 import java.util.Objects;
 import java.util.OptionalInt;
+
+import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_BRANCH;
+import static com.powsybl.psse.model.PsseVersion.Major.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -63,17 +59,20 @@ class LineConverter extends AbstractConverter {
         double g2Eu = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getReal(), psseLine.getGj(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
         double b2Eu = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getImaginary(), psseLine.getB() * 0.5 + psseLine.getBj(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
 
+        String name = getName();
+
         LineAdder adder = getNetwork().newLine()
-            .setId(id)
-            .setEnsureIdUnicity(true)
-            .setVoltageLevel1(voltageLevel1Id)
-            .setVoltageLevel2(voltageLevel2Id)
-            .setR(rEu)
-            .setX(xEu)
-            .setG1(g1Eu)
-            .setB1(b1Eu)
-            .setG2(g2Eu)
-            .setB2(b2Eu);
+                .setId(id)
+                .setEnsureIdUnicity(true)
+                .setVoltageLevel1(voltageLevel1Id)
+                .setVoltageLevel2(voltageLevel2Id)
+                .setR(rEu)
+                .setX(xEu)
+                .setG1(g1Eu)
+                .setB1(b1Eu)
+                .setG2(g2Eu)
+                .setB2(b2Eu)
+                .setName(name);
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_BRANCH, psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
         OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseLine.getI()));
@@ -92,6 +91,7 @@ class LineConverter extends AbstractConverter {
             adder.setConnectableBus2(bus2Id);
             adder.setBus2(psseLine.getSt() == 1 ? bus2Id : null);
         }
+
         Line line = adder.add();
 
         defineOperationalLimits(line, voltageLevel1.getNominalV(), voltageLevel2.getNominalV());
@@ -146,6 +146,32 @@ class LineConverter extends AbstractConverter {
         } else {
             return 0;
         }
+    }
+
+    private String getName() {
+        String name = "";
+        if (version.major() == V32 || version.major() == V33) {
+            PsseBus busI = null;
+            PsseBus busJ = null;
+            for (PsseBus bus : psseLine.getModel().getBuses()) {
+                int busId = bus.getI();
+                if (busId == psseLine.getI()) {
+                    busI = bus;
+                } else if (busId == psseLine.getJ()) {
+                    busJ = bus;
+                }
+                if (busI != null && busJ != null) {
+                    break;
+                }
+            }
+            if (busI != null && busJ != null) {
+                name = String.format("%s_%s_%s", busI.getName().trim(), busJ.getName().trim(), psseLine.getCkt());
+            }
+        }
+        if (version.major() == V35) {
+            name = psseLine.getName();
+        }
+        return name;
     }
 
     private final PsseNonTransformerBranch psseLine;

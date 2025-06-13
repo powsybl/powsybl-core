@@ -39,7 +39,7 @@
             </iidm:nodeBreakerTopology>
             <iidm:load id="B4-L1 " loadType="UNDEFINED" p0="47.8" q0="-3.9" node="4"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-1-3-1 " r="0.0" x="4.23468" g="0.0" b="0.0" ratedU1="138.0" ratedU2="45.0" voltageLevelId1="VL1" node1="4" voltageLevelId2="VL3" node2="3">
+        <iidm:twoWindingsTransformer id="T-1-3-1 " name="2WT         " r="0.0" x="4.23468" g="0.0" b="0.0" ratedU1="138.0" ratedU2="45.0" voltageLevelId1="VL1" node1="4" voltageLevelId2="VL3" node2="3">
             <iidm:ratioTapChanger regulating="true" lowTapPosition="0" tapPosition="1" targetDeadband="44.55" loadTapChangingCapabilities="false" regulationMode="VOLTAGE" regulationValue="45.225">
                 <iidm:terminalRef id="VL3-Busbar-2"/>
                 <iidm:step r="0.0" x="0.0" g="-73.99" b="-73.99" rho="1.9607843137254901"/>
@@ -48,7 +48,7 @@
                 <iidm:step r="0.0" x="0.0" g="125.0" b="125.0" rho="0.6666666666666666"/>
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
-        <iidm:threeWindingsTransformer id="T-1-3-4-1 " r1="367.48" x1="1.6384999999999997E-4" g1="0.0" b1="0.0" ratedU1="138.0" r2="2975.31" x2="0.0011793499999999998" g2="0.0" b2="0.0" ratedU2="45.0" r3="-352.33" x3="9.013500000000002E-4" g3="0.0" b3="0.0" ratedU3="21.0" ratedU0="1.0" voltageLevelId1="VL1" node1="5" voltageLevelId2="VL3" node2="4" voltageLevelId3="VL4" node3="3">
+        <iidm:threeWindingsTransformer id="T-1-3-4-1 " name="3WT         " r1="367.48" x1="1.6384999999999997E-4" g1="0.0" b1="0.0" ratedU1="138.0" r2="2975.31" x2="0.0011793499999999998" g2="0.0" b2="0.0" ratedU2="45.0" r3="-352.33" x3="9.013500000000002E-4" g3="0.0" b3="0.0" ratedU3="21.0" ratedU0="1.0" voltageLevelId1="VL1" node1="5" voltageLevelId2="VL3" node2="4" voltageLevelId3="VL4" node3="3">
             <iidm:property name="v" value="1.0"/>
             <iidm:property name="angle" value="0.0"/>
             <iidm:ratioTapChanger1 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
@@ -102,7 +102,7 @@
             <iidm:lccConverterStation id="LccConverter-5-EATL P1     " name="EATL P1     " lossFactor="0.0" powerFactor="0.7183361" node="3"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:line id="L-1-2-1 " r="3.6907272" x="11.2683348" g1="0.0" b1="1.3862633900441084E-4" g2="0.0" b2="1.3862633900441084E-4" voltageLevelId1="VL1" node1="3" voltageLevelId2="VL2" node2="3"/>
+    <iidm:line id="L-1-2-1 " name=" " r="3.6907272" x="11.2683348" g1="0.0" b1="1.3862633900441084E-4" g2="0.0" b2="1.3862633900441084E-4" voltageLevelId1="VL1" node1="3" voltageLevelId2="VL2" node2="3"/>
     <iidm:hvdcLine id="TwoTerminalDc-EATL P1     " name="EATL P1     " r="7.365" nominalV="500.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="0.0" maxP="0.0" converterStation1="LccConverter-1-EATL P1     " converterStation2="LccConverter-5-EATL P1     "/>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="B1-G1 "/>
