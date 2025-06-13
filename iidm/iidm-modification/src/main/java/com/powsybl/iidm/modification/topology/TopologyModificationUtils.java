@@ -220,8 +220,8 @@ public final class TopologyModificationUtils {
         });
     }
 
-    static void createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
-        view.newSwitch()
+    static Switch createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
+        return view.newSwitch()
                 .setId(id)
                 .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.BREAKER)
@@ -232,8 +232,14 @@ public final class TopologyModificationUtils {
                 .add();
     }
 
-    static void createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
-        view.newSwitch()
+    static Switch createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open, boolean fictitious) {
+        Switch sw = createNBBreaker(node1, node2, id, view, open);
+        sw.setFictitious(fictitious);
+        return sw;
+    }
+
+    static Switch createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
+        return view.newSwitch()
                 .setId(id)
                 .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.DISCONNECTOR)
@@ -241,6 +247,12 @@ public final class TopologyModificationUtils {
                 .setNode1(node1)
                 .setNode2(node2)
                 .add();
+    }
+
+    static Switch createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open, boolean fictitious) {
+        Switch sw = createNBDisconnector(node1, node2, id, view, open);
+        sw.setFictitious(fictitious);
+        return sw;
     }
 
     static void createBusBreakerSwitch(String busId1, String busId2, String id, VoltageLevel.BusBreakerView view) {
