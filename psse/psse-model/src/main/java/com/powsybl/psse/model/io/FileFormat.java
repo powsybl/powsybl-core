@@ -22,6 +22,10 @@ public enum FileFormat {
 
     public static final Pattern LEGACY_TEXT_QUOTED_OR_WHITESPACE = Pattern.compile("('[^']*')|( )+");
 
+    public static final String REMOVE_COMMENT_REGEX = "('[^']*')|([^/']+)|(/.*)";
+
+    public static final Pattern LEGACY_QUOTED_OR_NON_QUOTED_TEXT = Pattern.compile("'[^']*'|[^']+");
+
     FileFormat(char quote, char defaultDelimiter) {
         this.quote = quote;
         this.defaultDelimiter = defaultDelimiter;
