@@ -780,6 +780,7 @@ class TransformerConverter extends AbstractConverter {
         rtc.setTargetV(targetV)
             .setTargetDeadband(targetDeadBand)
             .setRegulationTerminal(regulatingTerminal)
+            .setLoadTapChangingCapabilities(regulating)
             .setRegulating(regulating);
 
         return regulating;

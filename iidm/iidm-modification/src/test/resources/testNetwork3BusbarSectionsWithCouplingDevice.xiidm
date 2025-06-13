@@ -108,7 +108,7 @@
             <iidm:load id="CH" loadType="UNDEFINED" p0="-5.102249" q0="4.9081216" node="22" p="-5.102249" q="4.9081216"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="CI" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="225.0" ratedU2="225.0" node1="2" voltageLevelId1="C" node2="10" voltageLevelId2="N" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
-            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="22" regulationMode="CURRENT_LIMITER" regulationValue="930.6667" regulating="false">
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="22" loadTapChangingCapabilities="true" regulationMode="CURRENT_LIMITER" regulationValue="930.6667" regulating="false">
                 <iidm:terminalRef id="CI" side="ONE"/>
                 <iidm:step r="39.78473" x="39.784725" g="0.0" b="0.0" rho="1.0" alpha="-42.8"/>
                 <iidm:step r="31.720245" x="31.720242" g="0.0" b="0.0" rho="1.0" alpha="-40.18"/>
