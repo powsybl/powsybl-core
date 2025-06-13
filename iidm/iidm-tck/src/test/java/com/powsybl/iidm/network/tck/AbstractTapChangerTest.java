@@ -207,7 +207,7 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
-    public void testAdderDefaultLoadTapChangingCapabilities() {
+    public void testPhaseAdderDefaultLoadTapChangingCapabilities() {
         PhaseTapChanger phaseTapChanger = twt.newPhaseTapChanger()
                 .setTapPosition(0)
                 .setLowTapPosition(0)
@@ -224,7 +224,7 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
-    public void testAdderNoLoadTapChangingCapabilities() {
+    public void testPhaseAdderNoLoadTapChangingCapabilities() {
         PhaseTapChanger phaseTapChanger = twt.newPhaseTapChanger()
                 .setTapPosition(0)
                 .setLowTapPosition(0)
@@ -645,6 +645,24 @@ public abstract class AbstractTapChangerTest {
         assertEquals(0.0, step.getX(), 0.0);
         assertEquals(0.0, step.getG(), 0.0);
         assertEquals(0.0, step.getB(), 0.0);
+    }
+
+    @Test
+    public void testRatioAdderDefaultLoadTapChangingCapabilities() {
+        RatioTapChanger ratioTapChanger = twt.newRatioTapChanger()
+                .setLowTapPosition(-1)
+                .setTapPosition(0)
+                .beginStep()
+                .setRho(0.9)
+                .endStep()
+                .beginStep()
+                .setRho(1.0)
+                .endStep()
+                .beginStep()
+                .setRho(1.1)
+                .endStep()
+                .add();
+        assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
     }
 
     @Test
