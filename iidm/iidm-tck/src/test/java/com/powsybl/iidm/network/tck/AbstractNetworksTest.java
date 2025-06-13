@@ -8,7 +8,10 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.util.Networks;
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +20,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * @author Chamseddine BENHAMED {@literal <chamseddine.benhamed at rte-france.com>}
@@ -47,5 +51,24 @@ public abstract class AbstractNetworksTest {
                             "Disconnected shunts in other CC: [SHUNT]" + System.lineSeparator(),
                     writer.toString());
         }
+    }
+
+    @Test
+    public void applySolvedValuesTest() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        ShuntCompensator shuntCompensator = network.getShuntCompensator("SHUNT");
+        shuntCompensator.setSolvedSectionCount(0);
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
+        twt.getPhaseTapChanger().setSolvedTapPosition(13);
+        twt.getRatioTapChanger().setSolvedTapPosition(2);
+
+        assertNotEquals(shuntCompensator.getSolvedSectionCount(), shuntCompensator.getSectionCount());
+        assertNotEquals(twt.getPhaseTapChanger().getSolvedTapPosition(), twt.getPhaseTapChanger().getTapPosition());
+        assertNotEquals(twt.getRatioTapChanger().getSolvedTapPosition(), twt.getRatioTapChanger().getTapPosition());
+
+        Networks.applySolvedValues(network);
+        assertEquals(shuntCompensator.getSolvedSectionCount(), shuntCompensator.getSectionCount());
+        assertEquals(twt.getPhaseTapChanger().getSolvedTapPosition(), twt.getPhaseTapChanger().getTapPosition());
+        assertEquals(twt.getRatioTapChanger().getSolvedTapPosition(), twt.getRatioTapChanger().getTapPosition());
     }
 }
