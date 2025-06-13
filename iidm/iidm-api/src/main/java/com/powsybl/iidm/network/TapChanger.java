@@ -139,6 +139,7 @@ public interface TapChanger<
 
     /**
      * Set the regulating status.
+     * Tap changer must support onload tap changing capabilities to enable regulation.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
