@@ -16,6 +16,9 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.math.graph.TraverseResult;
 import org.apache.commons.lang3.Range;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.util.Pair;
+import org.jgrapht.graph.Pseudograph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -684,5 +687,233 @@ public final class TopologyModificationUtils {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Create topology and generate new connectable node and return it.
+     */
+    public static int createTopologyAndGetConnectableNode(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
+        int forkNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+        int connectableNode = forkNode + 1;
+        buildTopology(side, busOrBusbarSectionId, network, voltageLevel, forkNode, connectableNode, connectable, namingStrategy, reportNode);
+        return connectableNode;
+    }
+
+    /**
+     * Create topology by using the provided connectable node (pre-determined connectable node)
+     */
+    public static void createTopologyWithConnectableNode(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, int connectableNode, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
+        int forkNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+        buildTopology(side, busOrBusbarSectionId, network, voltageLevel, forkNode, connectableNode, connectable, namingStrategy, reportNode);
+    }
+
+    private static void buildTopology(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, int forkNode, int connectableNode, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
+        // Information gathering
+        String baseId = namingStrategy.getSwitchBaseId(connectable, side);
+        BusbarSection bbs = network.getBusbarSection(busOrBusbarSectionId);
+        BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
+
+        // Topology creation
+        int parallelBbsNumber = 0;
+        if (position == null) {
+            // No position extension is present so only one disconnector is needed
+            createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, bbs);
+            LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
+            noBusbarSectionPositionExtensionReport(reportNode, bbs);
+        } else {
+            List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
+            parallelBbsNumber = bbsList.size() - 1;
+            createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, bbsList, bbs);
+        }
+        LOGGER.info("New feeder bay associated to {} of type {} was created and connected to voltage level {} on busbar section {} with a closed disconnector " +
+                "and on {} parallel busbar sections with an open disconnector.", connectable.getId(), connectable.getType(), voltageLevel.getId(), busOrBusbarSectionId, parallelBbsNumber);
+        createdNodeBreakerFeederBay(reportNode, voltageLevel.getId(), busOrBusbarSectionId, connectable, parallelBbsNumber);
+    }
+
+    public static Integer getOppositeNode(Graph<Integer, Object> graph, int node, Object e) {
+        Integer edgeSource = graph.getEdgeSource(e);
+        return edgeSource == node ? graph.getEdgeTarget(e) : edgeSource;
+    }
+
+    /**
+     * Starting from the given node, traverse the graph and remove all the switches and/or internal connections until a
+     * fork node is encountered, for which special care is needed to clean the topology.
+     */
+    public static void cleanTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, String connectableId, ReportNode reportNode) {
+        Set<Object> edges = graph.edgesOf(node);
+        if (edges.size() == 1) {
+            Object edge = edges.iterator().next();
+            Integer oppositeNode = getOppositeNode(graph, node, edge);
+            removeSwitchOrInternalConnection(nbv, graph, edge, reportNode);
+            cleanTopology(nbv, graph, oppositeNode, connectableId, reportNode);
+        } else if (edges.size() > 1) {
+            cleanFork(nbv, graph, node, edges, connectableId, reportNode);
+        }
+    }
+
+    public static void cleanNodeBreakerTopology(Network network, String connectableId, ReportNode reportNode) {
+        Connectable<?> connectable = network.getConnectable(connectableId);
+        for (Terminal t : connectable.getTerminals()) {
+            cleanNodeBreakerTopologyForTerminal(t, connectableId, reportNode);
+        }
+    }
+
+    /**
+     * Cleans up the topology for a node-breaker topology
+     */
+    public static void cleanNodeBreakerTopology(Terminal terminal, String connectableId, ReportNode reportNode) {
+        Objects.requireNonNull(terminal);
+        if (terminal.getConnectable().getId().equals(connectableId)) {
+            cleanNodeBreakerTopologyForTerminal(terminal, connectableId, reportNode);
+        }
+    }
+
+    private static void cleanNodeBreakerTopologyForTerminal(Terminal terminal, String connectableId, ReportNode reportNode) {
+        if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            Graph<Integer, Object> graph = createGraphFromTerminal(terminal);
+            int node = terminal.getNodeBreakerView().getNode();
+            cleanTopology(terminal.getVoltageLevel().getNodeBreakerView(), graph, node, connectableId, reportNode);
+        }
+    }
+
+    public static void removeSwitchOrInternalConnection(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph,
+                                                         Object edge, ReportNode reportNode) {
+        if (edge instanceof Switch sw) {
+            String switchId = sw.getId();
+            nbv.removeSwitch(switchId);
+            removedSwitchReport(reportNode, switchId);
+            LOGGER.info("Switch {} removed", switchId);
+        } else {
+            Pair<Integer, Integer> ic = (Pair<Integer, Integer>) edge;
+            nbv.removeInternalConnections(ic.getFirst(), ic.getSecond());
+            removedInternalConnectionReport(reportNode, ic.getFirst(), ic.getSecond());
+            LOGGER.info("Internal connection between {} and {} removed", ic.getFirst(), ic.getSecond());
+        }
+        graph.removeEdge(edge);
+    }
+
+    /**
+     * Try to remove all edges of the given fork node
+     */
+    public static void cleanFork(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, Set<Object> edges, String connectableId, ReportNode reportNode) {
+        List<Object> toBusesOnly = new ArrayList<>();
+        List<Object> mixed = new ArrayList<>();
+        for (Object edge : edges) {
+            List<Connectable<?>> connectables = getLinkedConnectables(nbv, graph, node, edge);
+            if (connectables.stream().allMatch(BusbarSection.class::isInstance)) {
+                // the edge is only linked to busbarSections, or to no connectables, hence it's a good candidate for removal
+                toBusesOnly.add(edge);
+            } else if (connectables.stream().noneMatch(BusbarSection.class::isInstance)) {
+                // the edge is only linked to other non-busbarSection connectables, no further cleaning can be done
+                // Note that connectables cannot be empty because of previous if
+                String otherConnectableId = connectables.stream().map(Connectable::getId).findFirst().orElse("none");
+                removeFeederBayAborted(reportNode, connectableId, node, otherConnectableId);
+                LOGGER.info("Remove feeder bay of {} cannot go further node {}, as it is connected to {}", connectableId, node, otherConnectableId);
+                return;
+            } else {
+                // the edge is linked to busbarSections and non-busbarSection connectables, some further cleaning can be done if there's only one edge of that type
+                mixed.add(edge);
+            }
+        }
+
+        // We now know there are only edges which are
+        // - either only linked to busbarSections and no other connectables
+        // - or linked to busbarSections and connectables
+        // The former ones can be removed:
+        for (Object edge : toBusesOnly) {
+            removeAllSwitchesAndInternalConnections(nbv, graph, node, edge, reportNode);
+        }
+        // We don't remove the latter ones if more than one, as this would break the connection between them
+        if (mixed.size() == 1) {
+            // If only one, we're cleaning the dangling switches and/or internal connections
+            cleanMixedTopology(nbv, graph, node, reportNode);
+        }
+    }
+
+    private static List<Connectable<?>> getLinkedConnectables(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, Integer node, Object edge) {
+        Set<Integer> visitedNodes = new HashSet<>();
+        visitedNodes.add(node);
+        List<Connectable<?>> connectables = new ArrayList<>();
+        searchConnectables(nbv, graph, getOppositeNode(graph, node, edge), visitedNodes, connectables);
+        return connectables;
+    }
+
+    public static Graph<Integer, Object> createGraphFromTerminal(Terminal terminal) {
+        Graph<Integer, Object> graph = new Pseudograph<>(Object.class);
+        int node = terminal.getNodeBreakerView().getNode();
+        VoltageLevel.NodeBreakerView vlNbv = terminal.getVoltageLevel().getNodeBreakerView();
+        graph.addVertex(node);
+        vlNbv.traverse(node, (node1, sw, node2) -> {
+            TraverseResult result = vlNbv.getOptionalTerminal(node2)
+                    .map(Terminal::getConnectable)
+                    .filter(BusbarSection.class::isInstance)
+                    .map(c -> TraverseResult.TERMINATE_PATH)
+                    .orElse(TraverseResult.CONTINUE);
+            graph.addVertex(node2);
+            graph.addEdge(node1, node2, sw != null ? sw : Pair.of(node1, node2));
+            return result;
+        });
+        return graph;
+    }
+
+    /**
+     * Starting from the given node, traverse the graph and remove all the switches and/or internal connections until a
+     * fork node is encountered or a node on which a connectable is connected
+     */
+    private static void cleanMixedTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, ReportNode reportNode) {
+        // Get the next edge and the opposite node
+        Set<Object> edges = graph.edgesOf(node);
+        Object edge = edges.iterator().next();
+        Integer oppositeNode = getOppositeNode(graph, node, edge);
+
+        // Remove the switch or internal connection on the current edge
+        removeSwitchOrInternalConnection(nbv, graph, edge, reportNode);
+
+        // List the connectables connected to the opposite node
+        List<Connectable<?>> connectables = new ArrayList<>();
+        nbv.getOptionalTerminal(oppositeNode).map(Terminal::getConnectable).ifPresent(connectables::add);
+
+        // If there is only one edge on the opposite node and no connectable, continue to remove the elements
+        if (graph.edgesOf(oppositeNode).size() == 1 && connectables.isEmpty()) {
+            cleanMixedTopology(nbv, graph, oppositeNode, reportNode);
+        }
+    }
+
+    private static void searchConnectables(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, Integer node,
+                                           Set<Integer> visitedNodes, List<Connectable<?>> connectables) {
+        if (visitedNodes.contains(node)) {
+            return;
+        }
+        nbv.getOptionalTerminal(node).map(Terminal::getConnectable).ifPresent(connectables::add);
+        if (!isBusbarSection(nbv, node)) {
+            visitedNodes.add(node);
+            for (Object e : graph.edgesOf(node)) {
+                searchConnectables(nbv, graph, getOppositeNode(graph, node, e), visitedNodes, connectables);
+            }
+        }
+    }
+
+    /**
+     * Traverse the graph and remove all switches and internal connections until encountering a {@link BusbarSection}.
+     */
+    private static void removeAllSwitchesAndInternalConnections(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph,
+                                                                int originNode, Object edge, ReportNode reportNode) {
+        // in case of loops inside the traversed bay, the edge might have been already removed
+        if (!graph.containsEdge(edge)) {
+            return;
+        }
+
+        Integer oppositeNode = getOppositeNode(graph, originNode, edge);
+        removeSwitchOrInternalConnection(nbv, graph, edge, reportNode);
+        if (!isBusbarSection(nbv, oppositeNode)) {
+            for (Object otherEdge : new ArrayList<>(graph.edgesOf(oppositeNode))) {
+                removeAllSwitchesAndInternalConnections(nbv, graph, oppositeNode, otherEdge, reportNode);
+            }
+        }
+    }
+
+    private static boolean isBusbarSection(VoltageLevel.NodeBreakerView nbv, Integer node) {
+        Optional<Connectable<?>> c = nbv.getOptionalTerminal(node).map(Terminal::getConnectable);
+        return c.isPresent() && c.get() instanceof BusbarSection;
     }
 }

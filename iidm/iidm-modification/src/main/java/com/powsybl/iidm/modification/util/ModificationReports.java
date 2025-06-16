@@ -501,6 +501,14 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void moveFeederBayBusbarSectionReport(ReportNode reportNode, String busbarSectionConnectableId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.moveBayBusbarSectionConnectable")
+                .withUntypedValue(CONNECTABLE_ID, busbarSectionConnectableId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
     public static void noVoltageLevelInCommonReport(ReportNode reportNode, String line1Id, String line2Id) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.noVoltageLevelInCommon")
@@ -653,6 +661,13 @@ public final class ModificationReports {
                 .withMessageTemplate("core.iidm.modification.wrongSwitchKind")
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
+    }
+
+    public static void wrongBusbarPosition(ReportNode reportNode) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.wrongBusbarPosition")
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
     }
 
     public static void undefinedFictitiousSubstationId(ReportNode reportNode) {

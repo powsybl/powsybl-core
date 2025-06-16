@@ -14,6 +14,28 @@ voltage level, the removal of network elements and their switches, the creation 
 another line, and the connection of a voltage level to a line.
 All these classes rely on a builder to create the modification and then apply it on the network.
 
+### Naming strategy
+The naming strategy aims at clarifying and facilitating the naming of the different network elements created via the different
+`com.powsybl.iidm.modification.NetworkModification` classes. Based on the name of the network element the user wishes to create 
+(a VoltageLevel, a BranchFeederBay, etc.), all the other elements created during the NetworkModification will be given a name 
+using this name as baseline and prefixes/suffixes according to the naming strategy chosen by the user. 
+The naming strategy can be either the default one `com.powsybl.iidm.modification.topology.DefaultNamingStrategy` 
+or a new implementation of the `NamingStrategy` interface.
+
+#### Default naming strategy
+Default naming strategy is used if no other naming strategy is specified.
+The `DefaultNamingStrategy` implements a simple naming convention following the pattern: 
+base name + separator + element type + optional index.
+The default implementation uses underscores as separators and appends element types and indices when necessary 
+to ensure unique naming.
+
+#### Custom strategies
+Other Naming strategies can be implemented based on the `NamingStrategy` interface. 
+This allows for organization-specific naming conventions, different separator characters, or specialized formatting rules.
+
+#### Naming strategies service loader
+The `NamingStrategiesServiceLoader` enables dynamic discovery of available naming strategies through Java's ServiceLoader mechanism.
+
 ### Network element creation
 
 #### Create feeder bay
@@ -158,6 +180,28 @@ connectables are removed. The branches and three-winding transformers are also r
 substations.
 The builder takes the ID of the substation as input.
 
+### Moving a network element
+
+#### MoveFeederBay
+This class is used to move feeder bays of connectables 
+(except `BusOrBusBarSection` connectables) from one place to another within a network.
+
+This class allows to move a feeder bay from one busbar section to another within the network.
+The builder should be used to create any instance of this class. It takes as input:
+
+- The ID of the connectable whose feeder bay will be moved (`connectableId`). Note that `BusOrBusBarSection` connectables are not accepted.
+- The ID of the target bus or busbar section (`targetBusOrBusBarSectionId`) to which the feeder bay should be connected.
+- The ID of the target voltage level (`targetVoltageLevelId`) where the feeder bay will be moved to.
+- The terminal object that specifies which terminal of the connectable should be moved.
+
+When the modification is applied on the network, the system identifies and updates all relevant switches and connections 
+to move the feeder bay from its current position to the specified target place. This includes disconnecting 
+from the original busbar section and reconnecting to the target busbar section.
+If the target voltage level topology kind is `BUS_BREAKER`, the connectable is connected to the target bus without additional switches.
+If the target voltage level topology kind is `NODE_BREAKER`, the appropriate disconnectors and breakers are created to connect
+the feeder bay to the target busbar section, maintaining the correct topology.
+This modification ensures that the connectivity of the network is preserved while moving the feeder bay to its new position.
+
 ### Connect a line on a line or a voltage level on a line
 
 #### ConnectVoltageLevelOnLine
@@ -173,9 +217,6 @@ The builder takes the ID of the substation as input.
 <span style="color: red">TODO</span>
 
 ### ReplaceTeePointbyVoltageLevelOnLine
-<span style="color: red">TODO</span>
-
-### Naming strategy
 <span style="color: red">TODO</span>
 
 ## Tripping
@@ -258,7 +299,7 @@ It is possible to specify a side of the element to connect. If no side is specif
 Class: `ConnectableConnection`
 
 ### Dangling line
-This modification is used to update the active and reactive powers of a dangling line.
+This modification is used to update the active and reactive powers of the load part of a dangling line.
 
 If `relativeValue` is set to true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given values to the previous ones.  
 If `relativeValue` is set to false, then the new constant active power (`P0`) and reactive power (`Q0`) are updated to the new given values.

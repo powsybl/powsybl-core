@@ -129,12 +129,7 @@ public class CgmesImport implements Importer {
     public boolean exists(ReadOnlyDataSource ds) {
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
         try {
-            if (cds.exists()) {
-                return true;
-            }
-            // If we are configured to support CIM14,
-            // check if there is this CIM14 data
-            return IMPORT_CIM_14 && cds.existsCim14();
+            return cds.exists();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -769,10 +764,4 @@ public class CgmesImport implements Importer {
     private final PlatformConfig platformConfig;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CgmesImport.class);
-
-    // TODO Allow this property to be configurable
-    // Parameters of importers are only passed to importData method,
-    // but to decide if we are importers also for CIM 14 files
-    // we must implement the exists method, that has not access to parameters
-    private static final boolean IMPORT_CIM_14 = false;
 }
