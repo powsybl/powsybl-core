@@ -429,6 +429,16 @@ public final class JsonUtil {
         parser.skipChildren();
     }
 
+    public static void assertSupportedVersion(String contextName, String version, String maxSupportedVersion) {
+        Objects.requireNonNull(version);
+        if (version.compareTo(maxSupportedVersion) > 0) {
+            String exception = String.format(
+                    "%s. Unsupported version %s. Version should be <= %s %n",
+                    contextName, version, maxSupportedVersion);
+            throw new PowsyblException(exception);
+        }
+    }
+
     public static void assertLessThanOrEqualToReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
         Objects.requireNonNull(version);
         if (version.compareTo(referenceVersion) > 0) {

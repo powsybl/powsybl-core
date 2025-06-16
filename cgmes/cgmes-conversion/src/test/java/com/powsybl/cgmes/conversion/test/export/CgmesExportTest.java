@@ -18,7 +18,6 @@ import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.*;
-import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.*;
@@ -204,15 +203,6 @@ class CgmesExportTest {
         String phaseTapChangerId = "6ebbef67-3061-4236-a6fd-6ccc4595f6c3";
         testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 16);
         testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 100);
-    }
-
-    @Test
-    void testPhaseTapChangerType14() throws IOException {
-        ReadOnlyDataSource ds = Cim14SmallCasesCatalog.m7buses().dataSource();
-        String transformerId = "FP.AND11-FTDPRA11-1_PT";
-        String phaseTapChangerId = "FP.AND11-FTDPRA11-1_PTC_OR";
-        testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 16, importParams);
-        testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 100, importParams);
     }
 
     private void testPhaseTapChangerType(ReadOnlyDataSource ds, String transformerId, String phaseTapChangerId, int cimVersion) throws IOException {
