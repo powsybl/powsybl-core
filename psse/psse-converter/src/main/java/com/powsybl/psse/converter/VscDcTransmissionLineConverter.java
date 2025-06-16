@@ -110,10 +110,10 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
 
     private static double getLossFactor(PsseVoltageSourceConverter converter1, double activePowerSetpoint, boolean isRectifier) {
         if (isRectifier) {
-            double pAC = activePowerSetpoint + converter1.getAloss() / 1000.0;
+            double pAC = activePowerSetpoint + Math.abs(converter1.getAloss() / 1000.0);
             return pAC > 0.0 ? (1.0 - activePowerSetpoint / pAC) * 100.0 : 0.0;
         } else {
-            double pAC = activePowerSetpoint - converter1.getAloss() / 1000.0;
+            double pAC = activePowerSetpoint - Math.abs(converter1.getAloss() / 1000.0);
             return activePowerSetpoint > 0.0 ? (1.0 - pAC / activePowerSetpoint) * 100.0 : 0.0;
         }
     }
