@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.util.Networks;
@@ -67,7 +68,6 @@ public abstract class AbstractNetworksTest {
         generator.getTerminal().setP(-86).setQ(-512);
         generator.getTerminal().getBusView().getBus().setV(401);
 
-
         assertNotEquals(shuntCompensator.getSolvedSectionCount(), shuntCompensator.getSectionCount());
         assertNotEquals(twt.getPhaseTapChanger().getSolvedTapPosition(), twt.getPhaseTapChanger().getTapPosition());
         assertNotEquals(twt.getRatioTapChanger().getSolvedTapPosition(), twt.getRatioTapChanger().getTapPosition());
@@ -86,5 +86,17 @@ public abstract class AbstractNetworksTest {
         assertEquals(-generator.getTerminal().getP(), generator.getTargetP());
         assertEquals(-generator.getTerminal().getQ(), generator.getTargetQ());
         assertEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getTargetV());
+    }
+
+    @Test
+    public void applySolvedValuesBattery() {
+        Network network = BatteryNetworkFactory.create();
+        Battery battery = network.getBattery("BAT");
+        assertNotEquals(battery.getTerminal().getP(), battery.getTargetP());
+        assertNotEquals(battery.getTerminal().getQ(), battery.getTargetQ());
+
+        Networks.applySolvedValues(network);
+        assertEquals(battery.getTerminal().getP(), battery.getTargetP());
+        assertEquals(battery.getTerminal().getQ(), battery.getTargetQ());
     }
 }
