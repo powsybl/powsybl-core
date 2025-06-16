@@ -48,7 +48,7 @@ public abstract class AbstractEquipmentCriterionContingencyList implements Conti
                 .filter(identifiable -> getNominalVoltageCriterion() == null || getNominalVoltageCriterion().filter(identifiable, getIdentifiableType()))
                 .filter(identifiable -> getPropertyCriteria().stream().allMatch(propertyCriterion -> propertyCriterion.filter(identifiable, getIdentifiableType())))
                 .filter(identifiable -> getRegexCriterion() == null || getRegexCriterion().filter(identifiable, getIdentifiableType()))
-                .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElementFactory.of(identifiable)))
+                .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElementFactory.create(identifiable)))
                 .collect(Collectors.toList());
     }
 

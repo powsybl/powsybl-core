@@ -58,7 +58,7 @@ public class IdentifierContingencyList implements ContingencyList {
             .flatMap(identifier -> {
                 List<ContingencyElement> contingencyElements = identifier.filterIdentifiable(network)
                     .stream()
-                    .map(ContingencyElementFactory::of)
+                    .map(ContingencyElementFactory::create)
                     .toList();
                 List<Contingency> contingencyList = new ArrayList<>();
                 if (identifier.isMonoElementContingencies()) {
@@ -82,7 +82,7 @@ public class IdentifierContingencyList implements ContingencyList {
             if (!notFoundElements.isEmpty()) {
                 String contingencyId = identifier.getContingencyId().orElse(getGeneratedContingencyId(identifier.filterIdentifiable(network)
                     .stream()
-                    .map(ContingencyElementFactory::of).toList()));
+                    .map(ContingencyElementFactory::create).toList()));
                 notFoundElementsMap.put(contingencyId, notFoundElements);
             }
 

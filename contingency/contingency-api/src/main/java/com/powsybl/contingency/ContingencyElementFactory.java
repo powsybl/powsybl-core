@@ -42,7 +42,7 @@ public final class ContingencyElementFactory {
             Map.entry(HvdcConverterStation.class, id -> new HvdcLineContingency(((HvdcConverterStation<?>) id).getHvdcLine().getId()))
         );
 
-    public static ContingencyElement of(Identifiable<?> identifiable) {
+    public static ContingencyElement create(Identifiable<?> identifiable) {
         return TYPE_TO_CONSTRUCTOR.entrySet().stream()
             .filter(entry -> entry.getKey().isInstance(identifiable))
             .findFirst()

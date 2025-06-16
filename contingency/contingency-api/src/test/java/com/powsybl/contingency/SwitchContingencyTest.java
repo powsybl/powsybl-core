@@ -43,7 +43,7 @@ class SwitchContingencyTest {
         Network network = FourSubstationsNodeBreakerFactory.create();
         Switch networkSwitch = network.getSwitch("S1VL1_LD1_BREAKER");
         assertNotNull(networkSwitch);
-        ContingencyElement element = ContingencyElementFactory.of(networkSwitch);
+        ContingencyElement element = ContingencyElementFactory.create(networkSwitch);
         assertNotNull(element);
         assertInstanceOf(SwitchContingency.class, element);
         assertEquals("S1VL1_LD1_BREAKER", element.getId());

@@ -34,8 +34,9 @@ public interface NetworkElementIdentifier {
     Optional<String> getContingencyId();
 
     /**
-     * determine if it creates one contingency per element found (true) or a contingency with all the elements found
-     * @return a boolean with this assertion
+     * Determine if one contingency per element found or a contingency with all the elements found should be created
+     * @return {@code true} if one contingency per element found should be created, {@code false} if a contingency with
+     * all the elements found should be created
      */
     default boolean isMonoElementContingencies() {
         return false;
