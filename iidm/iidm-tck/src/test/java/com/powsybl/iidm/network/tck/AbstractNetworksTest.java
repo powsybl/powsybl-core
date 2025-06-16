@@ -7,9 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.util.Networks;
@@ -61,14 +59,32 @@ public abstract class AbstractNetworksTest {
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
         twt.getPhaseTapChanger().setSolvedTapPosition(13);
         twt.getRatioTapChanger().setSolvedTapPosition(2);
+        // Modify p and q of load so that it is different to P0 and Q0
+        Load load = network.getLoad("LD1");
+        load.getTerminal().setP(81).setQ(11);
+        // Modify p, q and v of generator so that it is different to the targets
+        Generator generator = network.getGenerator("GH1");
+        generator.getTerminal().setP(-86).setQ(-512);
+        generator.getTerminal().getBusView().getBus().setV(401);
+
 
         assertNotEquals(shuntCompensator.getSolvedSectionCount(), shuntCompensator.getSectionCount());
         assertNotEquals(twt.getPhaseTapChanger().getSolvedTapPosition(), twt.getPhaseTapChanger().getTapPosition());
         assertNotEquals(twt.getRatioTapChanger().getSolvedTapPosition(), twt.getRatioTapChanger().getTapPosition());
+        assertNotEquals(load.getTerminal().getP(), load.getP0());
+        assertNotEquals(load.getTerminal().getQ(), load.getQ0());
+        assertNotEquals(-generator.getTerminal().getP(), generator.getTargetP());
+        assertNotEquals(-generator.getTerminal().getQ(), generator.getTargetQ());
+        assertNotEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getTargetV());
 
         Networks.applySolvedValues(network);
         assertEquals(shuntCompensator.getSolvedSectionCount(), shuntCompensator.getSectionCount());
         assertEquals(twt.getPhaseTapChanger().getSolvedTapPosition(), twt.getPhaseTapChanger().getTapPosition());
         assertEquals(twt.getRatioTapChanger().getSolvedTapPosition(), twt.getRatioTapChanger().getTapPosition());
+        assertEquals(load.getTerminal().getP(), load.getP0());
+        assertEquals(load.getTerminal().getQ(), load.getQ0());
+        assertEquals(-generator.getTerminal().getP(), generator.getTargetP());
+        assertEquals(-generator.getTerminal().getQ(), generator.getTargetQ());
+        assertEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getTargetV());
     }
 }
