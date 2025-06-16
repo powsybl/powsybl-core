@@ -46,7 +46,7 @@ public class DcGroundImpl extends AbstractDcConnectable<DcGround> implements DcG
     @Override
     public DcGround setR(double r) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, R_ATTRIBUTE);
-        ValidationUtil.checkRPositive(this, r);
+        ValidationUtil.checkDoubleParamPositive(this, r, R_ATTRIBUTE);
         double oldValue = this.r;
         this.r = r;
         getNetwork().getListeners().notifyUpdate(this, R_ATTRIBUTE, oldValue, r);

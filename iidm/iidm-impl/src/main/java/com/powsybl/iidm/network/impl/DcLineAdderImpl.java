@@ -69,7 +69,7 @@ public class DcLineAdderImpl extends AbstractIdentifiableAdder<DcLineAdderImpl> 
         DcNode dcNode1 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode1Id, "dcNode1Id");
         DcNode dcNode2 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode2Id, "dcNode2Id");
         DcUtils.checkSameParentNetwork(this.getParentNetwork(), this, dcNode1, dcNode2);
-        ValidationUtil.checkRPositive(this, this.r);
+        ValidationUtil.checkDoubleParamPositive(this, this.r, DcLineImpl.R_ATTRIBUTE);
         DcLineImpl dcLine = new DcLineImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), this.r);
         DcTerminalImpl dcTerminal1 = new DcTerminalImpl(networkRef, TwoSides.ONE, dcNode1, connected1);
         DcTerminalImpl dcTerminal2 = new DcTerminalImpl(networkRef, TwoSides.TWO, dcNode2, connected2);
