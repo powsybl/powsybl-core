@@ -38,7 +38,7 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
     @Override
     public void convert() {
-        if (HvdcType.VSC.equals(getHvdcType())) {
+        if (HvdcType.VSC == getHvdcType()) {
             VscConverterStationAdder adder = voltageLevel().newVscConverterStation()
                     .setLossFactor((float) lossFactor);
             identify(adder);

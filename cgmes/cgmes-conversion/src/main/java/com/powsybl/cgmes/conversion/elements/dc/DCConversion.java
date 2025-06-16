@@ -17,7 +17,6 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.model.CgmesNames.*;
 
@@ -117,12 +116,9 @@ public class DCConversion {
         if (!dcIslandEnd.contains(dcEquipment)) {
             dcIslandEnd.add(dcEquipment);
             if (!dcEquipment.isLine()) {
-                Set<DCEquipment> nextAdjacentDcEquipments = dcEquipments.stream()
+                dcEquipments.stream()
                         .filter(e -> e != dcEquipment && e.isAdjacentTo(dcEquipment) && !dcIslandEnd.contains(e))
-                        .collect(Collectors.toSet());
-                for (DCEquipment nextAdjacentDcEquipment : nextAdjacentDcEquipments) {
-                    getAdjacentDcEquipments(nextAdjacentDcEquipment, dcIslandEnd);
-                }
+                        .forEach(e -> getAdjacentDcEquipments(e, dcIslandEnd));
             }
         }
     }
@@ -144,12 +140,9 @@ public class DCConversion {
         // Recursively get all adjacent DCIslandEnd.
         if (!dcIsland.contains(dcIslandEnd)) {
             dcIsland.add(dcIslandEnd);
-            Set<DCIslandEnd> nextAdjacentDcIslandEnds = dcIslandEnds.stream()
+            dcIslandEnds.stream()
                     .filter(end -> end != dcIslandEnd && end.isAdjacentTo(dcIslandEnd) && !dcIsland.contains(end))
-                    .collect(Collectors.toSet());
-            for (DCIslandEnd nextAdjacentDcIslandEnd : nextAdjacentDcIslandEnds) {
-                getAdjacentDcIslandEnds(nextAdjacentDcIslandEnd, dcIsland);
-            }
+                    .forEach(end -> getAdjacentDcIslandEnds(end, dcIsland));
         }
     }
 

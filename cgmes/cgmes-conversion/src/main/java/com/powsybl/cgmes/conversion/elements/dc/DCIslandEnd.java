@@ -47,8 +47,8 @@ public record DCIslandEnd(Set<DCEquipment> dcEquipments) {
     public DCEquipment getNearestConverter(DCEquipment dcEquipment, Predicate<DCEquipment> isEligibleConverter) {
         return getEquipmentDistances(dcEquipment)
                 .entrySet().stream()
-                .filter(e -> isEligibleConverter.test(e.getKey())
-                        && !e.getKey().equals(dcEquipment))
+                .filter(e -> !e.getKey().equals(dcEquipment)
+                        && isEligibleConverter.test(e.getKey()))
                 .min(Map.Entry.<DCEquipment, Integer>comparingByValue()
                         .thenComparing(e -> e.getKey().id()))
                 .map(Map.Entry::getKey)

@@ -220,6 +220,7 @@ public final class TopologyExport {
         if (bus == null) {
             bus = converter.getTerminal().getBusBreakerView().getConnectableBus();
         }
+        // DCTerminal of the DCLineSegment and positive ACDCConverterDCTerminal of the ACDCConverter.
         String dcTopologicalNode = context.getNamingStrategy().getCgmesId(refTyped(bus), DC_TOPOLOGICAL_NODE);
         String dcNode = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref(side));
         writeDCNode(dcNode, dcTopologicalNode, cimNamespace, writer, context);
@@ -228,6 +229,7 @@ public final class TopologyExport {
         String acdcConverterDcTerminal = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL1).orElseThrow(PowsyblException::new);
         writeAcdcConverterDCTerminal(acdcConverterDcTerminal, dcTopologicalNode, cimNamespace, writer, context);
 
+        // DCTerminal of the DCGround and middle ACDCConverterDCTerminal of the ACDCConverter.
         String dcTopologicalNodeG = context.getNamingStrategy().getCgmesId(refTyped(bus), DC_TOPOLOGICAL_NODE, ref(side + "G"));
         String dcNodeG = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref(side + "G"));
         writeDCNode(dcNodeG, dcTopologicalNodeG, cimNamespace, writer, context);

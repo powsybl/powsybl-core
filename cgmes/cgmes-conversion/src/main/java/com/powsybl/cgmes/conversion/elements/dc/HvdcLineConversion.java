@@ -26,6 +26,8 @@ public class HvdcLineConversion extends AbstractIdentifiedObjectConversion {
     private static final double DEFAULT_MAXP_FACTOR = 1.2;
 
     public HvdcLineConversion(DCLink dcLink, Context context) {
+        // Use line 1 id as the main identifier of this line.
+        // If present, line 2 id is added as an alias.
         super(DC_LINE_SEGMENT, dcLink.getDcLine1(), context);
         this.dcLink = dcLink;
     }
