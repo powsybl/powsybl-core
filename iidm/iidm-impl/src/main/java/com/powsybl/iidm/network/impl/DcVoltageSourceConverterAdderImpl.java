@@ -17,7 +17,6 @@ public class DcVoltageSourceConverterAdderImpl extends AbstractDcConverterAdder<
     private Boolean voltageRegulatorOn;
     private double voltageSetpoint = Double.NaN;
     private double reactivePowerSetpoint = Double.NaN;
-    private TerminalExt regulatingTerminal;
 
     DcVoltageSourceConverterAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
@@ -47,12 +46,6 @@ public class DcVoltageSourceConverterAdderImpl extends AbstractDcConverterAdder<
     }
 
     @Override
-    public DcVoltageSourceConverterAdder setRegulatingTerminal(Terminal regulatingTerminal) {
-        this.regulatingTerminal = (TerminalExt) regulatingTerminal;
-        return this;
-    }
-
-    @Override
     public DcVoltageSourceConverter add() {
         // TODO checks
         // TODO / note: dcNodes and voltage level must be in same network
@@ -64,11 +57,11 @@ public class DcVoltageSourceConverterAdderImpl extends AbstractDcConverterAdder<
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint,
                 reactivePowerSetpoint, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
+        ValidationUtil.checkRegulatingTerminal(this, this.pccTerminal, network);
         DcVoltageSourceConverterImpl dcVsConverter = new DcVoltageSourceConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
                 idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc,
-                voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint, regulatingTerminal);
+                voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint);
         super.checkAndAdd(dcVsConverter);
         return dcVsConverter;
     }

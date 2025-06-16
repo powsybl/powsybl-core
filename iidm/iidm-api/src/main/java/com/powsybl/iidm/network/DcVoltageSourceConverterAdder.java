@@ -18,6 +18,4 @@ public interface DcVoltageSourceConverterAdder extends DcConverterAdder<DcVoltag
 
     DcVoltageSourceConverterAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
-    DcVoltageSourceConverterAdder setRegulatingTerminal(Terminal regulatingTerminal);
-
 }

@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.DcVoltageSourceConverter;
 import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationUtil;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -22,7 +21,6 @@ public class DcVoltageSourceConverterImpl extends AbstractDcConverter<DcVoltageS
     public static final String VOLTAGE_REGULATOR_ON_ATTRIBUTE = "voltageRegulatorOn";
     public static final String VOLTAGE_SETPOINT_ATTRIBUTE = "voltageSetpoint";
     public static final String REACTIVE_POWER_SETPOINT_ATTRIBUTE = "reactivePowerSetpoint";
-    public static final String REGULATING_TERMINAL_ATTRIBUTE = "regulatingTerminal";
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
@@ -35,7 +33,7 @@ public class DcVoltageSourceConverterImpl extends AbstractDcConverter<DcVoltageS
     DcVoltageSourceConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
                                  double idleLoss, double switchingLoss, double resistiveLoss,
                                  TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc,
-                                 boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint, TerminalExt regulatingTerminal) {
+                                 boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint) {
         super(ref, id, name, fictitious, idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
@@ -45,7 +43,7 @@ public class DcVoltageSourceConverterImpl extends AbstractDcConverter<DcVoltageS
         this.voltageSetpoint.fill(0, variantArraySize, voltageSetpoint);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         regulatingPoint = new RegulatingPoint(id, () -> null, variantArraySize, voltageRegulatorOn, true);
-        regulatingPoint.setRegulatingTerminal(regulatingTerminal);
+        regulatingPoint.setRegulatingTerminal(pccTerminal);
     }
 
     @Override
@@ -167,22 +165,6 @@ public class DcVoltageSourceConverterImpl extends AbstractDcConverter<DcVoltageS
             voltageSetpoint.set(index, voltageSetpoint.get(sourceIndex));
         }
         regulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
-    }
-
-    @Override
-    public TerminalExt getRegulatingTerminal() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, REGULATING_TERMINAL_ATTRIBUTE);
-        return regulatingPoint.getRegulatingTerminal();
-    }
-
-    @Override
-    public DcVoltageSourceConverterImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, REGULATING_TERMINAL_ATTRIBUTE);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        Terminal oldValue = regulatingPoint.getRegulatingTerminal();
-        regulatingPoint.setRegulatingTerminal((TerminalExt) regulatingTerminal);
-        notifyUpdate(REGULATING_TERMINAL_ATTRIBUTE, oldValue, regulatingTerminal);
-        return this;
     }
 
     @Override

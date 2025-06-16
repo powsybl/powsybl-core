@@ -395,7 +395,6 @@ public final class DcDetailedNetworkFactory {
                 .setVoltageRegulatorOn(false)
                 .setReactivePowerSetpoint(0.0)
                 .setVoltageSetpoint(400.)
-                .setRegulatingTerminal(frPccTerminal)
                 .add();
         Terminal gbPccTerminal = dcNetwork.getTwoWindingsTransformer("TRDC-GB-xNodeDc1gb").getTerminal1();
         dcNetwork.getVoltageLevel("VLDC-GB-xNodeDc1gb-150").newDcVoltageSourceConverter()
@@ -410,7 +409,6 @@ public final class DcDetailedNetworkFactory {
                 .setVoltageRegulatorOn(false)
                 .setReactivePowerSetpoint(0.0)
                 .setVoltageSetpoint(400.)
-                .setRegulatingTerminal(gbPccTerminal)
                 .add();
         return Network.merge(dcNetwork, fr, gb);
     }

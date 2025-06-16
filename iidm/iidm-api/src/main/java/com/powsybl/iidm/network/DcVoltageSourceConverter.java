@@ -174,16 +174,4 @@ public interface DcVoltageSourceConverter extends DcConverter<DcVoltageSourceCon
      * @return the converter itself to allow method chaining
      */
     DcVoltageSourceConverter setReactivePowerSetpoint(double reactivePowerSetpoint);
-
-    /**
-     * Get the AC terminal used for regulation.
-     * @return the terminal used for regulation
-     */
-    Terminal getRegulatingTerminal();
-
-    /**
-     * Set the AC terminal used for regulation.
-     * @return the converter itself to allow method chaining
-     */
-    DcVoltageSourceConverter setRegulatingTerminal(Terminal regulatingTerminal);
 }
