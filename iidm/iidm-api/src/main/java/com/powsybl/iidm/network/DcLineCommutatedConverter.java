@@ -119,8 +119,6 @@ package com.powsybl.iidm.network;
  *     </tbody>
  * </table>
  *
- * @see DcLineCommutatedConverterAdder
- *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public interface DcLineCommutatedConverter extends DcConverter<DcLineCommutatedConverter> {

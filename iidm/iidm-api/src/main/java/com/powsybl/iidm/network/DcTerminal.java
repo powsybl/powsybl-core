@@ -45,14 +45,14 @@ public interface DcTerminal {
     DcTerminal setConnected(boolean connected);
 
     /**
-     * @return the active power in MW injected at the terminal.<br/>
+     * @return the active power in MW injected at the DC terminal.<br/>
      * Depends on the working variant.
      * @see VariantManager
      */
     double getP();
 
     /**
-     * @param p new active power in MW injected at the terminal.<br/>
+     * @param p new active power in MW injected at the DC terminal.<br/>
      * Depends on the working variant.
      * @return self for method chaining
      * @see VariantManager
@@ -60,14 +60,14 @@ public interface DcTerminal {
     DcTerminal setP(double p);
 
     /**
-     * @return the current in A at the terminal.<br/>
+     * @return the current in A at the DC terminal.<br/>
      * Depends on the working variant.
      * @see VariantManager
      */
     double getI();
 
     /**
-     * @param i new current in A injected at the terminal.<br/>
+     * @param i new current in A injected at the DC terminal.<br/>
      * Depends on the working variant.
      * @return self for method chaining
      * @see VariantManager

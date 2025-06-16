@@ -39,12 +39,12 @@ public interface DcConverter<I extends DcConverter<I>> extends Connectable<I>, D
     Optional<Terminal> getTerminal2();
 
     /**
-     * Get the side the terminal is connected to.
+     * Get the side the AC terminal is connected to.
      */
     TwoSides getSide(Terminal terminal);
 
     /**
-     * Get the terminal at provided side.
+     * Get the AC terminal at provided side.
      */
     Terminal getTerminal(TwoSides side);
 
@@ -69,22 +69,22 @@ public interface DcConverter<I extends DcConverter<I>> extends Connectable<I>, D
     DcTerminal getDcTerminal(TwoSides side);
 
     /**
-     * Get the idle loss (MW).
+     * Set the idle loss (MW).
      */
     I setIdleLoss(double idleLoss);
 
     /**
-     * Set the idle loss (MW).
+     * Get the idle loss (MW).
      */
     double getIdleLoss();
 
     /**
-     * Get the switching loss (MW/A).
+     * Set the switching loss (MW/A).
      */
     I setSwitchingLoss(double switchingLoss);
 
     /**
-     * Set the switching loss (MW/A).
+     * Get the switching loss (MW/A).
      */
     double getSwitchingLoss();
 

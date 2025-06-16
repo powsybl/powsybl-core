@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * DC nodes are points where terminals of DC conducting equipment are connected together with zero impedance.
+ * A DC Line within a DC system.
  *
  * <p> To create a DcLine, see {@link DcLineAdder}
  *
@@ -54,8 +54,6 @@ package com.powsybl.iidm.network;
  *         </tr>
  *     </tbody>
  * </table>
- *
- * @see DcLineAdder
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */

@@ -114,7 +114,7 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">kV</td>
  *             <td style="border: 1px solid black">only if VoltageRegulatorOn is set to true</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The voltage setpoint</td>
+ *             <td style="border: 1px solid black">The AC voltage setpoint</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">ReactivePowerSetpoint</td>
@@ -126,8 +126,6 @@ package com.powsybl.iidm.network;
  *         </tr>
  *     </tbody>
  * </table>
- *
- * @see DcVoltageSourceConverterAdder
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -152,13 +150,13 @@ public interface DcVoltageSourceConverter extends DcConverter<DcVoltageSourceCon
     DcVoltageSourceConverter setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
-     * Get the voltage setpoint (Kv).
+     * Get the AC voltage setpoint (kV).
      * @return the voltage setpoint
      */
     double getVoltageSetpoint();
 
     /**
-     * Set the voltage setpoint (Kv).
+     * Set the AC voltage setpoint (kV).
      * @param voltageSetpoint the voltage setpoint
      * @return the converter itself to allow method chaining
      */
@@ -178,13 +176,13 @@ public interface DcVoltageSourceConverter extends DcConverter<DcVoltageSourceCon
     DcVoltageSourceConverter setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     /**
-     * Get the terminal used for regulation.
+     * Get the AC terminal used for regulation.
      * @return the terminal used for regulation
      */
     Terminal getRegulatingTerminal();
 
     /**
-     * Set the terminal used for regulation.
+     * Set the AC terminal used for regulation.
      * @return the converter itself to allow method chaining
      */
     DcVoltageSourceConverter setRegulatingTerminal(Terminal regulatingTerminal);

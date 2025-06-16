@@ -55,8 +55,6 @@ package com.powsybl.iidm.network;
  *     </tbody>
  * </table>
  *
- * @see DcGroundAdder
- *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public interface DcGround extends DcConnectable<DcGround> {

@@ -1322,17 +1322,17 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     DcLineCommutatedConverterAdder newDcLineCommutatedConverter();
 
     /**
-     * Get DC Line-Commutated Converters.
+     * Get DC Line-Commutated Converters connected to this voltage level.
      */
     Iterable<DcLineCommutatedConverter> getDcLineCommutatedConverters();
 
     /**
-     * Get DC Line-Commutated Converters.
+     * Get DC Line-Commutated Converters connected to this voltage level.
      */
     Stream<DcLineCommutatedConverter> getDcLineCommutatedConverterStream();
 
     /**
-     * Get DC Line-Commutated Converter count.
+     * Get DC Line-Commutated Converter connected to this voltage level count.
      */
     int getDcLineCommutatedConverterCount();
 
@@ -1343,17 +1343,17 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     DcVoltageSourceConverterAdder newDcVoltageSourceConverter();
 
     /**
-     * Get DC Voltage-Source Converters.
+     * Get DC Voltage-Source Converters connected to this voltage level.
      */
     Iterable<DcVoltageSourceConverter> getDcVoltageSourceConverters();
 
     /**
-     * Get DC Voltage-Source Converters.
+     * Get DC Voltage-Source Converters connected to this voltage level.
      */
     Stream<DcVoltageSourceConverter> getDcVoltageSourceConverterStream();
 
     /**
-     * Get DC Voltage-Source Converter count.
+     * Get DC Voltage-Source Converter connected to this voltage level count.
      */
     int getDcVoltageSourceConverterCount();
 

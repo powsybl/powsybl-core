@@ -65,8 +65,6 @@ package com.powsybl.iidm.network;
  *     </tbody>
  * </table>
  *
- * @see DcSwitchAdder
- *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public interface DcSwitch extends Identifiable<DcSwitch> {

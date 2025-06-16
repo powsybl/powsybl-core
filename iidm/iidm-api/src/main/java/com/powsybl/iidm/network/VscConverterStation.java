@@ -87,13 +87,13 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
     VscConverterStation setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
-     * Get the voltage setpoint (Kv).
+     * Get the voltage setpoint (kV).
      * @return the voltage setpoint
      */
     double getVoltageSetpoint();
 
     /**
-     * Set the voltage setpoint (Kv).
+     * Set the voltage setpoint (kV).
      * @param voltageSetpoint the voltage setpoint
      * @return the converter itself to allow method chaining
      */

@@ -55,8 +55,6 @@ package com.powsybl.iidm.network;
  *     </tbody>
  * </table>
  *
- * @see DcNodeAdder
- *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public interface DcNode extends Identifiable<DcNode> {

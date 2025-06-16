@@ -37,9 +37,9 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
 
     private String connectableBus2;
 
-    protected double idleLoss = 0;
-    protected double switchingLoss = 0;
-    protected double resistiveLoss = 0;
+    protected double idleLoss = 0.;
+    protected double switchingLoss = 0.;
+    protected double resistiveLoss = 0.;
 
     protected TerminalExt pccTerminal;
     protected DcConverter.ControlMode controlMode;
@@ -159,7 +159,7 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
     }
 
     protected void preCheck() {
-        boolean twoAcTerminals = (bus2 != null || node2 != null);
+        boolean twoAcTerminals = bus2 != null || node2 != null;
         if (controlMode == null) {
             throw new ValidationException(this, "controlMode is not set");
         }
