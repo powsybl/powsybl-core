@@ -10,6 +10,7 @@ package com.powsybl.contingency.contingency.list;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 
@@ -57,7 +58,7 @@ public class IdentifierContingencyList implements ContingencyList {
             .flatMap(identifier -> {
                 List<ContingencyElement> contingencyElements = identifier.filterIdentifiable(network)
                     .stream()
-                    .map(ContingencyElement::of)
+                    .map(ContingencyElementFactory::of)
                     .toList();
                 List<Contingency> contingencyList = new ArrayList<>();
                 if (identifier.isMonoElementContingencies()) {
@@ -81,7 +82,7 @@ public class IdentifierContingencyList implements ContingencyList {
             if (!notFoundElements.isEmpty()) {
                 String contingencyId = identifier.getContingencyId().orElse(getGeneratedContingencyId(identifier.filterIdentifiable(network)
                     .stream()
-                    .map(ContingencyElement::of).toList()));
+                    .map(ContingencyElementFactory::of).toList()));
                 notFoundElementsMap.put(contingencyId, notFoundElements);
             }
 

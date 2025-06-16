@@ -145,7 +145,7 @@ public class ContingencyBuilder {
     }
 
     public ContingencyBuilder addIdentifiable(Identifiable<?> identifiable) {
-        elements.add(ContingencyElement.of(identifiable));
+        elements.add(ContingencyElementFactory.of(identifiable));
         return this;
     }
 
