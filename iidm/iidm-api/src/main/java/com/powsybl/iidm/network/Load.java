@@ -125,10 +125,16 @@ public interface Load extends Injection<Load> {
     }
 
     default void setP0ToP() {
-        this.setP0(this.getTerminal().getP());
+        double p = this.getTerminal().getP();
+        if (!Double.isNaN(p)) {
+            this.setP0(p);
+        }
     }
 
     default void setQ0ToQ() {
-        this.setQ0(this.getTerminal().getQ());
+        double q = this.getTerminal().getQ();
+        if (!Double.isNaN(q)) {
+            this.setQ0(q);
+        }
     }
 }
