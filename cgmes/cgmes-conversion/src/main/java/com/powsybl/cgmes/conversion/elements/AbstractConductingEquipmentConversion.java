@@ -11,6 +11,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNodeAdder;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
@@ -225,13 +226,29 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             missing("Equipment for modeling consumption/injection at boundary node");
         }
 
+        PropertyBag boundaryNodeForDanglingLine = context.nodeBreaker()?
+                context.cgmes().connectivityNodes().stream()
+                .filter(n -> n.get("ConnectivityNode").contains(boundaryNode))
+                .findFirst()
+                .orElse(null) :
+                context.cgmes().topologicalNodes().stream()
+                        .filter(n -> n.get("TopologicalNode").contains(boundaryNode))
+                        .findFirst()
+                        .orElse(null);
+
+
+        String fromCountryDL = boundaryNodeForDanglingLine != null? boundaryNodeForDanglingLine.getId("fromEndIsoCode") : "";
+        String toCountryDL = boundaryNodeForDanglingLine != null? boundaryNodeForDanglingLine.getId("toEndIsoCode") : "";
+
         DanglingLineAdder dlAdder = voltageLevel(modelSide).map(vl -> vl.newDanglingLine()
                         .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                         .setR(r)
                         .setX(x)
                         .setG(gch)
                         .setB(bch)
-                        .setPairingKey(findPairingKey(boundaryNode)))
+                        .setPairingKey(findPairingKey(boundaryNode))
+                        .setCountryFrom(fromCountryDL)
+                        .setCountryTo(toCountryDL))
                 .orElseThrow(() -> new CgmesModelException("Dangling line " + id + " has no container"));
         identify(dlAdder);
         connect(dlAdder, modelSide);

@@ -32,6 +32,10 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private String pairingKey;
 
+    private String countryFrom;
+
+    private String countryTo;
+
     private GenerationAdderImpl generationAdder;
 
     DanglingLineAdderImpl(VoltageLevelExt voltageLevel) {
@@ -90,6 +94,18 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     }
 
     @Override
+    public DanglingLineAdder setCountryFrom(String countryFrom) {
+        this.countryFrom = countryFrom;
+        return this;
+    }
+
+    @Override
+    public DanglingLineAdder setCountryTo(String countryTo) {
+        this.countryTo = countryTo;
+        return this;
+    }
+
+    @Override
     public GenerationAdder newGeneration() {
         return new GenerationAdderImpl(this);
     }
@@ -112,7 +128,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
             generation = generationAdder.build();
         }
 
-        DanglingLineImpl danglingLine = new DanglingLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, pairingKey, generation);
+        DanglingLineImpl danglingLine = new DanglingLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, pairingKey, countryFrom, countryTo, generation);
         danglingLine.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(danglingLine);

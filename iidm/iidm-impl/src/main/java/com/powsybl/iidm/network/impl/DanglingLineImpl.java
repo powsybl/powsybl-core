@@ -249,6 +249,10 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private String pairingKey;
 
+    private String countryFrom;
+
+    private String countryTo;
+
     private final GenerationImpl generation;
 
     private final OperationalLimitsGroupsImpl operationalLimitsGroups;
@@ -260,7 +264,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final DanglingLineBoundaryImplExt boundary;
 
-    DanglingLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String pairingKey, GenerationImpl generation) {
+    DanglingLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String pairingKey, String countryFrom, String countryTo, GenerationImpl generation) {
         super(network, id, name, fictitious);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
@@ -275,6 +279,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.g = g;
         this.b = b;
         this.pairingKey = pairingKey;
+        this.countryFrom = countryFrom;
+        this.countryTo = countryTo;
         this.operationalLimitsGroups = new OperationalLimitsGroupsImpl(this, "limits");
         this.boundary = new DanglingLineBoundaryImplExt(this);
         this.generation = generation != null ? generation.attach(this) : null;
@@ -428,6 +434,28 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             notifyUpdate("pairing_key", oldValue, pairingKey);
         }
         return this;
+    }
+
+    @Override
+    public DanglingLine setCountryFrom(String countryFrom) {
+        this.countryFrom =  countryFrom;
+        return this;
+    }
+
+    @Override
+    public String getCountryFrom() {
+        return countryFrom;
+    }
+
+    @Override
+    public DanglingLine setCountryTo(String countryTo) {
+        this.countryTo =  countryTo;
+        return this;
+    }
+
+    @Override
+    public String getCountryTo() {
+        return countryTo;
     }
 
     @Override
