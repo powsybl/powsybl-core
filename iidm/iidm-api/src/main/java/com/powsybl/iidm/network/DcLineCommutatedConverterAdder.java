@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcLineCommutatedConverterAdder extends DcConverterAdder<DcLineCommutatedConverter, DcLineCommutatedConverterAdder> {
+public interface DcLineCommutatedConverterAdder extends AcDcConverterAdder<DcLineCommutatedConverter, DcLineCommutatedConverterAdder> {
 
     DcLineCommutatedConverterAdder setReactiveModel(DcLineCommutatedConverter.ReactiveModel reactiveModel);
 

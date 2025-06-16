@@ -52,7 +52,7 @@ public abstract class AbstractDcTerminalTest {
                 .setBus1(b1.getId())
                 .setDcNode1Id(dcNode1.getId())
                 .setDcNode2Id(dcNode2.getId())
-                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
                 .add();

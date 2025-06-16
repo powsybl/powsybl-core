@@ -78,7 +78,7 @@ class DcDetailedNetworkTest {
         TopologyVisitor topologyVisitor = new AbstractEquipmentTopologyVisitor() {
             @Override
             public <I extends Connectable<I>> void visitEquipment(Connectable<I> eq) {
-                if (eq instanceof DcConverter<?>) {
+                if (eq instanceof AcDcConverter<?>) {
                     visited.add(eq);
                 }
             }
@@ -96,7 +96,7 @@ class DcDetailedNetworkTest {
         TopologyVisitor topologyVisitor = new AbstractTerminalTopologyVisitor() {
             @Override
             public void visitTerminal(Terminal t) {
-                if (t.getConnectable() instanceof DcConverter<?>) {
+                if (t.getConnectable() instanceof AcDcConverter<?>) {
                     visited.add(t);
                 }
             }

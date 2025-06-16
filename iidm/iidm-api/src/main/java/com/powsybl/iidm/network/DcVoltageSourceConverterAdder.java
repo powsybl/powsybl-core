@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcVoltageSourceConverterAdder extends DcConverterAdder<DcVoltageSourceConverter, DcVoltageSourceConverterAdder> {
+public interface DcVoltageSourceConverterAdder extends AcDcConverterAdder<DcVoltageSourceConverter, DcVoltageSourceConverterAdder> {
 
     DcVoltageSourceConverterAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 

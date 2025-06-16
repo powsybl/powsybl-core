@@ -147,7 +147,7 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
     }
 
     @Override
-    public void visitDcConverter(DcConverter<?> converter, TwoSides side) {
+    public void visitAcDcConverter(AcDcConverter<?> converter, TwoSides side) {
         addFlow(converter.getTerminal(side));
     }
 

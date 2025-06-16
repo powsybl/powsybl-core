@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public abstract class AbstractDcConverterTest {
+public abstract class AbstractAcDcConverterTest {
 
     private Network network;
     private VoltageLevel vla;
@@ -44,8 +44,8 @@ public abstract class AbstractDcConverterTest {
     private Line linebx;
     private DcNode dcNode1b;
     private DcNode dcNode2b;
-    private DcConverter<?> dcConverterA;
-    private DcConverter<?> dcConverterB;
+    private AcDcConverter<?> acDcConverterA;
+    private AcDcConverter<?> acDcConverterB;
 
     @BeforeEach
     void setup() {
@@ -171,23 +171,23 @@ public abstract class AbstractDcConverterTest {
 
     @Test
     public void testBaseLcc() {
-        dcConverterA = createDcLccA(vla);
+        acDcConverterA = createDcLccA(vla);
         assertEquals(1, network.getDcLineCommutatedConverterCount());
-        assertSame(IdentifiableType.DC_LINE_COMMUTATED_CONVERTER, dcConverterA.getType());
-        dcConverterB = createDcLccB(vlb);
-        assertSame(IdentifiableType.DC_LINE_COMMUTATED_CONVERTER, dcConverterB.getType());
+        assertSame(IdentifiableType.DC_LINE_COMMUTATED_CONVERTER, acDcConverterA.getType());
+        acDcConverterB = createDcLccB(vlb);
+        assertSame(IdentifiableType.DC_LINE_COMMUTATED_CONVERTER, acDcConverterB.getType());
         assertEquals(2, network.getDcLineCommutatedConverterCount());
 
         checkBaseCommonLccVsc();
 
         // default values
-        assertSame(DcLineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR, ((DcLineCommutatedConverter) dcConverterA).getReactiveModel());
-        assertEquals(0.5, ((DcLineCommutatedConverter) dcConverterA).getPowerFactor());
+        assertSame(DcLineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR, ((DcLineCommutatedConverter) acDcConverterA).getReactiveModel());
+        assertEquals(0.5, ((DcLineCommutatedConverter) acDcConverterA).getPowerFactor());
         // explicitly set values
-        assertSame(DcLineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR, ((DcLineCommutatedConverter) dcConverterB).getReactiveModel());
-        assertEquals(0.6, ((DcLineCommutatedConverter) dcConverterB).getPowerFactor());
+        assertSame(DcLineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR, ((DcLineCommutatedConverter) acDcConverterB).getReactiveModel());
+        assertEquals(0.6, ((DcLineCommutatedConverter) acDcConverterB).getPowerFactor());
 
-        List<DcLineCommutatedConverter> dcConverterList = List.of((DcLineCommutatedConverter) dcConverterA, (DcLineCommutatedConverter) dcConverterB);
+        List<DcLineCommutatedConverter> dcConverterList = List.of((DcLineCommutatedConverter) acDcConverterA, (DcLineCommutatedConverter) acDcConverterB);
         assertEquals(2, ((Collection<?>) network.getDcLineCommutatedConverters()).size());
         network.getDcLineCommutatedConverters().forEach(dcConverter -> assertTrue(dcConverterList.contains(dcConverter)));
         network.getDcLineCommutatedConverterStream().forEach(dcConverter -> assertTrue(dcConverterList.contains(dcConverter)));
@@ -195,26 +195,26 @@ public abstract class AbstractDcConverterTest {
         network.getIdentifiableStream(IdentifiableType.DC_LINE_COMMUTATED_CONVERTER).forEach(dcConverter -> assertTrue(dcConverterList.contains((DcLineCommutatedConverter) dcConverter)));
         assertEquals(1, vla.getDcLineCommutatedConverterCount());
         assertEquals(1, ((Collection<?>) vla.getDcLineCommutatedConverters()).size());
-        vla.getDcLineCommutatedConverters().forEach(dcConverter -> assertSame(dcConverterA, dcConverter));
-        vla.getDcLineCommutatedConverterStream().forEach(dcConverter -> assertSame(dcConverterA, dcConverter));
+        vla.getDcLineCommutatedConverters().forEach(dcConverter -> assertSame(acDcConverterA, dcConverter));
+        vla.getDcLineCommutatedConverterStream().forEach(dcConverter -> assertSame(acDcConverterA, dcConverter));
         assertEquals(1, vlb.getDcLineCommutatedConverterCount());
         assertEquals(1, ((Collection<?>) vlb.getDcLineCommutatedConverters()).size());
-        vlb.getDcLineCommutatedConverters().forEach(dcConverter -> assertSame(dcConverterB, dcConverter));
-        vlb.getDcLineCommutatedConverterStream().forEach(dcConverter -> assertSame(dcConverterB, dcConverter));
+        vlb.getDcLineCommutatedConverters().forEach(dcConverter -> assertSame(acDcConverterB, dcConverter));
+        vlb.getDcLineCommutatedConverterStream().forEach(dcConverter -> assertSame(acDcConverterB, dcConverter));
     }
 
     @Test
     public void testBaseVsc() {
-        dcConverterA = createDcVscA(vla);
+        acDcConverterA = createDcVscA(vla);
         assertEquals(1, network.getDcVoltageSourceConverterCount());
-        assertSame(IdentifiableType.DC_VOLTAGE_SOURCE_CONVERTER, dcConverterA.getType());
-        dcConverterB = createDcVscB(vlb);
-        assertSame(IdentifiableType.DC_VOLTAGE_SOURCE_CONVERTER, dcConverterB.getType());
+        assertSame(IdentifiableType.DC_VOLTAGE_SOURCE_CONVERTER, acDcConverterA.getType());
+        acDcConverterB = createDcVscB(vlb);
+        assertSame(IdentifiableType.DC_VOLTAGE_SOURCE_CONVERTER, acDcConverterB.getType());
         assertEquals(2, network.getDcVoltageSourceConverterCount());
 
         checkBaseCommonLccVsc();
 
-        List<DcVoltageSourceConverter> dcConverterList = List.of((DcVoltageSourceConverter) dcConverterA, (DcVoltageSourceConverter) dcConverterB);
+        List<DcVoltageSourceConverter> dcConverterList = List.of((DcVoltageSourceConverter) acDcConverterA, (DcVoltageSourceConverter) acDcConverterB);
         assertEquals(2, ((Collection<?>) network.getDcVoltageSourceConverters()).size());
         network.getDcVoltageSourceConverters().forEach(dcConverter -> assertTrue(dcConverterList.contains(dcConverter)));
         network.getDcVoltageSourceConverterStream().forEach(dcConverter -> assertTrue(dcConverterList.contains(dcConverter)));
@@ -222,52 +222,52 @@ public abstract class AbstractDcConverterTest {
         network.getIdentifiableStream(IdentifiableType.DC_VOLTAGE_SOURCE_CONVERTER).forEach(dcConverter -> assertTrue(dcConverterList.contains((DcVoltageSourceConverter) dcConverter)));
         assertEquals(1, vla.getDcVoltageSourceConverterCount());
         assertEquals(1, ((Collection<?>) vla.getDcVoltageSourceConverters()).size());
-        vla.getDcVoltageSourceConverters().forEach(dcConverter -> assertSame(dcConverterA, dcConverter));
-        vla.getDcVoltageSourceConverterStream().forEach(dcConverter -> assertSame(dcConverterA, dcConverter));
+        vla.getDcVoltageSourceConverters().forEach(dcConverter -> assertSame(acDcConverterA, dcConverter));
+        vla.getDcVoltageSourceConverterStream().forEach(dcConverter -> assertSame(acDcConverterA, dcConverter));
         assertEquals(1, vlb.getDcVoltageSourceConverterCount());
         assertEquals(1, ((Collection<?>) vlb.getDcVoltageSourceConverters()).size());
-        vlb.getDcVoltageSourceConverters().forEach(dcConverter -> assertSame(dcConverterB, dcConverter));
-        vlb.getDcVoltageSourceConverterStream().forEach(dcConverter -> assertSame(dcConverterB, dcConverter));
+        vlb.getDcVoltageSourceConverters().forEach(dcConverter -> assertSame(acDcConverterB, dcConverter));
+        vlb.getDcVoltageSourceConverterStream().forEach(dcConverter -> assertSame(acDcConverterB, dcConverter));
     }
 
     private void checkBaseCommonLccVsc() {
-        assertEquals("converterA", dcConverterA.getId());
+        assertEquals("converterA", acDcConverterA.getId());
 
-        assertSame(TwoSides.ONE, dcConverterA.getDcTerminal1().getSide());
-        assertSame(TwoSides.TWO, dcConverterA.getDcTerminal2().getSide());
-        assertSame(TwoSides.ONE, dcConverterA.getSide(dcConverterA.getDcTerminal1()));
-        assertSame(TwoSides.TWO, dcConverterA.getSide(dcConverterA.getDcTerminal2()));
-        assertSame(dcConverterA.getDcTerminal1(), dcConverterA.getDcTerminal(TwoSides.ONE));
-        assertSame(dcConverterA.getDcTerminal2(), dcConverterA.getDcTerminal(TwoSides.TWO));
+        assertSame(TwoSides.ONE, acDcConverterA.getDcTerminal1().getSide());
+        assertSame(TwoSides.TWO, acDcConverterA.getDcTerminal2().getSide());
+        assertSame(TwoSides.ONE, acDcConverterA.getSide(acDcConverterA.getDcTerminal1()));
+        assertSame(TwoSides.TWO, acDcConverterA.getSide(acDcConverterA.getDcTerminal2()));
+        assertSame(acDcConverterA.getDcTerminal1(), acDcConverterA.getDcTerminal(TwoSides.ONE));
+        assertSame(acDcConverterA.getDcTerminal2(), acDcConverterA.getDcTerminal(TwoSides.TWO));
 
-        assertSame(ThreeSides.ONE, dcConverterA.getTerminal1().getSide());
-        assertSame(ThreeSides.TWO, dcConverterA.getTerminal2().orElseThrow().getSide());
-        assertSame(TwoSides.ONE, dcConverterA.getSide(dcConverterA.getTerminal1()));
-        assertSame(TwoSides.TWO, dcConverterA.getSide(dcConverterA.getTerminal2().orElseThrow()));
-        assertSame(dcConverterA.getTerminal1(), dcConverterA.getTerminal(TwoSides.ONE));
-        assertSame(dcConverterA.getTerminal2().orElseThrow(), dcConverterA.getTerminal(TwoSides.TWO));
+        assertSame(ThreeSides.ONE, acDcConverterA.getTerminal1().getSide());
+        assertSame(ThreeSides.TWO, acDcConverterA.getTerminal2().orElseThrow().getSide());
+        assertSame(TwoSides.ONE, acDcConverterA.getSide(acDcConverterA.getTerminal1()));
+        assertSame(TwoSides.TWO, acDcConverterA.getSide(acDcConverterA.getTerminal2().orElseThrow()));
+        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getTerminal(TwoSides.ONE));
+        assertSame(acDcConverterA.getTerminal2().orElseThrow(), acDcConverterA.getTerminal(TwoSides.TWO));
 
-        assertSame(b1a, dcConverterA.getTerminal1().getBusBreakerView().getBus());
-        assertTrue(dcConverterA.getTerminal2().isPresent());
-        assertSame(b2a, dcConverterA.getTerminal2().orElseThrow().getBusBreakerView().getBus());
-        assertTrue(dcConverterA.getDcTerminal1().isConnected());
-        assertTrue(dcConverterA.getDcTerminal2().isConnected());
-        assertEquals(2, dcConverterA.getDcTerminals().size());
-        assertSame(dcConverterA.getDcTerminals().get(0), dcConverterA.getDcTerminal1());
-        assertSame(dcConverterA.getDcTerminals().get(1), dcConverterA.getDcTerminal2());
-        assertSame(dcNode1a, dcConverterA.getDcTerminal1().getDcNode());
-        assertSame(dcNode2a, dcConverterA.getDcTerminal2().getDcNode());
-        assertSame(dcConverterA, dcConverterA.getDcTerminal1().getDcConnectable());
-        assertSame(dcConverterA, dcConverterA.getDcTerminal2().getDcConnectable());
-        assertEquals(0.01, dcConverterA.getIdleLoss());
-        assertEquals(0.02, dcConverterA.getSwitchingLoss());
-        assertEquals(0.03, dcConverterA.getResistiveLoss());
+        assertSame(b1a, acDcConverterA.getTerminal1().getBusBreakerView().getBus());
+        assertTrue(acDcConverterA.getTerminal2().isPresent());
+        assertSame(b2a, acDcConverterA.getTerminal2().orElseThrow().getBusBreakerView().getBus());
+        assertTrue(acDcConverterA.getDcTerminal1().isConnected());
+        assertTrue(acDcConverterA.getDcTerminal2().isConnected());
+        assertEquals(2, acDcConverterA.getDcTerminals().size());
+        assertSame(acDcConverterA.getDcTerminals().get(0), acDcConverterA.getDcTerminal1());
+        assertSame(acDcConverterA.getDcTerminals().get(1), acDcConverterA.getDcTerminal2());
+        assertSame(dcNode1a, acDcConverterA.getDcTerminal1().getDcNode());
+        assertSame(dcNode2a, acDcConverterA.getDcTerminal2().getDcNode());
+        assertSame(acDcConverterA, acDcConverterA.getDcTerminal1().getDcConnectable());
+        assertSame(acDcConverterA, acDcConverterA.getDcTerminal2().getDcConnectable());
+        assertEquals(0.01, acDcConverterA.getIdleLoss());
+        assertEquals(0.02, acDcConverterA.getSwitchingLoss());
+        assertEquals(0.03, acDcConverterA.getResistiveLoss());
 
-        assertEquals("converterB", dcConverterB.getId());
-        assertFalse(dcConverterB.getDcTerminal1().isConnected());
-        assertFalse(dcConverterB.getDcTerminal2().isConnected());
-        assertSame(dcNode1b, dcConverterB.getDcTerminal1().getDcNode());
-        assertSame(dcNode2b, dcConverterB.getDcTerminal2().getDcNode());
+        assertEquals("converterB", acDcConverterB.getId());
+        assertFalse(acDcConverterB.getDcTerminal1().isConnected());
+        assertFalse(acDcConverterB.getDcTerminal2().isConnected());
+        assertSame(dcNode1b, acDcConverterB.getDcTerminal1().getDcNode());
+        assertSame(dcNode2b, acDcConverterB.getDcTerminal2().getDcNode());
     }
 
     private DcLineCommutatedConverterAdder createDcLccAdder(VoltageLevel voltageLevel) {
@@ -275,7 +275,7 @@ public abstract class AbstractDcConverterTest {
                 .setIdleLoss(0.01)
                 .setSwitchingLoss(0.02)
                 .setResistiveLoss(0.03)
-                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.);
     }
@@ -315,7 +315,7 @@ public abstract class AbstractDcConverterTest {
                 .setIdleLoss(0.01)
                 .setSwitchingLoss(0.02)
                 .setResistiveLoss(0.03)
-                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.);
     }
@@ -352,48 +352,48 @@ public abstract class AbstractDcConverterTest {
 
     @Test
     public void testLossParametersGetterSetter() {
-        dcConverterA = createDcLccA(vla);
-        assertEquals(0.01, dcConverterA.getIdleLoss());
-        assertEquals(0.02, dcConverterA.getSwitchingLoss());
-        assertEquals(0.03, dcConverterA.getResistiveLoss());
-        dcConverterA
+        acDcConverterA = createDcLccA(vla);
+        assertEquals(0.01, acDcConverterA.getIdleLoss());
+        assertEquals(0.02, acDcConverterA.getSwitchingLoss());
+        assertEquals(0.03, acDcConverterA.getResistiveLoss());
+        acDcConverterA
                 .setIdleLoss(0.04)
                 .setSwitchingLoss(0.05)
                 .setResistiveLoss(0.06);
-        assertEquals(0.04, dcConverterA.getIdleLoss());
-        assertEquals(0.05, dcConverterA.getSwitchingLoss());
-        assertEquals(0.06, dcConverterA.getResistiveLoss());
-        dcConverterA
+        assertEquals(0.04, acDcConverterA.getIdleLoss());
+        assertEquals(0.05, acDcConverterA.getSwitchingLoss());
+        assertEquals(0.06, acDcConverterA.getResistiveLoss());
+        acDcConverterA
                 .setIdleLoss(0.)
                 .setSwitchingLoss(0.)
                 .setResistiveLoss(0.);
-        assertEquals(0., dcConverterA.getIdleLoss());
-        assertEquals(0., dcConverterA.getSwitchingLoss());
-        assertEquals(0., dcConverterA.getResistiveLoss());
+        assertEquals(0., acDcConverterA.getIdleLoss());
+        assertEquals(0., acDcConverterA.getSwitchingLoss());
+        assertEquals(0., acDcConverterA.getResistiveLoss());
 
-        PowsyblException e1 = assertThrows(PowsyblException.class, () -> dcConverterA.setIdleLoss(Double.NaN));
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> acDcConverterA.setIdleLoss(Double.NaN));
         assertEquals("DC Line Commutated Converter 'converterA': idleLoss is invalid", e1.getMessage());
 
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> dcConverterA.setIdleLoss(-1.0));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> acDcConverterA.setIdleLoss(-1.0));
         assertEquals("DC Line Commutated Converter 'converterA': idleLoss is invalid", e2.getMessage());
 
-        PowsyblException e3 = assertThrows(PowsyblException.class, () -> dcConverterA.setSwitchingLoss(Double.NaN));
+        PowsyblException e3 = assertThrows(PowsyblException.class, () -> acDcConverterA.setSwitchingLoss(Double.NaN));
         assertEquals("DC Line Commutated Converter 'converterA': switchingLoss is invalid", e3.getMessage());
 
-        PowsyblException e4 = assertThrows(PowsyblException.class, () -> dcConverterA.setSwitchingLoss(-1.0));
+        PowsyblException e4 = assertThrows(PowsyblException.class, () -> acDcConverterA.setSwitchingLoss(-1.0));
         assertEquals("DC Line Commutated Converter 'converterA': switchingLoss is invalid", e4.getMessage());
 
-        PowsyblException e5 = assertThrows(PowsyblException.class, () -> dcConverterA.setResistiveLoss(Double.NaN));
+        PowsyblException e5 = assertThrows(PowsyblException.class, () -> acDcConverterA.setResistiveLoss(Double.NaN));
         assertEquals("DC Line Commutated Converter 'converterA': resistiveLoss is invalid", e5.getMessage());
 
-        PowsyblException e6 = assertThrows(PowsyblException.class, () -> dcConverterA.setResistiveLoss(-1.0));
+        PowsyblException e6 = assertThrows(PowsyblException.class, () -> acDcConverterA.setResistiveLoss(-1.0));
         assertEquals("DC Line Commutated Converter 'converterA': resistiveLoss is invalid", e6.getMessage());
     }
 
     @Test
     public void testLccGetterSetter() {
-        dcConverterA = createDcLccA(vla);
-        DcLineCommutatedConverter lccA = (DcLineCommutatedConverter) dcConverterA;
+        acDcConverterA = createDcLccA(vla);
+        DcLineCommutatedConverter lccA = (DcLineCommutatedConverter) acDcConverterA;
 
         assertEquals(0.5, lccA.getPowerFactor());
         assertEquals(DcLineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR, lccA.getReactiveModel());
@@ -417,7 +417,7 @@ public abstract class AbstractDcConverterTest {
 
     @Test
     public void testCreateDuplicate() {
-        dcConverterA = createDcLccA(vla);
+        acDcConverterA = createDcLccA(vla);
 
         PowsyblException exception = assertThrows(PowsyblException.class, () -> createDcLccA(vla));
         assertTrue(Pattern.compile("The network test already contains an object '(\\w+)' with the id 'converterA'").matcher(exception.getMessage()).find());
@@ -425,20 +425,20 @@ public abstract class AbstractDcConverterTest {
 
     @Test
     public void testRemoveLcc() {
-        dcConverterA = createDcLccA(vla);
-        DcTerminal t1 = dcConverterA.getDcTerminal1();
-        DcTerminal t2 = dcConverterA.getDcTerminal2();
-        dcConverterB = createDcLccB(vlb);
+        acDcConverterA = createDcLccA(vla);
+        DcTerminal t1 = acDcConverterA.getDcTerminal1();
+        DcTerminal t2 = acDcConverterA.getDcTerminal2();
+        acDcConverterB = createDcLccB(vlb);
         assertEquals(2, network.getDcLineCommutatedConverterCount());
         assertEquals(1, vla.getDcLineCommutatedConverterCount());
         assertEquals(1, vlb.getDcLineCommutatedConverterCount());
-        dcConverterA.remove();
-        assertNull(network.getDcLineCommutatedConverter(dcConverterA.getId()));
+        acDcConverterA.remove();
+        assertNull(network.getDcLineCommutatedConverter(acDcConverterA.getId()));
         assertEquals(1, network.getDcLineCommutatedConverterCount());
         assertEquals(0, vla.getDcLineCommutatedConverterCount());
         assertEquals(0, ((Collection<?>) vla.getDcLineCommutatedConverters()).size());
-        dcConverterB.remove();
-        assertNull(network.getDcLineCommutatedConverter(dcConverterB.getId()));
+        acDcConverterB.remove();
+        assertNull(network.getDcLineCommutatedConverter(acDcConverterB.getId()));
         assertEquals(0, network.getDcLineCommutatedConverterCount());
         assertEquals(0, vlb.getDcLineCommutatedConverterCount());
         assertEquals(0, ((Collection<?>) vlb.getDcLineCommutatedConverters()).size());
@@ -448,20 +448,20 @@ public abstract class AbstractDcConverterTest {
 
     @Test
     public void testRemoveVsc() {
-        dcConverterA = createDcVscA(vla);
-        DcTerminal t1 = dcConverterA.getDcTerminal1();
-        DcTerminal t2 = dcConverterA.getDcTerminal2();
-        dcConverterB = createDcVscB(vlb);
+        acDcConverterA = createDcVscA(vla);
+        DcTerminal t1 = acDcConverterA.getDcTerminal1();
+        DcTerminal t2 = acDcConverterA.getDcTerminal2();
+        acDcConverterB = createDcVscB(vlb);
         assertEquals(2, network.getDcVoltageSourceConverterCount());
         assertEquals(1, vla.getDcVoltageSourceConverterCount());
         assertEquals(1, vlb.getDcVoltageSourceConverterCount());
-        dcConverterA.remove();
-        assertNull(network.getDcLineCommutatedConverter(dcConverterA.getId()));
+        acDcConverterA.remove();
+        assertNull(network.getDcLineCommutatedConverter(acDcConverterA.getId()));
         assertEquals(1, network.getDcVoltageSourceConverterCount());
         assertEquals(0, vla.getDcVoltageSourceConverterCount());
         assertEquals(0, ((Collection<?>) vla.getDcVoltageSourceConverters()).size());
-        dcConverterB.remove();
-        assertNull(network.getDcLineCommutatedConverter(dcConverterB.getId()));
+        acDcConverterB.remove();
+        assertNull(network.getDcLineCommutatedConverter(acDcConverterB.getId()));
         assertEquals(0, network.getDcVoltageSourceConverterCount());
         assertEquals(0, vlb.getDcVoltageSourceConverterCount());
         assertEquals(0, ((Collection<?>) vlb.getDcVoltageSourceConverters()).size());
@@ -470,22 +470,22 @@ public abstract class AbstractDcConverterTest {
     }
 
     private void checkCommonRemoveLccVsc(DcTerminal t1, DcTerminal t2) {
-        PowsyblException e1 = assertThrows(PowsyblException.class, () -> dcConverterA.setIdleLoss(2.));
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> acDcConverterA.setIdleLoss(2.));
         assertEquals("Cannot modify idleLoss of removed equipment converterA", e1.getMessage());
 
-        PowsyblException e2 = assertThrows(PowsyblException.class, dcConverterA::getIdleLoss);
+        PowsyblException e2 = assertThrows(PowsyblException.class, acDcConverterA::getIdleLoss);
         assertEquals("Cannot access idleLoss of removed equipment converterA", e2.getMessage());
 
-        PowsyblException e3 = assertThrows(PowsyblException.class, () -> dcConverterA.setSwitchingLoss(2.));
+        PowsyblException e3 = assertThrows(PowsyblException.class, () -> acDcConverterA.setSwitchingLoss(2.));
         assertEquals("Cannot modify switchingLoss of removed equipment converterA", e3.getMessage());
 
-        PowsyblException e4 = assertThrows(PowsyblException.class, dcConverterA::getSwitchingLoss);
+        PowsyblException e4 = assertThrows(PowsyblException.class, acDcConverterA::getSwitchingLoss);
         assertEquals("Cannot access switchingLoss of removed equipment converterA", e4.getMessage());
 
-        PowsyblException e5 = assertThrows(PowsyblException.class, () -> dcConverterA.setResistiveLoss(2.));
+        PowsyblException e5 = assertThrows(PowsyblException.class, () -> acDcConverterA.setResistiveLoss(2.));
         assertEquals("Cannot modify resistiveLoss of removed equipment converterA", e5.getMessage());
 
-        PowsyblException e6 = assertThrows(PowsyblException.class, dcConverterA::getResistiveLoss);
+        PowsyblException e6 = assertThrows(PowsyblException.class, acDcConverterA::getResistiveLoss);
         assertEquals("Cannot access resistiveLoss of removed equipment converterA", e6.getMessage());
 
         PowsyblException e7 = assertThrows(PowsyblException.class, t1::isConnected);
@@ -518,7 +518,7 @@ public abstract class AbstractDcConverterTest {
                 .setBus1(b1Subnet1.getId())
                 .setDcNode1Id(dcNode1Subnet1.getId())
                 .setDcNode2Id(dcNode2Subnet1.getId())
-                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
                 .add();
@@ -528,7 +528,7 @@ public abstract class AbstractDcConverterTest {
                 .setBus1(b1Subnet2.getId())
                 .setDcNode1Id(dcNode1Subnet2.getId())
                 .setDcNode2Id(dcNode2Subnet2.getId())
-                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
                 .add();
@@ -589,7 +589,7 @@ public abstract class AbstractDcConverterTest {
                 .setBus1(b1Subnet1.getId())
                 .setDcNode1Id(dcNode1Subnet1.getId())
                 .setDcNode2Id(dcNode2Subnet1.getId())
-                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
                 .setVoltageRegulatorOn(false)
@@ -601,7 +601,7 @@ public abstract class AbstractDcConverterTest {
                 .setBus1(b1Subnet2.getId())
                 .setDcNode1Id(dcNode1Subnet2.getId())
                 .setDcNode2Id(dcNode2Subnet2.getId())
-                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
                 .setVoltageRegulatorOn(false)
@@ -661,7 +661,7 @@ public abstract class AbstractDcConverterTest {
                 .setBus1(b1Subnet1.getId())
                 .setDcNode1Id(dcNode1Subnet1.getId())
                 .setDcNode2Id(dcNode1Subnet2.getId())
-                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
                 .setVoltageRegulatorOn(false)
@@ -684,8 +684,8 @@ public abstract class AbstractDcConverterTest {
 
     @Test
     public void testVscReactiveLimits() {
-        dcConverterA = createDcVscA(vla);
-        DcVoltageSourceConverter vsc = (DcVoltageSourceConverter) dcConverterA;
+        acDcConverterA = createDcVscA(vla);
+        DcVoltageSourceConverter vsc = (DcVoltageSourceConverter) acDcConverterA;
 
         assertSame(ReactiveLimitsKind.MIN_MAX, vsc.getReactiveLimits().getKind());
         assertEquals(-Double.MAX_VALUE, vsc.getReactiveLimits().getMinQ(0));
@@ -717,7 +717,7 @@ public abstract class AbstractDcConverterTest {
         PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Line Commutated Converter 'converterA': controlMode is not set", e1.getMessage());
 
-        adder.setControlMode(DcConverter.ControlMode.V_DC);
+        adder.setControlMode(AcDcConverter.ControlMode.V_DC);
         PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Line Commutated Converter 'converterA': targetP is not set", e2.getMessage());
 
@@ -763,30 +763,30 @@ public abstract class AbstractDcConverterTest {
 
     @Test
     public void testSingleAcTerminal() {
-        dcConverterA = vla.newDcVoltageSourceConverter()
+        acDcConverterA = vla.newDcVoltageSourceConverter()
                 .setId("converterA")
                 .setBus1(b1a.getId())
                 .setDcNode1Id(dcNode1a.getId())
                 .setDcNode2Id(dcNode2a.getId())
-                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
                 .setVoltageRegulatorOn(false)
                 .setReactivePowerSetpoint(0.0)
                 .add();
-        assertTrue(dcConverterA.getTerminal2().isEmpty());
-        assertNull(dcConverterA.getTerminal(TwoSides.TWO));
-        assertSame(dcConverterA.getPccTerminal(), dcConverterA.getTerminal1());
+        assertTrue(acDcConverterA.getTerminal2().isEmpty());
+        assertNull(acDcConverterA.getTerminal(TwoSides.TWO));
+        assertSame(acDcConverterA.getPccTerminal(), acDcConverterA.getTerminal1());
     }
 
     @Test
     public void testSetterGetterInMultiVariants() {
-        dcConverterA = vla.newDcVoltageSourceConverter()
+        acDcConverterA = vla.newDcVoltageSourceConverter()
                 .setId("converterA")
                 .setBus1(b1a.getId())
                 .setDcNode1Id(dcNode1a.getId())
                 .setDcNode2Id(dcNode2a.getId())
-                .setControlMode(DcConverter.ControlMode.P_PCC)
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
                 .setVoltageRegulatorOn(false)
@@ -798,13 +798,13 @@ public abstract class AbstractDcConverterTest {
 
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
-        assertEquals(DcConverter.ControlMode.P_PCC, dcConverterA.getControlMode());
-        assertEquals(100.0, dcConverterA.getTargetP(), 0.0);
-        assertEquals(500.0, dcConverterA.getTargetVdc(), 0.0);
+        assertEquals(AcDcConverter.ControlMode.P_PCC, acDcConverterA.getControlMode());
+        assertEquals(100.0, acDcConverterA.getTargetP(), 0.0);
+        assertEquals(500.0, acDcConverterA.getTargetVdc(), 0.0);
         // change values in s4
-        dcConverterA.setControlMode(DcConverter.ControlMode.V_DC);
-        dcConverterA.setTargetP(-50.);
-        dcConverterA.setTargetVdc(495.);
+        acDcConverterA.setControlMode(AcDcConverter.ControlMode.V_DC);
+        acDcConverterA.setTargetP(-50.);
+        acDcConverterA.setTargetVdc(495.);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -812,21 +812,21 @@ public abstract class AbstractDcConverterTest {
         variantManager.cloneVariant("s4", "s2b");
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
-        assertEquals(DcConverter.ControlMode.V_DC, dcConverterA.getControlMode());
-        assertEquals(-50., dcConverterA.getTargetP(), 0.0);
-        assertEquals(495., dcConverterA.getTargetVdc(), 0.0);
+        assertEquals(AcDcConverter.ControlMode.V_DC, acDcConverterA.getControlMode());
+        assertEquals(-50., acDcConverterA.getTargetP(), 0.0);
+        assertEquals(495., acDcConverterA.getTargetVdc(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertEquals(DcConverter.ControlMode.P_PCC, dcConverterA.getControlMode());
-        assertEquals(100.0, dcConverterA.getTargetP(), 0.0);
-        assertEquals(500.0, dcConverterA.getTargetVdc(), 0.0);
+        assertEquals(AcDcConverter.ControlMode.P_PCC, acDcConverterA.getControlMode());
+        assertEquals(100.0, acDcConverterA.getTargetP(), 0.0);
+        assertEquals(500.0, acDcConverterA.getTargetVdc(), 0.0);
 
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        assertThrows(PowsyblException.class, dcConverterA::getControlMode, "Variant index not set");
-        assertThrows(PowsyblException.class, dcConverterA::getTargetP, "Variant index not set");
-        assertThrows(PowsyblException.class, dcConverterA::getTargetVdc, "Variant index not set");
+        assertThrows(PowsyblException.class, acDcConverterA::getControlMode, "Variant index not set");
+        assertThrows(PowsyblException.class, acDcConverterA::getTargetP, "Variant index not set");
+        assertThrows(PowsyblException.class, acDcConverterA::getTargetVdc, "Variant index not set");
     }
 }

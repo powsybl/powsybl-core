@@ -129,7 +129,7 @@ package com.powsybl.iidm.network;
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcVoltageSourceConverter extends DcConverter<DcVoltageSourceConverter>, ReactiveLimitsHolder {
+public interface DcVoltageSourceConverter extends AcDcConverter<DcVoltageSourceConverter>, ReactiveLimitsHolder {
 
     @Override
     default IdentifiableType getType() {

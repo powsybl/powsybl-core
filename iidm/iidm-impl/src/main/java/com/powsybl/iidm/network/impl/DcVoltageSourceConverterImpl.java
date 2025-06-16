@@ -16,7 +16,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class DcVoltageSourceConverterImpl extends AbstractDcConverter<DcVoltageSourceConverter> implements DcVoltageSourceConverter, ReactiveLimitsOwner {
+public class DcVoltageSourceConverterImpl extends AbstractAcDcConverter<DcVoltageSourceConverter> implements DcVoltageSourceConverter, ReactiveLimitsOwner {
 
     public static final String VOLTAGE_REGULATOR_ON_ATTRIBUTE = "voltageRegulatorOn";
     public static final String VOLTAGE_SETPOINT_ATTRIBUTE = "voltageSetpoint";

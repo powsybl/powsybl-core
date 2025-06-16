@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.tck.AbstractDcConverterTest;
+import com.powsybl.iidm.network.tck.AbstractAcDcConverterTest;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-class DcConverterTest extends AbstractDcConverterTest { }
+class AcDcConverterTest extends AbstractAcDcConverterTest { }

@@ -74,7 +74,7 @@ public class DefaultTopologyVisitor implements TopologyVisitor {
     }
 
     @Override
-    public void visitDcConverter(DcConverter<?> converter, TwoSides side) {
+    public void visitAcDcConverter(AcDcConverter<?> converter, TwoSides side) {
         // empty default implementation
     }
 }

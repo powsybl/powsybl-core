@@ -19,7 +19,7 @@ import java.util.Optional;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractConnectable<I> implements DcConverter<I>, MultiVariantObject {
+abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends AbstractConnectable<I> implements AcDcConverter<I>, MultiVariantObject {
 
     public static final String IDLE_LOSS = "idleLoss";
     public static final String SWITCHING_LOSS = "switchingLoss";
@@ -42,9 +42,9 @@ abstract class AbstractDcConverter<I extends DcConverter<I>> extends AbstractCon
 
     private final TDoubleArrayList targetVdc;
 
-    AbstractDcConverter(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
-                        double idleLoss, double switchingLoss, double resistiveLoss,
-                        TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc) {
+    AbstractAcDcConverter(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
+                          double idleLoss, double switchingLoss, double resistiveLoss,
+                          TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc) {
         super(ref, id, name, fictitious);
         this.idleLoss = idleLoss;
         this.switchingLoss = switchingLoss;

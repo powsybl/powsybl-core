@@ -16,7 +16,7 @@ import java.util.Optional;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> extends AbstractIdentifiableAdder<T> {
+abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T>> extends AbstractIdentifiableAdder<T> {
 
     protected String dcNode1Id;
     protected boolean dcConnected1 = true;
@@ -42,11 +42,11 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
     protected double resistiveLoss = 0.;
 
     protected TerminalExt pccTerminal;
-    protected DcConverter.ControlMode controlMode;
+    protected AcDcConverter.ControlMode controlMode;
     protected double targetP = Double.NaN;
     protected double targetVdc = Double.NaN;
 
-    AbstractDcConverterAdder(VoltageLevelExt voltageLevel) {
+    AbstractAcDcConverterAdder(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
     }
 
@@ -143,7 +143,7 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
         return self();
     }
 
-    public T setControlMode(DcConverter.ControlMode controlMode) {
+    public T setControlMode(AcDcConverter.ControlMode controlMode) {
         this.controlMode = controlMode;
         return self();
     }
@@ -176,7 +176,7 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
             var c = pccTerminal.getConnectable();
             if (twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer)) {
                 throw new ValidationException(this, "converter has two AC terminals and pccTerminal is not a line or transformer terminal");
-            } else if (!twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer || c instanceof DcConverter<?>)) {
+            } else if (!twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer || c instanceof AcDcConverter<?>)) {
                 throw new ValidationException(this, "pccTerminal is not a line or transformer or the converter terminal");
             }
             if (c.getParentNetwork() != voltageLevel.getParentNetwork()) {
@@ -185,7 +185,7 @@ abstract class AbstractDcConverterAdder<T extends AbstractDcConverterAdder<T>> e
         }
     }
 
-    protected void checkAndAdd(AbstractDcConverter<?> dcConverter) {
+    protected void checkAndAdd(AbstractAcDcConverter<?> dcConverter) {
         TerminalExt terminal1 = checkAndGetTerminal1();
         DcNode dcNode1 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode1Id, "dcNode1Id");
         DcNode dcNode2 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode2Id, "dcNode2Id");

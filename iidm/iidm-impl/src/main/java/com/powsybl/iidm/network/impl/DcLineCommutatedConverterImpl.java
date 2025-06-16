@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class DcLineCommutatedConverterImpl extends AbstractDcConverter<DcLineCommutatedConverter> implements DcLineCommutatedConverter {
+public class DcLineCommutatedConverterImpl extends AbstractAcDcConverter<DcLineCommutatedConverter> implements DcLineCommutatedConverter {
 
     public static final String REACTIVE_MODEL_ATTRIBUTE = "reactiveModel";
     public static final String POWER_FACTOR_ATTRIBUTE = "powerFactor";

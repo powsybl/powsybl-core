@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class DcVoltageSourceConverterAdderImpl extends AbstractDcConverterAdder<DcVoltageSourceConverterAdderImpl> implements DcVoltageSourceConverterAdder {
+public class DcVoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<DcVoltageSourceConverterAdderImpl> implements DcVoltageSourceConverterAdder {
 
     private Boolean voltageRegulatorOn;
     private double voltageSetpoint = Double.NaN;

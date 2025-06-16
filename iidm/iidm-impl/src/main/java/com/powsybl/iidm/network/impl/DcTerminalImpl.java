@@ -159,7 +159,7 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     NetworkImpl getNetwork() {
         if (dcConnectable instanceof AbstractDcConnectable<?> abstractDcConnectable) {
             return abstractDcConnectable.getNetwork();
-        } else if (dcConnectable instanceof AbstractDcConverter<?> abstractDcConverter) {
+        } else if (dcConnectable instanceof AbstractAcDcConverter<?> abstractDcConverter) {
             return abstractDcConverter.getNetwork();
         }
         throw new IllegalStateException("Unexpected dcConnectable type: " + dcConnectable.getClass().getName());

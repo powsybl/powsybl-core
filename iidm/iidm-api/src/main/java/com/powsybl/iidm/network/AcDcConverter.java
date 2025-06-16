@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcConverter<I extends DcConverter<I>> extends Connectable<I>, DcConnectable<I> {
+public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I>, DcConnectable<I> {
 
     /**
      * Control Mode of the DC converter

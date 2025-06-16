@@ -235,8 +235,8 @@ public interface Terminal {
             return Optional.of(branch.getSide(terminal).toThreeSides());
         } else if (c instanceof ThreeWindingsTransformer transformer) {
             return Optional.of(transformer.getSide(terminal));
-        } else if (c instanceof DcConverter<?> dcConverter) {
-            return Optional.of(dcConverter.getSide(terminal).toThreeSides());
+        } else if (c instanceof AcDcConverter<?> acDcConverter) {
+            return Optional.of(acDcConverter.getSide(terminal).toThreeSides());
         } else {
             throw new IllegalStateException("Unexpected Connectable instance: " + c.getClass());
         }
@@ -249,8 +249,8 @@ public interface Terminal {
             return branch.getTerminal(side.toTwoSides());
         } else if (identifiable instanceof ThreeWindingsTransformer transformer) {
             return transformer.getTerminal(side);
-        } else if (identifiable instanceof DcConverter<?> dcConverter) {
-            return dcConverter.getTerminal(side.toTwoSides());
+        } else if (identifiable instanceof AcDcConverter<?> acDcConverter) {
+            return acDcConverter.getTerminal(side.toTwoSides());
         } else {
             throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
         }

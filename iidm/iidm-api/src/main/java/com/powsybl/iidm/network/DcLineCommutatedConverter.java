@@ -121,7 +121,7 @@ package com.powsybl.iidm.network;
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcLineCommutatedConverter extends DcConverter<DcLineCommutatedConverter> {
+public interface DcLineCommutatedConverter extends AcDcConverter<DcLineCommutatedConverter> {
 
     /**
      * LCC reactive power consumption model

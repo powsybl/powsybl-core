@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class DcLineCommutatedConverterAdderImpl extends AbstractDcConverterAdder<DcLineCommutatedConverterAdderImpl> implements DcLineCommutatedConverterAdder {
+public class DcLineCommutatedConverterAdderImpl extends AbstractAcDcConverterAdder<DcLineCommutatedConverterAdderImpl> implements DcLineCommutatedConverterAdder {
 
     private DcLineCommutatedConverter.ReactiveModel reactiveModel = DcLineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR;
 

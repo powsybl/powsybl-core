@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcConverterAdder<T extends DcConverter<? super T> & Connectable<? super T> & DcConnectable<? super T>, A extends DcConverterAdder> extends IdentifiableAdder<T, A> {
+public interface AcDcConverterAdder<T extends AcDcConverter<? super T> & Connectable<? super T> & DcConnectable<? super T>, A extends AcDcConverterAdder> extends IdentifiableAdder<T, A> {
 
     A setNode1(int node1);
 
@@ -40,7 +40,7 @@ public interface DcConverterAdder<T extends DcConverter<? super T> & Connectable
 
     A setPccTerminal(Terminal pccTerminal);
 
-    A setControlMode(DcConverter.ControlMode controlMode);
+    A setControlMode(AcDcConverter.ControlMode controlMode);
 
     A setTargetP(double targetP);
 
