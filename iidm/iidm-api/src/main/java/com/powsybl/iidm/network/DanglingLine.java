@@ -316,7 +316,7 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
         if (this.getGeneration() != null) {
             double q = this.getTerminal().getQ();
             if (!Double.isNaN(q)) {
-                this.getGeneration().setTargetQ(q);
+                this.getGeneration().setTargetQ(-q);
             }
         }
     }

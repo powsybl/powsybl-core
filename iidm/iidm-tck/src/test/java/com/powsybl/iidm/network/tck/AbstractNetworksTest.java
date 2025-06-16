@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
+import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.util.Networks;
@@ -98,5 +99,25 @@ public abstract class AbstractNetworksTest {
         Networks.applySolvedValues(network);
         assertEquals(battery.getTerminal().getP(), battery.getTargetP());
         assertEquals(battery.getTerminal().getQ(), battery.getTargetQ());
+    }
+
+    @Test
+    public void applySolvedValuesDanglingLine() {
+        Network network = DanglingLineNetworkFactory.createWithGeneration();
+        DanglingLine dl = network.getDanglingLine("DL");
+        dl.getTerminal().setP(441).setQ(30);
+        dl.getTerminal().getBusView().getBus().setV(100);
+        assertNotEquals(-dl.getTerminal().getP(), dl.getGeneration().getTargetP());
+        assertNotEquals(dl.getTerminal().getBusView().getBus().getV(), dl.getGeneration().getTargetV());
+
+        Networks.applySolvedValues(network);
+        assertEquals(-dl.getTerminal().getP(), dl.getGeneration().getTargetP());
+        assertEquals(dl.getTerminal().getBusView().getBus().getV(), dl.getGeneration().getTargetV());
+
+        dl.getGeneration().setVoltageRegulationOn(false).setTargetV(Double.NaN).setTargetQ(35);
+        assertNotEquals(dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
+
+        Networks.applySolvedValues(network);
+        assertEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
     }
 }
