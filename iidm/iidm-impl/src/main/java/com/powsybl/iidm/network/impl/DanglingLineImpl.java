@@ -438,7 +438,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public DanglingLine setCountryFrom(String countryFrom) {
-        this.countryFrom =  countryFrom;
+        this.countryFrom = countryFrom;
         return this;
     }
 
@@ -449,7 +449,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public DanglingLine setCountryTo(String countryTo) {
-        this.countryTo =  countryTo;
+        this.countryTo = countryTo;
         return this;
     }
 
