@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class DcLineCommutatedConverterImpl extends AbstractAcDcConverter<DcLineCommutatedConverter> implements DcLineCommutatedConverter {
+public class LineCommutatedConverterImpl extends AbstractAcDcConverter<LineCommutatedConverter> implements LineCommutatedConverter {
 
     public static final String REACTIVE_MODEL_ATTRIBUTE = "reactiveModel";
     public static final String POWER_FACTOR_ATTRIBUTE = "powerFactor";
@@ -22,9 +22,9 @@ public class DcLineCommutatedConverterImpl extends AbstractAcDcConverter<DcLineC
 
     private double powerFactor;
 
-    DcLineCommutatedConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
-                                  double idleLoss, double switchingLoss, double resistiveLoss,
-                                  TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc, ReactiveModel reactiveModel, double powerFactor) {
+    LineCommutatedConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
+                                double idleLoss, double switchingLoss, double resistiveLoss,
+                                TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc, ReactiveModel reactiveModel, double powerFactor) {
         super(ref, id, name, fictitious, idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc);
         this.reactiveModel = reactiveModel;
@@ -33,7 +33,7 @@ public class DcLineCommutatedConverterImpl extends AbstractAcDcConverter<DcLineC
 
     @Override
     protected String getTypeDescription() {
-        return "DC Line Commutated Converter";
+        return "AC/DC Line Commutated Converter";
     }
 
     @Override
@@ -43,7 +43,7 @@ public class DcLineCommutatedConverterImpl extends AbstractAcDcConverter<DcLineC
     }
 
     @Override
-    public DcLineCommutatedConverter setReactiveModel(ReactiveModel reactiveModel) {
+    public LineCommutatedConverter setReactiveModel(ReactiveModel reactiveModel) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, REACTIVE_MODEL_ATTRIBUTE);
         ValidationUtil.checkLccReactiveModel(this, reactiveModel);
         ReactiveModel oldValue = this.reactiveModel;
@@ -59,7 +59,7 @@ public class DcLineCommutatedConverterImpl extends AbstractAcDcConverter<DcLineC
     }
 
     @Override
-    public DcLineCommutatedConverter setPowerFactor(double powerFactor) {
+    public LineCommutatedConverter setPowerFactor(double powerFactor) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, POWER_FACTOR_ATTRIBUTE);
         ValidationUtil.checkPositivePowerFactor(this, powerFactor);
         double oldValue = this.powerFactor;
@@ -69,7 +69,7 @@ public class DcLineCommutatedConverterImpl extends AbstractAcDcConverter<DcLineC
     }
 
     @Override
-    protected DcLineCommutatedConverter self() {
+    protected LineCommutatedConverter self() {
         return this;
     }
 }

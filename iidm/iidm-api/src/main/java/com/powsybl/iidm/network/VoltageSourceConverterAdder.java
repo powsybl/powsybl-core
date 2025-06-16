@@ -10,10 +10,12 @@ package com.powsybl.iidm.network;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcLineCommutatedConverterAdder extends AcDcConverterAdder<DcLineCommutatedConverter, DcLineCommutatedConverterAdder> {
+public interface VoltageSourceConverterAdder extends AcDcConverterAdder<VoltageSourceConverter, VoltageSourceConverterAdder> {
 
-    DcLineCommutatedConverterAdder setReactiveModel(DcLineCommutatedConverter.ReactiveModel reactiveModel);
+    VoltageSourceConverterAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
-    DcLineCommutatedConverterAdder setPowerFactor(double powerFactor);
+    VoltageSourceConverterAdder setVoltageSetpoint(double voltageSetpoint);
+
+    VoltageSourceConverterAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
 }

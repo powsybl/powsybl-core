@@ -12,41 +12,41 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class DcVoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<DcVoltageSourceConverterAdderImpl> implements DcVoltageSourceConverterAdder {
+public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<VoltageSourceConverterAdderImpl> implements VoltageSourceConverterAdder {
 
     private Boolean voltageRegulatorOn;
     private double voltageSetpoint = Double.NaN;
     private double reactivePowerSetpoint = Double.NaN;
 
-    DcVoltageSourceConverterAdderImpl(VoltageLevelExt voltageLevel) {
+    VoltageSourceConverterAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
     }
 
     @Override
     protected String getTypeDescription() {
-        return "DC Voltage Source Converter";
+        return "AC/DC Voltage Source Converter";
     }
 
     @Override
-    public DcVoltageSourceConverterAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+    public VoltageSourceConverterAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         this.voltageRegulatorOn = voltageRegulatorOn;
         return this;
     }
 
     @Override
-    public DcVoltageSourceConverterAdder setVoltageSetpoint(double voltageSetpoint) {
+    public VoltageSourceConverterAdder setVoltageSetpoint(double voltageSetpoint) {
         this.voltageSetpoint = voltageSetpoint;
         return this;
     }
 
     @Override
-    public DcVoltageSourceConverterAdder setReactivePowerSetpoint(double reactivePowerSetpoint) {
+    public VoltageSourceConverterAdder setReactivePowerSetpoint(double reactivePowerSetpoint) {
         this.reactivePowerSetpoint = reactivePowerSetpoint;
         return this;
     }
 
     @Override
-    public DcVoltageSourceConverter add() {
+    public VoltageSourceConverter add() {
         // TODO checks
         // TODO / note: dcNodes and voltage level must be in same network
         String id = checkAndGetUniqueId();
@@ -58,7 +58,7 @@ public class DcVoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdde
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint,
                 reactivePowerSetpoint, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkRegulatingTerminal(this, this.pccTerminal, network);
-        DcVoltageSourceConverterImpl dcVsConverter = new DcVoltageSourceConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
+        VoltageSourceConverterImpl dcVsConverter = new VoltageSourceConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
                 idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc,
                 voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint);
@@ -67,7 +67,7 @@ public class DcVoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdde
     }
 
     @Override
-    protected DcVoltageSourceConverterAdderImpl self() {
+    protected VoltageSourceConverterAdderImpl self() {
         return this;
     }
 }

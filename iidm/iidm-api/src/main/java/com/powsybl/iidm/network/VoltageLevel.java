@@ -1316,46 +1316,46 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getGroundCount();
 
     /**
-     * Get a builder to create a new DC Line-Commutated Converter.
-     * @return a builder to create a new DC Line-Commutated Converter
+     * Get a builder to create a new AC/DC Line-Commutated Converter.
+     * @return a builder to create a new AC/DC Line-Commutated Converter
      */
-    DcLineCommutatedConverterAdder newDcLineCommutatedConverter();
+    LineCommutatedConverterAdder newLineCommutatedConverter();
 
     /**
-     * Get DC Line-Commutated Converters connected to this voltage level.
+     * Get AC/DC Line-Commutated Converters connected to this voltage level.
      */
-    Iterable<DcLineCommutatedConverter> getDcLineCommutatedConverters();
+    Iterable<LineCommutatedConverter> getLineCommutatedConverters();
 
     /**
-     * Get DC Line-Commutated Converters connected to this voltage level.
+     * Get AC/DC Line-Commutated Converters connected to this voltage level.
      */
-    Stream<DcLineCommutatedConverter> getDcLineCommutatedConverterStream();
+    Stream<LineCommutatedConverter> getLineCommutatedConverterStream();
 
     /**
-     * Get DC Line-Commutated Converter connected to this voltage level count.
+     * Get AC/DC Line-Commutated Converter connected to this voltage level count.
      */
-    int getDcLineCommutatedConverterCount();
+    int getLineCommutatedConverterCount();
 
     /**
-     * Get a builder to create a new DC Voltage-Source Converter.
-     * @return a builder to create a new DC Voltage-Source Converter
+     * Get a builder to create a new AC/DC Voltage-Source Converter.
+     * @return a builder to create a new AC/DC Voltage-Source Converter
      */
-    DcVoltageSourceConverterAdder newDcVoltageSourceConverter();
+    VoltageSourceConverterAdder newVoltageSourceConverter();
 
     /**
-     * Get DC Voltage-Source Converters connected to this voltage level.
+     * Get AC/DC Voltage-Source Converters connected to this voltage level.
      */
-    Iterable<DcVoltageSourceConverter> getDcVoltageSourceConverters();
+    Iterable<VoltageSourceConverter> getVoltageSourceConverters();
 
     /**
-     * Get DC Voltage-Source Converters connected to this voltage level.
+     * Get AC/DC Voltage-Source Converters connected to this voltage level.
      */
-    Stream<DcVoltageSourceConverter> getDcVoltageSourceConverterStream();
+    Stream<VoltageSourceConverter> getVoltageSourceConverterStream();
 
     /**
-     * Get DC Voltage-Source Converter connected to this voltage level count.
+     * Get AC/DC Voltage-Source Converter connected to this voltage level count.
      */
-    int getDcVoltageSourceConverterCount();
+    int getVoltageSourceConverterCount();
 
     /**
      * Remove this voltage level from the network.

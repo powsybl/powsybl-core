@@ -8,9 +8,9 @@
 package com.powsybl.iidm.network;
 
 /**
- * DC Line Commutated Converter, also called Current Source Converter
+ * AC/DC Voltage Source Converter
  *
- * <p> To create a DcLineCommutatedConverter, see {@link DcLineCommutatedConverterAdder}
+ * <p> To create a VoltageSourceConverter, see {@link VoltageSourceConverterAdder}
  *
  * <p>
  *  Characteristics
@@ -101,68 +101,77 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">DC voltage target</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">ReactiveModel</td>
- *             <td style="border: 1px solid black">ReactiveModel</td>
+ *             <td style="border: 1px solid black">VoltageRegulatorOn</td>
+ *             <td style="border: 1px solid black">boolean</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The converter's reactive model</td>
+ *             <td style="border: 1px solid black">The voltage regulator status</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">PowerFactor</td>
+ *             <td style="border: 1px solid black">VoltageSetpoint</td>
  *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">-</td>
- *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">only if VoltageRegulatorOn is set to true</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The power factor</td>
+ *             <td style="border: 1px solid black">The AC voltage setpoint</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">ReactivePowerSetpoint</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">MVar</td>
+ *             <td style="border: 1px solid black">only if VoltageRegulatorOn is set to false</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">The reactive power setpoint</td>
  *         </tr>
  *     </tbody>
  * </table>
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcLineCommutatedConverter extends AcDcConverter<DcLineCommutatedConverter> {
-
-    /**
-     * LCC reactive power consumption model
-     */
-    enum ReactiveModel {
-        /**
-         * use a fixed configured power factor
-         */
-        FIXED_POWER_FACTOR,
-        /**
-         * use a calculated power factor
-         */
-        CALCULATED_POWER_FACTOR,
-    }
+public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConverter>, ReactiveLimitsHolder {
 
     @Override
     default IdentifiableType getType() {
-        return IdentifiableType.DC_LINE_COMMUTATED_CONVERTER;
+        return IdentifiableType.VOLTAGE_SOURCE_CONVERTER;
     }
 
     /**
-     * @return the reactive model
+     * Check if voltage regulator is on.
+     * @return true if voltage regulator is on, false otherwise
      */
-    ReactiveModel getReactiveModel();
+    boolean isVoltageRegulatorOn();
 
     /**
-     * @param reactiveModel new reactive model
-     * @return self for method chaining
+     * Set voltage regulator status.
+     * @param voltageRegulatorOn the new voltage regulator status
+     * @return the converter itself to allow method chaining
      */
-    DcLineCommutatedConverter setReactiveModel(ReactiveModel reactiveModel);
+    VoltageSourceConverter setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
-     * Get power factor (ratio of the active power and the apparent power)
-     * @return the power factor.
+     * Get the AC voltage setpoint (kV).
+     * @return the voltage setpoint
      */
-    double getPowerFactor();
+    double getVoltageSetpoint();
 
     /**
-     * Set the power factor. Has to be greater that zero.
-     * @param powerFactor the new power factor
-     * @return self for method chaining
+     * Set the AC voltage setpoint (kV).
+     * @param voltageSetpoint the voltage setpoint
+     * @return the converter itself to allow method chaining
      */
-    DcLineCommutatedConverter setPowerFactor(double powerFactor);
+    VoltageSourceConverter setVoltageSetpoint(double voltageSetpoint);
+
+    /**
+     * Get the reactive power setpoint (MVar).
+     * @return the reactive power setpoint
+     */
+    double getReactivePowerSetpoint();
+
+    /**
+     * Set the reactive power setpoint (MVar).
+     * @param reactivePowerSetpoint the reactive power setpoint
+     * @return the converter itself to allow method chaining
+     */
+    VoltageSourceConverter setReactivePowerSetpoint(double reactivePowerSetpoint);
 }

@@ -478,7 +478,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                             feederCount++;
                         }
                         case LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR,
-                             DC_LINE_COMMUTATED_CONVERTER, DC_VOLTAGE_SOURCE_CONVERTER -> feederCount++;
+                             LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> feederCount++;
                         case BUSBAR_SECTION -> busbarSectionCount++;
                         case GROUND -> {
                             // Do nothing

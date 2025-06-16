@@ -797,44 +797,44 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public Iterable<DcLineCommutatedConverter> getDcLineCommutatedConverters() {
-        return getDcLineCommutatedConverterStream().toList();
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        return getLineCommutatedConverterStream().toList();
     }
 
     @Override
-    public Stream<DcLineCommutatedConverter> getDcLineCommutatedConverterStream() {
-        return getNetwork().getDcLineCommutatedConverterStream().filter(this::contains);
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        return getNetwork().getLineCommutatedConverterStream().filter(this::contains);
     }
 
     @Override
-    public int getDcLineCommutatedConverterCount() {
-        return (int) getDcLineCommutatedConverterStream().count();
+    public int getLineCommutatedConverterCount() {
+        return (int) getLineCommutatedConverterStream().count();
     }
 
     @Override
-    public DcLineCommutatedConverter getDcLineCommutatedConverter(String id) {
-        DcLineCommutatedConverter c = getNetwork().getDcLineCommutatedConverter(id);
+    public LineCommutatedConverter getLineCommutatedConverter(String id) {
+        LineCommutatedConverter c = getNetwork().getLineCommutatedConverter(id);
         return contains(c) ? c : null;
     }
 
     @Override
-    public Iterable<DcVoltageSourceConverter> getDcVoltageSourceConverters() {
-        return getDcVoltageSourceConverterStream().toList();
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        return getVoltageSourceConverterStream().toList();
     }
 
     @Override
-    public Stream<DcVoltageSourceConverter> getDcVoltageSourceConverterStream() {
-        return getNetwork().getDcVoltageSourceConverterStream().filter(this::contains);
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        return getNetwork().getVoltageSourceConverterStream().filter(this::contains);
     }
 
     @Override
-    public int getDcVoltageSourceConverterCount() {
-        return (int) getDcVoltageSourceConverterStream().count();
+    public int getVoltageSourceConverterCount() {
+        return (int) getVoltageSourceConverterStream().count();
     }
 
     @Override
-    public DcVoltageSourceConverter getDcVoltageSourceConverter(String id) {
-        DcVoltageSourceConverter c = getNetwork().getDcVoltageSourceConverter(id);
+    public VoltageSourceConverter getVoltageSourceConverter(String id) {
+        VoltageSourceConverter c = getNetwork().getVoltageSourceConverter(id);
         return contains(c) ? c : null;
     }
 

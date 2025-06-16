@@ -292,7 +292,7 @@ public final class DcDetailedNetworkFactory {
                 .setConnected2(true)
                 .setR(5.0)
                 .add();
-        dcNetwork.getVoltageLevel("VLDC-FR-xNodeDc1fr-150").newDcLineCommutatedConverter()
+        dcNetwork.getVoltageLevel("VLDC-FR-xNodeDc1fr-150").newLineCommutatedConverter()
                 .setId("CsFr")
                 .setBus1("BUSDC-FR-xNodeDc1fr-150-1")
                 .setBus2("BUSDC-FR-xNodeDc1fr-150-2")
@@ -303,7 +303,7 @@ public final class DcDetailedNetworkFactory {
                 .setTargetVdc(500.)
                 .setTargetP(200.)
                 .add();
-        dcNetwork.getVoltageLevel("VLDC-GB-xNodeDc1gb-150").newDcLineCommutatedConverter()
+        dcNetwork.getVoltageLevel("VLDC-GB-xNodeDc1gb-150").newLineCommutatedConverter()
                 .setId("CsGb")
                 .setBus1("BUSDC-GB-xNodeDc1gb-150-1")
                 .setBus2("BUSDC-GB-xNodeDc1gb-150-2")
@@ -383,7 +383,7 @@ public final class DcDetailedNetworkFactory {
                 .setR(5.0)
                 .add();
         Terminal frPccTerminal = dcNetwork.getTwoWindingsTransformer("TRDC-FR-xNodeDc1fr").getTerminal1();
-        dcNetwork.getVoltageLevel("VLDC-FR-xNodeDc1fr-150").newDcVoltageSourceConverter()
+        dcNetwork.getVoltageLevel("VLDC-FR-xNodeDc1fr-150").newVoltageSourceConverter()
                 .setId("VsFr")
                 .setBus1("BUSDC-FR-xNodeDc1fr-150")
                 .setDcNode1Id(dcNodeFrNeg.getId())
@@ -397,7 +397,7 @@ public final class DcDetailedNetworkFactory {
                 .setVoltageSetpoint(400.)
                 .add();
         Terminal gbPccTerminal = dcNetwork.getTwoWindingsTransformer("TRDC-GB-xNodeDc1gb").getTerminal1();
-        dcNetwork.getVoltageLevel("VLDC-GB-xNodeDc1gb-150").newDcVoltageSourceConverter()
+        dcNetwork.getVoltageLevel("VLDC-GB-xNodeDc1gb-150").newVoltageSourceConverter()
                 .setId("VsGb")
                 .setBus1("BUSDC-GB-xNodeDc1gb-150")
                 .setDcNode1Id(dcNodeGbNeg.getId())

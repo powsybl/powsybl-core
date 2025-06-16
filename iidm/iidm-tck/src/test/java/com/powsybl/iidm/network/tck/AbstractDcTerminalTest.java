@@ -47,7 +47,7 @@ public abstract class AbstractDcTerminalTest {
         Bus b1 = vl.getBusBreakerView().newBus().setId("B1").add();
         DcNode dcNode1 = network.newDcNode().setId("dcNode1").setNominalV(500.).add();
         DcNode dcNode2 = network.newDcNode().setId("dcNode2").setNominalV(500.).add();
-        DcLineCommutatedConverter converter = vl.newDcLineCommutatedConverter()
+        LineCommutatedConverter converter = vl.newLineCommutatedConverter()
                 .setId("dcConverter")
                 .setBus1(b1.getId())
                 .setDcNode1Id(dcNode1.getId())

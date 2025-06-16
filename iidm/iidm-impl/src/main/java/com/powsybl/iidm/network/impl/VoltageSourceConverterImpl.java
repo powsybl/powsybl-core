@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.DcVoltageSourceConverter;
+import com.powsybl.iidm.network.VoltageSourceConverter;
 import com.powsybl.iidm.network.ReactiveLimits;
 import com.powsybl.iidm.network.ValidationUtil;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -16,7 +16,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class DcVoltageSourceConverterImpl extends AbstractAcDcConverter<DcVoltageSourceConverter> implements DcVoltageSourceConverter, ReactiveLimitsOwner {
+public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSourceConverter> implements VoltageSourceConverter, ReactiveLimitsOwner {
 
     public static final String VOLTAGE_REGULATOR_ON_ATTRIBUTE = "voltageRegulatorOn";
     public static final String VOLTAGE_SETPOINT_ATTRIBUTE = "voltageSetpoint";
@@ -30,10 +30,10 @@ public class DcVoltageSourceConverterImpl extends AbstractAcDcConverter<DcVoltag
 
     private final RegulatingPoint regulatingPoint;
 
-    DcVoltageSourceConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
-                                 double idleLoss, double switchingLoss, double resistiveLoss,
-                                 TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc,
-                                 boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint) {
+    VoltageSourceConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
+                               double idleLoss, double switchingLoss, double resistiveLoss,
+                               TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc,
+                               boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint) {
         super(ref, id, name, fictitious, idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
@@ -48,7 +48,7 @@ public class DcVoltageSourceConverterImpl extends AbstractAcDcConverter<DcVoltag
 
     @Override
     protected String getTypeDescription() {
-        return "DC Voltage Source Converter";
+        return "AC/DC Voltage Source Converter";
     }
 
     @Override
@@ -58,7 +58,7 @@ public class DcVoltageSourceConverterImpl extends AbstractAcDcConverter<DcVoltag
     }
 
     @Override
-    public DcVoltageSourceConverterImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+    public VoltageSourceConverterImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, VOLTAGE_REGULATOR_ON_ATTRIBUTE);
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
@@ -79,7 +79,7 @@ public class DcVoltageSourceConverterImpl extends AbstractAcDcConverter<DcVoltag
     }
 
     @Override
-    public DcVoltageSourceConverterImpl setVoltageSetpoint(double voltageSetpoint) {
+    public VoltageSourceConverterImpl setVoltageSetpoint(double voltageSetpoint) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, VOLTAGE_SETPOINT_ATTRIBUTE);
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
@@ -99,7 +99,7 @@ public class DcVoltageSourceConverterImpl extends AbstractAcDcConverter<DcVoltag
     }
 
     @Override
-    public DcVoltageSourceConverterImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
+    public VoltageSourceConverterImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, REACTIVE_POWER_SETPOINT_ATTRIBUTE);
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
@@ -174,7 +174,7 @@ public class DcVoltageSourceConverterImpl extends AbstractAcDcConverter<DcVoltag
     }
 
     @Override
-    protected DcVoltageSourceConverter self() {
+    protected VoltageSourceConverter self() {
         return this;
     }
 }

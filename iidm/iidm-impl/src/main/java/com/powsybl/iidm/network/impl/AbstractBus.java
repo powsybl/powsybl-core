@@ -294,7 +294,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                 case STATIC_VAR_COMPENSATOR -> visitor.visitStaticVarCompensator((StaticVarCompensator) connectable);
                 case HVDC_CONVERTER_STATION -> visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
                 case GROUND -> visitor.visitGround((GroundImpl) connectable);
-                case DC_LINE_COMMUTATED_CONVERTER, DC_VOLTAGE_SOURCE_CONVERTER -> {
+                case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> {
                     AcDcConverter<?> converter = (AcDcConverter<?>) connectable;
                     visitor.visitAcDcConverter(converter, converter.getSide(terminal));
                 }

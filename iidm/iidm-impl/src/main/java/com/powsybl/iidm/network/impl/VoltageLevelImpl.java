@@ -530,43 +530,43 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
     }
 
     @Override
-    public DcLineCommutatedConverterAdder newDcLineCommutatedConverter() {
-        return new DcLineCommutatedConverterAdderImpl(this);
+    public LineCommutatedConverterAdder newLineCommutatedConverter() {
+        return new LineCommutatedConverterAdderImpl(this);
     }
 
     @Override
-    public Iterable<DcLineCommutatedConverter> getDcLineCommutatedConverters() {
-        return getConnectables(DcLineCommutatedConverter.class);
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        return getConnectables(LineCommutatedConverter.class);
     }
 
     @Override
-    public Stream<DcLineCommutatedConverter> getDcLineCommutatedConverterStream() {
-        return getConnectableStream(DcLineCommutatedConverter.class);
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        return getConnectableStream(LineCommutatedConverter.class);
     }
 
     @Override
-    public int getDcLineCommutatedConverterCount() {
-        return getConnectableCount(DcLineCommutatedConverter.class);
+    public int getLineCommutatedConverterCount() {
+        return getConnectableCount(LineCommutatedConverter.class);
     }
 
     @Override
-    public DcVoltageSourceConverterAdder newDcVoltageSourceConverter() {
-        return new DcVoltageSourceConverterAdderImpl(this);
+    public VoltageSourceConverterAdder newVoltageSourceConverter() {
+        return new VoltageSourceConverterAdderImpl(this);
     }
 
     @Override
-    public Iterable<DcVoltageSourceConverter> getDcVoltageSourceConverters() {
-        return getConnectables(DcVoltageSourceConverter.class);
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        return getConnectables(VoltageSourceConverter.class);
     }
 
     @Override
-    public Stream<DcVoltageSourceConverter> getDcVoltageSourceConverterStream() {
-        return getConnectableStream(DcVoltageSourceConverter.class);
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        return getConnectableStream(VoltageSourceConverter.class);
     }
 
     @Override
-    public int getDcVoltageSourceConverterCount() {
-        return getConnectableCount(DcVoltageSourceConverter.class);
+    public int getVoltageSourceConverterCount() {
+        return getConnectableCount(VoltageSourceConverter.class);
     }
 
     @Override

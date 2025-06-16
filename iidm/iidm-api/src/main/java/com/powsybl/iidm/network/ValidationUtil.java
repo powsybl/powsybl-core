@@ -591,7 +591,7 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkLccReactiveModel(Validable validable, DcLineCommutatedConverter.ReactiveModel reactiveModel) {
+    public static void checkLccReactiveModel(Validable validable, LineCommutatedConverter.ReactiveModel reactiveModel) {
         if (reactiveModel == null) {
             throw new ValidationException(validable, "reactiveModel is not set");
         }

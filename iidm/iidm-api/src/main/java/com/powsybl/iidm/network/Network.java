@@ -1374,48 +1374,48 @@ public interface Network extends Container<Network> {
     DcGround getDcGround(String id);
 
     /**
-     * Get all DC Line-Commutated Converters.
+     * Get all AC/DC Line-Commutated Converters.
      */
-    Iterable<DcLineCommutatedConverter> getDcLineCommutatedConverters();
+    Iterable<LineCommutatedConverter> getLineCommutatedConverters();
 
     /**
-     * Get all DC Line-Commutated Converters.
+     * Get all AC/DC Line-Commutated Converters.
      */
-    Stream<DcLineCommutatedConverter> getDcLineCommutatedConverterStream();
+    Stream<LineCommutatedConverter> getLineCommutatedConverterStream();
 
     /**
-     * Get the DC Line-Commutated Converter count.
+     * Get the AC/DC Line-Commutated Converter count.
      */
-    int getDcLineCommutatedConverterCount();
+    int getLineCommutatedConverterCount();
 
     /**
-     * Get a DC Line-Commutated Converter.
+     * Get an AC/DC Line-Commutated Converter.
      *
-     * @param id the id or an alias of the DC Line-Commutated Converter
+     * @param id the id or an alias of the AC/DC Line-Commutated Converter
      */
-    DcLineCommutatedConverter getDcLineCommutatedConverter(String id);
+    LineCommutatedConverter getLineCommutatedConverter(String id);
 
     /**
-     * Get all DC Voltage-Source Converters.
+     * Get all AC/DC Voltage-Source Converters.
      */
-    Iterable<DcVoltageSourceConverter> getDcVoltageSourceConverters();
+    Iterable<VoltageSourceConverter> getVoltageSourceConverters();
 
     /**
-     * Get all DC Voltage-Source Converters.
+     * Get all AC/DC Voltage-Source Converters.
      */
-    Stream<DcVoltageSourceConverter> getDcVoltageSourceConverterStream();
+    Stream<VoltageSourceConverter> getVoltageSourceConverterStream();
 
     /**
-     * Get the DC Voltage-Source Converter count.
+     * Get the AC/DC Voltage-Source Converter count.
      */
-    int getDcVoltageSourceConverterCount();
+    int getVoltageSourceConverterCount();
 
     /**
-     * Get a DC Voltage-Source Converter.
+     * Get a AC/DC Voltage-Source Converter.
      *
-     * @param id the id or an alias of the DC Voltage-Source Converter
+     * @param id the id or an alias of the AC/DC Voltage-Source Converter
      */
-    DcVoltageSourceConverter getDcVoltageSourceConverter(String id);
+    VoltageSourceConverter getVoltageSourceConverter(String id);
 
     /**
      * * Get an identifiable by its ID or alias
@@ -1696,8 +1696,8 @@ public interface Network extends Container<Network> {
             case DC_LINE -> getDcLineStream().map(Function.identity());
             case DC_GROUND -> getDcGroundStream().map(Function.identity());
             case DC_SWITCH -> getDcSwitchStream().map(Function.identity());
-            case DC_LINE_COMMUTATED_CONVERTER -> getDcLineCommutatedConverterStream().map(Function.identity());
-            case DC_VOLTAGE_SOURCE_CONVERTER -> getDcVoltageSourceConverterStream().map(Function.identity());
+            case LINE_COMMUTATED_CONVERTER -> getLineCommutatedConverterStream().map(Function.identity());
+            case VOLTAGE_SOURCE_CONVERTER -> getVoltageSourceConverterStream().map(Function.identity());
             default -> throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
         };
     }

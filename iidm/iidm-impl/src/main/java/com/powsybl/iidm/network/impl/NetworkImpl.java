@@ -888,43 +888,43 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
-    public Iterable<DcLineCommutatedConverter> getDcLineCommutatedConverters() {
-        return Collections.unmodifiableCollection(index.getAll(DcLineCommutatedConverterImpl.class));
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        return Collections.unmodifiableCollection(index.getAll(LineCommutatedConverterImpl.class));
     }
 
     @Override
-    public Stream<DcLineCommutatedConverter> getDcLineCommutatedConverterStream() {
-        return index.getAll(DcLineCommutatedConverterImpl.class).stream().map(Function.identity());
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        return index.getAll(LineCommutatedConverterImpl.class).stream().map(Function.identity());
     }
 
     @Override
-    public int getDcLineCommutatedConverterCount() {
-        return index.getAll(DcLineCommutatedConverterImpl.class).size();
+    public int getLineCommutatedConverterCount() {
+        return index.getAll(LineCommutatedConverterImpl.class).size();
     }
 
     @Override
-    public DcLineCommutatedConverter getDcLineCommutatedConverter(String id) {
-        return index.get(id, DcLineCommutatedConverterImpl.class);
+    public LineCommutatedConverter getLineCommutatedConverter(String id) {
+        return index.get(id, LineCommutatedConverterImpl.class);
     }
 
     @Override
-    public Iterable<DcVoltageSourceConverter> getDcVoltageSourceConverters() {
-        return Collections.unmodifiableCollection(index.getAll(DcVoltageSourceConverterImpl.class));
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        return Collections.unmodifiableCollection(index.getAll(VoltageSourceConverterImpl.class));
     }
 
     @Override
-    public Stream<DcVoltageSourceConverter> getDcVoltageSourceConverterStream() {
-        return index.getAll(DcVoltageSourceConverterImpl.class).stream().map(Function.identity());
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        return index.getAll(VoltageSourceConverterImpl.class).stream().map(Function.identity());
     }
 
     @Override
-    public int getDcVoltageSourceConverterCount() {
-        return index.getAll(DcVoltageSourceConverterImpl.class).size();
+    public int getVoltageSourceConverterCount() {
+        return index.getAll(VoltageSourceConverterImpl.class).size();
     }
 
     @Override
-    public DcVoltageSourceConverter getDcVoltageSourceConverter(String id) {
-        return index.get(id, DcVoltageSourceConverterImpl.class);
+    public VoltageSourceConverter getVoltageSourceConverter(String id) {
+        return index.get(id, VoltageSourceConverterImpl.class);
     }
 
     HvdcLineAdder newHvdcLine(String subnetwork) {

@@ -30,7 +30,7 @@ class DcDetailedNetworkTest {
         assertEquals(3, network.getSubnetworks().size());
         assertEquals(4, network.getDcNodeCount());
         assertEquals(1, network.getDcLineCount());
-        assertEquals(2, network.getDcLineCommutatedConverterCount());
+        assertEquals(2, network.getLineCommutatedConverterCount());
         assertEquals(2, network.getDcGroundCount());
         assertTrue(network.getDcGround("dcGroundFr").getDcTerminal().isConnected());
         assertTrue(network.getDcGround("dcGroundGb").getDcTerminal().isConnected());
@@ -43,7 +43,7 @@ class DcDetailedNetworkTest {
         assertEquals(3, network.getSubnetworks().size());
         assertEquals(4, network.getDcNodeCount());
         assertEquals(2, network.getDcLineCount());
-        assertEquals(2, network.getDcLineCommutatedConverterCount());
+        assertEquals(2, network.getLineCommutatedConverterCount());
         assertEquals(2, network.getDcGroundCount());
         assertTrue(network.getDcGround("dcGroundFr").getDcTerminal().isConnected());
         assertFalse(network.getDcGround("dcGroundGb").getDcTerminal().isConnected());
@@ -56,7 +56,7 @@ class DcDetailedNetworkTest {
         assertEquals(3, network.getSubnetworks().size());
         assertEquals(4, network.getDcNodeCount());
         assertEquals(2, network.getDcLineCount());
-        assertEquals(2, network.getDcVoltageSourceConverterCount());
+        assertEquals(2, network.getVoltageSourceConverterCount());
         assertEquals(0, network.getDcGroundCount());
     }
 
@@ -67,7 +67,7 @@ class DcDetailedNetworkTest {
         assertEquals(3, network.getSubnetworks().size());
         assertEquals(4, network.getDcNodeCount());
         assertEquals(1, network.getDcLineCount());
-        assertEquals(2, network.getDcVoltageSourceConverterCount());
+        assertEquals(2, network.getVoltageSourceConverterCount());
         assertEquals(2, network.getDcGroundCount());
     }
 
@@ -86,7 +86,7 @@ class DcDetailedNetworkTest {
         network.getVoltageLevel("VLDC-FR-xNodeDc1fr-150")
                 .visitEquipments(topologyVisitor);
         assertEquals(2, visited.size());
-        visited.forEach(c -> assertSame(network.getDcLineCommutatedConverter("CsFr"), c));
+        visited.forEach(c -> assertSame(network.getLineCommutatedConverter("CsFr"), c));
     }
 
     @Test
@@ -104,7 +104,7 @@ class DcDetailedNetworkTest {
         network.getVoltageLevel("VLDC-FR-xNodeDc1fr-150")
                 .visitEquipments(topologyVisitor);
         assertEquals(2, visited.size());
-        var csFr = network.getDcLineCommutatedConverter("CsFr");
+        var csFr = network.getLineCommutatedConverter("CsFr");
         visited.forEach(t -> assertSame(csFr, t.getConnectable()));
         var terminalBySide = visited.stream().collect(Collectors.toMap(Terminal::getSide, Function.identity()));
         assertSame(csFr.getTerminal1(), terminalBySide.get(ThreeSides.ONE));

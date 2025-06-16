@@ -12,42 +12,42 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class DcLineCommutatedConverterAdderImpl extends AbstractAcDcConverterAdder<DcLineCommutatedConverterAdderImpl> implements DcLineCommutatedConverterAdder {
+public class LineCommutatedConverterAdderImpl extends AbstractAcDcConverterAdder<LineCommutatedConverterAdderImpl> implements LineCommutatedConverterAdder {
 
-    private DcLineCommutatedConverter.ReactiveModel reactiveModel = DcLineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR;
+    private LineCommutatedConverter.ReactiveModel reactiveModel = LineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR;
 
     private double powerFactor = 0.5;
 
-    DcLineCommutatedConverterAdderImpl(VoltageLevelExt voltageLevel) {
+    LineCommutatedConverterAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
     }
 
     @Override
     protected String getTypeDescription() {
-        return "DC Line Commutated Converter";
+        return "AC/DC Line Commutated Converter";
     }
 
     @Override
-    public DcLineCommutatedConverterAdder setReactiveModel(DcLineCommutatedConverter.ReactiveModel reactiveModel) {
+    public LineCommutatedConverterAdder setReactiveModel(LineCommutatedConverter.ReactiveModel reactiveModel) {
         this.reactiveModel = reactiveModel;
         return this;
     }
 
     @Override
-    public DcLineCommutatedConverterAdder setPowerFactor(double powerFactor) {
+    public LineCommutatedConverterAdder setPowerFactor(double powerFactor) {
         this.powerFactor = powerFactor;
         return this;
     }
 
     @Override
-    public DcLineCommutatedConverter add() {
+    public LineCommutatedConverter add() {
         // TODO checks
         // TODO / note: dcNodes and voltage level must be in same network
         String id = checkAndGetUniqueId();
         super.preCheck();
         ValidationUtil.checkPositivePowerFactor(this, powerFactor);
         ValidationUtil.checkLccReactiveModel(this, reactiveModel);
-        DcLineCommutatedConverterImpl dcCsConverter = new DcLineCommutatedConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
+        LineCommutatedConverterImpl dcCsConverter = new LineCommutatedConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
                 idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc,
                 reactiveModel, powerFactor);
@@ -56,7 +56,7 @@ public class DcLineCommutatedConverterAdderImpl extends AbstractAcDcConverterAdd
     }
 
     @Override
-    protected DcLineCommutatedConverterAdderImpl self() {
+    protected LineCommutatedConverterAdderImpl self() {
         return this;
     }
 }
