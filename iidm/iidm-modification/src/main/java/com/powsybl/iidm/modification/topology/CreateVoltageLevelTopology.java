@@ -12,6 +12,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,6 +104,21 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         return true;
     }
 
+    private boolean checkBusbarSectionPosition(VoltageLevel voltageLevel, boolean throwException, ReportNode reportNode) {
+        boolean positionTaken = voltageLevel.getNodeBreakerView().getBusbarSectionStream().anyMatch(bbs -> {
+            BusbarSectionPosition bbsPosition = bbs.getExtension(BusbarSectionPosition.class);
+            return bbsPosition != null
+                && bbsPosition.getBusbarIndex() >= lowBusOrBusbarIndex && bbsPosition.getBusbarIndex() < lowBusOrBusbarIndex + alignedBusesOrBusbarCount
+                && bbsPosition.getSectionIndex() >= lowSectionIndex && bbsPosition.getSectionIndex() < lowSectionIndex + sectionCount;
+        });
+        if (positionTaken) {
+            wrongBusbarPosition(reportNode);
+            logOrThrow(throwException, "A busbar section already has the same position.");
+            return false;
+        }
+        return true;
+    }
+
     public String getVoltageLevelId() {
         return voltageLevelId;
     }
@@ -152,6 +168,9 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             // Create switches between buses
             createBusBreakerSwitches(voltageLevel, namingStrategy);
         } else {
+            if (!checkBusbarSectionPosition(voltageLevel, throwException, reportNode)) {
+                return;
+            }
             // Check switch kinds
             if (!checkSwitchKinds(switchKinds, sectionCount, reportNode, throwException)) {
                 return;
@@ -183,7 +202,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     }
 
     private void createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
-        int node = 0;
+        int node = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
         for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount; sectionNum++) {
             for (int busbarNum = lowBusOrBusbarIndex; busbarNum < lowBusOrBusbarIndex + alignedBusesOrBusbarCount; busbarNum++) {
                 BusbarSection bbs = voltageLevel.getNodeBreakerView().newBusbarSection()
