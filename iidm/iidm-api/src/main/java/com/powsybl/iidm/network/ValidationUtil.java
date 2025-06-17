@@ -591,6 +591,35 @@ public final class ValidationUtil {
         }
     }
 
+    public static DcNode checkAndGetDcNode(Network network, Validable validable, String dcNodeId, String attribute) {
+        if (dcNodeId == null) {
+            throw new ValidationException(validable, attribute + " is not set");
+        }
+        DcNode dcNode = network.getDcNode(dcNodeId);
+        if (dcNode == null) {
+            throw new ValidationException(validable, "DcNode '" + dcNodeId + "' not found");
+        }
+        return dcNode;
+    }
+
+    public static void checkSameParentNetwork(Network validableNetwork, Validable validable, DcNode dcNode) {
+        if (validableNetwork != dcNode.getParentNetwork()) {
+            throw new ValidationException(validable, "DC Node '" + dcNode.getId() +
+                    "' is in network '" + dcNode.getParentNetwork().getId() + "' but DC Equipment is in '" + validableNetwork.getId() + "'");
+        }
+    }
+
+    public static void checkSameParentNetwork(Network validableNetwork, Validable validable, DcNode dcNode1, DcNode dcNode2) {
+        if (dcNode1.getParentNetwork() != dcNode2.getParentNetwork()) {
+            throw new ValidationException(validable, "DC Nodes '" + dcNode1.getId() + "' and '" + dcNode2.getId() +
+                    "' are in different networks '" + dcNode1.getParentNetwork().getId() + "' and '" + dcNode2.getParentNetwork().getId() + "'");
+        }
+        if (validableNetwork != dcNode1.getParentNetwork()) {
+            throw new ValidationException(validable, "DC Nodes '" + dcNode1.getId() + "' and '" + dcNode2.getId() +
+                    "' are in network '" + dcNode1.getParentNetwork().getId() + "' but DC Equipment is in '" + validableNetwork.getId() + "'");
+        }
+    }
+
     public static void checkAcDcConverterControlMode(Validable validable, AcDcConverter.ControlMode controlMode) {
         if (controlMode == null) {
             throw new ValidationException(validable, "controlMode is not set");

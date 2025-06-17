@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.DcUtils;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -52,8 +51,8 @@ public class DcGroundAdderImpl extends AbstractIdentifiableAdder<DcGroundAdderIm
     @Override
     public DcGround add() {
         String id = checkAndGetUniqueId();
-        DcNode dcNode = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNodeId, "dcNode");
-        DcUtils.checkSameParentNetwork(this.getParentNetwork(), this, dcNode);
+        DcNode dcNode = ValidationUtil.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNodeId, "dcNode");
+        ValidationUtil.checkSameParentNetwork(this.getParentNetwork(), this, dcNode);
         ValidationUtil.checkDoubleParamPositive(this, r, DcGroundImpl.R_ATTRIBUTE);
         DcGroundImpl dcGround = new DcGroundImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), r);
         DcTerminalImpl dcTerminal = new DcTerminalImpl(networkRef, null, dcNode, connected);
