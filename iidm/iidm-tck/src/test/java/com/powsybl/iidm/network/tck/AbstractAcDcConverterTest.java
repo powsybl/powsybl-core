@@ -719,11 +719,11 @@ public abstract class AbstractAcDcConverterTest {
 
         adder.setControlMode(AcDcConverter.ControlMode.V_DC);
         PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': targetP is not set", e2.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': targetP is invalid", e2.getMessage());
 
         adder.setTargetP(200.);
         PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': targetVdc is not set", e3.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': targetVdc is invalid", e3.getMessage());
 
         adder.setTargetVdc(200.);
         PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
@@ -739,11 +739,11 @@ public abstract class AbstractAcDcConverterTest {
 
         adder.setPccTerminal(lineax.getTerminal1());
         PowsyblException e7 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': dcNode1Id is not set", e7.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': dcNode1 is not set", e7.getMessage());
 
         adder.setDcNode1(dcNode1a.getId());
         PowsyblException e8 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': dcNode2Id is not set", e8.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': dcNode2 is not set", e8.getMessage());
 
         adder.setDcNode2(dcNode2a.getId());
         Network subnet = network.createSubnetwork("subNet", "subNetName", "code");

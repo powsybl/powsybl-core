@@ -177,7 +177,7 @@ public abstract class AbstractDcSwitchTest {
 
         adder.setId("dcSwitch");
         PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitch': dcNode1Id is not set", e2.getMessage());
+        assertEquals("DC Switch 'dcSwitch': dcNode1 is not set", e2.getMessage());
 
         adder.setDcNode1("notExists");
         PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
@@ -185,7 +185,7 @@ public abstract class AbstractDcSwitchTest {
 
         adder.setDcNode1(dcNode1.getId());
         PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitch': dcNode2Id is not set", e4.getMessage());
+        assertEquals("DC Switch 'dcSwitch': dcNode2 is not set", e4.getMessage());
 
         adder.setDcNode2("notExists");
         PowsyblException e5 = assertThrows(PowsyblException.class, adder::add);

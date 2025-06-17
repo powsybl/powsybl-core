@@ -41,8 +41,6 @@ public class LineCommutatedConverterAdderImpl extends AbstractAcDcConverterAdder
 
     @Override
     public LineCommutatedConverter add() {
-        // TODO checks
-        // TODO / note: dcNodes and voltage level must be in same network
         String id = checkAndGetUniqueId();
         super.preCheck();
         ValidationUtil.checkPositivePowerFactor(this, powerFactor);

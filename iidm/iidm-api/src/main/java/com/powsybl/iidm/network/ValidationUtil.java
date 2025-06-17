@@ -591,6 +591,44 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkAcDcConverterControlMode(Validable validable, AcDcConverter.ControlMode controlMode) {
+        if (controlMode == null) {
+            throw new ValidationException(validable, "controlMode is not set");
+        }
+    }
+
+    public static void checkAcDcConverterTargetP(Validable validable, double targetP) {
+        if (Double.isNaN(targetP)) {
+            throw new ValidationException(validable, "targetP is invalid");
+        }
+    }
+
+    public static void checkAcDcConverterTargetVdc(Validable validable, double targetVdc) {
+        if (Double.isNaN(targetVdc)) {
+            throw new ValidationException(validable, "targetVdc is invalid");
+        }
+    }
+
+    public static void checkAcDcConverterPccTerminal(Validable validable, boolean twoAcTerminals, Terminal pccTerminal, VoltageLevel voltageLevel) {
+        if (twoAcTerminals && pccTerminal == null) {
+            throw new ValidationException(validable, "converter has two AC terminals and pccTerminal is not set");
+        }
+        if (pccTerminal != null) {
+            var c = pccTerminal.getConnectable();
+            if (twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer)) {
+                throw new ValidationException(validable, "converter has two AC terminals and pccTerminal is not a line or transformer terminal");
+            } else if (!twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer || c instanceof AcDcConverter<?>)) {
+                throw new ValidationException(validable, "pccTerminal is not a line or transformer or the converter terminal");
+            }
+            if (!twoAcTerminals && c instanceof AcDcConverter<?> && c != validable) {
+                throw new ValidationException(validable, "pccTerminal cannot be the terminal of another converter");
+            }
+            if (c.getParentNetwork() != voltageLevel.getParentNetwork()) {
+                throw new ValidationException(validable, "pccTerminal is not in the same parent network as the voltage level");
+            }
+        }
+    }
+
     public static void checkLccReactiveModel(Validable validable, LineCommutatedConverter.ReactiveModel reactiveModel) {
         if (reactiveModel == null) {
             throw new ValidationException(validable, "reactiveModel is not set");

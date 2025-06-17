@@ -157,7 +157,7 @@ public abstract class AbstractDcGroundTest {
 
         adder.setId("dcGround");
         PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Ground 'dcGround': dcNodeId is not set", e2.getMessage());
+        assertEquals("DC Ground 'dcGround': dcNode is not set", e2.getMessage());
 
         adder.setDcNode("notExists");
         PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);

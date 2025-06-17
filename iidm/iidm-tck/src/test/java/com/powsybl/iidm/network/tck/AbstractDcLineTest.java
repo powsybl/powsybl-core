@@ -185,7 +185,7 @@ public abstract class AbstractDcLineTest {
 
         adder.setId("dcLine");
         PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Line 'dcLine': dcNode1Id is not set", e2.getMessage());
+        assertEquals("DC Line 'dcLine': dcNode1 is not set", e2.getMessage());
 
         adder.setDcNode1("notExists");
         PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
@@ -193,7 +193,7 @@ public abstract class AbstractDcLineTest {
 
         adder.setDcNode1(dcNode1.getId());
         PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Line 'dcLine': dcNode2Id is not set", e4.getMessage());
+        assertEquals("DC Line 'dcLine': dcNode2 is not set", e4.getMessage());
 
         adder.setDcNode2("notExists");
         PowsyblException e5 = assertThrows(PowsyblException.class, adder::add);

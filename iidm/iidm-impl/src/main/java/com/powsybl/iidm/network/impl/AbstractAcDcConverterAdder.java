@@ -113,7 +113,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
     }
 
     protected Optional<TerminalExt> checkAndGetTerminal2() {
-        if (bus2 != null || node2 != null) {
+        if (hasTwoAcTerminals()) {
             return Optional.of(new TerminalBuilder(voltageLevel.getNetworkRef(), this, ThreeSides.TWO)
                     .setNode(node2)
                     .setBus(bus2)
@@ -159,44 +159,28 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
     }
 
     protected void preCheck() {
-        boolean twoAcTerminals = bus2 != null || node2 != null;
-        if (controlMode == null) {
-            throw new ValidationException(this, "controlMode is not set");
-        }
-        if (Double.isNaN(targetP)) {
-            throw new ValidationException(this, "targetP is not set");
-        }
-        if (Double.isNaN(targetVdc)) {
-            throw new ValidationException(this, "targetVdc is not set");
-        }
-        if (twoAcTerminals && pccTerminal == null) {
-            throw new ValidationException(this, "converter has two AC terminals and pccTerminal is not set");
-        }
-        if (pccTerminal != null) {
-            var c = pccTerminal.getConnectable();
-            if (twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer)) {
-                throw new ValidationException(this, "converter has two AC terminals and pccTerminal is not a line or transformer terminal");
-            } else if (!twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer || c instanceof AcDcConverter<?>)) {
-                throw new ValidationException(this, "pccTerminal is not a line or transformer or the converter terminal");
-            }
-            if (c.getParentNetwork() != voltageLevel.getParentNetwork()) {
-                throw new ValidationException(this, "pccTerminal is not in the same parent network as the voltage level");
-            }
-        }
+        ValidationUtil.checkAcDcConverterControlMode(this, controlMode);
+        ValidationUtil.checkAcDcConverterTargetP(this, targetP);
+        ValidationUtil.checkAcDcConverterTargetVdc(this, targetVdc);
+        ValidationUtil.checkAcDcConverterPccTerminal(this, hasTwoAcTerminals(), pccTerminal, voltageLevel);
+    }
+
+    private boolean hasTwoAcTerminals() {
+        return bus2 != null || connectableBus2 != null || node2 != null;
     }
 
     protected void checkAndAdd(AbstractAcDcConverter<?> dcConverter) {
         TerminalExt terminal1 = checkAndGetTerminal1();
-        DcNode dcNode1 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode1Id, "dcNode1Id");
-        DcNode dcNode2 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode2Id, "dcNode2Id");
+        DcNode dcNode1 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode1Id, "dcNode1");
+        DcNode dcNode2 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode2Id, "dcNode2");
         DcUtils.checkSameParentNetwork(voltageLevel.getParentNetwork(), this, dcNode1, dcNode2);
         Optional<TerminalExt> terminal2 = checkAndGetTerminal2();
+        dcConverter.addTerminal(terminal1);
+        voltageLevel.getTopologyModel().attach(terminal1, false);
         if (pccTerminal == null && terminal2.isEmpty()) {
             // default to use terminal1 as pccTerminal, only if converter has only 1 AC Terminal
             dcConverter.setPccTerminal(terminal1);
         }
-        dcConverter.addTerminal(terminal1);
-        voltageLevel.getTopologyModel().attach(terminal1, false);
         terminal2.ifPresent(terminal -> {
             dcConverter.addTerminal(terminal);
             voltageLevel.getTopologyModel().attach(terminal, false);

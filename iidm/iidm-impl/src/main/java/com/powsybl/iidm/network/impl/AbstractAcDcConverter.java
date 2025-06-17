@@ -196,8 +196,9 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
 
     @Override
     public I setPccTerminal(Terminal pccTerminal) {
+        Objects.requireNonNull(pccTerminal);
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, PCC_TERMINAL);
-        // todo checks
+        ValidationUtil.checkAcDcConverterPccTerminal(this, getTerminal2().isPresent(), pccTerminal, getTerminal1().getVoltageLevel());
         Terminal oldValue = pccRegulatingPoint.getRegulatingTerminal();
         pccRegulatingPoint.setRegulatingTerminal((TerminalExt) pccTerminal);
         notifyUpdate(PCC_TERMINAL, oldValue, pccRegulatingPoint.getRegulatingTerminal());
@@ -214,8 +215,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     public I setControlMode(ControlMode controlMode) {
         Objects.requireNonNull(controlMode);
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, CONTROL_MODE);
+        ValidationUtil.checkAcDcConverterControlMode(this, controlMode);
         NetworkImpl n = getNetwork();
-        // todo checks
         int variantIndex = n.getVariantIndex();
         int oldValueOrdinal = pccRegulatingPoint.setRegulationMode(variantIndex, controlMode.ordinal());
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -233,7 +234,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     @Override
     public I setTargetP(double targetP) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, TARGET_P);
-        // todo: validation
+        ValidationUtil.checkAcDcConverterTargetP(this, targetP);
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         double oldValue = this.targetP.set(variantIndex, targetP);
@@ -252,7 +253,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     @Override
     public I setTargetVdc(double targetVdc) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, TARGET_VDC);
-        // todo: validation
+        ValidationUtil.checkAcDcConverterTargetVdc(this, targetVdc);
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         double oldValue = this.targetVdc.set(variantIndex, targetVdc);

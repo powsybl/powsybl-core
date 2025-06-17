@@ -52,7 +52,7 @@ public class DcGroundAdderImpl extends AbstractIdentifiableAdder<DcGroundAdderIm
     @Override
     public DcGround add() {
         String id = checkAndGetUniqueId();
-        DcNode dcNode = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNodeId, "dcNodeId");
+        DcNode dcNode = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNodeId, "dcNode");
         DcUtils.checkSameParentNetwork(this.getParentNetwork(), this, dcNode);
         ValidationUtil.checkDoubleParamPositive(this, r, DcGroundImpl.R_ATTRIBUTE);
         DcGroundImpl dcGround = new DcGroundImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), r);
