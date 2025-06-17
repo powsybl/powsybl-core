@@ -785,7 +785,7 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
-    public void createInvalidTapChangerEquipmentLevel() {
+    public void createInvalidRatioTapChangerEquipmentLevel() {
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
         createRatioTapChangerWith3Steps(0, 1, true, false, 10.0, 1.0, terminal);
@@ -793,6 +793,19 @@ public abstract class AbstractTapChangerTest {
         rtc.setTapPosition(4);
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
         assertEquals(4, rtc.getTapPosition());
+    }
+
+    @Test
+    public void createInvalidPhaseTapChangerEquipmentLevel() {
+        createPhaseTapChangerWith2Steps(1, 0, false,
+            PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, 1.0, terminal);
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("twt").getPhaseTapChanger();
+        assertThrows(ValidationException.class, () -> ptc.setTapPosition(4));
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        ptc.setTapPosition(4);
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+        assertEquals(4, network.getTwoWindingsTransformer("twt").getPhaseTapChanger().getTapPosition());
     }
 
     private void createRatioTapChangerWith3Steps(int low, int tap, boolean load, boolean regulating,
