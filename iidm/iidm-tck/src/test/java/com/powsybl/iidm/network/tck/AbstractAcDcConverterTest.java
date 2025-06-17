@@ -775,8 +775,9 @@ public abstract class AbstractAcDcConverterTest {
                 .setReactivePowerSetpoint(0.0)
                 .add();
         assertTrue(acDcConverterA.getTerminal2().isEmpty());
-        assertNull(acDcConverterA.getTerminal(TwoSides.TWO));
         assertSame(acDcConverterA.getPccTerminal(), acDcConverterA.getTerminal1());
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> acDcConverterA.getTerminal(TwoSides.TWO));
+        assertEquals("This AC/DC converter does not have a second AC Terminal", e.getMessage());
     }
 
     @Test

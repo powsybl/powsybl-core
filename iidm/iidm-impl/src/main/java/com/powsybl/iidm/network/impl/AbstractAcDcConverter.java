@@ -83,7 +83,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         } else if (getTerminal2().orElse(null) == terminal) {
             return TwoSides.TWO;
         } else {
-            throw new IllegalStateException("The terminal is not connected to this DC converter");
+            throw new IllegalStateException("The terminal is not connected to this AC/DC converter");
         }
     }
 
@@ -94,7 +94,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         if (side == TwoSides.ONE) {
             return getTerminal1();
         } else if (side == TwoSides.TWO) {
-            return getTerminal2().orElse(null);
+            return getTerminal2().orElseThrow(() -> new IllegalStateException("This AC/DC converter does not have a second AC Terminal"));
         }
         throw new IllegalStateException("Unexpected side: " + side);
     }
@@ -119,7 +119,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         } else if (getDcTerminal2() == dcTerminal) {
             return TwoSides.TWO;
         } else {
-            throw new IllegalStateException("The DC terminal is not connected to this DC converter");
+            throw new IllegalStateException("The DC terminal is not connected to this AC/DC converter");
         }
     }
 
