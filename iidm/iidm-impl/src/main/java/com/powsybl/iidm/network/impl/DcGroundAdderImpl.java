@@ -38,8 +38,8 @@ public class DcGroundAdderImpl extends AbstractIdentifiableAdder<DcGroundAdderIm
     }
 
     @Override
-    public DcGroundAdder setDcNodeId(String dcNodeId) {
-        this.dcNodeId = Objects.requireNonNull(dcNodeId);
+    public DcGroundAdder setDcNode(String dcNode) {
+        this.dcNodeId = Objects.requireNonNull(dcNode);
         return this;
     }
 

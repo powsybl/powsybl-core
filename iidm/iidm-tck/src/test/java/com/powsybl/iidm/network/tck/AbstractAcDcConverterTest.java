@@ -287,8 +287,8 @@ public abstract class AbstractAcDcConverterTest {
                 .setConnectableBus1(b1a.getId())
                 .setBus2(b2a.getId())
                 .setConnectableBus2(b2a.getId())
-                .setDcNode1Id(dcNode1a.getId())
-                .setDcNode2Id(dcNode2a.getId())
+                .setDcNode1(dcNode1a.getId())
+                .setDcNode2(dcNode2a.getId())
                 .setDcConnected1(true)
                 .setDcConnected2(true)
                 .setPccTerminal(lineax.getTerminal1())
@@ -300,8 +300,8 @@ public abstract class AbstractAcDcConverterTest {
                 .setId("converterB")
                 .setBus1(b1b.getId())
                 .setBus2(b2b.getId())
-                .setDcNode1Id(dcNode1b.getId())
-                .setDcNode2Id(dcNode2b.getId())
+                .setDcNode1(dcNode1b.getId())
+                .setDcNode2(dcNode2b.getId())
                 .setDcConnected1(false)
                 .setDcConnected2(false)
                 .setPccTerminal(linebx.getTerminal1())
@@ -325,8 +325,8 @@ public abstract class AbstractAcDcConverterTest {
                 .setId("converterA")
                 .setBus1(b1a.getId())
                 .setBus2(b2a.getId())
-                .setDcNode1Id(dcNode1a.getId())
-                .setDcNode2Id(dcNode2a.getId())
+                .setDcNode1(dcNode1a.getId())
+                .setDcNode2(dcNode2a.getId())
                 .setDcConnected1(true)
                 .setDcConnected2(true)
                 .setPccTerminal(lineax.getTerminal1())
@@ -340,8 +340,8 @@ public abstract class AbstractAcDcConverterTest {
                 .setId("converterB")
                 .setBus1(b1b.getId())
                 .setBus2(b2b.getId())
-                .setDcNode1Id(dcNode1b.getId())
-                .setDcNode2Id(dcNode2b.getId())
+                .setDcNode1(dcNode1b.getId())
+                .setDcNode2(dcNode2b.getId())
                 .setDcConnected1(false)
                 .setDcConnected2(false)
                 .setPccTerminal(linebx.getTerminal1())
@@ -516,8 +516,8 @@ public abstract class AbstractAcDcConverterTest {
                 .newLineCommutatedConverter()
                 .setId("converterSubnet1")
                 .setBus1(b1Subnet1.getId())
-                .setDcNode1Id(dcNode1Subnet1.getId())
-                .setDcNode2Id(dcNode2Subnet1.getId())
+                .setDcNode1(dcNode1Subnet1.getId())
+                .setDcNode2(dcNode2Subnet1.getId())
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
@@ -526,8 +526,8 @@ public abstract class AbstractAcDcConverterTest {
                 .newLineCommutatedConverter()
                 .setId("converterSubnet2")
                 .setBus1(b1Subnet2.getId())
-                .setDcNode1Id(dcNode1Subnet2.getId())
-                .setDcNode2Id(dcNode2Subnet2.getId())
+                .setDcNode1(dcNode1Subnet2.getId())
+                .setDcNode2(dcNode2Subnet2.getId())
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
@@ -587,8 +587,8 @@ public abstract class AbstractAcDcConverterTest {
                 .newVoltageSourceConverter()
                 .setId("converterSubnet1")
                 .setBus1(b1Subnet1.getId())
-                .setDcNode1Id(dcNode1Subnet1.getId())
-                .setDcNode2Id(dcNode2Subnet1.getId())
+                .setDcNode1(dcNode1Subnet1.getId())
+                .setDcNode2(dcNode2Subnet1.getId())
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
@@ -599,8 +599,8 @@ public abstract class AbstractAcDcConverterTest {
                 .newVoltageSourceConverter()
                 .setId("converterSubnet2")
                 .setBus1(b1Subnet2.getId())
-                .setDcNode1Id(dcNode1Subnet2.getId())
-                .setDcNode2Id(dcNode2Subnet2.getId())
+                .setDcNode1(dcNode1Subnet2.getId())
+                .setDcNode2(dcNode2Subnet2.getId())
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
@@ -659,8 +659,8 @@ public abstract class AbstractAcDcConverterTest {
                 .newVoltageSourceConverter()
                 .setId("converterAcrossSubnets")
                 .setBus1(b1Subnet1.getId())
-                .setDcNode1Id(dcNode1Subnet1.getId())
-                .setDcNode2Id(dcNode1Subnet2.getId())
+                .setDcNode1(dcNode1Subnet1.getId())
+                .setDcNode2(dcNode1Subnet2.getId())
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
@@ -672,12 +672,12 @@ public abstract class AbstractAcDcConverterTest {
         assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet1' and 'dcNode1Subnet2' are in different networks 'subnetwork1' and 'subnetwork2'", e1.getMessage());
 
         // test cannot create Converter in subnetwork1 referencing nodes of subnetwork2
-        adder.setDcNode1Id(dcNode1Subnet2.getId()).setDcNode2Id(dcNode2Subnet2.getId());
+        adder.setDcNode1(dcNode1Subnet2.getId()).setDcNode2(dcNode2Subnet2.getId());
         PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet2' and 'dcNode2Subnet2' are in network 'subnetwork2' but DC Equipment is in 'subnetwork1'", e2.getMessage());
 
         // test cannot create Converter in subnetwork1 referencing nodes of netWithSubnet
-        adder.setDcNode1Id(dcNode1Subnet1.getId()).setDcNode2Id(dcNode1Root.getId());
+        adder.setDcNode1(dcNode1Subnet1.getId()).setDcNode2(dcNode1Root.getId());
         PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet1' and 'dcNode1Root' are in different networks 'subnetwork1' and 'test'", e3.getMessage());
     }
@@ -741,11 +741,11 @@ public abstract class AbstractAcDcConverterTest {
         PowsyblException e7 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("AC/DC Line Commutated Converter 'converterA': dcNode1Id is not set", e7.getMessage());
 
-        adder.setDcNode1Id(dcNode1a.getId());
+        adder.setDcNode1(dcNode1a.getId());
         PowsyblException e8 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("AC/DC Line Commutated Converter 'converterA': dcNode2Id is not set", e8.getMessage());
 
-        adder.setDcNode2Id(dcNode2a.getId());
+        adder.setDcNode2(dcNode2a.getId());
         Network subnet = network.createSubnetwork("subNet", "subNetName", "code");
         VoltageLevel subNetVl = subnet.newVoltageLevel().setId("subNetVl").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(400.).add();
         Bus subnetB1 = subNetVl.getBusBreakerView().newBus().setId("subNetB1").add();
@@ -766,8 +766,8 @@ public abstract class AbstractAcDcConverterTest {
         acDcConverterA = vla.newVoltageSourceConverter()
                 .setId("converterA")
                 .setBus1(b1a.getId())
-                .setDcNode1Id(dcNode1a.getId())
-                .setDcNode2Id(dcNode2a.getId())
+                .setDcNode1(dcNode1a.getId())
+                .setDcNode2(dcNode2a.getId())
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
@@ -784,8 +784,8 @@ public abstract class AbstractAcDcConverterTest {
         acDcConverterA = vla.newVoltageSourceConverter()
                 .setId("converterA")
                 .setBus1(b1a.getId())
-                .setDcNode1Id(dcNode1a.getId())
-                .setDcNode2Id(dcNode2a.getId())
+                .setDcNode1(dcNode1a.getId())
+                .setDcNode2(dcNode2a.getId())
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)

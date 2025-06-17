@@ -40,8 +40,8 @@ public class DcLineAdderImpl extends AbstractIdentifiableAdder<DcLineAdderImpl> 
     }
 
     @Override
-    public DcLineAdder setDcNode1Id(String dcNode1Id) {
-        this.dcNode1Id = Objects.requireNonNull(dcNode1Id);
+    public DcLineAdder setDcNode1(String dcNode1) {
+        this.dcNode1Id = Objects.requireNonNull(dcNode1);
         return this;
     }
 
@@ -52,8 +52,8 @@ public class DcLineAdderImpl extends AbstractIdentifiableAdder<DcLineAdderImpl> 
     }
 
     @Override
-    public DcLineAdder setDcNode2Id(String dcNode2Id) {
-        this.dcNode2Id = Objects.requireNonNull(dcNode2Id);
+    public DcLineAdder setDcNode2(String dcNode2) {
+        this.dcNode2Id = Objects.requireNonNull(dcNode2);
         return this;
     }
 

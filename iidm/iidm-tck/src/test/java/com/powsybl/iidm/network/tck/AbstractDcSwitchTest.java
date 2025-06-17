@@ -39,8 +39,8 @@ public abstract class AbstractDcSwitchTest {
         String dcSwitch1Id = "dcSwitch1";
         DcSwitch dcSwitch1 = network.newDcSwitch()
                 .setId(dcSwitch1Id)
-                .setDcNode1Id(dcNode1.getId())
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
                 .setOpen(false)
                 .setRetained(false)
                 .add();
@@ -55,8 +55,8 @@ public abstract class AbstractDcSwitchTest {
         String dcSwitch2Id = "dcSwitch2";
         DcSwitch dcSwitch2 = network.newDcSwitch()
                 .setId(dcSwitch2Id)
-                .setDcNode1Id(dcNode1.getId())
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
                 .setOpen(true)
                 .setRetained(true)
                 .add();
@@ -80,8 +80,8 @@ public abstract class AbstractDcSwitchTest {
     public void testGetterSetter() {
         DcSwitch dcSwitch = network.newDcSwitch()
                 .setId("dcSwitch")
-                .setDcNode1Id(dcNode1.getId())
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
                 .setOpen(true)
                 .setRetained(true)
                 .add();
@@ -99,15 +99,15 @@ public abstract class AbstractDcSwitchTest {
     public void testCreateDuplicate() {
         network.newDcSwitch()
                 .setId("dcSwitch1")
-                .setDcNode1Id(dcNode1.getId())
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
                 .setOpen(false)
                 .setRetained(false)
                 .add();
         DcSwitchAdder dcSwitchDuplicateAdder = network.newDcSwitch()
                 .setId("dcSwitch1")
-                .setDcNode1Id(dcNode1.getId())
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
                 .setOpen(false)
                 .setRetained(false);
         PowsyblException exception = assertThrows(PowsyblException.class, dcSwitchDuplicateAdder::add);
@@ -119,16 +119,16 @@ public abstract class AbstractDcSwitchTest {
         String dcSwitch1Id = "dcSwitch1";
         DcSwitch dcSwitch1 = network.newDcSwitch()
                 .setId(dcSwitch1Id)
-                .setDcNode1Id(dcNode1.getId())
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
                 .setOpen(false)
                 .setRetained(false)
                 .add();
         String dcSwitch2Id = "dcSwitch2";
         DcSwitch dcSwitch2 = network.newDcSwitch()
                 .setId(dcSwitch2Id)
-                .setDcNode1Id(dcNode1.getId())
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
                 .setOpen(true)
                 .setRetained(true)
                 .add();
@@ -170,19 +170,19 @@ public abstract class AbstractDcSwitchTest {
         PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Switch 'dcSwitch': dcNode1Id is not set", e2.getMessage());
 
-        adder.setDcNode1Id("notExists");
+        adder.setDcNode1("notExists");
         PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Switch 'dcSwitch': DcNode 'notExists' not found", e3.getMessage());
 
-        adder.setDcNode1Id(dcNode1.getId());
+        adder.setDcNode1(dcNode1.getId());
         PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Switch 'dcSwitch': dcNode2Id is not set", e4.getMessage());
 
-        adder.setDcNode2Id("notExists");
+        adder.setDcNode2("notExists");
         PowsyblException e5 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Switch 'dcSwitch': DcNode 'notExists' not found", e5.getMessage());
 
-        adder.setDcNode2Id(dcNode2.getId());
+        adder.setDcNode2(dcNode2.getId());
         PowsyblException e6 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Switch 'dcSwitch': retained is not set", e6.getMessage());
 
@@ -203,18 +203,18 @@ public abstract class AbstractDcSwitchTest {
         DcNode dcNode2Subnet2 = subnetwork2.newDcNode().setId("dcNode2Subnetwork2").setNominalV(500.).add();
 
         DcSwitch dcSwitch1Subnet1 = subnetwork1.newDcSwitch().setId("dcSwitch1Subnetwork1")
-                .setDcNode1Id(dcNode1Subnet1.getId())
-                .setDcNode2Id(dcNode2Subnet1.getId())
+                .setDcNode1(dcNode1Subnet1.getId())
+                .setDcNode2(dcNode2Subnet1.getId())
                 .setRetained(false).setOpen(false)
                 .add();
         DcSwitch dcSwitch2Subnet1 = subnetwork1.newDcSwitch().setId("dcSwitch2Subnetwork1")
-                .setDcNode1Id(dcNode1Subnet1.getId())
-                .setDcNode2Id(dcNode2Subnet1.getId())
+                .setDcNode1(dcNode1Subnet1.getId())
+                .setDcNode2(dcNode2Subnet1.getId())
                 .setRetained(false).setOpen(false)
                 .add();
         DcSwitch dcSwitch1Subnet2 = subnetwork2.newDcSwitch().setId("dcSwitch1Subnetwork2")
-                .setDcNode1Id(dcNode1Subnet2.getId())
-                .setDcNode2Id(dcNode2Subnet2.getId())
+                .setDcNode1(dcNode1Subnet2.getId())
+                .setDcNode2(dcNode2Subnet2.getId())
                 .setRetained(false).setOpen(false)
                 .add();
 
@@ -269,20 +269,20 @@ public abstract class AbstractDcSwitchTest {
 
         // test cannot create DcSwitch across subnetwork1 & subnetwork2
         DcSwitchAdder adder = netWithSubnet.newDcSwitch().setId("dcSwitchAcrossSubnets")
-                .setDcNode1Id(dcNode1Subnet1.getId())
-                .setDcNode2Id(dcNode1Subnet2.getId())
+                .setDcNode1(dcNode1Subnet1.getId())
+                .setDcNode2(dcNode1Subnet2.getId())
                 .setRetained(false).setOpen(false);
 
         PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode1Subnetwork2' are in different networks 'subnetwork1' and 'subnetwork2'", e1.getMessage());
 
         // test cannot create DcSwitch in netWithSubnet referencing nodes of subnetwork1
-        adder.setDcNode1Id(dcNode1Subnet1.getId()).setDcNode2Id(dcNode2Subnet1.getId());
+        adder.setDcNode1(dcNode1Subnet1.getId()).setDcNode2(dcNode2Subnet1.getId());
         PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode2Subnetwork1' are in network 'subnetwork1' but DC Equipment is in 'test'", e2.getMessage());
 
         // test cannot create DcSwitch across subnetwork1 & netWithSubnet
-        adder.setDcNode2Id(dcNodeRootNetwork.getId());
+        adder.setDcNode2(dcNodeRootNetwork.getId());
         PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNodeRootNetwork' are in different networks 'subnetwork1' and 'test'", e3.getMessage());
     }
@@ -293,8 +293,8 @@ public abstract class AbstractDcSwitchTest {
 
         DcSwitch dcSwitch = network.newDcSwitch()
                 .setId("dcSwitch")
-                .setDcNode1Id(dcNode1.getId())
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
                 .setOpen(false)
                 .setRetained(false)
                 .add();

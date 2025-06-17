@@ -14,7 +14,7 @@ public interface DcGroundAdder extends IdentifiableAdder<DcGround, DcGroundAdder
 
     DcGroundAdder setR(double r);
 
-    DcGroundAdder setDcNodeId(String dcNodeId);
+    DcGroundAdder setDcNode(String dcNode);
 
     DcGroundAdder setConnected(boolean connected);
 

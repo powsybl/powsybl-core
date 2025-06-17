@@ -39,9 +39,9 @@ public abstract class AbstractDcLineTest {
         String dcLine1Id = "dcLine1";
         DcLine dcLine1 = network.newDcLine()
                 .setId(dcLine1Id)
-                .setDcNode1Id(dcNode1.getId())
+                .setDcNode1(dcNode1.getId())
                 .setConnected1(true)
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode2(dcNode2.getId())
                 .setConnected2(true)
                 .setR(1.1)
                 .add();
@@ -62,9 +62,9 @@ public abstract class AbstractDcLineTest {
         String dcLine2Id = "dcLine2";
         DcLine dcLine2 = network.newDcLine()
                 .setId(dcLine2Id)
-                .setDcNode1Id(dcNode1.getId())
+                .setDcNode1(dcNode1.getId())
                 .setConnected1(false)
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode2(dcNode2.getId())
                 .setConnected2(false)
                 .setR(1.2)
                 .add();
@@ -89,9 +89,9 @@ public abstract class AbstractDcLineTest {
     public void testGetterSetter() {
         DcLine dcLine = network.newDcLine()
                 .setId("dcLine")
-                .setDcNode1Id(dcNode1.getId())
+                .setDcNode1(dcNode1.getId())
                 .setConnected1(true)
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode2(dcNode2.getId())
                 .setConnected2(true)
                 .setR(1.1)
                 .add();
@@ -120,17 +120,17 @@ public abstract class AbstractDcLineTest {
     public void testCreateDuplicate() {
         network.newDcLine()
                 .setId("dcLine1")
-                .setDcNode1Id(dcNode1.getId())
+                .setDcNode1(dcNode1.getId())
                 .setConnected1(true)
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode2(dcNode2.getId())
                 .setConnected2(true)
                 .setR(1.1)
                 .add();
         DcLineAdder dcLineDuplicateAdder = network.newDcLine()
                 .setId("dcLine1")
-                .setDcNode1Id(dcNode1.getId())
+                .setDcNode1(dcNode1.getId())
                 .setConnected1(false)
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode2(dcNode2.getId())
                 .setConnected2(false)
                 .setR(1.2);
         PowsyblException exception = assertThrows(PowsyblException.class, dcLineDuplicateAdder::add);
@@ -142,8 +142,8 @@ public abstract class AbstractDcLineTest {
         String dcLine1Id = "dcLine1";
         DcLine dcLine1 = network.newDcLine()
                 .setId(dcLine1Id)
-                .setDcNode1Id(dcNode1.getId())
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
                 .setR(1.1)
                 .add();
         DcTerminal t1 = dcLine1.getDcTerminal1();
@@ -151,8 +151,8 @@ public abstract class AbstractDcLineTest {
         String dcLine2Id = "dcLine2";
         DcLine dcLine2 = network.newDcLine()
                 .setId(dcLine2Id)
-                .setDcNode1Id(dcNode1.getId())
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
                 .setR(1.2)
                 .add();
         assertEquals(2, network.getDcLineCount());
@@ -187,19 +187,19 @@ public abstract class AbstractDcLineTest {
         PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Line 'dcLine': dcNode1Id is not set", e2.getMessage());
 
-        adder.setDcNode1Id("notExists");
+        adder.setDcNode1("notExists");
         PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Line 'dcLine': DcNode 'notExists' not found", e3.getMessage());
 
-        adder.setDcNode1Id(dcNode1.getId());
+        adder.setDcNode1(dcNode1.getId());
         PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Line 'dcLine': dcNode2Id is not set", e4.getMessage());
 
-        adder.setDcNode2Id("notExists");
+        adder.setDcNode2("notExists");
         PowsyblException e5 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Line 'dcLine': DcNode 'notExists' not found", e5.getMessage());
 
-        adder.setDcNode2Id(dcNode2.getId());
+        adder.setDcNode2(dcNode2.getId());
         PowsyblException e6 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Line 'dcLine': r is invalid", e6.getMessage());
 
@@ -224,18 +224,18 @@ public abstract class AbstractDcLineTest {
         DcNode dcNode2Subnet2 = subnetwork2.newDcNode().setId("dcNode2Subnetwork2").setNominalV(500.).add();
 
         DcLine dcLine1Subnet1 = subnetwork1.newDcLine().setId("dcLine1Subnetwork1")
-                .setDcNode1Id(dcNode1Subnet1.getId())
-                .setDcNode2Id(dcNode2Subnet1.getId())
+                .setDcNode1(dcNode1Subnet1.getId())
+                .setDcNode2(dcNode2Subnet1.getId())
                 .setR(1.0)
                 .add();
         DcLine dcLine2Subnet1 = subnetwork1.newDcLine().setId("dcLine2Subnetwork1")
-                .setDcNode1Id(dcNode1Subnet1.getId())
-                .setDcNode2Id(dcNode2Subnet1.getId())
+                .setDcNode1(dcNode1Subnet1.getId())
+                .setDcNode2(dcNode2Subnet1.getId())
                 .setR(1.0)
                 .add();
         DcLine dcLine1Subnet2 = subnetwork2.newDcLine().setId("dcLine1Subnetwork2")
-                .setDcNode1Id(dcNode1Subnet2.getId())
-                .setDcNode2Id(dcNode2Subnet2.getId())
+                .setDcNode1(dcNode1Subnet2.getId())
+                .setDcNode2(dcNode2Subnet2.getId())
                 .setR(1.0)
                 .add();
 
@@ -290,19 +290,19 @@ public abstract class AbstractDcLineTest {
 
         // test cannot create DcLine across subnetwork1 & subnetwork2
         DcLineAdder adder = netWithSubnet.newDcLine().setId("dcLineAcrossSubnets")
-                .setDcNode1Id(dcNode1Subnet1.getId())
-                .setDcNode2Id(dcNode1Subnet2.getId())
+                .setDcNode1(dcNode1Subnet1.getId())
+                .setDcNode2(dcNode1Subnet2.getId())
                 .setR(1.0);
         PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Line 'dcLineAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode1Subnetwork2' are in different networks 'subnetwork1' and 'subnetwork2'", e1.getMessage());
 
         // test cannot create DcLine in netWithSubnet referencing nodes of subnetwork1
-        adder.setDcNode1Id(dcNode1Subnet1.getId()).setDcNode2Id(dcNode2Subnet1.getId());
+        adder.setDcNode1(dcNode1Subnet1.getId()).setDcNode2(dcNode2Subnet1.getId());
         PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Line 'dcLineAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode2Subnetwork1' are in network 'subnetwork1' but DC Equipment is in 'test'", e2.getMessage());
 
         // test cannot create DcLine across subnetwork1 & netWithSubnet
-        adder.setDcNode2Id(dcNodeRootNetwork.getId());
+        adder.setDcNode2(dcNodeRootNetwork.getId());
         PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Line 'dcLineAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNodeRootNetwork' are in different networks 'subnetwork1' and 'test'", e3.getMessage());
     }

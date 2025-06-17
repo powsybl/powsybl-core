@@ -54,8 +54,8 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         return voltageLevel.getNetwork();
     }
 
-    public T setDcNode1Id(String dcNode1Id) {
-        this.dcNode1Id = Objects.requireNonNull(dcNode1Id);
+    public T setDcNode1(String dcNode1) {
+        this.dcNode1Id = Objects.requireNonNull(dcNode1);
         return self();
     }
 
@@ -64,8 +64,8 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         return self();
     }
 
-    public T setDcNode2Id(String dcNode2Id) {
-        this.dcNode2Id = Objects.requireNonNull(dcNode2Id);
+    public T setDcNode2(String dcNode2) {
+        this.dcNode2Id = Objects.requireNonNull(dcNode2);
         return self();
     }
 

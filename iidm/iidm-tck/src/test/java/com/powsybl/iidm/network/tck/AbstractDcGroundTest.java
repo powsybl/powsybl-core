@@ -37,7 +37,7 @@ public abstract class AbstractDcGroundTest {
         String dcGround1Id = "dcGround1";
         DcGround dcGround1 = network.newDcGround()
                 .setId(dcGround1Id)
-                .setDcNodeId(dcNode.getId())
+                .setDcNode(dcNode.getId())
                 .setConnected(true)
                 .setR(0.1)
                 .add();
@@ -55,7 +55,7 @@ public abstract class AbstractDcGroundTest {
         String dcGround2Id = "dcGround2";
         DcGround dcGround2 = network.newDcGround()
                 .setId(dcGround2Id)
-                .setDcNodeId(dcNode.getId())
+                .setDcNode(dcNode.getId())
                 .setConnected(false)
                 .setR(0.2)
                 .add();
@@ -78,7 +78,7 @@ public abstract class AbstractDcGroundTest {
     public void testGetterSetter() {
         DcGround dcGround = network.newDcGround()
                 .setId("dcGround")
-                .setDcNodeId(dcNode.getId())
+                .setDcNode(dcNode.getId())
                 .setConnected(true)
                 .setR(0.1)
                 .add();
@@ -99,13 +99,13 @@ public abstract class AbstractDcGroundTest {
     public void testCreateDuplicate() {
         network.newDcGround()
                 .setId("dcGround")
-                .setDcNodeId(dcNode.getId())
+                .setDcNode(dcNode.getId())
                 .setConnected(true)
                 .setR(0.1)
                 .add();
         DcGroundAdder dcGroundDuplicateAdder = network.newDcGround()
                 .setId("dcGround")
-                .setDcNodeId(dcNode.getId())
+                .setDcNode(dcNode.getId())
                 .setConnected(true)
                 .setR(0.1);
         PowsyblException exception = assertThrows(PowsyblException.class, dcGroundDuplicateAdder::add);
@@ -117,14 +117,14 @@ public abstract class AbstractDcGroundTest {
         String dcGround1Id = "dcGround1";
         DcGround dcGround1 = network.newDcGround()
                 .setId(dcGround1Id)
-                .setDcNodeId(dcNode.getId())
+                .setDcNode(dcNode.getId())
                 .setR(1.1)
                 .add();
         DcTerminal t = dcGround1.getDcTerminal();
         String dcGround2Id = "dcGround2";
         DcGround dcGround2 = network.newDcGround()
                 .setId(dcGround2Id)
-                .setDcNodeId(dcNode.getId())
+                .setDcNode(dcNode.getId())
                 .setR(1.2)
                 .add();
         assertEquals(2, network.getDcGroundCount());
@@ -159,11 +159,11 @@ public abstract class AbstractDcGroundTest {
         PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Ground 'dcGround': dcNodeId is not set", e2.getMessage());
 
-        adder.setDcNodeId("notExists");
+        adder.setDcNode("notExists");
         PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Ground 'dcGround': DcNode 'notExists' not found", e3.getMessage());
 
-        adder.setDcNodeId(dcNode.getId());
+        adder.setDcNode(dcNode.getId());
         adder.setR(Double.NaN);
         PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Ground 'dcGround': r is invalid", e4.getMessage());
@@ -183,13 +183,13 @@ public abstract class AbstractDcGroundTest {
         DcNode dcNode1Subnet2 = subnetwork2.newDcNode().setId("dcNode1Subnetwork2").setNominalV(1.).add();
 
         DcGround dcGround1Subnet1 = subnetwork1.newDcGround().setId("dcGround1Subnetwork1")
-                .setDcNodeId(dcNode1Subnet1.getId())
+                .setDcNode(dcNode1Subnet1.getId())
                 .add();
         DcGround dcGround2Subnet1 = subnetwork1.newDcGround().setId("dcGround2Subnetwork1")
-                .setDcNodeId(dcNode1Subnet1.getId())
+                .setDcNode(dcNode1Subnet1.getId())
                 .add();
         DcGround dcGround1Subnet2 = subnetwork2.newDcGround().setId("dcGround1Subnetwork2")
-                .setDcNodeId(dcNode1Subnet2.getId())
+                .setDcNode(dcNode1Subnet2.getId())
                 .add();
 
         List<DcGround> dcGroundList = List.of(dcGround1Subnet1, dcGround2Subnet1, dcGround1Subnet2);
@@ -239,13 +239,13 @@ public abstract class AbstractDcGroundTest {
 
         // test cannot create DcGround in netWithSubnet referencing nodes of subnetwork1
         DcGroundAdder adder1 = netWithSubnet.newDcGround().setId("dcGround1")
-                .setDcNodeId(dcNode1Subnet1.getId());
+                .setDcNode(dcNode1Subnet1.getId());
         PowsyblException e1 = assertThrows(PowsyblException.class, adder1::add);
         assertEquals("DC Ground 'dcGround1': DC Node 'dcNode1Subnetwork1' is in network 'subnetwork1' but DC Equipment is in 'test'", e1.getMessage());
 
         // test cannot create DcGround in subnetwork1 referencing nodes of netWithSubnet
         DcGroundAdder adder2 = subnetwork1.newDcGround().setId("dcGround2")
-                .setDcNodeId(dcNodeRootNetwork.getId());
+                .setDcNode(dcNodeRootNetwork.getId());
         PowsyblException e2 = assertThrows(PowsyblException.class, adder2::add);
         assertEquals("DC Ground 'dcGround2': DC Node 'dcNodeRootNetwork' is in network 'test' but DC Equipment is in 'subnetwork1'", e2.getMessage());
     }

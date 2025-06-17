@@ -12,9 +12,9 @@ package com.powsybl.iidm.network;
  */
 public interface DcSwitchAdder extends IdentifiableAdder<DcSwitch, DcSwitchAdder> {
 
-    DcSwitchAdder setDcNode1Id(String dcNode1Id);
+    DcSwitchAdder setDcNode1(String dcNode1);
 
-    DcSwitchAdder setDcNode2Id(String dcNode2Id);
+    DcSwitchAdder setDcNode2(String dcNode2);
 
     DcSwitchAdder setOpen(boolean open);
 

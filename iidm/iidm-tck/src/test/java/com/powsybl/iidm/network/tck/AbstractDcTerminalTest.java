@@ -27,9 +27,9 @@ public abstract class AbstractDcTerminalTest {
         DcNode dcNode2 = network.newDcNode().setId("dcNode2").setNominalV(500.).add();
         DcLine dcLine = network.newDcLine()
                 .setId("dcLine")
-                .setDcNode1Id(dcNode1.getId())
+                .setDcNode1(dcNode1.getId())
                 .setConnected1(true)
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode2(dcNode2.getId())
                 .setConnected2(true)
                 .setR(1.1)
                 .add();
@@ -50,8 +50,8 @@ public abstract class AbstractDcTerminalTest {
         LineCommutatedConverter converter = vl.newLineCommutatedConverter()
                 .setId("dcConverter")
                 .setBus1(b1.getId())
-                .setDcNode1Id(dcNode1.getId())
-                .setDcNode2Id(dcNode2.getId())
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)

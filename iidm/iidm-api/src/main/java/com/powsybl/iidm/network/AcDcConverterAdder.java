@@ -24,11 +24,11 @@ public interface AcDcConverterAdder<T extends AcDcConverter<? super T> & Connect
 
     A setConnectableBus2(String connectableBus2);
 
-    A setDcNode1Id(String dcNode1Id);
+    A setDcNode1(String dcNode1);
 
     A setDcConnected1(boolean connected1);
 
-    A setDcNode2Id(String dcNode2Id);
+    A setDcNode2(String dcNode2);
 
     A setDcConnected2(boolean connected2);
 

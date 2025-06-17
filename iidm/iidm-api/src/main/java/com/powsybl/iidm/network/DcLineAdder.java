@@ -14,11 +14,11 @@ public interface DcLineAdder extends IdentifiableAdder<DcLine, DcLineAdder> {
 
     DcLineAdder setR(double r);
 
-    DcLineAdder setDcNode1Id(String dcNode1Id);
+    DcLineAdder setDcNode1(String dcNode1);
 
     DcLineAdder setConnected1(boolean connected1);
 
-    DcLineAdder setDcNode2Id(String dcNode2Id);
+    DcLineAdder setDcNode2(String dcNode2);
 
     DcLineAdder setConnected2(boolean connected2);
 
