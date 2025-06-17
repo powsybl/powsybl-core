@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.commons.ref.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -119,7 +120,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         NetworkImpl n = getNetwork();
         if (tapPosition < lowTapPosition
             || tapPosition > getHighTapPosition()) {
-            throwIncorrectTapPosition(tapPosition, getHighTapPosition());
+            ValidationUtil.throwExceptionOrIgnore(parent, "incorrect tap position "
+                + tapPosition + " [" + lowTapPosition + ", "
+                + getHighTapPosition() + "]", n.getMinValidationLevel());
+            n.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
         }
         int variantIndex = n.getVariantIndex();
         Integer oldValue = this.tapPosition.set(variantIndex, tapPosition);
