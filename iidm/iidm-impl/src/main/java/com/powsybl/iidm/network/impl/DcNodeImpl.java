@@ -7,11 +7,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.DcNode;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -70,6 +70,23 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode {
     @Override
     public void remove() {
         NetworkImpl network = getNetwork();
+
+        // this will be improved to be more efficient once the DC topology processor is implemented
+        for (DcConnectable<?> dcConnectable : network.getDcConnectables()) {
+            List<DcTerminal> dcTerminals = dcConnectable.getDcTerminals();
+            for (DcTerminal dcTerminal : dcTerminals) {
+                if (dcTerminal.getDcNode() == this) {
+                    throw new PowsyblException("Cannot remove DC node '" + getId()
+                            + "' because DC connectable '" + dcConnectable.getId() + "' is connected to it");
+                }
+            }
+        }
+        for (DcSwitch dcSwitch : network.getDcSwitches()) {
+            if (dcSwitch.getDcNode1() == this || dcSwitch.getDcNode2() == this) {
+                throw new PowsyblException("Cannot remove DC node '" + getId()
+                        + "' because DC switch '" + dcSwitch.getId() + "' is connected to it");
+            }
+        }
 
         network.getListeners().notifyBeforeRemoval(this);
 

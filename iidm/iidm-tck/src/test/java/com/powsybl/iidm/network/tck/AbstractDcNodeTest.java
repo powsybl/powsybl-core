@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -176,8 +175,39 @@ public abstract class AbstractDcNodeTest {
     }
 
     @Test
-    @Disabled("TODO: cannot remove DcNode referenced by DcLine/DcGround/DcSwitch")
-    public void testRemoveDcNodeStillReferenced() {
-        // TODO
+    public void testRemoveDcNodeStillReferencedDcConnectable() {
+        Network network = Network.create("test", "test");
+        DcNode dcNode = network.newDcNode().setId("dcNode").setNominalV(500.).add();
+        DcGround dcGround = network.newDcGround().setId("dcGround").setDcNode(dcNode.getId()).add();
+
+        PowsyblException e = assertThrows(PowsyblException.class, dcNode::remove);
+        assertEquals("Cannot remove DC node '" + dcNode.getId()
+                + "' because DC connectable '" + dcGround.getId() + "' is connected to it", e.getMessage());
+
+        dcGround.remove();
+        dcNode.remove();
+        assertNull(network.getDcNode("dcNode"));
+    }
+
+    @Test
+    public void testRemoveDcNodeStillReferencedDcSwitch() {
+        Network network = Network.create("test", "test");
+        DcNode dcNode1 = network.newDcNode().setId("dcNode1").setNominalV(500.).add();
+        network.newDcNode().setId("dcNode2").setNominalV(500.).add();
+        DcSwitch dcSwitch = network.newDcSwitch().setId("dcSwitch")
+                .setKind(DcSwitchKind.DISCONNECTOR)
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode1.getId())
+                .setRetained(false)
+                .setOpen(false)
+                .add();
+
+        PowsyblException e = assertThrows(PowsyblException.class, dcNode1::remove);
+        assertEquals("Cannot remove DC node '" + dcNode1.getId()
+                + "' because DC switch '" + dcSwitch.getId() + "' is connected to it", e.getMessage());
+
+        dcSwitch.remove();
+        dcNode1.remove();
+        assertNull(network.getDcNode("dcNode1"));
     }
 }
