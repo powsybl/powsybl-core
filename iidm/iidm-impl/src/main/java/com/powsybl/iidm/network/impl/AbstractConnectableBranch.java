@@ -97,7 +97,7 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         getOperationalLimitsHolder1().cancelSelectedOperationalLimitsGroup();
     }
 
-    /*
+    /**
      * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
      */
     @Deprecated(since = "6.8.0")
@@ -178,7 +178,7 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         getOperationalLimitsHolder2().cancelSelectedOperationalLimitsGroup();
     }
 
-    /*
+    /**
      * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
      */
     @Deprecated(since = "6.8.0")
