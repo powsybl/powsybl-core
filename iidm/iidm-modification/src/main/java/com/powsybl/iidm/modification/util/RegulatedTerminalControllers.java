@@ -80,7 +80,10 @@ public class RegulatedTerminalControllers {
                     add(regulatedTerminals, vscConverterStation.getRegulatingTerminal());
                 }
             }
-            // TODO DcConverter VSC
+            case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> {
+                AcDcConverter<?> acDcConverter = (AcDcConverter<?>) identifiable;
+                add(regulatedTerminals, acDcConverter.getPccTerminal());
+            }
             default -> {
                 // do nothing
             }
@@ -156,6 +159,8 @@ public class RegulatedTerminalControllers {
                     replaceRegulatedTerminalBattery((Battery) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case VOLTAGE_LEVEL ->
                     replaceRegulatedTerminalVoltageLevel((VoltageLevel) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+            case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER ->
+                    replaceRegulatedTerminalAcDcConverter((AcDcConverter<?>) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             default -> throw new PowsyblException("unexpected identifiable type: " + identifiable.getType());
         }
     }
@@ -211,6 +216,12 @@ public class RegulatedTerminalControllers {
             if (vscConverterStation.getRegulatingTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(vscConverterStation.getRegulatingTerminal()))) {
                 vscConverterStation.setRegulatingTerminal(newRegulatedTerminal);
             }
+        }
+    }
+
+    private static void replaceRegulatedTerminalAcDcConverter(AcDcConverter<?> acDcConverter, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+        if (acDcConverter.getPccTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(acDcConverter.getPccTerminal()))) {
+            acDcConverter.setPccTerminal(newRegulatedTerminal);
         }
     }
 
