@@ -10,8 +10,6 @@ package com.powsybl.iidm.network;
 /**
  * A DC Switch within a DC system.
  *
- * todo ? add type enum breaker / disconnector ?
- *
  * <p> To create a DcSwitch, see {@link DcSwitchAdder}
  *
  * <p>
@@ -47,6 +45,14 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">Human-readable name of the DC Switch</td>
  *         </tr>
  *         <tr>
+ *             <td style="border: 1px solid black">Kind</td>
+ *             <td style="border: 1px solid black">DcSwitchKind</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The DC switch kind: DISCONNECTOR or BREAKER</td>
+ *         </tr>
+ *         <tr>
  *             <td style="border: 1px solid black">Open</td>
  *             <td style="border: 1px solid black">boolean</td>
  *             <td style="border: 1px solid black"> - </td>
@@ -73,6 +79,11 @@ public interface DcSwitch extends Identifiable<DcSwitch> {
     default IdentifiableType getType() {
         return IdentifiableType.DC_SWITCH;
     }
+
+    /**
+     * Get the kind of DC switch.
+     */
+    DcSwitchKind getKind();
 
     /**
      * @return The DC node at side 1 of the DC Switch

@@ -8,20 +8,11 @@
 package com.powsybl.iidm.network;
 
 /**
+ * The kind of DC switch.
+ *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcSwitchAdder extends IdentifiableAdder<DcSwitch, DcSwitchAdder> {
-
-    DcSwitchAdder setKind(DcSwitchKind kind);
-
-    DcSwitchAdder setDcNode1(String dcNode1);
-
-    DcSwitchAdder setDcNode2(String dcNode2);
-
-    DcSwitchAdder setOpen(boolean open);
-
-    DcSwitchAdder setRetained(boolean retained);
-
-    @Override
-    DcSwitch add();
+public enum DcSwitchKind {
+    BREAKER,
+    DISCONNECTOR,
 }

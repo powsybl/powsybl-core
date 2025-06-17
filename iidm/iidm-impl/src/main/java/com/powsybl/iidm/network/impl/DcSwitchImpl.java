@@ -9,10 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
-import com.powsybl.iidm.network.DcNode;
-import com.powsybl.iidm.network.DcSwitch;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -27,6 +24,7 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
 
     private final Ref<NetworkImpl> networkRef;
     private final Ref<SubnetworkImpl> subnetworkRef;
+    private final DcSwitchKind kind;
     private final DcNode dcNode1;
     private final DcNode dcNode2;
     private final TBooleanArrayList open;
@@ -34,10 +32,11 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
     private boolean removed = false;
 
     DcSwitchImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious,
-                 DcNode dcNode1, DcNode dcNode2, boolean open, boolean retained) {
+                 DcSwitchKind kind, DcNode dcNode1, DcNode dcNode2, boolean open, boolean retained) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
         this.subnetworkRef = subnetworkRef;
+        this.kind = kind;
         this.dcNode1 = dcNode1;
         this.dcNode2 = dcNode2;
 
@@ -69,6 +68,11 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
     @Override
     protected String getTypeDescription() {
         return "DC Switch";
+    }
+
+    @Override
+    public DcSwitchKind getKind() {
+        return this.kind;
     }
 
     @Override

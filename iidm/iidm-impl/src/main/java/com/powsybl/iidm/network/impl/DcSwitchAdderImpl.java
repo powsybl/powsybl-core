@@ -11,6 +11,7 @@ import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.DcUtils;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -20,6 +21,7 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
 
     private final Ref<NetworkImpl> networkRef;
     private final Ref<SubnetworkImpl> subnetworkRef;
+    private DcSwitchKind kind;
     private String dcNode1Id;
     private String dcNode2Id;
     private Boolean retained;
@@ -28,6 +30,12 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
     DcSwitchAdderImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef) {
         this.networkRef = ref;
         this.subnetworkRef = subnetworkRef;
+    }
+
+    @Override
+    public DcSwitchAdder setKind(DcSwitchKind kind) {
+        this.kind = Objects.requireNonNull(kind);
+        return this;
     }
 
     @Override
@@ -60,13 +68,16 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
         DcNode dcNode1 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode1Id, "dcNode1Id");
         DcNode dcNode2 = DcUtils.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode2Id, "dcNode2Id");
         DcUtils.checkSameParentNetwork(this.getParentNetwork(), this, dcNode1, dcNode2);
+        if (kind == null) {
+            throw new ValidationException(this, "kind is not set");
+        }
         if (retained == null) {
             throw new ValidationException(this, "retained is not set");
         }
         if (open == null) {
             throw new ValidationException(this, "open is not set");
         }
-        DcSwitch dcSwitch = new DcSwitchImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), dcNode1, dcNode2, retained, open);
+        DcSwitch dcSwitch = new DcSwitchImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), kind, dcNode1, dcNode2, retained, open);
         getNetwork().getIndex().checkAndAdd(dcSwitch);
         getNetwork().getListeners().notifyCreation(dcSwitch);
         return dcSwitch;

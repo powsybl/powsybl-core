@@ -82,7 +82,7 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The converter's control mode</td>
+ *             <td style="border: 1px solid black">The converter's control mode: P_PCC or V_DC</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">TargetP</td>
