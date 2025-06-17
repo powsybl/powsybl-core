@@ -44,7 +44,6 @@ public class SingleNominalVoltageCriterion implements Criterion {
     }
 
     protected static Double getNominalVoltage(Identifiable<?> identifiable, IdentifiableType type) {
-        // TODO DcConverter
         return switch (type) {
             case LINE, TIE_LINE -> getNominalVoltage(((Branch<?>) identifiable).getTerminal1().getVoltageLevel());
             case HVDC_LINE -> getNominalVoltage(((HvdcLine) identifiable).getConverterStation1().getTerminal().getVoltageLevel());
@@ -52,6 +51,7 @@ public class SingleNominalVoltageCriterion implements Criterion {
                     getNominalVoltage(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
             case SWITCH -> getNominalVoltage(((Switch) identifiable).getVoltageLevel());
             case BUS -> getNominalVoltage(((Bus) identifiable).getVoltageLevel());
+            case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> getNominalVoltage(((AcDcConverter<?>) identifiable).getTerminal1().getVoltageLevel());
             default -> null;
         };
     }

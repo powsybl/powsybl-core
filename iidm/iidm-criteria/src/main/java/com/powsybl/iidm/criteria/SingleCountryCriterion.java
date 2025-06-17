@@ -47,7 +47,6 @@ public class SingleCountryCriterion implements Criterion {
     }
 
     protected static Country getCountry(Identifiable<?> identifiable, IdentifiableType type) {
-        // TODO DcConverter
         return switch (type) {
             case DANGLING_LINE, GENERATOR, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, BATTERY, HVDC_CONVERTER_STATION ->
                     getCountry(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
@@ -56,6 +55,8 @@ public class SingleCountryCriterion implements Criterion {
                     getCountry(((TwoWindingsTransformer) identifiable).getNullableSubstation());
             case THREE_WINDINGS_TRANSFORMER ->
                     getCountry(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
+            case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER ->
+                    getCountry(((AcDcConverter<?>) identifiable).getTerminal1().getVoltageLevel());
             default -> null;
         };
     }

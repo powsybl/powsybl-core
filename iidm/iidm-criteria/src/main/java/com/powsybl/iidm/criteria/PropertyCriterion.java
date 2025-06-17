@@ -67,7 +67,6 @@ public class PropertyCriterion implements Criterion {
     }
 
     private boolean filterEquipment(Identifiable<?> identifiable, IdentifiableType type) {
-        // TODO DcConverter
         return switch (type) {
             case STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR, BUSBAR_SECTION, GENERATOR, DANGLING_LINE, LOAD, BATTERY, HVDC_CONVERTER_STATION ->
                     filterSubstationOrVoltageLevel(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
@@ -79,6 +78,7 @@ public class PropertyCriterion implements Criterion {
                     filterBranch(((HvdcLine) identifiable).getConverterStation1().getTerminal().getVoltageLevel(),
                             ((HvdcLine) identifiable).getConverterStation2().getTerminal().getVoltageLevel());
             case THREE_WINDINGS_TRANSFORMER -> filterThreeWindingsTransformer((ThreeWindingsTransformer) identifiable);
+            case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> filterSubstationOrVoltageLevel(((AcDcConverter<?>) identifiable).getTerminal1().getVoltageLevel());
             default ->
                     throw new PowsyblException(String.format("type %s has no implementation for ContingencyElement", type));
         };
