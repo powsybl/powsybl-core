@@ -113,9 +113,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     /**
      * Get the count of sections in service.
      * This value is the input for calculations.
-     * Please note sections can only be sequentially in service i.e. the first sectionCount sections are in service.
+     * Please note that sections can only be in service sequentially, i.e. the first sectionCount sections are in service.
      * <p>
-     * It is expected to be greater than one and lesser than or equal to the
+     * It is expected to be greater than or equal to zero, and less than or equal to the
      * maximum section count.
      * <p>
      * Depends on the working variant.
@@ -137,8 +137,8 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     /**
      * Get the solved count of sections in service. This value represents the result count after a calculation (load flow).
      * <p>
-     * It is expected to be greater or equal to zero and lesser than or equal to the maximum section count.
-     * It can be null if no calculation has been launched on the network.
+     * It is expected to be greater than or equal to zero and less than or equal to the maximum section count.
+     * It can be null if no calculation has been performed on the network.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
