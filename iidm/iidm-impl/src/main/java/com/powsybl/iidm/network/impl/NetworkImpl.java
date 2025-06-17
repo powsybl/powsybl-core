@@ -977,6 +977,41 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
+    public <C extends DcConnectable> Iterable<C> getDcConnectables(Class<C> clazz) {
+        return getDcConnectableStream(clazz).toList();
+    }
+
+    @Override
+    public <C extends DcConnectable> Stream<C> getDcConnectableStream(Class<C> clazz) {
+        return index.getAll().stream().filter(clazz::isInstance).map(clazz::cast);
+    }
+
+    @Override
+    public <C extends DcConnectable> int getDcConnectableCount(Class<C> clazz) {
+        return Ints.checkedCast(getDcConnectableStream(clazz).count());
+    }
+
+    @Override
+    public Iterable<DcConnectable> getDcConnectables() {
+        return getDcConnectables(DcConnectable.class);
+    }
+
+    @Override
+    public Stream<DcConnectable> getDcConnectableStream() {
+        return getDcConnectableStream(DcConnectable.class);
+    }
+
+    @Override
+    public DcConnectable<?> getDcConnectable(String id) {
+        return index.get(id, DcConnectable.class);
+    }
+
+    @Override
+    public int getDcConnectableCount() {
+        return Ints.checkedCast(getDcConnectableStream().count());
+    }
+
+    @Override
     public VoltageAngleLimitAdder newVoltageAngleLimit() {
         return newVoltageAngleLimit(null);
     }

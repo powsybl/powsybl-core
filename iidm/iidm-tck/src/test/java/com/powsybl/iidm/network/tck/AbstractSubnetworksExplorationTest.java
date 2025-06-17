@@ -240,6 +240,55 @@ public abstract class AbstractSubnetworksExplorationTest {
                     .setSideToOperate(TwoSides.ONE)
                     .add()
                 .add();
+
+        DcNode dcNode1 = n.newDcNode()
+                .setId(id("dcNode1", networkId))
+                .setNominalV(500.)
+                .add();
+        DcNode dcNode2 = n.newDcNode()
+                .setId(id("dcNode2", networkId))
+                .setNominalV(500.)
+                .add();
+        n.newDcSwitch()
+                .setId(id("dcSwitch1", networkId))
+                .setKind(DcSwitchKind.DISCONNECTOR)
+                .setRetained(false)
+                .setOpen(false)
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
+                .add();
+        n.newDcGround()
+                .setId(id("dcGround1", networkId))
+                .setDcNode(dcNode1.getId())
+                .setR(0.01)
+                .add();
+        n.newDcLine()
+                .setId(id("dcLine1", networkId))
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
+                .setR(1.0)
+                .add();
+        voltageLevel1.newLineCommutatedConverter()
+                .setId(id("lccDetailed1", networkId))
+                .setControlMode(AcDcConverter.ControlMode.V_DC)
+                .setNode1(16)
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
+                .setTargetP(0.)
+                .setTargetVdc(500.)
+                .add();
+        voltageLevel1.newVoltageSourceConverter()
+                .setId(id("vscDetailed1", networkId))
+                .setControlMode(AcDcConverter.ControlMode.V_DC)
+                .setNode1(17)
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
+                .setTargetP(0.)
+                .setTargetVdc(500.)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.)
+                .add();
+
         return n;
     }
 
@@ -618,7 +667,9 @@ public abstract class AbstractSubnetworksExplorationTest {
                 id("vsc1", ID_1), id("vsc2", ID_1),
                 id("threeWindingsTransformer1", ID_1),
                 id("twoWindingsTransformer1", ID_1),
-                id("danglingLine1", ID_1), id("danglingLine2", ID_1), id("danglingLine3", ID_1));
+                id("danglingLine1", ID_1), id("danglingLine2", ID_1), id("danglingLine3", ID_1),
+                id("lccDetailed1", ID_1),
+                id("vscDetailed1", ID_1));
 
         var expectedIdsForSubnetwork2 = List.of(id("battery1", ID_2),
                 id("voltageLevel1BusbarSection1", ID_2), id("voltageLevel1BusbarSection2", ID_2),
@@ -631,7 +682,9 @@ public abstract class AbstractSubnetworksExplorationTest {
                 id("vsc1", ID_2), id("vsc2", ID_2),
                 id("threeWindingsTransformer1", ID_2),
                 id("twoWindingsTransformer1", ID_2),
-                id("danglingLine1", ID_2), id("danglingLine2", ID_2), id("danglingLine3", ID_2));
+                id("danglingLine1", ID_2), id("danglingLine2", ID_2), id("danglingLine3", ID_2),
+                id("lccDetailed1", ID_2),
+                id("vscDetailed1", ID_2));
 
         testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
                 Network::getConnectables,
@@ -646,6 +699,107 @@ public abstract class AbstractSubnetworksExplorationTest {
                 n -> n.getConnectableStream(Battery.class),
                 n -> n.getConnectableCount(Battery.class),
                 null);
+    }
+
+    @Test
+    public void testExploreDcConnectables() {
+        var expectedIdsForSubnetwork1 = List.of(
+                id("dcGround1", ID_1),
+                id("dcLine1", ID_1),
+                id("lccDetailed1", ID_1),
+                id("vscDetailed1", ID_1));
+
+        var expectedIdsForSubnetwork2 = List.of(
+                id("dcGround1", ID_2),
+                id("dcLine1", ID_2),
+                id("lccDetailed1", ID_2),
+                id("vscDetailed1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getDcConnectables,
+                Network::getDcConnectableStream,
+                Network::getDcConnectableCount,
+                Network::getDcConnectable);
+
+        expectedIdsForSubnetwork1 = List.of(id("dcLine1", ID_1));
+        expectedIdsForSubnetwork2 = List.of(id("dcLine1", ID_2));
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                n -> n.getDcConnectables(DcLine.class),
+                n -> n.getDcConnectableStream(DcLine.class),
+                n -> n.getDcConnectableCount(DcLine.class),
+                null);
+    }
+
+    @Test
+    public void testExploreDcNodes() {
+        var expectedIdsForSubnetwork1 = List.of(id("dcNode1", ID_1), id("dcNode2", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("dcNode1", ID_2), id("dcNode2", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getDcNodes,
+                Network::getDcNodeStream,
+                Network::getDcNodeCount,
+                Network::getDcNode);
+    }
+
+    @Test
+    public void testExploreDcLines() {
+        var expectedIdsForSubnetwork1 = List.of(id("dcLine1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("dcLine1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getDcLines,
+                Network::getDcLineStream,
+                Network::getDcLineCount,
+                Network::getDcLine);
+    }
+
+    @Test
+    public void testExploreDcGrounds() {
+        var expectedIdsForSubnetwork1 = List.of(id("dcGround1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("dcGround1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getDcGrounds,
+                Network::getDcGroundStream,
+                Network::getDcGroundCount,
+                Network::getDcGround);
+    }
+
+    @Test
+    public void testExploreDcSwitches() {
+        var expectedIdsForSubnetwork1 = List.of(id("dcSwitch1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("dcSwitch1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getDcSwitches,
+                Network::getDcSwitchStream,
+                Network::getDcSwitchCount,
+                Network::getDcSwitch);
+    }
+
+    @Test
+    public void testExploreLineCommutatedConverters() {
+        var expectedIdsForSubnetwork1 = List.of(id("lccDetailed1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("lccDetailed1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getLineCommutatedConverters,
+                Network::getLineCommutatedConverterStream,
+                Network::getLineCommutatedConverterCount,
+                Network::getLineCommutatedConverter);
+    }
+
+    @Test
+    public void testExploreVoltageSourceConverters() {
+        var expectedIdsForSubnetwork1 = List.of(id("vscDetailed1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("vscDetailed1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getVoltageSourceConverters,
+                Network::getVoltageSourceConverterStream,
+                Network::getVoltageSourceConverterCount,
+                Network::getVoltageSourceConverter);
     }
 
     @Test

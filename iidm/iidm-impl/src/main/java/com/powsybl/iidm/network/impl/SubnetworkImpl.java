@@ -885,6 +885,42 @@ public class SubnetworkImpl extends AbstractNetwork {
         return (int) getConnectableStream().count();
     }
 
+    @Override
+    public <C extends DcConnectable> Iterable<C> getDcConnectables(Class<C> clazz) {
+        return getDcConnectableStream(clazz).toList();
+    }
+
+    @Override
+    public <C extends DcConnectable> Stream<C> getDcConnectableStream(Class<C> clazz) {
+        return getNetwork().getDcConnectableStream(clazz).filter(this::contains);
+    }
+
+    @Override
+    public <C extends DcConnectable> int getDcConnectableCount(Class<C> clazz) {
+        return (int) getDcConnectableStream(clazz).count();
+    }
+
+    @Override
+    public Iterable<DcConnectable> getDcConnectables() {
+        return getDcConnectableStream().toList();
+    }
+
+    @Override
+    public Stream<DcConnectable> getDcConnectableStream() {
+        return getNetwork().getDcConnectableStream().filter(this::contains);
+    }
+
+    @Override
+    public DcConnectable<?> getDcConnectable(String id) {
+        DcConnectable<?> c = getNetwork().getDcConnectable(id);
+        return contains(c) ? c : null;
+    }
+
+    @Override
+    public int getDcConnectableCount() {
+        return (int) getDcConnectableStream().count();
+    }
+
     class BusBreakerViewImpl extends AbstractNetwork.AbstractBusBreakerViewImpl {
         @Override
         public Bus getBus(String id) {

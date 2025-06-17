@@ -1502,6 +1502,76 @@ public interface Network extends Container<Network> {
     }
 
     /**
+     * Get all DC connectables of the network for a given type
+     *
+     * @param clazz DC connectable type class
+     * @return all the DC connectables of the given type
+     */
+    default <C extends DcConnectable> Iterable<C> getDcConnectables(Class<C> clazz) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get a stream of all DC connectables of the network for a given type
+     *
+     * @param clazz DC connectable type class
+     * @return a stream of all the DC connectables of the given type
+     */
+    default <C extends DcConnectable> Stream<C> getDcConnectableStream(Class<C> clazz) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Count the DC connectables of the network for a given type
+     *
+     * @param clazz connectable type class
+     * @return the count of all the connectables of the given type
+     */
+    default <C extends DcConnectable> int getDcConnectableCount(Class<C> clazz) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get all DC connectables of the network
+     *
+     * @return all the DC connectables
+     */
+    default Iterable<DcConnectable> getDcConnectables() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get a stream of all DC connectables of the network
+     *
+     * @return a stream of all the DC connectables
+     */
+    default Stream<DcConnectable> getDcConnectableStream() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get a DC connectable by its ID or alias
+     *
+     * @param id the id or an alias of the equipment
+     */
+    default DcConnectable<?> getDcConnectable(String id) {
+        Identifiable<?> identifiable = getIdentifiable(id);
+        if (identifiable instanceof DcConnectable<?>) {
+            return (DcConnectable<?>) identifiable;
+        }
+        return null;
+    }
+
+    /**
+     * Count the DC connectables of the network
+     *
+     * @return the count of all the DC connectables
+     */
+    default int getDcConnectableCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Get a bus/breaker view of the network.
      */
     BusBreakerView getBusBreakerView();
