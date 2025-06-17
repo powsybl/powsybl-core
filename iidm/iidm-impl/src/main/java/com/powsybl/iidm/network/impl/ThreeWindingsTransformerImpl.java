@@ -212,16 +212,28 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return operationalLimitsHolder.getOrCreateSelectedOperationalLimitsGroup();
         }
 
+        /**
+         * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+         */
+        @Deprecated(since = "6.8.0")
         @Override
         public CurrentLimitsAdder newCurrentLimits() {
             return operationalLimitsHolder.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
         }
 
+        /**
+         * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+         */
+        @Deprecated(since = "6.8.0")
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
             return operationalLimitsHolder.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
         }
 
+        /**
+         * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+         */
+        @Deprecated(since = "6.8.0")
         @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
             return operationalLimitsHolder.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();

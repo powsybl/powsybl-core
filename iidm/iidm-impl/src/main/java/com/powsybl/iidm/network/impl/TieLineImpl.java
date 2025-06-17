@@ -284,16 +284,28 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         return danglingLine2.getOrCreateSelectedOperationalLimitsGroup();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
         return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
         return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
         return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
@@ -339,16 +351,28 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         danglingLine2.cancelSelectedOperationalLimitsGroup();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
         return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
         return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
         return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();

@@ -271,6 +271,18 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     }
 
     /**
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exist.
+     * Set the {@link OperationalLimitsGroup} as the selected one on side 2.</p>
+     * @param limitsGroupId an ID of {@link OperationalLimitsGroup}
+     * @return the selected {@link OperationalLimitsGroup} on side 2.
+     */
+    default OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2(String limitsGroupId) {
+        OperationalLimitsGroup operationalLimitsGroup = getOperationalLimitsGroup2(limitsGroupId).orElseGet(() -> newOperationalLimitsGroup2(limitsGroupId));
+        setSelectedOperationalLimitsGroup2(limitsGroupId);
+        return operationalLimitsGroup;
+    }
+
+    /**
      * <p>Create an adder to add a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup} on side 1.</p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
      * This operation is performed when the limits are created via {@link ActivePowerLimitsAdder#add()}, only if the limits to add
@@ -448,18 +460,6 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     default CurrentLimitsAdder newCurrentLimits2(CurrentLimits currentLimits) {
         CurrentLimitsAdder currentLimitsAdder = newCurrentLimits2();
         return initializeFromLoadingLimits(currentLimitsAdder, currentLimits);
-    }
-
-    /**
-     * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exist.
-     * Set the {@link OperationalLimitsGroup} as the selected one on side 2.</p>
-     * @param limitsGroupId an ID of {@link OperationalLimitsGroup}
-     * @return the selected {@link OperationalLimitsGroup} on side 1.
-     */
-    default OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2(String limitsGroupId) {
-        OperationalLimitsGroup operationalLimitsGroup = getOperationalLimitsGroup2(limitsGroupId).orElseGet(() -> newOperationalLimitsGroup2(limitsGroupId));
-        setSelectedOperationalLimitsGroup2(limitsGroupId);
-        return operationalLimitsGroup;
     }
 
     /**

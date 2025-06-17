@@ -97,6 +97,10 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         getOperationalLimitsHolder1().cancelSelectedOperationalLimitsGroup();
     }
 
+    /*
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
         return getOperationalLimitsHolder1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
@@ -112,11 +116,19 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return getOperationalLimitsHolder2().getOrCreateSelectedOperationalLimitsGroup();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
         return getOperationalLimitsHolder1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
         return getOperationalLimitsHolder1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
@@ -166,16 +178,28 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         getOperationalLimitsHolder2().cancelSelectedOperationalLimitsGroup();
     }
 
+    /*
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
         return getOperationalLimitsHolder2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
         return getOperationalLimitsHolder2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
         return getOperationalLimitsHolder2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();

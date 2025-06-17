@@ -502,16 +502,28 @@ public class MatpowerExporter implements Exporter {
             return branch.getNullableApparentPowerLimits(side);
         }
 
+        /**
+         * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+         */
+        @Deprecated(since = "6.8.0")
         @Override
         public CurrentLimitsAdder newCurrentLimits() {
             throw new UnsupportedOperationException();
         }
 
+        /**
+         * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+         */
+        @Deprecated(since = "6.8.0")
         @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
             throw new UnsupportedOperationException();
         }
 
+        /**
+         * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+         */
+        @Deprecated(since = "6.8.0")
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
             throw new UnsupportedOperationException();
