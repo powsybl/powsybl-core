@@ -82,6 +82,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setBmin(-5e-2)
                 .setBmax(5e-2)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulating(true)
                 .setVoltageSetpoint(400)
                 .add();
         voltageLevel1.newLccConverterStation()
