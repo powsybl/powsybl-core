@@ -328,6 +328,8 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertEquals(1, twoWindingsTransformer.getRatioTapChanger().getSolvedTapPosition());
         ratioTapChanger.setSolvedTapPosition(2);
         assertEquals(2, ratioTapChanger.getSolvedTapPosition());
+        RatioTapChangerStep step = ratioTapChanger.getSolvedCurrentStep();
+        assertEquals(ratioTapChanger.getStep(2), step);
 
         PhaseTapChanger phaseTapChanger = createPhaseTapChanger(twoWindingsTransformer, twoWindingsTransformer.getTerminal(TwoSides.TWO), false, 1);
         assertTrue(twoWindingsTransformer.getOptionalPhaseTapChanger().isPresent());
