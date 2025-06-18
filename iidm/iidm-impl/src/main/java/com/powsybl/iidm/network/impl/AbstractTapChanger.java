@@ -212,6 +212,14 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return getStep(position);
     }
 
+    public S getSolvedCurrentStep() {
+        Integer solvedPosition = solvedTapPosition.get(network.get().getVariantIndex());
+        if (solvedPosition == null) {
+            return null;
+        }
+        return getStep(solvedPosition);
+    }
+
     public boolean isRegulating() {
         return regulatingPoint.isRegulating(network.get().getVariantIndex());
     }

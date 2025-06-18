@@ -135,12 +135,20 @@ public interface TapChanger<
     R stepsReplacer();
 
     /**
-     * Get the current step.
+     * Get the current step associated to the tap position.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
      */
     S getCurrentStep();
+
+    /**
+     * Get the current step associated to the solved tap position.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    S getSolvedCurrentStep();
 
     /**
      * Get the position of the neutral step (rho = 1, alpha = 0) if it exists.
