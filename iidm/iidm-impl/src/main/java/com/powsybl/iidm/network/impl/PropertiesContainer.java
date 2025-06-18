@@ -8,10 +8,6 @@
 
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.PropertiesHolder;
-
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,12 +16,7 @@ import java.util.stream.Collectors;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class PropertiesContainer {
-    protected final PropertiesHolder holder;
     protected final Properties properties = new Properties();
-
-    public PropertiesContainer(PropertiesHolder holder) {
-        this.holder = holder;
-    }
 
     public Properties getProperties() {
         return properties;
@@ -50,37 +41,15 @@ public class PropertiesContainer {
     }
 
     public String setProperty(String key, String value) {
-        String oldValue = (String) properties.put(key, value);
-        if (holder instanceof Identifiable<?> identifiable) {
-            if (Objects.isNull(oldValue)) {
-                getNetwork().getListeners().notifyPropertyAdded(identifiable, () -> getPropertyStringForNotification(key), value);
-            } else {
-                getNetwork().getListeners().notifyPropertyReplaced(identifiable, () -> getPropertyStringForNotification(key), oldValue, value);
-            }
-        }
-        return oldValue;
+        return (String) properties.put(key, value);
     }
 
     public boolean removeProperty(String key) {
         Object oldValue = properties.remove(key);
-        if (oldValue != null) {
-            if (holder instanceof Identifiable<?> identifiable) {
-                getNetwork().getListeners().notifyPropertyRemoved(identifiable, () -> getPropertyStringForNotification(key), oldValue);
-            }
-            return true;
-        }
-        return false;
+        return oldValue != null;
     }
 
     public Set<String> getPropertyNames() {
         return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
-    }
-
-    private static String getPropertyStringForNotification(String key) {
-        return "properties[" + key + "]";
-    }
-
-    private NetworkImpl getNetwork() {
-        return (NetworkImpl) holder.getNetwork();
     }
 }

@@ -28,7 +28,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected boolean fictitious = false;
 
-    protected final PropertiesContainer properties = new PropertiesContainer(this);
+    protected final PropertiesContainer properties = new PropertiesContainer();
 
     private final Set<String> aliasesWithoutType = new HashSet<>();
     private final Map<String, String> aliasesByType = new HashMap<>();
@@ -194,12 +194,21 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public String setProperty(String key, String value) {
-        return properties.setProperty(key, value);
+        String oldValue = properties.setProperty(key, value);
+        if (Objects.isNull(oldValue)) {
+            getNetwork().getListeners().notifyPropertyAdded(this, () -> getPropertyStringForNotification(key), value);
+        } else {
+            getNetwork().getListeners().notifyPropertyReplaced(this, () -> getPropertyStringForNotification(key), oldValue, value);
+        }
+        return oldValue;
     }
 
     @Override
     public boolean removeProperty(String key) {
-        return properties.removeProperty(key);
+        String oldValue = getProperty(key);
+        boolean removed = properties.removeProperty(key);
+        getNetwork().getListeners().notifyPropertyRemoved(this, () -> getPropertyStringForNotification(key), oldValue);
+        return removed;
     }
 
     @Override
@@ -262,5 +271,9 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
             return true;
         }
         return false;
+    }
+
+    private static String getPropertyStringForNotification(String key) {
+        return "properties[" + key + "]";
     }
 }

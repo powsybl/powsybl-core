@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public abstract class AbstractPropertiesHolder implements PropertiesHolder {
 
-    protected final PropertiesContainer properties = new PropertiesContainer(this);
+    protected final PropertiesContainer properties = new PropertiesContainer();
 
     public Properties getProperties() {
         return properties.getProperties();
