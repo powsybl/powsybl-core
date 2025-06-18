@@ -37,6 +37,7 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
     private static final String SHUNT_LINEAR_MODEL = "shuntLinearModel";
     private static final String SHUNT_NON_LINEAR_MODEL = "shuntNonLinearModel";
+    private static final String SECTION_COUNT = "sectionCount";
     static final String SECTION_ARRAY_ELEMENT_NAME = "sections";
     static final String SECTION_ROOT_ELEMENT_NAME = "section";
 
@@ -47,6 +48,8 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
 
     @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, NetworkSerializerContext context) {
+        OptionalInt sectionCount = sc.findSectionCount();
+        OptionalInt solvedSectionCount = sc.findSolvedSectionCount();
         if (ShuntCompensatorModelType.NON_LINEAR == sc.getModelType()) {
             IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_NON_LINEAR_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
         }
@@ -63,15 +66,20 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
             context.getWriter().writeDoubleAttribute(B_PER_SECTION, bPerSection);
             int maximumSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getMaximumSectionCount() : 1;
             context.getWriter().writeIntAttribute(MAXIMUM_SECTION_COUNT, maximumSectionCount);
-            int currentSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getSectionCount() : 1;
+            int currentSectionCount = model instanceof ShuntCompensatorLinearModel ? solvedSectionCount.orElse(sc.getSectionCount()) : 1;
             context.getWriter().writeIntAttribute("currentSectionCount", currentSectionCount);
         });
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
-            OptionalInt sectionCount = sc.findSectionCount();
-            context.getWriter().writeOptionalIntAttribute("sectionCount", sectionCount.isPresent() ? sectionCount.getAsInt() : null);
+            IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
+                OptionalInt sectionCountToWrite = solvedSectionCount.isPresent() ? solvedSectionCount : sectionCount;
+                context.getWriter().writeOptionalIntAttribute(SECTION_COUNT, sectionCountToWrite.isPresent() ? sectionCountToWrite.getAsInt() : null);
+            });
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
+                context.getWriter().writeOptionalIntAttribute(SECTION_COUNT, sectionCount.isPresent() ? sectionCount.getAsInt() : null);
+                context.getWriter().writeOptionalIntAttribute("solvedSectionCount", solvedSectionCount.isPresent() ? solvedSectionCount.getAsInt() : null);
+            });
         });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> context.getWriter().writeOptionalIntAttribute("solvedSectionCount", sc.getSolvedSectionCount()));
         IidmSerDeUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
         IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetV", sc.getTargetV(),
                 IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
@@ -148,7 +156,7 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
                     .add();
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
-            OptionalInt sectionCount = context.getReader().readOptionalIntAttribute("sectionCount");
+            OptionalInt sectionCount = context.getReader().readOptionalIntAttribute(SECTION_COUNT);
             sectionCount.ifPresent(adder::setSectionCount);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
