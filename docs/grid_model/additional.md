@@ -94,9 +94,12 @@ Note that, following this modeling, in general, the last temporary limit (the hi
 ### Limit group collection
 In network development studies or in an operational context (CGMES), we can have a set of operational limits according to the season (winter vs summer, for example), the time of the day (day vs night) etc.
 In PowSyBl, users can store a collection of limits:
-- Active power limits, apparent power limits and current limits are gathered into an `OperationalLimitsGroup` object. This group has an `id`.
+- Active power limits, apparent power limits and current limits are gathered into an `OperationalLimitsGroup` object.
 - Lines and transformers are associated with a collection of `OperationalLimitsGroup` (one collection per side/leg).
   Users can then choose the active set according to their needs.
+
+`OperationalLimitsGroup` objects have an `id`, and may have properties — which allow associating additional arbitrary data items under the general schema of pairs <Key, Value>.  
+Note that unlike the properties on the network components, no notification is emitted when a property is added, changed or removed.
 
 #### Examples
 
