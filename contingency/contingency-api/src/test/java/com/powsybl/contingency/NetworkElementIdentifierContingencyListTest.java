@@ -10,15 +10,17 @@ package com.powsybl.contingency;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.contingency.list.IdentifierContingencyList;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.identifiers.*;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.identifiers.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
+import static com.powsybl.iidm.network.test.EurostagTutorialExample1Factory.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -202,24 +204,152 @@ class NetworkElementIdentifierContingencyListTest {
 
     @Test
     void testUnknownCharacterIdentifier() {
-        String message = Assertions.assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV2_?_?_?_?_?_?_?")).getMessage();
-        Assertions.assertEquals("There can be a maximum of 5 wildcards ('?')", message);
-        String message2 = Assertions.assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV2_ç")).getMessage();
-        Assertions.assertEquals("Only characters allowed for this identifier are letters, numbers, '_', '-', '.' and the wildcard character '?'", message2);
+        String message = assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV2_?_?_?_?_?_?_?")).getMessage();
+        assertEquals("There can be a maximum of 5 wildcards ('?')", message);
         NetworkElementIdentifier elementIdentifier = new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV?_?");
         Network network = EurostagTutorialExample1Factory.create();
         List<String> identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
-        Assertions.assertEquals(2, identifiables.size());
+        assertEquals(2, identifiables.size());
         assertTrue(identifiables.containsAll(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2")));
 
         network.newSubstation().setId("NHV1.NHV2-1").add();
         network.newSubstation().setId("NHV10NHV2-1").add();
         elementIdentifier = new IdWithWildcardsNetworkElementIdentifier("NHV1.NHV?-?");
         identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
-        Assertions.assertEquals(1, identifiables.size());
+        assertEquals(1, identifiables.size());
         assertTrue(identifiables.contains("NHV1.NHV2-1"));
+
+        // Test with space character in identifier
+        network.newSubstation().setId(".NHV1 3 .NHV2 1").add();
+        network.newSubstation().setId(".NHV1 2 .NHV2 2").add();
+        elementIdentifier = new IdWithWildcardsNetworkElementIdentifier(".NHV1 ? .NHV2 ?");
+        identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
+        assertEquals(2, identifiables.size());
+        assertTrue(identifiables.containsAll(Arrays.asList(".NHV1 2 .NHV2 2", ".NHV1 3 .NHV2 1")));
+
+        // Test with no wildcard in final position
+        elementIdentifier = new IdWithWildcardsNetworkElementIdentifier(".NHV1 ? .NHV2 2");
+        identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
+        assertEquals(1, identifiables.size());
+        assertTrue(identifiables.contains(".NHV1 2 .NHV2 2"));
 
         String message3 = assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("TEST_WITH_NO_WILDCARDS")).getMessage();
         assertEquals("There is no wildcard in your identifier, please use IdBasedNetworkElementIdentifier instead", message3);
+    }
+
+    @Test
+    void testSimpleIdentifierWithVoltageLevelId() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        List<NetworkElementIdentifier> networkElementIdentifierList = new ArrayList<>();
+        networkElementIdentifierList.add(new SubstationOrVoltageLevelEquipmentsIdentifier("S1VL1"));
+        IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(3, contingencies.size());
+        List<String> contingenciesEquipments = contingencies.stream().map(Contingency::getId).toList();
+        assertTrue(contingenciesEquipments.containsAll(List.of("TWT", "LD1", "S1VL1_BBS")));
+    }
+
+    @Test
+    void testSimpleIdentifierWithVoltageLevelIdForDefinedEquipmentType() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        List<NetworkElementIdentifier> networkElementIdentifierList = new ArrayList<>();
+        networkElementIdentifierList.add(new SubstationOrVoltageLevelEquipmentsIdentifier("S1VL1", Set.of(IdentifiableType.LOAD)));
+        IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(1, contingencies.size());
+        List<String> contingenciesEquipments = contingencies.stream().map(Contingency::getId).toList();
+        assertTrue(contingenciesEquipments.contains("LD1"));
+    }
+
+    @Test
+    void testSimpleIdentifierWithSubstation() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        List<NetworkElementIdentifier> networkElementIdentifierList = new ArrayList<>();
+        networkElementIdentifierList.add(new SubstationOrVoltageLevelEquipmentsIdentifier("S1"));
+        IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(14, contingencies.size());
+        List<String> contingenciesEquipments = contingencies.stream().map(Contingency::getId).toList();
+        assertTrue(contingenciesEquipments.containsAll(List.of("GH2", "LD2", "HVDC1", "TWT", "LD3", "S1VL2_BBS2",
+            "S1VL2_BBS1", "LD1", "SHUNT", "HVDC2", "GH3", "LD4", "S1VL1_BBS", "GH1")));
+    }
+
+    @Test
+    void testSimpleIdentifierWithSubstationForDefinedEquipmentType() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        List<NetworkElementIdentifier> networkElementIdentifierList = new ArrayList<>();
+        networkElementIdentifierList.add(new SubstationOrVoltageLevelEquipmentsIdentifier("S1", Set.of(IdentifiableType.LOAD)));
+        IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(4, contingencies.size());
+        List<String> contingenciesEquipments = contingencies.stream().map(Contingency::getId).toList();
+        assertTrue(contingenciesEquipments.containsAll(List.of("LD2", "LD3", "LD1", "LD4")));
+    }
+
+    @Test
+    void testSimpleIdentifierNotFound() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        List<NetworkElementIdentifier> networkElementIdentifierList = new ArrayList<>();
+        networkElementIdentifierList.add(new SubstationOrVoltageLevelEquipmentsIdentifier("Random"));
+        IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(0, contingencies.size());
+        Map<String, Set<String>> notFoundElements = contingencyList.getNotFoundElements(network);
+        assertEquals(1, notFoundElements.size());
+        assertNotNull(notFoundElements.get("Random"));
+        assertEquals(Set.of("Random"), notFoundElements.get("Random"));
+    }
+
+    @Test
+    void testSpecifiedWildcardCharForIdWithWildcards() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.newLine(network.getLine("NHV1_NHV2_1"))
+                .setId("NHV1_NHV?_1")
+                .setBus1(NHV1)
+                .setBus2(NHV2)
+                .setConnectableBus1(NHV1)
+                .setConnectableBus2(NHV2)
+                .add();
+        network.newLine(network.getLine("NHV1_NHV2_1"))
+                .setId("NHV1_NHV?_2")
+                .setBus1(NHV1)
+                .setBus2(NHV2)
+                .setConnectableBus1(NHV1)
+                .setConnectableBus2(NHV2)
+                .add();
+        // Default wildcard
+        assertMatchingElements(network, "NHV1_NHV?_?", IdWithWildcardsNetworkElementIdentifier.DEFAULT_WILDCARD_CHARACTER,
+                List.of("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV?_1", "NHV1_NHV?_2"));
+
+        // Invalid wildcard: not 1 character
+        assertThrows(IllegalArgumentException.class, () -> new IdWithWildcardsNetworkElementIdentifier("123", "", null));
+        assertThrows(IllegalArgumentException.class, () -> new IdWithWildcardsNetworkElementIdentifier("12##3", "##", null));
+
+        // Specified wildcard
+        assertMatchingElements(network, "NHV1_NHV?_@", "@", List.of("NHV1_NHV?_1", "NHV1_NHV?_2"));
+        // Specified wildcard: UTF-16 supplementary character
+        assertMatchingElements(network, "NHV1_NHV?_\uD835\uDD52", "\uD835\uDD52", List.of("NHV1_NHV?_1", "NHV1_NHV?_2"));
+    }
+
+    private static void assertMatchingElements(Network network, String pattern, String wildcardCharacter, List<String> expectedElements) {
+        List<NetworkElementIdentifier> networkElementIdentifierListElements = new ArrayList<>();
+        NetworkElementIdentifier elementIdentifier = new IdWithWildcardsNetworkElementIdentifier(pattern, wildcardCharacter, null);
+        networkElementIdentifierListElements.add(elementIdentifier);
+        IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierListElements);
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(1, contingencies.size());
+        List<String> elementIds = contingencies.get(0).getElements().stream().map(ContingencyElement::getId).toList();
+        assertTrue(elementIds.containsAll(expectedElements));
+    }
+
+    @Test
+    void testPrintableAsciiCharacters() {
+        int size = 0x7e - 0x20 + 2; // All printable ASCII chars (from ' ' to '~') + wildcard '@'
+        char[] allowedCharacters = new char[size];
+        IntStream.range(0x20, 0x7f).forEach(i -> allowedCharacters[i - 0x20] = (char) i);
+        allowedCharacters[size - 1] = '@';
+        assertEquals(' ', allowedCharacters[0]);
+        assertEquals('~', allowedCharacters[size - 2]);
+        assertDoesNotThrow(() -> new IdWithWildcardsNetworkElementIdentifier(new String(allowedCharacters), "@"));
     }
 }

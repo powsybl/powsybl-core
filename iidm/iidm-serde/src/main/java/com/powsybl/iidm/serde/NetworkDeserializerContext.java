@@ -31,6 +31,7 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     private final ImportOptions options;
 
     private final Map<String, String> extensionVersions;
+    private final EnumSet<DeserializationEndTask.Step> processedEndTasksSteps = EnumSet.noneOf(DeserializationEndTask.Step.class);
 
     private ValidationLevel networkValidationLevel;
 
@@ -58,6 +59,10 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     }
 
     public void executeEndTasks(Network network, DeserializationEndTask.Step step, ReportNode reportNode) {
+        if (!processedEndTasksSteps.add(step)) {
+            // Skip if step was already processed
+            return;
+        }
         Networks.executeWithReportNode(network, reportNode, () -> endTasks.stream()
                 .filter(t -> t.getStep() == step
                         || step == DeserializationEndTask.Step.AFTER_EXTENSIONS &&
