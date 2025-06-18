@@ -97,8 +97,8 @@ public abstract class AbstractNetworksTest {
         assertNotEquals(battery.getTerminal().getQ(), battery.getTargetQ());
 
         Networks.applySolvedValues(network);
-        assertEquals(battery.getTerminal().getP(), battery.getTargetP());
-        assertEquals(battery.getTerminal().getQ(), battery.getTargetQ());
+        assertEquals(-battery.getTerminal().getP(), battery.getTargetP());
+        assertEquals(-battery.getTerminal().getQ(), battery.getTargetQ());
     }
 
     @Test
