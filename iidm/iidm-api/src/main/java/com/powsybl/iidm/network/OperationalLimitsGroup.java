@@ -14,7 +14,7 @@ import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoad
 /**
  * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
  */
-public interface OperationalLimitsGroup extends PropertiesBearer {
+public interface OperationalLimitsGroup extends PropertiesHolder {
 
     String getId();
 

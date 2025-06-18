@@ -15,7 +15,7 @@ import java.util.Optional;
 /**
  * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
  */
-public class OperationalLimitsGroupImpl extends AbstractNonIdentifiablePropertiesBearer implements OperationalLimitsGroup, Validable {
+public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder implements OperationalLimitsGroup, Validable {
 
     private final String id;
     private CurrentLimits currentLimits;

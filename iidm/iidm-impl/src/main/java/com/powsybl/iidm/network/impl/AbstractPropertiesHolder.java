@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.PropertiesBearer;
+import com.powsybl.iidm.network.PropertiesHolder;
 
 import java.util.Properties;
 import java.util.Set;
@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractNonIdentifiablePropertiesBearer implements PropertiesBearer {
+public abstract class AbstractPropertiesHolder implements PropertiesHolder {
 
     protected final PropertiesContainer properties = new PropertiesContainer(this);
 

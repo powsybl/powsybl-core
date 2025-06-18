@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public interface PropertiesBearer {
+public interface PropertiesHolder {
 
     /**
      * Check that this object has some properties.

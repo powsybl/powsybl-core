@@ -17,7 +17,7 @@ import com.powsybl.commons.extensions.Extendable;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface Identifiable<I extends Identifiable<I>> extends Extendable<I>, PropertiesBearer {
+public interface Identifiable<I extends Identifiable<I>> extends Extendable<I>, PropertiesHolder {
 
     /**
      * Get the network associated to the object.

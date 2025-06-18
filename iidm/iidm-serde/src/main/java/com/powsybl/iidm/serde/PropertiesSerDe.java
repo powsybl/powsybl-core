@@ -8,7 +8,7 @@
 
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.PropertiesBearer;
+import com.powsybl.iidm.network.PropertiesHolder;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
@@ -26,12 +26,12 @@ public final class PropertiesSerDe {
     static final String NAME = "name";
     static final String VALUE = "value";
 
-    public static void write(PropertiesBearer propertiesBearer, NetworkSerializerContext context) {
-        if (propertiesBearer.hasProperty()) {
+    public static void write(PropertiesHolder propertiesHolder, NetworkSerializerContext context) {
+        if (propertiesHolder.hasProperty()) {
             context.getWriter().writeStartNodes();
-            for (String name : IidmSerDeUtil.sortedNames(propertiesBearer.getPropertyNames(), context.getOptions())) {
-                String value = propertiesBearer.getProperty(name);
-                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(propertiesBearer.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), ROOT_ELEMENT_NAME);
+            for (String name : IidmSerDeUtil.sortedNames(propertiesHolder.getPropertyNames(), context.getOptions())) {
+                String value = propertiesHolder.getProperty(name);
+                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(propertiesHolder.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), ROOT_ELEMENT_NAME);
                 context.getWriter().writeStringAttribute(NAME, name);
                 context.getWriter().writeStringAttribute(VALUE, value);
                 context.getWriter().writeEndNode();
@@ -40,15 +40,15 @@ public final class PropertiesSerDe {
         }
     }
 
-    public static void read(PropertiesBearer propertiesBearer, NetworkDeserializerContext context) {
-        read(context).accept(propertiesBearer);
+    public static void read(PropertiesHolder propertiesHolder, NetworkDeserializerContext context) {
+        read(context).accept(propertiesHolder);
     }
 
-    public static <T extends PropertiesBearer> void read(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
+    public static <T extends PropertiesHolder> void read(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
         toApply.add(read(context));
     }
 
-    private static <T extends PropertiesBearer> Consumer<T> read(NetworkDeserializerContext context) {
+    private static <T extends PropertiesHolder> Consumer<T> read(NetworkDeserializerContext context) {
         String name = context.getReader().readStringAttribute(NAME);
         String value = context.getReader().readStringAttribute(VALUE);
         context.getReader().readEndNode();

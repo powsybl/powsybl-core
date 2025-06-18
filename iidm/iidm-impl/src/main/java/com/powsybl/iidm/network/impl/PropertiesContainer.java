@@ -9,7 +9,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.PropertiesBearer;
+import com.powsybl.iidm.network.PropertiesHolder;
 
 import java.util.Objects;
 import java.util.Properties;
@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class PropertiesContainer {
-    protected final PropertiesBearer bearer;
+    protected final PropertiesHolder holder;
     protected final Properties properties = new Properties();
 
-    public PropertiesContainer(PropertiesBearer bearer) {
-        this.bearer = bearer;
+    public PropertiesContainer(PropertiesHolder holder) {
+        this.holder = holder;
     }
 
     public Properties getProperties() {
@@ -51,7 +51,7 @@ public class PropertiesContainer {
 
     public String setProperty(String key, String value) {
         String oldValue = (String) properties.put(key, value);
-        if (bearer instanceof Identifiable<?> identifiable) {
+        if (holder instanceof Identifiable<?> identifiable) {
             if (Objects.isNull(oldValue)) {
                 getNetwork().getListeners().notifyPropertyAdded(identifiable, () -> getPropertyStringForNotification(key), value);
             } else {
@@ -64,7 +64,7 @@ public class PropertiesContainer {
     public boolean removeProperty(String key) {
         Object oldValue = properties.remove(key);
         if (oldValue != null) {
-            if (bearer instanceof Identifiable<?> identifiable) {
+            if (holder instanceof Identifiable<?> identifiable) {
                 getNetwork().getListeners().notifyPropertyRemoved(identifiable, () -> getPropertyStringForNotification(key), oldValue);
             }
             return true;
@@ -81,6 +81,6 @@ public class PropertiesContainer {
     }
 
     private NetworkImpl getNetwork() {
-        return (NetworkImpl) bearer.getNetwork();
+        return (NetworkImpl) holder.getNetwork();
     }
 }
