@@ -44,9 +44,8 @@ public class PropertiesContainer {
         return (String) properties.put(key, value);
     }
 
-    public boolean removeProperty(String key) {
-        Object oldValue = properties.remove(key);
-        return oldValue != null;
+    public String removeProperty(String key) {
+        return (String) properties.remove(key);
     }
 
     public Set<String> getPropertyNames() {

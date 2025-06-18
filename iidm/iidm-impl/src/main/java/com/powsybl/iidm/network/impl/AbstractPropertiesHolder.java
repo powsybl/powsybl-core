@@ -50,7 +50,7 @@ public abstract class AbstractPropertiesHolder implements PropertiesHolder {
 
     @Override
     public boolean removeProperty(String key) {
-        return properties.removeProperty(key);
+        return properties.removeProperty(key) != null;
     }
 
     @Override

@@ -205,10 +205,12 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public boolean removeProperty(String key) {
-        String oldValue = getProperty(key);
-        boolean removed = properties.removeProperty(key);
-        getNetwork().getListeners().notifyPropertyRemoved(this, () -> getPropertyStringForNotification(key), oldValue);
-        return removed;
+        String oldValue = properties.removeProperty(key);
+        if (oldValue != null) {
+            getNetwork().getListeners().notifyPropertyRemoved(this, () -> getPropertyStringForNotification(key), oldValue);
+            return true;
+        }
+        return false;
     }
 
     @Override
