@@ -186,10 +186,10 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
     }
 
     default void setTargetPToP() {
-        this.setTargetP(this.getTerminal().getP());
+        this.setTargetP(-this.getTerminal().getP());
     }
 
     default void setTargetQToQ() {
-        this.setTargetQ(this.getTerminal().getQ());
+        this.setTargetQ(-this.getTerminal().getQ());
     }
 }
