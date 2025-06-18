@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * A ground within a DC system.
+ * A ground within a DC system. DC Grounds represent grounding electrodes and are modeled as having zero voltage potential.
  *
  * <p> To create a DcGround, see {@link DcGroundAdder}
  *

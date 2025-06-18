@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * A DC Switch within a DC system.
+ * A DC Switch within a DC system. A DC Switch connects two DC Nodes and can be opened or closed.
  *
  * <p> To create a DcSwitch, see {@link DcSwitchAdder}
  *

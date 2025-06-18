@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * A DC Line within a DC system.
+ * A DC Line within a DC system. A DC Line connects two DC Nodes with a series resistance.
  *
  * <p> To create a DcLine, see {@link DcLineAdder}
  *
@@ -50,7 +50,7 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">&Omega;</td>
  *             <td style="border: 1px solid black">no</td>
  *             <td style="border: 1px solid black"> 0 </td>
- *             <td style="border: 1px solid black">DC Line resistance</td>
+ *             <td style="border: 1px solid black">DC Line series resistance</td>
  *         </tr>
  *     </tbody>
  * </table>
@@ -87,12 +87,12 @@ public interface DcLine extends DcConnectable<DcLine> {
     TwoSides getSide(DcTerminal dcTerminal);
 
     /**
-     * @return the DC Line resistance in &#937;.
+     * @return the DC Line series resistance in &#937;.
      */
     double getR();
 
     /**
-     * @param r the new DC Line resistance in &#937;.
+     * @param r the new DC Line series resistance in &#937;.
      * @return self for method chaining
      */
     DcLine setR(double r);

@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * DC nodes are points where terminals of DC conducting equipment are connected together with zero impedance.
+ * DC nodes are points where DC terminals of DC conducting equipment are connected together with zero impedance.
  *
  * <p> To create a DcNode, see {@link DcNodeAdder}
  *

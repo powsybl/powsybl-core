@@ -688,8 +688,46 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 
 - A leg can have [loading limits](./additional.md#loading-limits).
 
+## DC Equipments
+
+### Reduced vs. Detailed DC Models
+
+Direct Current (DC) equipment can be modeled in two distinct ways: using a **_reduced_** model or a **_detailed_** model.
+
+The **_reduced_** model abstracts away internal DC components.
+A DC link is represented as a single DC line rigidly connected to two AC/DC converters.
+In this representation, each converter connects to the AC network through a single connection.
+
+In contrast, the **_detailed_** model includes a broader set of DC components, such as DC nodes, DC grounds, DC switches, DC lines, and AC/DC converters.
+This approach enables a more accurate representation of the wide range of HVDC configurations.
+It allows modeling of features such as:
+- Metallic return cables, bipole systems, symmetrical and asymmetrical configurations, bypass DC switches, multi-terminal DC grids (radial or meshed)
+- AC/DC converters with dual connections to the AC network (e.g., for the two transformers connections of a 12-pulse converter)
+
+The same network may contain multiple HVDC links with either representation.
+
+Both the _reduced_ and _detailed_ models support the representation of Line-Commutated Converters (LCCs)
+and Voltage Source Converters (VSCs).
+
+Further details on these two modeling approaches are provided in the following sections.
+
+```{warning}
+**The detailed DC model was introduced in iIDM v1.14 and is currently in beta.**
+
+Future releases will enhance this model with support for DC topology processing and serialization/deserialization.  
+These improvements will introduce **breaking changes** and **will not be backward compatible**.
+
+Currently, this model is only available in the iIDM representation.
+Support in downstream projects (e.g., `powsybl-diagram`, `powsybl-open-loadflow`, etc.) may vary.
+Please consult the documentation of each downstream project to verify support. In general, **lack of explicit mention means no support**.
+
+If you’re unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html).
+```
+
+### Reduced DC model
+
 (hvdc-line)=
-## HVDC line
+#### HVDC line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/HvdcLine.html)
 
 An HVDC line is connected to the DC side of two HVDC converter stations, either an [LCC station](#lcc-converter-station) or a [VSC station](#vsc-converter-station).
@@ -719,7 +757,7 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
 - [HVDC Operator Active Power Range](extensions.md#hvdc-operator-active-power-range)
 
 (hvdc-converter-station)=
-## HVDC converter station
+#### HVDC converter station
 
 An HVDC converter station converts electric power from high voltage alternating current (AC) to high-voltage direct current (HVDC), or vice versa.
 Electronic converters for HVDC are divided into two main categories: line-commutated converters (LCC) and voltage-sourced converters (VSC).
@@ -749,7 +787,7 @@ The positive loss factor `LossFactor` is used to model the losses during the con
   Note that at the terminal on the AC side, $Q$ is always positive: the converter station always consumes reactive power.
 
 (lcc-converter-station)=
-### LCC converter station
+##### LCC converter station
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LccConverterStation.html)
 
 An LCC converter station is made with electronic switches that can only be turned on (thyristors). Below are some characteristics:
@@ -771,7 +809,7 @@ An LCC converter station is made with electronic switches that can only be turne
 - [Connectable position](extensions.md#connectable-position)
 
 (vsc-converter-station)=
-### VSC converter station
+##### VSC converter station
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VscConverterStation.html)
 
 A VSC converter station is made with switching devices that can be turned both on and off (transistors). Below are some characteristics:
@@ -801,6 +839,122 @@ A VSC converter station is made with switching devices that can be turned both o
 **Available extensions**
 
 - [Connectable position](extensions.md#connectable-position)
+
+### Detailed DC model (beta)
+
+```{warning}
+**The detailed DC model was introduced in iIDM v1.14 and is currently in beta.**
+
+Future releases will enhance this model with support for DC topology processing and serialization/deserialization.  
+These improvements will introduce **breaking changes** and **will not be backward compatible**.
+
+Currently, this model is only available in the iIDM representation.
+Support in downstream projects (e.g., `powsybl-diagram`, `powsybl-open-loadflow`, etc.) may vary.
+Please consult the documentation of each downstream project to verify support. In general, **lack of explicit mention means no support**.
+
+If you’re unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html).
+```
+
+#### DC Node
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcNode.html)<br>
+DC nodes are points where DC terminals of DC conducting equipment are connected together with zero impedance.
+
+**Characteristics**
+
+| Attribute  | Unit | Description                          |
+|------------|------|--------------------------------------|
+| $NominalV$ | kV   | The nominal voltage, always positive |
+
+Although the nominal voltage of DC nodes must always be specified as a positive value,
+the solved voltages can be negative - for example, in the case of an LCC monopole operating in reverse polarity.
+
+#### DC Line
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcLine.html)<br>
+A DC Line connects two DC Nodes with a series resistance.
+
+A DC Line has two DC Terminals.
+
+**Characteristics**
+
+| Attribute | Unit     | Description                            |
+|-----------|----------|----------------------------------------|
+| $R$       | $\Omega$ | The series resistance, always positive |
+
+
+#### DC Switch
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcSwitch.html)<br>
+A DC Switch connects two DC Nodes and can be opened or closed.
+
+**Characteristics**
+
+| Attribute  | Unit           | Description                                                       |
+|------------|----------------|-------------------------------------------------------------------|
+| $Kind$     | `DcSwitchKind` | Either DISCONNECTOR or BREAKER                                    |
+| $Open$     |                | True if the switch is opened                                      |
+| $Retained$ |                | True if the switch must be retained in the DC topology processing |
+
+#### DC Ground
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcGround.html)<br>
+DC Grounds represent grounding electrodes and are modeled as having zero voltage potential with a grounding resistance taken into account.
+
+A DC Ground has a single DC Terminal.
+
+**Characteristics**
+
+| Attribute | Unit     | Description                               |
+|-----------|----------|-------------------------------------------|
+| $R$       | $\Omega$ | The grounding resistance, always positive |
+
+
+#### AC/DC Converter
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/AcDcConverter.html)<br>
+
+AC/DC Converter transfers power between AC and DC grids. Its connectivity is modeled with:
+- either one or two AC Terminals,
+- exactly two DC Terminals
+
+AC/DC Converter can be either a Line Commutated Converter (LCC) or Voltage Source Converter (VSC).
+LCC and VSC share the following characteristics.
+
+**Characteristics**
+
+| Attribute       | Unit     | Description                                                           |
+|-----------------|----------|-----------------------------------------------------------------------|
+| $IdleLoss$      | MW       | Losses at no load                                                     |
+| $SwitchingLoss$ | MW / A   | Switching losses                                                      |
+| $ResistiveLoss$ | $\Omega$ | Resistive losses                                                      |
+| $PccTerminal$   |          | Point of common coupling (PCC) AC terminal                            |
+| $ControlMode$   |          | The converter's control mode: P_PCC or V_DC                           |
+| $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
+| $TargetVdc$     | kV       | DC voltage target                                                     |
+
+##### Line Commutated Converter
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LineCommutatedConverter.html)<br>
+
+**Characteristics**
+
+| Attribute       | Unit | Description                                                    |
+|-----------------|------|----------------------------------------------------------------|
+| $ReactiveModel$ |      | FIXED_POWER_FACTOR or CALCULATED_POWER_FACTOR                  |
+| $PowerFactor$   | %    | Ratio between the active power $P$ and the apparent power $S$. |
+
+##### Voltage Source Converter
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageSourceConverter.html)<br>
+
+**Characteristics**
+
+| Attribute               | Unit | Description                                |
+|-------------------------|------|--------------------------------------------|
+| $VoltageRegulatorOn$    |      | True if the converter regulates voltage    |
+| $VoltageSetpoint$       | kV   | The voltage setpoint for regulation        |
+| $ReactivePowerSetpoint$ | MVar | The reactive power setpoint for regulation |
 
 (busbar-section)=
 ## Busbar section

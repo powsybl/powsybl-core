@@ -74,7 +74,7 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The converter's point of common coupling (PCC) terminal</td>
+ *             <td style="border: 1px solid black">The converter's point of common coupling (PCC) AC terminal</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">ControlMode</td>
