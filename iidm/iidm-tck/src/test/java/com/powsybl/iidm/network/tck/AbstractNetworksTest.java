@@ -115,7 +115,7 @@ public abstract class AbstractNetworksTest {
         assertEquals(dl.getTerminal().getBusView().getBus().getV(), dl.getGeneration().getTargetV());
 
         dl.getGeneration().setVoltageRegulationOn(false).setTargetV(Double.NaN).setTargetQ(35);
-        assertNotEquals(dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
+        assertNotEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
 
         Networks.applySolvedValues(network);
         assertEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
