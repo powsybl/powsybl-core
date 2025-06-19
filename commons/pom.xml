@@ -57,6 +57,10 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.re2j</groupId>
+            <artifactId>re2j</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.univocity</groupId>
             <artifactId>univocity-parsers</artifactId>
         </dependency>
@@ -121,6 +125,11 @@
         <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

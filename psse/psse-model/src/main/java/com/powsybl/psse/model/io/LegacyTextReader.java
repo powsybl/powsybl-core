@@ -7,6 +7,7 @@
  */
 package com.powsybl.psse.model.io;
 
+import com.google.re2j.Matcher;
 import com.powsybl.psse.model.PsseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.regex.Matcher;
 
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 

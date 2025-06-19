@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
@@ -35,7 +36,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -8,6 +8,8 @@
 
 package com.powsybl.cgmes.model.triplestore;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.report.ReportNode;
@@ -31,8 +33,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.CGMES_EQ_3_OR_GREATER_PREFIX;
 import static com.powsybl.cgmes.model.CgmesNamespace.CIM_100_EQ_PROFILE;

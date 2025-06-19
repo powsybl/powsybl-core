@@ -8,6 +8,7 @@
 package com.powsybl.commons.datasource;
 
 import com.google.common.io.ByteStreams;
+import com.google.re2j.Pattern;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -17,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**

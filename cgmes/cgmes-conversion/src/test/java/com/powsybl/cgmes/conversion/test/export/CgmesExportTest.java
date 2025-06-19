@@ -9,6 +9,8 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
@@ -37,8 +39,6 @@ import java.io.InputStream;
 import java.nio.file.*;
 import java.util.List;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -424,7 +424,7 @@ class CgmesExportTest {
             String regex = "<md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>";
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(eqFile);
-            assertEquals(1, matcher.results().count());
+            assertEquals(1, matcherCount(matcher));
         }
     }
 

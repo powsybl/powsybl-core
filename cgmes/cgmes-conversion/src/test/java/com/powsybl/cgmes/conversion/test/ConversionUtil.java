@@ -7,6 +7,8 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.conversion.Conversion;
@@ -29,8 +31,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -135,6 +135,14 @@ public final class ConversionUtil {
         String regex = "(<cim:" + className + " (rdf:ID=\"_|rdf:about=\"#_).*?\")>";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(xmlFile);
-        return matcher.results().count();
+        return matcherCount(matcher);
+    }
+
+    public static int matcherCount(Matcher matcher) {
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+        return count;
     }
 }
