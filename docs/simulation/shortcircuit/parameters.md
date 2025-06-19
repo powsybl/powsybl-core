@@ -17,6 +17,8 @@ short-circuit-parameters:
   with-neutral-position: true
   initial-voltage-profile-mode: CONFIGURED
   voltage-ranges: /path/to/voltage/ranges/file
+  detailedReport: true
+  debugDir: null
 ```
 
 Available parameters in the short-circuit API are stored in `com.powsybl.shortcircuit.ShortCircuitParameters`. They are all optional.
@@ -135,6 +137,13 @@ Here is an example of this JSON file:
     }
 ]
 ````
+
+**detailedReport**
+This property indicates whether the computation should produce detailed reporting. If `true`, detailed reports are returned.
+If `false`, summarized reports are returned.
+
+**debugDir**
+This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
 
 (shortcircuit-fault-parameters)=
 ## FaultParameters
