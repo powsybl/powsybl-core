@@ -22,8 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Consumer;
 
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createTopologyWithConnectableNode;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getPositionRange;
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
@@ -75,9 +77,9 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             String busOrBusbarSectionId = getBusOrBusbarSectionId(side);
             Identifiable<?> busOrBusbarSection = network.getIdentifiable(busOrBusbarSectionId);
             if (busOrBusbarSection instanceof BusbarSection busbarSection) {
-                VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
+                VoltageLevel voltageLevel = busbarSection.getTerminal().getVoltageLevel();
                 Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
-                boolean checkOrderValue = checkOrderValue(side, bbs, takenFeederPositions, reportNode, throwException);
+                boolean checkOrderValue = checkOrderValue(side, busbarSection, takenFeederPositions, reportNode, throwException);
                 if (!checkOrderValue) {
                     if (getForceExtensionCreation(side)) {
                         return;
@@ -148,67 +150,56 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     private boolean checkOrderValue(int side, BusbarSection busbarSection, Set<Integer> takenFeederPositions, ReportNode reportNode, boolean throwException) {
         Integer positionOrder = getPositionOrder(side);
+        boolean forceExtensionCreation = getForceExtensionCreation(side);
 
         if (takenFeederPositions.contains(positionOrder)) {
-            if (getForceExtensionCreation(side)) {
-                LOGGER.error("PositionOrder {} already taken.", positionOrder);
-                positionOrderAlreadyTakenReport(reportNode, positionOrder, TypedValue.ERROR_SEVERITY);
-                if (throwException) {
-                    throw new PowsyblException("PositionOrder " + positionOrder + " already taken.");
-                }
-            } else {
-                LOGGER.warn("PositionOrder {} already taken.", positionOrder);
-                positionOrderAlreadyTakenReport(reportNode, positionOrder, TypedValue.WARN_SEVERITY);
-            }
-            return false;
+            String msg = "PositionOrder " + positionOrder + " already taken.";
+            return logAndReport(forceExtensionCreation, throwException, msg,
+                severity -> positionOrderAlreadyTakenReport(reportNode, positionOrder, severity)
+            );
         }
 
-        Optional<Range<Integer>> positionRangeForSection = getPositionRange(busbarSection);
-        if (positionRangeForSection.isEmpty()) {
-            if (getForceExtensionCreation(side)) {
-                LOGGER.error("Positions of adjacent busbar sections do not leave slots for new positions on busbar section '{}'.", busbarSection.getId());
-                positionNoSlotLeftByAdjacentBbsReport(reportNode, busbarSection.getId(), TypedValue.ERROR_SEVERITY);
-                if (throwException) {
-                    throw new PowsyblException("Positions of adjacent busbar sections do not leave slots for new positions on busbar section '" + busbarSection.getId() + "'.");
-                }
-            } else {
-                LOGGER.warn("Positions of adjacent busbar sections do not leave slots for new positions on busbar section '{}'.", busbarSection.getId());
-                positionNoSlotLeftByAdjacentBbsReport(reportNode, busbarSection.getId(), TypedValue.WARN_SEVERITY);
-            }
-            return false;
+        Optional<Range<Integer>> rangeOpt = getPositionRange(busbarSection);
+        if (rangeOpt.isEmpty()) {
+            String msg = "Positions of adjacent busbar sections do not leave slots for new positions on busbar section '" + busbarSection.getId() + "'.";
+            return logAndReport(forceExtensionCreation, throwException, msg,
+                severity -> positionNoSlotLeftByAdjacentBbsReport(reportNode, busbarSection.getId(), severity)
+            );
         }
 
-        int minValue = positionRangeForSection.get().getMinimum();
-        if (positionOrder < minValue) {
-            if (getForceExtensionCreation(side)) {
-                LOGGER.error("PositionOrder {} too low (<{}).", positionOrder, minValue);
-                positionOrderTooLowReport(reportNode, minValue, positionOrder, TypedValue.ERROR_SEVERITY);
-                if (throwException) {
-                    throw new PowsyblException("PositionOrder " + positionOrder + " too low (<" + minValue + ").");
-                }
-            } else {
-                LOGGER.warn("PositionOrder {} too low (<{}).", positionOrder, minValue);
-                positionOrderTooLowReport(reportNode, minValue, positionOrder, TypedValue.WARN_SEVERITY);
-            }
-            return false;
+        Range<Integer> range = rangeOpt.get();
+        if (positionOrder < range.getMinimum()) {
+            String msg = "PositionOrder " + positionOrder + " too low (<" + range.getMinimum() + ").";
+            return logAndReport(forceExtensionCreation, throwException, msg,
+                severity -> positionOrderTooLowReport(reportNode, range.getMinimum(), positionOrder, severity)
+            );
         }
 
-        int maxValue = positionRangeForSection.get().getMaximum();
-        if (positionOrder > maxValue) {
-            if (getForceExtensionCreation(side)) {
-                LOGGER.error("PositionOrder {} too high (>{}).", positionOrder, maxValue);
-                positionOrderTooHighReport(reportNode, maxValue, positionOrder, TypedValue.ERROR_SEVERITY);
-                if (throwException) {
-                    throw new PowsyblException("PositionOrder " + positionOrder + " too high (>" + maxValue + ").");
-                }
-            } else {
-                LOGGER.warn("PositionOrder {} too high (>{}).", positionOrder, maxValue);
-                positionOrderTooHighReport(reportNode, maxValue, positionOrder, TypedValue.WARN_SEVERITY);
-            }
-            return false;
+        if (positionOrder > range.getMaximum()) {
+            String msg = "PositionOrder " + positionOrder + " too high (>" + range.getMaximum() + ").";
+            return logAndReport(forceExtensionCreation, throwException, msg,
+                severity -> positionOrderTooHighReport(reportNode, range.getMaximum(), positionOrder, severity)
+            );
         }
-
         return true;
+    }
+
+    private boolean logAndReport(boolean forceExtensionCreation, boolean throwException, String message,
+                                 Consumer<TypedValue> report) {
+        TypedValue severity = forceExtensionCreation ? TypedValue.ERROR_SEVERITY : TypedValue.WARN_SEVERITY;
+        if (forceExtensionCreation) {
+            LOGGER.error(message);
+        } else {
+            LOGGER.warn(message);
+        }
+
+        report.accept(severity);
+
+        if (forceExtensionCreation && throwException) {
+            throw new PowsyblException(message);
+        }
+
+        return false;
     }
 
     /**
