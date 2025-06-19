@@ -107,7 +107,9 @@ abstract class AbstractTapChangerAdderImpl<
         }
 
         if (solvedTapPosition != null && (solvedTapPosition < lowTapPosition || solvedTapPosition > highTapPosition)) {
-            LOGGER.warn("{} has incorrect solved tap position {}. It is not within bounds [{}, {}].", parent, solvedTapPosition, lowTapPosition, highTapPosition);
+            throw new ValidationException(parent, "incorrect solved tap position "
+                + solvedTapPosition + " [" + lowTapPosition + ", " + highTapPosition
+                + "]");
         }
 
         network.setValidationLevelIfGreaterThan(checkTapChangerRegulation(parent, regulationValue, regulating, loadTapChangingCapabilities, regulationTerminal));

@@ -315,9 +315,9 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             + "]");
     }
 
-    private void throwIncorrectSolvedTapPosition(int tapPosition, int highTapPosition) {
+    private void throwIncorrectSolvedTapPosition(int solvedTapPosition, int highTapPosition) {
         throw new ValidationException(parent, "incorrect solved tap position "
-            + tapPosition + " [" + lowTapPosition + ", " + highTapPosition
+            + solvedTapPosition + " [" + lowTapPosition + ", " + highTapPosition
             + "]");
     }
 
