@@ -72,10 +72,10 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     private final class VariantImpl implements Variant {
 
         final CalculatedBusTopology calculatedBusTopology
-            = new CalculatedBusTopology();
+                = new CalculatedBusTopology();
 
         final CalculatedBusBreakerTopology calculatedBusBreakerTopology
-            = new CalculatedBusBreakerTopology();
+                = new CalculatedBusBreakerTopology();
 
         @Override
         public VariantImpl copy() {
@@ -474,8 +474,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
                     switch (connectable.getType()) {
-                        case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION,
-                             DANGLING_LINE -> {
+                        case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, DANGLING_LINE -> {
                             branchCount++;
                             feederCount++;
                         }
@@ -489,7 +488,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 }
             }
             return busbarSectionCount >= 1 && feederCount >= 1
-                || branchCount >= 1 && feederCount >= 2;
+                    || branchCount >= 1 && feederCount >= 2;
         }
     }
 
@@ -606,8 +605,8 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     @Override
     public Iterable<Terminal> getTerminals() {
         return FluentIterable.from(graph.getVerticesObj())
-            .filter(Predicates.notNull())
-            .transform(Functions.identity());
+                .filter(Predicates.notNull())
+                .transform(Functions.identity());
     }
 
     @Override
@@ -635,7 +634,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         Integer e = switches.get(switchId);
         if (e == null) {
             throw new PowsyblException("Switch '" + switchId
-                + "' not found in voltage level '" + voltageLevel.getId() + "'");
+                    + "' not found in voltage level '" + voltageLevel.getId() + "'");
         }
         graph.removeEdge(e, notify);
         graph.removeIsolatedVertices(notify);
@@ -821,27 +820,27 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         @Override
         public Stream<InternalConnection> getInternalConnectionStream() {
             return Arrays.stream(graph.getEdges())
-                .filter(e -> graph.getEdgeObject(e) == null)
-                .mapToObj(e -> new InternalConnection() {
-                    @Override
-                    public int getNode1() {
-                        return graph.getEdgeVertex1(e);
-                    }
+                    .filter(e -> graph.getEdgeObject(e) == null)
+                    .mapToObj(e -> new InternalConnection() {
+                        @Override
+                        public int getNode1() {
+                            return graph.getEdgeVertex1(e);
+                        }
 
-                    @Override
-                    public int getNode2() {
-                        return graph.getEdgeVertex2(e);
-                    }
-                });
+                        @Override
+                        public int getNode2() {
+                            return graph.getEdgeVertex2(e);
+                        }
+                    });
         }
 
         @Override
         public void removeInternalConnections(int node1, int node2) {
             int[] internalConnectionsToBeRemoved = Arrays.stream(graph.getEdges())
-                .filter(e -> graph.getEdgeObject(e) == null)
-                .filter(e -> graph.getEdgeVertex1(e) == node1 && graph.getEdgeVertex2(e) == node2
-                    || graph.getEdgeVertex1(e) == node2 && graph.getEdgeVertex2(e) == node1)
-                .toArray();
+                    .filter(e -> graph.getEdgeObject(e) == null)
+                    .filter(e -> graph.getEdgeVertex1(e) == node1 && graph.getEdgeVertex2(e) == node2
+                            || graph.getEdgeVertex1(e) == node2 && graph.getEdgeVertex2(e) == node1)
+                    .toArray();
             if (internalConnectionsToBeRemoved.length == 0) {
                 throw new PowsyblException("Internal connection not found between " + node1 + " and " + node2);
             }
@@ -1115,16 +1114,16 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     private void checkTerminal(TerminalExt terminal) {
         if (!(terminal instanceof NodeTerminal)) {
             throw new ValidationException(terminal.getConnectable(),
-                "voltage level " + voltageLevel.getId() + " has a node/breaker topology"
-                    + ", a node connection should be specified instead of a bus connection");
+                    "voltage level " + voltageLevel.getId() + " has a node/breaker topology"
+                            + ", a node connection should be specified instead of a bus connection");
         }
         int node = ((NodeTerminal) terminal).getNode();
         graph.addVertexIfNotPresent(node);
         if (graph.getVertexObject(node) != null) {
             throw new ValidationException(terminal.getConnectable(),
-                "an equipment (" + graph.getVertexObject(node).getConnectable().getId()
-                    + ") is already connected to node " + node + " of voltage level "
-                    + voltageLevel.getId());
+                    "an equipment (" + graph.getVertexObject(node).getConnectable().getId()
+                            + ") is already connected to node " + node + " of voltage level "
+                            + voltageLevel.getId());
         }
     }
 
@@ -1709,17 +1708,17 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             if (terminal != null) {
                 AbstractConnectable connectable = terminal.getConnectable();
                 label += System.lineSeparator() + connectable.getType().toString()
-                    + System.lineSeparator() + connectable.getId()
-                    + connectable.getOptionalName().map(name -> System.lineSeparator() + name).orElse("");
+                        + System.lineSeparator() + connectable.getId()
+                        + connectable.getOptionalName().map(name -> System.lineSeparator() + name).orElse("");
             }
             GraphVizNode gvNode = gvGraph.node(scope, n)
-                .label(label)
-                .shape("ellipse");
+                    .label(label)
+                    .shape("ellipse");
             if (bus != null) {
                 gvNode.style("filled")
-                    .attr(GraphVizAttribute.fillcolor, busColor.get(bus.getId()));
+                        .attr(GraphVizAttribute.fillcolor, busColor.get(bus.getId()));
                 gvGraph.cluster(scope, bus).add(gvNode)
-                    .attr(GraphVizAttribute.pencolor, "transparent");
+                        .attr(GraphVizAttribute.pencolor, "transparent");
             }
         }
     }
@@ -1734,7 +1733,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                     edge.label(aSwitch.getKind().toString()
                             + System.lineSeparator() + aSwitch.getId()
                             + aSwitch.getOptionalName().map(n -> System.lineSeparator() + n).orElse(""))
-                        .attr(GraphVizAttribute.fontsize, "10");
+                            .attr(GraphVizAttribute.fontsize, "10");
                 }
                 edge.style(aSwitch.isOpen() ? "dotted" : "solid");
             }
