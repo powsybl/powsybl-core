@@ -74,7 +74,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         for (int side : sides) {
             String busOrBusbarSectionId = getBusOrBusbarSectionId(side);
             Identifiable<?> busOrBusbarSection = network.getIdentifiable(busOrBusbarSectionId);
-            if (busOrBusbarSection instanceof BusbarSection bbs) {
+            if (busOrBusbarSection instanceof BusbarSection busbarSection) {
                 VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
                 Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
                 boolean checkOrderValue = checkOrderValue(side, bbs, takenFeederPositions, reportNode, throwException);
