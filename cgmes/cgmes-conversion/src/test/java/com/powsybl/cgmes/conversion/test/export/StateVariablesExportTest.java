@@ -49,6 +49,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.matcherCount;
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -267,7 +268,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         SvShuntCompensatorSections svdata = new SvShuntCompensatorSections();
         try (InputStream is = new ByteArrayInputStream(sv.getBytes(StandardCharsets.UTF_8))) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             Integer sections = null;
             String shuntCompensatorId = null;
             while (reader.hasNext()) {
@@ -425,7 +426,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         String description = "";
         boolean insideTopologicalIsland = false;
         try (InputStream is = Files.newInputStream(sv)) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             while (reader.hasNext()) {
                 int token = reader.next();
                 if (token == XMLStreamConstants.START_ELEMENT) {
@@ -497,7 +498,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         SvTapSteps svTapSteps = new SvTapSteps();
         try (InputStream is = new ByteArrayInputStream(sv.getBytes(StandardCharsets.UTF_8))) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             Integer position = null;
             String tapChangerId = null;
             while (reader.hasNext()) {
