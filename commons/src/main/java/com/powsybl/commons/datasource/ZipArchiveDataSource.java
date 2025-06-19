@@ -8,6 +8,7 @@
 package com.powsybl.commons.datasource;
 
 import com.google.common.io.ByteStreams;
+import com.google.re2j.Pattern;
 import com.powsybl.commons.io.ForwardingInputStream;
 import com.powsybl.commons.io.ForwardingOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -23,7 +24,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 

@@ -7,10 +7,11 @@
  */
 package com.powsybl.entsoe.util;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  *
