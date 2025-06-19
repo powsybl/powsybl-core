@@ -162,4 +162,11 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
         // An exception is thrown because the directory does not exist
         assertThrows(IOException.class, () -> dataSource.listNames(".*"));
     }
+
+    @Override
+    protected DirectoryDataSource createDataSourceForPolynomialRegexTest() throws IOException {
+        String filename = "a".repeat(100) + "!";
+        Files.createFile(testDir.resolve(filename));
+        return new DirectoryDataSource(testDir, "");
+    }
 }

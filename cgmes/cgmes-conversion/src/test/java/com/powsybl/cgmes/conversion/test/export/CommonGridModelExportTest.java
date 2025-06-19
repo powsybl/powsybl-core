@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
@@ -25,7 +26,6 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -35,9 +35,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -594,7 +594,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
 
     private static Optional<Integer> readVersion(InputStream is) {
         try {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             while (reader.hasNext()) {
                 int next = reader.next();
                 if (next == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals("Model.version")) {
@@ -620,7 +620,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
 
     private static String readId(InputStream is) {
         try {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             while (reader.hasNext()) {
                 int next = reader.next();
                 if (next == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals("FullModel")) {
