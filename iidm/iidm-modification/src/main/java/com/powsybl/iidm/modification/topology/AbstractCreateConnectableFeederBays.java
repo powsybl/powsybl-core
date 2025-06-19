@@ -273,7 +273,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             int positionOrder = getPositionOrder(side);
             if (!takenFeederPositions.isEmpty() || voltageLevel.getConnectableStream().filter(c -> !(c instanceof BusbarSection)).count() == 1) {
                 // check that there are existing position extensions on other connectables or there is only one connectable (that we added)
-                if (createExtension.get(side)) { // BusbarSection as voltage level is NODE_BREAKER
+                if (Boolean.TRUE.equals(createExtension.get(side))) { // BusbarSection as voltage level is NODE_BREAKER
                     getFeederAdder(side, connectablePositionAdder)
                             .withDirection(getDirection(side))
                             .withOrder(positionOrder)
