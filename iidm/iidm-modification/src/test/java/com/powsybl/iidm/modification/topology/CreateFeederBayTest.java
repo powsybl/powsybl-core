@@ -431,7 +431,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
     }
 
     @Test
-    void testNoConnectableCreatedIfOrderPositionIsOutOfRangeAndForceExtensionCreation() {
+    void testNoConnectableCreatedIfOrderPositionIsOutOfRangeAndLogOrThrowIfIncorrectPositionOrder() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
             .setId("newLoad")
@@ -444,7 +444,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .withInjectionAdder(loadAdder)
             .withBusOrBusbarSectionId("bbs1")
             .withInjectionPositionOrder(101)
-            .withForceExtensionCreation(true)
+            .withLogOrThrowIfIncorrectPositionOrder(true)
             .build().apply(network);
         assertNull(network.getLoad("newLoad"));
 
@@ -454,7 +454,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .withInjectionAdder(loadAdder)
             .withBusOrBusbarSectionId("bbs4")
             .withInjectionPositionOrder(61)
-            .withForceExtensionCreation(true)
+            .withLogOrThrowIfIncorrectPositionOrder(true)
             .build().apply(network);
         assertNull(network.getLoad("newLoad2"));
 
@@ -464,7 +464,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .withInjectionAdder(loadAdder)
             .withBusOrBusbarSectionId("bbs1")
             .withInjectionPositionOrder(51)
-            .withForceExtensionCreation(true)
+            .withLogOrThrowIfIncorrectPositionOrder(true)
             .build().apply(network);
         assertNull(network.getLoad("newLoad3"));
 
@@ -473,7 +473,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .withInjectionAdder(loadAdder)
             .withBusOrBusbarSectionId("bbs3")
             .withInjectionPositionOrder(101)
-            .withForceExtensionCreation(true)
+            .withLogOrThrowIfIncorrectPositionOrder(true)
             .build().apply(network);
         assertNull(network.getLoad("newLoad4"));
     }

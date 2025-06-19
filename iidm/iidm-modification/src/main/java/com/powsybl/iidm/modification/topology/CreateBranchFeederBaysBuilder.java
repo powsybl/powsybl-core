@@ -24,11 +24,11 @@ public class CreateBranchFeederBaysBuilder {
     private String feederName2 = null;
     private ConnectablePosition.Direction direction1 = ConnectablePosition.Direction.TOP;
     private ConnectablePosition.Direction direction2 = ConnectablePosition.Direction.TOP;
-    private boolean forceExtensionCreation1 = false;
-    private boolean forceExtensionCreation2 = false;
+    private boolean logOrThrowIfIncorrectPositionOrder1 = false;
+    private boolean logOrThrowIfIncorrectPositionOrder2 = false;
 
     public CreateBranchFeederBays build() {
-        return new CreateBranchFeederBays(branchAdder, busOrBbs1, busOrBbs2, positionOrder1, positionOrder2, feederName1, feederName2, direction1, direction2, forceExtensionCreation1, forceExtensionCreation2);
+        return new CreateBranchFeederBays(branchAdder, busOrBbs1, busOrBbs2, positionOrder1, positionOrder2, feederName1, feederName2, direction1, direction2, logOrThrowIfIncorrectPositionOrder1, logOrThrowIfIncorrectPositionOrder2);
     }
 
     public CreateBranchFeederBaysBuilder withBranchAdder(BranchAdder<?, ?> branchAdder) {
@@ -102,13 +102,13 @@ public class CreateBranchFeederBaysBuilder {
         return this;
     }
 
-    public CreateBranchFeederBaysBuilder withForceExtensionCreation1(boolean forceExtensionCreation1) {
-        this.forceExtensionCreation1 = forceExtensionCreation1;
+    public CreateBranchFeederBaysBuilder withLogOrThrowIfIncorrectPositionOrder1(boolean logOrThrowIfIncorrectPositionOrder) {
+        this.logOrThrowIfIncorrectPositionOrder1 = logOrThrowIfIncorrectPositionOrder;
         return this;
     }
 
-    public CreateBranchFeederBaysBuilder withForceExtensionCreation2(boolean forceExtensionCreation2) {
-        this.forceExtensionCreation2 = forceExtensionCreation2;
+    public CreateBranchFeederBaysBuilder withLogOrThrowIfIncorrectPositionOrder2(boolean logOrThrowIfIncorrectPositionOrder) {
+        this.logOrThrowIfIncorrectPositionOrder2 = logOrThrowIfIncorrectPositionOrder;
         return this;
     }
 }

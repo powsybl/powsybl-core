@@ -58,7 +58,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     protected abstract ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder);
 
-    protected abstract boolean getForceExtensionCreation(int side);
+    protected abstract boolean getLogOrThrowIfIncorrectPositionOrder(int side);
 
     protected AbstractCreateConnectableFeederBays(int... sides) {
         this.sides = Arrays.copyOf(sides, sides.length);
@@ -81,7 +81,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
                 boolean checkOrderValue = checkOrderValue(side, busbarSection, takenFeederPositions, reportNode, throwException);
                 if (!checkOrderValue) {
-                    if (getForceExtensionCreation(side)) {
+                    if (getLogOrThrowIfIncorrectPositionOrder(side)) {
                         return;
                     } else {
                         createExtension.put(side, false);
@@ -150,11 +150,11 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     private boolean checkOrderValue(int side, BusbarSection busbarSection, Set<Integer> takenFeederPositions, ReportNode reportNode, boolean throwException) {
         Integer positionOrder = getPositionOrder(side);
-        boolean forceExtensionCreation = getForceExtensionCreation(side);
+        boolean logOrThrowIfIncorrectPositionOrder = getLogOrThrowIfIncorrectPositionOrder(side);
 
         if (takenFeederPositions.contains(positionOrder)) {
             String msg = "PositionOrder " + positionOrder + " already taken.";
-            return logAndReport(forceExtensionCreation, throwException, msg,
+            return logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
                 severity -> positionOrderAlreadyTakenReport(reportNode, positionOrder, severity)
             );
         }
@@ -162,7 +162,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         Optional<Range<Integer>> rangeOpt = getPositionRange(busbarSection);
         if (rangeOpt.isEmpty()) {
             String msg = "Positions of adjacent busbar sections do not leave slots for new positions on busbar section '" + busbarSection.getId() + "'.";
-            return logAndReport(forceExtensionCreation, throwException, msg,
+            return logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
                 severity -> positionNoSlotLeftByAdjacentBbsReport(reportNode, busbarSection.getId(), severity)
             );
         }
@@ -170,24 +170,24 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         Range<Integer> range = rangeOpt.get();
         if (positionOrder < range.getMinimum()) {
             String msg = "PositionOrder " + positionOrder + " too low (<" + range.getMinimum() + ").";
-            return logAndReport(forceExtensionCreation, throwException, msg,
+            return logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
                 severity -> positionOrderTooLowReport(reportNode, range.getMinimum(), positionOrder, severity)
             );
         }
 
         if (positionOrder > range.getMaximum()) {
             String msg = "PositionOrder " + positionOrder + " too high (>" + range.getMaximum() + ").";
-            return logAndReport(forceExtensionCreation, throwException, msg,
+            return logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
                 severity -> positionOrderTooHighReport(reportNode, range.getMaximum(), positionOrder, severity)
             );
         }
         return true;
     }
 
-    private boolean logAndReport(boolean forceExtensionCreation, boolean throwException, String message,
+    private boolean logAndReport(boolean logOrThrowIfIncorrectPositionOrder, boolean throwException, String message,
                                  Consumer<TypedValue> report) {
-        TypedValue severity = forceExtensionCreation ? TypedValue.ERROR_SEVERITY : TypedValue.WARN_SEVERITY;
-        if (forceExtensionCreation) {
+        TypedValue severity = logOrThrowIfIncorrectPositionOrder ? TypedValue.ERROR_SEVERITY : TypedValue.WARN_SEVERITY;
+        if (logOrThrowIfIncorrectPositionOrder) {
             LOGGER.error(message);
         } else {
             LOGGER.warn(message);
@@ -195,7 +195,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
         report.accept(severity);
 
-        if (forceExtensionCreation && throwException) {
+        if (logOrThrowIfIncorrectPositionOrder && throwException) {
             throw new PowsyblException(message);
         }
 

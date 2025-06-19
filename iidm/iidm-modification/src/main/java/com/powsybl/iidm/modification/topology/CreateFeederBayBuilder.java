@@ -20,10 +20,10 @@ public class CreateFeederBayBuilder {
     private Integer injectionPositionOrder = null;
     private String injectionFeederName = null;
     private ConnectablePosition.Direction injectionDirection = ConnectablePosition.Direction.BOTTOM;
-    private boolean forceExtensionCreation;
+    private boolean logOrThrowIfIncorrectPositionOrder;
 
     public CreateFeederBay build() {
-        return new CreateFeederBay(injectionAdder, busOrBusbarSection, injectionPositionOrder, injectionFeederName, injectionDirection, forceExtensionCreation);
+        return new CreateFeederBay(injectionAdder, busOrBusbarSection, injectionPositionOrder, injectionFeederName, injectionDirection, logOrThrowIfIncorrectPositionOrder);
     }
 
     public CreateFeederBayBuilder withInjectionAdder(InjectionAdder<?, ?> injectionAdder) {
@@ -64,8 +64,8 @@ public class CreateFeederBayBuilder {
         return this;
     }
 
-    public CreateFeederBayBuilder withForceExtensionCreation(boolean forceExtensionCreation) {
-        this.forceExtensionCreation = forceExtensionCreation;
+    public CreateFeederBayBuilder withLogOrThrowIfIncorrectPositionOrder(boolean logOrThrowIfIncorrectPositionOrder) {
+        this.logOrThrowIfIncorrectPositionOrder = logOrThrowIfIncorrectPositionOrder;
         return this;
     }
 

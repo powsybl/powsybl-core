@@ -403,7 +403,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
     }
 
     @Test
-    void testNoConnectableCreatedIfOrderPositionIsOutOfRangeAndForceExtensionCreation() {
+    void testNoConnectableCreatedIfOrderPositionIsOutOfRangeAndLogOrThrowIfIncorrectPositionOrder() {
         LineAdder lineAdder = nbNetwork.newLine()
             .setId("lineTest")
             .setR(1.0)
@@ -418,10 +418,10 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
             .withBranchAdder(lineAdder)
             .withBusOrBusbarSectionId1("bbs2")
             .withPositionOrder1(80)
-            .withForceExtensionCreation1(true)
+            .withLogOrThrowIfIncorrectPositionOrder1(true)
             .withBusOrBusbarSectionId2("bbs1_2")
             .withPositionOrder2(11)
-            .withForceExtensionCreation1(true)
+            .withLogOrThrowIfIncorrectPositionOrder2(true)
             .build().apply(nbNetwork);
         assertNull(nbNetwork.getLine("lineTest"));
 
@@ -430,10 +430,10 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
             .withBranchAdder(lineAdder)
             .withBusOrBusbarSectionId1("bbs1")
             .withPositionOrder1(81)
-            .withForceExtensionCreation1(true)
+            .withLogOrThrowIfIncorrectPositionOrder1(true)
             .withBusOrBusbarSectionId2("bbs1_2")
             .withPositionOrder2(11)
-            .withForceExtensionCreation1(true)
+            .withLogOrThrowIfIncorrectPositionOrder2(true)
             .build().apply(nbNetwork);
         assertNull(nbNetwork.getLine("lineTest"));
 
@@ -442,10 +442,10 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
             .withBranchAdder(lineAdder)
             .withBusOrBusbarSectionId1("bbs2")
             .withPositionOrder1(12)
-            .withForceExtensionCreation1(true)
+            .withLogOrThrowIfIncorrectPositionOrder1(true)
             .withBusOrBusbarSectionId2("bbs1_2")
             .withPositionOrder2(11)
-            .withForceExtensionCreation2(true)
+            .withLogOrThrowIfIncorrectPositionOrder2(true)
             .build().apply(nbNetwork);
         assertNull(nbNetwork.getLine("lineTest"));
 
@@ -456,10 +456,10 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
             .withBranchAdder(lineAdder)
             .withBusOrBusbarSectionId1("bbs1")
             .withPositionOrder1(71)
-            .withForceExtensionCreation1(true)
+            .withLogOrThrowIfIncorrectPositionOrder1(true)
             .withBusOrBusbarSectionId2("bbs1_2")
             .withPositionOrder2(11)
-            .withForceExtensionCreation2(true)
+            .withLogOrThrowIfIncorrectPositionOrder2(true)
             .build().apply(nbNetwork);
         assertNull(nbNetwork.getLine("lineTest"));
     }
