@@ -15,8 +15,20 @@ import javanet.staxutils.IndentingXMLStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.stream.*;
-import java.io.*;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -31,7 +43,9 @@ public final class XmlUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlUtil.class);
 
-    private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
+    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createXMLInputFactoryInstance);
+    private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createXMLOutputFactoryInstance);
+    private static final Supplier<DocumentBuilderFactory> DOCUMENT_BUILDER_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createDocumentBuilderFactoryInstance);
 
     private XmlUtil() {
     }
@@ -200,5 +214,68 @@ public final class XmlUtil {
         if (reader.next() != XMLStreamConstants.END_ELEMENT) {
             throw new PowsyblException("XMLStreamConstants.END_ELEMENT expected but found another event (eventType = '" + reader.getEventType() + "')");
         }
+    }
+
+    private static XMLInputFactory createXMLInputFactoryInstance() {
+        LOGGER.info("Configuring StAX XMLInputFactory...");
+        LOGGER.info("Some properties may not be supported by your implementation.");
+        LOGGER.info("This may not be a problem because some are overlapping.");
+        XMLInputFactory factory = XMLInputFactory.newInstance();
+        setProperty(factory, XMLInputFactory.SUPPORT_DTD, false);
+        setProperty(factory, XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        setProperty(factory, XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
+        // This causes XMLStreamException to be thrown if external DTDs are accessed.
+        setProperty(factory, XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        setProperty(factory, XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        setProperty(factory, XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+
+        setProperty(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        return factory;
+    }
+
+    private static void setProperty(XMLInputFactory factory, String property, Object value) {
+        try {
+            factory.setProperty(property, value);
+        } catch (IllegalArgumentException e) {
+            LOGGER.info("- Property unsupported by StAX implementation: {}", property);
+        }
+    }
+
+    private static XMLOutputFactory createXMLOutputFactoryInstance() {
+        return XMLOutputFactory.newFactory();
+    }
+
+    public static XMLOutputFactory getXMLOutputFactory() {
+        return XML_OUTPUT_FACTORY_SUPPLIER.get();
+    }
+
+    public static XMLInputFactory getXMLInputFactory() {
+        return XML_INPUT_FACTORY_SUPPLIER.get();
+    }
+
+    private static DocumentBuilderFactory createDocumentBuilderFactoryInstance() {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        factory.setNamespaceAware(true);
+        setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        setFeature(factory, "http://apache.org/xml/features/disallow-doctype-decl", true);
+        setFeature(factory, "http://xml.org/sax/features/external-general-entities", false);
+        setFeature(factory, "http://xml.org/sax/features/external-parameter-entities", false);
+        factory.setXIncludeAware(false);
+        factory.setExpandEntityReferences(false);
+        return factory;
+    }
+
+    private static void setFeature(DocumentBuilderFactory factory, String feature, boolean value) {
+        try {
+            factory.setFeature(feature, value);
+        } catch (ParserConfigurationException e) {
+            LOGGER.warn("Unable to set feature {} to {}", feature, value);
+        }
+    }
+
+    public static DocumentBuilderFactory getDocumentBuilderFactory() {
+        return DOCUMENT_BUILDER_FACTORY_SUPPLIER.get();
     }
 }
