@@ -28,6 +28,7 @@ public class PsseFixes {
     private static final Logger LOGGER = LoggerFactory.getLogger(PsseFixes.class);
     private final PssePowerFlowModel model;
     private final PsseVersion version;
+    private static final double NON_TRANSFORMER_BRANCH_X = 1e-4;
 
     public PsseFixes(PssePowerFlowModel model, PsseVersion version) {
         this.model = Objects.requireNonNull(model);
@@ -39,6 +40,7 @@ public class PsseFixes {
         // fix the controlled buses before fixing the winding cod
         fixControlledBuses();
         fixTransformersWindingCod();
+        fixNonTransformersBranchX();
     }
 
     private void fixDuplicatedIds() {
@@ -259,5 +261,14 @@ public class PsseFixes {
     @FunctionalInterface
     public interface IdFixer<T> {
         String fix(T t, Set<String> usedIds);
+    }
+
+    private void fixNonTransformersBranchX() {
+        model.getNonTransformerBranches().forEach(branch -> {
+            if (branch.getX() == 0) {
+                branch.setX(NON_TRANSFORMER_BRANCH_X);
+                LOGGER.warn("NonTransformerBranch X fixed: I {} J {} CKT '{}'. Fixed X '{}'", branch.getI(), branch.getJ(), branch.getCkt(), branch.getX());
+            }
+        });
     }
 }
