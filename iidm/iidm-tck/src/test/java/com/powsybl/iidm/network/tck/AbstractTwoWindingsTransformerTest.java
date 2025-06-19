@@ -322,8 +322,12 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         createTwoWindingTransformer("twt", TWT_NAME, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
 
         TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("twt");
+        Terminal terminal1 = twoWindingsTransformer.getTerminal(TwoSides.ONE);
 
-        RatioTapChanger ratioTapChanger = createRatioTapChanger(twoWindingsTransformer, twoWindingsTransformer.getTerminal(TwoSides.ONE), false, 1);
+        // Check that an exception is thrown if the solved tap position is wrong
+        assertThrows(ValidationException.class, () -> createRatioTapChanger(twoWindingsTransformer, terminal1, false, 50));
+
+        RatioTapChanger ratioTapChanger = createRatioTapChanger(twoWindingsTransformer, terminal1, false, 1);
         assertTrue(twoWindingsTransformer.getOptionalRatioTapChanger().isPresent());
         assertEquals(1, twoWindingsTransformer.getRatioTapChanger().getSolvedTapPosition());
         ratioTapChanger.setSolvedTapPosition(2);
