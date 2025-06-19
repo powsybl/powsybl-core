@@ -417,11 +417,10 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void noConnectablePositionExtension(ReportNode reportNode, VoltageLevel voltageLevel, String connectableId) {
+    public static void noConnectablePositionExtension(ReportNode reportNode, VoltageLevel voltageLevel) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.noConnectablePositionExtensions")
                 .withUntypedValue("voltageLevel", voltageLevel.getId())
-                .withUntypedValue(CONNECTABLE_ID, connectableId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }

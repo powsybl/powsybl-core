@@ -79,15 +79,22 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             if (busOrBusbarSection instanceof BusbarSection busbarSection) {
                 VoltageLevel voltageLevel = busbarSection.getTerminal().getVoltageLevel();
                 Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
-                boolean checkOrderValue = checkOrderValue(side, busbarSection, takenFeederPositions, reportNode, throwException);
-                if (!checkOrderValue) {
-                    if (getLogOrThrowIfIncorrectPositionOrder(side)) {
-                        return;
-                    } else {
-                        createExtension.put(side, false);
-                    }
+                // if no ConnectablePosition extension and non-empty voltage level, then no extension should be created
+                if (takenFeederPositions.isEmpty() && voltageLevel.getConnectableStream().anyMatch(c -> !(c instanceof BusbarSection))) {
+                    LOGGER.warn("No ConnectablePosition extension found on voltageLevel {}. The ConnectablePosition extension is not created.", voltageLevel.getId());
+                    noConnectablePositionExtension(reportNode, voltageLevel);
+                    createExtension.put(side, false);
                 } else {
-                    createExtension.put(side, true);
+                    boolean checkOrderValue = checkOrderValue(side, busbarSection, takenFeederPositions, reportNode, throwException);
+                    if (!checkOrderValue) {
+                        if (getLogOrThrowIfIncorrectPositionOrder(side)) {
+                            return;
+                        } else {
+                            createExtension.put(side, false);
+                        }
+                    } else {
+                        createExtension.put(side, true);
+                    }
                 }
             }
         }
@@ -265,25 +272,17 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
                 continue; // no extension nor switches created in bus-breaker topology
             }
-
-            // Get the set of existing position extensions on other connectables
-            Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
-
             // Get the wanted position for the new connectable
             int positionOrder = getPositionOrder(side);
-            if (!takenFeederPositions.isEmpty() || voltageLevel.getConnectableStream().filter(c -> !(c instanceof BusbarSection)).count() == 1) {
-                // check that there are existing position extensions on other connectables or there is only one connectable (that we added)
-                if (Boolean.TRUE.equals(createExtension.get(side))) { // BusbarSection as voltage level is NODE_BREAKER
-                    getFeederAdder(side, connectablePositionAdder)
-                            .withDirection(getDirection(side))
-                            .withOrder(positionOrder)
-                            .withName(getFeederName(side).orElse(connectableId))
-                            .add();
-                    createConnectablePosition = true;
-                }
-            } else {
-                LOGGER.warn("No ConnectablePosition extension found on voltageLevel {}. The ConnectablePosition extension is not created for new feeder {}.", voltageLevel.getId(), connectableId);
-                noConnectablePositionExtension(reportNode, voltageLevel, connectableId);
+
+            // Create extension depending on preprocessing done to create the createExtension map
+            if (Boolean.TRUE.equals(createExtension.get(side))) {
+                getFeederAdder(side, connectablePositionAdder)
+                        .withDirection(getDirection(side))
+                        .withOrder(positionOrder)
+                        .withName(getFeederName(side).orElse(connectableId))
+                        .add();
+                createConnectablePosition = true;
             }
             int connectableNode = getNode(side, connectable);
             // create switches and a breaker linking the connectable to the busbar sections.
