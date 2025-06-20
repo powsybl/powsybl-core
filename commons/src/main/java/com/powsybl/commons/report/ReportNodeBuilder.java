@@ -22,7 +22,7 @@ public interface ReportNodeBuilder extends ReportNodeAdderOrBuilder<ReportNodeBu
      * Sets the pattern used for timestamps, when a timestamp is added with {@link ReportNodeAdder#withTimestamp()}.
      * If no pattern is given, the default pattern {@link ReportConstants#DEFAULT_TIMESTAMP_PATTERN} is used.
      * Note that the {@link Locale} used to format the timestamps is the one set by {@link #withLocale(Locale)}, or,
-     * if not set, the default Locale {@link ReportConstants#DEFAULT_LOCALE}.
+     * if not set, the computed default Locale.
      *
      * @param timestampPattern : the pattern to use for the timestamp (see {@link DateTimeFormatter#ofPattern(String, Locale)}})
      * @return a reference to this object
