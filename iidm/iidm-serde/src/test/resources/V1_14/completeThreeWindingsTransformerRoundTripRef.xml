@@ -67,7 +67,7 @@
                 <iidm:step r="0.121" x="0.0121" g="0.8264462809917356" b="0.08264462809917356" rho="1.0"/>
                 <iidm:step r="0.1331" x="0.01331" g="0.9090909090909092" b="0.09090909090909093" rho="1.1"/>
             </iidm:ratioTapChanger3>
-            <iidm:phaseTapChanger3 lowTapPosition="1" tapPosition="2" loadTapChangingCapabilities="false" regulationMode="CURRENT_LIMITER" regulating="false">
+            <iidm:phaseTapChanger3 lowTapPosition="1" tapPosition="2" loadTapChangingCapabilities="false" regulationMode="CURRENT_LIMITER">
                 <iidm:step r="0.10000000149011612" x="0.10000000149011612" g="0.10000000149011612"
                            b="0.10000000149011612" rho="1.0" alpha="-50.0"/>
                 <iidm:step r="0.10000000149011612" x="0.10000000149011612" g="0.10000000149011612"
