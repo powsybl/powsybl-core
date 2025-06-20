@@ -377,7 +377,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     void testJVMDefaultFallbackWithLocaleNotExistingReport() {
         Locale previousLocale = Locale.getDefault();
         try {
-            //Set Locale default as FRENCH to be the fallback if ITALY report is not found
+            //Set Locale default as FRENCH, if ITALY report is not found the fallback will not be the French locale but the base file message template
             Locale.setDefault(Locale.FRENCH);
 
             String key = "rootWithValue";
@@ -387,7 +387,7 @@ class ReportNodeTest extends AbstractSerDeTest {
                     .withMessageTemplate(key)
                     .withUntypedValue("value", 4)
                     .build();
-            assertEquals("Message racine avec la valeur 4", report1.getMessage());
+            assertEquals("Root message with value 4", report1.getMessage());
         } finally {
             // Restore previous Locale for the other tests
             Locale.setDefault(previousLocale);
