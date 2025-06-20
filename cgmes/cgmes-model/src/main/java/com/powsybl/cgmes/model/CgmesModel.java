@@ -238,7 +238,5 @@ public interface CgmesModel {
 
     double nominalVoltage(String baseVoltageId);
 
-    default PropertyBags modelProfiles() {
-        throw new UnsupportedOperationException();
-    }
+    PropertyBags modelProfiles();
 }

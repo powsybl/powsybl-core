@@ -51,6 +51,7 @@ public class BatteryShortCircuitSerDe extends AbstractVersionableNetworkExtensio
                         .put(IidmVersion.V_1_11, LEGACY_VERSIONS)
                         .put(IidmVersion.V_1_12, LEGACY_VERSIONS)
                         .put(IidmVersion.V_1_13, ImmutableSortedSet.<String>reverseOrder().add(V1_0_LEGACY, V1_0_LEGACY_2, "1.0").build())
+                        .put(IidmVersion.V_1_14, ImmutableSortedSet.of("1.0"))
                         .build(),
                 new ImmutableMap.Builder<String, String>()
                         .put(V1_0_LEGACY, "http://www.itesla_project.eu/schema/iidm/ext/battery_short_circuits/1_0")

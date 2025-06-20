@@ -7,23 +7,27 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.RecordGroupIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Properties;
 
@@ -204,6 +208,11 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void twoTerminalDcwithTwoAreasTrf3w() throws IOException {
+        importTest("two_area_case_trf3w", "two_area_case_trf3w.raw", false);
+    }
+
+    @Test
     void importTest14BusesDuplicateIds() throws IOException {
         Network n = importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
         assertNotNull(n.getLoad("B2-L1 "));
@@ -376,5 +385,48 @@ class PsseImporterTest extends AbstractSerDeTest {
     @Test
     void importTest14Delimiter() throws IOException {
         importTest("IEEE_14_bus_delimiter", "IEEE_14_bus_delimiter.raw", false);
+    }
+
+    @Test
+    void emptyRecordParsingTest() {
+        DummyRecordGroup group = new DummyRecordGroup();
+        Context context = new Context();
+        assertThatExceptionOfType(PsseException.class)
+                .isThrownBy(() -> group.parseSingleRecord(null, new String[]{"field"}, context))
+                .withMessage("Parsing error");
+    }
+
+    public record DummyRecord(String field) {
+    }
+
+    public static class DummyRecordGroup extends AbstractRecordGroup<DummyRecord> {
+        public DummyRecordGroup() {
+            super(new RecordGroupIdentification() {
+                @Override
+                public String getDataName() {
+                    return "dummy";
+                }
+
+                @Override
+                public String getJsonNodeName() {
+                    return "dummyJson";
+                }
+
+                @Override
+                public String getLegacyTextName() {
+                    return "dummyLegacy";
+                }
+
+                @Override
+                public RecordGroupIdentification.JsonObjectType getJsonObjectType() {
+                    return RecordGroupIdentification.JsonObjectType.DATA_TABLE;
+                }
+            }, "field");
+        }
+
+        @Override
+        protected Class<DummyRecord> psseTypeClass() {
+            return DummyRecord.class;
+        }
     }
 }

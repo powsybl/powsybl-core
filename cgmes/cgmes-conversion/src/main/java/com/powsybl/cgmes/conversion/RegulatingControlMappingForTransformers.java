@@ -233,8 +233,6 @@ public class RegulatingControlMappingForTransformers {
             okSet = setPtcRegulatingControlCurrentFlow(rc.id, regulating, rc.ltcFlag, control, ptc, context);
         } else if (control.mode.endsWith("activepower")) {
             okSet = setPtcRegulatingControlActivePower(rc.id, regulating, rc.ltcFlag, control, ptc, context);
-        } else if (!control.mode.endsWith("fixed")) {
-            context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
         }
         control.setCorrectlySet(okSet);
     }

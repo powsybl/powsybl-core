@@ -27,5 +27,10 @@
     "contingencyId" : "contingencyId4",
     "identifier" : "identifier?",
     "wildcard" : "?"
+  }, {
+    "type" : "SUBSTATION_OR_VOLTAGE_LEVEL_EQUIPMENTS",
+    "contingencyId" : "substationId",
+    "substationOrVoltageLevelId" : "substationId",
+    "voltageLevelIdentifiableTypes" : [ "LINE" ]
   } ]
 }
