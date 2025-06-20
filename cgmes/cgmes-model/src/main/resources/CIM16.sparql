@@ -1034,6 +1034,40 @@ OPTIONAL { GRAPH ?graphSSH {
 }}
 }
 
+# query: dcSwitches
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?DCSwitch
+        a ?type ;
+        VALUES ?type { cim:DCSwitch cim:DCBreaker cim:DCDisconnector } .
+    OPTIONAL { ?DCSwitch cim:Equipment.EquipmentContainer ?EquipmentContainer }
+    OPTIONAL { ?DCSwitch cim:IdentifiedObject.name ?name ; }
+    ?DCTerminal1
+        a cim:DCTerminal ;
+        cim:DCTerminal.DCConductingEquipment ?DCSwitch .
+    OPTIONAL { ?DCTerminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
+    ?DCTerminal2
+        a cim:DCTerminal ;
+        cim:DCTerminal.DCConductingEquipment ?DCSwitch .
+    OPTIONAL { ?DCTerminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?DCTerminal1) < str(?DCTerminal2) )
+}}
+}
+
+# query: dcGrounds
+SELECT *
+WHERE {
+GRAPH ?graph {
+    ?DCGround
+        a cim:DCGround ;
+    OPTIONAL { ?DCGround cim:DCGround.r ?r }
+    ?DCTerminal1
+        a cim:DCTerminal ;
+        cim:DCTerminal.DCConductingEquipment ?DCGround
+}}
+
 # query: acDcConverters
 SELECT *
 WHERE {
@@ -1043,7 +1077,16 @@ WHERE {
         cim:IdentifiedObject.name ?name ;
         cim:ACDCConverter.ratedUdc ?ratedUdc .
     ?Terminal cim:Terminal.ConductingEquipment ?ACDCConverter .
-    # ?DCTerminal cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
+    ?DCTerminal1
+        a cim:ACDCConverterDCTerminal ;
+        cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
+    OPTIONAL { ?DCTerminal1 cim:ACDCConverterDCTerminal.sequenceNumber ?seq1 }
+    ?DCTerminal2
+        a cim:ACDCConverterDCTerminal ;
+        cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
+    OPTIONAL { ?DCTerminal2 cim:ACDCConverterDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?DCTerminal1) < str(?DCTerminal2) )
     VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter }
     OPTIONAL {
         ?ACDCConverter cim:ACDCConverter.PccTerminal ?PccTerminal
