@@ -394,7 +394,7 @@ public final class EurostagTutorialExample1Factory {
     public static Network createWithCurrentLimits() {
         Network network = createWithFixedCurrentLimits();
         Line line = network.getLine(NHV1_NHV2_1);
-        line.newCurrentLimits2()
+        line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
             .setPermanentLimit(1100)
             .beginTemporaryLimit()
             .setName("10'")
@@ -409,7 +409,7 @@ public final class EurostagTutorialExample1Factory {
             .add();
 
         line = network.getLine(NHV1_NHV2_2);
-        line.newCurrentLimits1()
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
             .setPermanentLimit(1100)
             .beginTemporaryLimit()
             .setName("20'")
@@ -450,8 +450,8 @@ public final class EurostagTutorialExample1Factory {
         Line line = network.getLine(NHV1_NHV2_1);
         line.getTerminal1().setP(560.0).setQ(550.0);
         line.getTerminal2().setP(-560.0).setQ(-550.0);
-        line.newCurrentLimits1().setPermanentLimit(500).add();
-        line.newCurrentLimits2()
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(500).add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -473,7 +473,7 @@ public final class EurostagTutorialExample1Factory {
         line = network.getLine(NHV1_NHV2_2);
         line.getTerminal1().setP(560.0).setQ(550.0);
         line.getTerminal2().setP(-560.0).setQ(-550.0);
-        line.newCurrentLimits1()
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -486,7 +486,7 @@ public final class EurostagTutorialExample1Factory {
                 .setValue(Double.MAX_VALUE)
                 .endTemporaryLimit()
                 .add();
-        line.newCurrentLimits2().setPermanentLimit(500).add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(500).add();
 
         return network;
     }
@@ -520,8 +520,8 @@ public final class EurostagTutorialExample1Factory {
         Line line = network.getLine(NHV1_NHV2_1);
         line.getTerminal1().setP(560.0).setQ(550.0);
         line.getTerminal2().setP(560.0).setQ(550.0);
-        line.newActivePowerLimits1().setPermanentLimit(500).add();
-        line.newActivePowerLimits2()
+        line.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits().setPermanentLimit(500).add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits()
             .setPermanentLimit(1100)
             .beginTemporaryLimit()
             .setName("10'")
@@ -540,8 +540,8 @@ public final class EurostagTutorialExample1Factory {
             .endTemporaryLimit()
             .add();
 
-        line.newApparentPowerLimits1().setPermanentLimit(500).add();
-        line.newApparentPowerLimits2()
+        line.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits().setPermanentLimit(500).add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits()
             .setPermanentLimit(1100)
             .beginTemporaryLimit()
             .setName("10'")
@@ -563,7 +563,7 @@ public final class EurostagTutorialExample1Factory {
         line = network.getLine(NHV1_NHV2_2);
         line.getTerminal1().setP(560.0).setQ(550.0);
         line.getTerminal2().setP(560.0).setQ(550.0);
-        line.newActivePowerLimits1()
+        line.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits()
             .setPermanentLimit(1100)
             .beginTemporaryLimit()
             .setName("20'")
@@ -576,9 +576,9 @@ public final class EurostagTutorialExample1Factory {
             .setValue(Double.MAX_VALUE)
             .endTemporaryLimit()
             .add();
-        line.newActivePowerLimits2().setPermanentLimit(500).add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits().setPermanentLimit(500).add();
 
-        line.newApparentPowerLimits1()
+        line.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits()
             .setPermanentLimit(1100)
             .beginTemporaryLimit()
             .setName("20'")
@@ -591,7 +591,7 @@ public final class EurostagTutorialExample1Factory {
             .setValue(Double.MAX_VALUE)
             .endTemporaryLimit()
             .add();
-        line.newApparentPowerLimits2().setPermanentLimit(500).add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits().setPermanentLimit(500).add();
 
         return network;
     }
@@ -626,8 +626,8 @@ public final class EurostagTutorialExample1Factory {
         DanglingLine danglingLine2 = network.getDanglingLine(DANGLING_LINE_XNODE1_2);
         danglingLine1.getTerminal().setP(560.0).setQ(550.0);
         danglingLine2.getTerminal().setP(-560.0).setQ(-550.0);
-        danglingLine1.newCurrentLimits().setPermanentLimit(500).add();
-        danglingLine2.newCurrentLimits()
+        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(500).add();
+        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -650,7 +650,7 @@ public final class EurostagTutorialExample1Factory {
         danglingLine2 = network.getDanglingLine(DANGLING_LINE_XNODE2_2);
         danglingLine1.getTerminal().setP(560.0).setQ(550.0);
         danglingLine2.getTerminal().setP(-560.0).setQ(-550.0);
-        danglingLine1.newCurrentLimits()
+        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -663,7 +663,7 @@ public final class EurostagTutorialExample1Factory {
                 .setValue(Double.MAX_VALUE)
                 .endTemporaryLimit()
                 .add();
-        danglingLine2.newCurrentLimits().setPermanentLimit(500).add();
+        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(500).add();
 
         return network;
     }
@@ -698,8 +698,8 @@ public final class EurostagTutorialExample1Factory {
         DanglingLine danglingLine2 = network.getDanglingLine(DANGLING_LINE_XNODE1_2);
         danglingLine1.getTerminal().setP(560.0).setQ(550.0);
         danglingLine2.getTerminal().setP(560.0).setQ(550.0);
-        danglingLine1.newActivePowerLimits().setPermanentLimit(500).add();
-        danglingLine2.newActivePowerLimits()
+        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits().setPermanentLimit(500).add();
+        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -718,8 +718,8 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        danglingLine1.newApparentPowerLimits().setPermanentLimit(500).add();
-        danglingLine2.newApparentPowerLimits()
+        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits().setPermanentLimit(500).add();
+        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -742,7 +742,7 @@ public final class EurostagTutorialExample1Factory {
         danglingLine2 = network.getDanglingLine(DANGLING_LINE_XNODE2_2);
         danglingLine1.getTerminal().setP(560.0).setQ(550.0);
         danglingLine2.getTerminal().setP(560.0).setQ(550.0);
-        danglingLine1.newActivePowerLimits()
+        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -755,9 +755,9 @@ public final class EurostagTutorialExample1Factory {
                 .setValue(Double.MAX_VALUE)
                 .endTemporaryLimit()
                 .add();
-        danglingLine2.newActivePowerLimits().setPermanentLimit(500).add();
+        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits().setPermanentLimit(500).add();
 
-        danglingLine1.newApparentPowerLimits()
+        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -770,7 +770,7 @@ public final class EurostagTutorialExample1Factory {
                 .setValue(Double.MAX_VALUE)
                 .endTemporaryLimit()
                 .add();
-        danglingLine2.newApparentPowerLimits().setPermanentLimit(500).add();
+        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits().setPermanentLimit(500).add();
 
         return network;
     }
