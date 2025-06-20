@@ -7,6 +7,7 @@
 package com.powsybl.security.dynamic;
 
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
+import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.security.AbstractSecurityAnalysisInput;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
@@ -24,6 +25,7 @@ import java.util.Objects;
 public class DynamicSecurityAnalysisInput extends AbstractSecurityAnalysisInput<DynamicSecurityAnalysisInput> {
 
     private final DynamicModelsSupplier dynamicModels;
+    private EventModelsSupplier eventModels;
     private DynamicSecurityAnalysisParameters parameters;
 
     public DynamicSecurityAnalysisInput(NetworkVariant networkVariant, DynamicModelsSupplier dynamicModelsSupplier) {
@@ -41,9 +43,19 @@ public class DynamicSecurityAnalysisInput extends AbstractSecurityAnalysisInput<
         return dynamicModels;
     }
 
+    public EventModelsSupplier getEventModels() {
+        return eventModels;
+    }
+
     public DynamicSecurityAnalysisInput setParameters(DynamicSecurityAnalysisParameters parameters) {
         Objects.requireNonNull(parameters);
         this.parameters = parameters;
+        return self();
+    }
+
+    public DynamicSecurityAnalysisInput setEventModels(EventModelsSupplier eventModels) {
+        Objects.requireNonNull(eventModels);
+        this.eventModels = eventModels;
         return self();
     }
 

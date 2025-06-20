@@ -6,11 +6,12 @@ The `dynamic-security-analysis` command loads a grid file, apply dynamic models,
 ```
 $> itools dynamic-security-analysis --help
 usage: itools [OPTIONS] dynamic-security-analysis --case-file <FILE>
-       [--contingencies-file <FILE>] --dynamic-models-file <FILE> [--external]
-       [--help] [-I <property=value>] [--import-parameters <IMPORT_PARAMETERS>]
-       [--limit-types <LIMIT-TYPES>] [--log-file <FILE>] [--monitoring-file
-       <FILE>] [--output-file <FILE>] [--output-format <FORMAT>]
-       [--parameters-file <FILE>] [--with-extensions <EXTENSIONS>]
+       [--contingencies-file <FILE>] --dynamic-models-file <FILE>
+       [--event-models-file <FILE>] [--external] [--help] [-I <property=value>]
+       [--import-parameters <IMPORT_PARAMETERS>] [--limit-types <LIMIT-TYPES>]
+       [--log-file <FILE>] [--monitoring-file <FILE>] [--output-file <FILE>]
+       [--output-format <FORMAT>] [--parameters-file <FILE>] [--with-extensions
+       <EXTENSIONS>]
 
 Available options are:
     --config-name <CONFIG_NAME>   Override configuration file name
@@ -22,6 +23,11 @@ Available arguments are:
                                               Groovy file: defines the dynamic
                                               models to be associated to chosen
                                               equipments of the network
+    --event-models-file <FILE>                dynamic event models description
+                                              as a Groovy file: defines the
+                                              dynamic event models to be
+                                              associated to chosen equipments of
+                                              the network
     --external                                external execution
     --help                                    display the help and quit
  -I <property=value>                          use value for given importer
@@ -49,12 +55,15 @@ Allowed EXTENSIONS values are []
 This option defines the path of the case file on which the security analysis is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path.
 
 `--dynamic-models-file`  
-This option defines the path of the file used to associate dynamic models to static equipments of the network or add dynamic automation systems. At the moment, only groovy scripts are supported. The [dynamic models DSL](../../simulation/dynamic/index.md#dynamic-models-mapping) depends on the simulator used.
+This option defines the path of the file used to associate dynamic models to static equipments of the network or add dynamic automation systems. At the moment, only groovy scripts are supported. The [dynamic models DSL](../../simulation/dynamic/index.md#dynamic-models-configuration) depends on the simulator used.
 
 ### Optional arguments
 
 `--contingencies-file`  
 This option defines the path of the contingency files. If this parameter is not set, the security violations are checked on the base state only. This file is a groovy script that respects the [contingency DSL](../../simulation/security/contingency-dsl.md) syntax.
+
+`--event-models-file`  
+This option defines the path of the configuration for the events to simulate during the simulation. At the moment, only groovy scripts are supported. The [event models DSL](../../simulation/dynamic/index.md#event-models-configuration) depends on the simulator used.
 
 `--external`  
 <span style="color: red">TODO:</span> Use this argument to run the security analysis as an external process.
