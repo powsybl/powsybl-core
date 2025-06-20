@@ -1225,9 +1225,9 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     /**
-     * Find all paths starting from the current terminal to a busbar section that does not contain an open switch,
-     * and that is not of the type of switch the user wants to operate.
-     * Paths are already sorted by the number of open switches and by the size of the paths.
+     * Find all paths starting from the current terminal to a busbar section that does not contain an open switch
+     * which is not of the type of switch the user wants to operate.
+     * <p>Paths are already sorted by the number of open switches and by the size of the paths.</p>
      */
     private List<TIntArrayList> getPathsToBusbarSection(int node, Predicate<Switch> isSwitchOperable) {
         return graph.findAllPaths(node, NodeBreakerTopologyModel::isBusbarSection, sw -> checkNonClosableSwitch(sw, isSwitchOperable),
