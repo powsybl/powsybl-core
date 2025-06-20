@@ -53,6 +53,7 @@ public final class ConnectableSerDeUtil {
     static final String LIMITS_GROUPS_1 = "operationalLimitsGroups1";
     static final String LIMITS_GROUPS_2 = "operationalLimitsGroups2";
     static final String LIMITS_GROUPS_3 = "operationalLimitsGroups3";
+    static final String PROPERTY = "property";
     static final String SELECTED_GROUP_ID = "selectedOperationalLimitsGroupId";
 
     private static String indexToString(Integer index) {
@@ -213,6 +214,7 @@ public final class ConnectableSerDeUtil {
     private static void readAllLoadingLimits(String groupElementName, OperationalLimitsGroup group, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(limitElementName -> {
             switch (limitElementName) {
+                case PROPERTY -> PropertiesSerDe.read(group, context);
                 case ACTIVE_POWER_LIMITS -> readActivePowerLimits(group.newActivePowerLimits(), context);
                 case APPARENT_POWER_LIMITS -> readApparentPowerLimits(group.newApparentPowerLimits(), context);
                 case CURRENT_LIMITS -> readCurrentLimits(group.newCurrentLimits(), context);
@@ -307,15 +309,21 @@ public final class ConnectableSerDeUtil {
         });
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
-                writeLoadingLimitsGroups(index, groups, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+                writeLoadingLimitsGroups(context, index, groups));
     }
 
-    private static void writeLoadingLimitsGroups(Integer index, Collection<OperationalLimitsGroup> groups, TreeDataWriter writer, IidmVersion version, boolean valid, ExportOptions exportOptions) {
+    private static void writeLoadingLimitsGroups(NetworkSerializerContext context, Integer index, Collection<OperationalLimitsGroup> groups) {
+        TreeDataWriter writer = context.getWriter();
+        IidmVersion version = context.getVersion();
+        boolean valid = context.isValid();
+        ExportOptions exportOptions = context.getOptions();
+
         String suffix = index == null ? "" : String.valueOf(index);
         writer.writeStartNodes();
         for (OperationalLimitsGroup g : groups) {
             writer.writeStartNode(version.getNamespaceURI(valid), LIMITS_GROUP + suffix);
             writer.writeStringAttribute("id", g.getId());
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> PropertiesSerDe.write(g, context));
             g.getActivePowerLimits()
                     .ifPresent(l -> writeActivePowerLimits(null, l, writer, version, valid, exportOptions));
             g.getApparentPowerLimits()
