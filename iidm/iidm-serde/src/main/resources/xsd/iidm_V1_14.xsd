@@ -599,7 +599,6 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="CURRENT_LIMITER"/>
             <xs:enumeration value="ACTIVE_POWER_CONTROL"/>
-            <xs:enumeration value="FIXED_TAP"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="PhaseTapChanger">

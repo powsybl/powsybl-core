@@ -107,8 +107,8 @@ public abstract class AbstractTapChangerTest {
         assertEquals(0.5, phaseTapChanger.getTargetDeadband(), 0.0);
         phaseTapChanger.setRegulating(false);
         assertFalse(phaseTapChanger.isRegulating());
-        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
-        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
+        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
+        assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         Terminal terminal2 = twt.getTerminal2();
         phaseTapChanger.setRegulationTerminal(terminal2);
         assertSame(terminal2, phaseTapChanger.getRegulationTerminal());
@@ -118,7 +118,7 @@ public abstract class AbstractTapChangerTest {
         network.getLoad("L").remove();
         assertNull(phaseTapChanger.getRegulationTerminal());
         assertFalse(phaseTapChanger.isRegulating());
-        phaseTapChanger.setRegulationTerminal(terminal).setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
+        phaseTapChanger.setRegulationTerminal(terminal).setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
         int lowTapPosition = 2;
         phaseTapChanger.setLowTapPosition(lowTapPosition);
         assertEquals(lowTapPosition, phaseTapChanger.getLowTapPosition());
@@ -291,7 +291,7 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void invalidTapPositionPhase() {
         ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(3, 0, false,
-                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, 1.0, terminal));
+                PhaseTapChanger.RegulationMode.CURRENT_LIMITER, 1.0, 1.0, terminal));
         assertTrue(e.getMessage().contains("incorrect tap position"));
     }
 
@@ -317,16 +317,9 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
-    public void invalidModePhase() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, true,
-                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, 1.0, terminal));
-        assertTrue(e.getMessage().contains("phase regulation cannot be on if mode is FIXED"));
-    }
-
-    @Test
     public void invalidTargetDeadbandPtc() {
         ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, false,
-                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, -1.0, terminal));
+                PhaseTapChanger.RegulationMode.CURRENT_LIMITER, 1.0, -1.0, terminal));
         assertTrue(e.getMessage().contains("2 windings transformer 'twt': Unexpected value for target deadband of phase tap changer: -1.0"));
     }
 

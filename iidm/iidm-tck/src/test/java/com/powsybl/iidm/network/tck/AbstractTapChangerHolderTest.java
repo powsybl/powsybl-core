@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.FIXED_TAP;
+import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 import static com.powsybl.iidm.network.RatioTapChanger.RegulationMode.VOLTAGE;
 import static com.powsybl.iidm.network.TopologyKind.BUS_BREAKER;
 import static com.powsybl.iidm.network.TwoSides.ONE;
@@ -28,7 +28,7 @@ public abstract class AbstractTapChangerHolderTest {
                 .newPhaseTapChanger()
                 .setTapPosition(1)
                 .setRegulationValue(12)
-                .setRegulationMode(FIXED_TAP)
+                .setRegulationMode(CURRENT_LIMITER)
                 .setLowTapPosition(0)
                 .setRegulating(false)
                 .setTargetDeadband(3)

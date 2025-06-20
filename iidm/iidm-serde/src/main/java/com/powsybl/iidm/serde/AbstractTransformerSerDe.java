@@ -147,11 +147,33 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         readRatioTapChanger(RATIO_TAP_CHANGER + leg, twl.newRatioTapChanger(), twl.getTerminal(), context);
     }
 
+    /**
+     * Create ENUM to read old phase tap changer regulation mode values (versions < 1.14): FIXED_TAP value is no longer present for newer versions
+     * Older versions with FIXED_TAP value should be imported as CURRENT_LIMITER regulation mode with a regulating boolean set to false
+     */
+    private enum PhaseTapChangerRegulationModeSerDe {
+        CURRENT_LIMITER,
+        ACTIVE_POWER_CONTROL,
+        FIXED_TAP;
+
+        static RegulationMode convertToRegulationMode(PhaseTapChangerRegulationModeSerDe regulationModeSerDe) {
+            switch (regulationModeSerDe) {
+                case CURRENT_LIMITER, FIXED_TAP -> {
+                    return RegulationMode.CURRENT_LIMITER;
+                }
+                case ACTIVE_POWER_CONTROL -> {
+                    return RegulationMode.ACTIVE_POWER_CONTROL;
+                }
+            }
+            return RegulationMode.CURRENT_LIMITER;
+        }
+    }
+
     protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, NetworkSerializerContext context) {
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), name);
 
         RegulationMode regMode = ptc.getRegulationMode();
-        Boolean optionalRegulatingValue = (regMode == null || regMode == RegulationMode.FIXED_TAP) && !ptc.isRegulating() ? null : ptc.isRegulating();
+        Boolean optionalRegulatingValue = regMode == null && !ptc.isRegulating() ? null : ptc.isRegulating();
         context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, optionalRegulatingValue);
 
         writeTapChanger(ptc, context);
@@ -175,10 +197,21 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     protected static void readPhaseTapChanger(String name, PhaseTapChangerAdder adder, Terminal terminal, NetworkDeserializerContext context) {
         readTapChangerAttributes(adder, context);
 
-        PhaseTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, PhaseTapChanger.RegulationMode.class);
+        // Set regulation according to IIDM version
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
+            adder.setRegulationMode(null);
+            PhaseTapChangerRegulationModeSerDe regulationModeSerDe = context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, PhaseTapChangerRegulationModeSerDe.class);
+            if (regulationModeSerDe != null) {
+                if (PhaseTapChangerRegulationModeSerDe.FIXED_TAP.equals(regulationModeSerDe)) {
+                    adder.setRegulating(false);
+                }
+                adder.setRegulationMode(PhaseTapChangerRegulationModeSerDe.convertToRegulationMode(regulationModeSerDe));
+            }
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> adder.setRegulationMode(context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, RegulationMode.class)));
+
         double regulationValue = context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE);
-        adder.setRegulationMode(regulationMode)
-                .setRegulationValue(regulationValue);
+        adder.setRegulationValue(regulationValue);
 
         boolean[] hasTerminalRef = new boolean[1];
         context.getReader().readChildNodes(elementName -> {
