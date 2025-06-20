@@ -1035,7 +1035,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             assertFalse(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
-            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
 
