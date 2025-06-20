@@ -236,6 +236,7 @@ public final class TopologyModificationUtils {
                 .setFictitious(fictitious)
                 .add();
     }
+
     static void createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
         createNBDisconnector(node1, node2, id, view, open, false);
     }
