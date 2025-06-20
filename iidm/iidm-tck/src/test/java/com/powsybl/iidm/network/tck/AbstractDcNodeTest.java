@@ -198,7 +198,6 @@ public abstract class AbstractDcNodeTest {
                 .setKind(DcSwitchKind.DISCONNECTOR)
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode1.getId())
-                .setRetained(false)
                 .setOpen(false)
                 .add();
 

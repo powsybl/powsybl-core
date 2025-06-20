@@ -894,7 +894,6 @@ A DC Switch connects two DC Nodes and can be opened or closed.
 |------------|----------------|-------------------------------------------------------------------|
 | $Kind$     | `DcSwitchKind` | Either DISCONNECTOR or BREAKER                                    |
 | $Open$     |                | True if the switch is opened                                      |
-| $Retained$ |                | True if the switch must be retained in the DC topology processing |
 
 #### DC Ground
 

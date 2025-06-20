@@ -60,14 +60,6 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">Open status of the DC Switch</td>
  *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">Retained</td>
- *             <td style="border: 1px solid black">boolean</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">Retain status of the DC Switch</td>
- *         </tr>
  *     </tbody>
  * </table>
  *
@@ -94,17 +86,6 @@ public interface DcSwitch extends Identifiable<DcSwitch> {
      * @return The DC node at side 2 of the DC Switch
      */
     DcNode getDcNode2();
-
-    /**
-     * @return the retain status of the DC Switch
-     */
-    boolean isRetained();
-
-    /**
-     * @param retained new retain status of the DC Switch
-     * @return self for method chaining
-     */
-    DcSwitch setRetained(boolean retained);
 
     /**
      * @return the open status of the DC Switch. Depends on the working variant.

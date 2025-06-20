@@ -20,8 +20,6 @@ public interface DcSwitchAdder extends IdentifiableAdder<DcSwitch, DcSwitchAdder
 
     DcSwitchAdder setOpen(boolean open);
 
-    DcSwitchAdder setRetained(boolean retained);
-
     @Override
     DcSwitch add();
 }

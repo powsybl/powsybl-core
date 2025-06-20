@@ -23,7 +23,6 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
     private DcSwitchKind kind;
     private String dcNode1Id;
     private String dcNode2Id;
-    private Boolean retained;
     private Boolean open;
 
     DcSwitchAdderImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef) {
@@ -56,12 +55,6 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
     }
 
     @Override
-    public DcSwitchAdder setRetained(boolean retained) {
-        this.retained = retained;
-        return this;
-    }
-
-    @Override
     public DcSwitch add() {
         String id = checkAndGetUniqueId();
         DcNode dcNode1 = ValidationUtil.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode1Id, "dcNode1");
@@ -70,13 +63,10 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
         if (kind == null) {
             throw new ValidationException(this, "kind is not set");
         }
-        if (retained == null) {
-            throw new ValidationException(this, "retained is not set");
-        }
         if (open == null) {
             throw new ValidationException(this, "open is not set");
         }
-        DcSwitch dcSwitch = new DcSwitchImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), kind, dcNode1, dcNode2, retained, open);
+        DcSwitch dcSwitch = new DcSwitchImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), kind, dcNode1, dcNode2, open);
         getNetwork().getIndex().checkAndAdd(dcSwitch);
         getNetwork().getListeners().notifyCreation(dcSwitch);
         return dcSwitch;

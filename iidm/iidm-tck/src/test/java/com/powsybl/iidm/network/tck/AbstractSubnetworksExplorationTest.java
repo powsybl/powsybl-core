@@ -252,7 +252,6 @@ public abstract class AbstractSubnetworksExplorationTest {
         n.newDcSwitch()
                 .setId(id("dcSwitch1", networkId))
                 .setKind(DcSwitchKind.DISCONNECTOR)
-                .setRetained(false)
                 .setOpen(false)
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())

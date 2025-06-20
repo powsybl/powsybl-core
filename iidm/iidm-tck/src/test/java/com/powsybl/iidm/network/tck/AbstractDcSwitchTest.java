@@ -43,12 +43,10 @@ public abstract class AbstractDcSwitchTest {
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())
                 .setOpen(false)
-                .setRetained(false)
                 .add();
         assertSame(IdentifiableType.DC_SWITCH, dcSwitch1.getType());
         assertEquals(dcSwitch1Id, dcSwitch1.getId());
         assertFalse(dcSwitch1.isOpen());
-        assertFalse(dcSwitch1.isRetained());
         assertSame(DcSwitchKind.DISCONNECTOR, dcSwitch1.getKind());
         assertSame(dcNode1, dcSwitch1.getDcNode1());
         assertSame(dcNode2, dcSwitch1.getDcNode2());
@@ -61,11 +59,9 @@ public abstract class AbstractDcSwitchTest {
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())
                 .setOpen(true)
-                .setRetained(true)
                 .add();
         assertEquals(dcSwitch2Id, dcSwitch2.getId());
         assertTrue(dcSwitch2.isOpen());
-        assertTrue(dcSwitch2.isRetained());
         assertSame(DcSwitchKind.BREAKER, dcSwitch2.getKind());
         assertSame(dcNode1, dcSwitch2.getDcNode1());
         assertSame(dcNode2, dcSwitch2.getDcNode2());
@@ -88,16 +84,10 @@ public abstract class AbstractDcSwitchTest {
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())
                 .setOpen(true)
-                .setRetained(true)
                 .add();
         assertTrue(dcSwitch.isOpen());
-        assertTrue(dcSwitch.isRetained());
         dcSwitch.setOpen(false);
         assertFalse(dcSwitch.isOpen());
-        assertTrue(dcSwitch.isRetained());
-        dcSwitch.setRetained(false);
-        assertFalse(dcSwitch.isOpen());
-        assertFalse(dcSwitch.isRetained());
     }
 
     @Test
@@ -108,15 +98,13 @@ public abstract class AbstractDcSwitchTest {
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())
                 .setOpen(false)
-                .setRetained(false)
                 .add();
         DcSwitchAdder dcSwitchDuplicateAdder = network.newDcSwitch()
                 .setId("dcSwitch1")
                 .setKind(DcSwitchKind.DISCONNECTOR)
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())
-                .setOpen(false)
-                .setRetained(false);
+                .setOpen(false);
         PowsyblException exception = assertThrows(PowsyblException.class, dcSwitchDuplicateAdder::add);
         assertTrue(Pattern.compile("The network test already contains an object '(\\w+)' with the id 'dcSwitch1'").matcher(exception.getMessage()).find());
     }
@@ -130,7 +118,6 @@ public abstract class AbstractDcSwitchTest {
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())
                 .setOpen(false)
-                .setRetained(false)
                 .add();
         String dcSwitch2Id = "dcSwitch2";
         DcSwitch dcSwitch2 = network.newDcSwitch()
@@ -139,7 +126,6 @@ public abstract class AbstractDcSwitchTest {
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())
                 .setOpen(true)
-                .setRetained(true)
                 .add();
         assertEquals(2, network.getDcSwitchCount());
         dcSwitch1.remove();
@@ -155,17 +141,11 @@ public abstract class AbstractDcSwitchTest {
         PowsyblException e2 = assertThrows(PowsyblException.class, dcSwitch1::isOpen);
         assertEquals("Cannot access open of removed equipment dcSwitch1", e2.getMessage());
 
-        PowsyblException e3 = assertThrows(PowsyblException.class, () -> dcSwitch1.setRetained(true));
-        assertEquals("Cannot modify retained of removed equipment dcSwitch1", e3.getMessage());
+        PowsyblException e3 = assertThrows(PowsyblException.class, dcSwitch1::getDcNode1);
+        assertEquals("Cannot access dcNode1 of removed equipment dcSwitch1", e3.getMessage());
 
-        PowsyblException e4 = assertThrows(PowsyblException.class, dcSwitch1::isRetained);
-        assertEquals("Cannot access retained of removed equipment dcSwitch1", e4.getMessage());
-
-        PowsyblException e5 = assertThrows(PowsyblException.class, dcSwitch1::getDcNode1);
-        assertEquals("Cannot access dcNode1 of removed equipment dcSwitch1", e5.getMessage());
-
-        PowsyblException e6 = assertThrows(PowsyblException.class, dcSwitch1::getDcNode2);
-        assertEquals("Cannot access dcNode2 of removed equipment dcSwitch1", e6.getMessage());
+        PowsyblException e4 = assertThrows(PowsyblException.class, dcSwitch1::getDcNode2);
+        assertEquals("Cannot access dcNode2 of removed equipment dcSwitch1", e4.getMessage());
     }
 
     @Test
@@ -197,11 +177,7 @@ public abstract class AbstractDcSwitchTest {
 
         adder.setKind(DcSwitchKind.DISCONNECTOR);
         PowsyblException e7 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitch': retained is not set", e7.getMessage());
-
-        adder.setRetained(false);
-        PowsyblException e8 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitch': open is not set", e8.getMessage());
+        assertEquals("DC Switch 'dcSwitch': open is not set", e7.getMessage());
     }
 
     @Test
@@ -219,19 +195,19 @@ public abstract class AbstractDcSwitchTest {
                 .setKind(DcSwitchKind.DISCONNECTOR)
                 .setDcNode1(dcNode1Subnet1.getId())
                 .setDcNode2(dcNode2Subnet1.getId())
-                .setRetained(false).setOpen(false)
+                .setOpen(false)
                 .add();
         DcSwitch dcSwitch2Subnet1 = subnetwork1.newDcSwitch().setId("dcSwitch2Subnetwork1")
                 .setKind(DcSwitchKind.DISCONNECTOR)
                 .setDcNode1(dcNode1Subnet1.getId())
                 .setDcNode2(dcNode2Subnet1.getId())
-                .setRetained(false).setOpen(false)
+                .setOpen(false)
                 .add();
         DcSwitch dcSwitch1Subnet2 = subnetwork2.newDcSwitch().setId("dcSwitch1Subnetwork2")
                 .setKind(DcSwitchKind.DISCONNECTOR)
                 .setDcNode1(dcNode1Subnet2.getId())
                 .setDcNode2(dcNode2Subnet2.getId())
-                .setRetained(false).setOpen(false)
+                .setOpen(false)
                 .add();
 
         List<DcSwitch> dcSwitchList = List.of(dcSwitch1Subnet1, dcSwitch2Subnet1, dcSwitch1Subnet2);
@@ -287,7 +263,7 @@ public abstract class AbstractDcSwitchTest {
         DcSwitchAdder adder = netWithSubnet.newDcSwitch().setId("dcSwitchAcrossSubnets")
                 .setDcNode1(dcNode1Subnet1.getId())
                 .setDcNode2(dcNode1Subnet2.getId())
-                .setRetained(false).setOpen(false);
+                .setOpen(false);
 
         PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Switch 'dcSwitchAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNode1Subnetwork2' are in different networks 'subnetwork1' and 'subnetwork2'", e1.getMessage());
@@ -313,7 +289,6 @@ public abstract class AbstractDcSwitchTest {
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())
                 .setOpen(false)
-                .setRetained(false)
                 .add();
 
         List<String> variantsToAdd = List.of("s1", "s2", "s3", "s4");
@@ -322,11 +297,9 @@ public abstract class AbstractDcSwitchTest {
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertFalse(dcSwitch.isOpen());
-        assertFalse(dcSwitch.isRetained());
 
         // change values in s4
-        dcSwitch.setOpen(true)
-                .setRetained(true);
+        dcSwitch.setOpen(true);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -335,18 +308,15 @@ public abstract class AbstractDcSwitchTest {
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
         assertTrue(dcSwitch.isOpen());
-        assertTrue(dcSwitch.isRetained());
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertFalse(dcSwitch.isOpen());
-        assertFalse(dcSwitch.isRetained());
 
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
         assertThrows(PowsyblException.class, dcSwitch::isOpen, "Variant index not set");
-        assertThrows(PowsyblException.class, dcSwitch::isRetained, "Variant index not set");
 
         // check we delete a single variant's values
         variantManager.setWorkingVariant("s3");
