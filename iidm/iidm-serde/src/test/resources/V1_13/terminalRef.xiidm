@@ -40,7 +40,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="VLY643" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="VL41" connectableBus1="VL41" voltageLevelId1="VL4" bus2="VL61" connectableBus2="VL61" voltageLevelId2="VL6">
-            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" regulationMode="ACTIVE_POWER_CONTROL" regulationValue="200.0" regulating="false">
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" regulationMode="CURRENT_LIMITER" regulationValue="200.0" regulating="false">
                 <iidm:terminalRef id="VLY643" side="TWO"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191" alpha="-1.0"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666" alpha="0.0"/>

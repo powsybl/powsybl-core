@@ -85,7 +85,6 @@ class PhaseShifterTest {
         NetworkModification modification3 = new PhaseShifterShiftTap("TWT", -1);
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
 
-        twoWindingsTransformer.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
         NetworkModification modification4 = new PhaseShifterShiftTap("TWT", 1);
         assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
 
