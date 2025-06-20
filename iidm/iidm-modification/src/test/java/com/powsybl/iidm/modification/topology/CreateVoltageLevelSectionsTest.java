@@ -146,9 +146,11 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
 
     @ParameterizedTest
     @MethodSource("parametersOK")
-    void testInsertBetweenTwoSectionsWithDisconnectors(String referenceBusbarSectionId, boolean createTheBusbarSectionsAfterTheReferenceBusbarSection, boolean allBusbars,
-                                                       SwitchKind leftSwitchKind, boolean leftSwitchFictitious,
-                                                       SwitchKind rightSwitchKind, boolean rightSwitchFictitious,
+    void testInsertBetweenTwoSectionsWithDisconnectors(String referenceBusbarSectionId,
+                                                       boolean createTheBusbarSectionsAfterTheReferenceBusbarSection,
+                                                       boolean allBusbars,
+                                                       SwitchKind leftSwitchKind,
+                                                       SwitchKind rightSwitchKind,
                                                        String resourceFile) throws IOException {
         // Network creation
         Network network = createNetwork();
@@ -159,9 +161,7 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
             .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(createTheBusbarSectionsAfterTheReferenceBusbarSection)
             .withAllBusbars(allBusbars)
             .withLeftSwitchKind(leftSwitchKind)
-            .withLeftSwitchFictitious(leftSwitchFictitious)
             .withRightSwitchKind(rightSwitchKind)
-            .withRightSwitchFictitious(rightSwitchFictitious)
             .build();
         modification.apply(network);
         writeXmlTest(network, resourceFile);
@@ -169,21 +169,18 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
 
     private static Stream<Arguments> parametersOK() {
         return Stream.of(
-            Arguments.of("BBS12", true, true, SwitchKind.DISCONNECTOR, false, SwitchKind.DISCONNECTOR, false, "/create-vl-sections-insert-between-2-sections-with-disconnectors.xiidm"),
-            Arguments.of("BBS11", true, true, SwitchKind.BREAKER, false, SwitchKind.BREAKER, false, "/create-vl-sections-insert-between-2-sections-with-breakers.xiidm"),
-            Arguments.of("BBS11", true, true, SwitchKind.DISCONNECTOR, false, SwitchKind.BREAKER, false, "/create-vl-sections-insert-between-2-sections-with-disconnectors-on-left-side-and-breakers-on-right-side.xiidm"),
-            Arguments.of("BBS12", true, false, SwitchKind.DISCONNECTOR, false, SwitchKind.DISCONNECTOR, false, "/create-vl-sections-insert-between-2-sections-on-only-one-busbar-with-disconnectors.xiidm"),
-            Arguments.of("BBS21", false, true, SwitchKind.BREAKER, false, SwitchKind.BREAKER, false, "/create-vl-sections-insert-before-first-section-with-breakers.xiidm"),
-            Arguments.of("BBS13", true, true, SwitchKind.DISCONNECTOR, false, SwitchKind.DISCONNECTOR, false, "/create-vl-sections-insert-after-last-section-with-disconnectors.xiidm")
+            Arguments.of("BBS12", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "/create-vl-sections-insert-between-2-sections-with-disconnectors.xiidm"),
+            Arguments.of("BBS11", true, true, SwitchKind.BREAKER, SwitchKind.BREAKER, "/create-vl-sections-insert-between-2-sections-with-breakers.xiidm"),
+            Arguments.of("BBS11", true, true, SwitchKind.DISCONNECTOR, SwitchKind.BREAKER, "/create-vl-sections-insert-between-2-sections-with-disconnectors-on-left-side-and-breakers-on-right-side.xiidm"),
+            Arguments.of("BBS12", true, false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "/create-vl-sections-insert-between-2-sections-on-only-one-busbar-with-disconnectors.xiidm"),
+            Arguments.of("BBS21", false, true, SwitchKind.BREAKER, SwitchKind.BREAKER, "/create-vl-sections-insert-before-first-section-with-breakers.xiidm"),
+            Arguments.of("BBS13", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "/create-vl-sections-insert-after-last-section-with-disconnectors.xiidm")
         );
     }
 
     @ParameterizedTest
     @MethodSource("parametersNOK")
-    void testWithException(String referenceBusbarSectionId, boolean createTheBusbarSectionsAfterTheReferenceBusbarSection, boolean allBusbars,
-                           SwitchKind leftSwitchKind, boolean leftSwitchFictitious,
-                           SwitchKind rightSwitchKind, boolean rightSwitchFictitious,
-                           boolean withMissingBbsPosition, String exceptionMessage) {
+    void testWithException(String referenceBusbarSectionId, boolean withMissingBbsPosition, String exceptionMessage) {
         // Network creation
         Network network = createNetwork();
         if (withMissingBbsPosition) {
@@ -194,12 +191,10 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
         // Network modification
         CreateVoltageLevelSections modification = new CreateVoltageLevelSectionsBuilder()
             .withReferenceBusbarSectionId(referenceBusbarSectionId)
-            .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(createTheBusbarSectionsAfterTheReferenceBusbarSection)
-            .withAllBusbars(allBusbars)
-            .withLeftSwitchKind(leftSwitchKind)
-            .withLeftSwitchFictitious(leftSwitchFictitious)
-            .withRightSwitchKind(rightSwitchKind)
-            .withRightSwitchFictitious(rightSwitchFictitious)
+            .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
+            .withAllBusbars(true)
+            .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
+            .withRightSwitchKind(SwitchKind.DISCONNECTOR)
             .build();
         PowsyblException exception = assertThrows(PowsyblException.class, () -> modification.apply(network, true, ReportNode.NO_OP));
         assertEquals(exceptionMessage, exception.getMessage());
@@ -207,9 +202,9 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
 
     private static Stream<Arguments> parametersNOK() {
         return Stream.of(
-            Arguments.of("unknown_bbs", true, true, SwitchKind.DISCONNECTOR, false, SwitchKind.DISCONNECTOR, false, false, "Busbar section unknown_bbs not found"),
-            Arguments.of("GEN_1", true, true, SwitchKind.DISCONNECTOR, false, SwitchKind.DISCONNECTOR, false, false, "Busbar section GEN_1 not found"),
-            Arguments.of("BBS12", true, true, SwitchKind.DISCONNECTOR, false, SwitchKind.DISCONNECTOR, false, true, "Some busbar sections have no position in voltage level (VL1)")
+            Arguments.of("unknown_bbs", false, "Busbar section unknown_bbs not found"),
+            Arguments.of("GEN_1", false, "Busbar section GEN_1 not found"),
+            Arguments.of("BBS12", true, "Some busbar sections have no position in voltage level (VL1)")
         );
     }
 

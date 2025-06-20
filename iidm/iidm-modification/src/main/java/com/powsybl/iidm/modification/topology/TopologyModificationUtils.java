@@ -232,10 +232,17 @@ public final class TopologyModificationUtils {
                 .add();
     }
 
-    static Switch createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open, boolean fictitious) {
-        Switch sw = createNBBreaker(node1, node2, id, view, open);
-        sw.setFictitious(fictitious);
-        return sw;
+    static void createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open, boolean fictitious) {
+        view.newSwitch()
+                .setId(id)
+                .setEnsureIdUnicity(true)
+                .setKind(SwitchKind.BREAKER)
+                .setOpen(open)
+                .setRetained(true)
+                .setNode1(node1)
+                .setNode2(node2)
+                .setFictitious(fictitious)
+                .add();
     }
 
     static Switch createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
