@@ -18,8 +18,10 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -562,6 +564,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @Timeout(unit = TimeUnit.SECONDS, value = 5)
     void disconnectionOnThreeTeePointsAndLoopTestWithPropagation() {
         // Network
         Network network = createNetworkWithThreeTeePointsAndLoop();
@@ -575,7 +578,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
         Line line3 = network.getLine("L1_3");
         Line line4 = network.getLine("L_fVL1_fVL2");
         Line line5 = network.getLine("L_fVL2_fVL3");
-        Line line6 = network.getLine("L_fVL3_fVL4");
+        Line line6 = network.getLine("L_fVL3_fVL1");
         List<Line> lines = List.of(line1, line2, line3, line4, line5, line6);
 
         // Check that all the lines are connected on both sides
@@ -1455,19 +1458,18 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
 
         // VL3 - Breakers and disconnectors
         VoltageLevel vl3 = network.getVoltageLevel("VL3");
+        vl3.getNodeBreakerView().newDisconnector()
+            .setId("D_L1_BBS3")
+            .setNode1(0)
+            .setNode2(1)
+            .setOpen(false)
+            .add();
         vl3.getNodeBreakerView().newBreaker()
-            .setId("L1_VL3_BREAKER")
+            .setId("B_L1_VL3")
             .setNode1(1)
             .setNode2(2)
             .setOpen(false)
-            .setRetained(true)
             .setFictitious(false)
-            .add();
-        vl3.getNodeBreakerView().newDisconnector()
-            .setId("L1_VL3_DISCONNECTOR_2_0")
-            .setNode1(2)
-            .setNode2(0)
-            .setOpen(false)
             .add();
 
         // Lines
