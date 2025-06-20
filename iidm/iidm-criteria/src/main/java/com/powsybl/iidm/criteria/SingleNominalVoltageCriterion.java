@@ -51,6 +51,7 @@ public class SingleNominalVoltageCriterion implements Criterion {
                     getNominalVoltage(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
             case SWITCH -> getNominalVoltage(((Switch) identifiable).getVoltageLevel());
             case BUS -> getNominalVoltage(((Bus) identifiable).getVoltageLevel());
+            case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> getNominalVoltage(((AcDcConverter<?>) identifiable).getTerminal1().getVoltageLevel());
             default -> null;
         };
     }

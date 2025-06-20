@@ -69,4 +69,9 @@ public abstract class AbstractEquipmentTopologyVisitor extends DefaultTopologyVi
     public void visitGround(Ground ground) {
         visitEquipment(ground);
     }
+
+    @Override
+    public void visitAcDcConverter(AcDcConverter<?> converter, TwoSides side) {
+        visitEquipment(converter);
+    }
 }

@@ -530,6 +530,46 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
     }
 
     @Override
+    public LineCommutatedConverterAdder newLineCommutatedConverter() {
+        return new LineCommutatedConverterAdderImpl(this);
+    }
+
+    @Override
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        return getConnectables(LineCommutatedConverter.class);
+    }
+
+    @Override
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        return getConnectableStream(LineCommutatedConverter.class);
+    }
+
+    @Override
+    public int getLineCommutatedConverterCount() {
+        return getConnectableCount(LineCommutatedConverter.class);
+    }
+
+    @Override
+    public VoltageSourceConverterAdder newVoltageSourceConverter() {
+        return new VoltageSourceConverterAdderImpl(this);
+    }
+
+    @Override
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        return getConnectables(VoltageSourceConverter.class);
+    }
+
+    @Override
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        return getConnectableStream(VoltageSourceConverter.class);
+    }
+
+    @Override
+    public int getVoltageSourceConverterCount() {
+        return getConnectableCount(VoltageSourceConverter.class);
+    }
+
+    @Override
     protected String getTypeDescription() {
         return "Voltage level";
     }

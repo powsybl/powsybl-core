@@ -110,22 +110,30 @@ public abstract class AbstractStaticVarCompensatorTest {
         svc.setRegulatingTerminal(null);
         assertEquals(svc.getTerminal(), svc.getRegulatingTerminal());
 
-        StaticVarCompensator svc3 = createSvc("SVC3", null);
+        StaticVarCompensator svc3 = createSvc("SVC3", null, StaticVarCompensator.RegulationMode.VOLTAGE);
         assertEquals(svc3.getTerminal(), svc3.getRegulatingTerminal());
 
         svc3.remove();
-        StaticVarCompensator svc4 = createSvc("SVC4", loadTerminal);
+        StaticVarCompensator svc4 = createSvc("SVC4", loadTerminal, StaticVarCompensator.RegulationMode.VOLTAGE);
         assertEquals(loadTerminal, svc4.getRegulatingTerminal());
 
         network.getLoad("L2").remove();
         assertEquals(svc4.getTerminal(), svc4.getRegulatingTerminal());
         assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc4.getRegulationMode());
+
+        Terminal lineTerminal = network.getLine("L1").getTerminal2();
+        StaticVarCompensator svc5 = createSvc("SVC5", lineTerminal, StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        assertEquals(lineTerminal, svc5.getRegulatingTerminal());
+        assertEquals(StaticVarCompensator.RegulationMode.REACTIVE_POWER, svc5.getRegulationMode());
+        lineTerminal.getConnectable().remove();
+        assertEquals(svc5.getTerminal(), svc5.getRegulatingTerminal());
+        assertEquals(StaticVarCompensator.RegulationMode.OFF, svc5.getRegulationMode());
     }
 
     @Test
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createSvc("testMultiVariant", null);
+        createSvc("testMultiVariant", null, StaticVarCompensator.RegulationMode.VOLTAGE);
         StaticVarCompensator svc = network.getStaticVarCompensator("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
@@ -167,7 +175,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         }
     }
 
-    private StaticVarCompensator createSvc(String id, Terminal regulatingTerminal) {
+    private StaticVarCompensator createSvc(String id, Terminal regulatingTerminal, StaticVarCompensator.RegulationMode regulationMode) {
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
         return vl2.newStaticVarCompensator()
                 .setId(id)
@@ -175,7 +183,7 @@ public abstract class AbstractStaticVarCompensatorTest {
                 .setBus("B2")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulationMode(regulationMode)
                 .setVoltageSetpoint(390.0)
                 .setReactivePowerSetpoint(1.0)
                 .setRegulatingTerminal(regulatingTerminal)
