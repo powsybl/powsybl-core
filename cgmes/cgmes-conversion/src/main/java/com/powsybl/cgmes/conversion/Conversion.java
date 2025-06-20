@@ -9,7 +9,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
-import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
+import com.powsybl.cgmes.conversion.elements.dc.DCConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
@@ -158,7 +158,7 @@ public class Conversion {
 
         // Create base network with metadata information
         Network network = createNetwork();
-        Context context = createContext(network, reportNode);
+        Context context = new Context(cgmes, config, network, reportNode);
         assignNetworkProperties(context);
         addMetadataModels(network, context);
         addCimCharacteristics(network);
@@ -217,8 +217,7 @@ public class Conversion {
 
         // Convert DC equipments, limits, SV injections, control areas, regulating controls
         context.pushReportNode(CgmesReports.convertingElementTypeReport(reportNode, "DC network"));
-        CgmesDcConversion cgmesDcConversion = new CgmesDcConversion(cgmes, context);
-        cgmesDcConversion.convert();
+        new DCConversion(cgmes, context);
         clearUnattachedHvdcConverterStations(network, context);
         context.popReportNode();
 
@@ -437,12 +436,6 @@ public class Conversion {
         String networkId = cgmes.modelId();
         String sourceFormat = "CGMES";
         return networkFactory.createNetwork(networkId, sourceFormat);
-    }
-
-    private Context createContext(Network network, ReportNode reportNode) {
-        Context context = new Context(cgmes, config, network, reportNode);
-        context.dc().initialize();
-        return context;
     }
 
     private void assignNetworkProperties(Context context) {

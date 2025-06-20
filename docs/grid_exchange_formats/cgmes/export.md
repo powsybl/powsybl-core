@@ -248,9 +248,39 @@ with the `enabled` activated and the generator attribute `voltageRegulatorOn` se
 (cgmes-hvdc-export)=
 ### HVDC line and HVDC converter stations
 
-A PowSyBl [`HVDCLine`](../../grid_model/network_subnetwork.md#hvdc-line) and its two [`HVDCConverterStations`](../../grid_model/network_subnetwork.md#hvdc-converter-station) are exported as a `DCLineSegment` with two `DCConverterUnits`.
+A PowSyBl [`HVDCLine`](../../grid_model/network_subnetwork.md#hvdc-line) and its two [`HVDCConverterStations`](../../grid_model/network_subnetwork.md#hvdc-converter-station) 
+represents a monopole with ground return configuration. As such, it is exported to CGMES EQ as a `DCLineSegment` with two `DCConverterUnits`, where each unit contains:
+- A specialization of `ACDCConverter`, depending on the `HvdcConverterStation.HvdcType`:
+  - A `CsConverter` if the type is `LCC`.
+  - A `VsConverter` if the type is `VSC`.
+- A `DCGround`
 
-<span style="color: red">TODO details</span>
+Both unit `operationMode` is `DCConverterOperatingModeKind.monopolarGroundReturn`.
+
+Both converter `ratedUdc` is `NominalV` of the `HvdcLine`.
+
+As for the CGMES SSH export: 
+
+The converter `pPccControl` is:
+- Active power control kind at rectifier side:
+  - `CsPpccControlKind.activePower` for `CsConverter`.
+  - `VsPpccControlKind.pPcc` for `VsConverter`.
+- DC voltage control kind at inverter side:
+  - `CsPpccControlKind.dcVoltage` for `CsConverter`.
+  - `VsPpccControlKind.udc` for `VsConverter`.
+
+The corresponding targets are exported as follows:
+- At rectifier side, `ACDCConverter.targetPpcc` is equal to `HvdcLine`'s `ActivePowerSetpoint`.
+- At inverter  side, `ACDCConverter.targetUdc` is equal to $NominalV - U_{R}$, where $U_{R}$ is the voltage drop caused by the line's resistance
+and is equal to: $U_{R} = R \times \frac{ActivePowerSetpoint}{NominalV}$
+
+For VSC lines, the `qPccControl` is the same for both rectifier and inverter, and depends on the regulation mode:
+- It is `VsQpccControlKind.voltagePcc` if VSC voltage regulation is on.
+- It is `VsQpccControlKind.reactivePcc` if VSC voltage regulation is off.
+
+The corresponding targets are:
+- In case of voltage regulation, `targetUpcc` is set to `VscConverterStation.VoltageSetpoint`.
+- In case of reactive power regulation, `targetQpcc` is set to `VscConverterStation.ReactivePowerSetpoint`.
 
 (cgmes-line-export)=
 ### Line
