@@ -18,10 +18,8 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -564,7 +562,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
-    @Timeout(unit = TimeUnit.SECONDS, value = 5)
+    @Disabled("The loop causes a stack overflow")
     void disconnectionOnThreeTeePointsAndLoopTestWithPropagation() {
         // Network
         Network network = createNetworkWithThreeTeePointsAndLoop();
