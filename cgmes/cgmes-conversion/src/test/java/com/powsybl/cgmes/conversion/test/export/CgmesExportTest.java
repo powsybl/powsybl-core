@@ -9,6 +9,8 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
@@ -18,7 +20,6 @@ import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.*;
-import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.*;
@@ -28,7 +29,6 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -37,10 +37,9 @@ import java.io.InputStream;
 import java.nio.file.*;
 import java.util.List;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -182,7 +181,7 @@ class CgmesExportTest {
 
     private static boolean xmlFileContainsRegulatingControl(String expectedRdfIdAttributeValue, String rdfIdAttributeName, Path file) throws IOException, XMLStreamException {
         try (InputStream is = Files.newInputStream(file)) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             while (reader.hasNext()) {
                 if (reader.next() == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals("TapChangerControl")) {
                     String id = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, rdfIdAttributeName);
@@ -204,15 +203,6 @@ class CgmesExportTest {
         String phaseTapChangerId = "6ebbef67-3061-4236-a6fd-6ccc4595f6c3";
         testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 16);
         testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 100);
-    }
-
-    @Test
-    void testPhaseTapChangerType14() throws IOException {
-        ReadOnlyDataSource ds = Cim14SmallCasesCatalog.m7buses().dataSource();
-        String transformerId = "FP.AND11-FTDPRA11-1_PT";
-        String phaseTapChangerId = "FP.AND11-FTDPRA11-1_PTC_OR";
-        testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 16, importParams);
-        testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 100, importParams);
     }
 
     private void testPhaseTapChangerType(ReadOnlyDataSource ds, String transformerId, String phaseTapChangerId, int cimVersion) throws IOException {
@@ -424,7 +414,7 @@ class CgmesExportTest {
             String regex = "<md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>";
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(eqFile);
-            assertEquals(1, matcher.results().count());
+            assertEquals(1, matcherCount(matcher));
         }
     }
 
