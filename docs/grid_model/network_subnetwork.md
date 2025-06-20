@@ -698,11 +698,23 @@ The **_reduced_** model abstracts away internal DC components.
 A DC link is represented as a single DC line rigidly connected to two AC/DC converters.
 In this representation, each converter connects to the AC network through a single connection.
 
+![Reduced DC Model](img/dc-reduced.svg){width="100%" align=center class="only-light"}
+![Reduced DC Model](img/dark_mode/dc-reduced.svg){width="100%" align=center class="only-dark"}
+
 In contrast, the **_detailed_** model includes a broader set of DC components, such as DC nodes, DC grounds, DC switches, DC lines, and AC/DC converters.
 This approach enables a more accurate representation of the wide range of HVDC configurations.
 It allows modeling of features such as:
 - Metallic return cables, bipole systems, symmetrical and asymmetrical configurations, bypass DC switches, multi-terminal DC grids (radial or meshed)
 - AC/DC converters with dual connections to the AC network (e.g., for the two transformers connections of a 12-pulse converter)
+
+![Detailed DC Model Monopole metallic return](img/dc-detailed-mono-mrc.svg){width="100%" align=center class="only-light"}
+![Detailed DC Model Monopole metallic return](img/dark_mode/dc-detailed-mono-mrc.svg){width="100%" align=center class="only-dark"}
+
+![Detailed DC Model Bipole](img/dc-detailed-bipole.svg){width="100%" align=center class="only-light"}
+![Detailed DC Model Bipole](img/dark_mode/dc-detailed-bipole.svg){width="100%" align=center class="only-dark"}
+
+![Detailed DC Model Single AC Terminal](img/dc-detailed-single-ac-terminal.svg){width="100%" align=center class="only-light"}
+![Detailed DC Model Single AC Terminal](img/dark_mode/dc-detailed-single-ac-terminal.svg){width="100%" align=center class="only-dark"}
 
 The same network may contain multiple HVDC links with either representation.
 
@@ -710,19 +722,6 @@ Both the _reduced_ and _detailed_ models support the representation of Line-Comm
 and Voltage Source Converters (VSCs).
 
 Further details on these two modeling approaches are provided in the following sections.
-
-```{warning}
-**The detailed DC model was introduced in iIDM v1.14 and is currently in beta.**
-
-Future releases will enhance this model with support for DC topology processing and serialization/deserialization.  
-These improvements will introduce **breaking changes** and **will not be backward compatible**.
-
-Currently, this model is only available in the iIDM representation.
-Support in downstream projects (e.g., `powsybl-diagram`, `powsybl-open-loadflow`, etc.) may vary.
-Please consult the documentation of each downstream project to verify support. In general, **lack of explicit mention means no support**.
-
-If you’re unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html).
-```
 
 ### Reduced DC model
 
@@ -931,6 +930,9 @@ LCC and VSC share the following characteristics.
 | $ControlMode$   |          | The converter's control mode: P_PCC or V_DC                           |
 | $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
 | $TargetVdc$     | kV       | DC voltage target                                                     |
+
+![Detailed DC Model PCC Terminal](img/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-light"}
+![Detailed DC Model PCC Terminal](img/dark_mode/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-dark"}
 
 ##### Line Commutated Converter
 
