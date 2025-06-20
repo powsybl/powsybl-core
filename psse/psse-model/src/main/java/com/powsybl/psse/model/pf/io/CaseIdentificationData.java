@@ -28,8 +28,10 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
  */
 class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification> {
 
+    static final String[] FIELD_NAMES_CASE_IDENTIFICATION = {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", STR_TITLE_1, STR_TITLE_2};
+
     CaseIdentificationData() {
-        super(PowerFlowRecordGroup.CASE_IDENTIFICATION, "ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", STR_TITLE_1, STR_TITLE_2);
+        super(PowerFlowRecordGroup.CASE_IDENTIFICATION, FIELD_NAMES_CASE_IDENTIFICATION);
         withQuotedFields(STR_TITLE_1, STR_TITLE_2);
         withIO(LEGACY_TEXT, new CaseIdentificationLegacyText(this));
         withIO(JSON, new CaseIdentificationJson(this));

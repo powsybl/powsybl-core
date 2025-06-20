@@ -14,6 +14,9 @@ Parameters for the import can be defined in the configuration file in the [impor
 **psse.import.ignore-base-voltage**  
 The `psse.import.ignore-base-voltage` property is an optional property that defines if the importer should ignore the base voltage information present in the PSS®E file. The default value is `false`.
 
+**psse.import.ignore-node-breaker-topology**  
+The `psse.import.ignore-node-breaker-topology` property is an optional property that defines if the importer should ignore the node breaker information present in the PSS®E file. The default value is `false`.
+
 (psse-inconsistency-checks)=
 ## Inconsistency checks
 -<span style="color: red">TODO</span>
@@ -24,17 +27,17 @@ A PSS®E file specifies a Bus/Branch network model where typically there is a bu
 
 The PowSyBl grid model establishes the substation as a required container of voltage levels and equipment. The first step in the conversion process assigns a substation for each PSS®E bus, ensuring that all buses at transformer ends are kept in the same substation.
 
-The current conversion does not use explicit PSS®E substation information. Instead, buses are grouped using zero impedance branches and transformers as connectors. A new voltage level is created for each group of buses connected by zero impedance branches, and a new substation is created for the voltage levels connected by transformers. Explicit substations will be supported in future versions, allowing to represent the internal connectivity.
+The current conversion uses explicit PSS®E substation information to group buses, considering zero-impedance branches, transformers, and substation membership as connectors. A new substation is created for each identified component. Within the substation, a new voltage level is created for each group of buses connected by zero-impedance branches or sharing the same nominal voltage. The topology of each voltage level can be defined at either the bus-branch level or the node-breaker level. It is only defined at the node-breaker level when all the buses included in the voltage level belong to the same PSS®E substation. In this case, all the detailed connectivity defined in PSS®E is imported into the PowSyBl model.
 
 In the PowSyBl grid model, all the network components are identified through a global and unique alphanumeric identifier (**Id**). Optionally, they may receive a name (**Name**).
 
 For each substation, the following attributes are defined:
-- **Id** following the pattern `S<n>` where `n` represents a consecutive integer number starting from 1.
+- **Id** following one of the two patterns: `S<n>`, when the substation corresponds to a PSS®E substation (where `n` is the identifier of the PSS®E substation), and `S<n1-n2 ... -ni>`, when the substation represents a bus or a group of buses, where `n1...ni` are the identifiers of the buses sorted in ascending order.
 
 Every voltage level is assigned to its corresponding substation, with attributes:
-- **Id** following the pattern `VL<n>` where `n` represents the minimum PSS®E bus number included inside the voltage level.
+- **Id** following the pattern `VL<n1-n2 ... -ni>` where `n1 .. ni` represents the PSS®E bus numbers included inside the voltage level sorted in ascending order.
 - **NominalV** Nominal voltage of the voltage level. Equal to `1` if `psse.import.ignore-base-voltage` property is `true`. Otherwise, it is assigned to the base voltage of one representative bus inside the voltage level, read from PSS®E field `BASKV`.
-- **TopologyKind** Topology level assigned to the network model, always `BUS_BREAKER`.
+- **TopologyKind** Topology level assigned to the network model, `NODE_BREAKER` or `BUS_BREAKER`.
 
 The following sections describe in detail how each supported PSS®E data block is converted to PowSyBl network model objects.
 
