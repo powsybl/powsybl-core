@@ -672,6 +672,13 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void wrongBusbarPosition(ReportNode reportNode) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.wrongBusbarPosition")
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
     public static void undefinedFictitiousSubstationId(ReportNode reportNode) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.undefinedFictitiousSubstationId")

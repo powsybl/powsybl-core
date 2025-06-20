@@ -14,6 +14,28 @@ voltage level, the removal of network elements and their switches, the creation 
 another line, and the connection of a voltage level to a line.
 All these classes rely on a builder to create the modification and then apply it on the network.
 
+### Naming strategy
+The naming strategy aims at clarifying and facilitating the naming of the different network elements created via the different
+`com.powsybl.iidm.modification.NetworkModification` classes. Based on the name of the network element the user wishes to create 
+(a VoltageLevel, a BranchFeederBay, etc.), all the other elements created during the NetworkModification will be given a name 
+using this name as baseline and prefixes/suffixes according to the naming strategy chosen by the user. 
+The naming strategy can be either the default one `com.powsybl.iidm.modification.topology.DefaultNamingStrategy` 
+or a new implementation of the `NamingStrategy` interface.
+
+#### Default naming strategy
+Default naming strategy is used if no other naming strategy is specified.
+The `DefaultNamingStrategy` implements a simple naming convention following the pattern: 
+base name + separator + element type + optional index.
+The default implementation uses underscores as separators and appends element types and indices when necessary 
+to ensure unique naming.
+
+#### Custom strategies
+Other Naming strategies can be implemented based on the `NamingStrategy` interface. 
+This allows for organization-specific naming conventions, different separator characters, or specialized formatting rules.
+
+#### Naming strategies service loader
+The `NamingStrategiesServiceLoader` enables dynamic discovery of available naming strategies through Java's ServiceLoader mechanism.
+
 ### Network element creation
 
 #### Create feeder bay
@@ -220,9 +242,6 @@ This modification ensures that the connectivity of the network is preserved whil
 <span style="color: red">TODO</span>
 
 ### ReplaceTeePointbyVoltageLevelOnLine
-<span style="color: red">TODO</span>
-
-### Naming strategy
 <span style="color: red">TODO</span>
 
 ## Tripping
