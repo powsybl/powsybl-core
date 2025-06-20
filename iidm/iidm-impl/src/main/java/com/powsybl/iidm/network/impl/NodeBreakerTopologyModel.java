@@ -16,7 +16,6 @@ import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnectionAdder;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
-import com.powsybl.iidm.network.util.ConnectionElementsContainer;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.iidm.network.util.SwitchPredicates;
@@ -1304,10 +1303,10 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         List<TIntArrayList> pathsFromLine = graph.findAllPaths(node, NodeBreakerTopologyModel::isLine, SwitchPredicates.IS_OPEN);
         if (!pathsFromLine.isEmpty()) {
             // Initialize a list of lines connected to the BusbarSection
-            Map<Line, ThreeSides> linesAndSidesConnectedToIncomingLine = addOppositeLines(pathsFromLine);
+            Map<LineImpl, ThreeSides> linesAndSidesConnectedToIncomingLine = addOppositeLines(pathsFromLine);
 
             // We check if the opposite side of each line can be connected
-            for (Map.Entry<Line, ThreeSides> lineAndSide : linesAndSidesConnectedToIncomingLine.entrySet()) {
+            for (Map.Entry<LineImpl, ThreeSides> lineAndSide : linesAndSidesConnectedToIncomingLine.entrySet()) {
                 // If any line cannot be connected, we return false
                 if (!lineAndSide.getKey().connect(isSwitchOperable, lineAndSide.getValue(), true, false, connectionElementsContainer)) {
                     return false;
@@ -1319,9 +1318,9 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         return false;
     }
 
-    private Map<Line, ThreeSides> addOppositeLines(List<TIntArrayList> pathsFromLine) {
+    private Map<LineImpl, ThreeSides> addOppositeLines(List<TIntArrayList> pathsFromLine) {
         // Initialize the map
-        Map<Line, ThreeSides> linesAndSidesConnectedToIncomingLine = new HashMap<>();
+        Map<LineImpl, ThreeSides> linesAndSidesConnectedToIncomingLine = new HashMap<>();
 
         // Each path is visited, and we add to the list the line at the end
         for (TIntArrayList pathFromLine : pathsFromLine) {
@@ -1329,7 +1328,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             Terminal terminalEndOfPathFromBbs = getEndOfPathTerminal(pathFromLine);
 
             // Connectables should only be lines by now, but in case...
-            if (terminalEndOfPathFromBbs.getConnectable() instanceof Line line) {
+            if (terminalEndOfPathFromBbs.getConnectable() instanceof LineImpl line) {
                 linesAndSidesConnectedToIncomingLine.putIfAbsent(line, line.getTerminal1() == terminalEndOfPathFromBbs ? ThreeSides.TWO : ThreeSides.ONE);
             }
         }
@@ -1455,7 +1454,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         // Get the terminal at the end of the path
         Terminal terminalEndOfPath = getEndOfPathTerminal(path);
 
-        if (terminalEndOfPath.getConnectable() instanceof Line line) {
+        if (terminalEndOfPath.getConnectable() instanceof LineImpl line) {
             // If the connectable at the end of the path is a line, we find the side and disconnect the line
             return propagateDisconnectionToALine(line, terminalEndOfPath, isSwitchOpenable, connectionElementsContainer);
 
@@ -1467,7 +1466,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         return false;
     }
 
-    private boolean propagateDisconnectionToALine(Line line, Terminal terminalEndOfPath, Predicate<Switch> isSwitchOpenable,
+    private boolean propagateDisconnectionToALine(LineImpl line, Terminal terminalEndOfPath, Predicate<Switch> isSwitchOpenable,
                                                   ConnectionElementsContainer connectionElementsContainer) {
         // If the connectable at the end of the path is a line, we find the side and disconnect the line
         ThreeSides side = line.getTerminal1() == terminalEndOfPath ? ThreeSides.TWO : ThreeSides.ONE;
@@ -1489,7 +1488,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         }
 
         // Initialize a list of lines connected to the BusbarSection
-        Map<Line, ThreeSides> linesAndSidesConnectedToBbs = new HashMap<>();
+        Map<LineImpl, ThreeSides> linesAndSidesConnectedToBbs = new HashMap<>();
 
         // Each path is visited and for each, check if the network element at the end is a line - fails if not
         if (areOppositeElementsOtherThanLines(pathsFromBbs, incomingTerminal, linesAndSidesConnectedToBbs)) {
@@ -1497,7 +1496,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         }
 
         // We now try to disconnect the other side of each line
-        for (Map.Entry<Line, ThreeSides> lineAndSide : linesAndSidesConnectedToBbs.entrySet()) {
+        for (Map.Entry<LineImpl, ThreeSides> lineAndSide : linesAndSidesConnectedToBbs.entrySet()) {
             if (!lineAndSide.getKey().disconnect(isSwitchOpenable, lineAndSide.getValue(), true, false, connectionElementsContainer)) {
                 return false;
             }
@@ -1506,14 +1505,14 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     private boolean areOppositeElementsOtherThanLines(List<TIntArrayList> pathsFromBusbarSection, Terminal incomingTerminal,
-                                                      Map<Line, ThreeSides> linesAndSidesConnectedToBusbarSection) {
+                                                      Map<LineImpl, ThreeSides> linesAndSidesConnectedToBusbarSection) {
         for (TIntArrayList pathFromBbs : pathsFromBusbarSection) {
             // Get the terminal at the end of the path
             Terminal terminalEndOfPathFromBbs = getEndOfPathTerminal(pathFromBbs);
 
             // We filter the incoming terminal
             if (!terminalEndOfPathFromBbs.equals(incomingTerminal)) {
-                if (terminalEndOfPathFromBbs.getConnectable() instanceof Line line) {
+                if (terminalEndOfPathFromBbs.getConnectable() instanceof LineImpl line) {
                     // If we get to another line, add it to the map
                     linesAndSidesConnectedToBusbarSection.put(line, line.getTerminal1() == terminalEndOfPathFromBbs ? ThreeSides.TWO : ThreeSides.ONE);
                 } else {

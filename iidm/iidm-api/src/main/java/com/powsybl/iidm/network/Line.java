@@ -7,9 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.util.ConnectionElementsContainer;
-
-import java.util.HashSet;
 import java.util.function.Predicate;
 
 /**
@@ -45,14 +42,7 @@ public interface Line extends Branch<Line>, Connectable<Line>, MutableLineCharac
         return connect(isTypeSwitchToOperate, null, propagateDisconnectionIfNeeded);
     }
 
-    default boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateDisconnectionIfNeeded) {
-        return connect(isTypeSwitchToOperate, side, propagateDisconnectionIfNeeded, true,
-            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()));
-    }
-
-    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side,
-                    boolean propagateDisconnectionIfNeeded, boolean connectFromHere,
-                    ConnectionElementsContainer connectionElementsContainer);
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateDisconnectionIfNeeded);
 
     boolean disconnect(boolean propagateDisconnectionIfNeeded);
 
@@ -60,12 +50,5 @@ public interface Line extends Branch<Line>, Connectable<Line>, MutableLineCharac
         return disconnect(isSwitchOpenable, null, propagateDisconnectionIfNeeded);
     }
 
-    default boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean propagateDisconnectionIfNeeded) {
-        return disconnect(isSwitchOpenable, side, propagateDisconnectionIfNeeded, true,
-            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()));
-    }
-
-    boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side,
-                       boolean propagateDisconnectionIfNeeded, boolean disconnectFromHere,
-                       ConnectionElementsContainer connectionElementsContainer);
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean propagateDisconnectionIfNeeded);
 }

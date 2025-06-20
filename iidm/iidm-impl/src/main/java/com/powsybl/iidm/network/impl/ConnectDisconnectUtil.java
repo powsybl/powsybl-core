@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.util.ConnectionElementsContainer;
 import com.powsybl.iidm.network.util.NetworkReports;
 
 import java.util.HashSet;

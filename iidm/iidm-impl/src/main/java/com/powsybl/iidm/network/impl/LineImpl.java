@@ -12,9 +12,9 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.util.ConnectionElementsContainer;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 
+import java.util.HashSet;
 import java.util.function.Predicate;
 
 /**
@@ -139,8 +139,13 @@ class LineImpl extends AbstractConnectableBranch<Line> implements Line {
     }
 
     @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateConnectionIfNeeded) {
+        return connect(isTypeSwitchToOperate, side, propagateConnectionIfNeeded, true,
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()));
+    }
+
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side,
-                           boolean propagateDisconnectionIfNeeded, boolean connectFromHere,
+                           boolean propagateConnectionIfNeeded, boolean connectFromHere,
                            ConnectionElementsContainer connectionElementsContainer) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
@@ -148,7 +153,7 @@ class LineImpl extends AbstractConnectableBranch<Line> implements Line {
             isTypeSwitchToOperate,
             connectionElementsContainer,
             connectFromHere,
-            propagateDisconnectionIfNeeded,
+            propagateConnectionIfNeeded,
             getNetwork().getReportNodeContext().getReportNode());
     }
 
@@ -158,6 +163,11 @@ class LineImpl extends AbstractConnectableBranch<Line> implements Line {
     }
 
     @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean propagateDisconnectionIfNeeded) {
+        return disconnect(isSwitchOpenable, side, propagateDisconnectionIfNeeded, true,
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()));
+    }
+
     public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side,
                               boolean propagateDisconnectionIfNeeded, boolean disconnectFromHere,
                               ConnectionElementsContainer connectionElementsContainer) {

@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.ConnectionElementsContainer;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
