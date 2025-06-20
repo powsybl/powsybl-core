@@ -220,16 +220,8 @@ public final class TopologyModificationUtils {
         });
     }
 
-    static Switch createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
-        return view.newSwitch()
-                .setId(id)
-                .setEnsureIdUnicity(true)
-                .setKind(SwitchKind.BREAKER)
-                .setOpen(open)
-                .setRetained(true)
-                .setNode1(node1)
-                .setNode2(node2)
-                .add();
+    static void createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
+        createNBBreaker(node1, node2, id, view, open, false);
     }
 
     static void createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open, boolean fictitious) {
@@ -244,22 +236,20 @@ public final class TopologyModificationUtils {
                 .setFictitious(fictitious)
                 .add();
     }
+    static void createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
+        createNBDisconnector(node1, node2, id, view, open, false);
+    }
 
-    static Switch createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
-        return view.newSwitch()
+    static void createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open, boolean fictitious) {
+        view.newSwitch()
                 .setId(id)
                 .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.DISCONNECTOR)
                 .setOpen(open)
                 .setNode1(node1)
                 .setNode2(node2)
+                .setFictitious(fictitious)
                 .add();
-    }
-
-    static Switch createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open, boolean fictitious) {
-        Switch sw = createNBDisconnector(node1, node2, id, view, open);
-        sw.setFictitious(fictitious);
-        return sw;
     }
 
     static void createBusBreakerSwitch(String busId1, String busId2, String id, VoltageLevel.BusBreakerView view) {
