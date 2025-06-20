@@ -39,7 +39,7 @@
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.150766642808914"/>
             </iidm:ratioTapChanger>
-            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" regulating="false" regulationMode="FIXED_TAP" targetDeadband="0.0">
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulating="false" regulationMode="FIXED_TAP" targetDeadband="0.0">
                 <iidm:terminalRef id="NHV2_NLOAD" side="TWO"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191" alpha="1"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666" alpha="1"/>

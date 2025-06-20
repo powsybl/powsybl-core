@@ -70,7 +70,7 @@
             <iidm:load id="B5-L2 " loadType="UNDEFINED" p0="0.0" q0="50.0" connectableBus="B5"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-3-5-1 " r="0.0" x="28.0" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" voltageLevelId1="VL3" bus1="B3" connectableBus1="B3" voltageLevelId2="VL5" bus2="B5" connectableBus2="B5" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
-            <iidm:ratioTapChanger regulating="true" lowTapPosition="0" tapPosition="11" targetDeadband="2.700000000000003" loadTapChangingCapabilities="false" regulationMode="VOLTAGE" regulationValue="18.45">
+            <iidm:ratioTapChanger regulating="true" lowTapPosition="0" tapPosition="11" targetDeadband="2.700000000000003" loadTapChangingCapabilities="true" regulationMode="VOLTAGE" regulationValue="18.45">
                 <iidm:terminalRef id="B3-G1 "/>
                 <iidm:step r="0.0" x="0.0" g="-9.750000000000004" b="-9.750000000000004" rho="1.0526315789473684"/>
                 <iidm:step r="0.0" x="0.0" g="-8.84297052154196" b="-8.84297052154196" rho="1.0473815461346634"/>

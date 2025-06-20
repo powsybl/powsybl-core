@@ -77,15 +77,4 @@ public interface RatioTapChanger extends TapChanger<
      * @return itself for method chaining.
      */
     RatioTapChanger setTargetV(double targetV);
-
-    /**
-     * Get the load tap changing capabilities status.
-     */
-    boolean hasLoadTapChangingCapabilities();
-
-    /**
-     * Set the load tap changing capabilities status.
-     * @return itself for method chaining.
-     */
-    RatioTapChanger setLoadTapChangingCapabilities(boolean status);
 }

@@ -26,6 +26,8 @@ public interface TapChangerAdder<
     R extends TapChangerStepsReplacer<R, B>,
     C extends TapChanger<C, D, R, B>> {
 
+    S setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities);
+
     S setLowTapPosition(int lowTapPosition);
 
     S setTapPosition(int tapPosition);

@@ -27,6 +27,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final H parent;
 
+    protected boolean loadTapChangingCapabilities;
+
     protected int lowTapPosition;
 
     protected Integer relativeNeutralPosition;
@@ -45,11 +47,13 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected AbstractTapChanger(H parent,
                                  int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
+                                 boolean loadTapChangingCapabilities,
                                  Integer tapPosition, boolean regulating, double targetDeadband, String type) {
         // The Ref object should be the one corresponding to the subnetwork of the tap changer holder
         // (to avoid errors when the subnetwork is detached)
         this.network = parent.getParentNetwork().getRootNetworkRef();
         this.parent = parent;
+        this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         this.lowTapPosition = lowTapPosition;
         this.steps = steps;
         steps.forEach(s -> s.setParent(this));
