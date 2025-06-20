@@ -181,6 +181,15 @@ public final class PhaseShifterTestCaseFactory {
         network.getTwoWindingsTransformer("PS1")
                 .getPhaseTapChanger()
                 .setTargetDeadband(10.0)
+                .setRegulating(false);
+        return network;
+    }
+
+    public static Network createRegulatingWithoutMode() {
+        Network network = create();
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setTargetDeadband(10.0)
                 .setRegulating(true);
         return network;
     }
