@@ -16,7 +16,7 @@ public class LineCommutatedConverterAdderImpl extends AbstractAcDcConverterAdder
 
     private LineCommutatedConverter.ReactiveModel reactiveModel = LineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR;
 
-    private double powerFactor = 0.5;
+    private double powerFactor = Math.cos(Math.atan(0.5));
 
     LineCommutatedConverterAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);

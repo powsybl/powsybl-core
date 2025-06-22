@@ -104,16 +104,16 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">ReactiveModel</td>
  *             <td style="border: 1px solid black">ReactiveModel</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black">FIXED_POWER_FACTOR</td>
  *             <td style="border: 1px solid black">The converter's reactive model</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">PowerFactor</td>
  *             <td style="border: 1px solid black">double</td>
  *             <td style="border: 1px solid black">-</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black">cos(atan(0.5))</td>
  *             <td style="border: 1px solid black">The power factor</td>
  *         </tr>
  *     </tbody>
