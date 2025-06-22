@@ -848,8 +848,8 @@ Future releases will enhance this model with support for DC topology processing 
 These improvements will introduce **breaking changes** and **will not be backward compatible**.
 
 Currently, this model is only available in the iIDM representation.
-Support in downstream projects (e.g., `powsybl-diagram`, `powsybl-open-loadflow`, etc.) may vary.
-Please consult the documentation of each downstream project to verify support. In general, **lack of explicit mention means no support**.
+Support in exchange formats (CGMES, ...) as well as in downstream projects (e.g., `powsybl-diagram`, `powsybl-open-loadflow`, etc.) may vary.
+Please consult the documentation of each project to verify support. In general, lack of explicit mention means no support.
 
 If you’re unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html).
 ```
@@ -931,8 +931,42 @@ LCC and VSC share the following characteristics.
 | $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
 | $TargetVdc$     | kV       | DC voltage target                                                     |
 
+Converter losses are modeled using the `IdleLoss`, `SwitchingLoss` and `ResistiveLoss` parameters, all positive values.
+With `i` being the DC current through the converter, the Converter losses are computed as follows:
+
+$$ConverterLosses = IdleLoss + SwitchingLoss.|i| + ResistiveLoss.i²$$
+
+The converter losses is the active power difference between the converter AC Terminal(s) and DC Terminals.
+
+The Point of Common Coupling (PCC) Terminal defines where the AC/DC converter interfaces with the AC grid.
+The control mode defines whether the converter:
+- controls active power at Point of Common Coupling
+- or, controls DC voltage at its DC terminals
+
+When the `ControlMode` of the converter is set to `P_PCC`, the converter controls active power flow at the (AC) Point of common coupling terminal.
+`TargetP` is the desired active power flow at PCC, in passive sign convention, i.e.:
+
+- positive `TargetP` means power flows from AC to DC, the converter is sending AC power to the DC system
+- negative `TargetP` means power flows from DC to AC, the converter is receiving DC power to the AC system
+
+For LCC 12-pulse converters, the PCC terminal is typically located on the station side of the transformers (not on the converter side).
+For VSC converters having a single AC Terminal, it is valid for the PCC Terminal to be the converter terminal itself.
+Because the PCC Terminal is used by the converter to control active power flow, it must be a branch terminal (a line or a transformer).
+However, it cannot be a Busbar Section Terminal since no active power happens on Busbar Sections.
+
 ![Detailed DC Model PCC Terminal](img/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-light"}
 ![Detailed DC Model PCC Terminal](img/dark_mode/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-dark"}
+
+When the `ControlMode` of the converter is set to `V_DC`, the converter controls DC voltage at it's DC Terminals.
+`TargetVdc` is the desired target DC voltage, and is the voltage difference between DC Node 1 and DC Node 2.
+`TargetVdc` may be either positive or negative. Negative value may be used to model reverse polarity operation in case of LCCs.
+No explicit attribute specifies whether the DC is a symmetrical or asymmetrical scheme.
+The scheme symmetrical or asymmetrical is derived implicitly by either the presence or absence of a DC Ground connected to the DC system:
+- If a DC Ground is connected, the configuration is asymmetrical, and the converter imposes the target voltage difference
+between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc` 
+- If no DC Ground is present, the configuration is symmetrical, in this case the converter provides internally an implicit DC Ground and imposes:
+  - `+TargetVdc / 2` at the converter DC Node 1
+  - `-TargetVdc / 2` at the converter DC Node 2
 
 ##### Line Commutated Converter
 
@@ -945,6 +979,10 @@ LCC and VSC share the following characteristics.
 | $ReactiveModel$ |      | FIXED_POWER_FACTOR or CALCULATED_POWER_FACTOR                  |
 | $PowerFactor$   | %    | Ratio between the active power $P$ and the apparent power $S$. |
 
+Line Commutated Converters always consume reactive power, the `PowerFactor` attribute specifies how much
+is consumed when the reactive model is set to `FIXED_POWER_FACTOR`. Typical characteristic for LCCs is $Q = 0.5 P$
+hence a PowerFactor of 0.89443.
+
 ##### Voltage Source Converter
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageSourceConverter.html)<br>
@@ -956,6 +994,26 @@ LCC and VSC share the following characteristics.
 | $VoltageRegulatorOn$    |      | True if the converter regulates voltage    |
 | $VoltageSetpoint$       | kV   | The voltage setpoint for regulation        |
 | $ReactivePowerSetpoint$ | MVar | The reactive power setpoint for regulation |
+
+**Specifications**
+
+- The terminal used for regulation is the Point of Common Coupling terminal, for both voltage and reactive power control modes.
+- The voltage setpoint (in kV) is required if the voltage regulator is on for the converter.
+- The reactive power setpoint (in MVar) is required if the voltage regulator is off for the converter. The setpoint is in passive sign convention: a positive value of $ReactivePowerSetpoint$ means withdrawal from the bus.
+- A set of reactive limits can be associated to a VSC converter. All the reactive limits modeling available in the library are described [here](./additional.md#reactive-limits).
+
+#### DC Equipment containment in main network and subnetworks
+
+Modeling a DC link involves creating multiple objects in the model such as DC nodes, lines, converters, switches, grounds
+which relate to each other. When creating DC equipment, associations can be made only within the same network, which can be
+either the main network or the same subnetwork. For example, the following associations are rejected by the model:
+- creating a DC line connecting a DC Node A in subnetwork A with DC Node B in subnetwork B
+- creating a DC Ground in subnetwork A connecting a DC Node contained in subnetwork B
+- creating an AC/DC converter in a voltage level in subnetwork A connecting to DC nodes contained in main network
+- setting the Point of Common Coupling of an AC/DC converter in a voltage level in subnetwork A to be a line terminal in subnetwork B
+- etc ...
+
+For more details about working with subnetworks, see [Working with subnetworks](../grid_features/working_with_subnetworks.md).
 
 (busbar-section)=
 ## Busbar section
