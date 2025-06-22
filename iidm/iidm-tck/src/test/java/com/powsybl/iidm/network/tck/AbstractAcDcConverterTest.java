@@ -182,7 +182,7 @@ public abstract class AbstractAcDcConverterTest {
 
         // default values
         assertSame(LineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR, ((LineCommutatedConverter) acDcConverterA).getReactiveModel());
-        assertEquals(0.5, ((LineCommutatedConverter) acDcConverterA).getPowerFactor());
+        assertEquals(0.894427191, ((LineCommutatedConverter) acDcConverterA).getPowerFactor(), 1e-4);
         // explicitly set values
         assertSame(LineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR, ((LineCommutatedConverter) acDcConverterB).getReactiveModel());
         assertEquals(0.6, ((LineCommutatedConverter) acDcConverterB).getPowerFactor());
@@ -395,11 +395,11 @@ public abstract class AbstractAcDcConverterTest {
         acDcConverterA = createLccA(vla);
         LineCommutatedConverter lccA = (LineCommutatedConverter) acDcConverterA;
 
-        assertEquals(0.5, lccA.getPowerFactor());
+        assertEquals(0.894427191, lccA.getPowerFactor(), 1e-4);
         assertEquals(LineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR, lccA.getReactiveModel());
 
-        lccA.setPowerFactor(0.55).setReactiveModel(LineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR);
-        assertEquals(0.55, lccA.getPowerFactor());
+        lccA.setPowerFactor(0.85).setReactiveModel(LineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR);
+        assertEquals(0.85, lccA.getPowerFactor());
         assertEquals(LineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR, lccA.getReactiveModel());
 
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> lccA.setPowerFactor(-0.1));

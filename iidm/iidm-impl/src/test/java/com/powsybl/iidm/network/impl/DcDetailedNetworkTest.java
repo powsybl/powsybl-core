@@ -83,10 +83,10 @@ class DcDetailedNetworkTest {
                 }
             }
         };
-        network.getVoltageLevel("VLDC-FR-xNodeDc1fr-150")
+        network.getVoltageLevel(DcDetailedNetworkFactory.getVoltageLevelId(Country.FR, DcDetailedNetworkFactory.X_NODE_DC_1_FR, DcDetailedNetworkFactory.SUFFIX_150))
                 .visitEquipments(topologyVisitor);
         assertEquals(2, visited.size());
-        visited.forEach(c -> assertSame(network.getLineCommutatedConverter("CsFr"), c));
+        visited.forEach(c -> assertSame(network.getLineCommutatedConverter("LccFr"), c));
     }
 
     @Test
@@ -101,13 +101,13 @@ class DcDetailedNetworkTest {
                 }
             }
         };
-        network.getVoltageLevel("VLDC-FR-xNodeDc1fr-150")
+        network.getVoltageLevel(DcDetailedNetworkFactory.getVoltageLevelId(Country.FR, DcDetailedNetworkFactory.X_NODE_DC_1_FR, DcDetailedNetworkFactory.SUFFIX_150))
                 .visitEquipments(topologyVisitor);
         assertEquals(2, visited.size());
-        var csFr = network.getLineCommutatedConverter("CsFr");
-        visited.forEach(t -> assertSame(csFr, t.getConnectable()));
+        var lccFr = network.getLineCommutatedConverter("LccFr");
+        visited.forEach(t -> assertSame(lccFr, t.getConnectable()));
         var terminalBySide = visited.stream().collect(Collectors.toMap(Terminal::getSide, Function.identity()));
-        assertSame(csFr.getTerminal1(), terminalBySide.get(ThreeSides.ONE));
-        assertSame(csFr.getTerminal2().orElseThrow(), terminalBySide.get(ThreeSides.TWO));
+        assertSame(lccFr.getTerminal1(), terminalBySide.get(ThreeSides.ONE));
+        assertSame(lccFr.getTerminal2().orElseThrow(), terminalBySide.get(ThreeSides.TWO));
     }
 }
