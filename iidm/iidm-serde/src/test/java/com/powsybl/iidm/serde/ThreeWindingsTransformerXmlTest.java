@@ -7,10 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerAdder;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -56,6 +53,9 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
         createPtc(twt.getLeg3().newPhaseTapChanger(), false);
 
         allFormatsRoundTripTest(network, "completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("completeThreeWindingsTransformerRoundTripRef.xml", IidmVersion.V_1_1);
     }
 
     private void createPtc(PhaseTapChangerAdder adder, boolean loadTapChangingCapabilities) {
@@ -63,7 +63,7 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
                 .setLowTapPosition(1)
                 .setRegulating(false)
                 .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .beginStep().setRho(1.f).setAlpha(-50f).setR(0.1f).setX(0.1f).setG(0.1f).setB(0.1f).endStep()
                 .beginStep().setRho(1.f).setAlpha(-25f).setR(0.1f).setX(0.1f).setG(0.1f).setB(0.1f).endStep()
                 .add();

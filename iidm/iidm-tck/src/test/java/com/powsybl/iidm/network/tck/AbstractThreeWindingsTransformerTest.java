@@ -415,7 +415,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         leg1.getRatioTapChanger().setLoadTapChangingCapabilities(true).setRegulating(true);
         PhaseTapChanger phaseTapChanger = leg1.getPhaseTapChanger();
-        ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setLoadTapChangingCapabilities(true).setRegulating(true));
+        phaseTapChanger.setLoadTapChangingCapabilities(true);
+        ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setRegulating(true));
         assertTrue(e.getMessage().contains(ERROR_LEG1_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED));
     }
 
@@ -428,7 +429,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         leg2.getRatioTapChanger().setLoadTapChangingCapabilities(true).setRegulating(true);
         PhaseTapChanger phaseTapChanger = leg2.getPhaseTapChanger();
-        ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setLoadTapChangingCapabilities(true).setRegulating(true));
+        phaseTapChanger.setLoadTapChangingCapabilities(true);
+        ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setRegulating(true));
         assertTrue(e.getMessage().contains(ERROR_LEG2_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED));
     }
 
@@ -442,7 +444,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         leg3.getRatioTapChanger().setLoadTapChangingCapabilities(true).setRegulating(true);
         PhaseTapChanger phaseTapChanger = leg3.getPhaseTapChanger();
-        ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setLoadTapChangingCapabilities(true).setRegulating(true));
+        phaseTapChanger.setLoadTapChangingCapabilities(true);
+        ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setRegulating(true));
         assertTrue(e.getMessage().contains(ERROR_TRANSFORMER_LEG3_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED));
     }
 
@@ -456,7 +459,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         leg1.getRatioTapChanger().setLoadTapChangingCapabilities(true).setRegulating(true);
         RatioTapChanger ratioTapChanger = leg3.getRatioTapChanger();
-        ValidationException e = assertThrows(ValidationException.class, () -> ratioTapChanger.setLoadTapChangingCapabilities(true).setRegulating(true));
+        ratioTapChanger.setLoadTapChangingCapabilities(true);
+        ValidationException e = assertThrows(ValidationException.class, () -> ratioTapChanger.setRegulating(true));
         assertTrue(e.getMessage().contains(ERROR_TRANSFORMER_LEG3_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED));
     }
 
@@ -470,7 +474,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         leg1.getPhaseTapChanger().setLoadTapChangingCapabilities(true).setRegulating(true);
         PhaseTapChanger phaseTapChanger = leg2.getPhaseTapChanger();
-        ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setLoadTapChangingCapabilities(true).setRegulating(true));
+        phaseTapChanger.setLoadTapChangingCapabilities(true);
+        ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setRegulating(true));
         assertTrue(e.getMessage().contains(ERROR_LEG2_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED));
     }
 
