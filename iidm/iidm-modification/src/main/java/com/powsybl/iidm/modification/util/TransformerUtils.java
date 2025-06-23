@@ -124,6 +124,7 @@ public final class TransformerUtils {
 
     private static void copyCommonPhaseTapChanger(PhaseTapChangerAdder ptcAdder, PhaseTapChanger ptc) {
         ptcAdder.setTapPosition(ptc.getTapPosition())
+                .setLoadTapChangingCapabilities(ptc.hasLoadTapChangingCapabilities())
                 .setRegulationMode(ptc.getRegulationMode())
                 .setRegulationValue(ptc.getRegulationValue())
                 .setLowTapPosition(ptc.getLowTapPosition())
