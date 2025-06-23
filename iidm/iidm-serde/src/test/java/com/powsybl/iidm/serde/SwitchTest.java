@@ -8,9 +8,12 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -37,5 +40,13 @@ class SwitchTest extends AbstractIidmSerDeTest {
         // Check that the "looped-switch" has been discarded
         assertEquals(0, n.getSwitchCount());
         assertNull(n.getSwitch("looped-switch"));
+    }
+
+    @Test
+    void switchWithSolvedOpen() throws IOException {
+        Network n = FictitiousSwitchFactory.create();
+        n.getSwitches().forEach(sw -> sw.setSolvedOpen(true));
+
+        allFormatsRoundTripTest(n, "switchSolvedOpen.xml", CURRENT_IIDM_VERSION);
     }
 }

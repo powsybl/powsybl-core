@@ -15,6 +15,8 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -52,6 +54,10 @@ public class BusBreakerViewSwitchSerDe extends AbstractSwitchSerDe<VoltageLevel.
         context.getReader().readEnumAttribute("kind", SwitchKind.class);
         context.getReader().readBooleanAttribute("retained");
         boolean open = context.getReader().readBooleanAttribute("open");
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
+            Optional<Boolean> solvedOpen = context.getReader().readOptionalBooleanAttribute("solvedOpen");
+            solvedOpen.ifPresent(adder::setSolvedOpen);
+        });
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> {
             boolean fictitious = context.getReader().readBooleanAttribute("fictitious", false);
             adder.setFictitious(fictitious);

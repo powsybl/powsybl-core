@@ -55,6 +55,8 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
         private boolean open = false;
 
+        private Boolean solvedOpen = null;
+
         private SwitchAdderImpl() {
         }
 
@@ -87,6 +89,12 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
         }
 
         @Override
+        public VoltageLevel.BusBreakerView.SwitchAdder setSolvedOpen(Boolean solvedOpen) {
+            this.solvedOpen = solvedOpen;
+            return this;
+        }
+
+        @Override
         public Switch add() {
             String id = checkAndGetUniqueId();
             if (busId1 == null) {
@@ -99,7 +107,7 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
                 throw new ValidationException(this, "same bus at both ends");
             }
 
-            SwitchImpl aSwitch = new SwitchImpl(voltageLevel, id, getName(), isFictitious(), SwitchKind.BREAKER, open, true);
+            SwitchImpl aSwitch = new SwitchImpl(voltageLevel, id, getName(), isFictitious(), SwitchKind.BREAKER, open, solvedOpen, true);
             getNetwork().getIndex().checkAndAdd(aSwitch);
             addSwitchToTopology(aSwitch, busId1, busId2);
             getNetwork().getListeners().notifyCreation(aSwitch);
