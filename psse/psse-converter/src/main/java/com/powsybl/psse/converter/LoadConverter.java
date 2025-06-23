@@ -94,7 +94,9 @@ class LoadConverter extends AbstractConverter {
     }
 
     static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
-        network.getLoads().forEach(load -> psseModel.addLoads(Collections.singletonList(createLoad(load, contextExport))));
+        List<PsseLoad> loads = new ArrayList<>();
+        network.getLoads().forEach(load -> loads.add(createLoad(load, contextExport)));
+        psseModel.addLoads(loads);
         psseModel.replaceAllLoads(psseModel.getLoads().stream().sorted(Comparator.comparingInt(PsseLoad::getI).thenComparing(PsseLoad::getId)).toList());
     }
 

@@ -277,11 +277,13 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
 
     static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
         PsseVersion version = PsseVersion.fromRevision(psseModel.getCaseIdentification().getRev());
+        List<PsseSwitchedShunt> switchedShunts = new ArrayList<>();
         network.getShuntCompensators().forEach(shuntCompensator -> {
             if (!isFixedShunt(shuntCompensator)) {
-                psseModel.addSwitchedShunts(Collections.singletonList(createSwitchedShunt(shuntCompensator, version, contextExport)));
+                switchedShunts.add(createSwitchedShunt(shuntCompensator, version, contextExport));
             }
         });
+        psseModel.addSwitchedShunts(switchedShunts);
         psseModel.replaceAllSwitchedShunts(psseModel.getSwitchedShunts().stream().sorted(Comparator.comparingInt(PsseSwitchedShunt::getI).thenComparing(PsseSwitchedShunt::getId)).toList());
     }
 

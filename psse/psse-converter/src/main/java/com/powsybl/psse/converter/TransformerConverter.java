@@ -854,8 +854,10 @@ class TransformerConverter extends AbstractConverter {
     }
 
     static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
-        network.getTwoWindingsTransformers().forEach(t2w -> psseModel.addTransformers(Collections.singletonList(createTwoWindingsTransformer(t2w, contextExport, perUnitContext))));
-        network.getThreeWindingsTransformers().forEach(t3w -> psseModel.addTransformers(Collections.singletonList(createThreeWindingsTransformer(t3w, contextExport, perUnitContext))));
+        List<PsseTransformer> transformers = new ArrayList<>();
+        network.getTwoWindingsTransformers().forEach(t2w -> transformers.add(createTwoWindingsTransformer(t2w, contextExport, perUnitContext)));
+        network.getThreeWindingsTransformers().forEach(t3w -> transformers.add(createThreeWindingsTransformer(t3w, contextExport, perUnitContext)));
+        psseModel.addTransformers(transformers);
         psseModel.replaceAllTransformers(psseModel.getTransformers().stream().sorted(Comparator.comparingInt(PsseTransformer::getI).thenComparingInt(PsseTransformer::getJ).thenComparingInt(PsseTransformer::getK).thenComparing(PsseTransformer::getCkt)).toList());
     }
 

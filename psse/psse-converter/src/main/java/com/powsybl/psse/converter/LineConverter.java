@@ -123,7 +123,9 @@ class LineConverter extends AbstractConverter {
     }
 
     static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
-        network.getLines().forEach(line -> psseModel.addNonTransformerBranches(Collections.singletonList(createLine(line, contextExport, perUnitContext))));
+        List<PsseNonTransformerBranch> branches = new ArrayList<>();
+        network.getLines().forEach(line -> branches.add(createLine(line, contextExport, perUnitContext)));
+        psseModel.addNonTransformerBranches(branches);
         psseModel.replaceAllNonTransformerBranches(psseModel.getNonTransformerBranches().stream().sorted(Comparator.comparingInt(PsseNonTransformerBranch::getI).thenComparingInt(PsseNonTransformerBranch::getJ).thenComparing(PsseNonTransformerBranch::getCkt)).toList());
     }
 

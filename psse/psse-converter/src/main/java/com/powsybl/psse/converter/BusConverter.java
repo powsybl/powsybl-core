@@ -44,7 +44,7 @@ class BusConverter extends AbstractConverter {
     }
 
     static void create(PssePowerFlowModel psseModel, ContextExport contextExport) {
-
+        List<PsseBus> buses = new ArrayList<>();
         contextExport.getFullExport().getBusISet().forEach(busI -> {
             // bus and type is always present when a psseBus is created
             Bus busViewBus = contextExport.getFullExport().getBusView(busI).orElse(null);
@@ -60,8 +60,9 @@ class BusConverter extends AbstractConverter {
                 busName = fixBusName(voltageLevel.getNameOrId() + "-" + node);
                 nominalV = voltageLevel.getNominalV();
             }
-            psseModel.addBuses(Collections.singletonList(createBus(busViewBus, busI, busName, nominalV, type)));
+            buses.add(createBus(busViewBus, busI, busName, nominalV, type));
         });
+        psseModel.addBuses(buses);
         psseModel.replaceAllBuses(psseModel.getBuses().stream().sorted(Comparator.comparingInt(PsseBus::getI)).toList());
     }
 

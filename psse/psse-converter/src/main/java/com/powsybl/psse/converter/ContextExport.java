@@ -90,6 +90,7 @@ final class ContextExport {
         private final Map<String, NodeData> voltageLevelNodeIdNodeData;
         private final Map<String, Integer> psseSubstationIdLastPsseNode;
         private final Map<String, Set<VoltageLevel>> psseSubstationIdVoltageLevels;
+        private final Set<VoltageLevel> voltageLevelsExportedAsNodeBreaker;
         private final Map<String, String> equipmentIdCkt;
         private final Map<String, Integer> equipmentBusesIdMaxCkt;
 
@@ -102,6 +103,7 @@ final class ContextExport {
             this.voltageLevelNodeIdNodeData = new HashMap<>();
             this.psseSubstationIdLastPsseNode = new HashMap<>();
             this.psseSubstationIdVoltageLevels = new HashMap<>();
+            this.voltageLevelsExportedAsNodeBreaker = new HashSet<>();
             this.equipmentIdCkt = new HashMap<>();
             this.equipmentBusesIdMaxCkt = new HashMap<>();
         }
@@ -192,6 +194,7 @@ final class ContextExport {
 
         void addPsseSubstationIdVoltageLevel(String psseSubstationId, VoltageLevel voltageLevel) {
             this.psseSubstationIdVoltageLevels.computeIfAbsent(psseSubstationId, k -> new HashSet<>()).add(voltageLevel);
+            this.voltageLevelsExportedAsNodeBreaker.add(voltageLevel);
         }
 
         List<String> getSortedPsseSubstationIds() {
@@ -203,7 +206,7 @@ final class ContextExport {
         }
 
         boolean isExportedAsNodeBreaker(VoltageLevel voltageLevel) {
-            return this.psseSubstationIdVoltageLevels.values().stream().flatMap(Set::stream).toList().contains(voltageLevel);
+            return this.voltageLevelsExportedAsNodeBreaker.contains(voltageLevel);
         }
 
         String getEquipmentCkt(String equipmentId, String psseEquipmentType, int busI) {

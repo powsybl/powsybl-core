@@ -11,8 +11,9 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.psse.model.pf.PsseLoad;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_LOAD;
 
@@ -27,7 +28,9 @@ class BatteryConverter extends AbstractConverter {
     }
 
     static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
-        network.getBatteries().forEach(battery -> psseModel.addLoads(Collections.singletonList(createBattery(battery, contextExport))));
+        List<PsseLoad> loads = new ArrayList<>();
+        network.getBatteries().forEach(battery -> loads.add(createBattery(battery, contextExport)));
+        psseModel.addLoads(loads);
         psseModel.replaceAllLoads(psseModel.getLoads().stream().sorted(Comparator.comparingInt(PsseLoad::getI).thenComparing(PsseLoad::getId)).toList());
     }
 

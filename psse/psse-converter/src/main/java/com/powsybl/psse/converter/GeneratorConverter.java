@@ -124,7 +124,9 @@ class GeneratorConverter extends AbstractConverter {
     }
 
     static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
-        network.getGenerators().forEach(generator -> psseModel.addGenerators(Collections.singletonList(createGenerator(generator, contextExport, perUnitContext))));
+        List<PsseGenerator> generators = new ArrayList<>();
+        network.getGenerators().forEach(generator -> generators.add(createGenerator(generator, contextExport, perUnitContext)));
+        psseModel.addGenerators(generators);
         psseModel.replaceAllGenerators(psseModel.getGenerators().stream().sorted(Comparator.comparingInt(PsseGenerator::getI).thenComparing(PsseGenerator::getId)).toList());
     }
 
