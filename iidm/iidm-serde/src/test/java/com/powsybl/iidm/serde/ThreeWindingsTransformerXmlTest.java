@@ -51,17 +51,18 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
                 .endStep()
                 .add();
 
-        createPtc(twt.getLeg1().newPhaseTapChanger());
-        createPtc(twt.getLeg2().newPhaseTapChanger());
-        createPtc(twt.getLeg3().newPhaseTapChanger());
+        createPtc(twt.getLeg1().newPhaseTapChanger(), true);
+        createPtc(twt.getLeg2().newPhaseTapChanger(), true);
+        createPtc(twt.getLeg3().newPhaseTapChanger(), false);
 
         allFormatsRoundTripTest(network, "completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
-    private void createPtc(PhaseTapChangerAdder adder) {
+    private void createPtc(PhaseTapChangerAdder adder, boolean loadTapChangingCapabilities) {
         adder.setTapPosition(2)
                 .setLowTapPosition(1)
                 .setRegulating(false)
+                .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                 .beginStep().setRho(1.f).setAlpha(-50f).setR(0.1f).setX(0.1f).setG(0.1f).setB(0.1f).endStep()
                 .beginStep().setRho(1.f).setAlpha(-25f).setR(0.1f).setX(0.1f).setG(0.1f).setB(0.1f).endStep()
