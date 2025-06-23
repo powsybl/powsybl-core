@@ -18,8 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.powsybl.cgmes.conversion.CgmesReports.badTargetDeadbandRegulatingControlReport;
-import static com.powsybl.cgmes.conversion.CgmesReports.badVoltageTargetValueRegulatingControlReport;
+import static com.powsybl.cgmes.conversion.CgmesReports.*;
 
 /**
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -212,6 +211,8 @@ public class RegulatingControlMappingForTransformers {
             badTargetDeadbandRegulatingControlReport(context.getReportNode(), rtcId, control.targetDeadband);
         }
 
+        checkTapChangerLoadTapChangingCapabilities(rtcId, regulating, rtc);
+
         // Order is important
         rtc.setRegulationTerminal(regulatingTerminal.get())
                 .setTargetV(control.targetValue)
@@ -263,6 +264,8 @@ public class RegulatingControlMappingForTransformers {
             badTargetDeadbandRegulatingControlReport(context.getReportNode(), ptcId, control.targetDeadband);
         }
 
+        checkTapChangerLoadTapChangingCapabilities(ptcId, regulating, ptc);
+
         // Order is important
         ptc.setRegulationTerminal(mappedRegulatingTerminal.getTerminal())
                 .setRegulationValue(control.targetValue * mappedRegulatingTerminal.getSign())
@@ -271,6 +274,14 @@ public class RegulatingControlMappingForTransformers {
                 .setRegulating(regulating && validTargetDeadband);
 
         return true;
+    }
+
+    private void checkTapChangerLoadTapChangingCapabilities(String tapChangerId, boolean regulating, TapChanger<?, ?, ?, ?> tapChanger) {
+        if (regulating && !tapChanger.hasLoadTapChangingCapabilities()) {
+            context.fixed(tapChangerId, "TapChanger has regulation enabled but has no load tap changing capability. Fixed ltcFlag to true.");
+            badLoadTapChangingCapabilityTapChangerReport(context.getReportNode(), tapChangerId);
+            tapChanger.setLoadTapChangingCapabilities(true);
+        }
     }
 
     private RegulatingControl getTapChangerControl(CgmesRegulatingControl rc) {
