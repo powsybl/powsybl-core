@@ -54,7 +54,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
 
     private final boolean createTheBusbarSectionsAfterTheReferenceBusbarSection;   // create the new busbar sections after(true) or before(false) the reference busbar section
 
-    private final boolean createOnAllParallelBusBars;  // Create the new busbar sections on all busbars(true) or only on the busbar of the reference busbar section(false)
+    private final boolean createOnAllParallelBusbars;  // Create the new busbar sections on all busbars(true) or only on the busbar of the reference busbar section(false)
 
     private final SwitchKind leftSwitchKind;  // Create only a disconnector(SwitchKind.DISCONNECTOR) or a breaker surrounded by 2 disconnectors(SwitchKind.BREAKER), left to the new busbar sections created
 
@@ -66,14 +66,14 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
 
     CreateVoltageLevelSections(String referenceBusbarSectionId,
                                boolean createTheBusbarSectionsAfterTheReferenceBusbarSection,
-                               boolean createOnAllParallelBusBars,
+                               boolean createOnAllParallelBusbars,
                                SwitchKind leftSwitchKind,
                                SwitchKind rightSwitchKind,
                                boolean leftSwitchFictitious,
                                boolean rightSwitchFictitious) {
         this.referenceBusbarSectionId = Objects.requireNonNull(referenceBusbarSectionId, "Reference busbar section id not defined");
         this.createTheBusbarSectionsAfterTheReferenceBusbarSection = createTheBusbarSectionsAfterTheReferenceBusbarSection;
-        this.createOnAllParallelBusBars = createOnAllParallelBusBars;
+        this.createOnAllParallelBusbars = createOnAllParallelBusbars;
         this.leftSwitchKind = leftSwitchKind;
         this.rightSwitchKind = rightSwitchKind;
         this.leftSwitchFictitious = leftSwitchFictitious;
@@ -93,8 +93,8 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         return createTheBusbarSectionsAfterTheReferenceBusbarSection;
     }
 
-    public boolean isCreateOnAllParallelBusBars() {
-        return createOnAllParallelBusBars;
+    public boolean isCreateOnAllParallelBusbars() {
+        return createOnAllParallelBusbars;
     }
 
     public SwitchKind getLeftSwitchKind() {
@@ -136,7 +136,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         }
 
         BusbarSectionPosition referenceBusbarSectionPosition = referenceBusbarSection.getExtension(BusbarSectionPosition.class);
-        List<BusbarSection> busbarSections = !isCreateOnAllParallelBusBars() ? List.of(referenceBusbarSection) : getParallelBusbarSections(voltageLevel, referenceBusbarSectionPosition);
+        List<BusbarSection> busbarSections = !isCreateOnAllParallelBusbars() ? List.of(referenceBusbarSection) : getParallelBusbarSections(voltageLevel, referenceBusbarSectionPosition);
 
         int nextSectionIndex = findNextSectionIndex(voltageLevel, referenceBusbarSectionPosition);
         final SwitchKind switchKind1 = isCreateTheBusbarSectionsAfterTheReferenceBusbarSection() ? getLeftSwitchKind() : getRightSwitchKind();
