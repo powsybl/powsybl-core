@@ -45,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -205,7 +206,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
         SshLinearShuntCompensators sshLinearShuntCompensators = new SshLinearShuntCompensators();
         try (InputStream is = new ByteArrayInputStream(ssh.getBytes(StandardCharsets.UTF_8))) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             Integer sections = null;
             Boolean controlEnabled = null;
             String shuntCompensatorId = null;
@@ -295,7 +296,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         List<SshExportedControlArea> sshExportedControlAreas = new ArrayList<>();
         SshExportedControlArea sshExportedControlArea = null;
         try (InputStream is = Files.newInputStream(ssh)) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             while (reader.hasNext()) {
                 int next = reader.next();
                 if (next == XMLStreamConstants.START_ELEMENT) {

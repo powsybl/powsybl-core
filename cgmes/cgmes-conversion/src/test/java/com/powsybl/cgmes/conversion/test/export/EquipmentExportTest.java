@@ -36,6 +36,8 @@ import com.powsybl.iidm.serde.XMLImporter;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,8 +54,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.FileSystem;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
