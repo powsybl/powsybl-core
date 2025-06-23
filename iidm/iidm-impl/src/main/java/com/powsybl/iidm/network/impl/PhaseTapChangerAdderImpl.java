@@ -20,7 +20,7 @@ import java.util.List;
  */
 class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChangerAdderImpl, PhaseTapChangerParent, PhaseTapChanger, PhaseTapChangerStepImpl> implements PhaseTapChangerAdder {
 
-    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
+    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 
     class StepAdderImpl implements PhaseTapChangerAdder.StepAdder {
 

@@ -1766,7 +1766,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T196-2040-1" r="0.013225" x="2.645" g="0.0" b="0.0" ratedU1="115.0" ratedU2="115.0" bus1="B196" connectableBus1="B196" voltageLevelId1="VL196" bus2="B2040" connectableBus2="B2040" voltageLevelId2="VL196">
-            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulationMode="FIXED_TAP">
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulationMode="CURRENT_LIMITER" regulating="false">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="11.4"/>
             </iidm:phaseTapChanger>
         </iidm:twoWindingsTransformer>
