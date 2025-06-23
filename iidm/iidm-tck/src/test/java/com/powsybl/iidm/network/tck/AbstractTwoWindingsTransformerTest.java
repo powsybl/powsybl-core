@@ -348,8 +348,10 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         // Unset solved tap position
         ratioTapChanger.unsetSolvedTapPosition();
         assertNull(ratioTapChanger.getSolvedTapPosition());
+        assertNull(ratioTapChanger.getSolvedCurrentStep());
         phaseTapChanger.unsetSolvedTapPosition();
         assertNull(phaseTapChanger.getSolvedTapPosition());
+        assertNull(phaseTapChanger.getSolvedCurrentStep());
     }
 
     private void createTwoWindingTransformer(String id, String name, double r, double x, double g, double b,
