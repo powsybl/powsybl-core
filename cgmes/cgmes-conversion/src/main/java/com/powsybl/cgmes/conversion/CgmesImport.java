@@ -12,7 +12,11 @@ import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
-import com.powsybl.cgmes.model.*;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelFactory;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesOnDataSource;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.compress.SafeZipInputStream;
 import com.powsybl.commons.config.PlatformConfig;
@@ -21,7 +25,11 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.parameters.*;
+import com.powsybl.commons.parameters.ConfiguredParameter;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterScope;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Importer;
@@ -44,11 +52,22 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static java.util.function.Predicate.not;
 
 /**
@@ -129,12 +148,7 @@ public class CgmesImport implements Importer {
     public boolean exists(ReadOnlyDataSource ds) {
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
         try {
-            if (cds.exists()) {
-                return true;
-            }
-            // If we are configured to support CIM14,
-            // check if there is this CIM14 data
-            return IMPORT_CIM_14 && cds.existsCim14();
+            return cds.exists();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -253,7 +267,7 @@ public class CgmesImport implements Importer {
         }
 
         private Set<ReadOnlyDataSource> separateByModelingAuthority() {
-            xmlInputFactory = XMLInputFactory.newInstance();
+            xmlInputFactory = getXMLInputFactory();
             Map<String, List<String>> igmNames = new CgmesOnDataSource(dataSource).names().stream()
                     // We consider IGMs only the modeling authorities that have an EQ file
                     // The CGM SV should have the MA of the merging agent
@@ -769,10 +783,4 @@ public class CgmesImport implements Importer {
     private final PlatformConfig platformConfig;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CgmesImport.class);
-
-    // TODO Allow this property to be configurable
-    // Parameters of importers are only passed to importData method,
-    // but to decide if we are importers also for CIM 14 files
-    // we must implement the exists method, that has not access to parameters
-    private static final boolean IMPORT_CIM_14 = false;
 }

@@ -16,11 +16,7 @@ import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.iidm.network.Importer;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.extensions.PsseConversionContextExtensionAdder;
 import com.powsybl.psse.converter.extensions.PsseModelExtensionAdder;
@@ -112,9 +108,9 @@ public class PsseImporter implements Importer {
                 return PowerFlowDataFactory.create(ext).isValidFile(dataSource, ext);
             } catch (PsseException | IOException e) {
                 LOGGER.error(String.format("Invalid content in filename %s.%s: %s",
-                    dataSource.getBaseName(),
-                    ext,
-                    e.getMessage()));
+                        dataSource.getBaseName(),
+                        ext,
+                        e.getMessage()));
             }
         }
         return false;

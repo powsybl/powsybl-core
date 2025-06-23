@@ -15,6 +15,7 @@ import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.URIUtil;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.*;
+import org.eclipse.rdf4j.query.algebra.evaluation.optimizer.ParentReferenceChecker;
 import org.eclipse.rdf4j.query.explanation.Explanation;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -51,6 +52,12 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
     public TripleStoreRDF4J(TripleStoreOptions options) {
         super(options);
+
+        // This boolean is used to deactivate the ParentReferenceChecker optimizers added in testing environment.
+        // If you see serialization issues during the tests, do not hesitate to comment this line, at a cost of
+        // computation performances IN TEST ENVIRONMENT ONLY, it does not affect production environment
+        ParentReferenceChecker.skip = true;
+
         repo = new SailRepository(new MemoryStore());
         repo.init();
     }

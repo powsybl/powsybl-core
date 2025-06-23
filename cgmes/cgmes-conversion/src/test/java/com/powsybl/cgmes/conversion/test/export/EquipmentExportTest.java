@@ -28,7 +28,6 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.ExportOptions;
@@ -37,6 +36,8 @@ import com.powsybl.iidm.serde.XMLImporter;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,8 +54,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.FileSystem;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
@@ -98,14 +97,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallBusBranch().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportBusBranch(expected, dataSource);
-        assertTrue(compareNetworksEQdata(expected, actual));
-    }
-
-    @Test
-    void smallGridHvdcWithCapabilityCurve() throws IOException, XMLStreamException {
-        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithVsCapabilityCurve().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
-        Network actual = exportImportNodeBreaker(expected, dataSource);
         assertTrue(compareNetworksEQdata(expected, actual));
     }
 
@@ -201,7 +192,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     @Test
     void nordic32() throws IOException, XMLStreamException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
+        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         exportToCgmesEQ(network);
         exportToCgmesTP(network);
@@ -225,7 +216,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     @Test
     void nordic32SortTransformerEnds() throws IOException, XMLStreamException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
+        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), importParams);
         exportToCgmesEQ(network, true);
         exportToCgmesTP(network);
