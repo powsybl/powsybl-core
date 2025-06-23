@@ -162,7 +162,7 @@ class GeneratorConverter extends AbstractConverter {
         psseGenerator.setId(contextExport.getFullExport().getEquipmentCkt(generator.getId(), PSSE_GENERATOR.getTextCode(), busI));
         psseGenerator.setPg(getP(generator));
         psseGenerator.setQg(getQ(generator));
-        psseGenerator.setQt(getMaxQ(generator));
+        psseGenerator.setQt(getMaxQ(generator) >= getMinQ(generator) ? getMaxQ(generator) : getMinQ(generator));
         psseGenerator.setQb(getMinQ(generator));
         if (getVoltageTarget(generator) == 0.0) {
             System.err.printf("Generator voltage 0.0 %s busI %d %n", generator.getId(), busI);

@@ -139,7 +139,7 @@ class DanglingLineConverter extends AbstractConverter {
         psseGenerator.setId(contextExport.getFullExport().getEquipmentCkt(danglingLine.getId(), PSSE_GENERATOR.getTextCode(), busJ));
         psseGenerator.setPg(generation.getTargetP());
         psseGenerator.setQg(generation.getTargetQ());
-        psseGenerator.setQt(getMaxQ(generation));
+        psseGenerator.setQt(getMaxQ(generation) >= getMinQ(generation) ? getMaxQ(generation) : getMinQ(generation));
         psseGenerator.setQb(getMinQ(generation));
         psseGenerator.setVs(getTargetV(danglingLine, generation));
         psseGenerator.setIreg(busJ);
