@@ -17,6 +17,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.*;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -81,7 +83,7 @@ class DanglingLineConverter extends AbstractConverter {
         Complex transmissionAdmittance = new Complex(danglingLine.getR(), danglingLine.getX()).reciprocal();
         psseLine.setI(busI);
         psseLine.setJ(busJ);
-        psseLine.setCkt(contextExport.getFullExport().getEquipmentCkt(danglingLine.getId(), IdentifiableType.LINE, busI, busJ));
+        psseLine.setCkt(contextExport.getFullExport().getEquipmentCkt(danglingLine.getId(), PSSE_BRANCH.getTextCode(), busI, busJ));
         psseLine.setR(impedanceToPerUnitForLinesWithDifferentNominalVoltageAtEnds(danglingLine.getR(), vNom1, vNom1, perUnitContext.sBase()));
         psseLine.setX(impedanceToPerUnitForLinesWithDifferentNominalVoltageAtEnds(danglingLine.getX(), vNom1, vNom1, perUnitContext.sBase()));
         psseLine.setName(fixNonTransformerBranchName(danglingLine.getNameOrId()));
@@ -110,7 +112,7 @@ class DanglingLineConverter extends AbstractConverter {
         } else {
             PsseLoad psseLoad = createDefaultLoad();
             psseLoad.setI(busJ);
-            psseLoad.setId(contextExport.getFullExport().getEquipmentCkt(danglingLine.getId(), IdentifiableType.LOAD, busJ));
+            psseLoad.setId(contextExport.getFullExport().getEquipmentCkt(danglingLine.getId(), PSSE_LOAD.getTextCode(), busJ));
             psseLoad.setStatus(1); // always connected
             psseLoad.setPl(danglingLine.getP0());
             psseLoad.setQl(danglingLine.getQ0());
@@ -134,7 +136,7 @@ class DanglingLineConverter extends AbstractConverter {
     private static PsseGenerator createGenerator(DanglingLine danglingLine, DanglingLine.Generation generation, int busJ, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
         PsseGenerator psseGenerator = createDefaultGenerator();
         psseGenerator.setI(busJ);
-        psseGenerator.setId(contextExport.getFullExport().getEquipmentCkt(danglingLine.getId(), IdentifiableType.GENERATOR, busJ));
+        psseGenerator.setId(contextExport.getFullExport().getEquipmentCkt(danglingLine.getId(), PSSE_GENERATOR.getTextCode(), busJ));
         psseGenerator.setPg(generation.getTargetP());
         psseGenerator.setQg(generation.getTargetQ());
         psseGenerator.setQt(getMaxQ(generation));

@@ -138,7 +138,7 @@ class LineConverter extends AbstractConverter {
 
         psseLine.setI(busI);
         psseLine.setJ(busJ);
-        psseLine.setCkt(contextExport.getFullExport().getEquipmentCkt(line.getId(), IdentifiableType.LINE, busI, busJ));
+        psseLine.setCkt(contextExport.getFullExport().getEquipmentCkt(line.getId(), PSSE_BRANCH.getTextCode(), busI, busJ));
         psseLine.setR(impedanceToPerUnitForLinesWithDifferentNominalVoltageAtEnds(line.getR(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setX(impedanceToPerUnitForLinesWithDifferentNominalVoltageAtEnds(line.getX(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setName(fixNonTransformerBranchName(line.getNameOrId()));

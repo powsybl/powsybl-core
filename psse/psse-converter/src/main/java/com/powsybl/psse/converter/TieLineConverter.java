@@ -16,6 +16,8 @@ import org.apache.commons.math3.complex.Complex;
 import java.util.Collections;
 import java.util.Comparator;
 
+import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_BRANCH;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -41,7 +43,7 @@ class TieLineConverter extends AbstractConverter {
 
         psseLine.setI(busI);
         psseLine.setJ(busJ);
-        psseLine.setCkt(contextExport.getFullExport().getEquipmentCkt(tieLine.getId(), IdentifiableType.TIE_LINE, busI, busJ));
+        psseLine.setCkt(contextExport.getFullExport().getEquipmentCkt(tieLine.getId(), PSSE_BRANCH.getTextCode(), busI, busJ));
         psseLine.setR(impedanceToPerUnitForLinesWithDifferentNominalVoltageAtEnds(tieLine.getR(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setX(impedanceToPerUnitForLinesWithDifferentNominalVoltageAtEnds(tieLine.getX(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setName(tieLine.getNameOrId().substring(0, Math.min(40, tieLine.getNameOrId().length())));

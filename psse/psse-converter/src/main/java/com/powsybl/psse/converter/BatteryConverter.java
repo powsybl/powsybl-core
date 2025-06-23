@@ -14,6 +14,8 @@ import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import java.util.Collections;
 import java.util.Comparator;
 
+import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_LOAD;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -34,7 +36,7 @@ class BatteryConverter extends AbstractConverter {
 
         int busI = getTerminalBusI(battery.getTerminal(), contextExport);
         psseLoad.setI(busI);
-        psseLoad.setId(contextExport.getFullExport().getEquipmentCkt(battery.getId(), IdentifiableType.LOAD, busI));
+        psseLoad.setId(contextExport.getFullExport().getEquipmentCkt(battery.getId(), PSSE_LOAD.getTextCode(), busI));
         psseLoad.setStatus(getStatus(battery.getTerminal(), contextExport));
         psseLoad.setPl(getP(battery));
         psseLoad.setQl(getQ(battery));

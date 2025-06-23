@@ -867,7 +867,7 @@ class TransformerConverter extends AbstractConverter {
 
         psseTransformer.setI(busI);
         psseTransformer.setJ(busJ);
-        psseTransformer.setCkt(contextExport.getFullExport().getEquipmentCkt(t2w.getId(), IdentifiableType.TWO_WINDINGS_TRANSFORMER, busI, busJ));
+        psseTransformer.setCkt(contextExport.getFullExport().getEquipmentCkt(t2w.getId(), PSSE_TWO_WINDING.getTextCode(), busI, busJ));
         psseTransformer.setMag1(ysh.getReal());
         psseTransformer.setMag2(ysh.getImaginary());
         psseTransformer.setName(t2w.getNameOrId().substring(0, Math.min(40, t2w.getNameOrId().length())));
@@ -959,7 +959,7 @@ class TransformerConverter extends AbstractConverter {
         psseTransformer.setI(busI);
         psseTransformer.setJ(busJ);
         psseTransformer.setK(busK);
-        psseTransformer.setCkt(contextExport.getFullExport().getEquipmentCkt(t3w.getId(), IdentifiableType.THREE_WINDINGS_TRANSFORMER, busI, busJ, busK));
+        psseTransformer.setCkt(contextExport.getFullExport().getEquipmentCkt(t3w.getId(), PSSE_THREE_WINDING.getTextCode(), busI, busJ, busK));
         psseTransformer.setMag1(ysh.getReal());
         psseTransformer.setMag2(ysh.getImaginary());
         psseTransformer.setName(t3w.getNameOrId().substring(0, Math.min(40, t3w.getNameOrId().length())));

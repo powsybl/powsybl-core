@@ -103,7 +103,7 @@ class LoadConverter extends AbstractConverter {
 
         int busI = getTerminalBusI(load.getTerminal(), contextExport);
         psseLoad.setI(busI);
-        psseLoad.setId(contextExport.getFullExport().getEquipmentCkt(load.getId(), IdentifiableType.LOAD, busI));
+        psseLoad.setId(contextExport.getFullExport().getEquipmentCkt(load.getId(), PSSE_LOAD.getTextCode(), busI));
         psseLoad.setStatus(getStatus(load.getTerminal(), contextExport));
         psseLoad.setPl(getP(load));
         psseLoad.setQl(getQ(load));

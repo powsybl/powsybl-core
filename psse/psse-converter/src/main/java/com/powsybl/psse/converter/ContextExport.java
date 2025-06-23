@@ -206,27 +206,28 @@ final class ContextExport {
             return this.psseSubstationIdVoltageLevels.values().stream().flatMap(Set::stream).toList().contains(voltageLevel);
         }
 
-        String getEquipmentCkt(String equipmentId, IdentifiableType type, int busI) {
-            return getEquipmentCkt(null, equipmentId, type, busI, 0, 0);
+        String getEquipmentCkt(String equipmentId, String psseEquipmentType, int busI) {
+            return getEquipmentCkt(null, equipmentId, psseEquipmentType, busI, 0, 0);
         }
 
+        // There is no psseEquipmentType for the switches. The assigned string type cannot be a PsseEquipmentType
         String getEquipmentCkt(VoltageLevel voltageLevel, String equipmentId, int busI, int busJ) {
-            return getEquipmentCkt(voltageLevel, equipmentId, IdentifiableType.SWITCH, busI, busJ, 0);
+            return getEquipmentCkt(voltageLevel, equipmentId, IdentifiableType.SWITCH.name(), busI, busJ, 0);
         }
 
-        String getEquipmentCkt(String equipmentId, IdentifiableType type, int busI, int busJ) {
-            return getEquipmentCkt(null, equipmentId, type, busI, busJ, 0);
+        String getEquipmentCkt(String equipmentId, String psseEquipmentType, int busI, int busJ) {
+            return getEquipmentCkt(null, equipmentId, psseEquipmentType, busI, busJ, 0);
         }
 
-        String getEquipmentCkt(String equipmentId, IdentifiableType type, int busI, int busJ, int busK) {
-            return getEquipmentCkt(null, equipmentId, type, busI, busJ, busK);
+        String getEquipmentCkt(String equipmentId, String psseEquipmentType, int busI, int busJ, int busK) {
+            return getEquipmentCkt(null, equipmentId, psseEquipmentType, busI, busJ, busK);
         }
 
-        private String getEquipmentCkt(VoltageLevel voltageLevel, String equipmentId, IdentifiableType type, int busI, int busJ, int busK) {
+        private String getEquipmentCkt(VoltageLevel voltageLevel, String equipmentId, String psseEquipmentType, int busI, int busJ, int busK) {
             if (equipmentIdCkt.containsKey(equipmentId)) {
                 return equipmentIdCkt.get(equipmentId);
             }
-            String equipmentBusesId = getEquipmentBusesId(equipmentId, getVoltageLevelType(voltageLevel, type), busI, busJ, busK);
+            String equipmentBusesId = getEquipmentBusesId(equipmentId, getVoltageLevelType(voltageLevel, psseEquipmentType), busI, busJ, busK);
             int cktInteger = getNewCkt(equipmentBusesId);
             String cktString = String.format("%02d", cktInteger);
             addCkt(equipmentId, equipmentBusesId, cktInteger, cktString);
@@ -243,8 +244,8 @@ final class ContextExport {
         }
 
         // switches must be unique inside the voltageLevel
-        private static String getVoltageLevelType(VoltageLevel voltageLevel, IdentifiableType type) {
-            return voltageLevel != null ? voltageLevel.getId() + "-" + type.name() : type.name();
+        private static String getVoltageLevelType(VoltageLevel voltageLevel, String psseEquipmentType) {
+            return voltageLevel != null ? voltageLevel.getId() + "-" + psseEquipmentType : psseEquipmentType;
         }
 
         private static String getEquipmentBusesId(String equipmentId, String type, int busI, int busJ, int busK) {

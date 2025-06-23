@@ -523,7 +523,7 @@ class VoltageLevelConverter extends AbstractConverter {
 
             getNodesInsideVoltageLevelPreservingOrder(voltageLevel, terminals, contextExport).forEach(nodeBusR -> {
                 List<Integer> otherBuses = getTwoOtherBusesPreservingOrder(identifiable, terminals, nodeBusR, contextExport);
-                String ckt = contextExport.getFullExport().getEquipmentCkt(equipmentId, identifiable.getType(), nodeBusR.busI(), otherBuses.get(0), otherBuses.get(1));
+                String ckt = contextExport.getFullExport().getEquipmentCkt(equipmentId, type, nodeBusR.busI(), otherBuses.get(0), otherBuses.get(1));
 
                 PsseSubstation.PsseSubstationEquipmentTerminal equipmentTerminal = new PsseSubstationEquipmentTerminal();
                 equipmentTerminal.setNi(nodeBusR.psseNode);
