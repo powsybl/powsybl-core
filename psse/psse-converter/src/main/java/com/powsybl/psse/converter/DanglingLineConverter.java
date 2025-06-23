@@ -176,7 +176,7 @@ class DanglingLineConverter extends AbstractConverter {
     }
 
     private static double getTargetV(DanglingLine danglingLine, DanglingLine.Generation generation) {
-        if (Double.isNaN(generation.getTargetV())) {
+        if (Double.isNaN(generation.getTargetV()) || generation.getTargetV() <= 0.0) {
             return 1.0;
         } else {
             return generation.getTargetV() / danglingLine.getTerminal().getVoltageLevel().getNominalV();
