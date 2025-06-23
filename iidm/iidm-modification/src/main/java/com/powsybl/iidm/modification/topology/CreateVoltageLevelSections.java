@@ -144,8 +144,9 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         final SwitchKind switchKind2 = isCreateTheBusbarSectionsAfterTheReferenceBusbarSection() ? getRightSwitchKind() : getLeftSwitchKind();
         final boolean switchFictitious2 = isCreateTheBusbarSectionsAfterTheReferenceBusbarSection() ? isRightSwitchFictitious() : isLeftSwitchFictitious();
 
-        busbarSections.forEach(busbarSection -> {
-            createSection(busbarSection,
+        busbarSections.forEach(busbarSection ->
+            createSection(new CreateSectionParameters(
+                    busbarSection,
                     voltageLevel,
                     nextSectionIndex,
                     switchKind1,
@@ -154,20 +155,33 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
                     switchFictitious2,
                     namingStrategy,
                     reportNode,
-                    throwException);
-        });
+                    throwException))
+        );
     }
 
-    private void createSection(BusbarSection busbarSection,
-                               VoltageLevel voltageLevel,
-                               int nextSectionIndex,
-                               SwitchKind switchKind1,
-                               boolean switchFictitious1,
-                               SwitchKind switchKind2,
-                               boolean switchFictitious2,
-                               NamingStrategy namingStrategy,
-                               ReportNode reportNode,
-                               boolean throwException) {
+    private record CreateSectionParameters(BusbarSection busbarSection,
+                                           VoltageLevel voltageLevel,
+                                           int nextSectionIndex,
+                                           SwitchKind switchKind1,
+                                           boolean switchFictitious1,
+                                           SwitchKind switchKind2,
+                                           boolean switchFictitious2,
+                                           NamingStrategy namingStrategy,
+                                           ReportNode reportNode,
+                                           boolean throwException) { }
+
+    private void createSection(CreateSectionParameters createSectionParameters) {
+        BusbarSection busbarSection = createSectionParameters.busbarSection;
+        VoltageLevel voltageLevel = createSectionParameters.voltageLevel;
+        int nextSectionIndex = createSectionParameters.nextSectionIndex;
+        SwitchKind switchKind1 = createSectionParameters.switchKind1;
+        boolean switchFictitious1 = createSectionParameters.switchFictitious1;
+        SwitchKind switchKind2 = createSectionParameters.switchKind2;
+        boolean switchFictitious2 = createSectionParameters.switchFictitious2;
+        NamingStrategy namingStrategy = createSectionParameters.namingStrategy;
+        ReportNode reportNode = createSectionParameters.reportNode;
+        boolean throwException = createSectionParameters.throwException;
+
         BusbarSectionPosition busbarSectionPosition = busbarSection.getExtension(BusbarSectionPosition.class);
 
         if (nextSectionIndex == -1) {
