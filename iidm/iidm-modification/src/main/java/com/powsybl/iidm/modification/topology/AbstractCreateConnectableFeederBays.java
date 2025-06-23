@@ -36,6 +36,8 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCreateConnectableFeederBays.class);
 
+    private static final String POSITION_ORDER_STRING = "PositionOrder ";
+
     protected final int[] sides;
 
     protected abstract String getBusOrBusbarSectionId(int side);
@@ -180,7 +182,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         boolean logOrThrowIfIncorrectPositionOrder = getLogOrThrowIfIncorrectPositionOrder(side);
 
         if (takenFeederPositions.contains(positionOrder)) {
-            String msg = "PositionOrder " + positionOrder + " already taken.";
+            String msg = POSITION_ORDER_STRING + positionOrder + " already taken.";
             return logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
                 severity -> positionOrderAlreadyTakenReport(reportNode, positionOrder, severity)
             );
@@ -196,14 +198,14 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
         Range<Integer> range = rangeOpt.get();
         if (positionOrder < range.getMinimum()) {
-            String msg = "PositionOrder " + positionOrder + " too low (<" + range.getMinimum() + ").";
+            String msg = POSITION_ORDER_STRING + positionOrder + " too low (<" + range.getMinimum() + ").";
             return logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
                 severity -> positionOrderTooLowReport(reportNode, range.getMinimum(), positionOrder, severity)
             );
         }
 
         if (positionOrder > range.getMaximum()) {
-            String msg = "PositionOrder " + positionOrder + " too high (>" + range.getMaximum() + ").";
+            String msg = POSITION_ORDER_STRING + positionOrder + " too high (>" + range.getMaximum() + ").";
             return logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
                 severity -> positionOrderTooHighReport(reportNode, range.getMaximum(), positionOrder, severity)
             );

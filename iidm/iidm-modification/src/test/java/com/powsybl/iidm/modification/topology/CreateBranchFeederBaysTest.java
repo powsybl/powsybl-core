@@ -414,19 +414,22 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
             .setB2(0.0);
 
         // order position is already taken
-        new CreateBranchFeederBaysBuilder()
+        CreateBranchFeederBays modificationWithPositionAlreadyTaken = new CreateBranchFeederBaysBuilder()
             .withBranchAdder(lineAdder)
             .withBusOrBusbarSectionId1("bbs2")
-            .withPositionOrder1(80)
+            .withPositionOrder1(79)
             .withLogOrThrowIfIncorrectPositionOrder1(true)
             .withBusOrBusbarSectionId2("bbs1_2")
-            .withPositionOrder2(11)
+            .withPositionOrder2(10)
             .withLogOrThrowIfIncorrectPositionOrder2(true)
-            .build().apply(nbNetwork);
+            .build();
+        modificationWithPositionAlreadyTaken.apply(nbNetwork);
         assertNull(nbNetwork.getLine("lineTest"));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modificationWithPositionAlreadyTaken.apply(nbNetwork, true, ReportNode.NO_OP));
+        assertEquals("PositionOrder 10 already taken.", e.getMessage());
 
         // order position is too high
-        new CreateBranchFeederBaysBuilder()
+        CreateBranchFeederBays modificationWithPositionTooHigh = new CreateBranchFeederBaysBuilder()
             .withBranchAdder(lineAdder)
             .withBusOrBusbarSectionId1("bbs1")
             .withPositionOrder1(81)
@@ -434,11 +437,14 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
             .withBusOrBusbarSectionId2("bbs1_2")
             .withPositionOrder2(11)
             .withLogOrThrowIfIncorrectPositionOrder2(true)
-            .build().apply(nbNetwork);
+            .build();
+        modificationWithPositionTooHigh.apply(nbNetwork);
         assertNull(nbNetwork.getLine("lineTest"));
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> modificationWithPositionTooHigh.apply(nbNetwork, true, ReportNode.NO_OP));
+        assertEquals("PositionOrder 81 too high (>79).", e1.getMessage());
 
         // order position is too low
-        new CreateBranchFeederBaysBuilder()
+        CreateBranchFeederBays modificationWithPositionTooLow = new CreateBranchFeederBaysBuilder()
             .withBranchAdder(lineAdder)
             .withBusOrBusbarSectionId1("bbs2")
             .withPositionOrder1(12)
@@ -446,13 +452,16 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
             .withBusOrBusbarSectionId2("bbs1_2")
             .withPositionOrder2(11)
             .withLogOrThrowIfIncorrectPositionOrder2(true)
-            .build().apply(nbNetwork);
+            .build();
+        modificationWithPositionTooLow.apply(nbNetwork);
         assertNull(nbNetwork.getLine("lineTest"));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modificationWithPositionTooLow.apply(nbNetwork, true, ReportNode.NO_OP));
+        assertEquals("PositionOrder 12 too low (<71).", e2.getMessage());
 
         // no space on bbs1
         addIncoherentPositionBusBarSection(nbNetwork);
 
-        new CreateBranchFeederBaysBuilder()
+        CreateBranchFeederBays modificationWithNoSpace = new CreateBranchFeederBaysBuilder()
             .withBranchAdder(lineAdder)
             .withBusOrBusbarSectionId1("bbs1")
             .withPositionOrder1(71)
@@ -460,8 +469,11 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
             .withBusOrBusbarSectionId2("bbs1_2")
             .withPositionOrder2(11)
             .withLogOrThrowIfIncorrectPositionOrder2(true)
-            .build().apply(nbNetwork);
+            .build();
+        modificationWithNoSpace.apply(nbNetwork);
         assertNull(nbNetwork.getLine("lineTest"));
+        PowsyblException e3 = assertThrows(PowsyblException.class, () -> modificationWithNoSpace.apply(nbNetwork, true, ReportNode.NO_OP));
+        assertEquals("Positions of adjacent busbar sections do not leave slots for new positions on busbar section 'bbs1'.", e3.getMessage());
     }
 
     private static void addIncoherentPositionBusBarSection(Network network) {
