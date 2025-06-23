@@ -40,7 +40,7 @@
             <iidm:ratioTapChanger1 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="1.089" x="0.1089" g="0.09182736455463728" b="0.009182736455463728" rho="1.0"/>
             </iidm:ratioTapChanger1>
-            <iidm:phaseTapChanger1 lowTapPosition="1" tapPosition="2" regulationMode="FIXED_TAP">
+            <iidm:phaseTapChanger1 lowTapPosition="1" tapPosition="2" loadTapChangingCapabilities="true" regulationMode="FIXED_TAP">
                 <iidm:step r="0.10000000149011612" x="0.10000000149011612" g="0.10000000149011612"
                            b="0.10000000149011612" rho="1.0" alpha="-50.0"/>
                 <iidm:step r="0.10000000149011612" x="0.10000000149011612" g="0.10000000149011612"
@@ -54,7 +54,7 @@
                 <iidm:step r="1.089" x="0.1089" g="0.09182736455463728" b="0.009182736455463728" rho="1.0"/>
                 <iidm:step r="1.1979" x="0.11979" g="0.10101010101010101" b="0.0101010101010101" rho="1.1"/>
             </iidm:ratioTapChanger2>
-            <iidm:phaseTapChanger2 lowTapPosition="1" tapPosition="2" regulationMode="FIXED_TAP">
+            <iidm:phaseTapChanger2 lowTapPosition="1" tapPosition="2" loadTapChangingCapabilities="true" regulationMode="FIXED_TAP">
                 <iidm:step r="0.10000000149011612" x="0.10000000149011612" g="0.10000000149011612"
                            b="0.10000000149011612" rho="1.0" alpha="-50.0"/>
                 <iidm:step r="0.10000000149011612" x="0.10000000149011612" g="0.10000000149011612"
@@ -67,7 +67,7 @@
                 <iidm:step r="0.121" x="0.0121" g="0.8264462809917356" b="0.08264462809917356" rho="1.0"/>
                 <iidm:step r="0.1331" x="0.01331" g="0.9090909090909092" b="0.09090909090909093" rho="1.1"/>
             </iidm:ratioTapChanger3>
-            <iidm:phaseTapChanger3 lowTapPosition="1" tapPosition="2" regulationMode="FIXED_TAP">
+            <iidm:phaseTapChanger3 lowTapPosition="1" tapPosition="2" loadTapChangingCapabilities="false" regulationMode="FIXED_TAP">
                 <iidm:step r="0.10000000149011612" x="0.10000000149011612" g="0.10000000149011612"
                            b="0.10000000149011612" rho="1.0" alpha="-50.0"/>
                 <iidm:step r="0.10000000149011612" x="0.10000000149011612" g="0.10000000149011612"

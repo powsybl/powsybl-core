@@ -83,7 +83,7 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
     }
 
     PhaseTapChangerAdderImpl(PhaseTapChangerParent parent) {
-        super(parent);
+        super(parent, true);
     }
 
     @Override
@@ -98,8 +98,8 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
     }
 
     @Override
-    protected PhaseTapChanger createTapChanger(PhaseTapChangerParent parent, int lowTapPosition, List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal, Integer tapPosition, boolean regulating, double regulationValue, double targetDeadband) {
-        PhaseTapChangerImpl tapChanger = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+    protected PhaseTapChanger createTapChanger(PhaseTapChangerParent parent, int lowTapPosition, List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal, Integer tapPosition, boolean regulating, boolean loadTapChangingCapabilities, double regulationValue, double targetDeadband) {
+        PhaseTapChangerImpl tapChanger = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
         parent.setPhaseTapChanger(tapChanger);
         return tapChanger;
     }
@@ -110,8 +110,8 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
     }
 
     @Override
-    protected ValidationLevel checkTapChangerRegulation(PhaseTapChangerParent parent, double regulationValue, boolean regulating, TerminalExt regulationTerminal) {
-        return ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating,
+    protected ValidationLevel checkTapChangerRegulation(PhaseTapChangerParent parent, double regulationValue, boolean regulating, boolean loadTapChangingCapabilities, TerminalExt regulationTerminal) {
+        return ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating, loadTapChangingCapabilities,
                 regulationTerminal, getNetwork(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
     }
 

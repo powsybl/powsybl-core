@@ -454,6 +454,7 @@
         "regulating" : false,
         "lowTapPosition" : 0,
         "tapPosition" : 22,
+        "loadTapChangingCapabilities" : true,
         "regulationMode" : "CURRENT_LIMITER",
         "regulationValue" : 930.6667,
         "terminalRef" : {

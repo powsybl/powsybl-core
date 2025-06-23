@@ -191,13 +191,15 @@ A phase tap changer is described by a set of tap positions (or steps) within whi
 - the lowest tap position
 - the highest tap position
 - the position index of the current tap (which has to be within the highest and lowest tap position bounds)
+- whether the phase tap changer can change tap positions onload or only offload
+
+If the phase tap changer can change tap positions onload, regulation is specified as follows:
 - whether the tap changer is regulating or not
 - the regulation mode, which can be `CURRENT_LIMITER`, `ACTIVE_POWER_CONTROL` or `FIXED_TAP`: the tap changer either regulates the current or the active power.
 - the regulation value (either a current value in `A` or an active power value in `MW`)
 - the regulating terminal, which can be local or remote: it is the specific connection point on the network where the setpoint is measured.
 - the target deadband, which defines a margin on the regulation so as to avoid an excessive update of controls
 
-The phase tap changer can always switch tap positions while loaded, which is not the case of the ratio tap changer described below.
 
 <!---
 <span style="color:red"> TODO: check what happens when setting `isRegulating` to true and `FIXED_TAP` as regulating mode</span>
@@ -221,6 +223,7 @@ This example shows how to add a phase tap changer to a two-winding transformer:
 twoWindingsTransformer.newPhaseTapChanger()
     .setLowTapPosition(-1)
     .setTapPosition(0)
+    .setLoadTapChangingCapabilities(true)
     .setRegulating(true)
     .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
     .setRegulationValue(25)
@@ -264,12 +267,14 @@ A ratio tap changer is described by a set of tap positions (or steps) within whi
 - the lowest tap position
 - the highest tap position
 - the position index of the current tap (which has to be within the highest and lowest tap position bounds)
+- whether the ratio tap changer can change tap positions onload or only offload
+
+If the ratio tap changer can change tap positions onload, regulation is specified as follows:
 - whether the tap changer is regulating or not
 - the regulation mode, which can be `VOLTAGE` or `REACTIVE_POWER`: the tap changer either regulates the voltage or the reactive power
 - the regulation value (either a voltage value in `kV` or a reactive power value in `MVar`)
 - the regulating terminal, which can be local or remote: it is the specific connection point on the network where the setpoint is measured.
 - the target deadband, which defines a margin on the regulation so as to avoid an excessive update of controls
-- whether the ratio tap changer can change tap positions onload or only offload
 
 
 Each step of a ratio tap changer has the following attributes:
@@ -291,7 +296,8 @@ twoWindingsTransformer.newRatioTapChanger()
     .setTapPosition(0)
     .setLoadTapChangingCapabilities(true)
     .setRegulating(true)
-    .setTargetV(25)
+    .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+    .setRegulationValue(25)
     .setRegulationTerminal(twoWindingsTransformer.getTerminal1())
     .beginStep()
         .setRho(0.95)
