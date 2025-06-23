@@ -635,9 +635,6 @@ One implementation of such a post-processor is available in PowSyBl in the [pows
 **iidm.import.cgmes.powsybl-triplestore**  
 Optional property that defines which Triplestore implementation is used. Currently, PowSyBl only supports [RDF4J](https://rdf4j.org/). `rdf4j` by default.
 
-**iidm.import.cgmes.profile-for-initial-values-shunt-sections-tap-positions**  
-Optional property that defines which CGMES profile is used to initialize tap positions and section counts. It can be `SSH` or `SV`. The default value is `SSH`.
-
 **iidm.import.cgmes.source-for-iidm-id**  
 Optional property that defines if IIDM IDs must be obtained from the CGMES `mRID` (master resource identifier) or the CGMES `rdfID` (Resource Description Framework identifier). The default value is `mRID`.
 
