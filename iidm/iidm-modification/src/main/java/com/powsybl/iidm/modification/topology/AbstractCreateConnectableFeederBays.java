@@ -72,31 +72,9 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         }
 
         // Check if ConnectablePosition extension can and should be created
-        Map<Integer, Boolean> createExtension = new HashMap<>();
-        for (int side : sides) {
-            String busOrBusbarSectionId = getBusOrBusbarSectionId(side);
-            Identifiable<?> busOrBusbarSection = network.getIdentifiable(busOrBusbarSectionId);
-            if (busOrBusbarSection instanceof BusbarSection busbarSection) {
-                VoltageLevel voltageLevel = busbarSection.getTerminal().getVoltageLevel();
-                Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
-                // if no ConnectablePosition extension and non-empty voltage level, then no extension should be created
-                if (takenFeederPositions.isEmpty() && voltageLevel.getConnectableStream().anyMatch(c -> !(c instanceof BusbarSection))) {
-                    LOGGER.warn("No ConnectablePosition extension found on voltageLevel {}. The ConnectablePosition extension is not created.", voltageLevel.getId());
-                    noConnectablePositionExtension(reportNode, voltageLevel);
-                    createExtension.put(side, false);
-                } else {
-                    boolean checkOrderValue = checkOrderValue(side, busbarSection, takenFeederPositions, reportNode, throwException);
-                    if (!checkOrderValue) {
-                        if (getLogOrThrowIfIncorrectPositionOrder(side)) {
-                            return;
-                        } else {
-                            createExtension.put(side, false);
-                        }
-                    } else {
-                        createExtension.put(side, true);
-                    }
-                }
-            }
+        Optional<Map<Integer, Boolean>> createExtension = getCreateExtensionBySideMap(network, throwException, reportNode);
+        if (createExtension.isEmpty()) {
+            return;
         }
 
         // Add the element on the network
@@ -108,7 +86,49 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         LOGGER.info("New connectable {} of type {} created", connectable.getId(), connectable.getType());
         createdConnectable(reportNode, connectable);
 
-        createExtensionAndTopology(createExtension, connectable, network, namingStrategy, reportNode);
+        createExtensionAndTopology(createExtension.get(), connectable, network, namingStrategy, reportNode);
+    }
+
+    private Optional<Map<Integer, Boolean>> getCreateExtensionBySideMap(Network network, boolean throwException, ReportNode reportNode) {
+        Map<Integer, Boolean> createExtensionMap = new HashMap<>();
+        for (int side : sides) {
+            Optional<Boolean> createExtension = checkIfExtensionShouldBeCreated(network, side, throwException, reportNode);
+            if (createExtension.isEmpty()) {
+                return Optional.empty();
+            }
+            createExtensionMap.put(side, createExtension.get());
+        }
+        return Optional.of(createExtensionMap);
+    }
+
+    private Optional<Boolean> checkIfExtensionShouldBeCreated(Network network, int side, boolean throwException, ReportNode reportNode) {
+        String busOrBusbarSectionId = getBusOrBusbarSectionId(side);
+        Identifiable<?> busOrBusbarSection = network.getIdentifiable(busOrBusbarSectionId);
+
+        if (!(busOrBusbarSection instanceof BusbarSection busbarSection)) {
+            // No extension if bus/breaker topology
+            return Optional.of(false);
+        }
+
+        VoltageLevel voltageLevel = busbarSection.getTerminal().getVoltageLevel();
+        Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
+
+        // if no ConnectablePosition extension and non-empty voltage level, then no extension should be created
+        if (takenFeederPositions.isEmpty() && voltageLevel.getConnectableStream().anyMatch(c -> !(c instanceof BusbarSection))) {
+            LOGGER.warn("No ConnectablePosition extension found on voltageLevel {}. The ConnectablePosition extension is not created.", voltageLevel.getId());
+            noConnectablePositionExtension(reportNode, voltageLevel);
+            return Optional.of(false);
+        }
+
+        if (!checkOrderValue(side, busbarSection, takenFeederPositions, reportNode, throwException)) {
+            if (getLogOrThrowIfIncorrectPositionOrder(side)) {
+                return Optional.empty(); // connectable will not be created
+            } else {
+                return Optional.of(false); // connectable will be created but not the extension
+            }
+        } else {
+            return Optional.of(true);
+        }
     }
 
     @Override
