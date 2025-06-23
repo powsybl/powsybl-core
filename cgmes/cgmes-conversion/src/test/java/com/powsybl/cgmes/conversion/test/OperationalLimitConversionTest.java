@@ -15,9 +15,10 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import com.google.re2j.Pattern;
+
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;

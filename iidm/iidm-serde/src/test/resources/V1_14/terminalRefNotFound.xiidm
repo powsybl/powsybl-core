@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_14" id="terminalRefNotFound" caseDate="2014-11-08T19:00:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="S1" country="FR" tso="RTE">
+        <iidm:voltageLevel id="VL6" nominalV="225.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="VL61" v="237.973694" angle="-9.06182098"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="100.0" targetV="225.0" targetQ="0.0" bus="VL61" connectableBus="VL61">
+                <iidm:regulatingTerminal id="????"/>
+                <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+</iidm:network>
