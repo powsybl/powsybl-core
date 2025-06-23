@@ -17,12 +17,17 @@ import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.cgmes.model.*;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesOnDataSource;
+import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ZipArchiveDataSource;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChangerHolder;
+import com.powsybl.iidm.network.RatioTapChangerHolder;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.serde.XMLExporter;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -41,6 +46,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -243,6 +249,8 @@ public class ConversionTester {
             LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE);
         LoadFlowResultsCompletion lf = new LoadFlowResultsCompletion(p, lfparams);
         try {
+            network.getTwoWindingsTransformerStream().map(RatioTapChangerHolder::getRatioTapChanger).filter(Objects::nonNull).forEach(rtc -> rtc.findSolvedTapPosition().ifPresent(rtc::setTapPosition));
+            network.getTwoWindingsTransformerStream().map(PhaseTapChangerHolder::getPhaseTapChanger).filter(Objects::nonNull).forEach(ptc -> ptc.findSolvedTapPosition().ifPresent(ptc::setTapPosition));
             lf.run(network, null);
         } catch (Exception e) {
             LOG.error("computeFlows, error {}", e.getMessage());
