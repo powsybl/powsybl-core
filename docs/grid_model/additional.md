@@ -195,15 +195,11 @@ A phase tap changer is described by a set of tap positions (or steps) within whi
 
 If the phase tap changer can change tap positions onload, regulation is specified as follows:
 - whether the tap changer is regulating or not
-- the regulation mode, which can be `CURRENT_LIMITER`, `ACTIVE_POWER_CONTROL` or `FIXED_TAP`: the tap changer either regulates the current or the active power.
+- the regulation mode, which can be `CURRENT_LIMITER`, `ACTIVE_POWER_CONTROL`: the tap changer either regulates the current or the active power.
 - the regulation value (either a current value in `A` or an active power value in `MW`)
 - the regulating terminal, which can be local or remote: it is the specific connection point on the network where the setpoint is measured.
 - the target deadband, which defines a margin on the regulation so as to avoid an excessive update of controls
 
-
-<!---
-<span style="color:red"> TODO: check what happens when setting `isRegulating` to true and `FIXED_TAP` as regulating mode</span>
--->
 
 Each step of a phase tap changer has the following attributes:
 

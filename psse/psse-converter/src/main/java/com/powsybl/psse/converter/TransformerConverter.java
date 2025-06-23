@@ -490,15 +490,15 @@ class TransformerConverter extends AbstractConverter {
                 .setTapPosition(tapChanger.getTapPosition());
 
         tapChanger.getSteps().forEach(step ->
-                ptc.beginStep()
-                        .setRho(1 / step.getRatio())
-                        .setAlpha(-step.getAngle())
-                        .setR(step.getR())
-                        .setX(step.getX())
-                        .setB(step.getB1())
-                        .setG(step.getG1())
-                        .endStep());
-        ptc.setRegulating(false).setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP).add();
+            ptc.beginStep()
+                .setRho(1 / step.getRatio())
+                .setAlpha(-step.getAngle())
+                .setR(step.getR())
+                .setX(step.getX())
+                .setB(step.getB1())
+                .setG(step.getG1())
+                .endStep());
+        ptc.setRegulating(false).setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER).add();
     }
 
     private static Complex impedanceAdjustmentAfterMovingRatio(Complex impedance, double a) {
