@@ -182,7 +182,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
             this,
             getTerminalsOfDanglingLines(side),
             isTypeSwitchToOperate,
-            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()),
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()),
             true,
             false,
             getNetwork().getReportNodeContext().getReportNode());
@@ -204,7 +204,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
             this,
             getTerminalsOfDanglingLines(side),
             isSwitchOpenable,
-            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()),
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()),
             true,
             false,
             getNetwork().getReportNodeContext().getReportNode());

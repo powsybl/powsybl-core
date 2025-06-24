@@ -562,7 +562,44 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
-    @Disabled("The loop causes a stack overflow")
+    void connectionOnThreeTeePointsAndLoopTestWithPropagation() {
+        // Network
+        Network network = createNetworkWithThreeTeePointsAndLoop();
+
+        // Switch that will be operated
+        List<String> switchList = List.of("B_L1_VL1", "B_L1_VL2", "B_L1_VL3");
+
+        // Open the switches to simulate the disconnection
+        switchList.forEach(sw -> network.getSwitch(sw).setOpen(true));
+
+        // Lines
+        Line line1 = network.getLine("L1_1");
+        Line line2 = network.getLine("L1_2");
+        Line line3 = network.getLine("L1_3");
+        Line line4 = network.getLine("L_fVL1_fVL2");
+        Line line5 = network.getLine("L_fVL2_fVL3");
+        Line line6 = network.getLine("L_fVL3_fVL1");
+        List<Line> lines = List.of(line1, line2, line3, line4, line5, line6);
+
+        // Check that the 3 main lines are connected on one side only while the 3 internal lines are fully connected
+        assertLineConnection(line1, false, true);
+        assertLineConnection(line2, false, true);
+        assertLineConnection(line3, false, true);
+        assertLineConnection(line4, true, true);
+        assertLineConnection(line5, true, true);
+        assertLineConnection(line6, true, true);
+
+        // Disconnect the line works with the propagation
+        assertTrue(line1.connect(SwitchPredicates.IS_NONFICTIONAL, true));
+
+        // Check that all the lines are connected on both sides
+        lines.forEach(line -> line.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected())));
+
+        // Check the switches that were closed
+        switchList.forEach(s -> assertFalse(network.getSwitch(s).isOpen()));
+    }
+
+    @Test
     void disconnectionOnThreeTeePointsAndLoopTestWithPropagation() {
         // Network
         Network network = createNetworkWithThreeTeePointsAndLoop();

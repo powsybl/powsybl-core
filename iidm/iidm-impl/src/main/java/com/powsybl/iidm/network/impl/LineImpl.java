@@ -141,12 +141,13 @@ class LineImpl extends AbstractConnectableBranch<Line> implements Line {
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateConnectionIfNeeded) {
         return connect(isTypeSwitchToOperate, side, propagateConnectionIfNeeded, true,
-            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()));
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()));
     }
 
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side,
                            boolean propagateConnectionIfNeeded, boolean connectFromHere,
                            ConnectionElementsContainer connectionElementsContainer) {
+        connectionElementsContainer.branches().add(this);
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminals(side),
@@ -165,12 +166,13 @@ class LineImpl extends AbstractConnectableBranch<Line> implements Line {
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean propagateDisconnectionIfNeeded) {
         return disconnect(isSwitchOpenable, side, propagateDisconnectionIfNeeded, true,
-            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()));
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()));
     }
 
     public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side,
                               boolean propagateDisconnectionIfNeeded, boolean disconnectFromHere,
                               ConnectionElementsContainer connectionElementsContainer) {
+        connectionElementsContainer.branches().add(this);
         return ConnectDisconnectUtil.disconnectAllTerminals(
             this,
             getTerminals(side),

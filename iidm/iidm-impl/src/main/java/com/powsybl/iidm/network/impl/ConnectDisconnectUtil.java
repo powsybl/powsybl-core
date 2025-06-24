@@ -50,12 +50,12 @@ public final class ConnectDisconnectUtil {
         boolean isNowConnected = true;
 
         // Initialize a list of switches to close and of bus-breaker terminals to connect
-        ConnectionElementsContainer localConnectionElementsContainer = new ConnectionElementsContainer(new HashSet<>(), new HashSet<>());
+        ConnectionElementsContainer localConnectionElementsContainer = new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>(connectionElementsContainer.branches()));
 
         // We try to connect each terminal
         for (Terminal terminal : terminals) {
             // Check if the terminal is already connected
-            if (terminal.isConnected() && (!propagateConnectionIfNeeded || !terminal.getVoltageLevel().isFictitious())) {
+            if (terminal.isConnected() && !propagateConnectionIfNeeded) {
                 NetworkReports.alreadyConnectedIdentifiableTerminal(reportNode, identifiable.getId());
                 continue;
             } else {
@@ -117,12 +117,12 @@ public final class ConnectDisconnectUtil {
         boolean isAlreadyDisconnected = true;
 
         // Initialize a list of switches to open and of bus-breaker terminals to disconnect
-        ConnectionElementsContainer localConnectionElementsContainer = new ConnectionElementsContainer(new HashSet<>(), new HashSet<>());
+        ConnectionElementsContainer localConnectionElementsContainer = new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>(connectionElementsContainer.branches()));
 
         // We try to disconnect each terminal
         for (Terminal terminal : terminals) {
             // Check if the terminal is already disconnected
-            if (!terminal.isConnected()) {
+            if (!terminal.isConnected() && !propagateDisconnectionIfNeeded) {
                 NetworkReports.alreadyDisconnectedIdentifiableTerminal(reportNode, identifiable.getId());
                 continue;
             }

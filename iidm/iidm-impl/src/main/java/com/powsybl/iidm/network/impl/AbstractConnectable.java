@@ -232,7 +232,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
             this,
             getTerminals(side),
             isTypeSwitchToOperate,
-            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()),
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()),
             true,
             false,
             getNetwork().getReportNodeContext().getReportNode());
@@ -254,7 +254,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
             this,
             getTerminals(side),
             isSwitchOpenable,
-            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>()),
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()),
             true,
             false,
             getNetwork().getReportNodeContext().getReportNode());

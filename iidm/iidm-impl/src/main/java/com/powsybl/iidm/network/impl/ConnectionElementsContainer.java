@@ -17,10 +17,11 @@ import java.util.Set;
  *
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public record ConnectionElementsContainer(Set<Switch> switchesToOperate, Set<Terminal> busBreakerTerminalsToOperate) {
+public record ConnectionElementsContainer(Set<Switch> switchesToOperate, Set<Terminal> busBreakerTerminalsToOperate, Set<AbstractConnectableBranch<?>> branches) {
 
     public void addAll(ConnectionElementsContainer other) {
         switchesToOperate.addAll(other.switchesToOperate);
         busBreakerTerminalsToOperate.addAll(other.busBreakerTerminalsToOperate);
+        branches.addAll(other.branches);
     }
 }
