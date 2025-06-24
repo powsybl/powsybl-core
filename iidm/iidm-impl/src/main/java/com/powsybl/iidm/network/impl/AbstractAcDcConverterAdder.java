@@ -158,9 +158,9 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
     }
 
     protected void preCheck() {
-        ValidationUtil.checkAcDcConverterControlMode(this, controlMode);
-        ValidationUtil.checkAcDcConverterTargetP(this, targetP);
-        ValidationUtil.checkAcDcConverterTargetVdc(this, targetVdc);
+        NetworkImpl network = getNetwork();
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkAcDcConverterControl(this, controlMode, targetP, targetVdc,
+                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkAcDcConverterPccTerminal(this, hasTwoAcTerminals(), pccTerminal, voltageLevel);
     }
 

@@ -215,8 +215,9 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     public I setControlMode(ControlMode controlMode) {
         Objects.requireNonNull(controlMode);
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, CONTROL_MODE);
-        ValidationUtil.checkAcDcConverterControlMode(this, controlMode);
         NetworkImpl n = getNetwork();
+        ValidationUtil.checkAcDcConverterControl(this, controlMode, getTargetP(), getTargetVdc(),
+                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         int oldValueOrdinal = pccRegulatingPoint.setRegulationMode(variantIndex, controlMode.ordinal());
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -234,8 +235,9 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     @Override
     public I setTargetP(double targetP) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, TARGET_P);
-        ValidationUtil.checkAcDcConverterTargetP(this, targetP);
         NetworkImpl n = getNetwork();
+        ValidationUtil.checkAcDcConverterControl(this, getControlMode(), targetP, getTargetVdc(),
+                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.targetP.set(variantIndex, targetP);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -253,8 +255,9 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     @Override
     public I setTargetVdc(double targetVdc) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, TARGET_VDC);
-        ValidationUtil.checkAcDcConverterTargetVdc(this, targetVdc);
         NetworkImpl n = getNetwork();
+        ValidationUtil.checkAcDcConverterControl(this, getControlMode(), getTargetP(), targetVdc,
+                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.targetVdc.set(variantIndex, targetVdc);
         String variantId = n.getVariantManager().getVariantId(variantIndex);

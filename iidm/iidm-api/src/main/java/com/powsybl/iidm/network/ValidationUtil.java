@@ -611,22 +611,30 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkAcDcConverterControlMode(Validable validable, AcDcConverter.ControlMode controlMode) {
+    public static ValidationLevel checkAcDcConverterControl(Validable validable, AcDcConverter.ControlMode controlMode,
+                                                            double targetP, double targetVdc,
+                                                            ValidationLevel validationLevel, ReportNode reportNode) {
+        return checkAcDcConverterControl(validable, controlMode, targetP, targetVdc,
+                checkValidationActionOnError(validationLevel), reportNode);
+    }
+
+    private static ValidationLevel checkAcDcConverterControl(Validable validable, AcDcConverter.ControlMode controlMode,
+                                                             double targetP, double targetVdc,
+                                                             ActionOnError actionOnError, ReportNode reportNode) {
+        ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         if (controlMode == null) {
-            throw new ValidationException(validable, "controlMode is not set");
+            throwExceptionOrLogError(validable, "controlMode is not set", actionOnError, reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
-    }
-
-    public static void checkAcDcConverterTargetP(Validable validable, double targetP) {
-        if (Double.isNaN(targetP)) {
-            throw new ValidationException(validable, "targetP is invalid");
+        if (Objects.equals(controlMode, AcDcConverter.ControlMode.P_PCC) && Double.isNaN(targetP)) {
+            throwExceptionOrLogError(validable, "targetP is invalid", actionOnError, reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
-    }
-
-    public static void checkAcDcConverterTargetVdc(Validable validable, double targetVdc) {
-        if (Double.isNaN(targetVdc)) {
-            throw new ValidationException(validable, "targetVdc is invalid");
+        if (Objects.equals(controlMode, AcDcConverter.ControlMode.V_DC) && Double.isNaN(targetVdc)) {
+            throwExceptionOrLogError(validable, "targetVdc is invalid", actionOnError, reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
+        return validationLevel;
     }
 
     public static void checkAcDcConverterPccTerminal(Validable validable, boolean twoAcTerminals, Terminal pccTerminal, VoltageLevel voltageLevel) {
