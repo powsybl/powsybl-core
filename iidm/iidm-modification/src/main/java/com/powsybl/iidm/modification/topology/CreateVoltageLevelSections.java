@@ -360,17 +360,23 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         int busbarSection1Node = busbarSection1.getTerminal().getNodeBreakerView().getNode();
         int busbarSection2Node = busbarSection2.getTerminal().getNodeBreakerView().getNode();
         int firstDisconnectorNode2 = switchKind == SwitchKind.BREAKER ? vl.getNodeBreakerView().getMaximumNodeIndex() + 1 : busbarSection2Node;
+        int busbarNum = busbarSection1.getExtension(BusbarSectionPosition.class).getBusbarIndex();
+        int busbarSection1Num = busbarSection1.getExtension(BusbarSectionPosition.class).getSectionIndex();
+        int busbarSection2Num = busbarSection2.getExtension(BusbarSectionPosition.class).getSectionIndex();
+
+        // Prefix
+        String chunkingPrefixId = namingStrategy.getChunkPrefix(vl.getId(), List.of(switchKind), busbarNum, busbarSection1Num, busbarSection2Num);
 
         // Add the first disconnector
-        createNBDisconnector(busbarSection1Node, firstDisconnectorNode2, namingStrategy.getDisconnectorBetweenChunksId(busbarSection1, vl.getId(), busbarSection1Node, firstDisconnectorNode2), vl.getNodeBreakerView(), false, fictitious);
+        createNBDisconnector(busbarSection1Node, firstDisconnectorNode2, namingStrategy.getDisconnectorBetweenChunksId(busbarSection1, chunkingPrefixId, busbarSection1Node, firstDisconnectorNode2), vl.getNodeBreakerView(), false, fictitious);
 
         if (switchKind == SwitchKind.BREAKER) {
             // Add a breaker
             int breakerNode2 = vl.getNodeBreakerView().getMaximumNodeIndex() + 1;
-            createNBBreaker(firstDisconnectorNode2, breakerNode2, namingStrategy.getBreakerId(vl.getId(), firstDisconnectorNode2, breakerNode2), vl.getNodeBreakerView(), false, fictitious);
+            createNBBreaker(firstDisconnectorNode2, breakerNode2, namingStrategy.getBreakerId(chunkingPrefixId, firstDisconnectorNode2, breakerNode2), vl.getNodeBreakerView(), false, fictitious);
 
             // Add a second disconnector
-            createNBDisconnector(breakerNode2, busbarSection2Node, namingStrategy.getDisconnectorBetweenChunksId(busbarSection2, vl.getId(), breakerNode2, busbarSection2Node), vl.getNodeBreakerView(), false, fictitious);
+            createNBDisconnector(breakerNode2, busbarSection2Node, namingStrategy.getDisconnectorBetweenChunksId(busbarSection2, chunkingPrefixId, breakerNode2, busbarSection2Node), vl.getNodeBreakerView(), false, fictitious);
         }
     }
 }
