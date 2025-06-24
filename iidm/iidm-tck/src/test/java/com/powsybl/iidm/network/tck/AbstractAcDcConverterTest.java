@@ -246,6 +246,10 @@ public abstract class AbstractAcDcConverterTest {
         assertSame(TwoSides.TWO, acDcConverterA.getSide(acDcConverterA.getTerminal2().orElseThrow()));
         assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getTerminal(TwoSides.ONE));
         assertSame(acDcConverterA.getTerminal2().orElseThrow(), acDcConverterA.getTerminal(TwoSides.TWO));
+        assertSame(ThreeSides.ONE, Terminal.getConnectableSide(acDcConverterA.getTerminal1()).orElseThrow());
+        assertSame(ThreeSides.TWO, Terminal.getConnectableSide(acDcConverterA.getTerminal2().orElseThrow()).orElseThrow());
+        assertSame(acDcConverterA.getTerminal1(), Terminal.getTerminal(acDcConverterA, ThreeSides.ONE));
+        assertSame(acDcConverterA.getTerminal2().orElseThrow(), Terminal.getTerminal(acDcConverterA, ThreeSides.TWO));
 
         assertSame(b1a, acDcConverterA.getTerminal1().getBusBreakerView().getBus());
         assertTrue(acDcConverterA.getTerminal2().isPresent());
@@ -782,7 +786,7 @@ public abstract class AbstractAcDcConverterTest {
 
     @Test
     public void testSetterGetterInMultiVariants() {
-        VoltageSourceConverter vscA  = vla.newVoltageSourceConverter()
+        VoltageSourceConverter vscA = vla.newVoltageSourceConverter()
                 .setId("converterA")
                 .setBus1(b1a.getId())
                 .setDcNode1(dcNode1a.getId())
