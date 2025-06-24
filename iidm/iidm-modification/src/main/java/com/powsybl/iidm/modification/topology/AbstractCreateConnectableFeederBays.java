@@ -74,7 +74,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         }
 
         // Check if ConnectablePosition extension can and should be created
-        Optional<Map<Integer, Boolean>> createExtension = getCreateExtensionBySideMap(network, throwException, reportNode);
+        Map<Integer, Boolean> createExtension = getCreateExtensionBySideMap(network, throwException, reportNode);
         if (createExtension.isEmpty()) {
             return;
         }
@@ -88,19 +88,19 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         LOGGER.info("New connectable {} of type {} created", connectable.getId(), connectable.getType());
         createdConnectable(reportNode, connectable);
 
-        createExtensionAndTopology(createExtension.get(), connectable, network, namingStrategy, reportNode);
+        createExtensionAndTopology(createExtension, connectable, network, namingStrategy, reportNode);
     }
 
-    private Optional<Map<Integer, Boolean>> getCreateExtensionBySideMap(Network network, boolean throwException, ReportNode reportNode) {
+    private Map<Integer, Boolean> getCreateExtensionBySideMap(Network network, boolean throwException, ReportNode reportNode) {
         Map<Integer, Boolean> createExtensionMap = new HashMap<>();
         for (int side : sides) {
             Optional<Boolean> createExtension = checkIfExtensionShouldBeCreated(network, side, throwException, reportNode);
             if (createExtension.isEmpty()) {
-                return Optional.empty();
+                return new HashMap<>();
             }
             createExtensionMap.put(side, createExtension.get());
         }
-        return Optional.of(createExtensionMap);
+        return createExtensionMap;
     }
 
     private Optional<Boolean> checkIfExtensionShouldBeCreated(Network network, int side, boolean throwException, ReportNode reportNode) {
@@ -183,37 +183,41 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
         if (takenFeederPositions.contains(positionOrder)) {
             String msg = POSITION_ORDER_STRING + positionOrder + " already taken.";
-            return logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
+            logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
                 severity -> positionOrderAlreadyTakenReport(reportNode, positionOrder, severity)
             );
+            return false;
         }
 
         Optional<Range<Integer>> rangeOpt = getPositionRange(busbarSection);
         if (rangeOpt.isEmpty()) {
             String msg = "Positions of adjacent busbar sections do not leave slots for new positions on busbar section '" + busbarSection.getId() + "'.";
-            return logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
+            logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
                 severity -> positionNoSlotLeftByAdjacentBbsReport(reportNode, busbarSection.getId(), severity)
             );
+            return false;
         }
 
         Range<Integer> range = rangeOpt.get();
         if (positionOrder < range.getMinimum()) {
             String msg = POSITION_ORDER_STRING + positionOrder + " too low (<" + range.getMinimum() + ").";
-            return logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
+            logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
                 severity -> positionOrderTooLowReport(reportNode, range.getMinimum(), positionOrder, severity)
             );
+            return false;
         }
 
         if (positionOrder > range.getMaximum()) {
             String msg = POSITION_ORDER_STRING + positionOrder + " too high (>" + range.getMaximum() + ").";
-            return logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
+            logAndReport(logOrThrowIfIncorrectPositionOrder, throwException, msg,
                 severity -> positionOrderTooHighReport(reportNode, range.getMaximum(), positionOrder, severity)
             );
+            return false;
         }
         return true;
     }
 
-    private boolean logAndReport(boolean logOrThrowIfIncorrectPositionOrder, boolean throwException, String message,
+    private void logAndReport(boolean logOrThrowIfIncorrectPositionOrder, boolean throwException, String message,
                                  Consumer<TypedValue> report) {
         TypedValue severity = logOrThrowIfIncorrectPositionOrder ? TypedValue.ERROR_SEVERITY : TypedValue.WARN_SEVERITY;
         if (logOrThrowIfIncorrectPositionOrder) {
@@ -227,8 +231,6 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         if (logOrThrowIfIncorrectPositionOrder && throwException) {
             throw new PowsyblException(message);
         }
-
-        return false;
     }
 
     /**
