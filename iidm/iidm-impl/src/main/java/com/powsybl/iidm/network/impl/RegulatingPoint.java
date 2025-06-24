@@ -26,7 +26,7 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
     private final String regulatedEquipmentId;
     private final Supplier<TerminalExt> localTerminalSupplier;
     private final boolean useVoltageRegulation;
-    private final int offRegulationMode;
+    private final int offRegulationMode; // mode to be used on regulating terminal removal
     private TerminalExt regulatingTerminal;
 
     // attributes depending on the variant
@@ -59,6 +59,18 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
         for (int i = 0; i < variantArraySize; i++) {
             this.regulating.add(regulating);
         }
+    }
+
+    RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, int regulationMode, int offRegulationMode, boolean useVoltageRegulation) {
+        this.regulatedEquipmentId = regulatedEquipmentId;
+        this.localTerminalSupplier = localTerminalSupplier;
+        this.useVoltageRegulation = useVoltageRegulation;
+        this.regulationMode = new TIntArrayList(variantArraySize);
+        this.offRegulationMode = offRegulationMode;
+        for (int i = 0; i < variantArraySize; i++) {
+            this.regulationMode.add(regulationMode);
+        }
+        this.regulating = null;
     }
 
     void setRegulatingTerminal(TerminalExt regulatingTerminal) {
