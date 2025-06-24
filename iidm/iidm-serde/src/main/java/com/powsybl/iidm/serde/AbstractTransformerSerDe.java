@@ -279,7 +279,6 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
                 .setTargetDeadband(targetDeadband)
                 .setRegulating(regulating);
         tapPosition.ifPresent(adder::setTapPosition);
-        solvedTapPosition.ifPresent(adder::setSolvedTapPosition);
         return regulating;
     }
 
