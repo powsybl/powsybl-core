@@ -127,7 +127,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertEquals(StaticVarCompensator.RegulationMode.REACTIVE_POWER, svc5.getRegulationMode());
         lineTerminal.getConnectable().remove();
         assertEquals(svc5.getTerminal(), svc5.getRegulatingTerminal());
-        assertEquals(StaticVarCompensator.RegulationMode.OFF, svc5.getRegulationMode());
+        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc5.getRegulationMode());
     }
 
     @Test
@@ -184,6 +184,7 @@ public abstract class AbstractStaticVarCompensatorTest {
                 .setBmin(0.0002)
                 .setBmax(0.0008)
                 .setRegulationMode(regulationMode)
+                .setRegulating(true)
                 .setVoltageSetpoint(390.0)
                 .setReactivePowerSetpoint(1.0)
                 .setRegulatingTerminal(regulatingTerminal)
