@@ -35,7 +35,11 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         int maximumSections = p.asInt("maximumSections", 0);
         int normalSections = p.asInt("normalSections", 0);
         int sections = fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
-        int solvedSections = fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
+        Integer solvedSections = null;
+        double solvedSectionFromSV = p.asDouble("SVsections", Double.NaN);
+        if (!Double.isNaN(solvedSectionFromSV)) {
+            solvedSections = fromContinuous(solvedSectionFromSV);
+        }
         sections = Math.abs(sections);
         maximumSections = Math.max(maximumSections, sections);
         ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator().setSectionCount(sections).setSolvedSectionCount(solvedSections);

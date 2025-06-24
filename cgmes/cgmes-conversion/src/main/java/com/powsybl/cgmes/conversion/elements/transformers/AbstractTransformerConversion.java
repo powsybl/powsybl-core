@@ -37,7 +37,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         boolean isLtcFlag = rtc.isLtcFlag();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
-        int solvedPosition = rtc.getSolvedTapPosition();
+        Integer solvedPosition = rtc.getSolvedTapPosition();
         rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
 
         rtc.getSteps().forEach(step -> {
@@ -63,7 +63,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     protected static void setToIidmPhaseTapChanger(TapChanger ptc, PhaseTapChangerAdder ptca, Context context) {
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
-        int solvedPosition = ptc.getSolvedTapPosition();
+        Integer solvedPosition = ptc.getSolvedTapPosition();
         ptca.setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
 
         ptc.getSteps().forEach(step -> {
