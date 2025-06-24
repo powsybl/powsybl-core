@@ -59,7 +59,7 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
         VoltageSourceConverterImpl dcVsConverter = new VoltageSourceConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
                 idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc,
-                voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint);
+                voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint);
         super.checkAndAdd(dcVsConverter);
         return dcVsConverter;
     }

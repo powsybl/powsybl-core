@@ -103,7 +103,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     @Override
     public double getReactivePowerSetpoint() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, REACTIVE_POWER_SETPOINT_ATTRIBUTE);
-        return reactivePowerSetpoint.get(getNetwork().getVariantIndex());
+        return this.reactivePowerSetpoint.get(getNetwork().getVariantIndex());
     }
 
     @Override

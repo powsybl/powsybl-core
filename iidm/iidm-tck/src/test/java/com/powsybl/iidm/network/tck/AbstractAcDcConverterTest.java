@@ -782,7 +782,7 @@ public abstract class AbstractAcDcConverterTest {
 
     @Test
     public void testSetterGetterInMultiVariants() {
-        acDcConverterA = vla.newVoltageSourceConverter()
+        VoltageSourceConverter vscA  = vla.newVoltageSourceConverter()
                 .setId("converterA")
                 .setBus1(b1a.getId())
                 .setDcNode1(dcNode1a.getId())
@@ -791,21 +791,35 @@ public abstract class AbstractAcDcConverterTest {
                 .setTargetP(100.)
                 .setTargetVdc(500.)
                 .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(0.0)
+                .setReactivePowerSetpoint(10.0)
+                .setVoltageSetpoint(400.0)
                 .add();
+        assertEquals(AcDcConverter.ControlMode.P_PCC, vscA.getControlMode());
+        assertEquals(100.0, vscA.getTargetP(), 0.0);
+        assertEquals(500.0, vscA.getTargetVdc(), 0.0);
+        assertEquals(10.0, vscA.getReactivePowerSetpoint(), 0.0);
+        assertEquals(400.0, vscA.getVoltageSetpoint(), 0.0);
+        assertFalse(vscA.isVoltageRegulatorOn());
+
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         VariantManager variantManager = network.getVariantManager();
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
-        assertEquals(AcDcConverter.ControlMode.P_PCC, acDcConverterA.getControlMode());
-        assertEquals(100.0, acDcConverterA.getTargetP(), 0.0);
-        assertEquals(500.0, acDcConverterA.getTargetVdc(), 0.0);
+        assertEquals(AcDcConverter.ControlMode.P_PCC, vscA.getControlMode());
+        assertEquals(100.0, vscA.getTargetP(), 0.0);
+        assertEquals(500.0, vscA.getTargetVdc(), 0.0);
+        assertEquals(10.0, vscA.getReactivePowerSetpoint(), 0.0);
+        assertEquals(400.0, vscA.getVoltageSetpoint(), 0.0);
+        assertFalse(vscA.isVoltageRegulatorOn());
         // change values in s4
-        acDcConverterA.setControlMode(AcDcConverter.ControlMode.V_DC);
-        acDcConverterA.setTargetP(-50.);
-        acDcConverterA.setTargetVdc(495.);
+        vscA.setControlMode(AcDcConverter.ControlMode.V_DC);
+        vscA.setTargetP(-50.);
+        vscA.setTargetVdc(495.);
+        vscA.setReactivePowerSetpoint(20.0);
+        vscA.setVoltageSetpoint(405.0);
+        vscA.setVoltageRegulatorOn(true);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -813,21 +827,30 @@ public abstract class AbstractAcDcConverterTest {
         variantManager.cloneVariant("s4", "s2b");
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
-        assertEquals(AcDcConverter.ControlMode.V_DC, acDcConverterA.getControlMode());
-        assertEquals(-50., acDcConverterA.getTargetP(), 0.0);
-        assertEquals(495., acDcConverterA.getTargetVdc(), 0.0);
+        assertEquals(AcDcConverter.ControlMode.V_DC, vscA.getControlMode());
+        assertEquals(-50., vscA.getTargetP(), 0.0);
+        assertEquals(495., vscA.getTargetVdc(), 0.0);
+        assertEquals(20.0, vscA.getReactivePowerSetpoint(), 0.0);
+        assertEquals(405.0, vscA.getVoltageSetpoint(), 0.0);
+        assertTrue(vscA.isVoltageRegulatorOn());
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertEquals(AcDcConverter.ControlMode.P_PCC, acDcConverterA.getControlMode());
-        assertEquals(100.0, acDcConverterA.getTargetP(), 0.0);
-        assertEquals(500.0, acDcConverterA.getTargetVdc(), 0.0);
+        assertEquals(AcDcConverter.ControlMode.P_PCC, vscA.getControlMode());
+        assertEquals(100.0, vscA.getTargetP(), 0.0);
+        assertEquals(500.0, vscA.getTargetVdc(), 0.0);
+        assertEquals(10.0, vscA.getReactivePowerSetpoint(), 0.0);
+        assertEquals(400.0, vscA.getVoltageSetpoint(), 0.0);
+        assertFalse(vscA.isVoltageRegulatorOn());
 
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        assertThrows(PowsyblException.class, acDcConverterA::getControlMode, "Variant index not set");
-        assertThrows(PowsyblException.class, acDcConverterA::getTargetP, "Variant index not set");
-        assertThrows(PowsyblException.class, acDcConverterA::getTargetVdc, "Variant index not set");
+        assertThrows(PowsyblException.class, vscA::getControlMode, "Variant index not set");
+        assertThrows(PowsyblException.class, vscA::getTargetP, "Variant index not set");
+        assertThrows(PowsyblException.class, vscA::getTargetVdc, "Variant index not set");
+        assertThrows(PowsyblException.class, vscA::getReactivePowerSetpoint, "Variant index not set");
+        assertThrows(PowsyblException.class, vscA::getVoltageSetpoint, "Variant index not set");
+        assertThrows(PowsyblException.class, vscA::isVoltageRegulatorOn, "Variant index not set");
     }
 }
