@@ -948,12 +948,12 @@ When the `ControlMode` of the converter is set to `P_PCC`, the converter control
 `TargetP` is the desired active power flow at PCC, in passive sign convention, i.e.:
 
 - positive `TargetP` means power flows from AC to DC, the converter is sending AC power to the DC system
-- negative `TargetP` means power flows from DC to AC, the converter is receiving DC power to the AC system
+- negative `TargetP` means power flows from DC to AC, the converter is sending DC power to the AC system
 
 For LCC 12-pulse converters, the PCC terminal is typically located on the station side of the transformers (not on the converter side).
 For VSC converters having a single AC Terminal, it is valid for the PCC Terminal to be the converter terminal itself.
 Because the PCC Terminal is used by the converter to control active power flow, it must be a branch terminal (a line or a transformer).
-However, it cannot be a Busbar Section Terminal since no active power happens on Busbar Sections.
+It cannot be a Busbar Section Terminal since no active power can be measured on Busbar Sections.
 
 ![Detailed DC Model PCC Terminal](img/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-light"}
 ![Detailed DC Model PCC Terminal](img/dark_mode/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-dark"}
