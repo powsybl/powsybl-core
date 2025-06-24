@@ -157,7 +157,7 @@ public class TapChanger {
         return this;
     }
 
-    public TapChanger setSolvedTapPosition(int solvedTapPosition) {
+    public TapChanger setSolvedTapPosition(Integer solvedTapPosition) {
         this.solvedTapPosition = solvedTapPosition;
         return this;
     }

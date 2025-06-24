@@ -56,9 +56,13 @@ abstract class AbstractCgmesTapChangerBuilder {
         if (position > highStep || position < lowStep) {
             position = neutralStep;
         }
-        int solvedPosition = AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.SV_TAP_STEP, p.asDouble(CgmesNames.STEP, normalStep)));
-        if (solvedPosition > highStep || solvedPosition < lowStep) {
-            solvedPosition = position;
+        Integer solvedPosition = null;
+        double solvedPositionFromSv = p.asDouble(CgmesNames.SV_TAP_STEP, Double.NaN);
+        if (!Double.isNaN(solvedPositionFromSv)) {
+            solvedPosition = AbstractObjectConversion.fromContinuous(solvedPositionFromSv);
+            if (solvedPosition > highStep || solvedPosition < lowStep) {
+                solvedPosition = position;
+            }
         }
         tapChanger.setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
 

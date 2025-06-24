@@ -396,7 +396,7 @@ public class TapChangerConversion {
         boolean isTapChangerControlEnabled = rtc.isTapChangerControlEnabled();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
-        int solvedPosition = rtc.getSolvedTapPosition();
+        Integer solvedPosition = rtc.getSolvedTapPosition();
         String type = rtc.getType();
         TapChanger hiddenCombinedTapChanger = rtc.getHiddenCombinedTapChanger();
         tapChanger.setLowTapPosition(lowStep)
