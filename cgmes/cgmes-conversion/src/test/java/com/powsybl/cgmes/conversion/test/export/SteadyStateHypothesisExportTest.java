@@ -398,42 +398,45 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             Properties exportParams = new Properties();
             exportParams.put(CgmesExport.PROFILES, "SSH");
 
-            // PST with FIXED_TAP
+            // PST with no regulation mode but regulating true => set to CURRENT_LIMITER mode
             network = PhaseShifterTestCaseFactory.createWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithoutAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "none");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
 
             // PST local with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createLocalActivePowerWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
-            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
-            ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "M");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
 
             // PST local with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createLocalCurrentLimiterWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
-            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
-            ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "none");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
 
             // PST remote with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createRemoteCurrentLimiterWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
-            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
-            ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "none");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
 
             // PST remote with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createRemoteActivePowerWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
-            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
-            ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "M");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
         }
     }
 
@@ -561,27 +564,27 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
             network = SvcTestCaseFactory.createLocalOffReactiveTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "350", "M");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "350", "M");
             network = SvcTestCaseFactory.createLocalOffVoltageTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "390", "k");
             network = SvcTestCaseFactory.createLocalOffBothTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "390", "k");
 
             // Remote
             network = SvcTestCaseFactory.createRemoteOffNoTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "0", "k");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "0", "k");
             network = SvcTestCaseFactory.createRemoteOffReactiveTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "350", "M");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "350", "M");
             network = SvcTestCaseFactory.createRemoteOffVoltageTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "390", "k");
             network = SvcTestCaseFactory.createRemoteOffBothTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "390", "k");
         }
     }
 

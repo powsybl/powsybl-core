@@ -395,7 +395,6 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="VOLTAGE"/>
             <xs:enumeration value="REACTIVE_POWER"/>
-            <xs:enumeration value="OFF"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="StaticVarCompensator">
@@ -409,6 +408,7 @@
                 <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
                 <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
                 <xs:attribute name="regulationMode" use="required" type="iidm:StaticVarCompensatorRegulationMode"/>
+                <xs:attribute name="regulating" use="required" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -600,7 +600,6 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="CURRENT_LIMITER"/>
             <xs:enumeration value="ACTIVE_POWER_CONTROL"/>
-            <xs:enumeration value="FIXED_TAP"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="PhaseTapChanger">
@@ -611,6 +610,7 @@
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
+        <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
         <xs:attribute name="regulationMode" use="required" type="iidm:PhaseRegulationMode"/>
         <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
         <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
