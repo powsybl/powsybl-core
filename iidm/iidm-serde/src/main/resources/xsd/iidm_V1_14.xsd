@@ -394,7 +394,6 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="VOLTAGE"/>
             <xs:enumeration value="REACTIVE_POWER"/>
-            <xs:enumeration value="OFF"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="StaticVarCompensator">
@@ -408,6 +407,7 @@
                 <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
                 <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
                 <xs:attribute name="regulationMode" use="required" type="iidm:StaticVarCompensatorRegulationMode"/>
+                <xs:attribute name="regulating" use="required" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
