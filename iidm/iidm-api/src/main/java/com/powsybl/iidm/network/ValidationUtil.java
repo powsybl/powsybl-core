@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016-2025, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -12,6 +12,9 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.REACTIVE_POWER;
+import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.VOLTAGE;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
@@ -391,32 +394,27 @@ public final class ValidationUtil {
         checkRatedU(validable, ratedU2, "2");
     }
 
-    public static ValidationLevel checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint,
+    public static ValidationLevel checkSvcRegulator(Validable validable, Boolean regulating, double voltageSetpoint, double reactivePowerSetpoint,
                                                     StaticVarCompensator.RegulationMode regulationMode, ValidationLevel validationLevel, ReportNode reportNode) {
-        return checkSvcRegulator(validable, voltageSetpoint, reactivePowerSetpoint, regulationMode, checkValidationActionOnError(validationLevel), reportNode);
+        return checkSvcRegulator(validable, regulating, voltageSetpoint, reactivePowerSetpoint, regulationMode, checkValidationActionOnError(validationLevel), reportNode);
     }
 
-    private static ValidationLevel checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint,
+    private static ValidationLevel checkSvcRegulator(Validable validable, Boolean regulating, double voltageSetpoint, double reactivePowerSetpoint,
                                                      StaticVarCompensator.RegulationMode regulationMode, ActionOnError actionOnError, ReportNode reportNode) {
+        if (regulating == null) {
+            throw new ValidationException(validable, "regulating is not set");
+        }
         if (regulationMode == null) {
             throwExceptionOrLogError(validable, "Regulation mode is invalid", actionOnError, reportNode);
             return ValidationLevel.EQUIPMENT;
         }
-        switch (regulationMode) {
-            case VOLTAGE -> {
-                if (Double.isNaN(voltageSetpoint)) {
-                    throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, actionOnError, reportNode);
-                    return ValidationLevel.EQUIPMENT;
-                }
-            }
-            case REACTIVE_POWER -> {
-                if (Double.isNaN(reactivePowerSetpoint)) {
-                    throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, "reactive power setpoint", actionOnError, reportNode);
-                    return ValidationLevel.EQUIPMENT;
-                }
-            }
-            case OFF -> {
-                // nothing to check
+        if (regulating) {
+            if (regulationMode == VOLTAGE && Double.isNaN(voltageSetpoint)) {
+                throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, actionOnError, reportNode);
+                return ValidationLevel.EQUIPMENT;
+            } else if (regulationMode == REACTIVE_POWER && Double.isNaN(reactivePowerSetpoint)) {
+                throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, "reactive power setpoint", actionOnError, reportNode);
+                return ValidationLevel.EQUIPMENT;
             }
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
@@ -706,7 +704,7 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "shunt compensator", shunt.isVoltageRegulatorOn(), shunt.getTargetDeadband(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkSections(validable, getSectionCount(shunt), shunt.getMaximumSectionCount(), actionOnError, reportNode));
             } else if (identifiable instanceof StaticVarCompensator svc) {
-                validationLevel = ValidationLevel.min(validationLevel, checkSvcRegulator(validable, svc.getVoltageSetpoint(), svc.getReactivePowerSetpoint(), svc.getRegulationMode(), actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, checkSvcRegulator(validable, svc.isRegulating(), svc.getVoltageSetpoint(), svc.getReactivePowerSetpoint(), svc.getRegulationMode(), actionOnError, reportNode));
             } else if (identifiable instanceof ThreeWindingsTransformer twt) {
                 validationLevel = ValidationLevel.min(validationLevel, checkThreeWindingsTransformer(validable, twt, actionOnError, reportNode));
             } else if (identifiable instanceof TwoWindingsTransformer twt) {
