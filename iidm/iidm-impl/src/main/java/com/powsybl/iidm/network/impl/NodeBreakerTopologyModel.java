@@ -1282,14 +1282,14 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         return true;
     }
 
-    private static boolean isLine(Terminal t) {
-        return t != null && t.getConnectable().getType() == IdentifiableType.LINE;
+    private static boolean isConnectableBranch(Terminal t) {
+        return t != null && t.getConnectable() instanceof AbstractConnectableBranch;
     }
 
     private boolean canPropagateConnection(int node, Predicate<Switch> isSwitchOperable,
                                            ConnectionElementsContainer connectionElementsContainer) {
         // Find the paths from the line to other lines
-        List<TIntArrayList> pathsFromLine = graph.findAllPaths(node, NodeBreakerTopologyModel::isLine, SwitchPredicates.IS_OPEN);
+        List<TIntArrayList> pathsFromLine = graph.findAllPaths(node, NodeBreakerTopologyModel::isConnectableBranch, SwitchPredicates.IS_OPEN);
         if (!pathsFromLine.isEmpty()) {
             // Initialize a list of lines connected to the BusbarSection
             Map<LineImpl, ThreeSides> linesAndSidesConnectedToIncomingLine = addOppositeLines(pathsFromLine);

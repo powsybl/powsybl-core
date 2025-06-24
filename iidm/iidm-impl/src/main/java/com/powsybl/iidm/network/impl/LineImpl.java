@@ -9,13 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.util.SwitchPredicates;
-
-import java.util.HashSet;
-import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -131,55 +125,5 @@ class LineImpl extends AbstractConnectableBranch<Line> implements Line {
     @Override
     protected String getTypeDescription() {
         return "AC line";
-    }
-
-    @Override
-    public boolean connect(boolean propagateDisconnectionIfNeeded) {
-        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null, propagateDisconnectionIfNeeded);
-    }
-
-    @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateConnectionIfNeeded) {
-        return connect(isTypeSwitchToOperate, side, propagateConnectionIfNeeded, true,
-            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()));
-    }
-
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side,
-                           boolean propagateConnectionIfNeeded, boolean connectFromHere,
-                           ConnectionElementsContainer connectionElementsContainer) {
-        connectionElementsContainer.branches().add(this);
-        return ConnectDisconnectUtil.connectAllTerminals(
-            this,
-            getTerminals(side),
-            isTypeSwitchToOperate,
-            connectionElementsContainer,
-            connectFromHere,
-            propagateConnectionIfNeeded,
-            getNetwork().getReportNodeContext().getReportNode());
-    }
-
-    @Override
-    public boolean disconnect(boolean propagateDisconnectionIfNeeded) {
-        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER, null, propagateDisconnectionIfNeeded);
-    }
-
-    @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean propagateDisconnectionIfNeeded) {
-        return disconnect(isSwitchOpenable, side, propagateDisconnectionIfNeeded, true,
-            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()));
-    }
-
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side,
-                              boolean propagateDisconnectionIfNeeded, boolean disconnectFromHere,
-                              ConnectionElementsContainer connectionElementsContainer) {
-        connectionElementsContainer.branches().add(this);
-        return ConnectDisconnectUtil.disconnectAllTerminals(
-            this,
-            getTerminals(side),
-            isSwitchOpenable,
-            connectionElementsContainer,
-            disconnectFromHere,
-            propagateDisconnectionIfNeeded,
-            getNetwork().getReportNodeContext().getReportNode());
     }
 }
