@@ -356,6 +356,7 @@
     </xs:complexType>
     <xs:complexType name="OperationalLimitsGroup">
         <xs:sequence>
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="activePowerLimits" type="iidm:LoadingLimit" minOccurs="0"/>
             <xs:element name="apparentPowerLimits" type="iidm:LoadingLimit" minOccurs="0"/>
             <xs:element name="currentLimits" type="iidm:LoadingLimit" minOccurs="0"/>
@@ -598,7 +599,6 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="CURRENT_LIMITER"/>
             <xs:enumeration value="ACTIVE_POWER_CONTROL"/>
-            <xs:enumeration value="FIXED_TAP"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="PhaseTapChanger">
@@ -609,6 +609,7 @@
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="optional" type="xs:int"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
+        <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
         <xs:attribute name="regulationMode" use="optional" type="iidm:PhaseRegulationMode"/>
         <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
         <xs:attribute name="regulating" use="optional" type="xs:boolean"/>

@@ -48,8 +48,15 @@ public class IdentifierSerializer extends StdSerializer<NetworkElementIdentifier
                 jsonGenerator.writeStringField("order", Character.toString(ucteIdentifier.getOrder()));
                 break;
             case ID_WITH_WILDCARDS:
-                jsonGenerator.writeStringField("identifier", ((IdWithWildcardsNetworkElementIdentifier) networkElementIdentifier)
-                    .getIdentifier().replace('.', IdWithWildcardsNetworkElementIdentifier.WILDCARD));
+                IdWithWildcardsNetworkElementIdentifier identifier = (IdWithWildcardsNetworkElementIdentifier) networkElementIdentifier;
+                jsonGenerator.writeStringField("identifier", identifier.getIdentifier());
+                jsonGenerator.writeStringField("wildcard", identifier.getWildcardCharacter());
+                break;
+            case SUBSTATION_OR_VOLTAGE_LEVEL_EQUIPMENTS:
+                SubstationOrVoltageLevelEquipmentsIdentifier substIdentifier = (SubstationOrVoltageLevelEquipmentsIdentifier) networkElementIdentifier;
+                jsonGenerator.writeStringField("substationOrVoltageLevelId", substIdentifier.getSubstationOrVoltageLevelId());
+                serializerProvider.defaultSerializeField("voltageLevelIdentifiableTypes", substIdentifier.getVoltageLevelIdentifiableTypes(), jsonGenerator);
+                break;
         }
         jsonGenerator.writeEndObject();
     }

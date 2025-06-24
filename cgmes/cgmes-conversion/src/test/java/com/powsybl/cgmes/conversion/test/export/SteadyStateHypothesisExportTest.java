@@ -45,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -205,7 +206,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
         SshLinearShuntCompensators sshLinearShuntCompensators = new SshLinearShuntCompensators();
         try (InputStream is = new ByteArrayInputStream(ssh.getBytes(StandardCharsets.UTF_8))) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             Integer sections = null;
             Boolean controlEnabled = null;
             String shuntCompensatorId = null;
@@ -295,7 +296,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         List<SshExportedControlArea> sshExportedControlAreas = new ArrayList<>();
         SshExportedControlArea sshExportedControlArea = null;
         try (InputStream is = Files.newInputStream(ssh)) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             while (reader.hasNext()) {
                 int next = reader.next();
                 if (next == XMLStreamConstants.START_ELEMENT) {
@@ -397,42 +398,45 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             Properties exportParams = new Properties();
             exportParams.put(CgmesExport.PROFILES, "SSH");
 
-            // PST with FIXED_TAP
+            // PST with no regulation mode but regulating true => set to CURRENT_LIMITER mode
             network = PhaseShifterTestCaseFactory.createWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithoutAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "none");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
 
             // PST local with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createLocalActivePowerWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
-            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
-            ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "M");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
 
             // PST local with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createLocalCurrentLimiterWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
-            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
-            ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "none");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
 
             // PST remote with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createRemoteCurrentLimiterWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
-            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
-            ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "none");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
 
             // PST remote with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createRemoteActivePowerWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
-            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
-            ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "M");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
         }
     }
 

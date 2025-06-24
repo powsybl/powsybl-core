@@ -7,6 +7,7 @@
  */
 package com.powsybl.tools.test;
 
+import com.google.re2j.Pattern;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.CommandLineTools;
@@ -19,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
