@@ -468,7 +468,7 @@ public final class Networks {
     }
 
     /**
-     * This method replaces the "input" status of switches, tap changer position and shunt section count by their solved values if they are present.
+     * This method replaces the "input" status of tap changer position and shunt section count by their solved values if they are present.
      */
     public static void applySolvedTapPositionAndSolvedSectionCount(Network network) {
         network.getTwoWindingsTransformerStream().forEach(TwoWindingsTransformer::applySolvedValues);
