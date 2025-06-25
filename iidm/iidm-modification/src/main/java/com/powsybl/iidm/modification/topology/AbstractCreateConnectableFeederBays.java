@@ -220,17 +220,15 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     private void logAndReport(boolean logOrThrowIfIncorrectPositionOrder, boolean throwException, String message,
                                  Consumer<TypedValue> report) {
         TypedValue severity = logOrThrowIfIncorrectPositionOrder ? TypedValue.ERROR_SEVERITY : TypedValue.WARN_SEVERITY;
+        report.accept(severity);
+
         if (logOrThrowIfIncorrectPositionOrder) {
-            LOGGER.error(message);
+            logOrThrow(throwException, message);
         } else {
             LOGGER.warn(message);
         }
 
-        report.accept(severity);
-
-        if (logOrThrowIfIncorrectPositionOrder && throwException) {
-            throw new PowsyblException(message);
-        }
+        return false;
     }
 
     /**
