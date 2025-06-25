@@ -233,11 +233,11 @@ class TransformerConverter extends AbstractConverter {
                 .setVoltageLevel(voltageLevel3Id);
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_THREE_WINDING, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
-        legConnectivity(legAdder1, equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getI(), "I", bus1Id, leg1IsConnected());
+        legConnectivity(legAdder1, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getI(), "I"), bus1Id, leg1IsConnected());
         legAdder1.add();
-        legConnectivity(legAdder2, equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getJ(), "J", bus2Id, leg2IsConnected());
+        legConnectivity(legAdder2, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getJ(), "J"), bus2Id, leg2IsConnected());
         legAdder2.add();
-        legConnectivity(legAdder3, equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getK(), "K", bus3Id, leg3IsConnected());
+        legConnectivity(legAdder3, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getK(), "K"), bus3Id, leg3IsConnected());
         legAdder3.add();
         ThreeWindingsTransformer twt = adder.add();
 
@@ -248,8 +248,8 @@ class TransformerConverter extends AbstractConverter {
         defineOperationalLimits(twt, voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), voltageLevel3.getNominalV());
     }
 
-    private void legConnectivity(ThreeWindingsTransformerAdder.LegAdder legAdder, String equipmentId, int busI, int busJ, int busK, int bus, String busEnd, String busId, boolean isLegConnected) {
-        OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, busI, busJ, busK, bus, busEnd));
+    private void legConnectivity(ThreeWindingsTransformerAdder.LegAdder legAdder, String equipmentIdBus, String busId, boolean isLegConnected) {
+        OptionalInt node1 = nodeBreakerImport.getNode(equipmentIdBus);
         if (node1.isPresent()) {
             legAdder.setNode(node1.getAsInt());
         } else {
