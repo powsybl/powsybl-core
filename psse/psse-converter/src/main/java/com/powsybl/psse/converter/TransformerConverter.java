@@ -1065,28 +1065,32 @@ class TransformerConverter extends AbstractConverter {
 
     private static RatioR findRatioDataRtcAndPtc(RatioTapChanger rtc, PhaseTapChanger ptc, double a0, ContextExport contextExport) {
         if (ptc.isRegulating() && !rtc.isRegulating()) {
-            return new RatioR(getSteps(ptc) > 1 ? 3 : 0, a0 * getRatio(rtc) * getRatio(ptc), getAngle(ptc),
-                    getRegulatingTerminalBusI(ptc.getRegulationTerminal(), contextExport),
+            int regulatingBusI = getRegulatingTerminalBusI(ptc.getRegulationTerminal(), contextExport);
+            return new RatioR(getSteps(ptc) > 1 && regulatingBusI != 0 ? 3 : 0, a0 * getRatio(rtc) * getRatio(ptc), getAngle(ptc),
+                    regulatingBusI,
                     getRegulatingTerminalNode(ptc.getRegulationTerminal(), contextExport),
                     getMaxAngle(ptc), getMinAngle(ptc), getSteps(ptc));
         } else {
-            return new RatioR(getSteps(rtc) > 1 ? 1 : 0, a0 * getRatio(rtc) * getRatio(ptc), getAngle(ptc),
-                    getRegulatingTerminalBusI(rtc.getRegulationTerminal(), contextExport),
+            int regulatingBusI = getRegulatingTerminalBusI(rtc.getRegulationTerminal(), contextExport);
+            return new RatioR(getSteps(rtc) > 1 && regulatingBusI != 0 ? 1 : 0, a0 * getRatio(rtc) * getRatio(ptc), getAngle(ptc),
+                    regulatingBusI,
                     getRegulatingTerminalNode(rtc.getRegulationTerminal(), contextExport),
                     getMaxRatio(rtc) * getRatio(ptc), getMinRatio(rtc) * getRatio(ptc), getSteps(rtc));
         }
     }
 
     private static RatioR findRatioDataRtc(RatioTapChanger rtc, double a0, ContextExport contextExport) {
-        return new RatioR(getSteps(rtc) > 1 ? 1 : 0, a0 * getRatio(rtc), 0.0,
-                getRegulatingTerminalBusI(rtc.getRegulationTerminal(), contextExport),
+        int regulatingBusI = getRegulatingTerminalBusI(rtc.getRegulationTerminal(), contextExport);
+        return new RatioR(getSteps(rtc) > 1 && regulatingBusI != 0 ? 1 : 0, a0 * getRatio(rtc), 0.0,
+                regulatingBusI,
                 getRegulatingTerminalNode(rtc.getRegulationTerminal(), contextExport),
                 getMaxRatio(rtc), getMinRatio(rtc), getSteps(rtc));
     }
 
     private static RatioR findRatioDataPtc(PhaseTapChanger ptc, double a0, ContextExport contextExport) {
-        return new RatioR(getSteps(ptc) > 1 ? 3 : 0, a0 * getRatio(ptc), getAngle(ptc),
-                getRegulatingTerminalBusI(ptc.getRegulationTerminal(), contextExport),
+        int regulatingBusI = getRegulatingTerminalBusI(ptc.getRegulationTerminal(), contextExport);
+        return new RatioR(getSteps(ptc) > 1 && regulatingBusI != 0 ? 3 : 0, a0 * getRatio(ptc), getAngle(ptc),
+                regulatingBusI,
                 getRegulatingTerminalNode(ptc.getRegulationTerminal(), contextExport),
                 getMaxAngle(ptc), getMinAngle(ptc), getSteps(ptc));
     }
