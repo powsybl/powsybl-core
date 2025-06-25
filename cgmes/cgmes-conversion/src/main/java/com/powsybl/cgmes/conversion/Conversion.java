@@ -804,11 +804,6 @@ public class Conversion {
 
     public static class Config {
 
-        public enum StateProfile {
-            SSH,
-            SV
-        }
-
         public List<String> substationIdsExcludedFromMapping() {
             return Collections.emptyList();
         }
