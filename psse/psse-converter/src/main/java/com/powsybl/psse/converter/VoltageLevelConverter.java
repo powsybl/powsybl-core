@@ -337,6 +337,15 @@ class VoltageLevelConverter extends AbstractConverter {
         voltageLevel.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired())
                 .forEach(danglingLine -> contextExport.getFullExport().addDanglingLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
 
+        // add isolated nodes, nodes associated to a terminal not considered until now
+        Set<Integer> mergedSet = connectedSetsBySwitchesAndInternalConnections.stream().flatMap(Set::stream).collect(Collectors.toSet());
+        for (int node : voltageLevel.getNodeBreakerView().getNodes()) {
+            if (!mergedSet.contains(node)) {
+                int busI = contextExport.getFullExport().getNewPsseBusI();
+                contextForIsolatedNode(voltageLevel, node, busI, psseSubstationId, contextExport);
+            }
+        }
+
         return true;
     }
 
@@ -428,6 +437,11 @@ class VoltageLevelConverter extends AbstractConverter {
         Bus busView = contextExport.getFullExport().getVoltageBus(voltageLevel, representativeNode).orElse(null);
 
         contextExport.getFullExport().addNodeData(voltageLevel, node, busI, psseNode, busView);
+    }
+
+    private static void contextForIsolatedNode(VoltageLevel voltageLevel, int node, int busI, String psseSubstationId, ContextExport contextExport) {
+        int psseNode = contextExport.getFullExport().getNewPsseNode(psseSubstationId);
+        contextExport.getFullExport().addNodeData(voltageLevel, node, busI, psseNode, null);
     }
 
     private static int findPriorityType(Bus busView) {
