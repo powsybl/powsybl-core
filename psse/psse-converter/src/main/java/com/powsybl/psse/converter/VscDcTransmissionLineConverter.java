@@ -119,11 +119,11 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
     }
 
     private static double getReactiveSetpoint(PsseVoltageSourceConverter converter, double activePowerSetpoint) {
-        if (converter.getType() == 1) {
+        if (converter.getMode() == 1) {
             return 0.0;
         }
         double powerFactor = converter.getAcset();
-        return powerFactor != 0.0 ? activePowerSetpoint * Math.sqrt(1 - powerFactor * powerFactor) / powerFactor : 0.0;
+        return powerFactor != 0.0 && Math.abs(powerFactor) <= 1.0 ? activePowerSetpoint * Math.sqrt(1 - powerFactor * powerFactor) / powerFactor : 0.0;
     }
 
     private static void addReactiveLimits(VscConverterStation c, PsseVoltageSourceConverter converter) {
