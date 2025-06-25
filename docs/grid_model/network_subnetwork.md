@@ -959,7 +959,7 @@ It cannot be a Busbar Section Terminal since no active power can be measured on 
 ![Detailed DC Model PCC Terminal](img/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-light"}
 ![Detailed DC Model PCC Terminal](img/dark_mode/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-dark"}
 
-When the `ControlMode` of the converter is set to `V_DC`, the converter controls DC voltage at it's DC Terminals.
+When the `ControlMode` of the converter is set to `V_DC`, the converter controls DC voltage at its DC Terminals.
 `TargetVdc` is the desired target DC voltage, and is the voltage difference between DC Node 1 and DC Node 2.
 `TargetVdc` may be either positive or negative. Negative value may be used to model reverse polarity operation in case of LCCs.
 No explicit attribute specifies whether the DC is a symmetrical or asymmetrical scheme.
