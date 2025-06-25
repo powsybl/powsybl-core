@@ -43,6 +43,30 @@ public final class ValidationUtil {
     private ValidationUtil() {
     }
 
+    public static void checkAccessOfRemovedEquipment(String id, boolean removed) {
+        if (removed) {
+            throw new PowsyblException("Cannot access removed equipment " + id);
+        }
+    }
+
+    public static void checkModifyOfRemovedEquipment(String id, boolean removed) {
+        if (removed) {
+            throw new PowsyblException("Cannot modify removed equipment " + id);
+        }
+    }
+
+    public static void checkAccessOfRemovedEquipment(String id, boolean removed, String attribute) {
+        if (removed) {
+            throw new PowsyblException("Cannot access " + attribute + " of removed equipment " + id);
+        }
+    }
+
+    public static void checkModifyOfRemovedEquipment(String id, boolean removed, String attribute) {
+        if (removed) {
+            throw new PowsyblException("Cannot modify " + attribute + " of removed equipment " + id);
+        }
+    }
+
     public static PowsyblException createUndefinedValueGetterException() {
         return new PowsyblException("This getter cannot be used if the value is not defined");
     }
@@ -432,6 +456,12 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkDoubleParamPositive(Validable validable, double param, String paramName) {
+        if (Double.isNaN(param) || param < 0) {
+            throw new ValidationException(validable, paramName + " is invalid");
+        }
+    }
+
     public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
                                                                  Terminal regulationTerminal, RatioTapChanger.RegulationMode regulationMode,
                                                                  double regulationValue, Network network, ValidationLevel validationLevel, ReportNode reportNode) {
@@ -539,6 +569,95 @@ public final class ValidationUtil {
             throw new ValidationException(validable, "power factor is invalid");
         } else if (Math.abs(powerFactor) > 1) {
             throw new ValidationException(validable, "power factor is invalid, it should be between -1 and 1");
+        }
+    }
+
+    public static void checkPositivePowerFactor(Validable validable, double powerFactor) {
+        if (Double.isNaN(powerFactor)) {
+            throw new ValidationException(validable, "power factor is invalid");
+        } else if (powerFactor < 0 || powerFactor > 1) {
+            throw new ValidationException(validable, "power factor is invalid, it must be between 0 and 1");
+        }
+    }
+
+    public static DcNode checkAndGetDcNode(Network network, Validable validable, String dcNodeId, String attribute) {
+        if (dcNodeId == null) {
+            throw new ValidationException(validable, attribute + " is not set");
+        }
+        DcNode dcNode = network.getDcNode(dcNodeId);
+        if (dcNode == null) {
+            throw new ValidationException(validable, "DcNode '" + dcNodeId + "' not found");
+        }
+        return dcNode;
+    }
+
+    public static void checkSameParentNetwork(Network validableNetwork, Validable validable, DcNode dcNode) {
+        if (validableNetwork != dcNode.getParentNetwork()) {
+            throw new ValidationException(validable, "DC Node '" + dcNode.getId() +
+                    "' is in network '" + dcNode.getParentNetwork().getId() + "' but DC Equipment is in '" + validableNetwork.getId() + "'");
+        }
+    }
+
+    public static void checkSameParentNetwork(Network validableNetwork, Validable validable, DcNode dcNode1, DcNode dcNode2) {
+        if (dcNode1.getParentNetwork() != dcNode2.getParentNetwork()) {
+            throw new ValidationException(validable, "DC Nodes '" + dcNode1.getId() + "' and '" + dcNode2.getId() +
+                    "' are in different networks '" + dcNode1.getParentNetwork().getId() + "' and '" + dcNode2.getParentNetwork().getId() + "'");
+        }
+        if (validableNetwork != dcNode1.getParentNetwork()) {
+            throw new ValidationException(validable, "DC Nodes '" + dcNode1.getId() + "' and '" + dcNode2.getId() +
+                    "' are in network '" + dcNode1.getParentNetwork().getId() + "' but DC Equipment is in '" + validableNetwork.getId() + "'");
+        }
+    }
+
+    public static ValidationLevel checkAcDcConverterControl(Validable validable, AcDcConverter.ControlMode controlMode,
+                                                            double targetP, double targetVdc,
+                                                            ValidationLevel validationLevel, ReportNode reportNode) {
+        return checkAcDcConverterControl(validable, controlMode, targetP, targetVdc,
+                checkValidationActionOnError(validationLevel), reportNode);
+    }
+
+    private static ValidationLevel checkAcDcConverterControl(Validable validable, AcDcConverter.ControlMode controlMode,
+                                                             double targetP, double targetVdc,
+                                                             ActionOnError actionOnError, ReportNode reportNode) {
+        ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+        if (controlMode == null) {
+            throwExceptionOrLogError(validable, "controlMode is not set", actionOnError, reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        if (Objects.equals(controlMode, AcDcConverter.ControlMode.P_PCC) && Double.isNaN(targetP)) {
+            throwExceptionOrLogError(validable, "targetP is invalid", actionOnError, reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        if (Objects.equals(controlMode, AcDcConverter.ControlMode.V_DC) && Double.isNaN(targetVdc)) {
+            throwExceptionOrLogError(validable, "targetVdc is invalid", actionOnError, reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        return validationLevel;
+    }
+
+    public static void checkAcDcConverterPccTerminal(Validable validable, boolean twoAcTerminals, Terminal pccTerminal, VoltageLevel voltageLevel) {
+        if (twoAcTerminals && pccTerminal == null) {
+            throw new ValidationException(validable, "converter has two AC terminals and pccTerminal is not set");
+        }
+        if (pccTerminal != null) {
+            var c = pccTerminal.getConnectable();
+            if (twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer)) {
+                throw new ValidationException(validable, "converter has two AC terminals and pccTerminal is not a line or transformer terminal");
+            } else if (!twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer || c instanceof AcDcConverter<?>)) {
+                throw new ValidationException(validable, "pccTerminal is not a line or transformer or the converter terminal");
+            }
+            if (!twoAcTerminals && c instanceof AcDcConverter<?> && c != validable) {
+                throw new ValidationException(validable, "pccTerminal cannot be the terminal of another converter");
+            }
+            if (c.getParentNetwork() != voltageLevel.getParentNetwork()) {
+                throw new ValidationException(validable, "pccTerminal is not in the same parent network as the voltage level");
+            }
+        }
+    }
+
+    public static void checkLccReactiveModel(Validable validable, LineCommutatedConverter.ReactiveModel reactiveModel) {
+        if (reactiveModel == null) {
+            throw new ValidationException(validable, "reactiveModel is not set");
         }
     }
 

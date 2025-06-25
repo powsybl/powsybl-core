@@ -787,6 +787,146 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         return index.getAll(GroundImpl.class).size();
     }
 
+    @Override
+    public DcNodeAdder newDcNode() {
+        return new DcNodeAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<DcNode> getDcNodes() {
+        return Collections.unmodifiableCollection(index.getAll(DcNodeImpl.class));
+    }
+
+    @Override
+    public Stream<DcNode> getDcNodeStream() {
+        return index.getAll(DcNodeImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getDcNodeCount() {
+        return index.getAll(DcNodeImpl.class).size();
+    }
+
+    @Override
+    public DcNode getDcNode(String id) {
+        return index.get(id, DcNodeImpl.class);
+    }
+
+    @Override
+    public DcLineAdder newDcLine() {
+        return new DcLineAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<DcLine> getDcLines() {
+        return Collections.unmodifiableCollection(index.getAll(DcLineImpl.class));
+    }
+
+    @Override
+    public Stream<DcLine> getDcLineStream() {
+        return index.getAll(DcLineImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getDcLineCount() {
+        return index.getAll(DcLineImpl.class).size();
+    }
+
+    @Override
+    public DcLine getDcLine(String id) {
+        return index.get(id, DcLineImpl.class);
+    }
+
+    @Override
+    public DcSwitchAdder newDcSwitch() {
+        return new DcSwitchAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<DcSwitch> getDcSwitches() {
+        return Collections.unmodifiableCollection(index.getAll(DcSwitchImpl.class));
+    }
+
+    @Override
+    public Stream<DcSwitch> getDcSwitchStream() {
+        return index.getAll(DcSwitchImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getDcSwitchCount() {
+        return index.getAll(DcSwitchImpl.class).size();
+    }
+
+    @Override
+    public DcSwitch getDcSwitch(String id) {
+        return index.get(id, DcSwitchImpl.class);
+    }
+
+    @Override
+    public DcGroundAdder newDcGround() {
+        return new DcGroundAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<DcGround> getDcGrounds() {
+        return Collections.unmodifiableCollection(index.getAll(DcGroundImpl.class));
+    }
+
+    @Override
+    public Stream<DcGround> getDcGroundStream() {
+        return index.getAll(DcGroundImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getDcGroundCount() {
+        return index.getAll(DcGroundImpl.class).size();
+    }
+
+    @Override
+    public DcGround getDcGround(String id) {
+        return index.get(id, DcGroundImpl.class);
+    }
+
+    @Override
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        return Collections.unmodifiableCollection(index.getAll(LineCommutatedConverterImpl.class));
+    }
+
+    @Override
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        return index.getAll(LineCommutatedConverterImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getLineCommutatedConverterCount() {
+        return index.getAll(LineCommutatedConverterImpl.class).size();
+    }
+
+    @Override
+    public LineCommutatedConverter getLineCommutatedConverter(String id) {
+        return index.get(id, LineCommutatedConverterImpl.class);
+    }
+
+    @Override
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        return Collections.unmodifiableCollection(index.getAll(VoltageSourceConverterImpl.class));
+    }
+
+    @Override
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        return index.getAll(VoltageSourceConverterImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getVoltageSourceConverterCount() {
+        return index.getAll(VoltageSourceConverterImpl.class).size();
+    }
+
+    @Override
+    public VoltageSourceConverter getVoltageSourceConverter(String id) {
+        return index.get(id, VoltageSourceConverterImpl.class);
+    }
+
     HvdcLineAdder newHvdcLine(String subnetwork) {
         return new HvdcLineAdderImpl(this, subnetwork);
     }
@@ -834,6 +974,41 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public int getConnectableCount() {
         return Ints.checkedCast(getConnectableStream().count());
+    }
+
+    @Override
+    public <C extends DcConnectable> Iterable<C> getDcConnectables(Class<C> clazz) {
+        return getDcConnectableStream(clazz).toList();
+    }
+
+    @Override
+    public <C extends DcConnectable> Stream<C> getDcConnectableStream(Class<C> clazz) {
+        return index.getAll().stream().filter(clazz::isInstance).map(clazz::cast);
+    }
+
+    @Override
+    public <C extends DcConnectable> int getDcConnectableCount(Class<C> clazz) {
+        return Ints.checkedCast(getDcConnectableStream(clazz).count());
+    }
+
+    @Override
+    public Iterable<DcConnectable> getDcConnectables() {
+        return getDcConnectables(DcConnectable.class);
+    }
+
+    @Override
+    public Stream<DcConnectable> getDcConnectableStream() {
+        return getDcConnectableStream(DcConnectable.class);
+    }
+
+    @Override
+    public DcConnectable<?> getDcConnectable(String id) {
+        return index.get(id, DcConnectable.class);
+    }
+
+    @Override
+    public int getDcConnectableCount() {
+        return Ints.checkedCast(getDcConnectableStream().count());
     }
 
     @Override
