@@ -72,7 +72,7 @@ class LineConverter extends AbstractConverter {
             .setB2(b2Eu);
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_BRANCH, psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
-        OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseLine.getI()));
+        OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseLine.getI(), psseLine.getJ(), 0, psseLine.getI(), "I"));
         if (node1.isPresent()) {
             adder.setNode1(node1.getAsInt());
         } else {
@@ -80,7 +80,7 @@ class LineConverter extends AbstractConverter {
             adder.setConnectableBus1(bus1Id);
             adder.setBus1(psseLine.getSt() == 1 ? bus1Id : null);
         }
-        OptionalInt node2 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseLine.getJ()));
+        OptionalInt node2 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseLine.getI(), psseLine.getJ(), 0, psseLine.getJ(), "J"));
         if (node2.isPresent()) {
             adder.setNode2(node2.getAsInt());
         } else {

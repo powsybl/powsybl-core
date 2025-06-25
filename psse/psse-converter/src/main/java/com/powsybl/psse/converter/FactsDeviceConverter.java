@@ -56,7 +56,7 @@ class FactsDeviceConverter extends AbstractConverter {
                 .setBmax(bMax);
 
         String equipmentId = getNodeBreakerEquipmentId(PsseEquipmentType.PSSE_FACTS_DEVICE, psseFactsDevice.getI(), psseFactsDevice.getJ(), psseFactsDevice.getName());
-        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseFactsDevice.getI()));
+        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseFactsDevice.getI(), 0, 0, psseFactsDevice.getI(), "I"));
         if (node.isPresent()) {
             adder.setNode(node.getAsInt());
         } else {

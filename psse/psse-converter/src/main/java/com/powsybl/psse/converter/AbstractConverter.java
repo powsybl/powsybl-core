@@ -328,8 +328,35 @@ public abstract class AbstractConverter {
         };
     }
 
-    static String getNodeBreakerEquipmentIdBus(String equipmentId, int bus) {
-        return equipmentId + "." + bus;
+    // busI, busJ, busK and busEnd attributes are required to support lines and transformers within a voltageLevel
+    static String getNodeBreakerEquipmentIdBus(String equipmentId, int bus, int end) {
+        return equipmentId + "." + bus + "." + end;
+    }
+
+    static String getNodeBreakerEquipmentIdBus(String equipmentId, int busI, int busJ, int busK, int bus, String busEnd) {
+        return equipmentId + "." + bus + "." + getBusEnd(busI, busJ, busK, bus, busEnd);
+    }
+
+    private static int getBusEnd(int busI, int busJ, int busK, int bus, String busEnd) {
+        if (busI > 0 && busJ == 0 && busK == 0 && busI == bus) {
+            return 1;
+        }
+        List<String> buses = new ArrayList<>();
+        if (busI > 0 && busJ > 0 && busK == 0) {
+            buses.add(String.format("%07d.I", busI));
+            buses.add(String.format("%07d.J", busJ));
+        }
+        if (busI > 0 && busJ > 0 && busK > 0) {
+            buses.add(String.format("%07d.I", busI));
+            buses.add(String.format("%07d.J", busJ));
+            buses.add(String.format("%07d.K", busK));
+        }
+        List<String> sortedBuses = buses.stream().sorted().toList();
+        int index = sortedBuses.indexOf(String.format("%07d.%s", bus, busEnd));
+        if (index == -1) {
+            throw new PsseException("Unexpected attributes busI: " + busI + " busJ: " + busJ + " busK: " + busK + " bus: " + bus + " busEnd: " + busEnd);
+        }
+        return index + 1;
     }
 
     static Terminal findTerminalNode(Network network, String voltageLevelId, int node) {

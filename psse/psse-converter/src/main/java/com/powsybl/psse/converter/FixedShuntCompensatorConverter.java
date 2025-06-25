@@ -53,7 +53,7 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
             .add();
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_FIXED_SHUNT, psseFixedShunt.getI(), psseFixedShunt.getId());
-        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseFixedShunt.getI()));
+        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseFixedShunt.getI(), 0, 0, psseFixedShunt.getI(), "I"));
         if (node.isPresent()) {
             adder.setNode(node.getAsInt());
         } else {

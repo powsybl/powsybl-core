@@ -9,6 +9,7 @@ package com.powsybl.psse.converter;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
@@ -108,19 +109,29 @@ class VoltageLevelConverter extends AbstractConverter {
         Set<Integer> nodesWithEquipment = new HashSet<>();
 
         List<PsseSubstationEquipmentTerminal> equipmentTerminalList = psseSubstation.getEquipmentTerminals().stream().filter(eqt -> nodesSet.contains(eqt.getNi())).toList();
-
         int lastNode = lastNodeUsedForInternalConnections;
-        for (PsseSubstationEquipmentTerminal equipmentTerminal : equipmentTerminalList) {
-            String equipmentId = getNodeBreakerEquipmentId(equipmentTerminal.getType(), equipmentTerminal.getI(), equipmentTerminal.getJ(), equipmentTerminal.getK(), equipmentTerminal.getId());
-            String equipmentIdBus = getNodeBreakerEquipmentIdBus(equipmentId, bus);
-            // IIDM only allows one piece of equipment by node
-            if (nodesWithEquipment.contains(equipmentTerminal.getNi())) {
-                lastNode++;
-                voltageLevel.getNodeBreakerView().newInternalConnection().setNode1(equipmentTerminal.getNi()).setNode2(lastNode).add();
-                nodeBreakerImport.addEquipment(equipmentIdBus, lastNode);
-            } else {
-                nodeBreakerImport.addEquipment(equipmentIdBus, equipmentTerminal.getNi());
-                nodesWithEquipment.add(equipmentTerminal.getNi());
+
+        // Support lines inside a voltageLevel
+        Map<String, List<PsseSubstationEquipmentTerminal>> equipmentTerminalsGroupedByBus = equipmentTerminalList.stream().collect(Collectors.groupingBy(VoltageLevelConverter::getEquipmentTerminalGroupingKey));
+        List<String> sortedKeys = equipmentTerminalsGroupedByBus.keySet().stream().sorted().toList();
+
+        for (String key : sortedKeys) {
+            List<PsseSubstationEquipmentTerminal> busEquipmentTerminalList = equipmentTerminalsGroupedByBus.get(key);
+
+            for (int index = 0; index < busEquipmentTerminalList.size(); index++) {
+                PsseSubstationEquipmentTerminal equipmentTerminal = busEquipmentTerminalList.get(index);
+
+                String equipmentId = getNodeBreakerEquipmentId(equipmentTerminal.getType(), equipmentTerminal.getI(), equipmentTerminal.getJ(), equipmentTerminal.getK(), equipmentTerminal.getId());
+                String equipmentIdBus = getNodeBreakerEquipmentIdBus(equipmentId, bus, getEquipmentTerminalEnd(equipmentId, equipmentTerminal, bus, index));
+                // IIDM only allows one piece of equipment by node
+                if (nodesWithEquipment.contains(equipmentTerminal.getNi())) {
+                    lastNode++;
+                    voltageLevel.getNodeBreakerView().newInternalConnection().setNode1(equipmentTerminal.getNi()).setNode2(lastNode).add();
+                    nodeBreakerImport.addEquipment(equipmentIdBus, lastNode);
+                } else {
+                    nodeBreakerImport.addEquipment(equipmentIdBus, equipmentTerminal.getNi());
+                    nodesWithEquipment.add(equipmentTerminal.getNi());
+                }
             }
         }
 
@@ -148,6 +159,19 @@ class VoltageLevelConverter extends AbstractConverter {
         nodeBreakerImport.addBusControl(bus, voltageLevelId, defaultNode);
 
         return lastNode;
+    }
+
+    private static String getEquipmentTerminalGroupingKey(PsseSubstationEquipmentTerminal equipmentTerminal) {
+        return getNodeBreakerEquipmentId(equipmentTerminal.getType(), equipmentTerminal.getI(), equipmentTerminal.getJ(), equipmentTerminal.getK(), equipmentTerminal.getId()) + "." + equipmentTerminal.getI();
+    }
+
+    private static int getEquipmentTerminalEnd(String eqId, PsseSubstationEquipmentTerminal equipmentTerminal, int bus, int busIndex) {
+        List<Integer> sortedNonZeroBuses = Stream.of(equipmentTerminal.getI(), equipmentTerminal.getJ(), equipmentTerminal.getK()).filter(e -> e != 0).sorted().toList();
+        int index = sortedNonZeroBuses.indexOf(bus);
+        if (index == -1) {
+            throw new PsseException("Unexpected bus: " + bus);
+        }
+        return index + 1 + busIndex;
     }
 
     private static String switchingDeviceString(PsseSubstationSwitchingDevice switchingDevice) {

@@ -54,7 +54,7 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
                 .setVoltageRegulatorOn(false);
 
         String equipmentId1 = getNodeBreakerEquipmentId(PSSE_VSC_DC_LINE, converter1.getIbus(), psseVscDcTransmissionLine.getName());
-        OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId1, converter1.getIbus()));
+        OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId1, converter1.getIbus(), 0, 0, converter1.getIbus(), "I"));
         if (node1.isPresent()) {
             adder1.setNode(node1.getAsInt());
         } else {
@@ -73,7 +73,7 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
                 .setVoltageRegulatorOn(false);
 
         String equipmentId2 = getNodeBreakerEquipmentId(PSSE_VSC_DC_LINE, converter2.getIbus(), psseVscDcTransmissionLine.getName());
-        OptionalInt node2 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId2, converter2.getIbus()));
+        OptionalInt node2 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId2, converter2.getIbus(), 0, 0, converter2.getIbus(), "I"));
         if (node2.isPresent()) {
             adder2.setNode(node2.getAsInt());
         } else {

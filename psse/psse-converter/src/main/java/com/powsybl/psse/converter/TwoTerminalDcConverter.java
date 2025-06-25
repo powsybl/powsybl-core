@@ -46,7 +46,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
             .setPowerFactor((float) getLccConverterPowerFactor(psseTwoTerminalDc.getRectifier()));
 
         String equipmentIdR = getNodeBreakerEquipmentId(PSSE_TWO_TERMINAL_DC_LINE, psseTwoTerminalDc.getRectifier().getIp(), psseTwoTerminalDc.getName());
-        OptionalInt nodeR = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentIdR, psseTwoTerminalDc.getRectifier().getIp()));
+        OptionalInt nodeR = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentIdR, psseTwoTerminalDc.getRectifier().getIp(), 0, 0, psseTwoTerminalDc.getRectifier().getIp(), "I"));
         if (nodeR.isPresent()) {
             adderR.setNode(nodeR.getAsInt());
         } else {
@@ -64,7 +64,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
             .setPowerFactor((float) getLccConverterPowerFactor(psseTwoTerminalDc.getInverter()));
 
         String equipmentIdI = getNodeBreakerEquipmentId(PSSE_TWO_TERMINAL_DC_LINE, psseTwoTerminalDc.getInverter().getIp(), psseTwoTerminalDc.getName());
-        OptionalInt nodeI = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentIdI, psseTwoTerminalDc.getInverter().getIp()));
+        OptionalInt nodeI = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentIdI, psseTwoTerminalDc.getInverter().getIp(), 0, 0, psseTwoTerminalDc.getInverter().getIp(), "I"));
         if (nodeI.isPresent()) {
             adderI.setNode(nodeI.getAsInt());
         } else {

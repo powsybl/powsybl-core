@@ -51,7 +51,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
             .setSectionCount(defineSectionCount(psseSwitchedShunt.getBinit(), shuntBlocks));
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_SWITCHED_SHUNT, psseSwitchedShunt.getI(), defineShuntId(psseSwitchedShunt, version));
-        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseSwitchedShunt.getI()));
+        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseSwitchedShunt.getI(), 0, 0, psseSwitchedShunt.getI(), "I"));
         if (node.isPresent()) {
             adder.setNode(node.getAsInt());
         } else {

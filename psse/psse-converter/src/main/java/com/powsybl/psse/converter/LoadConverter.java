@@ -81,7 +81,7 @@ class LoadConverter extends AbstractConverter {
         }
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_LOAD, psseLoad.getI(), psseLoad.getId());
-        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseLoad.getI()));
+        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseLoad.getI(), 0, 0, psseLoad.getI(), "I"));
         if (node.isPresent()) {
             adder.setNode(node.getAsInt());
         } else {

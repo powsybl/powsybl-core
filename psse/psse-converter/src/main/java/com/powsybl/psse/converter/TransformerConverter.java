@@ -116,7 +116,7 @@ class TransformerConverter extends AbstractConverter {
                 .setB(ysh.getImaginary());
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_TWO_WINDING, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getCkt());
-        OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI()));
+        OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), 0, psseTransformer.getI(), "I"));
         if (node1.isPresent()) {
             adder.setNode1(node1.getAsInt());
         } else {
@@ -124,7 +124,7 @@ class TransformerConverter extends AbstractConverter {
             adder.setConnectableBus1(bus1Id);
             adder.setBus1(psseTransformer.getStat() == 1 ? bus1Id : null);
         }
-        OptionalInt node2 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getJ()));
+        OptionalInt node2 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), 0, psseTransformer.getJ(), "J"));
         if (node2.isPresent()) {
             adder.setNode2(node2.getAsInt());
         } else {
@@ -233,11 +233,11 @@ class TransformerConverter extends AbstractConverter {
                 .setVoltageLevel(voltageLevel3Id);
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_THREE_WINDING, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
-        legConnectivity(legAdder1, equipmentId, psseTransformer.getI(), bus1Id, leg1IsConnected());
+        legConnectivity(legAdder1, equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getI(), "I", bus1Id, leg1IsConnected());
         legAdder1.add();
-        legConnectivity(legAdder2, equipmentId, psseTransformer.getJ(), bus2Id, leg2IsConnected());
+        legConnectivity(legAdder2, equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getJ(), "J", bus2Id, leg2IsConnected());
         legAdder2.add();
-        legConnectivity(legAdder3, equipmentId, psseTransformer.getK(), bus3Id, leg3IsConnected());
+        legConnectivity(legAdder3, equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getK(), "K", bus3Id, leg3IsConnected());
         legAdder3.add();
         ThreeWindingsTransformer twt = adder.add();
 
@@ -248,8 +248,8 @@ class TransformerConverter extends AbstractConverter {
         defineOperationalLimits(twt, voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), voltageLevel3.getNominalV());
     }
 
-    private void legConnectivity(ThreeWindingsTransformerAdder.LegAdder legAdder, String equipmentId, int bus, String busId, boolean isLegConnected) {
-        OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, bus));
+    private void legConnectivity(ThreeWindingsTransformerAdder.LegAdder legAdder, String equipmentId, int busI, int busJ, int busK, int bus, String busEnd, String busId, boolean isLegConnected) {
+        OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, busI, busJ, busK, bus, busEnd));
         if (node1.isPresent()) {
             legAdder.setNode(node1.getAsInt());
         } else {
