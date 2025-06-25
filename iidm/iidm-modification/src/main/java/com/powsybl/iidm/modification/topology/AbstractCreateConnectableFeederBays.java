@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
@@ -227,8 +226,6 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         } else {
             LOGGER.warn(message);
         }
-
-        return false;
     }
 
     /**
