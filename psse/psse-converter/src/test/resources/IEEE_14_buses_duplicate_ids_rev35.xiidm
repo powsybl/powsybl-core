@@ -63,7 +63,7 @@
             <iidm:shunt id="B9-SH 0" sectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="9.976895610165932E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
-            <iidm:staticVarCompensator id="FactsDevice-FACTS_DVCE_0" name="FACTS_DVCE_0" bMin="-0.001312749422390254" bMax="0.001312749422390254" voltageSetpoint="140.07" reactivePowerSetpoint="40.0" regulationMode="VOLTAGE" bus="B7" connectableBus="B7">
+            <iidm:staticVarCompensator id="FactsDevice-FACTS_DVCE_0" name="FACTS_DVCE_0" bMin="-0.001312749422390254" bMax="0.001312749422390254" voltageSetpoint="140.07" reactivePowerSetpoint="40.0" regulationMode="VOLTAGE" regulating="true" bus="B7" connectableBus="B7">
                 <iidm:regulatingTerminal id="L-7-8-1 " side="ONE"/>
             </iidm:staticVarCompensator>
             <iidm:vscConverterStation id="VscConverter-7-VDCLINE1" voltageRegulatorOn="false" lossFactor="0.047824007" voltageSetpoint="138.0" reactivePowerSetpoint="68.6949779823824" bus="B7" connectableBus="B7">
@@ -102,7 +102,7 @@
             </iidm:generator>
             <iidm:load id="B5-L1 " loadType="UNDEFINED" p0="7.6" q0="1.6" bus="B5" connectableBus="B5"/>
             <iidm:load id="B6-L1 " loadType="UNDEFINED" p0="11.2" q0="7.5" bus="B6" connectableBus="B6"/>
-            <iidm:staticVarCompensator id="FactsDevice-FACTS_DVCE_1" name="FACTS_DVCE_1" bMin="-0.002625498844780508" bMax="0.002625498844780508" voltageSetpoint="140.07" reactivePowerSetpoint="0.0" regulationMode="VOLTAGE" bus="B5" connectableBus="B5">
+            <iidm:staticVarCompensator id="FactsDevice-FACTS_DVCE_1" name="FACTS_DVCE_1" bMin="-0.002625498844780508" bMax="0.002625498844780508" voltageSetpoint="140.07" reactivePowerSetpoint="0.0" regulationMode="VOLTAGE" regulating="true" bus="B5" connectableBus="B5">
                 <iidm:regulatingTerminal id="B5-L1 "/>
             </iidm:staticVarCompensator>
         </iidm:voltageLevel>

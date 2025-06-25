@@ -59,7 +59,7 @@
             <iidm:shunt id="B9-SH 1" sectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="9.976895610165932E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
-            <iidm:staticVarCompensator id="FactsDevice-StaticVar" name="StaticVar" bMin="-0.3281873555975635" bMax="0.3281873555975635" voltageSetpoint="140.76" reactivePowerSetpoint="0.0" regulationMode="VOLTAGE" bus="B7" connectableBus="B7"/>
+            <iidm:staticVarCompensator id="FactsDevice-StaticVar" name="StaticVar" bMin="-0.3281873555975635" bMax="0.3281873555975635" voltageSetpoint="140.76" reactivePowerSetpoint="0.0" regulationMode="VOLTAGE" regulating="true" bus="B7" connectableBus="B7"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-4-7-1 " r="0.0" x="39.8248128" g="0.0" b="0.0" ratedU1="138.0" ratedU2="138.0" voltageLevelId1="VL4-7-9" bus1="B4" connectableBus1="B4" voltageLevelId2="VL4-7-9" bus2="B7" connectableBus2="B7">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">

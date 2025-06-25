@@ -208,6 +208,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setRegulatingTerminal(shunt.getTerminal())
                 .setVoltageSetpoint(vl1S4.getNominalV() * 1.02)
                 .setReactivePowerSetpoint(0.0)
+                .setRegulating(true)
                 .add();
 
         ThreeWindingsTransformer t3w = sub4.newThreeWindingsTransformer()
