@@ -343,6 +343,7 @@ class VoltageLevelConverter extends AbstractConverter {
             if (!mergedSet.contains(node)) {
                 int busI = contextExport.getFullExport().getNewPsseBusI();
                 contextForIsolatedNode(voltageLevel, node, busI, psseSubstationId, contextExport);
+                contextExport.getFullExport().addBusIBusView(busI, null);
             }
         }
 
