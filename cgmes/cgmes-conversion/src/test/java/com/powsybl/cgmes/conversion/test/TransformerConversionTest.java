@@ -46,7 +46,7 @@ class TransformerConversionTest {
     void microGridBaseCaseBExfmr2ShuntDefault() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -89.570137, 57.686328, 89.889742, -51.644053);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
     }
 
@@ -55,7 +55,7 @@ class TransformerConversionTest {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -89.570137, 57.686328, 89.889742, -51.644053);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
     }
 
@@ -65,7 +65,7 @@ class TransformerConversionTest {
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END2);
         // Same result as End1, IIDM model and LoadFlowParameters does not allow this configuration
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -89.570137, 57.686328, 89.889742, -51.644053);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
     }
 
@@ -75,7 +75,7 @@ class TransformerConversionTest {
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END1_END2);
         // Same result as End1, IIDM model and LoadFlowParameters does not allow this configuration
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -89.570137, 57.686328, 89.889742, -51.644053);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
     }
 
@@ -85,7 +85,7 @@ class TransformerConversionTest {
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.SPLIT);
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.SPLIT);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -89.685727, 57.132482, 90.000015, -51.115681);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.970891, -15.839366, 94.275697, 20.952066);
         assertTrue(ok);
     }
 
@@ -94,10 +94,10 @@ class TransformerConversionTest {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -89.570137, 57.686328, 89.889742, -51.644053);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 55.904170, -217.568577, -55.101954, 221.870138);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
         assertTrue(ok);
     }
 
@@ -107,10 +107,10 @@ class TransformerConversionTest {
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -90.220362, 21.586854, 90.516482, -16.668693);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -91.807775, 98.389959, 92.184500, -89.747219);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 55.904170, -217.568577, -55.101954, 221.870138);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
         assertTrue(ok);
     }
 
@@ -120,10 +120,10 @@ class TransformerConversionTest {
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -89.570137, 57.686328, 89.889742, -51.644053);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 930.007734, -323.332715, -914.617278, 405.857814);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 58.877292, -201.626411, -58.176878, 205.382102);
         assertTrue(ok);
     }
 
@@ -133,10 +133,10 @@ class TransformerConversionTest {
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END1_END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -89.570137, 57.686328, 89.889742, -51.644053);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 55.904170, -217.568577, -55.101954, 221.870138);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
         assertTrue(ok);
     }
 
@@ -146,10 +146,10 @@ class TransformerConversionTest {
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.X);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -89.570137, 57.686328, 89.889742, -51.644053);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 930.007734, -323.332715, -914.617278, 405.857814);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 58.877292, -201.626411, -58.176878, 205.382102);
         assertTrue(ok);
     }
 
@@ -158,10 +158,10 @@ class TransformerConversionTest {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -89.570137, 57.686328, 89.889742, -51.644053);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 55.904170, -217.568577, -55.101954, 221.870138);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
         assertTrue(ok);
     }
 
@@ -171,10 +171,10 @@ class TransformerConversionTest {
         config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -0.811048, 0.522343, 0.813942, -0.467631);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -0.849849, -0.138409, 0.852591, 0.184615);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 4.227753, -16.453624, -4.167085, 16.778929);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 70.106993, -25.657663, -68.935391, 31.939905);
         assertTrue(ok);
     }
 
@@ -184,10 +184,10 @@ class TransformerConversionTest {
         config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -89.570137, 57.686328, 89.889742, -51.644053);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 55.904170, -217.568577, -55.101954, 221.870138);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
         assertTrue(ok);
     }
 
@@ -197,10 +197,10 @@ class TransformerConversionTest {
         config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.X);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -89.570137, 57.686328, 89.889742, -51.644053);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 55.904170, -217.568577, -55.101954, 221.870138);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
         assertTrue(ok);
     }
 
@@ -452,7 +452,7 @@ class TransformerConversionTest {
         double threshold = 0.01;
         ValidationConfig vconfig = loadFlowValidationConfig(threshold);
         LoadFlowParameters lfParameters = defineLoadflowParameters(vconfig.getLoadFlowParameters(), config);
-        ConversionTester.computeMissingFlows(n, lfParameters);
+        ConversionTester.computeMissingFlows(n, lfParameters, false);
 
         return n;
     }

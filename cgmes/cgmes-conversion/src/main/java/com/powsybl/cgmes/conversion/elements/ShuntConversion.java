@@ -36,7 +36,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         int normalSections = p.asInt("normalSections", 0);
         int sections = fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
         Integer solvedSections = null;
-        double solvedSectionFromSV = p.asDouble("SVsections", Double.NaN);
+        double solvedSectionFromSV = p.asDouble("SVsections");
         if (!Double.isNaN(solvedSectionFromSV)) {
             solvedSections = fromContinuous(solvedSectionFromSV);
         }

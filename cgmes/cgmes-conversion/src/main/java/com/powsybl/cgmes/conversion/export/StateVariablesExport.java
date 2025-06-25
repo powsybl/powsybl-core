@@ -571,12 +571,14 @@ public final class StateVariablesExport {
         for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
             if (leg.hasPhaseTapChanger()) {
                 String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber);
-                writeSvTapStep(ptcId, leg.getPhaseTapChanger().getTapPosition(), cimNamespace, writer, context);
+                PhaseTapChanger phaseTapChanger = leg.getPhaseTapChanger();
+                writeSvTapStep(ptcId, phaseTapChanger.findSolvedTapPosition().orElse(phaseTapChanger.getTapPosition()), cimNamespace, writer, context);
                 writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
             }
             if (leg.hasRatioTapChanger()) {
                 String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber);
-                writeSvTapStep(rtcId, leg.getRatioTapChanger().getTapPosition(), cimNamespace, writer, context);
+                RatioTapChanger ratioTapChanger = leg.getRatioTapChanger();
+                writeSvTapStep(rtcId, ratioTapChanger.findTapPosition().orElse(ratioTapChanger.getTapPosition()), cimNamespace, writer, context);
                 writeSvTapStepHidden(twt, rtcId, cimNamespace, writer, context);
             }
             endNumber++;

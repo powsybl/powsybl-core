@@ -26,9 +26,8 @@ import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ZipArchiveDataSource;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChangerHolder;
-import com.powsybl.iidm.network.RatioTapChangerHolder;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.serde.XMLExporter;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
@@ -46,7 +45,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -227,7 +225,7 @@ public class ConversionTester {
             ValidationConfig config = loadFlowValidationConfig(validateBusBalancesThreshold);
             Path working = Files.createDirectories(fs.getPath("lf-validation"));
 
-            computeMissingFlows(network, config.getLoadFlowParameters());
+            computeMissingFlows(network, config.getLoadFlowParameters(), true);
             assertTrue(ValidationType.BUSES.check(network, config, working));
         }
     }
@@ -242,15 +240,16 @@ public class ConversionTester {
         return config;
     }
 
-    public static void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
+    public static void computeMissingFlows(Network network, LoadFlowParameters lfparams, boolean useSv) {
         LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
             LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
             LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT,
             LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE);
         LoadFlowResultsCompletion lf = new LoadFlowResultsCompletion(p, lfparams);
         try {
-            network.getTwoWindingsTransformerStream().map(RatioTapChangerHolder::getRatioTapChanger).filter(Objects::nonNull).forEach(rtc -> rtc.findSolvedTapPosition().ifPresent(rtc::setTapPosition));
-            network.getTwoWindingsTransformerStream().map(PhaseTapChangerHolder::getPhaseTapChanger).filter(Objects::nonNull).forEach(ptc -> ptc.findSolvedTapPosition().ifPresent(ptc::setTapPosition));
+            if (useSv) { // Replace "input" variables from SSH by SV ones
+                Networks.applySolvedValues(network);
+            }
             lf.run(network, null);
         } catch (Exception e) {
             LOG.error("computeFlows, error {}", e.getMessage());
