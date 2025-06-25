@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.modification.topology.CreateVoltageLevelSections.SwitchParameters;
 
 /**
  * @author Franck Lecuyer {@literal <franck.lecuyer_externe at rte-france.com>}
@@ -28,8 +29,13 @@ public class CreateVoltageLevelSectionsBuilder {
 
     private boolean rightSwitchFictitious = false;
 
+    private String switchPrefixId = null;
+
     public CreateVoltageLevelSections build() {
-        return new CreateVoltageLevelSections(referenceBusbarSectionId, createTheBusbarSectionsAfterTheReferenceBusbarSection, allBusbars, leftSwitchKind, rightSwitchKind, leftSwitchFictitious, rightSwitchFictitious);
+        return new CreateVoltageLevelSections(referenceBusbarSectionId, createTheBusbarSectionsAfterTheReferenceBusbarSection, allBusbars,
+            new SwitchParameters(leftSwitchKind, leftSwitchFictitious),
+            new SwitchParameters(rightSwitchKind, rightSwitchFictitious),
+            switchPrefixId);
     }
 
     public CreateVoltageLevelSectionsBuilder withReferenceBusbarSectionId(String referenceBusbarSectionId) {
@@ -64,6 +70,11 @@ public class CreateVoltageLevelSectionsBuilder {
 
     public CreateVoltageLevelSectionsBuilder withRightSwitchFictitious(boolean rightSwitchFictitious) {
         this.rightSwitchFictitious = rightSwitchFictitious;
+        return this;
+    }
+
+    public CreateVoltageLevelSectionsBuilder withSwitchPrefixId(String switchPrefixId) {
+        this.switchPrefixId = switchPrefixId;
         return this;
     }
 }

@@ -64,21 +64,25 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
 
     private final boolean rightSwitchFictitious; // Fictitious(true) or not(false) for the new switches created, right to the new busbar sections created
 
+    private final String switchPrefixId;
+
     CreateVoltageLevelSections(String referenceBusbarSectionId,
                                boolean createTheBusbarSectionsAfterTheReferenceBusbarSection,
                                boolean createOnAllParallelBusbars,
-                               SwitchKind leftSwitchKind,
-                               SwitchKind rightSwitchKind,
-                               boolean leftSwitchFictitious,
-                               boolean rightSwitchFictitious) {
+                               SwitchParameters leftSwitchParameters,
+                               SwitchParameters rightSwitchParameters,
+                               String switchPrefixId) {
         this.referenceBusbarSectionId = Objects.requireNonNull(referenceBusbarSectionId, "Reference busbar section id not defined");
         this.createTheBusbarSectionsAfterTheReferenceBusbarSection = createTheBusbarSectionsAfterTheReferenceBusbarSection;
         this.createOnAllParallelBusbars = createOnAllParallelBusbars;
-        this.leftSwitchKind = leftSwitchKind;
-        this.rightSwitchKind = rightSwitchKind;
-        this.leftSwitchFictitious = leftSwitchFictitious;
-        this.rightSwitchFictitious = rightSwitchFictitious;
+        this.leftSwitchKind = leftSwitchParameters.switchKind;
+        this.rightSwitchKind = rightSwitchParameters.switchKind;
+        this.leftSwitchFictitious = leftSwitchParameters.fictitious;
+        this.rightSwitchFictitious = rightSwitchParameters.fictitious;
+        this.switchPrefixId = switchPrefixId;
     }
+
+    record SwitchParameters(SwitchKind switchKind, boolean fictitious) { }
 
     @Override
     public String getName() {
@@ -365,7 +369,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         int busbarSection2Num = busbarSection2.getExtension(BusbarSectionPosition.class).getSectionIndex();
 
         // Prefix
-        String chunkingPrefixId = namingStrategy.getChunkPrefix(vl.getId(), List.of(switchKind), busbarNum, busbarSection1Num, busbarSection2Num);
+        String chunkingPrefixId = namingStrategy.getChunkPrefix(switchPrefixId, List.of(switchKind), busbarNum, busbarSection1Num, busbarSection2Num);
 
         // Add the first disconnector
         createNBDisconnector(busbarSection1Node, firstDisconnectorNode2, namingStrategy.getDisconnectorBetweenChunksId(busbarSection1, chunkingPrefixId, busbarSection1Node, firstDisconnectorNode2), vl.getNodeBreakerView(), false, fictitious);
