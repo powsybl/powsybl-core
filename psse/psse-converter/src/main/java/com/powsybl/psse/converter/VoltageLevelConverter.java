@@ -122,7 +122,7 @@ class VoltageLevelConverter extends AbstractConverter {
                 PsseSubstationEquipmentTerminal equipmentTerminal = busEquipmentTerminalList.get(index);
 
                 String equipmentId = getNodeBreakerEquipmentId(equipmentTerminal.getType(), equipmentTerminal.getI(), equipmentTerminal.getJ(), equipmentTerminal.getK(), equipmentTerminal.getId());
-                String equipmentIdBus = getNodeBreakerEquipmentIdBus(equipmentId, bus, getEquipmentTerminalEnd(equipmentId, equipmentTerminal, bus, index));
+                String equipmentIdBus = getNodeBreakerEquipmentIdBus(equipmentId, bus, getEquipmentTerminalEnd(equipmentTerminal, bus, index));
                 // IIDM only allows one piece of equipment by node
                 if (nodesWithEquipment.contains(equipmentTerminal.getNi())) {
                     lastNode++;
@@ -156,7 +156,7 @@ class VoltageLevelConverter extends AbstractConverter {
         return getNodeBreakerEquipmentId(equipmentTerminal.getType(), equipmentTerminal.getI(), equipmentTerminal.getJ(), equipmentTerminal.getK(), equipmentTerminal.getId()) + "." + equipmentTerminal.getI();
     }
 
-    private static int getEquipmentTerminalEnd(String eqId, PsseSubstationEquipmentTerminal equipmentTerminal, int bus, int busIndex) {
+    private static int getEquipmentTerminalEnd(PsseSubstationEquipmentTerminal equipmentTerminal, int bus, int busIndex) {
         List<Integer> sortedNonZeroBuses = Stream.of(equipmentTerminal.getI(), equipmentTerminal.getJ(), equipmentTerminal.getK()).filter(e -> e != 0).sorted().toList();
         int index = sortedNonZeroBuses.indexOf(bus);
         if (index == -1) {
@@ -185,7 +185,7 @@ class VoltageLevelConverter extends AbstractConverter {
     }
 
     static void updateNodeVoltage(PsseSubstation psseSubstation, Network network, ContainersMapping containersMapping) {
-        psseSubstation.getNodes().stream().forEach(psseNode -> {
+        psseSubstation.getNodes().forEach(psseNode -> {
             VoltageLevel voltageLevel = network.getVoltageLevel(containersMapping.getVoltageLevelId(psseNode.getI()));
             if (voltageLevel != null) {
                 findBusViewNode(voltageLevel, psseNode.getNi())
