@@ -251,4 +251,31 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     default IdentifiableType getType() {
         return IdentifiableType.GENERATOR;
     }
+
+    default void applySolvedValues() {
+        setTargetPToP();
+        setTargetQToQ();
+        setTargetVToV();
+    }
+
+    default void setTargetPToP() {
+        double p = this.getTerminal().getP();
+        if (!Double.isNaN(p)) {
+            this.setTargetP(-p);
+        }
+    }
+
+    default void setTargetQToQ() {
+        double q = this.getTerminal().getQ();
+        if (!Double.isNaN(q)) {
+            this.setTargetQ(-q);
+        }
+    }
+
+    default void setTargetVToV() {
+        Bus bus = this.getTerminal().getBusView().getBus();
+        if (bus != null && !Double.isNaN(bus.getV())) {
+            this.setTargetV(bus.getV());
+        }
+    }
 }

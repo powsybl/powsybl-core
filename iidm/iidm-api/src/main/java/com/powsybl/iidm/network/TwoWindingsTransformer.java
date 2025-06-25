@@ -234,4 +234,17 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
     default IdentifiableType getType() {
         return IdentifiableType.TWO_WINDINGS_TRANSFORMER;
     }
+
+    default void applySolvedValues() {
+        setRatioTapPositionToSolvedTapPosition();
+        setPhaseTapPositionToSolvedTapPosition();
+    }
+
+    default void setRatioTapPositionToSolvedTapPosition() {
+        this.getOptionalRatioTapChanger().ifPresent(TapChanger::applySolvedValues);
+    }
+
+    default void setPhaseTapPositionToSolvedTapPosition() {
+        this.getOptionalPhaseTapChanger().ifPresent(TapChanger::applySolvedValues);
+    }
 }
