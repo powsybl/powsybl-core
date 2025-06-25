@@ -263,6 +263,8 @@ class VoltageLevelConverter extends AbstractConverter {
 
     private static void createBusBranchContextExportForFullExport(VoltageLevel voltageLevel, ContextExport contextExport) {
         voltageLevel.getBusView().getBuses().forEach(bus -> contextExport.getFullExport().addBusIBusView(contextExport.getFullExport().getNewPsseBusI(), bus));
+        voltageLevel.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired())
+                .forEach(danglingLine -> contextExport.getFullExport().addDanglingLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
     }
 
     private static void createBusBranchContextExportForUpdating(VoltageLevel voltageLevel, ContextExport contextExport) {
@@ -308,6 +310,10 @@ class VoltageLevelConverter extends AbstractConverter {
         Map<Integer, Integer> representativeForInternalConnectionsNodes = findRepresentativeNodes(voltageLevel);
         List<Set<Integer>> connectedSetsBySwitchesAndInternalConnections = connectedSetsBySwitchesAndInternalConnections(voltageLevel);
 
+        if (connectedSetsBySwitchesAndInternalConnections.isEmpty()) {
+            return false;
+        }
+
         // only getMaxPsseNodeBySubstation psse nodes are allowed inside a substation
         if (contextExport.getFullExport().getLastPsseNode(psseSubstationId) +
                 newPsseNodes(connectedSetsBySwitchesAndInternalConnections, representativeForInternalConnectionsNodes)
@@ -315,9 +321,7 @@ class VoltageLevelConverter extends AbstractConverter {
             return false;
         }
 
-        if (!connectedSetsBySwitchesAndInternalConnections.isEmpty()) {
-            contextExport.getFullExport().addPsseSubstationIdVoltageLevel(psseSubstationId, voltageLevel);
-        }
+        contextExport.getFullExport().addPsseSubstationIdVoltageLevel(psseSubstationId, voltageLevel);
 
         connectedSetsBySwitchesAndInternalConnections.forEach(connectedSet -> {
             int busI = contextExport.getFullExport().getNewPsseBusI();
@@ -341,7 +345,7 @@ class VoltageLevelConverter extends AbstractConverter {
         voltageLevel.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired())
                 .forEach(danglingLine -> contextExport.getFullExport().addDanglingLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
 
-        // add isolated nodes, nodes associated to a terminal not considered until now
+        // add isolated nodes, associated with terminals not previously considered
         Set<Integer> mergedSet = connectedSetsBySwitchesAndInternalConnections.stream().flatMap(Set::stream).collect(Collectors.toSet());
         for (int node : voltageLevel.getNodeBreakerView().getNodes()) {
             if (!mergedSet.contains(node)) {
