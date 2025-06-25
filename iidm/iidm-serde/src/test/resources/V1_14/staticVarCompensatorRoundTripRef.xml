@@ -16,7 +16,7 @@
                 <iidm:bus id="B2"/>
             </iidm:busBreakerTopology>
             <iidm:load id="L2" loadType="UNDEFINED" p0="100.0" q0="50.0" bus="B2" connectableBus="B2"/>
-            <iidm:staticVarCompensator id="SVC2" bMin="2.0E-4" bMax="8.0E-4" voltageSetpoint="390.0" regulationMode="VOLTAGE" bus="B2" connectableBus="B2">
+            <iidm:staticVarCompensator id="SVC2" bMin="2.0E-4" bMax="8.0E-4" voltageSetpoint="390.0" regulating="true" regulationMode="VOLTAGE" bus="B2" connectableBus="B2">
                 <iidm:property name="test" value="test"/>
             </iidm:staticVarCompensator>
         </iidm:voltageLevel>

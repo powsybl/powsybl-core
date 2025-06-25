@@ -485,7 +485,7 @@ class TransformerConverter extends AbstractConverter {
                 .setB(step.getB1())
                 .setG(step.getG1())
                 .endStep());
-        ptc.setRegulating(false).setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP).add();
+        ptc.setRegulating(false).setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER).add();
     }
 
     private static Complex impedanceAdjustmentAfterMovingRatio(Complex impedance, double a) {
@@ -780,6 +780,7 @@ class TransformerConverter extends AbstractConverter {
         rtc.setTargetV(targetV)
             .setTargetDeadband(targetDeadBand)
             .setRegulationTerminal(regulatingTerminal)
+            .setLoadTapChangingCapabilities(regulating)
             .setRegulating(regulating);
 
         return regulating;
