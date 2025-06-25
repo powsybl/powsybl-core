@@ -11,6 +11,7 @@
                 <iidm:switch id="VL1-Sw-2-3-1 " name="Sw-LineToBus2" kind="BREAKER" retained="false" open="false" node1="2" node2="3"/>
                 <iidm:switch id="VL1-Sw-2-4-1 " name="Sw-T2wToBus3" kind="BREAKER" retained="false" open="false" node1="2" node2="4"/>
                 <iidm:switch id="VL1-Sw-2-5-1 " name="Sw-T3wToBus3Bus4" kind="BREAKER" retained="false" open="false" node1="2" node2="5"/>
+                <iidm:bus v="138.0" angle="0.0" nodes="1,2,3,4,5,6,7"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="B1-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="false" targetP="232.392" targetV="146.28" targetQ="-16.549" node="7">
                 <iidm:regulatingTerminal id="VL1-Busbar-2"/>
@@ -26,6 +27,7 @@
                 <iidm:switch id="VL3-Sw-1-3-1 " name="Sw-T2w" kind="BREAKER" retained="false" open="false" node1="1" node2="3"/>
                 <iidm:switch id="VL3-Sw-1-4-1 " name="Sw-T3w" kind="BREAKER" retained="false" open="false" node1="1" node2="4"/>
                 <iidm:switch id="VL3-Sw-2-5-1 " name="Sw-Load" kind="BREAKER" retained="false" open="false" node1="2" node2="5"/>
+                <iidm:bus v="45.0" angle="0.0" nodes="1,2,3,4,5"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="B3-L1 " loadType="UNDEFINED" p0="94.2" q0="19.0" node="5"/>
         </iidm:voltageLevel>
@@ -36,6 +38,7 @@
                 <iidm:switch id="VL4-Sw-1-2-1 " name="Sw-BusBars" kind="BREAKER" retained="false" open="false" node1="1" node2="2"/>
                 <iidm:switch id="VL4-Sw-1-3-1 " name="Sw-T3w" kind="BREAKER" retained="false" open="false" node1="1" node2="3"/>
                 <iidm:switch id="VL4-Sw-2-4-1 " name="Sw-Load" kind="BREAKER" retained="false" open="false" node1="2" node2="4"/>
+                <iidm:bus v="21.0" angle="0.0" nodes="1,2,3,4"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="B4-L1 " loadType="UNDEFINED" p0="47.8" q0="-3.9" node="4"/>
         </iidm:voltageLevel>
@@ -75,6 +78,7 @@
                 <iidm:switch id="VL2-Sw-1-3-1 " name="Sw-LineToBus1" kind="BREAKER" retained="false" open="false" node1="1" node2="3"/>
                 <iidm:switch id="VL2-Sw-1-4-1 " name="Sw-Load" kind="BREAKER" retained="false" open="false" node1="1" node2="4"/>
                 <iidm:switch id="VL2-Sw-2-5-1 " name="Sw-FixedShunt" kind="BREAKER" retained="false" open="false" node1="2" node2="5"/>
+                <iidm:bus v="138.0" angle="0.0" nodes="1,2,3,4,5"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="21.7" q0="12.7" node="4"/>
             <iidm:shunt id="B2-SH1 " sectionCount="1" voltageRegulatorOn="false" node="5">
@@ -91,6 +95,7 @@
                 <iidm:switch id="VL5-Sw-1-3-1 " name="Sw-DcLine" kind="BREAKER" retained="false" open="false" node1="1" node2="3"/>
                 <iidm:switch id="VL5-Sw-1-4-1 " name="Sw-Load" kind="BREAKER" retained="false" open="false" node1="1" node2="4"/>
                 <iidm:switch id="VL5-Sw-2-5-1 " name="Sw-SwitchedShunt" kind="BREAKER" retained="false" open="false" node1="2" node2="5"/>
+                <iidm:bus v="138.0" angle="0.0" nodes="1,2,3,4,5"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="B5-L1 " loadType="UNDEFINED" p0="7.6" q0="1.6" node="4"/>
             <iidm:shunt id="B5-SwSH1 " sectionCount="2" voltageRegulatorOn="false" node="5">

@@ -145,15 +145,6 @@ class VoltageLevelConverter extends AbstractConverter {
                         .setNode(psseNode.getNi())
                         .add());
 
-        // update voltages
-        psseSubstation.getNodes().stream()
-                .filter(psseNode -> nodesSet.contains(psseNode.getNi()))
-                .forEach(psseNode -> findBusViewNode(voltageLevel, psseNode.getNi())
-                        .ifPresent(busView -> {
-                            busView.setV(psseNode.getVm() * voltageLevel.getNominalV());
-                            busView.setAngle(psseNode.getVa());
-                        }));
-
         // add data for control, if only the bus is specified the control will be associated with the default node
         int defaultNode = nodesSet.stream().sorted().findFirst().orElseThrow();
         nodeBreakerImport.addBusControl(bus, voltageLevelId, defaultNode);
@@ -191,6 +182,19 @@ class VoltageLevelConverter extends AbstractConverter {
 
     private static int connectedGenerators(PsseSubstation psseSubstation, int node) {
         return (int) psseSubstation.getEquipmentTerminals().stream().filter(eqt -> eqt.getNi() == node && eqt.getType().equals(PSSE_GENERATOR.getTextCode())).count();
+    }
+
+    static void updateNodeVoltage(PsseSubstation psseSubstation, Network network, ContainersMapping containersMapping) {
+        psseSubstation.getNodes().stream().forEach(psseNode -> {
+            VoltageLevel voltageLevel = network.getVoltageLevel(containersMapping.getVoltageLevelId(psseNode.getI()));
+            if (voltageLevel != null) {
+                findBusViewNode(voltageLevel, psseNode.getNi())
+                        .ifPresent(busView -> {
+                            busView.setV(psseNode.getVm() * voltageLevel.getNominalV());
+                            busView.setAngle(psseNode.getVa());
+                        });
+            }
+        });
     }
 
     static ContextExport createContextExport(Network network, PssePowerFlowModel psseModel, boolean isFullExport) {

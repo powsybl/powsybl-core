@@ -9,6 +9,7 @@
                 <iidm:switch id="VL1-Sw-1-3-1 " name="Sw-BranchToBus2" kind="BREAKER" retained="false" open="false" node1="1" node2="3"/>
                 <iidm:switch id="VL1-Sw-2-4-1 " name="Sw-BranchToBus5" kind="BREAKER" retained="false" open="false" node1="2" node2="4"/>
                 <iidm:switch id="VL1-Sw-2-5-1 " name="Sw-Gen1" kind="BREAKER" retained="false" open="false" node1="2" node2="5"/>
+                <iidm:bus v="138.0" angle="0.0" nodes="1,2,3,4,5"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="B1-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="false" targetP="232.392" targetV="146.28" targetQ="-16.549" node="5">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
@@ -27,6 +28,7 @@
                 <iidm:switch id="VL2-Sw-2-3-1 " name="Sw-BranchToBus3" kind="BREAKER" retained="false" open="false" node1="2" node2="3"/>
                 <iidm:switch id="VL2-Sw-2-4-1 " name="Sw-BranchToBus4" kind="BREAKER" retained="false" open="false" node1="2" node2="4"/>
                 <iidm:switch id="VL2-Sw-2-5-1 " name="Sw-BranchToBus5" kind="BREAKER" retained="false" open="false" node1="2" node2="5"/>
+                <iidm:bus v="138.0" angle="0.0" nodes="1,2,3,4,5,6,7,8"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="B2-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="true" targetP="40.0" targetV="144.20999999999998" targetQ="43.556" node="7">
                 <iidm:minMaxReactiveLimits minQ="-40.0" maxQ="50.0"/>

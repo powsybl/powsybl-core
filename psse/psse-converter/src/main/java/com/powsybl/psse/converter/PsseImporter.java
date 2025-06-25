@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.psse.converter.AbstractConverter.getSubstationIdFromBuses;
 import static com.powsybl.psse.converter.AbstractConverter.getSubstationIdFromPsseSubstationIds;
+import static com.powsybl.psse.converter.VoltageLevelConverter.updateNodeVoltage;
 
 /**
  * @author JB Heyberger {@literal <jean-baptiste.heyberger at rte-france.com>}
@@ -256,6 +257,12 @@ public class PsseImporter implements Importer {
         for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
             new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version, nodeBreakerImport).addControl();
         }
+
+        // Update node voltages
+        for (PsseSubstation psseSubstation : psseModel.getSubstations()) {
+            updateNodeVoltage(psseSubstation, network, containersMapping);
+        }
+
         return network;
     }
 
