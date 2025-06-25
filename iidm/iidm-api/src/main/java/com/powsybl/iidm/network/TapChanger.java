@@ -68,6 +68,27 @@ public interface TapChanger<
     }
 
     /**
+     * Get the solved tap position.
+     * Can be null if no calculation has been done on the network.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     * </p>
+     */
+    Integer getSolvedTapPosition();
+
+    /**
+     * Get an optional containing the solved tap position if it is defined.
+     * Otherwise, get an empty optional.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default OptionalInt findSolvedTapPosition() {
+        return OptionalInt.of(getSolvedTapPosition());
+    }
+
+    /**
      * Set the current tap position.
      * <p>
      * It is expected to be contained between the lowest and the highest tap position.
@@ -84,6 +105,25 @@ public interface TapChanger<
      * Note: this can be done <b>only</b> in SCADA validation level.
      */
     default C unsetTapPosition() {
+        throw ValidationUtil.createUnsetMethodException();
+    }
+
+    /**
+     * Set the solved tap position.
+     * <p>
+     * It is expected to be contained between the lowest and the highest tap position.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     *
+     * @param solvedTapPosition the solved tap position
+     */
+    C setSolvedTapPosition(int solvedTapPosition);
+
+    /**
+     * Unset the solved tap position: solved tap position is now undefined.
+     */
+    default C unsetSolvedTapPosition() {
         throw ValidationUtil.createUnsetMethodException();
     }
 
@@ -106,12 +146,20 @@ public interface TapChanger<
     R stepsReplacer();
 
     /**
-     * Get the current step.
+     * Get the current step associated to the tap position.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
      */
     S getCurrentStep();
+
+    /**
+     * Get the current step associated to the solved tap position.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    S getSolvedCurrentStep();
 
     /**
      * Get the position of the neutral step (rho = 1, alpha = 0) if it exists.
