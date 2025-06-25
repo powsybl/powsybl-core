@@ -321,6 +321,7 @@
                     <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
                 </xs:sequence>
                 <xs:attribute name="sectionCount" use="required" type="xs:int"/>
+                <xs:attribute name="solvedSectionCount" type="xs:int"/>
                 <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
                 <xs:attribute name="targetV" use="optional" type="xs:double"/>
                 <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
@@ -589,6 +590,7 @@
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
+        <xs:attribute name="solvedTapPosition" type="xs:int"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
         <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
@@ -608,6 +610,7 @@
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
+        <xs:attribute name="solvedTapPosition" type="xs:int"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
         <xs:attribute name="regulationMode" use="required" type="iidm:PhaseRegulationMode"/>
