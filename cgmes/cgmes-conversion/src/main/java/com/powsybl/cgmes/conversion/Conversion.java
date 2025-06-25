@@ -36,7 +36,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
