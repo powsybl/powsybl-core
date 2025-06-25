@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.util.SwitchPredicates;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public abstract class AbstractConnectionDisconnectionPropagationTest {
 
     @Test
+    @DisplayName("Fail to disconnect a tee-point without propagation")
     void disconnectionOnTeePointTestWithoutPropagation() {
         // Network
         Network network = createNetworkWithTeePoint();
@@ -53,6 +54,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @DisplayName("Fail to disconnect a tee-point with propagation due to a fictitious switch on the second line")
     void disconnectionOnTeePointTestWithPropagationButSomeFictitiousSwitches() {
         // Network
         Network network = createNetworkWithTeePoint();
@@ -79,6 +81,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @DisplayName("Disconnect a tee-point with propagation")
     void disconnectionOnTeePointTestWithPropagation() {
         // Network
         Network network = createNetworkWithTeePoint();
@@ -111,6 +114,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @DisplayName("Connect a tee-point without propagation")
     void connectionOnTeePointTestWithoutPropagation() {
         // Network
         Network network = createNetworkWithTeePoint();
@@ -141,6 +145,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @DisplayName("Fail to connect a tee-point with propagation due to fictitious switch on the second line")
     void connectionOnTeePointTestWithPropagationButFictitiousSwitches() {
         // Network
         Network network = createNetworkWithTeePoint();
@@ -175,6 +180,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @DisplayName("Connect a tee-point with propagation")
     void connectionOnTeePointTestWithPropagation() {
         // Network
         Network network = createNetworkWithTeePoint();
@@ -207,6 +213,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @DisplayName("Fail to disconnect a line connected to a fictitious voltage level without propagation")
     void disconnectionThroughVoltageLevelTestWithoutPropagation() {
         // Network
         Network network = createNetworkWithFictitiousVoltageLevel();
@@ -227,6 +234,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @DisplayName("Fail to disconnect a line connected to a fictitious voltage level with propagation due to a fictitious switch on the opposite line")
     void disconnectionThroughVoltageLevelTestWithPropagationButSomeFictitiousSwitches() {
         // Network
         Network network = createNetworkWithFictitiousVoltageLevel();
@@ -252,6 +260,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @DisplayName("Disconnect a line connected to a fictitious voltage level with propagation")
     void disconnectionThroughVoltageLevelTestWithPropagation() {
         // Network
         Network network = createNetworkWithFictitiousVoltageLevel();
@@ -282,13 +291,13 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
-    @Disabled("Should B_L1_VL2 or L1_1_BREAKER be opened?")
-    void disconnectionThroughVoltageLevelTestWithPropagationAndOpenSwitchInFictitiousVoltageLevelOnOutgoingLine() {
+    @DisplayName("Disconnect a line connected to a fictitious voltage level without propagation but by operating on fictitious switches")
+    void disconnectionThroughVoltageLevelTestWithPropagationAndOpenSwitchInFictitiousVoltageLevelOnIncomingLine() {
         // Network
         Network network = createNetworkWithFictitiousVoltageLevel();
 
         // Switch that will be operated
-        List<String> switchList = List.of("B_L1_VL1", "B_L1_VL2");
+        List<String> switchList = List.of("B_L1_VL1", "L1_1_BREAKER");
 
         // Lines
         Line line1 = network.getLine("L1_1");
@@ -305,14 +314,15 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
         assertTrue(line1.disconnect(SwitchPredicates.IS_OPEN.negate(), true));
 
         // Check that the 3 lines are disconnected on one side only
-        assertLineConnection(line1, false, true);
-        assertLineConnection(line2, true, false);
+        assertLineConnection(line1, false, false);
+        assertLineConnection(line2, true, true);
 
         // Check the switches that were opened
         switchList.forEach(s -> assertTrue(network.getSwitch(s).isOpen()));
     }
 
     @Test
+    @DisplayName("Connect a line connected to a fictitious voltage level without propagation")
     void connectionThroughVoltageLevelTestWithoutPropagation() {
         // Network
         Network network = createNetworkWithFictitiousVoltageLevel();
@@ -340,6 +350,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @DisplayName("Fail to connect a line through a fictitious voltage level with propagation due to a fictitious switch on the opposite line")
     void connectionThroughVoltageLevelTestWithPropagationButFictitiousSwitches() {
         // Network
         Network network = createNetworkWithFictitiousVoltageLevel();
@@ -371,6 +382,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @DisplayName("Connect a line through a fictitious voltage level with propagation")
     void connectionThroughVoltageLevelTestWithPropagation() {
         // Network
         Network network = createNetworkWithFictitiousVoltageLevel();
@@ -401,7 +413,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
-    @Disabled("Test fails since the other line is not connected to the fictitious voltage level due to an open switch")
+    @DisplayName("Connect a line through a fictitious voltage level with propagation even if the opposite line is fully disconnected")
     void connectionThroughVoltageLevelTestWithPropagationAndOpenSwitchInFictitiousVoltageLevelOnOutgoingLine() {
         // Network
         Network network = createNetworkWithFictitiousVoltageLevel();
@@ -432,7 +444,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
-    @Disabled("Test fails since it stops after closing the first fictitious switch")
+    @DisplayName("Connect a line through a fictitious voltage level with propagation even if the incoming line is fully disconnected")
     void connectionThroughVoltageLevelTestWithPropagationAndOpenSwitchInFictitiousVoltageLevelOnIncomingLine() {
         // Network
         Network network = createNetworkWithFictitiousVoltageLevel();
@@ -446,7 +458,6 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
         // Lines
         Line line1 = network.getLine("L1_1");
         Line line2 = network.getLine("L1_2");
-        List<Line> lines = List.of(line1, line2);
 
         // Check that the 2 lines are disconnected on one side only
         assertLineConnection(line1, false, false);
@@ -455,14 +466,18 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
         // Connect the line with propagation
         assertTrue(line1.connect(SwitchPredicates.IS_OPEN, true));
 
-        // Check that the 2 lines are connected on both sides
-        lines.forEach(line -> line.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected())));
+        // Since fictitious switches can be operated, only the first line will be connected
+        assertLineConnection(line1, true, true);
+        assertLineConnection(line2, true, false);
 
         // Check the switches that were closed
-        switchList.forEach(s -> assertFalse(network.getSwitch(s).isOpen()));
+        assertFalse(network.getSwitch("B_L1_VL1").isOpen());
+        assertFalse(network.getSwitch("L1_1_BREAKER").isOpen());
+        assertTrue(network.getSwitch("B_L1_VL2").isOpen());
     }
 
     @Test
+    @DisplayName("Disconnect a double tee-point with propagation")
     void disconnectionOnTwoTeePointsTestWithPropagation() {
         // Network
         Network network = createNetworkWithTwoTeePoints();
@@ -499,6 +514,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @DisplayName("Fail to disconnect a double tee-point with propagation due to fictitious switches")
     void disconnectionOnTwoTeePointsTestWithPropagationButFictitiousSwitches() {
         // Network
         Network network = createNetworkWithTwoTeePoints();
@@ -526,6 +542,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @DisplayName("Disconnect a double looped tee-point with propagation")
     void disconnectionOnTwoTeePointsAndLoopTestWithPropagation() {
         // Network
         Network network = createNetworkWithTwoTeePointsAndLoop();
@@ -562,6 +579,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @DisplayName("Connect a triple looped tee-point with propagation")
     void connectionOnThreeTeePointsAndLoopTestWithPropagation() {
         // Network
         Network network = createNetworkWithThreeTeePointsAndLoop();
@@ -600,6 +618,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     }
 
     @Test
+    @DisplayName("Disconnect a triple looped tee-point with propagation")
     void disconnectionOnThreeTeePointsAndLoopTestWithPropagation() {
         // Network
         Network network = createNetworkWithThreeTeePointsAndLoop();
@@ -1386,34 +1405,42 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
     /**
      * <pre>
      *                              BBS1 (VL1)
-     *      ----------------------------0-------------------------------
-     *          |                                                  |
-     *      D_L1_BBS1                                          D_L1_BBS1b
-     *          |                                                  |
-     *          1                                                  1
-     *          |                                                  |
-     *       B_L1_VL1                                          B_L1_VL1b
-     *          |                                                  |
-     *          2 (VL1)                                      (VL1) 2
-     *          |                                                  |
-     *        L1_1                                               L1_2
-     *          |                                                  |
-     * (L1_VL1) 0--------1----------2--L1_mid--0--------1----------2 (L1_VL2)
+     *                              ----0----
+     *                                  |
+     *                              D_L1_BBS1
+     *                                  |
+     *                                  1
+     *                                  |
+     *                              B_L1_VL1
+     *                                  |
+     *                                  2 (VL1)
+     *                                  |
+     *                                L1_1
+     *                                  |
+     *                                  0 (L1_VL1)
+     *                                  |
+     *         (L1_VL1)  2--------------1---------------3 (L1_VL1)
      *                   |                              |
-     *                   3 (L1_VL1)            (L1_VL2) 3
+     *              L_fVL1_fVL2                     L_fVL3_fVL1
      *                   |                              |
-     *                 L1_3                           L1_4
+     *                   3                              2
      *                   |                              |
-     *                   1 (VL3)                  (VL4) 1
+     *         (L1_VL2)  1-----2----L_fVL2_fVL3----3----1  (L1_VL3)
      *                   |                              |
-     *             L1_VL3_BREAKER                 L1_VL4_BREAKER
+     *                   0                              3
      *                   |                              |
-     *                   2                              2
+     *                 L1_2                           L1_3
      *                   |                              |
-     *         L1_VL3_DISCONNECTOR_2_0        L1_VL4_DISCONNECTOR_2_0
+     *                   2 (VL2)                  (VL3) 2
+     *                   |                              |
+     *               B_L1_VL2                       B_L1_VL3
+     *                   |                              |
+     *                   1                              1
+     *                   |                              |
+     *               D_L1_BBS2                      D_L1_BBS3
      *                   |                              |
      *           --------0----------            --------0----------
-     *               BBS3 (VL3)                     BBS4 (VL4)
+     *               BBS2 (VL2)                     BBS3 (VL3)
      * </pre>
      */
     public Network createNetworkWithThreeTeePointsAndLoop() {

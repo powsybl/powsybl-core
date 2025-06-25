@@ -1289,17 +1289,19 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     private boolean canPropagateConnection(NodeTerminal previousTerminal, Predicate<Switch> isSwitchOperable,
                                            ConnectionElementsContainer connectionElementsContainer) {
         // Find the paths from the line to other lines
-        List<TIntArrayList> pathsFromLine = graph.findAllPaths(previousTerminal.getNode(), NodeBreakerTopologyModel::isConnectableBranch, SwitchPredicates.IS_OPEN);
+        List<TIntArrayList> pathsFromLine = graph.findAllPaths(previousTerminal.getNode(),
+            NodeBreakerTopologyModel::isConnectableBranch,
+            sw -> checkNonClosableSwitch(sw, isSwitchOperable));
         if (!pathsFromLine.isEmpty()) {
 
             // Initialize a list of lines connected to the BusbarSection
-            Map<LineImpl, ThreeSides> linesAndSidesConnectedToIncomingLine = addOppositeLines(pathsFromLine, previousTerminal);
+            Set<LineImpl> linesAndSidesConnectedToIncomingLine = addOppositeLines(pathsFromLine, previousTerminal);
 
             // We check if the opposite side of each line can be connected
-            for (Map.Entry<LineImpl, ThreeSides> lineAndSide : linesAndSidesConnectedToIncomingLine.entrySet()) {
+            for (LineImpl line : linesAndSidesConnectedToIncomingLine) {
                 // If any line has already been seen or cannot be connected, we return false
-                if (!connectionElementsContainer.branches().contains(lineAndSide.getKey()) &&
-                    !lineAndSide.getKey().connect(isSwitchOperable, lineAndSide.getValue(), true, false, connectionElementsContainer)) {
+                if (!connectionElementsContainer.branches().contains(line)
+                    && !line.connect(isSwitchOperable, null, true, false, connectionElementsContainer)) {
                     return false;
                 }
             }
@@ -1309,9 +1311,9 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         return false;
     }
 
-    private Map<LineImpl, ThreeSides> addOppositeLines(List<TIntArrayList> pathsFromLine, NodeTerminal previousTerminal) {
+    private Set<LineImpl> addOppositeLines(List<TIntArrayList> pathsFromLine, NodeTerminal previousTerminal) {
         // Initialize the map
-        Map<LineImpl, ThreeSides> linesAndSidesConnectedToIncomingLine = new HashMap<>();
+        Set<LineImpl> linesConnectedToIncomingLine = new HashSet<>();
 
         // Each path is visited, and we add to the list the line at the end
         for (TIntArrayList pathFromLine : pathsFromLine) {
@@ -1320,14 +1322,14 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
             // Connectables should only be lines by now, but in case...
             if (terminalEndOfPathFromLine.getConnectable() instanceof LineImpl line) {
-                linesAndSidesConnectedToIncomingLine.putIfAbsent(line, line.getTerminal1() == terminalEndOfPathFromLine ? ThreeSides.TWO : ThreeSides.ONE);
+                linesConnectedToIncomingLine.add(line);
             } else {
                 throw new PowsyblException("Unexpected connectable type " + terminalEndOfPathFromLine.getConnectable().getClass().getName()
                     + " for connectable " + terminalEndOfPathFromLine.getConnectable().getId());
             }
         }
 
-        return linesAndSidesConnectedToIncomingLine;
+        return linesConnectedToIncomingLine;
     }
 
     private Terminal getEndOfPathTerminal(TIntArrayList path, NodeTerminal previousTerminal) {
