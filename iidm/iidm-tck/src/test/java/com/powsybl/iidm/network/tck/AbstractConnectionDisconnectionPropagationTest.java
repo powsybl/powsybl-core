@@ -1003,7 +1003,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
      *               BBS3 (VL3)                     BBS4 (VL4)
      * </pre>
      */
-    public Network createNetworkWithTwoTeePoints() {
+    private Network createNetworkWithTwoTeePoints() {
         // Base network
         Network network = createBaseNetwork();
 
@@ -1211,7 +1211,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
      *               BBS3 (VL3)                     BBS4 (VL4)
      * </pre>
      */
-    public Network createNetworkWithTwoTeePointsAndLoop() {
+    private Network createNetworkWithTwoTeePointsAndLoop() {
         // Base network
         Network network = createBaseNetwork();
 
@@ -1443,7 +1443,7 @@ public abstract class AbstractConnectionDisconnectionPropagationTest {
      *               BBS2 (VL2)                     BBS3 (VL3)
      * </pre>
      */
-    public Network createNetworkWithThreeTeePointsAndLoop() {
+    private Network createNetworkWithThreeTeePointsAndLoop() {
         // Base network
         Network network = createBaseNetwork();
 
