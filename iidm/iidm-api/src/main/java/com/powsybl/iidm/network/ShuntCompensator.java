@@ -23,7 +23,7 @@ import java.util.OptionalInt;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -112,9 +112,10 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
      * Get the count of sections in service.
-     * Please note sections can only be sequentially in service i.e. the first sectionCount sections are in service.
+     * This value is the input for calculations.
+     * Please note that sections can only be in service sequentially, i.e. the first sectionCount sections are in service.
      * <p>
-     * It is expected to be greater than one and lesser than or equal to the
+     * It is expected to be greater than or equal to zero, and less than or equal to the
      * maximum section count.
      * <p>
      * Depends on the working variant.
@@ -131,6 +132,28 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      */
     default OptionalInt findSectionCount() {
         return OptionalInt.of(getSectionCount());
+    }
+
+    /**
+     * Get the solved count of sections in service. This value represents the result count after a calculation (load flow).
+     * <p>
+     * It is expected to be greater than or equal to zero and less than or equal to the maximum section count.
+     * It can be null if no calculation has been performed on the network.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    Integer getSolvedSectionCount();
+
+    /**
+     * Get the solved count of sections in service if it is defined.
+     * Otherwise, get an empty optional.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default OptionalInt findSolvedSectionCount() {
+        return getSolvedSectionCount() != null ? OptionalInt.of(getSolvedSectionCount()) : OptionalInt.empty();
     }
 
     /**
@@ -157,6 +180,26 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     default ShuntCompensator unsetSectionCount() {
         throw ValidationUtil.createUnsetMethodException();
     }
+
+    /**
+     * Change the solved count of sections in service.
+     * Please note sections can only be sequentially in service, i.e., the first sectionCount sections are in service.
+     * <p>
+     * Depends on the working variant.
+     *
+     * @see VariantManager
+     * @param solvedSectionCount the number of solved sections in service
+     * @return the shunt compensator to chain method calls.
+     */
+    ShuntCompensator setSolvedSectionCount(int solvedSectionCount);
+
+    /**
+     * Unset the solved count of sections in service.
+     */
+    default ShuntCompensator unsetSolvedSectionCount() {
+        throw ValidationUtil.createUnsetMethodException();
+    }
+
 
     /**
      * Get the susceptance (in S) of the shunt in its current state i.e. the sum of the sections' susceptances for all sections in service.
@@ -286,5 +329,16 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.SHUNT_COMPENSATOR;
+    }
+
+    default void applySolvedValues() {
+        setSectionCountToSolvedSectionCount();
+    }
+
+    default void setSectionCountToSolvedSectionCount() {
+        OptionalInt solvedSectionCount = this.findSolvedSectionCount();
+        if (solvedSectionCount.isPresent()) {
+            this.setSectionCount(solvedSectionCount.getAsInt());
+        }
     }
 }

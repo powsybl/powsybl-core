@@ -68,12 +68,15 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
     public void updateNetworkSvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q) {
         if (vregul) {
             svc.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+            svc.setRegulating(true);
         } else {
             if (q == 0) {
-                svc.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
+                svc.setRegulating(false);
+                svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
             } else {
                 svc.setReactivePowerSetpoint(-q);
                 svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+                svc.setRegulating(true);
             }
         }
 

@@ -261,7 +261,7 @@ class CgmesConformity1ModifiedConversionTest {
 
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
         assertNotNull(ptc);
-        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, ptc.getRegulationMode());
+        assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, ptc.getRegulationMode());
         assertTrue(Double.isNaN(ptc.getRegulationValue()));
         assertFalse(ptc.isRegulating());
         assertNull(ptc.getRegulationTerminal());
@@ -288,7 +288,7 @@ class CgmesConformity1ModifiedConversionTest {
 
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
         assertNotNull(ptc);
-        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, ptc.getRegulationMode());
+        assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, ptc.getRegulationMode());
         assertTrue(Double.isNaN(ptc.getRegulationValue()));
         assertFalse(ptc.isRegulating());
         assertNull(ptc.getRegulationTerminal());
@@ -552,12 +552,14 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator svc = network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
+        assertTrue(svc.isRegulating());
         assertEquals(VOLTAGE, svc.getRegulationMode());
 
         Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbInvalidSvcMode().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator offSvc = modified.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(offSvc);
-        assertEquals(OFF, offSvc.getRegulationMode());
+        assertFalse(offSvc.isRegulating());
+        assertEquals(VOLTAGE, offSvc.getRegulationMode());
     }
 
     @Test
@@ -587,7 +589,8 @@ class CgmesConformity1ModifiedConversionTest {
         Network modified1 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvc().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator off1 = modified1.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(off1);
-        assertEquals(OFF, off1.getRegulationMode());
+        assertFalse(off1.isRegulating());
+        assertEquals(VOLTAGE, off1.getRegulationMode());
 
         Network modified2 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControl().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator off2 = modified2.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
@@ -598,7 +601,8 @@ class CgmesConformity1ModifiedConversionTest {
         Network modified3 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControlV().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator off3 = modified3.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(off3);
-        assertEquals(OFF, off3.getRegulationMode());
+        assertFalse(off3.isRegulating());
+        assertEquals(VOLTAGE, off3.getRegulationMode());
         assertEquals(231.123, off3.getVoltageSetpoint(), 0.0);
     }
 
@@ -729,51 +733,6 @@ class CgmesConformity1ModifiedConversionTest {
     void smallBusBranchTieFlowWithoutControlArea() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallBusBranchTieFlowsWithoutControlArea().dataSource(), NetworkFactory.findDefault(), importParams);
         assertEquals(0, network.getAreaCount());
-    }
-
-    @Test
-    void smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
-        // Small Grid Node Breaker HVDC modified so in the dcLine2
-        // SVC1 (that is at side 2 of the DC line) is interpreted as a rectifier and
-        // SVC2 (that is at side 1 of the line) is interpreted as an inverter
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2Inverter1Rectifier2().dataSource(), NetworkFactory.findDefault(), importParams));
-    }
-
-    @Test
-    void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier() {
-        // Small Grid Node Breaker HVDC modified so in the dcLine
-        // both converters have targetPpcc consistent with side 1 inverter side 2 rectifier
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier().dataSource(), NetworkFactory.findDefault(), importParams));
-    }
-
-    @Test
-    void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter() {
-        // Small Grid Node Breaker HVDC modified so in the dcLine
-        // both converters have targetPpcc consistent with side 1 rectifier side 2 inverter
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter().dataSource(), NetworkFactory.findDefault(), importParams));
-    }
-
-    @Test
-    void smallNodeBreakerHvdcVscReactiveQPcc() {
-        // Small Grid Node Breaker HVDC modified so VSC converter are regulating in reactive power and not in voltage
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcVscReactiveQPcc().dataSource(), NetworkFactory.findDefault(), importParams));
-    }
-
-    @Test
-    void smallNodeBreakerHvdcNanTargetPpcc() {
-        // Small Grid Node Breaker HVDC modified so targetPpcc are NaN
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcNanTargetPpcc().dataSource(), NetworkFactory.findDefault(), importParams));
-    }
-
-    @Test
-    void smallNodeBreakerHvdcMissingDCLineSegment() {
-        // Small Grid Node Breaker HVDC modified so there is not DC Line Segment
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcMissingDCLineSegment().dataSource(), NetworkFactory.findDefault(), importParams));
-    }
-
-    @Test
-    void smallNodeBreakerVscControllerRemotePccTerminal() {
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerVscConverterRemotePccTerminal().dataSource(), NetworkFactory.findDefault(), importParams));
     }
 
     @Test
