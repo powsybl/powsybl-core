@@ -36,6 +36,8 @@ import com.powsybl.iidm.serde.XMLImporter;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,8 +54,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.FileSystem;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
@@ -1021,13 +1021,18 @@ class EquipmentExportTest extends AbstractSerDeTest {
             Properties exportParams = new Properties();
             exportParams.put(CgmesExport.PROFILES, "EQ");
 
-            // PST with FIXED_TAP
-            network = PhaseShifterTestCaseFactory.createWithTargetDeadband();
+            // PST with no regulation mode but regulating true => set to CURRENT_LIMITER mode
+            network = PhaseShifterTestCaseFactory.createRegulatingWithoutMode();
+            assertTrue(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithoutAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "currentFlow");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "currentFlow");
 
             // PST local with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createLocalActivePowerWithTargetDeadband();
+            assertFalse(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
@@ -1036,6 +1041,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
             // PST local with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createLocalCurrentLimiterWithTargetDeadband();
+            assertFalse(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "currentFlow");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
@@ -1044,6 +1050,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
             // PST remote with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createRemoteCurrentLimiterWithTargetDeadband();
+            assertFalse(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "currentFlow");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
@@ -1052,6 +1059,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
             // PST remote with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createRemoteActivePowerWithTargetDeadband();
+            assertFalse(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "activePower");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
@@ -1789,7 +1797,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 generator.getTerminal().setP(0.0).setQ(0.0);
             } else if (identifiable instanceof StaticVarCompensator) {
                 StaticVarCompensator staticVarCompensator = (StaticVarCompensator) identifiable;
-                staticVarCompensator.setRegulationMode(StaticVarCompensator.RegulationMode.OFF).setVoltageSetpoint(0.0);
+                staticVarCompensator.setRegulating(false).setVoltageSetpoint(0.0)
+                        .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
                 staticVarCompensator.getTerminal().setP(0.0).setQ(0.0);
             } else if (identifiable instanceof VscConverterStation) {
                 VscConverterStation converter = (VscConverterStation) identifiable;
