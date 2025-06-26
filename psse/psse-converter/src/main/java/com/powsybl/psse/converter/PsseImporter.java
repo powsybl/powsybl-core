@@ -331,7 +331,7 @@ public class PsseImporter implements Importer {
         NodeBreakerImport nodeBreakerImport = new NodeBreakerImport();
 
         for (PsseBus psseBus : psseModel.getBuses()) {
-            Substation substation = new SubstationConverter(psseBus, containersMapping, network).create();
+            Substation substation = new SubstationConverter(psseBus, containersMapping, nodeBreakerValidation, network).create();
             VoltageLevel voltageLevel = new VoltageLevelConverter(psseBus, containersMapping, perUnitContext, network, nodeBreakerValidation, nodeBreakerImport).create(substation);
             new BusConverter(psseBus, containersMapping, network, nodeBreakerImport).create(voltageLevel);
         }
