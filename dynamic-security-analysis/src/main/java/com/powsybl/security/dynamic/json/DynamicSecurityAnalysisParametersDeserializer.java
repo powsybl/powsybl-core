@@ -50,12 +50,10 @@ public class DynamicSecurityAnalysisParametersDeserializer extends StdDeserializ
                     version = parser.getValueAsString();
                     break;
                 case "dynamic-simulation-parameters":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.0");
                     parser.nextToken();
                     JsonDynamicSimulationParameters.deserialize(parser, deserializationContext, parameters.getDynamicSimulationParameters());
                     break;
                 case "contingencies-parameters":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.0");
                     parser.nextToken();
                     parameters.setDynamicContingenciesParameters(JsonUtil.readValue(deserializationContext,
                             parser,

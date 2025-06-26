@@ -50,13 +50,11 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
                     break;
 
                 case "startTime":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.0");
                     parser.nextToken();
                     parameters.setStartTime(parser.readValueAs(Integer.class));
                     break;
 
                 case "stopTime":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.0");
                     parser.nextToken();
                     parameters.setStopTime(parser.readValueAs(Integer.class));
                     break;

@@ -327,6 +327,7 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         assertEquals(Range.of(380., 410.), voltageRange.getRange());
         assertEquals(1.05, voltageRange.getRangeCoefficient());
         assertEquals(380., voltageRange.getVoltage());
+        assertEquals(null, parameters.getDebugDir());
     }
 
     @Test

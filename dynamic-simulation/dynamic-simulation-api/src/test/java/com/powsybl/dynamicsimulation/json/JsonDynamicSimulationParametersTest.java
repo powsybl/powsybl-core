@@ -43,6 +43,7 @@ class JsonDynamicSimulationParametersTest extends AbstractSerDeTest {
         assertNotNull(parameters);
         assertEquals(0.0, parameters.getStartTime());
         assertEquals(1.0, parameters.getStopTime());
+        assertEquals(null, parameters.getDebugDir());
     }
 
     @Test

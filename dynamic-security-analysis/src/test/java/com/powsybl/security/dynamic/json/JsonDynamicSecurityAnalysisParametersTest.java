@@ -40,6 +40,7 @@ class JsonDynamicSecurityAnalysisParametersTest extends AbstractSerDeTest {
         assertEquals(0, parameters.getDynamicSimulationParameters().getStartTime());
         assertEquals(20, parameters.getDynamicSimulationParameters().getStopTime());
         assertEquals(5.5, parameters.getDynamicContingenciesParameters().getContingenciesStartTime());
+        assertEquals(null, parameters.getDebugDir());
     }
 
     @Test
