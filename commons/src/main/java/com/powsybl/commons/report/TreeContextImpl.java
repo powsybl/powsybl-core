@@ -23,11 +23,11 @@ public class TreeContextImpl implements TreeContext {
     private final DateTimeFormatter timestampFormatter;
 
     public TreeContextImpl() {
-        this(ReportConstants.getDefaultLocale(), ReportConstants.DEFAULT_TIMESTAMP_PATTERN);
+        this(Locale.getDefault(), ReportConstants.DEFAULT_TIMESTAMP_PATTERN);
     }
 
     public TreeContextImpl(Locale locale, String timestampPattern) {
-        this.locale = Objects.requireNonNullElse(locale, ReportConstants.getDefaultLocale());
+        this.locale = Objects.requireNonNullElse(locale, Locale.getDefault());
         this.timestampFormatter = createDateTimeFormatter(timestampPattern, locale);
     }
 
@@ -39,7 +39,7 @@ public class TreeContextImpl implements TreeContext {
             return DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN, locale);
         }
         if (locale == null) {
-            return DateTimeFormatter.ofPattern(timestampPattern, ReportConstants.getDefaultLocale());
+            return DateTimeFormatter.ofPattern(timestampPattern);
         }
         return DateTimeFormatter.ofPattern(timestampPattern, locale);
     }
