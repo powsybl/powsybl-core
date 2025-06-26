@@ -8,7 +8,7 @@
 package com.powsybl.commons.report;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -17,6 +17,6 @@ import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 public final class CommonsTestReportResourceBundle implements ReportResourceBundle {
 
     public String getBaseName() {
-        return PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME;
+        return PowsyblTestReportResourceBundle.TEST_BASE_NAME;
     }
 }

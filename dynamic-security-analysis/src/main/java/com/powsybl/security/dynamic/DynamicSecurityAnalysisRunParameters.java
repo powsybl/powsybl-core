@@ -7,6 +7,7 @@
  */
 package com.powsybl.security.dynamic;
 
+import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.security.AbstractSecurityAnalysisRunParameters;
 
 import java.util.Objects;
@@ -21,6 +22,7 @@ public class DynamicSecurityAnalysisRunParameters extends AbstractSecurityAnalys
     private static final Supplier<DynamicSecurityAnalysisParameters> DEFAULT_SA_PARAMETERS_SUPPLIER = DynamicSecurityAnalysisParameters::load;
 
     private DynamicSecurityAnalysisParameters dynamicSecurityAnalysisParameters;
+    private EventModelsSupplier eventModelsSupplier = EventModelsSupplier.empty();
 
     /**
      * Returns a {@link DynamicSecurityAnalysisRunParameters} instance with default value on each field.
@@ -50,6 +52,15 @@ public class DynamicSecurityAnalysisRunParameters extends AbstractSecurityAnalys
     public DynamicSecurityAnalysisRunParameters setDynamicSecurityAnalysisParameters(DynamicSecurityAnalysisParameters dynamicSecurityAnalysisParameters) {
         Objects.requireNonNull(dynamicSecurityAnalysisParameters, "Security analysis parameters should not be null");
         this.dynamicSecurityAnalysisParameters = dynamicSecurityAnalysisParameters;
+        return self();
+    }
+
+    public EventModelsSupplier getEventModelsSupplier() {
+        return eventModelsSupplier;
+    }
+
+    public DynamicSecurityAnalysisRunParameters setEventModelsSupplier(EventModelsSupplier eventModelsSupplier) {
+        this.eventModelsSupplier = eventModelsSupplier;
         return self();
     }
 

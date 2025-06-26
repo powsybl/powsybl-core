@@ -62,6 +62,7 @@ public class DynamicSecurityAnalysisExecutionImpl implements DynamicSecurityAnal
         DynamicSecurityAnalysis.Runner runner = DynamicSecurityAnalysis.find(providerName);
         DynamicSecurityAnalysisInput input = inputBuildStrategy.buildFrom(data, runner.getName());
         DynamicSecurityAnalysisRunParameters runParameters = new DynamicSecurityAnalysisRunParameters()
+                .setEventModelsSupplier(input.getEventModels())
                 .setDynamicSecurityAnalysisParameters(input.getParameters())
                 .setComputationManager(computationManager)
                 .setFilter(input.getFilter())
