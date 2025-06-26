@@ -287,7 +287,8 @@ An `ExternalNetworkinjection` is mapped to a PowSyBl [`Generator`](../../grid_mo
 
 Linear shunt compensators represent shunt compensators with banks or sections with equal admittance values.
 
-A `LinearShuntCompensator` is mapped to a PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) with `SectionCount` copied from CGMES SSH `sections` or CGMES `SvShuntCompensatorSections.sections`, depending on the import option. If none is defined, it is copied from CGMES `normalSections`.
+A `LinearShuntCompensator` is mapped to a PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) with `SectionCount` copied from CGMES SSH `sections` if present. If not, it is copied from CGMES `SvShuntCompensatorSections.sections` or `normalSections`.
+The `solvedSectionCount` is copied from `SvShuntCompensatorSections.sections` is the SV is imported, and left to `null` otherwise.
 The created PowSyBl shunt compensator is linear, and its attributes are defined as described below:
 - `BPerSection` is copied from CGMES `bPerSection` if defined. Else, it is `Float.MIN_VALUE`.
 - `GPerSection` is copied from CGMES `gPerSection` if defined. Else, it is left undefined.
@@ -300,7 +301,8 @@ The created PowSyBl shunt compensator is linear, and its attributes are defined 
 
 Non-linear shunt compensators represent shunt compensators with banks or section admittance values that differ.
 
-A `NonlinearShuntCompensator` is mapped to a PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) with `SectionCount` copied from CGMES SSH `sections` or CGMES `SvShuntCompensatorSections.sections`, depending on the import option. If none is defined, it is copied from CGMES `normalSections`.
+A `NonlinearShuntCompensator` is mapped to a PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) with `SectionCount` copied from CGMES SSH `sections` if present. If not, it is copied from CGMES `SvShuntCompensatorSections.sections` or `normalSections`.
+The `solvedSectionCount` is copied from `SvShuntCompensatorSections.sections` is the SV is imported, and left to `null` otherwise.
 The created PowSyBl shunt compensator is non-linear and has as many `Sections` as there are `NonlinearShuntCompensatorPoint` associated with the `NonlinearShuntCompensator` it is mapped to.
 
 Sections are created from the lowest CGMES `sectionNumber` to the highest and each section has its attributes created as described below:
@@ -570,6 +572,9 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 ### CGMES Tap Changers
 
 <span style="color: red">TODO</span>
+
+The `tapPosition` of the IIDM `TapChanger` is copied from the CGMES SSH `step` if present. If not, it is copied from CGMES `SVtapStep` or `normalStep` from EQ.
+The `solvedTapPosition` is copied from `SVtapStep` is the SV is imported, and left to `null` otherwise.
 
 (cgmes-metadata-model-import)=
 ### CGMES metadata model
