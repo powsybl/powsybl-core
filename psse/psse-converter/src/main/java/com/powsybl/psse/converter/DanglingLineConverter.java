@@ -52,7 +52,7 @@ class DanglingLineConverter extends AbstractConverter {
 
     // Boundary bus will always be exported as busBranch
     private static PsseBus createDanglingLineBus(DanglingLine danglingLine, ContextExport contextExport) {
-        Bus networkBusView = getTerminalBusView(danglingLine.getTerminal());
+        Bus networkBusView = getTerminalConnectableBusView(danglingLine.getTerminal());
         PsseBus psseBus = createDefaultBus();
         psseBus.setI(contextExport.getFullExport().getBusI(danglingLine).orElseThrow());
         psseBus.setName(fixBusName(danglingLine.getNameOrId()));
@@ -139,7 +139,7 @@ class DanglingLineConverter extends AbstractConverter {
         psseGenerator.setId(contextExport.getFullExport().getEquipmentCkt(danglingLine.getId(), PSSE_GENERATOR.getTextCode(), busJ));
         psseGenerator.setPg(generation.getTargetP());
         psseGenerator.setQg(generation.getTargetQ());
-        psseGenerator.setQt(getMaxQ(generation) >= getMinQ(generation) ? getMaxQ(generation) : getMinQ(generation));
+        psseGenerator.setQt(Math.max(getMaxQ(generation), getMinQ(generation)));
         psseGenerator.setQb(getMinQ(generation));
         psseGenerator.setVs(getTargetV(danglingLine, generation));
         psseGenerator.setIreg(busJ);

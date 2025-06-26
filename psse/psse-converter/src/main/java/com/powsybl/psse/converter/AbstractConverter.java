@@ -369,12 +369,13 @@ public abstract class AbstractConverter {
                 .orElseGet(() -> Networks.getEquivalentTerminal(voltageLevel, node));
     }
 
-    static Optional<Bus> findBusViewNode(VoltageLevel voltageLevel, int node) {
+    static Optional<Bus> findConnectedBusViewNode(VoltageLevel voltageLevel, int node) {
         return Optional.ofNullable(findTerminalNode(voltageLevel, node))
-                .map(AbstractConverter::getTerminalBusView);
+                .map(Terminal::getBusView)
+                .map(Terminal.BusView::getBus);
     }
 
-    static Bus getTerminalBusView(Terminal terminal) {
+    static Bus getTerminalConnectableBusView(Terminal terminal) {
         return terminal.getBusView().getBus() != null ? terminal.getBusView().getBus() : terminal.getBusView().getConnectableBus();
     }
 
@@ -382,7 +383,7 @@ public abstract class AbstractConverter {
         if (contextExport.getFullExport().isExportedAsNodeBreaker(terminal.getVoltageLevel())) {
             return contextExport.getFullExport().getBusI(terminal.getVoltageLevel(), terminal.getNodeBreakerView().getNode()).orElseThrow();
         } else {
-            Bus bus = getTerminalBusView(terminal);
+            Bus bus = getTerminalConnectableBusView(terminal);
             return contextExport.getFullExport().getBusI(bus).orElseThrow();
         }
     }

@@ -188,7 +188,7 @@ class VoltageLevelConverter extends AbstractConverter {
         psseSubstation.getNodes().forEach(psseNode -> {
             VoltageLevel voltageLevel = network.getVoltageLevel(containersMapping.getVoltageLevelId(psseNode.getI()));
             if (voltageLevel != null) {
-                findBusViewNode(voltageLevel, psseNode.getNi())
+                findConnectedBusViewNode(voltageLevel, psseNode.getNi())
                         .ifPresent(busView -> {
                             busView.setV(psseNode.getVm() * voltageLevel.getNominalV());
                             busView.setAngle(psseNode.getVa());
@@ -290,7 +290,7 @@ class VoltageLevelConverter extends AbstractConverter {
         Map<Integer, List<Bus>> busIBusViews = new HashMap<>();
         PsseSubstation psseSubstation = contextExport.getUpdateExport().getPsseSubstation(voltageLevel).orElseThrow();
         for (int node : voltageLevel.getNodeBreakerView().getNodes()) {
-            findBusViewNode(voltageLevel, node).ifPresent(bus -> {
+            findConnectedBusViewNode(voltageLevel, node).ifPresent(bus -> {
                 contextExport.getUpdateExport().addNodeBusView(voltageLevel, node, bus);
                 findBusI(psseSubstation, node).ifPresent(busI -> busIBusViews.computeIfAbsent(busI, k -> new ArrayList<>()).add(bus));
             });
@@ -434,7 +434,7 @@ class VoltageLevelConverter extends AbstractConverter {
 
     private static void contextForNonRepresentedNode(VoltageLevel voltageLevel, int node, int busI, Set<Bus> busViewBusesForBusI, String psseSubstationId, ContextExport contextExport) {
         int psseNode = contextExport.getFullExport().getNewPsseNode(psseSubstationId);
-        findBusViewNode(voltageLevel, node).ifPresentOrElse(busView -> {
+        findConnectedBusViewNode(voltageLevel, node).ifPresentOrElse(busView -> {
             contextExport.getFullExport().addNodeData(voltageLevel, node, busI, psseNode, busView);
             busViewBusesForBusI.add(busView);
         }, () -> contextExport.getFullExport().addNodeData(voltageLevel, node, busI, psseNode, null));
@@ -627,7 +627,7 @@ class VoltageLevelConverter extends AbstractConverter {
                         buses.add(otherNodeBusR.busI);
                     }
                 } else {
-                    Bus busView = getTerminalBusView(terminal);
+                    Bus busView = getTerminalConnectableBusView(terminal);
                     buses.add(contextExport.getFullExport().getBusI(busView).orElseThrow());
                 }
             });
