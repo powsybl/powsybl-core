@@ -101,6 +101,14 @@ public final class CgmesReports {
                 .add();
     }
 
+    public static void badLoadTapChangingCapabilityTapChangerReport(ReportNode reportNode, String tapChangerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.badLoadTapChangingCapabilityTapChanger")
+                .withUntypedValue("tapChangerId", tapChangerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     public static void invalidAngleVoltageBusReport(ReportNode reportNode, Bus bus, String nodeId, double v, double angle) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.invalidAngleVoltageBus")

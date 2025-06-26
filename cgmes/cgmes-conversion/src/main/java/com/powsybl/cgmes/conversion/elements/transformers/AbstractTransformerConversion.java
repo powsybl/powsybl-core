@@ -60,9 +60,10 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     }
 
     protected static void setToIidmPhaseTapChanger(TapChanger ptc, PhaseTapChangerAdder ptca, Context context) {
+        boolean isLtcFlag = ptc.isLtcFlag();
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
-        ptca.setLowTapPosition(lowStep).setTapPosition(position);
+        ptca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
 
         ptc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
@@ -103,7 +104,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         CgmesRegulatingControlPhase rcPtc = null;
         if (tc != null) {
             return context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(
-                    tc.getId(), tc.getRegulatingControlId(), tc.isTapChangerControlEnabled(), tc.isLtcFlag());
+                    tc.getId(), tc.getRegulatingControlId(), tc.isTapChangerControlEnabled());
         }
         return rcPtc;
     }
