@@ -10,7 +10,7 @@ package com.powsybl.commons.report;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Optional;
 
-import static com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME;
+import static com.powsybl.commons.test.PowsyblTestReportResourceBundle.TEST_BASE_NAME;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -338,7 +338,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     void testMissingKey() {
         // Without giving a locale
         ReportNode report1 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("unknown.key")
                 .build();
         // translation should fall back to default properties as the key is not defined in the reports_en_US.properties
@@ -346,7 +346,7 @@ class ReportNodeTest extends AbstractSerDeTest {
 
         // With Locale.FRENCH
         ReportNode report2 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withLocale(Locale.FRENCH)
                 .withMessageTemplate("unknown.key")
                 .build();
@@ -358,7 +358,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     void testLocaleAndi18n() {
         // Without giving a locale => default one is en_US
         ReportNode rootReportEnglish = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplateProvider(new BundleMessageTemplateProvider(TEST_BASE_NAME))
                 .withMessageTemplate("rootWithValue")
                 .withUntypedValue("value", 4)
