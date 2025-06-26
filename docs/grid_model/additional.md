@@ -191,6 +191,7 @@ A phase tap changer is described by a set of tap positions (or steps) within whi
 - the lowest tap position
 - the highest tap position
 - the position index of the current tap (which has to be within the highest and lowest tap position bounds)
+- the solved position index of the tap that represents the index after a calculation
 - whether the phase tap changer can change tap positions onload or only offload
 
 If the phase tap changer can change tap positions onload, regulation is specified as follows:
@@ -263,6 +264,7 @@ A ratio tap changer is described by a set of tap positions (or steps) within whi
 - the lowest tap position
 - the highest tap position
 - the position index of the current tap (which has to be within the highest and lowest tap position bounds)
+- the solved position index of the tap that represents the index after a calculation
 - whether the ratio tap changer can change tap positions onload or only offload
 
 If the ratio tap changer can change tap positions onload, regulation is specified as follows:

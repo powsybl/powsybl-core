@@ -107,6 +107,7 @@ abstract class AbstractValidationFormatterWriterTest {
     protected final double reactivePowerSetpoint = -3.72344;
     protected final double voltageSetpoint = 380;
     protected final RegulationMode regulationMode = RegulationMode.VOLTAGE;
+    protected final boolean regulating = true;
     protected final double bMin = -10;
     protected final double bMax = 0;
 
@@ -364,10 +365,10 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter svcsWriter = getSvcsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            svcsWriter.write(svcId1, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, mainComponent, validated);
+            svcsWriter.write(svcId1, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, regulating, bMin, bMax, mainComponent, validated);
             svcsWriter.setValidationCompleted();
             if (compareResults) {
-                svcsWriter.write(svcId2, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, mainComponent, validated);
+                svcsWriter.write(svcId2, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, regulating, bMin, bMax, mainComponent, validated);
                 svcsWriter.setValidationCompleted();
             }
             assertEquals(svcsContent, writer.toString().trim());
