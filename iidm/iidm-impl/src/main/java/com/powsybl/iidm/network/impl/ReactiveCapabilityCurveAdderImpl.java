@@ -31,6 +31,8 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
 
     private final TreeMap<Double, ReactiveCapabilityCurve.Point> points = new TreeMap<>();
 
+    private boolean shouldCheckMinMaxValues = true;
+
     private final class PointAdderImpl implements PointAdder {
 
         private double p = Double.NaN;
@@ -79,12 +81,14 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
                     NetworkReports.parentHasDuplicatePointForActivePower(owner.getNetwork().getReportNodeContext().getReportNode(), owner.getMessageHeader(), p);
                 }
             }
-            // TODO: to be activated in IIDM v1.1
-            // if (maxQ < minQ) {
-            //     throw new ValidationException(owner,
-            //             "maximum reactive power is expected to be greater than or equal to minimum reactive power");
-            // }
-            points.put(p, new PointImpl(p, minQ, maxQ));
+
+            // Check the min/max Q values
+            if (shouldCheckMinMaxValues && maxQ < minQ) {
+                throw new ValidationException(owner,
+                    "maximum reactive power is expected to be greater than or equal to minimum reactive power");
+            }
+
+            points.put(p, new PointImpl(p, minQ, maxQ, shouldCheckMinMaxValues));
             return ReactiveCapabilityCurveAdderImpl.this;
         }
 
@@ -109,4 +113,9 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
         return curve;
     }
 
+    @Override
+    public ReactiveCapabilityCurveAdder setShouldCheckMinMaxValues(boolean shouldCheckMinMaxValues) {
+        this.shouldCheckMinMaxValues = shouldCheckMinMaxValues;
+        return this;
+    }
 }
