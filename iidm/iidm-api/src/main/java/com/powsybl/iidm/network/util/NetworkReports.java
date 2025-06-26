@@ -218,31 +218,31 @@ public final class NetworkReports {
                 .add();
     }
 
-    public static void rtcRegulationCannotBeEnabledWithoutLoadTapChanging(boolean errorSeverity, ReportNode reportNode) {
+    public static void rtcRegulationCannotBeEnabledWithoutLoadTapChanging(ReportNode reportNode) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.rtcRegulationCannotBeEnabledWithoutLoadTapChanging")
-                .withSeverity(errorSeverity ? TypedValue.ERROR_SEVERITY : TypedValue.WARN_SEVERITY)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
     }
 
-    public static void regulatingRtcNoRegulationMode(boolean errorSeverity, ReportNode reportNode) {
+    public static void regulatingRtcNoRegulationMode(ReportNode reportNode) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.regulatingRtcNoRegulationMode")
-                .withSeverity(errorSeverity ? TypedValue.ERROR_SEVERITY : TypedValue.WARN_SEVERITY)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
     }
 
-    public static void regulatingRtcNoRegulationValue(boolean errorSeverity, ReportNode reportNode) {
+    public static void regulatingRtcNoRegulationValue(ReportNode reportNode) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.regulatingRtcNoRegulationValue")
-                .withSeverity(errorSeverity ? TypedValue.ERROR_SEVERITY : TypedValue.WARN_SEVERITY)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
     }
 
-    public static void regulatingRtcNoRegulationTerminal(boolean errorSeverity, ReportNode reportNode) {
+    public static void regulatingRtcNoRegulationTerminal(ReportNode reportNode) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.regulatingRtcNoRegulationTerminal")
-                .withSeverity(errorSeverity ? TypedValue.ERROR_SEVERITY : TypedValue.WARN_SEVERITY)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
 
     }

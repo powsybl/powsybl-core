@@ -509,21 +509,21 @@ public final class ValidationUtil {
             if (!loadTapChangingCapabilities) {
                 throwExceptionOrLogError(validable, "regulation cannot be enabled on ratio tap changer without load tap changing capabilities", actionOnError);
                 if (actionOnError != ActionOnError.IGNORE) {
-                    NetworkReports.rtcRegulationCannotBeEnabledWithoutLoadTapChanging(validationLevel == ValidationLevel.EQUIPMENT, reportNode);
+                    NetworkReports.rtcRegulationCannotBeEnabledWithoutLoadTapChanging(reportNode);
                 }
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
             }
             if (Objects.isNull(regulationMode)) {
                 throwExceptionOrLogError(validable, "regulation mode of regulating ratio tap changer must be given", actionOnError);
                 if (actionOnError != ActionOnError.IGNORE) {
-                    NetworkReports.regulatingRtcNoRegulationMode(validationLevel == ValidationLevel.EQUIPMENT, reportNode);
+                    NetworkReports.regulatingRtcNoRegulationMode(reportNode);
                 }
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
             }
             if (Double.isNaN(regulationValue)) {
                 throwExceptionOrLogError(validable, "a regulation value has to be set for a regulating ratio tap changer", actionOnError);
                 if (actionOnError != ActionOnError.IGNORE) {
-                    NetworkReports.regulatingRtcNoRegulationValue(validationLevel == ValidationLevel.EQUIPMENT, reportNode);
+                    NetworkReports.regulatingRtcNoRegulationValue(reportNode);
                 }
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
             }
@@ -534,7 +534,7 @@ public final class ValidationUtil {
             if (regulationTerminal == null) {
                 throwExceptionOrLogError(validable, "a regulation terminal has to be set for a regulating ratio tap changer", actionOnError);
                 if (actionOnError != ActionOnError.IGNORE) {
-                    NetworkReports.regulatingRtcNoRegulationTerminal(validationLevel == ValidationLevel.EQUIPMENT, reportNode);
+                    NetworkReports.regulatingRtcNoRegulationTerminal(reportNode);
                 }
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
             }
