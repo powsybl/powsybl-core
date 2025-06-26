@@ -7,7 +7,7 @@
  */
 package com.powsybl.psse.model.io;
 
-import java.util.regex.Pattern;
+import com.google.re2j.Pattern;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
