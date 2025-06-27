@@ -349,8 +349,8 @@ PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch) is expo
 ### ThreeWindingsTransformer
 
 PowSyBl [`ThreeWindingsTransformer`](../../grid_model/network_subnetwork.md#three-winding-transformer) is exported as `PowerTransformer` with three `PowerTransformerEnds`.
-If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the IIDM `tapPosition` and the CGMES SV
-`SVtapStep` is written from the IIDM `solvedTapPosition` if it is not null, otherwise `tapPosition`.
+If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the IIDM `TapPosition` and the CGMES SV
+`SVtapStep` is written from the IIDM `SolvedTapPosition` if it is not null, otherwise `TapPosition`.
 
 #### Tap changer control
 
