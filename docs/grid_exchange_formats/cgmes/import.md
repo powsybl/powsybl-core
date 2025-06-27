@@ -573,8 +573,8 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
 <span style="color: red">TODO</span>
 
-The `tapPosition` of the IIDM `TapChanger` is copied from the CGMES SSH `step` if present. If not, it is copied from CGMES `SVtapStep` or `normalStep` from EQ.
-The `solvedTapPosition` is copied from `SVtapStep` is the SV is imported, and left to `null` otherwise.
+The `TapPosition` of the IIDM `TapChanger` is copied from the CGMES SSH `step` if present. If not, it is copied from CGMES `SVtapStep` or `normalStep` from EQ.
+The `SolvedTapPosition` is copied from `SVtapStep` if the SV is imported, and left to `null` otherwise.
 
 (cgmes-metadata-model-import)=
 ### CGMES metadata model
