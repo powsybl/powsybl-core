@@ -245,6 +245,8 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertNotNull(n.getLine("L-2-1-11"));
         assertNotNull(n.getTwoWindingsTransformer("T-4-7-1 "));
         assertNotNull(n.getTwoWindingsTransformer("T-4-7-10"));
+        assertNotNull(n.getStaticVarCompensator("FactsDevice-FACTS_DVCE_1"));
+        assertNotNull(n.getStaticVarCompensator("FactsDevice-FACTS_DVCE_0"));
     }
 
     @Test
@@ -264,6 +266,9 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertNull(n.getThreeWindingsTransformer("T-4-2-200-3 "));
         assertNull(n.getHvdcLine("TwoTerminalDc-EATL P1     "));
         assertNull(n.getHvdcLine("TwoTerminalDc-EATL P2     "));
+        assertNull(n.getHvdcLine("VscDcTransmissionLine-VSC-1"));
+        assertNull(n.getHvdcLine("VscDcTransmissionLine-VSC-2"));
+        assertNull(n.getStaticVarCompensator("FactsDevice-StaticVar"));
         assertNull(n.getShuntCompensator("B200-SwSH1"));
     }
 
@@ -277,6 +282,9 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
         assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
         assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
+        assertNotNull(n.getHvdcLine("VscDcTransmissionLine-VSC-1"));
+        assertNotNull(n.getHvdcLine("VscDcTransmissionLine-VSC-2"));
+        assertNotNull(n.getStaticVarCompensator("FactsDevice-StaticVar"));
         assertNotNull(n.getShuntCompensator("B2-SwSH1"));
     }
 

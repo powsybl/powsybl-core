@@ -30,7 +30,7 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
     @Test
     void testExportSwitchesNodeBreaker() {
         test(createSwitchesNBNetwork(), true, true,
-                new String[] {"voltageLevel1_0", "voltageLevel1_2", "voltageLevel1_8"});
+                new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_3"});
     }
 
     @Test

@@ -11,6 +11,7 @@ import java.util.*;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.psse.model.pf.*;
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,7 +116,7 @@ class TransformerConverter extends AbstractConverter {
                 .setB(ysh.getImaginary());
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_TWO_WINDING, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getCkt());
-        OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI()));
+        OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), 0, psseTransformer.getI(), "I"));
         if (node1.isPresent()) {
             adder.setNode1(node1.getAsInt());
         } else {
@@ -123,7 +124,7 @@ class TransformerConverter extends AbstractConverter {
             adder.setConnectableBus1(bus1Id);
             adder.setBus1(psseTransformer.getStat() == 1 ? bus1Id : null);
         }
-        OptionalInt node2 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getJ()));
+        OptionalInt node2 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), 0, psseTransformer.getJ(), "J"));
         if (node2.isPresent()) {
             adder.setNode2(node2.getAsInt());
         } else {
@@ -232,11 +233,11 @@ class TransformerConverter extends AbstractConverter {
                 .setVoltageLevel(voltageLevel3Id);
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_THREE_WINDING, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
-        legConnectivity(legAdder1, equipmentId, psseTransformer.getI(), bus1Id, leg1IsConnected());
+        legConnectivity(legAdder1, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getI(), "I"), bus1Id, leg1IsConnected());
         legAdder1.add();
-        legConnectivity(legAdder2, equipmentId, psseTransformer.getJ(), bus2Id, leg2IsConnected());
+        legConnectivity(legAdder2, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getJ(), "J"), bus2Id, leg2IsConnected());
         legAdder2.add();
-        legConnectivity(legAdder3, equipmentId, psseTransformer.getK(), bus3Id, leg3IsConnected());
+        legConnectivity(legAdder3, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getK(), "K"), bus3Id, leg3IsConnected());
         legAdder3.add();
         ThreeWindingsTransformer twt = adder.add();
 
@@ -247,8 +248,8 @@ class TransformerConverter extends AbstractConverter {
         defineOperationalLimits(twt, voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), voltageLevel3.getNominalV());
     }
 
-    private void legConnectivity(ThreeWindingsTransformerAdder.LegAdder legAdder, String equipmentId, int bus, String busId, boolean isLegConnected) {
-        OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, bus));
+    private void legConnectivity(ThreeWindingsTransformerAdder.LegAdder legAdder, String equipmentIdBus, String busId, boolean isLegConnected) {
+        OptionalInt node1 = nodeBreakerImport.getNode(equipmentIdBus);
         if (node1.isPresent()) {
             legAdder.setNode(node1.getAsInt());
         } else {
@@ -303,7 +304,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static Complex defineShuntAdmittance(String id, double magG, double magB, double sbase, double windingSbase,
-        double baskv, double nomV, int cm) {
+                                                 double baskv, double nomV, int cm) {
         double g;
         double b;
         switch (cm) {
@@ -352,17 +353,17 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static TapChanger defineTapChanger(ComplexRatio complexRatio, PsseTransformerWinding winding, double baskv,
-        double nomv, int cw) {
+                                               double nomv, int cw) {
 
         TapChanger tapChanger = defineRawTapChanger(complexRatio, winding.getRma(), winding.getRmi(),
-            winding.getNtp(), baskv, nomv, cw, winding.getCod());
+                winding.getNtp(), baskv, nomv, cw, winding.getCod());
         tapChanger.setTapPosition(defineTapPositionAndAdjustTapChangerToCurrentRatio(complexRatio, tapChanger));
 
         return tapChanger;
     }
 
     private static TapChanger defineRawTapChanger(ComplexRatio complexRatio, double rma, double rmi,
-        int ntp, double baskv, double nomv, int cw, int cod) {
+                                                  int ntp, double baskv, double nomv, int cw, int cod) {
         TapChanger tapChanger = new TapChanger();
 
         if (ntp <= 1) {
@@ -371,14 +372,14 @@ class TransformerConverter extends AbstractConverter {
         }
 
         // RatioTapChanger
-        if (complexRatio.getAngle() == 0.0 && (cod == 1 || cod == 2)) {
+        if (complexRatio.getAngle() == 0.0 && (isVoltageControl(cod) || isReactivePowerControl(cod))) {
             double stepRatioIncrement = (rma - rmi) / (ntp - 1);
             for (int i = 0; i < ntp; i++) {
                 double ratio = defineRatio(rmi + stepRatioIncrement * i, baskv, nomv, cw);
                 tapChanger.getSteps().add(new TapChangerStep(ratio, complexRatio.getAngle()));
             }
             return tapChanger;
-        } else if (cod == 3) { // PhaseTapChanger
+        } else if (isActivePowerControl(cod)) { // PhaseTapChanger
             double stepAngleIncrement = (rma - rmi) / (ntp - 1);
             for (int i = 0; i < ntp; i++) {
                 double angle = rmi + stepAngleIncrement * i;
@@ -389,6 +390,18 @@ class TransformerConverter extends AbstractConverter {
             tapChanger.getSteps().add(new TapChangerStep(complexRatio.getRatio(), complexRatio.getAngle()));
             return tapChanger;
         }
+    }
+
+    private static boolean isVoltageControl(int cod) {
+        return Math.abs(cod) == 1;
+    }
+
+    private static boolean isReactivePowerControl(int cod) {
+        return Math.abs(cod) == 2;
+    }
+
+    private static boolean isActivePowerControl(int cod) {
+        return Math.abs(cod) == 3;
     }
 
     private static int defineTapPositionAndAdjustTapChangerToCurrentRatio(ComplexRatio complexRatio, TapChanger tapChanger) {
@@ -457,24 +470,24 @@ class TransformerConverter extends AbstractConverter {
 
     private static void tapChangerToRatioTapChanger(TapChanger tapChanger, RatioTapChangerAdder rtc) {
         rtc.setLoadTapChangingCapabilities(false)
-            .setLowTapPosition(0)
-            .setTapPosition(tapChanger.getTapPosition());
+                .setLowTapPosition(0)
+                .setTapPosition(tapChanger.getTapPosition());
 
         tapChanger.getSteps().forEach(step ->
-            rtc.beginStep()
-                .setRho(1 / step.getRatio())
-                .setR(step.getR())
-                .setX(step.getX())
-                .setB(step.getB1())
-                .setG(step.getG1())
-                .endStep());
+                rtc.beginStep()
+                        .setRho(1 / step.getRatio())
+                        .setR(step.getR())
+                        .setX(step.getX())
+                        .setB(step.getB1())
+                        .setG(step.getG1())
+                        .endStep());
         rtc.add();
 
     }
 
     private static void tapChangerToPhaseTapChanger(TapChanger tapChanger, PhaseTapChangerAdder ptc) {
         ptc.setLowTapPosition(0)
-            .setTapPosition(tapChanger.getTapPosition());
+                .setTapPosition(tapChanger.getTapPosition());
 
         tapChanger.getSteps().forEach(step ->
             ptc.beginStep()
@@ -757,7 +770,7 @@ class TransformerConverter extends AbstractConverter {
             LOGGER.warn("Transformer {}. Reactive power control not supported", id);
             return false;
         }
-        if (Math.abs(winding.getCod()) != 1) {
+        if (!isVoltageControl(winding.getCod())) {
             return false;
         }
 
@@ -771,8 +784,8 @@ class TransformerConverter extends AbstractConverter {
         double vmax = winding.getVma() * vnom;
         double targetV = (vmin + vmax) * 0.5;
         double targetDeadBand = vmax - vmin;
-
         boolean regulating = targetV > 0.0 && targetDeadBand >= 0.0;
+
         if (regulating && regulatingForcedToOff) {
             LOGGER.warn("Transformer {}. Regulating control forced to off. Only one control is supported", id);
             regulating = false;
@@ -807,10 +820,10 @@ class TransformerConverter extends AbstractConverter {
         }
 
         ptc.setRegulationValue(targetValue)
-            .setTargetDeadband(targetDeadBand)
-            .setRegulationTerminal(regulatingTerminal)
-            .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
-            .setRegulating(regulating);
+                .setTargetDeadband(targetDeadBand)
+                .setRegulationTerminal(regulatingTerminal)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulating(regulating);
 
         return regulating;
     }
@@ -840,6 +853,341 @@ class TransformerConverter extends AbstractConverter {
         return regulatingTerminal;
     }
 
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+        List<PsseTransformer> transformers = new ArrayList<>();
+        network.getTwoWindingsTransformers().forEach(t2w -> transformers.add(createTwoWindingsTransformer(t2w, contextExport, perUnitContext)));
+        network.getThreeWindingsTransformers().forEach(t3w -> transformers.add(createThreeWindingsTransformer(t3w, contextExport, perUnitContext)));
+        psseModel.addTransformers(transformers);
+        psseModel.replaceAllTransformers(psseModel.getTransformers().stream().sorted(Comparator.comparingInt(PsseTransformer::getI).thenComparingInt(PsseTransformer::getJ).thenComparingInt(PsseTransformer::getK).thenComparing(PsseTransformer::getCkt)).toList());
+    }
+
+    private static PsseTransformer createTwoWindingsTransformer(TwoWindingsTransformer t2w, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+        PsseTransformer psseTransformer = createDefaultTransformer();
+
+        int busI = getTerminalBusI(t2w.getTerminal1(), contextExport);
+        int busJ = getTerminalBusI(t2w.getTerminal2(), contextExport);
+        Complex ysh = admittanceToPerUnit(new Complex(getG(t2w), getB(t2w)), t2w.getTerminal2().getVoltageLevel().getNominalV(), perUnitContext.sBase());
+
+        psseTransformer.setI(busI);
+        psseTransformer.setJ(busJ);
+        psseTransformer.setCkt(contextExport.getFullExport().getEquipmentCkt(t2w.getId(), PSSE_TWO_WINDING.getTextCode(), busI, busJ));
+        psseTransformer.setMag1(ysh.getReal());
+        psseTransformer.setMag2(ysh.getImaginary());
+        psseTransformer.setName(t2w.getNameOrId().substring(0, Math.min(40, t2w.getNameOrId().length())));
+        psseTransformer.setStat(getStatus(t2w.getTerminal1(), t2w.getTerminal2(), contextExport));
+
+        Complex z = impedanceToPerUnit(new Complex(getR(t2w), getX(t2w)), t2w.getTerminal2().getVoltageLevel().getNominalV(), perUnitContext.sBase());
+        psseTransformer.setR12(z.getReal());
+        psseTransformer.setX12(z.getImaginary());
+        psseTransformer.setSbase12(perUnitContext.sBase());
+
+        psseTransformer.setWinding1(createWinding(t2w, contextExport), createRates(t2w));
+
+        return psseTransformer;
+    }
+
+    private static PsseTransformerWinding createWinding(TwoWindingsTransformer t2w, ContextExport contextExport) {
+        PsseTransformerWinding winding = createDefaultWinding();
+        RatioR ratioR = findRatioData(t2w.getRatioTapChanger(), t2w.getPhaseTapChanger(), getPerUnitRatio0(t2w), contextExport);
+        winding.setWindv(ratioR.windv);
+        winding.setAng(ratioR.ang);
+        winding.setCod(ratioR.cod);
+        winding.setCont(ratioR.cont);
+        winding.setNode(ratioR.node);
+        winding.setRma(ratioR.rma);
+        winding.setRmi(ratioR.rmi);
+        winding.setNtp(ratioR.ntp);
+        return winding;
+    }
+
+    private static double getPerUnitRatio0(TwoWindingsTransformer t2w) {
+        return (t2w.getRatedU1() * t2w.getTerminal2().getVoltageLevel().getNominalV()) / (t2w.getRatedU2() * t2w.getTerminal1().getVoltageLevel().getNominalV());
+    }
+
+    private static double getR(TwoWindingsTransformer t2w) {
+        return getValue(t2w.getR(),
+                t2w.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getR()).orElse(0d),
+                t2w.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getR()).orElse(0d));
+    }
+
+    private static double getX(TwoWindingsTransformer t2w) {
+        return getValue(t2w.getX(),
+                t2w.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getX()).orElse(0d),
+                t2w.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getX()).orElse(0d));
+    }
+
+    private static double getG(TwoWindingsTransformer t2w) {
+        return getValue(t2w.getG(),
+                t2w.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getG()).orElse(0d),
+                t2w.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getG()).orElse(0d));
+    }
+
+    private static double getB(TwoWindingsTransformer t2w) {
+        return getValue(t2w.getB(),
+                t2w.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getB()).orElse(0d),
+                t2w.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getB()).orElse(0d));
+    }
+
+    private static PsseRates createRates(TwoWindingsTransformer t2w) {
+        PsseRates windingRates = createDefaultRates();
+        t2w.getApparentPowerLimits1().ifPresent(apparentPowerLimits1 -> setSortedRatesToPsseRates(getSortedRates(apparentPowerLimits1), windingRates));
+        if (t2w.getApparentPowerLimits1().isEmpty()) {
+            t2w.getApparentPowerLimits2().ifPresent(apparentPowerLimits2 -> setSortedRatesToPsseRates(getSortedRates(apparentPowerLimits2), windingRates));
+        }
+        if (t2w.getApparentPowerLimits1().isEmpty() && t2w.getApparentPowerLimits2().isEmpty()) {
+            t2w.getCurrentLimits1().ifPresent(currentLimits1 -> setSortedRatesToPsseRates(getSortedRates(currentLimits1, t2w.getTerminal1().getVoltageLevel().getNominalV()), windingRates));
+        }
+        if (t2w.getApparentPowerLimits1().isEmpty() && t2w.getApparentPowerLimits2().isEmpty() && t2w.getCurrentLimits1().isEmpty()) {
+            t2w.getCurrentLimits2().ifPresent(currentLimits2 -> setSortedRatesToPsseRates(getSortedRates(currentLimits2, t2w.getTerminal2().getVoltageLevel().getNominalV()), windingRates));
+        }
+        if (t2w.getApparentPowerLimits1().isEmpty() && t2w.getApparentPowerLimits2().isEmpty() && t2w.getCurrentLimits1().isEmpty()
+                && t2w.getCurrentLimits2().isEmpty()) {
+            t2w.getActivePowerLimits1().ifPresent(activePowerLimits1 -> setSortedRatesToPsseRates(getSortedRates(activePowerLimits1), windingRates));
+        }
+        if (t2w.getApparentPowerLimits1().isEmpty() && t2w.getApparentPowerLimits2().isEmpty() && t2w.getCurrentLimits1().isEmpty()
+                && t2w.getCurrentLimits2().isEmpty() && t2w.getActivePowerLimits1().isEmpty()) {
+            t2w.getActivePowerLimits2().ifPresent(activePowerLimits2 -> setSortedRatesToPsseRates(getSortedRates(activePowerLimits2), windingRates));
+        }
+        return windingRates;
+    }
+
+    private static PsseTransformer createThreeWindingsTransformer(ThreeWindingsTransformer t3w, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+        PsseTransformer psseTransformer = createDefaultTransformer();
+
+        int busI = getTerminalBusI(t3w.getLeg1().getTerminal(), contextExport);
+        int busJ = getTerminalBusI(t3w.getLeg2().getTerminal(), contextExport);
+        int busK = getTerminalBusI(t3w.getLeg3().getTerminal(), contextExport);
+        Complex ysh = admittanceToPerUnit(new Complex(getG(t3w.getLeg1()), getB(t3w.getLeg1())), t3w.getRatedU0(), perUnitContext.sBase());
+
+        psseTransformer.setI(busI);
+        psseTransformer.setJ(busJ);
+        psseTransformer.setK(busK);
+        psseTransformer.setCkt(contextExport.getFullExport().getEquipmentCkt(t3w.getId(), PSSE_THREE_WINDING.getTextCode(), busI, busJ, busK));
+        psseTransformer.setMag1(ysh.getReal());
+        psseTransformer.setMag2(ysh.getImaginary());
+        psseTransformer.setName(t3w.getNameOrId().substring(0, Math.min(40, t3w.getNameOrId().length())));
+        psseTransformer.setStat(getStatus(t3w, contextExport));
+        psseTransformer.setOwnership(createDefaultOwnership());
+
+        Complex z1 = new Complex(getR(t3w.getLeg1()), getX(t3w.getLeg1()));
+        Complex z2 = new Complex(getR(t3w.getLeg2()), getX(t3w.getLeg2()));
+        Complex z3 = new Complex(getR(t3w.getLeg3()), getX(t3w.getLeg3()));
+
+        Complex z12 = impedanceToPerUnit(z1.add(z2), t3w.getRatedU0(), perUnitContext.sBase());
+        Complex z23 = impedanceToPerUnit(z2.add(z3), t3w.getRatedU0(), perUnitContext.sBase());
+        Complex z31 = impedanceToPerUnit(z3.add(z1), t3w.getRatedU0(), perUnitContext.sBase());
+        psseTransformer.setR12(z12.getReal());
+        psseTransformer.setX12(z12.getImaginary());
+        psseTransformer.setSbase12(perUnitContext.sBase());
+        psseTransformer.setR23(z23.getReal());
+        psseTransformer.setX23(z23.getImaginary());
+        psseTransformer.setSbase23(perUnitContext.sBase());
+        psseTransformer.setR31(z31.getReal());
+        psseTransformer.setX31(z31.getImaginary());
+        psseTransformer.setSbase31(perUnitContext.sBase());
+
+        psseTransformer.setWinding1(createWinding(t3w.getLeg1(), t3w.getRatedU0(), contextExport), createRates(t3w.getLeg1()));
+        psseTransformer.setWinding2(createWinding(t3w.getLeg2(), t3w.getRatedU0(), contextExport), createRates(t3w.getLeg2()));
+        psseTransformer.setWinding3(createWinding(t3w.getLeg3(), t3w.getRatedU0(), contextExport), createRates(t3w.getLeg3()));
+
+        return psseTransformer;
+    }
+
+    private static PsseTransformerWinding createWinding(Leg leg, double ratedU0, ContextExport contextExport) {
+        PsseTransformerWinding winding = createDefaultWinding();
+        RatioR ratioR = findRatioData(leg.getRatioTapChanger(), leg.getPhaseTapChanger(), getPerUnitRatio0(leg, ratedU0), contextExport);
+        winding.setWindv(ratioR.windv);
+        winding.setAng(ratioR.ang);
+        winding.setCod(ratioR.cod);
+        winding.setCont(ratioR.cont);
+        winding.setNode(ratioR.node);
+        winding.setRma(ratioR.rma);
+        winding.setRmi(ratioR.rmi);
+        winding.setNtp(ratioR.ntp);
+        return winding;
+    }
+
+    private static double getPerUnitRatio0(Leg leg, double ratedU0) {
+        return (leg.getRatedU() * ratedU0) / (ratedU0 * leg.getTerminal().getVoltageLevel().getNominalV());
+    }
+
+    private static double getR(Leg leg) {
+        return getValue(leg.getR(),
+                leg.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getR()).orElse(0d),
+                leg.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getR()).orElse(0d));
+    }
+
+    private static double getX(Leg leg) {
+        return getValue(leg.getX(),
+                leg.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getX()).orElse(0d),
+                leg.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getX()).orElse(0d));
+    }
+
+    private static double getG(Leg leg) {
+        return getValue(leg.getG(),
+                leg.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getG()).orElse(0d),
+                leg.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getG()).orElse(0d));
+    }
+
+    private static double getB(Leg leg) {
+        return getValue(leg.getB(),
+                leg.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getB()).orElse(0d),
+                leg.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getB()).orElse(0d));
+    }
+
+    private static double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
+        return initialValue * (1 + rtcStepValue / 100) * (1 + ptcStepValue / 100);
+    }
+
+    private static PsseRates createRates(Leg leg) {
+        PsseRates windingRates = createDefaultRates();
+        leg.getApparentPowerLimits().ifPresent(apparentPowerLimits -> setSortedRatesToPsseRates(getSortedRates(apparentPowerLimits), windingRates));
+        if (leg.getApparentPowerLimits().isEmpty()) {
+            leg.getCurrentLimits().ifPresent(currentLimits -> setSortedRatesToPsseRates(getSortedRates(currentLimits, leg.getTerminal().getVoltageLevel().getNominalV()), windingRates));
+        }
+        if (leg.getApparentPowerLimits().isEmpty() && leg.getCurrentLimits().isEmpty()) {
+            leg.getActivePowerLimits().ifPresent(activePowerLimits -> setSortedRatesToPsseRates(getSortedRates(activePowerLimits), windingRates));
+        }
+        return windingRates;
+    }
+
+    private static RatioR findRatioData(RatioTapChanger rtc, PhaseTapChanger ptc, double a0, ContextExport contextExport) {
+        if (rtc != null && ptc != null) {
+            return findRatioDataRtcAndPtc(rtc, ptc, a0, contextExport);
+        } else if (rtc != null) {
+            return findRatioDataRtc(rtc, a0, contextExport);
+        } else if (ptc != null) {
+            return findRatioDataPtc(ptc, a0, contextExport);
+        } else {
+            return new RatioR(0, a0, 0.0, 0, 0, 1.1, 0.9, 33);
+        }
+    }
+
+    private static RatioR findRatioDataRtcAndPtc(RatioTapChanger rtc, PhaseTapChanger ptc, double a0, ContextExport contextExport) {
+        if (ptc.isRegulating() && !rtc.isRegulating()) {
+            int regulatingBusI = getRegulatingTerminalBusI(ptc.getRegulationTerminal(), contextExport);
+            return new RatioR(getSteps(ptc) > 1 && regulatingBusI != 0 ? 3 : 0, a0 * getRatio(rtc) * getRatio(ptc), getAngle(ptc),
+                    regulatingBusI,
+                    getRegulatingTerminalNode(ptc.getRegulationTerminal(), contextExport),
+                    getMaxAngle(ptc), getMinAngle(ptc), getSteps(ptc));
+        } else {
+            int regulatingBusI = getRegulatingTerminalBusI(rtc.getRegulationTerminal(), contextExport);
+            return new RatioR(getSteps(rtc) > 1 && regulatingBusI != 0 ? 1 : 0, a0 * getRatio(rtc) * getRatio(ptc), getAngle(ptc),
+                    regulatingBusI,
+                    getRegulatingTerminalNode(rtc.getRegulationTerminal(), contextExport),
+                    getMaxRatio(rtc) * getRatio(ptc), getMinRatio(rtc) * getRatio(ptc), getSteps(rtc));
+        }
+    }
+
+    private static RatioR findRatioDataRtc(RatioTapChanger rtc, double a0, ContextExport contextExport) {
+        int regulatingBusI = getRegulatingTerminalBusI(rtc.getRegulationTerminal(), contextExport);
+        return new RatioR(getSteps(rtc) > 1 && regulatingBusI != 0 ? 1 : 0, a0 * getRatio(rtc), 0.0,
+                regulatingBusI,
+                getRegulatingTerminalNode(rtc.getRegulationTerminal(), contextExport),
+                getMaxRatio(rtc), getMinRatio(rtc), getSteps(rtc));
+    }
+
+    private static RatioR findRatioDataPtc(PhaseTapChanger ptc, double a0, ContextExport contextExport) {
+        int regulatingBusI = getRegulatingTerminalBusI(ptc.getRegulationTerminal(), contextExport);
+        return new RatioR(getSteps(ptc) > 1 && regulatingBusI != 0 ? 3 : 0, a0 * getRatio(ptc), getAngle(ptc),
+                regulatingBusI,
+                getRegulatingTerminalNode(ptc.getRegulationTerminal(), contextExport),
+                getMaxAngle(ptc), getMinAngle(ptc), getSteps(ptc));
+    }
+
+    private static double getMinRatio(RatioTapChanger rtc) {
+        double firstRatio = 1.0 / rtc.getStep(rtc.getLowTapPosition()).getRho();
+        double lastRatio = 1.0 / rtc.getStep(rtc.getHighTapPosition()).getRho();
+        return Math.min(firstRatio, lastRatio);
+    }
+
+    private static double getMaxRatio(RatioTapChanger rtc) {
+        double firstRatio = 1.0 / rtc.getStep(rtc.getLowTapPosition()).getRho();
+        double lastRatio = 1.0 / rtc.getStep(rtc.getHighTapPosition()).getRho();
+        return Math.max(firstRatio, lastRatio);
+    }
+
+    private static int getSteps(RatioTapChanger rtc) {
+        int steps = rtc.getHighTapPosition() - rtc.getLowTapPosition();
+        return rtc.getLowTapPosition() < 0 ? steps : steps + 1;
+    }
+
+    private static double getMinAngle(PhaseTapChanger ptc) {
+        double firstAngle = convertToAngle(ptc.getStep(ptc.getLowTapPosition()).getAlpha());
+        double lastAngle = convertToAngle(ptc.getStep(ptc.getHighTapPosition()).getAlpha());
+        return Math.min(firstAngle, lastAngle);
+    }
+
+    private static double getMaxAngle(PhaseTapChanger ptc) {
+        double firstAngle = convertToAngle(ptc.getStep(ptc.getLowTapPosition()).getAlpha());
+        double lastAngle = convertToAngle(ptc.getStep(ptc.getHighTapPosition()).getAlpha());
+        return Math.max(firstAngle, lastAngle);
+    }
+
+    private static int getSteps(PhaseTapChanger ptc) {
+        int steps = ptc.getHighTapPosition() - ptc.getLowTapPosition();
+        return ptc.getLowTapPosition() < 0 ? steps : steps + 1;
+    }
+
+    private static PsseTransformer createDefaultTransformer() {
+        PsseTransformer psseTransformer = new PsseTransformer();
+        psseTransformer.setI(0);
+        psseTransformer.setJ(0);
+        psseTransformer.setK(0);
+        psseTransformer.setCkt("1");
+        psseTransformer.setCw(1);
+        psseTransformer.setCz(1);
+        psseTransformer.setCm(1);
+        psseTransformer.setMag1(0.0);
+        psseTransformer.setMag2(0.0);
+        psseTransformer.setNmetr(2);
+        psseTransformer.setName("");
+        psseTransformer.setStat(1);
+        psseTransformer.setOwnership(createDefaultOwnership());
+        psseTransformer.setVecgrp("            ");
+        psseTransformer.setZcod(0);
+        createDefaultTransformerImpedances(psseTransformer);
+        psseTransformer.setWinding1(createDefaultWinding(), createDefaultRates());
+        psseTransformer.setWinding2(createDefaultWinding(), createDefaultRates());
+        psseTransformer.setWinding3(createDefaultWinding(), createDefaultRates());
+        return psseTransformer;
+    }
+
+    private static void createDefaultTransformerImpedances(PsseTransformer psseTransformer) {
+        psseTransformer.setImpedances(new PsseTransformer.TransformerImpedances());
+        psseTransformer.setR12(0.0);
+        psseTransformer.setX12(0.0);
+        psseTransformer.setSbase12(0.0);
+        psseTransformer.setR23(0.0);
+        psseTransformer.setX23(0.0);
+        psseTransformer.setSbase23(0.0);
+        psseTransformer.setR31(0.0);
+        psseTransformer.setX31(0.0);
+        psseTransformer.setSbase31(0.0);
+        psseTransformer.setVmstar(0.0);
+        psseTransformer.setAnstar(0.0);
+    }
+
+    private static PsseTransformerWinding createDefaultWinding() {
+        PsseTransformerWinding winding = new PsseTransformerWinding();
+        winding.setWindv(1.0);
+        winding.setNomv(0.0);
+        winding.setAng(0.0);
+        winding.setCod(0);
+        winding.setCont(0);
+        winding.setNode(0);
+        winding.setRma(1.1);
+        winding.setRmi(0.9);
+        winding.setVma(1.1);
+        winding.setVmi(0.9);
+        winding.setNtp(33);
+        winding.setTab(0);
+        winding.setCr(0.0);
+        winding.setCx(0.0);
+        winding.setCnxa(0.0);
+        return winding;
+    }
+
     // At the moment we do not consider new transformers and antenna twoWindingsTransformers are exported as open
     static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getTransformers().forEach(psseTransformer -> {
@@ -862,13 +1210,8 @@ class TransformerConverter extends AbstractConverter {
             psseTransformer.getWinding1().setWindv(defineWindV(getRatio(t2w.getRatioTapChanger(), t2w.getPhaseTapChanger()), baskv1, nomV1, psseTransformer.getCw()));
             psseTransformer.getWinding1().setAng(getAngle(t2w.getPhaseTapChanger()));
 
-            psseTransformer.setStat(getStatus(t2w));
+            psseTransformer.setStat(getUpdatedStatus(t2w.getTerminal1(), t2w.getTerminal2()));
         }
-    }
-
-    private static int getStatus(TwoWindingsTransformer t2w) {
-        return t2w.getTerminal1().isConnected() && t2w.getTerminal1().getBusBreakerView().getBus() != null
-                && t2w.getTerminal2().isConnected() && t2w.getTerminal2().getBusBreakerView().getBus() != null ? 1 : 0;
     }
 
     private static void updateThreeWindingsTransformer(Network network, PsseTransformer psseTransformer) {
@@ -892,23 +1235,30 @@ class TransformerConverter extends AbstractConverter {
             psseTransformer.getWinding3().setWindv(defineWindV(getRatio(t3w.getLeg3().getRatioTapChanger(), t3w.getLeg3().getPhaseTapChanger()), baskv3, nomV3, psseTransformer.getCw()));
             psseTransformer.getWinding3().setAng(getAngle(t3w.getLeg3().getPhaseTapChanger()));
 
-            psseTransformer.setStat(getStatus(t3w));
+            psseTransformer.setStat(getUpdatedStatus(t3w));
         }
     }
 
-    private static int getStatus(ThreeWindingsTransformer t3w) {
-        if (t3w.getLeg1().getTerminal().isConnected() && t3w.getLeg1().getTerminal().getBusBreakerView().getBus() != null
-                && t3w.getLeg2().getTerminal().isConnected() && t3w.getLeg2().getTerminal().getBusBreakerView().getBus() != null
-                && t3w.getLeg3().getTerminal().isConnected() && t3w.getLeg3().getTerminal().getBusBreakerView().getBus() != null) {
+    private static int getStatus(ThreeWindingsTransformer t3w, ContextExport contextExport) {
+        return getStatus(getStatus(t3w.getLeg1().getTerminal(), contextExport),
+                getStatus(t3w.getLeg2().getTerminal(), contextExport),
+                getStatus(t3w.getLeg3().getTerminal(), contextExport));
+    }
+
+    private static int getUpdatedStatus(ThreeWindingsTransformer t3w) {
+        return getStatus(getUpdatedStatus(t3w.getLeg1().getTerminal()),
+                getUpdatedStatus(t3w.getLeg2().getTerminal()),
+                getUpdatedStatus(t3w.getLeg3().getTerminal()));
+    }
+
+    private static int getStatus(int statusLeg1, int statusLeg2, int statusLeg3) {
+        if (statusLeg1 == 1 && statusLeg2 == 1 && statusLeg3 == 1) {
             return 1;
-        } else if (t3w.getLeg1().getTerminal().isConnected() && t3w.getLeg1().getTerminal().getBusBreakerView().getBus() != null
-                && t3w.getLeg2().getTerminal().isConnected() && t3w.getLeg2().getTerminal().getBusBreakerView().getBus() != null) {
+        } else if (statusLeg1 == 1 && statusLeg2 == 1) {
             return 3;
-        } else if (t3w.getLeg1().getTerminal().isConnected() && t3w.getLeg1().getTerminal().getBusBreakerView().getBus() != null
-                && t3w.getLeg3().getTerminal().isConnected() && t3w.getLeg3().getTerminal().getBusBreakerView().getBus() != null) {
+        } else if (statusLeg1 == 1 && statusLeg3 == 1) {
             return 2;
-        } else if (t3w.getLeg2().getTerminal().isConnected() && t3w.getLeg2().getTerminal().getBusBreakerView().getBus() != null
-                && t3w.getLeg3().getTerminal().isConnected() && t3w.getLeg3().getTerminal().getBusBreakerView().getBus() != null) {
+        } else if (statusLeg2 == 1 && statusLeg3 == 1) {
             return 4;
         } else {
             return 0;
@@ -941,6 +1291,9 @@ class TransformerConverter extends AbstractConverter {
 
     private static double convertToAngle(double alpha) {
         return alpha != 0.0 ? -alpha : alpha; // To avoid - 0.0
+    }
+
+    private record RatioR(int cod, double windv, double ang, int cont, int node, double rma, double rmi, int ntp) {
     }
 
     private final PsseTransformer psseTransformer;

@@ -7,8 +7,7 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.Objects;
-import java.util.OptionalInt;
+import java.util.*;
 
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -54,7 +53,7 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
             .add();
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_FIXED_SHUNT, psseFixedShunt.getI(), psseFixedShunt.getId());
-        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseFixedShunt.getI()));
+        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseFixedShunt.getI(), 0, 0, psseFixedShunt.getI(), "I"));
         if (node.isPresent()) {
             adder.setNode(node.getAsInt());
         } else {
@@ -66,6 +65,26 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
         adder.add();
     }
 
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+        List<PsseFixedShunt> fixedShunts = new ArrayList<>();
+        network.getShuntCompensators().forEach(shuntCompensator -> fixedShunts.add(createFixedShunt(shuntCompensator, contextExport)));
+        psseModel.addFixedShunts(fixedShunts);
+        psseModel.replaceAllFixedShunts(psseModel.getFixedShunts().stream().sorted(Comparator.comparingInt(PsseFixedShunt::getI).thenComparing(PsseFixedShunt::getId)).toList());
+    }
+
+    static PsseFixedShunt createFixedShunt(ShuntCompensator shuntCompensator, ContextExport contextExport) {
+        PsseFixedShunt psseFixedShunt = new PsseFixedShunt();
+
+        int busI = getTerminalBusI(shuntCompensator.getTerminal(), contextExport);
+        psseFixedShunt.setI(busI);
+        psseFixedShunt.setId(contextExport.getFullExport().getEquipmentCkt(shuntCompensator.getId(), PSSE_FIXED_SHUNT.getTextCode(), busI));
+        psseFixedShunt.setStatus(getStatus(shuntCompensator.getTerminal(), contextExport));
+        psseFixedShunt.setGl(getP(shuntCompensator));
+        psseFixedShunt.setBl(getQ(shuntCompensator));
+
+        return psseFixedShunt;
+    }
+
     static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getFixedShunts().forEach(psseFixedShunt -> {
             String fixedShuntId = getFixedShuntId(psseFixedShunt.getI(), psseFixedShunt.getId());
@@ -74,7 +93,7 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
             if (fixedShunt == null) {
                 psseFixedShunt.setStatus(0);
             } else {
-                psseFixedShunt.setStatus(getStatus(fixedShunt));
+                psseFixedShunt.setStatus(getUpdatedStatus(fixedShunt.getTerminal()));
                 psseFixedShunt.setGl(getP(fixedShunt));
                 psseFixedShunt.setBl(getQ(fixedShunt));
             }

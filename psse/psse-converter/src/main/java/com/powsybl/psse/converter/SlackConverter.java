@@ -34,7 +34,6 @@ class SlackConverter extends AbstractConverter {
 
     void create() {
         psseBusList.stream().filter(psseBus -> psseBus.getIde() == 3).forEach(psseBus -> {
-
             Optional<NodeBreakerImport.ControlR> slackControlNode = nodeBreakerImport.getSlackControlNode(psseBus.getI());
             if (slackControlNode.isPresent()) {
                 Terminal terminal = findTerminalNode(getNetwork(), slackControlNode.get().voltageLevelId(), slackControlNode.get().node());

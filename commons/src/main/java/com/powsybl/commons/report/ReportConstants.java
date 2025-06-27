@@ -8,7 +8,6 @@
 package com.powsybl.commons.report;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -18,8 +17,7 @@ public final class ReportConstants {
     public static final String SEVERITY_KEY = "reportSeverity";
     public static final String TIMESTAMP_KEY = "reportTimestamp";
     public static final String DEFAULT_TIMESTAMP_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-    public static final Locale DEFAULT_LOCALE = Locale.US;
-    public static final DateTimeFormatter DEFAULT_TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern(DEFAULT_TIMESTAMP_PATTERN, DEFAULT_LOCALE);
+    public static final DateTimeFormatter DEFAULT_TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern(DEFAULT_TIMESTAMP_PATTERN);
     public static final ReportNodeVersion CURRENT_VERSION = ReportNodeVersion.V_3_0;
 
     private ReportConstants() {

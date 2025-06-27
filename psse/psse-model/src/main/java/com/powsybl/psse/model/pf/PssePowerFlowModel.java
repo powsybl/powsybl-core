@@ -87,11 +87,21 @@ public class PssePowerFlowModel {
         this.loads.addAll(modelled(loads));
     }
 
+    public void replaceAllLoads(List<PsseLoad> loads) {
+        this.loads.clear();
+        this.loads.addAll(modelled(loads));
+    }
+
     public List<PsseLoad> getLoads() {
         return Collections.unmodifiableList(loads);
     }
 
     public void addFixedShunts(List<PsseFixedShunt> fixedShunts) {
+        this.fixedShunts.addAll(fixedShunts);
+    }
+
+    public void replaceAllFixedShunts(List<PsseFixedShunt> fixedShunts) {
+        this.fixedShunts.clear();
         this.fixedShunts.addAll(fixedShunts);
     }
 
@@ -103,6 +113,11 @@ public class PssePowerFlowModel {
         this.generators.addAll(modelled(generators));
     }
 
+    public void replaceAllGenerators(List<PsseGenerator> generators) {
+        this.generators.clear();
+        this.generators.addAll(modelled(generators));
+    }
+
     public List<PsseGenerator> getGenerators() {
         return Collections.unmodifiableList(generators);
     }
@@ -111,11 +126,21 @@ public class PssePowerFlowModel {
         this.nonTransformerBranches.addAll(modelled(nonTransformerBranches));
     }
 
+    public void replaceAllNonTransformerBranches(List<PsseNonTransformerBranch> nonTransformerBranches) {
+        this.nonTransformerBranches.clear();
+        this.nonTransformerBranches.addAll(modelled(nonTransformerBranches));
+    }
+
     public List<PsseNonTransformerBranch> getNonTransformerBranches() {
         return Collections.unmodifiableList(nonTransformerBranches);
     }
 
     public void addTransformers(List<PsseTransformer> transformers) {
+        this.transformers.addAll(modelled(transformers));
+    }
+
+    public void replaceAllTransformers(List<PsseTransformer> transformers) {
+        this.transformers.clear();
         this.transformers.addAll(modelled(transformers));
     }
 
@@ -135,12 +160,22 @@ public class PssePowerFlowModel {
         this.twoTerminalDcTransmissionLines.addAll(modelled(twoTerminalDcTransmissionLines));
     }
 
+    public void replaceAllTwoTerminalDcTransmissionLines(List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcTransmissionLines) {
+        this.twoTerminalDcTransmissionLines.clear();
+        this.twoTerminalDcTransmissionLines.addAll(twoTerminalDcTransmissionLines);
+    }
+
     public List<PsseTwoTerminalDcTransmissionLine> getTwoTerminalDcTransmissionLines() {
         return Collections.unmodifiableList(twoTerminalDcTransmissionLines);
     }
 
     public void addVoltageSourceConverterDcTransmissionLines(List<PsseVoltageSourceConverterDcTransmissionLine> voltageSourceConverterDcTransmissionLines) {
         this.voltageSourceConverterDcTransmissionLines.addAll(modelled(voltageSourceConverterDcTransmissionLines));
+    }
+
+    public void replaceAllVoltageSourceConverterDcTransmissionLines(List<PsseVoltageSourceConverterDcTransmissionLine> vscDcTransmissionLines) {
+        this.voltageSourceConverterDcTransmissionLines.clear();
+        this.voltageSourceConverterDcTransmissionLines.addAll(vscDcTransmissionLines);
     }
 
     public List<PsseVoltageSourceConverterDcTransmissionLine> getVoltageSourceConverterDcTransmissionLines() {
@@ -199,12 +234,22 @@ public class PssePowerFlowModel {
         this.facts.addAll(modelled(facts));
     }
 
+    public void replaceAllFacts(List<PsseFacts> factsDevices) {
+        this.facts.clear();
+        this.facts.addAll(factsDevices);
+    }
+
     public List<PsseFacts> getFacts() {
         return Collections.unmodifiableList(facts);
     }
 
     public void addSwitchedShunts(List<PsseSwitchedShunt> switchedShunts) {
         this.switchedShunts.addAll(modelled(switchedShunts));
+    }
+
+    public void replaceAllSwitchedShunts(List<PsseSwitchedShunt> switchedShunts) {
+        this.switchedShunts.clear();
+        this.switchedShunts.addAll(switchedShunts);
     }
 
     public List<PsseSwitchedShunt> getSwitchedShunts() {
@@ -244,14 +289,12 @@ public class PssePowerFlowModel {
 
     private static void referencePermanentBlocks(PssePowerFlowModel psseModel, PssePowerFlowModel newPsseModel) {
         newPsseModel.addAreas(psseModel.getAreas());
-        newPsseModel.addVoltageSourceConverterDcTransmissionLines(psseModel.getVoltageSourceConverterDcTransmissionLines());
         newPsseModel.addTransformerImpedanceCorrections(psseModel.getTransformerImpedanceCorrections());
         newPsseModel.addMultiTerminalDcTransmissionLines(psseModel.getMultiTerminalDcTransmissionLines());
         newPsseModel.addLineGrouping(psseModel.getLineGrouping());
         newPsseModel.addZones(psseModel.getZones());
         newPsseModel.addInterareaTransfer(psseModel.getInterareaTransfer());
         newPsseModel.addOwners(psseModel.getOwners());
-        newPsseModel.addFacts(psseModel.getFacts());
         newPsseModel.addGneDevice(psseModel.getGneDevice());
         newPsseModel.addInductionMachines(psseModel.getInductionMachines());
     }
@@ -266,7 +309,9 @@ public class PssePowerFlowModel {
         psseModel.getTransformers().forEach(psseTransformer -> newPsseModel.transformers.add(psseTransformer.copy()));
 
         psseModel.getTwoTerminalDcTransmissionLines().forEach(twoTerminalDc -> newPsseModel.twoTerminalDcTransmissionLines.add(twoTerminalDc.copy()));
+        psseModel.getVoltageSourceConverterDcTransmissionLines().forEach(vscDcTransmissionLine -> newPsseModel.voltageSourceConverterDcTransmissionLines.add(vscDcTransmissionLine.copy()));
 
+        psseModel.getFacts().forEach(psseFactsDevice -> newPsseModel.facts.add(psseFactsDevice.copy()));
         psseModel.getSwitchedShunts().forEach(psseSwitchedShunt -> newPsseModel.switchedShunts.add(psseSwitchedShunt.copy()));
         psseModel.getSubstations().forEach(psseSubstation -> newPsseModel.substations.add(psseSubstation.copy()));
     }

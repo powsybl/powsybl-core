@@ -7,19 +7,12 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PsseBus;
 import com.powsybl.psse.model.pf.PsseGenerator;
@@ -53,7 +46,7 @@ class GeneratorConverter extends AbstractConverter {
                 .setVoltageRegulatorOn(false);
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_GENERATOR, psseGenerator.getI(), psseGenerator.getId());
-        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseGenerator.getI()));
+        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseGenerator.getI(), 0, 0, psseGenerator.getI(), "I"));
         if (node.isPresent()) {
             adder.setNode(node.getAsInt());
         } else {
@@ -130,6 +123,59 @@ class GeneratorConverter extends AbstractConverter {
         return regulatingTerminal;
     }
 
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+        List<PsseGenerator> generators = new ArrayList<>();
+        network.getGenerators().forEach(generator -> generators.add(createGenerator(generator, contextExport, perUnitContext)));
+        psseModel.addGenerators(generators);
+        psseModel.replaceAllGenerators(psseModel.getGenerators().stream().sorted(Comparator.comparingInt(PsseGenerator::getI).thenComparing(PsseGenerator::getId)).toList());
+    }
+
+    private static double getVoltageTarget(Generator gen) {
+        if (Double.isNaN(gen.getTargetV()) || gen.getTargetV() <= 0.0) {
+            return 1.0;
+        } else {
+            double vNominal = gen.getRegulatingTerminal() != null ? gen.getRegulatingTerminal().getVoltageLevel().getNominalV() : gen.getTerminal().getVoltageLevel().getNominalV();
+            return gen.getTargetV() / vNominal;
+        }
+    }
+
+    private static double getMaxP(Generator generator) {
+        return Double.isNaN(generator.getMaxP()) ? 9999.0 : generator.getMaxP();
+    }
+
+    private static double getMinP(Generator generator) {
+        return Double.isNaN(generator.getMinP()) ? -9999.0 : generator.getMinP();
+    }
+
+    private static double getMaxQ(Generator generator) {
+        return generator.getReactiveLimits() != null ? generator.getReactiveLimits().getMaxQ(generator.getTargetP()) : 9999.0;
+    }
+
+    private static double getMinQ(Generator generator) {
+        return generator.getReactiveLimits() != null ? generator.getReactiveLimits().getMinQ(generator.getTargetP()) : -9999.0;
+    }
+
+    static PsseGenerator createGenerator(Generator generator, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+        PsseGenerator psseGenerator = createDefaultGenerator();
+
+        int busI = getTerminalBusI(generator.getTerminal(), contextExport);
+
+        psseGenerator.setI(busI);
+        psseGenerator.setId(contextExport.getFullExport().getEquipmentCkt(generator.getId(), PSSE_GENERATOR.getTextCode(), busI));
+        psseGenerator.setPg(getP(generator));
+        psseGenerator.setQg(getQ(generator));
+        psseGenerator.setQt(Math.max(getMaxQ(generator), getMinQ(generator)));
+        psseGenerator.setQb(getMinQ(generator));
+        psseGenerator.setVs(getVoltageTarget(generator));
+        psseGenerator.setIreg(getRegulatingTerminalBusI(generator.getRegulatingTerminal(), busI, psseGenerator.getIreg(), contextExport));
+        psseGenerator.setNreg(getRegulatingTerminalNode(generator.getRegulatingTerminal(), contextExport));
+        psseGenerator.setMbase(perUnitContext.sBase());
+        psseGenerator.setStat(getStatus(generator.getTerminal(), contextExport));
+        psseGenerator.setPt(getMaxP(generator));
+        psseGenerator.setPb(getMinP(generator));
+        return psseGenerator;
+    }
+
     static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getGenerators().forEach(psseGen -> {
             String genId = getGeneratorId(psseGen.getI(), psseGen.getId());
@@ -138,19 +184,11 @@ class GeneratorConverter extends AbstractConverter {
             if (gen == null) {
                 psseGen.setStat(0);
             } else {
-                psseGen.setStat(getStatus(gen));
+                psseGen.setStat(getUpdatedStatus(gen.getTerminal()));
                 psseGen.setPg(getP(gen));
                 psseGen.setQg(getQ(gen));
             }
         });
-    }
-
-    private static int getStatus(Generator gen) {
-        if (gen.getTerminal().isConnected() && gen.getTerminal().getBusBreakerView().getBus() != null) {
-            return 1;
-        } else {
-            return 0;
-        }
     }
 
     private static double getP(Generator gen) {
