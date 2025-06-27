@@ -288,7 +288,7 @@ An `ExternalNetworkinjection` is mapped to a PowSyBl [`Generator`](../../grid_mo
 Linear shunt compensators represent shunt compensators with banks or sections with equal admittance values.
 
 A `LinearShuntCompensator` is mapped to a PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) with `SectionCount` copied from CGMES SSH `sections` if present. If not, it is copied from CGMES `SvShuntCompensatorSections.sections` or `normalSections`.
-The `solvedSectionCount` is copied from `SvShuntCompensatorSections.sections` is the SV is imported, and left to `null` otherwise.
+The `SolvedSectionCount` is copied from `SvShuntCompensatorSections.sections` if the SV is imported, and left to `null` otherwise.
 The created PowSyBl shunt compensator is linear, and its attributes are defined as described below:
 - `BPerSection` is copied from CGMES `bPerSection` if defined. Else, it is `Float.MIN_VALUE`.
 - `GPerSection` is copied from CGMES `gPerSection` if defined. Else, it is left undefined.
