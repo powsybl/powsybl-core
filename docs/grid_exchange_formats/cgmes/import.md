@@ -302,7 +302,7 @@ The created PowSyBl shunt compensator is linear, and its attributes are defined 
 Non-linear shunt compensators represent shunt compensators with banks or section admittance values that differ.
 
 A `NonlinearShuntCompensator` is mapped to a PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) with `SectionCount` copied from CGMES SSH `sections` if present. If not, it is copied from CGMES `SvShuntCompensatorSections.sections` or `normalSections`.
-The `solvedSectionCount` is copied from `SvShuntCompensatorSections.sections` is the SV is imported, and left to `null` otherwise.
+The `SolvedSectionCount` is copied from `SvShuntCompensatorSections.sections` if the SV is imported, and left to `null` otherwise.
 The created PowSyBl shunt compensator is non-linear and has as many `Sections` as there are `NonlinearShuntCompensatorPoint` associated with the `NonlinearShuntCompensator` it is mapped to.
 
 Sections are created from the lowest CGMES `sectionNumber` to the highest and each section has its attributes created as described below:
