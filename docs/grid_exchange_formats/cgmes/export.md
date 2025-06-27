@@ -301,7 +301,7 @@ PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `Co
 
 PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) is exported as `LinearShuntCompensator` or `NonlinearShuntCompensator` depending on their models.
 The CGMES SSH `sections` is written from the IIDM `SectionCount`, and the CGMES SV `SvShuntCompensatorSections.sections` 
-is written from the IIDM `solvedSectionCount` if present, otherwise `sectionCount`.
+is written from the IIDM `SolvedSectionCount` if present, otherwise `SectionCount`.
 
 #### Regulating control
 
