@@ -12,11 +12,13 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.identifiers.*;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -38,8 +40,11 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
         String voltageLevelId1 = null;
         String voltageLevelId2 = null;
         String contingencyId = null;
+        String substationOrVoltageLevelId = null;
+        String wildcard = IdWithWildcardsNetworkElementIdentifier.DEFAULT_WILDCARD_CHARACTER;
         String version = JsonUtil.getSourceVersion(deserializationContext, IDENTIFIER_LIST_VERSION);
         List<NetworkElementIdentifier> networkElementIdentifierList = Collections.emptyList();
+        Set<IdentifiableType> voltageLevelIdentifiableTypes = Collections.emptySet();
         char order = 0;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
@@ -55,6 +60,11 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                 }
                 case "voltageLevelId1" -> voltageLevelId1 = parser.nextTextValue();
                 case "voltageLevelId2" -> voltageLevelId2 = parser.nextTextValue();
+                case "substationOrVoltageLevelId" -> substationOrVoltageLevelId = parser.nextTextValue();
+                case "voltageLevelIdentifiableTypes" -> {
+                    parser.nextToken();
+                    voltageLevelIdentifiableTypes = JsonUtil.readSet(deserializationContext, parser, IdentifiableType.class);
+                }
                 case "order" -> {
                     String orderStr = parser.nextTextValue();
                     if (orderStr.length() != 1) {
@@ -62,6 +72,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                     }
                     order = orderStr.charAt(0);
                 }
+                case "wildcard" -> wildcard = parser.nextTextValue();
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
@@ -73,7 +84,8 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
             case LIST -> new NetworkElementIdentifierContingencyList(networkElementIdentifierList, contingencyId);
             case VOLTAGE_LEVELS_AND_ORDER ->
                 new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order, contingencyId);
-            case ID_WITH_WILDCARDS -> new IdWithWildcardsNetworkElementIdentifier(identifier, contingencyId);
+            case ID_WITH_WILDCARDS -> new IdWithWildcardsNetworkElementIdentifier(identifier, wildcard, contingencyId);
+            case SUBSTATION_OR_VOLTAGE_LEVEL_EQUIPMENTS -> new SubstationOrVoltageLevelEquipmentsIdentifier(substationOrVoltageLevelId, voltageLevelIdentifiableTypes);
         };
     }
 }
