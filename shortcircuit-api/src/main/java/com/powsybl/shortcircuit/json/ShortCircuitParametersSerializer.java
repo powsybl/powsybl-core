@@ -48,7 +48,7 @@ public class ShortCircuitParametersSerializer extends StdSerializer<ShortCircuit
             serializerProvider.defaultSerializeField("voltageRanges", parameters.getVoltageRanges(), jsonGenerator);
         }
         jsonGenerator.writeBooleanField("detailedReport", parameters.isDetailedReport());
-        jsonGenerator.writeStringField("debugDir", parameters.getDebugDir());
+        JsonUtil.writeOptionalStringField(jsonGenerator, "debugDir", parameters.getDebugDir());
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonShortCircuitParameters.getExtensionSerializers()::get);
         jsonGenerator.writeEndObject();
     }

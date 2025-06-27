@@ -25,6 +25,5 @@
     "maximumNominalVoltage" : 375.0,
     "voltageRangeCoefficient" : 1.09
   } ],
-  "detailedReport" : true,
-  "debugDir" : null
+  "detailedReport" : true
 }

@@ -12,7 +12,6 @@
   "withNeutralPosition" : false,
   "initialVoltageProfileMode" : "NOMINAL",
   "detailedReport" : true,
-  "debugDir" : null,
   "extensions" : {
     "dummy-extension" : { }
   }
