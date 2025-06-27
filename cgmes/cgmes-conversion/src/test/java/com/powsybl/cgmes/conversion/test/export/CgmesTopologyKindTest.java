@@ -332,10 +332,10 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
         voltageLevel2.getNodeBreakerView().newInternalConnection().setNode1(3).setNode2(4).add();
 
         // Add limits
-        line.newCurrentLimits1().setPermanentLimit(100).add();
-        line.newApparentPowerLimits1().setPermanentLimit(100).add();
-        line.newActivePowerLimits2().setPermanentLimit(100).add();
-        line.newApparentPowerLimits2().setPermanentLimit(100).add();
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(100).add();
+        line.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits().setPermanentLimit(100).add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits().setPermanentLimit(100).add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits().setPermanentLimit(100).add();
 
         return network;
     }
