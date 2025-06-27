@@ -3,6 +3,6 @@
   "startTime" : 0.0,
   "stopTime" : 10.0,
   "extensions" : {
-    "dummy-extension" : { }
+    "dynamic-simulation-dummy-extension" : { }
   }
 }
