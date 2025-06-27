@@ -10,7 +10,7 @@ package com.powsybl.timeseries;
 import com.google.re2j.Pattern;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,11 +27,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.powsybl.timeseries.TimeSeries.writeInstantToString;
@@ -368,7 +364,7 @@ class TimeSeriesTest {
 
         // Reporter
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV")
                 .build();
 
@@ -399,7 +395,7 @@ class TimeSeriesTest {
 
         // Reporter
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestVersionedAtDefaultNumberNotStrictCSV")
                 .build();
 
