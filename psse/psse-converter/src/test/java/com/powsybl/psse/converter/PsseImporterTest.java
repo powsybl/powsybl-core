@@ -209,7 +209,12 @@ class PsseImporterTest extends AbstractSerDeTest {
 
     @Test
     void twoTerminalDcwithTwoAreasTrf3w() throws IOException {
-        importTest("two_area_case_trf3w", "two_area_case_trf3w.raw", false);
+        importTest("IEEE_14_bus_ntb_zeroX", "IEEE_14_bus_ntb_zeroX.raw", false);
+    }
+
+    @Test
+    void importNonTranformerBranchZeroX() throws IOException {
+        importTest("NonTranformerBranchZeroX", "NonTranformerBranchZeroX.raw", false);
     }
 
     @Test
