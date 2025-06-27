@@ -373,8 +373,8 @@ when `PhaseTapChanger` `regulationMode` is set to `CURRENT_LIMITER`.
 
 PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-winding-transformer) is exported as `PowerTransformer` with two `PowerTransformerEnds`.
 
-If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the IIDM `tapPosition` and the CGMES SV
-`SVtapStep` is written from the IIDM `solvedTapPosition` if it is not null, otherwise `tapPosition`.
+If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the IIDM `TapPosition` and the CGMES SV
+`SVtapStep` is written from the IIDM `SolvedTapPosition` if it is not null, otherwise `TapPosition`.
 
 Tap changer controls for two-winding transformers are exported following the same rules explained in the previous section about three-winding transformers. See [tap changer control](#tap-changer-control).
 
