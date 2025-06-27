@@ -529,6 +529,9 @@ public final class ValidationUtil {
             }
             if (regulationMode == RatioTapChanger.RegulationMode.VOLTAGE && regulationValue <= 0) {
                 throwExceptionOrLogError(validable, "bad target voltage " + regulationValue, actionOnError);
+                if (actionOnError != ActionOnError.IGNORE) {
+                    NetworkReports.regulatingRtcBadTargetVoltage(reportNode, regulationValue);
+                }
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
             }
             if (regulationTerminal == null) {

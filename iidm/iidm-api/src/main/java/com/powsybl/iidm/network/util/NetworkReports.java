@@ -239,6 +239,14 @@ public final class NetworkReports {
                 .add();
     }
 
+    public static void regulatingRtcBadTargetVoltage(ReportNode reportNode, double regulationValue) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.regulatingRtcBadTargetVoltage")
+                .withTypedValue("regulationValue", regulationValue, TypedValue.VOLTAGE)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
     public static void regulatingRtcNoRegulationTerminal(ReportNode reportNode) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.regulatingRtcNoRegulationTerminal")
