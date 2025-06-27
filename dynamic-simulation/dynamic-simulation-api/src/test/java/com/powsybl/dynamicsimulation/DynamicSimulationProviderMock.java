@@ -22,7 +22,6 @@ import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParametersTest;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -62,7 +61,7 @@ public class DynamicSimulationProviderMock implements DynamicSimulationProvider 
 
     @Override
     public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
-        return Optional.of(new JsonDynamicSimulationParametersTest.DummySerializer());
+        return Optional.of(new DummySpecificParametersSerializer());
     }
 
     @Override
