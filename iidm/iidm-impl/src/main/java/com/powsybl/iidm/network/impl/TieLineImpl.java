@@ -178,14 +178,17 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
-        return ConnectDisconnectUtil.connectAllTerminals(
+        return switch (ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminalsOfDanglingLines(side),
             isTypeSwitchToOperate,
             new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()),
             true,
             false,
-            getNetwork().getReportNodeContext().getReportNode());
+            getNetwork().getReportNodeContext().getReportNode())) {
+            case FAILURE, NO_CHANGE_NEEDED -> false;
+            case SUCCESS -> true;
+        };
     }
 
     @Override
@@ -200,14 +203,17 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable, TwoSides side) {
-        return ConnectDisconnectUtil.disconnectAllTerminals(
+        return switch (ConnectDisconnectUtil.disconnectAllTerminals(
             this,
             getTerminalsOfDanglingLines(side),
             isSwitchOpenable,
             new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()),
             true,
             false,
-            getNetwork().getReportNodeContext().getReportNode());
+            getNetwork().getReportNodeContext().getReportNode())) {
+            case FAILURE, NO_CHANGE_NEEDED -> false;
+            case SUCCESS -> true;
+        };
     }
 
     private List<Terminal> getTerminalsOfDanglingLines(TwoSides side) {

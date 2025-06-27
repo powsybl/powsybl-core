@@ -39,7 +39,7 @@ public final class ConnectDisconnectUtil {
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been connected, else {@code false}.
      */
-    static boolean connectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals,
+    static ConnectDisconnectStatus connectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals,
                                        Predicate<Switch> isTypeSwitchToOperate,
                                        ConnectionElementsContainer connectionElementsContainer,
                                        boolean operateSwitchesFromHere, boolean propagateConnectionIfNeeded,
@@ -50,7 +50,7 @@ public final class ConnectDisconnectUtil {
         boolean isNowConnected = true;
 
         // Initialize a list of switches to close and of bus-breaker terminals to connect
-        ConnectionElementsContainer localConnectionElementsContainer = new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>(connectionElementsContainer.branches()));
+        ConnectionElementsContainer localConnectionElementsContainer = new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>(connectionElementsContainer.connectables()));
 
         // We try to connect each terminal
         for (Terminal terminal : terminals) {
@@ -74,13 +74,13 @@ public final class ConnectDisconnectUtil {
 
             // Exit if the terminal cannot be connected
             if (!isNowConnected) {
-                return false;
+                return ConnectDisconnectStatus.FAILURE;
             }
         }
 
         // Exit if the connectable is already fully connected
         if (isAlreadyConnected) {
-            return false;
+            return ConnectDisconnectStatus.NO_CHANGE_NEEDED;
         }
 
         if (operateSwitchesFromHere) {
@@ -94,7 +94,7 @@ public final class ConnectDisconnectUtil {
             connectionElementsContainer.addAll(localConnectionElementsContainer);
         }
 
-        return isNowConnected;
+        return ConnectDisconnectStatus.SUCCESS;
     }
 
     /**
@@ -108,7 +108,7 @@ public final class ConnectDisconnectUtil {
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been disconnected, else {@code false}.
      */
-    static boolean disconnectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals,
+    static ConnectDisconnectStatus disconnectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals,
                                           Predicate<Switch> isSwitchOpenable,
                                           ConnectionElementsContainer connectionElementsContainer,
                                           boolean operateSwitchesFromHere, boolean propagateDisconnectionIfNeeded,
@@ -117,12 +117,12 @@ public final class ConnectDisconnectUtil {
         boolean isAlreadyDisconnected = true;
 
         // Initialize a list of switches to open and of bus-breaker terminals to disconnect
-        ConnectionElementsContainer localConnectionElementsContainer = new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>(connectionElementsContainer.branches()));
+        ConnectionElementsContainer localConnectionElementsContainer = new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>(connectionElementsContainer.connectables()));
 
         // We try to disconnect each terminal
         for (Terminal terminal : terminals) {
             // Check if the terminal is already disconnected
-            if (!terminal.isConnected() && !propagateDisconnectionIfNeeded) {
+            if (!terminal.isConnected()) {
                 NetworkReports.alreadyDisconnectedIdentifiableTerminal(reportNode, identifiable.getId());
                 continue;
             }
@@ -134,7 +134,7 @@ public final class ConnectDisconnectUtil {
                 NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) terminal.getVoltageLevel()).getTopologyModel();
                 if (!topologyModel.canTheTerminalBeDisconnected(terminal, isSwitchOpenable, propagateDisconnectionIfNeeded, localConnectionElementsContainer)) {
                     // Exit if the terminal cannot be disconnected
-                    return false;
+                    return ConnectDisconnectStatus.FAILURE;
                 }
             } else if (terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER) {
                 // If it's a bus-breaker terminal, the terminal is just added to the set
@@ -144,7 +144,7 @@ public final class ConnectDisconnectUtil {
 
         // Exit if the connectable is already fully disconnected
         if (isAlreadyDisconnected) {
-            return false;
+            return ConnectDisconnectStatus.NO_CHANGE_NEEDED;
         }
 
         if (operateSwitchesFromHere) {
@@ -158,6 +158,12 @@ public final class ConnectDisconnectUtil {
             connectionElementsContainer.addAll(localConnectionElementsContainer);
         }
 
-        return true;
+        return ConnectDisconnectStatus.SUCCESS;
+    }
+
+    enum ConnectDisconnectStatus {
+        SUCCESS,
+        FAILURE,
+        NO_CHANGE_NEEDED
     }
 }

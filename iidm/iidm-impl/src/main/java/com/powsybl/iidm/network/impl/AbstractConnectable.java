@@ -228,14 +228,17 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
 
-        return ConnectDisconnectUtil.connectAllTerminals(
+        return switch (ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminals(side),
             isTypeSwitchToOperate,
             new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()),
             true,
             false,
-            getNetwork().getReportNodeContext().getReportNode());
+            getNetwork().getReportNodeContext().getReportNode())) {
+            case FAILURE, NO_CHANGE_NEEDED -> false;
+            case SUCCESS -> true;
+        };
     }
 
     @Override
@@ -250,14 +253,33 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
-        return ConnectDisconnectUtil.disconnectAllTerminals(
+        return switch (ConnectDisconnectUtil.disconnectAllTerminals(
             this,
             getTerminals(side),
             isSwitchOpenable,
             new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()),
             true,
             false,
-            getNetwork().getReportNodeContext().getReportNode());
+            getNetwork().getReportNodeContext().getReportNode())) {
+            case FAILURE, NO_CHANGE_NEEDED -> false;
+            case SUCCESS -> true;
+        };
+    }
+
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side,
+                              ConnectionElementsContainer connectionElementsContainer) {
+        connectionElementsContainer.connectables().add(this);
+        return switch (ConnectDisconnectUtil.disconnectAllTerminals(
+            this,
+            getTerminals(side),
+            isSwitchOpenable,
+            connectionElementsContainer,
+            false,
+            true,
+            getNetwork().getReportNodeContext().getReportNode())) {
+            case FAILURE, NO_CHANGE_NEEDED -> false;
+            case SUCCESS -> true;
+        };
     }
 
     public List<TerminalExt> getTerminals(ThreeSides side) {

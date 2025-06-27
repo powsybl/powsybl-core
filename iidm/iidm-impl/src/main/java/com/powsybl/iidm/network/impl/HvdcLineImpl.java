@@ -248,14 +248,17 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
-        return ConnectDisconnectUtil.connectAllTerminals(
+        return switch (ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminalsOfConverterStations(side),
             isTypeSwitchToOperate,
             new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()),
             true,
             false,
-            getNetwork().getReportNodeContext().getReportNode());
+            getNetwork().getReportNodeContext().getReportNode())) {
+            case FAILURE, NO_CHANGE_NEEDED -> false;
+            case SUCCESS -> true;
+        };
     }
 
     @Override
@@ -270,14 +273,17 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side) {
-        return ConnectDisconnectUtil.disconnectAllTerminals(
+        return switch (ConnectDisconnectUtil.disconnectAllTerminals(
             this,
             getTerminalsOfConverterStations(side),
             isSwitchOpenable,
             new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()),
             true,
             false,
-            getNetwork().getReportNodeContext().getReportNode());
+            getNetwork().getReportNodeContext().getReportNode())) {
+            case FAILURE, NO_CHANGE_NEEDED -> false;
+            case SUCCESS -> true;
+        };
     }
 
     private List<Terminal> getTerminalsOfConverterStations(TwoSides side) {

@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 
@@ -284,15 +284,19 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side,
                            boolean propagateConnectionIfNeeded, boolean connectFromHere,
                            ConnectionElementsContainer connectionElementsContainer) {
-        connectionElementsContainer.branches().add(this);
-        return ConnectDisconnectUtil.connectAllTerminals(
+        connectionElementsContainer.connectables().add(this);
+        return switch (ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminals(side),
             isTypeSwitchToOperate,
             connectionElementsContainer,
             connectFromHere,
             propagateConnectionIfNeeded,
-            getNetwork().getReportNodeContext().getReportNode());
+            getNetwork().getReportNodeContext().getReportNode())) {
+            case SUCCESS -> true;
+            case FAILURE -> false;
+            case NO_CHANGE_NEEDED -> !connectFromHere;
+        };
     }
 
     public boolean disconnect(boolean propagateDisconnectionIfNeeded) {
@@ -307,14 +311,18 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side,
                               boolean propagateDisconnectionIfNeeded, boolean disconnectFromHere,
                               ConnectionElementsContainer connectionElementsContainer) {
-        connectionElementsContainer.branches().add(this);
-        return ConnectDisconnectUtil.disconnectAllTerminals(
+        connectionElementsContainer.connectables().add(this);
+        return switch (ConnectDisconnectUtil.disconnectAllTerminals(
             this,
             getTerminals(side),
             isSwitchOpenable,
             connectionElementsContainer,
             disconnectFromHere,
             propagateDisconnectionIfNeeded,
-            getNetwork().getReportNodeContext().getReportNode());
+            getNetwork().getReportNodeContext().getReportNode())) {
+            case SUCCESS -> true;
+            case FAILURE -> false;
+            case NO_CHANGE_NEEDED -> !disconnectFromHere;
+        };
     }
 }
