@@ -122,8 +122,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (terminalNumber == 1) {
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup1(limitSetId).orElseGet(() -> {
                 storeOperationalLimitSetIdentifiers(b, limitSetId, limitSetName);
-                return b.newOperationalLimitsGroup1(limitSetId); });
+                OperationalLimitsGroup operationalLimitsGroup = b.newOperationalLimitsGroup1(limitSetId);
+                addOperationalLimitsGroupProperties(operationalLimitsGroup);
+                return operationalLimitsGroup; });
             loadingLimitsAdder1 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
+
         } else if (terminalNumber == 2) {
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup2(limitSetId).orElseGet(() -> {
                 storeOperationalLimitSetIdentifiers(b, limitSetId, limitSetName);
@@ -132,6 +135,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         } else {
             throw new IllegalArgumentException();
         }
+    }
+
+    private void addOperationalLimitsGroupProperties(OperationalLimitsGroup operationalLimitsGroup) {
+        // commentaire qui va bien !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        operationalLimitsGroup.setProperty("AAA", "BBB");
     }
 
     /**
