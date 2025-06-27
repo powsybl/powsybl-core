@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+ * Copyright (c) 2016-2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -99,8 +99,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
 
     enum RegulationMode {
         VOLTAGE,
-        REACTIVE_POWER,
-        OFF
+        REACTIVE_POWER
     }
 
     /**
@@ -177,6 +176,16 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * @return this to allow method chaining
      */
     StaticVarCompensator setRegulationMode(RegulationMode regulationMode);
+
+    /**
+     * Get the regulating status.
+     */
+    boolean isRegulating();
+
+    /**
+     * Set the regulating status.
+     */
+    StaticVarCompensator setRegulating(boolean regulating);
 
     /**
      * <p>Get the terminal used for regulation.</p>
