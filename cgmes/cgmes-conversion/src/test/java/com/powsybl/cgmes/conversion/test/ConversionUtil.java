@@ -18,6 +18,7 @@ import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
@@ -101,6 +102,15 @@ public final class ConversionUtil {
     public static Network readCgmesResources(Properties properties, String dir, String... files) {
         ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(dir, files));
         return Network.read(ds, properties);
+    }
+
+    public static Network readCgmesResources(ReportNode reportNode, String dir, String... files) {
+        return readCgmesResources(new Properties(), reportNode, dir, files);
+    }
+
+    public static Network readCgmesResources(Properties properties, ReportNode reportNode, String dir, String... files) {
+        ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(dir, files));
+        return Network.read(ds, properties, reportNode);
     }
 
     public static String writeCgmesProfile(Network network, String profile, Path outDir) throws IOException {

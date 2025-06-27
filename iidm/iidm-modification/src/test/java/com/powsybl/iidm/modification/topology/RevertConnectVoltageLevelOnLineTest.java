@@ -9,7 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -47,7 +47,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         network.newLine().setId("LINE34").setR(0.1).setX(0.1).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setNode1(1).setVoltageLevel1("VL3").setNode2(1).setVoltageLevel2("VL4").add();
 
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestUndefinedLine")
                 .build();
         final NetworkModification modificationWithError1 = new RevertConnectVoltageLevelOnLineBuilder()
@@ -60,7 +60,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.lineNotFound", reportNode1.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode2 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestUndefinedLine")
                 .build();
         final NetworkModification modificationWithError2 = new RevertConnectVoltageLevelOnLineBuilder()
@@ -73,7 +73,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.lineNotFound", reportNode2.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode3 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestNoVLInCommon")
                 .build();
         final NetworkModification modificationWithError3 = new RevertConnectVoltageLevelOnLineBuilder()
@@ -97,7 +97,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         line2.newCurrentLimits1().setPermanentLimit(900.).beginTemporaryLimit().setName("limit6").setValue(400).setAcceptableDuration(1200).endTemporaryLimit().add();
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestRevertConnectVoltageLevelOnLine")
                 .build();
         modification = new RevertConnectVoltageLevelOnLineBuilder()
@@ -121,7 +121,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         modification.apply(network);
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestRevertConnectVoltageLevelOnLineNbBb")
                 .build();
         modification = new RevertConnectVoltageLevelOnLineBuilder()
@@ -145,7 +145,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         modification.apply(network);
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestRevertConnectVoltageLevelOnLineBb")
                 .build();
         modification = new RevertConnectVoltageLevelOnLineBuilder()

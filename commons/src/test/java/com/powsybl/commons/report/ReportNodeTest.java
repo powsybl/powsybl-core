@@ -20,7 +20,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Optional;
 
-import static com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME;
+import static com.powsybl.commons.test.PowsyblTestReportResourceBundle.TEST_BASE_NAME;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -336,7 +336,7 @@ class ReportNodeTest extends AbstractSerDeTest {
     void testMissingKey() {
         // Default locale for this test class is Locale.US
         ReportNode report1 = ReportNode.newRootReportNode()
-                .withResourceBundles(TEST_BASE_NAME)
+                .withResourceBundles(TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("unknown.key")
                 .build();
         // translation should fall back to the default powsybl core reports.properties 'core.commons.missingKey' template because no reports_en.properties or reports_en_US.properties exist
@@ -344,6 +344,7 @@ class ReportNodeTest extends AbstractSerDeTest {
 
         // With Locale.FRENCH
         ReportNode report2 = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withLocale(Locale.FRENCH)
                 .withResourceBundles(TEST_BASE_NAME)
                 .withMessageTemplate("unknown.key")

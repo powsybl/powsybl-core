@@ -53,6 +53,17 @@ It takes as input:
 - Optionally, the direction of the injection. It is also used to fill the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension).
   It indicates if the injection should be displayed at the top or at the bottom of the busbar section. By default, it is
   `BOTTOM`.
+- Optionally, a boolean `logOrThrowIfIncorrectPositionOrder`, that indicates what should happen if the position order is 
+incorrect. This is mainly useful for voltage levels with `NODE_BREAKER` topology, since the `ConnectablePosition` extension 
+is not created otherwise. The order position may be incorrect if 
+  - it has already been taken on the busbar section, 
+  - if it is higher or lower than the maximum or minimum available order positions for the busbar section, 
+  - or if the order positions of other adjacent busbar sections do not allow any possible order positions. 
+If the boolean is set to false, then the order position will be ignored and the `ConnectablePostion` extension will not be
+created, but the `Injection` will be created. If the boolean is set to true, the `Injection` will not be created, and
+either an exception will be thrown or a log will be returned, depending on the `throwException` boolean given when applying 
+the modification.
+
 
 When applying this modification on the network, the injection is added to the voltage level associated with the bus or busbar
 section.
@@ -84,6 +95,18 @@ It takes as input:
   [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) and indicates the relative
   position of the branch with its busbar section on side 1. The default value is `TOP`.
 - Optionally, the direction on side 2.
+- Optionally, a boolean `logOrThrowIfIncorrectPositionOrder1`, that indicates what should happen if the position order is
+incorrect on side 1 of the branch. This is mainly useful for voltage levels with `NODE_BREAKER` topology, since the 
+`ConnectablePosition` extension is not created otherwise. The order position may be incorrect if
+  - it has already been taken on the busbar section,
+  - if it is higher or lower than the maximum or minimum available order positions for the busbar section,
+  - or if the order positions of other adjacent busbar sections do not allow any possible order positions.
+If the boolean is set to false, then the order position will be ignored and the `ConnectablePostion` extension will not be
+created, but the `Injection` will be created. If the boolean is set to true, the `Injection` will not be created, and
+either an exception will be thrown or a log will be returned, depending on the `throwException` boolean given when applying
+the modification.
+- Optionally, a boolean `logOrThrowIfIncorrectPositionOrder2`, which is the same but for the side 2 of the branch.
+
 
 When the modification is applied on the network, the branch is added to both voltage levels and connected on the bus or
 busbar section specified for both sides.
@@ -407,14 +430,14 @@ Class: `PhaseShifterOptimizeTap`
 #### Fixed tap modification
 This modification updates the phase tap changer of a given two-winding transformer phase shifter id.
 
-It updates its `tapPosition` with the given value and set the phase tap changer as not regulating with a `FIXED_TAP` regulation mode.
+It updates its `tapPosition` with the given value and set the phase tap changer as not regulating.
 
 Class: `PhaseShifterSetAsFixedTap`
 
 #### Shift tap modification
 This modification is used to update the phase tap changer of a given two-winding transformer phase shifter id.
 
-It sets the phase tap changer as not regulating with a `FIXED_TAP` regulation mode and updates its `tapPosition` by adjusting it with the given `tapDelta` applied on the current tap position. The resulting tap position is bounded by the phase tap changer lowest and highest possible positions.
+It sets the phase tap changer as not regulating and updates its `tapPosition` by adjusting it with the given `tapDelta` applied on the current tap position. The resulting tap position is bounded by the phase tap changer lowest and highest possible positions.
 
 Class: `PhaseShifterShiftTap`
 
