@@ -54,8 +54,9 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         }
 
         @Override
-        public String getMessageHeader() {
-            return String.format("Overload management system in substation '%s':  - %s:", substation.getId(), getTrippingAttribute());
+        public MessageHeader getMessageHeader() {
+            String type = "Overload management system with " + getTrippingAttribute();
+            return new DefaultMessageHeader(type, substation.getId(), type + " in substation '" + substation.getId() + "': ");
         }
 
         protected static String getNotFoundMessage(String type, String id) {
