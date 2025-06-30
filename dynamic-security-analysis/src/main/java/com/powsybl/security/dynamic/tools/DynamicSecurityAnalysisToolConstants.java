@@ -14,6 +14,7 @@ public final class DynamicSecurityAnalysisToolConstants {
 
     public static final String MODULE_CONFIG_NAME_PROPERTY = "dynamic-security-analysis";
     public static final String DYNAMIC_MODELS_FILE_OPTION = "dynamic-models-file";
+    public static final String EVENT_MODELS_FILE_OPTION = "event-models-file";
 
     private DynamicSecurityAnalysisToolConstants() {
     }

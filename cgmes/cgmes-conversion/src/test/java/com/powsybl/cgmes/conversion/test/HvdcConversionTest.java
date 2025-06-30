@@ -20,7 +20,7 @@ import java.util.Properties;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
@@ -211,7 +211,7 @@ class HvdcConversionTest extends AbstractSerDeTest {
         // IIDM network:
         //   Neither HvdcConverterStation nor HvdcLine are created when DCConfiguration is invalid.
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("testFunctionalLogs")
                 .withUntypedValue("name", "invalidDcConfiguration")
                 .build();
