@@ -770,7 +770,7 @@ final class ExportXmlCompare {
             return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0")
                 || name.equals("r") || name.equals("x") || name.equals("g") || name.equals("b") || name.equals("rho") || name.equals("alpha")
                 || name.equals("b1") || name.equals("b2") || name.equals("g1") || name.equals("g2")
-                || name.equals("bPerSection") || name.equals("activePowerSetpoint")
+                || name.equals("bPerSection") || name.equals("activePowerSetpoint") || name.equals("maxP")
                 || isAttrValueOfNumericProperty((Attr) n);
         }
         return false;
@@ -803,7 +803,8 @@ final class ExportXmlCompare {
                 || n.getLocalName().equals("b1") || n.getLocalName().equals("b2")
                 || n.getLocalName().equals("g1") || n.getLocalName().equals("g2")
                 || n.getLocalName().equals("alpha") || n.getLocalName().equals("rho")
-                || n.getLocalName().equals("bPerSection") || n.getLocalName().equals("activePowerSetpoint")) {
+                || n.getLocalName().equals("bPerSection") || n.getLocalName().equals("activePowerSetpoint")
+                || n.getLocalName().equals("maxP")) {
             return 1e-5;
         }
         return 1e-10;

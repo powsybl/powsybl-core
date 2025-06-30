@@ -52,7 +52,11 @@ public final class CgmesNames {
     public static final String LOW_STEP = "lowStep";
     public static final String HIGH_STEP = "highStep";
 
+    public static final String DC_NODE = "DCNode";
+    public static final String DC_TOPOLOGICAL_NODE = "DCTopologicalNode";
     public static final String DC_TERMINAL = "DCTerminal";
+    public static final String DC_TERMINAL1 = "DCTerminal1";
+    public static final String DC_TERMINAL2 = "DCTerminal2";
     public static final String RATED_UDC = "ratedUdc";
 
     public static final String B_PER_SECTION = "bPerSection";
@@ -128,7 +132,12 @@ public final class CgmesNames {
     public static final String CONFORM_LOAD_GROUP = "ConformLoadGroup";
     public static final String NONCONFORM_LOAD_GROUP = "NonConformLoadGroup";
     public static final String ACDC_CONVERTER = "ACDCConverter";
+    public static final String VS_CONVERTER = "VsConverter";
+    public static final String CS_CONVERTER = "CsConverter";
     public static final String DC_LINE_SEGMENT = "DCLineSegment";
+    public static final String DC_LINE_SEGMENT2 = "DCLineSegment2";
+    public static final String DC_SWITCH = "DCSwitch";
+    public static final String DC_GROUND = "DCGround";
 
     public static final String CONNECTIVITY_NODE_BOUNDARY = "ConnectivityNode_Boundary";
     public static final String TOPOLOGICAL_NODE_BOUNDARY = "TopologicalNode_Boundary";
