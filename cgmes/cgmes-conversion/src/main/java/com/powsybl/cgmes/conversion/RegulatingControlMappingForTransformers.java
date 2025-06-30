@@ -159,25 +159,46 @@ public class RegulatingControlMappingForTransformers {
             okSet = setPtcRegulatingControlCurrentFlow(rc.ltcFlag, control, ptc, context, twt, end);
         } else if (control.mode.endsWith("activepower")) {
             okSet = setPtcRegulatingControlActivePower(rc.ltcFlag, control, ptc, context, twt, end);
-        } else if (!control.mode.endsWith("fixed")) {
-            context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
         }
         control.setCorrectlySet(okSet);
     }
 
     private boolean setPtcRegulatingControlCurrentFlow(boolean ltcFlag, RegulatingControl control, PhaseTapChanger ptc, Context context, Connectable<?> twt, String end) {
-        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
-                PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
-        return setPtcRegulatingControl(regulationMode, control, ptc, context, twt, end);
+        return setPtcRegulatingControl(ltcFlag, PhaseTapChanger.RegulationMode.CURRENT_LIMITER, control, ptc, context, twt, end);
     }
 
     private boolean setPtcRegulatingControlActivePower(boolean ltcFlag, RegulatingControl control, PhaseTapChanger ptc, Context context, Connectable<?> twt, String end) {
-        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
-        return setPtcRegulatingControl(regulationMode, control, ptc, context, twt, end);
+        return setPtcRegulatingControl(ltcFlag, PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, control, ptc, context, twt, end);
     }
 
-    private boolean setPtcRegulatingControl(PhaseTapChanger.RegulationMode regulationMode, RegulatingControl control, PhaseTapChanger ptc, Context context, Connectable<?> twt, String end) {
+    /**
+     * According to the following CGMES documentation:
+     * IEC TS 61970-600-1, Edition 1.0, 2017-07.
+     * "Energy management system application program interface (EMS-API)
+     * – Part 600-1: Common Grid Model Exchange Specification (CGMES)
+     * – Structure and rules",
+     * "Annex E (normative) implementation guide",
+     * section "E.9 LTCflag" (pages 76-79)
+     * <p>
+     * The combination: TapChanger.ltcFlag == False
+     * and TapChanger.TapChangerControl Present
+     * Is allowed as:
+     * "An artificial tap changer can be used to simulate control behavior on power
+     * flow"
+     * <p>
+     * But the ENTSO-E documentation
+     * "QUALITY OF CGMES DATASETS AND CALCULATIONS FOR SYSTEM OPERATIONS"
+     * 3.1 EDITION, 13 June 2019
+     * <p>
+     * Contains a rule that states that when ltcFlag == False,
+     * Then TapChangerControl should NOT be present
+     * <p>
+     * Although this combination has been observed in TYNDP test cases,
+     * we will forbid it until an explicit ltcFlag is added to IIDM,
+     * in the meanwhile, when ltcFlag == False,
+     * we avoid regulation by setting regulating to false
+     */
+    private boolean setPtcRegulatingControl(boolean ltcFlag, PhaseTapChanger.RegulationMode regulationMode, RegulatingControl control, PhaseTapChanger ptc, Context context, Connectable<?> twt, String end) {
         TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
                 .mapForFlowControl(control.cgmesTerminal, context)
                 .orElseGet(() -> new TerminalAndSign(null, 1));
@@ -191,44 +212,9 @@ public class RegulatingControlMappingForTransformers {
                 .setRegulationMode(regulationMode);
 
         twt.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN + end, String.valueOf(mappedRegulatingTerminal.getSign()));
+        twt.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.LTC_FLAG + end, String.valueOf(ltcFlag));
 
         return true;
-    }
-
-    private PhaseTapChanger.RegulationMode getPtcRegulatingMode(boolean ltcFlag, PhaseTapChanger.RegulationMode regulationMode) {
-        // According to the following CGMES documentation:
-        // IEC TS 61970-600-1, Edition 1.0, 2017-07.
-        // "Energy management system application program interface (EMS-API)
-        // – Part 600-1: Common Grid Model Exchange Specification (CGMES)
-        // – Structure and rules",
-        // "Annex E (normative) implementation guide",
-        // section "E.9 LTCflag" (pages 76-79)
-
-        // The combination: TapChanger.ltcFlag == False
-        // and TapChanger.TapChangerControl Present
-        // Is allowed as:
-        // "An artificial tap changer can be used to simulate control behavior on power
-        // flow"
-
-        // But the ENTSO-E documentation
-        // "QUALITY OF CGMES DATASETS AND CALCULATIONS FOR SYSTEM OPERATIONS"
-        // 3.1 EDITION, 13 June 2019
-
-        // Contains a rule that states that when ltcFlag == False,
-        // Then TapChangerControl should NOT be present
-
-        // Although this combination has been observed in TYNDP test cases,
-        // we will forbid it until an explicit ltcFlag is added to IIDM,
-        // in the meanwhile, when ltcFlag == False,
-        // we avoid regulation by setting RegulationMode in IIDM to FIXED_TAP
-
-        // rca.regulationMode has been initialized to FIXED_TAP
-
-        PhaseTapChanger.RegulationMode finalRegulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
-        if (ltcFlag) {
-            finalRegulationMode = regulationMode;
-        }
-        return finalRegulationMode;
     }
 
     private RegulatingControl getTapChangerControl(CgmesRegulatingControl rc) {

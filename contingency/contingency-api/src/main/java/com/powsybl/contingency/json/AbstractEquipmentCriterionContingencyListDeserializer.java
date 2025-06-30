@@ -69,7 +69,7 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
                 return true;
             }
             case "type" -> {
-                if (!parser.nextTextValue().equals(expectedType)) {
+                if (expectedType == null || !expectedType.equals(parser.nextTextValue())) {
                     throw new IllegalStateException("type should be: " + expectedType);
                 }
                 return true;

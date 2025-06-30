@@ -751,17 +751,28 @@ public final class TopologyModificationUtils {
         }
     }
 
-    /**
-     * Cleans up the topology for a node-breaker topology
-     */
     public static void cleanNodeBreakerTopology(Network network, String connectableId, ReportNode reportNode) {
         Connectable<?> connectable = network.getConnectable(connectableId);
         for (Terminal t : connectable.getTerminals()) {
-            if (t.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-                Graph<Integer, Object> graph = createGraphFromTerminal(t);
-                int node = t.getNodeBreakerView().getNode();
-                cleanTopology(t.getVoltageLevel().getNodeBreakerView(), graph, node, connectableId, reportNode);
-            }
+            cleanNodeBreakerTopologyForTerminal(t, connectableId, reportNode);
+        }
+    }
+
+    /**
+     * Cleans up the topology for a node-breaker topology
+     */
+    public static void cleanNodeBreakerTopology(Terminal terminal, String connectableId, ReportNode reportNode) {
+        Objects.requireNonNull(terminal);
+        if (terminal.getConnectable().getId().equals(connectableId)) {
+            cleanNodeBreakerTopologyForTerminal(terminal, connectableId, reportNode);
+        }
+    }
+
+    private static void cleanNodeBreakerTopologyForTerminal(Terminal terminal, String connectableId, ReportNode reportNode) {
+        if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            Graph<Integer, Object> graph = createGraphFromTerminal(terminal);
+            int node = terminal.getNodeBreakerView().getNode();
+            cleanTopology(terminal.getVoltageLevel().getNodeBreakerView(), graph, node, connectableId, reportNode);
         }
     }
 
