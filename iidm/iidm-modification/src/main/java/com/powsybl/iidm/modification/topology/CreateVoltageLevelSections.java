@@ -64,14 +64,16 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
 
     private final boolean rightSwitchFictitious; // Fictitious(true) or not(false) for the new switches created, right to the new busbar sections created
 
-    private final String switchPrefixId;
+    private String switchPrefixId;
+
+    private String busbarSectionPrefixId;
 
     CreateVoltageLevelSections(String referenceBusbarSectionId,
                                boolean createTheBusbarSectionsAfterTheReferenceBusbarSection,
                                boolean createOnAllParallelBusbars,
                                SwitchParameters leftSwitchParameters,
                                SwitchParameters rightSwitchParameters,
-                               String switchPrefixId) {
+                               String switchPrefixId, String busbarSectionPrefixId) {
         this.referenceBusbarSectionId = Objects.requireNonNull(referenceBusbarSectionId, "Reference busbar section id not defined");
         this.createTheBusbarSectionsAfterTheReferenceBusbarSection = createTheBusbarSectionsAfterTheReferenceBusbarSection;
         this.createOnAllParallelBusbars = createOnAllParallelBusbars;
@@ -80,6 +82,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         this.leftSwitchFictitious = leftSwitchParameters.fictitious;
         this.rightSwitchFictitious = rightSwitchParameters.fictitious;
         this.switchPrefixId = switchPrefixId;
+        this.busbarSectionPrefixId = busbarSectionPrefixId;
     }
 
     record SwitchParameters(SwitchKind switchKind, boolean fictitious) { }
@@ -128,6 +131,13 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         VoltageLevel voltageLevel = referenceBusbarSection.getTerminal().getVoltageLevel();
         if (voltageLevel == null) {
             return;
+        }
+
+        if (busbarSectionPrefixId == null) {
+            busbarSectionPrefixId = voltageLevel.getId();
+        }
+        if (switchPrefixId == null) {
+            switchPrefixId = voltageLevel.getId();
         }
 
         // Check that all busbar sections have the extension BusbarSectionPosition
@@ -317,15 +327,17 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
                                               NamingStrategy namingStrategy,
                                               BusbarSectionPosition busbarSectionPosition) {
         int busbarSectionNode = vl.getNodeBreakerView().getMaximumNodeIndex() + 1;
+        int sectionNum = isCreateTheBusbarSectionsAfterTheReferenceBusbarSection() ? busbarSectionPosition.getSectionIndex() + 1 : busbarSectionPosition.getSectionIndex() - 1;
+        int busbarNum = busbarSectionPosition.getBusbarIndex();
         BusbarSection busbarSection = vl.getNodeBreakerView()
             .newBusbarSection()
-            .setId(namingStrategy.getBusbarId(vl.getId(), busbarSectionNode))
+            .setId(namingStrategy.getBusbarId(busbarSectionPrefixId, busbarNum, sectionNum))
             .setName(Integer.toString(busbarSectionNode))
             .setNode(busbarSectionNode)
             .add();
         busbarSection.newExtension(BusbarSectionPositionAdder.class)
-            .withBusbarIndex(busbarSectionPosition.getBusbarIndex())
-            .withSectionIndex(isCreateTheBusbarSectionsAfterTheReferenceBusbarSection() ? busbarSectionPosition.getSectionIndex() + 1 : busbarSectionPosition.getSectionIndex() - 1)
+            .withBusbarIndex(busbarNum)
+            .withSectionIndex(sectionNum)
             .add();
         return busbarSection;
     }

@@ -12,9 +12,9 @@
                 <iidm:busbarSection id="BBS13" node="6"/>
                 <iidm:busbarSection id="BBS23" node="7"/>
                 <iidm:busbarSection id="BBS33" node="8"/>
-                <iidm:busbarSection id="VL1_BBS_52" name="52" node="52"/>
-                <iidm:busbarSection id="VL1_BBS_57" name="57" node="57"/>
-                <iidm:busbarSection id="VL1_BBS_62" name="62" node="62"/>
+                <iidm:busbarSection id="VL1_1_2" name="52" node="52"/>
+                <iidm:busbarSection id="VL1_2_2" name="57" node="57"/>
+                <iidm:busbarSection id="VL1_3_2" name="62" node="62"/>
                 <iidm:switch id="VL1_DISCONNECTOR_0_53" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="53"/>
                 <iidm:switch id="D_BBS12_BBS13_1" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="20"/>
                 <iidm:switch id="B_BBS12_BBS13" kind="BREAKER" retained="false" open="false" node1="20" node2="21"/>
@@ -66,11 +66,8 @@
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:extension id="VL1_BBS_62">
-        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="2"/>
-    </iidm:extension>
-    <iidm:extension id="VL1_BBS_52">
-        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="2"/>
+    <iidm:extension id="VL1_2_2">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="2"/>
     </iidm:extension>
     <iidm:extension id="BBS11">
         <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
@@ -81,8 +78,11 @@
     <iidm:extension id="BBS12">
         <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="3"/>
     </iidm:extension>
-    <iidm:extension id="VL1_BBS_57">
-        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="2"/>
+    <iidm:extension id="VL1_3_2">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="2"/>
+    </iidm:extension>
+    <iidm:extension id="VL1_1_2">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="2"/>
     </iidm:extension>
     <iidm:extension id="BBS22">
         <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="3"/>

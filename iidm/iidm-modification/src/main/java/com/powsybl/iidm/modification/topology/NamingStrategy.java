@@ -50,8 +50,6 @@ public interface NamingStrategy {
 
     String getBusbarId(String baseId, List<SwitchKind> switchKindList, int id1Num, int id2Num);
 
-    String getBusbarId(String baseId, int idNum);
-
     String getBusId(String baseId);
 
     /**

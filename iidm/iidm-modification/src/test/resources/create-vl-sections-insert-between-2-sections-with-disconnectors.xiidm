@@ -12,9 +12,9 @@
                 <iidm:busbarSection id="BBS13" node="6"/>
                 <iidm:busbarSection id="BBS23" node="7"/>
                 <iidm:busbarSection id="BBS33" node="8"/>
-                <iidm:busbarSection id="VL1_BBS_52" name="52" node="52"/>
-                <iidm:busbarSection id="VL1_BBS_53" name="53" node="53"/>
-                <iidm:busbarSection id="VL1_BBS_54" name="54" node="54"/>
+                <iidm:busbarSection id="VL1_1_3" name="52" node="52"/>
+                <iidm:busbarSection id="VL1_2_3" name="53" node="53"/>
+                <iidm:busbarSection id="VL1_3_3" name="54" node="54"/>
                 <iidm:switch id="D_BBS11_BBS12" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="3"/>
                 <iidm:switch id="VL1_DISCONNECTOR_3_52" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="52"/>
                 <iidm:switch id="VL1_DISCONNECTOR_52_6" kind="DISCONNECTOR" retained="false" open="false" node1="52" node2="6"/>
@@ -48,6 +48,15 @@
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
+    <iidm:extension id="VL1_2_3">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="3"/>
+    </iidm:extension>
+    <iidm:extension id="VL1_3_3">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="3"/>
+    </iidm:extension>
+    <iidm:extension id="VL1_1_3">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="3"/>
+    </iidm:extension>
     <iidm:extension id="BBS22">
         <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="2"/>
     </iidm:extension>
@@ -56,15 +65,6 @@
     </iidm:extension>
     <iidm:extension id="BBS23">
         <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="4"/>
-    </iidm:extension>
-    <iidm:extension id="VL1_BBS_54">
-        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="3"/>
-    </iidm:extension>
-    <iidm:extension id="VL1_BBS_53">
-        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="3"/>
-    </iidm:extension>
-    <iidm:extension id="VL1_BBS_52">
-        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="3"/>
     </iidm:extension>
     <iidm:extension id="BBS31">
         <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="1"/>

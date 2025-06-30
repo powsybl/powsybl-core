@@ -31,11 +31,13 @@ public class CreateVoltageLevelSectionsBuilder {
 
     private String switchPrefixId = null;
 
+    private String busbarSectionPrefixId = null;
+
     public CreateVoltageLevelSections build() {
         return new CreateVoltageLevelSections(referenceBusbarSectionId, createTheBusbarSectionsAfterTheReferenceBusbarSection, allBusbars,
             new SwitchParameters(leftSwitchKind, leftSwitchFictitious),
             new SwitchParameters(rightSwitchKind, rightSwitchFictitious),
-            switchPrefixId);
+            switchPrefixId, busbarSectionPrefixId);
     }
 
     public CreateVoltageLevelSectionsBuilder withReferenceBusbarSectionId(String referenceBusbarSectionId) {
@@ -75,6 +77,11 @@ public class CreateVoltageLevelSectionsBuilder {
 
     public CreateVoltageLevelSectionsBuilder withSwitchPrefixId(String switchPrefixId) {
         this.switchPrefixId = switchPrefixId;
+        return this;
+    }
+
+    public CreateVoltageLevelSectionsBuilder withBusbarSectionPrefixId(String busbarSectionPrefixId) {
+        this.busbarSectionPrefixId = busbarSectionPrefixId;
         return this;
     }
 }

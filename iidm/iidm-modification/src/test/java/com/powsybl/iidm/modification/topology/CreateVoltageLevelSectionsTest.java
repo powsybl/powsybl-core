@@ -163,6 +163,7 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
             .withLeftSwitchKind(leftSwitchKind)
             .withRightSwitchKind(rightSwitchKind)
             .withSwitchPrefixId("VL1")
+            .withBusbarSectionPrefixId("VL1")
             .build();
         modification.apply(network);
         writeXmlTest(network, resourceFile);
