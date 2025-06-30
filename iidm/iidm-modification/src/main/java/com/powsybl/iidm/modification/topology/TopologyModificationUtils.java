@@ -221,6 +221,10 @@ public final class TopologyModificationUtils {
     }
 
     static void createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
+        createNBBreaker(node1, node2, id, view, open, false);
+    }
+
+    static void createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open, boolean fictitious) {
         view.newSwitch()
                 .setId(id)
                 .setEnsureIdUnicity(true)
@@ -229,10 +233,15 @@ public final class TopologyModificationUtils {
                 .setRetained(true)
                 .setNode1(node1)
                 .setNode2(node2)
+                .setFictitious(fictitious)
                 .add();
     }
 
     static void createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
+        createNBDisconnector(node1, node2, id, view, open, false);
+    }
+
+    static void createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open, boolean fictitious) {
         view.newSwitch()
                 .setId(id)
                 .setEnsureIdUnicity(true)
@@ -240,6 +249,7 @@ public final class TopologyModificationUtils {
                 .setOpen(open)
                 .setNode1(node1)
                 .setNode2(node2)
+                .setFictitious(fictitious)
                 .add();
     }
 
