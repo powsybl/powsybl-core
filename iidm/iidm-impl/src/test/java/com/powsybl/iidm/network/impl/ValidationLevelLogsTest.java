@@ -60,7 +60,7 @@ class ValidationLevelLogsTest {
                 + Test validationLevel Logs
                    + Running validation checks on IIDM network oneLoad
                       p0 is invalid
-                      p0 is invalid
+                      q0 is invalid
                 """, network.getReportNodeContext().getReportNode()));
 
         ValidationException e = assertThrows(ValidationException.class, () -> network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS));
@@ -74,7 +74,7 @@ class ValidationLevelLogsTest {
                 + Test validationLevel Logs
                    + Running validation checks on IIDM network oneLoad
                       p0 is invalid
-                      p0 is invalid
+                      q0 is invalid
                    Running validation checks on IIDM network oneLoad
                 """, network.getReportNodeContext().getReportNode()));
 
