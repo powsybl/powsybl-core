@@ -37,6 +37,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
+import static com.powsybl.cgmes.conversion.Update.updateLoads;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -82,6 +83,9 @@ import static java.util.stream.Collectors.groupingBy;
  *
  */
 public class Conversion {
+
+    public static final String QUERY_CATALOG_NAME_INIT = "";
+    public static final String QUERY_CATALOG_NAME_UPDATE = "-update";
 
     public enum Xfmr2RatioPhaseInterpretationAlternative {
         END1, END2, END1_END2, X
@@ -158,6 +162,7 @@ public class Conversion {
 
         // Create base network with metadata information
         Network network = createNetwork();
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         Context context = new Context(cgmes, config, network, reportNode);
         assignNetworkProperties(context);
         addMetadataModels(network, context);
@@ -270,7 +275,49 @@ public class Conversion {
         }
 
         CgmesReports.importedCgmesNetworkReport(reportNode, network.getId());
+
+        updateWithAllInputs(network, reportNode);
+
         return network;
+    }
+
+    private void updateWithAllInputs(Network network, ReportNode reportNode) {
+        if (!sshOrSvIsIncludedInCgmesModel(this.cgmes)) {
+            return;
+        }
+        this.cgmes.setQueryCatalog(QUERY_CATALOG_NAME_UPDATE);
+        Context updateContext = createUpdateContext(network, reportNode);
+
+        // add processes to create new equipment using update data (ssh and sv data)
+
+        update(network, updateContext, reportNode);
+    }
+
+    private static boolean sshOrSvIsIncludedInCgmesModel(CgmesModel cgmes) {
+        return cgmes.fullModels().stream()
+                .map(fullModel -> fullModel.getId("profileList"))
+                .anyMatch(profileList -> profileList.contains("SteadyStateHypothesis") || profileList.contains("StateVariables"));
+    }
+
+    public void update(Network network, ReportNode reportNode) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(reportNode);
+        Context updateContext = createUpdateContext(network, reportNode);
+        update(network, updateContext, reportNode);
+    }
+
+    private void update(Network network, Context updateContext, ReportNode reportNode) {
+        // Inspect the contents of the loaded data
+        if (LOG.isDebugEnabled()) {
+            PropertyBags nts = cgmes.numObjectsByType();
+            LOG.debug("CGMES objects read for the update:");
+            nts.forEach(nt -> LOG.debug(String.format("  %5d %s", nt.asInt("numObjects"), nt.getLocal("Type"))));
+            nts.forEach(nt -> LOG.debug(cgmes.allObjectsOfType(nt.getLocal("Type")).tabulateLocals()));
+        }
+
+        updateLoads(network, cgmes, updateContext);
+        network.runValidationChecks(false, reportNode);
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
 
     /**
@@ -436,6 +483,12 @@ public class Conversion {
         String networkId = cgmes.modelId();
         String sourceFormat = "CGMES";
         return networkFactory.createNetwork(networkId, sourceFormat);
+    }
+
+    private Context createUpdateContext(Network network, ReportNode reportNode) {
+        Context context = new Context(cgmes, config, network, reportNode);
+        context.buildUpdateCache();
+        return context;
     }
 
     private void assignNetworkProperties(Context context) {
@@ -810,6 +863,25 @@ public class Conversion {
             SV
         }
 
+        /**
+         * Specifies the default behavior to apply when updating equipment attributes
+         * and no value is provided.
+         * <br/>
+         * The available options are:
+         * <ul>
+         *   <li><b>EQ</b>: Uses the default value received from the EQ file.</li>
+         *   <li><b>DEFAULT</b>: Assigns a predefined default value.</li>
+         *   <li><b>EMPTY</b>: Leaves the attribute empty (e.g., {@code Double.NaN}) if allowed.</li>
+         *   <li><b>PREVIOUS</b>: Reuses the value from the previous update.</li>
+         * </ul>
+         */
+        public enum DefaultValue {
+            EQ,
+            DEFAULT,
+            EMPTY,
+            PREVIOUS
+        }
+
         public List<String> substationIdsExcludedFromMapping() {
             return Collections.emptyList();
         }
@@ -1004,6 +1076,14 @@ public class Conversion {
             return disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected;
         }
 
+        public boolean updateTerminalConnectionInNodeBreakerVoltageLevel() {
+            return UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL;
+        }
+
+        public List<DefaultValue> updateDefaultValuesPriority() {
+            return updateDefaultValuesPriority;
+        }
+
         public boolean getCreateFictitiousVoltageLevelsForEveryNode() {
             return createFictitiousVoltageLevelsForEveryNode;
         }
@@ -1042,6 +1122,8 @@ public class Conversion {
 
         private double missingPermanentLimitPercentage = 100;
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
+        private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
+        private final List<DefaultValue> updateDefaultValuesPriority = List.of(DefaultValue.EQ, DefaultValue.DEFAULT, DefaultValue.EMPTY);
     }
 
     private final CgmesModel cgmes;

@@ -15,7 +15,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1NetworkCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -201,6 +201,8 @@ class CgmesConformity1ConversionTest {
         // This test will check that IIDM buses,
         // that will be created during conversion from CGMES TopologicalNodes,
         // have proper balances from SV values
+        CgmesModel expected = CgmesConformity1Catalog.miniNodeBreaker().expected();
+
         importParams.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
         importParams.put(CgmesImport.IMPORT_NODE_BREAKER_AS_BUS_BREAKER, "true");
         ConversionTester t = new ConversionTester(
@@ -211,7 +213,6 @@ class CgmesConformity1ConversionTest {
         t.testConversion(null, CgmesConformity1Catalog.miniNodeBreaker());
 
         Network network = t.lastConvertedNetwork();
-        CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
 
         // All voltage levels must have bus/breaker topology kind
         network.getVoltageLevels()
@@ -219,11 +220,14 @@ class CgmesConformity1ConversionTest {
 
         // All bus identifiers in the bus/breaker view must correspond to Topological Nodes of CGMES model
         List<String> iidmBusIds = network.getBusBreakerView().getBusStream().map(Identifiable::getId).sorted().toList();
-        List<String> cgmesTNIds = cgmes.topologicalNodes().pluckIdentifiers(CgmesNames.TOPOLOGICAL_NODE).stream().sorted().toList();
+
+        List<String> cgmesTNIds = expected.topologicalNodes().pluckIdentifiers(CgmesNames.TOPOLOGICAL_NODE).stream().sorted().toList();
         // Boundary nodes of CGMES model are not mapped to buses in IIDM
-        List<String> cgmesBoundaryTNIds = cgmes.boundaryNodes().pluckIdentifiers(CgmesNames.TOPOLOGICAL_NODE).stream().sorted().toList();
+        List<String> cgmesBoundaryTNIds = network.getDanglingLineStream().map(dl -> dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY)).toList();
+
         List<String> expectedBusIds = new ArrayList<>(cgmesTNIds);
         expectedBusIds.removeAll(cgmesBoundaryTNIds);
+
         assertEquals(expectedBusIds, iidmBusIds);
     }
 
