@@ -78,73 +78,25 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     }
 
     private static void updateRegulatingControl(StaticVarCompensator staticVarCompensator, double defaultQ, boolean controlEnabled, Context context) {
-        String defaultRegulationMode = staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "defaultRegulationMode");
-        String mode = staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE);
-
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(staticVarCompensator, context);
-        double defaultEquipmentTargetV = findDefaultEquipmentTargetV(staticVarCompensator);
 
-        if (isDefaultVoltageControl(cgmesRegulatingControl.isEmpty(), controlEnabled, defaultRegulationMode, defaultEquipmentTargetV)) {
-            setDefaultVoltageControl(staticVarCompensator, defaultEquipmentTargetV, context);
-            return;
-        }
         boolean defaultRegulatingOn = getDefaultRegulatingOn(staticVarCompensator, context);
         boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
-        if (isDefaultReactivePowerControl(regulatingOn, controlEnabled, defaultRegulationMode, defaultQ)) {
-            setDefaultReactivePowerControl(staticVarCompensator, defaultQ, context);
-            return;
-        }
 
-        String selectedMode = mode != null ? mode : defaultRegulationMode;
-        if (selectedMode != null && isControlModeVoltage(selectedMode.toLowerCase())) {
+        if (staticVarCompensator.getRegulationMode() == StaticVarCompensator.RegulationMode.VOLTAGE) {
+            double defaultEquipmentTargetV = findDefaultEquipmentTargetV(staticVarCompensator);
             double defaultTargetV = getDefaultTargetV(staticVarCompensator, defaultEquipmentTargetV, context);
             double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
-            StaticVarCompensator.RegulationMode regulationMode = controlEnabled && regulatingOn && isValidTargetV(targetV) ? StaticVarCompensator.RegulationMode.VOLTAGE : StaticVarCompensator.RegulationMode.OFF;
+            boolean regulating = controlEnabled && regulatingOn && isValidTargetV(targetV);
 
-            setRegulation(staticVarCompensator, staticVarCompensator.getReactivePowerSetpoint(), targetV, regulationMode);
-        } else if (selectedMode != null && isControlModeReactivePower(selectedMode.toLowerCase())) {
+            staticVarCompensator.setVoltageSetpoint(targetV).setReactivePowerSetpoint(staticVarCompensator.getReactivePowerSetpoint()).setRegulating(regulating);
+        } else if (staticVarCompensator.getRegulationMode() == StaticVarCompensator.RegulationMode.REACTIVE_POWER) {
             double defaultTargetQ = getDefaultTargetQ(staticVarCompensator, defaultQ, context);
             double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, 1, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
-            StaticVarCompensator.RegulationMode regulationMode = controlEnabled && regulatingOn && isValidTargetQ(targetQ) ? StaticVarCompensator.RegulationMode.REACTIVE_POWER : StaticVarCompensator.RegulationMode.OFF;
+            boolean regulating = controlEnabled && regulatingOn && isValidTargetQ(targetQ);
 
-            setRegulation(staticVarCompensator, targetQ, staticVarCompensator.getVoltageSetpoint(), regulationMode);
-        } else {
-            context.ignored(mode, "Unsupported regulation mode for staticVarCompensator " + staticVarCompensator.getId());
+            staticVarCompensator.setReactivePowerSetpoint(targetQ).setVoltageSetpoint(staticVarCompensator.getVoltageSetpoint()).setRegulating(regulating);
         }
-    }
-
-    private static void setRegulation(StaticVarCompensator staticVarCompensator, double targetQ, double targetV, StaticVarCompensator.RegulationMode regulationMode) {
-        switch (regulationMode) {
-            case OFF -> staticVarCompensator.setRegulationMode(regulationMode).setVoltageSetpoint(targetV).setReactivePowerSetpoint(targetQ);
-            case VOLTAGE -> staticVarCompensator.setVoltageSetpoint(targetV).setRegulationMode(regulationMode).setReactivePowerSetpoint(targetQ);
-            case REACTIVE_POWER -> staticVarCompensator.setReactivePowerSetpoint(targetQ).setRegulationMode(regulationMode).setVoltageSetpoint(targetV);
-        }
-    }
-
-    private static boolean isDefaultVoltageControl(boolean cgmesRegulatingControlIsNotDefined, boolean controlEnabled, String defaultRegulationMode, double defaultTargetV) {
-        return cgmesRegulatingControlIsNotDefined
-                && controlEnabled
-                && defaultRegulationMode != null && isControlModeVoltage(defaultRegulationMode.toLowerCase())
-                && isValidTargetV(defaultTargetV);
-    }
-
-    private static void setDefaultVoltageControl(StaticVarCompensator staticVarCompensator, double defaultTargetV, Context context) {
-        context.fixed("SVCControlEnabledStatus", () -> String.format("Regulating control of %s is disabled but controlEnabled property is set to true." +
-                "Equipment and regulating control properties are used to set local default regulation if local default regulation is voltage.", staticVarCompensator.getId()));
-        staticVarCompensator.setVoltageSetpoint(defaultTargetV).setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
-    }
-
-    private static boolean isDefaultReactivePowerControl(boolean regulatingOn, boolean controlEnabled, String defaultRegulationMode, double defaultTargetQ) {
-        return !regulatingOn
-                && controlEnabled
-                && defaultRegulationMode != null && isControlModeReactivePower(defaultRegulationMode.toLowerCase())
-                && isValidTargetQ(defaultTargetQ);
-    }
-
-    private static void setDefaultReactivePowerControl(StaticVarCompensator staticVarCompensator, double defaultTargetQ, Context context) {
-        context.fixed("SVCControlEnabledStatus", () -> String.format("Regulating control of %s is disabled but controlEnabled property is set to true." +
-                "Equipment and regulating control properties are used to set local default regulation if local default regulation is reactive power.", staticVarCompensator.getId()));
-        staticVarCompensator.setReactivePowerSetpoint(defaultTargetQ).setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
     }
 
     private static double findDefaultEquipmentTargetV(StaticVarCompensator staticVarCompensator) {
@@ -162,7 +114,7 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
 
     private static boolean getDefaultRegulatingOn(StaticVarCompensator staticVarCompensator, Context context) {
         return getDefaultValue(null,
-                staticVarCompensator.getRegulationMode() != StaticVarCompensator.RegulationMode.OFF,
+                staticVarCompensator.isRegulating(),
                 false, false, context);
     }
 }

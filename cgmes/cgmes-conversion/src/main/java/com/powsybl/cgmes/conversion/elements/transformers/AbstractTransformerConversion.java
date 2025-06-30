@@ -19,7 +19,6 @@ import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.WindingType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -37,6 +36,8 @@ import static com.powsybl.cgmes.model.CgmesNames.*;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 abstract class AbstractTransformerConversion extends AbstractConductingEquipmentConversion {
+
+    protected static final String END_NUMBER = "endNumber";
 
     AbstractTransformerConversion(String type, PropertyBags ends, Context context) {
         super(type, ends, context);
@@ -123,21 +124,21 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         String aliasType;
         for (PropertyBag end : ps) {
             alias = end.getId("TransformerEnd");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END + WindingType.endNumber(end);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END + end.getLocal(END_NUMBER);
             identifiable.addAlias(alias, aliasType);
         }
 
         // Add RatioTapChangers aliases
         for (PropertyBag rtc : context.ratioTapChangers(identifiable.getId())) {
             alias = rtc.getId("RatioTapChanger");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER + WindingType.endNumber(rtc);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER + rtc.getLocal(END_NUMBER);
             identifiable.addAlias(alias, aliasType, context.config().isEnsureIdAliasUnicity());
         }
 
         // Add PhaseTapChangers aliases
         for (PropertyBag ptc : context.phaseTapChangers(identifiable.getId())) {
             alias = ptc.getId("PhaseTapChanger");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER + WindingType.endNumber(ptc);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER + ptc.getLocal(END_NUMBER);
             identifiable.addAlias(alias, aliasType, context.config().isEnsureIdAliasUnicity());
         }
     }
@@ -255,11 +256,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
             boolean defaultRegulatingOn = getDefaultRegulatingOn(ptc, context);
             boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
-            boolean fixedRegulating = regulatingOn;
-            if (regulatingOn && ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.FIXED_TAP) {
-                context.fixed(phaseTapChangerId, "RegulationMode: regulating is set to true whereas regulationMode is set to FIXED_TAP: regulating fixed to false");
-                fixedRegulating = false;
-            }
+            boolean fixedRegulating = regulatingOn && findLtcflag(tw, end);
 
             boolean validTargetValue = isValidTargetValue(targetValue);
             if (!validTargetValue) {
@@ -360,6 +357,10 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
             }
         }
         return false;
+    }
+
+    private static boolean findLtcflag(Connectable<?> connectable, String end) {
+        return Boolean.parseBoolean(connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.LTC_FLAG + end));
     }
 
     private static double getDefaultTargetV(com.powsybl.iidm.network.RatioTapChanger ratioTapChanger, Context context) {

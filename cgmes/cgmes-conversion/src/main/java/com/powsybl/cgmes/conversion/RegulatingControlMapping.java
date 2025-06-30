@@ -124,7 +124,7 @@ public class RegulatingControlMapping {
     }
 
     protected static boolean isControlModeVoltage(String controlMode) {
-        return controlMode != null && controlMode.endsWith(CgmesNames.VOLTAGE_TAG);
+        return controlMode != null && controlMode.toLowerCase().endsWith(CgmesNames.VOLTAGE_TAG);
     }
 
     protected static boolean isControlModeReactivePower(String controlMode) {
