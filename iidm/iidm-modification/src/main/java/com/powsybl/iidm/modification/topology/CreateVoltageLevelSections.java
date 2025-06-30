@@ -64,16 +64,17 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
 
     private final boolean rightSwitchFictitious; // Fictitious(true) or not(false) for the new switches created, right to the new busbar sections created
 
-    private String switchPrefixId;
+    private final String switchPrefixId;
 
-    private String busbarSectionPrefixId;
+    private final String busbarSectionPrefixId;
 
     CreateVoltageLevelSections(String referenceBusbarSectionId,
                                boolean createTheBusbarSectionsAfterTheReferenceBusbarSection,
                                boolean createOnAllParallelBusbars,
                                SwitchParameters leftSwitchParameters,
                                SwitchParameters rightSwitchParameters,
-                               String switchPrefixId, String busbarSectionPrefixId) {
+                               String switchPrefixId,
+                               String busbarSectionPrefixId) {
         this.referenceBusbarSectionId = Objects.requireNonNull(referenceBusbarSectionId, "Reference busbar section id not defined");
         this.createTheBusbarSectionsAfterTheReferenceBusbarSection = createTheBusbarSectionsAfterTheReferenceBusbarSection;
         this.createOnAllParallelBusbars = createOnAllParallelBusbars;
@@ -81,8 +82,8 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         this.rightSwitchKind = rightSwitchParameters.switchKind;
         this.leftSwitchFictitious = leftSwitchParameters.fictitious;
         this.rightSwitchFictitious = rightSwitchParameters.fictitious;
-        this.switchPrefixId = switchPrefixId;
-        this.busbarSectionPrefixId = busbarSectionPrefixId;
+        this.switchPrefixId = Objects.requireNonNull(switchPrefixId, "Undefined switch prefix ID");
+        this.busbarSectionPrefixId = Objects.requireNonNull(busbarSectionPrefixId, "Undefined busbar section prefix ID");
     }
 
     record SwitchParameters(SwitchKind switchKind, boolean fictitious) { }
@@ -131,13 +132,6 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         VoltageLevel voltageLevel = referenceBusbarSection.getTerminal().getVoltageLevel();
         if (voltageLevel == null) {
             return;
-        }
-
-        if (busbarSectionPrefixId == null) {
-            busbarSectionPrefixId = voltageLevel.getId();
-        }
-        if (switchPrefixId == null) {
-            switchPrefixId = voltageLevel.getId();
         }
 
         // Check that all busbar sections have the extension BusbarSectionPosition

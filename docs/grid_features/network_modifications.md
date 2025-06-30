@@ -177,20 +177,23 @@ It takes as input:
 - The ID of the reference busbar section
 - A boolean indicating if the new busbar section(s) must be created before(left) or after(right) the reference busbar section
 - A boolean indicating if a new busbar section must be created on all busbars, or only on the busbar of the reference busbar section
-- The switch kind of the new switch(es) that will be created left to the new created busbar section :
+- The switch kind of the new switch(es) that will be created left to the newly created busbar section :
 
   DISCONNECTOR means that only a DISCONNECTOR switch will be created
 
   BREAKER means that a BREAKER switch surrounded by two DISCONNECTOR switches will be created
 
-- the switch kind of the new switch(es) that will be created right to the new created busbar section :
+- the switch kind of the new switch(es) that will be created right to the newly created busbar section :
 
   DISCONNECTOR means that only a DISCONNECTOR switch will be created
 
   BREAKER means that a BREAKER switch surrounded by two DISCONNECTOR switches will be created
 
-- A boolean indicating if the new switches created left to the new created busbar section(s) are fictitious
-- A boolean indicating if the new switches created right to the new created busbar section(s) are fictitious
+- A boolean indicating if the new switches created left to the newly created busbar section(s) are fictitious
+- A boolean indicating if the new switches created right to the newly created busbar section(s) are fictitious
+- The switch prefix ID, used as a prefix for the IDs of the newly created switches.
+- The busbar section prefix ID, used as a prefix for the IDs of the newly created busbar sections. This prefix
+  is followed by the busbar index and the section index.
 
 <span style="color: red">TODO: add single line diagrams</span>
 

@@ -197,6 +197,8 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
             .withAllBusbars(true)
             .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
             .withRightSwitchKind(SwitchKind.DISCONNECTOR)
+            .withSwitchPrefixId("VL1")
+            .withBusbarSectionPrefixId("VL1")
             .build();
         PowsyblException exception = assertThrows(PowsyblException.class, () -> modification.apply(network, true, ReportNode.NO_OP));
         assertEquals(exceptionMessage, exception.getMessage());
@@ -224,6 +226,8 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
             .withLeftSwitchFictitious(false)
             .withRightSwitchKind(SwitchKind.DISCONNECTOR)
             .withRightSwitchFictitious(false)
+            .withSwitchPrefixId("VL1")
+            .withBusbarSectionPrefixId("VL1")
             .build();
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification1.hasImpactOnNetwork(network));
 
@@ -235,6 +239,8 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
             .withLeftSwitchFictitious(false)
             .withRightSwitchKind(SwitchKind.DISCONNECTOR)
             .withRightSwitchFictitious(false)
+            .withSwitchPrefixId("VL1")
+            .withBusbarSectionPrefixId("VL1")
             .build();
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification2.hasImpactOnNetwork(network));
     }
