@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.OptionalInt;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleConsumer;
 
 /**
@@ -215,6 +216,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     protected static void readPhaseTapChanger(String name, PhaseTapChangerAdder adder, Terminal terminal, NetworkDeserializerContext context) {
         readTapChangerAttributes(adder, context);
+        AtomicReference<RegulationMode> regulationMode = new AtomicReference<>();
         // Set regulation according to IIDM version
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
             adder.setRegulationMode(null);
@@ -223,18 +225,18 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
                 if (PhaseTapChangerRegulationModeSerDe.FIXED_TAP.equals(regulationModeSerDe)) {
                     adder.setRegulating(false);
                 }
-                RegulationMode regulationMode = PhaseTapChangerRegulationModeSerDe.convertToRegulationMode(regulationModeSerDe);
-                adder.setRegulationMode(regulationMode);
-                adder.setRegulationValue(checkRegulationValue(regulationMode, context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE)));
+                regulationMode.set(PhaseTapChangerRegulationModeSerDe.convertToRegulationMode(regulationModeSerDe));
+                adder.setRegulationMode(regulationMode.get());
             }
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
             boolean loadTapChangingCapabilities = context.getReader().readBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES);
             adder.setLoadTapChangingCapabilities(loadTapChangingCapabilities);
-            RegulationMode regulationMode = context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, RegulationMode.class);
-            adder.setRegulationMode(regulationMode);
-            adder.setRegulationValue(checkRegulationValue(regulationMode, context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE)));
+            regulationMode.set(context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, RegulationMode.class));
+            adder.setRegulationMode(regulationMode.get());
         });
+
+        adder.setRegulationValue(checkRegulationValue(regulationMode.get(), context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE)));
 
         boolean[] hasTerminalRef = new boolean[1];
         context.getReader().readChildNodes(elementName -> {
