@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
@@ -34,7 +35,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
@@ -400,8 +400,8 @@ public final class CgmesExportUtil {
     }
 
     static boolean regulatingControlIsDefined(PhaseTapChanger ptc) {
-        return ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP
-                && !Double.isNaN(ptc.getRegulationValue())
+        return !Double.isNaN(ptc.getRegulationValue())
+                && !Double.isNaN(ptc.getTargetDeadband())
                 && ptc.getRegulationTerminal() != null;
     }
 
@@ -563,7 +563,6 @@ public final class CgmesExportUtil {
         return switch (ptc.getRegulationMode()) {
             case CURRENT_LIMITER -> RegulatingControlEq.REGULATING_CONTROL_CURRENT_FLOW;
             case ACTIVE_POWER_CONTROL -> RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER;
-            default -> throw new PowsyblException("Unexpected regulation mode: " + ptc.getRegulationMode());
         };
     }
 
