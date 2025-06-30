@@ -7,13 +7,13 @@
  */
 package com.powsybl.dynamicsimulation.json;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
+
+import java.io.IOException;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -32,6 +32,7 @@ public class DynamicSimulationParametersSerializer extends StdSerializer<Dynamic
         jsonGenerator.writeStringField("version", DynamicSimulationParameters.VERSION);
         jsonGenerator.writeNumberField("startTime", parameters.getStartTime());
         jsonGenerator.writeNumberField("stopTime", parameters.getStopTime());
+        JsonUtil.writeOptionalStringField(jsonGenerator, "debugDir", parameters.getDebugDir());
 
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonDynamicSimulationParameters.getExtensionSerializers()::get);
 

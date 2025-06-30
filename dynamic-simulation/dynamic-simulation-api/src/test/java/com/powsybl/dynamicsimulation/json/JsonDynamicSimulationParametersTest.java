@@ -26,8 +26,19 @@ class JsonDynamicSimulationParametersTest extends AbstractSerDeTest {
     void roundTrip() throws IOException {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters()
                 .setStartTime(0)
-                .setStopTime(1);
+                .setStopTime(1)
+                .setDebugDir("/tmp/debugDir");
         roundTripTest(parameters, JsonDynamicSimulationParameters::write, JsonDynamicSimulationParameters::read, "/DynamicSimulationParameters.json");
+    }
+
+    @Test
+    void readVersion10() {
+        DynamicSimulationParameters parameters = JsonDynamicSimulationParameters
+                .read(getClass().getResourceAsStream("/DynamicSimulationParametersV10.json"));
+        assertNotNull(parameters);
+        assertEquals(0.0, parameters.getStartTime());
+        assertEquals(1.0, parameters.getStopTime());
+        assertEquals(null, parameters.getDebugDir());
     }
 
     @Test

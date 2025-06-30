@@ -3,12 +3,10 @@
   "dynamic-simulation-parameters" : {
     "version" : "1.1",
     "startTime" : 0.0,
-    "stopTime" : 10.0
+    "stopTime" : 20.5
   },
   "contingencies-parameters" : {
-    "contingencies-start-time" : 5.0
+    "contingencies-start-time" : 5.5
   },
-  "extensions" : {
-    "dummy-extension" : { }
-  }
+  "debugDir" : "/tmp/debugDir"
 }
