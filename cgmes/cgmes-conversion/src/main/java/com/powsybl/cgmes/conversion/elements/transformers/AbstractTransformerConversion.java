@@ -37,7 +37,8 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         boolean isLtcFlag = rtc.isLtcFlag();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
-        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
+        Integer solvedPosition = rtc.getSolvedTapPosition();
+        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
 
         rtc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
@@ -63,7 +64,8 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         boolean isLtcFlag = ptc.isLtcFlag();
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
-        ptca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
+        Integer solvedPosition = ptc.getSolvedTapPosition();
+        ptca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
 
         ptc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
