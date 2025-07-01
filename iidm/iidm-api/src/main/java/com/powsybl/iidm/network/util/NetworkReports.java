@@ -358,14 +358,6 @@ public final class NetworkReports {
                 .add();
     }
 
-    public static void ptcPhaseRegulationModeAndValueNotCoherent(ReportNode reportNode, String id) {
-        reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.network.ptcPhaseRegulationModeAndValueNotCoherent")
-                .withTypedValue("id", id, TypedValue.ID)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .add();
-    }
-
     public static void targetDeadbandUndefinedValue(ReportNode reportNode, String validableType, String id) {
         String key = switch (validableType) {
             case "ratio tap changer" -> "core.iidm.network.rtcTargetDeadbandUndefinedValue";

@@ -549,6 +549,9 @@ public final class ValidationUtil {
             PhaseTapChanger.RegulationMode regulationMode,
             double regulationValue, Terminal regulationTerminal, boolean loadTapChangingCapabilities,
             ActionOnError actionOnError, ReportNode reportNode) {
+        if (regulationMode == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && regulationValue < 0) {
+            throw new ValidationException(validable, "phase tap changer in CURRENT_LIMITER mode must have a non-negative regulation value");
+        }
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         if (!loadTapChangingCapabilities) {
             throwExceptionOrLogError(validable, "regulation cannot be enabled on phase tap changer without load tap changing capabilities", actionOnError,
@@ -563,11 +566,6 @@ public final class ValidationUtil {
         if (regulationTerminal == null) {
             throwExceptionOrLogError(validable, "phase regulation is on and regulated terminal is not set", actionOnError,
                         id -> NetworkReports.ptcPhaseRegulationNoRegulatedTerminal(reportNode, id));
-            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
-        }
-        if (regulationMode == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && regulationValue < 0) {
-            throwExceptionOrLogError(validable, "phase tap changer in CURRENT_LIMITER mode must have a non-negative regulation value", actionOnError,
-                    id -> NetworkReports.ptcPhaseRegulationModeAndValueNotCoherent(reportNode, id));
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
         return validationLevel;

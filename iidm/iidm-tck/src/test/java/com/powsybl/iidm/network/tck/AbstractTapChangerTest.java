@@ -368,13 +368,14 @@ public abstract class AbstractTapChangerTest {
     public void invalidCurrentLimiterNegativeRegulatingValue() {
         Runnable createTapChanger = () -> createPhaseTapChangerWith2Steps(1, 0, true, true,
                 PhaseTapChanger.RegulationMode.CURRENT_LIMITER, -1.0, 1.0, terminal);
+        assertExceptionForInvalidCurrentLimiterNegativeRegulatingValue(createTapChanger, ValidationLevel.EQUIPMENT);
+        assertExceptionForInvalidCurrentLimiterNegativeRegulatingValue(createTapChanger, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+    }
+
+    private void assertExceptionForInvalidCurrentLimiterNegativeRegulatingValue(Runnable createTapChanger, ValidationLevel minValidationLevel) {
+        network.setMinimumAcceptableValidationLevel(minValidationLevel);
         ValidationException e = assertThrows(ValidationException.class, createTapChanger::run);
         assertTrue(e.getMessage().contains("phase tap changer in CURRENT_LIMITER mode must have a non-negative regulation value"));
-        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
-
-        createTapChanger.run();
-        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
     }
 
     @Test
