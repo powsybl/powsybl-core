@@ -64,11 +64,11 @@ class StaticVarCompensatorUpdateTest {
     }
 
     private static void assertFirstSsh(Network network) {
-        assertSsh(network.getStaticVarCompensator("StaticVarCompensator"), Double.NaN, 405.0, StaticVarCompensator.RegulationMode.VOLTAGE);
+        assertSsh(network.getStaticVarCompensator("StaticVarCompensator"), Double.NaN, 405.0, true);
     }
 
     private static void assertSecondSsh(Network network) {
-        assertSsh(network.getStaticVarCompensator("StaticVarCompensator"), 200.0, 405.0, StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        assertSsh(network.getStaticVarCompensator("StaticVarCompensator"), Double.NaN, 400.0, false);
     }
 
     private static void assertFlowsBeforeSv(Network network) {
@@ -87,16 +87,15 @@ class StaticVarCompensatorUpdateTest {
         assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, staticVarCompensator.getRegulationMode());
         assertFalse(staticVarCompensator.isRegulating());
 
-        // TODO assertNotNull(staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE));
         assertNotNull(staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL));
     }
 
-    private static void assertSsh(StaticVarCompensator staticVarCompensator, double targetQ, double targetV, StaticVarCompensator.RegulationMode regulationMode) {
+    private static void assertSsh(StaticVarCompensator staticVarCompensator, double targetQ, double targetV, boolean regulating) {
         assertNotNull(staticVarCompensator);
         double tol = 0.0000001;
-        //TODO assertEquals(targetQ, staticVarCompensator.getReactivePowerSetpoint(), tol);
-        // TODO assertEquals(targetV, staticVarCompensator.getVoltageSetpoint(), tol);
-        // TODO assertEquals(regulationMode, staticVarCompensator.getRegulationMode());
+        assertEquals(targetQ, staticVarCompensator.getReactivePowerSetpoint(), tol);
+        assertEquals(targetV, staticVarCompensator.getVoltageSetpoint(), tol);
+        assertEquals(regulating, staticVarCompensator.isRegulating());
     }
 
     private static void assertFlows(Terminal terminal, double p, double q) {

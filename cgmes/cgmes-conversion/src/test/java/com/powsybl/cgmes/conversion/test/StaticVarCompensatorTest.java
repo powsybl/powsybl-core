@@ -31,7 +31,7 @@ class StaticVarCompensatorTest {
         assertExpectedControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, Double.NaN, Double.NaN, false);
 
         svc = network.getStaticVarCompensator("StaticVarCompensator-voltageSetPoint");
-        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, Double.NaN, Double.NaN, false);
+        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, 405.0, Double.NaN, false);
 
         svc = network.getStaticVarCompensator("StaticVarCompensator-voltage-svcControlMode");
         assertExpectedControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, Double.NaN, Double.NaN, false);
@@ -40,22 +40,22 @@ class StaticVarCompensatorTest {
         assertExpectedControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, 405.0, Double.NaN, false);
 
         svc = network.getStaticVarCompensator("StaticVarCompensator-voltageSetPoint-svcControlMode-on");
-        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, 405.0, Double.NaN, true);
+        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, 405.0, Double.NaN, false);
 
         svc = network.getStaticVarCompensator("StaticVarCompensator-reactivePower-svcControlMode");
-        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.VOLTAGE, Double.NaN, Double.NaN, false);
+        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.REACTIVE_POWER, Double.NaN, Double.NaN, false);
 
         svc = network.getStaticVarCompensator("StaticVarCompensator-reactivePower-svcControlMode-on");
-        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.REACTIVE_POWER, Double.NaN, 10.0, true);
+        assertExpectedControl(svc, StaticVarCompensator.RegulationMode.REACTIVE_POWER, Double.NaN, 10.0, false);
     }
 
     private static void assertExpectedControl(StaticVarCompensator staticVarCompensator, StaticVarCompensator.RegulationMode defaultRegulationMode, double defaultTargetV, double defaultTargetQ, boolean regulating) {
         assertNotNull(staticVarCompensator);
         assertNotNull(staticVarCompensator.getRegulatingTerminal());
         double tol = 0.0000001;
-        // TODO assertEquals(defaultTargetV, staticVarCompensator.getVoltageSetpoint(), tol);
+        assertEquals(defaultTargetV, staticVarCompensator.getVoltageSetpoint(), tol);
         assertEquals(defaultTargetQ, staticVarCompensator.getReactivePowerSetpoint(), tol);
-        // TODO assertEquals(defaultRegulationMode, staticVarCompensator.getRegulationMode());
-        // TODO assertEquals(regulating, staticVarCompensator.isRegulating());
+        assertEquals(defaultRegulationMode, staticVarCompensator.getRegulationMode());
+        assertEquals(regulating, staticVarCompensator.isRegulating());
     }
 }

@@ -92,7 +92,8 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             staticVarCompensator.setVoltageSetpoint(targetV).setReactivePowerSetpoint(staticVarCompensator.getReactivePowerSetpoint()).setRegulating(regulating);
         } else if (staticVarCompensator.getRegulationMode() == StaticVarCompensator.RegulationMode.REACTIVE_POWER) {
             double defaultTargetQ = getDefaultTargetQ(staticVarCompensator, defaultQ, context);
-            double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, 1, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
+            int terminalSign = findTerminalSign(staticVarCompensator);
+            double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
             boolean regulating = controlEnabled && regulatingOn && isValidTargetQ(targetQ);
 
             staticVarCompensator.setReactivePowerSetpoint(targetQ).setVoltageSetpoint(staticVarCompensator.getVoltageSetpoint()).setRegulating(regulating);

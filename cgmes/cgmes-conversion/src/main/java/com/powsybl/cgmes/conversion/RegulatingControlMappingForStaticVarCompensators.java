@@ -88,18 +88,16 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     private void setDefaultRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc) {
-        StaticVarCompensator.RegulationMode regulationMode;
         if (RegulatingControlMapping.isControlModeVoltage(rc.defaultRegulationMode)) {
-            regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
             setDefaultRegulatingControlData(rc, svc);
+            svc.setRegulatingTerminal(svc.getTerminal()).setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
         } else if (RegulatingControlMapping.isControlModeReactivePower(rc.defaultRegulationMode)) {
-            regulationMode = StaticVarCompensator.RegulationMode.REACTIVE_POWER;
+            svc.setRegulatingTerminal(svc.getTerminal()).setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
         } else {
             context.fixed("SVCDefaultControlMode", () -> String.format("Invalid default control mode for static var compensator %s. Default regulationMode set to VOLTAGE", svc.getId()));
-            regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
             setDefaultRegulatingControlData(rc, svc);
+            svc.setRegulatingTerminal(svc.getTerminal()).setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
         }
-        svc.setRegulatingTerminal(svc.getTerminal()).setRegulationMode(regulationMode);
     }
 
     private void setRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, RegulatingControl control, StaticVarCompensator svc) {
@@ -109,12 +107,11 @@ public class RegulatingControlMappingForStaticVarCompensators {
         } else if (RegulatingControlMapping.isControlModeReactivePower(control.mode)) {
             okSet = setRegulatingControlReactivePower(rc, control, svc);
         } else {
-            context.fixed("SVCControlMode", () -> String.format("Invalid default control mode for static var compensator %s. RegulationMode set to VOLTAGE", svc.getId()));
+            context.fixed("SVCControlMode", () -> String.format("Invalid control mode for static var compensator %s. RegulationMode set to VOLTAGE", svc.getId()));
             okSet = setRegulatingControlVoltage(rc, control, svc);
         }
 
         svc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, rc.regulatingControlId);
-
         control.setCorrectlySet(okSet);
     }
 
