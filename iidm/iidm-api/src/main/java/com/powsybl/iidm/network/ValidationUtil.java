@@ -566,8 +566,8 @@ public final class ValidationUtil {
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
         if (regulationMode == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && regulationValue < 0) {
-            throwExceptionOrLogError(validable, "phase tap changer in CURRENT_LIMITER mode must have a non-negative regulation value",
-                    actionOnError, reportNode);
+            throwExceptionOrLogError(validable, "phase tap changer in CURRENT_LIMITER mode must have a non-negative regulation value", actionOnError,
+                    id -> NetworkReports.ptcPhaseRegulationModeAndValueNotCoherent(reportNode, id));
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
         return validationLevel;
