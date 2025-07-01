@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>20</version>
+        <version>20.2</version>
         <relativePath/>
     </parent>
 
@@ -91,6 +91,7 @@
     <properties>
         <java.version>17</java.version>
 
+        <argLine/> <!--  This is required for later correct replacement of argline -->
         <sonar.coverage.jacoco.xmlReportPaths>
             ../distribution-core/target/site/jacoco-aggregate/jacoco.xml,
             ../../distribution-core/target/site/jacoco-aggregate/jacoco.xml,
@@ -99,6 +100,7 @@
 
         <assertj.version>3.27.3</assertj.version>
         <autoservice.version>1.1.1</autoservice.version>
+        <awaitility.version>4.3.0</awaitility.version>
         <commonscli.version>1.9.0</commonscli.version>
         <commonscompress.version>1.27.1</commonscompress.version>
         <commons-configuration2.version>2.12.0</commons-configuration2.version>
@@ -130,7 +132,8 @@
         <mockito.version>5.18.0</mockito.version>
         <nativelibloader.version>2.5.0</nativelibloader.version>
         <poi.version>5.4.1</poi.version>
-        <rdf4j.version>4.3.2</rdf4j.version>
+        <rdf4j.version>5.1.3</rdf4j.version>
+        <re2j.version>1.8</re2j.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>2.0.17</slf4j.version>
         <snakeyaml.version>2.4</snakeyaml.version>
@@ -188,6 +191,8 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
+                            <!-- Argument added to set the default locale as en_US for unit tests run to be independent of the JVM locale -->
+                            <argLine>@{argLine} -Duser.language=en -Duser.region=US</argLine>
                             <excludedGroups>dockerTests</excludedGroups>
                         </configuration>
                     </plugin>
@@ -703,6 +708,11 @@
                 <version>${jimfs.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.google.re2j</groupId>
+                <artifactId>re2j</artifactId>
+                <version>${re2j.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-math-native</artifactId>
                 <version>${powsyblmathnative.version}</version>
@@ -919,6 +929,12 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava-testlib</artifactId>
                 <version>${guava.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.awaitility</groupId>
+                <artifactId>awaitility</artifactId>
+                <version>${awaitility.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

@@ -782,14 +782,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return PowerFlow.UNDEFINED;
     }
 
-    protected static boolean isControlModeVoltage(String controlMode) {
-        return controlMode != null && controlMode.endsWith(CgmesNames.VOLTAGE_TAG);
-    }
-
-    protected static boolean isControlModeReactivePower(String controlMode) {
-        return controlMode != null && controlMode.toLowerCase().endsWith(CgmesNames.REACTIVE_POWER);
-    }
-
     protected static Optional<PropertyBag> findCgmesRegulatingControl(Connectable<?> connectable, Context context) {
         String regulatingControlId = connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL);
         return regulatingControlId != null ? Optional.ofNullable(context.regulatingControl(regulatingControlId)) : Optional.empty();
