@@ -70,9 +70,10 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     }
 
     protected static void setToIidmPhaseTapChanger(TapChanger ptc, PhaseTapChangerAdder ptca, Context context) {
+        boolean isLtcFlag = ptc.isLtcFlag();
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
-        ptca.setLowTapPosition(lowStep).setTapPosition(position);
+        ptca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
 
         ptc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
@@ -109,7 +110,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
 
     protected CgmesRegulatingControlPhase setContextRegulatingDataPhase(TapChanger tc) {
         if (tc != null) {
-            return context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(tc.getId(), tc.getRegulatingControlId(), tc.isLtcFlag());
+            return context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(tc.getId(), tc.getRegulatingControlId());
         }
         return null;
     }
@@ -223,7 +224,13 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                 targetDeadband = Double.NaN; // To avoid an exception from checkTargetDeadband
             }
 
-            setRegulation(rtc, targetV, targetDeadband, regulatingOn && isRegulatingAllowed && validTargetV && validTargetDeadband);
+            boolean regulating = regulatingOn && isRegulatingAllowed && validTargetV && validTargetDeadband;
+            if (regulating && !rtc.hasLoadTapChangingCapabilities()) {
+                badLoadTapChangingCapabilityTapChangerReport(context.getReportNode(), ratioTapChangerId);
+                rtc.setLoadTapChangingCapabilities(true);
+            }
+
+            setRegulation(rtc, targetV, targetDeadband, regulating);
         }
     }
 
@@ -256,8 +263,6 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
             boolean defaultRegulatingOn = getDefaultRegulatingOn(ptc, context);
             boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
-            boolean fixedRegulating = regulatingOn && findLtcflag(tw, end);
-
             boolean validTargetValue = isValidTargetValue(targetValue);
             if (!validTargetValue) {
                 context.invalid(phaseTapChangerId, "Regulating control has a bad target value " + targetValue);
@@ -271,7 +276,13 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                 targetDeadband = Double.NaN; // To avoid an exception from checkTargetDeadband
             }
 
-            setRegulation(ptc, targetValue, targetDeadband, fixedRegulating && isRegulatingAllowed && isValidTargetValue(targetValue) && validTargetDeadband);
+            boolean regulating = regulatingOn && isRegulatingAllowed && isValidTargetValue(targetValue) && validTargetDeadband;
+            if (regulating && !ptc.hasLoadTapChangingCapabilities()) {
+                badLoadTapChangingCapabilityTapChangerReport(context.getReportNode(), phaseTapChangerId);
+                ptc.setLoadTapChangingCapabilities(true);
+            }
+
+            setRegulation(ptc, targetValue, targetDeadband, regulating);
         }
     }
 
@@ -357,10 +368,6 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
             }
         }
         return false;
-    }
-
-    private static boolean findLtcflag(Connectable<?> connectable, String end) {
-        return Boolean.parseBoolean(connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.LTC_FLAG + end));
     }
 
     private static double getDefaultTargetV(com.powsybl.iidm.network.RatioTapChanger ratioTapChanger, Context context) {
