@@ -19,8 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.powsybl.cgmes.conversion.CgmesReports.*;
-
 /**
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -90,8 +88,8 @@ public class RegulatingControlMappingForTransformers {
         RegulatingControl rtcControl = getTapChangerControl(rc.ratioTapChanger);
         RegulatingControl ptcControl = getTapChangerControl(rc.phaseTapChanger);
 
-        setPhaseTapChangerControl(rc.phaseTapChanger, ptcControl, twt.getPhaseTapChanger(), twt, "");
-        setRatioTapChangerControl(rtcControl, twt.getRatioTapChanger(), twt, "");
+        setPhaseTapChangerControl(ptcControl, twt.getPhaseTapChanger(), twt, "");
+        setRatioTapChangerControl(rtcControl, twt.getRatioTapChanger());
     }
 
     private void applyTapChangersRegulatingControl(ThreeWindingsTransformer twt) {
@@ -113,31 +111,31 @@ public class RegulatingControlMappingForTransformers {
         RegulatingControl rtcControl3 = getTapChangerControl(rc.ratioTapChanger3);
         RegulatingControl ptcControl3 = getTapChangerControl(rc.phaseTapChanger3);
 
-        setPhaseTapChangerControl(rc.phaseTapChanger1, ptcControl1, twt.getLeg1().getPhaseTapChanger(), twt, "1");
-        setRatioTapChangerControl(rtcControl1, twt.getLeg1().getRatioTapChanger(), twt, "1");
+        setPhaseTapChangerControl(ptcControl1, twt.getLeg1().getPhaseTapChanger(), twt, "1");
+        setRatioTapChangerControl(rtcControl1, twt.getLeg1().getRatioTapChanger());
 
-        setPhaseTapChangerControl(rc.phaseTapChanger2, ptcControl2, twt.getLeg2().getPhaseTapChanger(), twt, "2");
-        setRatioTapChangerControl(rtcControl2, twt.getLeg2().getRatioTapChanger(), twt, "2");
+        setPhaseTapChangerControl(ptcControl2, twt.getLeg2().getPhaseTapChanger(), twt, "2");
+        setRatioTapChangerControl(rtcControl2, twt.getLeg2().getRatioTapChanger());
 
-        setPhaseTapChangerControl(rc.phaseTapChanger3, ptcControl3, twt.getLeg3().getPhaseTapChanger(), twt, "3");
-        setRatioTapChangerControl(rtcControl3, twt.getLeg3().getRatioTapChanger(), twt, "3");
+        setPhaseTapChangerControl(ptcControl3, twt.getLeg3().getPhaseTapChanger(), twt, "3");
+        setRatioTapChangerControl(rtcControl3, twt.getLeg3().getRatioTapChanger());
     }
 
-    private void setRatioTapChangerControl(RegulatingControl control, RatioTapChanger rtc, Connectable<?> twt, String end) {
+    private void setRatioTapChangerControl(RegulatingControl control, RatioTapChanger rtc) {
         if (control == null || rtc == null) {
             return;
         }
 
         boolean okSet = false;
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
-            okSet = setRtcRegulatingControlVoltage(control, rtc, context, twt, end);
+            okSet = setRtcRegulatingControlVoltage(control, rtc, context);
         } else if (!isControlModeFixed(control.mode)) {
             context.fixed(control.mode, "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
         }
         control.setCorrectlySet(okSet);
     }
 
-    private boolean setRtcRegulatingControlVoltage(RegulatingControl control, RatioTapChanger rtc, Context context, Connectable<?> twt, String end) {
+    private boolean setRtcRegulatingControlVoltage(RegulatingControl control, RatioTapChanger rtc, Context context) {
         Optional<Terminal> regulatingTerminal = RegulatingTerminalMapper.mapForVoltageControl(control.cgmesTerminal, context);
         if (regulatingTerminal.isEmpty()) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
@@ -148,7 +146,7 @@ public class RegulatingControlMappingForTransformers {
         return true;
     }
 
-    private void setPhaseTapChangerControl(CgmesRegulatingControlPhase rc, RegulatingControl control, PhaseTapChanger ptc, Connectable<?> twt, String end) {
+    private void setPhaseTapChangerControl(RegulatingControl control, PhaseTapChanger ptc, Connectable<?> twt, String end) {
         if (control == null || ptc == null) {
             return;
         }
