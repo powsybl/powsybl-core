@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016-2025, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -12,6 +12,9 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.REACTIVE_POWER;
+import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.VOLTAGE;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
@@ -38,6 +41,30 @@ public final class ValidationUtil {
     private static final String VOLTAGE_SETPOINT = "voltage setpoint";
 
     private ValidationUtil() {
+    }
+
+    public static void checkAccessOfRemovedEquipment(String id, boolean removed) {
+        if (removed) {
+            throw new PowsyblException("Cannot access removed equipment " + id);
+        }
+    }
+
+    public static void checkModifyOfRemovedEquipment(String id, boolean removed) {
+        if (removed) {
+            throw new PowsyblException("Cannot modify removed equipment " + id);
+        }
+    }
+
+    public static void checkAccessOfRemovedEquipment(String id, boolean removed, String attribute) {
+        if (removed) {
+            throw new PowsyblException("Cannot access " + attribute + " of removed equipment " + id);
+        }
+    }
+
+    public static void checkModifyOfRemovedEquipment(String id, boolean removed, String attribute) {
+        if (removed) {
+            throw new PowsyblException("Cannot modify " + attribute + " of removed equipment " + id);
+        }
     }
 
     public static PowsyblException createUndefinedValueGetterException() {
@@ -391,32 +418,27 @@ public final class ValidationUtil {
         checkRatedU(validable, ratedU2, "2");
     }
 
-    public static ValidationLevel checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint,
+    public static ValidationLevel checkSvcRegulator(Validable validable, Boolean regulating, double voltageSetpoint, double reactivePowerSetpoint,
                                                     StaticVarCompensator.RegulationMode regulationMode, ValidationLevel validationLevel, ReportNode reportNode) {
-        return checkSvcRegulator(validable, voltageSetpoint, reactivePowerSetpoint, regulationMode, checkValidationActionOnError(validationLevel), reportNode);
+        return checkSvcRegulator(validable, regulating, voltageSetpoint, reactivePowerSetpoint, regulationMode, checkValidationActionOnError(validationLevel), reportNode);
     }
 
-    private static ValidationLevel checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint,
+    private static ValidationLevel checkSvcRegulator(Validable validable, Boolean regulating, double voltageSetpoint, double reactivePowerSetpoint,
                                                      StaticVarCompensator.RegulationMode regulationMode, ActionOnError actionOnError, ReportNode reportNode) {
+        if (regulating == null) {
+            throw new ValidationException(validable, "regulating is not set");
+        }
         if (regulationMode == null) {
             throwExceptionOrLogError(validable, "Regulation mode is invalid", actionOnError, reportNode);
             return ValidationLevel.EQUIPMENT;
         }
-        switch (regulationMode) {
-            case VOLTAGE -> {
-                if (Double.isNaN(voltageSetpoint)) {
-                    throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, actionOnError, reportNode);
-                    return ValidationLevel.EQUIPMENT;
-                }
-            }
-            case REACTIVE_POWER -> {
-                if (Double.isNaN(reactivePowerSetpoint)) {
-                    throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, "reactive power setpoint", actionOnError, reportNode);
-                    return ValidationLevel.EQUIPMENT;
-                }
-            }
-            case OFF -> {
-                // nothing to check
+        if (regulating) {
+            if (regulationMode == VOLTAGE && Double.isNaN(voltageSetpoint)) {
+                throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, actionOnError, reportNode);
+                return ValidationLevel.EQUIPMENT;
+            } else if (regulationMode == REACTIVE_POWER && Double.isNaN(reactivePowerSetpoint)) {
+                throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, "reactive power setpoint", actionOnError, reportNode);
+                return ValidationLevel.EQUIPMENT;
             }
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
@@ -431,6 +453,12 @@ public final class ValidationUtil {
     public static void checkBmax(Validable validable, double bMax) {
         if (Double.isNaN(bMax)) {
             throw new ValidationException(validable, "bmax is invalid");
+        }
+    }
+
+    public static void checkDoubleParamPositive(Validable validable, double param, String paramName) {
+        if (Double.isNaN(param) || param < 0) {
+            throw new ValidationException(validable, paramName + " is invalid");
         }
     }
 
@@ -541,6 +569,95 @@ public final class ValidationUtil {
             throw new ValidationException(validable, "power factor is invalid");
         } else if (Math.abs(powerFactor) > 1) {
             throw new ValidationException(validable, "power factor is invalid, it should be between -1 and 1");
+        }
+    }
+
+    public static void checkPositivePowerFactor(Validable validable, double powerFactor) {
+        if (Double.isNaN(powerFactor)) {
+            throw new ValidationException(validable, "power factor is invalid");
+        } else if (powerFactor < 0 || powerFactor > 1) {
+            throw new ValidationException(validable, "power factor is invalid, it must be between 0 and 1");
+        }
+    }
+
+    public static DcNode checkAndGetDcNode(Network network, Validable validable, String dcNodeId, String attribute) {
+        if (dcNodeId == null) {
+            throw new ValidationException(validable, attribute + " is not set");
+        }
+        DcNode dcNode = network.getDcNode(dcNodeId);
+        if (dcNode == null) {
+            throw new ValidationException(validable, "DcNode '" + dcNodeId + "' not found");
+        }
+        return dcNode;
+    }
+
+    public static void checkSameParentNetwork(Network validableNetwork, Validable validable, DcNode dcNode) {
+        if (validableNetwork != dcNode.getParentNetwork()) {
+            throw new ValidationException(validable, "DC Node '" + dcNode.getId() +
+                    "' is in network '" + dcNode.getParentNetwork().getId() + "' but DC Equipment is in '" + validableNetwork.getId() + "'");
+        }
+    }
+
+    public static void checkSameParentNetwork(Network validableNetwork, Validable validable, DcNode dcNode1, DcNode dcNode2) {
+        if (dcNode1.getParentNetwork() != dcNode2.getParentNetwork()) {
+            throw new ValidationException(validable, "DC Nodes '" + dcNode1.getId() + "' and '" + dcNode2.getId() +
+                    "' are in different networks '" + dcNode1.getParentNetwork().getId() + "' and '" + dcNode2.getParentNetwork().getId() + "'");
+        }
+        if (validableNetwork != dcNode1.getParentNetwork()) {
+            throw new ValidationException(validable, "DC Nodes '" + dcNode1.getId() + "' and '" + dcNode2.getId() +
+                    "' are in network '" + dcNode1.getParentNetwork().getId() + "' but DC Equipment is in '" + validableNetwork.getId() + "'");
+        }
+    }
+
+    public static ValidationLevel checkAcDcConverterControl(Validable validable, AcDcConverter.ControlMode controlMode,
+                                                            double targetP, double targetVdc,
+                                                            ValidationLevel validationLevel, ReportNode reportNode) {
+        return checkAcDcConverterControl(validable, controlMode, targetP, targetVdc,
+                checkValidationActionOnError(validationLevel), reportNode);
+    }
+
+    private static ValidationLevel checkAcDcConverterControl(Validable validable, AcDcConverter.ControlMode controlMode,
+                                                             double targetP, double targetVdc,
+                                                             ActionOnError actionOnError, ReportNode reportNode) {
+        ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+        if (controlMode == null) {
+            throwExceptionOrLogError(validable, "controlMode is not set", actionOnError, reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        if (Objects.equals(controlMode, AcDcConverter.ControlMode.P_PCC) && Double.isNaN(targetP)) {
+            throwExceptionOrLogError(validable, "targetP is invalid", actionOnError, reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        if (Objects.equals(controlMode, AcDcConverter.ControlMode.V_DC) && Double.isNaN(targetVdc)) {
+            throwExceptionOrLogError(validable, "targetVdc is invalid", actionOnError, reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        return validationLevel;
+    }
+
+    public static void checkAcDcConverterPccTerminal(Validable validable, boolean twoAcTerminals, Terminal pccTerminal, VoltageLevel voltageLevel) {
+        if (twoAcTerminals && pccTerminal == null) {
+            throw new ValidationException(validable, "converter has two AC terminals and pccTerminal is not set");
+        }
+        if (pccTerminal != null) {
+            var c = pccTerminal.getConnectable();
+            if (twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer)) {
+                throw new ValidationException(validable, "converter has two AC terminals and pccTerminal is not a line or transformer terminal");
+            } else if (!twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer || c instanceof AcDcConverter<?>)) {
+                throw new ValidationException(validable, "pccTerminal is not a line or transformer or the converter terminal");
+            }
+            if (!twoAcTerminals && c instanceof AcDcConverter<?> && c != validable) {
+                throw new ValidationException(validable, "pccTerminal cannot be the terminal of another converter");
+            }
+            if (c.getParentNetwork() != voltageLevel.getParentNetwork()) {
+                throw new ValidationException(validable, "pccTerminal is not in the same parent network as the voltage level");
+            }
+        }
+    }
+
+    public static void checkLccReactiveModel(Validable validable, LineCommutatedConverter.ReactiveModel reactiveModel) {
+        if (reactiveModel == null) {
+            throw new ValidationException(validable, "reactiveModel is not set");
         }
     }
 
@@ -706,7 +823,7 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "shunt compensator", shunt.isVoltageRegulatorOn(), shunt.getTargetDeadband(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkSections(validable, getSectionCount(shunt), shunt.getMaximumSectionCount(), actionOnError, reportNode));
             } else if (identifiable instanceof StaticVarCompensator svc) {
-                validationLevel = ValidationLevel.min(validationLevel, checkSvcRegulator(validable, svc.getVoltageSetpoint(), svc.getReactivePowerSetpoint(), svc.getRegulationMode(), actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, checkSvcRegulator(validable, svc.isRegulating(), svc.getVoltageSetpoint(), svc.getReactivePowerSetpoint(), svc.getRegulationMode(), actionOnError, reportNode));
             } else if (identifiable instanceof ThreeWindingsTransformer twt) {
                 validationLevel = ValidationLevel.min(validationLevel, checkThreeWindingsTransformer(validable, twt, actionOnError, reportNode));
             } else if (identifiable instanceof TwoWindingsTransformer twt) {

@@ -28,7 +28,19 @@ class JsonDynamicSecurityAnalysisParametersTest extends AbstractSerDeTest {
         DynamicSecurityAnalysisParameters parameters = new DynamicSecurityAnalysisParameters();
         parameters.getDynamicSimulationParameters().setStopTime(20.5);
         parameters.getDynamicContingenciesParameters().setContingenciesStartTime(5.5);
-        roundTripTest(parameters, JsonDynamicSecurityAnalysisParameters::write, JsonDynamicSecurityAnalysisParameters::read, "/DynamicSecurityAnalysisParametersV1.json");
+        parameters.setDebugDir("/tmp/debugDir");
+        roundTripTest(parameters, JsonDynamicSecurityAnalysisParameters::write, JsonDynamicSecurityAnalysisParameters::read, "/DynamicSecurityAnalysisParameters.json");
+    }
+
+    @Test
+    void readVersion10() {
+        DynamicSecurityAnalysisParameters parameters = JsonDynamicSecurityAnalysisParameters
+                .read(getClass().getResourceAsStream("/DynamicSecurityAnalysisParametersV10.json"));
+        assertNotNull(parameters);
+        assertEquals(0, parameters.getDynamicSimulationParameters().getStartTime());
+        assertEquals(20, parameters.getDynamicSimulationParameters().getStopTime());
+        assertEquals(5.5, parameters.getDynamicContingenciesParameters().getContingenciesStartTime());
+        assertEquals(null, parameters.getDebugDir());
     }
 
     @Test
