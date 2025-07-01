@@ -156,6 +156,14 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         }
     }
 
+    private static boolean isControlModeVoltage(String controlMode) {
+        return controlMode != null && controlMode.endsWith(CgmesNames.VOLTAGE_TAG);
+    }
+
+    private static boolean isControlModeReactivePower(String controlMode) {
+        return controlMode != null && controlMode.toLowerCase().endsWith(CgmesNames.REACTIVE_POWER);
+    }
+
     private static void updateRegulatingControlVoltage(Generator generator, boolean controlEnabled, Context context) {
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(generator, context);
 
