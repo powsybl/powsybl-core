@@ -18,8 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.powsybl.cgmes.conversion.CgmesReports.badTargetDeadbandRegulatingControlReport;
-import static com.powsybl.cgmes.conversion.CgmesReports.badVoltageTargetValueRegulatingControlReport;
+import static com.powsybl.cgmes.conversion.CgmesReports.*;
 
 /**
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -68,12 +67,11 @@ public class RegulatingControlMappingForTransformers {
     }
 
     public CgmesRegulatingControlPhase buildRegulatingControlPhase(String id, String regulatingControlId,
-        boolean tapChangerControlEnabled, boolean ltcFlag) {
+        boolean tapChangerControlEnabled) {
         CgmesRegulatingControlPhase rtc = new CgmesRegulatingControlPhase();
         rtc.id = id;
         rtc.regulatingControlId = regulatingControlId;
         rtc.tapChangerControlEnabled = tapChangerControlEnabled;
-        rtc.ltcFlag = ltcFlag;
         return rtc;
     }
 
@@ -213,6 +211,8 @@ public class RegulatingControlMappingForTransformers {
             badTargetDeadbandRegulatingControlReport(context.getReportNode(), rtcId, control.targetDeadband);
         }
 
+        checkTapChangerLoadTapChangingCapabilities(rtcId, regulating, rtc);
+
         // Order is important
         rtc.setRegulationTerminal(regulatingTerminal.get())
                 .setTargetV(control.targetValue)
@@ -230,25 +230,21 @@ public class RegulatingControlMappingForTransformers {
 
         boolean okSet = false;
         if (control.mode.endsWith("currentflow")) {
-            okSet = setPtcRegulatingControlCurrentFlow(rc.id, regulating, rc.ltcFlag, control, ptc, context);
+            okSet = setPtcRegulatingControlCurrentFlow(rc.id, regulating, control, ptc, context);
         } else if (control.mode.endsWith("activepower")) {
-            okSet = setPtcRegulatingControlActivePower(rc.id, regulating, rc.ltcFlag, control, ptc, context);
+            okSet = setPtcRegulatingControlActivePower(rc.id, regulating, control, ptc, context);
         }
         control.setCorrectlySet(okSet);
     }
 
-    private boolean setPtcRegulatingControlCurrentFlow(String ptcId, boolean regulating, boolean ltcFlag, RegulatingControl control,
+    private boolean setPtcRegulatingControlCurrentFlow(String ptcId, boolean regulating, RegulatingControl control,
                                                        PhaseTapChanger ptc, Context context) {
-        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
-                PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
-        return setPtcRegulatingControl(ptcId, regulating, regulationMode, control, ptc, context);
+        return setPtcRegulatingControl(ptcId, regulating, PhaseTapChanger.RegulationMode.CURRENT_LIMITER, control, ptc, context);
     }
 
-    private boolean setPtcRegulatingControlActivePower(String ptcId, boolean regulating, boolean ltcFlag, RegulatingControl control,
+    private boolean setPtcRegulatingControlActivePower(String ptcId, boolean regulating, RegulatingControl control,
                                                        PhaseTapChanger ptc, Context context) {
-        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
-        return setPtcRegulatingControl(ptcId, regulating, regulationMode, control, ptc, context);
+        return setPtcRegulatingControl(ptcId, regulating, PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, control, ptc, context);
     }
 
     private boolean setPtcRegulatingControl(String ptcId, boolean regulating, PhaseTapChanger.RegulationMode regulationMode,
@@ -262,63 +258,30 @@ public class RegulatingControlMappingForTransformers {
             return false;
         }
 
-        boolean fixedRegulating = regulating;
-        if (regulating && regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
-            context.fixed(ptcId, "RegulationMode: regulating is set to true whereas regulationMode is set to FIXED_TAP: regulating fixed to false");
-            fixedRegulating = false;
-        }
-
         boolean validTargetDeadband = control.targetDeadband >= 0;
         if (!validTargetDeadband) {
             context.invalid(ptcId, "Regulating control has a bad target deadband " + control.targetDeadband);
             badTargetDeadbandRegulatingControlReport(context.getReportNode(), ptcId, control.targetDeadband);
         }
 
+        checkTapChangerLoadTapChangingCapabilities(ptcId, regulating, ptc);
+
         // Order is important
         ptc.setRegulationTerminal(mappedRegulatingTerminal.getTerminal())
                 .setRegulationValue(control.targetValue * mappedRegulatingTerminal.getSign())
                 .setTargetDeadband(validTargetDeadband ? control.targetDeadband : Double.NaN)
                 .setRegulationMode(regulationMode)
-                .setRegulating(fixedRegulating && validTargetDeadband);
+                .setRegulating(regulating && validTargetDeadband);
 
         return true;
     }
 
-    private PhaseTapChanger.RegulationMode getPtcRegulatingMode(boolean ltcFlag,
-                                                                PhaseTapChanger.RegulationMode regulationMode) {
-        // According to the following CGMES documentation:
-        // IEC TS 61970-600-1, Edition 1.0, 2017-07.
-        // "Energy management system application program interface (EMS-API)
-        // – Part 600-1: Common Grid Model Exchange Specification (CGMES)
-        // – Structure and rules",
-        // "Annex E (normative) implementation guide",
-        // section "E.9 LTCflag" (pages 76-79)
-
-        // The combination: TapChanger.ltcFlag == False
-        // and TapChanger.TapChangerControl Present
-        // Is allowed as:
-        // "An artificial tap changer can be used to simulate control behavior on power
-        // flow"
-
-        // But the ENTSO-E documentation
-        // "QUALITY OF CGMES DATASETS AND CALCULATIONS FOR SYSTEM OPERATIONS"
-        // 3.1 EDITION, 13 June 2019
-
-        // Contains a rule that states that when ltcFlag == False,
-        // Then TapChangerControl should NOT be present
-
-        // Although this combination has been observed in TYNDP test cases,
-        // we will forbid it until an explicit ltcFlag is added to IIDM,
-        // in the meanwhile, when ltcFlag == False,
-        // we avoid regulation by setting RegulationMode in IIDM to FIXED_TAP
-
-        // rca.regulationMode has been initialized to FIXED_TAP
-
-        PhaseTapChanger.RegulationMode finalRegulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
-        if (ltcFlag) {
-            finalRegulationMode = regulationMode;
+    private void checkTapChangerLoadTapChangingCapabilities(String tapChangerId, boolean regulating, TapChanger<?, ?, ?, ?> tapChanger) {
+        if (regulating && !tapChanger.hasLoadTapChangingCapabilities()) {
+            context.fixed(tapChangerId, "TapChanger has regulation enabled but has no load tap changing capability. Fixed ltcFlag to true.");
+            badLoadTapChangingCapabilityTapChangerReport(context.getReportNode(), tapChangerId);
+            tapChanger.setLoadTapChangingCapabilities(true);
         }
-        return finalRegulationMode;
     }
 
     private RegulatingControl getTapChangerControl(CgmesRegulatingControl rc) {
@@ -378,7 +341,6 @@ public class RegulatingControlMappingForTransformers {
     }
 
     public static class CgmesRegulatingControlPhase extends CgmesRegulatingControl {
-        boolean ltcFlag;
     }
 
     private static class CgmesRegulatingControl {

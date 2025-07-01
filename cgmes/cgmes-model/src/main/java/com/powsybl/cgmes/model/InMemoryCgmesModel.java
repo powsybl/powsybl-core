@@ -495,6 +495,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags dcSwitches() {
+        return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags dcGrounds() {
+        return new PropertyBags();
+    }
+
+    @Override
     public PropertyBags acDcConverters() {
         return acDcConverters;
     }
@@ -573,12 +583,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
     @Override
     public CgmesTerminal terminal(String terminalId) {
         // FakeCgmesModel does not provide info on terminals
-        return null;
-    }
-
-    @Override
-    public CgmesDcTerminal dcTerminal(String dcTerminalId) {
-        // FakeCgmesModel does not provide info on dcTerminals
         return null;
     }
 
