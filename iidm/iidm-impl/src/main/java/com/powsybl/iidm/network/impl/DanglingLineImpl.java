@@ -202,7 +202,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         @Override
-        public String getMessageHeader() {
+        public MessageHeader getMessageHeader() {
             return danglingLine.getMessageHeader();
         }
 

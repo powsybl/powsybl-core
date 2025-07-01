@@ -774,40 +774,40 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .setNode(0)
                 .add();
 
-        ValidationException e = assertThrows(ValidationException.class, () -> substation.newThreeWindingsTransformer()
-            .setId("twt")
-            .setName(TWT_NAME)
-            .newLeg1()
-            .setR(1.3)
-            .setX(1.4)
-            .setG(1.6)
-            .setB(1.7)
-            .setRatedU(1.1)
-            .setRatedS(1.2)
-            .setNode(0)
-            .add()
-            .add());
-        assertTrue(e.getMessage().contains("3 windings transformer leg1 in substation sub: voltage level is not set"));
+        ThreeWindingsTransformerAdder adder = substation.newThreeWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setRatedS(1.2)
+                .setNode(0)
+                .add();
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
+        assertEquals("3 windings transformer leg1 in substation 'sub': voltage level is not set and has no default value", e.getMessage());
     }
 
     @Test
     public void invalidLeg1ArgumentVoltageLevelNotFound() {
-        ValidationException e = assertThrows(ValidationException.class, () -> substation.newThreeWindingsTransformer()
-            .setId("twt")
-            .setName(TWT_NAME)
-            .newLeg1()
-            .setR(1.3)
-            .setX(1.4)
-            .setG(1.6)
-            .setB(1.7)
-            .setRatedU(1.1)
-            .setRatedS(1.2)
-            .setVoltageLevel("invalid")
-            .setConnectableBus("busA")
-            .setBus("busA")
-            .add()
-            .add());
-        assertTrue(e.getMessage().contains("3 windings transformer leg1 in substation sub: voltage level 'invalid' not found"));
+        ThreeWindingsTransformerAdder adder = substation.newThreeWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setRatedS(1.2)
+                .setVoltageLevel("invalid")
+                .setConnectableBus("busA")
+                .setBus("busA")
+                .add();
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
+        assertEquals("3 windings transformer leg1 in substation 'sub': voltage level 'invalid' not found", e.getMessage());
     }
 
     @Test
