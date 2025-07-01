@@ -119,6 +119,14 @@ public final class CgmesReports {
                 .add();
     }
 
+    public static void badLoadTapChangingCapabilityTapChangerReport(ReportNode reportNode, String tapChangerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.badLoadTapChangingCapabilityTapChanger")
+                .withUntypedValue("tapChangerId", tapChangerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     /**
      * @deprecated Not used anymore. Use {@link #invalidAngleVoltageReport(ReportNode, Bus, String, double , double)}
      */

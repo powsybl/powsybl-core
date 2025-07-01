@@ -167,6 +167,28 @@ Additional input can be provided:
   name of the voltage level is used as prefix.
 - The switch prefix ID is also optional.
 
+#### Create Voltage Level Sections
+This class allows the creation of new busbar sections inside a voltage level in the NODE_BREAKER topology.
+The voltage level must already have been created, must already contains some busbar sections, and these busbar sections must have the extension BusbarSectionPosition,
+which indicate their position in the voltage level busbar sections matrix (busbarIndex and sectionIndex).
+When applied to a network, it will create new busbar sections before or after a reference busbar section.
+
+It takes as input:
+- The ID of the reference busbar section
+- A boolean indicating if the new busbar section(s) must be created before(left) or after(right) the reference busbar section
+- A boolean indicating if a new busbar section must be created on all busbars, or only on the busbar of the reference busbar section
+- The switch kind of the new switch(es) that will be created left to the newly created busbar section :
+  - DISCONNECTOR means that only a DISCONNECTOR switch will be created
+  - BREAKER means that a BREAKER switch surrounded by two DISCONNECTOR switches will be created
+- The switch kind of the new switch(es) that will be created right to the newly created busbar section :
+  - DISCONNECTOR means that only a DISCONNECTOR switch will be created
+  - BREAKER means that a BREAKER switch surrounded by two DISCONNECTOR switches will be created
+- A boolean indicating if the new switches created left to the newly created busbar section(s) are fictitious
+- A boolean indicating if the new switches created right to the newly created busbar section(s) are fictitious
+- The switch prefix ID, used as a prefix for the IDs of the newly created switches.
+- The busbar section prefix ID, used as a prefix for the IDs of the newly created busbar sections. This prefix
+  is followed by the busbar index and the section index, if the default naming strategy is used.
+
 <span style="color: red">TODO: add single line diagrams</span>
 
 ### Network element removal

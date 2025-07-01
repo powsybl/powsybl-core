@@ -236,8 +236,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public String getMessageHeader() {
-            return getTypeDescription() + " '" + transformer.getId() + "': ";
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader(getTypeDescription(), transformer.getId());
         }
 
         public String getTapChangerAttribute() {

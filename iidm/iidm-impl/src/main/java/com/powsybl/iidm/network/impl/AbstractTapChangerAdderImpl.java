@@ -125,7 +125,7 @@ abstract class AbstractTapChangerAdderImpl<
 
         if (parent.hasPhaseTapChanger() && parent.hasRatioTapChanger()) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
-            NetworkReports.parentHasBothRatioAndPhaseTapChanger(network.getReportNodeContext().getReportNode(), parent.getMessageHeader());
+            NetworkReports.transformerHasBothRatioAndPhaseTapChanger(network.getReportNodeContext().getReportNode(), parent.getTransformer().getId());
         }
 
         return tapChanger;
