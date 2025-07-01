@@ -28,7 +28,7 @@ class StaticVarCompensatorUpdateTest {
     @Test
     void importEqTest() {
         Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml");
-        assertEquals(1, network.getStaticVarCompensatorCount());
+        assertEquals(2, network.getStaticVarCompensatorCount());
 
         assertEq(network);
     }
@@ -36,7 +36,7 @@ class StaticVarCompensatorUpdateTest {
     @Test
     void importEqAndSshTogetherTest() {
         Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml");
-        assertEquals(1, network.getStaticVarCompensatorCount());
+        assertEquals(2, network.getStaticVarCompensatorCount());
 
         assertFirstSsh(network);
     }
@@ -44,7 +44,7 @@ class StaticVarCompensatorUpdateTest {
     @Test
     void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml");
-        assertEquals(1, network.getStaticVarCompensatorCount());
+        assertEquals(2, network.getStaticVarCompensatorCount());
 
         assertEq(network);
 
@@ -60,33 +60,41 @@ class StaticVarCompensatorUpdateTest {
     }
 
     private static void assertEq(Network network) {
-        assertEq(network.getStaticVarCompensator("StaticVarCompensator"));
+        assertEq(network.getStaticVarCompensator("StaticVarCompensator-V"), StaticVarCompensator.RegulationMode.VOLTAGE);
+        assertEq(network.getStaticVarCompensator("StaticVarCompensator-Q"), StaticVarCompensator.RegulationMode.REACTIVE_POWER);
     }
 
     private static void assertFirstSsh(Network network) {
-        assertSsh(network.getStaticVarCompensator("StaticVarCompensator"), Double.NaN, 405.0, true);
+        assertSsh(network.getStaticVarCompensator("StaticVarCompensator-V"), Double.NaN, 405.0, true);
+        assertSsh(network.getStaticVarCompensator("StaticVarCompensator-Q"), 210.0, Double.NaN, true);
     }
 
     private static void assertSecondSsh(Network network) {
-        assertSsh(network.getStaticVarCompensator("StaticVarCompensator"), Double.NaN, 400.0, false);
+        assertSsh(network.getStaticVarCompensator("StaticVarCompensator-V"), Double.NaN, 400.0, false);
+        assertSsh(network.getStaticVarCompensator("StaticVarCompensator-Q"), 215.0, Double.NaN, false);
     }
 
     private static void assertFlowsBeforeSv(Network network) {
-        assertFlows(network.getStaticVarCompensator("StaticVarCompensator").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-V").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-Q").getTerminal(), Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsAfterSv(Network network) {
-        assertFlows(network.getStaticVarCompensator("StaticVarCompensator").getTerminal(), 0.0, -50.0);
+        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-V").getTerminal(), 0.0, -50.0);
+        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-Q").getTerminal(), 0.0, -200.0);
     }
 
-    private static void assertEq(StaticVarCompensator staticVarCompensator) {
+    private static void assertEq(StaticVarCompensator staticVarCompensator, StaticVarCompensator.RegulationMode regulationMode) {
         assertNotNull(staticVarCompensator);
         assertTrue(Double.isNaN(staticVarCompensator.getReactivePowerSetpoint()));
         assertTrue(Double.isNaN(staticVarCompensator.getVoltageSetpoint()));
         assertNotNull(staticVarCompensator.getRegulatingTerminal());
-        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, staticVarCompensator.getRegulationMode());
+        assertEquals(regulationMode, staticVarCompensator.getRegulationMode());
         assertFalse(staticVarCompensator.isRegulating());
 
+        if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER) {
+            assertNotNull(staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN));
+        }
         assertNotNull(staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL));
     }
 
