@@ -143,7 +143,7 @@ public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder impleme
     }
 
     @Override
-    public String getMessageHeader() {
+    public MessageHeader getMessageHeader() {
         return validable.getMessageHeader();
     }
 
