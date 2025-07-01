@@ -517,12 +517,6 @@ public class CgmesImport implements Importer {
                                 p,
                                 IMPORT_CONTROL_AREAS_PARAMETER,
                                 defaultValueConfig))
-                .setProfileForInitialValuesShuntSectionsTapPositions(
-                        Parameter.readString(
-                                getFormat(),
-                                p,
-                                PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
-                                defaultValueConfig))
                 .setStoreCgmesModelAsNetworkExtension(
                         Parameter.readBoolean(
                                 getFormat(),
@@ -636,7 +630,6 @@ public class CgmesImport implements Importer {
     public static final String PRE_PROCESSORS = "iidm.import.cgmes.pre-processors";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
-    public static final String PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS = "iidm.import.cgmes.profile-for-initial-values-shunt-sections-tap-positions";
     public static final String SOURCE_FOR_IIDM_ID = "iidm.import.cgmes.source-for-iidm-id";
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
@@ -691,13 +684,6 @@ public class CgmesImport implements Importer {
             null,
             ParameterScope.TECHNICAL)
             .addAdditionalNames("powsyblTripleStore");
-    private static final Parameter PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER = new Parameter(
-            PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS,
-            ParameterType.STRING,
-            "Profile used for initial state values",
-            "SSH",
-            List.of("SSH", "SV"))
-            .addAdditionalNames("iidm.import.cgmes.profile-used-for-initial-state-values");
     private static final Parameter STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
@@ -774,7 +760,6 @@ public class CgmesImport implements Importer {
             NAMING_STRATEGY_PARAMETER,
             IMPORT_CONTROL_AREAS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
-            PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
             SOURCE_FOR_IIDM_ID_PARAMETER,
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,

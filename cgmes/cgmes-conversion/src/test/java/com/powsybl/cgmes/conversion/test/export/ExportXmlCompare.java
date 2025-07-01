@@ -138,12 +138,14 @@ final class ExportXmlCompare {
                 ignored = attr.getLocalName().equals("converterStation1") || attr.getLocalName().equals("converterStation2") || attr.getLocalName().equals("convertersMode");
             } else if (elementName.contains("TapChanger")) {
                 ignored = attr.getLocalName().equals("regulating") || attr.getLocalName().equals("regulationMode") || attr.getLocalName().equals("regulationValue")
-                        || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband");
+                        || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband") || attr.getLocalName().equals("solvedTapPosition");
             } else if (elementName.startsWith("generator")) {
                 // ratedS is optional for generators,
                 // but we always export it to keep up with the quality of datasets rules.
                 // So we do not enforce this attribute to be equal in the original and exported network
                 ignored = attr.getLocalName().equals("ratedS") || attr.getLocalName().equals("bus");
+            } else if (elementName.startsWith("shunt")) {
+                ignored = attr.getLocalName().equals("solvedSectionCount");
             } else {
                 ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
