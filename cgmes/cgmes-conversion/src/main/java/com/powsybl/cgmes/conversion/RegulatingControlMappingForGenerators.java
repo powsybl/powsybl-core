@@ -110,7 +110,7 @@ public class RegulatingControlMappingForGenerators {
                     .add();
         }
         gen.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, controlId);
-        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "mode", control.mode);
+        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE, control.mode);
 
         return true;
     }
