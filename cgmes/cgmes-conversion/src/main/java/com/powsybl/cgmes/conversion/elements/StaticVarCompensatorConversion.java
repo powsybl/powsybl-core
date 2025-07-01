@@ -101,7 +101,7 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     }
 
     private static double findDefaultEquipmentTargetV(StaticVarCompensator staticVarCompensator) {
-        String defaultTargetVoltage = staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "defaultTargetVoltage");
+        String defaultTargetVoltage = staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.SVC_EQ_VOLTAGE_SET_POINT);
         return defaultTargetVoltage != null ? Double.parseDouble(defaultTargetVoltage) : Double.NaN;
     }
 

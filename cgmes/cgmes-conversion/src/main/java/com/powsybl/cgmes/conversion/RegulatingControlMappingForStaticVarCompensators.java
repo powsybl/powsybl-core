@@ -138,7 +138,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
     private void setDefaultRegulatingControlData(CgmesRegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc) {
         if (!Double.isNaN(rc.defaultTargetVoltage)) {
-            svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "defaultTargetVoltage", String.valueOf(rc.defaultTargetVoltage));
+            svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.SVC_EQ_VOLTAGE_SET_POINT, String.valueOf(rc.defaultTargetVoltage));
         }
     }
 
