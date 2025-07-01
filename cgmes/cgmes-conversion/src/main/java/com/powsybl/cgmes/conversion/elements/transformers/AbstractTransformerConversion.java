@@ -47,7 +47,8 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         boolean isLtcFlag = rtc.isLtcFlag();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
-        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
+        Integer solvedPosition = rtc.getSolvedTapPosition();
+        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
 
         rtc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
@@ -73,7 +74,8 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         boolean isLtcFlag = ptc.isLtcFlag();
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
-        ptca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
+        Integer solvedPosition = ptc.getSolvedTapPosition();
+        ptca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
 
         ptc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
@@ -193,11 +195,8 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         String ratioTapChangerId = findTapChangerId(tw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + end);
 
         int defaultTapPosition = getDefaultTapPosition(tw, rtc, ratioTapChangerId, context);
-        int tapPosition = findCgmesRatioTapChanger(ratioTapChangerId, context)
-                .map(propertyBag -> findTapPosition(propertyBag, defaultTapPosition, context))
-                .orElse(defaultTapPosition);
-        int validTapPosition = isValidTapPosition(rtc, tapPosition) ? tapPosition : defaultTapPosition;
-        rtc.setTapPosition(validTapPosition);
+        rtc.setTapPosition(findValidTapPosition(rtc, ratioTapChangerId, defaultTapPosition, context, false));
+        rtc.setSolvedTapPosition(findValidTapPosition(rtc, ratioTapChangerId, defaultTapPosition, context, true));
 
         if (regulatingControlIsDefined(rtc.getRegulationTerminal())) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, ratioTapChangerId, context);
@@ -246,11 +245,8 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         String phaseTapChangerId = findTapChangerId(tw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + end);
 
         int defaultTapPosition = getDefaultTapPosition(tw, ptc, phaseTapChangerId, context);
-        int tapPosition = findCgmesPhaseTapChanger(phaseTapChangerId, context)
-                .map(propertyBag -> findTapPosition(propertyBag, defaultTapPosition, context))
-                .orElse(defaultTapPosition);
-        int validTapPosition = isValidTapPosition(ptc, tapPosition) ? tapPosition : defaultTapPosition;
-        ptc.setTapPosition(validTapPosition);
+        ptc.setTapPosition(findValidTapPosition(ptc, phaseTapChangerId, defaultTapPosition, context, false));
+        ptc.setSolvedTapPosition(findValidTapPosition(ptc, phaseTapChangerId, defaultTapPosition, context, true));
 
         if (regulatingControlIsDefined(ptc.getRegulationTerminal())) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, phaseTapChangerId, context);
@@ -306,8 +302,22 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         return phaseTapChangerId != null ? Optional.ofNullable(context.phaseTapChanger(phaseTapChangerId)) : Optional.empty();
     }
 
-    private static int findTapPosition(PropertyBag p, int defaultTapPosition, Context context) {
-        OptionalInt tapPosition = findTapPosition(p, context);
+    private static int findValidTapPosition(RatioTapChanger ratioTapChanger, String ratioTapChangerId, int defaultTapPosition, Context context, boolean useSv) {
+        int tapPosition = findCgmesRatioTapChanger(ratioTapChangerId, context)
+                .map(propertyBag -> findTapPosition(propertyBag, defaultTapPosition, useSv))
+                .orElse(defaultTapPosition);
+        return isValidTapPosition(ratioTapChanger, tapPosition) ? tapPosition : defaultTapPosition;
+    }
+
+    private static int findValidTapPosition(PhaseTapChanger phaseTapChanger, String phaseTapChangerId, int defaultTapPosition, Context context, boolean useSv) {
+        int tapPosition = findCgmesPhaseTapChanger(phaseTapChangerId, context)
+                .map(propertyBag -> findTapPosition(propertyBag, defaultTapPosition, useSv))
+                .orElse(defaultTapPosition);
+        return isValidTapPosition(phaseTapChanger, tapPosition) ? tapPosition : defaultTapPosition;
+    }
+
+    private static int findTapPosition(PropertyBag p, int defaultTapPosition, boolean useSv) {
+        OptionalInt tapPosition = findTapPosition(p, useSv);
         return tapPosition.isPresent() ? tapPosition.getAsInt() : defaultTapPosition;
     }
 
@@ -323,16 +333,13 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         return tapChanger.getLowTapPosition() <= tapPosition && tapPosition <= tapChanger.getHighTapPosition();
     }
 
-    private static OptionalInt findTapPosition(PropertyBag p, Context context) {
-        double tapPosition = findDoubleTapPosition(p, context);
+    private static OptionalInt findTapPosition(PropertyBag p, boolean useSv) {
+        double tapPosition = findDoubleTapPosition(p, useSv);
         return Double.isFinite(tapPosition) ? OptionalInt.of(AbstractObjectConversion.fromContinuous(tapPosition)) : OptionalInt.empty();
     }
 
-    private static double findDoubleTapPosition(PropertyBag p, Context context) {
-        return switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
-            case SSH -> p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP));
-            case SV -> p.asDouble(CgmesNames.SV_TAP_STEP, p.asDouble(CgmesNames.STEP));
-        };
+    private static double findDoubleTapPosition(PropertyBag p, boolean useSv) {
+        return useSv ? p.asDouble(CgmesNames.SV_TAP_STEP, p.asDouble(CgmesNames.STEP)) : p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP));
     }
 
     private static <C extends Connectable<C>> int getNormalStep(Connectable<C> tw, String tapChangerId) {
