@@ -36,7 +36,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -805,11 +804,6 @@ public class Conversion {
 
     public static class Config {
 
-        public enum StateProfile {
-            SSH,
-            SV
-        }
-
         public List<String> substationIdsExcludedFromMapping() {
             return Collections.emptyList();
         }
@@ -855,20 +849,6 @@ public class Conversion {
 
         public Config setConvertSvInjections(boolean convertSvInjections) {
             this.convertSvInjections = convertSvInjections;
-            return this;
-        }
-
-        public StateProfile getProfileForInitialValuesShuntSectionsTapPositions() {
-            return profileForInitialValuesShuntSectionsTapPositions;
-        }
-
-        public Config setProfileForInitialValuesShuntSectionsTapPositions(String profileForInitialValuesShuntSectionsTapPositions) {
-            String forInitialValuesShuntSectionsTapPositions = Objects.requireNonNull(profileForInitialValuesShuntSectionsTapPositions);
-            if (forInitialValuesShuntSectionsTapPositions.equals("SSH") || forInitialValuesShuntSectionsTapPositions.equals("SV")) {
-                this.profileForInitialValuesShuntSectionsTapPositions = StateProfile.valueOf(profileForInitialValuesShuntSectionsTapPositions);
-            } else {
-                throw new CgmesModelException("Unexpected profile used for shunt sections / tap positions state hypothesis: " + profileForInitialValuesShuntSectionsTapPositions);
-            }
             return this;
         }
 
@@ -1017,7 +997,6 @@ public class Conversion {
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
-        private StateProfile profileForInitialValuesShuntSectionsTapPositions = SSH;
         private boolean storeCgmesModelAsNetworkExtension = true;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
         private boolean createActivePowerControlExtension = false;
