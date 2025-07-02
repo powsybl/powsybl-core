@@ -116,7 +116,7 @@
         <gdata.version>1.47.1_1</gdata.version>
         <!-- graphviz-builder seems abandoned - to be replaced ? -->
         <graphviz-builder.version>1.0.12</graphviz-builder.version>
-        <groovy.version>4.0.27</groovy.version>
+        <groovy.version>4.0.26</groovy.version>
         <guava.version>33.4.8-jre</guava.version>
         <jackson.version>2.19.0</jackson.version>
         <jama.version>1.0.3</jama.version>
