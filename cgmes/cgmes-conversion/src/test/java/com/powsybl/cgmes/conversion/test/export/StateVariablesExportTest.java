@@ -7,6 +7,8 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conformity.*;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
@@ -43,11 +45,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.matcherCount;
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -266,7 +268,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         SvShuntCompensatorSections svdata = new SvShuntCompensatorSections();
         try (InputStream is = new ByteArrayInputStream(sv.getBytes(StandardCharsets.UTF_8))) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             Integer sections = null;
             String shuntCompensatorId = null;
             while (reader.hasNext()) {
@@ -424,7 +426,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         String description = "";
         boolean insideTopologicalIsland = false;
         try (InputStream is = Files.newInputStream(sv)) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             while (reader.hasNext()) {
                 int token = reader.next();
                 if (token == XMLStreamConstants.START_ELEMENT) {
@@ -496,7 +498,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         SvTapSteps svTapSteps = new SvTapSteps();
         try (InputStream is = new ByteArrayInputStream(sv.getBytes(StandardCharsets.UTF_8))) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             Integer position = null;
             String tapChangerId = null;
             while (reader.hasNext()) {
@@ -696,7 +698,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         ReferenceTerminals.addTerminal(terminal.get());
         String sv = exportSvAsString(network, false);
         Pattern p = Pattern.compile("<cim:TopologicalIsland.TopologicalNodes rdf:resource=");
-        assertEquals(10, p.matcher(sv).results().count());
+        assertEquals(10, matcherCount(p.matcher(sv)));
         // 10 is the number of topological nodes in the island associated to buses and to dangling lines
         assertEquals(5, network.getBusBreakerView().getBusStream().count());
         assertEquals(5, network.getDanglingLineStream().count());

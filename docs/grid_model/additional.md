@@ -94,9 +94,12 @@ Note that, following this modeling, in general, the last temporary limit (the hi
 ### Limit group collection
 In network development studies or in an operational context (CGMES), we can have a set of operational limits according to the season (winter vs summer, for example), the time of the day (day vs night) etc.
 In PowSyBl, users can store a collection of limits:
-- Active power limits, apparent power limits and current limits are gathered into an `OperationalLimitsGroup` object. This group has an `id`.
+- Active power limits, apparent power limits and current limits are gathered into an `OperationalLimitsGroup` object.
 - Lines and transformers are associated with a collection of `OperationalLimitsGroup` (one collection per side/leg).
   Users can then choose the active set according to their needs.
+
+`OperationalLimitsGroup` objects have an `id`, and may have properties — which allow associating additional arbitrary data items under the general schema of pairs <Key, Value>.  
+Note that unlike the properties on the network components, no notification is emitted when a property is added, changed or removed.
 
 #### Examples
 
@@ -188,17 +191,16 @@ A phase tap changer is described by a set of tap positions (or steps) within whi
 - the lowest tap position
 - the highest tap position
 - the position index of the current tap (which has to be within the highest and lowest tap position bounds)
+- the solved position index of the tap that represents the index after a calculation
+- whether the phase tap changer can change tap positions onload or only offload
+
+If the phase tap changer can change tap positions onload, regulation is specified as follows:
 - whether the tap changer is regulating or not
-- the regulation mode, which can be `CURRENT_LIMITER`, `ACTIVE_POWER_CONTROL` or `FIXED_TAP`: the tap changer either regulates the current or the active power.
+- the regulation mode, which can be `CURRENT_LIMITER`, `ACTIVE_POWER_CONTROL`: the tap changer either regulates the current or the active power.
 - the regulation value (either a current value in `A` or an active power value in `MW`)
 - the regulating terminal, which can be local or remote: it is the specific connection point on the network where the setpoint is measured.
 - the target deadband, which defines a margin on the regulation so as to avoid an excessive update of controls
 
-The phase tap changer can always switch tap positions while loaded, which is not the case of the ratio tap changer described below.
-
-<!---
-<span style="color:red"> TODO: check what happens when setting `isRegulating` to true and `FIXED_TAP` as regulating mode</span>
--->
 
 Each step of a phase tap changer has the following attributes:
 
@@ -218,6 +220,7 @@ This example shows how to add a phase tap changer to a two-winding transformer:
 twoWindingsTransformer.newPhaseTapChanger()
     .setLowTapPosition(-1)
     .setTapPosition(0)
+    .setLoadTapChangingCapabilities(true)
     .setRegulating(true)
     .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
     .setRegulationValue(25)
@@ -261,12 +264,15 @@ A ratio tap changer is described by a set of tap positions (or steps) within whi
 - the lowest tap position
 - the highest tap position
 - the position index of the current tap (which has to be within the highest and lowest tap position bounds)
+- the solved position index of the tap that represents the index after a calculation
+- whether the ratio tap changer can change tap positions onload or only offload
+
+If the ratio tap changer can change tap positions onload, regulation is specified as follows:
 - whether the tap changer is regulating or not
 - the regulation mode, which can be `VOLTAGE` or `REACTIVE_POWER`: the tap changer either regulates the voltage or the reactive power
 - the regulation value (either a voltage value in `kV` or a reactive power value in `MVar`)
 - the regulating terminal, which can be local or remote: it is the specific connection point on the network where the setpoint is measured.
 - the target deadband, which defines a margin on the regulation so as to avoid an excessive update of controls
-- whether the ratio tap changer can change tap positions onload or only offload
 
 
 Each step of a ratio tap changer has the following attributes:
@@ -288,7 +294,8 @@ twoWindingsTransformer.newRatioTapChanger()
     .setTapPosition(0)
     .setLoadTapChangingCapabilities(true)
     .setRegulating(true)
-    .setTargetV(25)
+    .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+    .setRegulationValue(25)
     .setRegulationTerminal(twoWindingsTransformer.getTerminal1())
     .beginStep()
         .setRho(0.95)

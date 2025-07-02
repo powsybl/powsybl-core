@@ -14,8 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.powsybl.psse.model.pf.PsseValidation.switchedShuntId;
-import static com.powsybl.psse.model.pf.PsseValidation.switchedShuntRegulatingBus;
+import static com.powsybl.psse.model.pf.PsseValidation.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -53,6 +52,9 @@ public class PsseFixes {
         if (version.getMajorNumber() >= 35) {
             fixDuplicatedIds(model.getSwitchedShunts(), sh -> sh.getI() + "-" + sh.getId(), this::switchedShuntFixer);
         }
+        fixDuplicatedIds(model.getTwoTerminalDcTransmissionLines(), PsseTwoTerminalDcTransmissionLine::getName, this::twoTerminalDcTransmissionLineFixer);
+        fixDuplicatedIds(model.getVoltageSourceConverterDcTransmissionLines(), PsseVoltageSourceConverterDcTransmissionLine::getName, this::vscDcTransmissionLineFixer);
+        fixDuplicatedIds(model.getFacts(), PsseFacts::getName, this::factsDeviceFixer);
     }
 
     private void fixTransformersWindingCod() {
@@ -72,6 +74,8 @@ public class PsseFixes {
         model.getBuses().forEach(psseBus -> buses.add(psseBus.getI()));
         fixGeneratorsControlledBus(buses);
         fixTransformersControlledBus(buses);
+        fixVscDcTransmissionLineControlledBus(buses);
+        fixFactsDeviceControlledBus(buses);
         fixSwitchedShuntControlledBus(buses);
     }
 
@@ -104,6 +108,16 @@ public class PsseFixes {
         // The id is only two characters long, and we try to preserve the first character
         // We avoid setting a 0 as first character because PSSE may interpret them as not valid
         String first = id.isEmpty() ? "1" : id.substring(0, 1);
+        return buildCandidate(id, first, usedIds);
+    }
+
+    private String buildFixedName(String name, Set<String> usedNames) {
+        // name is upto twelve characters long
+        String first = name.length() == 12 ? name.substring(0, 11) : name;
+        return buildCandidate(name, first, usedNames);
+    }
+
+    private String buildCandidate(String id, String first, Set<String> usedIds) {
         for (char second = '0'; second <= '9'; second++) {
             String candidate = first + second;
             if (usedIds.contains(candidate)) {
@@ -178,6 +192,30 @@ public class PsseFixes {
         }
     }
 
+    private String twoTerminalDcTransmissionLineFixer(PsseTwoTerminalDcTransmissionLine twoTerminalDcTransmissionLine, Set<String> usedIds) {
+        String name = twoTerminalDcTransmissionLine.getName();
+        String fixedName = buildFixedName(name, usedIds);
+        twoTerminalDcTransmissionLine.setName(fixedName);
+        warn("TwoTerminalDcTransmissionLine", name, fixedName);
+        return fixedName;
+    }
+
+    private String vscDcTransmissionLineFixer(PsseVoltageSourceConverterDcTransmissionLine vscDcTransmissionLine, Set<String> usedIds) {
+        String name = vscDcTransmissionLine.getName();
+        String fixedName = buildFixedName(name, usedIds);
+        vscDcTransmissionLine.setName(fixedName);
+        warn("VoltageSourceConverterDcTransmissionLine", name, fixedName);
+        return fixedName;
+    }
+
+    private String factsDeviceFixer(PsseFacts factsDevice, Set<String> usedIds) {
+        String name = factsDevice.getName();
+        String fixedName = buildFixedName(name, usedIds);
+        factsDevice.setName(fixedName);
+        warn("FactsDevice", name, fixedName);
+        return fixedName;
+    }
+
     private void fixGeneratorsControlledBus(Set<Integer> buses) {
         model.getGenerators().forEach(psseGenerator -> {
             if (psseGenerator.getIreg() != 0 && !buses.contains(psseGenerator.getIreg())) {
@@ -206,6 +244,31 @@ public class PsseFixes {
         }
     }
 
+    private void fixVscDcTransmissionLineControlledBus(Set<Integer> buses) {
+        model.getVoltageSourceConverterDcTransmissionLines().forEach(psseVscDcTransmissionLine -> {
+            fixVscDcTransmissionLineConverterControlledBus(buses, psseVscDcTransmissionLine, psseVscDcTransmissionLine.getConverter1(), "Converter1");
+            fixVscDcTransmissionLineConverterControlledBus(buses, psseVscDcTransmissionLine, psseVscDcTransmissionLine.getConverter2(), "Converter2");
+        });
+    }
+
+    private void fixVscDcTransmissionLineConverterControlledBus(Set<Integer> buses, PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine, PsseVoltageSourceConverter psseVscDcConverter, String converterTag) {
+        if (vscDcTransmissionLineRegulatingBus(psseVscDcConverter, version) != 0 && !buses.contains(vscDcTransmissionLineRegulatingBus(psseVscDcConverter, version))) {
+            warn("VoltageSourceConverterDcTransmissionLine", String.format("%s, ... %s", psseVscDcTransmissionLine.getName(), converterTag), vscDcTransmissionLineRegulatingBus(psseVscDcConverter, version));
+            psseVscDcConverter.setVsreg(0);
+            psseVscDcConverter.setRemot(0);
+        }
+    }
+
+    private void fixFactsDeviceControlledBus(Set<Integer> buses) {
+        model.getFacts().forEach(psseFactsDevice -> {
+            if (factsDeviceRegulatingBus(psseFactsDevice, version) != 0 && !buses.contains(factsDeviceRegulatingBus(psseFactsDevice, version))) {
+                warn("FactsDevice", String.format("%s, ...", psseFactsDevice.getName()), factsDeviceRegulatingBus(psseFactsDevice, version));
+                psseFactsDevice.setFcreg(0);
+                psseFactsDevice.setRemot(0);
+            }
+        });
+    }
+
     private void fixSwitchedShuntControlledBus(Set<Integer> buses) {
         model.getSwitchedShunts().forEach(psseSwitchedShunt -> {
             if (switchedShuntRegulatingBus(psseSwitchedShunt, version) != 0 && !buses.contains(switchedShuntRegulatingBus(psseSwitchedShunt, version))) {
@@ -222,6 +285,16 @@ public class PsseFixes {
                 LOGGER.warn("Unable to fix {} Id: I {} ID '{}'", type, i, id);
             } else {
                 LOGGER.warn("{} Id fixed: I {} ID '{}'. Fixed ID '{}'", type, i, id, fixedId);
+            }
+        }
+    }
+
+    private void warn(String type, String name, String fixedName) {
+        if (LOGGER.isWarnEnabled()) {
+            if (name.equals(fixedName)) {
+                LOGGER.warn("Unable to fix {} Name: {}", type, name);
+            } else {
+                LOGGER.warn("{} name fixed: Name '{}'. Fixed Name '{}'", type, name, fixedName);
             }
         }
     }
