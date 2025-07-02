@@ -196,7 +196,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = transformerAdder.add();
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
 
-        CurrentLimits currentLimitsInLeg1 = leg1.newCurrentLimits()
+        CurrentLimits currentLimitsInLeg1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
             .setPermanentLimit(100)
             .beginTemporaryLimit()
             .setName("20'")
@@ -213,12 +213,12 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = transformerAdder.add();
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
 
-        ActivePowerLimits activePowerLimits1 = leg1.newActivePowerLimits()
+        ActivePowerLimits activePowerLimits1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
             .setPermanentLimit(400)
             .add();
         assertSame(activePowerLimits1, leg1.getActivePowerLimits().orElse(null));
 
-        ApparentPowerLimits apparentPowerLimits1 = leg1.newApparentPowerLimits()
+        ApparentPowerLimits apparentPowerLimits1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
             .setPermanentLimit(2.4)
             .add();
         assertSame(apparentPowerLimits1, leg1.getApparentPowerLimits().orElse(null));
@@ -234,8 +234,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         assertTrue(leg2.hasRatioTapChanger());
         assertSame(ratioTapChangerInLeg2, leg2.getRatioTapChanger());
-
-        CurrentLimits currentLimitsInLeg2 = leg2.newCurrentLimits()
+        CurrentLimits currentLimitsInLeg2 = leg2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
             .setPermanentLimit(100)
             .beginTemporaryLimit()
             .setName("20'")
@@ -256,8 +255,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         assertTrue(leg3.getOptionalRatioTapChanger().isPresent());
         assertSame(ratioTapChangerInLeg3, leg3.getRatioTapChanger());
-
-        CurrentLimits currentLimitsInLeg3 = leg3.newCurrentLimits()
+        CurrentLimits currentLimitsInLeg3 = leg3.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
             .setPermanentLimit(100)
             .beginTemporaryLimit()
             .setName("20'")
@@ -1261,7 +1259,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
 
-        CurrentLimitsAdder currentLimitsAdder1 = leg1.newCurrentLimits()
+        CurrentLimitsAdder currentLimitsAdder1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                 .setName("TL1")
@@ -1270,7 +1268,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .endTemporaryLimit();
         currentLimitsAdder1.add();
 
-        ActivePowerLimitsAdder activePowerLimitsAdder1 = leg1.newActivePowerLimits()
+        ActivePowerLimitsAdder activePowerLimitsAdder1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                 .setName("TL1")
@@ -1279,7 +1277,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .endTemporaryLimit();
         activePowerLimitsAdder1.add();
 
-        ApparentPowerLimitsAdder apparentPowerLimitsAdder1 = leg1.newApparentPowerLimits()
+        ApparentPowerLimitsAdder apparentPowerLimitsAdder1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                 .setName("TL1")
@@ -1295,19 +1293,19 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertTrue(leg1.getApparentPowerLimits().isPresent());
         ApparentPowerLimits apparentPowerLimits1 = leg1.getApparentPowerLimits().get();
 
-        CurrentLimitsAdder currentLimitsAdder2 = leg2.newCurrentLimits(currentLimits1);
+        CurrentLimitsAdder currentLimitsAdder2 = leg2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(currentLimits1);
         currentLimitsAdder2.add();
         Optional<CurrentLimits> optionalCurrentLimits2 = leg2.getCurrentLimits();
         assertTrue(optionalCurrentLimits2.isPresent());
         CurrentLimits currentLimits2 = optionalCurrentLimits2.get();
 
-        ActivePowerLimitsAdder activePowerLimitsAdder2 = leg2.newActivePowerLimits(activePowerLimits1);
+        ActivePowerLimitsAdder activePowerLimitsAdder2 = leg2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(activePowerLimits1);
         activePowerLimitsAdder2.add();
         Optional<ActivePowerLimits> optionalActivePowerLimits2 = leg2.getActivePowerLimits();
         assertTrue(optionalActivePowerLimits2.isPresent());
         ActivePowerLimits activePowerLimits2 = optionalActivePowerLimits2.get();
 
-        ApparentPowerLimitsAdder apparentPowerLimitsAdder2 = leg2.newApparentPowerLimits(apparentPowerLimits1);
+        ApparentPowerLimitsAdder apparentPowerLimitsAdder2 = leg2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(apparentPowerLimits1);
         apparentPowerLimitsAdder2.add();
         Optional<ApparentPowerLimits> optionalApparentPowerLimits2 = leg2.getApparentPowerLimits();
         assertTrue(optionalApparentPowerLimits2.isPresent());
