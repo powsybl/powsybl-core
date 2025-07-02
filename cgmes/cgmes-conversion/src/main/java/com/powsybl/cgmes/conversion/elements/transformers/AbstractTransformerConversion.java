@@ -19,7 +19,6 @@ import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.WindingType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -38,6 +37,8 @@ import static com.powsybl.cgmes.model.CgmesNames.*;
  */
 abstract class AbstractTransformerConversion extends AbstractConductingEquipmentConversion {
 
+    protected static final String END_NUMBER = "endNumber";
+
     AbstractTransformerConversion(String type, PropertyBags ends, Context context) {
         super(type, ends, context);
     }
@@ -46,7 +47,8 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         boolean isLtcFlag = rtc.isLtcFlag();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
-        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
+        Integer solvedPosition = rtc.getSolvedTapPosition();
+        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
 
         rtc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
@@ -69,9 +71,11 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     }
 
     protected static void setToIidmPhaseTapChanger(TapChanger ptc, PhaseTapChangerAdder ptca, Context context) {
+        boolean isLtcFlag = ptc.isLtcFlag();
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
-        ptca.setLowTapPosition(lowStep).setTapPosition(position);
+        Integer solvedPosition = ptc.getSolvedTapPosition();
+        ptca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
 
         ptc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
@@ -108,7 +112,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
 
     protected CgmesRegulatingControlPhase setContextRegulatingDataPhase(TapChanger tc) {
         if (tc != null) {
-            return context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(tc.getId(), tc.getRegulatingControlId(), tc.isLtcFlag());
+            return context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(tc.getId(), tc.getRegulatingControlId());
         }
         return null;
     }
@@ -123,21 +127,21 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         String aliasType;
         for (PropertyBag end : ps) {
             alias = end.getId("TransformerEnd");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END + WindingType.endNumber(end);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END + end.getLocal(END_NUMBER);
             identifiable.addAlias(alias, aliasType);
         }
 
         // Add RatioTapChangers aliases
         for (PropertyBag rtc : context.ratioTapChangers(identifiable.getId())) {
             alias = rtc.getId("RatioTapChanger");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER + WindingType.endNumber(rtc);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER + rtc.getLocal(END_NUMBER);
             identifiable.addAlias(alias, aliasType, context.config().isEnsureIdAliasUnicity());
         }
 
         // Add PhaseTapChangers aliases
         for (PropertyBag ptc : context.phaseTapChangers(identifiable.getId())) {
             alias = ptc.getId("PhaseTapChanger");
-            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER + WindingType.endNumber(ptc);
+            aliasType = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER + ptc.getLocal(END_NUMBER);
             identifiable.addAlias(alias, aliasType, context.config().isEnsureIdAliasUnicity());
         }
     }
@@ -191,11 +195,8 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         String ratioTapChangerId = findTapChangerId(tw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + end);
 
         int defaultTapPosition = getDefaultTapPosition(tw, rtc, ratioTapChangerId, context);
-        int tapPosition = findCgmesRatioTapChanger(ratioTapChangerId, context)
-                .map(propertyBag -> findTapPosition(propertyBag, defaultTapPosition, context))
-                .orElse(defaultTapPosition);
-        int validTapPosition = isValidTapPosition(rtc, tapPosition) ? tapPosition : defaultTapPosition;
-        rtc.setTapPosition(validTapPosition);
+        rtc.setTapPosition(findValidTapPosition(rtc, ratioTapChangerId, defaultTapPosition, context));
+        findValidSolvedTapPosition(rtc, ratioTapChangerId, context).ifPresent(rtc::setSolvedTapPosition);
 
         if (regulatingControlIsDefined(rtc.getRegulationTerminal())) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, ratioTapChangerId, context);
@@ -222,7 +223,13 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                 targetDeadband = Double.NaN; // To avoid an exception from checkTargetDeadband
             }
 
-            setRegulation(rtc, targetV, targetDeadband, regulatingOn && isRegulatingAllowed && validTargetV && validTargetDeadband);
+            boolean regulating = regulatingOn && isRegulatingAllowed && validTargetV && validTargetDeadband;
+            if (regulating && !rtc.hasLoadTapChangingCapabilities()) {
+                badLoadTapChangingCapabilityTapChangerReport(context.getReportNode(), ratioTapChangerId);
+                rtc.setLoadTapChangingCapabilities(true);
+            }
+
+            setRegulation(rtc, targetV, targetDeadband, regulating);
         }
     }
 
@@ -238,11 +245,8 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         String phaseTapChangerId = findTapChangerId(tw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + end);
 
         int defaultTapPosition = getDefaultTapPosition(tw, ptc, phaseTapChangerId, context);
-        int tapPosition = findCgmesPhaseTapChanger(phaseTapChangerId, context)
-                .map(propertyBag -> findTapPosition(propertyBag, defaultTapPosition, context))
-                .orElse(defaultTapPosition);
-        int validTapPosition = isValidTapPosition(ptc, tapPosition) ? tapPosition : defaultTapPosition;
-        ptc.setTapPosition(validTapPosition);
+        ptc.setTapPosition(findValidTapPosition(ptc, phaseTapChangerId, defaultTapPosition, context));
+        findValidSolvedTapPosition(ptc, phaseTapChangerId, context).ifPresent(ptc::setSolvedTapPosition);
 
         if (regulatingControlIsDefined(ptc.getRegulationTerminal())) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, phaseTapChangerId, context);
@@ -254,12 +258,6 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
 
             boolean defaultRegulatingOn = getDefaultRegulatingOn(ptc, context);
             boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
-
-            boolean fixedRegulating = regulatingOn;
-            if (regulatingOn && ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.FIXED_TAP) {
-                context.fixed(phaseTapChangerId, "RegulationMode: regulating is set to true whereas regulationMode is set to FIXED_TAP: regulating fixed to false");
-                fixedRegulating = false;
-            }
 
             boolean validTargetValue = isValidTargetValue(targetValue);
             if (!validTargetValue) {
@@ -274,7 +272,13 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                 targetDeadband = Double.NaN; // To avoid an exception from checkTargetDeadband
             }
 
-            setRegulation(ptc, targetValue, targetDeadband, fixedRegulating && isRegulatingAllowed && isValidTargetValue(targetValue) && validTargetDeadband);
+            boolean regulating = regulatingOn && isRegulatingAllowed && isValidTargetValue(targetValue) && validTargetDeadband;
+            if (regulating && !ptc.hasLoadTapChangingCapabilities()) {
+                badLoadTapChangingCapabilityTapChangerReport(context.getReportNode(), phaseTapChangerId);
+                ptc.setLoadTapChangingCapabilities(true);
+            }
+
+            setRegulation(ptc, targetValue, targetDeadband, regulating);
         }
     }
 
@@ -298,8 +302,22 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         return phaseTapChangerId != null ? Optional.ofNullable(context.phaseTapChanger(phaseTapChangerId)) : Optional.empty();
     }
 
-    private static int findTapPosition(PropertyBag p, int defaultTapPosition, Context context) {
-        OptionalInt tapPosition = findTapPosition(p, context);
+    private static int findValidTapPosition(RatioTapChanger ratioTapChanger, String ratioTapChangerId, int defaultTapPosition, Context context) {
+        int tapPosition = findCgmesRatioTapChanger(ratioTapChangerId, context)
+                .map(propertyBag -> findTapPosition(propertyBag, defaultTapPosition))
+                .orElse(defaultTapPosition);
+        return isValidTapPosition(ratioTapChanger, tapPosition) ? tapPosition : defaultTapPosition;
+    }
+
+    private static int findValidTapPosition(PhaseTapChanger phaseTapChanger, String phaseTapChangerId, int defaultTapPosition, Context context) {
+        int tapPosition = findCgmesPhaseTapChanger(phaseTapChangerId, context)
+                .map(propertyBag -> findTapPosition(propertyBag, defaultTapPosition))
+                .orElse(defaultTapPosition);
+        return isValidTapPosition(phaseTapChanger, tapPosition) ? tapPosition : defaultTapPosition;
+    }
+
+    private static int findTapPosition(PropertyBag p, int defaultTapPosition) {
+        OptionalInt tapPosition = findTapPosition(p);
         return tapPosition.isPresent() ? tapPosition.getAsInt() : defaultTapPosition;
     }
 
@@ -315,16 +333,36 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         return tapChanger.getLowTapPosition() <= tapPosition && tapPosition <= tapChanger.getHighTapPosition();
     }
 
-    private static OptionalInt findTapPosition(PropertyBag p, Context context) {
-        double tapPosition = findDoubleTapPosition(p, context);
+    private static OptionalInt findTapPosition(PropertyBag p) {
+        double tapPosition = p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP));
         return Double.isFinite(tapPosition) ? OptionalInt.of(AbstractObjectConversion.fromContinuous(tapPosition)) : OptionalInt.empty();
     }
 
-    private static double findDoubleTapPosition(PropertyBag p, Context context) {
-        return switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
-            case SSH -> p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP));
-            case SV -> p.asDouble(CgmesNames.SV_TAP_STEP, p.asDouble(CgmesNames.STEP));
-        };
+    private static OptionalInt findValidSolvedTapPosition(RatioTapChanger ratioTapChanger, String ratioTapChangerId, Context context) {
+        Optional<PropertyBag> propertyBag = findCgmesRatioTapChanger(ratioTapChangerId, context);
+        if (propertyBag.isPresent()) {
+            OptionalInt tap = findSolvedTapPosition(propertyBag.get());
+            if (tap.isPresent() && isValidTapPosition(ratioTapChanger, tap.getAsInt())) {
+                return tap;
+            }
+        }
+        return OptionalInt.empty();
+    }
+
+    private static OptionalInt findValidSolvedTapPosition(PhaseTapChanger phaseTapChanger, String phaseTapChangerId, Context context) {
+        Optional<PropertyBag> propertyBag = findCgmesPhaseTapChanger(phaseTapChangerId, context);
+        if (propertyBag.isPresent()) {
+            OptionalInt tap = findSolvedTapPosition(propertyBag.get());
+            if (tap.isPresent() && isValidTapPosition(phaseTapChanger, tap.getAsInt())) {
+                return tap;
+            }
+        }
+        return OptionalInt.empty();
+    }
+
+    private static OptionalInt findSolvedTapPosition(PropertyBag p) {
+        double tapPosition = p.asDouble(CgmesNames.SV_TAP_STEP);
+        return Double.isFinite(tapPosition) ? OptionalInt.of(AbstractObjectConversion.fromContinuous(tapPosition)) : OptionalInt.empty();
     }
 
     private static <C extends Connectable<C>> int getNormalStep(Connectable<C> tw, String tapChangerId) {

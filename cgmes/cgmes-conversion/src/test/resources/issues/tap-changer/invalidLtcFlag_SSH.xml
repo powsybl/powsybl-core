@@ -1,0 +1,45 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:invalidLtcFlag_SSH">
+    <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+    <md:Model.description>Tap changer regulation</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+    <md:Model.DependentOn rdf:resource="urn:uuid:invalidLtcFlag_EQ"/>
+</md:FullModel>
+<cim:Terminal rdf:ID="_T_PTE_11">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_12">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:RatioTapChanger rdf:ID="_RTC">
+    <cim:TapChanger.step>2</cim:TapChanger.step>
+    <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+</cim:RatioTapChanger>
+<cim:TapChangerControl rdf:ID="_TCC_1">
+    <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+    <cim:RegulatingControl.targetDeadband>5.0</cim:RegulatingControl.targetDeadband>
+    <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.M"/>
+    <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+    <cim:RegulatingControl.targetValue>21.0</cim:RegulatingControl.targetValue>
+</cim:TapChangerControl>
+<cim:Terminal rdf:ID="_T_PTE_21">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_22">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:PhaseTapChangerLinear rdf:ID="_PTC">
+    <cim:TapChanger.step>2</cim:TapChanger.step>
+    <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+</cim:PhaseTapChangerLinear>
+<cim:TapChangerControl rdf:ID="_TCC_2">
+    <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+    <cim:RegulatingControl.targetDeadband>1.0</cim:RegulatingControl.targetDeadband>
+    <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.none"/>
+    <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+    <cim:RegulatingControl.targetValue>0.0</cim:RegulatingControl.targetValue>
+</cim:TapChangerControl>
+</rdf:RDF>

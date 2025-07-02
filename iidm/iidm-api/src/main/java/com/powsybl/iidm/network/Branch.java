@@ -224,7 +224,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link CurrentLimits} in the selected {@link OperationalLimitsGroup} on side 1.
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
      */
+    @Deprecated(since = "6.8.0")
     CurrentLimitsAdder newCurrentLimits1();
 
     /**
@@ -234,10 +236,50 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * are valid.</p>
      * @param currentLimits a set of existing current limits.
      * @return an adder allowing to create a new {@link CurrentLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 1.
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits(CurrentLimits)} instead.
      */
+    @Deprecated(since = "6.8.0")
     default CurrentLimitsAdder newCurrentLimits1(CurrentLimits currentLimits) {
         CurrentLimitsAdder currentLimitsAdder = newCurrentLimits1();
         return initializeFromLoadingLimits(currentLimitsAdder, currentLimits);
+    }
+
+    /**
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the default ID or create a new one if it does not exist.
+     * Set the {@link OperationalLimitsGroup} as the selected one on side 1.</p>
+     * @return the selected {@link OperationalLimitsGroup} on side 1.
+     */
+    OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup1();
+
+    /**
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the default ID or create a new one if it does not exist.
+     * Set the {@link OperationalLimitsGroup} as the selected one on side 2.</p>
+     * @return the selected {@link OperationalLimitsGroup} on side 2.
+     */
+    OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2();
+
+    /**
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exist.
+     * Set the {@link OperationalLimitsGroup} as the selected one on side 1.</p>
+     * @param limitsGroupId an ID of {@link OperationalLimitsGroup}
+     * @return the selected {@link OperationalLimitsGroup} on side 1.
+     */
+    default OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup1(String limitsGroupId) {
+        OperationalLimitsGroup operationalLimitsGroup = getOperationalLimitsGroup1(limitsGroupId).orElseGet(() -> newOperationalLimitsGroup1(limitsGroupId));
+        setSelectedOperationalLimitsGroup1(limitsGroupId);
+        return operationalLimitsGroup;
+    }
+
+    /**
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exist.
+     * Set the {@link OperationalLimitsGroup} as the selected one on side 2.</p>
+     * @param limitsGroupId an ID of {@link OperationalLimitsGroup}
+     * @return the selected {@link OperationalLimitsGroup} on side 2.
+     */
+    default OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2(String limitsGroupId) {
+        OperationalLimitsGroup operationalLimitsGroup = getOperationalLimitsGroup2(limitsGroupId).orElseGet(() -> newOperationalLimitsGroup2(limitsGroupId));
+        setSelectedOperationalLimitsGroup2(limitsGroupId);
+        return operationalLimitsGroup;
     }
 
     /**
@@ -246,7 +288,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * This operation is performed when the limits are created via {@link ActivePowerLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup} on side 1.
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
      */
+    @Deprecated(since = "6.8.0")
     ActivePowerLimitsAdder newActivePowerLimits1();
 
     /**
@@ -256,7 +300,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * are valid.</p>
      * @param activePowerLimits a set of existing active power limits.
      * @return an adder allowing to create a new {@link ActivePowerLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 1.
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits(ActivePowerLimits)} instead.
      */
+    @Deprecated(since = "6.8.0")
     default ActivePowerLimitsAdder newActivePowerLimits1(ActivePowerLimits activePowerLimits) {
         ActivePowerLimitsAdder activePowerLimitsAdder = newActivePowerLimits1();
         return initializeFromLoadingLimits(activePowerLimitsAdder, activePowerLimits);
@@ -268,7 +314,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * This operation is performed when the limits are created via {@link ApparentPowerLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup} on side 1.
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
      */
+    @Deprecated(since = "6.8.0")
     ApparentPowerLimitsAdder newApparentPowerLimits1();
 
     /**
@@ -278,7 +326,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * are valid.</p>
      * @param apparentPowerLimits a set of existing apparent power limits.
      * @return an adder allowing to create a new {@link ApparentPowerLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 1.
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits(ApparentPowerLimits)} instead.
      */
+    @Deprecated(since = "6.8.0")
     default ApparentPowerLimitsAdder newApparentPowerLimits1(ApparentPowerLimits apparentPowerLimits) {
         ApparentPowerLimitsAdder apparentPowerLimitsAdder = newApparentPowerLimits1();
         return initializeFromLoadingLimits(apparentPowerLimitsAdder, apparentPowerLimits);
@@ -391,7 +441,10 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link CurrentLimits} in the selected {@link OperationalLimitsGroup} on side 2.
+     CurrentLimits currentLimits
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
      */
+    @Deprecated(since = "6.8.0")
     CurrentLimitsAdder newCurrentLimits2();
 
     /**
@@ -401,7 +454,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * are valid.</p>
      * @param currentLimits a set of existing current limits.
      * @return an adder allowing to create a new {@link CurrentLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 2.
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits(CurrentLimits)} instead.
      */
+    @Deprecated(since = "6.8.0")
     default CurrentLimitsAdder newCurrentLimits2(CurrentLimits currentLimits) {
         CurrentLimitsAdder currentLimitsAdder = newCurrentLimits2();
         return initializeFromLoadingLimits(currentLimitsAdder, currentLimits);
@@ -413,7 +468,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * This operation is performed when the limits are created via {@link ActivePowerLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup} on side 2.
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
      */
+    @Deprecated(since = "6.8.0")
     ActivePowerLimitsAdder newActivePowerLimits2();
 
     /**
@@ -423,7 +480,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * are valid.</p>
      * @param activePowerLimits a set of existing active power limits.
      * @return an adder allowing to create a new {@link ActivePowerLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 2.
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits(ActivePowerLimits)} instead.
      */
+    @Deprecated(since = "6.8.0")
     default ActivePowerLimitsAdder newActivePowerLimits2(ActivePowerLimits activePowerLimits) {
         ActivePowerLimitsAdder activePowerLimitsAdder = newActivePowerLimits2();
         return initializeFromLoadingLimits(activePowerLimitsAdder, activePowerLimits);
@@ -435,7 +494,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * This operation is performed when the limits are created via {@link ApparentPowerLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup} on side 2.
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
      */
+    @Deprecated(since = "6.8.0")
     ApparentPowerLimitsAdder newApparentPowerLimits2();
 
     /**
@@ -445,7 +506,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * are valid.</p>
      * @param apparentPowerLimits a set of existing apparent power limits.
      * @return an adder allowing to create a new {@link ApparentPowerLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup} on side 2.
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits(ApparentPowerLimits)} instead.
      */
+    @Deprecated(since = "6.8.0")
     default ApparentPowerLimitsAdder newApparentPowerLimits2(ApparentPowerLimits apparentPowerLimits) {
         ApparentPowerLimitsAdder apparentPowerLimitsAdder = newApparentPowerLimits2();
         return initializeFromLoadingLimits(apparentPowerLimitsAdder, apparentPowerLimits);

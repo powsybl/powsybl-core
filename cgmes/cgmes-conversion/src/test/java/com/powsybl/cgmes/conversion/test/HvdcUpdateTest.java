@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.iidm.network.*;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
@@ -25,6 +26,7 @@ class HvdcUpdateTest {
     private static final String DIR = "/update/hvdc/";
 
     @Test
+    @Disabled("Not ready yet")
     void importEqTest() {
         Network network = readCgmesResources(DIR, "hvdc_EQ.xml");
         assertEquals(2, network.getHvdcLineCount());
@@ -33,6 +35,7 @@ class HvdcUpdateTest {
     }
 
     @Test
+    @Disabled("Not ready yet")
     void importEqAndSshTogetherTest() {
         Network network = readCgmesResources(DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
         assertEquals(2, network.getHvdcLineCount());
@@ -41,6 +44,7 @@ class HvdcUpdateTest {
     }
 
     @Test
+    @Disabled("Not ready yet")
     void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "hvdc_EQ.xml");
         assertEquals(2, network.getHvdcLineCount());

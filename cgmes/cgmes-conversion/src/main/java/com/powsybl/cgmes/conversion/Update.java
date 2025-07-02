@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
-import com.powsybl.cgmes.conversion.elements.hvdc.DcLineSegmentConversion;
+import com.powsybl.cgmes.conversion.elements.dc.HvdcLineConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -128,7 +128,7 @@ public final class Update {
 
         Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
         addPropertyBags(cgmes.acDcConverters(), CgmesNames.ACDC_CONVERTER, equipmentIdPropertyBag);
-        network.getHvdcLines().forEach(hvdcLine -> DcLineSegmentConversion.update(hvdcLine, getPropertyBag(hvdcLine.getConverterStation1().getId(), equipmentIdPropertyBag), getPropertyBag(hvdcLine.getConverterStation2().getId(), equipmentIdPropertyBag), context));
+        network.getHvdcLines().forEach(hvdcLine -> HvdcLineConversion.update(hvdcLine, getPropertyBag(hvdcLine.getConverterStation1().getId(), equipmentIdPropertyBag), getPropertyBag(hvdcLine.getConverterStation2().getId(), equipmentIdPropertyBag), context));
 
         context.popReportNode();
     }

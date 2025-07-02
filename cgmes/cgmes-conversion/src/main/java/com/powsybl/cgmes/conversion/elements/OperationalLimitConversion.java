@@ -42,15 +42,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     public OperationalLimitConversion(PropertyBag l, Context context) {
         super(CgmesNames.OPERATIONAL_LIMIT, l, context);
-        String limitSubclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
+        limitSubclassType = Objects.requireNonNull(p.getLocal(OPERATIONAL_LIMIT_SUBCLASS));
         String limitSetId = p.getId(OPERATIONAL_LIMIT_SET_ID);
         String limitSetName = p.getLocal(OPERATIONAL_LIMIT_SET_NAME);
         limitSetName = limitSetName != null ? limitSetName : limitSetId;
         // Limit can be associated to a Terminal or to an Equipment
         terminalId = l.getId("Terminal");
         equipmentId = l.getId("Equipment");
-
-        this.limitSubclassType = fixCim14LimitSubclass(limitSubclass);
 
         Terminal terminal = null;
         if (isLoadingLimits()) {
@@ -76,21 +74,14 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         }
     }
 
-    // Support for CIM14, all limits are assumed to be current
-    private static String fixCim14LimitSubclass(String limitSubclass) {
-        return limitSubclass == null ? CgmesNames.CURRENT_LIMIT : limitSubclass;
-    }
-
     private boolean isLoadingLimits() {
-        Objects.requireNonNull(limitSubclassType);
-        return limitSubclassType.equals(CgmesNames.ACTIVE_POWER_LIMIT)
-                || limitSubclassType.equals(CgmesNames.APPARENT_POWER_LIMIT)
-                || limitSubclassType.equals(CgmesNames.CURRENT_LIMIT);
+        return CgmesNames.ACTIVE_POWER_LIMIT.equals(limitSubclassType)
+                || CgmesNames.APPARENT_POWER_LIMIT.equals(limitSubclassType)
+                || CgmesNames.CURRENT_LIMIT.equals(limitSubclassType);
     }
 
     private boolean isVoltageLimits() {
-        Objects.requireNonNull(limitSubclassType);
-        return limitSubclassType.equals("VoltageLimit");
+        return "VoltageLimit".equals(limitSubclassType);
     }
 
     private void setVoltageLevelForVoltageLimit(Terminal terminal) {
