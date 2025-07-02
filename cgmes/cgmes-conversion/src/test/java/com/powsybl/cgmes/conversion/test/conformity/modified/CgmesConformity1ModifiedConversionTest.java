@@ -240,6 +240,7 @@ class CgmesConformity1ModifiedConversionTest {
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
         assertNotNull(ptc);
         assertEquals(CURRENT_LIMITER, ptc.getRegulationMode());
+        assertEquals(65.0, ptc.getRegulationValue());
     }
 
     @Test
