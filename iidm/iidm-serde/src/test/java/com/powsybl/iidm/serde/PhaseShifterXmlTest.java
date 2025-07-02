@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -27,6 +28,12 @@ class PhaseShifterXmlTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripFromVersionedXmlTest("phaseShifterRoundTripRef.xml", IidmVersion.values());
 
         allFormatsRoundTripTest(PhaseShifterTestCaseFactory.createWithTargetDeadband(), "phaseShifterRoundTripRef.xml", CURRENT_IIDM_VERSION);
+    }
+
+    @Test
+    void currentLimiterWithNegativeRegulationValueConversionTest() {
+        Network n = NetworkSerDe.read(getNetworkAsStream("/phaseShifterCurrentLimiter.xml"));
+        assertEquals(20, n.getTwoWindingsTransformer("PS1").getPhaseTapChanger().getRegulationValue());
     }
 
     @Test
