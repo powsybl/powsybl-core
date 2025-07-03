@@ -150,9 +150,22 @@
         <zstdjni.version>1.5.7-3</zstdjni.version>
 
         <powsyblmathnative.version>1.4.0</powsyblmathnative.version>
+
+        <!-- Default locale argLine -->
+        <default-locale.argLine>-Duser.language=en -Duser.region=US</default-locale.argLine>
     </properties>
 
     <profiles>
+        <profile>
+            <id>java21+</id>
+            <activation>
+                <jdk>[21,)</jdk>
+            </activation>
+            <properties>
+                <!-- In Java 21, we have to add a paramter to allow dynamic agent loading (cf. powsybl-parent) -->
+                <default-locale.argLine>-Duser.language=en -Duser.region=US -XX:+EnableDynamicAgentLoading</default-locale.argLine>
+            </properties>
+        </profile>
         <profile>
             <id>release</id>
             <activation>
@@ -192,7 +205,7 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <!-- Argument added to set the default locale as en_US for unit tests run to be independent of the JVM locale -->
-                            <argLine>@{argLine} -Duser.language=en -Duser.region=US</argLine>
+                            <argLine>@{argLine} ${default-locale.argLine}</argLine>
                             <excludedGroups>dockerTests</excludedGroups>
                         </configuration>
                     </plugin>
