@@ -42,7 +42,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.CIM_100_EQ_PROFILE;
  */
 public class CgmesModelTripleStore extends AbstractCgmesModel {
 
-    public CgmesModelTripleStore(String cimNamespace, TripleStore tripleStore) {
+    public CgmesModelTripleStore(String cimNamespace, TripleStore tripleStore, String queryCatalogName) {
         super();
         this.cimNamespace = cimNamespace;
         this.cimVersion = cimVersionFromCimNamespace(cimNamespace);
@@ -50,8 +50,14 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         tripleStore.defineQueryPrefix("cim", cimNamespace);
         tripleStore.defineQueryPrefix("entsoe", CgmesNamespace.ENTSOE_NAMESPACE);
         tripleStore.defineQueryPrefix("eu", CgmesNamespace.EU_NAMESPACE);
-        queryCatalog = queryCatalogFor(cimVersion);
+        queryCatalog = queryCatalogFor(cimVersion, queryCatalogName);
         Objects.requireNonNull(queryCatalog);
+    }
+
+    @Override
+    public void setQueryCatalog(String queryCatalogName) {
+        this.invalidateCaches();
+        this.queryCatalog = queryCatalogFor(this.cimVersion, queryCatalogName);
     }
 
     @Override
@@ -589,6 +595,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags svVoltages() {
+        return namedQuery("svVoltages");
+    }
+
+    @Override
     public PropertyBags modelProfiles() {
         return namedQuery(MODEL_PROFILES);
     }
@@ -750,11 +761,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return modelId() + "_" + subset + ".xml";
     }
 
-    private QueryCatalog queryCatalogFor(int cimVersion) {
+    private QueryCatalog queryCatalogFor(int cimVersion, String queryCatalogName) {
         QueryCatalog qc = null;
         String resourceName = null;
         if (cimVersion > 0) {
-            resourceName = String.format("CIM%d.sparql", cimVersion);
+            resourceName = String.format("CIM%d%s.sparql", cimVersion, queryCatalogName);
         }
         if (resourceName != null) {
             qc = new QueryCatalog(resourceName);
@@ -779,7 +790,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private final String cimNamespace;
     private final int cimVersion;
     private final TripleStore tripleStore;
-    private final QueryCatalog queryCatalog;
+    private QueryCatalog queryCatalog;
     private Boolean nodeBreaker = null;
 
     private static final String MODEL_PROFILES = "modelProfiles";
