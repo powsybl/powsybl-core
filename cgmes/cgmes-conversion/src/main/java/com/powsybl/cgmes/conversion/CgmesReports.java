@@ -19,6 +19,7 @@ public final class CgmesReports {
 
     private static final String EQUIPMENT_ID = "equipmentId";
     private static final String ELEMENT_TYPE = "elementType";
+    private static final String CONVERTER_IDS = "converterIds";
 
     private CgmesReports() {
     }
@@ -127,8 +128,16 @@ public final class CgmesReports {
                 .add();
     }
 
+    public static void badLoadTapChangingCapabilityTapChangerReport(ReportNode reportNode, String tapChangerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.badLoadTapChangingCapabilityTapChanger")
+                .withUntypedValue("tapChangerId", tapChangerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     /**
-     * @deprecated Not used anymore. Use {@link #invalidAngleVoltageReport(ReportNode, String, double , double)}
+     * @deprecated Not used anymore. Use {@link #invalidAngleVoltageReport(ReportNode, Bus, String, double , double)}
      */
     @Deprecated(since = "6.8.0")
     public static void invalidAngleVoltageBusReport(ReportNode reportNode, Bus bus, String nodeId, double v, double angle) {
@@ -136,7 +145,7 @@ public final class CgmesReports {
     }
 
     /**
-     * @deprecated Not used anymore. Use {@link #invalidAngleVoltageReport(ReportNode, String, double , double)}
+     * @deprecated Not used anymore. Use {@link #invalidAngleVoltageReport(ReportNode, Bus, String, double , double)}
      */
     @Deprecated(since = "6.8.0")
     public static void invalidAngleVoltageNodeReport(ReportNode reportNode, String nodeId, double v, double angle) {
@@ -248,6 +257,49 @@ public final class CgmesReports {
                 .withTypedValue("cgmesId", description, TypedValue.URN_UUID)
                 .withTypedValue("cgmesSubset", identifier, TypedValue.CGMES_SUBSET)
                 .withTypedValue("networkId", networkId, TypedValue.ID)
+                .add();
+    }
+
+    public static void notVisitedDcEquipmentReport(ReportNode reportNode, String dcEquipmentId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.notVisitedDcEquipment")
+                .withUntypedValue("dcEquipmentId", dcEquipmentId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void dcLineSegmentNotInTwoDCIslandEndReport(ReportNode reportNode, String dcLineSegmentId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.dcLineSegmentNotInTwoDCIslandEnd")
+                .withUntypedValue("dcLineSegmentId", dcLineSegmentId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void inconsistentNumberOfConvertersReport(ReportNode reportNode, String converterIds) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.inconsistentNumberOfConverters")
+                .withUntypedValue(CONVERTER_IDS, converterIds)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void unsupportedDcConfigurationReport(ReportNode reportNode, String converterIds, String dcConfiguration) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.unsupportedDcConfiguration")
+                .withUntypedValue(CONVERTER_IDS, converterIds)
+                .withUntypedValue("dcConfiguration", dcConfiguration)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void unexpectedPointToPointDcConfigurationReport(ReportNode reportNode, String converterIds, int numberOfLines, int numberOfConverterPairs) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.unexpectedPointToPointDcConfiguration")
+                .withUntypedValue(CONVERTER_IDS, converterIds)
+                .withUntypedValue("numberOfLines", numberOfLines)
+                .withUntypedValue("numberOfConverterPairs", numberOfConverterPairs)
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
 }

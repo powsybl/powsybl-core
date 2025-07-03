@@ -7,34 +7,39 @@
  */
 package com.powsybl.commons.xml;
 
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.AbstractTreeDataReader;
 
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
-import java.util.*;
-import java.util.function.Supplier;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 import java.util.stream.IntStream;
+
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class XmlReader extends AbstractTreeDataReader {
 
-    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
-
     private final XMLStreamReader reader;
     private final Map<String, String> namespaceVersionsMap;
     private final Collection<ExtensionSerDe> extensionProviders;
 
     public XmlReader(InputStream is, Map<String, String> namespaceVersionMap, Collection<ExtensionSerDe> extensionProviders) throws XMLStreamException {
-        this.reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(Objects.requireNonNull(is));
+        this.reader = getXMLInputFactory().createXMLStreamReader(Objects.requireNonNull(is));
         int state = reader.next();
         while (state == XMLStreamConstants.COMMENT) {
             state = reader.next();
@@ -170,7 +175,7 @@ public class XmlReader extends AbstractTreeDataReader {
     public void close() {
         try {
             reader.close();
-            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
+            XmlUtil.gcXmlInputFactory(getXMLInputFactory());
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }

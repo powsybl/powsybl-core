@@ -36,10 +36,13 @@ abstract class AbstractTapChangerAdderImpl<
     private boolean regulating = false;
     private double targetDeadband = Double.NaN;
     private TerminalExt regulationTerminal;
+    private boolean loadTapChangingCapabilities;
+    private Integer solvedTapPosition;
 
-    protected AbstractTapChangerAdderImpl(H parent) {
+    protected AbstractTapChangerAdderImpl(H parent, boolean loadTapChangingCapabilities) {
         this.parent = parent;
         this.steps = new ArrayList<>();
+        this.loadTapChangingCapabilities = loadTapChangingCapabilities;
     }
 
     public A setLowTapPosition(int lowTapPosition) {
@@ -49,6 +52,11 @@ abstract class AbstractTapChangerAdderImpl<
 
     public A setTapPosition(int tapPosition) {
         this.tapPosition = tapPosition;
+        return self();
+    }
+
+    public A setSolvedTapPosition(Integer solvedTapPosition) {
+        this.solvedTapPosition = solvedTapPosition;
         return self();
     }
 
@@ -72,6 +80,11 @@ abstract class AbstractTapChangerAdderImpl<
         return self();
     }
 
+    public A setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
+        this.loadTapChangingCapabilities = loadTapChangingCapabilities;
+        return self();
+    }
+
     NetworkImpl getNetwork() {
         return parent.getNetwork();
     }
@@ -85,21 +98,25 @@ abstract class AbstractTapChangerAdderImpl<
         if (steps.isEmpty()) {
             throw new ValidationException(parent, getValidableType() + " should have at least one step");
         }
-        if (tapPosition != null) {
-            int highTapPosition = lowTapPosition + steps.size() - 1;
-            if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
-                ValidationUtil.throwExceptionOrIgnore(parent, "incorrect tap position "
-                        + tapPosition + " [" + lowTapPosition + ", "
-                        + highTapPosition + "]", network.getMinValidationLevel());
-                network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
-            }
+        int highTapPosition = lowTapPosition + steps.size() - 1;
+        if (tapPosition != null && (tapPosition < lowTapPosition || tapPosition > highTapPosition)) {
+            ValidationUtil.throwExceptionOrIgnore(parent, "incorrect tap position "
+                + tapPosition + " [" + lowTapPosition + ", "
+                + highTapPosition + "]", network.getMinValidationLevel());
+            network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
         }
 
-        network.setValidationLevelIfGreaterThan(checkTapChangerRegulation(parent, regulationValue, regulating, regulationTerminal));
+        if (solvedTapPosition != null && (solvedTapPosition < lowTapPosition || solvedTapPosition > highTapPosition)) {
+            throw new ValidationException(parent, "incorrect solved tap position "
+                + solvedTapPosition + " [" + lowTapPosition + ", " + highTapPosition
+                + "]");
+        }
+
+        network.setValidationLevelIfGreaterThan(checkTapChangerRegulation(parent, regulationValue, regulating, loadTapChangingCapabilities, regulationTerminal));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, getValidableType(), regulating,
                 targetDeadband, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
-        T tapChanger = createTapChanger(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationValue, targetDeadband);
+        T tapChanger = createTapChanger(parent, lowTapPosition, steps, regulationTerminal, tapPosition, solvedTapPosition, regulating, loadTapChangingCapabilities, regulationValue, targetDeadband);
 
         Set<TapChanger<?, ?, ?, ?>> otherTapChangers = new HashSet<>(parent.getAllTapChangers());
         otherTapChangers.remove(tapChanger);
@@ -108,17 +125,17 @@ abstract class AbstractTapChangerAdderImpl<
 
         if (parent.hasPhaseTapChanger() && parent.hasRatioTapChanger()) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
-            NetworkReports.parentHasBothRatioAndPhaseTapChanger(network.getReportNodeContext().getReportNode(), parent.getMessageHeader());
+            NetworkReports.transformerHasBothRatioAndPhaseTapChanger(network.getReportNodeContext().getReportNode(), parent.getTransformer().getId());
         }
 
         return tapChanger;
     }
 
-    protected abstract T createTapChanger(H parent, int lowTapPosition, List<S> steps, TerminalExt regulationTerminal, Integer tapPosition, boolean regulating, double regulationValue, double targetDeadband);
+    protected abstract T createTapChanger(H parent, int lowTapPosition, List<S> steps, TerminalExt regulationTerminal, Integer tapPosition, Integer solvedTapPosition, boolean regulating, boolean loadTapChangingCapabilities, double regulationValue, double targetDeadband);
 
     protected abstract A self();
 
-    protected abstract ValidationLevel checkTapChangerRegulation(H parent, double regulationValue, boolean regulating, TerminalExt regulationTerminal);
+    protected abstract ValidationLevel checkTapChangerRegulation(H parent, double regulationValue, boolean regulating, boolean loadTapChangingCapabilities, TerminalExt regulationTerminal);
 
     protected abstract String getValidableType();
 

@@ -8,18 +8,40 @@
         <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
     </md:FullModel>
 
-    <cim:DCTerminal rdf:about="#_DCLineSegment-Lcc-DcT1">
+    <cim:DCTerminal rdf:about="#_DCLineSegment-Lcc-DCT1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:DCTerminal>
-    <cim:DCTerminal rdf:about="#_DCLineSegment-Lcc-DcT2">
+    <cim:DCTerminal rdf:about="#_DCLineSegment-Lcc-DCT2">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:DCTerminal>
-    <cim:ACDCConverterDCTerminal rdf:about="#_DCLineSegment-Lcc-ConverterDCTerminal-1">
+
+    <cim:Terminal rdf:about="#_DCLineSegment-Lcc-CsConverter-1-ACT1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:ACDCConverterDCTerminal rdf:about="#_DCLineSegment-Lcc-CsConverter-1-DCT1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:ACDCConverterDCTerminal>
-    <cim:ACDCConverterDCTerminal rdf:about="#_DCLineSegment-Lcc-ConverterDCTerminal-2">
+    <cim:ACDCConverterDCTerminal rdf:about="#_DCLineSegment-Lcc-CsConverter-1-DCT2">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:ACDCConverterDCTerminal>
+
+    <cim:Terminal rdf:about="#_DCLineSegment-Lcc-CsConverter-2-ACT1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:ACDCConverterDCTerminal rdf:about="#_DCLineSegment-Lcc-CsConverter-2-DCT1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:ACDCConverterDCTerminal>
+    <cim:ACDCConverterDCTerminal rdf:about="#_DCLineSegment-Lcc-CsConverter-2-DCT2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:ACDCConverterDCTerminal>
+
+    <cim:DCTerminal rdf:about="#_DCGround-Lcc-1-DCT">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:DCTerminal>
+    <cim:DCTerminal rdf:about="#_DCGround-Lcc-2-DCT">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:DCTerminal>
+
     <cim:CsConverter rdf:about="#_DCLineSegment-Lcc-CsConverter-1">
         <cim:CsConverter.operatingMode rdf:resource="http://iec.ch/TC57/CIM100#CsOperatingModeKind.rectifier"/>
         <cim:ACDCConverter.p>350</cim:ACDCConverter.p>
@@ -42,26 +64,35 @@
         <cim:ACDCConverter.targetPpcc>0</cim:ACDCConverter.targetPpcc>
         <cim:ACDCConverter.targetUdc>210</cim:ACDCConverter.targetUdc>
     </cim:CsConverter>
-    <cim:Terminal rdf:about="#_DCLineSegment-Lcc-Terminal-1">
-        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
-    </cim:Terminal>
-    <cim:Terminal rdf:about="#_DCLineSegment-Lcc-Terminal-2">
-        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
-    </cim:Terminal>
 
-    <cim:DCTerminal rdf:about="#_DCLineSegment-Vsc-DcT1">
+    <cim:Terminal rdf:about="#_DCLineSegment-Vsc-VscConverter-1-ACT1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
-    </cim:DCTerminal>
-    <cim:DCTerminal rdf:about="#_DCLineSegment-Vsc-DcT2">
-        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
-    </cim:DCTerminal>
-    <cim:ACDCConverterDCTerminal rdf:about="#_DCLineSegment-Vsc-ConverterDCTerminal-1">
+    </cim:Terminal>
+    <cim:ACDCConverterDCTerminal rdf:about="#_DCLineSegment-Vsc-VscConverter-1-DCT1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:ACDCConverterDCTerminal>
-    <cim:ACDCConverterDCTerminal rdf:about="#_DCLineSegment-Vsc-ConverterDCTerminal-2">
+    <cim:ACDCConverterDCTerminal rdf:about="#_DCLineSegment-Vsc-VscConverter-1-DCT2">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:ACDCConverterDCTerminal>
-    <cim:VsConverter rdf:about="#_DCLineSegment-Vsc-VsConverter-1">
+
+    <cim:Terminal rdf:about="#_DCLineSegment-Vsc-VscConverter-2-ACT1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:ACDCConverterDCTerminal rdf:about="#_DCLineSegment-Vsc-VscConverter-2-DCT1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:ACDCConverterDCTerminal>
+    <cim:ACDCConverterDCTerminal rdf:about="#_DCLineSegment-Vsc-VscConverter-2-DCT2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:ACDCConverterDCTerminal>
+
+    <cim:DCTerminal rdf:about="#_DCGround-Vsc-1-DCT">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:DCTerminal>
+    <cim:DCTerminal rdf:about="#_DCGround-Vsc-2-DCT">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:DCTerminal>
+
+    <cim:VsConverter rdf:about="#_DCLineSegment-Vsc-VscConverter-1">
         <cim:VsConverter.droop>0</cim:VsConverter.droop>
         <cim:VsConverter.droopCompensation>0</cim:VsConverter.droopCompensation>
         <cim:ACDCConverter.p>500.1</cim:ACDCConverter.p>
@@ -74,7 +105,7 @@
         <cim:ACDCConverter.targetUdc>640</cim:ACDCConverter.targetUdc>
         <cim:VsConverter.targetUpcc>396.54</cim:VsConverter.targetUpcc>
     </cim:VsConverter>
-    <cim:VsConverter rdf:about="#_DCLineSegment-Vsc-VsConverter-2">
+    <cim:VsConverter rdf:about="#_DCLineSegment-Vsc-VscConverter-2">
         <cim:VsConverter.droop>0</cim:VsConverter.droop>
         <cim:VsConverter.droopCompensation>0</cim:VsConverter.droopCompensation>
         <cim:ACDCConverter.p>-490.67</cim:ACDCConverter.p>
@@ -87,11 +118,5 @@
         <cim:ACDCConverter.targetUdc>645.98</cim:ACDCConverter.targetUdc>
         <cim:VsConverter.targetUpcc>392.54</cim:VsConverter.targetUpcc>
     </cim:VsConverter>
-    <cim:Terminal rdf:about="#_DCLineSegment-Vsc-Terminal-1">
-        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
-    </cim:Terminal>
-    <cim:Terminal rdf:about="#_DCLineSegment-Vsc-Terminal-2">
-        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
-    </cim:Terminal>
 
 </rdf:RDF>
