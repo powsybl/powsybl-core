@@ -163,6 +163,10 @@ public interface CgmesModel {
 
     PropertyBags controlAreas();
 
+    PropertyBags dcSwitches();
+
+    PropertyBags dcGrounds();
+
     PropertyBags acDcConverters();
 
     PropertyBags dcLineSegments();
@@ -184,8 +188,6 @@ public interface CgmesModel {
     default PropertyBags grounds() {
         return new PropertyBags();
     }
-
-    CgmesDcTerminal dcTerminal(String dcTerminalId);
 
     void clear(CgmesSubset subset);
 
@@ -245,9 +247,7 @@ public interface CgmesModel {
 
     double nominalVoltage(String baseVoltageId);
 
-    default PropertyBags modelProfiles() {
-        throw new UnsupportedOperationException();
-    }
+    PropertyBags modelProfiles();
 
     default void setQueryCatalog(String s) {
         // Do nothing

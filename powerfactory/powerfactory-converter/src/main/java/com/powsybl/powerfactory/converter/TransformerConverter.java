@@ -250,7 +250,7 @@ class TransformerConverter extends AbstractConverter {
                 .setG(step.g1)
                 .setB(step.b1)
                 .endStep());
-        ptc.setRegulating(false).setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP).add();
+        ptc.setRegulating(false).setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER).add();
     }
 
     static final class TransformerModel {

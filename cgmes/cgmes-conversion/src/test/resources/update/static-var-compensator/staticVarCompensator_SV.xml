@@ -9,10 +9,16 @@
         <md:Model.DependentOn rdf:resource="urn:uuid:95b0709c-bf22-4df8-a179-042c7038d62a" />
     </md:FullModel>
 
-    <cim:SvPowerFlow rdf:ID="_StaticVarCompensator_T-SvPowerFlow">
+    <cim:SvPowerFlow rdf:ID="_StaticVarCompensator-V_T-SvPowerFlow">
         <cim:SvPowerFlow.p>0.0</cim:SvPowerFlow.p>
         <cim:SvPowerFlow.q>-50.0</cim:SvPowerFlow.q>
-        <cim:SvPowerFlow.Terminal rdf:resource="#_StaticVarCompensator_T" />
+        <cim:SvPowerFlow.Terminal rdf:resource="#_StaticVarCompensator-V_T" />
+    </cim:SvPowerFlow>
+
+    <cim:SvPowerFlow rdf:ID="_StaticVarCompensator-Q_T-SvPowerFlow">
+        <cim:SvPowerFlow.p>0.0</cim:SvPowerFlow.p>
+        <cim:SvPowerFlow.q>-200.0</cim:SvPowerFlow.q>
+        <cim:SvPowerFlow.Terminal rdf:resource="#_StaticVarCompensator-Q_T" />
     </cim:SvPowerFlow>
 
 </rdf:RDF>
