@@ -537,24 +537,36 @@ public final class ValidationUtil {
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
         if (regulating && regulationMode != null) {
-            if (!loadTapChangingCapabilities) {
-                throwExceptionOrLogError(validable, "regulation cannot be enabled on phase tap changer without load tap changing capabilities", actionOnError,
-                        id -> NetworkReports.ptcPhaseRegulationCannotBeEnabledWithoutLoadTapChanging(reportNode, id));
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
-            }
-            if (Double.isNaN(regulationValue)) {
-                throwExceptionOrLogError(validable, "phase regulation is on and threshold/setpoint value is not set", actionOnError,
-                        id -> NetworkReports.ptcPhaseRegulationRegulationValueNotSet(reportNode, id));
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
-            }
-            if (regulationTerminal == null) {
-                throwExceptionOrLogError(validable, "phase regulation is on and regulated terminal is not set", actionOnError,
-                        id -> NetworkReports.ptcPhaseRegulationNoRegulatedTerminal(reportNode, id));
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
-            }
+            validationLevel = checkRegulatingPhaseTapChanger(validable, regulationMode, regulationValue, regulationTerminal, loadTapChangingCapabilities, actionOnError, reportNode);
         }
         if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
             throw new ValidationException(validable, "phase regulation terminal is not part of the network");
+        }
+        return validationLevel;
+    }
+
+    private static ValidationLevel checkRegulatingPhaseTapChanger(Validable validable,
+            PhaseTapChanger.RegulationMode regulationMode,
+            double regulationValue, Terminal regulationTerminal, boolean loadTapChangingCapabilities,
+            ActionOnError actionOnError, ReportNode reportNode) {
+        if (regulationMode == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && regulationValue < 0) {
+            throw new ValidationException(validable, "phase tap changer in CURRENT_LIMITER mode must have a non-negative regulation value");
+        }
+        ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+        if (!loadTapChangingCapabilities) {
+            throwExceptionOrLogError(validable, "regulation cannot be enabled on phase tap changer without load tap changing capabilities", actionOnError,
+                        id -> NetworkReports.ptcPhaseRegulationCannotBeEnabledWithoutLoadTapChanging(reportNode, id));
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        if (Double.isNaN(regulationValue)) {
+            throwExceptionOrLogError(validable, "phase regulation is on and threshold/setpoint value is not set", actionOnError,
+                        id -> NetworkReports.ptcPhaseRegulationRegulationValueNotSet(reportNode, id));
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        if (regulationTerminal == null) {
+            throwExceptionOrLogError(validable, "phase regulation is on and regulated terminal is not set", actionOnError,
+                        id -> NetworkReports.ptcPhaseRegulationNoRegulatedTerminal(reportNode, id));
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
         return validationLevel;
     }
