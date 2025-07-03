@@ -4,8 +4,7 @@
     <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
     <md:Model.description>Tap changer regulation</md:Model.description>
     <md:Model.version>001</md:Model.version>
-    <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
-    <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+    <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
     <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
     <md:Model.DependentOn rdf:resource="urn:uuid:invalidLtcFlag_EQ"/>
 </md:FullModel>
