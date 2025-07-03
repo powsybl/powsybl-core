@@ -126,7 +126,7 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     void testTieLineExport() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         for (DanglingLine danglingLine : network.getDanglingLines()) {
-            danglingLine.newCurrentLimits()
+            danglingLine.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                     .setPermanentLimit(100.0)
                     .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()
                     .beginTemporaryLimit().setName("10'").setValue(140.0).setAcceptableDuration(10 * 60).endTemporaryLimit()
@@ -220,7 +220,7 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     @Test
     void testRegulatingBusIdExportSvc() throws IOException {
         Network network = SvcTestCaseFactory.createWithMoreSVCs();
-        network.getStaticVarCompensator("SVC2").setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
+        network.getStaticVarCompensator("SVC2").setRegulating(false);
         network.getVoltageLevel("VL1").newStaticVarCompensator()
                 .setId("SVC1")
                 .setConnectableBus("B1")
@@ -228,6 +228,7 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
                 .setBmin(0.0002)
                 .setBmax(0.0008)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulating(true)
                 .setVoltageSetpoint(390)
                 .setRegulatingTerminal(network.getLoad("L2").getTerminal())
                 .add();
