@@ -263,6 +263,11 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
             if (!validTargetValue) {
                 context.invalid(phaseTapChangerId, "Regulating control has a bad target value " + targetValue);
                 badTargetValueRegulatingControlReport(context.getReportNode(), phaseTapChangerId, targetValue);
+            } else {
+                if (ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && targetValue < 0.0) {
+                    context.fixed(tw.getId(), "PhaseTapChanger " + end + " : Regulating value is negative while regulationMode is set to CURRENT_LIMITER : fixed to absolute value");
+                    targetValue = Math.abs(targetValue);
+                }
             }
 
             boolean validTargetDeadband = isValidTargetDeadband(targetDeadband);

@@ -37,6 +37,8 @@ public final class ModificationReports {
     public static final String LINE_3_ID = "line3Id";
     public static final String ORIGINAL_LINE_ID = "originalLineId";
     public static final String CONNECTABLE_TYPE = "connectableType";
+    public static final String NETWORK_MODIFICATION = "networkModification";
+    public static final String NETWORK_NAME_OR_ID = "networkNameOrId";
     public static final String BUSBAR_SECTION_ID = "busbarSectionId";
 
     // INFO
@@ -793,26 +795,29 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void reportOnInconclusiveDryRun(ReportNode reportNode, String cause, String name) {
+    public static void reportOnInconclusiveDryRun(ReportNode reportNode, String cause, String modificationName, String networkName) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.networkModificationDryRun-failure")
                 .withUntypedValue("dryRunError", cause)
-                .withUntypedValue("networkModification", name)
+                .withUntypedValue(NETWORK_MODIFICATION, modificationName)
+                .withUntypedValue(NETWORK_NAME_OR_ID, networkName)
                 .add();
     }
 
-    public static void dryRunReportNode(ReportNode reportNode) {
+    public static void dryRunReportNode(ReportNode reportNode, String modificationName, String networkName) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.networkModificationDryRun-success")
+                .withUntypedValue(NETWORK_MODIFICATION, modificationName)
+                .withUntypedValue(NETWORK_NAME_OR_ID, networkName)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 
-    public static ReportNode reportOnDryRunStart(ReportNode reportNode, Network network, String name) {
+    public static ReportNode reportOnDryRunStart(ReportNode reportNode, String modificationName, String networkName) {
         return reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.networkModificationDryRun")
-                .withUntypedValue("networkModification", name)
-                .withUntypedValue("networkNameOrId", network.getNameOrId())
+                .withUntypedValue(NETWORK_MODIFICATION, modificationName)
+                .withUntypedValue(NETWORK_NAME_OR_ID, networkName)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
