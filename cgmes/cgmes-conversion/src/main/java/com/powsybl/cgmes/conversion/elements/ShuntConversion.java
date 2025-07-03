@@ -35,6 +35,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         int maximumSections = p.asInt("maximumSections", 0);
         int normalSections = p.asInt("normalSections", 0);
         ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator().setSectionCount(0);
+
         String shuntType = p.getId("type");
         if ("LinearShuntCompensator".equals(shuntType)) {
             double bPerSection = p.asDouble(CgmesNames.B_PER_SECTION, Float.MIN_VALUE);
@@ -82,15 +83,18 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     private static void updateSections(ShuntCompensator shuntCompensator, PropertyBag cgmesData, Context context) {
         int normalSections = Integer.parseInt(shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_SECTIONS));
         int defaultSections = getDefaultSections(shuntCompensator, normalSections, context);
-        int sections = getSections(cgmesData, context).orElse(defaultSections);
+        int sections = getSections(cgmesData).orElse(defaultSections);
         shuntCompensator.setSectionCount(Math.min(sections, shuntCompensator.getMaximumSectionCount()));
+        getSolvedSections(cgmesData).ifPresent(shuntCompensator::setSolvedSectionCount);
     }
 
-    private static OptionalInt getSections(PropertyBag cgmesData, Context context) {
-        double sections = switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
-            case SSH -> cgmesData.asDouble("SSHsections", cgmesData.asDouble("SVsections"));
-            case SV -> cgmesData.asDouble("SVsections", cgmesData.asDouble("SSHsections"));
-        };
+    private static OptionalInt getSections(PropertyBag cgmesData) {
+        double sections = cgmesData.asDouble("SSHsections", cgmesData.asDouble("SVsections"));
+        return Double.isFinite(sections) ? OptionalInt.of(Math.abs(fromContinuous(sections))) : OptionalInt.empty();
+    }
+
+    private static OptionalInt getSolvedSections(PropertyBag cgmesData) {
+        double sections = cgmesData.asDouble("SVsections");
         return Double.isFinite(sections) ? OptionalInt.of(Math.abs(fromContinuous(sections))) : OptionalInt.empty();
     }
 
