@@ -66,8 +66,8 @@ class SwitchConversionTest extends AbstractSerDeTest {
         assertEquals(SwitchKind.BREAKER, network.getSwitch("BR").getKind());
         assertEquals(SwitchKind.DISCONNECTOR, network.getSwitch("DIS").getKind());
         assertEquals(SwitchKind.LOAD_BREAK_SWITCH, network.getSwitch("LBS").getKind());
-        assertEquals(SwitchKind.BREAKER, network.getSwitch("SW").getKind());
-        assertEquals(SwitchKind.BREAKER, network.getSwitch("PSW").getKind());
+        assertEquals(SwitchKind.DISCONNECTOR, network.getSwitch("SW").getKind());
+        assertEquals(SwitchKind.DISCONNECTOR, network.getSwitch("PSW").getKind());
         assertEquals(SwitchKind.DISCONNECTOR, network.getSwitch("GRD").getKind());
         assertEquals(SwitchKind.DISCONNECTOR, network.getSwitch("JUM").getKind());
 
