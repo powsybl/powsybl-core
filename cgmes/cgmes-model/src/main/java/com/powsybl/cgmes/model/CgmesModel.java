@@ -74,6 +74,8 @@ public interface CgmesModel {
 
     PropertyBags operationalLimits();
 
+    PropertyBags generatingUnits();
+
     PropertyBags connectivityNodes();
 
     PropertyBags topologicalNodes();
@@ -110,6 +112,8 @@ public interface CgmesModel {
 
     PropertyBags equivalentShunts();
 
+    PropertyBags svVoltages();
+
     /**
      * Query all NonlinearShuntCompensatorPoint in the CgmesModel.
      *
@@ -126,6 +130,11 @@ public interface CgmesModel {
     @Deprecated(since = "6.3.0", forRemoval = true)
     default PropertyBags synchronousMachines() {
         return synchronousMachinesGenerators();
+    }
+
+    // we need to query all sync machines to perform updates
+    default PropertyBags synchronousMachinesForUpdate() {
+        return new PropertyBags();
     }
 
     default PropertyBags synchronousMachinesGenerators() {
@@ -239,4 +248,8 @@ public interface CgmesModel {
     double nominalVoltage(String baseVoltageId);
 
     PropertyBags modelProfiles();
+
+    default void setQueryCatalog(String s) {
+        // Do nothing
+    }
 }
