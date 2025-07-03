@@ -350,7 +350,7 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .withMessageTemplate("unknown.key")
                 .build();
         // translation should fall back to the powsybl core reports_fr.properties 'core.commons.missingKey' template because it exists and the report node root locale is FRENCH
-        assertEquals("Template de message non trouvé pour la clé 'unknown.key'", report2.getMessage());
+        assertEquals("Template de message non trouvé pour la clé 'unknown.key'.", report2.getMessage());
     }
 
     @Test
