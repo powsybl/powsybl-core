@@ -95,8 +95,8 @@ class SecurityAnalysisTest {
         ((Bus) network.getIdentifiable("NHV2")).setV(380.0).setAngle(0.20);
         network.getLine("NHV1_NHV2_1").getTerminal1().setP(560.0).setQ(550.0);
         network.getLine("NHV1_NHV2_1").getTerminal2().setP(560.0).setQ(550.0);
-        network.getLine("NHV1_NHV2_1").newCurrentLimits1().setPermanentLimit(1500.0).add();
-        network.getLine("NHV1_NHV2_1").newCurrentLimits2()
+        network.getLine("NHV1_NHV2_1").getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(1500.0).add();
+        network.getLine("NHV1_NHV2_1").getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(1200.0)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -205,8 +205,8 @@ class SecurityAnalysisTest {
         ((Bus) network.getIdentifiable("NHV2")).setAngle(0.0);
         network.getLine("NHV1_NHV2_1").getTerminal1().setP(560.0).setQ(550.0);
         network.getLine("NHV1_NHV2_1").getTerminal2().setP(560.0).setQ(550.0);
-        network.getLine("NHV1_NHV2_1").newCurrentLimits1().setPermanentLimit(1500.0).add();
-        network.getLine("NHV1_NHV2_1").newCurrentLimits2()
+        network.getLine("NHV1_NHV2_1").getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(1500.0).add();
+        network.getLine("NHV1_NHV2_1").getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
             .setPermanentLimit(1200.0)
             .beginTemporaryLimit()
             .setName("10'")
@@ -216,8 +216,8 @@ class SecurityAnalysisTest {
             .add();
         network.getLine("NHV1_NHV2_2").getTerminal1().setP(600.0).setQ(500.0);
         network.getLine("NHV1_NHV2_2").getTerminal2().setP(600.0).setQ(500.0);
-        network.getLine("NHV1_NHV2_2").newCurrentLimits1().setPermanentLimit(1500.0).add();
-        network.getLine("NHV1_NHV2_2").newCurrentLimits2()
+        network.getLine("NHV1_NHV2_2").getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(1500.0).add();
+        network.getLine("NHV1_NHV2_2").getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
             .setPermanentLimit(1200.0)
             .beginTemporaryLimit()
             .setName("10'")

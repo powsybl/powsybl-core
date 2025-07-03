@@ -296,4 +296,37 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
     default IdentifiableType getType() {
         return IdentifiableType.DANGLING_LINE;
     }
+
+    default void applySolvedValues() {
+        setGenerationTargetPToP();
+        setGenerationTargetQToQ();
+        setGenerationTargetVToV();
+    }
+
+    default void setGenerationTargetPToP() {
+        if (this.getGeneration() != null) {
+            double p = this.getTerminal().getP();
+            if (!Double.isNaN(p)) {
+                this.getGeneration().setTargetP(-p);
+            }
+        }
+    }
+
+    default void setGenerationTargetQToQ() {
+        if (this.getGeneration() != null) {
+            double q = this.getTerminal().getQ();
+            if (!Double.isNaN(q)) {
+                this.getGeneration().setTargetQ(-q);
+            }
+        }
+    }
+
+    default void setGenerationTargetVToV() {
+        if (this.getGeneration() != null) {
+            Bus bus = this.getTerminal().getBusView().getBus();
+            if (bus != null && !Double.isNaN(bus.getV())) {
+                this.getGeneration().setTargetV(bus.getV());
+            }
+        }
+    }
 }

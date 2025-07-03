@@ -83,8 +83,8 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         }
 
         @Override
-        public String getMessageHeader() {
-            return String.format("Overload management system '%s' - %s:", overloadManagementSystemId, getTrippingAttribute());
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader("Overload management system with " + getTrippingAttribute(), overloadManagementSystemId);
         }
     }
 

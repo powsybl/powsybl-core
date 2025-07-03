@@ -94,7 +94,7 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder, Validable {
     }
 
     @Override
-    public String getMessageHeader() {
-        return "VoltageAngleLimit '" + id + "': ";
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader("VoltageAngleLimit", id);
     }
 }

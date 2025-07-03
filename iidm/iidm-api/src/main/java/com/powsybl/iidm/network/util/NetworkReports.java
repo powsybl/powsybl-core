@@ -40,18 +40,18 @@ public final class NetworkReports {
                 .add();
     }
 
-    public static void parentHasBothRatioAndPhaseTapChanger(ReportNode reportNode, String parentMessage) {
+    public static void transformerHasBothRatioAndPhaseTapChanger(ReportNode reportNode, String id) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.validationWarningBothRatioPhase")
-                .withUntypedValue("parent", parentMessage)
+                .withTypedValue("id", id, TypedValue.ID)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
 
-    public static void parentHasDuplicatePointForActivePower(ReportNode reportNode, String ownerMessage, Double p) {
+    public static void parentHasDuplicatePointForActivePower(ReportNode reportNode, String id, Double p) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.network.validationWarningDuplicate")
-                .withUntypedValue("parent", ownerMessage)
+                .withMessageTemplate("core.iidm.network.validationWarningReactiveCapabilityCurveDuplicate")
+                .withTypedValue("id", id, TypedValue.ID)
                 .withUntypedValue("p", p)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -140,6 +140,235 @@ public final class NetworkReports {
     public static void testImportPostProcessor(ReportNode reportNode) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.testImportPostProcessor")
+                .add();
+    }
+
+    public static void undefinedShuntCompensatorSection(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.undefinedShuntSection")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void invalidP0(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.invalidP0")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void tapPositionNotSet(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.tapPositionNotSet")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void hvdcUndefinedLossFactor(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.hvdcUndefinedLossFactor")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void invalidQ0(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.invalidQ0")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void activePowerSetpointInvalid(ReportNode reportNode, String id, double activePowerSetpoint) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.activePowerSetpointInvalid")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withTypedValue("activePowerSetpoint", activePowerSetpoint, TypedValue.ACTIVE_POWER)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void svcVoltageSetpointInvalid(ReportNode reportNode, String id, double voltageSetpoint) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.svcVoltageSetpointInvalid")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withTypedValue("voltageSetpoint", voltageSetpoint, TypedValue.VOLTAGE)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void voltageSetpointInvalidVoltageRegulatorOn(ReportNode reportNode, String id, double voltageSetpoint) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.voltageSetpointInvalidVoltageRegulatorOn")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withTypedValue("voltageSetpoint", voltageSetpoint, TypedValue.VOLTAGE)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void svcReactivePowerSetpointInvalid(ReportNode reportNode, String id, double reactivePowerSetpoint) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.svcReactivePowerSetpointInvalid")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withTypedValue("reactivePowerSetpoint", reactivePowerSetpoint, TypedValue.REACTIVE_POWER)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void reactivePowerSetpointInvalidVoltageRegulatorOff(ReportNode reportNode, String id, double reactivePowerSetpoint) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.reactivePowerSetpointInvalidVoltageRegulatorOff")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withTypedValue("reactivePowerSetpoint", reactivePowerSetpoint, TypedValue.REACTIVE_POWER)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void rtcRegulationCannotBeEnabledWithoutLoadTapChanging(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.rtcRegulationCannotBeEnabledWithoutLoadTapChanging")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void regulatingRtcNoRegulationMode(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.regulatingRtcNoRegulationMode")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void regulatingRtcNoRegulationValue(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.regulatingRtcNoRegulationValue")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void regulatingRtcBadTargetVoltage(ReportNode reportNode, String id, double regulationValue) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.regulatingRtcBadTargetVoltage")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withTypedValue("regulationValue", regulationValue, TypedValue.VOLTAGE)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void regulatingRtcNoRegulationTerminal(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.regulatingRtcNoRegulationTerminal")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+
+    }
+
+    public static void temporaryLimitsButPermanentLimitUndefined(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.temporaryLimitsButPermanentLimitUndefined")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void svcRegulationModeInvalid(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.svcRegulationModeInvalid")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void hvdcConverterModeInvalid(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.hvdcConverterModeInvalid")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void acDcConverterControlModeNotSet(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.acDcConverterControlModeNotSet")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void acDcConverterControlTargetPInvalid(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.acDcConverterControlTargetPInvalid")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void acDcConverterControlInvalidTargetVDc(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.acDcConverterControlInvalidTargetVDc")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void tooManyRegulatingControlEnabled(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.tooManyRegulatingControlEnabled")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void ptcPhaseRegulationModeNotSet(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.ptcPhaseRegulationModeNotSet")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void ptcPhaseRegulationCannotBeEnabledWithoutLoadTapChanging(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.ptcPhaseRegulationCannotBeEnabledWithoutLoadTapChanging")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void ptcPhaseRegulationRegulationValueNotSet(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.ptcPhaseRegulationRegulationValueNotSet")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void ptcPhaseRegulationNoRegulatedTerminal(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.ptcPhaseRegulationNoRegulatedTerminal")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void targetDeadbandUndefinedValue(ReportNode reportNode, String validableType, String id) {
+        String key = switch (validableType) {
+            case "ratio tap changer" -> "core.iidm.network.rtcTargetDeadbandUndefinedValue";
+            case "phase tap changer" -> "core.iidm.network.ptcTargetDeadbandUndefinedValue";
+            case "shunt compensator" -> "core.iidm.network.scTargetDeadbandUndefinedValue";
+            default -> throw new IllegalArgumentException("Unsupported validable type: " + validableType);
+        };
+        reportNode.newReportNode()
+                .withMessageTemplate(key)
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
     }
 }

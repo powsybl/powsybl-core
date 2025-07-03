@@ -76,7 +76,8 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
                             minQ + ", " + maxQ + "] != " + "[" + point.getMinQ() + ", " + point.getMaxQ() + "]");
                 } else {
                     LOGGER.warn("{}duplicate point for active power {}", owner.getMessageHeader(), p);
-                    NetworkReports.parentHasDuplicatePointForActivePower(owner.getNetwork().getReportNodeContext().getReportNode(), owner.getMessageHeader(), p);
+                    NetworkReports.parentHasDuplicatePointForActivePower(owner.getNetwork().getReportNodeContext().getReportNode(),
+                            owner.getMessageHeader().id(), p);
                 }
             }
             // TODO: to be activated in IIDM v1.1
@@ -104,7 +105,7 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
         if (points.size() < 2) {
             throw new ValidationException(owner, "a reactive capability curve should have at least two points");
         }
-        ReactiveCapabilityCurveImpl curve = new ReactiveCapabilityCurveImpl(points, owner.getMessageHeader());
+        ReactiveCapabilityCurveImpl curve = new ReactiveCapabilityCurveImpl(points, owner.getMessageHeader().toString());
         owner.setReactiveLimits(curve);
         return curve;
     }
