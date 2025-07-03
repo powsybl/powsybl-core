@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_14" id="A" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="B" country="FR" tso="C" geographicalTags="D">
+        <iidm:voltageLevel id="E" nominalV="24.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="F"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="G" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="F" connectableBus="F">
+                <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="H" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="I"/>
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="J" r="0.26658461538461536" x="11.104492831516762" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" bus1="F" connectableBus1="F" voltageLevelId1="E" bus2="I" connectableBus2="I" voltageLevelId2="H"/>
+    </iidm:substation>
+    <iidm:substation id="K" country="FR" tso="C" geographicalTags="L">
+        <iidm:voltageLevel id="M" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="N"/>
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="O" nominalV="150.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="P"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="Q" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="P" connectableBus="P"/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="R" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="N" connectableBus1="N" voltageLevelId1="M" bus2="P" connectableBus2="P" voltageLevelId2="O">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" targetDeadband="0.0" loadTapChangingCapabilities="true" regulating="true" regulationMode="VOLTAGE" regulationValue="158.0">
+                <iidm:terminalRef id="R" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.150766642808914"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:line id="S" r="3.0" x="33.0" g1="0.0" b1="1.93E-4" g2="0.0" b2="1.93E-4" bus1="I" connectableBus1="I" voltageLevelId1="H" bus2="N" connectableBus2="N" voltageLevelId2="M"/>
+    <iidm:line id="T" r="3.0" x="33.0" g1="0.0" b1="1.93E-4" g2="0.0" b2="1.93E-4" bus1="I" connectableBus1="I" voltageLevelId1="H" bus2="N" connectableBus2="N" voltageLevelId2="M"/>
+</iidm:network>

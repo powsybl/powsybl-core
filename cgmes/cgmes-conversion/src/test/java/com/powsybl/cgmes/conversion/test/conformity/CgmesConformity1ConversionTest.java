@@ -134,7 +134,6 @@ class CgmesConformity1ConversionTest {
         // Validating bus balance of buses after conversion verifies that
         // the interpretation of the location of tap changer
         // relative to the transmission impedance is correct
-        importParams.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
         importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
@@ -184,7 +183,6 @@ class CgmesConformity1ConversionTest {
         // This test will check that IIDM buses,
         // that will be computed by IIDM from CGMES node-breaker ConnectivityNodes,
         // have proper balances from SV values
-        importParams.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
         importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
@@ -203,7 +201,6 @@ class CgmesConformity1ConversionTest {
         // have proper balances from SV values
         CgmesModel expected = CgmesConformity1Catalog.miniNodeBreaker().expected();
 
-        importParams.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
         importParams.put(CgmesImport.IMPORT_NODE_BREAKER_AS_BUS_BREAKER, "true");
         ConversionTester t = new ConversionTester(
                 importParams,
