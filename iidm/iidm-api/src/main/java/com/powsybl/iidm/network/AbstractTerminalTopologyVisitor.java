@@ -82,4 +82,9 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     public void visitGround(Ground ground) {
         visitInjection(ground);
     }
+
+    @Override
+    public void visitAcDcConverter(AcDcConverter<?> converter, TwoSides side) {
+        visitTerminal(converter.getTerminal(side));
+    }
 }

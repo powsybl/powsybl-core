@@ -9,26 +9,26 @@
         <md:Model.DependentOn rdf:resource="urn:uuid:95b0709c-bf22-4df8-a179-042c7038d62a" />
     </md:FullModel>
 
-    <cim:SvPowerFlow rdf:ID="_DCLineSegment-Lcc-Terminal-1-SvPowerFlow">
+    <cim:SvPowerFlow rdf:ID="_DCLineSegment-Lcc-CsConverter-1-ACT1-SvPowerFlow">
         <cim:SvPowerFlow.p>200.0</cim:SvPowerFlow.p>
         <cim:SvPowerFlow.q>50.0</cim:SvPowerFlow.q>
-        <cim:SvPowerFlow.Terminal rdf:resource="#_DCLineSegment-Lcc-Terminal-1" />
+        <cim:SvPowerFlow.Terminal rdf:resource="#_DCLineSegment-Lcc-CsConverter-1-ACT1" />
     </cim:SvPowerFlow>
-    <cim:SvPowerFlow rdf:ID="_DCLineSegment-Lcc-Terminal-2-SvPowerFlow">
+    <cim:SvPowerFlow rdf:ID="_DCLineSegment-Lcc-CsConverter-2-ACT1-SvPowerFlow">
         <cim:SvPowerFlow.p>-200.1</cim:SvPowerFlow.p>
         <cim:SvPowerFlow.q>-50.1</cim:SvPowerFlow.q>
-        <cim:SvPowerFlow.Terminal rdf:resource="#_DCLineSegment-Lcc-Terminal-2" />
+        <cim:SvPowerFlow.Terminal rdf:resource="#_DCLineSegment-Lcc-CsConverter-2-ACT1" />
     </cim:SvPowerFlow>
 
-    <cim:SvPowerFlow rdf:ID="_DCLineSegment-Vsc-Terminal-1-SvPowerFlow">
+    <cim:SvPowerFlow rdf:ID="_DCLineSegment-Vsc-VscConverter-1-ACT1-SvPowerFlow">
         <cim:SvPowerFlow.p>100.0</cim:SvPowerFlow.p>
         <cim:SvPowerFlow.q>25.0</cim:SvPowerFlow.q>
-        <cim:SvPowerFlow.Terminal rdf:resource="#_DCLineSegment-Vsc-Terminal-1" />
+        <cim:SvPowerFlow.Terminal rdf:resource="#_DCLineSegment-Vsc-VscConverter-1-ACT1" />
     </cim:SvPowerFlow>
-    <cim:SvPowerFlow rdf:ID="_DCLineSegment-Vsc-Terminal-2-SvPowerFlow">
+    <cim:SvPowerFlow rdf:ID="_DCLineSegment-Vsc-VscConverter-2-ACT1-SvPowerFlow">
         <cim:SvPowerFlow.p>-100.1</cim:SvPowerFlow.p>
         <cim:SvPowerFlow.q>-25.1</cim:SvPowerFlow.q>
-        <cim:SvPowerFlow.Terminal rdf:resource="#_DCLineSegment-Vsc-Terminal-2" />
+        <cim:SvPowerFlow.Terminal rdf:resource="#_DCLineSegment-Vsc-VscConverter-2-ACT1" />
     </cim:SvPowerFlow>
 
 </rdf:RDF>

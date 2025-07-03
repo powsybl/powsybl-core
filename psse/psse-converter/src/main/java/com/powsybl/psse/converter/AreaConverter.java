@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PsseArea;
 import com.powsybl.psse.model.pf.PsseBus;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,35 +61,48 @@ public class AreaConverter extends AbstractConverter {
         Set<VoltageLevel> areaVoltageLevels = extractVoltageLevels(area);
         addLineBoundaryTerminals(area, areaVoltageLevels);
         addHvdcLinesBoundaryTerminals(area, areaVoltageLevels);
+        addTransformerTwoWindingsBoundaryTerminals(area, areaVoltageLevels);
+        addTransformerTreeWindingsBoundaryTerminals(area, areaVoltageLevels);
     }
 
     private void addLineBoundaryTerminals(Area area, Set<VoltageLevel> areaVoltageLevels) {
         getNetwork().getLines().forEach(line ->
-                processTerminals(line.getTerminal1(), line.getTerminal2(), area, areaVoltageLevels, IS_AC));
+                processTerminals(line.getTerminals(), area, areaVoltageLevels, IS_AC));
     }
 
     private void addHvdcLinesBoundaryTerminals(Area area, Set<VoltageLevel> areaVoltageLevels) {
         getNetwork().getHvdcLines().forEach(line -> processTerminals(
-                line.getConverterStation1().getTerminal(),
-                line.getConverterStation2().getTerminal(),
+                List.of(line.getConverterStation1().getTerminal(), line.getConverterStation2().getTerminal()),
                 area, areaVoltageLevels, IS_DC));
     }
 
-    private void processTerminals(Terminal terminal1, Terminal terminal2, Area area, Set<VoltageLevel> areaVoltageLevels,
+    private void addTransformerTwoWindingsBoundaryTerminals(Area area, Set<VoltageLevel> areaVoltageLevels) {
+        getNetwork().getTwoWindingsTransformers().forEach(trf ->
+                processTerminals(trf.getTerminals(), area, areaVoltageLevels, IS_AC));
+    }
+
+    private void addTransformerTreeWindingsBoundaryTerminals(Area area, Set<VoltageLevel> areaVoltageLevels) {
+        getNetwork().getThreeWindingsTransformers().forEach(trf ->
+                processTerminals(trf.getTerminals(), area, areaVoltageLevels, IS_AC)
+        );
+    }
+
+    private void processTerminals(List<? extends Terminal> terminals, Area area, Set<VoltageLevel> areaVoltageLevels,
                                   boolean isAC) {
-        var boundaryTerminal = boundaryTerminal(terminal1, terminal2, areaVoltageLevels);
-        if (boundaryTerminal != null) {
-            addAreaBoundary(area, boundaryTerminal, isAC);
+        var boundaryTerminals = boundaryTerminal(terminals, areaVoltageLevels);
+        for (var terminal : boundaryTerminals) {
+            addAreaBoundary(area, terminal, isAC);
         }
     }
 
-    private Terminal boundaryTerminal(Terminal terminal1, Terminal terminal2, Set<VoltageLevel> areaVoltageLevels) {
-        var isTerminal1InArea = areaVoltageLevels.contains(terminal1.getVoltageLevel());
-        var isTerminal2InArea = areaVoltageLevels.contains(terminal2.getVoltageLevel());
-        if (isTerminal1InArea != isTerminal2InArea) {
-            return isTerminal1InArea ? terminal1 : terminal2;
+    private Terminal[] boundaryTerminal(List<? extends Terminal> terminals, Set<VoltageLevel> areaVoltageLevels) {
+        var terminalsInArea = new ArrayList<Terminal>();
+        for (var terminal : terminals) {
+            if (areaVoltageLevels.contains(terminal.getVoltageLevel())) {
+                terminalsInArea.add(terminal);
+            }
         }
-        return null;
+        return terminals.size() > terminalsInArea.size() ? terminalsInArea.toArray(new Terminal[0]) : new Terminal[0];
     }
 
     private Set<VoltageLevel> extractVoltageLevels(Area area) {

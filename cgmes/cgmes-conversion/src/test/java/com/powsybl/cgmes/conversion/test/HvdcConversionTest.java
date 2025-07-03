@@ -13,10 +13,14 @@ import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Map;
 import java.util.Properties;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
@@ -47,11 +51,11 @@ class HvdcConversionTest extends AbstractSerDeTest {
         // Converter's loss factor, power factor, modes and line's active power setpoint and max value get default value.
         assertContainsLccConverter(network, "CSC_1", "Current source converter 1", "DCL_12", 0.0, 0.8);
         assertContainsLccConverter(network, "CSC_2", "Current source converter 2", "DCL_12", 0.0, 0.8);
-        assertContainsHvdcLine(network, "DCL_12", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12", "CSC_1", "CSC_2", 4.64, Double.NaN, 0.0);
+        assertContainsHvdcLine(network, "DCL_12", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12", "CSC_1", "CSC_2", 4.64, 0.0, 0.0);
 
         assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.0, Double.NaN, 0.0);
         assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.0, Double.NaN, 0.0);
-        assertContainsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, Double.NaN, 0.0);
+        assertContainsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 0.0, 0.0);
     }
 
     @Test
@@ -59,10 +63,10 @@ class HvdcConversionTest extends AbstractSerDeTest {
         // Same test as with EQ only, but this time the SSH is also read.
         Network network = readCgmesResources(DIR, "monopole_EQ.xml", "monopole_SSH.xml");
 
-        // SSH provides converter state data (operating kinds, powers and voltages).
+        // SSH provides converter state data (operating kinds, powers). From those we calculate resistive losses.
         assertContainsLccConverter(network, "CSC_1", "Current source converter 1", "DCL_12", 0.0, -0.8251);
         assertContainsLccConverter(network, "CSC_2", "Current source converter 2", "DCL_12", 0.0, 0.8);
-        assertContainsHvdcLine(network, "DCL_12", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 12", "CSC_1", "CSC_2", 4.64, 99.0, 118.8);
+        assertContainsHvdcLine(network, "DCL_12", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 12", "CSC_1", "CSC_2", 4.64, 99.198, 119.038);
 
         assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.0, 95.0, 0.0);
         assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.0, 90.0, 0.0);
@@ -76,11 +80,11 @@ class HvdcConversionTest extends AbstractSerDeTest {
 
         // SV gives losses in converters.
         assertContainsLccConverter(network, "CSC_1", "Current source converter 1", "DCL_12", 0.4024, -0.8251);
-        assertContainsLccConverter(network, "CSC_2", "Current source converter 2", "DCL_12", 0.4008, 0.8);
-        assertContainsHvdcLine(network, "DCL_12", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 12", "CSC_1", "CSC_2", 4.64, 99.8, 118.8);
+        assertContainsLccConverter(network, "CSC_2", "Current source converter 2", "DCL_12", 0.4, 0.8);
+        assertContainsHvdcLine(network, "DCL_12", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 12", "CSC_1", "CSC_2", 4.64, 100.0, 120.0);
 
         assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.6, 95.0, 0.0);
-        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.6036, 90.0, 0.0);
+        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.6085, 90.0, 0.0);
         assertContainsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 100.0, 120.0);
     }
 
@@ -91,16 +95,16 @@ class HvdcConversionTest extends AbstractSerDeTest {
         //   The positive polarity DCLineSegment DCL_34P has r = 4.94.
         //   The negative polarity DCLineSegment DCL_34N has r = 4.98.
         // IIDM network:
-        //   HvdcLine DCL_34P with VscConverterStation VSC_3 and VSC_4.
+        //   HvdcLine DCL_34N with VscConverterStation VSC_3 and VSC_4.
         Network network = readCgmesResources(DIR, "monopole_with_metallic_return.xml");
 
         // A single HvdcLine has been created with an equivalent resistance.
-        assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34P", 0.0, Double.NaN, 0.0);
-        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34P", 0.0, Double.NaN, 0.0);
-        assertContainsHvdcLine(network, "DCL_34P", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34P", "VSC_3", "VSC_4", 2.48, Double.NaN, 0.0);
+        assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34N", 0.0, Double.NaN, 0.0);
+        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34N", 0.0, Double.NaN, 0.0);
+        assertContainsHvdcLine(network, "DCL_34N", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34N", "VSC_3", "VSC_4", 9.92, 0.0, 0.0);
 
         // The other DCLineSegment identifier is kept as an alias.
-        assertEquals("DCL_34N", network.getHvdcLine("DCL_34P").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
+        assertEquals("DCL_34P", network.getHvdcLine("DCL_34N").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
     }
 
     @Test
@@ -117,12 +121,116 @@ class HvdcConversionTest extends AbstractSerDeTest {
         // HvdcLine DCL_12 links LccConverterStation CSC_1A and CSC_2A with an equivalent resistance.
         assertContainsLccConverter(network, "CSC_1A", "Current source converter 1A", "DCL_12", 0.0, 0.8);
         assertContainsLccConverter(network, "CSC_2A", "Current source converter 2A", "DCL_12", 0.0, 0.8);
-        assertContainsHvdcLine(network, "DCL_12", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12", "CSC_1A", "CSC_2A", 9.28, Double.NaN, 0.0);
+        assertContainsHvdcLine(network, "DCL_12", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12", "CSC_1A", "CSC_2A", 2.32, 0.0, 0.0);
 
         // HvdcLine DCL_12-1 links LccConverterStation CSC_1B and CSC_2B with an equivalent resistance.
         assertContainsLccConverter(network, "CSC_1B", "Current source converter 1B", "DCL_12-1", 0.0, 0.8);
         assertContainsLccConverter(network, "CSC_2B", "Current source converter 2B", "DCL_12-1", 0.0, 0.8);
-        assertContainsHvdcLine(network, "DCL_12-1", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12-1", "CSC_1B", "CSC_2B", 9.28, Double.NaN, 0.0);
+        assertContainsHvdcLine(network, "DCL_12-1", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12-1", "CSC_1B", "CSC_2B", 2.32, 0.0, 0.0);
+    }
+
+    @Test
+    void bipoleTest() {
+        // CGMES network:
+        //   A HVDC bipole:
+        //   - Positive dc pole is made of DCLineSegment DCL_12P with CsConverter CSC_1P and CSC_2P.
+        //   - Negative dc pole is made of DCLineSegment DCL_12N with CsConverter CSC_1N and CSC_2N.
+        // IIDM network:
+        //   - HvdcLine DCL_12P with LccConverterStation CSC_1P and CSC_2P.
+        //   - HvdcLine DCL_12N with LccConverterStation CSC_1N and CSC_2N.
+        Network network = readCgmesResources(DIR, "bipole.xml");
+
+        // Positive dc pole.
+        assertContainsLccConverter(network, "CSC_1P", "Current source converter 1P", "DCL_12P", 0.0, 0.8);
+        assertContainsLccConverter(network, "CSC_2P", "Current source converter 2P", "DCL_12P", 0.0, 0.8);
+        assertContainsHvdcLine(network, "DCL_12P", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12P", "CSC_1P", "CSC_2P", 4.64, 0.0, 0.0);
+
+        // Negative dc pole.
+        assertContainsLccConverter(network, "CSC_1N", "Current source converter 1N", "DCL_12N", 0.0, 0.8);
+        assertContainsLccConverter(network, "CSC_2N", "Current source converter 2N", "DCL_12N", 0.0, 0.8);
+        assertContainsHvdcLine(network, "DCL_12N", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12N", "CSC_1N", "CSC_2N", 4.64, 0.0, 0.0);
+    }
+
+    @Test
+    void bipoleWithDedicatedMetallicReturnTest() {
+        // CGMES network:
+        //   A HVDC bipole with a dedicated metallic return line:
+        //   - Positive dc pole is made of DCLineSegment DCL_12P with CsConverter CSC_1P and CSC_2P.
+        //   - Negative dc pole is made of DCLineSegment DCL_12N with CsConverter CSC_1N and CSC_2N.
+        //   - DCLineSegment DCL_12G is a dedicated metallic return line.
+        // IIDM network:
+        //   - HvdcLine DCL_12P with LccConverterStation CSC_1P and CSC_2P.
+        //   - HvdcLine DCL_12N with LccConverterStation CSC_1N and CSC_2N.
+        Network network = readCgmesResources(DIR, "bipole_with_dedicated_metallic_return.xml");
+
+        // Positive dc pole.
+        assertContainsLccConverter(network, "CSC_1P", "Current source converter 1P", "DCL_12P", 0.0, 0.8);
+        assertContainsLccConverter(network, "CSC_2P", "Current source converter 2P", "DCL_12P", 0.0, 0.8);
+        assertContainsHvdcLine(network, "DCL_12P", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12P", "CSC_1P", "CSC_2P", 4.64, 0.0, 0.0);
+
+        // Negative dc pole.
+        assertContainsLccConverter(network, "CSC_1N", "Current source converter 1N", "DCL_12N", 0.0, 0.8);
+        assertContainsLccConverter(network, "CSC_2N", "Current source converter 2N", "DCL_12N", 0.0, 0.8);
+        assertContainsHvdcLine(network, "DCL_12N", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12N", "CSC_1N", "CSC_2N", 4.64, 0.0, 0.0);
+
+        // The dedicated metallic return line identifier is kept as an alias.
+        assertEquals("DCL_12G", network.getHvdcLine("DCL_12N").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
+    }
+
+    @Test
+    void skagerrak() {
+        // CGMES network:
+        //   Two HVDC bipoles with a common DMR line.
+        //   - SK12 is a LCC bipole with 2 bridges per unit.
+        //   - SK34 is a bipole where pole 3 is LCC (2 bridges) and pole 4 is VSC.
+        //   - DCL_G is the DMR line common to SK12 and SK34.
+        // IIDM network:
+        //   - 6 LCC HvdcLine (SK1, SK2, SK3, each *2).
+        //   - 1 VSC HvdcLine (SK4).
+        Network network = readCgmesResources(DIR, "skagerrak.xml");
+
+        assertEquals(6, network.getHvdcLineStream()
+                .filter(l -> HvdcConverterStation.HvdcType.LCC.equals(l.getConverterStation1().getHvdcType()))
+                .count());
+        assertEquals(1, network.getHvdcLineStream()
+                .filter(l -> HvdcConverterStation.HvdcType.VSC.equals(l.getConverterStation1().getHvdcType()))
+                .count());
+
+        assertEquals("DCL_G", network.getHvdcLine("DCL_1").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
+    }
+
+    @Test
+    void invalidDcConfigurationTest() throws IOException {
+        // CGMES network:
+        //   An EQ file with a HVDC bipole, but also some configuration errors:
+        //   - Some connections are missing so that there is 2 DCIsland.
+        //     o The biggest island has a 1 converter / 1 dc line / 2 converters configuration.
+        //     o The smallest island has a 1 converter / 1 dc line configuration.
+        //   - There are different converter types on each side of the bipole.
+        //   - There is a completely isolated dc switch.
+        // IIDM network:
+        //   Neither HvdcConverterStation nor HvdcLine are created when DCConfiguration is invalid.
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testFunctionalLogs")
+                .withUntypedValue("name", "invalidDcConfiguration")
+                .build();
+        Network network = readCgmesResources(reportNode, DIR, "invalid_DCConfiguration.xml");
+
+        assertEquals(2, network.getSubstationCount());
+        assertEquals(0, network.getHvdcConverterStationCount());
+        assertEquals(0, network.getHvdcLineCount());
+
+        String logs = "";
+        try (StringWriter sw = new StringWriter()) {
+            reportNode.print(sw);
+            logs = sw.toString();
+        }
+        assertTrue(logs.contains("DCEquipment DCSW is discarded as it couldn't be attached to any DCIsland."));
+        assertTrue(logs.contains("DCIsland made of ACDCConverters: CSC_1N, CSC_1P, VSC_2P has a POINT_TO_POINT configuration " +
+                "but doesn't have the same number of converters of same type on each side."));
+        assertTrue(logs.contains("DCLineSegment: DCL_12N is not in 2 DCIslandEnd."));
+        assertTrue(logs.contains("DCIsland made of ACDCConverters: VSC_2N has unsupported BACK_TO_BACK DCConfiguration."));
     }
 
     @Test
@@ -131,13 +239,13 @@ class HvdcConversionTest extends AbstractSerDeTest {
         Network network = readCgmesResources(DIR, "monopole_EQ.xml", "monopole_Ppcc_SSH.xml", "monopole_SV.xml", "monopole_TP.xml");
 
         // This gives more precise loss and power factor compared to dc voltage control kind at rectifier side.
-        assertContainsLccConverter(network, "CSC_1", "Current source converter 1", "DCL_12", 0.4016, -0.8251);
+        assertContainsLccConverter(network, "CSC_1", "Current source converter 1", "DCL_12", 0.4024, -0.8251);
         assertContainsLccConverter(network, "CSC_2", "Current source converter 2", "DCL_12", 0.4, 0.9119);
         assertContainsHvdcLine(network, "DCL_12", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 12", "CSC_1", "CSC_2", 4.64, 100.0, 120.0);
 
         // This doesn't change calculations when control kind at rectifier side was already active power at point of common coupling.
         assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.6, 95.0, 0.0);
-        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.6036, 90.0, 0.0);
+        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.6085, 90.0, 0.0);
         assertContainsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 100.0, 120.0);
     }
 
@@ -149,46 +257,8 @@ class HvdcConversionTest extends AbstractSerDeTest {
 
         // Control variable is reactive power at PCC.
         assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.6, 0.0, -22.5);
-        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.6036, 0.0, -30.0);
+        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.6085, 0.0, -30.0);
         assertContainsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 100.0, 120.0);
-    }
-
-    @Test
-    void inconsistentConverterTypesTest() {
-        // CGMES network:
-        //   A HVDC line (monopole, ground return) linking a CsConverter and a VsConverter.
-        // IIDM network:
-        //   Neither HvdcConverterStation nor HvdcLine are created when inputs are inconsistent.
-        Network network = readCgmesResources(DIR, "inconsistent_converter_types.xml");
-
-        assertEquals(0, network.getHvdcConverterStationCount());
-        assertEquals(0, network.getHvdcLineCount());
-    }
-
-    @Test
-    void missingDCLineSegmentTest() {
-        // CGMES network:
-        //   An EQ file with 4 ACDCConverter, but no DCLineSegment joining them.
-        // IIDM network:
-        //   Neither HvdcConverterStation nor HvdcLine are created when inputs are missing.
-        Network network = readCgmesResources(DIR, "missing_DCLineSegment.xml");
-
-        assertEquals(4, network.getSubstationCount());
-        assertEquals(0, network.getHvdcConverterStationCount());
-        assertEquals(0, network.getHvdcLineCount());
-    }
-
-    @Test
-    void missingAcDcConverterTest() {
-        // CGMES network:
-        //   An EQ file with 2 ACDCConverter and 2 DCLineSegment on one side, but no ACDCConverter on the other side.
-        // IIDM network:
-        //   Neither HvdcConverterStation nor HvdcLine are created when inputs are missing.
-        Network network = readCgmesResources(DIR, "missing_ACDCConverter.xml");
-
-        assertEquals(4, network.getSubstationCount());
-        assertEquals(0, network.getHvdcConverterStationCount());
-        assertEquals(0, network.getHvdcLineCount());
     }
 
     @Test
@@ -205,7 +275,7 @@ class HvdcConversionTest extends AbstractSerDeTest {
         // it's not possible anymore to compute which side is inverter and which is rectifier without P.
         assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.0, 95.0, 0.0);
         assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.0, 90.0, 0.0);
-        assertContainsHvdcLine(network, "DCL_34", SIDE_1_INVERTER_SIDE_2_RECTIFIER, "DC line 34", "VSC_3", "VSC_4", 9.92, 0.0, 0.0);
+        assertContainsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 0.0, 0.0);
     }
 
     @Test

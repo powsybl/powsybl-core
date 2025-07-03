@@ -208,18 +208,35 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public CurrentLimitsAdder newCurrentLimits() {
-            return operationalLimitsHolder.newCurrentLimits();
+        public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
+            return operationalLimitsHolder.getOrCreateSelectedOperationalLimitsGroup();
         }
 
+        /**
+         * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+         */
+        @Deprecated(since = "6.8.0")
+        @Override
+        public CurrentLimitsAdder newCurrentLimits() {
+            return operationalLimitsHolder.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
+        }
+
+        /**
+         * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+         */
+        @Deprecated(since = "6.8.0")
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
-            return operationalLimitsHolder.newActivePowerLimits();
+            return operationalLimitsHolder.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
         }
 
+        /**
+         * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+         */
+        @Deprecated(since = "6.8.0")
         @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
-            return operationalLimitsHolder.newApparentPowerLimits();
+            return operationalLimitsHolder.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
         }
 
         protected String getTypeDescription() {
@@ -236,8 +253,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public String getMessageHeader() {
-            return getTypeDescription() + " '" + transformer.getId() + "': ";
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader(getTypeDescription(), transformer.getId());
         }
 
         public String getTapChangerAttribute() {

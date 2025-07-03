@@ -8,18 +8,33 @@
         <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
     </md:FullModel>
 
-    <cim:StaticVarCompensator rdf:about="#_StaticVarCompensator">
+    <cim:StaticVarCompensator rdf:about="#_StaticVarCompensator-V">
         <cim:Equipment.inService>true</cim:Equipment.inService>
         <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
         <cim:StaticVarCompensator.q>0</cim:StaticVarCompensator.q>
     </cim:StaticVarCompensator>
-    <cim:Terminal rdf:about="#_StaticVarCompensator_T">
+    <cim:Terminal rdf:about="#_StaticVarCompensator-V_T">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:RegulatingControl rdf:about="#_StaticVarCompensator-RegulatingControl">
+    <cim:RegulatingControl rdf:about="#_StaticVarCompensator-V-RegulatingControl">
         <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
         <cim:RegulatingControl.enabled>false</cim:RegulatingControl.enabled>
         <cim:RegulatingControl.targetValue>400.0</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k" />
+    </cim:RegulatingControl>
+
+    <cim:StaticVarCompensator rdf:about="#_StaticVarCompensator-Q">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+        <cim:StaticVarCompensator.q>-201.5</cim:StaticVarCompensator.q>
+    </cim:StaticVarCompensator>
+    <cim:Terminal rdf:about="#_StaticVarCompensator-Q_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:about="#_StaticVarCompensator-Q-RegulatingControl">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.enabled>false</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>215.0</cim:RegulatingControl.targetValue>
         <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k" />
     </cim:RegulatingControl>
 </rdf:RDF>
