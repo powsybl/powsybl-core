@@ -220,6 +220,7 @@ public class TapChangerConversion {
         });
         tapChanger.setLowTapPosition(tc.getLowTapPosition());
         tapChanger.setTapPosition(tc.getTapPosition());
+        tapChanger.setSolvedTapPosition(tc.getSolvedTapPosition());
     }
 
     /**
@@ -395,10 +396,12 @@ public class TapChangerConversion {
         boolean isTapChangerControlEnabled = rtc.isTapChangerControlEnabled();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
+        Integer solvedPosition = rtc.getSolvedTapPosition();
         String type = rtc.getType();
         TapChanger hiddenCombinedTapChanger = rtc.getHiddenCombinedTapChanger();
         tapChanger.setLowTapPosition(lowStep)
             .setTapPosition(position)
+            .setSolvedTapPosition(solvedPosition)
             .setLtcFlag(isLtcFlag)
             .setId(id)
             .setRegulating(isRegulating)

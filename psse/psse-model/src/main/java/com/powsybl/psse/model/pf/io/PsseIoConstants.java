@@ -53,4 +53,5 @@ public final class PsseIoConstants {
     public static final String STR_YP = "yp";
     public static final String STR_ZONAME = "zoname";
     public static final String STR_ZONE = "zone";
+    public static final String STR_I_NODE = "inode";
 }

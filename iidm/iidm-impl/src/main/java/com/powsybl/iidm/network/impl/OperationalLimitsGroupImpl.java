@@ -15,7 +15,7 @@ import java.util.Optional;
 /**
  * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
  */
-public class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
+public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder implements OperationalLimitsGroup, Validable {
 
     private final String id;
     private CurrentLimits currentLimits;
@@ -143,7 +143,7 @@ public class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Valid
     }
 
     @Override
-    public String getMessageHeader() {
+    public MessageHeader getMessageHeader() {
         return validable.getMessageHeader();
     }
 

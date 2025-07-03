@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.Conversion.Config;
-import com.powsybl.cgmes.conversion.elements.hvdc.DcMapping;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -54,7 +53,6 @@ public class Context {
         cgmesBoundary = new CgmesBoundary(cgmes);
         nodeContainerMapping = new NodeContainerMapping(this);
         terminalMapping = new TerminalMapping();
-        dcMapping = new DcMapping(this);
         loadingLimitsMapping = new LoadingLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping();
@@ -133,10 +131,6 @@ public class Context {
 
     public CgmesBoundary boundary() {
         return cgmesBoundary;
-    }
-
-    public DcMapping dc() {
-        return dcMapping;
     }
 
     public LoadingLimitsMapping loadingLimitsMapping() {
@@ -361,7 +355,6 @@ public class Context {
     private final CgmesBoundary cgmesBoundary;
     private final TerminalMapping terminalMapping;
     private final NodeMapping nodeMapping;
-    private final DcMapping dcMapping;
     private final LoadingLimitsMapping loadingLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
 

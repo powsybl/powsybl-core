@@ -7,10 +7,10 @@
  */
 package com.powsybl.computation;
 
+import com.google.re2j.Pattern;
 import com.powsybl.commons.PowsyblException;
 
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 /**
  * @author Yichen Tang {@literal <yichen.tang at rte-france.com>}
