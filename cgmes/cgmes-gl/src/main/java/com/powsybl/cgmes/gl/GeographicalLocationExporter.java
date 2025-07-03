@@ -1,6 +1,5 @@
-package com.powsybl.cgmes.conversion.export;
+package com.powsybl.cgmes.gl;
 
-import com.powsybl.cgmes.gl.CgmesGLExporter;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Network;
 
