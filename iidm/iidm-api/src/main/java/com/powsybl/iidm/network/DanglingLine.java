@@ -286,6 +286,14 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
      */
     DanglingLine setPairingKey(String pairingKey);
 
+    DanglingLine setCountryFrom(String countryFrom);
+
+    String getCountryFrom();
+
+    DanglingLine setCountryTo(String countryTo);
+
+    String getCountryTo();
+
     Boundary getBoundary();
 
     default Optional<TieLine> getTieLine() {
