@@ -43,7 +43,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     // VERSION = 1.2 subTransientCoefficient, withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition,
     //                initialVoltageProfileMode, voltageRange
     // VERSION = 1.3 detailedLog, voltage in voltageRange
-    public static final String VERSION = "1.3";
+    // VERSION = 1.4 debugDir
+    public static final String VERSION = "1.4";
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
     private boolean withFortescueResult = DEFAULT_WITH_FORTESCUE_RESULT;
@@ -59,6 +60,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private InitialVoltageProfileMode initialVoltageProfileMode = DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE;
     private List<VoltageRange> voltageRanges;
     private boolean detailedReport = DEFAULT_DETAILED_REPORT;
+    private String debugDir = DEFAULT_DEBUG_DIR;
 
     /**
      * Load parameters from platform default config.
@@ -86,7 +88,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithNeutralPosition(config.getBooleanProperty("with-neutral-position", DEFAULT_WITH_NEUTRAL_POSITION))
                         .setInitialVoltageProfileMode(config.getEnumProperty("initial-voltage-profile-mode", InitialVoltageProfileMode.class, DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE))
                         .setVoltageRanges(getVoltageRangesFromConfig(config))
-                        .setDetailedReport(config.getBooleanProperty("detailed-report", DEFAULT_DETAILED_REPORT)));
+                        .setDetailedReport(config.getBooleanProperty("detailed-report", DEFAULT_DETAILED_REPORT))
+                        .setDebugDir(config.getStringProperty("debug-dir", DEFAULT_DEBUG_DIR)));
 
         parameters.validate();
         parameters.readExtensions(platformConfig);
@@ -305,6 +308,18 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     public ShortCircuitParameters setDetailedReport(boolean detailedReport) {
         this.detailedReport = detailedReport;
+        return this;
+    }
+
+    /**
+     * A String indicating the directory where execution files will be dumped
+     */
+    public String getDebugDir() {
+        return debugDir;
+    }
+
+    public ShortCircuitParameters setDebugDir(String debugDir) {
+        this.debugDir = debugDir;
         return this;
     }
 
