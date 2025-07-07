@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl.tck.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.extensions.VoltageRegulation;
@@ -92,5 +93,61 @@ class VoltageRegulationTest {
 
         PowsyblException e1 = assertThrows(PowsyblException.class, adder1::add);
         assertEquals("regulating terminal is not part of the same network", e1.getMessage());
+    }
+
+    @Test
+    void removeTerminalTest() {
+        Network network = BatteryNetworkFactory.create();
+        var battery = network.getBattery("BAT");
+        var battery2 = network.getBattery("BAT2");
+        VoltageRegulation voltageRegulation = battery.newExtension(VoltageRegulationAdder.class)
+                .withRegulatingTerminal(battery2.getTerminal())
+                .withVoltageRegulatorOn(true)
+                .withTargetV(50.0)
+                .add();
+        assertEquals(battery2.getTerminal(), voltageRegulation.getRegulatingTerminal());
+        battery2.remove();
+        // Fallback on local terminal
+        assertEquals(battery.getTerminal(), voltageRegulation.getRegulatingTerminal());
+    }
+
+    @Test
+    void changeTerminalTest() {
+        Network network = BatteryNetworkFactory.create();
+        var vlbat = network.getVoltageLevel("VLBAT");
+        Bus nbat = vlbat.getBusBreakerView().getBus("NBAT");
+
+        Battery battery3 = vlbat.newBattery()
+                .setId("BAT3")
+                .setBus(nbat.getId())
+                .setConnectableBus(nbat.getId())
+                .setTargetP(9999.99)
+                .setTargetQ(9999.99)
+                .setMinP(-9999.99)
+                .setMaxP(9999.99)
+                .add();
+        battery3.newMinMaxReactiveLimits()
+                .setMinQ(-9999.99)
+                .setMaxQ(9999.99)
+                .add();
+        battery3.getTerminal().setP(-605);
+        battery3.getTerminal().setQ(-225);
+
+        var battery = network.getBattery("BAT");
+        var battery2 = network.getBattery("BAT2");
+        VoltageRegulation voltageRegulation = battery.newExtension(VoltageRegulationAdder.class)
+                .withRegulatingTerminal(battery2.getTerminal())
+                .withVoltageRegulatorOn(true)
+                .withTargetV(50.0)
+                .add();
+        assertEquals(battery2.getTerminal(), voltageRegulation.getRegulatingTerminal());
+        voltageRegulation.setRegulatingTerminal(battery3.getTerminal());
+        assertEquals(battery3.getTerminal(), voltageRegulation.getRegulatingTerminal());
+        // Removing battery 2 should not change the regulating terminal
+        battery2.remove();
+        assertEquals(battery3.getTerminal(), voltageRegulation.getRegulatingTerminal());
+        // Removing battery 3 should change the regulating terminal to the local one (fallback)
+        battery3.remove();
+        assertEquals(battery.getTerminal(), voltageRegulation.getRegulatingTerminal());
     }
 }

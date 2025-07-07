@@ -12,6 +12,7 @@ import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
+import com.powsybl.iidm.network.impl.TerminalExt;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
@@ -32,13 +33,14 @@ public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExten
             throw new PowsyblException("Voltage regulator status is not defined");
         }
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        this.setRegulatingTerminal(regulatingTerminal);
+        this.initRegulatingTerminal(regulatingTerminal);
         this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.voltageRegulatorOn.add(voltageRegulatorOn);
             this.targetV.add(targetV);
         }
+        ((TerminalExt) this.regulatingTerminal).getReferrerManager().register(this);
     }
 
     private static void checkRegulatingTerminal(Terminal regulatingTerminal, Network network) {
@@ -54,6 +56,16 @@ public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExten
 
     @Override
     public void setRegulatingTerminal(Terminal regulatingTerminal) {
+        checkRegulatingTerminal(regulatingTerminal, getNetworkFromExtendable());
+        Terminal newRegulatingTerminal = regulatingTerminal != null ? regulatingTerminal : getExtendable().getTerminal();
+        if (this.regulatingTerminal != null && this.regulatingTerminal != newRegulatingTerminal) {
+            ((TerminalExt) this.regulatingTerminal).getReferrerManager().unregister(this);
+        }
+        this.regulatingTerminal = newRegulatingTerminal;
+        ((TerminalExt) this.regulatingTerminal).getReferrerManager().register(this);
+    }
+
+    private void initRegulatingTerminal(Terminal regulatingTerminal) {
         checkRegulatingTerminal(regulatingTerminal, getNetworkFromExtendable());
         this.regulatingTerminal = regulatingTerminal != null ? regulatingTerminal : getExtendable().getTerminal();
     }
@@ -109,5 +121,26 @@ public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExten
 
     private Network getNetworkFromExtendable() {
         return getExtendable().getTerminal().getVoltageLevel().getNetwork();
+    }
+
+    @Override
+    public void onReferencedRemoval(Terminal removedTerminal) {
+        if (regulatingTerminal == removedTerminal) {
+            initRegulatingTerminal(null);
+        }
+    }
+
+    @Override
+    public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
+        if (regulatingTerminal == oldReferenced) {
+            initRegulatingTerminal(newReferenced);
+        }
+    }
+
+    @Override
+    public void cleanup() {
+        if (regulatingTerminal != null) {
+            ((TerminalExt) regulatingTerminal).getReferrerManager().unregister(this);
+        }
     }
 }
