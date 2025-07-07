@@ -158,5 +158,5 @@ operationalLimitsGroup.newCurrentLimits(existingApparentPowerLimits).add();
 It is also possible to use a higher-level function to copy operational limits from an existing [Line](network_subnetwork.md#line) `existingLine` to a new [Line](network_subnetwork.md#line) `otherLine`:
 
 ```java
-copyOperationalLimits(existingLine, otherLine);
+LoadingLimitsUtil.copyOperationalLimits(existingLine, otherLine);
 ```
