@@ -16,7 +16,7 @@ Some characteristics of the new [line](network_subnetwork.md#line) are pre-fille
 
 Operational limits are also copied from the model line.
 
-Other attributes of the new [line](network_subnetwork.md#line) are filled up by the user.
+Other attributes of the new [line](network_subnetwork.md#line) may (or should, for mandatory ones) be filled up by the user.
 
 NB: it is mandatory for the user to fill up the `id` attribute before calling the `add()` method or else the code will throw an exception.
 
