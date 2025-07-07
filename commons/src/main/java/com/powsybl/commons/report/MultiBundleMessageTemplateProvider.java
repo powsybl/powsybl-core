@@ -33,7 +33,7 @@ public class MultiBundleMessageTemplateProvider implements MessageTemplateProvid
     @Override
     public String getTemplate(String key, Locale locale) {
         for (String bundleBaseName : bundleBaseNames) {
-            ResourceBundle bundle = ResourceBundle.getBundle(bundleBaseName, locale);
+            ResourceBundle bundle = ResourceBundle.getBundle(bundleBaseName, locale, NO_FALLBACK_CONTROL);
             if (bundle.containsKey(key)) {
                 return bundle.getString(key);
             }
