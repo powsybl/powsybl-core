@@ -139,7 +139,7 @@ generator.newReactiveCapabilityCurve(existingReactiveCapabilityCurve)
         .add();
 ```
 
-NB : another point could be added to the new object if needed.
+NB : other points could be added to the new object if needed.
 
 ## Loading limits
 
