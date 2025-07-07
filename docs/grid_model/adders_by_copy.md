@@ -48,7 +48,7 @@ Some characteristics of the new [two-winding transformer](network_subnetwork.md#
 Operational limits are also copied from the existing transformer.
 
 
-Other attributes are filled up be the user.
+Other attributes may (or should, for mandatory ones) be filled up by the user.
 
 NB: it is mandatory for the user to fill up the `id` attribute before calling the `add()` method or else the code will throw an exception.
 
