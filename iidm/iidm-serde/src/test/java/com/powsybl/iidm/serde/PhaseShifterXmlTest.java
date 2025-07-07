@@ -79,7 +79,20 @@ class PhaseShifterXmlTest extends AbstractIidmSerDeTest {
                 .setRegulationValue(Double.NaN)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulating(false);
+        assertOldIidmWithFixedTap(network);
+    }
 
+    @Test
+    void phaseTapChangerWithFixedTapAndNoRegulationTerminalTest() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        network.getTwoWindingsTransformer("TWT").getPhaseTapChanger()
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+                .setRegulationTerminal(null)
+                .setRegulating(false);
+        assertOldIidmWithFixedTap(network);
+    }
+
+    private void assertOldIidmWithFixedTap(Network network) {
         Map<String, String> expectedAttributesOld = new HashMap<>();
         expectedAttributesOld.put("regulating", "false");
         expectedAttributesOld.put("regulationMode", "FIXED_TAP");
