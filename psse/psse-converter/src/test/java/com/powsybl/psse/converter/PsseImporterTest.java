@@ -218,6 +218,11 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void importNonTranformerBranchZeroX() throws IOException {
+        importTest("NonTranformerBranchZeroX", "NonTranformerBranchZeroX.raw", false);
+    }
+
+    @Test
     void importTest14BusesDuplicateIds() throws IOException {
         Network n = importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
         assertNotNull(n.getLoad("B2-L1 "));
