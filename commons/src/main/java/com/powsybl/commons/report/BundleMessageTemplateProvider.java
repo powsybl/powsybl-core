@@ -21,7 +21,6 @@ public class BundleMessageTemplateProvider implements MessageTemplateProvider {
     private final String bundleBaseName;
     private final boolean throwIfUnknownKey;
     private final Map<Locale, ResourceBundle> resourceBundlesMap = new HashMap<>();
-    public static final ResourceBundle.Control NO_FALLBACK_CONTROL = ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_DEFAULT);
 
     public BundleMessageTemplateProvider(String bundleBaseName) {
         this(bundleBaseName, false);
