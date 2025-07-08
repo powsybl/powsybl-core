@@ -103,10 +103,15 @@ class VoltageRegulationTest {
                 .withVoltageRegulatorOn(true)
                 .withTargetV(50.0)
                 .add();
-        assertEquals(battery2.getTerminal(), voltageRegulation.getRegulatingTerminal());
+        assertRegulatingTerminal(battery2.getTerminal(), voltageRegulation);
         battery2.remove();
         // Fallback on local terminal
-        assertEquals(battery.getTerminal(), voltageRegulation.getRegulatingTerminal());
+        assertRegulatingTerminal(battery.getTerminal(), voltageRegulation);
+    }
+
+    private void assertRegulatingTerminal(Terminal expectedRegulatingTerminal, VoltageRegulation voltageRegulation) {
+        assertEquals(expectedRegulatingTerminal, voltageRegulation.getRegulatingTerminal());
+        assertEquals(1, ((TerminalExt) voltageRegulation.getRegulatingTerminal()).getReferrerManager().getReferrers().size());
     }
 
     @Test
@@ -138,15 +143,15 @@ class VoltageRegulationTest {
                 .withVoltageRegulatorOn(true)
                 .withTargetV(50.0)
                 .add();
-        assertEquals(battery2.getTerminal(), voltageRegulation.getRegulatingTerminal());
+        assertRegulatingTerminal(battery2.getTerminal(), voltageRegulation);
         voltageRegulation.setRegulatingTerminal(battery3.getTerminal());
-        assertEquals(battery3.getTerminal(), voltageRegulation.getRegulatingTerminal());
+        assertRegulatingTerminal(battery3.getTerminal(), voltageRegulation);
         // Removing battery 2 should not change the regulating terminal
         battery2.remove();
-        assertEquals(battery3.getTerminal(), voltageRegulation.getRegulatingTerminal());
+        assertRegulatingTerminal(battery3.getTerminal(), voltageRegulation);
         // Removing battery 3 should change the regulating terminal to the local one (fallback)
         battery3.remove();
-        assertEquals(battery.getTerminal(), voltageRegulation.getRegulatingTerminal());
+        assertRegulatingTerminal(battery.getTerminal(), voltageRegulation);
     }
 
     @Test
@@ -154,19 +159,19 @@ class VoltageRegulationTest {
         Network network = BatteryNetworkFactory.create();
         var battery = network.getBattery("BAT");
         var battery2 = network.getBattery("BAT2");
+        Terminal battery2Terminal0 = battery2.getTerminal();
         VoltageRegulation voltageRegulation = battery.newExtension(VoltageRegulationAdder.class)
                 .withRegulatingTerminal(battery2.getTerminal())
                 .withVoltageRegulatorOn(true)
                 .withTargetV(50.0)
                 .add();
-        assertEquals(battery2.getTerminal(), voltageRegulation.getRegulatingTerminal());
+        assertRegulatingTerminal(battery2Terminal0, voltageRegulation);
 
         // Replacement
-        Terminal battery2Terminal0 = battery2.getTerminal();
         Terminal.BusBreakerView bbView = battery2Terminal0.getBusBreakerView();
         bbView.moveConnectable("NGEN", true);
         assertNotEquals(battery2Terminal0, voltageRegulation.getRegulatingTerminal());
-        assertEquals(battery2.getTerminal(), voltageRegulation.getRegulatingTerminal());
+        assertRegulatingTerminal(battery2.getTerminal(), voltageRegulation);
 
         // Clean up
         TerminalExt regulatingTerminal = (TerminalExt) voltageRegulation.getRegulatingTerminal();

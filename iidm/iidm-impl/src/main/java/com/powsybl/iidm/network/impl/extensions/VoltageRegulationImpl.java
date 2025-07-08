@@ -40,7 +40,6 @@ public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExten
             this.voltageRegulatorOn.add(voltageRegulatorOn);
             this.targetV.add(targetV);
         }
-        ((TerminalExt) this.regulatingTerminal).getReferrerManager().register(this);
     }
 
     private static void checkRegulatingTerminal(Terminal regulatingTerminal, Network network) {
@@ -58,16 +57,20 @@ public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExten
     public void setRegulatingTerminal(Terminal regulatingTerminal) {
         checkRegulatingTerminal(regulatingTerminal, getNetworkFromExtendable());
         Terminal newRegulatingTerminal = regulatingTerminal != null ? regulatingTerminal : getExtendable().getTerminal();
-        if (this.regulatingTerminal != null && this.regulatingTerminal != newRegulatingTerminal) {
+        boolean terminalChanged = this.regulatingTerminal != newRegulatingTerminal;
+        if (this.regulatingTerminal != null && terminalChanged) {
             ((TerminalExt) this.regulatingTerminal).getReferrerManager().unregister(this);
         }
         this.regulatingTerminal = newRegulatingTerminal;
-        ((TerminalExt) this.regulatingTerminal).getReferrerManager().register(this);
+        if (terminalChanged) {
+            ((TerminalExt) this.regulatingTerminal).getReferrerManager().register(this);
+        }
     }
 
     private void initRegulatingTerminal(Terminal regulatingTerminal) {
         checkRegulatingTerminal(regulatingTerminal, getNetworkFromExtendable());
         this.regulatingTerminal = regulatingTerminal != null ? regulatingTerminal : getExtendable().getTerminal();
+        ((TerminalExt) this.regulatingTerminal).getReferrerManager().register(this);
     }
 
     @Override
