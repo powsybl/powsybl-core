@@ -350,7 +350,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     void emptySourceFormatTest() {
         Network network = Network.create("id", "");
         Path xmlFile = tmpDir.resolve("emptySourceFormat.xml");
-        testForAllVersionsSince(IidmVersion.V_1_14, iidmVersion -> {
+        testForAllVersionsSince(IidmVersion.V_1_0, iidmVersion -> {
             ExportOptions options = new ExportOptions().setVersion(iidmVersion.toString("."));
             NetworkSerDe.write(network, options, xmlFile);
             Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
