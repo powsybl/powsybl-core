@@ -33,7 +33,7 @@ public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExten
             throw new PowsyblException("Voltage regulator status is not defined");
         }
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        this.initRegulatingTerminal(regulatingTerminal);
+        setRegulatingTerminal(regulatingTerminal);
         this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
@@ -57,20 +57,13 @@ public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExten
     public void setRegulatingTerminal(Terminal regulatingTerminal) {
         checkRegulatingTerminal(regulatingTerminal, getNetworkFromExtendable());
         Terminal newRegulatingTerminal = regulatingTerminal != null ? regulatingTerminal : getExtendable().getTerminal();
-        boolean terminalChanged = this.regulatingTerminal != newRegulatingTerminal;
-        if (this.regulatingTerminal != null && terminalChanged) {
-            ((TerminalExt) this.regulatingTerminal).getReferrerManager().unregister(this);
-        }
-        this.regulatingTerminal = newRegulatingTerminal;
-        if (terminalChanged) {
+        if (newRegulatingTerminal != this.regulatingTerminal) {
+            if (this.regulatingTerminal != null) {
+                ((TerminalExt) this.regulatingTerminal).getReferrerManager().unregister(this);
+            }
+            this.regulatingTerminal = newRegulatingTerminal;
             ((TerminalExt) this.regulatingTerminal).getReferrerManager().register(this);
         }
-    }
-
-    private void initRegulatingTerminal(Terminal regulatingTerminal) {
-        checkRegulatingTerminal(regulatingTerminal, getNetworkFromExtendable());
-        this.regulatingTerminal = regulatingTerminal != null ? regulatingTerminal : getExtendable().getTerminal();
-        ((TerminalExt) this.regulatingTerminal).getReferrerManager().register(this);
     }
 
     @Override
@@ -129,14 +122,14 @@ public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExten
     @Override
     public void onReferencedRemoval(Terminal removedTerminal) {
         if (regulatingTerminal == removedTerminal) {
-            initRegulatingTerminal(null);
+            setRegulatingTerminal(null);
         }
     }
 
     @Override
     public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
         if (regulatingTerminal == oldReferenced) {
-            initRegulatingTerminal(newReferenced);
+            setRegulatingTerminal(newReferenced);
         }
     }
 
