@@ -15,8 +15,8 @@ import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
@@ -344,5 +344,17 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
             load.addExtension(TerminalMockExt.class, terminalMockExt);
         }
         return network;
+    }
+
+    @Test
+    void emptySourceFormatTest() {
+        Network network = Network.create("id", "");
+        Path xmlFile = tmpDir.resolve("emptySourceFormat.xml");
+        testForAllVersionsSince(IidmVersion.V_1_14, iidmVersion -> {
+            ExportOptions options = new ExportOptions().setVersion(iidmVersion.toString("."));
+            NetworkSerDe.write(network, options, xmlFile);
+            Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
+            assertEquals("", readNetwork.getSourceFormat());
+        });
     }
 }
