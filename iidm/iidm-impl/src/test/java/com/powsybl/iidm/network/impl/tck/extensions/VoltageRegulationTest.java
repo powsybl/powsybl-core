@@ -9,12 +9,10 @@
 package com.powsybl.iidm.network.impl.tck.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
+import com.powsybl.iidm.network.impl.TerminalExt;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -149,5 +147,30 @@ class VoltageRegulationTest {
         // Removing battery 3 should change the regulating terminal to the local one (fallback)
         battery3.remove();
         assertEquals(battery.getTerminal(), voltageRegulation.getRegulatingTerminal());
+    }
+
+    @Test
+    void replacementAndCleanUpTest() {
+        Network network = BatteryNetworkFactory.create();
+        var battery = network.getBattery("BAT");
+        var battery2 = network.getBattery("BAT2");
+        VoltageRegulation voltageRegulation = battery.newExtension(VoltageRegulationAdder.class)
+                .withRegulatingTerminal(battery2.getTerminal())
+                .withVoltageRegulatorOn(true)
+                .withTargetV(50.0)
+                .add();
+        assertEquals(battery2.getTerminal(), voltageRegulation.getRegulatingTerminal());
+
+        // Replacement
+        Terminal battery2Terminal0 = battery2.getTerminal();
+        Terminal.BusBreakerView bbView = battery2Terminal0.getBusBreakerView();
+        bbView.moveConnectable("NGEN", true);
+        assertNotEquals(battery2Terminal0, voltageRegulation.getRegulatingTerminal());
+        assertEquals(battery2.getTerminal(), voltageRegulation.getRegulatingTerminal());
+
+        // Clean up
+        TerminalExt regulatingTerminal = (TerminalExt) voltageRegulation.getRegulatingTerminal();
+        battery.removeExtension(VoltageRegulation.class);
+        assertTrue(regulatingTerminal.getReferrerManager().getReferrers().isEmpty());
     }
 }
