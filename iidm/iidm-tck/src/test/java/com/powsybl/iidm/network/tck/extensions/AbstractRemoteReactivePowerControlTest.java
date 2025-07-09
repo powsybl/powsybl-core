@@ -233,4 +233,28 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         // extension should be removed
         assertNull(g.getExtension(RemoteReactivePowerControl.class));
     }
+
+    @Test
+    void replacementTest() {
+        Network network = createNetwork();
+        Generator g = network.getGenerator("g4");
+        Line l = network.getLine("l34");
+        Terminal lTerminal = l.getTerminal(TwoSides.ONE);
+        RemoteReactivePowerControl remoteReactivePowerControl = g.newExtension(RemoteReactivePowerControlAdder.class)
+                .withTargetQ(200.0)
+                .withRegulatingTerminal(lTerminal)
+                .withEnabled(true)
+                .add();
+
+        assertEquals(lTerminal, remoteReactivePowerControl.getRegulatingTerminal());
+
+        // Replacement
+        Terminal.BusBreakerView bbView = lTerminal.getBusBreakerView();
+        bbView.moveConnectable("b4", true);
+        assertNotEquals(lTerminal, remoteReactivePowerControl.getRegulatingTerminal());
+
+        // Extension should be removed
+        l.remove();
+        assertNull(g.getExtension(RemoteReactivePowerControl.class));
+    }
 }
