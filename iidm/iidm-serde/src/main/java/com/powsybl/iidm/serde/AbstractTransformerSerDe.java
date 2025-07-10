@@ -197,7 +197,14 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () ->
             context.getWriter().writeBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES, ptc.hasLoadTapChangingCapabilities())
         );
-        context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, regMode);
+        if (context.getVersion().compareTo(IidmVersion.V_1_5) <= 0
+                && (Double.isNaN(ptc.getRegulationValue()) || ptc.getRegulationTerminal() == null)) {
+            // Backward compatibility for <= IIDM 1.5 where import was failing when regulation mode != FIXED_TAP
+            // and either regulating value is NaN or regulation terminal is null.
+            context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, PhaseTapChangerRegulationModeSerDe.FIXED_TAP);
+        } else {
+            context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, regMode);
+        }
         context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, ptc.getRegulationValue());
         TerminalRefSerDe.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
 
