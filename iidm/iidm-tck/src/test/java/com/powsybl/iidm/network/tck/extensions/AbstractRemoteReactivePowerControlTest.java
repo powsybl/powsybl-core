@@ -212,4 +212,49 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         // extension has been removed because regulating terminal is invalid
         assertNull(g.getExtension(RemoteReactivePowerControl.class));
     }
+
+    @Test
+    public void terminalReplacementTest() {
+        Network network = createNetwork();
+        Generator g = network.getGenerator("g4");
+        Line l = network.getLine("l34");
+        Line l2 = network.getLine("l12");
+        RemoteReactivePowerControl remoteReactivePowerControl = g.newExtension(RemoteReactivePowerControlAdder.class)
+                .withTargetQ(200.0)
+                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
+                .withEnabled(true)
+                .add();
+        assertNotNull(g.getExtension(RemoteReactivePowerControl.class));
+        remoteReactivePowerControl.setRegulatingTerminal(l2.getTerminal(TwoSides.ONE));
+        l.remove();
+        // extension should not be removed
+        assertNotNull(g.getExtension(RemoteReactivePowerControl.class));
+        l2.remove();
+        // extension should be removed
+        assertNull(g.getExtension(RemoteReactivePowerControl.class));
+    }
+
+    @Test
+    void replacementTest() {
+        Network network = createNetwork();
+        Generator g = network.getGenerator("g4");
+        Line l = network.getLine("l34");
+        Terminal lTerminal = l.getTerminal(TwoSides.ONE);
+        RemoteReactivePowerControl remoteReactivePowerControl = g.newExtension(RemoteReactivePowerControlAdder.class)
+                .withTargetQ(200.0)
+                .withRegulatingTerminal(lTerminal)
+                .withEnabled(true)
+                .add();
+
+        assertEquals(lTerminal, remoteReactivePowerControl.getRegulatingTerminal());
+
+        // Replacement
+        Terminal.BusBreakerView bbView = lTerminal.getBusBreakerView();
+        bbView.moveConnectable("b4", true);
+        assertNotEquals(lTerminal, remoteReactivePowerControl.getRegulatingTerminal());
+
+        // Extension should be removed
+        l.remove();
+        assertNull(g.getExtension(RemoteReactivePowerControl.class));
+    }
 }
