@@ -213,6 +213,16 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void importTwoTerminalDcAndVscWithZeroResistance() throws IOException {
+        importTest("two_terminal_dc_vsc_with_zero_resistance", "two_terminal_dc_vsc_with_zero_resistance.raw", false);
+    }
+
+    @Test
+    void importNonTranformerBranchZeroX() throws IOException {
+        importTest("NonTranformerBranchZeroX", "NonTranformerBranchZeroX.raw", false);
+    }
+
+    @Test
     void importTest14BusesDuplicateIds() throws IOException {
         Network n = importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
         assertNotNull(n.getLoad("B2-L1 "));
