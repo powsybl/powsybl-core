@@ -130,7 +130,7 @@ public final class CgmesReports {
     /**
      * @deprecated Not used anymore. Use {@link #invalidAngleVoltageReport(ReportNode, Bus, String, double , double)}
      */
-    @Deprecated(since = "6.8.0")
+    @Deprecated(since = "6.9.0")
     public static void invalidAngleVoltageBusReport(ReportNode reportNode, Bus bus, String nodeId, double v, double angle) {
         throw new ConversionException("Deprecated. Not used anymore");
     }
@@ -138,7 +138,7 @@ public final class CgmesReports {
     /**
      * @deprecated Not used anymore. Use {@link #invalidAngleVoltageReport(ReportNode, Bus, String, double , double)}
      */
-    @Deprecated(since = "6.8.0")
+    @Deprecated(since = "6.9.0")
     public static void invalidAngleVoltageNodeReport(ReportNode reportNode, String nodeId, double v, double angle) {
         throw new ConversionException("Deprecated. Not used anymore");
     }
