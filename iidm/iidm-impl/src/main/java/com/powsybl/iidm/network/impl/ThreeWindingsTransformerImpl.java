@@ -7,8 +7,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.*;
@@ -207,18 +208,35 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public CurrentLimitsAdder newCurrentLimits() {
-            return operationalLimitsHolder.newCurrentLimits();
+        public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
+            return operationalLimitsHolder.getOrCreateSelectedOperationalLimitsGroup();
         }
 
+        /**
+         * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+         */
+        @Deprecated(since = "6.8.0")
+        @Override
+        public CurrentLimitsAdder newCurrentLimits() {
+            return operationalLimitsHolder.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
+        }
+
+        /**
+         * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+         */
+        @Deprecated(since = "6.8.0")
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
-            return operationalLimitsHolder.newActivePowerLimits();
+            return operationalLimitsHolder.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
         }
 
+        /**
+         * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+         */
+        @Deprecated(since = "6.8.0")
         @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
-            return operationalLimitsHolder.newApparentPowerLimits();
+            return operationalLimitsHolder.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
         }
 
         protected String getTypeDescription() {
@@ -235,8 +253,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public String getMessageHeader() {
-            return getTypeDescription() + " '" + transformer.getId() + "': ";
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader(getTypeDescription(), transformer.getId());
         }
 
         public String getTapChangerAttribute() {
@@ -380,6 +398,37 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             case TWO -> getLeg2().getTerminal();
             case THREE -> getLeg3().getTerminal();
         };
+    }
+
+    @Override
+    public Terminal getTerminal(String voltageLevelId) {
+        Objects.requireNonNull(voltageLevelId);
+        boolean isLeg1ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg1(), voltageLevelId);
+        boolean isLeg2ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg2(), voltageLevelId);
+        boolean isLeg3ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg3(), voltageLevelId);
+        if (isLeg1ConnectedToVoltageLevel
+                && isLeg2ConnectedToVoltageLevel
+                && isLeg3ConnectedToVoltageLevel) {
+            throw new PowsyblException("The three terminals are connected to the same voltage level " + voltageLevelId);
+        } else if (isLeg1ConnectedToVoltageLevel && isLeg2ConnectedToVoltageLevel
+                || isLeg3ConnectedToVoltageLevel && isLeg1ConnectedToVoltageLevel
+                || isLeg2ConnectedToVoltageLevel && isLeg3ConnectedToVoltageLevel) {
+            throw new PowsyblException("Two of the three terminals are connected to the same voltage level " + voltageLevelId);
+        } else if (isLeg1ConnectedToVoltageLevel) {
+            return getLeg1().getTerminal();
+        } else if (isLeg2ConnectedToVoltageLevel) {
+            return getLeg2().getTerminal();
+        } else if (isLeg3ConnectedToVoltageLevel) {
+            return getLeg3().getTerminal();
+        } else {
+            throw new PowsyblException("No terminal connected to voltage level " + voltageLevelId);
+        }
+    }
+
+    private boolean isLegConnectedToVoltageLevel(ThreeWindingsTransformer.Leg leg, String voltageLevelId) {
+        return Optional.ofNullable(leg.getTerminal().getVoltageLevel())
+            .map(vl -> voltageLevelId.equals(vl.getId()))
+            .orElse(Boolean.FALSE);
     }
 
     @Override

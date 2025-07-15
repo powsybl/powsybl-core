@@ -13,6 +13,14 @@ package com.powsybl.iidm.network;
  */
 public interface Validable {
 
-    String getMessageHeader();
+    interface MessageHeader {
+        String id();
+
+        String type();
+
+        String toString();
+    }
+
+    MessageHeader getMessageHeader();
 
 }

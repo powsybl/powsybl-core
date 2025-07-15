@@ -97,6 +97,24 @@ public interface Measurement {
     Measurement setValid(boolean valid);
 
     /**
+     * Set measurement value and validity status at once.
+     * This default implementation is based on the two single mutators,
+     * called in an order preventing spurious exception throwing.
+     * A real implementation will call the check routine just once,
+     * before the two effective mutations.
+     */
+    default Measurement setValueAndValidity(double v, boolean valid) {
+        if (valid) {
+            setValue(v);
+            setValid(true);
+        } else {
+            setValid(false);
+            setValue(v);
+        }
+        return this;
+    }
+
+    /**
      * Get which side the measurement is applied on (see {@link ThreeSides}).
      */
     ThreeSides getSide();

@@ -1,0 +1,31 @@
+#
+# Copyright (c) 2025, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+@prefix : <http://example/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+:alice a                foaf:Person .
+:alice foaf:name        "Alice" .
+:alice foaf:pastProject :railway_simulator .
+:alice foaf:pastProject :personal_finances .
+
+:bob a                  foaf:Person .
+:bob foaf:name          "Bob" .
+:bob foaf:pastProject   :scada_system .
+:bob foaf:pastProject   :plant_control .
+
+:railway_simulator a          foaf:Project .
+:railway_simulator foaf:name  "Railway simulator" .
+
+:personal_finances a          foaf:Project .
+:personal_finances foaf:name  "Personal finances" .
+
+:scada_system a               foaf:Project .
+:scada_system foaf:name       "SCADA system" .
+
+:plant_control     a          foaf:Project .
+:plant_control     foaf:name  "Industrial plant control" .

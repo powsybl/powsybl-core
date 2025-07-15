@@ -19,7 +19,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public enum EntsoeGeographicalCode {
-    // see. http://cimug.ucaiug.org/Groups/Model%20Exchange/UCTE-format.pdf
+    // see. https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf
     AL(Country.AL),
     AT(Country.AT),
     BA(Country.BA),
