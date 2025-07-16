@@ -281,6 +281,7 @@ public class PsseImporter implements Importer {
                 Edge::zeroImpedance,
                 Edge::transformer,
                 busNumber -> getNominalVFromBusNumber(busNumToPsseBus, busNumber, perUnitContext),
+                busNumber -> getControlAreaFromBusNumber(busNumToPsseBus, busNumber),
                 AbstractConverter::getVoltageLevelId,
                 substationNums -> getSubstationId(nodeBreakerValidation, substationNums));
     }
@@ -322,6 +323,13 @@ public class PsseImporter implements Importer {
             throw new PsseException("busId without PsseBus" + busNumber);
         }
         return VoltageLevelConverter.getNominalV(busNumToPsseBus.get(busNumber), perUnitContext.ignoreBaseVoltage());
+    }
+
+    private int getControlAreaFromBusNumber(Map<Integer, PsseBus> busNumToPsseBus, int busNumber) {
+        if (!busNumToPsseBus.containsKey(busNumber)) { // never should happen
+            throw new PsseException("busId without PsseBus" + busNumber);
+        }
+        return busNumToPsseBus.get(busNumber).getArea();
     }
 
     private static NodeBreakerImport createBuses(PssePowerFlowModel psseModel, ContainersMapping containersMapping,

@@ -551,6 +551,7 @@ public class IeeeCdfImporter implements Importer {
             branch -> branch.getResistance() == 0.0 && branch.getReactance() == 0.0,
             IeeeCdfImporter::isTransformer,
             busNumber -> getNominalVFromBusNumber(busNumToIeeeCdfBus, busNumber, perUnitContext),
+            busNumber -> 0,
             busNums -> "VL" + busNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty busNums")),
             substationNums -> "S" + substationNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty substationNums")));
 
