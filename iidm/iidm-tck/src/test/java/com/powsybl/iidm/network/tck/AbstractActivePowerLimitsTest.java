@@ -23,7 +23,7 @@ public abstract class AbstractActivePowerLimitsTest extends AbstractIdenticalLim
     private static Network createNetwork() {
         Network network = EurostagTutorialExample1Factory.create();
         Line line = network.getLine("NHV1_NHV2_1");
-        line.newActivePowerLimits1()
+        line.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits()
                 .setPermanentLimit(350)
                 .beginTemporaryLimit()
                     .setValue(370)
@@ -36,7 +36,7 @@ public abstract class AbstractActivePowerLimitsTest extends AbstractIdenticalLim
                     .setName("10'")
                 .endTemporaryLimit()
                 .add();
-        line.newActivePowerLimits2()
+        line.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits()
                 .setPermanentLimit(400)
                 .add();
         return network;
@@ -84,7 +84,7 @@ public abstract class AbstractActivePowerLimitsTest extends AbstractIdenticalLim
         Network network = createNetwork();
         Line line = network.getLine("NHV1_NHV2_2");
 
-        ActivePowerLimitsAdder adder = line.newActivePowerLimits1()
+        ActivePowerLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                 .setName("TL1")
@@ -105,7 +105,7 @@ public abstract class AbstractActivePowerLimitsTest extends AbstractIdenticalLim
         ActivePowerLimits limits1 = line.getActivePowerLimits1().get();
 
         // Second limit
-        ActivePowerLimitsAdder adder2 = line.newActivePowerLimits2(limits1);
+        ActivePowerLimitsAdder adder2 = line.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits(limits1);
 
         adder2.add();
 
@@ -116,7 +116,7 @@ public abstract class AbstractActivePowerLimitsTest extends AbstractIdenticalLim
         // Tests
         assertTrue(areLimitsIdentical(limits1, limits2));
 
-        adder = line.newActivePowerLimits1(limits2);
+        adder = line.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits(limits2);
         adder.add();
 
         assertTrue(areLimitsIdentical(limits1, limits2));
