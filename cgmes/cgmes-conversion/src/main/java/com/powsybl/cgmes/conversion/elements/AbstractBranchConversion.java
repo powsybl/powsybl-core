@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -45,7 +46,7 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
         return true;
     }
 
-    protected void convertBranch(double r, double x, double gch, double bch) {
+    protected void convertBranch(double r, double x, double gch, double bch, String originalClass) {
         if (isZeroImpedanceInsideVoltageLevel(r, x)) {
             // Convert to switch
             Switch sw;
@@ -78,10 +79,11 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
                     .setB1(bch / 2)
                     .setB2(bch / 2);
             identify(adder);
-            connect(adder);
+            connectWithOnlyEq(adder);
             final Line l = adder.add();
             addAliasesAndProperties(l);
-            convertedTerminals(l.getTerminal1(), l.getTerminal2());
+            convertedTerminalsWithOnlyEq(l.getTerminal1(), l.getTerminal2());
+            l.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
         }
     }
 
@@ -99,5 +101,11 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
             }
             return r == 0.0 && x == 0.0;
         }
+    }
+
+    protected static void updateBranch(Line line, Context context) {
+        updateTerminals(line, context, line.getTerminal1(), line.getTerminal2());
+        line.getOperationalLimitsGroups1().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(line, operationalLimitsGroup, TwoSides.ONE, context));
+        line.getOperationalLimitsGroups2().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(line, operationalLimitsGroup, TwoSides.TWO, context));
     }
 }
