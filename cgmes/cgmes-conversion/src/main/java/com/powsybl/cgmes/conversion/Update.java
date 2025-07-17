@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
+import com.powsybl.cgmes.conversion.elements.dc.DCSwitchConversion;
 import com.powsybl.cgmes.conversion.elements.dc.HvdcLineConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
@@ -236,6 +237,12 @@ public final class Update {
         Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
         addPropertyBags(cgmes.controlAreas(), CgmesNames.CONTROL_AREA, equipmentIdPropertyBag);
         network.getAreas().forEach(area -> ControlAreaConversion.update(area, getPropertyBag(area.getId(), equipmentIdPropertyBag), context));
+        context.popReportNode();
+    }
+
+    static void updateDcSwitches(Network network, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.DC_SWITCH.name()));
+        network.getDcSwitches().forEach(dcSwitch -> DCSwitchConversion.update(dcSwitch, context));
         context.popReportNode();
     }
 
