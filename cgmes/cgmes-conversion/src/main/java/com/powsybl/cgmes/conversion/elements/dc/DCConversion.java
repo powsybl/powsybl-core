@@ -17,6 +17,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.model.CgmesNames.*;
 
@@ -32,6 +33,7 @@ public class DCConversion {
     private PropertyBags cgmesDcLineSegments;
     private PropertyBags cgmesDcSwitches;
     private PropertyBags cgmesDcGrounds;
+    private PropertyBags cgmesDcNodes;
 
     private final Map<String, String> dcTerminalNodes = new HashMap<>();
     private final Set<DCEquipment> dcEquipments = new HashSet<>();
@@ -52,6 +54,7 @@ public class DCConversion {
         cgmesDcLineSegments = cgmesModel.dcLineSegments();
         cgmesDcSwitches = cgmesModel.dcSwitches();
         cgmesDcGrounds = cgmesModel.dcGrounds();
+        cgmesDcNodes = cgmesModel.dcNodes();
     }
 
     private void convert() {
@@ -64,7 +67,7 @@ public class DCConversion {
 
             convertDcLinks();
         } else {
-            //TODO
+            convertDcNodes();
         }
     }
 
@@ -308,6 +311,25 @@ public class DCConversion {
                     new HvdcConverterConversion(dcLink.getConverter1(), context).convert();
                     new HvdcConverterConversion(dcLink.getConverter2(), context).convert();
                     new HvdcLineConversion(dcLink, context).convert();
+                });
+    }
+
+    private void convertDcNodes() {
+        // From CGM BUILDING PROCESS IMPLEMENTATION GUIDE_v2.0:
+        // In CGMES v2.4 the attribute ACDCConverter.ratedUdc is assumed to be the same for all
+        // DC equipment in the cim:DCConverterUnit which means that it is sufficient to locate the
+        // cim:CsConverter or cim:VsConverter in the cim:DCConverterUnit to obtain the
+        // information on rated DC voltage.
+        Map<String, Double> unitRatedUdc = cgmesAcDcConverters.stream()
+                .collect(Collectors.toMap(p -> p.getId("DCConverterUnit"), p -> p.asDouble(RATED_UDC), Math::max));
+
+        String nodeClass = context.nodeBreaker() ? DC_NODE : DC_TOPOLOGICAL_NODE;
+        cgmesDcNodes.stream()
+                .filter(p -> p.containsKey(nodeClass))
+                .forEach(p -> {
+                    double nominalV = unitRatedUdc.getOrDefault(p.getId("DCConverterUnit"), 1.0);
+                    DCNodeConversion c = new DCNodeConversion(p, nodeClass, nominalV, context);
+                    c.convert();
                 });
     }
 
