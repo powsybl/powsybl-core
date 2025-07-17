@@ -48,7 +48,7 @@ public record DCIsland(Set<DCIslandEnd> dcIslandEnds) {
 
     private boolean validAcDcConverters(Context context) {
         DCConfiguration dcConfiguration = getDcConfiguration();
-        if (dcConfiguration == POINT_TO_POINT) {
+        if (!context.config().getUseDetailedDcModel() && dcConfiguration == POINT_TO_POINT) {
             List<DCIslandEnd> ends = dcIslandEnds.stream().toList();
             long numberOfCsConverters1 = ends.get(0).dcEquipments().stream().filter(DCEquipment::isCsConverter).count();
             long numberOfCsConverters2 = ends.get(1).dcEquipments().stream().filter(DCEquipment::isCsConverter).count();
@@ -64,19 +64,21 @@ public record DCIsland(Set<DCIslandEnd> dcIslandEnds) {
 
     private boolean validConfiguration(Context context) {
         DCConfiguration dcConfiguration = getDcConfiguration();
-        if (dcConfiguration != POINT_TO_POINT) {
-            CgmesReports.unsupportedDcConfigurationReport(context.getReportNode(), getConverterIds(), dcConfiguration.name());
-            return false;
-        } else {
-            List<DCIslandEnd> ends = dcIslandEnds.stream().toList();
-            int numberOfLines = ends.get(0).getDcLineSegments().size();
-            int numberOfConverterPairs = ends.get(0).getAcDcConverters().size();
-            if (numberOfLines > numberOfConverterPairs + 1 || numberOfConverterPairs > 2 * numberOfLines) {
-                // There is more line that the number of converters + a metallic return line
-                // or there is more converter pairs than 2 bridges per dc line.
-                CgmesReports.unexpectedPointToPointDcConfigurationReport(
-                        context.getReportNode(), getConverterIds(), numberOfLines, numberOfConverterPairs);
+        if (!context.config().getUseDetailedDcModel()) {
+            if (dcConfiguration != POINT_TO_POINT) {
+                CgmesReports.unsupportedDcConfigurationReport(context.getReportNode(), getConverterIds(), dcConfiguration.name());
                 return false;
+            } else {
+                List<DCIslandEnd> ends = dcIslandEnds.stream().toList();
+                int numberOfLines = ends.get(0).getDcLineSegments().size();
+                int numberOfConverterPairs = ends.get(0).getAcDcConverters().size();
+                if (numberOfLines > numberOfConverterPairs + 1 || numberOfConverterPairs > 2 * numberOfLines) {
+                    // There is more line that the number of converters + a metallic return line
+                    // or there is more converter pairs than 2 bridges per dc line.
+                    CgmesReports.unexpectedPointToPointDcConfigurationReport(
+                            context.getReportNode(), getConverterIds(), numberOfLines, numberOfConverterPairs);
+                    return false;
+                }
             }
         }
         return true;
