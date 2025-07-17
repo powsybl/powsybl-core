@@ -17,6 +17,8 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.model.CgmesNames.*;
 
@@ -32,6 +34,7 @@ public class DCConversion {
     private PropertyBags cgmesDcLineSegments;
     private PropertyBags cgmesDcSwitches;
     private PropertyBags cgmesDcGrounds;
+    private PropertyBags cgmesDcNodes;
 
     private final Map<String, String> dcTerminalNodes = new HashMap<>();
     private final Set<DCEquipment> dcEquipments = new HashSet<>();
@@ -51,6 +54,7 @@ public class DCConversion {
         cgmesDcLineSegments = cgmesModel.dcLineSegments();
         cgmesDcSwitches = cgmesModel.dcSwitches();
         cgmesDcGrounds = cgmesModel.dcGrounds();
+        cgmesDcNodes = cgmesModel.dcNodes();
     }
 
     private void computeDcData() {
@@ -152,7 +156,7 @@ public class DCConversion {
                 if (!context.config().getUseDetailedDcModel()) {
                     convertDcLinks(dcIsland);
                 } else {
-                    //TODO
+                    convertDcNodes(dcIsland);
                 }
             }
         }
@@ -294,17 +298,43 @@ public class DCConversion {
         return otherDcLineSegment;
     }
 
+    private void convertDcNodes(DCIsland dcIsland) {
+        // From CGM BUILDING PROCESS IMPLEMENTATION GUIDE_v2.0:
+        // In CGMES v2.4 the attribute ACDCConverter.ratedUdc is assumed to be the same for all
+        // DC equipment in the cim:DCConverterUnit which means that it is sufficient to locate the
+        // cim:CsConverter or cim:VsConverter in the cim:DCConverterUnit to obtain the
+        // information on rated DC voltage.
+        Map<String, Double> unitRatedUdc = dcIsland.dcIslandEnds().stream()
+                .flatMap(e -> e.dcEquipments().stream())
+                .filter(DCEquipment::isConverter)
+                .map(this::getConverterBag)
+                .collect(Collectors.toMap(p -> p.getLocal("DCConverterUnit"), p -> p.asDouble(RATED_UDC), Math::max));
+
+        dcIsland.dcIslandEnds().stream()
+                .flatMap(e -> e.dcEquipments().stream())
+                .flatMap(e -> Stream.of(e.node1(), e.node2()))
+                .filter(Objects::nonNull)
+                .distinct()
+                .map(this::getDcNodeBag)
+                .forEach(p -> new DCNodeConversion(p, unitRatedUdc.getOrDefault(p.getLocal("DCConverterUnit"), 1.0), context).convert());
+    }
+
     private PropertyBag getConverterBag(DCEquipment acDcConverter) {
-        return getPropertyBag(acDcConverter, cgmesAcDcConverters, ACDC_CONVERTER);
+        return getPropertyBag(acDcConverter.id(), cgmesAcDcConverters, ACDC_CONVERTER);
     }
 
     private PropertyBag getDcLineSegmentBag(DCEquipment dcLineSegment) {
-        return getPropertyBag(dcLineSegment, cgmesDcLineSegments, DC_LINE_SEGMENT);
+        return getPropertyBag(dcLineSegment.id(), cgmesDcLineSegments, DC_LINE_SEGMENT);
     }
 
-    private PropertyBag getPropertyBag(DCEquipment dcEquipment, PropertyBags cachedPropertyBags, String propertyKey) {
+    private PropertyBag getDcNodeBag(String dcNode) {
+        String node = context.nodeBreaker() ? DC_NODE : DC_TOPOLOGICAL_NODE;
+        return getPropertyBag(dcNode, cgmesDcNodes, node);
+    }
+
+    private PropertyBag getPropertyBag(String dcEquipmentId, PropertyBags cachedPropertyBags, String propertyKey) {
         return cachedPropertyBags.stream()
-                .filter(b -> b.getId(propertyKey).equals(dcEquipment.id()))
+                .filter(b -> b.getId(propertyKey).equals(dcEquipmentId))
                 .findFirst()
                 .orElseThrow();
     }

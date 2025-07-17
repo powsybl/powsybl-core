@@ -1075,7 +1075,12 @@ WHERE {
     ?ACDCConverter
         a ?type ;
         cim:IdentifiedObject.name ?name ;
-        cim:ACDCConverter.ratedUdc ?ratedUdc .
+        cim:ACDCConverter.ratedUdc ?ratedUdc ;
+        cim:Equipment.EquipmentContainer ?DCConverterUnit .
+    ?DCConverterUnit
+        a cim:DCConverterUnit ;
+        cim:IdentifiedObject.name ?unitName ;
+        cim:DCConverterUnit.operationMode ?operationMode .
     ?Terminal cim:Terminal.ConductingEquipment ?ACDCConverter .
     ?DCTerminal1
         a cim:ACDCConverterDCTerminal ;
@@ -1176,6 +1181,24 @@ WHERE {
     OPTIONAL { ?DCTerminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
     FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
         || !bound(?seq1) && !bound(?seq2) && str(?DCTerminal1) < str(?DCTerminal2) )
+}}
+}
+
+# query: dcNodes
+SELECT *
+WHERE {
+{ GRAPH ?graphEq {
+    ?DCNode
+        a cim:DCNode ;
+        cim:IdentifiedObject.name ?name ;
+        cim:DCNode.DCEquipmentContainer ?DCConverterUnit
+}}
+UNION
+{ GRAPH ?graphTp {
+    ?DCTopologicalNode
+        a cim:DCTopologicalNode ;
+        cim:IdentifiedObject.name ?name ;
+        cim:DCTopologicalNode.DCEquipmentContainer ?DCConverterUnit
 }}
 }
 
