@@ -140,6 +140,7 @@ public class DCConversion {
                     convertDcLinks(dcIsland);
                 } else {
                     convertDcNodes(dcIsland);
+                    convertDcSwitches(dcIsland);
                 }
             }
         }
@@ -302,8 +303,20 @@ public class DCConversion {
                 .forEach(p -> new DCNodeConversion(p, unitRatedUdc.getOrDefault(p.getLocal("DCConverterUnit"), 1.0), context).convert());
     }
 
+    private void convertDcSwitches(DCIsland dcIsland) {
+        dcIsland.dcIslandEnds().stream()
+                .flatMap(e -> e.dcEquipments().stream())
+                .filter(DCEquipment::isSwitch)
+                .map(this::getDcSwitchBag)
+                .forEach(p -> new DCSwitchConversion(p, context).convert());
+    }
+
     private PropertyBag getConverterBag(DCEquipment acDcConverter) {
         return getPropertyBag(acDcConverter.id(), cgmesAcDcConverters, ACDC_CONVERTER);
+    }
+
+    private PropertyBag getDcSwitchBag(DCEquipment dcSwitch) {
+        return getPropertyBag(dcSwitch.id(), cgmesDcSwitches, DC_SWITCH);
     }
 
     private PropertyBag getDcLineSegmentBag(DCEquipment dcLineSegment) {

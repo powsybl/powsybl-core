@@ -45,4 +45,8 @@ public record DCEquipment(String id, String type, String node1, String node2) {
         return DC_GROUND.equals(type);
     }
 
+    public boolean isSwitch() {
+        return DC_SWITCH.equals(type);
+    }
+
 }
