@@ -993,6 +993,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean getUseDetailedDcModel() {
+            return useDetailedDcModel;
+        }
+
+        public Config setUseDetailedDcModel(boolean useDetailedDcModel) {
+            this.useDetailedDcModel = useDetailedDcModel;
+            return this;
+        }
+
         private boolean convertBoundary = false;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
@@ -1021,6 +1030,7 @@ public class Conversion {
 
         private double missingPermanentLimitPercentage = 100;
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
+        private boolean useDetailedDcModel = false;
     }
 
     private final CgmesModel cgmes;
