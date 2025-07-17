@@ -25,7 +25,6 @@
 
     <modules>
         <module>security-analysis-api</module>
-        <module>security-analysis-default</module>
     </modules>
 
 </project>
