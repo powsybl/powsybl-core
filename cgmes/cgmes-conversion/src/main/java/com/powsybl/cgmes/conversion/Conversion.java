@@ -1040,6 +1040,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean getUseDetailedDcModel() {
+            return useDetailedDcModel;
+        }
+
+        public Config setUseDetailedDcModel(boolean useDetailedDcModel) {
+            this.useDetailedDcModel = useDetailedDcModel;
+            return this;
+        }
+
         private boolean convertBoundary = false;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
@@ -1070,6 +1079,7 @@ public class Conversion {
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
         private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
         private boolean usePreviousValuesDuringUpdate = false;
+        private boolean useDetailedDcModel = false;
     }
 
     private final CgmesModel cgmes;

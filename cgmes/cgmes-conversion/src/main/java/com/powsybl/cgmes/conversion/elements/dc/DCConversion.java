@@ -149,7 +149,11 @@ public class DCConversion {
     private void convert() {
         for (DCIsland dcIsland : dcIslands) {
             if (dcIsland.valid(context)) {
-                convertDcLinks(dcIsland);
+                if (!context.config().getUseDetailedDcModel()) {
+                    convertDcLinks(dcIsland);
+                } else {
+                    //TODO
+                }
             }
         }
     }
