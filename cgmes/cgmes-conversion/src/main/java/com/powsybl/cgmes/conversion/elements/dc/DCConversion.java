@@ -62,6 +62,7 @@ public class DCConversion {
             convertDcLinks();
         } else {
             convertDcNodes();
+            convertDcSwitches();
         }
     }
 
@@ -314,6 +315,15 @@ public class DCConversion {
                     DCNodeConversion c = new DCNodeConversion(p, nodeClass, nominalV, context);
                     c.convert();
                 });
+    }
+
+    private void convertDcSwitches() {
+        cgmesDcSwitches.forEach(p -> {
+            DCSwitchConversion c = new DCSwitchConversion(p, context);
+            if (c.valid()) {
+                c.convert();
+            }
+        });
     }
 
 }
