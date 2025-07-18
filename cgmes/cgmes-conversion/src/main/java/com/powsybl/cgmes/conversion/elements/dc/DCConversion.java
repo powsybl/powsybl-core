@@ -29,32 +29,27 @@ public class DCConversion {
 
     private final Context context;
 
-    private PropertyBags cgmesDcTerminalNodes;
     private PropertyBags cgmesAcDcConverters;
     private PropertyBags cgmesDcLineSegments;
     private PropertyBags cgmesDcSwitches;
     private PropertyBags cgmesDcGrounds;
-    private PropertyBags cgmesDcNodes;
 
-    private final Map<String, String> dcTerminalNodes = new HashMap<>();
     private final Set<DCEquipment> dcEquipments = new HashSet<>();
     private final Set<DCIslandEnd> dcIslandEnds = new HashSet<>();
     private final Set<DCIsland> dcIslands = new HashSet<>();
 
-    public DCConversion(CgmesModel cgmesModel, Context context) {
+    public DCConversion(Context context) {
         this.context = Objects.requireNonNull(context);
-        cacheCgmesData(cgmesModel);
+        cacheCgmesData(context.cgmes());
         computeDcData();
         convert();
     }
 
     private void cacheCgmesData(CgmesModel cgmesModel) {
-        cgmesDcTerminalNodes = cgmesModel.dcTerminals();
         cgmesAcDcConverters = cgmesModel.acDcConverters();
         cgmesDcLineSegments = cgmesModel.dcLineSegments();
         cgmesDcSwitches = cgmesModel.dcSwitches();
         cgmesDcGrounds = cgmesModel.dcGrounds();
-        cgmesDcNodes = cgmesModel.dcNodes();
     }
 
     private void computeDcData() {
@@ -64,10 +59,6 @@ public class DCConversion {
     }
 
     private void computeDcEquipments() {
-        // Store the CGMES terminal to CGMES node association.
-        String node = context.nodeBreaker() ? DC_NODE : DC_TOPOLOGICAL_NODE;
-        cgmesDcTerminalNodes.forEach(t -> dcTerminalNodes.put(t.getId(DC_TERMINAL), t.getId(node)));
-
         // Store the CGMES DCEquipment base data: id, type, node1, node2
         cgmesAcDcConverters.forEach(c -> addDcEquipment(c, ACDC_CONVERTER));
         cgmesDcLineSegments.forEach(l -> addDcEquipment(l, DC_LINE_SEGMENT));
@@ -79,17 +70,9 @@ public class DCConversion {
         dcEquipments.add(new DCEquipment(
                 propertyBag.getId(type),
                 ACDC_CONVERTER.equals(type) ? propertyBag.getLocal("type") : type,
-                terminalNode(propertyBag.getId(DC_TERMINAL1)),
-                DC_GROUND.equals(type) ? null : terminalNode(propertyBag.getId(DC_TERMINAL2))
+                context.dcMapping().getDcNode(propertyBag.getId(DC_TERMINAL1)),
+                DC_GROUND.equals(type) ? null : context.dcMapping().getDcNode(propertyBag.getId(DC_TERMINAL2))
         ));
-    }
-
-    private String terminalNode(String terminalId) {
-        // Get the CGMES node of a CGMES terminal.
-        if (!dcTerminalNodes.containsKey(terminalId)) {
-            throw new PowsyblException("DCTerminal not found");
-        }
-        return dcTerminalNodes.get(terminalId);
     }
 
     private void computeDcIslandEnds() {
@@ -315,7 +298,7 @@ public class DCConversion {
                 .flatMap(e -> Stream.of(e.node1(), e.node2()))
                 .filter(Objects::nonNull)
                 .distinct()
-                .map(this::getDcNodeBag)
+                .map(n -> context.dcMapping().getDcNodeBag(n))
                 .forEach(p -> new DCNodeConversion(p, unitRatedUdc.getOrDefault(p.getLocal("DCConverterUnit"), 1.0), context).convert());
     }
 
@@ -325,11 +308,6 @@ public class DCConversion {
 
     private PropertyBag getDcLineSegmentBag(DCEquipment dcLineSegment) {
         return getPropertyBag(dcLineSegment.id(), cgmesDcLineSegments, DC_LINE_SEGMENT);
-    }
-
-    private PropertyBag getDcNodeBag(String dcNode) {
-        String node = context.nodeBreaker() ? DC_NODE : DC_TOPOLOGICAL_NODE;
-        return getPropertyBag(dcNode, cgmesDcNodes, node);
     }
 
     private PropertyBag getPropertyBag(String dcEquipmentId, PropertyBags cachedPropertyBags, String propertyKey) {

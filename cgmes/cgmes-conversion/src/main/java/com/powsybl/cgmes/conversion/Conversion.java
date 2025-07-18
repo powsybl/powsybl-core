@@ -216,7 +216,7 @@ public class Conversion {
 
         // Convert DC equipments, limits, SV injections, control areas, regulating controls
         context.pushReportNode(CgmesReports.convertingElementTypeReport(reportNode, "DC network"));
-        new DCConversion(cgmes, context);
+        new DCConversion(context);
         clearUnattachedHvdcConverterStations(network, context);
         context.popReportNode();
 
