@@ -362,6 +362,22 @@ SELECT *
     }
 }
 
+# query: dcTerminals
+SELECT *
+{
+    {
+        ?DCTerminal
+            a cim:DCTerminal ;
+            cim:ACDCTerminal.connected ?connected .
+    }
+    UNION
+    {
+        ?DCTerminal
+            a cim:ACDCConverterDCTerminal ;
+            cim:ACDCTerminal.connected ?connected .
+    }
+}
+
 # query: controlAreas
 SELECT *
 {

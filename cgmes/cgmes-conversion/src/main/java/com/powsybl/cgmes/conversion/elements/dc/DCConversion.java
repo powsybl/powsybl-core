@@ -11,7 +11,6 @@ package com.powsybl.cgmes.conversion.elements.dc;
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -28,14 +27,11 @@ public class DCConversion {
 
     private final Context context;
 
-    private PropertyBags cgmesDcTerminalNodes;
     private PropertyBags cgmesAcDcConverters;
     private PropertyBags cgmesDcLineSegments;
     private PropertyBags cgmesDcSwitches;
     private PropertyBags cgmesDcGrounds;
-    private PropertyBags cgmesDcNodes;
 
-    private final Map<String, String> dcTerminalNodes = new HashMap<>();
     private final Set<DCEquipment> dcEquipments = new HashSet<>();
     private final Set<DCIslandEnd> dcIslandEnds = new HashSet<>();
     private final Set<DCIsland> dcIslands = new HashSet<>();
@@ -49,12 +45,10 @@ public class DCConversion {
     }
 
     private void cacheCgmesData(CgmesModel cgmesModel) {
-        cgmesDcTerminalNodes = cgmesModel.dcTerminals();
         cgmesAcDcConverters = cgmesModel.acDcConverters();
         cgmesDcLineSegments = cgmesModel.dcLineSegments();
         cgmesDcSwitches = cgmesModel.dcSwitches();
         cgmesDcGrounds = cgmesModel.dcGrounds();
-        cgmesDcNodes = cgmesModel.dcNodes();
     }
 
     private void convert() {
@@ -72,10 +66,6 @@ public class DCConversion {
     }
 
     private void computeDcEquipments() {
-        // Store the CGMES terminal to CGMES node association.
-        String node = context.nodeBreaker() ? DC_NODE : DC_TOPOLOGICAL_NODE;
-        cgmesDcTerminalNodes.forEach(t -> dcTerminalNodes.put(t.getId(DC_TERMINAL), t.getId(node)));
-
         // Store the CGMES DCEquipment base data: id, type, node1, node2
         cgmesAcDcConverters.forEach(c -> addDcEquipment(c, ACDC_CONVERTER));
         cgmesDcLineSegments.forEach(l -> addDcEquipment(l, DC_LINE_SEGMENT));
@@ -84,20 +74,13 @@ public class DCConversion {
     }
 
     private void addDcEquipment(PropertyBag propertyBag, String type) {
-        dcEquipments.add(new DCEquipment(
-                propertyBag.getId(type),
-                ACDC_CONVERTER.equals(type) ? propertyBag.getLocal("type") : type,
-                terminalNode(propertyBag.getId(DC_TERMINAL1)),
-                DC_GROUND.equals(type) ? null : terminalNode(propertyBag.getId(DC_TERMINAL2))
-        ));
-    }
-
-    private String terminalNode(String terminalId) {
-        // Get the CGMES node of a CGMES terminal.
-        if (!dcTerminalNodes.containsKey(terminalId)) {
-            throw new PowsyblException("DCTerminal not found");
+        String eqId = propertyBag.getId(type);
+        String eqType = ACDC_CONVERTER.equals(type) ? propertyBag.getLocal("type") : type;
+        String node1 = context.dcMapping().getDcNode(propertyBag.getId(DC_TERMINAL1));
+        String node2 = DC_GROUND.equals(type) ? null : context.dcMapping().getDcNode(propertyBag.getId(DC_TERMINAL2));
+        if (node1 != null && (node2 != null || DC_GROUND.equals(type))) {
+            dcEquipments.add(new DCEquipment(eqId, eqType, node1, node2));
         }
-        return dcTerminalNodes.get(terminalId);
     }
 
     private void computeDcIslandEnds() {
@@ -324,7 +307,7 @@ public class DCConversion {
                 .collect(Collectors.toMap(p -> p.getId("DCConverterUnit"), p -> p.asDouble(RATED_UDC), Math::max));
 
         String nodeClass = context.nodeBreaker() ? DC_NODE : DC_TOPOLOGICAL_NODE;
-        cgmesDcNodes.stream()
+        context.cgmes().dcNodes().stream()
                 .filter(p -> p.containsKey(nodeClass))
                 .forEach(p -> {
                     double nominalV = unitRatedUdc.getOrDefault(p.getId("DCConverterUnit"), 1.0);
