@@ -68,6 +68,12 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode {
     }
 
     @Override
+    public DcBus getDcBus() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "dcBus");
+        return ((AbstractNetwork) getParentNetwork()).getDcTopologyModel().getDcBusOfDcNode(getId());
+    }
+
+    @Override
     public void remove() {
         NetworkImpl network = getNetwork();
 
@@ -91,6 +97,7 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode {
         network.getListeners().notifyBeforeRemoval(this);
 
         network.getIndex().remove(this);
+        ((AbstractNetwork) getParentNetwork()).getDcTopologyModel().removeDcNode(getId());
 
         network.getListeners().notifyAfterRemoval(id);
 

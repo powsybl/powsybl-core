@@ -78,6 +78,12 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
         return "Network";
     }
 
+    protected abstract DcTopologyModel getDcTopologyModel();
+
+    protected abstract DcTopologyModel detachDcTopologyModel();
+
+    protected abstract void attachDcTopologyModel(DcTopologyModel dcTopologyModel);
+
     /**
      * Transfer the extensions of a network to another one.
      * @param from the network whose extensions must be transferred

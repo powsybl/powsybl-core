@@ -68,6 +68,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     private final Map<String, SubnetworkImpl> subnetworks = new LinkedHashMap<>();
 
+    private DcTopologyModel dcTopologyModel;
+
     @Override
     public Collection<Network> getSubnetworks() {
         return subnetworks.values().stream().map(Network.class::cast).toList();
@@ -80,6 +82,32 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     void removeFromSubnetworks(String subnetworkId) {
         subnetworks.remove(subnetworkId);
+    }
+
+    @Override
+    protected DcTopologyModel getDcTopologyModel() {
+        return dcTopologyModel;
+    }
+
+    @Override
+    protected DcTopologyModel detachDcTopologyModel() {
+        DcTopologyModel dcTopologyModel = this.dcTopologyModel;
+        this.dcTopologyModel = null;
+        dcTopologyModel.updateRef(new RefObj<>(null), new RefObj<>(null));
+        return dcTopologyModel;
+    }
+
+    @Override
+    protected void attachDcTopologyModel(DcTopologyModel dcTopologyModel) {
+        this.dcTopologyModel = dcTopologyModel;
+        dcTopologyModel.updateRef(ref, subnetworkRef);
+    }
+
+    protected void flattenDcTopologyModel(DcTopologyModel otherDcTopologyModel) {
+        if (otherDcTopologyModel.getDcBusStream().findFirst().isPresent()) {
+            // TODO merge elements
+            throw new UnsupportedOperationException("Not yet implemented, TODO");
+        }
     }
 
     class BusBreakerViewImpl extends AbstractNetwork.AbstractBusBreakerViewImpl {
@@ -134,6 +162,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         // and it needs to be notified when and extension or a reduction of
         // the variant array is requested
         index.checkAndAdd(this);
+        dcTopologyModel = new DcTopologyModel(ref, subnetworkRef);
     }
 
     static Network merge(String id, String name, Network... networks) {
@@ -1272,6 +1301,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
                 original.ref, original.subnetworkRef, idSubNetwork, original.name, original.sourceFormat, original.getCaseDate());
         transferExtensions(original, sn);
         transferProperties(original, sn);
+        sn.attachDcTopologyModel(original.detachDcTopologyModel());
         parent.subnetworks.put(idSubNetwork, sn);
         parent.index.checkAndAdd(sn);
     }
@@ -1391,6 +1421,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             // Those which are already present in the current network are not transferred.
             transferExtensions(subnetwork, this, true);
             transferProperties(subnetwork, this, true);
+            flattenDcTopologyModel(subnetwork.detachDcTopologyModel());
             index.remove(subnetwork);
         });
         subnetworks.clear();
@@ -1458,4 +1489,41 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             validationLevel = null;
         }
     }
+
+    @Override
+    public Iterable<DcBus> getDcBuses() {
+        List<Iterable<DcBus>> iterables = new ArrayList<>();
+        iterables.add(getDcTopologyModel().getDcBuses());
+        getSubnetworks().stream().map(Network::getDcBuses).forEach(iterables::add);
+        return Iterables.concat(iterables);
+    }
+
+    @Override
+    public Stream<DcBus> getDcBusStream() {
+        return Stream.concat(
+                getDcTopologyModel().getDcBusStream(),
+                getSubnetworks().stream().map(n -> ((SubnetworkImpl) n).getDcTopologyModel()).flatMap(DcTopologyModel::getDcBusStream)
+        );
+    }
+
+    @Override
+    public int getDcBusCount() {
+        return getDcTopologyModel().getDcBusCount() + getSubnetworks().stream().mapToInt(Network::getDcBusCount).sum();
+    }
+
+    @Override
+    public DcBus getDcBus(String id) {
+        DcBus found = getDcTopologyModel().getDcBus(id);
+        if (found != null) {
+            return found;
+        }
+        for (Network sn : getSubnetworks()) {
+            found = ((SubnetworkImpl) sn).getDcTopologyModel().getDcBus(id);
+            if (found != null) {
+                return found;
+            }
+        }
+        return null;
+    }
+
 }
