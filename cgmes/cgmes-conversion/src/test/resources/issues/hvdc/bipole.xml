@@ -231,6 +231,7 @@
 </cim:DCTerminal>
 <cim:DCGround rdf:ID="_DCGRND_1">
     <cim:IdentifiedObject.name>DC ground 1</cim:IdentifiedObject.name>
+    <cim:DCGround.r>1.0</cim:DCGround.r>
     <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1"/>
 </cim:DCGround>
 <cim:DCTerminal rdf:ID="_T_DCGRND_1">
@@ -455,6 +456,7 @@
 </cim:DCTerminal>
 <cim:DCGround rdf:ID="_DCGRND_2">
     <cim:IdentifiedObject.name>DC ground 2</cim:IdentifiedObject.name>
+    <cim:DCGround.r>1.0</cim:DCGround.r>
     <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2"/>
 </cim:DCGround>
 <cim:DCTerminal rdf:ID="_T_DCGRND_2">

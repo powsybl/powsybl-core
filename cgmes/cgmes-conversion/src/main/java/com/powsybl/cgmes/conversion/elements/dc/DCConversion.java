@@ -141,6 +141,7 @@ public class DCConversion {
                 } else {
                     convertDcNodes(dcIsland);
                     convertDcSwitches(dcIsland);
+                    convertDcGrounds(dcIsland);
                 }
             }
         }
@@ -311,6 +312,14 @@ public class DCConversion {
                 .forEach(p -> new DCSwitchConversion(p, context).convert());
     }
 
+    private void convertDcGrounds(DCIsland dcIsland) {
+        dcIsland.dcIslandEnds().stream()
+                .flatMap(e -> e.dcEquipments().stream())
+                .filter(DCEquipment::isGround)
+                .map(this::getDcGroundBag)
+                .forEach(p -> new DCGroundConversion(p, context).convert());
+    }
+
     private PropertyBag getConverterBag(DCEquipment acDcConverter) {
         return getPropertyBag(acDcConverter.id(), cgmesAcDcConverters, ACDC_CONVERTER);
     }
@@ -321,6 +330,10 @@ public class DCConversion {
 
     private PropertyBag getDcLineSegmentBag(DCEquipment dcLineSegment) {
         return getPropertyBag(dcLineSegment.id(), cgmesDcLineSegments, DC_LINE_SEGMENT);
+    }
+
+    private PropertyBag getDcGroundBag(DCEquipment dcGround) {
+        return getPropertyBag(dcGround.id(), cgmesDcGrounds, DC_GROUND);
     }
 
     private PropertyBag getPropertyBag(String dcEquipmentId, PropertyBags cachedPropertyBags, String propertyKey) {
