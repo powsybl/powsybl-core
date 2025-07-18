@@ -330,6 +330,7 @@ public class Conversion {
         updateAreas(network, cgmes, updateContext);
 
         updateDcSwitches(network, updateContext);
+        updateDcGrounds(network, updateContext);
 
         // Set voltages and angles, then complete
         updateAndCompleteVoltageAndAngles(network, updateContext);

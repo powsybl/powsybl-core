@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
+import com.powsybl.cgmes.conversion.elements.dc.DCGroundConversion;
 import com.powsybl.cgmes.conversion.elements.dc.DCSwitchConversion;
 import com.powsybl.cgmes.conversion.elements.dc.HvdcLineConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
@@ -243,6 +244,12 @@ public final class Update {
     static void updateDcSwitches(Network network, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.DC_SWITCH.name()));
         network.getDcSwitches().forEach(dcSwitch -> DCSwitchConversion.update(dcSwitch, context));
+        context.popReportNode();
+    }
+
+    static void updateDcGrounds(Network network, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.DC_GROUND.name()));
+        network.getDcGrounds().forEach(dcGround -> DCGroundConversion.update(dcGround, context));
         context.popReportNode();
     }
 
