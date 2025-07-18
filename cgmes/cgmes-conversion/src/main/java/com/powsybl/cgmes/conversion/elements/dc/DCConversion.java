@@ -64,6 +64,7 @@ public class DCConversion {
             convertDcNodes();
             convertDcSwitches();
             convertDcGrounds();
+            convertDcLines();
         }
     }
 
@@ -330,6 +331,15 @@ public class DCConversion {
     private void convertDcGrounds() {
         cgmesDcGrounds.forEach(p -> {
             DCGroundConversion c = new DCGroundConversion(p, context);
+            if (c.valid()) {
+                c.convert();
+            }
+        });
+    }
+
+    private void convertDcLines() {
+        cgmesDcLineSegments.forEach(p -> {
+            DCLineSegmentConversion c = new DCLineSegmentConversion(p, context);
             if (c.valid()) {
                 c.convert();
             }
