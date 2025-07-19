@@ -11,8 +11,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -22,23 +25,35 @@ public class DcBusImpl extends AbstractIdentifiable<DcBus> implements DcBus {
 
     private final Ref<NetworkImpl> networkRef;
     private final Ref<SubnetworkImpl> subnetworkRef;
+    private final Set<DcNodeImpl> dcNodes;
 
     private boolean valid = true;
 
-    DcBusImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name) {
+    DcBusImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, Set<DcNodeImpl> dcNodes) {
         super(id, name);
         this.networkRef = Objects.requireNonNull(ref);
         this.subnetworkRef = subnetworkRef;
+        this.dcNodes = Objects.requireNonNull(dcNodes);
     }
 
     @Override
     public double getV() {
-        return 0;
+        checkValidity();
+        for (DcNode n : dcNodes) {
+            if (!Double.isNaN(n.getV())) {
+                return n.getV();
+            }
+        }
+        return Double.NaN;
     }
 
     @Override
-    public Bus setV(double v) {
-        return null;
+    public DcBus setV(double v) {
+        checkValidity();
+        for (DcNode n : dcNodes) {
+            n.setV(v);
+        }
+        return this;
     }
 
     @Override
@@ -58,12 +73,14 @@ public class DcBusImpl extends AbstractIdentifiable<DcBus> implements DcBus {
 
     @Override
     public Iterable<DcNode> getDcNodes() {
-        return null;
+        checkValidity();
+        return Collections.unmodifiableCollection(dcNodes);
     }
 
     @Override
     public Stream<DcNode> getDcNodeStream() {
-        return Stream.empty();
+        checkValidity();
+        return dcNodes.stream().map(Function.identity());
     }
 
     @Override
@@ -83,7 +100,7 @@ public class DcBusImpl extends AbstractIdentifiable<DcBus> implements DcBus {
 
     void invalidate() {
         valid = false;
-        // TODO dcNodes.clear();
+        dcNodes.clear();
     }
 
     private void checkValidity() {

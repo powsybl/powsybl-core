@@ -229,7 +229,7 @@ public class DcTopologyModel implements MultiVariantObject {
             var node = dcNodeSet.stream().min(Comparator.comparing(DcNodeImpl::getId)).orElseThrow();
             String dcBusId = Identifiables.getUniqueId(node.getId() + "_dcBus", getNetwork().getIndex()::contains);
             String dcBusName = node.getOptionalName().orElse(null);
-            return new DcBusImpl(networkRef, subnetworkRef, dcBusId, dcBusName);
+            return new DcBusImpl(networkRef, subnetworkRef, dcBusId, dcBusName, dcNodeSet);
         }
 
         private void updateCache() {

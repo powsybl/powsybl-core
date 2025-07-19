@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
+import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,11 +28,18 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode {
     protected boolean removed = false;
     private double nominalV;
 
+    private final TDoubleArrayList v;
+
     DcNodeImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, double nominalV) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
         this.subnetworkRef = subnetworkRef;
         this.nominalV = nominalV;
+        int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
+        v = new TDoubleArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            v.add(Double.NaN);
+        }
     }
 
     @Override
@@ -71,6 +79,22 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode {
     public DcBus getDcBus() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "dcBus");
         return ((AbstractNetwork) getParentNetwork()).getDcTopologyModel().getDcBusOfDcNode(getId());
+    }
+
+    @Override
+    public double getV() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "v");
+        return v.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public DcNode setV(double v) {
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, "v");
+        int variantIndex = getNetwork().getVariantIndex();
+        double oldValue = this.v.set(variantIndex, v);
+        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        getNetwork().getListeners().notifyUpdate(this, "v", variantId, oldValue, v);
+        return this;
     }
 
     @Override

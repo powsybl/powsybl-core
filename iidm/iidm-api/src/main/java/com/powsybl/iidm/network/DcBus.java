@@ -27,7 +27,7 @@ public interface DcBus extends Identifiable<DcBus> {
     /**
      * Set the voltage of the bus in kV.
      */
-    Bus setV(double v);
+    DcBus setV(double v);
 
     /**
      * Get the connected component that the bus is part of.
