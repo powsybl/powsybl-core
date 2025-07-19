@@ -1417,6 +1417,14 @@ public interface Network extends Container<Network> {
      */
     VoltageSourceConverter getVoltageSourceConverter(String id);
 
+    DcBus getDcBus(String id);
+
+    Iterable<DcBus> getDcBuses();
+
+    Stream<DcBus> getDcBusStream();
+
+    int getDcBusCount();
+
     /**
      * * Get an identifiable by its ID or alias
      *

@@ -44,10 +44,13 @@ public class SubnetworkImpl extends AbstractNetwork {
      */
     private final RefChain<SubnetworkImpl> ref;
 
+    private DcTopologyModel dcTopologyModel;
+
     SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
         this.rootNetworkRef = Objects.requireNonNull(rootNetworkRef);
         this.ref = new RefChain<>(new RefObj<>(this));
+        this.dcTopologyModel = new DcTopologyModel(rootNetworkRef, ref);
     }
 
     SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, RefChain<SubnetworkImpl> subnetworkRef, String id, String name, String sourceFormat, ZonedDateTime caseDate) {
@@ -55,6 +58,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         this.rootNetworkRef = Objects.requireNonNull(rootNetworkRef);
         this.ref = Objects.requireNonNull(subnetworkRef);
         this.ref.setRef(new RefObj<>(this));
+        this.dcTopologyModel = new DcTopologyModel(rootNetworkRef, ref);
         setCaseDate(caseDate);
     }
 
@@ -65,6 +69,25 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     protected RefChain<SubnetworkImpl> getRef() {
         return ref;
+    }
+
+    @Override
+    protected DcTopologyModel getDcTopologyModel() {
+        return dcTopologyModel;
+    }
+
+    @Override
+    protected DcTopologyModel detachDcTopologyModel() {
+        DcTopologyModel dcTopologyModel = this.dcTopologyModel;
+        this.dcTopologyModel = null;
+        dcTopologyModel.updateRef(new RefObj<>(null), new RefObj<>(null));
+        return dcTopologyModel;
+    }
+
+    @Override
+    protected void attachDcTopologyModel(DcTopologyModel dcTopologyModel) {
+        this.dcTopologyModel = dcTopologyModel;
+        dcTopologyModel.updateRef(rootNetworkRef, ref);
     }
 
     @Override
@@ -997,6 +1020,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         NetworkImpl detachedNetwork = new NetworkImpl(getId(), getNameOrId(), getSourceFormat());
         transferExtensions(this, detachedNetwork);
         transferProperties(this, detachedNetwork);
+        detachedNetwork.attachDcTopologyModel(this.detachDcTopologyModel());
 
         // Memorize the network identifiables/voltageAngleLimits before moving references (to use them later)
         Collection<Identifiable<?>> identifiables = getIdentifiables();
@@ -1183,5 +1207,25 @@ public class SubnetworkImpl extends AbstractNetwork {
     @Override
     public Stream<Identifiable<?>> getIdentifiableStream(IdentifiableType identifiableType) {
         return getNetwork().getIdentifiableStream(identifiableType).filter(this::contains);
+    }
+
+    @Override
+    public Iterable<DcBus> getDcBuses() {
+        return getDcTopologyModel().getDcBuses();
+    }
+
+    @Override
+    public Stream<DcBus> getDcBusStream() {
+        return getDcTopologyModel().getDcBusStream();
+    }
+
+    @Override
+    public int getDcBusCount() {
+        return getDcTopologyModel().getDcBusCount();
+    }
+
+    @Override
+    public DcBus getDcBus(String id) {
+        return getDcTopologyModel().getDcBus(id);
     }
 }
