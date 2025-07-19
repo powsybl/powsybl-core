@@ -1179,6 +1179,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, final int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        dcTopologyModel.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        getSubnetworks().forEach(sn -> ((SubnetworkImpl) sn).getDcTopologyModel().extendVariantArraySize(initVariantArraySize, number, sourceIndex));
 
         variants.push(number, () -> variants.copy(sourceIndex));
     }
@@ -1186,6 +1188,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
+        dcTopologyModel.reduceVariantArraySize(number);
+        getSubnetworks().forEach(sn -> ((SubnetworkImpl) sn).getDcTopologyModel().reduceVariantArraySize(number));
 
         variants.pop(number);
     }
@@ -1193,6 +1197,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
+        dcTopologyModel.deleteVariantArrayElement(index);
+        getSubnetworks().forEach(sn -> ((SubnetworkImpl) sn).getDcTopologyModel().deleteVariantArrayElement(index));
 
         variants.delete(index);
     }
@@ -1200,6 +1206,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
+        dcTopologyModel.allocateVariantArrayElement(indexes, sourceIndex);
+        getSubnetworks().forEach(sn -> ((SubnetworkImpl) sn).getDcTopologyModel().allocateVariantArrayElement(indexes, sourceIndex));
 
         variants.allocate(indexes, () -> variants.copy(sourceIndex));
     }

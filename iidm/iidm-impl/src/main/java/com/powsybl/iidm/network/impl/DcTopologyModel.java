@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class DcTopologyModel {
+public class DcTopologyModel implements MultiVariantObject {
 
     public static final int DEFAULT_DC_NODE_INDEX_LIMIT = 1000;
 
@@ -328,5 +328,25 @@ public class DcTopologyModel {
         // TODO normally this is not needed and can just be deleted getNetwork().getBusBreakerView().invalidateCache();
         getNetwork().getConnectedComponentsManager().invalidate();
         // TODO normally this is not needed and can just be deleted getNetwork().getSynchronousComponentsManager().invalidate();
+    }
+
+    @Override
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        variants.push(number, () -> variants.copy(sourceIndex));
+    }
+
+    @Override
+    public void reduceVariantArraySize(int number) {
+        variants.pop(number);
+    }
+
+    @Override
+    public void deleteVariantArrayElement(int index) {
+        variants.delete(index);
+    }
+
+    @Override
+    public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
+        variants.allocate(indexes, () -> variants.copy(sourceIndex));
     }
 }
