@@ -16,6 +16,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
+import com.powsybl.iidm.network.components.AbstractDcComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.commons.ref.RefObj;
@@ -1079,6 +1080,12 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
 
         @Override
+        protected void setComponentNumber(DcBus dcBus, int num) {
+            Objects.requireNonNull(dcBus);
+            ((DcBusImpl) dcBus).setConnectedComponentNumber(num);
+        }
+
+        @Override
         protected ConnectedComponentImpl createComponent(int num, int size) {
             return new ConnectedComponentImpl(num, size, network.ref);
         }
@@ -1106,6 +1113,31 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         @Override
         protected SynchronousComponentImpl createComponent(int num, int size) {
             return new SynchronousComponentImpl(num, size, network.ref);
+        }
+    }
+
+    static final class DcComponentsManager extends AbstractDcComponentsManager<DcComponentImpl> {
+
+        private final NetworkImpl network;
+
+        private DcComponentsManager(NetworkImpl network) {
+            this.network = Objects.requireNonNull(network);
+        }
+
+        @Override
+        protected Network getNetwork() {
+            return network;
+        }
+
+        @Override
+        protected void setComponentNumber(DcBus dcBus, int num) {
+            Objects.requireNonNull(dcBus);
+            ((DcBusImpl) dcBus).setDcComponentNumber(num);
+        }
+
+        @Override
+        protected DcComponentImpl createComponent(int num, int size) {
+            return new DcComponentImpl(num, size, network.ref);
         }
     }
 
@@ -1151,6 +1183,9 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         private final SynchronousComponentsManager synchronousComponentsManager
                 = new SynchronousComponentsManager(NetworkImpl.this);
 
+        private final DcComponentsManager dcComponentsManager
+                = new DcComponentsManager(NetworkImpl.this);
+
         private final BusCache busViewCache = new BusCache(() -> getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream()));
 
         //For bus breaker view, we exclude bus breaker topologies from the cache,
@@ -1174,6 +1209,15 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     SynchronousComponentsManager getSynchronousComponentsManager() {
         return variants.get().synchronousComponentsManager;
+    }
+
+    DcComponentsManager getDcComponentsManager() {
+        return variants.get().dcComponentsManager;
+    }
+
+    @Override
+    public Collection<Component> getDcComponents() {
+        return Collections.unmodifiableList(variants.get().dcComponentsManager.getConnectedComponents());
     }
 
     @Override

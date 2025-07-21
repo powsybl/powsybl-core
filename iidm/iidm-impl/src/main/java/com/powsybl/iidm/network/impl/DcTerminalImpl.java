@@ -113,6 +113,11 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         return this;
     }
 
+    @Override
+    public DcBus getBus() {
+        return isConnected() ? dcNode.getDcBus() : null;
+    }
+
     public void remove() {
         this.removed = true;
     }

@@ -1228,4 +1228,12 @@ public class SubnetworkImpl extends AbstractNetwork {
     public DcBus getDcBus(String id) {
         return getDcTopologyModel().getDcBus(id);
     }
+
+    @Override
+    public Collection<Component> getDcComponents() {
+        return getNetwork().getDcComponents().stream()
+                .filter(c -> c.getDcBusStream().anyMatch(SubnetworkImpl.this::contains))
+                .map(c -> (Component) new Subcomponent(c, SubnetworkImpl.this))
+                .toList();
+    }
 }

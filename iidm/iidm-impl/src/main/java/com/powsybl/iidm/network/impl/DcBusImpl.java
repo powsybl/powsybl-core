@@ -56,6 +56,20 @@ public class DcBusImpl extends AbstractIdentifiable<DcBus> implements DcBus {
         return this;
     }
 
+    void setConnectedComponentNumber(int connectedComponentNumber) {
+        checkValidity();
+        for (DcNodeImpl dcNode : dcNodes) {
+            dcNode.setConnectedComponentNumber(connectedComponentNumber);
+        }
+    }
+
+    void setDcComponentNumber(int dcComponentNumber) {
+        checkValidity();
+        for (DcNodeImpl dcNode : dcNodes) {
+            dcNode.setDcComponentNumber(dcComponentNumber);
+        }
+    }
+
     @Override
     public Component getConnectedComponent() {
         return null;
@@ -67,7 +81,7 @@ public class DcBusImpl extends AbstractIdentifiable<DcBus> implements DcBus {
     }
 
     @Override
-    public Component getDirectCurrentComponent() {
+    public Component getDcComponent() {
         return null;
     }
 

@@ -525,6 +525,14 @@ public interface Network extends Container<Network> {
     }
 
     /**
+     * Get all DC components.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    Collection<Component> getDcComponents();
+
+    /**
      * Create an empty network using default implementation.
      *
      * @param id id of the network

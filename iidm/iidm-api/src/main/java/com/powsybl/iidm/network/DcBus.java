@@ -43,7 +43,7 @@ public interface DcBus extends Identifiable<DcBus> {
     /**
      * Get the direct current component that the bus is part of.
      */
-    Component getDirectCurrentComponent();
+    Component getDcComponent();
 
     /**
      * Get the DC Nodes part of the bus.

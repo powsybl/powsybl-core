@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TIntArrayList;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,6 +31,10 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode {
 
     private final TDoubleArrayList v;
 
+    private final TIntArrayList connectedComponentNumber;
+
+    private final TIntArrayList dcComponentNumber;
+
     DcNodeImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, double nominalV) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
@@ -37,8 +42,12 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode {
         this.nominalV = nominalV;
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         v = new TDoubleArrayList(variantArraySize);
+        connectedComponentNumber = new TIntArrayList(variantArraySize);
+        dcComponentNumber = new TIntArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             v.add(Double.NaN);
+            connectedComponentNumber.add(-1);
+            dcComponentNumber.add(-1);
         }
     }
 
@@ -95,6 +104,32 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode {
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
         getNetwork().getListeners().notifyUpdate(this, "v", variantId, oldValue, v);
         return this;
+    }
+
+    public void setConnectedComponentNumber(int connectedComponentNumber) {
+        int variantIndex = networkRef.get().getVariantIndex();
+        int oldValue = this.connectedComponentNumber.set(variantIndex, connectedComponentNumber);
+        String variantId = networkRef.get().getVariantManager().getVariantId(variantIndex);
+        networkRef.get().getListeners().notifyUpdate(this, "connectedComponentNumber", variantId, oldValue, connectedComponentNumber);
+    }
+
+    public Component getConnectedComponent() {
+        NetworkImpl.ConnectedComponentsManager ccm = networkRef.get().getConnectedComponentsManager();
+        ccm.update();
+        return ccm.getComponent(connectedComponentNumber.get(networkRef.get().getVariantIndex()));
+    }
+
+    public void setDcComponentNumber(int componentNumber) {
+        int variantIndex = networkRef.get().getVariantIndex();
+        int oldValue = this.dcComponentNumber.set(variantIndex, componentNumber);
+        String variantId = networkRef.get().getVariantManager().getVariantId(variantIndex);
+        networkRef.get().getListeners().notifyUpdate(this, "dcComponentNumber", variantId, oldValue, dcComponentNumber);
+    }
+
+    public Component getDcComponent() {
+        NetworkImpl.DcComponentsManager dcm = networkRef.get().getDcComponentsManager();
+        dcm.update();
+        return dcm.getComponent(dcComponentNumber.get(networkRef.get().getVariantIndex()));
     }
 
     @Override
