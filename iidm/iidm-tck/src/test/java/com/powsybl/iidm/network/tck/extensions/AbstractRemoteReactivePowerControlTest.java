@@ -247,11 +247,12 @@ public abstract class AbstractRemoteReactivePowerControlTest {
                 .add();
 
         assertEquals(lTerminal, remoteReactivePowerControl.getRegulatingTerminal());
+        assertEquals("b3", remoteReactivePowerControl.getRegulatingTerminal().getBusBreakerView().getBus().getId());
 
         // Replacement
         Terminal.BusBreakerView bbView = lTerminal.getBusBreakerView();
-        bbView.moveConnectable("b4", true);
-        assertNotEquals(lTerminal, remoteReactivePowerControl.getRegulatingTerminal());
+        bbView.moveConnectable("b2", true);
+        assertEquals("b2", remoteReactivePowerControl.getRegulatingTerminal().getBusBreakerView().getBus().getId());
 
         // Extension should be removed
         l.remove();
