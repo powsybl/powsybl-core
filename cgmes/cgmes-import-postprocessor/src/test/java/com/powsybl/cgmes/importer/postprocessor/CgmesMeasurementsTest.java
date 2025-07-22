@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -231,14 +232,14 @@ class CgmesMeasurementsTest {
         CgmesModelExtension cgmesModelExt = network.getExtensionByName("CgmesModel");
         CgmesMeasurementsModel model = new CgmesMeasurementsModel(cgmesModelExt.getCgmesModel().tripleStore());
         PropertyBags bays = model.bays();
-
+        Map<String, PropertyBag> idToBayMap = bays.stream().collect(Collectors.toMap(b -> b.getId("Bay"), b -> b));
         for (PropertyBag analog : model.analogs()) {
             CgmesAnalogPostProcessor.process(network, analog.getId("Analog"), analog.getId("Terminal"),
-                    analog.getId("powerSystemResource"), analog.getId("type"), bays, Map.of());
+                    analog.getId("powerSystemResource"), analog.getId("type"), idToBayMap, Map.of());
         }
         for (PropertyBag discrete : model.discretes()) {
             CgmesDiscretePostProcessor.process(network, discrete.getId("Discrete"), discrete.getId("Terminal"),
-                    discrete.getId("powerSystemResource"), discrete.getId("type"), bays, Map.of());
+                    discrete.getId("powerSystemResource"), discrete.getId("type"), idToBayMap, Map.of());
         }
         assertBusBranchMeasurements(network);
     }

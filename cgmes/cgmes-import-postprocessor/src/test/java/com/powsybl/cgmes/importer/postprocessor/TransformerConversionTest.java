@@ -220,9 +220,7 @@ class TransformerConversionTest {
 
         boolean t2wtSplitShuntAdmittance = false;
         switch (config.getXfmr2Shunt()) {
-            case END1:
-            case END2:
-            case END1_END2:
+            case END1, END2, END1_END2:
                 break;
             case SPLIT:
                 t2wtSplitShuntAdmittance = true;
@@ -231,8 +229,7 @@ class TransformerConversionTest {
 
         boolean t3wtSplitShuntAdmittance = false;
         switch (config.getXfmr3Shunt()) {
-            case NETWORK_SIDE:
-            case STAR_BUS_SIDE:
+            case NETWORK_SIDE, STAR_BUS_SIDE:
                 break;
             case SPLIT:
                 t3wtSplitShuntAdmittance = true;
