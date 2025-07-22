@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package com.powsybl.cgmes.conversion.test;
+package com.powsybl.cgmes.importer.postprocessor;
 
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.datasource.ResourceDataSource;

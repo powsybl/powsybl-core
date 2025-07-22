@@ -5,10 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.shorcircuit;
+package com.powsybl.cgmes.importer.postprocessor;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
+import com.powsybl.cgmes.shorcircuit.CgmesShortCircuitImporter;
+import com.powsybl.cgmes.shorcircuit.CgmesShortCircuitModel;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStore;
 

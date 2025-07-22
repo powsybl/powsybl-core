@@ -5,11 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.measurements;
+package com.powsybl.cgmes.importer.postprocessor;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.measurements.CgmesAnalogPostProcessor;
+import com.powsybl.cgmes.measurements.CgmesDiscretePostProcessor;
+import com.powsybl.cgmes.measurements.CgmesMeasurementsModel;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
