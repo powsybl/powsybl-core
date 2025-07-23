@@ -1072,38 +1072,59 @@ GRAPH ?graph {
 # query: acDcConverters
 SELECT *
 WHERE {
-{ GRAPH ?graph {
-    ?ACDCConverter
-        a ?type ;
-        cim:IdentifiedObject.name ?name ;
+GRAPH ?graphEQ {
+    {
+        ?ACDCConverter
+            a ?type .
+        ?Terminal cim:Terminal.ConductingEquipment ?ACDCConverter
+        FILTER NOT EXISTS {
+            ?Terminal2 cim:Terminal.ConductingEquipment ?ACDCConverter
+            FILTER (str(?Terminal) != str(?Terminal2))
+        }
+    }
+    UNION
+    {
+        ?ACDCConverter
+            a ?type .
+        ?Terminal1 cim:Terminal.ConductingEquipment ?ACDCConverter .
+        ?Terminal2 cim:Terminal.ConductingEquipment ?ACDCConverter .
+        OPTIONAL { ?Terminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
+        OPTIONAL { ?Terminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+        FILTER (bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+            || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2))
+    }
+    ?ACDCConverter cim:IdentifiedObject.name ?name ;
         cim:ACDCConverter.ratedUdc ?ratedUdc ;
         cim:Equipment.EquipmentContainer ?DCConverterUnit .
     ?DCConverterUnit
         a cim:DCConverterUnit ;
         cim:IdentifiedObject.name ?unitName ;
         cim:DCConverterUnit.operationMode ?operationMode .
-    ?Terminal cim:Terminal.ConductingEquipment ?ACDCConverter .
     ?DCTerminal1
         a cim:ACDCConverterDCTerminal ;
         cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
-    OPTIONAL { ?DCTerminal1 cim:ACDCConverterDCTerminal.sequenceNumber ?seq1 }
+    OPTIONAL { ?DCTerminal1 cim:ACDCConverterDCTerminal.sequenceNumber ?dcseq1 }
     ?DCTerminal2
         a cim:ACDCConverterDCTerminal ;
         cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
-    OPTIONAL { ?DCTerminal2 cim:ACDCConverterDCTerminal.sequenceNumber ?seq2 }
-    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
-        || !bound(?seq1) && !bound(?seq2) && str(?DCTerminal1) < str(?DCTerminal2) )
-    VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter }
+    OPTIONAL { ?DCTerminal2 cim:ACDCConverterDCTerminal.sequenceNumber ?dcseq2 }
+    FILTER (bound(?dcseq1) && ?dcseq1 = "1" && bound(?dcseq2) && ?dcseq2 = "2"
+        || !bound(?dcseq1) && !bound(?dcseq2) && str(?DCTerminal1) < str(?DCTerminal2))
+    VALUES ?type { cim:CsConverter cim:VsConverter }
     OPTIONAL {
         ?ACDCConverter cim:ACDCConverter.PccTerminal ?PccTerminal
     }
     OPTIONAL {
         ?ACDCConverter cim:VsConverter.CapabilityCurve ?ReactiveCapabilityCurve
     }
-}}
+    OPTIONAL { ?ACDCConverter cim:ACDCConverter.idleLoss ?idleLoss }
+    OPTIONAL { ?ACDCConverter cim:ACDCConverter.switchingLoss ?switchingLoss }
+    OPTIONAL { ?ACDCConverter cim:ACDCConverter.resistiveLoss ?resistiveLoss }
+}
 OPTIONAL { GRAPH ?graphSSH {
     ?ACDCConverter
         cim:ACDCConverter.targetPpcc ?targetPpcc ;
+        cim:ACDCConverter.targetUdc ?targetUdc ;
         cim:ACDCConverter.p ?p ;
         cim:ACDCConverter.q ?q .
 }}
@@ -1112,20 +1133,19 @@ OPTIONAL { GRAPH ?graphSV {
 }}
 # For Current Source Converter
 OPTIONAL {
-    ?ACDCConverter a cim:CsConverter .
     ?ACDCConverter
+        a cim:CsConverter ;
         cim:CsConverter.operatingMode ?operatingMode ;
-        cim:CsConverter.pPccControl ?controlMode .
-       OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
+        cim:CsConverter.pPccControl ?pPccControl .
 }
 # For Voltage Source Converter
 OPTIONAL {
-    ?ACDCConverter a cim:VsConverter .
     ?ACDCConverter
-       cim:VsConverter.qPccControl ?qPccControl ;
-       cim:VsConverter.pPccControl ?pPccControl .
-    OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
-    OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
+        a cim:VsConverter ;
+        cim:VsConverter.pPccControl ?pPccControl ;
+        cim:VsConverter.qPccControl ?qPccControl .
+        OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
+        OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
 }
 }
 
