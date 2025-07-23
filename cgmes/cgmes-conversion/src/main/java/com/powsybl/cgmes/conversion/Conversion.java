@@ -332,6 +332,7 @@ public class Conversion {
         updateDcSwitches(network, updateContext);
         updateDcGrounds(network, updateContext);
         updateDcLines(network, updateContext);
+        updateAcDcConverters(network, cgmes, updateContext);
 
         // Set voltages and angles, then complete
         updateAndCompleteVoltageAndAngles(network, updateContext);
@@ -1113,4 +1114,5 @@ public class Conversion {
     public static final String PROPERTY_OPERATIONAL_LIMIT_SET_RDFID = CGMES_PREFIX_ALIAS_PROPERTIES + "OperationalLimitSetRdfID";
     public static final String PROPERTY_REGULATING_CONTROL = CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL;
     public static final String PROPERTY_CGMES_REGULATION_CAPABILITY = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATION_CAPABILITY;
+    public static final String PROPERTY_CGMES_DC_CONVERTER_UNIT = CGMES_PREFIX_ALIAS_PROPERTIES + "DCConverterUnit";
 }
