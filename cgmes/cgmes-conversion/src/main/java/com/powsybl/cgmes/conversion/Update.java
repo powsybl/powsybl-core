@@ -8,10 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
-import com.powsybl.cgmes.conversion.elements.dc.DCGroundConversion;
-import com.powsybl.cgmes.conversion.elements.dc.DCLineSegmentConversion;
-import com.powsybl.cgmes.conversion.elements.dc.DCSwitchConversion;
-import com.powsybl.cgmes.conversion.elements.dc.HvdcLineConversion;
+import com.powsybl.cgmes.conversion.elements.dc.*;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -257,6 +254,19 @@ public final class Update {
     static void updateDcLines(Network network, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.DC_LINE.name()));
         network.getDcLines().forEach(dcLine -> DCLineSegmentConversion.update(dcLine, context));
+        context.popReportNode();
+    }
+
+    static void updateAcDcConverters(Network network, CgmesModel cgmes, Context context) {
+        Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
+        addPropertyBags(cgmes.acDcConverters(), CgmesNames.ACDC_CONVERTER, equipmentIdPropertyBag);
+
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.LINE_COMMUTATED_CONVERTER.name()));
+        network.getLineCommutatedConverters().forEach(lcc -> AcDcConverterConversion.update(lcc, getPropertyBag(lcc.getId(), equipmentIdPropertyBag), context));
+        context.popReportNode();
+
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.VOLTAGE_SOURCE_CONVERTER.name()));
+        network.getVoltageSourceConverters().forEach(vsc -> AcDcConverterConversion.update(vsc, getPropertyBag(vsc.getId(), equipmentIdPropertyBag), context));
         context.popReportNode();
     }
 

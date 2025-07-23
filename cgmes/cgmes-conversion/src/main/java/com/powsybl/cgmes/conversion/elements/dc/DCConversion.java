@@ -65,6 +65,7 @@ public class DCConversion {
             convertDcSwitches();
             convertDcGrounds();
             convertDcLines();
+            convertAcDcConverters();
         }
     }
 
@@ -340,6 +341,20 @@ public class DCConversion {
     private void convertDcLines() {
         cgmesDcLineSegments.forEach(p -> {
             DCLineSegmentConversion c = new DCLineSegmentConversion(p, context);
+            if (c.valid()) {
+                c.convert();
+            }
+        });
+    }
+
+    private void convertAcDcConverters() {
+        cgmesAcDcConverters.forEach(p -> {
+            AcDcConverterConversion c;
+            if (p.containsKey(TERMINAL)) {
+                c = new AcDcConverterConversion(p, context);
+            } else {
+                c = new AcDcConverterConversion(p, context, 2);
+            }
             if (c.valid()) {
                 c.convert();
             }
