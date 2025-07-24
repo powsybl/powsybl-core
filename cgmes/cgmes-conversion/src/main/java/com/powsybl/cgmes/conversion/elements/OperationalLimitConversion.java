@@ -118,16 +118,26 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (terminalNumber == 1) {
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup1(limitSetId).orElseGet(() -> {
                 storeOperationalLimitSetIdentifiers(b, limitSetId, limitSetName);
-                return b.newOperationalLimitsGroup1(limitSetId); });
+                OperationalLimitsGroup operationalLimitsGroup = b.newOperationalLimitsGroup1(limitSetId);
+                addOperationalLimitsGroupProperties(operationalLimitsGroup);
+                return operationalLimitsGroup; });
             loadingLimitsAdder1 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
+
         } else if (terminalNumber == 2) {
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup2(limitSetId).orElseGet(() -> {
                 storeOperationalLimitSetIdentifiers(b, limitSetId, limitSetName);
-                return b.newOperationalLimitsGroup2(limitSetId); });
+                OperationalLimitsGroup operationalLimitsGroup = b.newOperationalLimitsGroup2(limitSetId);
+                addOperationalLimitsGroupProperties(operationalLimitsGroup);
+                return operationalLimitsGroup; });
             loadingLimitsAdder2 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else {
             throw new IllegalArgumentException();
         }
+    }
+
+    private void addOperationalLimitsGroupProperties(OperationalLimitsGroup operationalLimitsGroup) {
+        //  We only accept high limits, the information OperationalLimitDirectionKind.high is stored as a property in the OperationalLimitsGroup
+        operationalLimitsGroup.setProperty("OperationalLimitDirectionKind", "high");
     }
 
     /**
@@ -140,7 +150,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private void createLimitsAdder(String limitSubClass, String limitSetId, String limitSetName, DanglingLine dl) {
         OperationalLimitsGroup limitsGroup = dl.getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
             storeOperationalLimitSetIdentifiers(dl, limitSetId, limitSetName);
-            return dl.newOperationalLimitsGroup(limitSetId); });
+            OperationalLimitsGroup operationalLimitsGroup = dl.newOperationalLimitsGroup(limitSetId);
+            addOperationalLimitsGroupProperties(operationalLimitsGroup);
+            return operationalLimitsGroup; });
         loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
     }
 
@@ -156,17 +168,24 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (terminalNumber == 1) {
             OperationalLimitsGroup limitsGroup = twt.getLeg1().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
                 storeOperationalLimitSetIdentifiers(twt, limitSetId, limitSetName);
-                return twt.getLeg1().newOperationalLimitsGroup(limitSetId); });
+                OperationalLimitsGroup operationalLimitsGroup = twt.getLeg1().newOperationalLimitsGroup(limitSetId);
+                addOperationalLimitsGroupProperties(operationalLimitsGroup);
+                return operationalLimitsGroup; });
             loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else if (terminalNumber == 2) {
             OperationalLimitsGroup limitsGroup = twt.getLeg2().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
                 storeOperationalLimitSetIdentifiers(twt, limitSetId, limitSetName);
-                return twt.getLeg2().newOperationalLimitsGroup(limitSetId); });
+                OperationalLimitsGroup operationalLimitsGroup = twt.getLeg2().newOperationalLimitsGroup(limitSetId);
+                addOperationalLimitsGroupProperties(operationalLimitsGroup);
+                return operationalLimitsGroup; });
             loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else if (terminalNumber == 3) {
             OperationalLimitsGroup limitsGroup = twt.getLeg3().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
                 storeOperationalLimitSetIdentifiers(twt, limitSetId, limitSetName);
-                return twt.getLeg3().newOperationalLimitsGroup(limitSetId); });
+                OperationalLimitsGroup operationalLimitsGroup = twt.getLeg3().newOperationalLimitsGroup(limitSetId);
+                addOperationalLimitsGroupProperties(operationalLimitsGroup);
+                return operationalLimitsGroup; });
+
             loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else {
             throw new IllegalArgumentException();
@@ -345,6 +364,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         int acceptableDuration = p.containsKey("acceptableDuration") ? (int) p.asDouble("acceptableDuration") : Integer.MAX_VALUE;
         // We only accept high or absoluteValue (considered as high when
         // current from the conducting equipment to the terminal) limits
+        // OperationalLimitDirectionKind.high property is stored in the OperationalLimitsGroup
         String direction = p.getId("direction");
 
         // if there is no direction, the limit is considered as absoluteValue (cf. CGMES specification)

@@ -288,4 +288,16 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertEquals(202.0, line.getApparentPowerLimits1().get().getTemporaryLimit(600).getValue());
     }
 
+    @Test
+    void testOperationalLimitsGroupLimitType() {
+        Network network = readCgmesResources(DIR, "limitsets_associated_to_equipments_EQ.xml",
+                "limitsets_EQBD.xml", "limitsets_TPBD.xml");
+
+        Optional<OperationalLimitsGroup> operationalLimitsGroup =
+                network.getLine("ACL")
+                .getOperationalLimitsGroup1("OLS_ACL");
+        assertTrue(operationalLimitsGroup.isPresent());
+        assertTrue(operationalLimitsGroup.get().hasProperty("OperationalLimitDirectionKind"));
+        assertEquals("high", operationalLimitsGroup.get().getProperty("OperationalLimitDirectionKind"));
+    }
 }
