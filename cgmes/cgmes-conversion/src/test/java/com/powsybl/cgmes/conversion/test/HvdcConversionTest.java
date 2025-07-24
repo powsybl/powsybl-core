@@ -178,7 +178,7 @@ class HvdcConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void skagerrak() {
+    void skagerrakTest() {
         // CGMES network:
         //   Two HVDC bipoles with a common DMR line.
         //   - SK12 is a LCC bipole with 2 bridges per unit.
@@ -187,7 +187,7 @@ class HvdcConversionTest extends AbstractSerDeTest {
         // IIDM network:
         //   - 6 LCC HvdcLine (SK1, SK2, SK3, each *2).
         //   - 1 VSC HvdcLine (SK4).
-        Network network = readCgmesResources(DIR, "skagerrak.xml");
+        Network network = readCgmesResources(DIR, "skagerrak_simple.xml");
 
         assertEquals(6, network.getHvdcLineStream()
                 .filter(l -> HvdcConverterStation.HvdcType.LCC.equals(l.getConverterStation1().getHvdcType()))
