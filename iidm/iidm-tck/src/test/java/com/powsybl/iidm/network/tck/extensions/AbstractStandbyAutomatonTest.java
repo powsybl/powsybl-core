@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.tck.extensions;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
@@ -74,7 +75,20 @@ public abstract class AbstractStandbyAutomatonTest {
         assertEquals(200f, standbyAutomaton.getHighVoltageThreshold(), 0.0);
 
         // but an exception is thrown when the standby mode is latter used
-        assertThrows(IllegalArgumentException.class, () -> standbyAutomaton.setStandby(true));
+        assertThrows(ValidationException.class, () -> standbyAutomaton.setStandby(true));
+    }
+
+    @Test
+    public void testIncompleteAdderBadException() {
+        Network network = SvcTestCaseFactory.create();
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+        assertNotNull(svc);
+
+        StandbyAutomatonAdder standbyAutomatonAdder = svc.newExtension(StandbyAutomatonAdder.class)
+                .withStandbyStatus(true);
+        var e = assertThrows(ValidationException.class, standbyAutomatonAdder::add);
+        // instead of "Static var compensator 'SVC2': Inconsistent low (0.0) and high (0.0) voltage thresholds"
+        assertEquals("Static var compensator 'SVC2': low voltage setpoint (NaN) is invalid", e.getMessage());
     }
 
     @Test
