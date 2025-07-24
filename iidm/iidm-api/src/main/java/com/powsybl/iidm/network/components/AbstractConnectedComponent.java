@@ -9,6 +9,7 @@
 package com.powsybl.iidm.network.components;
 
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.DcBus;
 
 import java.util.function.Predicate;
 
@@ -24,5 +25,10 @@ public abstract class AbstractConnectedComponent extends AbstractComponent {
     @Override
     protected Predicate<Bus> getBusPredicate() {
         return bus -> bus.getConnectedComponent() == AbstractConnectedComponent.this;
+    }
+
+    @Override
+    protected Predicate<DcBus> getDcBusPredicate() {
+        return dcBus -> dcBus.getConnectedComponent() == AbstractConnectedComponent.this;
     }
 }

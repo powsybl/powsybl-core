@@ -76,6 +76,18 @@ public interface DcNode extends Identifiable<DcNode> {
     DcNode setNominalV(double nominalV);
 
     /**
+     * Get the voltage of the DC node in kV.
+     */
+    double getV();
+
+    /**
+     * Set the voltage of the DC node in kV.
+     */
+    DcNode setV(double v);
+
+    DcBus getDcBus();
+
+    /**
      * remove the DcNode from the network
      */
     void remove();
