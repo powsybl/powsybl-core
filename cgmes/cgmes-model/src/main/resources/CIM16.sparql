@@ -363,16 +363,6 @@ WHERE {
     }
 }
 
-# query: voltages
-SELECT *
-{ GRAPH ?graphSV {
-    ?SvVoltage
-        a cim:SvVoltage ;
-        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-        cim:SvVoltage.v ?v ;
-        cim:SvVoltage.angle ?angle
-}}
-
 # query: operationalLimits
 SELECT *
 WHERE
@@ -587,17 +577,6 @@ WHERE {
         ?RatioTapChanger cim:RatioTapChanger.RatioTapChangerTable ?RatioTapChangerTable
     }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?RatioTapChanger
-        cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
-        cim:TapChanger.step ?step
-}}
-OPTIONAL { GRAPH ?graphSV {
-    ?SvTapStep
-        a cim:SvTapStep ;
-        cim:SvTapStep.TapChanger ?RatioTapChanger ;
-        cim:SvTapStep.position ?SVtapStep
-}}
 }
 
 # query: ratioTapChangerTablePoints
@@ -655,19 +634,6 @@ WHERE {
         ?PhaseTapChanger
             cim:TapChanger.TapChangerControl ?TapChangerControl
     }
-}}
-OPTIONAL { GRAPH ?graphSSH {
-    # ??? FIXME Difference between TapChanger.controlEnabled and TapChangerControl.enabled ???
-    # When controlEnabled is set to false there is no additional data
-    ?PhaseTapChanger
-        cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
-        cim:TapChanger.step ?step
-}}
-OPTIONAL { GRAPH ?graphSV {
-    ?SVTapStep
-        a cim:SvTapStep ;
-        cim:SvTapStep.TapChanger ?PhaseTapChanger ;
-        cim:SvTapStep.position ?SVtapStep
 }}
 }
 
@@ -735,11 +701,6 @@ WHERE {
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.pfixed ?pfixed }
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.qfixed ?qfixed }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?EnergyConsumer
-        cim:EnergyConsumer.p ?p ;
-        cim:EnergyConsumer.q ?q
-}}
 }
 
 # query: energySources
@@ -750,11 +711,6 @@ WHERE {
         a cim:EnergySource ;
         cim:IdentifiedObject.name ?name .
     ?Terminal cim:Terminal.ConductingEquipment ?EnergySource
-}}
-OPTIONAL { GRAPH ?graphSSH {
-    ?EnergySource
-        cim:EnergySource.activePower ?p ;
-        cim:EnergySource.reactivePower ?q
 }}
 }
 
@@ -773,17 +729,6 @@ WHERE {
     OPTIONAL { ?ShuntCompensator cim:LinearShuntCompensator.gPerSection ?gPerSection }
     OPTIONAL { ?ShuntCompensator cim:LinearShuntCompensator.bPerSection ?bPerSection }
     OPTIONAL { ?ShuntCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
-}}
-OPTIONAL { GRAPH ?graphSV  {
-    ?SvShuntCompensatorSections
-        a cim:SvShuntCompensatorSections ;
-        cim:SvShuntCompensatorSections.ShuntCompensator ?ShuntCompensator ;
-        cim:SvShuntCompensatorSections.sections ?SVsections
-}}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?ShuntCompensator
-        cim:ShuntCompensator.sections ?SSHsections ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled
 }}
 }
 
@@ -848,17 +793,6 @@ WHERE {
     OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.qPercent ?qPercent }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?SynchronousMachine
-        cim:RotatingMachine.p ?p ;
-        cim:RotatingMachine.q ?q ;
-        cim:SynchronousMachine.referencePriority ?referencePriority ;
-        cim:SynchronousMachine.operatingMode ?operatingMode ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled .
-}}
-OPTIONAL { GRAPH ?graphSSH2 {
-    ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF
-}}
 }
 
 # query: synchronousMachinesCondensers
@@ -881,14 +815,6 @@ WHERE {
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.InitialReactiveCapabilityCurve ?ReactiveCapabilityCurve }
     OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.qPercent ?qPercent }
-}}
-OPTIONAL { GRAPH ?graphSSH {
-    ?SynchronousMachine
-        cim:RotatingMachine.q ?q ;
-        cim:SynchronousMachine.referencePriority ?referencePriority ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled .
-    # For condensers, the p value is always 0
-    BIND ( "0" AS ?p )
 }}
 }
 
@@ -967,12 +893,6 @@ WHERE {
     OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.maxQ ?maxQ }
     OPTIONAL { ?ExternalNetworkInjection cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
 }}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?ExternalNetworkInjection
-        cim:ExternalNetworkInjection.p ?p ;
-        cim:ExternalNetworkInjection.q ?q ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled
-}}
 }
 
 # query: staticVarCompensators
@@ -992,11 +912,6 @@ WHERE {
         ?StaticVarCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl
     }
 }}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?StaticVarCompensator
-        cim:StaticVarCompensator.q ?q ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled
-}}
 }
 
 # query: asynchronousMachines
@@ -1007,13 +922,6 @@ WHERE {
         a cim:AsynchronousMachine ;
         cim:IdentifiedObject.name ?name .
     ?Terminal cim:Terminal.ConductingEquipment ?AsynchronousMachine .
-}}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?AsynchronousMachine
-        cim:AsynchronousMachine.asynchronousMachineType ?type ;
-        cim:RotatingMachine.p ?p ;
-        cim:RotatingMachine.q ?q ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled
 }}
 }
 
