@@ -1,0 +1,158 @@
+#
+# Copyright (c) 2025, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+# SPDX-License-Identifier: MPL-2.0
+#
+
+# query: numObjectsByType
+# Only types in a namespace given as parameter
+SELECT ?Type (COUNT (DISTINCT ?object) AS ?numObjects)
+{ GRAPH ?graph {
+     ?object a ?Type .
+    FILTER (STRSTARTS(STR(?Type), "{0}"))
+}}
+GROUP BY ?Type
+
+# query: allObjectsOfType
+SELECT *
+{ GRAPH ?graph {
+     ?object a cim:{0} ;
+     ?attribute ?value .
+}}
+
+# query: terminals
+# we cannot access the 'inService' Status
+SELECT *
+{
+    {
+        SELECT DISTINCT ?Terminal
+        WHERE {
+            {
+                ?Terminal a cim:Terminal .
+            }
+            UNION
+            {
+                SELECT ?Terminal
+                WHERE {
+                    ?SvPowerFlow a cim:SvPowerFlow ;
+                        cim:SvPowerFlow.Terminal ?Terminal .
+                }
+            }
+        }
+    }
+    OPTIONAL {
+        ?Terminal cim:ACDCTerminal.connected ?connected .
+    }
+    OPTIONAL {
+        ?SvPowerFlow a cim:SvPowerFlow ;
+            cim:SvPowerFlow.Terminal ?Terminal ;
+            cim:SvPowerFlow.p ?p ;
+            cim:SvPowerFlow.q ?q .
+    }
+    OPTIONAL {
+        ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
+    }
+}
+
+# query: operationalLimits
+SELECT *
+{
+    ?OperationalLimit a ?type ;
+        VALUES ?type { cim:CurrentLimit cim:ApparentPowerLimit cim:ActivePowerLimit cim:VoltageLimit } .
+        OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
+        OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
+        OPTIONAL { ?OperationalLimit cim:ActivePowerLimit.value ?value }
+        OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
+}
+
+# query: svVoltages
+SELECT *
+WHERE {
+    ?SvVoltage a cim:SvVoltage ;
+        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+        cim:SvVoltage.v ?v ;
+        cim:SvVoltage.angle ?angle .
+}
+
+# query: ratioTapChangers
+SELECT *
+{
+    ?RatioTapChanger a cim:RatioTapChanger ;
+    # return either data from SSH or from SV, but at least some data has to be present to return a row
+    OPTIONAL {
+        ?RatioTapChanger
+            cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
+            cim:TapChanger.step ?step
+    }
+    OPTIONAL {
+        ?SvTapStep a cim:SvTapStep ;
+            cim:SvTapStep.TapChanger ?RatioTapChanger ;
+            cim:SvTapStep.position ?SVtapStep
+    }
+}
+
+# query: phaseTapChangers
+SELECT *
+{
+    ?PhaseTapChanger a ?phaseTapChangerType ;
+    VALUES ?phaseTapChangerType { cim:PhaseTapChangerLinear cim:PhaseTapChangerAsymmetrical cim:PhaseTapChangerNonLinear cim:PhaseTapChangerTabular } .
+    OPTIONAL {
+        ?PhaseTapChanger
+            cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
+            cim:TapChanger.step ?step
+    }
+    OPTIONAL {
+        ?SVTapStep a cim:SvTapStep ;
+            cim:SvTapStep.TapChanger ?PhaseTapChanger ;
+            cim:SvTapStep.position ?SVtapStep
+    }
+}
+
+# query: regulatingControls
+SELECT *
+{
+    {
+        ?RegulatingControl a cim:RegulatingControl
+    }
+    UNION
+    {
+        ?RegulatingControl a cim:TapChangerControl
+    }
+    OPTIONAL {
+        ?RegulatingControl
+            cim:RegulatingControl.enabled ?enabled ;
+            cim:RegulatingControl.targetValue ?targetValue ;
+            cim:RegulatingControl.targetValueUnitMultiplier ?targetValueUnitMultiplier ;
+            cim:RegulatingControl.discrete ?discrete .
+        OPTIONAL { ?RegulatingControl cim:RegulatingControl.targetDeadband ?targetDeadband }
+    }
+}
+
+# query: energyConsumers
+SELECT *
+{
+    ?EnergyConsumer a ?type ;
+            cim:EnergyConsumer.p ?p ;
+            cim:EnergyConsumer.q ?q .
+    VALUES ?type { cim:EnergyConsumer cim:ConformLoad cim:NonConformLoad cim:StationSupply }
+}
+
+# query: energySources
+SELECT *
+{
+    ?EnergySource a cim:EnergySource ;
+            cim:EnergySource.activePower ?p ;
+            cim:EnergySource.reactivePower ?q
+}
+
+# query: asynchronousMachines
+SELECT *
+{
+    ?AsynchronousMachine a cim:AsynchronousMachine ;
+        cim:AsynchronousMachine.asynchronousMachineType ?type ;
+        cim:RotatingMachine.p ?p ;
+        cim:RotatingMachine.q ?q ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled
+}
