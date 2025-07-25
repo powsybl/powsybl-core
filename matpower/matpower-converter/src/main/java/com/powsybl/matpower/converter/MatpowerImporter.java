@@ -606,6 +606,7 @@ public class MatpowerImporter implements Importer {
                     branch -> branch.getR() == 0.0 && branch.getX() == 0.0,
                     branch -> isTransformer(model, branch),
                     busNumber -> getNominalVFromBusNumber(busNumToMBus, busNumber, ignoreBaseVoltage),
+                    busNumber -> 0,
                     busNums -> getId(VOLTAGE_LEVEL_PREFIX, busNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty busNums"))),
                     substationNums -> getId(SUBSTATION_PREFIX, substationNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty substationNums"))));
 
