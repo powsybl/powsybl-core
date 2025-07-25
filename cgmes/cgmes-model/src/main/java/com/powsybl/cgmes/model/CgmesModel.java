@@ -239,4 +239,8 @@ public interface CgmesModel {
     double nominalVoltage(String baseVoltageId);
 
     PropertyBags modelProfiles();
+
+    default void setQueryCatalog(String s) {
+        // Do nothing
+    }
 }
