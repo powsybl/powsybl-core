@@ -67,6 +67,8 @@ class GenerationAdderImpl implements DanglingLineAdder.GenerationAdder {
     @Override
     public DanglingLineAdderImpl add() {
         NetworkImpl network = parent.getNetwork();
+        ValidationUtil.checkMinP(parent, minP);
+        ValidationUtil.checkMaxP(parent, maxP);
         ValidationUtil.checkActivePowerLimits(parent, minP, maxP);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(parent, targetP, network.getMinValidationLevel(),
                 network.getReportNodeContext().getReportNode()));
