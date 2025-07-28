@@ -1,0 +1,1467 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:skagerrak_EQ">
+    <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+    <md:Model.description>Skagerrak</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:GeographicalRegion rdf:ID="_GR">
+    <cim:IdentifiedObject.name>Geographical region</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:SubGeographicalRegion rdf:ID="_SGR">
+    <cim:IdentifiedObject.name>Subgeographical region</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_GR"/>
+</cim:SubGeographicalRegion>
+<cim:Substation rdf:ID="_ST_1">
+    <cim:IdentifiedObject.name>Substation 1</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SGR"/>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_VL_1_150">
+    <cim:IdentifiedObject.name>Voltage level 1 150</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_150"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_1"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_1_1">
+    <cim:IdentifiedObject.name>Node 1 1</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1_150"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_CN_1_2">
+    <cim:IdentifiedObject.name>Node 1 2</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1_150"/>
+</cim:ConnectivityNode>
+<cim:VoltageLevel rdf:ID="_VL_1_400">
+    <cim:IdentifiedObject.name>Voltage level 1 400</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_400"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_1"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_1_3">
+    <cim:IdentifiedObject.name>Node 1 3</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1_400"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_CN_1_4">
+    <cim:IdentifiedObject.name>Node 1 4</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1_400"/>
+</cim:ConnectivityNode>
+<cim:VoltageLevel rdf:ID="_VL_1_110">
+    <cim:IdentifiedObject.name>Voltage level 1 110</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_110"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_1"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_1_1A">
+    <cim:IdentifiedObject.name>Node 1 1A</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1_110"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_CN_1_1B">
+    <cim:IdentifiedObject.name>Node 1 1B</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1_110"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_CN_1_2A">
+    <cim:IdentifiedObject.name>Node 1 2A</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1_110"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_CN_1_2B">
+    <cim:IdentifiedObject.name>Node 1 2B</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1_110"/>
+</cim:ConnectivityNode>
+<cim:VoltageLevel rdf:ID="_VL_1_135">
+    <cim:IdentifiedObject.name>Voltage level 1 135</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_135"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_1"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_1_3A">
+    <cim:IdentifiedObject.name>Node 1 3A</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1_135"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_CN_1_3B">
+    <cim:IdentifiedObject.name>Node 1 3B</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1_135"/>
+</cim:ConnectivityNode>
+<cim:VoltageLevel rdf:ID="_VL_1_330">
+    <cim:IdentifiedObject.name>Voltage level 1 330</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_330"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_1"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_1_4C">
+    <cim:IdentifiedObject.name>Node 1 4C</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1_330"/>
+</cim:ConnectivityNode>
+<cim:PowerTransformer rdf:ID="_PT_1_1">
+    <cim:IdentifiedObject.name>PowerTransformer 1 1</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_ST_1" />
+</cim:PowerTransformer>
+<cim:PowerTransformerEnd rdf:ID="_PTE_1_1_1">
+    <cim:IdentifiedObject.name>TransformerEnd 1 1 1</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>165</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_1_1"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_1_1_1"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_150"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_1_1_2">
+    <cim:IdentifiedObject.name>TransformerEnd 1 1 2</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_1_1"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_1_1_2"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_1_1_3">
+    <cim:IdentifiedObject.name>TransformerEnd 1 1 3</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>3</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_1_1"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_1_1_3"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_PTE_1_1_1">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 1 1 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_1_1_1"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_1"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_1_1_2">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 1 1 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_1_1_2"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_1A"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_1_1_3">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 1 1 3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_1_1_3"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_1B"/>
+</cim:Terminal>
+<cim:PowerTransformer rdf:ID="_PT_1_2">
+    <cim:IdentifiedObject.name>PowerTransformer 1 2</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_ST_1" />
+</cim:PowerTransformer>
+<cim:PowerTransformerEnd rdf:ID="_PTE_1_2_1">
+    <cim:IdentifiedObject.name>TransformerEnd 1 2 1</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>165</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_1_2"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_1_2_1"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_150"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_1_2_2">
+    <cim:IdentifiedObject.name>TransformerEnd 1 2 2</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_1_2"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_1_2_2"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_1_2_3">
+    <cim:IdentifiedObject.name>TransformerEnd 1 2 3</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>3</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_1_2"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_1_2_3"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_PTE_1_2_1">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 1 2 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_1_2_1"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_2"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_1_2_2">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 1 2 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_1_2_2"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_2A"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_1_2_3">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 1 2 3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_1_2_3"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_2B"/>
+</cim:Terminal>
+<cim:PowerTransformer rdf:ID="_PT_1_3">
+    <cim:IdentifiedObject.name>PowerTransformer 1 3</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_ST_1" />
+</cim:PowerTransformer>
+<cim:PowerTransformerEnd rdf:ID="_PTE_1_3_1">
+    <cim:IdentifiedObject.name>TransformerEnd 1 3 1</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_1_3"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_1_3_1"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_400"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_1_3_2">
+    <cim:IdentifiedObject.name>TransformerEnd 1 3 2</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>143</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_1_3"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_1_3_2"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_135"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_1_3_3">
+    <cim:IdentifiedObject.name>TransformerEnd 1 3 3</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>3</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>143</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_1_3"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_1_3_3"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_135"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_PTE_1_3_1">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 1 3 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_1_3_1"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_3"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_1_3_2">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 1 3 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_1_3_2"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_3A"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_1_3_3">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 1 3 3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_1_3_3"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_3B"/>
+</cim:Terminal>
+<cim:PowerTransformer rdf:ID="_PT_1_4">
+    <cim:IdentifiedObject.name>PowerTransformer 1 4</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_ST_1" />
+</cim:PowerTransformer>
+<cim:PowerTransformerEnd rdf:ID="_PTE_1_4_1">
+    <cim:IdentifiedObject.name>TransformerEnd 1 4 1</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_1_4"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_1_4_1"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_400"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_1_4_2">
+    <cim:IdentifiedObject.name>TransformerEnd 1 4 2</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>326</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_1_4"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_1_4_2"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_330"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_PTE_1_4_1">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 1 4 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_1_4_1"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_4"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_1_4_2">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 1 4 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_1_4_2"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_4C"/>
+</cim:Terminal>
+<cim:DCConverterUnit rdf:ID="_DCCU_1_12">
+    <cim:IdentifiedObject.name>DC converter unit 1 12</cim:IdentifiedObject.name>
+    <cim:DCConverterUnit.operationMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#DCConverterOperatingModeKind.bipolar"/>
+    <cim:DCConverterUnit.Substation rdf:resource="#_ST_1"/>
+</cim:DCConverterUnit>
+<cim:DCNode rdf:ID="_DCN_1_1P">
+    <cim:IdentifiedObject.name>DC node 1 1P</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_1_12"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_1_1N">
+    <cim:IdentifiedObject.name>DC node 1 1N</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_1_12"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_1_2P">
+    <cim:IdentifiedObject.name>DC node 1 2P</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_1_12"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_1_2N">
+    <cim:IdentifiedObject.name>DC node 1 2N</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_1_12"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_1_1">
+    <cim:IdentifiedObject.name>DC node 1 1</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_1_12"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_1_2">
+    <cim:IdentifiedObject.name>DC node 1 2</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_1_12"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_1_G">
+    <cim:IdentifiedObject.name>DC node 1 G</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_1_12"/>
+</cim:DCNode>
+<cim:CsConverter rdf:ID="_CSC_1_1">
+    <cim:IdentifiedObject.name>Current source converter 1 1</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_12"/>
+    <cim:ACDCConverter.ratedUdc>250</cim:ACDCConverter.ratedUdc>
+    <cim:ACDCConverter.idleLoss>0.1</cim:ACDCConverter.idleLoss>
+    <cim:ACDCConverter.switchingLoss>0.0003</cim:ACDCConverter.switchingLoss>
+    <cim:ACDCConverter.resistiveLoss>0.6</cim:ACDCConverter.resistiveLoss>
+    <cim:ACDCConverter.PccTerminal rdf:resource="#_T_PTE_1_1_1"/>
+</cim:CsConverter>
+<cim:Terminal rdf:ID="_T_CSC_1_1_1">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 1 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_1A"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_CSC_1_1"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_CSC_1_1_2">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 1 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_1B"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_CSC_1_1"/>
+</cim:Terminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_1_1_3">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 1 3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_1P"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_1_1"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_1_1_4">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 1 4</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_1N"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_1_1"/>
+</cim:ACDCConverterDCTerminal>
+<cim:CsConverter rdf:ID="_CSC_1_2">
+    <cim:IdentifiedObject.name>Current source converter 1 2</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_12"/>
+    <cim:ACDCConverter.ratedUdc>250</cim:ACDCConverter.ratedUdc>
+    <cim:ACDCConverter.idleLoss>0.1</cim:ACDCConverter.idleLoss>
+    <cim:ACDCConverter.switchingLoss>0.0003</cim:ACDCConverter.switchingLoss>
+    <cim:ACDCConverter.resistiveLoss>0.6</cim:ACDCConverter.resistiveLoss>
+    <cim:ACDCConverter.PccTerminal rdf:resource="#_T_PTE_1_2_1"/>
+</cim:CsConverter>
+<cim:Terminal rdf:ID="_T_CSC_1_2_1">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 2 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_2A"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_CSC_1_2"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_CSC_1_2_2">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 2 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_2B"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_CSC_1_2"/>
+</cim:Terminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_1_2_3">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 2 3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_2P"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_1_2"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_1_2_4">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 2 4</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_2N"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_1_2"/>
+</cim:ACDCConverterDCTerminal>
+<cim:DCBreaker rdf:ID="_DCSW_1_1">
+    <cim:IdentifiedObject.name>DC breaker 1 1</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_12"/>
+</cim:DCBreaker>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_1_1">
+    <cim:IdentifiedObject.name>Terminal DC breaker 1 1 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_1"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_1"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_1_2">
+    <cim:IdentifiedObject.name>Terminal DC breaker 1 1 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_1"/>
+</cim:DCTerminal>
+<cim:DCBreaker rdf:ID="_DCSW_1_2">
+    <cim:IdentifiedObject.name>DC breaker 1 2</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_12"/>
+</cim:DCBreaker>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_2_1">
+    <cim:IdentifiedObject.name>Terminal DC breaker 1 2 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_2"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_2_2">
+    <cim:IdentifiedObject.name>Terminal DC breaker 1 2 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_2"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_2"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_1_1P">
+    <cim:IdentifiedObject.name>DC disconnector 1 1P</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_12"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_1P_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 1P 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_1P"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_1P"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_1P_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 1P 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_1"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_1P"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_1_1N">
+    <cim:IdentifiedObject.name>DC disconnector 1 1N</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_12"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_1N_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 1N 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_1N"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_1N"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_1N_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 1N 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_1N"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_1_2P">
+    <cim:IdentifiedObject.name>DC disconnector 1 2P</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_12"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_2P_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 2P 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_2P"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_2P"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_2P_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 2P 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_2"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_2P"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_1_2N">
+    <cim:IdentifiedObject.name>DC disconnector 1 2N</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_12"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_2N_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 2N 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_2N"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_2N"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_2N_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 2N 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_2N"/>
+</cim:DCTerminal>
+<cim:DCConverterUnit rdf:ID="_DCCU_1_34">
+    <cim:IdentifiedObject.name>DC converter unit 1 34</cim:IdentifiedObject.name>
+    <cim:DCConverterUnit.operationMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#DCConverterOperatingModeKind.bipolar"/>
+    <cim:DCConverterUnit.Substation rdf:resource="#_ST_1"/>
+</cim:DCConverterUnit>
+<cim:DCNode rdf:ID="_DCN_1_3P">
+    <cim:IdentifiedObject.name>DC node 1 3P</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_1_34"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_1_3N">
+    <cim:IdentifiedObject.name>DC node 1 3N</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_1_34"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_1_4P">
+    <cim:IdentifiedObject.name>DC node 1 4P</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_1_34"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_1_4N">
+    <cim:IdentifiedObject.name>DC node 1 4N</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_1_34"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_1_3">
+    <cim:IdentifiedObject.name>DC node 1 3</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_1_34"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_1_4">
+    <cim:IdentifiedObject.name>DC node 1 4</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_1_34"/>
+</cim:DCNode>
+<cim:CsConverter rdf:ID="_CSC_1_3">
+    <cim:IdentifiedObject.name>Current source converter 1 3</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_34"/>
+    <cim:ACDCConverter.ratedUdc>500</cim:ACDCConverter.ratedUdc>
+    <cim:ACDCConverter.idleLoss>0.2</cim:ACDCConverter.idleLoss>
+    <cim:ACDCConverter.switchingLoss>0.0006</cim:ACDCConverter.switchingLoss>
+    <cim:ACDCConverter.resistiveLoss>1.2</cim:ACDCConverter.resistiveLoss>
+    <cim:ACDCConverter.PccTerminal rdf:resource="#_T_PTE_1_3_1"/>
+</cim:CsConverter>
+<cim:Terminal rdf:ID="_T_CSC_1_3_1">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 3 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_3A"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_CSC_1_3"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_CSC_1_3_2">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 3 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_3B"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_CSC_1_3"/>
+</cim:Terminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_1_3_3">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 3 3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_3P"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_1_3"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_1_3_4">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 3 4</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_3N"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_1_3"/>
+</cim:ACDCConverterDCTerminal>
+<cim:VsConverter rdf:ID="_VSC_1_4">
+    <cim:IdentifiedObject.name>Voltage source converter 1 4</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_34"/>
+    <cim:ACDCConverter.ratedUdc>500</cim:ACDCConverter.ratedUdc>
+    <cim:ACDCConverter.idleLoss>0.2</cim:ACDCConverter.idleLoss>
+    <cim:ACDCConverter.switchingLoss>0.0006</cim:ACDCConverter.switchingLoss>
+    <cim:ACDCConverter.resistiveLoss>1.2</cim:ACDCConverter.resistiveLoss>
+    <cim:ACDCConverter.PccTerminal rdf:resource="#_T_PTE_1_4_1"/>
+</cim:VsConverter>
+<cim:Terminal rdf:ID="_T_VSC_1_4_1">
+    <cim:IdentifiedObject.name>Terminal Voltage source converter 1 4 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1_4C"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_VSC_1_4"/>
+</cim:Terminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_VSC_1_4_2">
+    <cim:IdentifiedObject.name>Terminal Voltage source converter 1 4 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_4P"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_VSC_1_4"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_VSC_1_4_3">
+    <cim:IdentifiedObject.name>Terminal Voltage source converter 1 4 3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_4N"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_VSC_1_4"/>
+</cim:ACDCConverterDCTerminal>
+<cim:DCBreaker rdf:ID="_DCSW_1_3">
+    <cim:IdentifiedObject.name>DC breaker 1 3</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_34"/>
+</cim:DCBreaker>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_3_1">
+    <cim:IdentifiedObject.name>Terminal DC breaker 1 3 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_3"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_3"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_3_2">
+    <cim:IdentifiedObject.name>Terminal DC breaker 1 3 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_3"/>
+</cim:DCTerminal>
+<cim:DCBreaker rdf:ID="_DCSW_1_4">
+    <cim:IdentifiedObject.name>DC breaker 1 4</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_34"/>
+</cim:DCBreaker>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_4_1">
+    <cim:IdentifiedObject.name>Terminal DC breaker 1 4 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_4"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_4_2">
+    <cim:IdentifiedObject.name>Terminal DC breaker 1 4 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_4"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_4"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_1_3P">
+    <cim:IdentifiedObject.name>DC disconnector 1 3P</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_34"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_3P_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 3P 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_3P"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_3P"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_3P_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 3P 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_3"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_3P"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_1_3N">
+    <cim:IdentifiedObject.name>DC disconnector 1 3N</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_34"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_3N_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 3N 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_3N"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_3N"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_3N_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 3N 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_3N"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_1_4P">
+    <cim:IdentifiedObject.name>DC disconnector 1 4P</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_34"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_4P_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 4P 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_4P"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_4P"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_4P_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 4P 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_4"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_4P"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_1_4N">
+    <cim:IdentifiedObject.name>DC disconnector 1 4N</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_34"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_4N_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 4N 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_4N"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_4N"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_1_4N_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 1 4N 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_1_4N"/>
+</cim:DCTerminal>
+<cim:Substation rdf:ID="_ST_2">
+    <cim:IdentifiedObject.name>Substation 2</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SGR"/>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_VL_2_300">
+    <cim:IdentifiedObject.name>Voltage level 2 300</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_300"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_2"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_2_1">
+    <cim:IdentifiedObject.name>Node 2 1</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2_300"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_CN_2_2">
+    <cim:IdentifiedObject.name>Node 2 2</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2_300"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_CN_2_3">
+    <cim:IdentifiedObject.name>Node 2 3</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2_300"/>
+</cim:ConnectivityNode>
+<cim:VoltageLevel rdf:ID="_VL_2_400">
+    <cim:IdentifiedObject.name>Voltage level 2 400</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_400"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_2"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_2_4">
+    <cim:IdentifiedObject.name>Node 2 4</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2_400"/>
+</cim:ConnectivityNode>
+<cim:VoltageLevel rdf:ID="_VL_2_110">
+    <cim:IdentifiedObject.name>Voltage level 2 110</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_110"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_2"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_2_1A">
+    <cim:IdentifiedObject.name>Node 2 1A</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2_110"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_CN_2_1B">
+    <cim:IdentifiedObject.name>Node 2 1B</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2_110"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_CN_2_2A">
+    <cim:IdentifiedObject.name>Node 2 2A</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2_110"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_CN_2_2B">
+    <cim:IdentifiedObject.name>Node 2 2B</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2_110"/>
+</cim:ConnectivityNode>
+<cim:VoltageLevel rdf:ID="_VL_2_135">
+    <cim:IdentifiedObject.name>Voltage level 2 135</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_135"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_2"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_2_3A">
+    <cim:IdentifiedObject.name>Node 2 3A</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2_135"/>
+</cim:ConnectivityNode>
+<cim:ConnectivityNode rdf:ID="_CN_2_3B">
+    <cim:IdentifiedObject.name>Node 2 3B</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2_135"/>
+</cim:ConnectivityNode>
+<cim:VoltageLevel rdf:ID="_VL_2_330">
+    <cim:IdentifiedObject.name>Voltage level 2 330</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_330"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_2"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_2_4C">
+    <cim:IdentifiedObject.name>Node 2 4C</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2_330"/>
+</cim:ConnectivityNode>
+<cim:PowerTransformer rdf:ID="_PT_2_1">
+    <cim:IdentifiedObject.name>PowerTransformer 2 1</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_ST_2" />
+</cim:PowerTransformer>
+<cim:PowerTransformerEnd rdf:ID="_PTE_2_1_1">
+    <cim:IdentifiedObject.name>TransformerEnd 2 1 1</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>300</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_2_1"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_2_1_1"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_300"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_2_1_2">
+    <cim:IdentifiedObject.name>TransformerEnd 2 1 2</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_2_1"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_2_1_2"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_2_1_3">
+    <cim:IdentifiedObject.name>TransformerEnd 2 1 3</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>3</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_2_1"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_2_1_3"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_PTE_2_1_1">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 2 1 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_2_1_1"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_1"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_2_1_2">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 2 1 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_2_1_2"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_1A"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_2_1_3">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 2 1 3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_2_1_3"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_1B"/>
+</cim:Terminal>
+<cim:PowerTransformer rdf:ID="_PT_2_2">
+    <cim:IdentifiedObject.name>PowerTransformer 2 2</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_ST_2" />
+</cim:PowerTransformer>
+<cim:PowerTransformerEnd rdf:ID="_PTE_2_2_1">
+    <cim:IdentifiedObject.name>TransformerEnd 2 2 1</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>300</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_2_2"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_2_2_1"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_300"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_2_2_2">
+    <cim:IdentifiedObject.name>TransformerEnd 2 2 2</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_2_2"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_2_2_2"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_2_2_3">
+    <cim:IdentifiedObject.name>TransformerEnd 2 2 3</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>3</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_2_2"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_2_2_3"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_PTE_2_2_1">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 2 2 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_2_2_1"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_2"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_2_2_2">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 2 2 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_2_2_2"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_2A"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_2_2_3">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 2 2 3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_2_2_3"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_2B"/>
+</cim:Terminal>
+<cim:PowerTransformer rdf:ID="_PT_2_3">
+    <cim:IdentifiedObject.name>PowerTransformer 2 3</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_ST_2" />
+</cim:PowerTransformer>
+<cim:PowerTransformerEnd rdf:ID="_PTE_2_3_1">
+    <cim:IdentifiedObject.name>TransformerEnd 2 3 1</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>300</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_2_3"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_2_3_1"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_300"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_2_3_2">
+    <cim:IdentifiedObject.name>TransformerEnd 2 3 2</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>132</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_2_3"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_2_3_2"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_135"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_2_3_3">
+    <cim:IdentifiedObject.name>TransformerEnd 2 3 3</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>3</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>132</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_2_3"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_2_3_3"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_135"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_PTE_2_3_1">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 2 3 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_2_3_1"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_3"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_2_3_2">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 2 3 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_2_3_2"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_3A"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_2_3_3">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 2 3 3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_2_3_3"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_3B"/>
+</cim:Terminal>
+<cim:PowerTransformer rdf:ID="_PT_2_4">
+    <cim:IdentifiedObject.name>PowerTransformer 2 4</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_ST_2" />
+</cim:PowerTransformer>
+<cim:PowerTransformerEnd rdf:ID="_PTE_2_4_1">
+    <cim:IdentifiedObject.name>TransformerEnd 2 4 1</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_2_4"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_2_4_1"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_400"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_2_4_2">
+    <cim:IdentifiedObject.name>TransformerEnd 2 4 2</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>326</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_2_4"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_2_4_2"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_330"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_PTE_2_4_1">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 2 4 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_2_4_1"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_4"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_2_4_2">
+    <cim:IdentifiedObject.name>Terminal TransformerEnd 2 4 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PTE_2_4_2"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_4C"/>
+</cim:Terminal>
+<cim:DCConverterUnit rdf:ID="_DCCU_2_12">
+    <cim:IdentifiedObject.name>DC converter unit 2 12</cim:IdentifiedObject.name>
+    <cim:DCConverterUnit.operationMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#DCConverterOperatingModeKind.bipolar"/>
+    <cim:DCConverterUnit.Substation rdf:resource="#_ST_2"/>
+</cim:DCConverterUnit>
+<cim:DCNode rdf:ID="_DCN_2_1P">
+    <cim:IdentifiedObject.name>DC node 2 1P</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_2_12"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_2_1N">
+    <cim:IdentifiedObject.name>DC node 2 1N</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_2_12"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_2_2P">
+    <cim:IdentifiedObject.name>DC node 2 2P</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_2_12"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_2_2N">
+    <cim:IdentifiedObject.name>DC node 2 2N</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_2_12"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_2_1">
+    <cim:IdentifiedObject.name>DC node 2 1</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_2_12"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_2_2">
+    <cim:IdentifiedObject.name>DC node 2 2</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_2_12"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_2_G">
+    <cim:IdentifiedObject.name>DC node 2 G</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_2_12"/>
+</cim:DCNode>
+<cim:CsConverter rdf:ID="_CSC_2_1">
+    <cim:IdentifiedObject.name>Current source converter 2 1</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_12"/>
+    <cim:ACDCConverter.ratedUdc>250</cim:ACDCConverter.ratedUdc>
+    <cim:ACDCConverter.idleLoss>0.1</cim:ACDCConverter.idleLoss>
+    <cim:ACDCConverter.switchingLoss>0.0003</cim:ACDCConverter.switchingLoss>
+    <cim:ACDCConverter.resistiveLoss>0.6</cim:ACDCConverter.resistiveLoss>
+    <cim:ACDCConverter.PccTerminal rdf:resource="#_T_PTE_2_1_1"/>
+</cim:CsConverter>
+<cim:Terminal rdf:ID="_T_CSC_2_1_1">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 1 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_1A"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_CSC_2_1"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_CSC_2_1_2">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 1 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_1B"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_CSC_2_1"/>
+</cim:Terminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_2_1_3">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 1 3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_1P"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_2_1"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_2_1_4">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 1 4</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_1N"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_2_1"/>
+</cim:ACDCConverterDCTerminal>
+<cim:CsConverter rdf:ID="_CSC_2_2">
+    <cim:IdentifiedObject.name>Current source converter 2 2</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_12"/>
+    <cim:ACDCConverter.ratedUdc>250</cim:ACDCConverter.ratedUdc>
+    <cim:ACDCConverter.idleLoss>0.1</cim:ACDCConverter.idleLoss>
+    <cim:ACDCConverter.switchingLoss>0.0003</cim:ACDCConverter.switchingLoss>
+    <cim:ACDCConverter.resistiveLoss>0.6</cim:ACDCConverter.resistiveLoss>
+    <cim:ACDCConverter.PccTerminal rdf:resource="#_T_PTE_2_2_1"/>
+</cim:CsConverter>
+<cim:Terminal rdf:ID="_T_CSC_2_2_1">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 2 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_2A"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_CSC_2_2"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_CSC_2_2_2">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 2 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_2B"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_CSC_2_2"/>
+</cim:Terminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_2_2_3">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 2 3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_2P"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_2_2"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_2_2_4">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 2 4</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_2N"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_2_2"/>
+</cim:ACDCConverterDCTerminal>
+<cim:DCBreaker rdf:ID="_DCSW_2_1">
+    <cim:IdentifiedObject.name>DC breaker 2 1</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_12"/>
+</cim:DCBreaker>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_1_1">
+    <cim:IdentifiedObject.name>Terminal DC breaker 2 1 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_1"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_1"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_1_2">
+    <cim:IdentifiedObject.name>Terminal DC breaker 2 1 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_1"/>
+</cim:DCTerminal>
+<cim:DCBreaker rdf:ID="_DCSW_2_2">
+    <cim:IdentifiedObject.name>DC breaker 2 2</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_12"/>
+</cim:DCBreaker>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_2_1">
+    <cim:IdentifiedObject.name>Terminal DC breaker 2 2 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_2"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_2"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_2_2">
+    <cim:IdentifiedObject.name>Terminal DC breaker 2 2 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_2"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_2_1P">
+    <cim:IdentifiedObject.name>DC disconnector 2 1P</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_12"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_1P_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 1P 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_1P"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_1P"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_1P_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 1P 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_1"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_1P"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_2_1N">
+    <cim:IdentifiedObject.name>DC disconnector 2 1N</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_12"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_1N_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 1N 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_1N"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_1N"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_1N_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 1N 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_1N"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_2_2P">
+    <cim:IdentifiedObject.name>DC disconnector 2 2P</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_12"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_2P_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 2P 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_2P"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_2P"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_2P_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 2P 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_2"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_2P"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_2_2N">
+    <cim:IdentifiedObject.name>DC disconnector 2 2N</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_12"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_2N_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 2N 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_2N"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_2N"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_2N_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 2N 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_2N"/>
+</cim:DCTerminal>
+<cim:DCConverterUnit rdf:ID="_DCCU_2_34">
+    <cim:IdentifiedObject.name>DC converter unit 2 34</cim:IdentifiedObject.name>
+    <cim:DCConverterUnit.operationMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#DCConverterOperatingModeKind.bipolar"/>
+    <cim:DCConverterUnit.Substation rdf:resource="#_ST_2"/>
+</cim:DCConverterUnit>
+<cim:DCNode rdf:ID="_DCN_2_3P">
+    <cim:IdentifiedObject.name>DC node 2 3P</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_2_34"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_2_3N">
+    <cim:IdentifiedObject.name>DC node 2 3N</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_2_34"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_2_4P">
+    <cim:IdentifiedObject.name>DC node 2 4P</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_2_34"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_2_4N">
+    <cim:IdentifiedObject.name>DC node 2 4N</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_2_34"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_2_3">
+    <cim:IdentifiedObject.name>DC node 2 3</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_2_34"/>
+</cim:DCNode>
+<cim:DCNode rdf:ID="_DCN_2_4">
+    <cim:IdentifiedObject.name>DC node 2 4</cim:IdentifiedObject.name>
+    <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCCU_2_34"/>
+</cim:DCNode>
+<cim:CsConverter rdf:ID="_CSC_2_3">
+    <cim:IdentifiedObject.name>Current source converter 2 3</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_34"/>
+    <cim:ACDCConverter.ratedUdc>500</cim:ACDCConverter.ratedUdc>
+    <cim:ACDCConverter.idleLoss>0.2</cim:ACDCConverter.idleLoss>
+    <cim:ACDCConverter.switchingLoss>0.0006</cim:ACDCConverter.switchingLoss>
+    <cim:ACDCConverter.resistiveLoss>1.2</cim:ACDCConverter.resistiveLoss>
+    <cim:ACDCConverter.PccTerminal rdf:resource="#_T_PTE_2_3_1"/>
+</cim:CsConverter>
+<cim:Terminal rdf:ID="_T_CSC_2_3_1">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 3 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_3A"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_CSC_2_3"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_CSC_2_3_2">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 3 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_3B"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_CSC_2_3"/>
+</cim:Terminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_2_3_3">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 3 3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_3P"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_2_3"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_2_3_4">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 3 4</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_3N"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_2_3"/>
+</cim:ACDCConverterDCTerminal>
+<cim:VsConverter rdf:ID="_VSC_2_4">
+    <cim:IdentifiedObject.name>Voltage source converter 2 4</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_34"/>
+    <cim:ACDCConverter.ratedUdc>500</cim:ACDCConverter.ratedUdc>
+    <cim:ACDCConverter.idleLoss>0.2</cim:ACDCConverter.idleLoss>
+    <cim:ACDCConverter.switchingLoss>0.0006</cim:ACDCConverter.switchingLoss>
+    <cim:ACDCConverter.resistiveLoss>1.2</cim:ACDCConverter.resistiveLoss>
+</cim:VsConverter>
+<cim:Terminal rdf:ID="_T_VSC_2_4_1">
+    <cim:IdentifiedObject.name>Terminal Voltage source converter 2 4 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2_4C"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_VSC_2_4"/>
+</cim:Terminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_VSC_2_4_2">
+    <cim:IdentifiedObject.name>Terminal Voltage source converter 2 4 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_4P"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_VSC_2_4"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_VSC_2_4_3">
+    <cim:IdentifiedObject.name>Terminal Voltage source converter 2 4 3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_4N"/>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_VSC_2_4"/>
+</cim:ACDCConverterDCTerminal>
+<cim:DCBreaker rdf:ID="_DCSW_2_3">
+    <cim:IdentifiedObject.name>DC breaker 2 3</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_34"/>
+</cim:DCBreaker>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_3_1">
+    <cim:IdentifiedObject.name>Terminal DC breaker 2 3 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_3"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_3"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_3_2">
+    <cim:IdentifiedObject.name>Terminal DC breaker 2 3 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_3"/>
+</cim:DCTerminal>
+<cim:DCBreaker rdf:ID="_DCSW_2_4">
+    <cim:IdentifiedObject.name>DC breaker 2 4</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_34"/>
+</cim:DCBreaker>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_4_1">
+    <cim:IdentifiedObject.name>Terminal DC breaker 2 4 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_4"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_4_2">
+    <cim:IdentifiedObject.name>Terminal DC breaker 2 4 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_4"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_4"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_2_3P">
+    <cim:IdentifiedObject.name>DC disconnector 2 3P</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_34"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_3P_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 3P 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_3P"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_3P"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_3P_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 3P 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_3"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_3P"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_2_3N">
+    <cim:IdentifiedObject.name>DC disconnector 2 3N</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_34"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_3N_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 3N 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_3N"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_3N"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_3N_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 3N 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_3N"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_2_4P">
+    <cim:IdentifiedObject.name>DC disconnector 2 4P</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_34"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_4P_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 4P 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_4P"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_4P"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_4P_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 4P 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_4"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_4P"/>
+</cim:DCTerminal>
+<cim:DCDisconnector rdf:ID="_DCSW_2_4N">
+    <cim:IdentifiedObject.name>DC disconnector 2 4N</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_34"/>
+</cim:DCDisconnector>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_4N_1">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 4N 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_4N"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_4N"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCSW_2_4N_2">
+    <cim:IdentifiedObject.name>Terminal DC disconnector 2 4N 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW_2_4N"/>
+</cim:DCTerminal>
+<cim:DCLineSegment rdf:ID="_DCL_1">
+    <cim:IdentifiedObject.name>DC line 1</cim:IdentifiedObject.name>
+    <cim:DCLineSegment.resistance>0.5</cim:DCLineSegment.resistance>
+</cim:DCLineSegment>
+<cim:DCTerminal rdf:ID="_T_DCL_1_1">
+    <cim:IdentifiedObject.name>Terminal DC line 1 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_1"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_1"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCL_1_2">
+    <cim:IdentifiedObject.name>Terminal DC line 1 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_1"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_1"/>
+</cim:DCTerminal>
+<cim:DCLineSegment rdf:ID="_DCL_2">
+    <cim:IdentifiedObject.name>DC line 2</cim:IdentifiedObject.name>
+    <cim:DCLineSegment.resistance>0.5</cim:DCLineSegment.resistance>
+</cim:DCLineSegment>
+<cim:DCTerminal rdf:ID="_T_DCL_2_1">
+    <cim:IdentifiedObject.name>Terminal DC line 2 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_2"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_2"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCL_2_2">
+    <cim:IdentifiedObject.name>Terminal DC line 2 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_2"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_2"/>
+</cim:DCTerminal>
+<cim:DCLineSegment rdf:ID="_DCL_3">
+    <cim:IdentifiedObject.name>DC line 3</cim:IdentifiedObject.name>
+    <cim:DCLineSegment.resistance>1.0</cim:DCLineSegment.resistance>
+</cim:DCLineSegment>
+<cim:DCTerminal rdf:ID="_T_DCL_3_1">
+    <cim:IdentifiedObject.name>Terminal DC line 3 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_3"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_3"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCL_3_2">
+    <cim:IdentifiedObject.name>Terminal DC line 3 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_3"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_3"/>
+</cim:DCTerminal>
+<cim:DCLineSegment rdf:ID="_DCL_4">
+    <cim:IdentifiedObject.name>DC line 4</cim:IdentifiedObject.name>
+    <cim:DCLineSegment.resistance>1.0</cim:DCLineSegment.resistance>
+</cim:DCLineSegment>
+<cim:DCTerminal rdf:ID="_T_DCL_4_1">
+    <cim:IdentifiedObject.name>Terminal DC line 4 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_4"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_4"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCL_4_2">
+    <cim:IdentifiedObject.name>Terminal DC line 4 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_4"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_4"/>
+</cim:DCTerminal>
+<cim:DCLineSegment rdf:ID="_DCL_G">
+    <cim:IdentifiedObject.name>DC line G</cim:IdentifiedObject.name>
+    <cim:DCLineSegment.resistance>2.0</cim:DCLineSegment.resistance>
+</cim:DCLineSegment>
+<cim:DCTerminal rdf:ID="_T_DCL_G_1">
+    <cim:IdentifiedObject.name>Terminal DC line G 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_G"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCL_G_2">
+    <cim:IdentifiedObject.name>Terminal DC line G 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_G"/>
+</cim:DCTerminal>
+<cim:DCGround rdf:ID="_DCGRND">
+    <cim:IdentifiedObject.name>DC ground</cim:IdentifiedObject.name>
+    <cim:DCGround.r>0.1</cim:DCGround.r>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_12"/>
+</cim:DCGround>
+<cim:DCTerminal rdf:ID="_T_DCGRND">
+    <cim:IdentifiedObject.name>Terminal DC ground</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_G"/>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCGRND"/>
+</cim:DCTerminal>
+<cim:BaseVoltage rdf:ID="_BV_110">
+    <cim:IdentifiedObject.name>110 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_135">
+    <cim:IdentifiedObject.name>135 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>135</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_150">
+    <cim:IdentifiedObject.name>150 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>150</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_300">
+    <cim:IdentifiedObject.name>300 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>300</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_330">
+    <cim:IdentifiedObject.name>330 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>330</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_400">
+    <cim:IdentifiedObject.name>400 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>400</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+</rdf:RDF>
