@@ -80,7 +80,8 @@ public class DCConversion {
         // This comprises DCLineSegment, so a specific DCLineSegment shall be present in 2 DCIslandEnds.
         // The exploration starts with ACDCConverters, this ensures that an island end has at least one converter.
         Set<DCEquipment> visitedDcEquipments = new HashSet<>();
-        dcEquipments.stream().filter(DCEquipment::isConverter)
+        dcEquipments.stream()
+                .filter(DCEquipment::isConverter)
                 .forEach(acDcConverter -> {
                     if (!visitedDcEquipments.contains(acDcConverter)) {
                         Set<DCEquipment> dcIslandEnd = new HashSet<>();
