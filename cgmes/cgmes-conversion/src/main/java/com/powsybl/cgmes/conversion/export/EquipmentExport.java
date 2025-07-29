@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.extensions.*;
@@ -31,6 +32,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getClosestNeutralStep;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getNormalStep;
@@ -50,6 +52,7 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 public final class EquipmentExport {
 
     private static final String AC_DC_CONVERTER_DC_TERMINAL = "ACDCConverterDCTerminal";
+    private static final String MONOPOLAR_GROUND_RETURN = "monopolarGroundReturn";
     private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
@@ -99,6 +102,9 @@ public final class EquipmentExport {
 
             writeDanglingLines(network, mapTerminal2Id, cimNamespace, euNamespace, exportedLimitTypes, writer, context, exportedBaseVoltagesByNominalV);
             writeHvdcLines(network, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);
+
+            Map<DcNode, DCConverterUnit> dcNodesConverterUnit = getDcNodesConverterUnit(network, context);
+            writeDcConverterUnits(network, dcNodesConverterUnit, cimNamespace, writer, context);
 
             writeControlAreas(loadAreaId, network, cimNamespace, euNamespace, writer, context);
 
@@ -1261,14 +1267,14 @@ public final class EquipmentExport {
             // - DCNode 1G is connected to a DCGround inside DCConverterUnit 1.
             // - DCNode 2G is connected to a DCGround inside DCConverterUnit 2.
             String dcConverterUnit1 = context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(1));
-            writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", substation1Id, cimNamespace, writer, context);
+            writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", MONOPOLAR_GROUND_RETURN, substation1Id, cimNamespace, writer, context);
             String dcNode1 = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref(1));
             writeDCNode(dcNode1, line.getNameOrId() + "_1", dcConverterUnit1, cimNamespace, writer, context);
             String dcNode1G = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref("1G"));
             writeDCNode(dcNode1G, line.getNameOrId() + "_1G", dcConverterUnit1, cimNamespace, writer, context);
 
             String dcConverterUnit2 = context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(2));
-            writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_1", substation2Id, cimNamespace, writer, context);
+            writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_1", MONOPOLAR_GROUND_RETURN, substation2Id, cimNamespace, writer, context);
             String dcNode2 = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref(2));
             writeDCNode(dcNode2, line.getNameOrId() + "_2", dcConverterUnit2, cimNamespace, writer, context);
             String dcNode2G = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref("2G"));
@@ -1346,8 +1352,8 @@ public final class EquipmentExport {
         return reactiveLimitsId;
     }
 
-    private static void writeDCConverterUnit(String id, String dcConverterUnitName, String substationId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        DCConverterUnitEq.write(id, dcConverterUnitName, substationId, cimNamespace, writer, context);
+    private static void writeDCConverterUnit(String id, String dcConverterUnitName, String operationMode, String substationId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        DCConverterUnitEq.write(id, dcConverterUnitName, operationMode, substationId, cimNamespace, writer, context);
     }
 
     private static void writeHvdcConverterStation(HvdcConverterStation<?> converterStation, Map<Terminal, String> mapTerminal2Id, double ratedUdc, String dcEquipmentContainerId,
@@ -1377,6 +1383,52 @@ public final class EquipmentExport {
 
     private static void writeAcdcConverterDCTerminal(String id, String name, String conductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         DCTerminalEq.write(AC_DC_CONVERTER_DC_TERMINAL, id, name, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer, context);
+    }
+
+    private static void writeDcConverterUnits(Network network, Map<DcNode, DCConverterUnit> dcNodesConverterUnit, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        // Build DCConverterUnit adjacency.
+        // Unless specified by a property, each ACDCConverter is contained in its own DCConverterUnit.
+        // That means the DCConverterUnit only has knowledge of one DCPole extremity,
+        // and not about a potential secondary DCPole in case of a bipolar dc link.
+        // The presence of another adjacent DCPole is however needed to populate the operatingMode attribute
+        // of the DCConverterUnit, hence then need to retrieve the adjacent unit if any.
+        Map<DCConverterUnit, List<DcNode>> dcNodesByConverterUnit = dcNodesConverterUnit.entrySet().stream()
+                .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+        Map<DCConverterUnit, List<DCConverterUnit>> dcConverterUnitAdjacency = new HashMap<>();
+        List<DCEquipment> dcEquipments = new ArrayList<>();
+        dcEquipments.addAll(getDCEquipmentConverters(network));
+        dcEquipments.addAll(getDCEquipmentSwitches(network));
+        dcNodesByConverterUnit.forEach((converterUnit, dcNodes) ->
+            // Retrieve adjacent units by checking node adjacency.
+            dcConverterUnitAdjacency.put(converterUnit, dcNodes.stream()
+                    .flatMap(n -> getAdjacentNodes(dcEquipments, n.getId()).stream())
+                    .map(network::getDcNode)
+                    .map(dcNodesConverterUnit::get)
+                    .distinct()
+                    .toList()));
+
+        // Write DCConverterUnits
+        for (DCConverterUnit dcConverterUnit : dcNodesByConverterUnit.keySet()) {
+            Set<DcNode> adjacentNodes = dcConverterUnitAdjacency.get(dcConverterUnit).stream()
+                    .flatMap(unit -> dcNodesByConverterUnit.get(unit).stream())
+                    .collect(Collectors.toSet());
+            String operationMode = getDcUnitOperationMode(network, adjacentNodes);
+
+            writeDCConverterUnit(dcConverterUnit.id(), dcConverterUnit.name(), operationMode, dcConverterUnit.substation(), cimNamespace, writer, context);
+        }
+    }
+
+    private static String getDcUnitOperationMode(Network network, Set<DcNode> dcNodes) {
+        if (Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
+                .filter(c -> dcNodes.contains(c.getDcTerminal1().getDcNode()) || dcNodes.contains(c.getDcTerminal2().getDcNode()))
+                .count() > 1) {
+            return "bipolar";
+        } else if (network.getDcLineStream()
+                .filter(l -> dcNodes.contains(l.getDcTerminal1().getDcNode()) || dcNodes.contains(l.getDcTerminal2().getDcNode()))
+                .count() > 1) {
+            return "monopolarMetallicReturn";
+        }
+        return MONOPOLAR_GROUND_RETURN;
     }
 
     private static void writeControlAreas(String energyAreaId, Network network, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -1527,6 +1579,106 @@ public final class EquipmentExport {
         adjacencies.sort(Comparator.comparing(Collections::min));
 
         return adjacencies;
+    }
+
+    private record DCConverterUnit(String id, String name, String substation) { }
+
+    private static Map<DcNode, DCConverterUnit> getDcNodesConverterUnit(Network network, CgmesExportContext context) {
+        // Get the list of converters and their associated dc nodes.
+        Map<String, String> dcNodesConverter = getDcNodesConverter(network);
+        Map<String, List<String>> dcNodesByConverter = dcNodesConverter.entrySet().stream()
+                .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+
+        Map<DcNode, DCConverterUnit> dcNodesConverterUnit = new HashMap<>();
+        dcNodesByConverter.forEach((converterId, dcNodes) -> {
+            // Retrieve the AcDcConverter.
+            LineCommutatedConverter lcc = network.getLineCommutatedConverter(converterId);
+            VoltageSourceConverter vsc = network.getVoltageSourceConverter(converterId);
+            AcDcConverter<?> converter = lcc != null ? lcc : vsc;
+
+            // Get or create the DCConverterUnit for that ACDCConverter.
+            String unitId = converter.getProperty(Conversion.PROPERTY_CGMES_DC_CONVERTER_UNIT,
+                    context.getNamingStrategy().getCgmesId(refTyped(converter), DC_CONVERTER_UNIT));
+            DCConverterUnit dcConverterUnit = dcNodesConverterUnit.values().stream()
+                    .filter(u -> u.id().equals(unitId))
+                    .findFirst()
+                    .orElseGet(() -> new DCConverterUnit(
+                            unitId,
+                            converter.getNameOrId() + " Unit",
+                            context.getNamingStrategy().getCgmesId(converter.getTerminal1().getVoltageLevel().getNullableSubstation())
+                    ));
+
+            // Record each DcNode to DCConverterUnit association.
+            dcNodes.stream()
+                    .map(network::getDcNode)
+                    .forEach(n -> dcNodesConverterUnit.put(n, dcConverterUnit));
+        });
+
+        return dcNodesConverterUnit;
+    }
+
+    private static List<DCEquipment> getDCEquipmentConverters(Network network) {
+        return Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
+                .sorted(Comparator.comparing(AcDcConverter::getId))
+                .map(c -> new DCEquipment(
+                        c.getId(),
+                        CgmesNames.ACDC_CONVERTER,
+                        c.getDcTerminal1().getDcNode().getId(),
+                        c.getDcTerminal2().getDcNode().getId()))
+                .toList();
+    }
+
+    private static List<DCEquipment> getDCEquipmentSwitches(Network network) {
+        return network.getDcSwitchStream()
+                .sorted(Comparator.comparing(DcSwitch::getId))
+                .map(s -> new DCEquipment(
+                        s.getId(),
+                        CgmesNames.DC_SWITCH,
+                        s.getDcNode1().getId(),
+                        s.getDcNode2().getId()))
+                .toList();
+    }
+
+    private static Map<String, String> getDcNodesConverter(Network network) {
+        // Traverse the dc network using breadth first search starting from ACDCConverter DCNodes.
+        List<DCEquipment> converters = getDCEquipmentConverters(network);
+        List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
+        Map<String, String> dcNodesConverter = new HashMap<>();
+        Set<String> visitedDcNodes = new HashSet<>();
+        Queue<String> queue = new LinkedList<>();
+        converters.forEach(converter -> {
+            if (!dcNodesConverter.containsKey(converter.node1())) {
+                dcNodesConverter.put(converter.node1(), converter.id());
+                queue.add(converter.node1());
+            }
+            if (!dcNodesConverter.containsKey(converter.node2())) {
+                dcNodesConverter.put(converter.node2(), converter.id());
+                queue.add(converter.node2());
+            }
+        });
+        while (!queue.isEmpty()) {
+            String node = queue.poll();
+            String converter = dcNodesConverter.get(node);
+            List<String> adjacentNodes = getAdjacentNodes(dcSwitches, node);
+            for (String adjacentNode : adjacentNodes) {
+                if (!visitedDcNodes.contains(adjacentNode)) {
+                    visitedDcNodes.add(adjacentNode);
+                    dcNodesConverter.put(adjacentNode, converter);
+                    queue.add(adjacentNode);
+                }
+            }
+        }
+
+        return dcNodesConverter;
+    }
+
+    private static List<String> getAdjacentNodes(List<DCEquipment> dcEquipments, String node) {
+        // Get the list of nodes adjacent through the given dc equipments.
+        return dcEquipments.stream()
+                .filter(eq -> node.equals(eq.node1()) || node.equals(eq.node2()))
+                .map(eq -> node.equals(eq.node1()) ? eq.node2() : eq.node1())
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     private EquipmentExport() {
