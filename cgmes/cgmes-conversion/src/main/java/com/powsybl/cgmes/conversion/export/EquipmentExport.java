@@ -105,6 +105,7 @@ public final class EquipmentExport {
 
             Map<DcNode, DCConverterUnit> dcNodesConverterUnit = getDcNodesConverterUnit(network, context);
             writeDcConverterUnits(network, dcNodesConverterUnit, cimNamespace, writer, context);
+            writeDcNodes(network, dcNodesConverterUnit, cimNamespace, writer, context);
 
             writeControlAreas(loadAreaId, network, cimNamespace, euNamespace, writer, context);
 
@@ -1429,6 +1430,14 @@ public final class EquipmentExport {
             return "monopolarMetallicReturn";
         }
         return MONOPOLAR_GROUND_RETURN;
+    }
+
+    private static void writeDcNodes(Network network, Map<DcNode, DCConverterUnit> dcNodesConverters, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (DcNode dcNode : network.getDcNodes()) {
+            String dcNodeId = context.getNamingStrategy().getCgmesId(dcNode);
+            String dcConverterUnitId = dcNodesConverters.containsKey(dcNode) ? dcNodesConverters.get(dcNode).id() : null;
+            writeDCNode(dcNodeId, dcNode.getNameOrId(), dcConverterUnitId, cimNamespace, writer, context);
+        }
     }
 
     private static void writeControlAreas(String energyAreaId, Network network, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
