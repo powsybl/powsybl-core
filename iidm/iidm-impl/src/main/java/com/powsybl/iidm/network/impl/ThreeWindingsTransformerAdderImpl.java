@@ -103,10 +103,18 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         }
 
         protected void checkParams() {
-            ValidationUtil.checkR(this, r);
-            ValidationUtil.checkX(this, x);
-            ValidationUtil.checkG(this, g);
-            ValidationUtil.checkB(this, b);
+            if (Double.isNaN(r)) {
+                throw new ValidationException(this, "r is not set");
+            }
+            if (Double.isNaN(x)) {
+                throw new ValidationException(this, "x is not set");
+            }
+            if (Double.isNaN(g)) {
+                throw new ValidationException(this, "g is not set");
+            }
+            if (Double.isNaN(b)) {
+                throw new ValidationException(this, "b is not set");
+            }
             ValidationUtil.checkRatedU(this, ratedU, "");
             ValidationUtil.checkRatedS(this, ratedS);
         }
