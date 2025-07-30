@@ -131,7 +131,7 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
     Optional<Terminal> getTerminal2();
 
     /**
-     * Get the terminal number of the AC terminal is connected to.
+     * Get the terminal number of the AC terminal.
      */
     TerminalNumber getTerminalNumber(Terminal terminal);
 
@@ -151,7 +151,7 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
     DcTerminal getDcTerminal2();
 
     /**
-     * Get the terminal number the DC terminal is connected to.
+     * Get the terminal number the DC terminal.
      */
     TerminalNumber getTerminalNumber(DcTerminal dcTerminal);
 

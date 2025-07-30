@@ -7,10 +7,30 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
+
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public enum TerminalNumber {
-    ONE,
-    TWO,
+    ONE(1),
+    TWO(2);
+
+    private final int num;
+
+    TerminalNumber(int num) {
+        this.num = num;
+    }
+
+    public int getNum() {
+        return num;
+    }
+
+    public static TerminalNumber valueOf(int num) {
+        return switch (num) {
+            case 1 -> ONE;
+            case 2 -> TWO;
+            default -> throw new PowsyblException("Cannot convert integer value " + num + " to TerminalNumber.");
+        };
+    }
 }
