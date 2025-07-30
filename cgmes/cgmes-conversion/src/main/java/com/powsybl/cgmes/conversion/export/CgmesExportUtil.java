@@ -296,6 +296,23 @@ public final class CgmesExportUtil {
                 return branch.getSide(t).getNum();
             } else if (c instanceof ThreeWindingsTransformer twt) {
                 return twt.getSide(t).getNum();
+            } else if (c instanceof AcDcConverter<?> converter) {
+                return converter.getSide(t).getNum();
+            } else {
+                throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
+            }
+        }
+    }
+
+    public static int getDcTerminalSequenceNumber(DcTerminal t) {
+        DcConnectable<?> c = t.getDcConnectable();
+        if (c.getDcTerminals().size() == 1) {
+            return 1;
+        } else {
+            if (c instanceof DcLine dcl) {
+                return dcl.getSide(t).getNum();
+            } else if (c instanceof AcDcConverter<?> converter) {
+                return converter.getSide(t).getNum();
             } else {
                 throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
             }
