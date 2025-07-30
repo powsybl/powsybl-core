@@ -108,6 +108,7 @@ public final class EquipmentExport {
             writeDcNodes(network, dcNodesConverterUnit, cimNamespace, writer, context);
             writeDcSwitches(network, cimNamespace, writer, context);
             writeDcGrounds(network, cimNamespace, writer, context);
+            writeDcLineSegments(network, cimNamespace, writer, context);
 
             writeControlAreas(loadAreaId, network, cimNamespace, euNamespace, writer, context);
 
@@ -1468,6 +1469,16 @@ public final class EquipmentExport {
             DCGroundEq.write(dcGroundId, dcGround.getNameOrId(), dcGround.getR(), cimNamespace, writer, context);
 
             writeDcTerminal(dcGround.getDcTerminal(), cimNamespace, writer, context);
+        }
+    }
+
+    private static void writeDcLineSegments(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (DcLine dcLine : network.getDcLines()) {
+            String dcLineId = context.getNamingStrategy().getCgmesId(dcLine);
+            DCLineSegmentEq.write(dcLineId, dcLine.getNameOrId(), dcLine.getR(), cimNamespace, writer, context);
+
+            writeDcTerminal(dcLine.getDcTerminal1(), cimNamespace, writer, context);
+            writeDcTerminal(dcLine.getDcTerminal2(), cimNamespace, writer, context);
         }
     }
 
