@@ -131,14 +131,14 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
     Optional<Terminal> getTerminal2();
 
     /**
-     * Get the side the AC terminal is connected to.
+     * Get the terminal number of the AC terminal is connected to.
      */
-    TwoSides getSide(Terminal terminal);
+    TerminalNumber getTerminalNumber(Terminal terminal);
 
     /**
-     * Get the AC terminal at provided side.
+     * Get the AC terminal of provided terminal number.
      */
-    Terminal getTerminal(TwoSides side);
+    Terminal getTerminal(TerminalNumber terminalNumber);
 
     /**
      * Get the first DC terminal.
@@ -151,14 +151,14 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
     DcTerminal getDcTerminal2();
 
     /**
-     * Get the side the DC terminal is connected to.
+     * Get the terminal number the DC terminal is connected to.
      */
-    TwoSides getSide(DcTerminal dcTerminal);
+    TerminalNumber getTerminalNumber(DcTerminal dcTerminal);
 
     /**
-     * Get the DC terminal at provided side.
+     * Get the DC terminal of provided terminal number.
      */
-    DcTerminal getDcTerminal(TwoSides side);
+    DcTerminal getDcTerminal(TerminalNumber terminalNumber);
 
     /**
      * Set the idle loss (MW).

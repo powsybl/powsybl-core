@@ -296,7 +296,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                 case GROUND -> visitor.visitGround((GroundImpl) connectable);
                 case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> {
                     AcDcConverter<?> converter = (AcDcConverter<?>) connectable;
-                    visitor.visitAcDcConverter(converter, converter.getSide(terminal));
+                    visitor.visitAcDcConverter(converter, converter.getTerminalNumber(terminal));
                 }
                 default -> throw new IllegalStateException();
             }

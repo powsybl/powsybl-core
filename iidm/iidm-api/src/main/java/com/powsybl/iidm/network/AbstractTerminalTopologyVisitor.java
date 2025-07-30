@@ -84,7 +84,7 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     }
 
     @Override
-    public void visitAcDcConverter(AcDcConverter<?> converter, TwoSides side) {
-        visitTerminal(converter.getTerminal(side));
+    public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
+        visitTerminal(converter.getTerminal(terminalNumber));
     }
 }

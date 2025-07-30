@@ -22,15 +22,17 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     private final Ref<? extends VariantManagerHolder> network;
     private DcConnectable<?> dcConnectable;
     private final TwoSides side;
+    private final TerminalNumber terminalNumber;
     private final DcNode dcNode;
     protected final TDoubleArrayList p;
     protected final TDoubleArrayList i;
     private final TBooleanArrayList connected;
     private boolean removed = false;
 
-    DcTerminalImpl(Ref<? extends VariantManagerHolder> network, TwoSides side, DcNode dcNode, boolean connected) {
+    DcTerminalImpl(Ref<? extends VariantManagerHolder> network, TwoSides side, TerminalNumber terminalNumber, DcNode dcNode, boolean connected) {
         this.network = Objects.requireNonNull(network);
         this.side = side;
+        this.terminalNumber = terminalNumber;
         this.dcNode = Objects.requireNonNull(dcNode);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
         this.connected = new TBooleanArrayList(variantArraySize);
@@ -57,6 +59,12 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     public TwoSides getSide() {
         ValidationUtil.checkAccessOfRemovedEquipment(dcConnectable.getId(), this.removed);
         return this.side;
+    }
+
+    @Override
+    public TerminalNumber getTerminalNumber() {
+        ValidationUtil.checkAccessOfRemovedEquipment(dcConnectable.getId(), this.removed);
+        return this.terminalNumber;
     }
 
     @Override

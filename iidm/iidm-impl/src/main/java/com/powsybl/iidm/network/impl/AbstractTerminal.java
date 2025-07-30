@@ -28,6 +28,8 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected final ThreeSides side;
 
+    protected final TerminalNumber terminalNumber;
+
     protected AbstractConnectable connectable;
 
     protected VoltageLevelExt voltageLevel;
@@ -42,8 +44,9 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected boolean removed = false;
 
-    AbstractTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side) {
+    AbstractTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side, TerminalNumber terminalNumber) {
         this.side = side;
+        this.terminalNumber = terminalNumber;
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         p = new TDoubleArrayList(variantArraySize);
@@ -57,6 +60,11 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public ThreeSides getSide() {
         return side;
+    }
+
+    @Override
+    public TerminalNumber getTerminalNumber() {
+        return terminalNumber;
     }
 
     protected String getAttributeSideSuffix() {
