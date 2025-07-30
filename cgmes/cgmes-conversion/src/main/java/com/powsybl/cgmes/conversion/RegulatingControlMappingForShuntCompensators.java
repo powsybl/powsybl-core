@@ -118,7 +118,7 @@ public class RegulatingControlMappingForShuntCompensators {
         shuntCompensator.setRegulatingTerminal(RegulatingTerminalMapper
                 .mapForVoltageControl(rc.cgmesTerminal, context)
                 .orElse(shuntCompensator.getTerminal()));
-        shuntCompensator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", rcId);
+        shuntCompensator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, rcId);
     }
 
     private static class CgmesRegulatingControlForShuntCompensator {

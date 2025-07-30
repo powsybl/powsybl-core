@@ -2227,4 +2227,9 @@
 		<entsoe:IdentifiedObject.energyIdentCodeEic>10BE------1</entsoe:IdentifiedObject.energyIdentCodeEic>
 		<cim:ControlArea.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#ControlAreaTypeKind.Interchange"/>
 	</cim:ControlArea>
+	<cim:ControlArea rdf:ID="_BE_FORECAST">
+		<cim:IdentifiedObject.name>BE FORECAST</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10BEFORCAST</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<cim:ControlArea.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#ControlAreaTypeKind.Forecast"/>
+	</cim:ControlArea>
 </rdf:RDF>

@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
@@ -113,12 +114,14 @@ class TapPositionModificationTest {
             ThreeSides.ONE);
         assertThrows(PowsyblException.class, () -> modifRtc.apply(threeWindingNetwork, true, ReportNode.NO_OP),
             "Modifying a Ratio tap that is not present should throw.");
+        assertDoesNotThrow(() -> modifRtc.apply(threeWindingNetwork, false, ReportNode.NO_OP));
         // Phase
         assertFalse(leg.hasRatioTapChanger(), "Test assumptions are wrong.");
         NetworkModification modifPtc = new PhaseTapPositionModification(threeWindingNetwork.getId(), 1,
             ThreeSides.ONE);
         assertThrows(PowsyblException.class, () -> modifPtc.apply(threeWindingNetwork, true, ReportNode.NO_OP),
             "Modifying a Phasetap that is not present should throw.");
+        assertDoesNotThrow(() -> modifPtc.apply(threeWindingNetwork, false, ReportNode.NO_OP));
     }
 
     @Test
@@ -215,6 +218,7 @@ class TapPositionModificationTest {
             networkToApply = threeWindingNetwork;
         }
         modif = getNetworkModification(type, invalidTapPos, transformerId, leg);
+        assertDoesNotThrow(() -> modif.apply(networkToApply, false, ReportNode.NO_OP));
         assertThrows(PowsyblException.class, () -> modif.apply(networkToApply, true, ReportNode.NO_OP));
         assertEquals(currentTapPos, tapPositionSupplier.get(),
             "Invalid tap position should not be applied to the network");

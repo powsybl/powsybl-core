@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
@@ -61,6 +62,7 @@ class ShuntCompensatorModificationTest {
         assertThrows(PowsyblException.class, () -> modif2.apply(network, true, ReportNode.NO_OP),
             "Trying to set the number of section outside of range should not be accepted.");
         assertEquals(1, shunt.getSectionCount(), "Failed applies should not modify the value");
+        assertDoesNotThrow(() -> modif2.apply(network, false, ReportNode.NO_OP));
     }
 
     @Test

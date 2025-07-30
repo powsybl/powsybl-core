@@ -40,9 +40,11 @@ public class PsseCaseIdentification {
     private float rev = 33;
 
     @Parsed
+    @Format(formats = {"0"})
     private double xfrrat = Double.NaN;
 
     @Parsed
+    @Format(formats = {"0"})
     private double nxfrat = Double.NaN;
 
     @Parsed

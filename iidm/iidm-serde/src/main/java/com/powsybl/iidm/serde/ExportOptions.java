@@ -202,13 +202,17 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     }
 
     /**
-     * Add a given version in which the extension with the given name will be exported if
+     * <p>Add a given version in which the extension with the given name will be exported if
      * this version is supported by the extension's XML serializer and if it is compatible
-     * with the IIDM version in which the network will be exported.
-     * If the version is not added for an extension configured to be serialized, the extension will be serialized in the
-     * most recent version compatible with the IIDM version in which the network will be exported.
-     * If a version is added for an extension configured <b>not</b> to be serialized, the version will be ignored.
-     * If a version has already been added for the extension, throw an exception.
+     * with the IIDM version in which the network will be exported.</p>
+     * <ul>
+     * <li>If the version is not added for an extension configured to be serialized, the extension will be serialized in the
+     * most recent version compatible with the IIDM version in which the network will be exported.</li>
+     * <li>If a version is added for an extension configured <b>not</b> to be serialized, the version will be ignored.</li>
+     * <li>If a version has already been added for the extension, throw an exception.</li>
+     * </ul>
+     * <p>For extensions having multiple serialization names, only the real extension name is expected. If an alternative
+     * serialization name is used for the <code>extensionName</code> parameter, the method will have no effect.</p>
      */
     public ExportOptions addExtensionVersion(String extensionName, String extensionVersion) {
         if (extensions != null && !extensions.contains(extensionName)) {

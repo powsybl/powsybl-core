@@ -19,6 +19,7 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.util.HvdcUtils;
 import com.powsybl.iidm.network.util.SwitchesFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -527,7 +528,7 @@ public final class StateVariablesExport {
             CgmesExportUtil.writeStartId("SvShuntCompensatorSections", CgmesExportUtil.getUniqueRandomId(), false, cimNamespace, writer, context);
             CgmesExportUtil.writeReference("SvShuntCompensatorSections.ShuntCompensator", context.getNamingStrategy().getCgmesId(s), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "SvShuntCompensatorSections.sections");
-            writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount()));
+            writer.writeCharacters(CgmesExportUtil.format(s.findSolvedSectionCount().orElse(s.getSectionCount())));
             writer.writeEndElement();
             writer.writeEndElement();
         }
@@ -550,15 +551,17 @@ public final class StateVariablesExport {
      */
     private static void writeTapStepsTwoWindingsTransformer(TwoWindingsTransformer twt, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         if (twt.hasPhaseTapChanger()) {
+            PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
             int endNumber = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1).isPresent() ? 1 : 2;
             String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber);
-            writeSvTapStep(ptcId, twt.getPhaseTapChanger().getTapPosition(), cimNamespace, writer, context);
+            writeSvTapStep(ptcId, phaseTapChanger.findSolvedTapPosition().orElse(phaseTapChanger.getTapPosition()), cimNamespace, writer, context);
             writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
         }
         if (twt.hasRatioTapChanger()) {
+            RatioTapChanger ratioTapChanger = twt.getRatioTapChanger();
             int endNumber = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1).isPresent() ? 1 : 2;
             String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber);
-            writeSvTapStep(rtcId, twt.getRatioTapChanger().getTapPosition(), cimNamespace, writer, context);
+            writeSvTapStep(rtcId, ratioTapChanger.findSolvedTapPosition().orElse(ratioTapChanger.getTapPosition()), cimNamespace, writer, context);
             writeSvTapStepHidden(twt, rtcId, cimNamespace, writer, context);
         }
     }
@@ -568,12 +571,14 @@ public final class StateVariablesExport {
         for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
             if (leg.hasPhaseTapChanger()) {
                 String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber);
-                writeSvTapStep(ptcId, leg.getPhaseTapChanger().getTapPosition(), cimNamespace, writer, context);
+                PhaseTapChanger phaseTapChanger = leg.getPhaseTapChanger();
+                writeSvTapStep(ptcId, phaseTapChanger.findSolvedTapPosition().orElse(phaseTapChanger.getTapPosition()), cimNamespace, writer, context);
                 writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
             }
             if (leg.hasRatioTapChanger()) {
                 String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber);
-                writeSvTapStep(rtcId, leg.getRatioTapChanger().getTapPosition(), cimNamespace, writer, context);
+                RatioTapChanger ratioTapChanger = leg.getRatioTapChanger();
+                writeSvTapStep(rtcId, ratioTapChanger.findTapPosition().orElse(ratioTapChanger.getTapPosition()), cimNamespace, writer, context);
                 writeSvTapStepHidden(twt, rtcId, cimNamespace, writer, context);
             }
             endNumber++;
@@ -605,12 +610,14 @@ public final class StateVariablesExport {
     }
 
     private static void writeStatus(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        // create SvStatus, iterate on Connectables, check Terminal status, add to SvStatus
-        network.getConnectableStream().forEach(c -> {
-            if (context.isExportedEquipment(c)) {
-                writeConnectableStatus(c, cimNamespace, writer, context);
-            }
-        });
+        if (!context.isCim16BusBranchExport()) {
+            // create SvStatus, iterate on Connectables, check Terminal status, add to SvStatus
+            network.getConnectableStream().forEach(c -> {
+                if (context.isExportedEquipment(c)) {
+                    writeConnectableStatus(c, cimNamespace, writer, context);
+                }
+            });
+        }
 
         // RK: For dangling lines (boundaries), the AC Line Segment is considered in service if and only if it is connected on the network side.
         // If it is disconnected on the boundary side, it might not appear on the SV file.
@@ -675,20 +682,24 @@ public final class StateVariablesExport {
 
     private static double getPoleLossP(HvdcConverterStation<?> converterStation) {
         double poleLoss;
+        HvdcLine hvdcLine = converterStation.getHvdcLine();
         if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
             double p = converterStation.getTerminal().getP();
             if (Double.isNaN(p)) {
-                p = converterStation.getHvdcLine().getActivePowerSetpoint();
+                p = hvdcLine.getActivePowerSetpoint();
             }
             poleLoss = p * converterStation.getLossFactor() / 100;
         } else {
             double p = converterStation.getTerminal().getP();
-            if (Double.isNaN(p)) {
-                p = converterStation.getHvdcLine().getActivePowerSetpoint();
+            if (!Double.isNaN(p)) {
+                poleLoss = Math.abs(p) * converterStation.getLossFactor() / (100 - converterStation.getLossFactor());
+            } else {
+                p = hvdcLine.getActivePowerSetpoint();
+                double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
+                double pDCRectifier = Math.abs(p) * (1 - otherConverterStationLossFactor / 100);
+                double pDCInverter = pDCRectifier - HvdcUtils.getHvdcLineLosses(pDCRectifier, hvdcLine.getNominalV(), hvdcLine.getR());
+                poleLoss = pDCInverter * converterStation.getLossFactor() / 100;
             }
-            double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
-            double pDCInverter = Math.abs(p) * (1 - otherConverterStationLossFactor / 100);
-            poleLoss = pDCInverter * converterStation.getLossFactor() / 100;
         }
         return poleLoss;
     }

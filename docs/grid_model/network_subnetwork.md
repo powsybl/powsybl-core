@@ -255,16 +255,33 @@ In the grid model, loads comprise the following metadata:
 ## Battery
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Battery.html)
 
-A battery on the electric grid is an energy storage device that is either capable of capturing energy from the grid or of injecting it into the grid. The electric energy on the grid side is thus transformed into chemical energy on the battery side and vice versa. The power flow is bidirectional, and it is controlled via a power electronic converter.
+A battery on the electric grid is an energy storage device that is either capable of capturing energy from the grid or
+of injecting it into the grid. The electric energy on the grid side is thus transformed into chemical energy on the
+battery side and vice versa. The power flow is bidirectional, and it is controlled via a power electronic converter.
 
 **Characteristics**
 
-| Attribute | Unit | Description                 |
-|-----------|------|-----------------------------|
-| $P0$      | MW   | The Constant active power   |
-| $Q0$      | MVar | The Constant reactive power |
-| $MinP$    | MW   | The Minimal active power    |
-| $MaxP$    | MW   | The Maximum active power    |
+| Attribute        | Unit | Description                                       |
+|------------------|------|---------------------------------------------------|
+| $TargetP$        | MW   | The active power target                           |
+| $TargetQ$        | MVar | The reactive power target                         |
+| $MinP$           | MW   | The Minimal active power (charging limit)         |
+| $MaxP$           | MW   | The Maximum active power (discharging limit)      |
+| $ReactiveLimits$ | MVar | Operational limits of the battery (P/Q/V diagram) |
+
+The values `TargetP`, `TargetQ`, `MinP`, `MaxP`, are required.
+
+All attributes follow the generator sign convention: a positive value means an injection into the bus.
+Positive values for `TargetP` and `TargetQ` mean negative values at the flow observed at the battery `Terminal`,
+as `Terminal` flow always follows load sign convention.
+
+The minimum active power output `MinP` cannot be greater than the maximum active power output `MaxP`.
+`MinP` represents the battery charging active power limit, and is typically negative.
+`MaxP` represents discharge active power limit, and is typically positive.
+
+The [reactive limits](./additional.md#reactive-limits) of the battery are optional, if they are not given the battery
+is considered with unlimited reactive power. Reactive limits can be given as a pair of [min/max values](./additional.md#min-max-reactive-limits) or as
+a [reactive capability curve](./additional.md#reactive-capability-curve).
 
 **Available extensions**
 
@@ -354,16 +371,17 @@ Shunt compensators follow a passive-sign convention:
 
 **Characteristics**
 
-| Attribute             | Unit | Description                                                   |
-|-----------------------|------|---------------------------------------------------------------|
-| $MaximumSectionCount$ | -    | The maximum number of sections that may be switched on        |
-| $SectionCount$        | -    | The current number of sections that are switched on           |
-| $B$                   | S    | The susceptance of the shunt compensator in its current state |
-| $G$                   | S    | The conductance of the shunt compensator in its current state |
-| $TargetV$             | kV   | The voltage target                                            |
-| $TargetDeadband$      | kV   | The deadband used to avoid excessive update of controls       |
-| $RegulatingTerminal$  | -    | Associated node or bus for which voltage is to be regulated   |
-| $VoltageRegulatorOn$  | -    | True if the shunt compensator regulates voltage               |
+| Attribute             | Unit | Description                                                                    |
+|-----------------------|------|--------------------------------------------------------------------------------|
+| $MaximumSectionCount$ | -    | The maximum number of sections that may be switched on                         |
+| $SectionCount$        | -    | The current number of sections that are switched on (input of the calculation) |
+| $SolvedSectionCount$  | -    | The calculated number of sections that are switched on (after a load flow)     | 
+| $B$                   | S    | The susceptance of the shunt compensator in its current state                  |
+| $G$                   | S    | The conductance of the shunt compensator in its current state                  |
+| $TargetV$             | kV   | The voltage target                                                             |
+| $TargetDeadband$      | kV   | The deadband used to avoid excessive update of controls                        |
+| $RegulatingTerminal$  | -    | Associated node or bus for which voltage is to be regulated                    |
+| $VoltageRegulatorOn$  | -    | True if the shunt compensator regulates voltage                                |
 
 - For Linear Shunt Compensators
 
@@ -447,8 +465,9 @@ In IIDM the static VAR compensator also comprises some metadata:
 - The regulation mode, which can be:
     - `VOLTAGE`
     - `REACTIVE_POWER`
-    - `OFF`  
-      Note that it is different from the generator regulation definition, which is only done through a boolean. `OFF` is equivalent to a disconnected element.
+
+- The participation in regulation (through a boolean)
+
 - The regulating terminal, which can be local or remote: it is the specific connection point on the network where the setpoint is measured.
 
 **Available extensions**
@@ -672,8 +691,45 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 
 - A leg can have [loading limits](./additional.md#loading-limits).
 
+## DC Equipments
+
+### Reduced vs. Detailed DC Models
+
+Direct Current (DC) equipment can be modeled in two distinct ways: using a **_reduced_** model or a **_detailed_** model.
+
+The **_reduced_** model abstracts away internal DC components.
+A DC link is represented as a single DC line rigidly connected to two AC/DC converters.
+In this representation, each converter connects to the AC network through a single connection.
+
+![Reduced DC Model](img/dc-reduced.svg){width="100%" align=center class="only-light"}
+![Reduced DC Model](img/dark_mode/dc-reduced.svg){width="100%" align=center class="only-dark"}
+
+In contrast, the **_detailed_** model includes a broader set of DC components, such as DC nodes, DC grounds, DC switches, DC lines, and AC/DC converters.
+This approach enables a more accurate representation of the wide range of HVDC configurations.
+It allows modeling of features such as:
+- Metallic return cables, bipole systems, symmetrical and asymmetrical configurations, bypass DC switches, multi-terminal DC grids (radial or meshed)
+- AC/DC converters with dual connections to the AC network (e.g., for the two transformers connections of a 12-pulse converter)
+
+![Detailed DC Model Monopole metallic return](img/dc-detailed-mono-mrc.svg){width="100%" align=center class="only-light"}
+![Detailed DC Model Monopole metallic return](img/dark_mode/dc-detailed-mono-mrc.svg){width="100%" align=center class="only-dark"}
+
+![Detailed DC Model Bipole](img/dc-detailed-bipole.svg){width="100%" align=center class="only-light"}
+![Detailed DC Model Bipole](img/dark_mode/dc-detailed-bipole.svg){width="100%" align=center class="only-dark"}
+
+![Detailed DC Model Single AC Terminal](img/dc-detailed-single-ac-terminal.svg){width="100%" align=center class="only-light"}
+![Detailed DC Model Single AC Terminal](img/dark_mode/dc-detailed-single-ac-terminal.svg){width="100%" align=center class="only-dark"}
+
+The same network may contain multiple HVDC links with either representation.
+
+Both the _reduced_ and _detailed_ models support the representation of Line-Commutated Converters (LCCs)
+and Voltage Source Converters (VSCs).
+
+Further details on these two modeling approaches are provided in the following sections.
+
+### Reduced DC model
+
 (hvdc-line)=
-## HVDC line
+#### HVDC line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/HvdcLine.html)
 
 An HVDC line is connected to the DC side of two HVDC converter stations, either an [LCC station](#lcc-converter-station) or a [VSC station](#vsc-converter-station).
@@ -703,7 +759,7 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
 - [HVDC Operator Active Power Range](extensions.md#hvdc-operator-active-power-range)
 
 (hvdc-converter-station)=
-## HVDC converter station
+#### HVDC converter station
 
 An HVDC converter station converts electric power from high voltage alternating current (AC) to high-voltage direct current (HVDC), or vice versa.
 Electronic converters for HVDC are divided into two main categories: line-commutated converters (LCC) and voltage-sourced converters (VSC).
@@ -733,7 +789,7 @@ The positive loss factor `LossFactor` is used to model the losses during the con
   Note that at the terminal on the AC side, $Q$ is always positive: the converter station always consumes reactive power.
 
 (lcc-converter-station)=
-### LCC converter station
+##### LCC converter station
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LccConverterStation.html)
 
 An LCC converter station is made with electronic switches that can only be turned on (thyristors). Below are some characteristics:
@@ -755,7 +811,7 @@ An LCC converter station is made with electronic switches that can only be turne
 - [Connectable position](extensions.md#connectable-position)
 
 (vsc-converter-station)=
-### VSC converter station
+##### VSC converter station
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VscConverterStation.html)
 
 A VSC converter station is made with switching devices that can be turned both on and off (transistors). Below are some characteristics:
@@ -785,6 +841,182 @@ A VSC converter station is made with switching devices that can be turned both o
 **Available extensions**
 
 - [Connectable position](extensions.md#connectable-position)
+
+### Detailed DC model (beta)
+
+```{warning}
+**The detailed DC model was introduced in iIDM v1.14 and is currently in beta.**
+
+Future releases will enhance this model with support for DC topology processing and serialization/deserialization.  
+These improvements will introduce **breaking changes** and **will not be backward compatible**.
+
+Currently, this model is only available in the iIDM representation.
+Support in exchange formats (CGMES, ...) as well as in downstream projects (e.g., `powsybl-diagram`, `powsybl-open-loadflow`, etc.) may vary.
+Please consult the documentation of each project to verify support. In general, lack of explicit mention means no support.
+
+If you’re unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html).
+```
+
+#### DC Node
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcNode.html)<br>
+DC nodes are points where DC terminals of DC conducting equipment are connected together with zero impedance.
+
+**Characteristics**
+
+| Attribute  | Unit | Description                          |
+|------------|------|--------------------------------------|
+| $NominalV$ | kV   | The nominal voltage, always positive |
+
+Although the nominal voltage of DC nodes must always be specified as a positive value,
+the solved voltages can be negative - for example, in the case of an LCC monopole operating in reverse polarity.
+
+#### DC Line
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcLine.html)<br>
+A DC Line connects two DC Nodes with a series resistance.
+
+A DC Line has two DC Terminals.
+
+**Characteristics**
+
+| Attribute | Unit     | Description                            |
+|-----------|----------|----------------------------------------|
+| $R$       | $\Omega$ | The series resistance, always positive |
+
+
+#### DC Switch
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcSwitch.html)<br>
+A DC Switch connects two DC Nodes and can be opened or closed.
+
+**Characteristics**
+
+| Attribute  | Unit           | Description                                                       |
+|------------|----------------|-------------------------------------------------------------------|
+| $Kind$     | `DcSwitchKind` | Either DISCONNECTOR or BREAKER                                    |
+| $Open$     |                | True if the switch is opened                                      |
+
+#### DC Ground
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcGround.html)<br>
+DC Grounds represent grounding electrodes and are modeled as having zero voltage potential with a grounding resistance taken into account.
+
+A DC Ground has a single DC Terminal.
+
+**Characteristics**
+
+| Attribute | Unit     | Description                               |
+|-----------|----------|-------------------------------------------|
+| $R$       | $\Omega$ | The grounding resistance, always positive |
+
+
+#### AC/DC Converter
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/AcDcConverter.html)<br>
+
+AC/DC Converter transfers power between AC and DC grids. Its connectivity is modeled with:
+- either one or two AC Terminals,
+- exactly two DC Terminals
+
+AC/DC Converter can be either a Line Commutated Converter (LCC) or Voltage Source Converter (VSC).
+LCC and VSC share the following characteristics.
+
+**Characteristics**
+
+| Attribute       | Unit     | Description                                                           |
+|-----------------|----------|-----------------------------------------------------------------------|
+| $IdleLoss$      | MW       | Losses at no load                                                     |
+| $SwitchingLoss$ | MW / A   | Switching losses                                                      |
+| $ResistiveLoss$ | $\Omega$ | Resistive losses                                                      |
+| $PccTerminal$   |          | Point of common coupling (PCC) AC terminal                            |
+| $ControlMode$   |          | The converter's control mode: P_PCC or V_DC                           |
+| $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
+| $TargetVdc$     | kV       | DC voltage target                                                     |
+
+Converter losses are modeled using the `IdleLoss`, `SwitchingLoss` and `ResistiveLoss` parameters, all positive values.
+With `i` being the DC current through the converter, the Converter losses are computed as follows:
+
+$$ConverterLosses = IdleLoss + SwitchingLoss.|i| + ResistiveLoss.i²$$
+
+The converter losses is the active power difference between the converter AC Terminal(s) and DC Terminals.
+
+The Point of Common Coupling (PCC) Terminal defines where the AC/DC converter interfaces with the AC grid.
+The control mode defines whether the converter:
+- controls active power at Point of Common Coupling
+- or, controls DC voltage at its DC terminals
+
+When the `ControlMode` of the converter is set to `P_PCC`, the converter controls active power flow at the (AC) Point of common coupling terminal.
+`TargetP` is the desired active power flow at PCC, in passive sign convention, i.e.:
+
+- positive `TargetP` means power flows from AC to DC, the converter is sending AC power to the DC system
+- negative `TargetP` means power flows from DC to AC, the converter is sending DC power to the AC system
+
+For LCC 12-pulse converters, the PCC terminal is typically located on the station side of the transformers (not on the converter side).
+For VSC converters having a single AC Terminal, it is valid for the PCC Terminal to be the converter terminal itself.
+Because the PCC Terminal is used by the converter to control active power flow, it must be a branch terminal (a line or a transformer).
+It cannot be a Busbar Section Terminal since no active power can be measured on Busbar Sections.
+
+![Detailed DC Model PCC Terminal](img/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-light"}
+![Detailed DC Model PCC Terminal](img/dark_mode/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-dark"}
+
+When the `ControlMode` of the converter is set to `V_DC`, the converter controls DC voltage at its DC Terminals.
+`TargetVdc` is the desired target DC voltage, and is the voltage difference between DC Node 1 and DC Node 2.
+`TargetVdc` may be either positive or negative. Negative value may be used to model reverse polarity operation in case of LCCs.
+No explicit attribute specifies whether the DC is a symmetrical or asymmetrical scheme.
+The scheme symmetrical or asymmetrical is derived implicitly by either the presence or absence of a DC Ground connected to the DC system:
+- If a DC Ground is connected, the configuration is asymmetrical, and the converter imposes the target voltage difference
+between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc` 
+- If no DC Ground is present, the configuration is symmetrical, in this case the converter provides internally an implicit DC Ground and imposes:
+  - `+TargetVdc / 2` at the converter DC Node 1
+  - `-TargetVdc / 2` at the converter DC Node 2
+
+##### Line Commutated Converter
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LineCommutatedConverter.html)<br>
+
+**Characteristics**
+
+| Attribute       | Unit | Description                                                    |
+|-----------------|------|----------------------------------------------------------------|
+| $ReactiveModel$ |      | FIXED_POWER_FACTOR or CALCULATED_POWER_FACTOR                  |
+| $PowerFactor$   | %    | Ratio between the active power $P$ and the apparent power $S$. |
+
+Line Commutated Converters always consume reactive power, the `PowerFactor` attribute specifies how much
+is consumed when the reactive model is set to `FIXED_POWER_FACTOR`. Typical characteristic for LCCs is $Q = 0.5 P$
+hence a PowerFactor of 0.89443.
+
+##### Voltage Source Converter
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageSourceConverter.html)<br>
+
+**Characteristics**
+
+| Attribute               | Unit | Description                                |
+|-------------------------|------|--------------------------------------------|
+| $VoltageRegulatorOn$    |      | True if the converter regulates voltage    |
+| $VoltageSetpoint$       | kV   | The voltage setpoint for regulation        |
+| $ReactivePowerSetpoint$ | MVar | The reactive power setpoint for regulation |
+
+**Specifications**
+
+- The terminal used for regulation is the Point of Common Coupling terminal, for both voltage and reactive power control modes.
+- The voltage setpoint (in kV) is required if the voltage regulator is on for the converter.
+- The reactive power setpoint (in MVar) is required if the voltage regulator is off for the converter. The setpoint is in passive sign convention: a positive value of $ReactivePowerSetpoint$ means withdrawal from the bus.
+- A set of reactive limits can be associated to a VSC converter. All the reactive limits modeling available in the library are described [here](./additional.md#reactive-limits).
+
+#### DC Equipment containment in main network and subnetworks
+
+Modeling a DC link involves creating multiple objects in the model such as DC nodes, lines, converters, switches, grounds
+which relate to each other. When creating DC equipment, associations can be made only within the same network, which can be
+either the main network or the same subnetwork. For example, the following associations are rejected by the model:
+- creating a DC line connecting a DC Node A in subnetwork A with DC Node B in subnetwork B
+- creating a DC Ground in subnetwork A connecting a DC Node contained in subnetwork B
+- creating an AC/DC converter in a voltage level in subnetwork A connecting to DC nodes contained in main network
+- setting the Point of Common Coupling of an AC/DC converter in a voltage level in subnetwork A to be a line terminal in subnetwork B
+- etc ...
+
+For more details about working with subnetworks, see [Working with subnetworks](../grid_features/working_with_subnetworks.md).
 
 (busbar-section)=
 ## Busbar section

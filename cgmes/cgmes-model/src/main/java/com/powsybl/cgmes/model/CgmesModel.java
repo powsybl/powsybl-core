@@ -92,12 +92,13 @@ public interface CgmesModel {
 
     PropertyBags transformerEnds();
 
-    // Transformer ends grouped by transformer
-    Map<String, PropertyBags> groupedTransformerEnds();
-
     PropertyBags ratioTapChangers();
 
+    PropertyBags ratioTapChangerTablePoints();
+
     PropertyBags phaseTapChangers();
+
+    PropertyBags phaseTapChangerTablePoints();
 
     PropertyBags regulatingControls();
 
@@ -111,16 +112,10 @@ public interface CgmesModel {
 
     /**
      * Query all NonlinearShuntCompensatorPoint in the CgmesModel.
+     *
      * @return A {@link PropertyBags} with the shunt compensators points properties.
      */
     PropertyBags nonlinearShuntCompensatorPoints();
-
-    /**
-     * Query the NonlinearShuntCompensatorPoint associated to the given NonlinearShuntCompensator.
-     * @param shuntId The id of the NonlinearShuntCompensator.
-     * @return A {@link PropertyBags} with the given shunt compensator's points properties.
-     */
-    PropertyBags nonlinearShuntCompensatorPoints(String shuntId);
 
     PropertyBags staticVarCompensators();
 
@@ -157,15 +152,11 @@ public interface CgmesModel {
 
     PropertyBags reactiveCapabilityCurveData();
 
-    PropertyBags ratioTapChangerTablesPoints();
-
-    PropertyBags phaseTapChangerTablesPoints();
-
-    PropertyBags ratioTapChangerTable(String tableId);
-
-    PropertyBags phaseTapChangerTable(String tableId);
-
     PropertyBags controlAreas();
+
+    PropertyBags dcSwitches();
+
+    PropertyBags dcGrounds();
 
     PropertyBags acDcConverters();
 
@@ -188,8 +179,6 @@ public interface CgmesModel {
     default PropertyBags grounds() {
         return new PropertyBags();
     }
-
-    CgmesDcTerminal dcTerminal(String dcTerminalId);
 
     void clear(CgmesSubset subset);
 
@@ -225,10 +214,6 @@ public interface CgmesModel {
 
     // Helper mappings
 
-    List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId);
-
-    List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId);
-
     /**
      * Obtain the substation of a given terminal.
      *
@@ -253,7 +238,5 @@ public interface CgmesModel {
 
     double nominalVoltage(String baseVoltageId);
 
-    default PropertyBags modelProfiles() {
-        throw new UnsupportedOperationException();
-    }
+    PropertyBags modelProfiles();
 }

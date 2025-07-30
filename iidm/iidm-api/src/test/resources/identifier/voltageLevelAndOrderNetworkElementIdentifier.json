@@ -1,0 +1,6 @@
+{
+  "type" : "VOLTAGE_LEVELS_AND_ORDER",
+  "voltageLevelId1" : "vlA",
+  "voltageLevelId2" : "vlB",
+  "order" : "2"
+}

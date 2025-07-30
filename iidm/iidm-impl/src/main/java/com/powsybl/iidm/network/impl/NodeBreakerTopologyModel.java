@@ -313,10 +313,8 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             Map<String, CalculatedBus> id2bus = new LinkedHashMap<>();
             CalculatedBus[] node2bus = new CalculatedBus[graph.getVertexCapacity()];
             boolean[] encountered = new boolean[graph.getVertexCapacity()];
-            Arrays.fill(encountered, false);
-            for (int e : graph.getEdges()) {
-                traverse(graph.getEdgeVertex1(e), encountered, terminate, id2bus, node2bus);
-                traverse(graph.getEdgeVertex2(e), encountered, terminate, id2bus, node2bus);
+            for (int v : graph.getVertices()) {
+                traverse(v, encountered, terminate, id2bus, node2bus);
             }
             busCache = new BusCache(node2bus, id2bus);
             LOGGER.trace("Found buses {}", id2bus.values());
@@ -479,7 +477,8 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                             branchCount++;
                             feederCount++;
                         }
-                        case LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR -> feederCount++;
+                        case LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR,
+                             LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> feederCount++;
                         case BUSBAR_SECTION -> busbarSectionCount++;
                         case GROUND -> {
                             // Do nothing

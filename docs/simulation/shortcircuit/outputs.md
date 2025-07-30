@@ -42,7 +42,7 @@ In `FortescueFaultResult`, they are:
 
 This status can be:
 - `SUCCESS`: the computation went as planned, and the results are full considering the parameters.
-- `NO_SHORT_CIRCUIT_DATA`: this status should be returned if no short-circuit data are available in the network, i.e., the sub-transient or transient reactance of generators and the minimum and maximum admissible short-circuit currents.
+- `NO_SHORT_CIRCUIT_DATA`: this status should be returned if no short-circuit data are available in the network, i.e., the sub-transient or transient reactance of generators or batteries and the minimum and maximum admissible short-circuit currents.
 - `SOLVER_FAILURE`: the computation failed because of an error linked to the solver.
 - `FAILURE`: the computation failed for any other reason.
 

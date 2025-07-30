@@ -52,7 +52,11 @@ public final class CgmesNames {
     public static final String LOW_STEP = "lowStep";
     public static final String HIGH_STEP = "highStep";
 
+    public static final String DC_NODE = "DCNode";
+    public static final String DC_TOPOLOGICAL_NODE = "DCTopologicalNode";
     public static final String DC_TERMINAL = "DCTerminal";
+    public static final String DC_TERMINAL1 = "DCTerminal1";
+    public static final String DC_TERMINAL2 = "DCTerminal2";
     public static final String RATED_UDC = "ratedUdc";
 
     public static final String B_PER_SECTION = "bPerSection";
@@ -115,6 +119,8 @@ public final class CgmesNames {
     public static final String STATIC_VAR_COMPENSATOR = "StaticVarCompensator";
     public static final String REGULATING_CONTROL = "RegulatingControl";
     public static final String CONTROL_AREA = "ControlArea";
+    public static final String CONTROL_AREA_TYPE_KIND_INTERCHANGE = "ControlAreaTypeKind.Interchange";
+    public static final String TIE_FLOW = "TieFlow";
     public static final String CONFORM_LOAD = "ConformLoad";
     public static final String NONCONFORM_LOAD = "NonConformLoad";
     public static final String ENERGY_CONSUMER = "EnergyConsumer";
@@ -126,7 +132,12 @@ public final class CgmesNames {
     public static final String CONFORM_LOAD_GROUP = "ConformLoadGroup";
     public static final String NONCONFORM_LOAD_GROUP = "NonConformLoadGroup";
     public static final String ACDC_CONVERTER = "ACDCConverter";
+    public static final String VS_CONVERTER = "VsConverter";
+    public static final String CS_CONVERTER = "CsConverter";
     public static final String DC_LINE_SEGMENT = "DCLineSegment";
+    public static final String DC_LINE_SEGMENT2 = "DCLineSegment2";
+    public static final String DC_SWITCH = "DCSwitch";
+    public static final String DC_GROUND = "DCGround";
 
     public static final String CONNECTIVITY_NODE_BOUNDARY = "ConnectivityNode_Boundary";
     public static final String TOPOLOGICAL_NODE_BOUNDARY = "TopologicalNode_Boundary";
@@ -144,6 +155,9 @@ public final class CgmesNames {
     public static final String CURRENT_LIMIT = "CurrentLimit";
     public static final String ACTIVE_POWER_LIMIT = "ActivePowerLimit";
     public static final String APPARENT_POWER_LIMIT = "ApparentPowerLimit";
+
+    public static final String ENERGY_IDENT_CODE_EIC = "energyIdentCodeEic";
+    public static final String P_TOLERANCE = "pTolerance";
 
     private CgmesNames() {
     }

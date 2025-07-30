@@ -12,6 +12,9 @@
   <cim:ControlArea rdf:about="#_BECONTROLAREA">
     <cim:ControlArea.netInterchange>-205.90011555672567</cim:ControlArea.netInterchange>
   </cim:ControlArea>
+  <cim:ControlArea rdf:about="#_BE_FORECAST">
+    <cim:ControlArea.netInterchange>-205.90011555672567</cim:ControlArea.netInterchange>
+  </cim:ControlArea>
   <cim:Terminal rdf:about="#_57ae9251-c022-4c67-a8eb-611ad54c963c">
     <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
   </cim:Terminal>

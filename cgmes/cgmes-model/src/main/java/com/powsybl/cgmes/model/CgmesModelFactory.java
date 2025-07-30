@@ -100,15 +100,13 @@ public final class CgmesModelFactory {
     private static void buildCaches(CgmesModel cgmes) {
         // TODO This is rebuilding only some caches
         boolean isNodeBreaker = cgmes.isNodeBreaker();
-        for (PropertyBags tends : cgmes.groupedTransformerEnds().values()) {
-            for (PropertyBag end : tends) {
-                CgmesTerminal t = cgmes.terminal(end.getId(CgmesNames.TERMINAL));
-                cgmes.substation(t, isNodeBreaker);
-                if (isNodeBreaker) {
-                    t.connectivityNode();
-                } else {
-                    t.topologicalNode();
-                }
+        for (PropertyBag end : cgmes.transformerEnds()) {
+            CgmesTerminal t = cgmes.terminal(end.getId(CgmesNames.TERMINAL));
+            cgmes.substation(t, isNodeBreaker);
+            if (isNodeBreaker) {
+                t.connectivityNode();
+            } else {
+                t.topologicalNode();
             }
         }
     }

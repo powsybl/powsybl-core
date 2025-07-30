@@ -29,7 +29,9 @@ class LoadConverter extends AbstractConverter {
     }
 
     void create() {
-
+        if (!getContainersMapping().isBusDefined(psseLoad.getI())) {
+            return;
+        }
         VoltageLevel voltageLevel = getNetwork()
             .getVoltageLevel(getContainersMapping().getVoltageLevelId(psseLoad.getI()));
 
@@ -79,7 +81,7 @@ class LoadConverter extends AbstractConverter {
         }
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_LOAD, psseLoad.getI(), psseLoad.getId());
-        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseLoad.getI()));
+        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseLoad.getI(), 0, 0, psseLoad.getI(), "I"));
         if (node.isPresent()) {
             adder.setNode(node.getAsInt());
         } else {
@@ -91,7 +93,26 @@ class LoadConverter extends AbstractConverter {
         adder.add();
     }
 
-    static void updateLoads(Network network, PssePowerFlowModel psseModel) {
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+        List<PsseLoad> loads = new ArrayList<>();
+        network.getLoads().forEach(load -> loads.add(createLoad(load, contextExport)));
+        psseModel.addLoads(loads);
+        psseModel.replaceAllLoads(psseModel.getLoads().stream().sorted(Comparator.comparingInt(PsseLoad::getI).thenComparing(PsseLoad::getId)).toList());
+    }
+
+    private static PsseLoad createLoad(Load load, ContextExport contextExport) {
+        PsseLoad psseLoad = createDefaultLoad();
+
+        int busI = getTerminalBusI(load.getTerminal(), contextExport);
+        psseLoad.setI(busI);
+        psseLoad.setId(contextExport.getFullExport().getEquipmentCkt(load.getId(), PSSE_LOAD.getTextCode(), busI));
+        psseLoad.setStatus(getStatus(load.getTerminal(), contextExport));
+        psseLoad.setPl(getP(load));
+        psseLoad.setQl(getQ(load));
+        return psseLoad;
+    }
+
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getLoads().forEach(psseLoad -> {
             String loadId = getLoadId(psseLoad.getI(), psseLoad.getId());
             Load load = network.getLoad(loadId);
@@ -104,7 +125,7 @@ class LoadConverter extends AbstractConverter {
     }
 
     private static void updateLoad(Load load, PsseLoad psseLoad) {
-        psseLoad.setStatus(getStatus(load.getTerminal()));
+        psseLoad.setStatus(getUpdatedStatus(load.getTerminal()));
         psseLoad.setPl(getP(load));
         psseLoad.setQl(getQ(load));
     }

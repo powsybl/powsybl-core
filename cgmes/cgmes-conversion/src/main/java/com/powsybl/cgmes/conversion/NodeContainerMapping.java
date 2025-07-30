@@ -155,7 +155,9 @@ public class NodeContainerMapping {
         boolean fictitiousVoltageLevelForEveryNode = context.config().getCreateFictitiousVoltageLevelsForEveryNode();
 
         context.cgmes().switches().forEach(sw -> addAdjacencyThroughSwitch(voltageLevelAdjacency, substationAdjacency, sw, fictitiousVoltageLevelForEveryNode));
-        context.cgmes().groupedTransformerEnds().forEach((t, tends) -> addAdjacencyThroughTransformerEnds(substationAdjacency, tends));
+        context.cgmes().transformers().stream()
+                .map(t -> context.transformerEnds(t.getId("PowerTransformer")))
+                .forEach(tends -> addAdjacencyThroughTransformerEnds(substationAdjacency, tends));
 
         context.cgmes().acLineSegments().forEach(ac -> addAdjacencyThroughBranch(fictitiousVoltageLevelAdjacency, ac, fictitiousVoltageLevelForEveryNode));
         context.cgmes().seriesCompensators().forEach(sc -> addAdjacencyThroughBranch(fictitiousVoltageLevelAdjacency, sc, fictitiousVoltageLevelForEveryNode));

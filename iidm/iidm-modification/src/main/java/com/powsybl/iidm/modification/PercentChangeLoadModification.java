@@ -16,6 +16,8 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+
 /**
  * {@link NetworkModification} changing the active and reactive powers of a load by defining percentage changes (which could be positive or negative).
  *

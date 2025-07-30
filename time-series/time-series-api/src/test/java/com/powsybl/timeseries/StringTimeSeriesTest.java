@@ -21,7 +21,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -40,12 +44,12 @@ class StringTimeSeriesTest {
         assertSame(metadata, timeSeries.getMetadata());
         assertEquals(Arrays.asList(chunk, chunk2), timeSeries.getChunks());
         assertArrayEquals(new String[] {null, null, "a", "b", null, "c", "d", "d"}, timeSeries.toArray());
-        StringPoint[] pointsRef = {new StringPoint(0, Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), null),
-                                   new StringPoint(2, Instant.parse("2015-01-01T00:30:00Z").toEpochMilli(), "a"),
-                                   new StringPoint(3, Instant.parse("2015-01-01T00:45:00Z").toEpochMilli(), "b"),
-                                   new StringPoint(4, Instant.parse("2015-01-01T01:00:00Z").toEpochMilli(), null),
-                                   new StringPoint(5, Instant.parse("2015-01-01T01:15:00Z").toEpochMilli(), "c"),
-                                   new StringPoint(6, Instant.parse("2015-01-01T01:30:00Z").toEpochMilli(), "d")};
+        StringPoint[] pointsRef = {new StringPoint(0, Instant.parse("2015-01-01T00:00:00Z"), null),
+                                   new StringPoint(2, Instant.parse("2015-01-01T00:30:00Z"), "a"),
+                                   new StringPoint(3, Instant.parse("2015-01-01T00:45:00Z"), "b"),
+                                   new StringPoint(4, Instant.parse("2015-01-01T01:00:00Z"), null),
+                                   new StringPoint(5, Instant.parse("2015-01-01T01:15:00Z"), "c"),
+                                   new StringPoint(6, Instant.parse("2015-01-01T01:30:00Z"), "d")};
         assertArrayEquals(pointsRef, timeSeries.stream().toArray());
         assertArrayEquals(pointsRef, Iterators.toArray(timeSeries.iterator(), StringPoint.class));
 
@@ -88,7 +92,7 @@ class StringTimeSeriesTest {
 
     @Test
     void testCreate() {
-        TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 2, 1);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(2), Duration.ofMillis(1));
         StringTimeSeries ts1 = TimeSeries.createString("ts1", index, "a", "b", "c");
         assertEquals("ts1", ts1.getMetadata().getName());
         assertEquals(TimeSeriesDataType.STRING, ts1.getMetadata().getDataType());
@@ -97,7 +101,8 @@ class StringTimeSeriesTest {
 
     @Test
     void testCreateError() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createString("ts1", new RegularTimeSeriesIndex(0, 2, 1), "a", "b"));
+        RegularTimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(2), Duration.ofMillis(1));
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createString("ts1", index, "a", "b"));
         assertTrue(e.getMessage().contains("Bad number of values 2, expected 3"));
     }
 }

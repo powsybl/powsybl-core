@@ -30,5 +30,6 @@ powsybl.log
 # Maven wrapper jar
 .mvn/wrapper/*.jar
 
-# Generated readthedocs pages
+# Documentation
 build-docs/
+/docs/_build

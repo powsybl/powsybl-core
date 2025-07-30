@@ -11,7 +11,6 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.iidm.network.ShuntCompensatorNonLinearModelAdder;
@@ -31,25 +30,19 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         super(CgmesNames.SHUNT_COMPENSATOR, sh, context);
     }
 
-    private int getSections(PropertyBag p, int normalSections) {
-        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
-            case SSH:
-                return fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
-            case SV:
-                return fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
-            default:
-                throw new PowsyblException("Unexpected profile used for initial values");
-        }
-    }
-
     @Override
     public void convert() {
         int maximumSections = p.asInt("maximumSections", 0);
         int normalSections = p.asInt("normalSections", 0);
-        int sections = getSections(p, normalSections);
+        int sections = fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
+        Integer solvedSections = null;
+        double solvedSectionFromSV = p.asDouble("SVsections");
+        if (!Double.isNaN(solvedSectionFromSV)) {
+            solvedSections = fromContinuous(solvedSectionFromSV);
+        }
         sections = Math.abs(sections);
         maximumSections = Math.max(maximumSections, sections);
-        ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator().setSectionCount(sections);
+        ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator().setSectionCount(sections).setSolvedSectionCount(solvedSections);
         String shuntType = p.getId("type");
         if ("LinearShuntCompensator".equals(shuntType)) {
             double bPerSection = p.asDouble(CgmesNames.B_PER_SECTION, Float.MIN_VALUE);
@@ -61,7 +54,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
                     .add();
         } else if ("NonlinearShuntCompensator".equals(shuntType)) {
             ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
-            PropertyBags ss = context.cgmes().nonlinearShuntCompensatorPoints(id);
+            PropertyBags ss = context.nonlinearShuntCompensatorPoints(id);
             ss.stream()
                     .filter(s -> s.asInt(SECTION_NUMBER) > 0)
                     .sorted(Comparator.comparing(s -> s.asInt(SECTION_NUMBER)))

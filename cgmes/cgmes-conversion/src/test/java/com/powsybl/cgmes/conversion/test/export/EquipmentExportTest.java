@@ -28,7 +28,6 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.ExportOptions;
@@ -37,6 +36,8 @@ import com.powsybl.iidm.serde.XMLImporter;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,8 +54,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.FileSystem;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
@@ -69,6 +68,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     private Properties importParams;
 
+    @Override
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
@@ -97,14 +97,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallBusBranch().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportBusBranch(expected, dataSource);
-        assertTrue(compareNetworksEQdata(expected, actual));
-    }
-
-    @Test
-    void smallGridHvdcWithCapabilityCurve() throws IOException, XMLStreamException {
-        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithVsCapabilityCurve().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
-        Network actual = exportImportNodeBreaker(expected, dataSource);
         assertTrue(compareNetworksEQdata(expected, actual));
     }
 
@@ -159,29 +151,22 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
 
-        network.newExtension(CgmesControlAreasAdder.class).add();
-        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-        CgmesControlArea cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
+        // Define a tie flow at the boundary of a dangling line
+        TieLine tieLine = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        Area area = network.newArea()
                 .setId("controlAreaId")
                 .setName("controlAreaName")
-                .setEnergyIdentificationCodeEic("energyIdentCodeEic")
-                .setNetInterchange(Double.NaN)
+                .setAreaType(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)
+                .setInterchangeTarget(Double.NaN)
+                .addAreaBoundary(tieLine.getDanglingLine2().getBoundary(), true)
                 .add();
-        TieLine tieLine = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
-        cgmesControlArea.add(tieLine.getDanglingLine2().getBoundary());
+        area.addAlias("energyIdentCodeEic", CgmesNames.ENERGY_IDENT_CODE_EIC);
 
-        // TODO(Luma) updated expected result after halves of tie lines are exported as equipment
-        //  instead of an error logged and the tie flow ignored,
-        //  the reimported network control area should contain one tie flow
-        Network actual = exportImportNodeBreaker(network, dataSource);
-        CgmesControlArea actualCgmesControlArea = actual.getExtension(CgmesControlAreas.class).getCgmesControlArea("controlAreaId");
-        boolean tieFlowsAtTieLinesAreSupported = false;
-        if (tieFlowsAtTieLinesAreSupported) {
-            assertEquals(1, actualCgmesControlArea.getBoundaries().size());
-            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getDanglingLine().getId());
-        } else {
-            assertEquals(0, actualCgmesControlArea.getBoundaries().size());
-        }
+        // The reimported network control area should contain one tie flow
+        Network actual = exportImportBusBranch(network, dataSource);
+        Area actualControlArea = actual.getArea("controlAreaId");
+        assertEquals(1, actualControlArea.getAreaBoundaryStream().count());
+        assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualControlArea.getAreaBoundaries().iterator().next().getBoundary().get().getDanglingLine().getId());
     }
 
     @Test
@@ -207,7 +192,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     @Test
     void nordic32() throws IOException, XMLStreamException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
+        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         exportToCgmesEQ(network);
         exportToCgmesTP(network);
@@ -231,7 +216,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     @Test
     void nordic32SortTransformerEnds() throws IOException, XMLStreamException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
+        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), importParams);
         exportToCgmesEQ(network, true);
         exportToCgmesTP(network);
@@ -270,11 +255,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
             TwoWindingsTransformer newTwt = pair.getRight().getAdder().add();
             Optional<CurrentLimits> currentLimits1 = pair.getRight().getCurrentLimits1();
             if (currentLimits1.isPresent()) {
-                newTwt.newCurrentLimits1().setPermanentLimit(currentLimits1.get().getPermanentLimit()).add();
+                newTwt.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(currentLimits1.get().getPermanentLimit()).add();
             }
             Optional<CurrentLimits> currentLimits2 = pair.getRight().getCurrentLimits2();
             if (currentLimits2.isPresent()) {
-                newTwt.newCurrentLimits2().setPermanentLimit(currentLimits2.get().getPermanentLimit()).add();
+                newTwt.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(currentLimits2.get().getPermanentLimit()).add();
             }
             pair.getRight().getAliases().forEach(aliasPair -> {
                 if (aliasPair.getLeft() == null) {
@@ -589,7 +574,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.NONCONFORM_LOAD), loadsCreatedFromOriginalClassCount(actual, CgmesNames.NONCONFORM_LOAD));
         assertEquals(loadsCreatedFromOriginalClassCount(expected, CgmesNames.STATION_SUPPLY), loadsCreatedFromOriginalClassCount(actual, CgmesNames.STATION_SUPPLY));
 
-        // Avoid comparing targetP and targetQ (reimport does not consider the SSH file);
+        // Areas must be preserved
+        // The input test case contains 2 control areas of type interchange,
+        // that must be exported and reimported
+
+        // Avoid comparing targetP and targetQ, as reimport does not consider the SSH file
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
             actualGenerator.setTargetP(expectedGenerator.getTargetP());
@@ -667,7 +656,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals(generatorsCreatedFromOriginalClassCount(expected, "ExternalNetworkInjection"), generatorsCreatedFromOriginalClassCount(actual, "ExternalNetworkInjection"));
         assertEquals(generatorsCreatedFromOriginalClassCount(expected, "EquivalentInjection"), generatorsCreatedFromOriginalClassCount(actual, "EquivalentInjection"));
 
-        // Avoid comparing targetP and targetQ (reimport does not consider the SSH file);
+        // Avoid comparing targetP and targetQ, as reimport does not consider the SSH file
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
             actualGenerator.setTargetP(expectedGenerator.getTargetP());
@@ -1032,13 +1021,18 @@ class EquipmentExportTest extends AbstractSerDeTest {
             Properties exportParams = new Properties();
             exportParams.put(CgmesExport.PROFILES, "EQ");
 
-            // PST with FIXED_TAP
-            network = PhaseShifterTestCaseFactory.createWithTargetDeadband();
+            // PST with no regulation mode but regulating true => set to CURRENT_LIMITER mode
+            network = PhaseShifterTestCaseFactory.createRegulatingWithoutMode();
+            assertTrue(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithoutAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "currentFlow");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "currentFlow");
 
             // PST local with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createLocalActivePowerWithTargetDeadband();
+            assertFalse(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
@@ -1047,6 +1041,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
             // PST local with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createLocalCurrentLimiterWithTargetDeadband();
+            assertFalse(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "currentFlow");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
@@ -1055,6 +1050,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
             // PST remote with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createRemoteCurrentLimiterWithTargetDeadband();
+            assertFalse(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "currentFlow");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
@@ -1063,6 +1059,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
             // PST remote with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createRemoteActivePowerWithTargetDeadband();
+            assertFalse(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "activePower");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
@@ -1373,12 +1370,12 @@ class EquipmentExportTest extends AbstractSerDeTest {
             // Generator without control
             network = EurostagTutorialExample1Factory.createWithoutControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "_GEN_RC", "", "dummy");
 
             // Generator with remote terminal without control
             network = EurostagTutorialExample1Factory.createRemoteWithoutControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "_GEN_RC", "", "dummy");
 
             // Generator without control capability
             network = EurostagTutorialExample1Factory.create();
@@ -1697,6 +1694,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
         // Export original and only EQ
         ExportOptions exportOptions = new ExportOptions();
+        // Do not export extensions
         exportOptions.setExtensions(Collections.emptySet());
         exportOptions.setSorted(true);
 
@@ -1799,7 +1797,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 generator.getTerminal().setP(0.0).setQ(0.0);
             } else if (identifiable instanceof StaticVarCompensator) {
                 StaticVarCompensator staticVarCompensator = (StaticVarCompensator) identifiable;
-                staticVarCompensator.setRegulationMode(StaticVarCompensator.RegulationMode.OFF).setVoltageSetpoint(0.0);
+                staticVarCompensator.setRegulating(false).setVoltageSetpoint(0.0)
+                        .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
                 staticVarCompensator.getTerminal().setP(0.0).setQ(0.0);
             } else if (identifiable instanceof VscConverterStation) {
                 VscConverterStation converter = (VscConverterStation) identifiable;
@@ -1833,6 +1832,9 @@ class EquipmentExportTest extends AbstractSerDeTest {
         });
         for (Load load : network.getLoads()) {
             load.setP0(0.0).setQ0(0.0);
+        }
+        for (Area area : network.getAreas()) {
+            area.setInterchangeTarget(0.0);
         }
 
         network.removeExtension(CgmesModelExtension.class);

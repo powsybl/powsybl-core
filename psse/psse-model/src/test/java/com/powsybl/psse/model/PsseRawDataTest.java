@@ -723,14 +723,6 @@ class PsseRawDataTest extends AbstractSerDeTest {
         assertEquals(expectedJson, toJson(rawData));
     }
 
-    void ieee14BusNodeBreakerRev35CopyTest() throws IOException {
-        String expectedJson = loadReference("/IEEE_14_bus_nodeBreaker_rev35.json");
-        PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee14NodeBreakerRaw35(), "raw", new Context());
-        assertNotNull(rawData);
-        PssePowerFlowModel copiedRawData = rawData.referenceAndCopyPssePowerFlowModel();
-        assertEquals(expectedJson, toJson(copiedRawData));
-    }
-
     @Test
     void fiveBusNodeBreakerRev35Test() throws IOException {
         String expectedJson = loadReference("/five_bus_nodeBreaker_rev35.json");
@@ -835,7 +827,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
         assertNotNull(rawData);
 
         PsseValidation psseValidation = new PsseValidation(rawData, context.getVersion());
-        List<String> warnings = psseValidation.getWarnings();
+        List<String> warnings = psseValidation.getValidationErrors();
         StringBuilder sb = new StringBuilder();
         warnings.forEach(warning -> {
             String s = String.format("%s%n", warning);

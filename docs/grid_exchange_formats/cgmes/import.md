@@ -5,6 +5,12 @@ The CIM-CGMES importer reads and converts a CIM-CGMES model to the PowSyBl grid 
 - Convert CIM-CGMES data retrieved by SPARQL requests from the created triplestore to PowSyBl grid model
 
 The data in input CIM/XML files uses RDF (Resource Description Framework) syntax. In RDF, data is described making statements about resources using triplet expressions: (subject, predicate, object).
+
+The CIM-CGMES importer supports reading CIM/XML profile files from one of the following data sources:
+- a folder containing all uncompressed profile files
+- a folder containing the zipped profile files, each one being in a separate zip file
+- a zipped file containing all profile files
+
 To describe the conversion from CGMES to PowSyBl, we first introduce some generic considerations about the level of detail of the model (node/breaker or bus/branch), the identity of the equipments and equipment containment in substations and voltage levels. After that, the conversion for every CGMES relevant class is explained. Consistency checks and validations performed during the conversion are mentioned in the corresponding sections.
 
 (cgmes-import-level-of-detail)=
@@ -281,7 +287,8 @@ An `ExternalNetworkinjection` is mapped to a PowSyBl [`Generator`](../../grid_mo
 
 Linear shunt compensators represent shunt compensators with banks or sections with equal admittance values.
 
-A `LinearShuntCompensator` is mapped to a PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) with `SectionCount` copied from CGMES SSH `sections` or CGMES `SvShuntCompensatorSections.sections`, depending on the import option. If none is defined, it is copied from CGMES `normalSections`.
+A `LinearShuntCompensator` is mapped to a PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) with `SectionCount` copied from CGMES SSH `sections` if present. If not, it is copied from CGMES `SvShuntCompensatorSections.sections` or `normalSections`.
+The `SolvedSectionCount` is copied from `SvShuntCompensatorSections.sections` if the SV is imported, and left to `null` otherwise.
 The created PowSyBl shunt compensator is linear, and its attributes are defined as described below:
 - `BPerSection` is copied from CGMES `bPerSection` if defined. Else, it is `Float.MIN_VALUE`.
 - `GPerSection` is copied from CGMES `gPerSection` if defined. Else, it is left undefined.
@@ -294,7 +301,8 @@ The created PowSyBl shunt compensator is linear, and its attributes are defined 
 
 Non-linear shunt compensators represent shunt compensators with banks or section admittance values that differ.
 
-A `NonlinearShuntCompensator` is mapped to a PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) with `SectionCount` copied from CGMES SSH `sections` or CGMES `SvShuntCompensatorSections.sections`, depending on the import option. If none is defined, it is copied from CGMES `normalSections`.
+A `NonlinearShuntCompensator` is mapped to a PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) with `SectionCount` copied from CGMES SSH `sections` if present. If not, it is copied from CGMES `SvShuntCompensatorSections.sections` or `normalSections`.
+The `SolvedSectionCount` is copied from `SvShuntCompensatorSections.sections` if the SV is imported, and left to `null` otherwise.
 The created PowSyBl shunt compensator is non-linear and has as many `Sections` as there are `NonlinearShuntCompensatorPoint` associated with the `NonlinearShuntCompensator` it is mapped to.
 
 Sections are created from the lowest CGMES `sectionNumber` to the highest and each section has its attributes created as described below:
@@ -430,33 +438,110 @@ If the CGMES `Switch` is mapped to a PowSyBl [`DanglingLine`](../../grid_model/n
 - `P0` is copied from CGMES `P` of the terminal at boundary side;
 - `Q0` is copied from CGMES `Q` of the terminal at boundary side
 
+(cgmes-control-area-import)=
+### Control areas
+
+CGMES control areas (objects of class `ControlArea`) are mapped directly to PowSyBl objects of type `Area`.
+
+The control area CGMES `type` is copied as a string in the `areaType` attribute of the PowSyBl `Area`. The CGMES `netInterchange` is copied to the PowSyBl `interchangeTarget`. If CGMES `pTolerance` is defined, its value is copied to a new property named `pTolerance`. Finally, if an attribute `entsoe:IdentifiedObject.energyIdentCodeEic` is found for the CGMES control area, it is added as an alias with `aliasType == "energyIdentCodeEic"`.
+
+The CGMES control area tie flows (objects of class `TieFlow`) are mapped to PowSyBl `Area` boundary items. 
+Boundary items can be terminals (if the corresponding CGMES point can be mapped to a PowSyBl `Terminal`) or boundaries, when the corresponding CGMES point is the boundary side of a dangling line in PowSyBl.
+
+(cgmes-dc-subnetwork-import)=
+### DC subnetwork
+
+PowSyBl currently supports the following DC configurations for CGMES import:
+- Monopole with ground return.
+- Monopole with metallic return.
+- Bipole with dedicated metallic return (DMR).
+- Bipole without DMR.
+
+In the above point-to-point configurations, each converter in a CGMES `DCConverterUnit` can be modeled with 
+1 CGMES `ACDCConverter` (1* 12-pulse bridge) or 2 CGMES `ACDCConverter` (2* 6-pulses bridges).
+Other configurations, such as back-to-back or multi-terminal aren't supported.
+Hybrid configurations using `VsConverter` on one side and `CsConverter` on the other side aren't supported either.
+
+Each valid DC configuration is mapped to PowSyBl as follows:
+- 1 CGMES `ACDCConverter` is always mapped to 1 PowSyBl `HvdcConverterStation`:
+  - CGMES subclass `CsConverter` is mapped to PowSyBl subclass `LccConverterStation`.
+  - CGMES subclass `VsConverter` is mapped to PowSyBl subclass `VscConverterStation`.
+- 1 or 2 CGMES `DCLineSegment` are mapped to 1 or 2 `HvdcLine`.
+  - See table below that shows when dc lines are merged or split.
+
+| Configuration                                   | Number of converters<br/>(CGMES or PowSyBl) | Number of<br/>CGMES DCLineSegment | Number of<br/>PowSyBl HvdcLine |
+|-------------------------------------------------|---------------------------------------------|-----------------------------------|--------------------------------|
+| Monopole, metallic return                       | 1                                           | 2                                 | 1                              |
+| Monopole, ground return,<br/>1 bridge per unit  | 1                                           | 1                                 | 1                              |
+| Monopole, ground return,<br/>2 bridges per unit | 2                                           | 1                                 | 2                              |
+| Bipole                                          | 2                                           | 2 (*)                             | 2                              |
+| Bipole, 2 bridges per unit                      | 4                                           | 2 (*)                             | 4                              |
+
+- (*) The DMR is never considered for the mapping since no flow runs through it.
+
+The merging or splitting of dc lines is necessary to always end up with triplets:
+`HvdcConverterStation` (side 1) + `HvdcLine` + `HvdcConverterStation` (side 2) in PowSyBl.
+
+The detail mapping of the classes is detailed below.
+
+#### DCLineSegment
+
+The mapping of CGMES `DCLineSegment` to PowSyBl `HvdcLine` isn't done in isolation, but always in association with the `ACDCConverter` on each side it is connected to.
+
+The PowSyBl `R` value is mapped as follows:
+- If the CGMES to PowSyBl cardinality is 1 to 1, the PowSyBl `R` value is copied from CGMES EQ `r`.
+- If the CGMES to PowSyBl cardinality is 2 to 1, the PowSyBl `R` value is the sum of the CGMES EQ `r`: $R = r_{1} + r_{2}$
+- If the CGMES to PowSyBl cardinality is 1 to 2, each PowSyBl `R` is equal to half the CGMES EQ `r`: $R_{1} = R_{2} = \frac{r}{2}$
+
+The PowSyBl `NominalV` is copied from side 1 converter CGMES EQ `ACDCConverter.ratedUdc`.
+
+The PowSyBl `ConvertersMode` is determined from the 2 neighbouring `ACDCConverter`:
+- If one of the CGMES SSH `ACDCConverter.targetPpcc` is set and has a positive value,
+or in the case of LCC lines if one of the CGMES SSH `CsConverter.operatingMode` is set to `CsOperatingModeKind.rectifier`,
+then this converter is the rectifier, and the one on the other side is the inverter.
+- If one of the CGMES SSH `ACDCConverter.targetPpcc` is set and has a negative value,
+  or in the case of LCC lines if one of the CGMES SSH `CsConverter.operatingMode` is set to `CsOperatingModeKind.inverter`,
+  then this converter is the inverter, and the one on the other side is the rectifier.
+- Based on above results and on which side each converter is located, the PowSyBl `ConvertersMode` is then computed to `SIDE_1_RECTIFIER_SIDE_2_INVERTER` or `SIDE_1_INVERTER_SIDE_2_RECTIFIER`.
+In case the information couldn't be retrieved, for example in the case of an EQ only import, the default mode is set to `SIDE_1_RECTIFIER_SIDE_2_INVERTER`.
+
+Similarly, the PowSyBl `ActivePowerSetpoint` is determined from the 2 neighbouring `ACDCConverter`:
+- If the CGMES SSH rectifier's `ACDCConverter` defines a `ACDCConverter.targetPpcc`, then the PowSyBl `ActivePowerSetpoint` is copied from it.
+- If the CGMES SSH inverter's `ACDCConverter` defines a `ACDCConverter.targetPpcc`, this value is brought back to the rectifier's side, by adding losses all along the line.
+See `ACDCConverter` mapping for the calculation detail.
+- In case the information couldn't be retrieved, for example in the case of an EQ only import, the default value is `0.0`.
+
+The PowSyBl `MaxP` is set to 120% of `ActivePowerSetpoint`.
+
+#### ACDCConverter
+
+The mapping of CGMES `ACDCConverter` to PowSyBl `HvdcConverterStation` isn't done in isolation, but always in association with the `DCLineSegment`
+it is connected to and the `ACDCConverter` on the other side of the line.
+
+The PowSyBl `LossFactor` is computed from CGMES SSH `ACDCConverter.targetPpcc` values and CGMES SV `poleLossP` values.
+It is sufficient for one of the converter to define a `targetPpcc` to be able to calculate the AC and DC active powers all along the line:
+- If `ACDCConverter.targetPpcc` is defined by CGMES SSH rectifier's `ACDCConverter`, then:
+  - $P_{AC, rectifier} = targetPpcc$
+  - $P_{DC, rectifier} = P_{AC, rectifier} - poleLossP_{rectifier}$
+  - $P_{DC, inverter} = -1 \times (P_{DC, rectifier} - resistiveLosses)$, where $resistiveLosses = R * idc²$ and $idc = \frac{P_{DC, rectifier}}{NominalV}$
+  - $P_{AC, inverter} = P_{DC, inverter} + poleLossP_{inverter}$
+- If `ACDCConverter.targetPpcc` is defined by CGMES SSH inverter's `ACDCConverter`, then:
+  - $P_{AC, inverter} = targetPpcc$
+  - $P_{DC, inverter} = P_{AC, inverter} - poleLossP_{inverter}$
+  - $P_{DC, rectifier} = abs(P_{DC, inverter}) + resistiveLosses$, where $resistiveLosses = R * idc²$ and $idc = \frac{NominalV - \sqrt{NominalV^2 - 4 \times R \times abs(P_{DC, inverter})}}{2 \times R}$
+  - $P_{AC, rectifier} = P_{DC, rectifier} + poleLossP_{rectifier}$
+- Once these active power have been calculated, the PowSyBl `LossFactor` is computed as follows:
+  - $LossFactor_{rectifier} = \frac{poleLossP_{rectifier}}{P_{AC, rectifier}}$
+  - $LossFactor_{inverter} = \frac{poleLossP_{inverter}}{abs(P_{DC, inverter})}$
+  - In case the calculations can't be evaluated, for example in the case of an EQ only import, the default value is `0.0`.
+
+The PowSyBl `LccConverterStation` `PowerFactor` is calculated from the CGMES SSH `ACDCConverter.p` and `ACDCConverter.q` values:
+  - $PowerFactor = \frac{p}{\sqrt{p² + q²}}$
+  - In case the calculations can't be evaluated, for example in the case of an EQ only import, the default value is `0.8`.
+
 ## Extensions
 
 The CIM-CGMES format contains more information than what the `iidm` grid model needs for calculation. The additional data that are needed to export a network in CIM-CGMES format are stored in several extensions.
-
-(cgmes-control-areas-import)=
-### CGMES control areas
-
-This extension models all the control areas contained in the network as modeled in CIM-CGMES.
-
-| Attribute           | Type                           | Unit | Required | Default value | Description                              |
-|---------------------|--------------------------------|------|----------|---------------|------------------------------------------|
-| CGMES control areas | `Collection<CgmesControlArea>` | -    | no       | -             | The list of control areas in the network |
-
-**CGMES control area**
-
-| Attribute                        | Type       | Unit | Required | Default value | Description                                              |
-|----------------------------------|------------|------|----------|---------------|----------------------------------------------------------|
-| ID                               | String     | -    | yes      | -             | The ID of the control area                               |
-| name                             | String     | -    | no       | -             | The name of the control area                             |
-| Energy Identification Code (EIC) | String     | -    | no       | -             | The EIC control area                                     |
-| net interchange                  | double     | -    | no       | -             | The net interchange of the control area (at its borders) |
-| terminals                        | `Terminal` | -    | no       | -             | Terminals at the border of the control area              |
-| boundaries                       | `Boundary` | -    | no       | -             | Boundaries at the border of the control area             |
-
-It is possible to retrieve a control area by its ID. It is also possible to iterate through all control areas.
-
-This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
 (cgmes-dangling-line-boundary-node-import)=
 ### CGMES dangling line boundary node
@@ -487,6 +572,9 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 ### CGMES Tap Changers
 
 <span style="color: red">TODO</span>
+
+The `TapPosition` of the IIDM `TapChanger` is copied from the CGMES SSH `step` if present. If not, it is copied from CGMES `SVtapStep` or `normalStep` from EQ.
+The `SolvedTapPosition` is copied from `SVtapStep` if the SV is imported, and left to `null` otherwise.
 
 (cgmes-metadata-model-import)=
 ### CGMES metadata model
@@ -551,9 +639,6 @@ One implementation of such a post-processor is available in PowSyBl in the [pows
 
 **iidm.import.cgmes.powsybl-triplestore**  
 Optional property that defines which Triplestore implementation is used. Currently, PowSyBl only supports [RDF4J](https://rdf4j.org/). `rdf4j` by default.
-
-**iidm.import.cgmes.profile-for-initial-values-shunt-sections-tap-positions**  
-Optional property that defines which CGMES profile is used to initialize tap positions and section counts. It can be `SSH` or `SV`. The default value is `SSH`.
 
 **iidm.import.cgmes.source-for-iidm-id**  
 Optional property that defines if IIDM IDs must be obtained from the CGMES `mRID` (master resource identifier) or the CGMES `rdfID` (Resource Description Framework identifier). The default value is `mRID`.

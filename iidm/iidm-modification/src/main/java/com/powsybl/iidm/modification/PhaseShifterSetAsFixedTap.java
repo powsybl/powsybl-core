@@ -7,15 +7,15 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 public class PhaseShifterSetAsFixedTap extends AbstractNetworkModification {
 
@@ -38,14 +38,15 @@ public class PhaseShifterSetAsFixedTap extends AbstractNetworkModification {
         Objects.requireNonNull(network);
         TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
         if (phaseShifter == null) {
-            throw new PowsyblException("Transformer '" + phaseShifterId + "' not found");
+            logOrThrow(throwException, "Transformer '" + phaseShifterId + "' not found");
+            return;
         }
         if (!phaseShifter.hasPhaseTapChanger()) {
-            throw new PowsyblException("Transformer '" + phaseShifterId + "' is not a phase shifter");
+            logOrThrow(throwException, "Transformer '" + phaseShifterId + "' is not a phase shifter");
+            return;
         }
         phaseShifter.getPhaseTapChanger().setTapPosition(tapPosition);
         phaseShifter.getPhaseTapChanger().setRegulating(false);
-        phaseShifter.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
     }
 
     @Override
@@ -57,8 +58,7 @@ public class PhaseShifterSetAsFixedTap extends AbstractNetworkModification {
             || tapPosition < phaseShifter.getPhaseTapChanger().getLowTapPosition()) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else if (areValuesEqual(tapPosition, phaseShifter.getPhaseTapChanger().getTapPosition(), false)
-            && !phaseShifter.getPhaseTapChanger().isRegulating()
-            && phaseShifter.getPhaseTapChanger().getRegulationMode() == PhaseTapChanger.RegulationMode.FIXED_TAP) {
+            && !phaseShifter.getPhaseTapChanger().isRegulating()) {
             impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
         return impact;

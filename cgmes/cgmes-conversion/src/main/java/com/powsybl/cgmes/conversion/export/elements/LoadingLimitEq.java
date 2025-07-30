@@ -24,10 +24,10 @@ import javax.xml.stream.XMLStreamWriter;
 public final class LoadingLimitEq {
 
     public static void write(String id, LoadingLimits loadingLimits, String name, double value,
-                             String operationalLimitTypeId, String operationalLimitSetId, String cimNamespace, String valueAttributeName, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                             String operationalLimitTypeId, String operationalLimitSetId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cgmesClass = loadingLimitClassName(loadingLimits);
         CgmesExportUtil.writeStartIdName(cgmesClass, id, name, cimNamespace, writer, context);
-        writer.writeStartElement(cimNamespace, cgmesClass + "." + valueAttributeName);
+        writer.writeStartElement(cimNamespace, cgmesClass + "." + getLimitValueAttributeName(context));
         writer.writeCharacters(CgmesExportUtil.format(value));
         writer.writeEndElement();
         CgmesExportUtil.writeReference("OperationalLimit.OperationalLimitSet", operationalLimitSetId, cimNamespace, writer, context);
@@ -44,6 +44,16 @@ public final class LoadingLimitEq {
             return "ApparentPowerLimit";
         }
         throw new PowsyblException("Unsupported loading limits " + loadingLimits.getClass().getSimpleName());
+    }
+
+    public static String getLimitValueAttributeName(CgmesExportContext context) {
+        if (context.getCimVersion() == 14) {
+            throw new PowsyblException("Undefined limit value attribute name for version 14");
+        } else if (context.getCimVersion() == 16) {
+            return "value";
+        } else {
+            return "normalValue";
+        }
     }
 
     private LoadingLimitEq() {

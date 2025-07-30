@@ -13,11 +13,11 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="N_0" v="236.44736" angle="15.250391"/>
                 <iidm:bus id="N_1" v="236.44736" angle="15.250391"/>
-                <iidm:bus id="N_11"/>
-                <iidm:bus id="N_13"/>
                 <iidm:bus id="N_2"/>
                 <iidm:bus id="N_3"/>
+                <iidm:bus id="N_11"/>
                 <iidm:bus id="N_12"/>
+                <iidm:bus id="N_13"/>
                 <iidm:bus id="N_14"/>
                 <iidm:switch id="BJ" name="BK" kind="BREAKER" retained="true" open="false" bus1="N_1" bus2="N_0"/>
             </iidm:busBreakerTopology>

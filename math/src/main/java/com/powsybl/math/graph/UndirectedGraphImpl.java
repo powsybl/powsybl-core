@@ -800,51 +800,10 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         if (vertex != null && vertex.getObject() == null) {
             TIntArrayList adjacentEdges = adjacencyList[v];
             if (adjacentEdges.isEmpty()) {
-
                 removeVertexInternal(v, notify);
                 adjacencyList[v] = null;
-
-                if (!adjacentEdges.isEmpty()) {
-                    int e = adjacentEdges.getQuick(0);
-                    removeDanglingEdgeAndPropagate(e, v, adjacencyList, notify);
-                }
             }
         }
-    }
-
-    private void removeDanglingEdgeAndPropagate(int edgeToRemove, int vFrom, TIntArrayList[] adjacencyList, boolean notify) {
-        Edge<E> edge = edges.get(edgeToRemove);
-        int v1 = edge.getV1();
-        int v2 = edge.getV2();
-        int vTo = v1 == vFrom ? v2 : v1;
-
-        // updating adjacency list of vFrom & vTo is not done here, as:
-        //  - vFrom adjacency list has been set to null when vertex vFrom has been removed
-        //  - vTo adjacency list is updated hereafter
-        removeEdgeInternal(edgeToRemove, notify);
-
-        Vertex<V> vertex = vertices.get(vTo);
-        TIntArrayList adjacentEdges = adjacencyList[vTo];
-        if (vertex == null || vertex.getObject() != null || adjacentEdges.size() > 2) {
-            // propagation stops: update adjacency list of vertex
-            adjacentEdges.remove(edgeToRemove);
-            return;
-        }
-
-        // propagate: we know that one of the neighbours (vFrom) of this vertex has been removed, hence:
-        //  - if only one adjacent edge, this is a newly isolated vertex
-        //  - if only two adjacent edges, this is a newly dangling vertex
-        removeVertexInternal(vTo, notify);
-        adjacencyList[vTo] = null;
-
-        // find the other edge to remove if dangling vertex
-        if (adjacentEdges.size() == 2) {
-            int otherEdgeToRemove = adjacentEdges.getQuick(0) == edgeToRemove
-                    ? adjacentEdges.getQuick(1)
-                    : adjacentEdges.getQuick(0);
-            removeDanglingEdgeAndPropagate(otherEdgeToRemove, vTo, adjacencyList, notify);
-        }
-
     }
 
     @Override

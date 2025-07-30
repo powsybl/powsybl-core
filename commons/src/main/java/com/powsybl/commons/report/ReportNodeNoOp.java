@@ -11,7 +11,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * A default no-op implementation
@@ -26,11 +29,16 @@ public class ReportNodeNoOp implements ReportNode {
 
     @Override
     public TreeContext getTreeContext() {
-        return null;
+        return TreeContext.NO_OP;
     }
 
     @Override
     public void include(ReportNode reportRoot) {
+        // No-op
+    }
+
+    @Override
+    public void addCopy(ReportNode reportNode) {
         // No-op
     }
 
@@ -45,7 +53,7 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public String getMessage() {
+    public String getMessage(ReportFormatter formatter) {
         return null;
     }
 
@@ -70,7 +78,77 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public void print(Writer writer) throws IOException {
+    public ReportNode addTypedValue(String key, String value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, String value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, double value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, double value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, float value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, float value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, int value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, int value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, long value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, long value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addTypedValue(String key, boolean value, String type) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addUntypedValue(String key, boolean value) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addSeverity(TypedValue severity) {
+        return this;
+    }
+
+    @Override
+    public ReportNode addSeverity(String severity) {
+        return this;
+    }
+
+    @Override
+    public void print(Writer writer, ReportFormatter formatter) throws IOException {
         // No-op
     }
 
@@ -81,7 +159,17 @@ public class ReportNodeNoOp implements ReportNode {
         }
 
         @Override
-        public ReportNodeAdder withMessageTemplate(String key, String messageTemplate) {
+        public ReportNodeAdder withMessageTemplateProvider(MessageTemplateProvider messageTemplateProvider) {
+            return this;
+        }
+
+        @Override
+        public ReportNodeAdder withMessageTemplate(String key, String bundleBaseName) {
+            return this;
+        }
+
+        @Override
+        public ReportNodeAdder withMessageTemplate(String key) {
             return this;
         }
 
@@ -152,6 +240,16 @@ public class ReportNodeNoOp implements ReportNode {
 
         @Override
         public ReportNodeAdder withSeverity(String severity) {
+            return this;
+        }
+
+        @Override
+        public ReportNodeAdder withTimestamp() {
+            return this;
+        }
+
+        @Override
+        public ReportNodeAdder withTimestamp(String timestampPattern) {
             return this;
         }
     }

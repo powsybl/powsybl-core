@@ -53,7 +53,7 @@ public class CgmesBoundary {
                 nodesName.put(tn, tnName);
                 topologicalNodes.put(tnName, tn);
                 connectivityNodes.put(tnName, cn);
-                if (node.containsKey("description") && node.getId("description").startsWith("HVDC")) {
+                if (isDcNode(node)) {
                     hvdcNodes.add(cn);
                     hvdcNodes.add(tn);
                 }
@@ -72,6 +72,16 @@ public class CgmesBoundary {
         nodesEquivalentInjections = new HashMap<>();
         nodesPowerFlow = new HashMap<>();
         nodesVoltage = new HashMap<>();
+    }
+
+    public static boolean isDcNode(PropertyBag node) {
+        if (node.containsKey("boundaryPointIsDirectCurrent")) {
+            return Boolean.parseBoolean(node.getId("boundaryPointIsDirectCurrent"));
+        } else if (node.containsKey("description") && node.getId("description").startsWith("HVDC")) {
+            return true;
+        } else {
+            return node.containsKey("topologicalNodeDescription") && node.getId("topologicalNodeDescription").startsWith("HVDC");
+        }
     }
 
     public boolean containsNode(String id) {
@@ -169,7 +179,7 @@ public class CgmesBoundary {
         return connectivityNodes.get(xnodeName);
     }
 
-    private static class Voltage {
+    private static final class Voltage {
         double v;
         double angle;
     }

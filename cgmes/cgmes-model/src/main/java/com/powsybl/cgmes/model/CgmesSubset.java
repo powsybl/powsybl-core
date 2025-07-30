@@ -48,16 +48,17 @@ public enum CgmesSubset {
         @Override
         public boolean isValidName(String contextName) {
             return super.isValidName(contextName)
-                    || EQUIPMENT.isValidName(contextName) && isBoundary(contextName);
+                    || EQUIPMENT.isValidBaseName(contextName) && isBoundary(contextName);
         }
     },
     TOPOLOGY_BOUNDARY("TP_BD") {
         @Override
         public boolean isValidName(String contextName) {
             return super.isValidName(contextName)
-                    || TOPOLOGY.isValidName(contextName) && isBoundary(contextName);
+                    || TOPOLOGY.isValidBaseName(contextName) && isBoundary(contextName);
         }
-    }, UNKNOWN("unknown") {
+    },
+    UNKNOWN("unknown") {
         @Override
         public boolean isValidName(String contextName) {
             return false;
@@ -82,6 +83,10 @@ public enum CgmesSubset {
     }
 
     public boolean isValidName(String contextName) {
+        return isValidBaseName(contextName);
+    }
+
+    private boolean isValidBaseName(String contextName) {
         return contextName.contains(validName0) || contextName.contains(validName1);
     }
 

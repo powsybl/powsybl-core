@@ -38,7 +38,7 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
 
     private static void checkVoltageConfig(double lowVoltageSetpoint, double highVoltageSetpoint,
                                            double lowVoltageThreshold, double highVoltageThreshold,
-                                           StaticVarCompensator staticVarCompensator) {
+                                           StaticVarCompensator staticVarCompensator, boolean standby) {
         if (Double.isNaN(lowVoltageSetpoint)) {
             throw new IllegalArgumentException(
                 String.format("lowVoltageSetpoint (%s) is invalid for StaticVarCompensator %s",
@@ -64,11 +64,17 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
                     staticVarCompensator.getId()));
         }
         if (lowVoltageThreshold >= highVoltageThreshold) {
-            throw new IllegalArgumentException(
-                String.format("Inconsistent low (%s) and high (%s) voltage thresholds for StaticVarCompensator %s",
-                    lowVoltageThreshold,
-                    highVoltageThreshold,
-                    staticVarCompensator.getId()));
+            if (standby) {
+                throw new IllegalArgumentException(
+                        String.format("Inconsistent low (%s) and high (%s) voltage thresholds for StaticVarCompensator %s",
+                                lowVoltageThreshold,
+                                highVoltageThreshold,
+                                staticVarCompensator.getId()));
+            } else {
+                LOGGER.warn("Inconsistent low {} and high ({}) voltage thresholds for StaticVarCompensator {}",
+                        lowVoltageSetpoint, lowVoltageThreshold,
+                        staticVarCompensator.getId());
+            }
         }
         if (lowVoltageSetpoint < lowVoltageThreshold) {
             LOGGER.warn("Invalid low voltage setpoint {} < threshold {} for StaticVarCompensator {}",
@@ -86,7 +92,7 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
                                 double lowVoltageThreshold, double highVoltageThreshold) {
         super(svc);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        checkVoltageConfig(lowVoltageSetpoint, highVoltageSetpoint, lowVoltageThreshold, highVoltageThreshold, svc);
+        checkVoltageConfig(lowVoltageSetpoint, highVoltageSetpoint, lowVoltageThreshold, highVoltageThreshold, svc, standby);
         this.b0 = checkB0(b0);
         this.standby = new TBooleanArrayList(variantArraySize);
         this.lowVoltageSetpoint = new TDoubleArrayList(variantArraySize);
@@ -109,6 +115,10 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
 
     @Override
     public StandbyAutomatonImpl setStandby(boolean standby) {
+        checkVoltageConfig(
+                lowVoltageSetpoint.get(getVariantIndex()), highVoltageSetpoint.get(getVariantIndex()),
+                lowVoltageThreshold.get(getVariantIndex()), highVoltageThreshold.get(getVariantIndex()),
+                this.getExtendable(), standby);
         this.standby.set(getVariantIndex(), standby);
         return this;
     }
@@ -133,7 +143,7 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
     public StandbyAutomatonImpl setHighVoltageSetpoint(double highVoltageSetpoint) {
         checkVoltageConfig(lowVoltageSetpoint.get(getVariantIndex()), highVoltageSetpoint,
             lowVoltageThreshold.get(getVariantIndex()), highVoltageThreshold.get(getVariantIndex()),
-            this.getExtendable());
+            this.getExtendable(), standby.get(getVariantIndex()));
         this.highVoltageSetpoint.set(getVariantIndex(), highVoltageSetpoint);
         return this;
     }
@@ -147,7 +157,7 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
     public StandbyAutomatonImpl setHighVoltageThreshold(double highVoltageThreshold) {
         checkVoltageConfig(lowVoltageSetpoint.get(getVariantIndex()), highVoltageSetpoint.get(getVariantIndex()),
             lowVoltageThreshold.get(getVariantIndex()), highVoltageThreshold,
-            this.getExtendable());
+            this.getExtendable(), standby.get(getVariantIndex()));
         this.highVoltageThreshold.set(getVariantIndex(), highVoltageThreshold);
         return this;
     }
@@ -161,7 +171,7 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
     public StandbyAutomatonImpl setLowVoltageSetpoint(double lowVoltageSetpoint) {
         checkVoltageConfig(lowVoltageSetpoint, highVoltageSetpoint.get(getVariantIndex()),
             lowVoltageThreshold.get(getVariantIndex()), highVoltageThreshold.get(getVariantIndex()),
-            this.getExtendable());
+            this.getExtendable(), standby.get(getVariantIndex()));
         this.lowVoltageSetpoint.set(getVariantIndex(), lowVoltageSetpoint);
         return this;
     }
@@ -175,7 +185,7 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
     public StandbyAutomatonImpl setLowVoltageThreshold(double lowVoltageThreshold) {
         checkVoltageConfig(lowVoltageSetpoint.get(getVariantIndex()), highVoltageSetpoint.get(getVariantIndex()),
             lowVoltageThreshold, highVoltageThreshold.get(getVariantIndex()),
-            this.getExtendable());
+            this.getExtendable(), standby.get(getVariantIndex()));
         this.lowVoltageThreshold.set(getVariantIndex(), lowVoltageThreshold);
         return this;
     }

@@ -124,7 +124,7 @@ public class RegulatingControlMappingForGenerators {
                     .withQPercent(qPercent)
                     .add();
         }
-        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", controlId);
+        gen.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, controlId);
 
         return true;
     }
@@ -161,7 +161,7 @@ public class RegulatingControlMappingForGenerators {
                     .add();
         }
 
-        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", controlId);
+        gen.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, controlId);
 
         return true;
     }

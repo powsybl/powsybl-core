@@ -14,6 +14,7 @@ import com.powsybl.commons.io.SerializerContext;
 
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * An ExtensionProvider able to serialize/deserialize extensions from XML.
@@ -45,6 +46,11 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
     String getNamespaceUri();
 
     /**
+     * Return the stream of all the namespace URIs of the extension, used for its XML (de)serialization
+     */
+    Stream<String> getNamespaceUriStream();
+
+    /**
      * Return the namespace URI of the extension in a given version of its XML serialization.
      */
     default String getNamespaceUri(String extensionVersion) {
@@ -53,6 +59,8 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
 
     String getNamespacePrefix();
 
+    String getNamespacePrefix(String extensionVersion);
+
     void write(E extension, SerializerContext context);
 
     E read(T extendable, DeserializerContext context);
@@ -60,6 +68,10 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
     default String getName() {
         return getExtensionName();
     }
+
+    String getSerializationName(String extensionVersion);
+
+    Set<String> getSerializationNames();
 
     /**
      * Return the latest version of the serialization of the extension.

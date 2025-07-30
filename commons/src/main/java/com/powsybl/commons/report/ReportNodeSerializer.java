@@ -70,7 +70,7 @@ public class ReportNodeSerializer extends StdSerializer<ReportNode> {
         public void serialize(TypedValue typedValue, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
             generator.writeStartObject();
             serializerProvider.defaultSerializeField("value", typedValue.getValue(), generator);
-            if (!TypedValue.UNTYPED.equals(typedValue.getType())) {
+            if (!TypedValue.UNTYPED_TYPE.equals(typedValue.getType())) {
                 generator.writeStringField("type", typedValue.getType());
             }
             generator.writeEndObject();

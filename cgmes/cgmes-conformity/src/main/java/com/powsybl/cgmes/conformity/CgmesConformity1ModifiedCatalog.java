@@ -329,20 +329,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReferenceResources microGridBaseCaseBEUndefinedPatl() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_undefined_PATL/";
-        return new GridModelReferenceResources("MicroGrid-BaseCase-BE-UndefinedPATL",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_BE_SV,
-                        MICRO_GRID_BE_SSH),
-                microGridBaseCaseBoundaries());
-    }
-
     public static GridModelReference microGridBaseCaseBEEquivalentInjectionRegulatingVoltage() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_BE_v2_equivalent_injection_regulating_voltage/";
@@ -484,20 +470,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReferenceResources microGridBaseCaseBELimits() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_limits/";
-        return new GridModelReferenceResources("MicroGrid-BaseCase-BE-Limits",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_BE_SV,
-                        MICRO_GRID_BE_SSH),
-                microGridBaseCaseBoundaries());
-    }
-
     public static GridModelReferenceResources microGridBaseBEFixedMinPMaxP() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_BE_v2_fixed_minP_maxP/";
@@ -519,20 +491,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 null,
                 new ResourceSet(baseModified,
                         MICRO_GRID_BE_EQ,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_BE_SV,
-                        MICRO_GRID_BE_SSH),
-                microGridBaseCaseBoundaries());
-    }
-
-    public static GridModelReferenceResources microGridBaseCaseBEMissingLimitValue() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_missing_limit_value/";
-        return new GridModelReferenceResources("MicroGrid-BaseCase-BE-missing-limit-value",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ),
-                new ResourceSet(MICRO_GRID_BE_BASE,
                         MICRO_GRID_BE_TP,
                         MICRO_GRID_BE_SV,
                         MICRO_GRID_BE_SSH),
@@ -918,23 +876,6 @@ public final class CgmesConformity1ModifiedCatalog {
 
     }
 
-    public static GridModelReferenceResources miniNodeBreakerLimitsforEquipment() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_limits/";
-        return new GridModelReferenceResources(
-                "MiniGrid-NodeBreaker-LimistForEquipment",
-                null,
-                new ResourceSet(base,
-                        MINI_GRID_EQ),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BASE,
-                        MINI_GRID_DL,
-                        MINI_GRID_SSH,
-                        MINI_GRID_SV,
-                        MINI_GRID_TP),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BD_BASE, MINI_GRID_BD_EQ,
-                        MINI_GRID_BD_TP));
-    }
-
     public static GridModelReferenceResources miniNodeBreakerInvalidT2w() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_invalid_t2w/";
@@ -969,57 +910,6 @@ public final class CgmesConformity1ModifiedCatalog {
                         MINI_GRID_BD_TP));
     }
 
-    public static GridModelReferenceResources miniNodeBreakerLoadBreakSwitch() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_load_break_switch/";
-        return new GridModelReferenceResources(
-                "MiniGrid-NodeBreaker-Load-Break-Switch",
-                null,
-                new ResourceSet(base,
-                        MINI_GRID_EQ),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BASE,
-                        MINI_GRID_SV,
-                        MINI_GRID_DL,
-                        MINI_GRID_SSH,
-                        MINI_GRID_TP),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BD_BASE, MINI_GRID_BD_EQ,
-                        MINI_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources miniNodeBreakerProtectedSwitch() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_protected_switch/";
-        return new GridModelReferenceResources(
-                "MiniGrid-NodeBreaker-Protected-Switch",
-                null,
-                new ResourceSet(base,
-                        MINI_GRID_EQ),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BASE,
-                        MINI_GRID_SV,
-                        MINI_GRID_DL,
-                        MINI_GRID_SSH,
-                        MINI_GRID_TP),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BD_BASE, MINI_GRID_BD_EQ,
-                        MINI_GRID_BD_TP));
-    }
-
-    public static GridModelReference miniNodeBreakerInternalLineZ0() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_internal_line_z0/";
-        return new GridModelReferenceResources(
-                "MiniGrid-NodeBreaker-InternalLineZ0",
-                null,
-                new ResourceSet(base,
-                        MINI_GRID_EQ),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BASE,
-                        MINI_GRID_SV,
-                        MINI_GRID_DL,
-                        MINI_GRID_SSH,
-                        MINI_GRID_TP),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BD_BASE, MINI_GRID_BD_EQ,
-                        MINI_GRID_BD_TP));
-    }
-
     public static GridModelReference miniNodeBreakerMissingSubstationRegion() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_missing_substation_region/";
@@ -1047,264 +937,6 @@ public final class CgmesConformity1ModifiedCatalog {
                         SMALL_GRID_TP),
                 new ResourceSet(base, SMALL_GRID_EQ),
                 new ResourceSet(SMALL_GRID_BUS_BRANCH_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/SmallGrid/HVDC_dcLine2_targetPpcc_for_1inverter_2rectifier";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-Line2Inverter1Rectifier2",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_EQ,
-                        SMALL_GRID_HVDC_GL,
-                        SMALL_GRID_HVDC_SV,
-                        SMALL_GRID_HVDC_TP),
-                new ResourceSet(base, SMALL_GRID_HVDC_SSH),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/SmallGrid/HVDC_dcLine2_targetPpcc_both_1inverter_2rectifier";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-Line2BothConvertersTargetPpcc1inverter2rectifier",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_EQ,
-                        SMALL_GRID_HVDC_GL,
-                        SMALL_GRID_HVDC_SV,
-                        SMALL_GRID_HVDC_TP),
-                new ResourceSet(base, SMALL_GRID_HVDC_SSH),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/SmallGrid/HVDC_dcLine2_targetPpcc_both_1rectifier_2inverter";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-Line2BothConvertersTargetPpcc1rectifier2inverter",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_EQ,
-                        SMALL_GRID_HVDC_GL,
-                        SMALL_GRID_HVDC_SV,
-                        SMALL_GRID_HVDC_TP),
-                new ResourceSet(base, SMALL_GRID_HVDC_SSH),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcVscReactiveQPcc() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_vsc_reactive_qPccControl";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-VSC-Reactive",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_EQ,
-                        SMALL_GRID_HVDC_GL,
-                        SMALL_GRID_HVDC_SV,
-                        SMALL_GRID_HVDC_TP),
-                new ResourceSet(base, SMALL_GRID_HVDC_SSH),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcNanTargetPpcc() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_NaN_targetPpcc";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-NaN-targetPpcc",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_EQ,
-                        SMALL_GRID_HVDC_GL,
-                        SMALL_GRID_HVDC_SV,
-                        SMALL_GRID_HVDC_TP),
-                new ResourceSet(base, SMALL_GRID_HVDC_SSH),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcMissingDCLineSegment() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_missing_DCLineSegment";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-missing-DCLineSegment",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_SSH,
-                        SMALL_GRID_HVDC_GL,
-                        SMALL_GRID_HVDC_SV),
-                new ResourceSet(base, SMALL_GRID_HVDC_EQ,
-                        SMALL_GRID_HVDC_TP),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcMissingAcDcConverters() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_missing_acDcConverters";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-missing-acDcConverters",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_SSH,
-                        SMALL_GRID_HVDC_GL,
-                        SMALL_GRID_HVDC_SV),
-                new ResourceSet(base, SMALL_GRID_HVDC_EQ,
-                        SMALL_GRID_HVDC_TP),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcTwoDcLineSegments() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_two_DCLineSegments";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-two-DCLineSegments",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_SSH,
-                        SMALL_GRID_HVDC_GL,
-                        SMALL_GRID_HVDC_SV),
-                new ResourceSet(base, SMALL_GRID_HVDC_EQ,
-                        SMALL_GRID_HVDC_TP),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcTwoDcLineSegmentsOneTransformer() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_two_DCLineSegments_one_transformer";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-two-DCLineSegments-one-transformer",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_SSH,
-                        SMALL_GRID_HVDC_GL,
-                        SMALL_GRID_HVDC_SV),
-                new ResourceSet(base, SMALL_GRID_HVDC_EQ,
-                        SMALL_GRID_HVDC_TP),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcTwoAcDcConvertersOneDcLineSegments() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_twoAcDcConverters_oneDcLineSegment";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-two-AcDcConverters-one-DCLineSegment",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_TP,
-                        SMALL_GRID_HVDC_GL),
-                new ResourceSet(base, SMALL_GRID_HVDC_EQ,
-                        SMALL_GRID_HVDC_SSH,
-                        SMALL_GRID_HVDC_SV),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcWithTransformers() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_with_transformers";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-with-transformers",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_TP,
-                        SMALL_GRID_HVDC_SSH,
-                        SMALL_GRID_HVDC_SV,
-                        SMALL_GRID_HVDC_GL),
-                new ResourceSet(base, SMALL_GRID_HVDC_EQ),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcWithTwoTransformers() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_with_two_transformers";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-with-two-transformers",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_TP,
-                        SMALL_GRID_HVDC_SSH,
-                        SMALL_GRID_HVDC_SV,
-                        SMALL_GRID_HVDC_GL),
-                new ResourceSet(base, SMALL_GRID_HVDC_EQ),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcWithDifferentConverterTypes() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_withDifferentConverterTypes";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-with-different-converter-types",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_TP,
-                        SMALL_GRID_HVDC_SSH,
-                        SMALL_GRID_HVDC_SV,
-                        SMALL_GRID_HVDC_GL),
-                new ResourceSet(base, SMALL_GRID_HVDC_EQ),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcWithVsCapabilityCurve() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_withVsCapabilityCurve";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-with-VsCapabilityCurve",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_TP,
-                        SMALL_GRID_HVDC_SSH,
-                        SMALL_GRID_HVDC_SV,
-                        SMALL_GRID_HVDC_GL),
-                new ResourceSet(base, SMALL_GRID_HVDC_EQ),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerVscConverterRemotePccTerminal() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/VscConverter_remote_PccTerminal";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-SvcConverter-remote-PccTerminal",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_TP,
-                        SMALL_GRID_HVDC_SSH,
-                        SMALL_GRID_HVDC_SV,
-                        SMALL_GRID_HVDC_GL),
-                new ResourceSet(base, SMALL_GRID_HVDC_EQ),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcTwoAcDcConvertersTwoDcLineSegments() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_twoAcDcConverters_twoDcLineSegments";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-two-AcDcConverters-two-DCLineSegments",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_TP,
-                        SMALL_GRID_HVDC_SSH,
-                        SMALL_GRID_HVDC_SV,
-                        SMALL_GRID_HVDC_GL),
-                new ResourceSet(base, SMALL_GRID_HVDC_EQ),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources smallNodeBreakerHvdcTwoAcDcConvertersTwoDcLineSegmentsNoAcConnectionAtOneEnd() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_twoAcDcConverters_twoDcLineSegments_noAcConnectionAtOneEnd";
-        return new GridModelReferenceResources(
-                "SmallGrid-NodeBreaker-HVDC-two-AcDcConverters-two-DCLineSegments-no-Ac-connection-at-one-end",
-                null,
-                new ResourceSet(SMALL_GRID_HVDC_BASE, SMALL_GRID_HVDC_DL,
-                        SMALL_GRID_HVDC_TP,
-                        SMALL_GRID_HVDC_SSH,
-                        SMALL_GRID_HVDC_SV,
-                        SMALL_GRID_HVDC_GL),
-                new ResourceSet(base, SMALL_GRID_HVDC_EQ),
-                new ResourceSet(SMALL_GRID_NODE_BREAKER_BD_BASE, SMALL_GRID_BD_EQ,
                         SMALL_GRID_BD_TP));
     }
 
@@ -1351,19 +983,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReference miniNodeBreakerTerminalDisconnected() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_terminal_disconnected/";
-        return new GridModelReferenceResources(
-                "MiniGrid-NodeBreaker-terminal-disconnected",
-                null,
-                new ResourceSet(base, MINI_GRID_SSH),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BASE, MINI_GRID_EQ),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BD_BASE, MINI_GRID_BD_EQ,
-                        MINI_GRID_BD_TP));
-
-    }
-
     public static GridModelReference microGridBaseCaseAssembledBadIds() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_Assembled_v2_bad_ids/";
@@ -1404,33 +1023,6 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MicroGridTestConfiguration_BC_NL_SV_V2.xml"),
                 new ResourceSet(baseOriginal, MICRO_GRID_NL_SSH,
                         MICRO_GRID_NL_TP),
-                microGridBaseCaseBoundaries());
-    }
-
-    public static GridModelReference microGridBaseCaseNLSwitchWithoutName() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_NL_v2_switch_without_name/";
-        String baseOriginal = ENTSOE_CONFORMITY_1
-                + MICROGRID_CONFIGURATION;
-        return new GridModelReferenceResources(
-                "MicroGrid-BaseCase-NL-switch-no-name",
-                null,
-                new ResourceSet(base, MICRO_GRID_NL_EQ),
-                new ResourceSet(baseOriginal, MICRO_GRID_NL_SSH,
-                        MICRO_GRID_NL_TP),
-                microGridBaseCaseBoundaries());
-    }
-
-    public static GridModelReference microGridBaseCaseNLSwitchTypePreserved() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_NL_v2_switch_type_preserved/";
-        String baseOriginal = ENTSOE_CONFORMITY_1
-                + MICROGRID_CONFIGURATION;
-        return new GridModelReferenceResources(
-                "MicroGrid-BaseCase-NL-switch-type-preserved",
-                null,
-                new ResourceSet(base, MICRO_GRID_NL_EQ, MICRO_GRID_NL_SSH),
-                new ResourceSet(baseOriginal, MICRO_GRID_NL_TP),
                 microGridBaseCaseBoundaries());
     }
 
@@ -1527,20 +1119,6 @@ public final class CgmesConformity1ModifiedCatalog {
                         SMALL_GRID_TP),
                 new ResourceSet(SMALL_GRID_BUS_BRANCH_BD_BASE, SMALL_GRID_BD_EQ,
                         SMALL_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources miniGridNodeBreakerSwitchTypePreserved() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_switch_type_preserved/";
-        return new GridModelReferenceResources(
-                "MiniGrid-NodeBreaker-BaseCase-Complete-v3-switch-type-preserved",
-                null,
-                new ResourceSet(base, MINI_GRID_EQ, MINI_GRID_SSH),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BASE,
-                        MINI_GRID_SV,
-                        MINI_GRID_TP),
-                new ResourceSet(MINI_GRID_NODE_BREAKER_BD_BASE, MINI_GRID_BD_EQ,
-                        MINI_GRID_BD_TP));
     }
 
     public static GridModelReferenceResources microGridBaseCaseAssembledSvWithMas() {

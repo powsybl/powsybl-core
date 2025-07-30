@@ -22,7 +22,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -41,12 +46,12 @@ class StoredDoubleTimeSeriesTest {
         assertSame(metadata, timeSeries.getMetadata());
         assertEquals(Arrays.asList(chunk, chunk2), timeSeries.getChunks());
         assertArrayEquals(new double[] {Double.NaN, Double.NaN, 1d, 2d, Double.NaN, 3d, 4d, 4d}, timeSeries.toArray(), 0d);
-        DoublePoint[] pointsRef = {new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), Double.NaN),
-                                   new DoublePoint(2, Instant.parse("2015-01-01T00:30:00Z").toEpochMilli(), 1d),
-                                   new DoublePoint(3, Instant.parse("2015-01-01T00:45:00Z").toEpochMilli(), 2d),
-                                   new DoublePoint(4, Instant.parse("2015-01-01T01:00:00Z").toEpochMilli(), Double.NaN),
-                                   new DoublePoint(5, Instant.parse("2015-01-01T01:15:00Z").toEpochMilli(), 3d),
-                                   new DoublePoint(6, Instant.parse("2015-01-01T01:30:00Z").toEpochMilli(), 4d)};
+        DoublePoint[] pointsRef = {new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z"), Double.NaN),
+                                   new DoublePoint(2, Instant.parse("2015-01-01T00:30:00Z"), 1d),
+                                   new DoublePoint(3, Instant.parse("2015-01-01T00:45:00Z"), 2d),
+                                   new DoublePoint(4, Instant.parse("2015-01-01T01:00:00Z"), Double.NaN),
+                                   new DoublePoint(5, Instant.parse("2015-01-01T01:15:00Z"), 3d),
+                                   new DoublePoint(6, Instant.parse("2015-01-01T01:30:00Z"), 4d)};
         assertArrayEquals(pointsRef, timeSeries.stream().toArray());
         assertArrayEquals(pointsRef, Iterators.toArray(timeSeries.iterator(), DoublePoint.class));
 
@@ -111,30 +116,30 @@ class StoredDoubleTimeSeriesTest {
         assertEquals(3, split.size());
 
         // check first chunk
-        assertTrue(split.get(0) instanceof StoredDoubleTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(0));
         assertEquals(1, ((StoredDoubleTimeSeries) split.get(0)).getChunks().size());
-        assertTrue(((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0));
         assertEquals(chunkposition, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0).getOffset());
         assertEquals(1, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0).getLength());
 
         // check second chunk
-        assertTrue(split.get(1) instanceof StoredDoubleTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(1));
         assertEquals(1, ((StoredDoubleTimeSeries) split.get(1)).getChunks().size());
-        assertTrue(((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0));
         assertEquals(chunkposition + 1, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0).getOffset());
         assertEquals(2, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0).getLength());
 
         // check third chunk
-        assertTrue(split.get(2) instanceof StoredDoubleTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(2));
         assertEquals(1, ((StoredDoubleTimeSeries) split.get(2)).getChunks().size());
-        assertTrue(((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0));
         assertEquals(chunkposition + 3, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getOffset());
         assertEquals(2, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getLength());
     }
 
     @Test
     void testCreate() {
-        TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 2, 1);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(2), Duration.ofMillis(1));
         DoubleTimeSeries ts1 = TimeSeries.createDouble("ts1", index, 0d, 1d, 2d);
         assertEquals("ts1", ts1.getMetadata().getName());
         assertEquals(TimeSeriesDataType.DOUBLE, ts1.getMetadata().getDataType());
@@ -157,35 +162,36 @@ class StoredDoubleTimeSeriesTest {
 
         // check first chunk
         assertEquals(1, split.get(0).size());
-        assertTrue(split.get(0).get(0) instanceof StoredDoubleTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(0).get(0));
         StoredDoubleTimeSeries ts = (StoredDoubleTimeSeries) split.get(0).get(0);
         assertEquals(1, ts.getChunks().size());
-        assertTrue(ts.getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().get(0));
         assertEquals(0, ts.getChunks().get(0).getOffset());
         assertEquals(2, ts.getChunks().get(0).getLength());
 
         // check second chunk
         assertEquals(1, split.get(1).size());
-        assertTrue(split.get(1).get(0) instanceof StoredDoubleTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(1).get(0));
         ts = (StoredDoubleTimeSeries) split.get(1).get(0);
         assertEquals(1, ts.getChunks().size());
-        assertTrue(ts.getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().get(0));
         assertEquals(2, ts.getChunks().get(0).getOffset());
         assertEquals(2, ts.getChunks().get(0).getLength());
 
         // check third chunk
         assertEquals(1, split.get(2).size());
-        assertTrue(split.get(2).get(0) instanceof StoredDoubleTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(2).get(0));
         ts = (StoredDoubleTimeSeries) split.get(2).get(0);
         assertEquals(1, ts.getChunks().size());
-        assertTrue(ts.getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().get(0));
         assertEquals(4, ts.getChunks().get(0).getOffset());
         assertEquals(2, ts.getChunks().get(0).getLength());
     }
 
     @Test
     void testCreateError() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createDouble("ts1", new RegularTimeSeriesIndex(0, 2, 1), 0d, 1d));
+        RegularTimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(2), Duration.ofMillis(1));
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createDouble("ts1", index, 0d, 1d));
         assertTrue(e.getMessage().contains("Bad number of values 2, expected 3"));
     }
 }

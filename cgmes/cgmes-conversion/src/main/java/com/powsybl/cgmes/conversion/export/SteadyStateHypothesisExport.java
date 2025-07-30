@@ -10,8 +10,6 @@ package com.powsybl.cgmes.conversion.export;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
-import com.powsybl.cgmes.extensions.CgmesControlArea;
-import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
@@ -31,6 +29,11 @@ import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TERMINALS;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.DC_TERMINAL;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
+import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL1;
+import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL2;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
@@ -40,11 +43,11 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class SteadyStateHypothesisExport {
 
     private static final Logger LOG = LoggerFactory.getLogger(SteadyStateHypothesisExport.class);
-    private static final String REGULATING_CONTROL_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl";
     private static final String GENERATING_UNIT_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit";
     private static final String ROTATING_MACHINE_P = "RotatingMachine.p";
     private static final String ROTATING_MACHINE_Q = "RotatingMachine.q";
     private static final String REGULATING_COND_EQ_CONTROL_ENABLED = "RegulatingCondEq.controlEnabled";
+    private static final String ACDC_CONVERTER_DC_TERMINAL = "ACDCConverterDCTerminal";
 
     private SteadyStateHypothesisExport() {
     }
@@ -76,6 +79,7 @@ public final class SteadyStateHypothesisExport {
             writeRegulatingControls(regulatingControlViews, cimNamespace, writer, context);
             writeGeneratingUnitsParticitationFactors(network, cimNamespace, writer, context);
             writeConverters(network, cimNamespace, writer, context);
+            writeDCTerminals(network, cimNamespace, writer, context);
             // FIXME open status of retained switches in bus-branch models
             writeSwitches(network, cimNamespace, writer, context);
             writeTerminals(network, cimNamespace, writer, context);
@@ -270,10 +274,10 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void addRegulatingControlView(ShuntCompensator s, Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
-        if (s.hasProperty(REGULATING_CONTROL_PROPERTY)) {
+        if (s.hasProperty(Conversion.PROPERTY_REGULATING_CONTROL)) {
             // PowSyBl has considered the control as discrete, with a certain targetDeadband
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
-            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, REGULATING_CONTROL_PROPERTY);
+            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, Conversion.PROPERTY_REGULATING_CONTROL);
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, true,
                 s.isVoltageRegulatorOn(), s.getTargetDeadband(), s.getTargetV(), "k");
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
@@ -372,10 +376,10 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void addRegulatingControlView(Generator g, Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
-        if (g.hasProperty(REGULATING_CONTROL_PROPERTY)) {
+        if (g.hasProperty(Conversion.PROPERTY_REGULATING_CONTROL)) {
             // PowSyBl has considered the control as continuous and with targetDeadband of size 0
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
-            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(g, REGULATING_CONTROL_PROPERTY);
+            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(g, Conversion.PROPERTY_REGULATING_CONTROL);
 
             double targetDeadband = 0;
             double target;
@@ -410,8 +414,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeStaticVarCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            StaticVarCompensator.RegulationMode regulationMode = svc.getRegulationMode();
-            boolean controlEnabled = regulationMode != StaticVarCompensator.RegulationMode.OFF;
+            boolean controlEnabled = svc.isRegulating();
 
             CgmesExportUtil.writeStartAbout("StaticVarCompensator", context.getNamingStrategy().getCgmesId(svc), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
@@ -422,8 +425,8 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
             writer.writeEndElement();
 
-            if (svc.hasProperty(REGULATING_CONTROL_PROPERTY)) {
-                String rcid = context.getNamingStrategy().getCgmesIdFromProperty(svc, REGULATING_CONTROL_PROPERTY);
+            if (svc.hasProperty(Conversion.PROPERTY_REGULATING_CONTROL)) {
+                String rcid = context.getNamingStrategy().getCgmesIdFromProperty(svc, Conversion.PROPERTY_REGULATING_CONTROL);
                 double targetDeadband = 0;
                 // Regulating control could be reactive power or voltage
                 double targetValue;
@@ -685,21 +688,32 @@ public final class SteadyStateHypothesisExport {
             double ppcc;
             if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
                 ppcc = converterStation.getHvdcLine().getActivePowerSetpoint();
-            } else {
-                double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
-                double pDCInverter = converterStation.getHvdcLine().getActivePowerSetpoint() * (1 - otherConverterStationLossFactor / 100);
-                double poleLoss = converterStation.getLossFactor() / 100 * pDCInverter;
-                ppcc = -(pDCInverter - poleLoss);
-            }
-            writer.writeStartElement(cimNamespace, "ACDCConverter.targetPpcc");
-            writer.writeCharacters(CgmesExportUtil.format(ppcc));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "ACDCConverter.targetUdc");
-            writer.writeCharacters(CgmesExportUtil.format(0.0));
-            writer.writeEndElement();
-            if (converterStation instanceof LccConverterStation lccConverterStation) {
 
-                writePandQ(cimNamespace, ppcc, getQfromPowerFactor(ppcc, lccConverterStation.getPowerFactor()), writer);
+                writer.writeStartElement(cimNamespace, "ACDCConverter.targetPpcc");
+                writer.writeCharacters(CgmesExportUtil.format(ppcc));
+                writer.writeEndElement();
+                writer.writeStartElement(cimNamespace, "ACDCConverter.targetUdc");
+                writer.writeCharacters(CgmesExportUtil.format(0.0));
+                writer.writeEndElement();
+            } else {
+                HvdcLine hvdcLine = converterStation.getHvdcLine();
+                double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
+                double pDCRectifier = hvdcLine.getActivePowerSetpoint() * (1 - otherConverterStationLossFactor / 100);
+                double idc = pDCRectifier / hvdcLine.getNominalV();
+                double pDCInverter = -1 * (pDCRectifier - hvdcLine.getR() * idc * idc);
+                double udcInverter = hvdcLine.getNominalV() - hvdcLine.getR() * idc;
+                double poleLoss = converterStation.getLossFactor() / 100 * Math.abs(pDCInverter);
+                ppcc = pDCInverter + poleLoss;
+
+                writer.writeStartElement(cimNamespace, "ACDCConverter.targetPpcc");
+                writer.writeCharacters(CgmesExportUtil.format(0.0));
+                writer.writeEndElement();
+                writer.writeStartElement(cimNamespace, "ACDCConverter.targetUdc");
+                writer.writeCharacters(CgmesExportUtil.format(udcInverter));
+                writer.writeEndElement();
+            }
+            if (converterStation instanceof LccConverterStation lccConverterStation) {
+                writePandQ(cimNamespace, ppcc, Math.abs(getQfromPowerFactor(ppcc, lccConverterStation.getPowerFactor())), writer);
                 writer.writeStartElement(cimNamespace, "CsConverter.targetAlpha");
                 writer.writeCharacters(CgmesExportUtil.format(0));
                 writer.writeEndElement();
@@ -710,11 +724,10 @@ public final class SteadyStateHypothesisExport {
                 writer.writeCharacters(CgmesExportUtil.format(0));
                 writer.writeEndElement();
                 writer.writeEmptyElement(cimNamespace, "CsConverter.operatingMode");
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterOperatingMode(converterStation));
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterOperatingMode(lccConverterStation));
                 writer.writeEmptyElement(cimNamespace, "CsConverter.pPccControl");
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "CsPpccControlKind.activePower");
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterControlMode(converterStation));
             } else if (converterStation instanceof VscConverterStation vscConverterStation) {
-
                 writePandQ(cimNamespace, ppcc, vscConverterStation.getReactivePowerSetpoint(), writer);
                 writer.writeStartElement(cimNamespace, "VsConverter.droop");
                 writer.writeCharacters(CgmesExportUtil.format(0));
@@ -732,12 +745,44 @@ public final class SteadyStateHypothesisExport {
                 writer.writeCharacters(CgmesExportUtil.format(vscConverterStation.getVoltageSetpoint()));
                 writer.writeEndElement();
                 writer.writeEmptyElement(cimNamespace, "VsConverter.pPccControl");
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterOperatingMode(converterStation));
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterControlMode(converterStation));
                 writer.writeEmptyElement(cimNamespace, "VsConverter.qPccControl");
                 writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "VsQpccControlKind." + (vscConverterStation.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc"));
             }
             writer.writeEndElement();
         }
+    }
+
+    private static void writeDCTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (HvdcLine line : network.getHvdcLines()) {
+            String acdcConverterDcTerminal1 = line.getConverterStation1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElseThrow(PowsyblException::new);
+            writeDCTerminal(acdcConverterDcTerminal1, ACDC_CONVERTER_DC_TERMINAL, cimNamespace, writer, context);
+            String acdcConverterDcTerminal1G = line.getConverterStation1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElseThrow(PowsyblException::new);
+            writeDCTerminal(acdcConverterDcTerminal1G, ACDC_CONVERTER_DC_TERMINAL, cimNamespace, writer, context);
+
+            String acdcConverterDcTerminal2 = line.getConverterStation2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElseThrow(PowsyblException::new);
+            writeDCTerminal(acdcConverterDcTerminal2, ACDC_CONVERTER_DC_TERMINAL, cimNamespace, writer, context);
+            String acdcConverterDcTerminal2G = line.getConverterStation2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElseThrow(PowsyblException::new);
+            writeDCTerminal(acdcConverterDcTerminal2G, ACDC_CONVERTER_DC_TERMINAL, cimNamespace, writer, context);
+
+            String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElseThrow(PowsyblException::new);
+            writeDCTerminal(dcTerminal1, CgmesNames.DC_TERMINAL, cimNamespace, writer, context);
+            String dcTerminal1G = context.getNamingStrategy().getCgmesId(refTyped(line), DC_TERMINAL, ref("1G"));
+            writeDCTerminal(dcTerminal1G, CgmesNames.DC_TERMINAL, cimNamespace, writer, context);
+
+            String dcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElseThrow(PowsyblException::new);
+            writeDCTerminal(dcTerminal2, CgmesNames.DC_TERMINAL, cimNamespace, writer, context);
+            String dcTerminal2G = context.getNamingStrategy().getCgmesId(refTyped(line), DC_TERMINAL, ref("2G"));
+            writeDCTerminal(dcTerminal2G, CgmesNames.DC_TERMINAL, cimNamespace, writer, context);
+        }
+    }
+
+    private static void writeDCTerminal(String terminalId, String className, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout(className, terminalId, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "ACDCTerminal.connected");
+        writer.writeCharacters(Boolean.toString(true));
+        writer.writeEndElement();
+        writer.writeEndElement();
     }
 
     private static void writePandQ(String cimNamespace, double p, double q, XMLStreamWriter writer) throws XMLStreamException {
@@ -749,26 +794,34 @@ public final class SteadyStateHypothesisExport {
         writer.writeEndElement();
     }
 
-    public static String converterOperatingMode(HvdcConverterStation<?> converterStation) {
+    public static String converterOperatingMode(LccConverterStation converterStation) {
         if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
-            return converterStationRectifier(converterStation);
+            return "CsOperatingModeKind.rectifier";
         } else {
-            return converterStationInverter(converterStation);
+            return "CsOperatingModeKind.inverter";
         }
     }
 
-    public static String converterStationRectifier(HvdcConverterStation<?> converterStation) {
+    public static String converterControlMode(HvdcConverterStation<?> converterStation) {
+        if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
+            return controlModeRectifier(converterStation);
+        } else {
+            return controlModeInverter(converterStation);
+        }
+    }
+
+    public static String controlModeRectifier(HvdcConverterStation<?> converterStation) {
         if (converterStation instanceof LccConverterStation) {
-            return "CsOperatingModeKind.rectifier";
+            return "CsPpccControlKind.activePower";
         } else if (converterStation instanceof VscConverterStation) {
             return "VsPpccControlKind.pPcc";
         }
         throw new PowsyblException("Invalid converter type");
     }
 
-    public static String converterStationInverter(HvdcConverterStation<?> converterStation) {
+    public static String controlModeInverter(HvdcConverterStation<?> converterStation) {
         if (converterStation instanceof LccConverterStation) {
-            return "CsOperatingModeKind.inverter";
+            return "CsPpccControlKind.dcVoltage";
         } else if (converterStation instanceof VscConverterStation) {
             return "VsPpccControlKind.udc";
         }
@@ -851,20 +904,25 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeControlAreas(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesControlAreas areas = network.getExtension(CgmesControlAreas.class);
-        for (CgmesControlArea area : areas.getCgmesControlAreas()) {
-            writeControlArea(area, cimNamespace, writer, context);
+        for (Area area : network.getAreas()) {
+            if (CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE.equals(area.getAreaType())) {
+                writeControlArea(area, cimNamespace, writer, context);
+            }
         }
     }
 
-    private static void writeControlArea(CgmesControlArea area, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String areaId = context.getNamingStrategy().getCgmesId(area.getId());
+    private static void writeControlArea(Area controlArea, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String areaId = context.getNamingStrategy().getCgmesId(controlArea.getId());
         CgmesExportUtil.writeStartAbout("ControlArea", areaId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "ControlArea.netInterchange");
-        writer.writeCharacters(CgmesExportUtil.format(area.getNetInterchange()));
+        double netInterchange = controlArea.getInterchangeTarget().orElse(Double.NaN);
+        writer.writeCharacters(CgmesExportUtil.format(netInterchange));
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, "ControlArea.pTolerance");
-        writer.writeCharacters(CgmesExportUtil.format(area.getPTolerance()));
+        if (controlArea.hasProperty("pTolerance")) {
+            double pTolerance = Double.parseDouble(controlArea.getProperty("pTolerance"));
+            writer.writeStartElement(cimNamespace, "ControlArea.pTolerance");
+            writer.writeCharacters(CgmesExportUtil.format(pTolerance));
+        }
         writer.writeEndElement();
         writer.writeEndElement();
     }
