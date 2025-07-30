@@ -108,6 +108,7 @@ public final class EquipmentExport {
             writeDcConverterUnits(network, dcNodesConverterUnit, cimNamespace, writer, context);
             writeDcNodes(network, dcNodesConverterUnit, cimNamespace, writer, context);
             writeDcSwitches(network, cimNamespace, writer, context);
+            writeDcGrounds(network, cimNamespace, writer, context);
 
             writeControlAreas(loadAreaId, network, cimNamespace, euNamespace, writer, context);
 
@@ -1281,10 +1282,10 @@ public final class EquipmentExport {
             writeDCNode(dcNode2G, line.getNameOrId() + "_2G", dcConverterUnit2, cimNamespace, writer, context);
 
             String ground1Id = context.getNamingStrategy().getCgmesId(refTyped(line), DC_GROUND, ref("1G"));
-            writeDCGround(ground1Id, line.getNameOrId() + "_1G", cimNamespace, writer, context);
+            writeDCGround(ground1Id, line.getNameOrId() + "_1G", 0.0, cimNamespace, writer, context);
 
             String ground2Id = context.getNamingStrategy().getCgmesId(refTyped(line), DC_GROUND, ref("2G"));
-            writeDCGround(ground2Id, line.getNameOrId() + "_2G", cimNamespace, writer, context);
+            writeDCGround(ground2Id, line.getNameOrId() + "_2G", 0.0, cimNamespace, writer, context);
 
             String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElseThrow(PowsyblException::new);
             writeDcTerminal(CgmesNames.DC_TERMINAL, dcTerminal1, line.getNameOrId() + " 1", lineId, dcNode1, 1, cimNamespace, writer, context);
@@ -1373,8 +1374,13 @@ public final class EquipmentExport {
         DCNodeEq.write(id, dcNodeName, dcEquipmentContainerId, cimNamespace, writer, context);
     }
 
-    private static void writeDCGround(String id, String dcGroundName, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        DCGroundEq.write(id, dcGroundName, cimNamespace, writer, context);
+    private static void writeDCGround(String id, String dcGroundName, double resistance, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        DCGroundEq.write(id, dcGroundName, resistance, cimNamespace, writer, context);
+    }
+
+    private static void writeDcTerminal(DcTerminal dcTerminal, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        int sequenceNumber = dcTerminal.getDcConnectable() instanceof DcGround ? 1 : dcTerminal.getSide().getNum();
+        writeDcTerminal(dcTerminal.getDcConnectable(), dcTerminal.getDcNode(), sequenceNumber, cimNamespace, writer, context);
     }
 
     private static void writeDcTerminal(Identifiable<?> dcIdentifiable, DcNode dcNode, int sequenceNumber, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -1439,6 +1445,15 @@ public final class EquipmentExport {
 
             writeDcTerminal(dcSwitch, dcSwitch.getDcNode1(), 1, cimNamespace, writer, context);
             writeDcTerminal(dcSwitch, dcSwitch.getDcNode2(), 2, cimNamespace, writer, context);
+        }
+    }
+
+    private static void writeDcGrounds(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (DcGround dcGround : network.getDcGrounds()) {
+            String dcGroundId = context.getNamingStrategy().getCgmesId(dcGround);
+            DCGroundEq.write(dcGroundId, dcGround.getNameOrId(), dcGround.getR(), cimNamespace, writer, context);
+
+            writeDcTerminal(dcGround.getDcTerminal(), cimNamespace, writer, context);
         }
     }
 
