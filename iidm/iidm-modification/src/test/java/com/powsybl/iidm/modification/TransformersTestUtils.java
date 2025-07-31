@@ -280,7 +280,7 @@ final class TransformersTestUtils {
         return String.join(",", strings);
     }
 
-    private static void addLegFortescue(ThreeWindingsTransformerFortescue.LegFortescue legFortescue, List<String> strings) {
+    private static void addLegFortescue(LegFortescue legFortescue, List<String> strings) {
         strings.add(legFortescue.getConnectionType().name());
         strings.add(String.valueOf(legFortescue.isFreeFluxes()));
         strings.add(String.valueOf(legFortescue.getGroundingR()));

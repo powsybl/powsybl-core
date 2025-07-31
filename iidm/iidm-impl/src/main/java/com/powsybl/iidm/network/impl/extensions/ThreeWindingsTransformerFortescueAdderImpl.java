@@ -108,9 +108,9 @@ public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractExtensio
 
     @Override
     protected ThreeWindingsTransformerFortescueImpl createExtension(ThreeWindingsTransformer twt) {
-        var leg1 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder1.rz, legAdder1.xz, legAdder1.freeFluxes, legAdder1.connectionType, legAdder1.groundingR, legAdder1.groundingX);
-        var leg2 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder2.rz, legAdder2.xz, legAdder2.freeFluxes, legAdder2.connectionType, legAdder2.groundingR, legAdder2.groundingX);
-        var leg3 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder3.rz, legAdder3.xz, legAdder3.freeFluxes, legAdder3.connectionType, legAdder3.groundingR, legAdder3.groundingX);
+        var leg1 = new LegFortescueImpl(legAdder1.rz, legAdder1.xz, legAdder1.freeFluxes, legAdder1.connectionType, legAdder1.groundingR, legAdder1.groundingX);
+        var leg2 = new LegFortescueImpl(legAdder2.rz, legAdder2.xz, legAdder2.freeFluxes, legAdder2.connectionType, legAdder2.groundingR, legAdder2.groundingX);
+        var leg3 = new LegFortescueImpl(legAdder3.rz, legAdder3.xz, legAdder3.freeFluxes, legAdder3.connectionType, legAdder3.groundingR, legAdder3.groundingX);
         return new ThreeWindingsTransformerFortescueImpl(twt, leg1, leg2, leg3);
     }
 
