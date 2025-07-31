@@ -27,6 +27,8 @@ class DcDetailedNetworkTest {
     void testLccMonopoleGroundReturn() {
         Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
         assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        assertEquals(1, network.getDcComponents().size());
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
         assertEquals(3, network.getSubnetworks().size());
         assertEquals(4, network.getDcNodeCount());
         assertEquals(1, network.getDcLineCount());
@@ -40,6 +42,8 @@ class DcDetailedNetworkTest {
     void testLccMonopoleMetallicReturn() {
         Network network = DcDetailedNetworkFactory.createLccMonopoleMetallicReturn();
         assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        assertEquals(1, network.getDcComponents().size());
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
         assertEquals(3, network.getSubnetworks().size());
         assertEquals(4, network.getDcNodeCount());
         assertEquals(2, network.getDcLineCount());
@@ -53,6 +57,8 @@ class DcDetailedNetworkTest {
     void testVscSymmetricalMonopole() {
         Network network = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
         assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        assertEquals(1, network.getDcComponents().size());
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
         assertEquals(3, network.getSubnetworks().size());
         assertEquals(4, network.getDcNodeCount());
         assertEquals(2, network.getDcLineCount());
@@ -64,6 +70,8 @@ class DcDetailedNetworkTest {
     void testVscAsymmetricalMonopole() {
         Network network = DcDetailedNetworkFactory.createVscAsymmetricalMonopole();
         assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        assertEquals(1, network.getDcComponents().size());
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
         assertEquals(3, network.getSubnetworks().size());
         assertEquals(4, network.getDcNodeCount());
         assertEquals(1, network.getDcLineCount());
