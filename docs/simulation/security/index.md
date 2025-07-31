@@ -60,8 +60,8 @@ Remedial actions are actions that are applied when limit violations occur. Suppo
 
 | Action                             | Description                                                                                                                                                                                   |
 |------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `LoadAction`                       | Change the relative of absolute `P0` and/or `Q0` of a load.                                                                                                                                   |
-| `DanglingLineAction`               | Change the relative of absolute `P0` and/or `Q0` of the load part of a dangling line.                                                                                                         |
+| `LoadAction`                       | Change the relative or absolute `P0` and/or `Q0` of a load.                                                                                                                                   |
+| `DanglingLineAction`               | Change the relative or absolute `P0` and/or `Q0` of the load part of a dangling line.                                                                                                         |
 | `SwitchAction`                     | Open or close a switch.                                                                                                                                                                       |
 | `TerminalsConnectionAction`        | Open or close a terminal.                                                                                                                                                                     |
 | `PhaseTapChangerTapPositionAction` | Change the tap of a phase tap changer.                                                                                                                                                        |
