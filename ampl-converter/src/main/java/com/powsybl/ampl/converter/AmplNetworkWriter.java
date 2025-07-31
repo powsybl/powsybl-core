@@ -328,6 +328,14 @@ public class AmplNetworkWriter {
         for (Line l : getSortedIdentifiables(network.getLineStream())) {
             Terminal t1 = l.getTerminal1();
             Terminal t2 = l.getTerminal2();
+            Bus bus1 = AmplUtil.getBus(t1);
+            Bus bus2 = AmplUtil.getBus(t2);
+
+            if (bus1 != null && bus1 == bus2) {
+                LOGGER.warn("Skipping line '{}' connected to the same bus at both sides", l.getId());
+                continue;
+            }
+
             if (addVoltageLevelIdsToExport(context, t1, t2, l.getId())) {
                 columnsExporter.writeLinesToFormatter(formatter, l);
                 addExtensions(mapper.getInt(AmplSubset.BRANCH, l.getId()), l);
@@ -356,6 +364,14 @@ public class AmplNetworkWriter {
         for (TieLine l : getSortedIdentifiables(network.getTieLineStream())) {
             Terminal t1 = l.getDanglingLine1().getTerminal();
             Terminal t2 = l.getDanglingLine2().getTerminal();
+            Bus bus1 = AmplUtil.getBus(t1);
+            Bus bus2 = AmplUtil.getBus(t2);
+
+            if (bus1 != null && bus1 == bus2) {
+                LOGGER.warn("Skipping tieline '{}' connected to the same bus at both sides", l.getId());
+                continue;
+            }
+
             if (addVoltageLevelIdsToExport(context, t1, t2, l.getId())) {
                 columnsExporter.writeTieLineToFormatter(formatter, l);
                 addExtensions(mapper.getInt(AmplSubset.BRANCH, l.getId()), l);
