@@ -1837,4 +1837,82 @@ public interface Network extends Container<Network> {
     default void write(String format, Properties parameters, String directory, String baseName) {
         write(new ExportersServiceLoader(), format, parameters, directory, baseName);
     }
+
+    static NetworkReader newReader(Path file) {
+        return new NetworkReader(file);
+    }
+
+    static NetworkReader newReader(String file) {
+        return new NetworkReader(file);
+    }
+
+    static NetworkReader newReader(String filename, InputStream is) {
+        return new NetworkReader(filename, is);
+    }
+
+    public class NetworkReader {
+        private Path file = null;
+        private InputStream inputStream = null;
+        private String inputStreamFilename = null;
+        private ComputationManager computationManager = LocalComputationManager.getDefault();
+        private ImportConfig config = ImportConfig.CACHE.get();
+        private Properties parameters = new Properties();
+        private NetworkFactory networkFactory = NetworkFactory.findDefault();
+        private ImportersLoader loader = new ImportersServiceLoader();
+        private ReportNode reportNode = ReportNode.NO_OP;
+
+        public NetworkReader(Path file) {
+            this.file = file;
+        }
+
+        public NetworkReader(String fileString) {
+            this.file = Paths.get(fileString);
+        }
+
+        public NetworkReader(String filename, InputStream is) {
+            this.inputStreamFilename = filename;
+            this.inputStream = is;
+        }
+
+        public NetworkReader setComputationManager(ComputationManager cm) {
+            this.computationManager = cm;
+            return this;
+        }
+
+        public NetworkReader setImportConfig(ImportConfig cfg) {
+            this.config = cfg;
+            return this;
+        }
+
+        public NetworkReader setParameters(Properties p) {
+            this.parameters = p;
+            return this;
+        }
+
+        public NetworkReader setNetworkFactory(NetworkFactory nf) {
+            this.networkFactory = nf;
+            return this;
+        }
+
+        public NetworkReader setImportersLoader(ImportersLoader l) {
+            this.loader = l;
+            return this;
+        }
+
+        public NetworkReader setReportNode(ReportNode rn) {
+            this.reportNode = rn;
+            return this;
+        }
+
+        public Network read() {
+            if (file != null) {
+                return Network.read(file, computationManager, config, parameters, networkFactory, loader, reportNode);
+            } else if (inputStream != null && inputStreamFilename != null) {
+                return Network.read(inputStreamFilename, inputStream, computationManager, config, parameters,
+                        networkFactory, loader, reportNode);
+            } else {
+                throw new PowsyblException("No valid source specified for network import");
+            }
+        }
+    }
 }

@@ -16,6 +16,8 @@ import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -300,6 +302,44 @@ class ImportersTest extends AbstractConvertersTest {
                 () -> network.update(ds, computationManager, importConfigMock, null, loader1, ReportNode.NO_OP));
         assertEquals("Importer do not implement updates", e.getMessage());
         Files.delete(fileQux);
+    }
+
+    @Test
+    void testNewReaderDefaults() {
+        Network network = Network.newReader(path)
+            .read();
+        assertNotNull(network);
+        assertNotNull(network.getLoad("LOAD"));
+    }
+
+    @Test
+    void testNewReaderFluentSetters() {
+        Network network = Network.newReader(path)
+                .setComputationManager(LocalComputationManager.getDefault())
+                .setReportNode(ReportNode.NO_OP)
+                .setParameters(new Properties())
+                .setImportConfig(importConfigMock)
+                .setNetworkFactory(networkFactory)
+                .setImportersLoader(loader)
+                .read();
+        assertNotNull(network);
+        assertNotNull(network.getLoad("LOAD"));
+    }
+
+    @Test
+    void testNewReaderFromInputStream() throws IOException {
+        try (InputStream is = Files.newInputStream(path)) {
+            Network network = Network.newReader(FOO_TST, is)
+                .read();
+            assertNotNull(network);
+            assertNotNull(network.getLoad("LOAD"));
+        }
+    }
+
+    @Test
+    void testNewReaderThrowsIfNoSource() {
+        Network.NetworkReader reader = new Network.NetworkReader((Path) null);
+        assertThrows(PowsyblException.class, reader::read);
     }
 }
 
