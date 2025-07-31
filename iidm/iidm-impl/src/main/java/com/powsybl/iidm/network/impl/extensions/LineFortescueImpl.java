@@ -20,17 +20,10 @@ public class LineFortescueImpl extends AbstractExtension<Line> implements LineFo
     private double rz;
     private double xz;
 
-    private boolean openPhaseA;
-    private boolean openPhaseB;
-    private boolean openPhaseC;
-
-    public LineFortescueImpl(Line line, double rz, double xz, boolean openPhaseA, boolean openPhaseB, boolean openPhaseC) {
+    public LineFortescueImpl(Line line, double rz, double xz) {
         super(line);
         this.rz = rz;
         this.xz = xz;
-        this.openPhaseA = openPhaseA;
-        this.openPhaseB = openPhaseB;
-        this.openPhaseC = openPhaseC;
     }
 
     @Override
@@ -51,35 +44,5 @@ public class LineFortescueImpl extends AbstractExtension<Line> implements LineFo
     @Override
     public void setXz(double xz) {
         this.xz = xz;
-    }
-
-    @Override
-    public boolean isOpenPhaseA() {
-        return openPhaseA;
-    }
-
-    @Override
-    public void setOpenPhaseA(boolean openPhaseA) {
-        this.openPhaseA = openPhaseA;
-    }
-
-    @Override
-    public boolean isOpenPhaseB() {
-        return openPhaseB;
-    }
-
-    @Override
-    public void setOpenPhaseB(boolean openPhaseB) {
-        this.openPhaseB = openPhaseB;
-    }
-
-    @Override
-    public boolean isOpenPhaseC() {
-        return openPhaseC;
-    }
-
-    @Override
-    public void setOpenPhaseC(boolean openPhaseC) {
-        this.openPhaseC = openPhaseC;
     }
 }
