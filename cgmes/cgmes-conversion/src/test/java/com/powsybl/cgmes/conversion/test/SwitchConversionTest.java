@@ -71,10 +71,10 @@ class SwitchConversionTest extends AbstractSerDeTest {
         assertEquals(SwitchKind.DISCONNECTOR, network.getSwitch("GRD").getKind());
         assertEquals(SwitchKind.DISCONNECTOR, network.getSwitch("JUM").getKind());
 
-        // For Switch, ProtectedSwitch, GroundDisconnector, Jumper (indirect mapping), the CGMES original class is stored.
-        assertNull(network.getSwitch("BR").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
-        assertNull(network.getSwitch("DIS").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
-        assertNull(network.getSwitch("LBS").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        // For all the switches, the CGMES original class is stored.
+        assertEquals("Breaker", network.getSwitch("BR").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertEquals("Disconnector", network.getSwitch("DIS").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertEquals("LoadBreakSwitch", network.getSwitch("LBS").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
         assertEquals("Switch", network.getSwitch("SW").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
         assertEquals("ProtectedSwitch", network.getSwitch("PSW").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
         assertEquals("GroundDisconnector", network.getSwitch("GRD").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
