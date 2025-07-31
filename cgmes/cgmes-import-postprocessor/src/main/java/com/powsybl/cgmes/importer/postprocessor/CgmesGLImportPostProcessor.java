@@ -5,10 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.gl;
+package com.powsybl.cgmes.importer.postprocessor;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
+import com.powsybl.cgmes.gl.CgmesGLImporter;
+import com.powsybl.cgmes.gl.CgmesGLModel;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStore;
