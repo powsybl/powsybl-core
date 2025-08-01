@@ -31,13 +31,6 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     }
 
     @Override
-    public T withMessageTemplate(String key, String messageTemplate) {
-        this.key = key;
-        this.messageTemplate = messageTemplate;
-        return self();
-    }
-
-    @Override
     public T withMessageTemplate(String key) {
         this.key = key;
         return self();
