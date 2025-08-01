@@ -327,10 +327,10 @@ public final class CgmesExportUtil {
         }
     }
 
-    public static String converterClassName(HvdcConverterStation<?> converterStation) {
-        if (converterStation instanceof LccConverterStation) {
+    public static String converterClassName(Identifiable<?> converter) {
+        if (converter instanceof LccConverterStation || converter instanceof LineCommutatedConverter) {
             return "CsConverter";
-        } else if (converterStation instanceof VscConverterStation) {
+        } else if (converter instanceof VscConverterStation || converter instanceof VoltageSourceConverter) {
             return "VsConverter";
         } else {
             throw new PowsyblException("Invalid converter type");

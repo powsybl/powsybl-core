@@ -34,6 +34,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.converterClassName;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getClosestNeutralStep;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getNormalStep;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
@@ -109,6 +110,7 @@ public final class EquipmentExport {
             writeDcSwitches(network, cimNamespace, writer, context);
             writeDcGrounds(network, cimNamespace, writer, context);
             writeDcLineSegments(network, cimNamespace, writer, context);
+            writeAcDcConverters(network, dcNodesConverterUnit, mapTerminal2Id, cimNamespace, writer, context);
 
             writeControlAreas(loadAreaId, network, cimNamespace, euNamespace, writer, context);
 
@@ -1326,32 +1328,32 @@ public final class EquipmentExport {
         }
     }
 
-    private static String writeVsCapabilityCurve(HvdcConverterStation<?> converter, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        if (converter instanceof LccConverterStation) {
+    private static String writeVsCapabilityCurve(Identifiable<?> identifiable, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        if (!(identifiable instanceof ReactiveLimitsHolder limitsHolder)) {
             return null;
         }
-        VscConverterStation vscConverter = (VscConverterStation) converter;
-        if (vscConverter.getReactiveLimits() == null) {
+        ReactiveLimits reactiveLimits = limitsHolder.getReactiveLimits();
+        if (reactiveLimits == null) {
             return null;
         }
-        String reactiveLimitsId = context.getNamingStrategy().getCgmesId(refTyped(vscConverter), REACTIVE_CAPABILITY_CURVE);
-        switch (vscConverter.getReactiveLimits().getKind()) {
+        String reactiveLimitsId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), REACTIVE_CAPABILITY_CURVE);
+        switch (reactiveLimits.getKind()) {
             case CURVE -> {
-                ReactiveCapabilityCurve curve = vscConverter.getReactiveLimits(ReactiveCapabilityCurve.class);
+                ReactiveCapabilityCurve curve = limitsHolder.getReactiveLimits(ReactiveCapabilityCurve.class);
                 int pointIndex = 0;
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
-                    String pointId = context.getNamingStrategy().getCgmesId(refTyped(vscConverter), ref(pointIndex), REACTIVE_CAPABIILITY_CURVE_POINT);
+                    String pointId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), ref(pointIndex), REACTIVE_CAPABIILITY_CURVE_POINT);
                     CurveDataEq.write(pointId, point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, cimNamespace, writer, context);
                     pointIndex++;
                 }
-                String reactiveCapabilityCurveName = "RCC_" + vscConverter.getNameOrId();
-                ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, vscConverter, cimNamespace, writer, context);
+                String reactiveCapabilityCurveName = "RCC_" + identifiable.getNameOrId();
+                ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, limitsHolder, cimNamespace, writer, context);
             }
             case MIN_MAX ->
                 //Do not have to export anything
                 reactiveLimitsId = null;
             default ->
-                    throw new PowsyblException("Unexpected type of ReactiveLimits on the VsConverter " + converter.getNameOrId());
+                    throw new PowsyblException("Unexpected type of ReactiveLimits on the VsConverter " + identifiable.getNameOrId());
         }
         return reactiveLimitsId;
     }
@@ -1363,7 +1365,9 @@ public final class EquipmentExport {
     private static void writeHvdcConverterStation(HvdcConverterStation<?> converterStation, Map<Terminal, String> mapTerminal2Id, double ratedUdc, String dcEquipmentContainerId,
                                                   String capabilityCurveId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String pccTerminal = getConverterStationPccTerminal(converterStation, mapTerminal2Id);
-        HvdcConverterStationEq.write(context.getNamingStrategy().getCgmesId(converterStation), converterStation.getNameOrId(), converterStation.getHvdcType(), ratedUdc, dcEquipmentContainerId, pccTerminal, capabilityCurveId, cimNamespace, writer, context);
+        String className = converterClassName(converterStation);
+        AcDcConverterEq.write(context.getNamingStrategy().getCgmesId(converterStation), converterStation.getNameOrId(), className, ratedUdc,
+                0.0, 0.0, 0.0, dcEquipmentContainerId, pccTerminal, capabilityCurveId, cimNamespace, writer, context);
     }
 
     private static String getConverterStationPccTerminal(HvdcConverterStation<?> converterStation, Map<Terminal, String> mapTerminal2Id) {
@@ -1382,7 +1386,15 @@ public final class EquipmentExport {
     }
 
     private static void writeDcTerminal(DcTerminal dcTerminal, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        int sequenceNumber = dcTerminal.getDcConnectable() instanceof DcGround ? 1 : dcTerminal.getSide().getNum();
+        int sequenceNumber;
+        DcConnectable<?> dcConnectable = dcTerminal.getDcConnectable();
+        if (dcConnectable instanceof DcGround) {
+            sequenceNumber = 1;
+        } else if (dcConnectable instanceof AcDcConverter) {
+            sequenceNumber = dcTerminal.getTerminalNumber().getNum();
+        } else {
+            sequenceNumber = dcTerminal.getSide().getNum();
+        }
         writeDcTerminal(dcTerminal.getDcConnectable(), dcTerminal.getDcNode(), sequenceNumber, cimNamespace, writer, context);
     }
 
@@ -1479,6 +1491,22 @@ public final class EquipmentExport {
 
             writeDcTerminal(dcLine.getDcTerminal1(), cimNamespace, writer, context);
             writeDcTerminal(dcLine.getDcTerminal2(), cimNamespace, writer, context);
+        }
+    }
+
+    private static void writeAcDcConverters(Network network, Map<DcNode, DCConverterUnit> dcNodesConverterUnit, Map<Terminal, String> mapTerminal2Id, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (AcDcConverter<?> converter : Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream()).toList()) {
+            String dcConverterUnitId = dcNodesConverterUnit.get(converter.getDcTerminal1().getDcNode()).id();
+            String converterId = context.getNamingStrategy().getCgmesId(converter);
+            String className = converterClassName(converter);
+            String pccTerminalId = exportedTerminalId(mapTerminal2Id, converter.getPccTerminal());
+            String capabilityCurveId = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
+            AcDcConverterEq.write(converterId, converter.getNameOrId(), className, converter.getDcTerminal1().getDcNode().getNominalV(),
+                    converter.getIdleLoss(), converter.getSwitchingLoss(), converter.getResistiveLoss(), dcConverterUnitId,
+                    pccTerminalId, capabilityCurveId, cimNamespace, writer, context);
+
+            writeDcTerminal(converter.getDcTerminal1(), cimNamespace, writer, context);
+            writeDcTerminal(converter.getDcTerminal2(), cimNamespace, writer, context);
         }
     }
 
