@@ -224,8 +224,10 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
             .withAllBusbars(true)
             .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
             .withLeftSwitchFictitious(false)
+            .withLeftSwitchOpen(true)
             .withRightSwitchKind(SwitchKind.DISCONNECTOR)
             .withRightSwitchFictitious(false)
+            .withRightSwitchOpen(false)
             .withSwitchPrefixId("VL1")
             .withBusbarSectionPrefixId("VL1")
             .build();
@@ -237,8 +239,10 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
             .withAllBusbars(true)
             .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
             .withLeftSwitchFictitious(false)
+            .withLeftSwitchOpen(true)
             .withRightSwitchKind(SwitchKind.DISCONNECTOR)
             .withRightSwitchFictitious(false)
+            .withRightSwitchOpen(false)
             .withSwitchPrefixId("VL1")
             .withBusbarSectionPrefixId("VL1")
             .build();
