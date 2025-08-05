@@ -192,6 +192,7 @@ The `isCondenser` value corresponds for instance to generators which can control
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Generator ENTSO-E Category](extensions.md#generator-entso-e-category)
 - [Generator Short-Circuit](extensions.md#generator-short-circuit)
+- [Generator Startup](extensions.md#generator-startup)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 - [Remote Reactive Power Control](extensions.md#remote-reactive-power-control)
