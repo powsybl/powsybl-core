@@ -1850,10 +1850,15 @@ public interface Network extends Container<Network> {
         return new NetworkReader(filename, is);
     }
 
+    static NetworkReader newReader(ReadOnlyDataSource dataSource) {
+        return new NetworkReader(dataSource);
+    }
+
     public class NetworkReader {
         private Path file = null;
         private InputStream inputStream = null;
         private String inputStreamFilename = null;
+        private ReadOnlyDataSource dataSource = null;
         private ComputationManager computationManager = LocalComputationManager.getDefault();
         private ImportConfig config = ImportConfig.CACHE.get();
         private Properties parameters = new Properties();
@@ -1877,6 +1882,10 @@ public interface Network extends Container<Network> {
         public NetworkReader setComputationManager(ComputationManager cm) {
             this.computationManager = cm;
             return this;
+        }
+
+        public NetworkReader(ReadOnlyDataSource dataSource) {
+            this.dataSource = dataSource;
         }
 
         public NetworkReader setImportConfig(ImportConfig cfg) {
@@ -1910,6 +1919,8 @@ public interface Network extends Container<Network> {
             } else if (inputStream != null && inputStreamFilename != null) {
                 return Network.read(inputStreamFilename, inputStream, computationManager, config, parameters,
                         networkFactory, loader, reportNode);
+            } else if (dataSource != null) {
+                return Network.read(dataSource, computationManager, config, parameters, networkFactory, loader, reportNode);
             } else {
                 throw new PowsyblException("No valid source specified for network import");
             }
