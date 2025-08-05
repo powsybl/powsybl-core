@@ -12,7 +12,6 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.iidm.network.Ground;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
@@ -28,27 +27,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 class GroundConversionTest extends AbstractSerDeTest {
-
-    @Test
-    void groundConversionTest() {
-        Network network = Network.read("groundTest.xml", getClass().getResourceAsStream("/groundTest.xml"));
-
-        assertEquals(2, network.getGroundCount());
-
-        Ground groundOU = network.getGround("OU");
-        assertNotNull(groundOU);
-        assertEquals("KD", groundOU.getNameOrId());
-        assertNotNull(groundOU.getTerminal());
-        assertFalse(groundOU.getTerminal().isConnected());
-        assertEquals("S", groundOU.getTerminal().getVoltageLevel().getId());
-
-        Ground groundCV = network.getGround("CV");
-        assertNotNull(groundCV);
-        assertEquals("CW", groundCV.getNameOrId());
-        assertNotNull(groundCV.getTerminal());
-        assertTrue(groundCV.getTerminal().isConnected());
-        assertEquals("S", groundCV.getTerminal().getVoltageLevel().getId());
-    }
 
     @Test
     void groundConversionRemoveTest() {

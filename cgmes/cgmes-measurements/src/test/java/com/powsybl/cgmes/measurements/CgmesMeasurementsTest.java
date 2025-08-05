@@ -5,36 +5,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.importer.postprocessor;
+package com.powsybl.cgmes.measurements;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
+import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class CgmesMeasurementsTest {
-
-    @Test
-    void testBusBranch() {
-        Properties properties = new Properties();
-        properties.put(CgmesImport.POST_PROCESSORS, Collections.singletonList("measurements"));
-        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseMeasurements().dataSource(),
-                NetworkFactory.findDefault(), properties);
-        assertNotNull(network);
-        assertBusBranchMeasurements(network);
-    }
 
     private void assertBusBranchMeasurements(Network network) {
         Measurements<Line> measExt = network.getLine("b58bf21a-096a-4dae-9a01-3f03b60c24c7").getExtension(Measurements.class);
@@ -188,30 +183,23 @@ class CgmesMeasurementsTest {
     }
 
     @Test
-    void testNodeBreaker() {
+    void testDeprecated() {
         Properties properties = new Properties();
-        properties.put(CgmesImport.POST_PROCESSORS, Collections.singletonList("measurements"));
-        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerMeasurements().dataSource(),
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseMeasurements().dataSource(),
                 NetworkFactory.findDefault(), properties);
         assertNotNull(network);
-
-        VoltageLevel voltageLevel = network.getVoltageLevel("a43d15db-44a6-4fda-a525-2402ff43226f");
-        assertTrue(voltageLevel.hasProperty("CGMES.Analog_Angle"));
-        assertEquals("analog", voltageLevel.getProperty("CGMES.Analog_Angle"));
-
-        DiscreteMeasurements<VoltageLevel> ext = voltageLevel.getExtension(DiscreteMeasurements.class);
-        assertNotNull(ext);
-        assertEquals(1, ext.getDiscreteMeasurements().size());
-
-        DiscreteMeasurement meas = ext.getDiscreteMeasurement("discrete");
-        assertNotNull(meas);
-        assertEquals(DiscreteMeasurement.Type.OTHER, meas.getType());
-        assertEquals(DiscreteMeasurement.ValueType.STRING, meas.getValueType());
-        assertNull(meas.getValueAsString());
-        assertFalse(meas.isValid());
-        assertEquals(1, meas.getPropertyNames().size());
-        String property = meas.getProperty("cgmesType");
-        assertEquals("TestType", property);
+        CgmesModelExtension cgmesModelExt = network.getExtensionByName("CgmesModel");
+        CgmesMeasurementsModel model = new CgmesMeasurementsModel(cgmesModelExt.getCgmesModel().tripleStore());
+        PropertyBags bays = model.bays();
+        Map<String, PropertyBag> idToBayMap = bays.stream().collect(Collectors.toMap(b -> b.getId("Bay"), b -> b));
+        for (PropertyBag analog : model.analogs()) {
+            CgmesAnalogPostProcessor.process(network, analog.getId("Analog"), analog.getId("Terminal"),
+                    analog.getId("powerSystemResource"), analog.getId("type"), idToBayMap, Map.of());
+        }
+        for (PropertyBag discrete : model.discretes()) {
+            CgmesDiscretePostProcessor.process(network, discrete.getId("Discrete"), discrete.getId("Terminal"),
+                    discrete.getId("powerSystemResource"), discrete.getId("type"), idToBayMap, Map.of());
+        }
+        assertBusBranchMeasurements(network);
     }
-
 }

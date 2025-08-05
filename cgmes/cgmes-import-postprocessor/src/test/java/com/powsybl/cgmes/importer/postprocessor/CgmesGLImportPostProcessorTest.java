@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.importer.postprocessor;
 
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
@@ -32,7 +33,7 @@ class CgmesGLImportPostProcessorTest {
     @Test
     void test() {
         Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.post-processors", "cgmesGLImport");
+        properties.put(CgmesImport.POST_PROCESSORS, "cgmesGLImport");
         ReadOnlyDataSource ds = new ResourceDataSource("importGL", new ResourceSet("/", "importGL_EQ.xml", "importGL_GL.xml"));
         Network network = Network.read(ds, properties);
 
@@ -69,7 +70,7 @@ class CgmesGLImportPostProcessorTest {
     @Test
     void testUnsupportedCoordinateSystem() {
         Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.post-processors", "cgmesGLImport");
+        properties.put(CgmesImport.POST_PROCESSORS, "cgmesGLImport");
         ReadOnlyDataSource ds1 = new ResourceDataSource("importGL", new ResourceSet("/", "importGL_EQ.xml", "unsupportedSubstationCrs_GL.xml"));
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> Network.read(ds1, properties));
         assertEquals("Unsupported coordinates system: urn:ogc:def:crs:OGC:2:84", e1.getMessage());

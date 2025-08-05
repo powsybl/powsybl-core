@@ -536,7 +536,28 @@ class CgmesExportTest {
             DataSource exportDatasource = new DirectoryDataSource(tmpDir, network.getNameOrId());
             new CgmesExport().export(network, exportParams, exportDatasource);
             String gl = Files.readString(tmpDir.resolve(network.getNameOrId() + "_GL.xml"));
-            assertTrue(gl.contains("md:Model.profile>http://entsoe.eu/CIM/GeographicalLocation/2/1"));
+            assertTrue(gl.contains("md:Model.profile>" + CgmesNamespace.CIM_16_GL_PROFILE));
+            assertTrue(gl.contains("cim:CoordinateSystem.crsUrn>urn:ogc:def:crs:EPSG::4326"));
+            assertTrue(gl.contains("cim:PositionPoint.xPosition>0.5492960214614868"));
+            assertTrue(gl.contains("cim:PositionPoint.yPosition>51.380348205566406"));
+        }
+    }
+
+    @Test
+    void testCim100ExporGLProfle() throws IOException {
+        Network network = NetworkTest1Factory.create("minimal-network");
+        Substation substation1 = network.getSubstation("nminimal-network_substation1");
+        SubstationPosition substationPosition1 = new SubstationPositionImpl(substation1, SUBSTATION_1);
+        substation1.addExtension(SubstationPosition.class, substationPosition1);
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectories(fileSystem.getPath("/work"));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "GL");
+            exportParams.put(CgmesExport.CIM_VERSION, "100");
+            DataSource exportDatasource = new DirectoryDataSource(tmpDir, network.getNameOrId());
+            new CgmesExport().export(network, exportParams, exportDatasource);
+            String gl = Files.readString(tmpDir.resolve(network.getNameOrId() + "_GL.xml"));
+            assertTrue(gl.contains("md:Model.profile>" + CgmesNamespace.CIM_100_GL_PROFILE));
             assertTrue(gl.contains("cim:CoordinateSystem.crsUrn>urn:ogc:def:crs:EPSG::4326"));
             assertTrue(gl.contains("cim:PositionPoint.xPosition>0.5492960214614868"));
             assertTrue(gl.contains("cim:PositionPoint.yPosition>51.380348205566406"));

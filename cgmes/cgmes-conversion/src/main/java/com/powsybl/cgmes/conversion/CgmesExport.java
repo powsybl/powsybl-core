@@ -465,7 +465,7 @@ public class CgmesExport implements Exporter {
                     StateVariablesExport.write(network, writer, context, model);
                     break;
                 case GEOGRAPHICAL_LOCATION:
-                    GeographicalLocationExporter.write(network, dataSource);
+                    GeographicalLocationExport.write(network, context, dataSource);
                     break;
                 default:
                     throw new IllegalArgumentException("Invalid subset, one of the following value is expected: EQ/TP/SSH/SV.");

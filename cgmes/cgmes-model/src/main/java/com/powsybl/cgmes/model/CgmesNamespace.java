@@ -46,6 +46,7 @@ public final class CgmesNamespace {
     public static final String CIM_16_SSH_PROFILE = "http://entsoe.eu/CIM/SteadyStateHypothesis/1/1";
     public static final String CIM_16_EQ_BD_PROFILE = "http://entsoe.eu/CIM/EquipmentBoundary/3/1";
     public static final String CIM_16_TP_BD_PROFILE = "http://entsoe.eu/CIM/TopologyBoundary/3/1";
+    public static final String CIM_16_GL_PROFILE = "http://entsoe.eu/CIM/GeographicalLocation/2/1";
 
     public static final String CGMES_EQ_3_OR_GREATER_PREFIX = "http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/";
     public static final String CIM_100_EQ_PROFILE = "http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0";
@@ -54,6 +55,7 @@ public final class CgmesNamespace {
     public static final String CIM_100_SV_PROFILE = "http://iec.ch/TC57/ns/CIM/StateVariables-EU/3.0";
     public static final String CIM_100_SSH_PROFILE = "http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0";
     public static final String CIM_100_EQ_BD_PROFILE = "http://iec.ch/TC57/ns/CIM/EquipmentBoundary-EU/3.0";
+    public static final String CIM_100_GL_PROFILE = "http://iec.ch/TC57/61970-600/GeographicalLocation-European/3/0";
 
     public static final Cim CIM_16 = new Cim16();
     public static final Cim CIM_100 = new Cim100();
