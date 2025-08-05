@@ -54,20 +54,6 @@ public class ContainersMapping {
         return substationId;
     }
 
-    /**
-     * @deprecated Not used anymore. Use
-     * {@link ContainersMapping#create(List, List, ToIntFunction, ToIntFunction, ToIntFunction,
-     * Predicate, Predicate, ToDoubleFunction, ToIntFunction, Function, Function)} instead.
-     */
-    @Deprecated(since = "6.9.0")
-    public static <N, B> ContainersMapping create(List<N> buses, List<B> branches,
-                                                 ToIntFunction<N> busToNum, ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2,
-                                                 Predicate<B> branchToIsZeroImpedance, Predicate<B> branchToIsTransformer,
-                                                 ToDoubleFunction<Integer> busToNominalVoltage, Function<Set<Integer>, String> busesToVoltageLevelId,
-                                                 Function<Set<Integer>, String> busesToSubstationId) {
-        throw new PowsyblException("Deprecated. Not used anymore");
-    }
-
     public static <N, B> ContainersMapping create(List<N> buses, List<B> branches,
         ToIntFunction<N> busToNum, ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2,
         Predicate<B> branchToIsZeroImpedance, Predicate<B> branchToIsTransformer,
