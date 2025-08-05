@@ -8,6 +8,7 @@
 
 package com.powsybl.loadflow;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
@@ -59,4 +60,43 @@ class LoadFlowTest {
                 computationManager, new LoadFlowParameters());
         assertNotNull(result.get());
     }
+
+    @Test
+    void testRunWithDefaultParameters() {
+        LoadFlow.Runner defaultLoadFlow = LoadFlow.find();
+        LoadFlowResult result = defaultLoadFlow.setNetwork(network).run();
+        assertNotNull(result);
+    }
+
+    @Test
+    void testRunWithFluentSetters() {
+        LoadFlow.Runner defaultLoadFlow = LoadFlow.find();
+        LoadFlowResult result = defaultLoadFlow.setNetwork(network)
+                .setComputationManager(computationManager)
+                .setParameters(new LoadFlowParameters())
+                .setVariantId("VariantId")
+                .setReportNode(ReportNode.NO_OP)
+                .run();
+        assertNotNull(result);
+    }
+
+    @Test
+    void testRunAsyncWithDefaultParameters() throws InterruptedException, ExecutionException {
+        LoadFlow.Runner defaultLoadFlow = LoadFlow.find();
+        CompletableFuture<LoadFlowResult> result = defaultLoadFlow.setNetwork(network).runAsync();
+        assertNotNull(result.get());
+    }
+
+    @Test
+    void testRunAsyncWithFluentSetters() throws InterruptedException, ExecutionException {
+        LoadFlow.Runner defaultLoadFlow = LoadFlow.find();
+        CompletableFuture<LoadFlowResult> result = defaultLoadFlow.setNetwork(network)
+                .setComputationManager(computationManager)
+                .setParameters(new LoadFlowParameters())
+                .setVariantId("VariantId")
+                .setReportNode(ReportNode.NO_OP)
+                .runAsync();
+        assertNotNull(result.get());
+    }
+
 }
