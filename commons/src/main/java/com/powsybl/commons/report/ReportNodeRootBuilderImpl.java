@@ -49,7 +49,7 @@ public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<
     @Override
     public ReportNodeRootBuilder withName(String name) {
         this.key = "core.report.name";
-        values.put("name", TypedValue.untyped(name));
+        values.put("reportName", TypedValue.untyped(name.replace("${reportName}", "reportName")));
         return self();
     }
 }
