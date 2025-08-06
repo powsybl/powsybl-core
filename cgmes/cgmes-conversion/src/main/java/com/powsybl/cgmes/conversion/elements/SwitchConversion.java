@@ -116,7 +116,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             case "Disconnector", "GroundDisconnector", "Jumper" -> SwitchKind.DISCONNECTOR;
             case "LoadBreakSwitch" -> SwitchKind.LOAD_BREAK_SWITCH;
             case "Breaker" -> SwitchKind.BREAKER;
-            default -> SwitchKind.DISCONNECTOR;
+            default -> SwitchKind.DISCONNECTOR;  // Switch, ProtectedSwitch
         };
     }
 
