@@ -10,13 +10,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -151,6 +145,8 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
                                                        boolean allBusbars,
                                                        SwitchKind leftSwitchKind,
                                                        SwitchKind rightSwitchKind,
+                                                       boolean leftSwitchOpen,
+                                                       boolean rightSwitchOpen,
                                                        String resourceFile) throws IOException {
         // Network creation
         Network network = createNetwork();
@@ -161,7 +157,9 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
             .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(createTheBusbarSectionsAfterTheReferenceBusbarSection)
             .withAllBusbars(allBusbars)
             .withLeftSwitchKind(leftSwitchKind)
+            .withLeftSwitchOpen(leftSwitchOpen)
             .withRightSwitchKind(rightSwitchKind)
+            .withRightSwitchOpen(rightSwitchOpen)
             .withSwitchPrefixId("VL1")
             .withBusbarSectionPrefixId("VL1")
             .build();
@@ -171,12 +169,12 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
 
     private static Stream<Arguments> parametersOK() {
         return Stream.of(
-            Arguments.of("BBS12", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "/create-vl-sections-insert-between-2-sections-with-disconnectors.xiidm"),
-            Arguments.of("BBS11", true, true, SwitchKind.BREAKER, SwitchKind.BREAKER, "/create-vl-sections-insert-between-2-sections-with-breakers.xiidm"),
-            Arguments.of("BBS11", true, true, SwitchKind.DISCONNECTOR, SwitchKind.BREAKER, "/create-vl-sections-insert-between-2-sections-with-disconnectors-on-left-side-and-breakers-on-right-side.xiidm"),
-            Arguments.of("BBS12", true, false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "/create-vl-sections-insert-between-2-sections-on-only-one-busbar-with-disconnectors.xiidm"),
-            Arguments.of("BBS21", false, true, SwitchKind.BREAKER, SwitchKind.BREAKER, "/create-vl-sections-insert-before-first-section-with-breakers.xiidm"),
-            Arguments.of("BBS13", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "/create-vl-sections-insert-after-last-section-with-disconnectors.xiidm")
+            Arguments.of("BBS12", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, true, true, "/create-vl-sections-insert-between-2-sections-with-disconnectors.xiidm"),
+            Arguments.of("BBS11", true, true, SwitchKind.BREAKER, SwitchKind.BREAKER, false, true, "/create-vl-sections-insert-between-2-sections-with-breakers.xiidm"),
+            Arguments.of("BBS11", true, true, SwitchKind.DISCONNECTOR, SwitchKind.BREAKER, true, false, "/create-vl-sections-insert-between-2-sections-with-disconnectors-on-left-side-and-breakers-on-right-side.xiidm"),
+            Arguments.of("BBS12", true, false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, false, false, "/create-vl-sections-insert-between-2-sections-on-only-one-busbar-with-disconnectors.xiidm"),
+            Arguments.of("BBS21", false, true, SwitchKind.BREAKER, SwitchKind.BREAKER, true, true, "/create-vl-sections-insert-before-first-section-with-breakers.xiidm"),
+            Arguments.of("BBS13", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, true, true, "/create-vl-sections-insert-after-last-section-with-disconnectors.xiidm")
         );
     }
 
