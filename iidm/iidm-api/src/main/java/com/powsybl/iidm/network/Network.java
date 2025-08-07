@@ -1838,23 +1838,23 @@ public interface Network extends Container<Network> {
         write(new ExportersServiceLoader(), format, parameters, directory, baseName);
     }
 
-    static NetworkReader newReader(Path file) {
-        return new NetworkReader(file);
+    static Reader newReader(Path file) {
+        return new Reader(file);
     }
 
-    static NetworkReader newReader(String file) {
-        return new NetworkReader(file);
+    static Reader newReader(String file) {
+        return new Reader(file);
     }
 
-    static NetworkReader newReader(String filename, InputStream is) {
-        return new NetworkReader(filename, is);
+    static Reader newReader(String filename, InputStream is) {
+        return new Reader(filename, is);
     }
 
-    static NetworkReader newReader(ReadOnlyDataSource dataSource) {
-        return new NetworkReader(dataSource);
+    static Reader newReader(ReadOnlyDataSource dataSource) {
+        return new Reader(dataSource);
     }
 
-    public class NetworkReader {
+    class Reader {
         private Path file = null;
         private InputStream inputStream = null;
         private String inputStreamFilename = null;
@@ -1866,49 +1866,49 @@ public interface Network extends Container<Network> {
         private ImportersLoader loader = new ImportersServiceLoader();
         private ReportNode reportNode = ReportNode.NO_OP;
 
-        public NetworkReader(Path file) {
+        Reader(Path file) {
             this.file = file;
         }
 
-        public NetworkReader(String fileString) {
+        public Reader(String fileString) {
             this.file = Paths.get(fileString);
         }
 
-        public NetworkReader(String filename, InputStream is) {
+        public Reader(String filename, InputStream is) {
             this.inputStreamFilename = filename;
             this.inputStream = is;
         }
 
-        public NetworkReader setComputationManager(ComputationManager cm) {
+        public Reader(ReadOnlyDataSource dataSource) {
+            this.dataSource = dataSource;
+        }
+
+        public Reader setComputationManager(ComputationManager cm) {
             this.computationManager = cm;
             return this;
         }
 
-        public NetworkReader(ReadOnlyDataSource dataSource) {
-            this.dataSource = dataSource;
-        }
-
-        public NetworkReader setImportConfig(ImportConfig cfg) {
+        public Reader setImportConfig(ImportConfig cfg) {
             this.config = cfg;
             return this;
         }
 
-        public NetworkReader setParameters(Properties p) {
+        public Reader setParameters(Properties p) {
             this.parameters = p;
             return this;
         }
 
-        public NetworkReader setNetworkFactory(NetworkFactory nf) {
+        public Reader setNetworkFactory(NetworkFactory nf) {
             this.networkFactory = nf;
             return this;
         }
 
-        public NetworkReader setImportersLoader(ImportersLoader l) {
+        public Reader setImportersLoader(ImportersLoader l) {
             this.loader = l;
             return this;
         }
 
-        public NetworkReader setReportNode(ReportNode rn) {
+        public Reader setReportNode(ReportNode rn) {
             this.reportNode = rn;
             return this;
         }

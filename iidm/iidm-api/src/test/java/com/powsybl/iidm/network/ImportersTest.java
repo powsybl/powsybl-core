@@ -347,7 +347,7 @@ class ImportersTest extends AbstractConvertersTest {
 
     @Test
     void testNewReaderFromStringPath() {
-        Network network = Network.newReader("src/test/resources/foo.tst")
+        Network network = Network.newReader("src/test/resources/foobar.tst")
             .read();
         assertNotNull(network);
         assertNotNull(network.getLoad("LOAD"));
@@ -355,7 +355,7 @@ class ImportersTest extends AbstractConvertersTest {
 
     @Test
     void testNewReaderThrowsIfNoSource() {
-        Network.NetworkReader reader = new Network.NetworkReader((Path) null);
+        Network.Reader reader = Network.newReader((Path) null);
         assertThrows(PowsyblException.class, reader::read);
     }
 }
