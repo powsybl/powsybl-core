@@ -818,6 +818,10 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             b2 = (l.getB2() * vb2 * vb2 + b * vb2 * (vb2 - vb1)) / AmplConstants.SB;
         }
 
+        if (bus1Num == bus2Num) {
+            return;
+        }
+
         formatter.writeCell(variantIndex)
             .writeCell(num)
             .writeCell(bus1Num)
@@ -876,6 +880,10 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             int xNodeBusNum = mapper.getInt(AmplSubset.BUS, xNodeBusId);
             int xNodeVoltageLevelNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, xnodeVoltageLevelId);
 
+            if (bus1Num == xNodeBusNum || bus2Num == xNodeBusNum) {
+                return;
+            }
+
             formatter.writeCell(variantIndex)
                 .writeCell(dl1Num)
                 .writeCell(bus1Num)
@@ -931,6 +939,11 @@ public class BasicAmplExporter implements AmplColumnsExporter {
                 .writeCell(dl2Id)
                 .writeCell(l.getDanglingLine2().getNameOrId());
         } else {
+
+            if (bus1Num == bus2Num) {
+                return;
+            }
+
             formatter.writeCell(variantIndex)
                 .writeCell(num)
                 .writeCell(bus1Num)
@@ -984,6 +997,11 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double p2 = sv.getP();
         double q2 = sv.getQ();
         double patl = getPermanentLimit(dl.getCurrentLimits().orElse(null));
+
+        if (busNum == middleBusNum) {
+            return;
+        }
+
         formatter.writeCell(variantIndex)
             .writeCell(num)
             .writeCell(busNum)
@@ -1056,6 +1074,11 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         PhaseTapChanger ptc = twt.getPhaseTapChanger();
         int rtcNum = rtc != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, twt.getId()) : -1;
         int ptcNum = ptc != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, twt.getId()) : -1;
+
+        if (bus1Num == bus2Num) {
+            return;
+        }
+
         formatter.writeCell(variantIndex)
             .writeCell(num)
             .writeCell(bus1Num)
@@ -1113,6 +1136,10 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         PhaseTapChanger ptc1 = twtLeg.getPhaseTapChanger();
         int rtc1Num = rtc1 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id) : -1;
         int ptc1Num = ptc1 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id) : -1;
+
+        if (legBusNum == middleBusNum) {
+            return;
+        }
 
         formatter.writeCell(variantIndex)
             .writeCell(num)
