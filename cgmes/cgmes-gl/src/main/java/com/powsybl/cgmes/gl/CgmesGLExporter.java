@@ -75,7 +75,7 @@ public class CgmesGLExporter {
             tripleStore.addNamespace("data", "http://" + context.getBasename().toLowerCase() + "/#");
         }
         if (isMissedNamespace("cim")) {
-            tripleStore.addNamespace("cim", CgmesNamespace.CIM_16_NAMESPACE);
+            tripleStore.addNamespace("cim", cimModel.getVersion() == 100 ? CgmesNamespace.CIM_100_NAMESPACE : CgmesNamespace.CIM_16_NAMESPACE);
         }
         if (isMissedNamespace("md")) {
             tripleStore.addNamespace("md", MD_NAMESPACE);
@@ -104,17 +104,17 @@ public class CgmesGLExporter {
         coordinateSystemProperties.setClassPropertyNames(Collections.singletonList(IDENTIFIED_OBJECT_NAME));
         coordinateSystemProperties.put("crsUrn", CgmesGLUtils.COORDINATE_SYSTEM_URN);
         coordinateSystemProperties.put(IDENTIFIED_OBJECT_NAME, "WGS84");
-        context.setCoordinateSystemId(tripleStore.add(context.getGlContext(), CgmesNamespace.CIM_16_NAMESPACE, "CoordinateSystem", coordinateSystemProperties));
+        context.setCoordinateSystemId(tripleStore.add(context.getGlContext(), cimModel.getVersion() == 100 ? CgmesNamespace.CIM_100_NAMESPACE : CgmesNamespace.CIM_16_NAMESPACE, "CoordinateSystem", coordinateSystemProperties));
     }
 
     private void exportSubstationsPosition(ExportContext context) {
-        SubstationPositionExporter positionExporter = new SubstationPositionExporter(tripleStore, context);
+        SubstationPositionExporter positionExporter = new SubstationPositionExporter(tripleStore, context, cimModel);
         LOG.info("Exporting Substations Position");
         network.getSubstationStream().forEach(positionExporter::exportPosition);
     }
 
     private void exportLinesPosition(ExportContext context) {
-        LinePositionExporter positionExporter = new LinePositionExporter(tripleStore, context);
+        LinePositionExporter positionExporter = new LinePositionExporter(tripleStore, context, cimModel);
         LOG.info("Exporting Lines Position");
         network.getLineStream().forEach(positionExporter::exportPosition);
         LOG.info("Exporting Dangling Lines Position");

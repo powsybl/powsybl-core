@@ -8,11 +8,14 @@
 package com.powsybl.cgmes.gl;
 
 import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.cgmes.model.CgmesNamespace.Cim;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16;
 
 import java.util.Objects;
 
@@ -35,8 +38,12 @@ public class CgmesGLModel {
     }
 
     public CgmesGLModel(TripleStore tripleStore, QueryCatalog queryCatalog) {
+        this(tripleStore, queryCatalog, CIM_16);
+    }
+
+    public CgmesGLModel(TripleStore tripleStore, QueryCatalog queryCatalog, Cim cimModel) {
         this.tripleStore = Objects.requireNonNull(tripleStore);
-        tripleStore.defineQueryPrefix("cim", CgmesNamespace.CIM_16_NAMESPACE);
+        tripleStore.defineQueryPrefix("cim", cimModel.getVersion() == 100 ? CgmesNamespace.CIM_100_NAMESPACE : CgmesNamespace.CIM_16_NAMESPACE);
         this.queryCatalog = Objects.requireNonNull(queryCatalog);
     }
 
