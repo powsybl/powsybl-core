@@ -19,10 +19,12 @@ public interface MessageTemplateProvider {
 
     MessageTemplateProvider EMPTY = new EmptyMessageTemplateProvider();
 
+    ResourceBundle.Control NO_FALLBACK_CONTROL = ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_DEFAULT);
+
     String getTemplate(String key, Locale locale);
 
     static String getMissingKeyMessage(String key, Locale locale) {
-        String pattern = ResourceBundle.getBundle(PowsyblCoreReportResourceBundle.BASE_NAME, locale)
+        String pattern = ResourceBundle.getBundle(PowsyblCoreReportResourceBundle.BASE_NAME, locale, NO_FALLBACK_CONTROL)
                 .getString("core.commons.missingKey");
         return new MessageFormat(pattern, locale).format(new Object[]{key});
     }

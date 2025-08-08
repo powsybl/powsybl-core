@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.OptionalInt;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleConsumer;
 
 /**
@@ -196,7 +197,14 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () ->
             context.getWriter().writeBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES, ptc.hasLoadTapChangingCapabilities())
         );
-        context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, regMode);
+        if (context.getVersion().compareTo(IidmVersion.V_1_5) <= 0
+                && (Double.isNaN(ptc.getRegulationValue()) || ptc.getRegulationTerminal() == null)) {
+            // Backward compatibility for <= IIDM 1.5 where import was failing when regulation mode != FIXED_TAP
+            // and either regulating value is NaN or regulation terminal is null.
+            context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, PhaseTapChangerRegulationModeSerDe.FIXED_TAP);
+        } else {
+            context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, regMode);
+        }
         context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, ptc.getRegulationValue());
         TerminalRefSerDe.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
 
@@ -215,7 +223,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     protected static void readPhaseTapChanger(String name, PhaseTapChangerAdder adder, Terminal terminal, NetworkDeserializerContext context) {
         readTapChangerAttributes(adder, context);
-
+        AtomicReference<RegulationMode> regulationMode = new AtomicReference<>();
         // Set regulation according to IIDM version
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
             adder.setRegulationMode(null);
@@ -224,17 +232,18 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
                 if (PhaseTapChangerRegulationModeSerDe.FIXED_TAP.equals(regulationModeSerDe)) {
                     adder.setRegulating(false);
                 }
-                adder.setRegulationMode(PhaseTapChangerRegulationModeSerDe.convertToRegulationMode(regulationModeSerDe));
+                regulationMode.set(PhaseTapChangerRegulationModeSerDe.convertToRegulationMode(regulationModeSerDe));
+                adder.setRegulationMode(regulationMode.get());
             }
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
             boolean loadTapChangingCapabilities = context.getReader().readBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES);
             adder.setLoadTapChangingCapabilities(loadTapChangingCapabilities);
-            adder.setRegulationMode(context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, RegulationMode.class));
+            regulationMode.set(context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, RegulationMode.class));
+            adder.setRegulationMode(regulationMode.get());
         });
 
-        double regulationValue = context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE);
-        adder.setRegulationValue(regulationValue);
+        adder.setRegulationValue(checkRegulationValue(regulationMode.get(), context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE)));
 
         boolean[] hasTerminalRef = new boolean[1];
         context.getReader().readChildNodes(elementName -> {
@@ -257,6 +266,13 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         if (!hasTerminalRef[0]) {
             adder.add();
         }
+    }
+
+    private static double checkRegulationValue(RegulationMode regulationMode, double regulationValue) {
+        if (regulationMode == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && regulationValue < 0) {
+            return Math.abs(regulationValue);
+        }
+        return regulationValue;
     }
 
     private static void readTapChangerTerminalRef(TapChangerAdder<?, ?, ?, ?, ?, ?> adder, Terminal terminal, NetworkDeserializerContext context) {

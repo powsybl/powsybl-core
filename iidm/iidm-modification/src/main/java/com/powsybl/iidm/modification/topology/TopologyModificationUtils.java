@@ -175,13 +175,13 @@ public final class TopologyModificationUtils {
 
     public static void addLoadingLimits(Line created, LoadingLimitsBags limits, TwoSides side) {
         if (side == TwoSides.ONE) {
-            limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits1(), lim));
-            limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits1(), lim));
-            limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.newCurrentLimits1(), lim));
+            limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits(), lim));
+            limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits(), lim));
+            limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits(), lim));
         } else {
-            limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits2(), lim));
-            limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits2(), lim));
-            limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.newCurrentLimits2(), lim));
+            limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits(), lim));
+            limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits(), lim));
+            limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits(), lim));
         }
     }
 
@@ -221,6 +221,10 @@ public final class TopologyModificationUtils {
     }
 
     static void createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
+        createNBBreaker(node1, node2, id, view, open, false);
+    }
+
+    static void createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open, boolean fictitious) {
         view.newSwitch()
                 .setId(id)
                 .setEnsureIdUnicity(true)
@@ -229,10 +233,15 @@ public final class TopologyModificationUtils {
                 .setRetained(true)
                 .setNode1(node1)
                 .setNode2(node2)
+                .setFictitious(fictitious)
                 .add();
     }
 
     static void createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
+        createNBDisconnector(node1, node2, id, view, open, false);
+    }
+
+    static void createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open, boolean fictitious) {
         view.newSwitch()
                 .setId(id)
                 .setEnsureIdUnicity(true)
@@ -240,6 +249,7 @@ public final class TopologyModificationUtils {
                 .setOpen(open)
                 .setNode1(node1)
                 .setNode2(node2)
+                .setFictitious(fictitious)
                 .add();
     }
 

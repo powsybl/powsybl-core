@@ -213,6 +213,16 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void importTwoTerminalDcAndVscWithZeroResistance() throws IOException {
+        importTest("two_terminal_dc_vsc_with_zero_resistance", "two_terminal_dc_vsc_with_zero_resistance.raw", false);
+    }
+
+    @Test
+    void importNonTranformerBranchZeroX() throws IOException {
+        importTest("NonTranformerBranchZeroX", "NonTranformerBranchZeroX.raw", false);
+    }
+
+    @Test
     void importTest14BusesDuplicateIds() throws IOException {
         Network n = importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
         assertNotNull(n.getLoad("B2-L1 "));
@@ -245,6 +255,8 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertNotNull(n.getLine("L-2-1-11"));
         assertNotNull(n.getTwoWindingsTransformer("T-4-7-1 "));
         assertNotNull(n.getTwoWindingsTransformer("T-4-7-10"));
+        assertNotNull(n.getStaticVarCompensator("FactsDevice-FACTS_DVCE_1"));
+        assertNotNull(n.getStaticVarCompensator("FactsDevice-FACTS_DVCE_0"));
     }
 
     @Test
@@ -264,6 +276,9 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertNull(n.getThreeWindingsTransformer("T-4-2-200-3 "));
         assertNull(n.getHvdcLine("TwoTerminalDc-EATL P1     "));
         assertNull(n.getHvdcLine("TwoTerminalDc-EATL P2     "));
+        assertNull(n.getHvdcLine("VscDcTransmissionLine-VSC-1"));
+        assertNull(n.getHvdcLine("VscDcTransmissionLine-VSC-2"));
+        assertNull(n.getStaticVarCompensator("FactsDevice-StaticVar"));
         assertNull(n.getShuntCompensator("B200-SwSH1"));
     }
 
@@ -277,6 +292,9 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
         assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
         assertNotNull(n.getThreeWindingsTransformer("T-4-7-9-1 "));
+        assertNotNull(n.getHvdcLine("VscDcTransmissionLine-VSC-1"));
+        assertNotNull(n.getHvdcLine("VscDcTransmissionLine-VSC-2"));
+        assertNotNull(n.getStaticVarCompensator("FactsDevice-StaticVar"));
         assertNotNull(n.getShuntCompensator("B2-SwSH1"));
     }
 

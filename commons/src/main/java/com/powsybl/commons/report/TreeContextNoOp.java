@@ -38,6 +38,6 @@ public class TreeContextNoOp implements TreeContext {
 
     @Override
     public Locale getLocale() {
-        return ReportConstants.DEFAULT_LOCALE;
+        return Locale.US;
     }
 }
