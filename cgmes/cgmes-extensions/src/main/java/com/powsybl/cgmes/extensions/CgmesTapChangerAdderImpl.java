@@ -69,9 +69,9 @@ class CgmesTapChangerAdderImpl implements CgmesTapChangerAdder {
             throw new PowsyblException("Tap changer ID should not be null");
         }
         if (!hidden) {
-            if (step != null) {
-                throw new PowsyblException("Non-hidden tap changers step positions can be directly found on the tap changer" +
-                        " and should not be forced");
+            // step is used to record the normalStep of the tapChanger when it is not hidden
+            if (step == null) {
+                throw new PowsyblException("normal step must be defined for tap changers");
             }
             if (combinedTapChangerId != null) {
                 throw new PowsyblException("Non-hidden tap changers do not have a different ID for the combined tap changer");
