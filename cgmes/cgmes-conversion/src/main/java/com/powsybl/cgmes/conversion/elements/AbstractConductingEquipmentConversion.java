@@ -250,7 +250,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     // does not have energy consumer or equivalent injection
     protected static void updateTargetsAndRegulationAndOperationalLimits(DanglingLine danglingLine, boolean isConnectedOnBoundarySide, Context context) {
         EquivalentInjectionConversion.update(danglingLine, isConnectedOnBoundarySide, context);
-        danglingLine.getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(danglingLine, operationalLimitsGroup, context));
+        danglingLine.getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
     }
 
     public static boolean isBoundaryTerminalConnected(DanglingLine danglingLine, Context context) {
