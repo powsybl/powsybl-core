@@ -1,0 +1,34 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+	<md:FullModel rdf:about="urn:uuid:95b0709c-bf22-4df8-a179-042c7038d62a">
+		<md:Model.created>2021-04-15T21:56:31Z</md:Model.created>
+		<md:Model.scenarioTime>2021-03-25T15:30:00Z</md:Model.scenarioTime>
+		<md:Model.description>All types of Transformers</md:Model.description>
+		<md:Model.modelingAuthoritySet>http://powsybl.org</md:Model.modelingAuthoritySet>
+		<md:Model.profile>http://iec.ch/TC57/ns/CIM/Topology-EU/3.0</md:Model.profile>
+	</md:FullModel>
+
+	<cim:Terminal rdf:about="#_T3W-Terminal1">
+		<cim:Terminal.TopologicalNode rdf:resource="#_ConnectivityNode1-TP"/>
+	</cim:Terminal>
+	<cim:Terminal rdf:about="#_T3W-Terminal2">
+		<cim:Terminal.TopologicalNode rdf:resource="#_ConnectivityNode2-TP"/>
+	</cim:Terminal>
+	<cim:Terminal rdf:about="#_T3W-Terminal3">
+		<cim:Terminal.TopologicalNode rdf:resource="#_ConnectivityNode3-TP"/>
+	</cim:Terminal>
+	<cim:TopologicalNode rdf:ID="_ConnectivityNode1-TP">
+		<cim:IdentifiedObject.name>ConnectivityNode1-TP</cim:IdentifiedObject.name>
+		<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1"/>
+		<cim:TopologicalNode.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_ConnectivityNode2-TP">
+		<cim:IdentifiedObject.name>ConnectivityNode2-TP</cim:IdentifiedObject.name>
+		<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel2"/>
+		<cim:TopologicalNode.BaseVoltage rdf:resource="#_BaseVoltage220"/>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_ConnectivityNode3-TP">
+		<cim:IdentifiedObject.name>ConnectivityNode3-TP</cim:IdentifiedObject.name>
+		<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel3"/>
+		<cim:TopologicalNode.BaseVoltage rdf:resource="#_BaseVoltage110"/>
+	</cim:TopologicalNode>
+</rdf:RDF>
