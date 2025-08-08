@@ -16,8 +16,6 @@ import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,7 +48,7 @@ class ImportersTest extends AbstractConvertersTest {
 
     private final ImportConfig importConfigMock = Mockito.mock(ImportConfig.class);
     private final ImportConfig importConfigWithPostProcessor = new ImportConfig("test");
-    private final NetworkFactory networkFactory = new NetworkFactoryMock();
+    private final NetworkFactoryMock networkFactory = new NetworkFactoryMock();
 
     @BeforeEach
     @Override
@@ -314,16 +312,32 @@ class ImportersTest extends AbstractConvertersTest {
 
     @Test
     void testNewReaderFluentSetters() {
+
+        ReportNode reportRoot = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
+        Properties properties = new Properties();
+        properties.setProperty("testName", "testNewReaderFluentSetters");
+
         Network network = Network.newReader(path)
-                .setComputationManager(LocalComputationManager.getDefault())
-                .setReportNode(ReportNode.NO_OP)
-                .setParameters(new Properties())
-                .setImportConfig(importConfigMock)
+                .setComputationManager(computationManager)
+                .setReportNode(reportRoot)
+                .setParameters(properties)
+                .setImportConfig(importConfigWithPostProcessor)
                 .setNetworkFactory(networkFactory)
                 .setImportersLoader(loader)
                 .read();
         assertNotNull(network);
         assertNotNull(network.getLoad("LOAD"));
+        assertEquals(1, networkFactory.getCreateNetworkCount());
+        assertEquals(1, Mockito.mockingDetails(computationManager).getInvocations().size());
+
+        assertEquals("testNewReaderFluentSetters", network.getProperty("testName"));
+
+        assertEquals(1, reportRoot.getChildren().size());
+        assertEquals("Import model eurostagTutorialExample1", reportRoot.getChildren().get(0).getMessage());
+
     }
 
     @Test
