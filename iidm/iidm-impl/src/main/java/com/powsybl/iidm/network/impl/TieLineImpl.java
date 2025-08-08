@@ -116,6 +116,16 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
+    public TieLine setR(double r) {
+        throw new PowsyblException("Cannot update TieLine resistance");
+    }
+
+    @Override
+    public TieLine setX(double x) {
+        throw new PowsyblException("Cannot update TieLine reactance");
+    }
+
+    @Override
     public double getG1() {
         return TieLineUtil.getG1(danglingLine1, danglingLine2);
     }
