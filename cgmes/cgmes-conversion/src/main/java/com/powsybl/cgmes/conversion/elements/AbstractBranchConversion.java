@@ -105,7 +105,7 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
 
     protected static void updateBranch(Line line, Context context) {
         updateTerminals(line, context, line.getTerminal1(), line.getTerminal2());
-        line.getOperationalLimitsGroups1().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(line, operationalLimitsGroup, TwoSides.ONE, context));
-        line.getOperationalLimitsGroups2().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(line, operationalLimitsGroup, TwoSides.TWO, context));
+        line.getOperationalLimitsGroups1().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
+        line.getOperationalLimitsGroups2().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
     }
 }
