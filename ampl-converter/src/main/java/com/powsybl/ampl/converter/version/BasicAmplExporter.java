@@ -7,10 +7,7 @@
  */
 package com.powsybl.ampl.converter.version;
 
-import com.powsybl.ampl.converter.AmplConstants;
-import com.powsybl.ampl.converter.AmplExportConfig;
-import com.powsybl.ampl.converter.AmplSubset;
-import com.powsybl.ampl.converter.AmplUtil;
+import com.powsybl.ampl.converter.*;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterHelper;
@@ -18,6 +15,8 @@ import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ConnectedComponents;
 import com.powsybl.iidm.network.util.SV;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -34,6 +33,7 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  */
 public class BasicAmplExporter implements AmplColumnsExporter {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasicAmplExporter.class);
     private final AmplExportConfig config;
     private final Network network;
     private final StringToIntMapper<AmplSubset> mapper;
@@ -819,6 +819,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         }
 
         if (bus1Num == bus2Num) {
+            LOGGER.warn("Skipping line '{}' connected to the same bus at both sides", id);
             return;
         }
 
@@ -881,6 +882,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             int xNodeVoltageLevelNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, xnodeVoltageLevelId);
 
             if (bus1Num == xNodeBusNum || bus2Num == xNodeBusNum) {
+                LOGGER.warn("Skipping tie line '{}' connected to the same bus at both sides", id);
                 return;
             }
 
@@ -941,6 +943,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         } else {
 
             if (bus1Num == bus2Num) {
+                LOGGER.warn("Skipping tie line '{}' connected to the same bus at both sides", id);
                 return;
             }
 
@@ -999,6 +1002,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double patl = getPermanentLimit(dl.getCurrentLimits().orElse(null));
 
         if (busNum == middleBusNum) {
+            LOGGER.warn("Skipping dangling line '{}' connected to the same bus at both sides", id);
             return;
         }
 
@@ -1076,6 +1080,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         int ptcNum = ptc != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, twt.getId()) : -1;
 
         if (bus1Num == bus2Num) {
+            LOGGER.warn("Skipping two-winding transformer '{}' connected to the same bus at both sides", id);
             return;
         }
 
@@ -1138,6 +1143,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         int ptc1Num = ptc1 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id) : -1;
 
         if (legBusNum == middleBusNum) {
+            LOGGER.warn("Skipping three-winding transformer '{}' connected to the same bus at both sides", id);
             return;
         }
 
