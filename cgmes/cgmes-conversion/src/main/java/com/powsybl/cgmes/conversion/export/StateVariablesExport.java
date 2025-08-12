@@ -257,7 +257,7 @@ public final class StateVariablesExport {
             // Instead of checking switch flows, we check that the corresponding bus view bus is balanced
             Optional<Bus> optionalBusViewBus = BusTools.getBusViewBus(bus);
             if (optionalBusViewBus.isEmpty()) {
-                LOG.error("Can not check if bus is in accordance with Kirchhoff's first law. No BusView bus can be found for: {}", bus);
+                LOG.error("Cannot check if bus is in accordance with Kirchhoff's first law. No BusView bus can be found for: {}", bus);
                 return false;
             }
             Bus busViewBus = optionalBusViewBus.get();

@@ -84,12 +84,12 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
 
         @Override
         public List<PsseCaseIdentification> read(LegacyTextReader reader, Context context) throws IOException {
-            throw new PsseException("Case Identification can not be read as a record group, it was be read as head record");
+            throw new PsseException("Case Identification cannot be read as a record group, it was be read as head record");
         }
 
         @Override
         public void write(List<PsseCaseIdentification> psseObjects, Context context, OutputStream outputStream) {
-            throw new PsseException("Case Identification can not be written as a record group, it was be written as head record");
+            throw new PsseException("Case Identification cannot be written as a record group, it was be written as head record");
         }
     }
 

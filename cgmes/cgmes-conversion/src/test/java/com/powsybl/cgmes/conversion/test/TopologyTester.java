@@ -35,7 +35,7 @@ class TopologyTester {
     // When we create the voltage-level connectivity at node-breaker level we will
     // be able to
     // set the retained flag for each switch and this problem will be avoided
-    // For connectivity created at bus-breaker level we can not set the "retained"
+    // For connectivity created at bus-breaker level we cannot set the "retained"
     // flag
     boolean test(boolean strict) {
         // Only makes sense if the network has been obtained

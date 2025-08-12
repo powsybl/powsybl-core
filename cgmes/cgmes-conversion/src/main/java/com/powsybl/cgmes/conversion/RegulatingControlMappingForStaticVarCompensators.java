@@ -92,7 +92,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
     private boolean setRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, RegulatingControl control, StaticVarCompensator svc) {
         // Always save the original RC id,
-        // even if we can not complete setting all the regulation data
+        // even if we cannot complete setting all the regulation data
         svc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, rc.regulatingControlId);
 
         // Take default terminal if it has not been defined in CGMES files (it is never null)

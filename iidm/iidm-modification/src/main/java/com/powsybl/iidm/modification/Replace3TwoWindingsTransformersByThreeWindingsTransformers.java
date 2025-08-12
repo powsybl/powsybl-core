@@ -56,7 +56,7 @@ import static com.powsybl.iidm.modification.util.TransformerUtils.*;
  *     <li>Extensions:
  *         <ul>
  *             <li>Only IIDM extensions are copied: TransformerFortescueData, PhaseAngleClock, and TransformerToBeEstimated.</li>
- *             <li>CGMES extensions can not be copied, as they cause circular dependencies.</li>
+ *             <li>CGMES extensions cannot be copied, as they cause circular dependencies.</li>
  *             <li>Extensions that are not copied are recorded in the functional log.</li>
  *         </ul>
  *     </li>

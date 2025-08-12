@@ -163,7 +163,7 @@ public abstract class AbstractConverter {
         return "T-" + busI + "-" + busJ + "-" + busK + "-" + ckt;
     }
 
-    // we can not use rectifierIp and inverterIp as it is managed with only one end in substationData
+    // we cannot use rectifierIp and inverterIp as it is managed with only one end in substationData
     // In Psse each two-terminal dc line must have a unique name (up to 12 characters)
     static String getTwoTerminalDcId(String name) {
         return TWO_TERMINAL_DC_TAG + name;

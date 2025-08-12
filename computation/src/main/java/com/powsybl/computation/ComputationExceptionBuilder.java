@@ -127,7 +127,7 @@ public class ComputationExceptionBuilder {
             byte[] bytes = Files.readAllBytes(path);
             bytesByFileName.put(path.getFileName().toString(), bytes);
         } catch (IOException e) {
-            LOGGER.warn("Can not read zip file '{}'", path);
+            LOGGER.warn("Cannot read zip file '{}'", path);
         }
         return this;
     }
@@ -155,7 +155,7 @@ public class ComputationExceptionBuilder {
             byte[] bytes = Files.readAllBytes(path);
             map.put(path.getFileName().toString(), new String(bytes, StandardCharsets.UTF_8));
         } catch (IOException e) {
-            LOGGER.warn("Can not read log file '{}'", path);
+            LOGGER.warn("Cannot read log file '{}'", path);
         }
         return this;
     }

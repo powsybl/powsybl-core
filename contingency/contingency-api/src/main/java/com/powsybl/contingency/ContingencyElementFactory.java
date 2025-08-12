@@ -47,6 +47,6 @@ public final class ContingencyElementFactory {
             .filter(entry -> entry.getKey().isInstance(identifiable))
             .findFirst()
             .map(entry -> entry.getValue().apply(identifiable))
-            .orElseThrow(() -> new PowsyblException(identifiable.getId() + " can not be a ContingencyElement"));
+            .orElseThrow(() -> new PowsyblException(identifiable.getId() + " cannot be a ContingencyElement"));
     }
 }

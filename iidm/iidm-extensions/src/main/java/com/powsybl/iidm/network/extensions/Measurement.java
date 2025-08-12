@@ -65,7 +65,7 @@ public interface Measurement {
 
     /**
      * Set measurement value.
-     * Can not be NaN if the measurement is valid.
+     * Cannot be NaN if the measurement is valid.
      */
     Measurement setValue(double value);
 
@@ -86,13 +86,13 @@ public interface Measurement {
 
     /**
      * Get validity status of the measurement.
-     * If it is true (i.e. the measurement is valid), the measured value can not be NaN.
+     * If it is true (i.e. the measurement is valid), the measured value cannot be NaN.
      */
     boolean isValid();
 
     /**
      * Set validity status of the measurement.
-     * If it is true (i.e. the measurement is valid), the measured value can not be NaN.
+     * If it is true (i.e. the measurement is valid), the measured value cannot be NaN.
      */
     Measurement setValid(boolean valid);
 
