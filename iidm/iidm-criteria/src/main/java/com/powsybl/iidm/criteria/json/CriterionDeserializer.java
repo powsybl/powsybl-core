@@ -92,7 +92,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
             }
         }
         if (type == null) {
-            throw new IllegalArgumentException("type of criterion can not be null");
+            throw new IllegalArgumentException("type of criterion cannot be null");
         }
         return switch (type) {
             case PROPERTY -> new PropertyCriterion(propertyKey, propertyValues, equipmentToCheck, sideToCheck);
