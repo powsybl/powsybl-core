@@ -185,6 +185,8 @@ It takes as input:
   - BREAKER means that a BREAKER switch surrounded by two DISCONNECTOR switches will be created
 - A boolean indicating if the new switches created left to the newly created busbar section(s) are fictitious
 - A boolean indicating if the new switches created right to the newly created busbar section(s) are fictitious
+- A boolean indicating if the new switches created left to the newly created busbar section(s) will be open
+- A boolean indicating if the new switches created right to the newly created busbar section(s) will be open
 - The switch prefix ID, used as a prefix for the IDs of the newly created switches.
 - The busbar section prefix ID, used as a prefix for the IDs of the newly created busbar sections. This prefix
   is followed by the busbar index and the section index, if the default naming strategy is used.
