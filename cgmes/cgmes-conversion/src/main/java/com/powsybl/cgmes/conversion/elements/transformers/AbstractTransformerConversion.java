@@ -210,7 +210,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
             boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
             // We always keep the targetValue
-            // It targetValue is not valid, emit a warning and deactivate regulating control
+            // If targetValue is not valid, emit a warning and deactivate regulating control
             boolean validTargetV = isValidTargetV(targetV);
             if (!validTargetV) {
                 context.invalid(ratioTapChangerId, "Regulating control has a bad target voltage " + targetV);
