@@ -9,6 +9,7 @@
 package com.powsybl.iidm.network.components;
 
 import com.powsybl.iidm.network.Component;
+import com.powsybl.iidm.network.DcBus;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
@@ -16,7 +17,11 @@ import com.powsybl.iidm.network.Component;
 public abstract class AbstractSynchronousComponentsManager<C extends Component> extends AbstractComponentsManager<C> {
 
     protected AbstractSynchronousComponentsManager() {
-        super("Synchronous");
+        super("Synchronous", true, false);
     }
 
+    @Override
+    protected void setComponentNumber(DcBus dcBus, int num) {
+        throw new IllegalStateException("SynchronousComponentsManager should not compute DC buses component number");
+    }
 }
