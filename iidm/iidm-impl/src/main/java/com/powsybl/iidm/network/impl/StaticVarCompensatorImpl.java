@@ -16,9 +16,9 @@ import gnu.trove.list.array.TDoubleArrayList;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator> implements StaticVarCompensator {
+public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator> implements StaticVarCompensator {
 
-    static final String TYPE_DESCRIPTION = "staticVarCompensator";
+    static final String TYPE_DESCRIPTION = "Static var compensator";
 
     private double bMin;
 
