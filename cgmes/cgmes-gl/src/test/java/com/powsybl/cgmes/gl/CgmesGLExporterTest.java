@@ -117,7 +117,7 @@ class CgmesGLExporterTest {
         ArgumentCaptor<String> typeCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<PropertyBag> propertiesCaptor = ArgumentCaptor.forClass(PropertyBag.class);
 
-        new CgmesGLExporter(network, tripleStore).exportData(dataSource);
+        new CgmesGLExporter(network, CgmesNamespace.CIM_16, tripleStore).exportData(dataSource);
 
         // check add namespace
         Mockito.verify(tripleStore, Mockito.times(3)).addNamespace(prefixCaptor.capture(), namespaceCaptor.capture());
