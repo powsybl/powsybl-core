@@ -812,7 +812,7 @@ public final class EquipmentExport {
             String cgmesTapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
 
             int neutralStep = getPhaseTapChangerNeutralStep(ptc);
-            int normalStep = getTapChangerNormalStep(eq, tapChangerId).orElseThrow();
+            int normalStep = getTapChangerNormalStep(eq, tapChangerId).orElse(neutralStep);
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
             if (regulatingControlId.isPresent() && CgmesExportUtil.regulatingControlIsDefined(ptc)) {
@@ -880,7 +880,7 @@ public final class EquipmentExport {
             String cgmesTapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
 
             int neutralStep = getRatioTapChangerNeutralStep(rtc);
-            int normalStep = getTapChangerNormalStep(eq, tapChangerId).orElseThrow();
+            int normalStep = getTapChangerNormalStep(eq, tapChangerId).orElse(neutralStep);
             double stepVoltageIncrement;
             if (rtc.getHighTapPosition() == rtc.getLowTapPosition()) {
                 stepVoltageIncrement = 100;

@@ -184,16 +184,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                 .map(terminal -> getBusBreakerSvVoltage(terminal, context))
                 .flatMap(Optional::stream)
                 .findFirst()
-                .ifPresent(svVoltage -> {
-                    double v = svVoltage.asDouble(CgmesNames.VOLTAGE);
-                    double angle = svVoltage.asDouble(CgmesNames.ANGLE);
-                    if (valid(v, angle)) {
-                        bus.setV(v).setAngle(angle);
-                    } else {
-                        String topologicalNode = svVoltage.getId(CgmesNames.TOPOLOGICAL_NODE);
-                        invalidAngleVoltageReport(context.getReportNode(), bus, topologicalNode, v, angle);
-                    }
-                });
+                .ifPresent(svVoltage -> updateVoltageMagnitudeAndAngle(svVoltage, bus, context));
     }
 
     private static Optional<PropertyBag> getBusBreakerSvVoltage(Terminal terminal, Context context) {
@@ -206,16 +197,18 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                 .map(terminal -> getNodeBreakerSvVoltage(terminal, context))
                 .flatMap(Optional::stream)
                 .findFirst()
-                .ifPresent(svVoltage -> {
-                    double v = svVoltage.asDouble(CgmesNames.VOLTAGE);
-                    double angle = svVoltage.asDouble(CgmesNames.ANGLE);
-                    if (valid(v, angle)) {
-                        bus.setV(v).setAngle(angle);
-                    } else {
-                        String topologicalNode = svVoltage.getId(CgmesNames.TOPOLOGICAL_NODE);
-                        invalidAngleVoltageReport(context.getReportNode(), bus, topologicalNode, v, angle);
-                    }
-                });
+                .ifPresent(svVoltage -> updateVoltageMagnitudeAndAngle(svVoltage, bus, context));
+    }
+
+    private static void updateVoltageMagnitudeAndAngle(PropertyBag svVoltage, Bus bus, Context context) {
+        double v = svVoltage.asDouble(CgmesNames.VOLTAGE);
+        double angle = svVoltage.asDouble(CgmesNames.ANGLE);
+        if (valid(v, angle)) {
+            bus.setV(v).setAngle(angle);
+        } else {
+            String topologicalNode = svVoltage.getId(CgmesNames.TOPOLOGICAL_NODE);
+            invalidAngleVoltageReport(context.getReportNode(), bus, topologicalNode, v, angle);
+        }
     }
 
     private static Optional<PropertyBag> getNodeBreakerSvVoltage(Terminal terminal, Context context) {

@@ -21,6 +21,9 @@ import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClo
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.util.Collection;
+import java.util.stream.Stream;
+
 /**
  * ThreeWindingsTransformer Cgmes Conversion
  * <p>
