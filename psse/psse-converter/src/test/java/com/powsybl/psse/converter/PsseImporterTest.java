@@ -223,6 +223,11 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void importSubstationWithThreeBusesAtTheSameNominalVoltageInTwoDifferentAreas() throws IOException {
+        importTest("SubstationWithThreeBusesAtTheSameNominalVoltageInTwoDifferentAreas", "SubstationWithThreeBusesAtTheSameNominalVoltageInTwoDifferentAreas.raw", false);
+    }
+
+    @Test
     void importTest14BusesDuplicateIds() throws IOException {
         Network n = importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
         assertNotNull(n.getLoad("B2-L1 "));

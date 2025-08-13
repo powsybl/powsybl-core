@@ -560,12 +560,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     private static void updateTerminal(PropertyBag cgmesTerminal, Terminal terminal, Context context) {
         if (updateConnect(terminal, context)) {
             boolean connectedInUpdate = cgmesTerminal.asBoolean("connected", true);
-            if (terminal.isConnected() != connectedInUpdate) {
-                if (connectedInUpdate) {
-                    terminal.connect();
-                } else {
-                    terminal.disconnect();
-                }
+            if (!terminal.isConnected() && connectedInUpdate) {
+                terminal.connect();
+            } else if (terminal.isConnected() && !connectedInUpdate) {
+                terminal.disconnect();
             }
         }
         if (setPQAllowed(terminal)) {
