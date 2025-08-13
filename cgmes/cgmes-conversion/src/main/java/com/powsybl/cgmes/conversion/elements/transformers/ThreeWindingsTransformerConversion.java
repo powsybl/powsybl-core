@@ -227,8 +227,9 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         boolean isAllowedToRegulateRtc3 = checkOnlyOneEnabled(isAllowedToRegulatePtc3, t3w.getLeg3().getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
         t3w.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, ThreeSides.THREE, context, isAllowedToRegulateRtc3));
 
-        t3w.getLeg1().getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
-        t3w.getLeg2().getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
-        t3w.getLeg3().getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
+        Stream.of(t3w.getLeg1(), t3w.getLeg2(), t3w.getLeg3())
+                .map(FlowsLimitsHolder::getOperationalLimitsGroups)
+                .flatMap(Collection::stream)
+                .forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
     }
 }
