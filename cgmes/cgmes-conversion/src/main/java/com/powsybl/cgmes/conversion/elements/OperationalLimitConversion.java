@@ -268,7 +268,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         }
     }
 
-    // Cgmes 2.6 value is defined in EQ file
+    // Cgmes 2.4.15 value is defined in EQ file
     // Cgmes 3.0 normalValue is defined in EQ file and value in SSH
     private static double getNormalValueFromEQ(PropertyBag p) {
         return p.asOptionalDouble("normalValue").orElse(p.asOptionalDouble("value").orElse(Double.NaN));
