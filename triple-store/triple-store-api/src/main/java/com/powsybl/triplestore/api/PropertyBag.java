@@ -100,6 +100,14 @@ public class PropertyBag extends HashMap<String, String> {
         }
     }
 
+    public double asPositiveDouble(String property) {
+        double value = asDouble(property);
+        if (Double.isNaN(value) || value < 0.0) {
+            value = 0.0;
+        }
+        return value;
+    }
+
     public Optional<Boolean> asBoolean(String property) {
         if (!containsKey(property)) {
             return Optional.empty();

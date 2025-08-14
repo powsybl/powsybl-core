@@ -164,6 +164,8 @@ public interface CgmesModel {
 
     PropertyBags dcTerminals();
 
+    PropertyBags dcNodes();
+
     default PropertyBags tieFlows() {
         return new PropertyBags();
     }

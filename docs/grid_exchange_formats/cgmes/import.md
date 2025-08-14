@@ -448,19 +448,21 @@ The control area CGMES `type` is copied as a string in the `areaType` attribute 
 The CGMES control area tie flows (objects of class `TieFlow`) are mapped to PowSyBl `Area` boundary items. 
 Boundary items can be terminals (if the corresponding CGMES point can be mapped to a PowSyBl `Terminal`) or boundaries, when the corresponding CGMES point is the boundary side of a dangling line in PowSyBl.
 
-(cgmes-dc-subnetwork-import)=
-### DC subnetwork
+(cgmes-reduced-dc-model-import)=
+### Reduced DC model
 
-PowSyBl currently supports the following DC configurations for CGMES import:
+The reduced DC model allows the support of the following simple DC configurations:
 - Monopole with ground return.
 - Monopole with metallic return.
 - Bipole with dedicated metallic return (DMR).
 - Bipole without DMR.
 
-In the above point-to-point configurations, each converter in a CGMES `DCConverterUnit` can be modeled with 
+In the above point-to-point configurations, each `DCConverterUnit` can contain 
 1 CGMES `ACDCConverter` (1* 12-pulse bridge) or 2 CGMES `ACDCConverter` (2* 6-pulses bridges).
-Other configurations, such as back-to-back or multi-terminal aren't supported.
-Hybrid configurations using `VsConverter` on one side and `CsConverter` on the other side aren't supported either.
+
+Other configurations such as back-to-back, multi-terminal or hybrid aren't supported with the reduced DC model.
+In one of these complex DC configurations is to be imported, it is required to set the optional parameter 
+`iidm.import.cgmes.use-detailed-dc-model` to `true`.
 
 Each valid DC configuration is mapped to PowSyBl as follows:
 - 1 CGMES `ACDCConverter` is always mapped to 1 PowSyBl `HvdcConverterStation`:
@@ -538,6 +540,62 @@ It is sufficient for one of the converter to define a `targetPpcc` to be able to
 The PowSyBl `LccConverterStation` `PowerFactor` is calculated from the CGMES SSH `ACDCConverter.p` and `ACDCConverter.q` values:
   - $PowerFactor = \frac{p}{\sqrt{p² + q²}}$
   - In case the calculations can't be evaluated, for example in the case of an EQ only import, the default value is `0.8`.
+
+
+(cgmes-detailed-dc-model-import)=
+### Detailed DC model
+
+In order to import CGMES DC objects into the IIDM detailed DC model, it is required to set the optional parameter
+`iidm.import.cgmes.use-detailed-dc-model` to `true`.
+
+The following CGMES classes are read and imported: `DCNode`, `DCTopologicalNode`, `DCLineSegment`, `DCSwitch`, `DCBreaker`, `DCDisconnector`,
+`DCGround`, `CsConverter`, `VsConverter`.
+
+#### DCNode, DCTopologicalNode
+
+If the CGMES model is a node/breaker one, then CGMES `DCNode` are imported into PowSyBl [`DC Node`](../../grid_model/network_subnetwork.md#dc-node),
+and CGMES `DCTopologicalNode` are discarded. If the CGMES model is a bus/branch one, then CGMES `DCTopologicalNode` are imported into PowSyBl `DcNode`.
+Attribute mapping is:
+- `NominalV` is copied from EQ `ratedUdc` of a CGMES `ACDCConverter` which is located in the same `DCConverterUnit` as the `DCNode`.
+
+#### DCLineSegment
+
+CGMES `DCLineSegment` are imported into PowSyBl [`DC Line`](../../grid_model/network_subnetwork.md#dc-line), with attribute:
+- `R` is copied from EQ `resistance`.
+
+#### DCSwitch, DCBreaker, DCDisconnector
+
+All CGMES `DCSwitch` are imported into PowSyBl [`DC Switch`](../../grid_model/network_subnetwork.md#dc-switch), with attributes described as follow:
+- `Kind` is defined depending on the CGMES class: it is `BREAKER` for CGMES `DCBreaker`, and it is `DISCONNECTOR` for CGMES `DCSwitch` and `DCDisconnector`.
+- `Open` is defined depending on the associated CGMES `DCTerminal`: if both have SSH `connected` set to `true`, then it is `false`, otherwise it is `true`.
+
+#### DCGround
+
+CGMES `DCGround` are imported into PowSyBl [`DC Ground`](../../grid_model/network_subnetwork.md#dc-ground), with attribute:
+- `R` is copied from EQ `r`.
+
+#### ACDCConverter (CsConverter, VsConverter)
+
+CGMES `CsConverter` are imported into PowSyBl [`Line Commutated Converter`](../../grid_model/network_subnetwork.md#line-commutated-converter),
+and `VsConverter` into [`Voltage Source Converter`](../../grid_model/network_subnetwork.md#voltage-source-converter).
+Common [`AC/DC Converter`](../../grid_model/network_subnetwork.md#acdc-converter) attributes are mapped as follows:
+- `IdleLoss` is copied from EQ `idleLoss`.
+- `SwitchingLiss` is copied from EQ `switchingLoss`.
+- `ResistiveLoss` is copied from EQ `resistiveLoss`.
+- `PccTerminal` is copied from EQ `PccTerminal`.
+- `ControlMode` is `P_PCC` if SSH `pPccControl` is `activePower` (CSC) or `pPcc` (VSC), else it is `V_DC` if `pPccControl` is `dcVoltage` (CSC) or `udc` (VSC).
+- `TargetP` is copied from SSH `targetPpcc`.
+- `TargetVdc` is copied from SSH `targetUdc`.
+
+Specific `CsConverter` attributes are mapped as follows:
+- `ReactiveModel` is always set to `FIXED_POWER_FACTOR`.
+- `PowerFactor` is calculated from SSH `p` and `q` as $\arctan({\frac{p}{\sqrt{p^2 + q^2}}})$. 
+If p and q are equal to 0, the power factor is calculated with $Q = 0.5P$, which gives the value 0.89443.
+
+Specific `VsConverter` attributes are mapped as follows:
+- `VoltageRegulatorOn` is set to `true` if SSH `qPccControl` is set to `voltagePcc`, else it is `false`.
+- `VoltageSetpoint` is copied from SSH `targetUpcc`.
+- `ReactivePowerSetpoint` is copied from SSH `targetQpcc`.
 
 ## Extensions
 
@@ -648,6 +706,9 @@ Optional property that defines if the whole CGMES model is stored in the importe
 
 **iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension**  
 Optional property that defines if the CGMES conversion context is stored as an extension of the IIDM output network. It is useful for external validation of the mapping made between CGMES and IIDM. Its default value is `false`.
+
+**iidm.import.cgmes.use-detailed-dc-model**
+Optional property that defines which IIDM DC model should be populated at import. Set to `true` to import DC objects into the detailed DC model, `false` to import into the reduced DC model. The default value is `false`.
 
 **iidm.import.cgmes.import-node-breaker-as-bus-breaker**  
 Optional property that forces CGMES model to be in topology bus/breaker in IIDM. This is a key feature when some models do not have all the breakers to connect and disconnect equipments in IIDM. In bus/breaker topology, connect and disconnect equipment only rely on terminal statuses and not on breakers. Its default value is `false`.
