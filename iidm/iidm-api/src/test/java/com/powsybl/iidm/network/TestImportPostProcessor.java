@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.concurrent.Executor;
+
 import com.powsybl.computation.ComputationManager;
 
 /**
@@ -21,6 +23,15 @@ public class TestImportPostProcessor implements ImportPostProcessor {
 
     @Override
     public void process(Network network, ComputationManager computationManager) {
+        Executor executor = computationManager.getExecutor();
+        if (executor != null) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    // Simulate some processing
+                }
+            });
+        }
         network.getLoad("LOAD").setLoadType(LoadType.FICTITIOUS);
     }
 }

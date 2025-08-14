@@ -54,7 +54,11 @@ public class TestImporter implements Importer {
                     .withUntypedValue("model", "eurostagTutorialExample1")
                     .add();
         }
-        return networkFactory.createNetwork("mock", "test");
+        Network network = networkFactory.createNetwork("mock", "test");
+        if (parameters != null) {
+            parameters.forEach((key, value) -> network.setProperty((String) key, (String) value));
+        }
+        return network;
     }
 
     @Override
