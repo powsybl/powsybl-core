@@ -127,13 +127,12 @@ public final class CgmesReports {
                 .add();
     }
 
-    public static void invalidAngleVoltageReport(ReportNode reportNode, Bus bus, String topologicalNode, double v, double angle) {
+    public static void invalidAngleVoltageReport(ReportNode reportNode, Bus bus, double v, double angle) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.invalidAngleVoltageBus")
                 .withUntypedValue("substation", bus.getVoltageLevel().getSubstation().map(Substation::getNameOrId).orElse("unknown"))
                 .withUntypedValue("voltageLevel", bus.getVoltageLevel().getNameOrId())
                 .withUntypedValue("bus", bus.getId())
-                .withUntypedValue("topologicalNode", topologicalNode)
                 .withTypedValue("voltage", v, TypedValue.VOLTAGE)
                 .withTypedValue("angle", angle, TypedValue.ANGLE)
                 .withSeverity(TypedValue.WARN_SEVERITY)

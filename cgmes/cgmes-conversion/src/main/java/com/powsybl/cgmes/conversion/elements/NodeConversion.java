@@ -206,8 +206,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         if (valid(v, angle)) {
             bus.setV(v).setAngle(angle);
         } else {
-            String topologicalNode = svVoltage.getId(CgmesNames.TOPOLOGICAL_NODE);
-            invalidAngleVoltageReport(context.getReportNode(), bus, topologicalNode, v, angle);
+            invalidAngleVoltageReport(context.getReportNode(), bus, v, angle);
         }
     }
 
