@@ -242,6 +242,9 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         return Optional.empty();
     }
 
+    // Regulation values (targetValue and targetDeadband) must be valid before the regulation is turned on,
+    // and the regulation must be turned off before assigning potentially invalid regulation values,
+    // to ensure consistency with the applied checks
     private static void setRegulation(RatioTapChanger rtc, double targetV, double targetDeadband, boolean regulatingOn) {
         if (regulatingOn) {
             rtc.setTargetV(targetV)
@@ -300,6 +303,9 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         }
     }
 
+    // Regulation values (targetValue and targetDeadband) must be valid before the regulation is turned on,
+    // and the regulation must be turned off before assigning potentially invalid regulation values,
+    // to ensure consistency with the applied checks
     private static void setRegulation(PhaseTapChanger ptc, double targetValue, double targetDeadband, boolean regulatingOn) {
         if (regulatingOn) {
             ptc.setRegulationValue(targetValue)
