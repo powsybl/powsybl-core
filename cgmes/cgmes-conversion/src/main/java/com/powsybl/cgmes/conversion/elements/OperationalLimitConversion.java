@@ -450,22 +450,16 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private static void updateLoadingLimits(String limitSubclass, LoadingLimits loadingLimits, OperationalLimitsGroup operationalLimitsGroup, Context context) {
-        loadingLimits.setPermanentLimit(getValue(limitSubclass, operationalLimitsGroup, loadingLimits.getPermanentLimit(), context));
+        loadingLimits.setPermanentLimit(getValue(limitSubclass, true, 0, operationalLimitsGroup, loadingLimits.getPermanentLimit(), context));
         loadingLimits.getTemporaryLimits().forEach(temporaryLimit -> {
             int duration = temporaryLimit.getAcceptableDuration();
-            loadingLimits.setTemporaryLimitValue(duration, getValue(limitSubclass, duration, operationalLimitsGroup, temporaryLimit.getValue(), context));
+            loadingLimits.setTemporaryLimitValue(duration, getValue(limitSubclass, false, duration, operationalLimitsGroup, temporaryLimit.getValue(), context));
         });
     }
 
-    private static double getValue(String limitSubclass, OperationalLimitsGroup operationalLimitsGroup, double previousValue, Context context) {
-        String operationalLimitId = getOperationalLimitId(getPropertyName(limitSubclass, true, 0, CgmesNames.OPERATIONAL_LIMIT), operationalLimitsGroup);
-        double defaultLimitValue = getDefaultValue(getNormalValue(getPropertyName(limitSubclass, true, 0, CgmesNames.NORMAL_VALUE), operationalLimitsGroup), previousValue, context);
-        return updatedValue(operationalLimitId, context).orElse(defaultLimitValue);
-    }
-
-    private static double getValue(String limitSubclass, int duration, OperationalLimitsGroup operationalLimitsGroup, double previousValue, Context context) {
-        String operationalLimitId = getOperationalLimitId(getPropertyName(limitSubclass, false, duration, CgmesNames.OPERATIONAL_LIMIT), operationalLimitsGroup);
-        double defaultLimitValue = getDefaultValue(getNormalValue(getPropertyName(limitSubclass, false, duration, CgmesNames.NORMAL_VALUE), operationalLimitsGroup), previousValue, context);
+    private static double getValue(String limitSubclass, boolean isInfiniteDuration, int duration, OperationalLimitsGroup operationalLimitsGroup, double previousValue, Context context) {
+        String operationalLimitId = getOperationalLimitId(getPropertyName(limitSubclass, isInfiniteDuration, duration, CgmesNames.OPERATIONAL_LIMIT), operationalLimitsGroup);
+        double defaultLimitValue = getDefaultValue(getNormalValue(getPropertyName(limitSubclass, isInfiniteDuration, duration, CgmesNames.NORMAL_VALUE), operationalLimitsGroup), previousValue, context);
         return updatedValue(operationalLimitId, context).orElse(defaultLimitValue);
     }
 
