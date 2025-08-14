@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import java.time.ZonedDateTime;
@@ -65,6 +66,18 @@ class TieLineTest {
         assertTrue(compare(getP(caseSv0.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getP(), isvHalf2.getP()));
         assertTrue(compare(getQ(caseSv0.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getQ(), isvHalf2.getQ()));
         assertTrue(compare(getI(caseSv0.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getI(), isvHalf2.getI()));
+
+        double tolerance = 1.0e-4;
+
+        // Not possible to update the TieLine resistance and reactance
+        assertEquals(0.0569, tieLine.getR(), tolerance);
+        assertEquals(0.1769, tieLine.getX(), tolerance);
+        PowsyblException exceptionX = assertThrows(PowsyblException.class, () -> tieLine.setX(1.0));
+        assertEquals("Cannot update TieLine reactance", exceptionX.getMessage());
+        PowsyblException exceptionR = assertThrows(PowsyblException.class, () -> tieLine.setR(1.0));
+        assertEquals("Cannot update TieLine resistance", exceptionR.getMessage());
+        assertEquals(0.0569, tieLine.getR(), tolerance);
+        assertEquals(0.1769, tieLine.getX(), tolerance);
     }
 
     @Test
