@@ -8,6 +8,7 @@
 package com.powsybl.ampl.converter;
 
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
@@ -15,6 +16,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,6 +32,168 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
     public void setUp() throws IOException {
         super.setUp();
         properties.put("iidm.export.ampl.export-version", "1.0");
+    }
+
+    protected static void createBus(VoltageLevel voltageLevel, String id) {
+        voltageLevel.getBusBreakerView()
+                .newBus()
+                .setName(id)
+                .setId(id)
+                .add();
+    }
+
+    private static ThreeWindingsTransformer createThreeWindingsTransformerOnSameBus(Substation substation) {
+        return substation.newThreeWindingsTransformer()
+                .setId("TransfoID")
+                .setName("twt3_name")
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setVoltageLevel("S1VL2")
+                .setConnectableBus("S1VL2-BUS")
+                .setBus("S1VL2-BUS")
+                .add()
+                .newLeg2()
+                .setR(2.03)
+                .setX(2.04)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(2.05)
+                .setVoltageLevel("S1VL2")
+                .setBus("S1VL2-BUS")
+                .setConnectableBus("S1VL2-BUS")
+                .add()
+                .newLeg3()
+                .setR(3.3)
+                .setX(3.4)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(3.5)
+                .setVoltageLevel("S1VL3")
+                .setBus("S1VL3-BUS")
+                .setConnectableBus("S1VL3-BUS")
+                .add()
+                .add();
+    }
+
+    protected static Network createTransfoSameBus() {
+        Network network = Network.create("TransfoSameBus", "test");
+
+        Substation s1 = network.newSubstation()
+                .setId("S1")
+                .add();
+        VoltageLevel s1vl1 = s1.newVoltageLevel()
+                .setId("S1VL1")
+                .setNominalV(1.0)
+                .setLowVoltageLimit(0.95)
+                .setHighVoltageLimit(1.05)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        VoltageLevel s1vl2 = s1.newVoltageLevel()
+                .setId("S1VL2")
+                .setNominalV(1.0)
+                .setLowVoltageLimit(0.95)
+                .setHighVoltageLimit(1.05)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        VoltageLevel s1vl3 = s1.newVoltageLevel()
+                .setId("S1VL3")
+                .setNominalV(1.0)
+                .setLowVoltageLimit(0.95)
+                .setHighVoltageLimit(1.05)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        createBus(s1vl1, "S1VL1-BUS");
+        createBus(s1vl2, "S1VL2-BUS");
+        createBus(s1vl3, "S1VL3-BUS");
+
+        Substation s2 = network.newSubstation()
+                .setId("S2")
+                .add();
+
+        VoltageLevel s2vl1 = s2.newVoltageLevel()
+                .setId("S2VL1")
+                .setNominalV(1.0)
+                .setLowVoltageLimit(0.95)
+                .setHighVoltageLimit(1.05)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        createBus(s2vl1, "S2VL1-BUS");
+
+        ThreeWindingsTransformer twt3 = createThreeWindingsTransformerOnSameBus(s1);
+
+        return network;
+    }
+
+    protected static Network createDanglingLineOnSameBus() {
+        Network network = Network.create("NetworkTieLineOnSameBus", "test");
+
+        Substation s1 = network.newSubstation()
+                .setId("S1")
+                .add();
+        VoltageLevel s1vl1 = s1.newVoltageLevel()
+                .setId("S1VL1")
+                .setNominalV(1.0)
+                .setLowVoltageLimit(0.95)
+                .setHighVoltageLimit(1.05)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        createBus(s1vl1, "S1VL1-BUS");
+
+        Substation s2 = network.newSubstation()
+                .setId("S2")
+                .add();
+        VoltageLevel s2vl1 = s2.newVoltageLevel()
+                .setId("S2VL1")
+                .setNominalV(1.0)
+                .setLowVoltageLimit(0.95)
+                .setHighVoltageLimit(1.05)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        createBus(s2vl1, "S2VL1-BUS");
+
+        DanglingLine dl1 = s1vl1.newDanglingLine()
+                .setBus("S1VL1-BUS")
+                .setPairingKey("S1VL1-BUS")
+                .setId(TwoSides.TWO.name())
+                .setName(TwoSides.TWO.name())
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(0.019)
+                .setX(0.059)
+                .setG(0.05)
+                .setB(0.14)
+                .add();
+        DanglingLine dl2 = s2vl1.newDanglingLine()
+                .setBus("S2VL1-BUS")
+                .setId(TwoSides.ONE.name())
+                .setName(TwoSides.ONE.name())
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(0.038)
+                .setX(0.118)
+                .setG(0.04)
+                .setB(0.13)
+                .setPairingKey("S1VL1-BUS")
+                .add();
+
+        TieLine tieLine = network.newTieLine()
+                .setId("TieLineID")
+                .setName("TieLineName")
+                .setDanglingLine1(dl1.getId())
+                .setDanglingLine2(dl2.getId())
+                .add();
+
+        return network;
     }
 
     @Test
@@ -232,6 +397,13 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
         exporter.export(network, properties, dataSource);
     }
 
+    private void exportAll(Network network, Properties properties, DataSource dataSource) {
+
+        AmplExportConfig config = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE);
+        AmplExporter exporter = new AmplExporter();
+        exporter.export(network, config, dataSource);
+    }
+
     @Test
     void writeHeaders() throws IOException {
         Network network = Network.create("dummy_network", "test");
@@ -296,5 +468,27 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
         export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "_network_branches", "inputs/zero-impedance-line-with-different-nominal-voltage-at-ends-test-case.txt");
+    }
+
+    @Test
+    void testTieLineSameElectricalBus() throws IOException {
+        // Here we want to create test tieline with pairingkey = bus1 o bus2 in order to reproduce the issue
+        Network network = createDanglingLineOnSameBus();
+        //MemDataSource dataSource = new MemDataSource();
+        //export(network, properties, dataSource);
+        Path myTmpDir = Files.createTempDirectory("temp-TIELINE_SameBus");
+        exportAll(network, properties, new DirectoryDataSource(myTmpDir, "tieline_samebus"));
+        assertTrue(true);
+    }
+
+    @Test
+    void testTranfoSameElectricalBus() throws IOException {
+        // Here we want to create test transfo with middleBus == bus1 in order to reproduce the issue
+        Network network = createTransfoSameBus();
+        //MemDataSource dataSource = new MemDataSource();
+        //export(network, properties, dataSource);
+        Path myTmpDir = Files.createTempDirectory("temp-TRANSFO_SameBusFIX");
+        exportAll(network, properties, new DirectoryDataSource(myTmpDir, "transfo_sameline"));
+        assertTrue(true);
     }
 }
