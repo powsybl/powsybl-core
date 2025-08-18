@@ -1870,16 +1870,16 @@ public interface Network extends Container<Network> {
             this.file = file;
         }
 
-        public Reader(String fileString) {
+        Reader(String fileString) {
             this.file = Paths.get(fileString);
         }
 
-        public Reader(String filename, InputStream is) {
+        Reader(String filename, InputStream is) {
             this.inputStreamFilename = filename;
             this.inputStream = is;
         }
 
-        public Reader(ReadOnlyDataSource dataSource) {
+        Reader(ReadOnlyDataSource dataSource) {
             this.dataSource = dataSource;
         }
 

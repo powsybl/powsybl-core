@@ -25,11 +25,8 @@ public class TestImportPostProcessor implements ImportPostProcessor {
     public void process(Network network, ComputationManager computationManager) {
         Executor executor = computationManager.getExecutor();
         if (executor != null) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    // Simulate some processing
-                }
+            executor.execute(() -> {
+                // Simulate some processing
             });
         }
         network.getLoad("LOAD").setLoadType(LoadType.FICTITIOUS);
