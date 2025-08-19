@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.Substation;
  */
 public final class CgmesReports {
 
+    private static final String EQUIPMENT_ID = "equipmentId";
     private static final String CONVERTER_IDS = "converterIds";
 
     private CgmesReports() {
@@ -48,6 +49,14 @@ public final class CgmesReports {
     public static ReportNode convertingElementTypeReport(ReportNode reportNode, String elementType) {
         return reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.convertingElementType")
+                .withUntypedValue("elementType", elementType)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode updatingElementTypeReport(ReportNode reportNode, String elementType) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.update.updatingElementType")
                 .withUntypedValue("elementType", elementType)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -86,8 +95,17 @@ public final class CgmesReports {
     public static void badVoltageTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.badVoltageTargetValueRegulatingControl")
-                .withUntypedValue("equipmentId", eqId)
+                .withUntypedValue(EQUIPMENT_ID, eqId)
                 .withTypedValue("targetValue", targetValue, TypedValue.VOLTAGE)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void badTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.badTargetValueRegulatingControl")
+                .withUntypedValue(EQUIPMENT_ID, eqId)
+                .withUntypedValue("targetValue", targetValue)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -95,8 +113,8 @@ public final class CgmesReports {
     public static void badTargetDeadbandRegulatingControlReport(ReportNode reportNode, String eqId, double targetDeadband) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.badTargetDeadbandRegulatingControl")
-                .withUntypedValue("equipmentId", eqId)
-                .withTypedValue("targetDeadband", targetDeadband, TypedValue.VOLTAGE)
+                .withUntypedValue(EQUIPMENT_ID, eqId)
+                .withUntypedValue("targetDeadband", targetDeadband)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -109,23 +127,12 @@ public final class CgmesReports {
                 .add();
     }
 
-    public static void invalidAngleVoltageBusReport(ReportNode reportNode, Bus bus, String nodeId, double v, double angle) {
+    public static void invalidAngleVoltageReport(ReportNode reportNode, Bus bus, double v, double angle) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.invalidAngleVoltageBus")
                 .withUntypedValue("substation", bus.getVoltageLevel().getSubstation().map(Substation::getNameOrId).orElse("unknown"))
                 .withUntypedValue("voltageLevel", bus.getVoltageLevel().getNameOrId())
                 .withUntypedValue("bus", bus.getId())
-                .withUntypedValue("nodeId", nodeId)
-                .withTypedValue("voltage", v, TypedValue.VOLTAGE)
-                .withTypedValue("angle", angle, TypedValue.ANGLE)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
-    }
-
-    public static void invalidAngleVoltageNodeReport(ReportNode reportNode, String nodeId, double v, double angle) {
-        reportNode.newReportNode()
-                .withMessageTemplate("core.cgmes.conversion.invalidAngleVoltageNode")
-                .withUntypedValue("nodeId", nodeId)
                 .withTypedValue("voltage", v, TypedValue.VOLTAGE)
                 .withTypedValue("angle", angle, TypedValue.ANGLE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
