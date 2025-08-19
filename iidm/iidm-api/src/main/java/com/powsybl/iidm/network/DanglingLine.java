@@ -31,7 +31,7 @@ import java.util.Optional;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -295,5 +295,38 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.DANGLING_LINE;
+    }
+
+    default void applySolvedValues() {
+        setGenerationTargetPToP();
+        setGenerationTargetQToQ();
+        setGenerationTargetVToV();
+    }
+
+    default void setGenerationTargetPToP() {
+        if (this.getGeneration() != null) {
+            double p = this.getTerminal().getP();
+            if (!Double.isNaN(p)) {
+                this.getGeneration().setTargetP(-p);
+            }
+        }
+    }
+
+    default void setGenerationTargetQToQ() {
+        if (this.getGeneration() != null) {
+            double q = this.getTerminal().getQ();
+            if (!Double.isNaN(q)) {
+                this.getGeneration().setTargetQ(-q);
+            }
+        }
+    }
+
+    default void setGenerationTargetVToV() {
+        if (this.getGeneration() != null) {
+            Bus bus = this.getTerminal().getBusView().getBus();
+            if (bus != null && !Double.isNaN(bus.getV())) {
+                this.getGeneration().setTargetV(bus.getV());
+            }
+        }
     }
 }
