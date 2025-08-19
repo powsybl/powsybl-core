@@ -851,8 +851,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected static int findTerminalSign(Connectable<?> connectable) {
-        String terminalSign = connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN);
-        return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
+        return findTerminalSign(connectable, "");
     }
 
     protected static int findTerminalSign(Connectable<?> connectable, String end) {

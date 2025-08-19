@@ -23,6 +23,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.badVoltageTargetValueRegulatingControlReport;
+import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeReactivePower;
+import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeVoltage;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -156,14 +158,6 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         }
     }
 
-    private static boolean isControlModeVoltage(String controlMode) {
-        return controlMode != null && controlMode.endsWith(CgmesNames.VOLTAGE_TAG);
-    }
-
-    private static boolean isControlModeReactivePower(String controlMode) {
-        return controlMode != null && controlMode.toLowerCase().endsWith(CgmesNames.REACTIVE_POWER);
-    }
-
     private static void updateRegulatingControlVoltage(Generator generator, boolean controlEnabled, Context context) {
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(generator, context);
 
@@ -182,11 +176,18 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         setVoltageRegulation(generator, targetV, regulatingOn && controlEnabled && validTargetV);
     }
 
+    // TargetV must be valid before the regulation is turned on,
+    // and the regulation must be turned off before assigning potentially invalid regulation values,
+    // to ensure consistency with the applied checks
     private static void setVoltageRegulation(Generator generator, double targetV, boolean regulatingOn) {
         if (regulatingOn) {
-            generator.setTargetV(targetV).setVoltageRegulatorOn(true);
+            generator
+                    .setTargetV(targetV)
+                    .setVoltageRegulatorOn(true);
         } else {
-            generator.setVoltageRegulatorOn(false).setTargetV(targetV);
+            generator
+                    .setVoltageRegulatorOn(false)
+                    .setTargetV(targetV);
         }
     }
 
@@ -206,18 +207,25 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         setReactivePowerRegulation(remoteReactivePowerControl, targetQ, regulatingOn && controlEnabled && isValidTargetQ(targetQ));
     }
 
+    // TargetQ must be valid before the regulation is turned on,
+    // and the regulation must be turned off before assigning potentially invalid regulation values,
+    // to ensure consistency with the applied checks
     private static void setReactivePowerRegulation(RemoteReactivePowerControl remoteReactivePowerControl, double targetQ, boolean regulatingOn) {
         if (regulatingOn) {
-            remoteReactivePowerControl.setTargetQ(targetQ).setEnabled(regulatingOn);
+            remoteReactivePowerControl
+                    .setTargetQ(targetQ)
+                    .setEnabled(regulatingOn);
         } else {
-            remoteReactivePowerControl.setEnabled(regulatingOn).setTargetQ(targetQ);
+            remoteReactivePowerControl
+                    .setEnabled(regulatingOn)
+                    .setTargetQ(targetQ);
         }
     }
 
     private static double getDefaultTargetV(Generator generator, Context context) {
-        double defaultTargetV = generator.getRegulatingTerminal() != null
-                ? generator.getRegulatingTerminal().getVoltageLevel().getNominalV()
-                : generator.getTerminal().getVoltageLevel().getNominalV();
+        double defaultTargetV = Optional.ofNullable(generator.getRegulatingTerminal())
+                .orElse(generator.getTerminal())
+                .getVoltageLevel().getNominalV();
         return getDefaultValue(null, generator.getTargetV(), defaultTargetV, Double.NaN, context);
     }
 
