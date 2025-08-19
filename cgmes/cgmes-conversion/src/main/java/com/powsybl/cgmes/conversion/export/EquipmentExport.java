@@ -32,6 +32,8 @@ import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getClosestNeutralStep;
+import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getNormalStep;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
 import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
 import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL1;
@@ -811,8 +813,8 @@ public final class EquipmentExport {
             String tapChangerId = eq.getAliasFromType(aliasType).orElseThrow();
             String cgmesTapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
 
-            int neutralStep = getPhaseTapChangerNeutralStep(ptc);
-            int normalStep = getTapChangerNormalStep(eq, tapChangerId).orElse(neutralStep);
+            int neutralStep = getClosestNeutralStep(ptc);
+            int normalStep = getNormalStep(eq, tapChangerId).orElse(neutralStep);
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
             if (regulatingControlId.isPresent() && CgmesExportUtil.regulatingControlIsDefined(ptc)) {
@@ -879,8 +881,8 @@ public final class EquipmentExport {
             String tapChangerId = eq.getAliasFromType(aliasType).orElseThrow();
             String cgmesTapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
 
-            int neutralStep = getRatioTapChangerNeutralStep(rtc);
-            int normalStep = getTapChangerNormalStep(eq, tapChangerId).orElse(neutralStep);
+            int neutralStep = getClosestNeutralStep(rtc);
+            int normalStep = getNormalStep(eq, tapChangerId).orElse(neutralStep);
             double stepVoltageIncrement;
             if (rtc.getHighTapPosition() == rtc.getLowTapPosition()) {
                 stepVoltageIncrement = 100;

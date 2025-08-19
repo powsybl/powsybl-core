@@ -23,9 +23,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.*;
 import static com.powsybl.cgmes.conversion.Conversion.CGMES_PREFIX_ALIAS_PROPERTIES;
@@ -35,7 +33,7 @@ import static com.powsybl.cgmes.model.CgmesNames.*;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-abstract class AbstractTransformerConversion extends AbstractConductingEquipmentConversion {
+public abstract class AbstractTransformerConversion extends AbstractConductingEquipmentConversion {
 
     protected static final String END_NUMBER = "endNumber";
 
@@ -194,7 +192,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     private static <C extends Connectable<C>> void updateRatioTapChanger(Connectable<C> tw, RatioTapChanger rtc, String end, Context context, boolean isRegulatingAllowed) {
         String ratioTapChangerId = findTapChangerId(tw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + end);
 
-        int defaultTapPosition = getDefaultTapPosition(tw, rtc, ratioTapChangerId, context);
+        int defaultTapPosition = getDefaultTapPosition(tw, rtc, ratioTapChangerId, getClosestNeutralStep(rtc), context);
         rtc.setTapPosition(findValidTapPosition(rtc, ratioTapChangerId, defaultTapPosition, context));
         findValidSolvedTapPosition(rtc, ratioTapChangerId, context).ifPresent(rtc::setSolvedTapPosition);
 
@@ -260,7 +258,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     private static <C extends Connectable<C>> void updatePhaseTapChanger(Connectable<C> tw, PhaseTapChanger ptc, String end, Context context, boolean isRegulatingAllowed) {
         String phaseTapChangerId = findTapChangerId(tw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + end);
 
-        int defaultTapPosition = getDefaultTapPosition(tw, ptc, phaseTapChangerId, context);
+        int defaultTapPosition = getDefaultTapPosition(tw, ptc, phaseTapChangerId, getClosestNeutralStep(ptc), context);
         ptc.setTapPosition(findValidTapPosition(ptc, phaseTapChangerId, defaultTapPosition, context));
         findValidSolvedTapPosition(ptc, phaseTapChangerId, context).ifPresent(ptc::setSolvedTapPosition);
 
@@ -345,11 +343,11 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         return tapPosition.isPresent() ? tapPosition.getAsInt() : defaultTapPosition;
     }
 
-    private static <C extends Connectable<C>> int getDefaultTapPosition(Connectable<C> tw, com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, String tapChangerId, Context context) {
-        return getDefaultValue(getNormalStep(tw, tapChangerId),
+    private static <C extends Connectable<C>> int getDefaultTapPosition(Connectable<C> tw, com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, String tapChangerId, int closestNeutralTapPosition, Context context) {
+        return getDefaultValue(getNormalStep(tw, tapChangerId).isPresent() ? getNormalStep(tw, tapChangerId).getAsInt() : null,
                 tapChanger.getTapPosition(),
-                tapChanger.getNeutralPosition().orElse(getNormalStep(tw, tapChangerId)),
-                tapChanger.getNeutralPosition().orElse(getNormalStep(tw, tapChangerId)),
+                tapChanger.getNeutralPosition().isPresent() ? tapChanger.getNeutralPosition().getAsInt() : null,
+                closestNeutralTapPosition,
                 context);
     }
 
@@ -387,17 +385,6 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     private static OptionalInt findSolvedTapPosition(PropertyBag p) {
         double tapPosition = p.asDouble(CgmesNames.SV_TAP_STEP);
         return Double.isFinite(tapPosition) ? OptionalInt.of(AbstractObjectConversion.fromContinuous(tapPosition)) : OptionalInt.empty();
-    }
-
-    private static <C extends Connectable<C>> int getNormalStep(Connectable<C> tw, String tapChangerId) {
-        CgmesTapChangers<C> cgmesTcs = tw.getExtension(CgmesTapChangers.class);
-        if (cgmesTcs != null) {
-            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tapChangerId);
-            if (cgmesTc != null) {
-                return cgmesTc.getStep().orElseThrow();
-            }
-        }
-        throw new ConversionException("normalStep must be defined in transformer: " + tw.getId());
     }
 
     private static <C extends Connectable<C>> String findTapChangerId(Connectable<C> tw, String propertyTag) {
@@ -443,5 +430,30 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
 
     static boolean checkOnlyOneEnabled(boolean isAllowedToRegulate, boolean previousTapChangerIsRegulatingOn) {
         return isAllowedToRegulate && !previousTapChangerIsRegulatingOn;
+    }
+
+    public static <C extends Connectable<C>> OptionalInt getNormalStep(Connectable<C> tw, String tapChangerId) {
+        CgmesTapChangers<C> cgmesTcs = tw.getExtension(CgmesTapChangers.class);
+        if (cgmesTcs != null) {
+            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tapChangerId);
+            if (cgmesTc != null) {
+                return cgmesTc.getStep();
+            }
+        }
+        return OptionalInt.empty();
+    }
+
+    public static int getClosestNeutralStep(com.powsybl.iidm.network.RatioTapChanger rtc) {
+        return rtc.getAllSteps().entrySet().stream()
+                .min(Comparator.comparingDouble(entry -> Math.abs(entry.getValue().getRho() - 1.0)))
+                .map(Map.Entry::getKey)
+                .orElse(rtc.getLowTapPosition());
+    }
+
+    public static int getClosestNeutralStep(com.powsybl.iidm.network.PhaseTapChanger ptc) {
+        return ptc.getAllSteps().entrySet().stream()
+                .min(Comparator.comparingDouble(entry -> Math.abs(entry.getValue().getAlpha())))
+                .map(Map.Entry::getKey)
+                .orElse(ptc.getLowTapPosition());
     }
 }
