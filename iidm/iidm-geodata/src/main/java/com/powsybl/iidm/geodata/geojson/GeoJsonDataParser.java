@@ -41,31 +41,10 @@ public final class GeoJsonDataParser {
      * @throws UncheckedIOException if an I/O error occurs while reading the GeoJSON data
      */
     public static Map<String, Coordinate> parseSubstations(Reader reader) {
-        Map<String, Coordinate> substations = new LinkedHashMap<>();
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        try {
-            FeatureJSON fjson = new FeatureJSON();
-            FeatureCollection<?, ?> featureCollection = fjson.readFeatureCollection(reader);
-
-            try (FeatureIterator<?> features = featureCollection.features()) {
-                while (features.hasNext()) {
-                    Feature feature = features.next();
-                    if (feature instanceof SimpleFeature simpleFeature) {
-                        String id = simpleFeature.getAttribute("IDR").toString();
-                        Point point = (Point) simpleFeature.getDefaultGeometry();
-                        substations.computeIfAbsent(id, key -> new Coordinate(point.getY(), point.getX()));
-                    } else {
-                        logUnexpectedFeature(feature);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        LOGGER.info("{} substations read  in {} ms", substations.size(), stopWatch.getDuration().toMillis());
-        return substations;
+        return parseFeatures(reader, simpleFeature -> {
+            Point point = (Point) simpleFeature.getDefaultGeometry();
+            return new Coordinate(point.getY(), point.getX());
+        });
     }
 
     /**
@@ -79,19 +58,22 @@ public final class GeoJsonDataParser {
      * @throws UncheckedIOException if an I/O error occurs during parsing
      */
     public static Map<String, List<Coordinate>> parseLines(Reader reader) {
-        Map<String, List<Coordinate>> lines = new LinkedHashMap<>();
+        return parseFeatures(reader, GeoJsonDataParser::getCoordinates);
+    }
+
+    private static <T> Map<String, T> parseFeatures(Reader reader, FeatureProcessor<T> featureProcessor) {
+        Map<String, T> result = new LinkedHashMap<>();
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
             FeatureJSON fjson = new FeatureJSON();
             FeatureCollection<?, ?> featureCollection = fjson.readFeatureCollection(reader);
-
             try (FeatureIterator<?> features = featureCollection.features()) {
                 while (features.hasNext()) {
                     Feature feature = features.next();
                     if (feature instanceof SimpleFeature simpleFeature) {
                         String id = simpleFeature.getAttribute("IDR").toString();
-                        lines.computeIfAbsent(id, key -> getCoordinates(simpleFeature));
+                        result.computeIfAbsent(id, key -> featureProcessor.process(simpleFeature));
                     } else {
                         logUnexpectedFeature(feature);
                     }
@@ -100,8 +82,8 @@ public final class GeoJsonDataParser {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        LOGGER.info("{} lines read  in {} ms", lines.size(), stopWatch.getDuration().toMillis());
-        return lines;
+        LOGGER.info("{} features read in {} ms", result.size(), stopWatch.getDuration().toMillis());
+        return result;
     }
 
     private static void logUnexpectedFeature(Feature feature) {
@@ -140,5 +122,10 @@ public final class GeoJsonDataParser {
             coordinatesList.add(new Coordinate(lineString.getCoordinateN(i).getY(), lineString.getCoordinateN(i).getX()));
         }
         return coordinatesList;
+    }
+
+    @FunctionalInterface
+    private interface FeatureProcessor<T> {
+        T process(SimpleFeature feature);
     }
 }
