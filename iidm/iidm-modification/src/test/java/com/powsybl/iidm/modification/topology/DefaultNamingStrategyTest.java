@@ -78,7 +78,7 @@ class DefaultNamingStrategyTest {
         assertEquals("test_5_6", namingStrategy.getBusbarId("test", 5, 6));
         assertNull(namingStrategy.getBusName("test"));
         assertNull(namingStrategy.getBusbarName("test", 5, 6));
-        assertNull(namingStrategy.getBusbarName("test", List.of(),5, 6));
+        assertNull(namingStrategy.getBusbarName("test", List.of(), 5, 6));
     }
 
     @Test
