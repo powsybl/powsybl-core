@@ -31,14 +31,18 @@ public final class NetworkGeoDataExtensionsAdder {
     }
 
     public static void fillNetworkSubstationsGeoData(Network network, Map<String, Coordinate> substationsCoordinates) {
+        AtomicInteger unknownSubstations = new AtomicInteger();
         substationsCoordinates.forEach((substationId, coordinate) -> {
             Substation foundStation = network.getSubstation(substationId);
             if (foundStation != null) {
                 foundStation.newExtension(SubstationPositionAdder.class)
                         .withCoordinate(coordinate)
                         .add();
+            } else {
+                unknownSubstations.getAndIncrement();
             }
         });
+        LOGGER.info("{} unknown substations discarded", unknownSubstations.get());
     }
 
     public static void fillNetworkLinesGeoData(Network network, Map<String, List<Coordinate>> linesGeoData) {
@@ -53,6 +57,6 @@ public final class NetworkGeoDataExtensionsAdder {
                 unknownLines.getAndIncrement();
             }
         });
-        LOGGER.warn("{} unknown lines discarded", unknownLines.get());
+        LOGGER.info("{} unknown lines discarded", unknownLines.get());
     }
 }
