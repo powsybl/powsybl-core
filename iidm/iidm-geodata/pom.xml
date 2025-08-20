@@ -37,6 +37,15 @@
         </plugins>
     </build>
 
+    <repositories>
+        <!-- Repository for gt-epsg-hsql and gt-geojson -->
+        <repository>
+            <id>osgeo</id>
+            <name>OSGeo Release Repository</name>
+            <url>https://repo.osgeo.org/repository/geotools-releases/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- compile dependencies  -->
         <dependency>
