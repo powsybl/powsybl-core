@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -44,6 +46,7 @@ class DefaultNamingStrategyTest {
 
         assertEquals("test_DISCONNECTOR_5_6", namingStrategy.getDisconnectorId(network.getBusbarSection("D"), "test", 5, 6, 0));
         assertNull(namingStrategy.getDisconnectorName(network.getBusbarSection("D"), "test", 5, 6, 0));
+        assertNull(namingStrategy.getDisconnectorBetweenChunksName(network.getBusbarSection("D"), "test", 5, 6));
     }
 
     @Test
@@ -73,7 +76,9 @@ class DefaultNamingStrategyTest {
     @Test
     void testBusBar() {
         assertEquals("test_5_6", namingStrategy.getBusbarId("test", 5, 6));
+        assertNull(namingStrategy.getBusName("test"));
         assertNull(namingStrategy.getBusbarName("test", 5, 6));
+        assertNull(namingStrategy.getBusbarName("test", List.of(),5, 6));
     }
 
     @Test
