@@ -57,8 +57,8 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
 
     @Override
     protected void writeSubElements(VoltageLevel vl, Container<? extends Identifiable<?>> c, NetworkSerializerContext context) {
-        TopologyLevel configLevel = si existe(config(VL)) , CONFIG(VL) : context.getOptions().getTopologyLevel();
-        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), configLevel);
+        TopologyLevel configTopologyLevel = (context.getOptions().getVoltageLevelTopologyLevel(vl) != null) ? context.getOptions().getVoltageLevelTopologyLevel(vl) : context.getOptions().getTopologyLevel();
+        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel);
         switch (topologyLevel) {
             case NODE_BREAKER -> writeNodeBreakerTopology(vl, context);
             case BUS_BREAKER -> writeBusBreakerTopology(vl, context);

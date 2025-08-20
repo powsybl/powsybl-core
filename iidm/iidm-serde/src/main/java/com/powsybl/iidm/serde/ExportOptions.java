@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TopologyLevel;
+import com.powsybl.iidm.network.VoltageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +50,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     private IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior = THROW_EXCEPTION;
 
     private final Map<String, String> extensionsVersions = new HashMap<>();
+
+    private final Map<VoltageLevel, TopologyLevel> voltageLevelTopologyLevel = new HashMap<>();
 
     private Charset charset = StandardCharsets.UTF_8;
 
@@ -230,6 +233,17 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      */
     public Optional<String> getExtensionVersion(String extensionName) {
         return Optional.ofNullable(extensionsVersions.get(extensionName));
+    }
+
+    public ExportOptions addVoltageLevelTopologyLevel(VoltageLevel voltageLevel, TopologyLevel topologyLevel) {
+        if (voltageLevel != null) {
+            voltageLevelTopologyLevel.putIfAbsent(voltageLevel, topologyLevel);
+        }
+        return this;
+    }
+
+    public TopologyLevel getVoltageLevelTopologyLevel(VoltageLevel voltageLevel) {
+        return voltageLevelTopologyLevel.get(voltageLevel);
     }
 
     public boolean isSorted() {
