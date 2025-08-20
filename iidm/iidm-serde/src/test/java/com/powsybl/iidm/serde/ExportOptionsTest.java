@@ -8,7 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.google.common.collect.Sets;
-import com.powsybl.iidm.network.TopologyLevel;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -65,6 +65,31 @@ class ExportOptionsTest {
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
         assertEquals(1, (int) options.getExtensions().map(Set::size).orElse(-1));
         assertEquals(Boolean.TRUE, options.isSorted());
+    }
+
+    @Test
+    void exportOptionsVoltageLevelTopologyLevelTest() {
+        Network network = Network.create("test", "test");
+        Substation substation = network.newSubstation()
+                .setId("S")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl1 = substation.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        VoltageLevel vl2 = substation.newVoltageLevel()
+                .setId("VL2")
+                .setNominalV(220.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        ExportOptions options = new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.BUS_BREAKER, Boolean.FALSE, Boolean.TRUE);
+        options.addVoltageLevelTopologyLevel(vl1, TopologyLevel.BUS_BRANCH);
+        options.addVoltageLevelTopologyLevel(vl2, TopologyLevel.NODE_BREAKER);
+        assertEquals(TopologyLevel.BUS_BRANCH, options.getVoltageLevelTopologyLevel(vl1));
+        assertEquals(TopologyLevel.NODE_BREAKER, options.getVoltageLevelTopologyLevel(vl2));
     }
 
     @Test
