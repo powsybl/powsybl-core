@@ -26,13 +26,14 @@ import java.util.Map;
  */
 public class TerminalMapping {
 
-    public TerminalMapping() {
-        boundaries = new HashMap<>();
-        terminals = new HashMap<>();
-        terminalNumbers = new HashMap<>();
-        topologicalNodesMapping = new HashMap<>();
-        cgmesTerminalsMapping = new HashMap<>();
-    }
+    private final Map<String, Terminal> terminals = new HashMap<>();
+    private final Map<String, Boundary> boundaries = new HashMap<>();
+    // This is a somewhat dirty way of storing the side for the CGMES terminal
+    // (only mapped when the terminal is connected to a branch)
+    private final Map<String, Integer> terminalNumbers = new HashMap<>();
+    private final Map<String, List<String>> topologicalNodesMapping = new HashMap<>();
+    private final Map<String, List<CgmesTerminal>> connectivityNodeTerminalsMapping = new HashMap<>();
+    private final Map<String, String> cgmesTerminalsMapping = new HashMap<>();
 
     public void add(String cgmesTerminal, Terminal iidmTerminal, int terminalNumber) {
         if (terminals.containsKey(cgmesTerminal) || boundaries.containsKey(cgmesTerminal)) {
@@ -145,6 +146,22 @@ public class TerminalMapping {
         }
     }
 
+    public void buildConnectivityNodeCgmesTerminalsMapping(CgmesTerminal t, Conversion.Config config) {
+        // To avoid creating unnecessary internal connections, we need to compute the mapping of the connectivity nodes to the list
+        // of CgmesTerminals
+        // - this list should not contain switches
+        // - if CgmesImport.FictitiousSwitchesCreationMode.ALWAYS or CgmesImport.FictitiousSwitchesCreationMode.ALWAYS_EXCEPT_SWITCHES,
+        // this list should not contain the disconnected terminals
+        boolean onlyConnected = config.getCreateFictitiousSwitchesForDisconnectedTerminalsMode() != CgmesImport.FictitiousSwitchesCreationMode.NEVER;
+        if (CgmesNames.SWITCH_TYPES.contains(t.conductingEquipmentType())) {
+            return; // switches do not have terminals in iidm, so we should not count them
+        }
+        String connectivityNode = t.connectivityNode();
+        if (connectivityNode != null && (!onlyConnected || t.connected())) {
+            connectivityNodeTerminalsMapping.computeIfAbsent(connectivityNode, k -> new ArrayList<>(1)).add(t);
+        }
+    }
+
     public boolean areAssociated(String cgmesTerminalId, String topologicalNode) {
         return topologicalNodesMapping.get(topologicalNode).contains(cgmesTerminalId);
     }
@@ -173,11 +190,7 @@ public class TerminalMapping {
         return topologicalNodesMapping.containsKey(topologicalNode) ? topologicalNodesMapping.get(topologicalNode).get(0) : null;
     }
 
-    private final Map<String, Terminal> terminals;
-    private final Map<String, Boundary> boundaries;
-    // This is a somewhat dirty way of storing the side for the CGMES terminal
-    // (only mapped when the terminal is connected to a branch)
-    private final Map<String, Integer> terminalNumbers;
-    private final Map<String, List<String>> topologicalNodesMapping;
-    private final Map<String, String> cgmesTerminalsMapping;
+    public List<CgmesTerminal> getConnectivityNodeTerminals(String id) {
+        return connectivityNodeTerminalsMapping.getOrDefault(id, List.of());
+    }
 }
