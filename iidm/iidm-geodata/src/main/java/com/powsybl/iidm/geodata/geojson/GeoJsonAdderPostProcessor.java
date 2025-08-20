@@ -18,7 +18,6 @@ import java.util.Objects;
 import static com.powsybl.iidm.geodata.geojson.GeoJsonDataAdder.fillNetworkLinesGeoDataFromFiles;
 import static com.powsybl.iidm.geodata.geojson.GeoJsonDataAdder.fillNetworkSubstationsGeoDataFromFile;
 
-
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
