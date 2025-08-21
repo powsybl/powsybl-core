@@ -34,7 +34,7 @@ public interface ValidationWriter extends AutoCloseable {
                boolean validated) throws IOException;
 
     void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-               boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException;
+               boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException;
 
     void write(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount, double bPerSection,
                double v, boolean connected, double qMax, double nominalV, boolean mainComponent, boolean validated) throws IOException;

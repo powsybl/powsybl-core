@@ -12,7 +12,11 @@ import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
-import com.powsybl.cgmes.model.*;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelFactory;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesOnDataSource;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.compress.SafeZipInputStream;
 import com.powsybl.commons.config.PlatformConfig;
@@ -21,7 +25,11 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.parameters.*;
+import com.powsybl.commons.parameters.ConfiguredParameter;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterScope;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Importer;
@@ -44,11 +52,22 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static java.util.function.Predicate.not;
 
 /**
@@ -79,7 +98,7 @@ public class CgmesImport implements Importer {
                 .map(dir -> dir.resolve(FORMAT).resolve("boundary"))
                 .map(Path::toString)
                 .orElse(null);
-        // Boundary location parameter can not be static
+        // Boundary location parameter cannot be static
         // because we want its default value
         // to depend on the received platformConfig
         boundaryLocationParameter = new Parameter(
@@ -129,12 +148,7 @@ public class CgmesImport implements Importer {
     public boolean exists(ReadOnlyDataSource ds) {
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
         try {
-            if (cds.exists()) {
-                return true;
-            }
-            // If we are configured to support CIM14,
-            // check if there is this CIM14 data
-            return IMPORT_CIM_14 && cds.existsCim14();
+            return cds.exists();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -253,7 +267,7 @@ public class CgmesImport implements Importer {
         }
 
         private Set<ReadOnlyDataSource> separateByModelingAuthority() {
-            xmlInputFactory = XMLInputFactory.newInstance();
+            xmlInputFactory = getXMLInputFactory();
             Map<String, List<String>> igmNames = new CgmesOnDataSource(dataSource).names().stream()
                     // We consider IGMs only the modeling authorities that have an EQ file
                     // The CGM SV should have the MA of the merging agent
@@ -488,12 +502,6 @@ public class CgmesImport implements Importer {
                                 p,
                                 IMPORT_CONTROL_AREAS_PARAMETER,
                                 defaultValueConfig))
-                .setProfileForInitialValuesShuntSectionsTapPositions(
-                        Parameter.readString(
-                                getFormat(),
-                                p,
-                                PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
-                                defaultValueConfig))
                 .setStoreCgmesModelAsNetworkExtension(
                         Parameter.readBoolean(
                                 getFormat(),
@@ -607,7 +615,6 @@ public class CgmesImport implements Importer {
     public static final String PRE_PROCESSORS = "iidm.import.cgmes.pre-processors";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
-    public static final String PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS = "iidm.import.cgmes.profile-for-initial-values-shunt-sections-tap-positions";
     public static final String SOURCE_FOR_IIDM_ID = "iidm.import.cgmes.source-for-iidm-id";
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
@@ -662,13 +669,6 @@ public class CgmesImport implements Importer {
             null,
             ParameterScope.TECHNICAL)
             .addAdditionalNames("powsyblTripleStore");
-    private static final Parameter PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER = new Parameter(
-            PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS,
-            ParameterType.STRING,
-            "Profile used for initial state values",
-            "SSH",
-            List.of("SSH", "SV"))
-            .addAdditionalNames("iidm.import.cgmes.profile-used-for-initial-state-values");
     private static final Parameter STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
@@ -745,7 +745,6 @@ public class CgmesImport implements Importer {
             NAMING_STRATEGY_PARAMETER,
             IMPORT_CONTROL_AREAS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
-            PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
             SOURCE_FOR_IIDM_ID_PARAMETER,
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
@@ -769,10 +768,4 @@ public class CgmesImport implements Importer {
     private final PlatformConfig platformConfig;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CgmesImport.class);
-
-    // TODO Allow this property to be configurable
-    // Parameters of importers are only passed to importData method,
-    // but to decide if we are importers also for CIM 14 files
-    // we must implement the exists method, that has not access to parameters
-    private static final boolean IMPORT_CIM_14 = false;
 }

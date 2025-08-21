@@ -64,7 +64,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
         assertEquals(1, network.getBusView().getConnectedComponents().size());
 
         // Even if we close all switches in the re-imported network we will have two connected components
-        // In the exported network we can not get all equipment in a single connected component
+        // In the exported network we cannot get all equipment in a single connected component
         network1.getSwitchStream().forEach(sw -> sw.setOpen(false));
         assertEquals(2, network1.getBusView().getConnectedComponents().size());
         // If we force the reconnection of the line we have 3 connected components
@@ -332,10 +332,10 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
         voltageLevel2.getNodeBreakerView().newInternalConnection().setNode1(3).setNode2(4).add();
 
         // Add limits
-        line.newCurrentLimits1().setPermanentLimit(100).add();
-        line.newApparentPowerLimits1().setPermanentLimit(100).add();
-        line.newActivePowerLimits2().setPermanentLimit(100).add();
-        line.newApparentPowerLimits2().setPermanentLimit(100).add();
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(100).add();
+        line.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits().setPermanentLimit(100).add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits().setPermanentLimit(100).add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits().setPermanentLimit(100).add();
 
         return network;
     }
