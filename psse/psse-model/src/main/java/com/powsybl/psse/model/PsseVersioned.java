@@ -8,7 +8,6 @@
 package com.powsybl.psse.model;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
 import java.lang.reflect.Field;
@@ -27,11 +26,6 @@ public class PsseVersioned {
 
     public void setModel(PssePowerFlowModel model) {
         this.model = Objects.requireNonNull(model);
-    }
-
-    @JsonIgnore
-    public PssePowerFlowModel getModel() {
-        return model;
     }
 
     public void checkVersion(String fieldName) {
@@ -65,11 +59,11 @@ public class PsseVersioned {
             PsseVersion since = fromRevision(field.getAnnotation(Revision.class).since());
             PsseVersion until = fromRevision(field.getAnnotation(Revision.class).until());
             String message = String.format(
-                "Wrong version of PSSE RAW model (%s). Field '%s' is valid since version %s%s",
-                current,
-                fieldName,
-                since,
-                until.getNumber() != MAX_VERSION.getNumber() ? " until " + until : "");
+                    "Wrong version of PSSE RAW model (%s). Field '%s' is valid since version %s%s",
+                    current,
+                    fieldName,
+                    since,
+                    until.getNumber() != MAX_VERSION.getNumber() ? " until " + until : "");
             throw new PsseException(message);
         }
     }
