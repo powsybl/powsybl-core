@@ -43,30 +43,50 @@ class NetworkGeoDataExtensionsAdderTest {
         Coordinate coord2 = new Coordinate(3, 4);
         Map<String, Coordinate> substationsGeoData = Map.of("P1", coord1, "P2", coord2);
 
-        fillNetworkSubstationsGeoData(network, substationsGeoData);
+        fillNetworkSubstationsGeoData(network, substationsGeoData, false);
 
         Substation station1 = network.getSubstation("P1");
-        SubstationPosition position1 = station1.getExtension(SubstationPosition.class);
-        assertNotNull(position1);
-        assertEquals(coord1, position1.getCoordinate());
+        assertSubstationCoordinates(station1, coord1);
 
         Substation station2 = network.getSubstation("P2");
-        SubstationPosition position2 = station2.getExtension(SubstationPosition.class);
-        assertNotNull(position2);
-        assertEquals(coord2, position2.getCoordinate());
+        assertSubstationCoordinates(station2, coord2);
     }
 
     @Test
     void addLinesGeoData() {
         Coordinate coord1 = new Coordinate(1, 2);
         Coordinate coord2 = new Coordinate(3, 4);
-        var position = Map.of("NHV1_NHV2_2", List.of(coord1, coord2));
+        Map<String, List<Coordinate>> position = Map.of("NHV1_NHV2_2", List.of(coord1, coord2));
 
-        fillNetworkLinesGeoData(network, position);
+        fillNetworkLinesGeoData(network, position, false);
 
         Line line = network.getLine("NHV1_NHV2_2");
         LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
         assertNotNull(linePosition);
         assertEquals(List.of(coord1, coord2), linePosition.getCoordinates());
+    }
+
+    @Test
+    void replaceSubstationsPosition() {
+        Coordinate coord1 = new Coordinate(1, 2);
+        Coordinate coord2 = new Coordinate(3, 4);
+        Map<String, Coordinate> substationsGeoData = Map.of("P1", coord1, "P2", coord2);
+        fillNetworkSubstationsGeoData(network, substationsGeoData, false);
+
+        Coordinate coord3 = new Coordinate(5, 6);
+        Coordinate coord4 = new Coordinate(7, 8);
+        Map<String, Coordinate> newSubstationsGeoData = Map.of("P1", coord3, "P2", coord4);
+        fillNetworkSubstationsGeoData(network, newSubstationsGeoData, false);
+        Substation substation = network.getSubstation("P1");
+        assertSubstationCoordinates(substation, coord1);
+
+        fillNetworkSubstationsGeoData(network, newSubstationsGeoData, true);
+        assertSubstationCoordinates(substation, coord3);
+    }
+
+    private static void assertSubstationCoordinates(Substation substation, Coordinate expectedCoordinate) {
+        SubstationPosition position = substation.getExtension(SubstationPosition.class);
+        assertNotNull(position);
+        assertEquals(expectedCoordinate, position.getCoordinate());
     }
 }

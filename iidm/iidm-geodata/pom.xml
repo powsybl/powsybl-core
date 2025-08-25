@@ -37,6 +37,15 @@
         </plugins>
     </build>
 
+    <repositories>
+        <!-- Repository for gt-epsg-hsql and gt-geojson -->
+        <repository>
+            <id>osgeo</id>
+            <name>OSGeo Release Repository</name>
+            <url>https://repo.osgeo.org/repository/geotools-releases/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- compile dependencies  -->
         <dependency>
@@ -60,6 +69,14 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
             <version>${commons-csv.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-epsg-hsql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-geojson</artifactId>
         </dependency>
 
         <!-- test dependencies -->
