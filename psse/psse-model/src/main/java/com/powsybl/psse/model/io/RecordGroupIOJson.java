@@ -67,12 +67,12 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
 
     @Override
     public T readHead(LegacyTextReader reader, Context context) throws IOException {
-        throw new PsseException("Generic record group can not be read as head record");
+        throw new PsseException("Generic record group cannot be read as head record");
     }
 
     @Override
     public void writeHead(T psseObject, Context context, OutputStream outputStream) {
-        throw new PsseException("Generic record group can not be written as head record");
+        throw new PsseException("Generic record group cannot be written as head record");
     }
 
     private JsonNode readJsonNode(JsonParser parser) throws IOException {
