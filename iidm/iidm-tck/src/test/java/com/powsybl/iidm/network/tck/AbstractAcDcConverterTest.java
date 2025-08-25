@@ -234,8 +234,8 @@ public abstract class AbstractAcDcConverterTest {
         assertEquals("converterA", acDcConverterA.getId());
 
         assertSame(TerminalNumber.ONE, acDcConverterA.getDcTerminal1().getTerminalNumber());
-        assertNull(acDcConverterA.getDcTerminal1().getSide());
         assertSame(TerminalNumber.TWO, acDcConverterA.getDcTerminal2().getTerminalNumber());
+        assertNull(acDcConverterA.getDcTerminal1().getSide());
         assertNull(acDcConverterA.getDcTerminal2().getSide());
         assertSame(TerminalNumber.ONE, acDcConverterA.getTerminalNumber(acDcConverterA.getDcTerminal1()));
         assertSame(TerminalNumber.TWO, acDcConverterA.getTerminalNumber(acDcConverterA.getDcTerminal2()));
@@ -244,6 +244,10 @@ public abstract class AbstractAcDcConverterTest {
 
         assertSame(TerminalNumber.ONE, acDcConverterA.getTerminal1().getTerminalNumber());
         assertSame(TerminalNumber.TWO, acDcConverterA.getTerminal2().orElseThrow().getTerminalNumber());
+        assertFalse(Terminal.getConnectableSide(acDcConverterA.getTerminal1()).isPresent());
+        assertFalse(Terminal.getConnectableSide(acDcConverterA.getTerminal2().orElseThrow()).isPresent());
+        assertFalse(Terminal.getConnectableTerminalNumber(lineax.getTerminal1()).isPresent());
+        assertFalse(Terminal.getConnectableTerminalNumber(lineax.getTerminal2()).isPresent());
         assertSame(TerminalNumber.ONE, acDcConverterA.getTerminalNumber(acDcConverterA.getTerminal1()));
         assertSame(TerminalNumber.TWO, acDcConverterA.getTerminalNumber(acDcConverterA.getTerminal2().orElseThrow()));
         assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getTerminal(TerminalNumber.ONE));
