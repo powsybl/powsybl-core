@@ -195,6 +195,14 @@ public class CgmesImport implements Importer {
 
     @Override
     public void update(Network network, ReadOnlyDataSource ds, Properties p, ReportNode reportNode) {
+        //TODO For now, the CGMES update is disabled in production because not all equipments are handled.
+        // This temporary parameter is here to allow the update unit tests to run.
+        Parameter enableUpdateParam = new Parameter("not-for-production.iidm.import.cgmes.enable-update", ParameterType.BOOLEAN, "", Boolean.FALSE);
+        boolean enableUpdate = Parameter.readBoolean(getFormat(), p, enableUpdateParam, defaultValueConfig);
+        if (!enableUpdate) {
+            Importer.super.update(network, ds, p, reportNode);
+        }
+
         TripleStoreOptions tripleStoreOptions = new TripleStoreOptions();
         tripleStoreOptions.setQueryCatalog(Conversion.QUERY_CATALOG_NAME_UPDATE);
         ReadOnlyDataSource alternativeDataSourceForBoundary = null;

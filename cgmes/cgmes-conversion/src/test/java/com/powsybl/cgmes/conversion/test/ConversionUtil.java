@@ -106,7 +106,10 @@ public final class ConversionUtil {
 
     public static void readCgmesResources(Network network, String dir, String... files) {
         ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(dir, files));
-        network.update(ds);
+        //TODO remove this property once the CGMES update is enabled in production
+        Properties p = new Properties();
+        p.setProperty("not-for-production.iidm.import.cgmes.enable-update", "true");
+        network.update(ds, p);
     }
 
     public static Network readCgmesResources(ReportNode reportNode, String dir, String... files) {

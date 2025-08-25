@@ -9,6 +9,9 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -39,6 +42,15 @@ class LoadUpdateTest {
         assertEquals(6, network.getLoadCount());
 
         assertFirstSsh(network);
+    }
+
+    //TODO remove this test once the CGMES update is enabled in production
+    @Test
+    void updateIsDisabledInProductionTest() {
+        Network network = readCgmesResources(DIR, "load_EQ.xml");
+        ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(DIR, "load_SSH.xml"));
+        Exception e = assertThrows(UnsupportedOperationException.class, () -> network.update(ds));
+        assertEquals("Importer do not implement updates", e.getMessage());
     }
 
     @Test
