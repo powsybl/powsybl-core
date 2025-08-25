@@ -234,7 +234,9 @@ public abstract class AbstractAcDcConverterTest {
         assertEquals("converterA", acDcConverterA.getId());
 
         assertSame(TerminalNumber.ONE, acDcConverterA.getDcTerminal1().getTerminalNumber());
+        assertNull(acDcConverterA.getDcTerminal1().getSide());
         assertSame(TerminalNumber.TWO, acDcConverterA.getDcTerminal2().getTerminalNumber());
+        assertNull(acDcConverterA.getDcTerminal2().getSide());
         assertSame(TerminalNumber.ONE, acDcConverterA.getTerminalNumber(acDcConverterA.getDcTerminal1()));
         assertSame(TerminalNumber.TWO, acDcConverterA.getTerminalNumber(acDcConverterA.getDcTerminal2()));
         assertSame(acDcConverterA.getDcTerminal1(), acDcConverterA.getDcTerminal(TerminalNumber.ONE));
