@@ -96,7 +96,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         } else if (terminalNumber == TerminalNumber.TWO) {
             return getTerminal2().orElseThrow(() -> new IllegalStateException("This AC/DC converter does not have a second AC Terminal"));
         }
-        throw new IllegalStateException("Unexpected side: " + terminalNumber);
+        throw new IllegalStateException("Unexpected AC terminal number: " + terminalNumber);
     }
 
     @Override
@@ -132,7 +132,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         } else if (terminalNumber == TerminalNumber.TWO) {
             return this.dcTerminals.get(1);
         }
-        throw new IllegalStateException("Unexpected side: " + terminalNumber);
+        throw new IllegalStateException("Unexpected DC terminal number: " + terminalNumber);
     }
 
     @Override
