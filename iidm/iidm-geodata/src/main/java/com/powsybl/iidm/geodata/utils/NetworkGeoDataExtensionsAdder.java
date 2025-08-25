@@ -11,7 +11,9 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.extensions.Coordinate;
+import com.powsybl.iidm.network.extensions.LinePosition;
 import com.powsybl.iidm.network.extensions.LinePositionAdder;
+import com.powsybl.iidm.network.extensions.SubstationPosition;
 import com.powsybl.iidm.network.extensions.SubstationPositionAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,33 +32,61 @@ public final class NetworkGeoDataExtensionsAdder {
     private NetworkGeoDataExtensionsAdder() {
     }
 
-    public static void fillNetworkSubstationsGeoData(Network network, Map<String, Coordinate> substationsCoordinates) {
+    public static void fillNetworkSubstationsGeoData(Network network, Map<String, Coordinate> substationsCoordinates, boolean forceGeoDataComputation) {
         AtomicInteger unknownSubstations = new AtomicInteger();
-        substationsCoordinates.forEach((substationId, coordinate) -> {
-            Substation foundStation = network.getSubstation(substationId);
-            if (foundStation != null) {
-                foundStation.newExtension(SubstationPositionAdder.class)
-                        .withCoordinate(coordinate)
-                        .add();
-            } else {
-                unknownSubstations.getAndIncrement();
-            }
-        });
-        LOGGER.info("{} unknown substations discarded", unknownSubstations.get());
+        network.getSubstations().forEach(substation -> fillSubstationGeoData(substation, substationsCoordinates, forceGeoDataComputation, unknownSubstations));
+        LOGGER.info("{} substations with no geographic data found", unknownSubstations.get());
     }
 
-    public static void fillNetworkLinesGeoData(Network network, Map<String, List<Coordinate>> linesGeoData) {
+    public static void fillNetworkLinesGeoData(Network network, Map<String, List<Coordinate>> linesCoordinates, boolean forceGeoDataComputation) {
         AtomicInteger unknownLines = new AtomicInteger();
-        linesGeoData.forEach((lineId, lineCoordinates) -> {
-            Line line = network.getLine(lineId);
-            if (line != null) {
-                line.newExtension(LinePositionAdder.class)
-                        .withCoordinates(LineCoordinatesOrdering.order(line, lineCoordinates))
-                        .add();
+        network.getLines().forEach(line -> fillLineGeoData(line, linesCoordinates, forceGeoDataComputation, unknownLines));
+        LOGGER.info("{} lines with no geographic data found", unknownLines.get());
+    }
+
+    private static void fillSubstationGeoData(Substation substation, Map<String, Coordinate> substationsCoordinates,
+                                              boolean forceGeoDataComputation, AtomicInteger unknownSubstations) {
+        if (substationsCoordinates.containsKey(substation.getId())) {
+            SubstationPosition substationPosition = substation.getExtension(SubstationPosition.class);
+            if (substationPosition != null) {
+                if (forceGeoDataComputation) {
+                    substation.removeExtension(SubstationPosition.class);
+                    addSubstationPositionExtension(substation, substationsCoordinates.get(substation.getId()));
+                }
             } else {
-                unknownLines.getAndIncrement();
+                addSubstationPositionExtension(substation, substationsCoordinates.get(substation.getId()));
             }
-        });
-        LOGGER.info("{} unknown lines discarded", unknownLines.get());
+        } else {
+            unknownSubstations.getAndIncrement();
+        }
+    }
+
+    private static void addSubstationPositionExtension(Substation substation, Coordinate coordinates) {
+        substation.newExtension(SubstationPositionAdder.class)
+                    .withCoordinate(coordinates)
+                    .add();
+    }
+
+    private static void fillLineGeoData(com.powsybl.iidm.network.Line line, Map<String, List<Coordinate>> linesCoordinates,
+                                        boolean forceGeoDataComputation, AtomicInteger unknownLines) {
+        if (linesCoordinates.containsKey(line.getId())) {
+            LinePosition linePosition = line.getExtension(LinePosition.class);
+            if (linePosition != null) {
+                if (forceGeoDataComputation) {
+                    line.removeExtension(LinePosition.class);
+                    addLinePositionExtension(line, linesCoordinates.get(line.getId()));
+                }
+            } else {
+                addLinePositionExtension(line, linesCoordinates.get(line.getId()));
+            }
+        } else {
+            unknownLines.getAndIncrement();
+        }
+    }
+
+    private static void addLinePositionExtension(Line line, List<Coordinate> coordinates) {
+        line.newExtension(LinePositionAdder.class)
+                .withCoordinates(LineCoordinatesOrdering.order(line, coordinates))
+                .add();
     }
 }

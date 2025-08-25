@@ -24,28 +24,28 @@ import static com.powsybl.iidm.geodata.geojson.GeoJsonDataAdder.fillNetworkSubst
 @AutoService(ImportPostProcessor.class)
 public class GeoJsonAdderPostProcessor implements ImportPostProcessor {
 
-    public static final Map<String, String> DEFAULT_FILE_NAMES = Map.of("substations", "substations.geojson",
-        "lines", "lines.geojson");
+    public static final String SUBSTATIONS = "substations";
+    public static final String LINES = "lines";
+    public static final Map<String, String> DEFAULT_FILE_NAMES = Map.of(SUBSTATIONS, "substations.geojson",
+        LINES, "lines.geojson");
     public static final String NAME = "geoJsonImporter";
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonAdderPostProcessor.class);
     private final Path substationsFilePath;
     private final Path linesFilePath;
+    private final boolean forceGeoDataComputation;
 
     public GeoJsonAdderPostProcessor(PlatformConfig config) {
-        this(getEquipmentFileFromConfig(config, "substations"), getEquipmentFileFromConfig(config, "lines"));
+        this(getEquipmentFileFromConfig(config, SUBSTATIONS), true, getEquipmentFileFromConfig(config, LINES));
     }
 
-    public GeoJsonAdderPostProcessor(Path substationsFilePath, Path linesFilePath) {
+    public GeoJsonAdderPostProcessor(PlatformConfig config, boolean forceGeoDataComputation) {
+        this(getEquipmentFileFromConfig(config, SUBSTATIONS), forceGeoDataComputation, getEquipmentFileFromConfig(config, LINES));
+    }
+
+    public GeoJsonAdderPostProcessor(Path substationsFilePath, boolean forceGeoDataComputation, Path linesFilePath) {
         this.substationsFilePath = substationsFilePath;
         this.linesFilePath = linesFilePath;
-    }
-
-    private static Path getEquipmentFileFromConfig(PlatformConfig platformConfig, String type) {
-        Objects.requireNonNull(platformConfig);
-        return platformConfig.getOptionalModuleConfig("geo-json-importer-post-processor")
-            .flatMap(config -> config.getOptionalPathProperty(type))
-            .or(() -> platformConfig.getConfigDir().map(dir -> dir.resolve(DEFAULT_FILE_NAMES.get(type))))
-            .orElseThrow(() -> new PowsyblException("No file path nor configuration directory defined in platform config for " + type));
+        this.forceGeoDataComputation = forceGeoDataComputation;
     }
 
     @Override
@@ -58,8 +58,8 @@ public class GeoJsonAdderPostProcessor implements ImportPostProcessor {
         boolean substationsFilePresent = Files.exists(substationsFilePath);
         boolean linesFilePresent = Files.exists(linesFilePath);
         if (substationsFilePresent && linesFilePresent) {
-            fillNetworkSubstationsGeoDataFromFile(network, substationsFilePath);
-            fillNetworkLinesGeoDataFromFiles(network, linesFilePath);
+            fillNetworkSubstationsGeoDataFromFile(network, substationsFilePath, forceGeoDataComputation);
+            fillNetworkLinesGeoDataFromFiles(network, linesFilePath, forceGeoDataComputation);
         } else {
             if (!substationsFilePresent) {
                 LOGGER.warn("Could not load substations geographical data, file not found : {}", substationsFilePath);
@@ -68,5 +68,13 @@ public class GeoJsonAdderPostProcessor implements ImportPostProcessor {
                 LOGGER.warn("Could not load lines geographical data, file not found : {}", linesFilePath);
             }
         }
+    }
+
+    private static Path getEquipmentFileFromConfig(PlatformConfig platformConfig, String type) {
+        Objects.requireNonNull(platformConfig);
+        return platformConfig.getOptionalModuleConfig("geo-json-importer-post-processor")
+            .flatMap(config -> config.getOptionalPathProperty(type))
+            .or(() -> platformConfig.getConfigDir().map(dir -> dir.resolve(DEFAULT_FILE_NAMES.get(type))))
+            .orElseThrow(() -> new PowsyblException("No file path nor configuration directory defined in platform config for " + type));
     }
 }

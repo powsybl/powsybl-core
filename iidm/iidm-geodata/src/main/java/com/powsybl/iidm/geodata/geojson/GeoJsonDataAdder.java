@@ -18,11 +18,11 @@ public class GeoJsonDataAdder {
     protected GeoJsonDataAdder() {
     }
 
-    public static void fillNetworkSubstationsGeoDataFromFile(Network network, Path path) throws IOException {
-        fillNetworkSubstationsGeoData(network, getSubstationsCoordinates(path));
+    public static void fillNetworkSubstationsGeoDataFromFile(Network network, Path path, boolean forceGeoDataComputation) throws IOException {
+        fillNetworkSubstationsGeoData(network, getSubstationsCoordinates(path), forceGeoDataComputation);
     }
 
-    public static void fillNetworkLinesGeoDataFromFiles(Network network, Path path) throws IOException {
-        fillNetworkLinesGeoData(network, getLinesCoordinates(path));
+    public static void fillNetworkLinesGeoDataFromFiles(Network network, Path path, boolean forceGeoDataComputation) throws IOException {
+        fillNetworkLinesGeoData(network, getLinesCoordinates(path), forceGeoDataComputation);
     }
 }
