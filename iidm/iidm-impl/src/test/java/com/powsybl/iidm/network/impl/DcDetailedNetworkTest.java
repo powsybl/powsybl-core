@@ -106,8 +106,8 @@ class DcDetailedNetworkTest {
         assertEquals(2, visited.size());
         var lccFr = network.getLineCommutatedConverter("LccFr");
         visited.forEach(t -> assertSame(lccFr, t.getConnectable()));
-        var terminalBySide = visited.stream().collect(Collectors.toMap(Terminal::getSide, Function.identity()));
-        assertSame(lccFr.getTerminal1(), terminalBySide.get(ThreeSides.ONE));
-        assertSame(lccFr.getTerminal2().orElseThrow(), terminalBySide.get(ThreeSides.TWO));
+        var terminalBySide = visited.stream().collect(Collectors.toMap(Terminal::getTerminalNumber, Function.identity()));
+        assertSame(lccFr.getTerminal1(), terminalBySide.get(TerminalNumber.ONE));
+        assertSame(lccFr.getTerminal2().orElseThrow(), terminalBySide.get(TerminalNumber.TWO));
     }
 }

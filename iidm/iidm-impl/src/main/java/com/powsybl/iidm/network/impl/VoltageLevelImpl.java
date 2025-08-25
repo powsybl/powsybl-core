@@ -708,7 +708,7 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
             AbstractConnectable<?> connectable = oldTerminalExt.getConnectable();
 
             // create the new terminal with new type
-            TerminalExt newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide())
+            TerminalExt newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide(), oldTerminalExt.getTerminalNumber())
                     .setBus(infos.connected ? infos.connectableBusId() : null)
                     .setConnectableBus(infos.connectableBusId())
                     .build();

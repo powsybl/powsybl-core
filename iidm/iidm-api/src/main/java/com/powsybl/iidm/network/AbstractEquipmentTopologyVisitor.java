@@ -71,7 +71,7 @@ public abstract class AbstractEquipmentTopologyVisitor extends DefaultTopologyVi
     }
 
     @Override
-    public void visitAcDcConverter(AcDcConverter<?> converter, TwoSides side) {
+    public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
         visitEquipment(converter);
     }
 }
