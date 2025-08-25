@@ -88,7 +88,7 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         double oldValue = this.p.set(variantIndex, p);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "p" + getAttributeSideOrNumberSuffix(), variantId, oldValue, p);
+        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "p_dc" + getAttributeSideOrNumberSuffix(), variantId, oldValue, p);
         return this;
     }
 
@@ -104,7 +104,7 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         double oldValue = this.i.set(variantIndex, i);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "i" + getAttributeSideOrNumberSuffix(), variantId, oldValue, i);
+        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "i_dc" + getAttributeSideOrNumberSuffix(), variantId, oldValue, i);
         return this;
     }
 
@@ -120,7 +120,7 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         boolean oldValue = this.connected.set(variantIndex, connected);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "connected" + getAttributeSideOrNumberSuffix(), variantId, oldValue, connected);
+        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "connected_dc" + getAttributeSideOrNumberSuffix(), variantId, oldValue, connected);
         return this;
     }
 

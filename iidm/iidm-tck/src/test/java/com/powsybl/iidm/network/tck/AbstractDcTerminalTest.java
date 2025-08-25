@@ -146,6 +146,7 @@ public abstract class AbstractDcTerminalTest {
 
         DcTerminal dcLineDcTerminal1 = dcLine.getDcTerminal1().setP(1.).setI(2.);
         DcTerminal converterDcTerminal1 = converter.getDcTerminal1().setP(3.).setI(4.);
+        Terminal converterAcTerminal1 = converter.getTerminal1().setP(5.);
 
         // Changes listener
         NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
@@ -157,22 +158,27 @@ public abstract class AbstractDcTerminalTest {
         // ... DC line P1
         dcLineDcTerminal1.setP(11.);
         Mockito.verify(mockedListener, Mockito.times(1))
-                .onUpdate(dcLine, "p1", VariantManagerConstants.INITIAL_VARIANT_ID, 1., 11.);
+                .onUpdate(dcLine, "p_dc1", VariantManagerConstants.INITIAL_VARIANT_ID, 1., 11.);
 
         // ... DC line I1
         dcLineDcTerminal1.setI(22.);
         Mockito.verify(mockedListener, Mockito.times(1))
-                .onUpdate(dcLine, "i1", VariantManagerConstants.INITIAL_VARIANT_ID, 2., 22.);
+                .onUpdate(dcLine, "i_dc1", VariantManagerConstants.INITIAL_VARIANT_ID, 2., 22.);
 
-        // ... AC/DC converter P1
+        // ... AC/DC converter P1 // DC
         converterDcTerminal1.setP(33.);
         Mockito.verify(mockedListener, Mockito.times(1))
-                .onUpdate(converter, "p1", VariantManagerConstants.INITIAL_VARIANT_ID, 3., 33.);
+                .onUpdate(converter, "p_dc1", VariantManagerConstants.INITIAL_VARIANT_ID, 3., 33.);
 
-        // ... AC/DC converter I1
+        // ... AC/DC converter I1 // DC
         converterDcTerminal1.setI(44.);
         Mockito.verify(mockedListener, Mockito.times(1))
-                .onUpdate(converter, "i1", VariantManagerConstants.INITIAL_VARIANT_ID, 4., 44.);
+                .onUpdate(converter, "i_dc1", VariantManagerConstants.INITIAL_VARIANT_ID, 4., 44.);
+
+        // ... AC/DC converter P1 // DC
+        converterAcTerminal1.setP(55.);
+        Mockito.verify(mockedListener, Mockito.times(1))
+                .onUpdate(converter, "p1", VariantManagerConstants.INITIAL_VARIANT_ID, 5., 55.);
 
         // After this point, no more changes are taken into account.
 
@@ -181,6 +187,7 @@ public abstract class AbstractDcTerminalTest {
         dcLineDcTerminal1.setI(22.);
         converterDcTerminal1.setP(33.);
         converterDcTerminal1.setI(44.);
+        converterAcTerminal1.setP(55.);
 
         // Case when no listener is registered
         network.removeListener(mockedListener);
@@ -188,6 +195,7 @@ public abstract class AbstractDcTerminalTest {
         dcLineDcTerminal1.setI(222.);
         converterDcTerminal1.setP(333.);
         converterDcTerminal1.setI(444.);
+        converterAcTerminal1.setP(555.);
 
         // Check no notification
         Mockito.verifyNoMoreInteractions(mockedListener);
