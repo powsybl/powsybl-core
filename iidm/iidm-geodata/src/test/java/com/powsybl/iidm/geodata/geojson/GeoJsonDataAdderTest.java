@@ -44,7 +44,7 @@ class GeoJsonDataAdderTest {
         Path substationsPath = Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource("eurostag-test/substations.geojson")).toURI());
 
         // Add the data
-        GeoJsonDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsPath);
+        GeoJsonDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsPath, false);
 
         Coordinate coord1 = new Coordinate(2, 1);
         Substation station1 = network.getSubstation("P1");
@@ -64,7 +64,7 @@ class GeoJsonDataAdderTest {
         Path linesPath = Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource("eurostag-test/lines.geojson")).toURI());
 
         // Add the data
-        GeoJsonDataAdder.fillNetworkLinesGeoDataFromFiles(network, linesPath);
+        GeoJsonDataAdder.fillNetworkLinesGeoDataFromFiles(network, linesPath, false);
 
         Line line = network.getLine("NHV1_NHV2_2");
         LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
