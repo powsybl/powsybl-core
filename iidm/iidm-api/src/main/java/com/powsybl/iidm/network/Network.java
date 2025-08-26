@@ -1853,4 +1853,93 @@ public interface Network extends Container<Network> {
     default void write(String format, Properties parameters, String directory, String baseName) {
         write(new ExportersServiceLoader(), format, parameters, directory, baseName);
     }
+
+    static Reader newReader(Path file) {
+        return new Reader(file);
+    }
+
+    static Reader newReader(String file) {
+        return new Reader(file);
+    }
+
+    static Reader newReader(String filename, InputStream is) {
+        return new Reader(filename, is);
+    }
+
+    static Reader newReader(ReadOnlyDataSource dataSource) {
+        return new Reader(dataSource);
+    }
+
+    class Reader {
+        private Path file = null;
+        private InputStream inputStream = null;
+        private String inputStreamFilename = null;
+        private ReadOnlyDataSource dataSource = null;
+        private ComputationManager computationManager = LocalComputationManager.getDefault();
+        private ImportConfig config = ImportConfig.CACHE.get();
+        private Properties parameters = new Properties();
+        private NetworkFactory networkFactory = NetworkFactory.findDefault();
+        private ImportersLoader loader = new ImportersServiceLoader();
+        private ReportNode reportNode = ReportNode.NO_OP;
+
+        Reader(Path file) {
+            this.file = file;
+        }
+
+        Reader(String fileString) {
+            this.file = Paths.get(fileString);
+        }
+
+        Reader(String filename, InputStream is) {
+            this.inputStreamFilename = filename;
+            this.inputStream = is;
+        }
+
+        Reader(ReadOnlyDataSource dataSource) {
+            this.dataSource = dataSource;
+        }
+
+        public Reader setComputationManager(ComputationManager cm) {
+            this.computationManager = cm;
+            return this;
+        }
+
+        public Reader setImportConfig(ImportConfig cfg) {
+            this.config = cfg;
+            return this;
+        }
+
+        public Reader setParameters(Properties p) {
+            this.parameters = p;
+            return this;
+        }
+
+        public Reader setNetworkFactory(NetworkFactory nf) {
+            this.networkFactory = nf;
+            return this;
+        }
+
+        public Reader setImportersLoader(ImportersLoader l) {
+            this.loader = l;
+            return this;
+        }
+
+        public Reader setReportNode(ReportNode rn) {
+            this.reportNode = rn;
+            return this;
+        }
+
+        public Network read() {
+            if (file != null) {
+                return Network.read(file, computationManager, config, parameters, networkFactory, loader, reportNode);
+            } else if (inputStream != null && inputStreamFilename != null) {
+                return Network.read(inputStreamFilename, inputStream, computationManager, config, parameters,
+                        networkFactory, loader, reportNode);
+            } else if (dataSource != null) {
+                return Network.read(dataSource, computationManager, config, parameters, networkFactory, loader, reportNode);
+            } else {
+                throw new PowsyblException("No valid source specified for network import");
+            }
+        }
+    }
 }
