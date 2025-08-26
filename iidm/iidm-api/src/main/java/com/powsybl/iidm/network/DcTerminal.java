@@ -44,6 +44,8 @@ public interface DcTerminal {
      */
     DcTerminal setConnected(boolean connected);
 
+    DcBus getBus();
+
     /**
      * @return the active power in MW injected at the DC terminal.<br/>
      * Depends on the working variant.
