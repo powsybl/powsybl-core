@@ -199,6 +199,42 @@ class MergeTest {
         assertEquals(zonedDateTime1, networkMerged.getCaseDate());
     }
 
+    @Test
+    void mergeDetachMergeTest() {
+        // two networks
+        Network net1 = NetworkFactory.findDefault().createNetwork("N1", "test");
+        net1.newSubstation().setId("S1").add();
+        assertEquals(1, net1.getSubstationCount());
+
+        Network net2 = NetworkFactory.findDefault().createNetwork("N2", "test");
+        net2.newSubstation().setId("S2").add();
+        assertEquals(1, net2.getSubstationCount());
+
+        // merge them
+        Network merged1 = Network.merge(net1, net2);
+        Network net1a = merged1.getSubnetwork("N1");
+        Network net2a = merged1.getSubnetwork("N2");
+        assertEquals(2, merged1.getSubstationCount());
+        assertEquals(1, net1a.getSubstationCount());
+        assertEquals(1, net2a.getSubstationCount());
+
+        // detach them
+        Network net1b = net1a.detach();
+        assertEquals(1, merged1.getSubstationCount());
+        assertEquals(1, net1b.getSubstationCount());
+        Network net2b = net2a.detach();
+        assertEquals(0, merged1.getSubstationCount());
+        assertEquals(1, net2b.getSubstationCount());
+
+        // merge again
+        Network merged2 = Network.merge(net1b, net2b);
+        Network net1c = merged2.getSubnetwork("N1");
+        Network net2c = merged2.getSubnetwork("N2");
+        assertEquals(2, merged2.getSubstationCount());
+        assertEquals(1, net1c.getSubstationCount()); // FIXME - fails, getting 0
+        assertEquals(1, net2c.getSubstationCount()); // FIXME - fails, getting 0
+    }
+
     private static boolean voltageAngleLimitsAreEqual(List<VoltageAngleLimit> expected, List<VoltageAngleLimit> actual) {
         if (expected.size() != actual.size()) {
             return false;
