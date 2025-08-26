@@ -92,10 +92,10 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     protected DcTopologyModel detachDcTopologyModel() {
-        DcTopologyModel dcTopologyModel = this.dcTopologyModel;
+        DcTopologyModel detachedDcTopologyModel = this.dcTopologyModel;
         this.dcTopologyModel = null;
-        dcTopologyModel.updateRef(new RefObj<>(null), new RefObj<>(null));
-        return dcTopologyModel;
+        detachedDcTopologyModel.updateRef(new RefObj<>(null), new RefObj<>(null));
+        return detachedDcTopologyModel;
     }
 
     @Override

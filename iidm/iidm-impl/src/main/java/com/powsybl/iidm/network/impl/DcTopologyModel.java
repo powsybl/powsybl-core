@@ -12,7 +12,6 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.iidm.network.DcBus;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
@@ -106,10 +105,6 @@ public class DcTopologyModel implements MultiVariantObject {
 
     protected NetworkImpl getNetwork() {
         return networkRef.get();
-    }
-
-    private Network getParentNetwork() {
-        return Optional.ofNullable((Network) subnetworkRef.get()).orElse(getNetwork());
     }
 
     protected static int loadDcNodeIndexLimit(PlatformConfig platformConfig) {
@@ -219,7 +214,7 @@ public class DcTopologyModel implements MultiVariantObject {
     }
 
     public DcBusImpl getDcBus(String id) {
-        return calculatedDcBusTopology.getDcBus(id, false);
+        return calculatedDcBusTopology.getDcBus(id);
     }
 
     public DcBusImpl getDcBusOfDcNode(String dcNodeId) {
@@ -297,15 +292,9 @@ public class DcTopologyModel implements MultiVariantObject {
             return variants.get().cache.getDcBusCount();
         }
 
-        private DcBusImpl getDcBus(String dcBusId, boolean throwException) {
+        private DcBusImpl getDcBus(String dcBusId) {
             updateCache();
-            DcBusImpl bus = variants.get().cache.getDcBus(dcBusId);
-            if (throwException && bus == null) {
-                throw new PowsyblException("Bus " + dcBusId
-                        + " not found in network "
-                        + getParentNetwork().getId());
-            }
-            return bus;
+            return variants.get().cache.getDcBus(dcBusId);
         }
 
         DcBusImpl getDcBus(DcNodeImpl dcNode) {
