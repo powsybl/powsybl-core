@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.Conversion.Config;
+import com.powsybl.cgmes.conversion.elements.dc.DCMapping;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -55,6 +56,7 @@ public class Context {
         loadingLimitsMapping = new LoadingLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping(this);
+        dcMapping = new DCMapping(this);
 
         cachedGroupedTransformerEnds = new HashMap<>();
         cachedGroupedRatioTapChangers = new HashMap<>();
@@ -111,6 +113,10 @@ public class Context {
 
     public NodeContainerMapping nodeContainerMapping() {
         return nodeContainerMapping;
+    }
+
+    public DCMapping dcMapping() {
+        return dcMapping;
     }
 
     public CgmesBoundary boundary() {
@@ -286,6 +292,7 @@ public class Context {
     private final NodeMapping nodeMapping;
     private final LoadingLimitsMapping loadingLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
+    private final DCMapping dcMapping;
 
     private final Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private final Map<String, PropertyBags> cachedGroupedRatioTapChangers;
