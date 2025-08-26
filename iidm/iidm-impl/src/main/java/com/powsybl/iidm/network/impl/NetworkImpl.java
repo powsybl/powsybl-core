@@ -104,13 +104,6 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         dcTopologyModel.updateRef(ref, subnetworkRef);
     }
 
-    protected void flattenDcTopologyModel(DcTopologyModel otherDcTopologyModel) {
-        if (otherDcTopologyModel.getDcBusStream().findFirst().isPresent()) {
-            // TODO merge elements
-            throw new UnsupportedOperationException("Not yet implemented, TODO");
-        }
-    }
-
     class BusBreakerViewImpl extends AbstractNetwork.AbstractBusBreakerViewImpl {
 
         @Override
@@ -1464,6 +1457,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             return;
         }
         subnetworks.values().forEach(subnetwork -> {
+            // the subnetwork DC topology model is transferred into this network DC topology model
+            dcTopologyModel.addAndDetachSubnetworkDcTopologyModel(subnetwork);
             // The subnetwork ref chain should point to the current network's subnetworkRef
             // (thus, we obtain a "double ref chain": a refChain referencing another refChain).
             // This way, all its network elements (using this ref chain) will have a reference to the current network
@@ -1473,7 +1468,6 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             // Those which are already present in the current network are not transferred.
             transferExtensions(subnetwork, this, true);
             transferProperties(subnetwork, this, true);
-            flattenDcTopologyModel(subnetwork.detachDcTopologyModel());
             index.remove(subnetwork);
         });
         subnetworks.clear();

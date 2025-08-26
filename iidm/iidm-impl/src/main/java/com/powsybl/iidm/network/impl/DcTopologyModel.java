@@ -43,7 +43,7 @@ public class DcTopologyModel implements MultiVariantObject {
     /* DcSwitches indexed by edge number */
     private final Map<String, Integer> dcSwitches = new HashMap<>();
 
-    protected final VariantArray<DcTopologyModel.VariantImpl> variants;
+    private VariantArray<DcTopologyModel.VariantImpl> variants;
 
     public DcTopologyModel(RefChain<NetworkImpl> networkRef, RefChain<SubnetworkImpl> subnetworkRef) {
         this.networkRef = Objects.requireNonNull(networkRef);
@@ -160,6 +160,16 @@ public class DcTopologyModel implements MultiVariantObject {
         }
         dcSwitches.remove(dcSwitchId);
         graph.removeEdge(e);
+    }
+
+    void addAndDetachSubnetworkDcTopologyModel(SubnetworkImpl subnetwork) {
+        // called by network flatten, the subnetwork DC topology model is merged into this DC topology model.
+        subnetwork.getDcNodeStream().forEach(dcNode -> addDcNodeToTopology((DcNodeImpl) dcNode));
+        subnetwork.getDcSwitchStream().forEach(dcSwitch -> addDcSwitchToTopology((DcSwitchImpl) dcSwitch, dcSwitch.getDcNode1().getId(), dcSwitch.getDcNode2().getId()));
+
+        subnetwork.detachDcTopologyModel(); // to remove refs
+        // purge cache for all variants
+        variants = new VariantArray<>(networkRef, DcTopologyModel.VariantImpl::new);
     }
 
     /**
@@ -324,10 +334,8 @@ public class DcTopologyModel implements MultiVariantObject {
 
     public void invalidateCache() {
         calculatedDcBusTopology.invalidateCache();
-        // TODO normally this is not needed and can just be deleted getNetwork().getBusView().invalidateCache();
-        // TODO normally this is not needed and can just be deleted getNetwork().getBusBreakerView().invalidateCache();
         getNetwork().getConnectedComponentsManager().invalidate();
-        // TODO normally this is not needed and can just be deleted getNetwork().getSynchronousComponentsManager().invalidate();
+        getNetwork().getDcComponentsManager().invalidate();
     }
 
     @Override
