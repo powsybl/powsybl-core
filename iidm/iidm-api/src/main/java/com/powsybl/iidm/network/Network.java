@@ -525,6 +525,14 @@ public interface Network extends Container<Network> {
     }
 
     /**
+     * Get all DC components.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    Collection<Component> getDcComponents();
+
+    /**
      * Create an empty network using default implementation.
      *
      * @param id id of the network
@@ -1416,6 +1424,14 @@ public interface Network extends Container<Network> {
      * @param id the id or an alias of the AC/DC Voltage-Source Converter
      */
     VoltageSourceConverter getVoltageSourceConverter(String id);
+
+    DcBus getDcBus(String id);
+
+    Iterable<DcBus> getDcBuses();
+
+    Stream<DcBus> getDcBusStream();
+
+    int getDcBusCount();
 
     /**
      * * Get an identifiable by its ID or alias
