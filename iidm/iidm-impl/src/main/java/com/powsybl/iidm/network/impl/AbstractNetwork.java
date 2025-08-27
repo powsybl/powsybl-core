@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.ref.RefObj;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +35,8 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
     private int forecastDistance = 0;
 
     protected String sourceFormat;
+
+    protected DcTopologyModel dcTopologyModel;
 
     AbstractNetwork(String id, String name, String sourceFormat) {
         super(id, name);
@@ -78,11 +82,21 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
         return "Network";
     }
 
-    protected abstract DcTopologyModel getDcTopologyModel();
+    protected DcTopologyModel getDcTopologyModel() {
+        return dcTopologyModel;
+    }
 
-    protected abstract DcTopologyModel detachDcTopologyModel();
+    protected DcTopologyModel detachDcTopologyModel() {
+        DcTopologyModel detachedDcTopologyModel = this.dcTopologyModel;
+        this.dcTopologyModel = null;
+        detachedDcTopologyModel.updateRef(new RefObj<>(null), new RefObj<>(null));
+        return detachedDcTopologyModel;
+    }
 
-    protected abstract void attachDcTopologyModel(DcTopologyModel dcTopologyModel);
+    protected void attachDcTopologyModel(DcTopologyModel dcTopologyModel, Ref<NetworkImpl> networkRef, Ref<SubnetworkImpl> subnetworkRef) {
+        this.dcTopologyModel = dcTopologyModel;
+        dcTopologyModel.updateRef(networkRef, subnetworkRef);
+    }
 
     /**
      * Transfer the extensions of a network to another one.

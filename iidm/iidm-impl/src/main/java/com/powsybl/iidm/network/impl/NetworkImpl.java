@@ -69,8 +69,6 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     private final Map<String, SubnetworkImpl> subnetworks = new LinkedHashMap<>();
 
-    private DcTopologyModel dcTopologyModel;
-
     @Override
     public Collection<Network> getSubnetworks() {
         return subnetworks.values().stream().map(Network.class::cast).toList();
@@ -83,25 +81,6 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     void removeFromSubnetworks(String subnetworkId) {
         subnetworks.remove(subnetworkId);
-    }
-
-    @Override
-    protected DcTopologyModel getDcTopologyModel() {
-        return dcTopologyModel;
-    }
-
-    @Override
-    protected DcTopologyModel detachDcTopologyModel() {
-        DcTopologyModel detachedDcTopologyModel = this.dcTopologyModel;
-        this.dcTopologyModel = null;
-        detachedDcTopologyModel.updateRef(new RefObj<>(null), new RefObj<>(null));
-        return detachedDcTopologyModel;
-    }
-
-    @Override
-    protected void attachDcTopologyModel(DcTopologyModel dcTopologyModel) {
-        this.dcTopologyModel = dcTopologyModel;
-        dcTopologyModel.updateRef(ref, subnetworkRef);
     }
 
     class BusBreakerViewImpl extends AbstractNetwork.AbstractBusBreakerViewImpl {
@@ -1346,7 +1325,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
                 original.ref, original.subnetworkRef, idSubNetwork, original.name, original.sourceFormat, original.getCaseDate());
         transferExtensions(original, sn);
         transferProperties(original, sn);
-        sn.attachDcTopologyModel(original.detachDcTopologyModel());
+        sn.attachDcTopologyModel(original.detachDcTopologyModel(), sn.getRootNetworkRef(), sn.getRef());
         parent.subnetworks.put(idSubNetwork, sn);
         parent.index.checkAndAdd(sn);
     }

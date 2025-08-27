@@ -44,8 +44,6 @@ public class SubnetworkImpl extends AbstractNetwork {
      */
     private final RefChain<SubnetworkImpl> ref;
 
-    private DcTopologyModel dcTopologyModel;
-
     SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
         this.rootNetworkRef = Objects.requireNonNull(rootNetworkRef);
@@ -69,25 +67,6 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     protected RefChain<SubnetworkImpl> getRef() {
         return ref;
-    }
-
-    @Override
-    protected DcTopologyModel getDcTopologyModel() {
-        return dcTopologyModel;
-    }
-
-    @Override
-    protected DcTopologyModel detachDcTopologyModel() {
-        DcTopologyModel detachedDcTopologyModel = this.dcTopologyModel;
-        this.dcTopologyModel = null;
-        detachedDcTopologyModel.updateRef(new RefObj<>(null), new RefObj<>(null));
-        return detachedDcTopologyModel;
-    }
-
-    @Override
-    protected void attachDcTopologyModel(DcTopologyModel dcTopologyModel) {
-        this.dcTopologyModel = dcTopologyModel;
-        dcTopologyModel.updateRef(rootNetworkRef, ref);
     }
 
     @Override
@@ -1020,7 +999,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         NetworkImpl detachedNetwork = new NetworkImpl(getId(), getNameOrId(), getSourceFormat());
         transferExtensions(this, detachedNetwork);
         transferProperties(this, detachedNetwork);
-        detachedNetwork.attachDcTopologyModel(this.detachDcTopologyModel());
+        detachedNetwork.attachDcTopologyModel(this.detachDcTopologyModel(), rootNetworkRef, ref);
 
         // Memorize the network identifiables/voltageAngleLimits before moving references (to use them later)
         Collection<Identifiable<?>> identifiables = getIdentifiables();
