@@ -7,10 +7,16 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,27 +28,62 @@ class DcTopologyTest {
     @Test
     void testBasicBusTopology() {
         Network net1 = Network.create("n1", "test");
+
         DcNode n11 = net1.newDcNode().setId("n11").setNominalV(500.).add();
         assertDcBusesAre(net1, List.of("n11_dcBus"));
+        assertEquals(IdentifiableType.DC_BUS, net1.getDcBus("n11_dcBus").getType());
         assertSame(n11.getDcBus(), net1.getDcBus("n11_dcBus"));
+
         DcNode n12 = net1.newDcNode().setId("n12").setNominalV(500.).add();
         assertDcBusesAre(net1, List.of("n11_dcBus", "n12_dcBus"));
+
         DcSwitch s1112 = net1.newDcSwitch().setId("s11-12")
                 .setKind(DcSwitchKind.BREAKER)
                 .setOpen(true)
                 .setDcNode1(n11.getId()).setDcNode2(n12.getId())
                 .add();
         assertDcBusesAre(net1, List.of("n11_dcBus", "n12_dcBus"));
+
         s1112.setOpen(false);
         assertDcBusesAre(net1, List.of("n11_dcBus"));
         assertSame(n11.getDcBus(), net1.getDcBus("n11_dcBus"));
         assertSame(n12.getDcBus(), net1.getDcBus("n11_dcBus"));
+
         s1112.remove();
         assertDcBusesAre(net1, List.of("n11_dcBus", "n12_dcBus"));
         assertSame(n11.getDcBus(), net1.getDcBus("n11_dcBus"));
         assertSame(n12.getDcBus(), net1.getDcBus("n12_dcBus"));
+
         n11.remove();
         assertDcBusesAre(net1, List.of("n12_dcBus"));
+    }
+
+    @Test
+    void testDcBusInvalidation() {
+        Network net1 = Network.create("n1", "test");
+
+        DcNode n11 = net1.newDcNode().setId("n11").setNominalV(500.).add();
+        DcNode n12 = net1.newDcNode().setId("n12").setNominalV(500.).add();
+        DcSwitch s1112 = net1.newDcSwitch().setId("s11-12")
+                .setKind(DcSwitchKind.BREAKER)
+                .setOpen(true)
+                .setDcNode1(n11.getId()).setDcNode2(n12.getId())
+                .add();
+        assertDcBusesAre(net1, List.of("n11_dcBus", "n12_dcBus"));
+        var dcBus = net1.getDcBus("n11_dcBus");
+        s1112.setOpen(false); // close the switch, this invalidates the DC bus
+        assertBusInvalidated(dcBus, DcBus::getV);
+        assertBusInvalidated(dcBus, DcBus::getConnectedComponent);
+        assertBusInvalidated(dcBus, DcBus::getDcComponent);
+        assertBusInvalidated(dcBus, DcBus::getDcNodes);
+        assertBusInvalidated(dcBus, DcBus::getDcNodeStream);
+        assertBusInvalidated(dcBus, DcBus::isInMainConnectedComponent);
+        assertBusInvalidated(dcBus, b -> b.setV(1.23));
+    }
+
+    private void assertBusInvalidated(DcBus dcBus, Consumer<DcBus> action) {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> action.accept(dcBus));
+        assertEquals("DcBus has been invalidated", e.getMessage());
     }
 
     private void assertDcBusesAre(Network network, List<String> expected) {
@@ -50,6 +91,7 @@ class DcTopologyTest {
                 expected.stream().sorted().toList(),
                 network.getDcBusStream().map(Identifiable::getId).sorted().toList()
         );
+        assertEquals(network.getDcBusCount(), expected.size());
     }
 
     @Test
@@ -80,8 +122,11 @@ class DcTopologyTest {
         Network merged = Network.merge(net1, net2);
         net1 = merged.getSubnetwork("n1");
         net2 = merged.getSubnetwork("n2");
+        assertEquals(3, merged.getDcBusCount());
         assertDcBusesAre(merged, List.of("n11_dcBus", "n21_dcBus", "n22_dcBus"));
+        assertEquals(1, net1.getDcBusCount());
         assertDcBusesAre(net1, List.of("n11_dcBus"));
+        assertEquals(2, net2.getDcBusCount());
         assertDcBusesAre(net2, List.of("n21_dcBus", "n22_dcBus"));
 
         // detach
@@ -127,7 +172,112 @@ class DcTopologyTest {
         // flatten
         network.flatten();
         assertEquals(0, network.getSubnetworks().size());
+        assertEquals(3, network.getDcBusCount());
         assertDcBusesAre(network, List.of("n11_dcBus", "n21_dcBus", "n22_dcBus"));
+    }
+
+    @Test
+    void testOneDcComponent() {
+        Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
+        Collection<Component> dcs = network.getDcComponents();
+        Collection<Component> ccs = network.getBusView().getConnectedComponents();
+        List<Component> scs = List.copyOf(network.getBusView().getSynchronousComponents());
+        assertEquals(1, dcs.size());
+        assertEquals(1, ccs.size());
+        assertEquals(2, scs.size());
+        Component dc0 = dcs.iterator().next();
+        Component cc0 = ccs.iterator().next();
+        Component sc0 = scs.get(0);
+        Component sc1 = scs.get(1);
+
+        var sc0expectedAcBuses = List.of(
+                "VL-FR_0",
+                "VLDC-FR-xNodeDc1fr-150_0",
+                "VLDC-FR-xNodeDc1fr-150_1",
+                "VLDC-FR-xNodeDc1fr-400_0",
+                "VLDC-FR-xNodeDc1fr-400_1");
+        var sc1expectedAcBuses = List.of(
+                "VL-GB_0",
+                "VLDC-GB-xNodeDc1gb-150_0",
+                "VLDC-GB-xNodeDc1gb-150_1",
+                "VLDC-GB-xNodeDc1gb-400_0");
+        var expectedDcBuses = List.of("dcNodeFrNeg_dcBus",
+                "dcNodeFrPos_dcBus",
+                "dcNodeGbNeg_dcBus",
+                "dcNodeGbPos_dcBus");
+
+        assertComponent(cc0, 0, Stream.concat(sc0expectedAcBuses.stream(), sc1expectedAcBuses.stream()).toList(), expectedDcBuses);
+        assertComponent(dc0, 0, List.of(), expectedDcBuses);
+        assertComponent(sc0, 0, sc0expectedAcBuses, List.of());
+        assertComponent(sc1, 1, sc1expectedAcBuses, List.of());
+
+        var dcLine = network.getDcLine("dcLine1");
+        dcLine.getDcTerminal1().setConnected(false);
+
+        Collection<Component> dcs2 = network.getDcComponents();
+        Collection<Component> ccs2 = network.getBusView().getConnectedComponents();
+        List<Component> scs2 = List.copyOf(network.getBusView().getSynchronousComponents());
+        assertEquals(2, dcs2.size());
+        assertEquals(2, ccs2.size());
+        assertEquals(2, scs2.size());
+    }
+
+    @Test
+    void testTwoDcComponents() {
+        Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
+        // run a first topology processing so that cache invalidation gets triggered
+        network.getDcComponents();
+        network.getBusView().getConnectedComponents();
+        network.getBusView().getSynchronousComponents();
+
+        var dcLine = network.getDcLine("dcLine1");
+        dcLine.getDcTerminal1().setConnected(false);
+
+        List<Component> dcs = List.copyOf(network.getDcComponents());
+        List<Component> ccs = List.copyOf(network.getBusView().getConnectedComponents());
+        List<Component> scs = List.copyOf(network.getBusView().getSynchronousComponents());
+        assertEquals(2, dcs.size());
+        assertEquals(2, ccs.size());
+        assertEquals(2, scs.size());
+        Component dc0 = dcs.get(0);
+        Component dc1 = dcs.get(1);
+        Component cc0 = ccs.get(0);
+        Component cc1 = ccs.get(1);
+        Component sc0 = scs.get(0);
+        Component sc1 = scs.get(1);
+
+        var sc0expectedAcBuses = List.of(
+                "VL-FR_0",
+                "VLDC-FR-xNodeDc1fr-150_0",
+                "VLDC-FR-xNodeDc1fr-150_1",
+                "VLDC-FR-xNodeDc1fr-400_0",
+                "VLDC-FR-xNodeDc1fr-400_1");
+        var sc1expectedAcBuses = List.of(
+                "VL-GB_0",
+                "VLDC-GB-xNodeDc1gb-150_0",
+                "VLDC-GB-xNodeDc1gb-150_1",
+                "VLDC-GB-xNodeDc1gb-400_0");
+        var dc0expectedDcBuses = List.of("dcNodeFrNeg_dcBus",
+                "dcNodeFrPos_dcBus");
+        var dc1expectedDcBuses = List.of(
+                "dcNodeGbNeg_dcBus",
+                "dcNodeGbPos_dcBus");
+
+        assertComponent(cc0, 0, sc0expectedAcBuses, dc0expectedDcBuses);
+        assertComponent(cc1, 1, sc1expectedAcBuses, dc1expectedDcBuses);
+        assertComponent(dc0, 0, List.of(), dc0expectedDcBuses);
+        assertComponent(dc1, 1, List.of(), dc1expectedDcBuses);
+        assertComponent(sc0, 0, sc0expectedAcBuses, List.of());
+        assertComponent(sc1, 1, sc1expectedAcBuses, List.of());
+    }
+
+    private void assertComponent(Component component, int expectedNum, List<String> expectedAcBuses, List<String> expectedDcBuses) {
+        assertEquals(expectedNum, component.getNum());
+        assertEquals(expectedAcBuses.size() + expectedDcBuses.size(), component.getSize());
+        assertEquals(expectedAcBuses.stream().sorted().toList(), component.getBusStream().map(Identifiable::getId).sorted().toList());
+        assertEquals(expectedAcBuses.stream().sorted().toList(), StreamSupport.stream(component.getBuses().spliterator(), false).map(Identifiable::getId).sorted().toList());
+        assertEquals(expectedDcBuses.stream().sorted().toList(), component.getDcBusStream().map(Identifiable::getId).sorted().toList());
+        assertEquals(expectedDcBuses.stream().sorted().toList(), StreamSupport.stream(component.getDcBuses().spliterator(), false).map(Identifiable::getId).sorted().toList());
     }
 
 }

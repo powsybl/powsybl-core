@@ -72,17 +72,32 @@ public class DcBusImpl extends AbstractIdentifiable<DcBus> implements DcBus {
 
     @Override
     public Component getConnectedComponent() {
-        return null;
+        checkValidity();
+        for (DcNodeImpl dcNode : dcNodes) {
+            Component cc = dcNode.getConnectedComponent();
+            if (cc != null) {
+                return cc;
+            }
+        }
+        throw new IllegalStateException("Should not happen");
     }
 
     @Override
     public boolean isInMainConnectedComponent() {
-        return false;
+        var cc = getConnectedComponent();
+        return cc != null && cc.getNum() == ComponentConstants.MAIN_NUM;
     }
 
     @Override
     public Component getDcComponent() {
-        return null;
+        checkValidity();
+        for (DcNodeImpl dcNode : dcNodes) {
+            Component dcc = dcNode.getDcComponent();
+            if (dcc != null) {
+                return dcc;
+            }
+        }
+        throw new IllegalStateException("Should not happen");
     }
 
     @Override
