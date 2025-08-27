@@ -20,7 +20,7 @@ import java.util.Optional;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode {
+public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode, MultiVariantObject {
 
     public static final String NOMINAL_V_ATTRIBUTE = "nominalV";
 
@@ -161,5 +161,41 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode {
         network.getListeners().notifyAfterRemoval(id);
 
         removed = true;
+    }
+
+    @Override
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        v.ensureCapacity(v.size() + number);
+        connectedComponentNumber.ensureCapacity(connectedComponentNumber.size() + number);
+        dcComponentNumber.ensureCapacity(dcComponentNumber.size() + number);
+        for (int i = 0; i < number; i++) {
+            v.add(v.get(sourceIndex));
+            connectedComponentNumber.add(connectedComponentNumber.get(sourceIndex));
+            dcComponentNumber.add(dcComponentNumber.get(sourceIndex));
+        }
+    }
+
+    @Override
+    public void reduceVariantArraySize(int number) {
+        for (int i = 0; i < number; i++) {
+            v.removeAt(v.size() - 1);
+            connectedComponentNumber.removeAt(connectedComponentNumber.size() - 1);
+            dcComponentNumber.removeAt(dcComponentNumber.size() - 1);
+        }
+    }
+
+    @Override
+    public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
+        // nothing to do
+    }
+
+    @Override
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        for (int index : indexes) {
+            v.set(index, v.get(sourceIndex));
+            connectedComponentNumber.set(index, connectedComponentNumber.get(sourceIndex));
+            dcComponentNumber.set(index, dcComponentNumber.get(sourceIndex));
+        }
     }
 }
