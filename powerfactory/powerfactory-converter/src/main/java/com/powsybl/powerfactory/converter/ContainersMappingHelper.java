@@ -224,6 +224,7 @@ final class ContainersMappingHelper {
             Edge::isZeroImpedance,
             Edge::isTransformer,
             busesToVoltageLevelId::getNominalVoltage,
+            id -> 0,
             busesToVoltageLevelId::getVoltageLevelId,
             busesToVoltageLevelId::getSubstationId);
     }
