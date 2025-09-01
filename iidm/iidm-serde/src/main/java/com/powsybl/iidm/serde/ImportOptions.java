@@ -40,11 +40,6 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
         return this;
     }
 
-    public ImportOptions setFilteredExtensions(Set<String> filteredExtensions) {
-        this.filteredExtension = filteredExtensions;
-        return this;
-    }
-
     public ImportOptions setThrowExceptionIfExtensionNotFound(boolean throwExceptionIfExtensionNotFound) {
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
         return this;
@@ -56,16 +51,6 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
             extensions.add(extension);
         } else {
             this.extensions = Sets.newHashSet(extension);
-        }
-        return this;
-    }
-
-    @Override
-    public ImportOptions addFilteredExtension(String extensionToBeFiltered) {
-        if (filteredExtension != null) {
-            filteredExtension.add(extensionToBeFiltered);
-        } else {
-            this.filteredExtension = Sets.newHashSet(extensionToBeFiltered);
         }
         return this;
     }
