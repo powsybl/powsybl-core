@@ -423,7 +423,7 @@ If this property is defined, then this ID will be written in the header of the e
 
 **iidm.export.cgmes.cim-version**  
 Optional property that defines the CIM version number in which the user wants the CGMES files to be exported.
-CIM versions 14, 16 and 100 are supported i.e. its valid values are `14`, `16` and `100`.
+CIM versions 16 and 100 are supported i.e. its valid values are `16` and `100`.
 If not defined, and the network has the extension `CimCharacteristics`, the CIM version will be the one indicated in the extension. If not, its default value is `16`.
 CIM version 16 corresponds to CGMES 2.4.15.
 CIM version 100 corresponds to CGMES 3.0.
