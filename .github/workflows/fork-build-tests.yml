@@ -59,13 +59,19 @@ jobs:
 
       - name: Save PR Information
         if: matrix.os == 'ubuntu-latest'
+        env:
+          REPO_NAME: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
           mkdir -p pr-info
-          echo "${{ github.event.pull_request.head.repo.full_name }}" > pr-info/repo-name
-          echo "${{ github.event.pull_request.head.ref }}" > pr-info/head-ref
-          echo "${{ github.event.pull_request.head.sha }}" > pr-info/head-sha
-          echo "${{ github.event.pull_request.number }}" > pr-info/pr-number
-          echo "${{ github.event.pull_request.base.ref }}" > pr-info/base-ref
+          echo "$REPO_NAME" > pr-info/repo-name
+          echo "$HEAD_REF" > pr-info/head-ref
+          echo "$HEAD_SHA" > pr-info/head-sha
+          echo "$PR_NUMBER" > pr-info/pr-number
+          echo "$BASE_REF" > pr-info/base-ref
 
       - name: Upload PR Information
         if: matrix.os == 'ubuntu-latest'
