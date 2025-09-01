@@ -211,7 +211,9 @@ public final class NetworkSerDe {
                 continue;
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
-                    .filter(e -> canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getVersion(), context.getOptions()))
+                    .filter(e ->
+                            !isExtensionFiltered(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getOptions()) &&
+                            canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getVersion(), context.getOptions()))
                     .toList();
 
             if (!extensions.isEmpty()) {
@@ -229,6 +231,16 @@ public final class NetworkSerDe {
     private static boolean ignoreEquipmentAtExport(Identifiable<?> identifiable, NetworkSerializerContext context) {
         return !context.isExportedEquipment(identifiable)
                 || identifiable instanceof OverloadManagementSystem && !context.getOptions().isWithAutomationSystems();
+    }
+
+    private static boolean isExtensionFiltered(ExtensionSerDe extensionSerDe, ExportOptions options) {
+        if (extensionSerDe == null) {
+            return false;
+        }
+        if (options.getFilteredExtensions().isPresent()) {
+            return options.getFilteredExtensions().get().contains(extensionSerDe.getExtensionName());
+        }
+        return false;
     }
 
     private static boolean canTheExtensionBeWritten(ExtensionSerDe extensionSerDe, IidmVersion version, ExportOptions options) {
@@ -860,8 +872,8 @@ public final class NetworkSerDe {
             // missing extension serializer, we must not check for an extension in sub elements.
             ExtensionSerDe extensionSerde = extensionsSupplier.get().findProvider(extensionSerializationName);
             String extensionName = extensionSerde != null ? extensionSerde.getExtensionName() : extensionSerializationName;
-            if (!context.isIgnoredEquipment(id)
-                    && (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName))) {
+            if (!context.isIgnoredEquipment(id) && ((context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName))) &&
+                    !(context.getOptions().withFilteredExtension(extensionName) || context.getOptions().withFilteredExtension(extensionSerializationName))) {
                 if (extensionSerde != null) {
                     Identifiable identifiable = getIdentifiable(network, id);
                     extensionSerde.read(identifiable, context);
