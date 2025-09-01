@@ -45,8 +45,8 @@ https://github.com/powsybl/powsybl-gse page.
 ## Environment requirements
 
 Powsybl-core project is fully written in Java, so you only need few requirements:
-- JDK *(17 or greater)*
-- Maven *(3.8.1 or greater)* - you could use the embedded maven wrapper instead if you prefer (see [Using Maven Wrapper](#using-maven-wrapper))
+- JDK *(21 or greater)*
+- Maven *(3.8.1 or greater, 3.9.x recommended)* - you could use the embedded maven wrapper instead if you prefer (see [Using Maven Wrapper](#using-maven-wrapper))
 
 To run all the tests, simply launch the following command from the root of the repository:
 ```
