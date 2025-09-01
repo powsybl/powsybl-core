@@ -171,7 +171,7 @@ jobs:
       # This sonar action should NOT be replaced by a direct use of the mvn verify command since we don't want external
       # code to run in a workflow_run workflow (it may lead to security issues).
       - name: Run Sonar Analysis
-        uses: SonarSource/sonarqube-scan-action@2500896589ef8f7247069a56136f8dc177c27ccf # v5.2.0
+        uses: SonarSource/sonarqube-scan-action@1a6d90ebcb0e6a6b1d87e37ba693fe453195ae25 # v5.3.1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
