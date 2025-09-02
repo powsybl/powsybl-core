@@ -67,10 +67,10 @@ public final class NetworkGeoDataExtensionsAdder {
                     .add();
     }
 
-    private static void fillLineGeoData(com.powsybl.iidm.network.Line line, Map<String, List<Coordinate>> linesCoordinates,
+    private static void fillLineGeoData(Line line, Map<String, List<Coordinate>> linesCoordinates,
                                         boolean forceGeoDataComputation, AtomicInteger unknownLines) {
         if (linesCoordinates.containsKey(line.getId())) {
-            LinePosition linePosition = line.getExtension(LinePosition.class);
+            LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
             if (linePosition != null) {
                 if (forceGeoDataComputation) {
                     line.removeExtension(LinePosition.class);
