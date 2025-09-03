@@ -50,10 +50,29 @@ public class TestImporter implements Importer {
     public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
         if (reportNode != null) {
             reportNode.newReportNode()
-                    .withMessageTemplate("test", "Import model ${model}")
+                    .withMessageTemplate("testImportModel")
                     .withUntypedValue("model", "eurostagTutorialExample1")
                     .add();
         }
-        return networkFactory.createNetwork("mock", "test");
+        Network network = networkFactory.createNetwork("mock", "test");
+        if (parameters != null) {
+            parameters.forEach((key, value) -> network.setProperty((String) key, (String) value));
+        }
+        return network;
+    }
+
+    @Override
+    public void update(Network network, ReadOnlyDataSource dataSource, Properties parameters, ReportNode reportNode) {
+        if (reportNode != null) {
+            reportNode.newReportNode()
+                    .withMessageTemplate("testUpdateModel")
+                    .withUntypedValue("model", "eurostagTutorialExample1")
+                    .add();
+        }
+        // Update a load in the network
+        Load load = network.getLoad("LOAD");
+        if (load != null) {
+            load.setP0(123.0);
+        }
     }
 }

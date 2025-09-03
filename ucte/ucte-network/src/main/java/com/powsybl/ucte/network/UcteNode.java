@@ -8,7 +8,7 @@
 package com.powsybl.ucte.network;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
+import com.powsybl.ucte.network.util.UcteReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -423,12 +423,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
 
         // active power is undefined
         if (Double.isNaN(activePowerGeneration)) {
-
-            reportNode.newReportNode()
-                .withMessageTemplate("activePowerUndefined", "Node ${node}: active power is undefined, set value to 0")
-                .withUntypedValue("node", code.toString())
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
+            UcteReports.undefinedActivePower(reportNode, code.toString());
             LOGGER.warn("Node {}: active power is undefined, set value to 0", code);
             activePowerGeneration = 0;
         }
@@ -478,12 +473,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
 
         // PV and undefined voltage, switch to PQ
         if (isRegulatingVoltage() && (Double.isNaN(voltageReference) || voltageReference < 0.0001)) {
-            reportNode.newReportNode()
-                .withMessageTemplate("PvUndefinedVoltage", "Node ${node}: voltage is regulated, but voltage setpoint is null (${voltageReference}), switch type code to PQ")
-                .withUntypedValue("node", code.toString())
-                .withUntypedValue("voltageReference", voltageReference)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
+            UcteReports.switchVoltageLevelTypeCOdeToPQ(reportNode, code.toString(), voltageReference);
             LOGGER.warn("Node {}: voltage is regulated, but voltage setpoint is null ({}), switch type code to {}",
                     code, voltageReference, UcteNodeTypeCode.PQ);
             typeCode = UcteNodeTypeCode.PQ;
@@ -505,11 +495,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
 
         // PQ and undefined reactive power
         if (!isRegulatingVoltage() && Double.isNaN(reactivePowerGeneration)) {
-            reportNode.newReportNode()
-                .withMessageTemplate("PqUndefinedReactivePower", "Node ${node}: voltage is not regulated but reactive power is undefined, set value to 0")
-                .withUntypedValue("node", code.toString())
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
+            UcteReports.nullifyVoltageLevelReactivePower(reportNode, code.toString());
             LOGGER.warn("Node {}: voltage is not regulated but reactive power is undefined, set value to 0", code);
             reactivePowerGeneration = 0;
         }

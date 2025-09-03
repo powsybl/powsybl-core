@@ -41,10 +41,4 @@ abstract class AbstractGroovySupplier<T, R extends GroovyExtension<T>> {
         shell.evaluate(codeSource);
         return outputVariables;
     }
-
-    protected ReportNode createReportNode(ReportNode reportNode, String key, String message) {
-        return reportNode.newReportNode()
-                .withMessageTemplate(key, message)
-                .add();
-    }
 }

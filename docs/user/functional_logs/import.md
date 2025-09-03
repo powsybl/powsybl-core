@@ -3,15 +3,15 @@
 The report node JSON file obtained from `ReportNode` serialization can be deserialized
 - from a file `Path`
 ```java
-ReportNode.read(path);
+ReportNodeDeserializer.read(path);
 ```
 - from an `InputStream`
 ```java
-ReportNode.read(inputStream);
+ReportNodeDeserializer.read(inputStream);
 ```
 
 ## Version
-Currently, the only serialized version supported is the version 2.1.
+Currently, the serialized versions supported are the versions 2.1 and 3.0.
 
 ## Dictionaries
 The two methods above look for a `default` dictionary in the `dictionaries` list.
@@ -19,7 +19,7 @@ If no `default` dictionary is found, the first entry of the list is taken.
 
 If several dictionaries are defined in the JSON file, we can choose which dictionary has to be used for deserialization by providing the dictionary name:
 ```java
-ReportNode.read(path, dictionary);
-ReportNode.read(inputStream, dictionary);
+ReportNodeDeserializer.read(path, dictionary);
+ReportNodeDeserializer.read(inputStream, dictionary);
 ```
 Similarly, if the chosen dictionary cannot be found, the first entry of the list is taken.

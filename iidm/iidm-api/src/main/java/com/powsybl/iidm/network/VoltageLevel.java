@@ -92,7 +92,7 @@ import java.util.stream.Stream;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -1314,6 +1314,48 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get ground count.
      */
     int getGroundCount();
+
+    /**
+     * Get a builder to create a new AC/DC Line-Commutated Converter.
+     * @return a builder to create a new AC/DC Line-Commutated Converter
+     */
+    LineCommutatedConverterAdder newLineCommutatedConverter();
+
+    /**
+     * Get AC/DC Line-Commutated Converters connected to this voltage level.
+     */
+    Iterable<LineCommutatedConverter> getLineCommutatedConverters();
+
+    /**
+     * Get AC/DC Line-Commutated Converters connected to this voltage level.
+     */
+    Stream<LineCommutatedConverter> getLineCommutatedConverterStream();
+
+    /**
+     * Get AC/DC Line-Commutated Converter connected to this voltage level count.
+     */
+    int getLineCommutatedConverterCount();
+
+    /**
+     * Get a builder to create a new AC/DC Voltage-Source Converter.
+     * @return a builder to create a new AC/DC Voltage-Source Converter
+     */
+    VoltageSourceConverterAdder newVoltageSourceConverter();
+
+    /**
+     * Get AC/DC Voltage-Source Converters connected to this voltage level.
+     */
+    Iterable<VoltageSourceConverter> getVoltageSourceConverters();
+
+    /**
+     * Get AC/DC Voltage-Source Converters connected to this voltage level.
+     */
+    Stream<VoltageSourceConverter> getVoltageSourceConverterStream();
+
+    /**
+     * Get AC/DC Voltage-Source Converter connected to this voltage level count.
+     */
+    int getVoltageSourceConverterCount();
 
     /**
      * Remove this voltage level from the network.

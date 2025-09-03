@@ -17,6 +17,8 @@ short-circuit-parameters:
   with-neutral-position: true
   initial-voltage-profile-mode: CONFIGURED
   voltage-ranges: /path/to/voltage/ranges/file
+  detailedReport: true
+  debugDir: null
 ```
 
 Available parameters in the short-circuit API are stored in `com.powsybl.shortcircuit.ShortCircuitParameters`. They are all optional.
@@ -42,12 +44,13 @@ The default value is `true`.
 **study-type**
 
 This property indicates the type of short-circuit study. It can be:
-- `SUB_TRANSIENT`: it is the first stage of the short circuit, right when the fault happens. In this case, it is the sub-transient reactance of generators that is used.
-  This reactance can either be stored in the network or calculated from the transient reactance of generators with a coefficient defined by the parameter `sub-transient-coefficient`.
-- `TRANSIENT`: the second stage of the short circuit, before the system stabilizes. The transient reactance of generators will be used.
+- `SUB_TRANSIENT`: it is the first stage of the short circuit, right when the fault happens. In this case, it is the sub-transient reactance of generators and batteries that is used.
+  This reactance can either be stored in the network or calculated from the transient reactance of generators or batteries with a coefficient defined by the parameter `sub-transient-coefficient`.
+- `TRANSIENT`: the second stage of the short circuit, before the system stabilizes. The transient reactance of generators and batteries will be used.
 - `STEADY_STATE`: the last stage, once all transient effects are gone.
 
-The default value is `TRANSIENT`. The transient and sub-transient reactance of the generators are stored in the [short-circuit generator extension.](../../grid_model/extensions.md#generator-short-circuit)
+The default value is `TRANSIENT`. The transient and sub-transient reactances of the generators are stored in the [short-circuit generator extension.](../../grid_model/extensions.md#generator-short-circuit)
+and the ones of batteries are stored in the  [short-circuit battery extension.](../../grid_model/extensions.md#battery-short-circuit)
 
 **sub-transient-coefficient**
 
@@ -75,11 +78,11 @@ The voltage drop is calculated as the ratio between the initial voltage magnitud
 
 **with-loads**
 
-This property indicates whether loads should be taken into account during the calculation. If `true`, the loads are modelled as an equivalent reactance, and the equivalent reactance at the fault point will be lowered. If `false`, then they will be ignored.
+This property indicates whether loads should be taken into account during the calculation. If `true`, the loads are modeled as an equivalent reactance, and the equivalent reactance at the fault point will be lowered. If `false`, then they will be ignored.
 
 **with-shunt-compensators**
 
-This property indicates if shunt compensators should be taken into account during the computation. If `true`, the shunt compensators will be modelled as an equivalent reactance.
+This property indicates if shunt compensators should be taken into account during the computation. If `true`, the shunt compensators will be modeled as an equivalent reactance.
 If `false`, then the shunt compensators will be ignored.
 
 **with-vsc-converter-stations**
@@ -134,6 +137,13 @@ Here is an example of this JSON file:
     }
 ]
 ````
+
+**detailedReport**
+This property indicates whether the computation should produce detailed reporting. If `true`, detailed reports are returned.
+If `false`, summarized reports are returned.
+
+**debugDir**
+This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
 
 (shortcircuit-fault-parameters)=
 ## FaultParameters

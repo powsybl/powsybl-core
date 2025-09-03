@@ -40,7 +40,6 @@ public class GroovyOutputVariablesSupplier extends AbstractGroovySupplier<Output
 
     @Override
     public List<OutputVariable> get(Network network, ReportNode reportNode) {
-        return evaluateScript(network,
-                createReportNode(reportNode, "groovyOutputVariables", "Groovy Output Variables Supplier"));
+        return evaluateScript(network, DynamicSimulationReports.supplyGroovyOutputVariables(reportNode));
     }
 }

@@ -3,4 +3,4 @@
    + Imported extensions
       Extension substationPosition imported.
    + XIIDM import done
-      Network "test" is imported from XML format.
+      Network test is imported from XML format.

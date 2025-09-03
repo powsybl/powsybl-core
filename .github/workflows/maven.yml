@@ -16,6 +16,7 @@ jobs:
   build:
     name: Build OS ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    if: github.event.pull_request.head.repo.fork == false
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]

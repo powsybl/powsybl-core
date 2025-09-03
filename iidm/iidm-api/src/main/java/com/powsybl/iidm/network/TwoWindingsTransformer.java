@@ -29,7 +29,7 @@ import java.util.Optional;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -233,5 +233,18 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.TWO_WINDINGS_TRANSFORMER;
+    }
+
+    default void applySolvedValues() {
+        setRatioTapPositionToSolvedTapPosition();
+        setPhaseTapPositionToSolvedTapPosition();
+    }
+
+    default void setRatioTapPositionToSolvedTapPosition() {
+        this.getOptionalRatioTapChanger().ifPresent(TapChanger::applySolvedValues);
+    }
+
+    default void setPhaseTapPositionToSolvedTapPosition() {
+        this.getOptionalPhaseTapChanger().ifPresent(TapChanger::applySolvedValues);
     }
 }

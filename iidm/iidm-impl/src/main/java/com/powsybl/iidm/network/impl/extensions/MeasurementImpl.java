@@ -108,6 +108,14 @@ class MeasurementImpl implements Measurement {
     }
 
     @Override
+    public Measurement setValueAndValidity(double value, boolean valid) {
+        MeasurementValidationUtil.checkValue(value, valid);
+        this.valid = valid;
+        this.value = value;
+        return this;
+    }
+
+    @Override
     public ThreeSides getSide() {
         return side;
     }

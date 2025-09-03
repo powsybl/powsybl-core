@@ -138,12 +138,14 @@ final class ExportXmlCompare {
                 ignored = attr.getLocalName().equals("converterStation1") || attr.getLocalName().equals("converterStation2") || attr.getLocalName().equals("convertersMode");
             } else if (elementName.contains("TapChanger")) {
                 ignored = attr.getLocalName().equals("regulating") || attr.getLocalName().equals("regulationMode") || attr.getLocalName().equals("regulationValue")
-                        || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband");
+                        || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband") || attr.getLocalName().equals("solvedTapPosition");
             } else if (elementName.startsWith("generator")) {
                 // ratedS is optional for generators,
                 // but we always export it to keep up with the quality of datasets rules.
                 // So we do not enforce this attribute to be equal in the original and exported network
                 ignored = attr.getLocalName().equals("ratedS");
+            } else if (elementName.startsWith("shunt")) {
+                ignored = attr.getLocalName().equals("solvedSectionCount");
             } else {
                 ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
@@ -770,7 +772,7 @@ final class ExportXmlCompare {
             return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0")
                 || name.equals("r") || name.equals("x") || name.equals("g") || name.equals("b") || name.equals("rho") || name.equals("alpha")
                 || name.equals("b1") || name.equals("b2") || name.equals("g1") || name.equals("g2")
-                || name.equals("bPerSection") || name.equals("activePowerSetpoint")
+                || name.equals("bPerSection") || name.equals("activePowerSetpoint") || name.equals("maxP")
                 || isAttrValueOfNumericProperty((Attr) n);
         }
         return false;
@@ -803,7 +805,8 @@ final class ExportXmlCompare {
                 || n.getLocalName().equals("b1") || n.getLocalName().equals("b2")
                 || n.getLocalName().equals("g1") || n.getLocalName().equals("g2")
                 || n.getLocalName().equals("alpha") || n.getLocalName().equals("rho")
-                || n.getLocalName().equals("bPerSection") || n.getLocalName().equals("activePowerSetpoint")) {
+                || n.getLocalName().equals("bPerSection") || n.getLocalName().equals("activePowerSetpoint")
+                || n.getLocalName().equals("maxP")) {
             return 1e-5;
         }
         return 1e-10;

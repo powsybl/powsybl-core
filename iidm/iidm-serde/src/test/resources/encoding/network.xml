@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" id="test" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_14" id="test" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="Sõ" country="FR"></iidm:substation>
 </iidm:network>

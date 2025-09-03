@@ -8,8 +8,8 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
@@ -234,14 +234,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         // Create the new line
         Line newLine = lineAdder.add();
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
-        reportNode.newReportNode()
-                .withMessageTemplate("newLineOnLineCreated", "New line ${newLineId} was created and connected on a tee point to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
-                .withUntypedValue("newLineId", newLine.getId())
-                .withUntypedValue("line1Id", line1Id)
-                .withUntypedValue("line2Id", line2Id)
-                .withUntypedValue("originalLineId", originalLineId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+        ModificationReports.createNewLineAndReplaceOldOne(reportNode, newLine.getId(), line1Id, line2Id, originalLineId);
     }
 
     public LineAdder getLineAdder() {

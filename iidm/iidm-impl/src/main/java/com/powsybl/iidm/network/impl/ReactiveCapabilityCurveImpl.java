@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.util.ReactiveCapabilityCurveUtil;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.TreeMap;
 import java.util.function.ToDoubleFunction;
 
@@ -20,6 +21,19 @@ import java.util.function.ToDoubleFunction;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
+
+    /**
+     * <p>Comparator to handle the -0.0 == 0.0 case:</p>
+     * <p>According to the JLS: "Positive zero and negative zero compare equal, so the result of the expression 0.0==-0.0 is true".
+     * But the {@link Double#compareTo(Double)} method consider -0.0 lower than 0.0. Therefore, using the default
+     * Double comparator causes a problem when the lower point's <code>p</code> is equal to 0.0 and the tested <code>p</code>
+     * is -0.0.
+     * </p>
+     * <p>This comparator considers 0.0 and -0.0 as equal.</p>
+     * <p>Note: it throws a {@link NullPointerException} when one of the Doubles are null,
+     * similarly as the default Double comparator. But in our use case, this cannot happen.</p>
+     */
+    private static final Comparator<Double> COMPARATOR = (d1, d2) -> d1 - d2 == 0 ? 0 : Double.compare(d1, d2);
 
     private final String ownerDescription;
 
@@ -64,7 +78,8 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     ReactiveCapabilityCurveImpl(TreeMap<Double, Point> points, String ownerDescription) {
         checkPointsSize(points);
-        this.points = points;
+        this.points = new TreeMap<>(COMPARATOR);
+        this.points.putAll(points);
         this.ownerDescription = ownerDescription;
     }
 

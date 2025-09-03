@@ -10,7 +10,6 @@ package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
@@ -49,14 +48,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             cachedTerminals = computeTerminals();
         }
         return cachedTerminals.get(terminalId);
-    }
-
-    @Override
-    public CgmesDcTerminal dcTerminal(String dcTerminalId) {
-        if (cachedDcTerminals == null) {
-            cachedDcTerminals = computeDcTerminals();
-        }
-        return cachedDcTerminals.get(dcTerminalId);
     }
 
     @Override
@@ -165,18 +156,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return ts;
     }
 
-    private Map<String, CgmesDcTerminal> computeDcTerminals() {
-        Map<String, CgmesDcTerminal> ts = new HashMap<>();
-        dcTerminals().forEach(t -> {
-            CgmesDcTerminal td = new CgmesDcTerminal(t);
-            if (ts.containsKey(td.id())) {
-                return;
-            }
-            ts.put(td.id(), td);
-        });
-        return ts;
-    }
-
     // TODO(Luma): better caches create an object "Cache" that is final ...
     // (avoid filling all places with if cached == null...)
     private Map<String, CgmesContainer> computeContainers() {
@@ -221,11 +200,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
         for (String name : cds.names()) {
             LOG.info("Reading [{}]", name);
-            reportNode.newReportNode()
-                    .withMessageTemplate("CGMESFileRead", "Instance file ${instanceFile}")
-                    .withTypedValue("instanceFile", name, TypedValue.FILENAME)
-                    .withSeverity(TypedValue.INFO_SEVERITY)
-                    .add();
+            CgmesModelReports.readFile(reportNode, name);
             try (InputStream is = cds.dataSource().newInputStream(name)) {
                 read(is, baseName, name, reportNode);
             } catch (IOException e) {
@@ -244,7 +219,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         cachedConnectivityNodes = null;
         cachedTopologicalNodes = null;
         cachedNodesById = null;
-        cachedDcTerminals = null;
     }
 
     private final Properties properties;
@@ -258,8 +232,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     protected PropertyBags cachedConnectivityNodes;
     protected PropertyBags cachedTopologicalNodes;
     private Map<String, PropertyBag> cachedNodesById;
-    // equipmentId, sequenceNumber, terminalId
-    private Map<String, CgmesDcTerminal> cachedDcTerminals;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesModel.class);
     private static final String SUBSTATION = "Substation";

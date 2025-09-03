@@ -7,7 +7,6 @@
  */
 package com.powsybl.commons.report;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 /**
@@ -17,39 +16,29 @@ import java.util.Locale;
  */
 public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeBuilder> implements ReportNodeBuilder {
 
-    private String timestampPattern;
-    private Locale timestampLocale;
-    private boolean timestamps;
+    private String defaultTimestampPattern;
+    private Locale locale;
 
     @Override
-    public ReportNodeBuilder withTimestampPattern(String timestampPattern, Locale locale) {
-        this.timestampPattern = timestampPattern;
-        this.timestampLocale = locale;
+    public ReportNodeBuilder withDefaultTimestampPattern(String timestampPattern) {
+        this.defaultTimestampPattern = timestampPattern;
         return this;
     }
 
     @Override
-    public ReportNodeBuilder withTimestamps(boolean enabled) {
-        this.timestamps = true;
+    public ReportNodeBuilder withLocale(Locale locale) {
+        this.locale = locale;
         return this;
     }
 
     @Override
     public ReportNode build() {
-        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, timestamps, createDateTimeFormatter(timestampPattern, timestampLocale));
-    }
-
-    private static DateTimeFormatter createDateTimeFormatter(String timestampPattern, Locale timestampLocale) {
-        if (timestampPattern == null && timestampLocale == null) {
-            return ReportConstants.DEFAULT_TIMESTAMP_FORMATTER;
+        TreeContext treeContext = new TreeContextImpl(locale, defaultTimestampPattern);
+        if (withTimestamp) {
+            addTimeStampValue(treeContext);
         }
-        if (timestampPattern == null) {
-            return DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN, timestampLocale);
-        }
-        if (timestampLocale == null) {
-            return DateTimeFormatter.ofPattern(timestampPattern, ReportConstants.DEFAULT_TIMESTAMP_LOCALE);
-        }
-        return DateTimeFormatter.ofPattern(timestampPattern, timestampLocale);
+        updateTreeDictionary(treeContext);
+        return ReportNodeImpl.createRootReportNode(key, values, treeContext, messageTemplateProvider);
     }
 
     @Override

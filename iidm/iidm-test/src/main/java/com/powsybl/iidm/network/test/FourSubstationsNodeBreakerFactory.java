@@ -161,16 +161,16 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNode2(3)
                 .setVoltageLevel2("S1VL2")
                 .add();
-        twt.newCurrentLimits1()
+        twt.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(1031.0)
                 .add();
-        twt.newCurrentLimits2()
+        twt.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(1031.0)
                 .add();
         twt.newPhaseTapChanger()
                 .setLowTapPosition(0)
                 .setTapPosition(15)
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulating(false)
                 .setRegulationTerminal(twt.getTerminal(TwoSides.ONE))
                 .beginStep().setR(39.78473).setX(29.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
@@ -545,10 +545,10 @@ public final class FourSubstationsNodeBreakerFactory {
                 .add();
         lineS3S4.getTerminal1().setP(240.0036).setQ(2.1751);
         lineS3S4.getTerminal2().setP(-240.0).setQ(2.5415);
-        lineS3S4.newCurrentLimits1()
+        lineS3S4.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .add();
-        lineS3S4.newCurrentLimits2()
+        lineS3S4.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .beginTemporaryLimit()
                 .setName("IST")
@@ -609,6 +609,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setBmin(-5e-2)
                 .setBmax(5e-2)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulating(true)
                 .setVoltageSetpoint(400)
                 .add();
         svc.getTerminal().setQ(-12.5415);

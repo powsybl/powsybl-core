@@ -12,6 +12,7 @@ import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.network.util.NetworkReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,7 +152,7 @@ public final class Importers {
             try {
                 List<Future<?>> futures = dataSources.stream()
                         .map(ds -> {
-                            ReportNode child = createChildReportNode(reportNode, ds);
+                            ReportNode child = NetworkReports.createChildReportNode(reportNode, ds);
                             return executor.submit(() -> doImport(ds, importer, parameters, consumer, listener, networkFactory, child));
                         })
                         .collect(Collectors.toList());
@@ -163,16 +164,9 @@ public final class Importers {
             }
         } else {
             for (ReadOnlyDataSource dataSource : dataSources) {
-                doImport(dataSource, importer, parameters, consumer, listener, networkFactory, createChildReportNode(reportNode, dataSource));
+                doImport(dataSource, importer, parameters, consumer, listener, networkFactory, NetworkReports.createChildReportNode(reportNode, dataSource));
             }
         }
-    }
-
-    private static ReportNode createChildReportNode(ReportNode reportNode, ReadOnlyDataSource ds) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("importDataSource", "Import data source ${dataSource}")
-                .withUntypedValue("dataSource", ds.getBaseName())
-                .add();
     }
 
     public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {

@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
@@ -34,7 +35,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
@@ -169,15 +169,13 @@ public final class CgmesExportUtil {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.SUPERSEDES);
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, supersedes);
         }
+        if (subset == CgmesSubset.EQUIPMENT && context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER && context.getCimVersion() < 100) {
+            // From CGMES 3 EquipmentOperation is not required to write operational limits, connectivity nodes
+            modelDescription.addProfiles(List.of(context.getCim().getProfileUri("EQ_OP")));
+        }
         for (String profile : modelDescription.getProfiles()) {
             writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
             writer.writeCharacters(profile);
-            writer.writeEndElement();
-        }
-        if (subset == CgmesSubset.EQUIPMENT && context.getTopologyKind().equals(CgmesTopologyKind.NODE_BREAKER) && context.getCimVersion() < 100) {
-            // From CGMES 3 EquipmentOperation is not required to write operational limits, connectivity nodes
-            writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
-            writer.writeCharacters(context.getCim().getProfileUri("EQ_OP"));
             writer.writeEndElement();
         }
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
@@ -403,8 +401,7 @@ public final class CgmesExportUtil {
     }
 
     static boolean regulatingControlIsDefined(PhaseTapChanger ptc) {
-        return ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP
-                && !Double.isNaN(ptc.getRegulationValue())
+        return !Double.isNaN(ptc.getRegulationValue())
                 && !Double.isNaN(ptc.getTargetDeadband())
                 && ptc.getRegulationTerminal() != null;
     }
