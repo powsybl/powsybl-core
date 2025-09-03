@@ -269,6 +269,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             svcColumns = ArrayUtils.addAll(svcColumns,
                                            new Column(CONNECTED),
                                            new Column("regulationMode"),
+                                           new Column("regulating"),
                                            new Column("bMin"),
                                            new Column("bMax"),
                                            new Column(MAIN_COMPONENT),
@@ -287,6 +288,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                 svcColumns = ArrayUtils.addAll(svcColumns,
                                                new Column(CONNECTED + POST_COMPUTATION_SUFFIX),
                                                new Column("regulationMode" + POST_COMPUTATION_SUFFIX),
+                                               new Column("regulating" + POST_COMPUTATION_SUFFIX),
                                                new Column("bMin" + POST_COMPUTATION_SUFFIX),
                                                new Column("bMax" + POST_COMPUTATION_SUFFIX),
                                                new Column(MAIN_COMPONENT + POST_COMPUTATION_SUFFIX),
@@ -662,20 +664,20 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     @Override
     protected void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                         boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated,
+                         boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated,
                          SvcData svcData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(svcId);
         if (compareResults) {
             formatter = found ?
                         write(found, svcData.p, svcData.q, svcData.vControlled, svcData.vController, svcData.nominalVcontroller, svcData.reactivePowerSetpoint, svcData.voltageSetpoint,
-                              svcData.connected, svcData.regulationMode, svcData.bMin, svcData.bMax, svcData.mainComponent, svcData.validated) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, null, Double.NaN, Double.NaN, false, false);
+                              svcData.connected, svcData.regulationMode, svcData.regulating, svcData.bMin, svcData.bMax, svcData.mainComponent, svcData.validated) :
+                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, null, false, Double.NaN, Double.NaN, false, false);
         }
-        formatter = write(writeValues, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated);
+        formatter = write(writeValues, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated);
     }
 
     private TableFormatter write(boolean writeValues, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                                 boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException {
+                                 boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(-p)
                              .writeCell(-q)
@@ -689,11 +691,12 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             formatter = writeValues ?
                         formatter.writeCell(connected)
                                  .writeCell(regulationMode.name())
+                                 .writeCell(regulating)
                                  .writeCell(bMin)
                                  .writeCell(bMax)
                                  .writeCell(mainComponent)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCells(6);
+                        formatter.writeEmptyCells(7);
         }
         return formatter;
     }

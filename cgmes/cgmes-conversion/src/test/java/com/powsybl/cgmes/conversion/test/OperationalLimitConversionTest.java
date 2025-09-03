@@ -15,9 +15,10 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import com.google.re2j.Pattern;
+
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,9 +65,8 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertFalse(line.getSelectedOperationalLimitsGroup2().isPresent());
 
         // The CGMES id/name have been preserved in a property.
-        String propertyValue = """
-                {"OLS_1":"Spring","OLS_2":"Spring","OLS_3":"Winter"}""";
-        assertEquals(propertyValue, line.getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS));
+        assertEquals("OLS_3", winterLimits.get().getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_RDFID));
+        assertEquals("Winter", winterLimits.get().getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_NAME));
     }
 
     @Test

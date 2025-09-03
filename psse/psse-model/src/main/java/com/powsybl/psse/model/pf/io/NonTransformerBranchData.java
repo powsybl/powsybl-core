@@ -21,12 +21,13 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
 class NonTransformerBranchData extends AbstractRecordGroup<PsseNonTransformerBranch> {
 
     private static final String[] FIELD_NAMES_32_33 = {"i", "j", "ckt", "r", "x", "b", "ratea", "rateb", "ratec", "gi", "bi", "gj", "bj", "st", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
+    static final String[] FIELD_NAMES_35 = {"ibus", "jbus", "ckt", "rpu", "xpu", "bpu", "name", "rate1", "rate2", "rate3", "rate4", "rate5", "rate6", "rate7", "rate8", "rate9", "rate10", "rate11", "rate12", "gi", "bi", "gj", "bj", "stat", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
 
     NonTransformerBranchData() {
         super(PowerFlowRecordGroup.NON_TRANSFORMER_BRANCH);
         withFieldNames(V32, FIELD_NAMES_32_33);
         withFieldNames(V33, FIELD_NAMES_32_33);
-        withFieldNames(V35, "ibus", "jbus", "ckt", "rpu", "xpu", "bpu", "name", "rate1", "rate2", "rate3", "rate4", "rate5", "rate6", "rate7", "rate8", "rate9", "rate10", "rate11", "rate12", "gi", "bi", "gj", "bj", "stat", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4");
+        withFieldNames(V35, FIELD_NAMES_35);
         withQuotedFields("ckt", "name");
     }
 

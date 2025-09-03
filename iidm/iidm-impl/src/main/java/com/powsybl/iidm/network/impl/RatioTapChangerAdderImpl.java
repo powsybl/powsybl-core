@@ -20,8 +20,6 @@ import java.util.List;
  */
 class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChangerAdderImpl, RatioTapChangerParent, RatioTapChanger, RatioTapChangerStepImpl> implements RatioTapChangerAdder {
 
-    private boolean loadTapChangingCapabilities = false;
-
     private RatioTapChanger.RegulationMode regulationMode = null;
 
     class StepAdderImpl implements RatioTapChangerAdder.StepAdder {
@@ -77,13 +75,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
     }
 
     RatioTapChangerAdderImpl(RatioTapChangerParent parent) {
-        super(parent);
-    }
-
-    @Override
-    public RatioTapChangerAdder setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
-        this.loadTapChangingCapabilities = loadTapChangingCapabilities;
-        return this;
+        super(parent, false);
     }
 
     @Override
@@ -106,9 +98,9 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
     }
 
     @Override
-    protected RatioTapChanger createTapChanger(RatioTapChangerParent parent, int lowTapPosition, List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, Integer tapPosition, boolean regulating, double regulationValue, double targetDeadband) {
+    protected RatioTapChanger createTapChanger(RatioTapChangerParent parent, int lowTapPosition, List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, Integer tapPosition, Integer solvedTapPosition, boolean regulating, boolean loadTapChangingCapabilities, double regulationValue, double targetDeadband) {
         RatioTapChangerImpl tapChanger = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
-                tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+                tapPosition, solvedTapPosition, regulating, regulationMode, regulationValue, targetDeadband);
         parent.setRatioTapChanger(tapChanger);
         return tapChanger;
     }
@@ -119,7 +111,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
     }
 
     @Override
-    protected ValidationLevel checkTapChangerRegulation(RatioTapChangerParent parent, double regulationValue, boolean regulating, TerminalExt regulationTerminal) {
+    protected ValidationLevel checkTapChangerRegulation(RatioTapChangerParent parent, double regulationValue, boolean regulating, boolean loadTapChangingCapabilities, TerminalExt regulationTerminal) {
         return ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal,
                 regulationMode, regulationValue, getNetwork(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
     }
