@@ -214,10 +214,10 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         if (regulatingOn) {
             remoteReactivePowerControl
                     .setTargetQ(targetQ)
-                    .setEnabled(regulatingOn);
+                    .setEnabled(true);
         } else {
             remoteReactivePowerControl
-                    .setEnabled(regulatingOn)
+                    .setEnabled(false)
                     .setTargetQ(targetQ);
         }
     }
