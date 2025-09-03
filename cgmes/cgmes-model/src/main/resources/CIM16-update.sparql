@@ -142,13 +142,8 @@ SELECT *
 # query: regulatingControls
 SELECT *
 {
-    {
-        ?RegulatingControl a cim:RegulatingControl
-    }
-    UNION
-    {
-        ?RegulatingControl a cim:TapChangerControl
-    }
+    ?RegulatingControl a ?type ;
+        VALUES ?type { cim:RegulatingControl cim:TapChangerControl } .
     OPTIONAL {
         ?RegulatingControl
             cim:RegulatingControl.enabled ?enabled ;

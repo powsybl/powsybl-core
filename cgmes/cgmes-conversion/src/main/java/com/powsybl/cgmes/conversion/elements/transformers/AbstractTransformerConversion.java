@@ -344,9 +344,11 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     }
 
     private static <C extends Connectable<C>> int getDefaultTapPosition(Connectable<C> tw, com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, String tapChangerId, int closestNeutralTapPosition, Context context) {
-        return getDefaultValue(getNormalStep(tw, tapChangerId).isPresent() ? getNormalStep(tw, tapChangerId).getAsInt() : null,
+        OptionalInt normalStep = getNormalStep(tw, tapChangerId);
+        OptionalInt neutralPosition = tapChanger.getNeutralPosition();
+        return getDefaultValue(normalStep.isPresent() ? normalStep.getAsInt() : null,
                 tapChanger.getTapPosition(),
-                tapChanger.getNeutralPosition().isPresent() ? tapChanger.getNeutralPosition().getAsInt() : null,
+                neutralPosition.isPresent() ? neutralPosition.getAsInt() : null,
                 closestNeutralTapPosition,
                 context);
     }
