@@ -12,6 +12,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
 import com.powsybl.iidm.network.impl.extensions.StandbyAutomatonImpl;
 import com.powsybl.iidm.network.tck.extensions.AbstractStandbyAutomatonTest;
@@ -44,8 +45,8 @@ class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
             .withHighVoltageSetpoint(345f)
             .withLowVoltageThreshold(385f)
             .withHighVoltageThreshold(350f);
-        IllegalArgumentException e0 = assertThrows(IllegalArgumentException.class, standbyAutomatonAdder::add);
-        assertEquals("Inconsistent low (385.0) and high (350.0) voltage thresholds for StaticVarCompensator SVC2",
+        ValidationException e0 = assertThrows(ValidationException.class, standbyAutomatonAdder::add);
+        assertEquals("Static var compensator 'SVC2': Inconsistent low (385.0) and high (350.0) voltage thresholds",
             e0.getMessage());
 
         // lowVoltageSetpoint invalid
@@ -53,8 +54,8 @@ class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
             .withHighVoltageSetpoint(400f)
             .withLowVoltageThreshold(385f)
             .withHighVoltageThreshold(405f);
-        e0 = assertThrows(IllegalArgumentException.class, standbyAutomatonAdder::add);
-        assertEquals("lowVoltageSetpoint (NaN) is invalid for StaticVarCompensator SVC2",
+        e0 = assertThrows(ValidationException.class, standbyAutomatonAdder::add);
+        assertEquals("Static var compensator 'SVC2': low voltage setpoint (NaN) is invalid",
             e0.getMessage());
 
         // highVoltageSetpoint invalid
@@ -62,8 +63,8 @@ class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
             .withHighVoltageSetpoint(Double.NaN)
             .withLowVoltageThreshold(385f)
             .withHighVoltageThreshold(405f);
-        e0 = assertThrows(IllegalArgumentException.class, standbyAutomatonAdder::add);
-        assertEquals("highVoltageSetpoint (NaN) is invalid for StaticVarCompensator SVC2",
+        e0 = assertThrows(ValidationException.class, standbyAutomatonAdder::add);
+        assertEquals("Static var compensator 'SVC2': high voltage setpoint (NaN) is invalid",
             e0.getMessage());
 
         // lowVoltageSetpoint invalid
@@ -71,8 +72,8 @@ class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
             .withHighVoltageSetpoint(400f)
             .withLowVoltageThreshold(Double.NaN)
             .withHighVoltageThreshold(405f);
-        e0 = assertThrows(IllegalArgumentException.class, standbyAutomatonAdder::add);
-        assertEquals("lowVoltageThreshold (NaN) is invalid for StaticVarCompensator SVC2",
+        e0 = assertThrows(ValidationException.class, standbyAutomatonAdder::add);
+        assertEquals("Static var compensator 'SVC2': low voltage threshold (NaN) is invalid",
             e0.getMessage());
 
         // highVoltageSetpoint invalid
@@ -80,8 +81,8 @@ class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
             .withHighVoltageSetpoint(400f)
             .withLowVoltageThreshold(385f)
             .withHighVoltageThreshold(Double.NaN);
-        e0 = assertThrows(IllegalArgumentException.class, standbyAutomatonAdder::add);
-        assertEquals("highVoltageThreshold (NaN) is invalid for StaticVarCompensator SVC2",
+        e0 = assertThrows(ValidationException.class, standbyAutomatonAdder::add);
+        assertEquals("Static var compensator 'SVC2': high voltage threshold (NaN) is invalid",
             e0.getMessage());
     }
 
