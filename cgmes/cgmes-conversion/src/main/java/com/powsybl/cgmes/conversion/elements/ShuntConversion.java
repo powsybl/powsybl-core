@@ -141,7 +141,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private static boolean isDefaultRegulatingControl(ShuntCompensator shuntCompensator, boolean controlEnabled) {
-        String regulatingControlId = shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL);
+        String regulatingControlId = shuntCompensator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
         return regulatingControlId == null && controlEnabled;
     }
 
