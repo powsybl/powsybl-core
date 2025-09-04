@@ -37,26 +37,26 @@
         <cim:VoltageLevel.Substation rdf:resource="#_Substation2"/>
         <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
     </cim:VoltageLevel>
-    <cim:ConnectivityNode rdf:ID="_DCConnectivityNode1-Lcc">
+    <cim:DCNode rdf:ID="_DCConnectivityNode1-Lcc">
         <cim:IdentifiedObject.name>DCConnectivityNode1-Lcc</cim:IdentifiedObject.name>
-        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
-    </cim:ConnectivityNode>
-    <cim:ConnectivityNode rdf:ID="_DCConnectivityNode1-Ground-Lcc">
+        <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCConvertUnit-Lcc-1" />
+    </cim:DCNode>
+    <cim:DCNode rdf:ID="_DCConnectivityNode1-Ground-Lcc">
         <cim:IdentifiedObject.name>DCConnectivityNode1-Ground-Lcc</cim:IdentifiedObject.name>
-        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
-    </cim:ConnectivityNode>
+        <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCConvertUnit-Lcc-1" />
+    </cim:DCNode>
     <cim:ConnectivityNode rdf:ID="_ACConnectivityNode1-Lcc">
         <cim:IdentifiedObject.name>ACConnectivityNode1-Lcc</cim:IdentifiedObject.name>
         <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
     </cim:ConnectivityNode>
-    <cim:ConnectivityNode rdf:ID="_DCConnectivityNode2-Lcc">
+    <cim:DCNode rdf:ID="_DCConnectivityNode2-Lcc">
         <cim:IdentifiedObject.name>DCConnectivityNode2-Lcc</cim:IdentifiedObject.name>
-        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel2" />
-    </cim:ConnectivityNode>
-    <cim:ConnectivityNode rdf:ID="_DCConnectivityNode2-Ground-Lcc">
+        <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCConvertUnit-Lcc-2" />
+    </cim:DCNode>
+    <cim:DCNode rdf:ID="_DCConnectivityNode2-Ground-Lcc">
         <cim:IdentifiedObject.name>DCConnectivityNode2-Ground-Lcc</cim:IdentifiedObject.name>
-        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel2" />
-    </cim:ConnectivityNode>
+        <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCConvertUnit-Lcc-2" />
+    </cim:DCNode>
     <cim:ConnectivityNode rdf:ID="_ACConnectivityNode2-Lcc">
         <cim:IdentifiedObject.name>ACConnectivityNode2-Lcc</cim:IdentifiedObject.name>
         <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel2" />
