@@ -599,6 +599,7 @@ class CgmesConformity1ModifiedConversionTest {
         assertEquals(VOLTAGE, off2.getRegulationMode());
         assertTrue(Double.isNaN(off2.getReactivePowerSetpoint()));
         assertEquals(229.5, off2.getVoltageSetpoint(), 0.0d);
+        assertFalse(off2.isRegulating());
 
         Network modified3 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControlV().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator off3 = modified3.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
