@@ -19,10 +19,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Franck Lecuyer {@literal <franck.lecuyer_externe at rte-france.com>}
@@ -245,5 +245,46 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
             .withBusbarSectionPrefixId("VL1")
             .build();
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification2.hasImpactOnNetwork(network));
+    }
+
+    @Test
+    void testUnicity() {
+        // Network creation
+        Network network = createNetwork();
+
+        // Network modification
+        CreateVoltageLevelSections modification1 = new CreateVoltageLevelSectionsBuilder()
+            .withReferenceBusbarSectionId("BBS11")
+            .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
+            .withAllBusbars(true)
+            .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
+            .withLeftSwitchFictitious(false)
+            .withLeftSwitchOpen(true)
+            .withRightSwitchKind(SwitchKind.DISCONNECTOR)
+            .withRightSwitchFictitious(false)
+            .withRightSwitchOpen(false)
+            .withSwitchPrefixId("VL1")
+            .withBusbarSectionPrefixId("VL1")
+            .build();
+        modification1.apply(network);
+        assertTrue(network.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSectionStream()
+            .map(BusbarSection::getId).toList().containsAll(List.of("VL1_1_2", "VL1_2_2", "VL1_3_2")));
+        CreateVoltageLevelSections modification2 = new CreateVoltageLevelSectionsBuilder()
+            .withReferenceBusbarSectionId("VL1_1_2")
+            .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(false)
+            .withAllBusbars(true)
+            .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
+            .withLeftSwitchFictitious(false)
+            .withLeftSwitchOpen(true)
+            .withRightSwitchKind(SwitchKind.DISCONNECTOR)
+            .withRightSwitchFictitious(false)
+            .withRightSwitchOpen(false)
+            .withSwitchPrefixId("VL1")
+            .withBusbarSectionPrefixId("VL1")
+            .build();
+        modification2.apply(network);
+        assertTrue(network.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSectionStream()
+            .map(BusbarSection::getId).toList().containsAll(List.of("VL1_1_2", "VL1_2_2", "VL1_3_2",
+                "VL1_1_2#0", "VL1_2_2#0", "VL1_3_2#0")));
     }
 }
