@@ -110,6 +110,8 @@ public interface CgmesModel {
 
     PropertyBags equivalentShunts();
 
+    PropertyBags svVoltages();
+
     /**
      * Query all NonlinearShuntCompensatorPoint in the CgmesModel.
      *
@@ -239,4 +241,8 @@ public interface CgmesModel {
     double nominalVoltage(String baseVoltageId);
 
     PropertyBags modelProfiles();
+
+    default void setQueryCatalog(String s) {
+        // Do nothing
+    }
 }
