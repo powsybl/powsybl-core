@@ -350,6 +350,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
             .setId(namingStrategy.getBusbarId(busbarSectionPrefixId, busbarNum, sectionNum))
             .setName(Integer.toString(busbarSectionNode))
             .setNode(busbarSectionNode)
+            .setEnsureIdUnicity(true)
             .add();
         busbarSection.newExtension(BusbarSectionPositionAdder.class)
             .withBusbarIndex(busbarNum)
