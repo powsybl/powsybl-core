@@ -126,7 +126,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         setRegulation(shuntCompensator, targetV, targetDeadband, controlEnabled && enabled && isValidTargetV(targetV) && isValidTargetDeadband(targetDeadband));
     }
 
-    // Regulation values (targetV and targetDeadband) must be valid before it,
+    // Regulation values (targetV and targetDeadband) must be valid before enabling it,
     // and regulation must be turned off before assigning potentially invalid values,
     // to ensure consistency with the applied checks
     private static void setRegulation(ShuntCompensator shuntCompensator, double targetV, double targetDeadband, boolean regulatingOn) {
