@@ -120,13 +120,18 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
             double defaultTargetV = getDefaultTargetV(vscConverter, context);
             double targetV = findTargetV(cgmesDataConverter, TARGET_UPCC, defaultTargetV, DefaultValueUse.NOT_DEFINED);
             if (isValidTargetV(targetV)) {
-                vscConverter.setVoltageSetpoint(targetV).setReactivePowerSetpoint(0.0).setVoltageRegulatorOn(true);
+                // TargetV must be valid before enabling regulation,
+                vscConverter.setVoltageSetpoint(targetV)
+                        .setReactivePowerSetpoint(0.0)
+                        .setVoltageRegulatorOn(true);
                 return;
             }
         }
 
+        // Regulation must be turned off before assigning potentially invalid values,
+        // to ensure consistency with the applied checks
         double targetQ = getValidTargetQ(cgmesDataConverter, vscConverter, context);
-        vscConverter.setVoltageRegulatorOn(false) // Turn off before modifying the targetV
+        vscConverter.setVoltageRegulatorOn(false)
                 .setVoltageSetpoint(0.0)
                 .setReactivePowerSetpoint(targetQ);
     }
