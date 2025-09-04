@@ -241,8 +241,21 @@ SELECT *
 SELECT *
 {
     {
-        ?ShuntCompensator a ?type ;
-        VALUES ?type { cim:LinearShuntCompensator cim:NonlinearShuntCompensator } .
+        SELECT DISTINCT ?ShuntCompensator
+        WHERE {
+            {
+                ?ShuntCompensator a ?type ;
+                VALUES ?type { cim:LinearShuntCompensator cim:NonlinearShuntCompensator } .
+            }
+            UNION
+            {
+                SELECT ?ShuntCompensator
+                WHERE {
+                    ?SvShuntCompensatorSections a cim:SvShuntCompensatorSections ;
+                        cim:SvShuntCompensatorSections.ShuntCompensator ?ShuntCompensator .
+                }
+            }
+        }
     }
     OPTIONAL {
         ?ShuntCompensator
@@ -250,9 +263,8 @@ SELECT *
             cim:RegulatingCondEq.controlEnabled ?controlEnabled
     }
     OPTIONAL {
-        ?SvShuntCompensatorSections
-            a cim:SvShuntCompensatorSections ;
+        ?SvShuntCompensatorSections a cim:SvShuntCompensatorSections ;
             cim:SvShuntCompensatorSections.ShuntCompensator ?ShuntCompensator ;
-            cim:SvShuntCompensatorSections.sections ?SVsections
+            cim:SvShuntCompensatorSections.sections ?SVsections .
     }
 }

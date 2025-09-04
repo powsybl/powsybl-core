@@ -47,11 +47,7 @@ public class RegulatingControlMappingForShuntCompensators {
     }
 
     private void apply(ShuntCompensator shuntCompensator) {
-        String rcId = mapping.get(shuntCompensator.getId());
-        apply(shuntCompensator, rcId);
-    }
-
-    private void apply(ShuntCompensator shuntCompensator, String regulatingControlId) {
+        String regulatingControlId = mapping.get(shuntCompensator.getId());
         if (regulatingControlId == null) {
             return;
         }
