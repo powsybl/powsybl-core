@@ -115,7 +115,7 @@ public final class Update {
 
     private static void updateShuntCompensator(ShuntCompensator shuntCompensator, PropertyBag cgmesData, Context context) {
         String isEquivalentShunt = shuntCompensator.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT);
-        if (isEquivalentShunt != null && Boolean.parseBoolean(isEquivalentShunt)) {
+        if (Boolean.parseBoolean(isEquivalentShunt)) {
             EquivalentShuntConversion.update(shuntCompensator, context);
         } else {
             ShuntConversion.update(shuntCompensator, cgmesData, context);
