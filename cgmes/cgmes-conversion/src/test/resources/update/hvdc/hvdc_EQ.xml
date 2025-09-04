@@ -185,26 +185,26 @@
         <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCGround-Lcc-2"/>
     </cim:DCTerminal>
 
-    <cim:ConnectivityNode rdf:ID="_DCConnectivityNode1-Vsc">
+    <cim:DCNode rdf:ID="_DCConnectivityNode1-Vsc">
         <cim:IdentifiedObject.name>DCConnectivityNode1-Vsc</cim:IdentifiedObject.name>
-        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
-    </cim:ConnectivityNode>
-    <cim:ConnectivityNode rdf:ID="_DCConnectivityNode1-Ground-Vsc">
+        <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCConvertUnit-Vsc-1" />
+    </cim:DCNode>
+    <cim:DCNode rdf:ID="_DCConnectivityNode1-Ground-Vsc">
         <cim:IdentifiedObject.name>DCConnectivityNode1-Ground-Vsc</cim:IdentifiedObject.name>
-        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
-    </cim:ConnectivityNode>
+        <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCConvertUnit-Vsc-1" />
+    </cim:DCNode>
     <cim:ConnectivityNode rdf:ID="_ACConnectivityNode1-Vsc">
         <cim:IdentifiedObject.name>ACConnectivityNode1-Vsc</cim:IdentifiedObject.name>
         <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
     </cim:ConnectivityNode>
-    <cim:ConnectivityNode rdf:ID="_DCConnectivityNode2-Vsc">
+    <cim:DCNode rdf:ID="_DCConnectivityNode2-Vsc">
         <cim:IdentifiedObject.name>DCConnectivityNode2-Vsc</cim:IdentifiedObject.name>
-        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel2" />
-    </cim:ConnectivityNode>
-    <cim:ConnectivityNode rdf:ID="_DCConnectivityNode2-Ground-Vsc">
+        <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCConvertUnit-Vsc-2" />
+    </cim:DCNode>
+    <cim:DCNode rdf:ID="_DCConnectivityNode2-Ground-Vsc">
         <cim:IdentifiedObject.name>DCConnectivityNode2-Ground-Vsc</cim:IdentifiedObject.name>
-        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel2" />
-    </cim:ConnectivityNode>
+        <cim:DCNode.DCEquipmentContainer rdf:resource="#_DCConvertUnit-Vsc-2" />
+    </cim:DCNode>
     <cim:ConnectivityNode rdf:ID="_ACConnectivityNode2-Vsc">
         <cim:IdentifiedObject.name>ACConnectivityNode2-Vsc</cim:IdentifiedObject.name>
         <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel2" />
