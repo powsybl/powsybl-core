@@ -82,10 +82,10 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         if (generatingUnit != null) {
             g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.GENERATING_UNIT, generatingUnit);
         }
-        addSpecificGeneratingUnitProperties(g, p);
+        addGeneratingUnitProperties(g, p);
     }
 
-    private static void addSpecificGeneratingUnitProperties(Generator generator, PropertyBag p) {
+    private static void addGeneratingUnitProperties(Generator generator, PropertyBag p) {
         // Default targetP from initial P defined in EQ GeneratingUnit. Removed since CGMES 3.0
         String initialP = p.getLocal(CgmesNames.INITIAL_P);
         if (initialP != null) {
@@ -135,7 +135,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             ReferencePriority.set(generator, referencePriority);
         }
 
-        double targetP = getInitialP(generator, 0.0);
+        double targetP = getInitialP(generator);
         double targetQ = 0.0;
         PowerFlow updatedPowerFlow = updatedPowerFlow(generator, cgmesData, context);
         if (updatedPowerFlow.defined()) {
@@ -157,9 +157,9 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         updateRegulatingControl(generator, controlEnabled, context);
     }
 
-    private static double getInitialP(Generator generator, double defaultValue) {
+    private static double getInitialP(Generator generator) {
         String initialP = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.INITIAL_P);
-        return initialP != null ? Double.parseDouble(initialP) : defaultValue;
+        return initialP != null ? Double.parseDouble(initialP) : 0.0;
     }
 
     private static void updateGeneratingUnit(Generator generator, String generatingUnitId, Context context) {

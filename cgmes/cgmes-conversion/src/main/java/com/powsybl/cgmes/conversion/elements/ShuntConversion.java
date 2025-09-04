@@ -81,11 +81,15 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private static void updateSections(ShuntCompensator shuntCompensator, PropertyBag cgmesData, Context context) {
-        int normalSections = Integer.parseInt(shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_SECTIONS));
-        int defaultSections = getDefaultSections(shuntCompensator, normalSections, context);
+        int defaultSections = getDefaultSections(shuntCompensator, getNormalSections(shuntCompensator), context);
         int sections = getSections(cgmesData).orElse(defaultSections);
         shuntCompensator.setSectionCount(Math.min(sections, shuntCompensator.getMaximumSectionCount()));
         getSolvedSections(cgmesData).ifPresent(shuntCompensator::setSolvedSectionCount);
+    }
+
+    private static Integer getNormalSections(ShuntCompensator shuntCompensator) {
+        String property = shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_SECTIONS);
+        return property != null ? Integer.parseInt(property) : null;
     }
 
     private static OptionalInt getSections(PropertyBag cgmesData) {
@@ -98,11 +102,13 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         return Double.isFinite(sections) ? OptionalInt.of(Math.abs(fromContinuous(sections))) : OptionalInt.empty();
     }
 
-    private static int getDefaultSections(ShuntCompensator shuntCompensator, int normalSections, Context context) {
+    private static int getDefaultSections(ShuntCompensator shuntCompensator, Integer normalSections, Context context) {
         return getDefaultValue(normalSections, shuntCompensator.getSectionCount(), 0, 0, context);
     }
 
     private static void updateRegulatingControl(ShuntCompensator shuntCompensator, boolean controlEnabled, Context context) {
+        // When the equipment is participating in regulating control (controlEnabled is true),
+        // but no regulating control data is found, default regulation data will be created
         if (isDefaultRegulatingControl(shuntCompensator, controlEnabled)) {
             setDefaultRegulatingControl(shuntCompensator);
             return;
@@ -120,11 +126,19 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         setRegulation(shuntCompensator, targetV, targetDeadband, controlEnabled && enabled && isValidTargetV(targetV) && isValidTargetDeadband(targetDeadband));
     }
 
+    // Regulation values (targetV and targetDeadband) must be valid before it,
+    // and regulation must be turned off before assigning potentially invalid values,
+    // to ensure consistency with the applied checks
     private static void setRegulation(ShuntCompensator shuntCompensator, double targetV, double targetDeadband, boolean regulatingOn) {
         if (regulatingOn) {
-            shuntCompensator.setTargetV(targetV).setTargetDeadband(targetDeadband).setVoltageRegulatorOn(true);
+            shuntCompensator.setTargetV(targetV)
+                    .setTargetDeadband(targetDeadband)
+                    .setVoltageRegulatorOn(true);
         } else {
-            shuntCompensator.setVoltageRegulatorOn(false).setTargetV(targetV).setTargetDeadband(targetDeadband);
+            shuntCompensator
+                    .setVoltageRegulatorOn(false)
+                    .setTargetV(targetV)
+                    .setTargetDeadband(targetDeadband);
         }
     }
 
@@ -141,7 +155,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private static boolean isDefaultRegulatingControl(ShuntCompensator shuntCompensator, boolean controlEnabled) {
-        String regulatingControlId = shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL);
+        String regulatingControlId = shuntCompensator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
         return regulatingControlId == null && controlEnabled;
     }
 

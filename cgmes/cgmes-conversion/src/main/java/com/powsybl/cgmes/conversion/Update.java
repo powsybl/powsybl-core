@@ -116,7 +116,7 @@ public final class Update {
 
     private static void updateShuntCompensator(ShuntCompensator shuntCompensator, PropertyBag cgmesData, Context context) {
         String isEquivalentShunt = shuntCompensator.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT);
-        if (isEquivalentShunt != null && Boolean.parseBoolean(isEquivalentShunt)) {
+        if (Boolean.parseBoolean(isEquivalentShunt)) {
             EquivalentShuntConversion.update(shuntCompensator, context);
         } else {
             ShuntConversion.update(shuntCompensator, cgmesData, context);
@@ -137,7 +137,7 @@ public final class Update {
         network.getDanglingLines().forEach(danglingLine -> computeFlowsOnModelSide(danglingLine, context));
     }
 
-    public static void updateAndCompleteVoltageAndAngles(Network network, Context context) {
+    static void updateAndCompleteVoltageAndAngles(Network network, Context context) {
         context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(context.getReportNode()));
         // update voltage and angles
         network.getBusView().getBuses().forEach(bus -> NodeConversion.update(bus, context));

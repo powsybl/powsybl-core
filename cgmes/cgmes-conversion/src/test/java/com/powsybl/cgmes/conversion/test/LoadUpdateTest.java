@@ -28,7 +28,7 @@ class LoadUpdateTest {
     @Test
     void importEqTest() {
         Network network = readCgmesResources(DIR, "load_EQ.xml");
-        assertEquals(7, network.getLoadCount());
+        assertEquals(6, network.getLoadCount());
 
         assertEq(network);
     }
@@ -36,7 +36,7 @@ class LoadUpdateTest {
     @Test
     void importEqAndSshTogetherTest() {
         Network network = readCgmesResources(DIR, "load_EQ.xml", "load_SSH.xml");
-        assertEquals(7, network.getLoadCount());
+        assertEquals(6, network.getLoadCount());
 
         assertFirstSsh(network);
     }
@@ -44,7 +44,7 @@ class LoadUpdateTest {
     @Test
     void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "load_EQ.xml");
-        assertEquals(7, network.getLoadCount());
+        assertEquals(6, network.getLoadCount());
         assertEq(network);
 
         readCgmesResources(network, DIR, "load_SSH.xml");
@@ -62,7 +62,6 @@ class LoadUpdateTest {
         assertEq(network.getLoad("EnergyConsumer"));
         assertEq(network.getLoad("EnergySource"));
         assertEq(network.getLoad("AsynchronousMachine"));
-        assertEq(network.getLoad("ConformLoad"));
         assertEq(network.getLoad("EnergyConsumerOnlyEQ"));
         assertEq(network.getLoad("EnergySourceOnlyEQ"));
         assertEq(network.getLoad("AsynchronousMachineOnlyEQ"));
@@ -72,7 +71,6 @@ class LoadUpdateTest {
         assertSsh(network.getLoad("EnergyConsumer"), 10.0, 5.0);
         assertSsh(network.getLoad("EnergySource"), -200.0, -90.0);
         assertSsh(network.getLoad("AsynchronousMachine"), 200.0, 50.0);
-        assertSsh(network.getLoad("ConformLoad"), 486.0, 230.0);
         assertSsh(network.getLoad("EnergyConsumerOnlyEQ"), 0.0, 0.0);
         assertSsh(network.getLoad("EnergySourceOnlyEQ"), 0.0, 0.0);
         assertSsh(network.getLoad("AsynchronousMachineOnlyEQ"), 0.0, 0.0);
@@ -82,7 +80,6 @@ class LoadUpdateTest {
         assertSsh(network.getLoad("EnergyConsumer"), 10.5, 5.5);
         assertSsh(network.getLoad("EnergySource"), -200.5, -90.5);
         assertSsh(network.getLoad("AsynchronousMachine"), 200.5, 50.5);
-        assertSsh(network.getLoad("ConformLoad"), 490.0, 235.0);
         assertSsh(network.getLoad("EnergyConsumerOnlyEQ"), 0.0, 0.0);
         assertSsh(network.getLoad("EnergySourceOnlyEQ"), 0.0, 0.0);
         assertSsh(network.getLoad("AsynchronousMachineOnlyEQ"), 0.0, 0.0);
@@ -92,7 +89,6 @@ class LoadUpdateTest {
         assertFlows(network.getLoad("EnergyConsumer").getTerminal(), Double.NaN, Double.NaN);
         assertFlows(network.getLoad("EnergySource").getTerminal(), Double.NaN, Double.NaN);
         assertFlows(network.getLoad("AsynchronousMachine").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getLoad("ConformLoad").getTerminal(), Double.NaN, Double.NaN);
         assertFlows(network.getLoad("EnergyConsumerOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
         assertFlows(network.getLoad("EnergySourceOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
         assertFlows(network.getLoad("AsynchronousMachineOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
@@ -102,7 +98,6 @@ class LoadUpdateTest {
         assertFlows(network.getLoad("EnergyConsumer").getTerminal(), 100.0, 50.0);
         assertFlows(network.getLoad("EnergySource").getTerminal(), 20.0, 10.0);
         assertFlows(network.getLoad("AsynchronousMachine").getTerminal(), 10.0, 5.0);
-        assertFlows(network.getLoad("ConformLoad").getTerminal(), -490.0, -235.0);
         assertFlows(network.getLoad("EnergyConsumerOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
         assertFlows(network.getLoad("EnergySourceOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
         assertFlows(network.getLoad("AsynchronousMachineOnlyEQ").getTerminal(), Double.NaN, Double.NaN);

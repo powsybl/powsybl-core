@@ -29,14 +29,18 @@ public class CreateVoltageLevelSectionsBuilder {
 
     private boolean rightSwitchFictitious = false;
 
+    private boolean leftSwitchOpen = false;
+
+    private boolean rightSwitchOpen = false;
+
     private String switchPrefixId = null;
 
     private String busbarSectionPrefixId = null;
 
     public CreateVoltageLevelSections build() {
         return new CreateVoltageLevelSections(referenceBusbarSectionId, createTheBusbarSectionsAfterTheReferenceBusbarSection, allBusbars,
-            new SwitchParameters(leftSwitchKind, leftSwitchFictitious),
-            new SwitchParameters(rightSwitchKind, rightSwitchFictitious),
+            new SwitchParameters(leftSwitchKind, leftSwitchFictitious, leftSwitchOpen),
+            new SwitchParameters(rightSwitchKind, rightSwitchFictitious, rightSwitchOpen),
             switchPrefixId, busbarSectionPrefixId);
     }
 
@@ -72,6 +76,16 @@ public class CreateVoltageLevelSectionsBuilder {
 
     public CreateVoltageLevelSectionsBuilder withRightSwitchFictitious(boolean rightSwitchFictitious) {
         this.rightSwitchFictitious = rightSwitchFictitious;
+        return this;
+    }
+
+    public CreateVoltageLevelSectionsBuilder withLeftSwitchOpen(boolean leftSwitchOpen) {
+        this.leftSwitchOpen = leftSwitchOpen;
+        return this;
+    }
+
+    public CreateVoltageLevelSectionsBuilder withRightSwitchOpen(boolean rightSwitchOpen) {
+        this.rightSwitchOpen = rightSwitchOpen;
         return this;
     }
 

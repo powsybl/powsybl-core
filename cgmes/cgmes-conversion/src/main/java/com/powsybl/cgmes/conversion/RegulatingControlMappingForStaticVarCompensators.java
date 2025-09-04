@@ -88,15 +88,15 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     private void setDefaultRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc) {
-        if (RegulatingControlMapping.isControlModeVoltage(rc.defaultRegulationMode)) {
-            setDefaultRegulatingControlData(rc, svc);
-            svc.setRegulatingTerminal(svc.getTerminal()).setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
-        } else if (RegulatingControlMapping.isControlModeReactivePower(rc.defaultRegulationMode)) {
-            svc.setRegulatingTerminal(svc.getTerminal()).setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        svc.setRegulatingTerminal(svc.getTerminal());
+        if (RegulatingControlMapping.isControlModeReactivePower(rc.defaultRegulationMode)) {
+            svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
         } else {
-            context.fixed("SVCDefaultControlMode", () -> String.format("Invalid default control mode for static var compensator %s. Default regulationMode set to VOLTAGE", svc.getId()));
+            if (!RegulatingControlMapping.isControlModeVoltage(rc.defaultRegulationMode)) {
+                context.fixed("SVCDefaultControlMode", () -> String.format("Invalid default control mode for static var compensator %s. Default regulationMode set to VOLTAGE", svc.getId()));
+            }
             setDefaultRegulatingControlData(rc, svc);
-            svc.setRegulatingTerminal(svc.getTerminal()).setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+            svc.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
         }
     }
 
@@ -111,6 +111,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
             okSet = setRegulatingControlVoltage(rc, control, svc);
         }
 
+        // Always save the original RC id, even if we cannot complete setting all the regulation data
         svc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, rc.regulatingControlId);
         control.setCorrectlySet(okSet);
     }
