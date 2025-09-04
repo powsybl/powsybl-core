@@ -96,7 +96,7 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
             boolean regulating = controlEnabled && regulatingOn && isValidTargetQ(targetQ);
 
-            staticVarCompensator.setReactivePowerSetpoint(targetQ).setVoltageSetpoint(staticVarCompensator.getVoltageSetpoint()).setRegulating(regulating);
+          staticVarCompensator.setReactivePowerSetpoint(targetQ).setRegulating(regulating);
         }
     }
 
