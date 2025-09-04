@@ -12,8 +12,6 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNodeAdder;
-import com.powsybl.cgmes.extensions.CgmesTapChanger;
-import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
@@ -560,12 +558,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     private static void updateTerminal(PropertyBag cgmesTerminal, Terminal terminal, Context context) {
         if (updateConnect(terminal, context)) {
             boolean connectedInUpdate = cgmesTerminal.asBoolean("connected", true);
-            if (terminal.isConnected() != connectedInUpdate) {
-                if (connectedInUpdate) {
-                    terminal.connect();
-                } else {
-                    terminal.disconnect();
-                }
+            if (!terminal.isConnected() && connectedInUpdate) {
+                terminal.connect();
+            } else if (terminal.isConnected() && !connectedInUpdate) {
+                terminal.disconnect();
             }
         }
         if (setPQAllowed(terminal)) {
@@ -794,18 +790,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return regulatingControlId != null ? Optional.ofNullable(context.regulatingControl(regulatingControlId)) : Optional.empty();
     }
 
-    protected static <C extends Connectable<C>> Optional<PropertyBag> findCgmesRegulatingControl(Connectable<C> tw, String tapChangerId, Context context) {
-        CgmesTapChangers<C> cgmesTcs = tw.getExtension(CgmesTapChangers.class);
-        if (cgmesTcs != null && tapChangerId != null) {
-            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tapChangerId);
-            return cgmesTc != null ? Optional.ofNullable(context.regulatingControl(cgmesTc.getControlId())) : Optional.empty();
-        }
-        return Optional.empty();
-    }
-
     protected static int findTerminalSign(Connectable<?> connectable) {
-        String terminalSign = connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN);
-        return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
+        return findTerminalSign(connectable, "");
     }
 
     protected static int findTerminalSign(Connectable<?> connectable, String end) {

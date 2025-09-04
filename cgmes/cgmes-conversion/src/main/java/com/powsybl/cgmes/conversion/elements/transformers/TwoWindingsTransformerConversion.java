@@ -20,7 +20,9 @@ import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * TwoWindingsTransformer Cgmes Conversion
@@ -252,7 +254,8 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         boolean isAllowedToRegulateRtc = checkOnlyOneEnabled(isAllowedToRegulatePtc, t2w.getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
         t2w.getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t2w, rtc, context, isAllowedToRegulateRtc));
 
-        t2w.getOperationalLimitsGroups1().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
-        t2w.getOperationalLimitsGroups2().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
+        Stream.of(t2w.getOperationalLimitsGroups1(), t2w.getOperationalLimitsGroups2())
+                .flatMap(Collection::stream)
+                .forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
     }
 }

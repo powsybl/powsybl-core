@@ -123,11 +123,11 @@ public class RegulatingControlMapping {
         cachedRegulatingControls.clear();
     }
 
-    protected static boolean isControlModeVoltage(String controlMode) {
-        return controlMode != null && controlMode.toLowerCase().endsWith(CgmesNames.VOLTAGE_TAG);
+    public static boolean isControlModeVoltage(String controlMode) {
+        return controlMode != null && controlMode.endsWith(CgmesNames.VOLTAGE_TAG);
     }
 
-    protected static boolean isControlModeReactivePower(String controlMode) {
+    public static boolean isControlModeReactivePower(String controlMode) {
         return controlMode != null && controlMode.toLowerCase().endsWith(CgmesNames.REACTIVE_POWER);
     }
 

@@ -111,6 +111,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
             okSet = setRegulatingControlVoltage(rc, control, svc);
         }
 
+        // Always save the original RC id, even if we cannot complete setting all the regulation data
         svc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, rc.regulatingControlId);
         control.setCorrectlySet(okSet);
     }

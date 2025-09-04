@@ -51,4 +51,14 @@
         <cim:SvVoltage.v>111.5</cim:SvVoltage.v>
         <cim:SvVoltage.TopologicalNode rdf:resource="#_ConnectivityNode3-TP" />
     </cim:SvVoltage>
+
+    <cim:SvTapStep rdf:ID="_T2W-PhaseTapChanger-svStep">
+        <cim:SvTapStep.position>7</cim:SvTapStep.position>
+        <cim:SvTapStep.TapChanger rdf:resource="#_T2W-PhaseTapChanger" />
+    </cim:SvTapStep>
+    <cim:SvTapStep rdf:ID="_T3W-Winding2-RatioTapChanger-svStep">
+        <cim:SvTapStep.position>13</cim:SvTapStep.position>
+        <cim:SvTapStep.TapChanger rdf:resource="#_T3W-Winding2-RatioTapChanger" />
+    </cim:SvTapStep>
+
 </rdf:RDF>
