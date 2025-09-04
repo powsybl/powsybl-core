@@ -59,8 +59,7 @@ public class RegulatingControlMappingForShuntCompensators {
         if (rc == null) {
             return;
         }
-        // Finally, equipment participates in it regulating control,
-        // and the regulating control information is present in the CGMES model
+        // Equipment participates in regulation and the regulating control information is present in the CGMES model
         setRegulatingControl(shuntCompensator, regulatingControlId, rc);
         rc.setCorrectlySet(true);
     }
