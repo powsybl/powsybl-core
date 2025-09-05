@@ -857,6 +857,7 @@ Please consult the documentation of each project to verify support. In general, 
 If you’re unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html).
 ```
 
+(dc-node)=
 #### DC Node
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcNode.html)<br>
@@ -871,6 +872,7 @@ DC nodes are points where DC terminals of DC conducting equipment are connected 
 Although the nominal voltage of DC nodes must always be specified as a positive value,
 the solved voltages can be negative - for example, in the case of an LCC monopole operating in reverse polarity.
 
+(dc-line)=
 #### DC Line
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcLine.html)<br>
@@ -885,6 +887,7 @@ A DC Line has two DC Terminals.
 | $R$       | $\Omega$ | The series resistance, always positive |
 
 
+(dc-switch)=
 #### DC Switch
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcSwitch.html)<br>
@@ -897,6 +900,7 @@ A DC Switch connects two DC Nodes and can be opened or closed.
 | $Kind$     | `DcSwitchKind` | Either DISCONNECTOR or BREAKER                                    |
 | $Open$     |                | True if the switch is opened                                      |
 
+(dc-ground)=
 #### DC Ground
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcGround.html)<br>
@@ -911,6 +915,7 @@ A DC Ground has a single DC Terminal.
 | $R$       | $\Omega$ | The grounding resistance, always positive |
 
 
+(acdc-converter)=
 #### AC/DC Converter
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/AcDcConverter.html)<br>
@@ -971,6 +976,7 @@ between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc`
   - `+TargetVdc / 2` at the converter DC Node 1
   - `-TargetVdc / 2` at the converter DC Node 2
 
+(line-commutated-converter)=
 ##### Line Commutated Converter
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LineCommutatedConverter.html)<br>
@@ -986,6 +992,7 @@ Line Commutated Converters always consume reactive power, the `PowerFactor` attr
 is consumed when the reactive model is set to `FIXED_POWER_FACTOR`. Typical characteristic for LCCs is $Q = 0.5 P$
 hence a PowerFactor of 0.89443.
 
+(voltage-source-converter)=
 ##### Voltage Source Converter
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageSourceConverter.html)<br>
