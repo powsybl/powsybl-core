@@ -65,7 +65,7 @@ class ExportNumberMaxValueTest extends AbstractSerDeTest {
         double value = Double.parseDouble(tatl60Value.group(1));
 
         // Check that we have read a very big number,
-        // we can not compare exactly with Float.MAX_VALUE because it has not been written with enough precision
+        // we cannot compare exactly with Float.MAX_VALUE because it has not been written with enough precision
         assertTrue(value > Float.MAX_VALUE / 10);
         // And check that we have not written Double.MAX_VALUE
         assertTrue(value < Double.MAX_VALUE / 10);

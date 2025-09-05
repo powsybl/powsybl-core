@@ -98,7 +98,7 @@ public class CgmesImport implements Importer {
                 .map(dir -> dir.resolve(FORMAT).resolve("boundary"))
                 .map(Path::toString)
                 .orElse(null);
-        // Boundary location parameter can not be static
+        // Boundary location parameter cannot be static
         // because we want its default value
         // to depend on the received platformConfig
         boundaryLocationParameter = new Parameter(
