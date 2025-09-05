@@ -90,10 +90,6 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     static void update(LccConverterStation lccConverter, PropertyBag cgmesDataConverter, double lossFactor, Context context) {
         lccConverter.setLossFactor((float) lossFactor);
         lccConverter.setPowerFactor((float) getPowerFactor(cgmesDataConverter, lccConverter, context));
-
-        // TODO: There are two modes of control: dcVoltage and activePower
-        // For dcVoltage, setpoint is targetUdc,
-        // For activePower, setpoint is targetPpcc
     }
 
     private static double getPowerFactor(PropertyBag cgmesDataConverter, LccConverterStation lccConverter, Context context) {
