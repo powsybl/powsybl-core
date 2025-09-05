@@ -52,6 +52,13 @@ public interface SidedContingencyElement extends ContingencyElement {
         };
     }
 
+    private static Function<TwoSides, DcTerminal> getDcTerminalSupplier(Network network, SidedContingencyElement element) {
+        return switch (element.getType()) {
+            case DC_LINE -> getDcLineTerminalSupplier(network, element.getId());
+            default -> null;
+        };
+    }
+
     private static Function<TwoSides, Terminal> getBranchTerminalSupplier(Network network, String id) {
         Branch<?> eq = network.getBranch(id);
         return eq != null ? eq::getTerminal : null;
@@ -75,5 +82,10 @@ public interface SidedContingencyElement extends ContingencyElement {
     private static Function<TwoSides, Terminal> getHvdcLineTerminalSupplier(Network network, String id) {
         HvdcLine eq = network.getHvdcLine(id);
         return eq != null ? s -> eq.getConverterStation(s).getTerminal() : null;
+    }
+
+    private static Function<TwoSides, DcTerminal> getDcLineTerminalSupplier(Network network, String id) {
+        DcLine eq = network.getDcLine(id);
+        return eq != null ? eq::getDcTerminal : null;
     }
 }

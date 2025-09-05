@@ -356,4 +356,82 @@ public class DcTopologyModel implements MultiVariantObject {
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         variants.allocate(indexes, () -> variants.copy(sourceIndex));
     }
+
+    private static TraverseResult getTraverserResult(Set<DcTerminal> visitedDcTerminals, DcTerminal terminal, DcTerminal.TopologyTraverser traverser) {
+        return visitedDcTerminals.add(terminal) ? traverser.traverse(terminal, terminal.isConnected()) : TraverseResult.TERMINATE_PATH;
+    }
+
+    protected static void addNextDcTerminals(DcTerminal otherDcTerminal, List<DcTerminal> nextDcTerminals) {
+        Objects.requireNonNull(otherDcTerminal);
+        Objects.requireNonNull(nextDcTerminals);
+        DcConnectable<?> otherDcConnectable = otherDcTerminal.getDcConnectable();
+        if (otherDcConnectable instanceof DcLine dcLine) {
+            if (dcLine.getDcTerminal1() == otherDcTerminal) {
+                nextDcTerminals.add(dcLine.getDcTerminal2());
+            } else if (dcLine.getDcTerminal2() == otherDcTerminal) {
+                nextDcTerminals.add(dcLine.getDcTerminal1());
+            } else {
+                throw new IllegalStateException();
+            }
+        }
+    }
+
+    void traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser, TraversalType traversalType) {
+        traverse(terminal, traverser, new HashSet<>(), traversalType);
+    }
+
+    /**
+     * Traverse from given node terminal using the given topology traverser, using the fact that the terminals in the
+     * given set have already been traversed.
+     *
+     * @return false if the traverser has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
+     * has been returned from the traverser, true otherwise
+     */
+
+    boolean traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType) {
+        Objects.requireNonNull(terminal);
+        Objects.requireNonNull(traverser);
+        Objects.requireNonNull(visitedDcTerminals);
+
+        // check if we are allowed to traverse the terminal itself
+        TraverseResult termTraverseResult = getTraverserResult(visitedDcTerminals, terminal, traverser);
+        if (termTraverseResult == TraverseResult.TERMINATE_TRAVERSER) {
+            return false;
+        } else if (termTraverseResult == TraverseResult.CONTINUE) {
+            List<DcTerminal> nextDcTerminals = new ArrayList<>();
+            addNextDcTerminals(terminal, nextDcTerminals);
+
+            // then check we can traverse terminals connected to same bus
+            DcConnectable<? extends DcTerminal> dcConn = terminal.getDcConnectable();
+            for (DcTerminal t : dcConn.getDcTerminals()) {
+                TraverseResult tTraverseResult = getTraverserResult(visitedDcTerminals, t, traverser);
+                if (tTraverseResult == TraverseResult.TERMINATE_TRAVERSER) {
+                    return false;
+                } else if (tTraverseResult == TraverseResult.CONTINUE) {
+                    addNextDcTerminals(t, nextDcTerminals);
+                }
+            }
+
+            for (DcTerminal t : nextDcTerminals) {
+                if (!t.traverse(traverser, visitedDcTerminals, traversalType)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    boolean disconnect(DcTerminal terminal) {
+        // already disconnected?
+        if (!terminal.isConnected()) {
+            return false;
+        }
+
+        terminal.setConnected(false);
+
+        // invalidate connected components
+        invalidateCache();
+
+        return true;
+    }
 }

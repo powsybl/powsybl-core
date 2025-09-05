@@ -7,12 +7,15 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraversalType;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -186,5 +189,45 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
 
     String getAttributeSideOrNumberSuffix() {
         return "" + (side != null ? side.getNum() : "") + (terminalNumber != null ? terminalNumber.getNum() : "");
+    }
+
+    @Override
+    public void traverse(DcTerminal.TopologyTraverser traverser) {
+        traverse(traverser, TraversalType.DEPTH_FIRST);
+    }
+
+    @Override
+    public void traverse(DcTerminal.TopologyTraverser traverser, TraversalType traversalType) {
+        if (removed) {
+            throw new PowsyblException(String.format("Associated equipment %s is removed", dcConnectable.getId()));
+        }
+        getTopologyModel().traverse(this, traverser, traversalType);
+    }
+
+    @Override
+    public boolean traverse(DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType) {
+        if (removed) {
+            throw new PowsyblException(String.format("Associated equipment %s is removed", dcConnectable.getId()));
+        }
+        return getTopologyModel().traverse(this, traverser, visitedDcTerminals, traversalType);
+    }
+
+    private DcTopologyModel getTopologyModel() {
+        return this.getNetwork().getDcTopologyModel();
+    }
+
+    /**
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
+     *
+     * @return true if terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
+    @Override
+    public boolean disconnect() {
+        if (removed) {
+            throw new PowsyblException("Cannot modify removed equipment " + dcConnectable.getId());
+        }
+        return getTopologyModel().disconnect(this);
     }
 }

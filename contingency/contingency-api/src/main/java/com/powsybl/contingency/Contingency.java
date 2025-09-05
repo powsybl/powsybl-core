@@ -113,6 +113,8 @@ public class Contingency extends AbstractExtendable<Contingency> {
                 case TIE_LINE -> checkTieLineContingency(this, (TieLineContingency) element, network);
                 case SWITCH -> checkSwitchContingency(this, (SwitchContingency) element, network);
                 case BATTERY -> checkBatteryContingency(this, (BatteryContingency) element, network);
+                case CONVERTER -> checkConverterContingency(this, (ConverterContingency) element, network);
+                case DC_LINE -> checkDcLineContingency(this, (DcLineContingency) element, network);
             };
         }
         if (!valid) {
@@ -262,6 +264,26 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return true;
     }
 
+    private static boolean checkConverterContingency(Contingency contingency, ConverterContingency element, Network network) {
+        if (network.getVoltageSourceConverter(element.getId()) == null) {
+            LOGGER.warn("Converter '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean checkDcLineContingency(Contingency contingency, DcLineContingency element, Network network) {
+        DcLine dcLine = network.getDcLine(element.getId());
+        if (dcLine == null
+                || element.getVoltageLevelId() != null
+                && !(element.getVoltageLevelId().equals(dcLine.getDcTerminal1().getDcNode().getId())
+                || element.getVoltageLevelId().equals(dcLine.getDcTerminal2().getDcNode().getId()))) {
+            LOGGER.warn("DcLine '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
     public static ContingencyBuilder builder(String id) {
         return new ContingencyBuilder(id);
     }
@@ -399,4 +421,24 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return builder(busId).addBus(busId).build();
     }
 
+    /**
+     * Creates a new contingency on the converter whose id is given
+     */
+    public static Contingency converter(String id) {
+        return builder(id).addConverter(id).build();
+    }
+
+    /**
+     * Creates a new contingency on the dcLine whose id is given
+     */
+    public static Contingency dcLine(String id) {
+        return builder(id).addDcLine(id).build();
+    }
+
+    /**
+     * Creates a new contingency on the dcLine whose id is given, on the side of the given dcNode
+     */
+    public static Contingency dcLine(String id, String dcNodeId) {
+        return builder(id).addDcLine(id, dcNodeId).build();
+    }
 }
