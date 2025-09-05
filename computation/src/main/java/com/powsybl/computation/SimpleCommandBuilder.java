@@ -8,6 +8,8 @@
 package com.powsybl.computation;
 
 import com.powsybl.commons.PowsyblException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
@@ -19,11 +21,11 @@ import java.util.stream.Collectors;
  */
 public class SimpleCommandBuilder extends AbstractCommandBuilder<SimpleCommandBuilder> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleCommandBuilder.class);
+
     private String program;
 
     private Function<Integer, List<String>> args = executionNumber -> Collections.emptyList();
-
-    private int timeout = -1;
 
     public SimpleCommandBuilder program(String program) {
         this.program = program;
@@ -99,11 +101,12 @@ public class SimpleCommandBuilder extends AbstractCommandBuilder<SimpleCommandBu
         return this;
     }
 
+    /**
+     * @deprecated Configure the timeout in the {@link ComputationParameters} instead
+     */
+    @Deprecated(since = "6.9.0")
     public SimpleCommandBuilder timeout(int timeout) {
-        this.timeout = timeout;
-        if (timeout < -1 || timeout == 0) {
-            throw new PowsyblException("invalid timeout");
-        }
+        LOGGER.warn("SimpleCommandBuilder.timeout is deprecated and has no effect anymore, configure the timeout in the ComputationParameters instead");
         return this;
     }
 
@@ -114,7 +117,7 @@ public class SimpleCommandBuilder extends AbstractCommandBuilder<SimpleCommandBu
         if (program == null) {
             throw new PowsyblException("program is not set");
         }
-        return new SimpleCommandImpl(id, program, args, timeout, inputFiles, outputFiles);
+        return new SimpleCommandImpl(id, program, args, inputFiles, outputFiles);
     }
 
 }
