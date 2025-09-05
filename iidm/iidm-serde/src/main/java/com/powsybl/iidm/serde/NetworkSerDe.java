@@ -237,10 +237,9 @@ public final class NetworkSerDe {
         if (extensionSerDe == null) {
             return false;
         }
-        if (options.getFilteredExtensions().isPresent()) {
-            return options.getFilteredExtensions().get().contains(extensionSerDe.getExtensionName());
-        }
-        return false;
+        return options.getFilteredExtensions()
+                .map(extensions -> extensions.contains(extensionSerDe.getExtensionName()))
+                .orElse(false);
     }
 
     private static boolean canTheExtensionBeWritten(ExtensionSerDe extensionSerDe, IidmVersion version, ExportOptions options) {
@@ -873,7 +872,7 @@ public final class NetworkSerDe {
             ExtensionSerDe extensionSerde = extensionsSupplier.get().findProvider(extensionSerializationName);
             String extensionName = extensionSerde != null ? extensionSerde.getExtensionName() : extensionSerializationName;
             if (!context.isIgnoredEquipment(id) && ((context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName))) &&
-                    !(context.getOptions().withFilteredExtension(extensionName) || context.getOptions().withFilteredExtension(extensionSerializationName))) {
+                    !context.getOptions().withFilteredExtension(extensionName) && !context.getOptions().withFilteredExtension(extensionSerializationName)) {
                 if (extensionSerde != null) {
                     Identifiable identifiable = getIdentifiable(network, id);
                     extensionSerde.read(identifiable, context);
