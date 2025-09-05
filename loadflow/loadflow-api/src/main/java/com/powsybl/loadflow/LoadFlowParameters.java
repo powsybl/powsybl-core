@@ -289,23 +289,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
-    /**
-     * @deprecated Use {@link #isUseReactiveLimits} instead.
-     */
-    @Deprecated(since = "5.1.0")
-    public boolean isNoGeneratorReactiveLimits() {
-        return !useReactiveLimits;
-    }
-
-    /**
-     * @deprecated Use {@link #setNoGeneratorReactiveLimits} instead.
-     */
-    @Deprecated(since = "5.1.0")
-    public LoadFlowParameters setNoGeneratorReactiveLimits(boolean noGeneratorReactiveLimits) {
-        this.useReactiveLimits = !noGeneratorReactiveLimits;
-        return this;
-    }
-
     public boolean isPhaseShifterRegulationOn() {
         return phaseShifterRegulationOn;
     }
@@ -324,24 +307,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
-    /**
-     * @deprecated Use {@link #isShuntCompensatorVoltageControlOn()} instead.
-     */
-    @Deprecated(since = "4.7.0")
-    public boolean isSimulShunt() {
-        return isShuntCompensatorVoltageControlOn();
-    }
-
     public boolean isShuntCompensatorVoltageControlOn() {
         return shuntCompensatorVoltageControlOn;
-    }
-
-    /**
-     * @deprecated Use {@link #setShuntCompensatorVoltageControlOn(boolean)} instead.
-     */
-    @Deprecated(since = "4.7.0")
-    public LoadFlowParameters setSimulShunt(boolean simulShunt) {
-        return setShuntCompensatorVoltageControlOn(simulShunt);
     }
 
     public LoadFlowParameters setShuntCompensatorVoltageControlOn(boolean shuntCompensatorVoltageControlOn) {

@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class SecurityAnalysisResultBuilderTest {
 
-    private final Network network = EurostagTutorialExample1Factory.createWithCurrentLimits();
+    private final Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
     @Test
     void failedResult() {

@@ -172,7 +172,7 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
 
     @Test
     void writeCurrentLimits() throws IOException {
-        Network network = EurostagTutorialExample1Factory.createWithCurrentLimits();
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
         MemDataSource dataSource = new MemDataSource();
         export(network, properties, dataSource);

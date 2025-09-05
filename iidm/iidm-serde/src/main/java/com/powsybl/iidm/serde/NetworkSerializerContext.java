@@ -12,7 +12,6 @@ import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 
-import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 
 /**
@@ -51,15 +50,6 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
 
     public boolean isValid() {
         return valid;
-    }
-
-    /**
-     * @deprecated Should not be used anymore.
-     */
-    @Deprecated(since = "3.8.1")
-    public void setExtensionsWriter(XMLStreamWriter extensionsWriter) {
-        // does nothing
-        // only kept to prevent breaking change
     }
 
     public Set<Identifiable> getExportedEquipments() {

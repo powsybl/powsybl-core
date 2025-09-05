@@ -129,23 +129,6 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
-    /**
-     * @deprecated Use {@link #isWithVoltageResult()} instead. Used for backward compatibility.
-     */
-    @Deprecated(since = "5.2.0")
-    public boolean isWithVoltageMap() {
-        return isWithVoltageResult();
-    }
-
-    /**
-     * @deprecated Use {@link #setWithVoltageResult(boolean)} instead. Used for backward compatibility.
-     */
-    @Deprecated(since = "5.2.0")
-    public ShortCircuitParameters setWithVoltageMap(boolean withVoltageMap) {
-        this.withVoltageResult = withVoltageMap;
-        return this;
-    }
-
     /** Whether faultResults, feederResults and shortCircuitBusResults should be detailed for each phase as FortescueValues
      * or if only the three-phase magnitude for currents and voltages should be given. **/
     public boolean isWithFortescueResult() {
