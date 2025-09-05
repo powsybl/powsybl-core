@@ -8,7 +8,6 @@
 package com.powsybl.iidm.serde.extensions;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
@@ -17,69 +16,52 @@ import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import com.powsybl.iidm.serde.IidmVersion;
-import com.powsybl.iidm.serde.NetworkDeserializerContext;
-import com.powsybl.iidm.serde.NetworkSerializerContext;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.Objects;
+import static com.powsybl.iidm.serde.extensions.BatteryShortCircuitSerDe.Version.V_1_0_LEGACY;
+import static com.powsybl.iidm.serde.extensions.BatteryShortCircuitSerDe.Version.V_1_0_LEGACY_2;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
 @AutoService(ExtensionSerDe.class)
-public class BatteryShortCircuitSerDe extends AbstractVersionableNetworkExtensionSerDe<Battery, BatteryShortCircuit> {
+public class BatteryShortCircuitSerDe extends AbstractVersionableNetworkExtensionSerDe<Battery, BatteryShortCircuit, BatteryShortCircuitSerDe.Version> {
 
-    public static final String V1_0_LEGACY = "1.0-legacy";
-    public static final String V1_0_LEGACY_2 = "1.0-legacy-2";
-    private static final ImmutableSortedSet<String> LEGACY_VERSIONS = ImmutableSortedSet.<String>reverseOrder().add(V1_0_LEGACY, V1_0_LEGACY_2).build();
+    private static final ImmutableSortedSet<BatteryShortCircuitSerDe.Version> LEGACY_VERSIONS = ImmutableSortedSet.<BatteryShortCircuitSerDe.Version>reverseOrder().add(V_1_0_LEGACY, V_1_0_LEGACY_2).build();
+
+    public enum Version implements SerDeVersion<BatteryShortCircuitSerDe.Version> {
+        V_1_0_LEGACY("/xsd/batteryShortCircuit_V1_0_legacy.xsd", "http://www.itesla_project.eu/schema/iidm/ext/battery_short_circuits/1_0",
+            new VersionNumbers(1, 0, "legacy"), IidmVersion.V_1_0, IidmVersion.V_1_14, "batteryShortCircuits"),
+        V_1_0_LEGACY_2("/xsd/batteryShortCircuit_V1_0_legacy_2.xsd", "http://www.itesla_project.eu/schema/iidm/ext/batteryshortcircuits/1_0",
+            new VersionNumbers(1, 0, "legacy-2"), IidmVersion.V_1_0, IidmVersion.V_1_14, "batteryShortCircuits"),
+        V_1_0("/xsd/batteryShortCircuit_V1_0.xsd", "http://www.itesla_project.eu/schema/iidm/ext/battery_short_circuit/1_0",
+            new VersionNumbers(1, 0), IidmVersion.V_1_13, null);
+
+        private final VersionInfo versionInfo;
+
+        Version(String xsdResourcePath, String namespaceUri, VersionNumbers versionNumbers, IidmVersion minIidmVersionIncluded, IidmVersion maxIidmVersionExcluded) {
+            this.versionInfo = new VersionInfo(xsdResourcePath, namespaceUri, "bsc", versionNumbers,
+                minIidmVersionIncluded, maxIidmVersionExcluded, BatteryShortCircuit.NAME);
+        }
+
+        Version(String xsdResourcePath, String namespaceUri, VersionNumbers versionNumbers, IidmVersion minIidmVersionIncluded, IidmVersion maxIidmVersionExcluded, String serializationName) {
+            this.versionInfo = new VersionInfo(xsdResourcePath, namespaceUri, "bsc", versionNumbers,
+                minIidmVersionIncluded, maxIidmVersionExcluded, serializationName);
+        }
+
+        @Override
+        public VersionInfo getVersionInfo() {
+            return versionInfo;
+        }
+    }
 
     public BatteryShortCircuitSerDe() {
-        super(BatteryShortCircuit.NAME, BatteryShortCircuit.class, "bsc",
-                new ImmutableMap.Builder<IidmVersion, ImmutableSortedSet<String>>()
-                        .put(IidmVersion.V_1_0, LEGACY_VERSIONS)
-                        .put(IidmVersion.V_1_1, LEGACY_VERSIONS)
-                        .put(IidmVersion.V_1_2, LEGACY_VERSIONS)
-                        .put(IidmVersion.V_1_3, LEGACY_VERSIONS)
-                        .put(IidmVersion.V_1_4, LEGACY_VERSIONS)
-                        .put(IidmVersion.V_1_5, LEGACY_VERSIONS)
-                        .put(IidmVersion.V_1_6, LEGACY_VERSIONS)
-                        .put(IidmVersion.V_1_7, LEGACY_VERSIONS)
-                        .put(IidmVersion.V_1_8, LEGACY_VERSIONS)
-                        .put(IidmVersion.V_1_9, LEGACY_VERSIONS)
-                        .put(IidmVersion.V_1_10, LEGACY_VERSIONS)
-                        .put(IidmVersion.V_1_11, LEGACY_VERSIONS)
-                        .put(IidmVersion.V_1_12, LEGACY_VERSIONS)
-                        .put(IidmVersion.V_1_13, ImmutableSortedSet.<String>reverseOrder().add(V1_0_LEGACY, V1_0_LEGACY_2, "1.0").build())
-                        .put(IidmVersion.V_1_14, ImmutableSortedSet.of("1.0"))
-                        .build(),
-                new ImmutableMap.Builder<String, String>()
-                        .put(V1_0_LEGACY, "http://www.itesla_project.eu/schema/iidm/ext/battery_short_circuits/1_0")
-                        .put(V1_0_LEGACY_2, "http://www.itesla_project.eu/schema/iidm/ext/batteryshortcircuits/1_0")
-                        .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/battery_short_circuit/1_0")
-                        .build(),
-                List.of(new AlternativeSerializationData("batteryShortCircuits", List.copyOf(LEGACY_VERSIONS)))
-        );
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/batteryShortCircuit_V1_0.xsd");
-    }
-
-    @Override
-    public List<InputStream> getXsdAsStreamList() {
-        return List.of(Objects.requireNonNull(getClass().getResourceAsStream("/xsd/batteryShortCircuit_V1_0.xsd")),
-                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/batteryShortCircuit_V1_0_legacy.xsd")),
-                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/batteryShortCircuit_V1_0_legacy_2.xsd")));
+        super(BatteryShortCircuit.NAME, BatteryShortCircuit.class, Version.values());
     }
 
     @Override
     public void write(BatteryShortCircuit batteryShortCircuit, SerializerContext context) {
-        NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
-        String extVersionStr = networkContext.getExtensionVersion(getExtensionName())
-                .orElseGet(() -> getVersion(networkContext.getVersion()));
-        if (LEGACY_VERSIONS.contains(extVersionStr)) {
+        Version extensionVersionToExport = getExtensionVersionToExport(context);
+        if (LEGACY_VERSIONS.contains(extensionVersionToExport)) {
             context.getWriter().writeFloatAttribute("transientReactance", (float) batteryShortCircuit.getDirectTransX());
             context.getWriter().writeFloatAttribute("stepUpTransformerReactance", (float) batteryShortCircuit.getStepUpTransformerX());
         } else {
@@ -91,10 +73,9 @@ public class BatteryShortCircuitSerDe extends AbstractVersionableNetworkExtensio
 
     @Override
     public BatteryShortCircuit read(Battery battery, DeserializerContext context) {
-        NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
-        String extVersionStr = networkContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
+        Version extensionVersionImported = getExtensionVersionImported(context);
         BatteryShortCircuitAdder batteryShortCircuitAdder = battery.newExtension(BatteryShortCircuitAdder.class);
-        if (LEGACY_VERSIONS.contains(extVersionStr)) {
+        if (LEGACY_VERSIONS.contains(extensionVersionImported)) {
             batteryShortCircuitAdder
                     .withDirectTransX(context.getReader().readFloatAttribute("transientReactance"))
                     .withStepUpTransformerX(context.getReader().readFloatAttribute("stepUpTransformerReactance"));

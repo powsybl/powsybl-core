@@ -117,4 +117,6 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
     default Map<String, String> getArrayNameToSingleNameMap() {
         return Collections.emptyMap();
     }
+
+    void checkReadingCompatibility(DeserializerContext context);
 }
