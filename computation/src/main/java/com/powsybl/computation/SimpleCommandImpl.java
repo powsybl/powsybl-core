@@ -29,17 +29,6 @@ class SimpleCommandImpl extends AbstractCommand implements SimpleCommand {
         this.args = args;
     }
 
-    /**
-     * @deprecated Use {@link SimpleCommandImpl#SimpleCommandImpl(String, String, Function, List, List)} instead
-     */
-    @Deprecated(since = "6.9.0")
-    SimpleCommandImpl(String id, String program, Function<Integer, List<String>> args, int timeout,
-                      List<InputFile> inputFiles, List<OutputFile> outputFiles) {
-        super(id, inputFiles, outputFiles);
-        this.program = program;
-        this.args = args;
-    }
-
     @Override
     public CommandType getType() {
         return CommandType.SIMPLE;

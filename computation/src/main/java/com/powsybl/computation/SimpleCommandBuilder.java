@@ -8,10 +8,12 @@
 package com.powsybl.computation;
 
 import com.powsybl.commons.PowsyblException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -20,8 +22,6 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SimpleCommandBuilder extends AbstractCommandBuilder<SimpleCommandBuilder> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleCommandBuilder.class);
 
     private String program;
 
@@ -98,15 +98,6 @@ public class SimpleCommandBuilder extends AbstractCommandBuilder<SimpleCommandBu
         Objects.requireNonNull(opt);
         Objects.requireNonNull(fn);
         arg(i -> "--" + opt + "=" + fn.apply(i));
-        return this;
-    }
-
-    /**
-     * @deprecated Configure the timeout in the {@link ComputationParameters} instead
-     */
-    @Deprecated(since = "6.9.0")
-    public SimpleCommandBuilder timeout(int timeout) {
-        LOGGER.warn("SimpleCommandBuilder.timeout is deprecated and has no effect anymore, configure the timeout in the ComputationParameters instead");
         return this;
     }
 
