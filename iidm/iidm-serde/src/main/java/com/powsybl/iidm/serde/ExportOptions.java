@@ -106,6 +106,16 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return this;
     }
 
+    @Override
+    public ExportOptions addFilteredExtension(String extensionToBeFiltered) {
+        if (filteredExtension != null) {
+            filteredExtension.add(extensionToBeFiltered);
+        } else {
+            this.filteredExtension = Sets.newHashSet(extensionToBeFiltered);
+        }
+        return this;
+    }
+
     public boolean isWithBranchSV() {
         return withBranchSV;
     }
@@ -160,6 +170,18 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
             }
         });
         this.extensions = extensions;
+        return this;
+    }
+
+    @Override
+    public ExportOptions setFilteredExtensions(Set<String> filteredExtension) {
+        // this warning is to prevent people to use setSkipExtensions and setExtensions at the same time
+        Optional.ofNullable(this.filteredExtension).ifPresent(e -> {
+            if (e.isEmpty()) {
+                LOGGER.warn("Extensions have already been set as empty. This call will override it.");
+            }
+        });
+        this.filteredExtension = filteredExtension;
         return this;
     }
 

@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.google.common.collect.Sets;
 import com.powsybl.commons.io.TreeDataFormat;
 
 import java.util.Objects;
@@ -19,15 +20,27 @@ import java.util.Set;
 public abstract class AbstractOptions<T> {
 
     protected Set<String> extensions;
+    /**
+     * Extensions to be loaded must be in the extensions set but must not belong to the filteredExtension Set
+     */
+    protected Set<String> filteredExtension = Sets.newHashSet();
 
     protected TreeDataFormat format = TreeDataFormat.XML;
 
     public abstract T setExtensions(Set<String> extensions);
 
+    public abstract T setFilteredExtensions(Set<String> extensions);
+
     public abstract T addExtension(String extension);
+
+    public abstract T addFilteredExtension(String extensionToBeFiltered);
 
     public Optional<Set<String>> getExtensions() {
         return Optional.ofNullable(extensions);
+    }
+
+    public Optional<Set<String>> getFilteredExtensions() {
+        return Optional.ofNullable(filteredExtension);
     }
 
     public boolean withNoExtension() {
@@ -54,6 +67,10 @@ public abstract class AbstractOptions<T> {
         return withAllExtensions() || extensions.contains(extensionName);
     }
 
+    public boolean withFilteredExtension(String extensionName) {
+        return filteredExtension != null && filteredExtension.contains(extensionName);
+    }
+
     public abstract boolean isThrowExceptionIfExtensionNotFound();
 
     public TreeDataFormat getFormat() {
@@ -64,4 +81,5 @@ public abstract class AbstractOptions<T> {
         this.format = Objects.requireNonNull(format);
         return (T) this;
     }
+
 }

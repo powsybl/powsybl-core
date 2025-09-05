@@ -90,4 +90,18 @@ class ExportOptionsTest {
         assertEquals(StandardCharsets.UTF_8, options.getCharset());
         assertEquals(Boolean.TRUE, options.isWithAutomationSystems());
     }
+
+    @Test
+    void exportOptionsTestFilteredExtensions() {
+        ExportOptions options = new ExportOptions();
+        options.setExtensions(Sets.newHashSet("loadFoo", "loadBar"));
+        options.setFilteredExtensions(Sets.newHashSet("loadBar"));
+        options.addFilteredExtension("test");
+        assertEquals(Boolean.FALSE, options.withNoExtension());
+        assertEquals(Boolean.TRUE, options.withExtension("loadFoo"));
+        assertEquals(Boolean.FALSE, options.withFilteredExtension("loadFoo"));
+        assertEquals(Boolean.TRUE, options.withFilteredExtension("loadBar"));
+        assertEquals(2, (int) options.getExtensions().map(Set::size).orElse(-1));
+        assertEquals(2, (int) options.getFilteredExtensions().map(Set::size).orElse(-1));
+    }
 }
