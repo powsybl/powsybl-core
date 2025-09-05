@@ -27,5 +27,7 @@ public enum ContingencyElementType {
     SWITCH,
     BATTERY,
     BUS,
-    TIE_LINE
+    TIE_LINE,
+    CONVERTER,
+    DC_LINE
 }
