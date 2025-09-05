@@ -60,6 +60,7 @@ public class DynamicSecurityAnalysisRunParameters extends AbstractSecurityAnalys
     }
 
     public DynamicSecurityAnalysisRunParameters setEventModelsSupplier(EventModelsSupplier eventModelsSupplier) {
+        Objects.requireNonNull(eventModelsSupplier, "Event models supplier should not be null");
         this.eventModelsSupplier = eventModelsSupplier;
         return self();
     }
