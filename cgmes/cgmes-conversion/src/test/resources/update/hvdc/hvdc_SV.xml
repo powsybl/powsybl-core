@@ -31,4 +31,17 @@
         <cim:SvPowerFlow.Terminal rdf:resource="#_DCLineSegment-Vsc-VscConverter-2-ACT1" />
     </cim:SvPowerFlow>
 
+    <cim:CsConverter rdf:about="#_DCLineSegment-Lcc-CsConverter-1">
+        <cim:ACDCConverter.poleLossP>2.91</cim:ACDCConverter.poleLossP>
+    </cim:CsConverter>
+    <cim:CsConverter rdf:about="#_DCLineSegment-Lcc-CsConverter-2">
+        <cim:ACDCConverter.poleLossP>2.90</cim:ACDCConverter.poleLossP>
+    </cim:CsConverter>
+
+    <cim:VsConverter rdf:about="#_DCLineSegment-Vsc-VscConverter-1">
+        <cim:ACDCConverter.poleLossP>2.81</cim:ACDCConverter.poleLossP>
+    </cim:VsConverter>
+    <cim:VsConverter rdf:about="#_DCLineSegment-Vsc-VscConverter-2">
+        <cim:ACDCConverter.poleLossP>2.80</cim:ACDCConverter.poleLossP>
+    </cim:VsConverter>
 </rdf:RDF>
