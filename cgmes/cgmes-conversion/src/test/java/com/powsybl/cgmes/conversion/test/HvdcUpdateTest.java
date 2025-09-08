@@ -54,8 +54,14 @@ class HvdcUpdateTest {
         assertSecondSsh(network);
 
         assertFlowsBeforeSv(network);
+        assertLossFactorBeforeSv(network);
         readCgmesResources(network, DIR, "hvdc_SV.xml");
         assertFlowsAfterSv(network);
+        assertLossFactorAfterSv(network);
+
+        assertLossFactorBeforeSshSv(network);
+        readCgmesResources(network, DIR, "hvdc_SSH_1.xml", "hvdc_SV.xml");
+        assertLossFactorAfterSshSv(network);
     }
 
     private static void assertEq(Network network) {
@@ -64,21 +70,19 @@ class HvdcUpdateTest {
     }
 
     private static void assertFirstSsh(Network network) {
-        assertSshLcc(network.getHvdcLine("DCLineSegment-Lcc"), 360.0, SIDE_1_INVERTER_SIDE_2_RECTIFIER,
-                -0.9152494668960571, 0.0,
-                0.9340579509735107, 0.0);
-        assertSshVsc(network.getHvdcLine("DCLineSegment-Vsc"), 597.24, SIDE_1_INVERTER_SIDE_2_RECTIFIER,
-                0.0, 392.54, 0.0, true,
-                0.0, 392.54, 0.0, true);
+        assertSshLcc(network.getHvdcLine("DCLineSegment-Lcc"), 360.0, 300.0, SIDE_1_INVERTER_SIDE_2_RECTIFIER,
+                -0.9152494668960571,
+                0.9340579509735107);
+        assertSshVsc(network.getHvdcLine("DCLineSegment-Vsc"), 597.24, 497.7, SIDE_1_INVERTER_SIDE_2_RECTIFIER,
+                392.54, 392.54, 0.0, true);
     }
 
     private static void assertSecondSsh(Network network) {
-        assertSshLcc(network.getHvdcLine("DCLineSegment-Lcc"), 420.0, SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                0.9503694176673889, 0.0,
-                -0.9194843769073486, 0.0);
-        assertSshVsc(network.getHvdcLine("DCLineSegment-Vsc"), 596.4, SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                0.0, 396.54, 0.0, true,
-                0.0, 0.0, 30.0, false);
+        assertSshLcc(network.getHvdcLine("DCLineSegment-Lcc"), 420.0, 350.0, SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+                0.9503694176673889,
+                -0.9194843769073486);
+        assertSshVsc(network.getHvdcLine("DCLineSegment-Vsc"), 596.4, 497.0, SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+                396.54, 0.0, 30.0, false);
     }
 
     private static void assertFlowsBeforeSv(Network network) {
@@ -93,6 +97,28 @@ class HvdcUpdateTest {
                 network.getHvdcLine("DCLineSegment-Lcc").getConverterStation2().getTerminal(), -200.1, -50.1);
         assertFlows(network.getHvdcLine("DCLineSegment-Vsc").getConverterStation1().getTerminal(), 100.0, 25.0,
                 network.getHvdcLine("DCLineSegment-Vsc").getConverterStation2().getTerminal(), -100.1, -25.1);
+    }
+
+    private static void assertLossFactorBeforeSv(Network network) {
+        assertEquals(0.0, network.getHvdcLine("DCLineSegment-Lcc").getConverterStation1().getLossFactor());
+        assertEquals(0.0, network.getHvdcLine("DCLineSegment-Lcc").getConverterStation2().getLossFactor());
+        assertEquals(0.0, network.getHvdcLine("DCLineSegment-Vsc").getConverterStation1().getLossFactor());
+        assertEquals(0.0, network.getHvdcLine("DCLineSegment-Vsc").getConverterStation2().getLossFactor());
+    }
+
+    private static void assertLossFactorAfterSv(Network network) {
+        assertLossFactorBeforeSv(network); // targetP is 0.0
+    }
+
+    private static void assertLossFactorBeforeSshSv(Network network) {
+        assertLossFactorBeforeSv(network);
+    }
+
+    private static void assertLossFactorAfterSshSv(Network network) {
+        assertTrue(network.getHvdcLine("DCLineSegment-Lcc").getConverterStation1().getLossFactor() > 0.0);
+        assertTrue(network.getHvdcLine("DCLineSegment-Lcc").getConverterStation2().getLossFactor() > 0.0);
+        assertTrue(network.getHvdcLine("DCLineSegment-Vsc").getConverterStation1().getLossFactor() > 0.0);
+        assertTrue(network.getHvdcLine("DCLineSegment-Vsc").getConverterStation2().getLossFactor() > 0.0);
     }
 
     private static void assertEqLcc(HvdcLine hvdcLine) {
@@ -130,38 +156,39 @@ class HvdcUpdateTest {
         assertFalse(vscConverterStation.isVoltageRegulatorOn());
     }
 
-    private static void assertSshLcc(HvdcLine hvdcLine, double maxP, HvdcLine.ConvertersMode convertersMode,
-                                     double powerFactor1, double lossFactor1, double powerFactor2, double lossFactor2) {
+    private static void assertSshLcc(HvdcLine hvdcLine, double maxP, double activePowerSetpoint, HvdcLine.ConvertersMode convertersMode,
+                                     double powerFactor1, double powerFactor2) {
         assertNotNull(hvdcLine);
         assertEquals(maxP, hvdcLine.getMaxP());
+        assertEquals(activePowerSetpoint, hvdcLine.getActivePowerSetpoint());
         assertEquals(convertersMode, hvdcLine.getConvertersMode());
 
         assertEquals(HvdcConverterStation.HvdcType.LCC, hvdcLine.getConverterStation1().getHvdcType());
-        assertSshLccConverter((LccConverterStation) hvdcLine.getConverterStation1(), powerFactor1, lossFactor1);
-        assertSshLccConverter((LccConverterStation) hvdcLine.getConverterStation2(), powerFactor2, lossFactor2);
+        assertSshLccConverter((LccConverterStation) hvdcLine.getConverterStation1(), powerFactor1);
+        assertSshLccConverter((LccConverterStation) hvdcLine.getConverterStation2(), powerFactor2);
     }
 
-    private static void assertSshLccConverter(LccConverterStation lccConverterStation, double powerFactor, double lossFactor) {
+    private static void assertSshLccConverter(LccConverterStation lccConverterStation, double powerFactor) {
         double tol = 0.0000001;
         assertEquals(powerFactor, lccConverterStation.getPowerFactor(), tol);
-        assertEquals(lossFactor, lccConverterStation.getLossFactor(), tol);
+        assertEquals(0.0, lccConverterStation.getLossFactor(), tol);
     }
 
-    private static void assertSshVsc(HvdcLine hvdcLine, double maxP, HvdcLine.ConvertersMode convertersMode,
-                                     double lossFactor1, double targetV1, double targetQ1, boolean voltageRegulatorOn1,
-                                     double lossFactor2, double targetV2, double targetQ2, boolean voltageRegulatorOn2) {
+    private static void assertSshVsc(HvdcLine hvdcLine, double maxP, double activePowerSetpoint, HvdcLine.ConvertersMode convertersMode,
+                                     double targetV1, double targetV2, double targetQ2, boolean voltageRegulatorOn2) {
         assertNotNull(hvdcLine);
         assertEquals(maxP, hvdcLine.getMaxP());
+        assertEquals(activePowerSetpoint, hvdcLine.getActivePowerSetpoint());
         assertEquals(convertersMode, hvdcLine.getConvertersMode());
 
         assertEquals(HvdcConverterStation.HvdcType.VSC, hvdcLine.getConverterStation1().getHvdcType());
-        assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation1(), lossFactor1, targetV1, targetQ1, voltageRegulatorOn1);
-        assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation2(), lossFactor2, targetV2, targetQ2, voltageRegulatorOn2);
+        assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation1(), targetV1, 0.0, true);
+        assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation2(), targetV2, targetQ2, voltageRegulatorOn2);
     }
 
-    private static void assertSshVscConverter(VscConverterStation vscConverterStation, double lossFactor, double targetV, double targetQ, boolean voltageRegulatorOn) {
+    private static void assertSshVscConverter(VscConverterStation vscConverterStation, double targetV, double targetQ, boolean voltageRegulatorOn) {
         double tol = 0.0000001;
-        assertEquals(lossFactor, vscConverterStation.getLossFactor(), tol);
+        assertEquals(0.0, vscConverterStation.getLossFactor(), tol);
         assertEquals(targetV, vscConverterStation.getVoltageSetpoint(), tol);
         assertEquals(targetQ, vscConverterStation.getReactivePowerSetpoint(), tol);
         assertEquals(voltageRegulatorOn, vscConverterStation.isVoltageRegulatorOn());

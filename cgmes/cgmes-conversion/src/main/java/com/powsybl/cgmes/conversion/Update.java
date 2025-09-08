@@ -193,7 +193,7 @@ public final class Update {
     // we have decided to create fictitious switches to precisely
     // map this situation to IIDM.
     // This behavior can be disabled through configuration.
-    public static void createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
+    static void createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
         context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.TERMINAL));
         if (createFictitiousSwitch(context)) {
             cgmes.terminals().forEach(cgmesTerminal -> TerminalConversion.create(network, cgmesTerminal, context));
@@ -206,25 +206,25 @@ public final class Update {
     }
 
     // In some TYNDP there are three or more acLineSegments at the boundary node, only two connected.
-    public static void createTieLinesWhenThereAreMoreThanTwoDanglingLinesAtBoundaryNodeDuringUpdate(Network network, Context context) {
+    static void createTieLinesWhenThereAreMoreThanTwoDanglingLinesAtBoundaryNodeDuringUpdate(Network network, Context context) {
         context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), IdentifiableType.TIE_LINE.name()));
         TieLineConversion.createDuringUpdate(network, context);
         context.popReportNode();
     }
 
-    public static void updateVoltageLevels(Network network, Context context) {
+    static void updateVoltageLevels(Network network, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.VOLTAGE_LEVEL.name()));
         network.getVoltageLevels().forEach(voltageLevel -> VoltageLevelConversion.update(voltageLevel, context));
         context.popReportNode();
     }
 
-    public static void updateGrounds(Network network, Context context) {
+    static void updateGrounds(Network network, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.GROUND.name()));
         network.getGrounds().forEach(ground -> GroundConversion.update(ground, context));
         context.popReportNode();
     }
 
-    public static void createFictitiousLoadsForSvInjectionsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
+    static void createFictitiousLoadsForSvInjectionsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
         context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.SV_INJECTION));
         if (context.config().convertSvInjections()) {
             cgmes.svInjections().forEach(svInjection -> SvInjectionConversion.create(network, svInjection));
@@ -232,7 +232,7 @@ public final class Update {
         context.popReportNode();
     }
 
-    public static void updateAndCompleteVoltageAndAngles(Network network, Context context) {
+    static void updateAndCompleteVoltageAndAngles(Network network, Context context) {
         context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(context.getReportNode()));
         // update voltage and angles
         network.getBusView().getBuses().forEach(bus -> NodeConversion.update(bus, context));

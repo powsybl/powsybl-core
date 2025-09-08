@@ -104,47 +104,71 @@ SELECT *
 # query: ratioTapChangers
 SELECT *
 {
-    ?RatioTapChanger a cim:RatioTapChanger ;
-    # return either data from SSH or from SV, but at least some data has to be present to return a row
+    {
+        SELECT DISTINCT ?RatioTapChanger
+        WHERE {
+            {
+                ?RatioTapChanger a cim:RatioTapChanger .
+            }
+            UNION
+            {
+                SELECT ?RatioTapChanger
+                WHERE {
+                    ?SvTapStep a cim:SvTapStep ;
+                        cim:SvTapStep.TapChanger ?RatioTapChanger .
+                }
+            }
+        }
+    }
     OPTIONAL {
         ?RatioTapChanger
             cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
-            cim:TapChanger.step ?step
+            cim:TapChanger.step ?step .
     }
     OPTIONAL {
         ?SvTapStep a cim:SvTapStep ;
             cim:SvTapStep.TapChanger ?RatioTapChanger ;
-            cim:SvTapStep.position ?SVtapStep
+            cim:SvTapStep.position ?SVtapStep .
     }
 }
 
 # query: phaseTapChangers
 SELECT *
 {
-    ?PhaseTapChanger a ?phaseTapChangerType ;
-    VALUES ?phaseTapChangerType { cim:PhaseTapChangerLinear cim:PhaseTapChangerAsymmetrical cim:PhaseTapChangerNonLinear cim:PhaseTapChangerTabular } .
+    {
+        SELECT DISTINCT ?PhaseTapChanger
+        WHERE {
+            {
+                ?PhaseTapChanger a ?phaseTapChangerType ;
+                VALUES ?phaseTapChangerType { cim:PhaseTapChangerLinear cim:PhaseTapChangerAsymmetrical cim:PhaseTapChangerNonLinear cim:PhaseTapChangerTabular } .
+            }
+            UNION
+            {
+                SELECT ?PhaseTapChanger
+                WHERE {
+                    ?SvTapStep a cim:SvTapStep ;
+                        cim:SvTapStep.TapChanger ?PhaseTapChanger .
+                }
+            }
+        }
+    }
     OPTIONAL {
         ?PhaseTapChanger
             cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
-            cim:TapChanger.step ?step
+            cim:TapChanger.step ?step .
     }
     OPTIONAL {
-        ?SVTapStep a cim:SvTapStep ;
+        ?SvTapStep a cim:SvTapStep ;
             cim:SvTapStep.TapChanger ?PhaseTapChanger ;
-            cim:SvTapStep.position ?SVtapStep
+            cim:SvTapStep.position ?SVtapStep .
     }
 }
 
 # query: regulatingControls
 SELECT *
 {
-    {
-        ?RegulatingControl a cim:RegulatingControl
-    }
-    UNION
-    {
-        ?RegulatingControl a cim:TapChangerControl
-    }
+    ?RegulatingControl a ?type ;
+        VALUES ?type { cim:RegulatingControl cim:TapChangerControl } .
     OPTIONAL {
         ?RegulatingControl
             cim:RegulatingControl.enabled ?enabled ;
@@ -242,8 +266,21 @@ SELECT *
 SELECT *
 {
     {
-        ?ShuntCompensator a ?type ;
-        VALUES ?type { cim:LinearShuntCompensator cim:NonlinearShuntCompensator } .
+        SELECT DISTINCT ?ShuntCompensator
+        WHERE {
+            {
+                ?ShuntCompensator a ?type ;
+                VALUES ?type { cim:LinearShuntCompensator cim:NonlinearShuntCompensator } .
+            }
+            UNION
+            {
+                SELECT ?ShuntCompensator
+                WHERE {
+                    ?SvShuntCompensatorSections a cim:SvShuntCompensatorSections ;
+                        cim:SvShuntCompensatorSections.ShuntCompensator ?ShuntCompensator .
+                }
+            }
+        }
     }
     OPTIONAL {
         ?ShuntCompensator
@@ -251,22 +288,28 @@ SELECT *
             cim:RegulatingCondEq.controlEnabled ?controlEnabled
     }
     OPTIONAL {
-        ?SvShuntCompensatorSections
-            a cim:SvShuntCompensatorSections ;
+        ?SvShuntCompensatorSections a cim:SvShuntCompensatorSections ;
             cim:SvShuntCompensatorSections.ShuntCompensator ?ShuntCompensator ;
-            cim:SvShuntCompensatorSections.sections ?SVsections
+            cim:SvShuntCompensatorSections.sections ?SVsections .
     }
 }
 
 # query: acDcConverters
 SELECT *
 {
-    ?ACDCConverter a ?type .
-    VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter }
-    ?ACDCConverter
-        cim:ACDCConverter.targetPpcc ?targetPpcc ;
-        cim:ACDCConverter.p ?p ;
-        cim:ACDCConverter.q ?q .
+    {
+        SELECT DISTINCT ?ACDCConverter
+        WHERE {
+            ?ACDCConverter a ?type ;
+            VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter } .
+        }
+    }
+    OPTIONAL {
+        ?ACDCConverter
+            cim:ACDCConverter.targetPpcc ?targetPpcc ;
+            cim:ACDCConverter.p ?p ;
+            cim:ACDCConverter.q ?q .
+    }
     # From SV, for all converters
     OPTIONAL {
         ?ACDCConverter cim:ACDCConverter.poleLossP ?poleLossP
@@ -276,14 +319,14 @@ SELECT *
         ?ACDCConverter a cim:CsConverter ;
             cim:CsConverter.operatingMode ?operatingMode ;
             cim:CsConverter.pPccControl ?controlMode .
-        OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
+            OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
     }
     # For Voltage Source Converter
     OPTIONAL {
         ?ACDCConverter a cim:VsConverter ;
-           cim:VsConverter.qPccControl ?qPccControl ;
-           cim:VsConverter.pPccControl ?pPccControl .
-        OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
-        OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
+            cim:VsConverter.qPccControl ?qPccControl ;
+            cim:VsConverter.pPccControl ?pPccControl .
+            OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
+            OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
     }
 }
