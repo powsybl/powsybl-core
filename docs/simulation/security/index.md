@@ -49,6 +49,7 @@ contingencies are:
 - HVDC line contingency
 - Battery contingency
 - Shunt Compensator contingency
+- Switch contingency
 
 A contingency is made of contingency elements. A contingency can trigger one element at a time (N-1) or several elements
 at a time (N-K). Bus bar and bus contingencies are special N-K contingencies as they trigger all the equipments
