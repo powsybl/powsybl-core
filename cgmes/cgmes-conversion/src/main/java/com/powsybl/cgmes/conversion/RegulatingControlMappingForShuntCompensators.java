@@ -47,11 +47,7 @@ public class RegulatingControlMappingForShuntCompensators {
     }
 
     private void apply(ShuntCompensator shuntCompensator) {
-        String rcId = mapping.get(shuntCompensator.getId());
-        apply(shuntCompensator, rcId);
-    }
-
-    private void apply(ShuntCompensator shuntCompensator, String regulatingControlId) {
+        String regulatingControlId = mapping.get(shuntCompensator.getId());
         if (regulatingControlId == null) {
             return;
         }
@@ -59,8 +55,7 @@ public class RegulatingControlMappingForShuntCompensators {
         if (rc == null) {
             return;
         }
-        // Finally, equipment participates in it regulating control,
-        // and the regulating control information is present in the CGMES model
+        // Equipment participates in regulation and the regulating control information is present in the CGMES model
         setRegulatingControl(shuntCompensator, regulatingControlId, rc);
         rc.setCorrectlySet(true);
     }

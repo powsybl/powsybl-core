@@ -136,29 +136,12 @@ public final class CgmesReports {
                 .add();
     }
 
-    /**
-     * @deprecated Not used anymore. Use {@link #invalidAngleVoltageReport(ReportNode, Bus, String, double , double)}
-     */
-    @Deprecated(since = "6.9.0")
-    public static void invalidAngleVoltageBusReport(ReportNode reportNode, Bus bus, String nodeId, double v, double angle) {
-        throw new ConversionException("Deprecated. Not used anymore");
-    }
-
-    /**
-     * @deprecated Not used anymore. Use {@link #invalidAngleVoltageReport(ReportNode, Bus, String, double , double)}
-     */
-    @Deprecated(since = "6.9.0")
-    public static void invalidAngleVoltageNodeReport(ReportNode reportNode, String nodeId, double v, double angle) {
-        throw new ConversionException("Deprecated. Not used anymore");
-    }
-
-    public static void invalidAngleVoltageReport(ReportNode reportNode, Bus bus, String topologicalNode, double v, double angle) {
+    public static void invalidAngleVoltageReport(ReportNode reportNode, Bus bus, double v, double angle) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.invalidAngleVoltageBus")
                 .withUntypedValue("substation", bus.getVoltageLevel().getSubstation().map(Substation::getNameOrId).orElse("unknown"))
                 .withUntypedValue("voltageLevel", bus.getVoltageLevel().getNameOrId())
                 .withUntypedValue("bus", bus.getId())
-                .withUntypedValue("topologicalNode", topologicalNode)
                 .withTypedValue("voltage", v, TypedValue.VOLTAGE)
                 .withTypedValue("angle", angle, TypedValue.ANGLE)
                 .withSeverity(TypedValue.WARN_SEVERITY)

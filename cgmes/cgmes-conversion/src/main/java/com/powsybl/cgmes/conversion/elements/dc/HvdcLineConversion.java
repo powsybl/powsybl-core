@@ -83,9 +83,9 @@ public class HvdcLineConversion extends AbstractIdentifiedObjectConversion {
     private static DCLinkUpdate updateHvdcLine(HvdcLine hvdcLine, PropertyBag cgmesDataAcDcConverter1, PropertyBag cgmesDataAcDcConverter2) {
 
         DCLinkUpdate dcLinkUpdate = new DCLinkUpdate(hvdcLine, cgmesDataAcDcConverter1, cgmesDataAcDcConverter2);
-        hvdcLine.setConvertersMode(dcLinkUpdate.getMode());
-        hvdcLine.setActivePowerSetpoint(dcLinkUpdate.getTargetP());
-        hvdcLine.setMaxP(DEFAULT_MAXP_FACTOR * dcLinkUpdate.getTargetP());
+        hvdcLine.setConvertersMode(dcLinkUpdate.getMode())
+                .setActivePowerSetpoint(dcLinkUpdate.getTargetP())
+                .setMaxP(DEFAULT_MAXP_FACTOR * dcLinkUpdate.getTargetP());
         return dcLinkUpdate;
     }
 }

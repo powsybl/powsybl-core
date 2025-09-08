@@ -103,6 +103,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             warnDanglingLineCreated();
             String eqInstance = p.get("graph");
             danglingLine = convertToDanglingLine(eqInstance, boundarySide, CgmesNames.SWITCH);
+            boolean normalOpen = p.asBoolean(CgmesNames.NORMAL_OPEN, false);
+            danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
         }
     }
 
@@ -126,13 +128,21 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
 
     public static void update(DanglingLine danglingLine, PropertyBag cgmesData, Context context) {
         updateTerminals(danglingLine, context, danglingLine.getTerminal());
-        boolean isClosed = !cgmesData.asBoolean(CgmesNames.OPEN).orElse(defaultOpen(context));
+        boolean isClosed = !cgmesData.asBoolean(CgmesNames.OPEN).orElse(defaultOpen(danglingLine, context));
         updateTargetsAndRegulationAndOperationalLimits(danglingLine, isBoundaryTerminalConnected(danglingLine, context) && isClosed, context);
         computeFlowsOnModelSide(danglingLine, context);
     }
 
-    private static boolean defaultOpen(Context context) {
-        return getDefaultValue(null, false, false, false, context);
+    // In the danglingLines, the status of the terminal on the boundary side cannot be explicitly represented.
+    // Instead, it is implicitly indicated by setting both active and reactive power to zero.
+    // Then, we assume that the previous value is always false
+    private static boolean defaultOpen(DanglingLine danglingLine, Context context) {
+        return getDefaultValue(getNormalOpen(danglingLine), false, false, false, context);
+    }
+
+    private static Boolean getNormalOpen(DanglingLine danglingLine) {
+        String property = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN);
+        return property != null ? Boolean.parseBoolean(property) : null;
     }
 
     public static void update(Switch sw, PropertyBag cgmesData, Context context) {
