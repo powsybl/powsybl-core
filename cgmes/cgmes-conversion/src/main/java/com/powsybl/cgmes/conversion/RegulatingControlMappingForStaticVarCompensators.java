@@ -61,11 +61,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     private void apply(StaticVarCompensator svc) {
-        CgmesRegulatingControlForStaticVarCompensator rd = mapping.get(svc.getId());
-        apply(svc, rd);
-    }
-
-    private void apply(StaticVarCompensator svc, CgmesRegulatingControlForStaticVarCompensator rc) {
+        CgmesRegulatingControlForStaticVarCompensator rc = mapping.get(svc.getId());
         if (rc == null) {
             return;
         }
