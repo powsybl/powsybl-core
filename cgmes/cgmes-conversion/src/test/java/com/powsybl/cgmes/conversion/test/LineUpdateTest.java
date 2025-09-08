@@ -8,10 +8,7 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
@@ -132,24 +129,18 @@ class LineUpdateTest {
     private static void assertDefinedCurrentLimitsSide(Line line, TwoSides side, CurrentLimit currentLimit) {
         assertNotNull(line.getCurrentLimits(side).orElse(null));
         if (line.getCurrentLimits(side).isPresent()) {
-            assertEquals(currentLimit.ptalValue, line.getCurrentLimits(side).get().getPermanentLimit());
-            assertEquals(1, line.getCurrentLimits(side).get().getTemporaryLimits().size());
-            assertEquals(currentLimit.tatlDuration, line.getCurrentLimits(side).get().getTemporaryLimits().iterator().next().getAcceptableDuration());
-            assertEquals(currentLimit.tatlValue, line.getCurrentLimits(side).get().getTemporaryLimits().iterator().next().getValue());
+            CurrentLimits currentLimits = line.getCurrentLimits(side).get();
+
+            assertEquals(currentLimit.ptalValue, currentLimits.getPermanentLimit());
+            assertEquals(1, currentLimits.getTemporaryLimits().size());
+            assertEquals(currentLimit.tatlDuration, currentLimits.getTemporaryLimits().iterator().next().getAcceptableDuration());
+            assertEquals(currentLimit.tatlValue, currentLimits.getTemporaryLimits().iterator().next().getValue());
         }
     }
 
     private static void assertNotDefinedLimits(Line line) {
         assertEquals(0, line.getOperationalLimitsGroups1().size());
         assertEquals(0, line.getOperationalLimitsGroups2().size());
-        assertNotDefinedCurrentLimits(line);
-        assertNotDefinedApparentPowerLimits(line);
-        assertNotDefinedActivePowerLimits(line);
-    }
-
-    private static void assertNotDefinedCurrentLimits(Line line) {
-        assertNull(line.getCurrentLimits1().orElse(null));
-        assertNull(line.getCurrentLimits2().orElse(null));
     }
 
     private static void assertNotDefinedApparentPowerLimits(Line line) {
