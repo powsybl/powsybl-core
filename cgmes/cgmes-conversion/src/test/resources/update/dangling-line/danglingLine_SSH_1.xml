@@ -20,8 +20,6 @@
     <cim:EquivalentInjection rdf:about="#_ACLineSegment-EquivalentInjection">
         <cim:EquivalentInjection.p>280.0</cim:EquivalentInjection.p>
         <cim:EquivalentInjection.q>70.0</cim:EquivalentInjection.q>
-        <cim:EquivalentInjection.regulationStatus>false</cim:EquivalentInjection.regulationStatus>
-        <cim:EquivalentInjection.regulationTarget>409.0</cim:EquivalentInjection.regulationTarget>
     </cim:EquivalentInjection>
 
     <cim:Terminal rdf:about="#_EquivalentBranch-T1">

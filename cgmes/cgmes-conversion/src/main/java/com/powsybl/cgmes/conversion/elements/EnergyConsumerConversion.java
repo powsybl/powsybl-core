@@ -142,17 +142,17 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         double qFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.Q_FIXED, "0.0"));
 
         PowerFlow updatedPowerFlow = updatedPowerFlow(load, cgmesData, context);
-        load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : getDefaultP(load, pFixed, context));
-        load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : getDefaultQ(load, qFixed, context));
+        load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : getDefaultP0(load, pFixed, context));
+        load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : getDefaultQ0(load, qFixed, context));
 
         updateLoadDetail(load, load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS), pFixed, qFixed);
     }
 
-    private static double getDefaultP(Load load, double pFixed, Context context) {
+    private static double getDefaultP0(Load load, double pFixed, Context context) {
         return getDefaultValue(pFixed, load.getP0(), 0.0, Double.NaN, context);
     }
 
-    private static double getDefaultQ(Load load, double qFixed, Context context) {
+    private static double getDefaultQ0(Load load, double qFixed, Context context) {
         return getDefaultValue(qFixed, load.getQ0(), 0.0, Double.NaN, context);
     }
 
@@ -165,11 +165,11 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
             return;
         }
         if (type.equals("ConformLoad")) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
-            loadDetail.setVariableActivePower(Double.isFinite(load.getP0()) ? (float) load.getP0() : (float) pFixed)
-                    .setVariableReactivePower(Double.isFinite(load.getQ0()) ? (float) load.getQ0() : (float) qFixed);
+            loadDetail.setVariableActivePower(Double.isFinite(load.getP0()) ? load.getP0() : pFixed)
+                    .setVariableReactivePower(Double.isFinite(load.getQ0()) ? load.getQ0() : qFixed);
         } else if (type.equals("NonConformLoad")) { // does not participate in scaling
-            loadDetail.setFixedActivePower(Double.isFinite(load.getP0()) ? (float) load.getP0() : (float) pFixed)
-                    .setFixedReactivePower(Double.isFinite(load.getQ0()) ? (float) load.getQ0() : (float) qFixed);
+            loadDetail.setFixedActivePower(Double.isFinite(load.getP0()) ? load.getP0() : pFixed)
+                    .setFixedReactivePower(Double.isFinite(load.getQ0()) ? load.getQ0() : qFixed);
         }
     }
 

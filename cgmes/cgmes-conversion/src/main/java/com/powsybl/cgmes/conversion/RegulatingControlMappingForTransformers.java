@@ -77,10 +77,6 @@ public class RegulatingControlMappingForTransformers {
 
     private void applyTapChangersRegulatingControl(TwoWindingsTransformer twt) {
         CgmesRegulatingControlForTwoWindingsTransformer rc = t2xMapping.get(twt.getId());
-        applyTapChangersRegulatingControl(twt, rc);
-    }
-
-    private void applyTapChangersRegulatingControl(TwoWindingsTransformer twt, CgmesRegulatingControlForTwoWindingsTransformer rc) {
         if (rc == null) {
             return;
         }
@@ -94,10 +90,6 @@ public class RegulatingControlMappingForTransformers {
 
     private void applyTapChangersRegulatingControl(ThreeWindingsTransformer twt) {
         CgmesRegulatingControlForThreeWindingsTransformer rc = t3xMapping.get(twt.getId());
-        applyTapChangersRegulatingControl(twt, rc);
-    }
-
-    private void applyTapChangersRegulatingControl(ThreeWindingsTransformer twt, CgmesRegulatingControlForThreeWindingsTransformer rc) {
         if (rc == null) {
             return;
         }
@@ -142,7 +134,8 @@ public class RegulatingControlMappingForTransformers {
             return false;
         }
 
-        rtc.setRegulationTerminal(regulatingTerminal.get()).setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
+        rtc.setRegulationTerminal(regulatingTerminal.get())
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
         return true;
     }
 

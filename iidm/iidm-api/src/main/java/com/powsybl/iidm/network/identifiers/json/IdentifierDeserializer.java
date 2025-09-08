@@ -77,7 +77,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
             }
         }
         if (type == null) {
-            throw new IllegalArgumentException("type of identifier can not be null");
+            throw new IllegalArgumentException("type of identifier cannot be null");
         }
         return switch (type) {
             case ID_BASED -> new IdBasedNetworkElementIdentifier(identifier, contingencyId);

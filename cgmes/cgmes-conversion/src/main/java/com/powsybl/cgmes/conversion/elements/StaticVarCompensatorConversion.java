@@ -84,19 +84,18 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
         boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
         if (staticVarCompensator.getRegulationMode() == StaticVarCompensator.RegulationMode.VOLTAGE) {
-            double defaultEquipmentTargetV = findDefaultEquipmentTargetV(staticVarCompensator);
-            double defaultTargetV = getDefaultTargetV(staticVarCompensator, defaultEquipmentTargetV, context);
+            double defaultTargetV = getDefaultTargetV(staticVarCompensator, context);
             double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
             boolean regulating = controlEnabled && regulatingOn && isValidTargetV(targetV);
 
-            staticVarCompensator.setVoltageSetpoint(targetV).setReactivePowerSetpoint(staticVarCompensator.getReactivePowerSetpoint()).setRegulating(regulating);
+            staticVarCompensator.setVoltageSetpoint(targetV).setRegulating(regulating);
         } else if (staticVarCompensator.getRegulationMode() == StaticVarCompensator.RegulationMode.REACTIVE_POWER) {
             double defaultTargetQ = getDefaultTargetQ(staticVarCompensator, defaultQ, context);
             int terminalSign = findTerminalSign(staticVarCompensator);
             double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
             boolean regulating = controlEnabled && regulatingOn && isValidTargetQ(targetQ);
 
-            staticVarCompensator.setReactivePowerSetpoint(targetQ).setVoltageSetpoint(staticVarCompensator.getVoltageSetpoint()).setRegulating(regulating);
+            staticVarCompensator.setReactivePowerSetpoint(targetQ).setRegulating(regulating);
         }
     }
 
@@ -105,8 +104,8 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
         return defaultTargetVoltage != null ? Double.parseDouble(defaultTargetVoltage) : Double.NaN;
     }
 
-    private static double getDefaultTargetV(StaticVarCompensator staticVarCompensator, double defaultEquipmentTargetV, Context context) {
-        return getDefaultValue(defaultEquipmentTargetV, staticVarCompensator.getVoltageSetpoint(), Double.NaN, Double.NaN, context);
+    private static double getDefaultTargetV(StaticVarCompensator staticVarCompensator, Context context) {
+        return getDefaultValue(findDefaultEquipmentTargetV(staticVarCompensator), staticVarCompensator.getVoltageSetpoint(), Double.NaN, Double.NaN, context);
     }
 
     private static double getDefaultTargetQ(StaticVarCompensator staticVarCompensator, double defaultTargetQ, Context context) {
