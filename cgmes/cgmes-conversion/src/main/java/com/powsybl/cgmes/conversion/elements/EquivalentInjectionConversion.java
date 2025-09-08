@@ -113,8 +113,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
 
     private static void addSpecificProperties(Generator generator, PropertyBag propertyBag) {
         generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
-        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS + CgmesNames.REGULATION_CAPABILITY,
-                String.valueOf(propertyBag.asBoolean(CgmesNames.REGULATION_CAPABILITY, false)));
+        generator.setProperty(Conversion.PROPERTY_CGMES_REGULATION_CAPABILITY, propertyBag.getOrDefault(CgmesNames.REGULATION_CAPABILITY, "false"));
     }
 
     public static void update(Generator generator, PropertyBag cgmesData, Context context) {

@@ -55,8 +55,10 @@ class ShuntCompensatorUpdateTest {
         assertSecondSsh(network);
 
         assertFlowsBeforeSv(network);
+        assertSectionsBeforeSv(network);
         readCgmesResources(network, DIR, "shuntCompensator_SV.xml");
         assertFlowsAfterSv(network);
+        assertSectionsAfterSv(network);
     }
 
     private static void assertEq(Network network) {
@@ -87,6 +89,18 @@ class ShuntCompensatorUpdateTest {
         assertFlows(network.getShuntCompensator("LinearShuntCompensator").getTerminal(), 0.0, 50.0);
         assertFlows(network.getShuntCompensator("NonLinearShuntCompensator").getTerminal(), 1.0, 25.0);
         assertFlows(network.getShuntCompensator("EquivalentShunt").getTerminal(), 2.0, -5.0);
+    }
+
+    private static void assertSectionsBeforeSv(Network network) {
+        assertNull(network.getShuntCompensator("LinearShuntCompensator").getSolvedSectionCount());
+        assertNull(network.getShuntCompensator("NonLinearShuntCompensator").getSolvedSectionCount());
+        assertNull(network.getShuntCompensator("EquivalentShunt").getSolvedSectionCount());
+    }
+
+    private static void assertSectionsAfterSv(Network network) {
+        assertEquals(1, network.getShuntCompensator("LinearShuntCompensator").getSolvedSectionCount());
+        assertEquals(2, network.getShuntCompensator("NonLinearShuntCompensator").getSolvedSectionCount());
+        assertNull(network.getShuntCompensator("EquivalentShunt").getSolvedSectionCount());
     }
 
     private static void assertEq(ShuntCompensator shuntCompensator) {
