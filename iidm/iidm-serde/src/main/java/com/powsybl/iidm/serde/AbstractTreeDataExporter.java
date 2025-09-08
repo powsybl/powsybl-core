@@ -127,10 +127,10 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             Arrays.stream(TopologyLevel.values()).map(Enum::name).collect(Collectors.toList()));
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
     private static final Parameter EXTENSIONS_LIST_PARAMETER = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST,
-            "The list of extensions that will be ignored during export", null,
+            "The list of exported extensions", null,
             EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
     private static final Parameter EXTENSIONS_FILTERED_LIST_PARAMETER = new Parameter(EXTENSIONS_FILTERED_LIST, ParameterType.STRING_LIST,
-            "The list of exported extensions", null,
+            "The list of extensions that will be filtered during export", null,
             EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
     private static final Parameter SORTED_PARAMETER = new Parameter(SORTED, ParameterType.BOOLEAN, "Sort export output file", Boolean.FALSE);
     private static final Parameter VERSION_PARAMETER = new Parameter(VERSION, ParameterType.STRING, "IIDM version in which files will be generated", IidmSerDeConstants.CURRENT_IIDM_VERSION.toString("."),

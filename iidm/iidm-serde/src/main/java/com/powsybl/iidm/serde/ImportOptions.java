@@ -7,12 +7,10 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ValidationLevel;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -34,39 +32,8 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
     }
 
-    @Override
-    public ImportOptions setExtensions(Set<String> extensions) {
-        this.extensions = extensions;
-        return this;
-    }
-
-    public ImportOptions setFilteredExtensions(Set<String> filteredExtensions) {
-        this.filteredExtension = filteredExtensions;
-        return this;
-    }
-
     public ImportOptions setThrowExceptionIfExtensionNotFound(boolean throwExceptionIfExtensionNotFound) {
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
-        return this;
-    }
-
-    @Override
-    public ImportOptions addExtension(String extension) {
-        if (extensions != null) {
-            extensions.add(extension);
-        } else {
-            this.extensions = Sets.newHashSet(extension);
-        }
-        return this;
-    }
-
-    @Override
-    public ImportOptions addFilteredExtension(String extensionToBeFiltered) {
-        if (filteredExtension != null) {
-            filteredExtension.add(extensionToBeFiltered);
-        } else {
-            this.filteredExtension = Sets.newHashSet(extensionToBeFiltered);
-        }
         return this;
     }
 

@@ -871,8 +871,7 @@ public final class NetworkSerDe {
             // missing extension serializer, we must not check for an extension in sub elements.
             ExtensionSerDe extensionSerde = extensionsSupplier.get().findProvider(extensionSerializationName);
             String extensionName = extensionSerde != null ? extensionSerde.getExtensionName() : extensionSerializationName;
-            if (!context.isIgnoredEquipment(id) && ((context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName))) &&
-                    !context.getOptions().withFilteredExtension(extensionName) && !context.getOptions().withFilteredExtension(extensionSerializationName)) {
+            if (!context.isIgnoredEquipment(id) && (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName))) {
                 if (extensionSerde != null) {
                     Identifiable identifiable = getIdentifiable(network, id);
                     extensionSerde.read(identifiable, context);

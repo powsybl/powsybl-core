@@ -19,21 +19,42 @@ import java.util.Set;
  */
 public abstract class AbstractOptions<T> {
 
-    protected Set<String> extensions;
     /**
      * Extensions to be loaded must be in the extensions set but must not belong to the filteredExtension Set
      */
-    protected Set<String> filteredExtension = Sets.newHashSet();
+    protected Set<String> extensions;
+
+    protected Set<String> filteredExtension;
 
     protected TreeDataFormat format = TreeDataFormat.XML;
 
-    public abstract T setExtensions(Set<String> extensions);
+    public T setExtensions(Set<String> extensions) {
+        this.extensions = extensions;
+        return (T) this;
+    }
 
-    public abstract T setFilteredExtensions(Set<String> extensions);
+    public T setFilteredExtensions(Set<String> filteredExtensions) {
+        this.filteredExtension = filteredExtensions;
+        return (T) this;
+    }
 
-    public abstract T addExtension(String extension);
+    public T addExtension(String extension) {
+        if (extensions != null) {
+            extensions.add(extension);
+        } else {
+            this.extensions = Sets.newHashSet(extension);
+        }
+        return (T) this;
+    }
 
-    public abstract T addFilteredExtension(String extensionToBeFiltered);
+    public T addFilteredExtension(String extensionToBeFiltered) {
+        if (filteredExtension != null) {
+            filteredExtension.add(extensionToBeFiltered);
+        } else {
+            this.filteredExtension = Sets.newHashSet(extensionToBeFiltered);
+        }
+        return (T) this;
+    }
 
     public Optional<Set<String>> getExtensions() {
         return Optional.ofNullable(extensions);
@@ -64,11 +85,8 @@ public abstract class AbstractOptions<T> {
     }
 
     public boolean withExtension(String extensionName) {
-        return withAllExtensions() || extensions.contains(extensionName);
-    }
-
-    public boolean withFilteredExtension(String extensionName) {
-        return filteredExtension != null && filteredExtension.contains(extensionName);
+        return (filteredExtension == null || !filteredExtension.contains(extensionName))
+                && (withAllExtensions() || extensions.contains(extensionName));
     }
 
     public abstract boolean isThrowExceptionIfExtensionNotFound();

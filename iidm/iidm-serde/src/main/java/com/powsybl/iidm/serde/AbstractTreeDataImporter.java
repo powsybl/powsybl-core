@@ -66,7 +66,7 @@ public abstract class AbstractTreeDataImporter implements Importer {
             EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
 
     private static final Parameter EXTENSIONS_FILTERED_LIST_PARAMETER
-            = new Parameter(EXTENSIONS_FILTERED_LIST, ParameterType.STRING_LIST, "The list of extension files that will be ignored and not imported ", null,
+            = new Parameter(EXTENSIONS_FILTERED_LIST, ParameterType.STRING_LIST, "The list of extension files that will be filtered and not imported ", null,
             EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
 
     private static final Parameter WITH_AUTOMATION_SYSTEMS_PARAMETER = new Parameter(WITH_AUTOMATION_SYSTEMS, ParameterType.BOOLEAN,

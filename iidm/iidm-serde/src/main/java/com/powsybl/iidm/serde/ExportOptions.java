@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TopologyLevel;
 import org.slf4j.Logger;
@@ -96,26 +95,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.iidmVersionIncompatibilityBehavior = Objects.requireNonNull(iidmVersionIncompatibilityBehavior);
     }
 
-    @Override
-    public ExportOptions addExtension(String extension) {
-        if (extensions != null) {
-            extensions.add(extension);
-        } else {
-            this.extensions = Sets.newHashSet(extension);
-        }
-        return this;
-    }
-
-    @Override
-    public ExportOptions addFilteredExtension(String extensionToBeFiltered) {
-        if (filteredExtension != null) {
-            filteredExtension.add(extensionToBeFiltered);
-        } else {
-            this.filteredExtension = Sets.newHashSet(extensionToBeFiltered);
-        }
-        return this;
-    }
-
     public boolean isWithBranchSV() {
         return withBranchSV;
     }
@@ -158,30 +137,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions setTopologyLevel(TopologyLevel topologyLevel) {
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
-        return this;
-    }
-
-    @Override
-    public ExportOptions setExtensions(Set<String> extensions) {
-        // this warning is to prevent people to use setSkipExtensions and setExtensions at the same time
-        Optional.ofNullable(this.extensions).ifPresent(e -> {
-            if (e.isEmpty()) {
-                LOGGER.warn("Extensions have already been set as empty. This call will override it.");
-            }
-        });
-        this.extensions = extensions;
-        return this;
-    }
-
-    @Override
-    public ExportOptions setFilteredExtensions(Set<String> filteredExtension) {
-        // this warning is to prevent people to use setSkipExtensions and setExtensions at the same time
-        Optional.ofNullable(this.filteredExtension).ifPresent(e -> {
-            if (e.isEmpty()) {
-                LOGGER.warn("Extensions have already been set as empty. This call will override it.");
-            }
-        });
-        this.filteredExtension = filteredExtension;
         return this;
     }
 
