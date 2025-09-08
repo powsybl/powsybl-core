@@ -30,12 +30,12 @@ public abstract class AbstractOptions<T> {
 
     public T setExtensions(Set<String> extensions) {
         this.extensions = extensions;
-        return (T) this;
+        return castThis();
     }
 
     public T setFilteredExtensions(Set<String> filteredExtensions) {
         this.filteredExtension = filteredExtensions;
-        return (T) this;
+        return castThis();
     }
 
     public T addExtension(String extension) {
@@ -44,7 +44,7 @@ public abstract class AbstractOptions<T> {
         } else {
             this.extensions = Sets.newHashSet(extension);
         }
-        return (T) this;
+        return castThis();
     }
 
     public T addFilteredExtension(String extensionToBeFiltered) {
@@ -53,7 +53,7 @@ public abstract class AbstractOptions<T> {
         } else {
             this.filteredExtension = Sets.newHashSet(extensionToBeFiltered);
         }
-        return (T) this;
+        return castThis();
     }
 
     public Optional<Set<String>> getExtensions() {
@@ -97,6 +97,15 @@ public abstract class AbstractOptions<T> {
 
     public T setFormat(TreeDataFormat format) {
         this.format = Objects.requireNonNull(format);
+        return castThis();
+    }
+
+    /**
+     * Cast to T is safe in practice (hence added SuprresWarning annotation).
+     * @return this casted to T
+     */
+    @SuppressWarnings("unchecked")
+    private T castThis() {
         return (T) this;
     }
 
