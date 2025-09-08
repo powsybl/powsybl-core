@@ -813,7 +813,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     @Test
     public void invalidLeg1ArgumentConnectableBusNotSet() {
-        ValidationException e = assertThrows(ValidationException.class, () -> substation.newThreeWindingsTransformer()
+        ThreeWindingsTransformerAdder adder = substation.newThreeWindingsTransformer()
             .setId("twt")
             .setName(TWT_NAME)
             .newLeg1()
@@ -824,8 +824,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setRatedU(1.1)
             .setRatedS(1.2)
             .setVoltageLevel("vl1")
-            .add()
-            .add());
+            .add();
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
         assertTrue(e.getMessage().contains("connectable bus is not set"));
     }
 

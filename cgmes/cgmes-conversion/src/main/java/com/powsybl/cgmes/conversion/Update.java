@@ -169,7 +169,7 @@ public final class Update {
         }
     }
 
-    public static void updateAndCompleteVoltageAndAngles(Network network, Context context) {
+    static void updateAndCompleteVoltageAndAngles(Network network, Context context) {
         context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(context.getReportNode()));
         // update voltage and angles
         network.getBusView().getBuses().forEach(bus -> NodeConversion.update(bus, context));
