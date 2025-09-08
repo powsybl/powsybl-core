@@ -32,6 +32,8 @@ import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getClosestNeutralStep;
+import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getNormalStep;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
 import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
 import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL1;
@@ -811,8 +813,8 @@ public final class EquipmentExport {
             String tapChangerId = eq.getAliasFromType(aliasType).orElseThrow();
             String cgmesTapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
 
-            int neutralStep = getPhaseTapChangerNeutralStep(ptc);
-            int normalStep = getTapChangerNormalStep(eq, tapChangerId).orElseThrow();
+            int neutralStep = getClosestNeutralStep(ptc);
+            int normalStep = getNormalStep(eq, tapChangerId).orElse(neutralStep);
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
             if (regulatingControlId.isPresent() && CgmesExportUtil.regulatingControlIsDefined(ptc)) {
@@ -850,37 +852,14 @@ public final class EquipmentExport {
         return Optional.empty();
     }
 
-    private static <C extends Connectable<C>> OptionalInt getTapChangerNormalStep(C tw, String tapChangerId) {
-        CgmesTapChangers<C> cgmesTcs = tw.getExtension(CgmesTapChangers.class);
-        if (cgmesTcs != null) {
-            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tapChangerId);
-            return cgmesTc != null ? cgmesTc.getStep() : OptionalInt.empty();
-        } else {
-            return OptionalInt.empty();
-        }
-    }
-
-    private static int getPhaseTapChangerNeutralStep(PhaseTapChanger ptc) {
-        int neutralStep = ptc.getLowTapPosition();
-        double minAlpha = Math.abs(ptc.getStep(neutralStep).getAlpha());
-        for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
-            double tempAlpha = Math.abs(step.getValue().getAlpha());
-            if (tempAlpha < minAlpha) {
-                minAlpha = tempAlpha;
-                neutralStep = step.getKey();
-            }
-        }
-        return neutralStep;
-    }
-
     private static <C extends Connectable<C>> void writeRatioTapChanger(C eq, RatioTapChanger rtc, String twtName, int endNumber, String endId, double neutralU, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         if (rtc != null) {
             String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber;
             String tapChangerId = eq.getAliasFromType(aliasType).orElseThrow();
             String cgmesTapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
 
-            int neutralStep = getRatioTapChangerNeutralStep(rtc);
-            int normalStep = getTapChangerNormalStep(eq, tapChangerId).orElseThrow();
+            int neutralStep = getClosestNeutralStep(rtc);
+            int normalStep = getNormalStep(eq, tapChangerId).orElse(neutralStep);
             double stepVoltageIncrement;
             if (rtc.getHighTapPosition() == rtc.getLowTapPosition()) {
                 stepVoltageIncrement = 100;
@@ -913,19 +892,6 @@ public final class EquipmentExport {
             }
 
         }
-    }
-
-    private static int getRatioTapChangerNeutralStep(RatioTapChanger rtc) {
-        int neutralStep = rtc.getLowTapPosition();
-        double minRatio = Math.abs(1 - rtc.getStep(neutralStep).getRho());
-        for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
-            double tempRatio = Math.abs(1 - step.getValue().getRho());
-            if (tempRatio < minRatio) {
-                minRatio = tempRatio;
-                neutralStep = step.getKey();
-            }
-        }
-        return neutralStep;
     }
 
     private static void writeDanglingLines(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace,
