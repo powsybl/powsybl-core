@@ -180,12 +180,4 @@ public class DCLinkUpdate {
     public double getLossFactor2() {
         return lossFactor2;
     }
-
-    public PropertyBag getConverter1() {
-        return converter1;
-    }
-
-    public PropertyBag getConverter2() {
-        return converter2;
-    }
 }

@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
@@ -47,20 +48,14 @@ public class RegulatingControlMappingForVscConverters {
 
     private void apply(VscConverterStation vscConverter) {
         String pccTerminal = mapping.get(vscConverter.getId());
-        apply(vscConverter, pccTerminal);
-    }
-
-    private void apply(VscConverterStation vscConverter, String pccTerminal) {
         if (pccTerminal == null) {
             return;
         }
         RegulatingTerminalMapper.TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
                 .mapForFlowControl(pccTerminal, context)
                 .orElseGet(() -> new RegulatingTerminalMapper.TerminalAndSign(vscConverter.getTerminal(), 1));
-        vscConverter
-                .setRegulatingTerminal(mappedRegulatingTerminal.getTerminal())
-                .setVoltageRegulatorOn(false);
-        vscConverter.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign", String.valueOf(mappedRegulatingTerminal.getSign()));
+        vscConverter.setRegulatingTerminal(mappedRegulatingTerminal.getTerminal());
+        vscConverter.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
     }
 
     private final Map<String, String> mapping;
