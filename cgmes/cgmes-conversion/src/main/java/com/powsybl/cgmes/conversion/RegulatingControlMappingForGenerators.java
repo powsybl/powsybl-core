@@ -62,11 +62,7 @@ public class RegulatingControlMappingForGenerators {
     }
 
     private void apply(Generator gen) {
-        CgmesRegulatingControlForGenerator rd = mapping.get(gen.getId());
-        apply(gen, rd);
-    }
-
-    private void apply(Generator gen, CgmesRegulatingControlForGenerator rc) {
+        CgmesRegulatingControlForGenerator rc = mapping.get(gen.getId());
         if (rc == null) {
             return;
         }
