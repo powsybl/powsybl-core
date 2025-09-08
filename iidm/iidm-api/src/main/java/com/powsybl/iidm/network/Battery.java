@@ -141,7 +141,7 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
     double getTargetQ();
 
     /**
-     * @deprecated Use {@link #setTargetP(double)} instead.
+     * @deprecated Use {@link #setTargetQ(double)} instead.
      */
     @Deprecated(since = "4.9.0")
     default Battery setQ0(double q0) {
