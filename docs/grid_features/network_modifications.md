@@ -166,6 +166,9 @@ Additional input can be provided:
   or busbar sections. This prefix is followed by the "row" index and the section number. If it is not specified, then the
   name of the voltage level is used as prefix.
 - The switch prefix ID is also optional.
+- The boolean connectExistingConnectables indicates whether existing connectables should be connected to the new topology
+if the busbar sections are created in a non-empty voltage level. If true, they will all be connected with
+an open switch of the same kind as the first switch that connects the connectable to the other busbar sections.
 
 #### Create Voltage Level Sections
 This class allows the creation of new busbar sections inside a voltage level in the NODE_BREAKER topology.

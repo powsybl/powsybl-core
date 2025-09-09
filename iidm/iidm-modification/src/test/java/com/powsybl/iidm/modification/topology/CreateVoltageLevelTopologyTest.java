@@ -15,20 +15,21 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerWithExtensionsFactory;
+import com.powsybl.math.graph.TraverseResult;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -366,7 +367,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
             .withSectionIndex(1)
             .add();
 
-        // Add a busbar section with one section with the same indexes as the the busbar section D with default naming strategy
+        // Add a busbar section with one section with the same indexes as the busbar section D with default naming strategy
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
             .withVoltageLevelId("C")
             .withAlignedBusesOrBusbarCount(1)
@@ -382,6 +383,82 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
         BusbarSection bbs = network.getBusbarSection("C_2_1");
         assertNull(bbs);
         assertEquals(1, network.getVoltageLevel("C").getNodeBreakerView().getBusbarSectionCount());
+    }
+
+    @Test
+    void testConnectConnectablesWithNoBusbarSectionPositionExtension() {
+        Network network = FourSubstationsNodeBreakerFactory.create(); // It has no position extensions
+        new CreateVoltageLevelTopologyBuilder()
+                .withVoltageLevelId("S1VL2")
+                .withAlignedBusesOrBusbarCount(1)
+                .withSectionCount(1)
+                .withLowBusOrBusbarIndex(3)
+                .withConnectExistingConnectables(true)
+                .build().apply(network);
+        BusbarSection newBbs = network.getBusbarSection("S1VL2_3_1");
+        List<Switch> encounteredSwitches = new ArrayList<>();
+        VoltageLevel.NodeBreakerView nbv = newBbs.getTerminal().getVoltageLevel().getNodeBreakerView();
+        nbv.traverse(newBbs.getTerminal().getNodeBreakerView().getNode(), (node1, sw, node2) -> {
+            encounteredSwitches.add(sw);
+            return TraverseResult.CONTINUE;
+        });
+        assertTrue(encounteredSwitches.isEmpty());
+    }
+
+    @Test
+    void testConnectConnectables() {
+        Network network = FourSubstationsNodeBreakerWithExtensionsFactory.create();
+        new CreateVoltageLevelTopologyBuilder()
+                .withVoltageLevelId("S1VL2")
+                .withAlignedBusesOrBusbarCount(2)
+                .withSectionCount(1)
+                .withLowBusOrBusbarIndex(3)
+                .withConnectExistingConnectables(true)
+                .build().apply(network);
+        BusbarSection newBbs = network.getBusbarSection("S1VL2_3_1");
+        List<Switch> encounteredSwitches = new ArrayList<>();
+        VoltageLevel.NodeBreakerView nbv = newBbs.getTerminal().getVoltageLevel().getNodeBreakerView();
+        nbv.traverse(newBbs.getTerminal().getNodeBreakerView().getNode(), (node1, sw, node2) -> {
+            encounteredSwitches.add(sw);
+            return TraverseResult.CONTINUE;
+        });
+        assertFalse(encounteredSwitches.isEmpty());
+    }
+
+    @Test
+    void testConnectConnectablesWithFork() {
+        Network network = createNetworkWithForkFeeder();
+        network.getBusbarSection("BBS").newExtension(BusbarSectionPositionAdder.class)
+                .withBusbarIndex(1)
+                .withSectionIndex(1)
+                .add();
+        assertEquals(3, network.getVoltageLevel("VL").getNodeBreakerView().getSwitchCount());
+        new CreateVoltageLevelTopologyBuilder()
+                .withVoltageLevelId("VL")
+                .withAlignedBusesOrBusbarCount(1)
+                .withSectionCount(1)
+                .withLowBusOrBusbarIndex(2)
+                .withConnectExistingConnectables(true)
+                .build().apply(network);
+        BusbarSection newBbs = network.getBusbarSection("VL_2_1");
+        assertEquals(4, newBbs.getTerminal().getVoltageLevel().getNodeBreakerView().getSwitchCount()); // One switch has been created
+        assertNotNull(network.getSwitch("G_DISCONNECTOR_4_3"));
+    }
+
+    @Test
+    void testConnectConnectablesWithMultipleSections() throws IOException {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+
+        new CreateVoltageLevelTopologyBuilder()
+                .withVoltageLevelId("vl1")
+                .withAlignedBusesOrBusbarCount(2)
+                .withSectionCount(2)
+                .withSwitchKinds(SwitchKind.BREAKER)
+                .withLowBusOrBusbarIndex(3)
+                .withConnectExistingConnectables(true)
+                .build().apply(network);
+
+        writeXmlTest(network, "/testNetworkNodeBreakerWithNewBusbarSectionsConnectedConnectables.xiidm");
     }
 
 }
