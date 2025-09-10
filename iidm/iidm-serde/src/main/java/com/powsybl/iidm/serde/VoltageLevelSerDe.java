@@ -14,10 +14,7 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.powsybl.iidm.serde.PropertiesSerDe.NAME;
 import static com.powsybl.iidm.serde.PropertiesSerDe.VALUE;
@@ -57,7 +54,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
 
     @Override
     protected void writeSubElements(VoltageLevel vl, Container<? extends Identifiable<?>> c, NetworkSerializerContext context) {
-        TopologyLevel configTopologyLevel = (context.getOptions().getVoltageLevelTopologyLevel(vl) != null) ? context.getOptions().getVoltageLevelTopologyLevel(vl) : context.getOptions().getTopologyLevel();
+        TopologyLevel configTopologyLevel = Objects.requireNonNullElse(context.getOptions().getVoltageLevelTopologyLevel(vl.getId()), context.getOptions().getTopologyLevel());
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel);
         switch (topologyLevel) {
             case NODE_BREAKER -> writeNodeBreakerTopology(vl, context);

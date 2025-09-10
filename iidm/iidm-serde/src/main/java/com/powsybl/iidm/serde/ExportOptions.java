@@ -10,7 +10,6 @@ package com.powsybl.iidm.serde;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TopologyLevel;
-import com.powsybl.iidm.network.VoltageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +50,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private final Map<String, String> extensionsVersions = new HashMap<>();
 
-    private final Map<VoltageLevel, TopologyLevel> voltageLevelTopologyLevel = new HashMap<>();
+    private final Map<String, TopologyLevel> voltageLevelTopologyLevel = new HashMap<>();
 
     private Charset charset = StandardCharsets.UTF_8;
 
@@ -235,15 +234,15 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return Optional.ofNullable(extensionsVersions.get(extensionName));
     }
 
-    public ExportOptions addVoltageLevelTopologyLevel(VoltageLevel voltageLevel, TopologyLevel topologyLevel) {
-        if (voltageLevel != null) {
-            voltageLevelTopologyLevel.putIfAbsent(voltageLevel, topologyLevel);
+    public ExportOptions addVoltageLevelTopologyLevel(String voltageLevelId, TopologyLevel topologyLevel) {
+        if (!voltageLevelId.isEmpty()) {
+            voltageLevelTopologyLevel.put(voltageLevelId, topologyLevel);
         }
         return this;
     }
 
-    public TopologyLevel getVoltageLevelTopologyLevel(VoltageLevel voltageLevel) {
-        return voltageLevelTopologyLevel.get(voltageLevel);
+    public TopologyLevel getVoltageLevelTopologyLevel(String voltageLevelId) {
+        return voltageLevelTopologyLevel.get(voltageLevelId);
     }
 
     public boolean isSorted() {

@@ -79,17 +79,14 @@ class ExportOptionsTest {
                 .setNominalV(400.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        VoltageLevel vl2 = substation.newVoltageLevel()
-                .setId("VL2")
-                .setNominalV(220.0)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
 
-        ExportOptions options = new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.BUS_BREAKER, Boolean.FALSE, Boolean.TRUE);
-        options.addVoltageLevelTopologyLevel(vl1, TopologyLevel.BUS_BRANCH);
-        options.addVoltageLevelTopologyLevel(vl2, TopologyLevel.NODE_BREAKER);
-        assertEquals(TopologyLevel.BUS_BRANCH, options.getVoltageLevelTopologyLevel(vl1));
-        assertEquals(TopologyLevel.NODE_BREAKER, options.getVoltageLevelTopologyLevel(vl2));
+        ExportOptions options = new ExportOptions();
+
+        options.addVoltageLevelTopologyLevel(vl1.getId(), TopologyLevel.BUS_BRANCH);
+        assertEquals(TopologyLevel.BUS_BRANCH, options.getVoltageLevelTopologyLevel(vl1.getId()));
+        options.addVoltageLevelTopologyLevel(vl1.getId(), TopologyLevel.NODE_BREAKER);
+        assertEquals(TopologyLevel.NODE_BREAKER, options.getVoltageLevelTopologyLevel(vl1.getId()));
+        assertNull(options.getVoltageLevelTopologyLevel("undefined_vl"));
     }
 
     @Test
