@@ -689,7 +689,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (!context.nodeBreaker()) {
             throw new ConversionException("Not in node breaker context");
         }
-        adder.setNode1(iidmNode(1)).setNode2(iidmNode(2));
+        adder
+                .setNode1(iidmNode(1))
+                .setNode2(iidmNode(2));
     }
 
     public void connectWithOnlyEq(VoltageLevel.BusBreakerView.SwitchAdder adder) {
