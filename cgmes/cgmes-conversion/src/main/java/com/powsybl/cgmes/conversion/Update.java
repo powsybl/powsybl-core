@@ -201,7 +201,7 @@ public final class Update {
         context.popReportNode();
     }
 
-    private static boolean createFictitiousSwitch(Context context) {
+    private static boolean createFictitiousSwitches(Context context) {
         return context.config().getCreateFictitiousSwitchesForDisconnectedTerminalsMode() != CgmesImport.FictitiousSwitchesCreationMode.NEVER;
     }
 
