@@ -839,7 +839,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         ALWAYS
     }
 
-    protected static Optional<Boolean> isOpenFromBothTerminalStatus(Switch sw, Context context) {
+    protected static Optional<Boolean> isOpenFromAtLeastOneTerminal(Switch sw, Context context) {
         Optional<Boolean> connected1 = isTerminalConnected(sw, context, TwoSides.ONE);
         Optional<Boolean> connected2 = isTerminalConnected(sw, context, TwoSides.TWO);
         return connected1.flatMap(c1 -> connected2.map(c2 -> !c1 || !c2))

@@ -195,7 +195,7 @@ public final class Update {
     // This behavior can be disabled through configuration.
     static void createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
         context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.TERMINAL));
-        if (createFictitiousSwitch(context)) {
+        if (createFictitiousSwitches(context)) {
             cgmes.terminals().forEach(cgmesTerminal -> TerminalConversion.create(network, cgmesTerminal, context));
         }
         context.popReportNode();
