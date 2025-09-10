@@ -146,10 +146,12 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     public static void update(Switch sw, PropertyBag cgmesData, Context context) {
-        boolean isOpenFromBothTerminalStatus = sw.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER
-                && isOpenFromBothTerminalStatus(sw, context).orElse(false);
+        // The terminal status of switches is only taken into account in bus-breaker models.
+        // In node-breaker models, only the switch status is considered
+        boolean isOpenFromAtLeastOneTerminal = sw.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER
+                && isOpenFromAtLeastOneTerminal(sw, context).orElse(false);
         boolean isOpen = cgmesData.asBoolean(CgmesNames.OPEN).orElse(getDefaultIsOpen(sw, context));
-        sw.setOpen(isOpen || isOpenFromBothTerminalStatus);
+        sw.setOpen(isOpen || isOpenFromAtLeastOneTerminal);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);
