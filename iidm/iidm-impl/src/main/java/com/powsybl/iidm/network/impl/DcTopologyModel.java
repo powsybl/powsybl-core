@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 public class DcTopologyModel implements MultiVariantObject {
 
     public static final int DEFAULT_DC_NODE_INDEX_LIMIT = 1000;
+    private static final String NOT_FOUND_IN_THE_NETWORK = "' not found in the network";
 
     public static final int DC_NODE_INDEX_LIMIT = loadDcNodeIndexLimit(PlatformConfig.defaultConfig());
 
@@ -118,8 +119,7 @@ public class DcTopologyModel implements MultiVariantObject {
         Objects.requireNonNull(dcNodeId, "DC Node id is null");
         Integer v = dcNodes.get(dcNodeId);
         if (v == null) {
-            throw new PowsyblException("DC Node " + dcNodeId
-                    + " not found in the network");
+            throw new PowsyblException("DC Node '" + dcNodeId + NOT_FOUND_IN_THE_NETWORK);
         }
         return v;
     }
@@ -133,8 +133,7 @@ public class DcTopologyModel implements MultiVariantObject {
     void removeDcNode(String dcNodeId) {
         Integer v = dcNodes.get(dcNodeId);
         if (v == null) {
-            throw new PowsyblException("DC Node '" + dcNodeId
-                    + " not found in the network");
+            throw new PowsyblException("DC Node '" + dcNodeId + NOT_FOUND_IN_THE_NETWORK);
         }
         dcNodes.remove(dcNodeId);
         graph.removeVertex(v);
@@ -150,8 +149,7 @@ public class DcTopologyModel implements MultiVariantObject {
     void removeDcSwitch(String dcSwitchId) {
         Integer e = dcSwitches.get(dcSwitchId);
         if (e == null) {
-            throw new PowsyblException("DC Switch '" + dcSwitchId
-                    + " not found in the network");
+            throw new PowsyblException("DC Switch '" + dcSwitchId + NOT_FOUND_IN_THE_NETWORK);
         }
         dcSwitches.remove(dcSwitchId);
         graph.removeEdge(e);
@@ -227,9 +225,10 @@ public class DcTopologyModel implements MultiVariantObject {
             return new DcBusImpl(networkRef, subnetworkRef, dcBusId, dcBusName, dcNodeSet);
         }
 
-        private void updateCache() {
+        private DcBusCache getCache() {
             if (variants.get().cache != null) {
-                return;
+                // valid cache exists
+                return variants.get().cache;
             }
 
             Map<String, DcBusImpl> dcBuses = new LinkedHashMap<>();
@@ -260,6 +259,7 @@ public class DcTopologyModel implements MultiVariantObject {
             }
 
             variants.get().cache = new DcBusCache(dcBuses, dcNodeIdToDcBus);
+            return variants.get().cache;
         }
 
         private void invalidateCache() {
@@ -273,23 +273,19 @@ public class DcTopologyModel implements MultiVariantObject {
         }
 
         private Collection<DcBusImpl> getDcBuses() {
-            updateCache();
-            return variants.get().cache.getDcBuses();
+            return getCache().getDcBuses();
         }
 
         private int getDcBusCount() {
-            updateCache();
-            return variants.get().cache.getDcBusCount();
+            return getCache().getDcBusCount();
         }
 
         private DcBusImpl getDcBus(String dcBusId) {
-            updateCache();
-            return variants.get().cache.getDcBus(dcBusId);
+            return getCache().getDcBus(dcBusId);
         }
 
-        DcBusImpl getDcBusOfDcNode(String dcNodeId) {
-            updateCache();
-            return variants.get().cache.getDcBusOfDcNode(dcNodeId);
+        private DcBusImpl getDcBusOfDcNode(String dcNodeId) {
+            return getCache().getDcBusOfDcNode(dcNodeId);
         }
 
     }
