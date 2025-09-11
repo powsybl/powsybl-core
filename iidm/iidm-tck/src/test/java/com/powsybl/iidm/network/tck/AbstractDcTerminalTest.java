@@ -175,7 +175,7 @@ public abstract class AbstractDcTerminalTest {
         Mockito.verify(mockedListener, Mockito.times(1))
                 .onUpdate(converter, "i_dc1", VariantManagerConstants.INITIAL_VARIANT_ID, 4., 44.);
 
-        // ... AC/DC converter P1 // DC
+        // ... AC/DC converter P1 // AC
         converterAcTerminal1.setP(55.);
         Mockito.verify(mockedListener, Mockito.times(1))
                 .onUpdate(converter, "p1", VariantManagerConstants.INITIAL_VARIANT_ID, 5., 55.);
