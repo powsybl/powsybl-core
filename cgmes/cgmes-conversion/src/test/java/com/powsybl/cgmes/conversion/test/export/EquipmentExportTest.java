@@ -1385,6 +1385,31 @@ class EquipmentExportTest extends AbstractSerDeTest {
         }
     }
 
+    @Test
+    void missingPatlName() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        Line line = network.getLine("NHV1_NHV2_1");
+
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(500).add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
+                .setPermanentLimit(1100)
+                .beginTemporaryLimit()
+                .setName("")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .add();
+
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath("/test-missing-patl"));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+            String eq = getEQ(network, "testMissingPatl", tmpDir, exportParams);
+            // Expect the temporary limit to be named "TATL 600"
+            assertTrue(eq.contains(">TATL 600<"));
+        }
+    }
+
     private void testTcTccWithoutAttribute(String eq, String rcID, String terID, String rcMode) {
         assertFalse(eq.contains("cim:TapChangerControl rdf:ID=\"" + rcID + "\""));
         assertFalse(eq.contains("cim:TapChanger.TapChangerControl rdf:resource=\"#" + rcID + "\""));

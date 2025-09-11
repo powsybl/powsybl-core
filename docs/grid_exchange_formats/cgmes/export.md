@@ -378,6 +378,17 @@ If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the 
 
 Tap changer controls for two-winding transformers are exported following the same rules explained in the previous section about three-winding transformers. See [tap changer control](#tap-changer-control).
 
+(cgmes-operational-limits-export)=
+### Operational limits
+
+PowSyBl exports IIDM loading limits to CGMES OperationalLimit elements as follows:
+- Permanent limits are exported with type PATL (Permanent Allowable Transmission Limit) and a corresponding OperationalLimit value.
+- Temporary limits are exported with type TATL (Temporary Allowable Transmission Limit), parameterized by the acceptable duration in seconds.
+If a temporary limit name is empty in IIDM, a fallback name is written in EQ as: TATL <acceptableDurationInSeconds> (for example: TATL 600). 
+
+This applies to CurrentLimits, ActivePowerLimits, and ApparentPowerLimits.
+
+
 (cgmes-voltage-level-export)=
 ### Voltage level
 
