@@ -171,9 +171,9 @@ public class DcTopologyModel implements MultiVariantObject {
      * DcBus topology cache
      *
      * @param dcBuses DC bus by id
-     * @param mapping DC node to DC bus mapping
+     * @param dcNodeIdToDcBus DC node ID to DC bus mapping
      */
-    private record DcBusCache(Map<String, DcBusImpl> dcBuses, Map<DcNodeImpl, DcBusImpl> mapping) {
+    private record DcBusCache(Map<String, DcBusImpl> dcBuses, Map<String, DcBusImpl> dcNodeIdToDcBus) {
 
         private Collection<DcBusImpl> getDcBuses() {
             return dcBuses.values();
@@ -187,8 +187,8 @@ public class DcTopologyModel implements MultiVariantObject {
             return dcBuses.get(id);
         }
 
-        private DcBusImpl getDcBus(DcNodeImpl dcNode) {
-            return mapping.get(dcNode);
+        private DcBusImpl getDcBusOfDcNode(String dcNodeId) {
+            return dcNodeIdToDcBus.get(dcNodeId);
         }
     }
 
@@ -209,8 +209,7 @@ public class DcTopologyModel implements MultiVariantObject {
     }
 
     public DcBusImpl getDcBusOfDcNode(String dcNodeId) {
-        DcNodeImpl dcNode = (DcNodeImpl) getNetwork().getDcNode(dcNodeId);
-        return calculatedDcBusTopology.getDcBus(dcNode);
+        return calculatedDcBusTopology.getDcBusOfDcNode(dcNodeId);
     }
 
     /**
@@ -235,8 +234,8 @@ public class DcTopologyModel implements MultiVariantObject {
 
             Map<String, DcBusImpl> dcBuses = new LinkedHashMap<>();
 
-            // mapping between configured buses and merged buses
-            Map<DcNodeImpl, DcBusImpl> mapping = new IdentityHashMap<>();
+            // mapping between DC nodes ID and DC buses
+            Map<String, DcBusImpl> dcNodeIdToDcBus = new HashMap<>();
 
             boolean[] encountered = new boolean[graph.getVertexCapacity()];
             Arrays.fill(encountered, false);
@@ -256,11 +255,11 @@ public class DcTopologyModel implements MultiVariantObject {
 
                     DcBusImpl dcBus = createDcBus(dcNodeSet);
                     dcBuses.put(dcBus.getId(), dcBus);
-                    dcNodeSet.forEach(dcNode -> mapping.put(dcNode, dcBus));
+                    dcNodeSet.forEach(dcNode -> dcNodeIdToDcBus.put(dcNode.getId(), dcBus));
                 }
             }
 
-            variants.get().cache = new DcBusCache(dcBuses, mapping);
+            variants.get().cache = new DcBusCache(dcBuses, dcNodeIdToDcBus);
         }
 
         private void invalidateCache() {
@@ -288,10 +287,9 @@ public class DcTopologyModel implements MultiVariantObject {
             return variants.get().cache.getDcBus(dcBusId);
         }
 
-        DcBusImpl getDcBus(DcNodeImpl dcNode) {
-            Objects.requireNonNull(dcNode, "dcNode is null");
+        DcBusImpl getDcBusOfDcNode(String dcNodeId) {
             updateCache();
-            return variants.get().cache.getDcBus(dcNode);
+            return variants.get().cache.getDcBusOfDcNode(dcNodeId);
         }
 
     }
