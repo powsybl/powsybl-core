@@ -999,6 +999,9 @@ public class SubnetworkImpl extends AbstractNetwork {
         NetworkImpl detachedNetwork = new NetworkImpl(getId(), getNameOrId(), getSourceFormat());
         transferExtensions(this, detachedNetwork);
         transferProperties(this, detachedNetwork);
+
+        // Transfer the DC topology model from the subnetwork to the detached network.
+        // Note that the refs are not yet updated here, they are updated later on below.
         detachedNetwork.attachDcTopologyModel(this.detachDcTopologyModel(), rootNetworkRef, ref);
 
         // Memorize the network identifiables/voltageAngleLimits before moving references (to use them later)

@@ -26,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class DcTopologyTest {
 
+    public static final double V_EPSILON = 1e-3;
+
     @Test
     void testBasicBusTopology() {
         Network net1 = Network.create("n1", "test");
@@ -85,38 +87,38 @@ class DcTopologyTest {
         assertTrue(Double.isNaN(n12.getV()));
         n11DcBus.setV(501.);
         n12DcBus.setV(-502.);
-        assertEquals(501., n11DcBus.getV(), 1e-3);
-        assertEquals(501., n11.getV(), 1e-3);
-        assertEquals(-502., n12DcBus.getV(), 1e-3);
-        assertEquals(-502., n12.getV(), 1e-3);
+        assertEquals(501., n11DcBus.getV(), V_EPSILON);
+        assertEquals(501., n11.getV(), V_EPSILON);
+        assertEquals(-502., n12DcBus.getV(), V_EPSILON);
+        assertEquals(-502., n12.getV(), V_EPSILON);
 
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v1");
         variantManager.setWorkingVariant("v1");
         n11DcBus = net1.getDcBus("n11_dcBus");
         n12DcBus = net1.getDcBus("n12_dcBus");
         assertTrue(s1112.isOpen());
-        assertEquals(501., n11DcBus.getV(), 1e-3);
-        assertEquals(501., n11.getV(), 1e-3);
-        assertEquals(-502., n12DcBus.getV(), 1e-3);
-        assertEquals(-502., n12.getV(), 1e-3);
+        assertEquals(501., n11DcBus.getV(), V_EPSILON);
+        assertEquals(501., n11.getV(), V_EPSILON);
+        assertEquals(-502., n12DcBus.getV(), V_EPSILON);
+        assertEquals(-502., n12.getV(), V_EPSILON);
 
         s1112.setOpen(false);
         assertEquals(1, net1.getDcBusCount());
         n11DcBus = net1.getDcBus("n11_dcBus");
         n11DcBus.setV(504.);
-        assertEquals(504., n11DcBus.getV(), 1e-3);
-        assertEquals(504., n11.getV(), 1e-3);
-        assertEquals(504., n12.getV(), 1e-3);
+        assertEquals(504., n11DcBus.getV(), V_EPSILON);
+        assertEquals(504., n11.getV(), V_EPSILON);
+        assertEquals(504., n12.getV(), V_EPSILON);
 
         // back to original variant
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         n11DcBus = net1.getDcBus("n11_dcBus");
         n12DcBus = net1.getDcBus("n12_dcBus");
         assertTrue(s1112.isOpen());
-        assertEquals(501., n11DcBus.getV(), 1e-3);
-        assertEquals(501., n11.getV(), 1e-3);
-        assertEquals(-502., n12DcBus.getV(), 1e-3);
-        assertEquals(-502., n12.getV(), 1e-3);
+        assertEquals(501., n11DcBus.getV(), V_EPSILON);
+        assertEquals(501., n11.getV(), V_EPSILON);
+        assertEquals(-502., n12DcBus.getV(), V_EPSILON);
+        assertEquals(-502., n12.getV(), V_EPSILON);
     }
 
     @Test
@@ -152,7 +154,7 @@ class DcTopologyTest {
                 expected.stream().sorted().toList(),
                 network.getDcBusStream().map(Identifiable::getId).sorted().toList()
         );
-        assertEquals(network.getDcBusCount(), expected.size());
+        assertEquals(expected.size(), network.getDcBusCount());
     }
 
     private static void assertDcBusContainsDcNodes(DcBus dcBus, List<DcNode> dcNodes) {
@@ -347,12 +349,15 @@ class DcTopologyTest {
         Objects.requireNonNull(component);
         Objects.requireNonNull(expectedAcBuses);
         Objects.requireNonNull(expectedDcBuses);
+        List<String> expectedAcBusesSorted = expectedAcBuses.stream().sorted().toList();
+        List<String> expectedDcBusesSorted = expectedDcBuses.stream().sorted().toList();
+
         assertEquals(expectedNum, component.getNum());
         assertEquals(expectedAcBuses.size() + expectedDcBuses.size(), component.getSize());
-        assertEquals(expectedAcBuses.stream().sorted().toList(), component.getBusStream().map(Identifiable::getId).sorted().toList());
-        assertEquals(expectedAcBuses.stream().sorted().toList(), StreamSupport.stream(component.getBuses().spliterator(), false).map(Identifiable::getId).sorted().toList());
-        assertEquals(expectedDcBuses.stream().sorted().toList(), component.getDcBusStream().map(Identifiable::getId).sorted().toList());
-        assertEquals(expectedDcBuses.stream().sorted().toList(), StreamSupport.stream(component.getDcBuses().spliterator(), false).map(Identifiable::getId).sorted().toList());
+        assertEquals(expectedAcBusesSorted, component.getBusStream().map(Identifiable::getId).sorted().toList());
+        assertEquals(expectedAcBusesSorted, StreamSupport.stream(component.getBuses().spliterator(), false).map(Identifiable::getId).sorted().toList());
+        assertEquals(expectedDcBusesSorted, component.getDcBusStream().map(Identifiable::getId).sorted().toList());
+        assertEquals(expectedDcBusesSorted, StreamSupport.stream(component.getDcBuses().spliterator(), false).map(Identifiable::getId).sorted().toList());
     }
 
 }

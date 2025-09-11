@@ -168,20 +168,12 @@ public class DcTopologyModel implements MultiVariantObject {
     }
 
     /**
-     * DCBus topology cache
+     * DcBus topology cache
+     *
+     * @param dcBuses DC bus by id
+     * @param mapping DC node to DC bus mapping
      */
-    private static final class DcBusCache {
-
-        /* DC bus by id */
-        private final Map<String, DcBusImpl> dcBuses;
-
-        /* DC node to DC bus mapping */
-        private final Map<DcNodeImpl, DcBusImpl> mapping;
-
-        private DcBusCache(Map<String, DcBusImpl> dcBuses, Map<DcNodeImpl, DcBusImpl> mapping) {
-            this.dcBuses = dcBuses;
-            this.mapping = mapping;
-        }
+    private record DcBusCache(Map<String, DcBusImpl> dcBuses, Map<DcNodeImpl, DcBusImpl> mapping) {
 
         private Collection<DcBusImpl> getDcBuses() {
             return dcBuses.values();
@@ -198,7 +190,6 @@ public class DcTopologyModel implements MultiVariantObject {
         private DcBusImpl getDcBus(DcNodeImpl dcNode) {
             return mapping.get(dcNode);
         }
-
     }
 
     public Iterable<DcBus> getDcBuses() {
@@ -323,6 +314,9 @@ public class DcTopologyModel implements MultiVariantObject {
 
     public void invalidateCache() {
         calculatedDcBusTopology.invalidateCache();
+        // DC topology does not affect at all AC topology,
+        // synchronous (ac) components do not need to be invalidated,
+        // only dc components and connected (ac+dc) components are invalidated.
         getNetwork().getConnectedComponentsManager().invalidate();
         getNetwork().getDcComponentsManager().invalidate();
     }
