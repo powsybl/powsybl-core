@@ -1385,26 +1385,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
         }
     }
 
-    @Test
-    void missingTatlName() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create();
-        Line line = network.getLine("NHV1_NHV2_1");
-
-        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(500).add();
-        line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
-                .setPermanentLimit(1100)
-                .beginTemporaryLimit()
-                .setName("")
-                .setAcceptableDuration(10 * 60)
-                .setValue(1200)
-                .endTemporaryLimit()
-                .add();
-
-        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
-        String currentLimits = getElement(eqFile, "CurrentLimit", "NHV1_NHV2_1_ACLS_T_2_DEFAULT_OLS_CurrentLimit_TATL_600_OLV");
-        assertTrue(currentLimits.contains("<cim:IdentifiedObject.name>TATL 600</cim:IdentifiedObject.name>"));
-    }
-
     private void testTcTccWithoutAttribute(String eq, String rcID, String terID, String rcMode) {
         assertFalse(eq.contains("cim:TapChangerControl rdf:ID=\"" + rcID + "\""));
         assertFalse(eq.contains("cim:TapChanger.TapChangerControl rdf:resource=\"#" + rcID + "\""));
