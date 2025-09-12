@@ -1386,7 +1386,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     @Test
-    void missingPatlName() throws IOException {
+    void missingTatlName() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         Line line = network.getLine("NHV1_NHV2_1");
 
