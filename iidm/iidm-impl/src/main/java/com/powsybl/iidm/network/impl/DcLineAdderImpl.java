@@ -74,6 +74,9 @@ public class DcLineAdderImpl extends AbstractIdentifiableAdder<DcLineAdderImpl> 
         DcTerminalImpl dcTerminal2 = new DcTerminalImpl(networkRef, TwoSides.TWO, dcNode2, connected2);
         dcLine.addDcTerminal(dcTerminal1);
         dcLine.addDcTerminal(dcTerminal2);
+        DcTopologyModel dcTopologyModel = ((AbstractNetwork) getParentNetwork()).getDcTopologyModel();
+        dcTopologyModel.attach(dcTerminal1);
+        dcTopologyModel.attach(dcTerminal2);
         getNetwork().getIndex().checkAndAdd(dcLine);
         getNetwork().getListeners().notifyCreation(dcLine);
         return dcLine;

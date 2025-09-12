@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,6 +30,8 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode, 
     protected boolean removed = false;
     private double nominalV;
 
+    private final ArrayList<List<DcTerminalImpl>> dcTerminals;
+
     private final TDoubleArrayList v;
 
     private final TIntArrayList connectedComponentNumber;
@@ -41,10 +44,12 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode, 
         this.subnetworkRef = subnetworkRef;
         this.nominalV = nominalV;
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
+        dcTerminals = new ArrayList<>(variantArraySize);
         v = new TDoubleArrayList(variantArraySize);
         connectedComponentNumber = new TIntArrayList(variantArraySize);
         dcComponentNumber = new TIntArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
+            dcTerminals.add(new ArrayList<>());
             v.add(Double.NaN);
             connectedComponentNumber.add(-1);
             dcComponentNumber.add(-1);
@@ -106,6 +111,16 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode, 
         return this;
     }
 
+    public void addDcTerminal(DcTerminalImpl dcTerminal) {
+        dcTerminals.get(networkRef.get().getVariantIndex()).add(dcTerminal);
+    }
+
+    public void removeDcTerminal(DcTerminalImpl dcTerminal) {
+        if (!dcTerminals.get(networkRef.get().getVariantIndex()).remove(dcTerminal)) {
+            throw new IllegalStateException("DcTerminal " + dcTerminal + " not found");
+        }
+    }
+
     public void setConnectedComponentNumber(int connectedComponentNumber) {
         int variantIndex = networkRef.get().getVariantIndex();
         int oldValue = this.connectedComponentNumber.set(variantIndex, connectedComponentNumber);
@@ -165,10 +180,12 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode, 
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        dcTerminals.ensureCapacity(dcTerminals.size() + number);
         v.ensureCapacity(v.size() + number);
         connectedComponentNumber.ensureCapacity(connectedComponentNumber.size() + number);
         dcComponentNumber.ensureCapacity(dcComponentNumber.size() + number);
         for (int i = 0; i < number; i++) {
+            dcTerminals.add(new ArrayList<>(dcTerminals.get(sourceIndex)));
             v.add(v.get(sourceIndex));
             connectedComponentNumber.add(connectedComponentNumber.get(sourceIndex));
             dcComponentNumber.add(dcComponentNumber.get(sourceIndex));
@@ -178,6 +195,7 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode, 
     @Override
     public void reduceVariantArraySize(int number) {
         for (int i = 0; i < number; i++) {
+            dcTerminals.remove(dcTerminals.size() - 1);
             v.removeAt(v.size() - 1);
             connectedComponentNumber.removeAt(connectedComponentNumber.size() - 1);
             dcComponentNumber.removeAt(dcComponentNumber.size() - 1);
@@ -187,12 +205,13 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode, 
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
-        // nothing to do
+        dcTerminals.set(index, null);
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
+            dcTerminals.set(index, new ArrayList<>(dcTerminals.get(sourceIndex)));
             v.set(index, v.get(sourceIndex));
             connectedComponentNumber.set(index, connectedComponentNumber.get(sourceIndex));
             dcComponentNumber.set(index, dcComponentNumber.get(sourceIndex));

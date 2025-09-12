@@ -82,9 +82,13 @@ public interface DcNode extends Identifiable<DcNode> {
 
     /**
      * Set the voltage of the DC node in kV.
+     * @return self for method chaining
      */
     DcNode setV(double v);
 
+    /**
+     * Get the DcBus the DcNode is part of.
+     */
     DcBus getDcBus();
 
     /**

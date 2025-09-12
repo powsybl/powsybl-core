@@ -43,7 +43,7 @@ public class DcTopologyModel implements MultiVariantObject {
     /* DcSwitches indexed by edge number */
     private final Map<String, Integer> dcSwitches = new HashMap<>();
 
-    private VariantArray<DcTopologyModel.VariantImpl> variants;
+    private final VariantArray<DcTopologyModel.VariantImpl> variants;
 
     public DcTopologyModel(RefChain<NetworkImpl> networkRef, RefChain<SubnetworkImpl> subnetworkRef) {
         this.networkRef = Objects.requireNonNull(networkRef);
@@ -79,7 +79,7 @@ public class DcTopologyModel implements MultiVariantObject {
 
             @Override
             public void edgeBeforeRemoval(int e, DcSwitchImpl obj) {
-                // Nothing to do, notifications are handled properly in removeSwitch
+                // Nothing to do
             }
 
             @Override
@@ -89,7 +89,7 @@ public class DcTopologyModel implements MultiVariantObject {
 
             @Override
             public void allEdgesBeforeRemoval(Collection<DcSwitchImpl> obj) {
-                // Nothing to do, notifications are handled properly in removeAllSwitches
+                // Nothing to do
             }
 
             @Override
@@ -161,8 +161,6 @@ public class DcTopologyModel implements MultiVariantObject {
         subnetwork.getDcSwitchStream().forEach(dcSwitch -> addDcSwitchToTopology((DcSwitchImpl) dcSwitch, dcSwitch.getDcNode1().getId(), dcSwitch.getDcNode2().getId()));
 
         subnetwork.detachDcTopologyModel(); // to remove refs
-        // purge cache for all variants
-        variants = new VariantArray<>(networkRef, DcTopologyModel.VariantImpl::new);
     }
 
     /**
@@ -313,6 +311,26 @@ public class DcTopologyModel implements MultiVariantObject {
         // only dc components and connected (ac+dc) components are invalidated.
         getNetwork().getConnectedComponentsManager().invalidate();
         getNetwork().getDcComponentsManager().invalidate();
+    }
+
+    public void attach(DcTerminalImpl dcTerminal) {
+        DcNodeImpl dcNode = (DcNodeImpl) dcTerminal.getDcNode();
+        getNetwork().getVariantManager().forEachVariant(() -> {
+            dcNode.addDcTerminal(dcTerminal);
+            invalidateCache();
+        });
+    }
+
+    public void detach(DcTerminalImpl dcTerminal) {
+        DcNodeImpl dcNode = (DcNodeImpl) dcTerminal.getDcNode();
+        getNetwork().getVariantManager().forEachVariant(() -> {
+            dcNode.removeDcTerminal(dcTerminal);
+            invalidateCache();
+        });
+    }
+
+    public void invalidateAllVariantsCache() {
+        networkRef.get().getVariantManager().forEachVariant(this::invalidateCache);
     }
 
     @Override

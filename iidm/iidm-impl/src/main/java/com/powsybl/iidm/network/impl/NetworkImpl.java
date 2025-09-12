@@ -1449,6 +1449,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             transferProperties(subnetwork, this, true);
             index.remove(subnetwork);
         });
+        dcTopologyModel.invalidateAllVariantsCache();
         subnetworks.clear();
     }
 
