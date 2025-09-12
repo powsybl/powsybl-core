@@ -634,7 +634,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (!context.nodeBreaker()) {
             throw new ConversionException("Not in node breaker context");
         }
-        adder.setNode1(iidmNode(1)).setNode2(iidmNode(2));
+        adder
+                .setNode1(iidmNode(1))
+                .setNode2(iidmNode(2));
     }
 
     public void connectWithOnlyEq(VoltageLevel.BusBreakerView.SwitchAdder adder) {
@@ -774,7 +776,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         ALWAYS
     }
 
-    protected static Optional<Boolean> isOpenFromBothTerminalStatus(Switch sw, Context context) {
+    protected static Optional<Boolean> isOpenFromAtLeastOneTerminal(Switch sw, Context context) {
         Optional<Boolean> connected1 = isTerminalConnected(sw, context, TwoSides.ONE);
         Optional<Boolean> connected2 = isTerminalConnected(sw, context, TwoSides.TWO);
         return connected1.flatMap(c1 -> connected2.map(c2 -> !c1 || !c2))
