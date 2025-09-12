@@ -1400,14 +1400,9 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .endTemporaryLimit()
                 .add();
 
-        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            Path tmpDir = Files.createDirectory(fs.getPath("/test-missing-patl"));
-            Properties exportParams = new Properties();
-            exportParams.put(CgmesExport.PROFILES, "EQ");
-            String eq = getEQ(network, "testMissingPatl", tmpDir, exportParams);
-            // Expect the temporary limit to be named "TATL 600"
-            assertTrue(eq.contains(">TATL 600<"));
-        }
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        String currentLimits = getElement(eqFile, "CurrentLimit", "NHV1_NHV2_1_ACLS_T_2_DEFAULT_OLS_CurrentLimit_TATL_600_OLV");
+        assertTrue(currentLimits.contains("<cim:IdentifiedObject.name>TATL 600</cim:IdentifiedObject.name>"));
     }
 
     private void testTcTccWithoutAttribute(String eq, String rcID, String terID, String rcMode) {
