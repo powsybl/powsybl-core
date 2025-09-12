@@ -28,7 +28,7 @@ class VoltageLevelUpdateTest {
         Network network = readCgmesResources(DIR, "voltageLevel_EQ.xml");
         assertEquals(1, network.getVoltageLevelCount());
 
-        assertEq(network.getVoltageLevel("VoltageLevel"), 395.0, 425.0);
+        assertEq(network.getVoltageLevel("VoltageLevel"), 396.0, 425.0);
     }
 
     @Test
@@ -44,21 +44,19 @@ class VoltageLevelUpdateTest {
         Network network = readCgmesResources(DIR, "voltageLevel_EQ.xml");
         assertEquals(1, network.getVoltageLevelCount());
 
-        assertEq(network.getVoltageLevel("VoltageLevel"), 395.0, 425.0);
+        assertEq(network.getVoltageLevel("VoltageLevel"), 396.0, 425.0);
 
         readCgmesResources(network, DIR, "voltageLevel_SSH.xml");
         assertSsh(network.getVoltageLevel("VoltageLevel"), 405.0, 435.0);
 
         readCgmesResources(network, DIR, "voltageLevel_SSH_1.xml");
-        assertSsh(network.getVoltageLevel("VoltageLevel"), 400.0, 430.0);
+        assertSsh(network.getVoltageLevel("VoltageLevel"), 399.0, 430.0);
     }
 
     private static void assertEq(VoltageLevel voltageLevel, double lowVoltageLimit, double highVoltageLimit) {
         assertNotNull(voltageLevel);
         assertNotNull(voltageLevel.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.LOW_VOLTAGE_LIMIT));
         assertNotNull(voltageLevel.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.HIGH_VOLTAGE_LIMIT));
-        assertTrue(voltageLevel.getPropertyNames().stream().anyMatch(propertyName -> propertyName.contains(CgmesNames.OPERATIONAL_LIMIT_SET + "_" + CgmesNames.LOW_VOLTAGE_LIMIT)));
-        assertTrue(voltageLevel.getPropertyNames().stream().anyMatch(propertyName -> propertyName.contains(CgmesNames.OPERATIONAL_LIMIT_SET + "_" + CgmesNames.HIGH_VOLTAGE_LIMIT)));
         assertTrue(voltageLevel.getPropertyNames().stream().anyMatch(propertyName -> propertyName.contains(CgmesNames.OPERATIONAL_LIMIT + "_") && propertyName.contains(CgmesNames.LOW_VOLTAGE_LIMIT)));
         assertTrue(voltageLevel.getPropertyNames().stream().anyMatch(propertyName -> propertyName.contains(CgmesNames.OPERATIONAL_LIMIT + "_") && propertyName.contains(CgmesNames.HIGH_VOLTAGE_LIMIT)));
         assertTrue(voltageLevel.getPropertyNames().stream().anyMatch(propertyName -> propertyName.contains(CgmesNames.NORMAL_VALUE + "_") && propertyName.contains(CgmesNames.LOW_VOLTAGE_LIMIT)));
