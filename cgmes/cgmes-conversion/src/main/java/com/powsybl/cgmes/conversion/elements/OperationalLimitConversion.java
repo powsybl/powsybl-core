@@ -39,9 +39,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     public OperationalLimitConversion(PropertyBag l, Context context) {
         super(CgmesNames.OPERATIONAL_LIMIT, l, context);
         limitSubclass = Objects.requireNonNull(p.getLocal(OPERATIONAL_LIMIT_SUBCLASS));
-        String limitSetId = p.getId(OPERATIONAL_LIMIT_SET_ID);
-        String limitSetName = p.getLocal(OPERATIONAL_LIMIT_SET_NAME);
-        limitSetName = limitSetName != null ? limitSetName : limitSetId;
+
         // Limit can be associated to a Terminal or to an Equipment
         terminalId = l.getId("Terminal");
         equipmentId = l.getId("Equipment");
@@ -52,17 +50,17 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 terminal = context.terminalMapping().findForFlowLimits(terminalId);
             }
             if (terminal != null) {
-                checkAndCreateLimitsAdder(context.terminalMapping().number(terminalId), limitSetId, limitSetName, terminal.getConnectable());
+                checkAndCreateLimitsAdder(context.terminalMapping().number(terminalId), terminal.getConnectable());
             } else if (equipmentId != null) {
                 // The equipment may be a Branch, a Dangling line, a Switch ...
                 Identifiable<?> identifiable = context.network().getIdentifiable(equipmentId);
-                checkAndCreateLimitsAdder(-1, limitSetId, limitSetName, identifiable);
+                checkAndCreateLimitsAdder(-1, identifiable);
             }
         } else if (isVoltageLimits()) {
             if (terminalId != null) {
                 terminal = context.terminalMapping().findForVoltageLimits(terminalId);
             }
-            setVoltageLevelForVoltageLimit(terminal, limitSetId, limitSetName);
+            setVoltageLevelForVoltageLimit(terminal);
         } else {
             notAssigned();
         }
@@ -78,7 +76,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return "VoltageLimit".equals(limitSubclass);
     }
 
-    private void setVoltageLevelForVoltageLimit(Terminal terminal, String limitSetId, String limitSetName) {
+    private void setVoltageLevelForVoltageLimit(Terminal terminal) {
         if (terminal != null) {
             vl = terminal.getVoltageLevel();
         } else if (equipmentId != null) {
@@ -90,14 +88,6 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 vl = injection.getTerminal().getVoltageLevel();
             }
         }
-        if (vl != null) {
-            addProperties(vl, limitSetId, limitSetName);
-        }
-    }
-
-    private void addProperties(VoltageLevel voltageLevel, String limitSetId, String limitSetName) {
-        voltageLevel.setProperty(PROPERTY_OPERATIONAL_LIMIT_SET_RDFID, limitSetId);
-        voltageLevel.setProperty(PROPERTY_OPERATIONAL_LIMIT_SET_NAME, limitSetName);
     }
 
     private void addProperties(OperationalLimitsGroup limitsGroup, String limitSetId, String limitSetName) {
@@ -188,11 +178,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
      * Create LoadingLimitsAdder(s) as per the given inputs.
      * If the inputs are inconsistent, no limit adder is created.
      * @param terminalNumber The side of the equipment to which the OperationalLimit applies.
-     * @param limitSetId The set containing the OperationalLimit.
-     * @param limitSetName The name of the set containing the OperationalLimit.
      * @param identifiable The equipment to which the OperationalLimit applies.
      */
-    private void checkAndCreateLimitsAdder(int terminalNumber, String limitSetId, String limitSetName, Identifiable<?> identifiable) {
+    private void checkAndCreateLimitsAdder(int terminalNumber, Identifiable<?> identifiable) {
+        String limitSetId = p.getId(OPERATIONAL_LIMIT_SET_ID);
+        String limitSetName = p.getLocal(OPERATIONAL_LIMIT_SET_NAME);
+        limitSetName = limitSetName != null ? limitSetName : limitSetId;
+
         if (identifiable instanceof Branch) {
             checkAndCreateLimitsAdderBranch((Branch<?>) identifiable, terminalNumber, limitSetId, limitSetName);
         } else if (identifiable instanceof DanglingLine dl) {
@@ -273,7 +265,6 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void convertVoltageLimit(double value) {
-        String operationalLimitSetId = p.getId(OPERATIONAL_LIMIT_SET_ID);
         String operationalLimitId = p.getId(CgmesNames.OPERATIONAL_LIMIT);
         String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String limitType = p.getLocal(LIMIT_TYPE);
@@ -282,14 +273,14 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 context.ignored("HighVoltageLimit", "Inconsistent with low voltage limit (" + vl.getLowVoltageLimit() + "kV)");
             } else if (value < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
                 vl.setHighVoltageLimit(value);
-                addVoltageLimitProperties(operationalLimitSetId, CgmesNames.HIGH_VOLTAGE_LIMIT, operationalLimitId, value);
+                addVoltageLimitProperties(vl, CgmesNames.HIGH_VOLTAGE_LIMIT, operationalLimitId, value);
             }
         } else if (limitTypeName.equalsIgnoreCase("lowvoltage") || "LimitTypeKind.lowVoltage".equals(limitType)) {
             if (value > vl.getHighVoltageLimit()) {
                 context.ignored("LowVoltageLimit", "Inconsistent with high voltage limit (" + vl.getHighVoltageLimit() + "kV)");
             } else if (value > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
                 vl.setLowVoltageLimit(value);
-                addVoltageLimitProperties(operationalLimitSetId, CgmesNames.LOW_VOLTAGE_LIMIT, operationalLimitId, value);
+                addVoltageLimitProperties(vl, CgmesNames.LOW_VOLTAGE_LIMIT, operationalLimitId, value);
             }
         } else {
             notAssigned(vl);
@@ -422,11 +413,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         operationalLimitsGroup.setProperty(getPropertyName(limitSubclass, true, 0, CgmesNames.NORMAL_VALUE), String.valueOf(value));
     }
 
-    private void addVoltageLimitProperties(String operationalLimitSetId, String limitType, String operationalLimitId, double value) {
-        Objects.requireNonNull(vl);
-        vl.setProperty(getPropertyNameForOperationalLimitSet(limitType), operationalLimitSetId);
-        vl.setProperty(getPropertyName(operationalLimitSetId, limitType, CgmesNames.OPERATIONAL_LIMIT), operationalLimitId);
-        vl.setProperty(getPropertyName(operationalLimitSetId, limitType, CgmesNames.NORMAL_VALUE), String.valueOf(value));
+    private void addVoltageLimitProperties(VoltageLevel voltageLevel, String limitType, String operationalLimitId, double value) {
+        voltageLevel.setProperty(getPropertyName(limitType, CgmesNames.OPERATIONAL_LIMIT), operationalLimitId);
+        voltageLevel.setProperty(getPropertyName(limitType, CgmesNames.NORMAL_VALUE), String.valueOf(value));
     }
 
     private void notAssigned() {
@@ -525,16 +514,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private static double getValue(VoltageLevel voltageLevel, String limitType, double previousValue, Context context) {
-        String operationalLimitSetId = voltageLevel.getProperty(getPropertyNameForOperationalLimitSet(limitType));
-        if (operationalLimitSetId != null) {
-            String operationalLimitId = getOperationalLimitId(getPropertyName(operationalLimitSetId, limitType, CgmesNames.OPERATIONAL_LIMIT), voltageLevel);
-            Double normalValue = getNormalValue(getPropertyName(operationalLimitSetId, limitType, CgmesNames.NORMAL_VALUE), voltageLevel);
-            Double voltageLevelNormalValue = getVoltageLevelNormalValue(voltageLevel, limitType);
-            double defaultLimitValue = getDefaultValue(normalValue != null ? normalValue : voltageLevelNormalValue, previousValue, context);
-            return updatedValue(operationalLimitId, context).orElse(defaultLimitValue);
-        } else {
-            return previousValue;
-        }
+        String operationalLimitId = getOperationalLimitId(getPropertyName(limitType, CgmesNames.OPERATIONAL_LIMIT), voltageLevel);
+        Double normalValue = getNormalValue(getPropertyName(limitType, CgmesNames.NORMAL_VALUE), voltageLevel);
+        Double voltageLevelNormalValue = getVoltageLevelNormalValue(voltageLevel, limitType);
+        double defaultLimitValue = getDefaultValue(normalValue != null ? normalValue : voltageLevelNormalValue, previousValue, context);
+        return updatedValue(operationalLimitId, context).orElse(defaultLimitValue);
     }
 
     private static Double getNormalValue(String propertyName, VoltageLevel voltageLevel) {
@@ -546,14 +530,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return voltageLevel.getProperty(propertyName) != null ? Double.parseDouble(voltageLevel.getProperty(propertyName)) : null;
     }
 
-    private static String getPropertyNameForOperationalLimitSet(String limitType) {
-        return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT_SET + "_"
-                + limitType;
-    }
-
-    private static String getPropertyName(String operationalLimitSetId, String limitType, String tagProperty) {
+    private static String getPropertyName(String limitType, String tagProperty) {
         return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tagProperty + "_"
-                + operationalLimitSetId + "_"
                 + limitType;
     }
 
