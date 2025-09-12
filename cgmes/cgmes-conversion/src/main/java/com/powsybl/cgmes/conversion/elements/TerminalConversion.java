@@ -149,8 +149,8 @@ public final class TerminalConversion {
     private static Terminal getTerminal(Connectable<?> connectable, String terminalId) {
         String aliasType = connectable.getAliasType(terminalId).orElse("");
         return switch (aliasType) {
-            case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1 ->
-                    connectable.getTerminals().get(0);
+            case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL,
+                 Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1 -> connectable.getTerminals().get(0);
             case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2 -> connectable.getTerminals().get(1);
             case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 3 -> connectable.getTerminals().get(2);
             case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY -> null;

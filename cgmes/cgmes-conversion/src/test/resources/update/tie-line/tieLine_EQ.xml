@@ -143,10 +143,10 @@
         <cim:IdentifiedObject.name>ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit1</cim:IdentifiedObject.name>
         <cim:ActivePowerLimit.normalValue>90</cim:ActivePowerLimit.normalValue>
         <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_ACLineSegment-1-T1-OperationalLimitSet"/>
-        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit1-Patl"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OperationalLimitSet-ActivePowerLimit1-Patl"/>
     </cim:ActivePowerLimit>
-    <cim:OperationalLimitType rdf:ID="_ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit1-Patl">
-        <cim:IdentifiedObject.name>ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit1-Patl</cim:IdentifiedObject.name>
+    <cim:OperationalLimitType rdf:ID="_OperationalLimitSet-ActivePowerLimit1-Patl">
+        <cim:IdentifiedObject.name>OperationalLimitSet-ActivePowerLimit1-Patl</cim:IdentifiedObject.name>
         <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
         <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.patl" />
     </cim:OperationalLimitType>
@@ -154,10 +154,10 @@
         <cim:IdentifiedObject.name>ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit2</cim:IdentifiedObject.name>
         <cim:ActivePowerLimit.normalValue>108</cim:ActivePowerLimit.normalValue>
         <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_ACLineSegment-1-T1-OperationalLimitSet"/>
-        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit2-Tatl"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OperationalLimitSet-ActivePowerLimit2-Tatl"/>
     </cim:ActivePowerLimit>
-    <cim:OperationalLimitType rdf:ID="_ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit2-Tatl">
-        <cim:IdentifiedObject.name>ACLineSegment-1-T1-OperationalLimitSet-ActivePowerLimit2-Tatl</cim:IdentifiedObject.name>
+    <cim:OperationalLimitType rdf:ID="_OperationalLimitSet-ActivePowerLimit2-Tatl">
+        <cim:IdentifiedObject.name>OperationalLimitSet-ActivePowerLimit2-Tatl</cim:IdentifiedObject.name>
         <cim:OperationalLimitType.acceptableDuration>900</cim:OperationalLimitType.acceptableDuration>
         <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
         <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.tatl" />
@@ -171,25 +171,14 @@
         <cim:IdentifiedObject.name>ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit1</cim:IdentifiedObject.name>
         <cim:ActivePowerLimit.normalValue>91</cim:ActivePowerLimit.normalValue>
         <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_ACLineSegment-2-T1-OperationalLimitSet"/>
-        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit1-Patl"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OperationalLimitSet-ActivePowerLimit1-Patl"/>
     </cim:ActivePowerLimit>
-    <cim:OperationalLimitType rdf:ID="_ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit1-Patl">
-        <cim:IdentifiedObject.name>ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit1-Patl</cim:IdentifiedObject.name>
-        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
-        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.patl" />
-    </cim:OperationalLimitType>
     <cim:ActivePowerLimit rdf:ID="_ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit2">
         <cim:IdentifiedObject.name>ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit2</cim:IdentifiedObject.name>
         <cim:ActivePowerLimit.normalValue>109</cim:ActivePowerLimit.normalValue>
         <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_ACLineSegment-2-T1-OperationalLimitSet"/>
-        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit2-Tatl"/>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OperationalLimitSet-ActivePowerLimit2-Tatl"/>
     </cim:ActivePowerLimit>
-    <cim:OperationalLimitType rdf:ID="_ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit2-Tatl">
-        <cim:IdentifiedObject.name>ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit2-Tatl</cim:IdentifiedObject.name>
-        <cim:OperationalLimitType.acceptableDuration>901</cim:OperationalLimitType.acceptableDuration>
-        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue" />
-        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.tatl" />
-    </cim:OperationalLimitType>
 
     <cim:BusbarSection rdf:ID="_BusbarSection-1">
         <cim:IdentifiedObject.name>BusbarSection-1</cim:IdentifiedObject.name>
