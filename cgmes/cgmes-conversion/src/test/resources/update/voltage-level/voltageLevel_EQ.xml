@@ -53,12 +53,12 @@
     <cim:VoltageLimit rdf:ID="_BusbarSection-T-OperationalLimitSet-VoltageLimit-High">
         <cim:IdentifiedObject.name>BusbarSection-T-OperationalLimitSet-VoltageLimit-High</cim:IdentifiedObject.name>
         <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_BusbarSection-T-OperationalLimitSet" />
-        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_BusbarSection-T-OperationalLimitSet-VoltageLimit-High-Type" />
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OperationalLimitSet-VoltageLimit-High-Type" />
         <cim:VoltageLimit.normalValue>425.0</cim:VoltageLimit.normalValue>
     </cim:VoltageLimit>
 
-    <cim:OperationalLimitType rdf:ID="_BusbarSection-T-OperationalLimitSet-VoltageLimit-High-Type">
-        <cim:IdentifiedObject.name>BusbarSection-T-OperationalLimitSet-VoltageLimit-High-Type</cim:IdentifiedObject.name>
+    <cim:OperationalLimitType rdf:ID="_OperationalLimitSet-VoltageLimit-High-Type">
+        <cim:IdentifiedObject.name>OperationalLimitSet-VoltageLimit-High-Type</cim:IdentifiedObject.name>
         <cim:OperationalLimitType.acceptableDuration>45000</cim:OperationalLimitType.acceptableDuration>
         <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitTypeKind.highVoltage" />
     </cim:OperationalLimitType>
@@ -66,12 +66,12 @@
     <cim:VoltageLimit rdf:ID="_BusbarSection-T-OperationalLimitSet-VoltageLimit-Low">
         <cim:IdentifiedObject.name>BusbarSection-T-OperationalLimitSet-VoltageLimit-Low</cim:IdentifiedObject.name>
         <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_BusbarSection-T-OperationalLimitSet" />
-        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_BusbarSection-T-OperationalLimitSet-VoltageLimit-Low-Type" />
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OperationalLimitSet-VoltageLimit-Low-Type" />
         <cim:VoltageLimit.normalValue>395.0</cim:VoltageLimit.normalValue>
     </cim:VoltageLimit>
 
-    <cim:OperationalLimitType rdf:ID="_BusbarSection-T-OperationalLimitSet-VoltageLimit-Low-Type">
-        <cim:IdentifiedObject.name>BusbarSection-T-OperationalLimitSet-VoltageLimit-Low-Type</cim:IdentifiedObject.name>
+    <cim:OperationalLimitType rdf:ID="_OperationalLimitSet-VoltageLimit-Low-Type">
+        <cim:IdentifiedObject.name>OperationalLimitSet-VoltageLimit-Low-Type</cim:IdentifiedObject.name>
         <cim:OperationalLimitType.acceptableDuration>45000</cim:OperationalLimitType.acceptableDuration>
         <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitTypeKind.lowVoltage" />
     </cim:OperationalLimitType>
@@ -94,27 +94,15 @@
     <cim:VoltageLimit rdf:ID="_EnergyConsumer-T-OperationalLimitSet-VoltageLimit-High">
         <cim:IdentifiedObject.name>EnergyConsumer-T-OperationalLimitSet-VoltageLimit-High</cim:IdentifiedObject.name>
         <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_EnergyConsumer-T-OperationalLimitSet" />
-        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_EnergyConsumer-T-OperationalLimitSet-VoltageLimit-High-Type" />
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OperationalLimitSet-VoltageLimit-High-Type" />
         <cim:VoltageLimit.normalValue>426.0</cim:VoltageLimit.normalValue>
     </cim:VoltageLimit>
-
-    <cim:OperationalLimitType rdf:ID="_EnergyConsumer-T-OperationalLimitSet-VoltageLimit-High-Type">
-        <cim:IdentifiedObject.name>EnergyConsumer-T-OperationalLimitSet-VoltageLimit-High-Type</cim:IdentifiedObject.name>
-        <cim:OperationalLimitType.acceptableDuration>45000</cim:OperationalLimitType.acceptableDuration>
-        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitTypeKind.highVoltage" />
-    </cim:OperationalLimitType>
 
     <cim:VoltageLimit rdf:ID="_EnergyConsumer-T-OperationalLimitSet-VoltageLimit-Low">
         <cim:IdentifiedObject.name>EnergyConsumer-T-OperationalLimitSet-VoltageLimit-Low</cim:IdentifiedObject.name>
         <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_EnergyConsumer-T-OperationalLimitSet" />
-        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_EnergyConsumer-T-OperationalLimitSet-VoltageLimit-Low-Type" />
-        <cim:VoltageLimit.normalValue>394.0</cim:VoltageLimit.normalValue>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OperationalLimitSet-VoltageLimit-Low-Type" />
+        <cim:VoltageLimit.normalValue>396.0</cim:VoltageLimit.normalValue>
     </cim:VoltageLimit>
-
-    <cim:OperationalLimitType rdf:ID="_EnergyConsumer-T-OperationalLimitSet-VoltageLimit-Low-Type">
-        <cim:IdentifiedObject.name>EnergyConsumer-T-OperationalLimitSet-VoltageLimit-Low-Type</cim:IdentifiedObject.name>
-        <cim:OperationalLimitType.acceptableDuration>45000</cim:OperationalLimitType.acceptableDuration>
-        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitTypeKind.lowVoltage" />
-    </cim:OperationalLimitType>
 
 </rdf:RDF>

@@ -29,6 +29,23 @@ class BusbarSectionUpdateTest {
         assertEq(network.getBusbarSection("BusbarSection"));
     }
 
+    @Test
+    void importEqAndSshTogetherTest() {
+        Network network = readCgmesResources(DIR, "busbarSection_EQ.xml", "busbarSection_SSH.xml");
+        // A fictitious open switch is created to simulate the disconnected terminal
+        assertEq(network.getBusbarSection("BusbarSection"));
+    }
+
+    @Test
+    void importEqAndSshTest() {
+        Network network = readCgmesResources(DIR, "busbarSection_EQ.xml");
+        assertEquals(1, network.getBusbarSectionCount());
+        assertEq(network.getBusbarSection("BusbarSection"));
+
+        readCgmesResources(network, DIR, "busbarSection_SSH.xml");
+        assertEq(network.getBusbarSection("BusbarSection"));
+    }
+
     private static void assertEq(BusbarSection busbarSection) {
         assertNotNull(busbarSection);
         assertNotNull(busbarSection.getTerminal());
