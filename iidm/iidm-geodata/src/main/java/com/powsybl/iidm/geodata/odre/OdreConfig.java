@@ -57,18 +57,18 @@ public record OdreConfig(
 
     public static OdreConfig getDefaultOdreConfig() {
         return new OdreConfig(
-        "Type ouvrage",
-        "NULL",
-        "AERIEN",
-        "SOUTERRAIN",
-        "Code ligne 1",
-        "Code ligne 2",
-        "Code ligne 3",
-        "Code ligne 4",
-        "Code ligne 5",
-        "Geo Shape",
-        "Code poste",
-        "Longitude poste (DD)",
-        "Latitude poste (DD)");
+            "Type ouvrage",
+            "NULL",
+            "AERIEN",
+            "SOUTERRAIN",
+            "Code ligne 1",
+            "Code ligne 2",
+            "Code ligne 3",
+            "Code ligne 4",
+            "Code ligne 5",
+            "Geo Shape",
+            "Code poste",
+            "Longitude poste (DD)",
+            "Latitude poste (DD)");
     }
 }
