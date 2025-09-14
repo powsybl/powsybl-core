@@ -9,13 +9,13 @@
     </md:FullModel>
 
     <cim:VoltageLimit rdf:about="#_BusbarSection-T-OperationalLimitSet-VoltageLimit-High">
-        <cim:VoltageLimit.value>430.0</cim:VoltageLimit.value>
+        <cim:VoltageLimit.value>431.0</cim:VoltageLimit.value>
     </cim:VoltageLimit>
     <cim:VoltageLimit rdf:about="#_BusbarSection-T-OperationalLimitSet-VoltageLimit-Low">
-        <cim:VoltageLimit.value>400.0</cim:VoltageLimit.value>
+        <cim:VoltageLimit.value>398.0</cim:VoltageLimit.value>
     </cim:VoltageLimit>
     <cim:VoltageLimit rdf:about="#_EnergyConsumer-T-OperationalLimitSet-VoltageLimit-High">
-        <cim:VoltageLimit.value>431.0</cim:VoltageLimit.value>
+        <cim:VoltageLimit.value>430.0</cim:VoltageLimit.value>
     </cim:VoltageLimit>
     <cim:VoltageLimit rdf:about="#_EnergyConsumer-T-OperationalLimitSet-VoltageLimit-Low">
         <cim:VoltageLimit.value>399.0</cim:VoltageLimit.value>
