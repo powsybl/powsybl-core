@@ -270,27 +270,35 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String limitType = p.getLocal(LIMIT_TYPE);
         if (limitTypeName.equalsIgnoreCase("highvoltage") || "LimitTypeKind.highVoltage".equals(limitType)) {
-            if (value < vl.getLowVoltageLimit()) {
-                context.ignored("HighVoltageLimit", "Inconsistent with low voltage limit (" + vl.getLowVoltageLimit() + "kV)");
-            } else {
-                addVoltageLimitProperty(vl, CgmesNames.HIGH_VOLTAGE_LIMIT, operationalLimitId);
-                if (value < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
-                    vl.setHighVoltageLimit(value);
-                    addVoltageLimitProperty(vl, CgmesNames.HIGH_VOLTAGE_LIMIT, value);
-                }
-            }
+            convertLowVoltageLimit(operationalLimitId, value);
         } else if (limitTypeName.equalsIgnoreCase("lowvoltage") || "LimitTypeKind.lowVoltage".equals(limitType)) {
-            if (value > vl.getHighVoltageLimit()) {
-                context.ignored("LowVoltageLimit", "Inconsistent with high voltage limit (" + vl.getHighVoltageLimit() + "kV)");
-            } else {
-                addVoltageLimitProperty(vl, CgmesNames.LOW_VOLTAGE_LIMIT, operationalLimitId);
-                if (value > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
-                    vl.setLowVoltageLimit(value);
-                    addVoltageLimitProperty(vl, CgmesNames.LOW_VOLTAGE_LIMIT, value);
-                }
-            }
+            convertHighVoltageLimit(operationalLimitId, value);
         } else {
             notAssigned(vl);
+        }
+    }
+
+    private void convertLowVoltageLimit(String operationalLimitId, double value) {
+        if (value < vl.getLowVoltageLimit()) {
+            context.ignored("HighVoltageLimit", "Inconsistent with low voltage limit (" + vl.getLowVoltageLimit() + "kV)");
+        } else {
+            addVoltageLimitProperty(vl, CgmesNames.HIGH_VOLTAGE_LIMIT, operationalLimitId);
+            if (value < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
+                vl.setHighVoltageLimit(value);
+                addVoltageLimitProperty(vl, CgmesNames.HIGH_VOLTAGE_LIMIT, value);
+            }
+        }
+    }
+
+    private void convertHighVoltageLimit(String operationalLimitId, double value) {
+        if (value > vl.getHighVoltageLimit()) {
+            context.ignored("LowVoltageLimit", "Inconsistent with high voltage limit (" + vl.getHighVoltageLimit() + "kV)");
+        } else {
+            addVoltageLimitProperty(vl, CgmesNames.LOW_VOLTAGE_LIMIT, operationalLimitId);
+            if (value > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
+                vl.setLowVoltageLimit(value);
+                addVoltageLimitProperty(vl, CgmesNames.LOW_VOLTAGE_LIMIT, value);
+            }
         }
     }
 
@@ -420,11 +428,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         operationalLimitsGroup.setProperty(getPropertyName(limitSubclass, true, 0, CgmesNames.NORMAL_VALUE), String.valueOf(value));
     }
 
-    private void addVoltageLimitProperty(VoltageLevel voltageLevel, String limitType, double value) {
+    private static void addVoltageLimitProperty(VoltageLevel voltageLevel, String limitType, double value) {
         voltageLevel.setProperty(getPropertyName(limitType, CgmesNames.NORMAL_VALUE), String.valueOf(value));
     }
 
-    private void addVoltageLimitProperty(VoltageLevel voltageLevel, String limitType, String operationalLimitId) {
+    private static void addVoltageLimitProperty(VoltageLevel voltageLevel, String limitType, String operationalLimitId) {
         String propertyName = getPropertyName(limitType, CgmesNames.OPERATIONAL_LIMIT);
         String operationalLimitIds = voltageLevel.hasProperty(propertyName)
                 ? String.join(";", voltageLevel.getProperty(propertyName), operationalLimitId)
