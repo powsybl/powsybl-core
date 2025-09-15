@@ -15,7 +15,9 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -343,6 +345,32 @@ class DcTopologyTest {
 
         cc0.getDcBuses().forEach(b -> assertTrue(b.isInMainConnectedComponent()));
         cc1.getDcBuses().forEach(b -> assertFalse(b.isInMainConnectedComponent()));
+    }
+
+    @Test
+    void testDcNodeTerminals() {
+        Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
+        DcNode dcNodeFrPos = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_FR_POS);
+        DcLine dcLine = network.getDcLine("dcLine1");
+        LineCommutatedConverter lccFr = network.getLineCommutatedConverter("LccFr");
+
+        assertEquals(2, dcNodeFrPos.getDcTerminalCount());
+        assertEquals(2, dcNodeFrPos.getConnectedDcTerminalCount());
+        Set<DcTerminal> expectedDcTerminals1 = Set.of(lccFr.getDcTerminal2(), dcLine.getDcTerminal1());
+        assertEquals(expectedDcTerminals1, Set.copyOf(dcNodeFrPos.getDcTerminals()));
+        assertEquals(expectedDcTerminals1, dcNodeFrPos.getDcTerminalStream().collect(Collectors.toSet()));
+        assertEquals(expectedDcTerminals1, Set.copyOf(dcNodeFrPos.getConnectedDcTerminals()));
+        assertEquals(expectedDcTerminals1, dcNodeFrPos.getConnectedDcTerminalStream().collect(Collectors.toSet()));
+
+        dcLine.getDcTerminal1().setConnected(false);
+
+        Set<DcTerminal> expectedDcTerminals2 = Set.of(lccFr.getDcTerminal2());
+        assertEquals(2, dcNodeFrPos.getDcTerminalCount());
+        assertEquals(1, dcNodeFrPos.getConnectedDcTerminalCount());
+        assertEquals(expectedDcTerminals1, Set.copyOf(dcNodeFrPos.getDcTerminals()));
+        assertEquals(expectedDcTerminals1, dcNodeFrPos.getDcTerminalStream().collect(Collectors.toSet()));
+        assertEquals(expectedDcTerminals2, Set.copyOf(dcNodeFrPos.getConnectedDcTerminals()));
+        assertEquals(expectedDcTerminals2, dcNodeFrPos.getConnectedDcTerminalStream().collect(Collectors.toSet()));
     }
 
     private static void assertComponent(Component component, int expectedNum, List<String> expectedAcBuses, List<String> expectedDcBuses) {

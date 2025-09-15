@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -30,7 +31,7 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode, 
     protected boolean removed = false;
     private double nominalV;
 
-    private final ArrayList<List<DcTerminalImpl>> dcTerminals;
+    private final ArrayList<List<DcTerminal>> dcTerminals;
 
     private final TDoubleArrayList v;
 
@@ -148,13 +149,43 @@ public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode, 
     }
 
     @Override
+    public int getDcTerminalCount() {
+        return getDcTerminals().size();
+    }
+
+    @Override
+    public List<DcTerminal> getDcTerminals() {
+        return dcTerminals.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public Stream<DcTerminal> getDcTerminalStream() {
+        return getDcTerminals().stream();
+    }
+
+    @Override
+    public int getConnectedDcTerminalCount() {
+        return (int) getConnectedDcTerminalStream().count();
+    }
+
+    @Override
+    public List<DcTerminal> getConnectedDcTerminals() {
+        return getConnectedDcTerminalStream().toList();
+    }
+
+    @Override
+    public Stream<DcTerminal> getConnectedDcTerminalStream() {
+        return getDcTerminalStream().filter(DcTerminal::isConnected);
+    }
+
+    @Override
     public void remove() {
         NetworkImpl network = getNetwork();
 
         // this will be improved to be more efficient once the DC topology processor is implemented
         for (DcConnectable<?> dcConnectable : network.getDcConnectables()) {
-            List<DcTerminal> dcTerminals = dcConnectable.getDcTerminals();
-            for (DcTerminal dcTerminal : dcTerminals) {
+            List<DcTerminal> connectableDcTerminals = dcConnectable.getDcTerminals();
+            for (DcTerminal dcTerminal : connectableDcTerminals) {
                 if (dcTerminal.getDcNode() == this) {
                     throw new PowsyblException("Cannot remove DC node '" + getId()
                             + "' because DC connectable '" + dcConnectable.getId() + "' is connected to it");
