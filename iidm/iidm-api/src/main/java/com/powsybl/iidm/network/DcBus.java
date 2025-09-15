@@ -7,13 +7,12 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcBus extends Identifiable<DcBus> {
+public interface DcBus extends Identifiable<DcBus>, DcTopologyVisitable {
 
     /**
      * Get the network to which the DC bus belongs.
@@ -55,21 +54,6 @@ public interface DcBus extends Identifiable<DcBus> {
      * Get the DC Nodes part of the bus.
      */
     Stream<DcNode> getDcNodeStream();
-
-    /**
-     * Get the number of DC terminals connected to this DC bus.
-     */
-    int getConnectedDcTerminalCount();
-
-    /**
-     * Get the DC terminals connected to this DC bus.
-     */
-    List<DcTerminal> getConnectedDcTerminals();
-
-    /**
-     * Get the DC terminals connected to this DC bus.
-     */
-    Stream<DcTerminal> getConnectedDcTerminalStream();
 
     @Override
     default IdentifiableType getType() {

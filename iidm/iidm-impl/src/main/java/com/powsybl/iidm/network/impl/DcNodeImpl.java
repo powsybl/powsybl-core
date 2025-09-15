@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class DcNodeImpl extends AbstractIdentifiable<DcNode> implements DcNode, MultiVariantObject {
+public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements DcNode, MultiVariantObject {
 
     public static final String NOMINAL_V_ATTRIBUTE = "nominalV";
 

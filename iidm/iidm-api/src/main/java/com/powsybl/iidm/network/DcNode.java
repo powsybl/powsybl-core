@@ -7,9 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.List;
-import java.util.stream.Stream;
-
 /**
  * DC nodes are points where DC terminals of DC conducting equipment are connected together with zero impedance.
  *
@@ -60,7 +57,7 @@ import java.util.stream.Stream;
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcNode extends Identifiable<DcNode> {
+public interface DcNode extends Identifiable<DcNode>, DcTopologyVisitable {
 
     @Override
     default IdentifiableType getType() {
@@ -93,36 +90,6 @@ public interface DcNode extends Identifiable<DcNode> {
      * Get the DcBus the DcNode is part of.
      */
     DcBus getDcBus();
-
-    /**
-     * Get the number of DC terminals associated with this DC node.
-     */
-    int getDcTerminalCount();
-
-    /**
-     * Get the DC terminals associated with this DC node.
-     */
-    List<DcTerminal> getDcTerminals();
-
-    /**
-     * Get the DC terminals associated with this DC node.
-     */
-    Stream<DcTerminal> getDcTerminalStream();
-
-    /**
-     * Get the number of DC terminals connected to this DC node.
-     */
-    int getConnectedDcTerminalCount();
-
-    /**
-     * Get the DC terminals connected to this DC node.
-     */
-    List<DcTerminal> getConnectedDcTerminals();
-
-    /**
-     * Get the DC terminals connected to this DC node.
-     */
-    Stream<DcTerminal> getConnectedDcTerminalStream();
 
     /**
      * remove the DcNode from the network

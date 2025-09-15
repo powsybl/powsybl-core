@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class DcBusImpl extends AbstractIdentifiable<DcBus> implements DcBus {
+public class DcBusImpl extends AbstractDcTopologyVisitable<DcBus> implements DcBus {
 
     private final Ref<NetworkImpl> networkRef;
     private final Ref<SubnetworkImpl> subnetworkRef;
@@ -107,6 +107,24 @@ public class DcBusImpl extends AbstractIdentifiable<DcBus> implements DcBus {
     public Stream<DcNode> getDcNodeStream() {
         checkValidity();
         return dcNodes.stream().map(Function.identity());
+    }
+
+    @Override
+    public int getDcTerminalCount() {
+        checkValidity();
+        return dcNodes.stream().mapToInt(DcNode::getDcTerminalCount).sum();
+    }
+
+    @Override
+    public List<DcTerminal> getDcTerminals() {
+        checkValidity();
+        return getDcTerminalStream().toList();
+    }
+
+    @Override
+    public Stream<DcTerminal> getDcTerminalStream() {
+        checkValidity();
+        return dcNodes.stream().flatMap(DcNode::getDcTerminalStream);
     }
 
     @Override
