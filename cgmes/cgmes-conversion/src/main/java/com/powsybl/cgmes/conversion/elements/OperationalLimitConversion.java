@@ -272,7 +272,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (limitTypeName.equalsIgnoreCase("highvoltage") || "LimitTypeKind.highVoltage".equals(limitType)) {
             convertHighVoltageLimit(operationalLimitId, value);
         } else if (limitTypeName.equalsIgnoreCase("lowvoltage") || "LimitTypeKind.lowVoltage".equals(limitType)) {
-            convertHighVoltageLimit(operationalLimitId, value);
+            convertLowVoltageLimit(operationalLimitId, value);
         } else {
             notAssigned(vl);
         }
