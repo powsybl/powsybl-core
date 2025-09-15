@@ -290,7 +290,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         }
     }
 
-    private void convertHighVoltageLimit(String operationalLimitId, double value) {
+    private void convertLowVoltageLimit(String operationalLimitId, double value) {
         if (value > vl.getHighVoltageLimit()) {
             context.ignored("LowVoltageLimit", "Inconsistent with high voltage limit (" + vl.getHighVoltageLimit() + "kV)");
         } else {
