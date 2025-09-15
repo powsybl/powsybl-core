@@ -551,7 +551,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 .reduce(isMax(limitType) ? Double::max : Double::min);
     }
 
-    private static boolean isMax(String limitType) {
+    private static boolean getUpperBound(String limitType) {
         return CgmesNames.LOW_VOLTAGE_LIMIT.equals(limitType);
     }
 
