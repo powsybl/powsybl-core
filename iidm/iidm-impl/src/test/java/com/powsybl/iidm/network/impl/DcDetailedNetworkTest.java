@@ -80,6 +80,40 @@ class DcDetailedNetworkTest {
     }
 
     @Test
+    void testLccBipoleGroundReturn() {
+        Network network = DcDetailedNetworkFactory.createLccBipoleGroundReturn();
+        assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        assertEquals(1, network.getDcComponents().size());
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
+        assertEquals(3, network.getSubnetworks().size());
+        assertEquals(14, network.getDcNodeCount());
+        assertEquals(12, network.getDcSwitchCount());
+        assertEquals(2, network.getDcLineCount());
+        assertEquals(4, network.getLineCommutatedConverterCount());
+        assertEquals(2, network.getDcGroundCount());
+        assertEquals(6, network.getDcBusCount());
+    }
+
+    @Test
+    void testLccBipoleGroundReturnNegativePoleOutage() {
+        Network network = DcDetailedNetworkFactory.createLccBipoleGroundReturnNegativePoleOutage();
+        assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        List<Component> dcComponents = List.copyOf(network.getDcComponents());
+        assertEquals(5, dcComponents.size());
+        assertEquals(5, network.getBusView().getConnectedComponents().size());
+        assertEquals(3, network.getSubnetworks().size());
+        assertEquals(14, network.getDcNodeCount());
+        assertEquals(12, network.getDcSwitchCount());
+        assertEquals(2, network.getDcLineCount());
+        assertEquals(4, network.getLineCommutatedConverterCount());
+        assertEquals(2, network.getDcGroundCount());
+        assertEquals(8, network.getDcBusCount()); // FIXME
+        assertEquals(0, network.getDcBus("dcNodeFrNegC_dcBus").getConnectedDcTerminalCount()); // FIXME bus created with nothing connected
+        Component dc0 = dcComponents.get(0);
+        assertEquals(4, dc0.getSize());
+    }
+
+    @Test
     void testEquipmentTopologyVisitor() {
         Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
         List<Connectable<?>> visited = new ArrayList<>();
