@@ -125,7 +125,7 @@
     <cim:TieFlow rdf:ID="_ControlArea-TieFlow-2">
         <cim:IdentifiedObject.name>ControlArea-TieFlow-2</cim:IdentifiedObject.name>
         <cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
-        <cim:TieFlow.Terminal rdf:resource="#_ACLineSegment-2-T1" />
+        <cim:TieFlow.Terminal rdf:resource="#_ACLineSegment-2-T2" />
         <cim:TieFlow.ControlArea rdf:resource="#_ControlArea" />
     </cim:TieFlow>
 </rdf:RDF>
