@@ -11,10 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -110,6 +107,24 @@ public class DcBusImpl extends AbstractIdentifiable<DcBus> implements DcBus {
     public Stream<DcNode> getDcNodeStream() {
         checkValidity();
         return dcNodes.stream().map(Function.identity());
+    }
+
+    @Override
+    public int getConnectedDcTerminalCount() {
+        checkValidity();
+        return dcNodes.stream().mapToInt(DcNode::getConnectedDcTerminalCount).sum();
+    }
+
+    @Override
+    public List<DcTerminal> getConnectedDcTerminals() {
+        checkValidity();
+        return getConnectedDcTerminalStream().toList();
+    }
+
+    @Override
+    public Stream<DcTerminal> getConnectedDcTerminalStream() {
+        checkValidity();
+        return dcNodes.stream().flatMap(DcNode::getConnectedDcTerminalStream);
     }
 
     @Override

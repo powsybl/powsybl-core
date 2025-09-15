@@ -373,6 +373,28 @@ class DcTopologyTest {
         assertEquals(expectedDcTerminals2, dcNodeFrPos.getConnectedDcTerminalStream().collect(Collectors.toSet()));
     }
 
+    @Test
+    void testDcBusTerminals() {
+        Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
+        DcNode dcNodeFrPos = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_FR_POS);
+        DcBus dcBusFrPos = dcNodeFrPos.getDcBus();
+        DcLine dcLine = network.getDcLine("dcLine1");
+        LineCommutatedConverter lccFr = network.getLineCommutatedConverter("LccFr");
+
+        assertEquals(2, dcBusFrPos.getConnectedDcTerminalCount());
+        Set<DcTerminal> expectedDcTerminals1 = Set.of(lccFr.getDcTerminal2(), dcLine.getDcTerminal1());
+        assertEquals(expectedDcTerminals1, Set.copyOf(dcBusFrPos.getConnectedDcTerminals()));
+        assertEquals(expectedDcTerminals1, dcBusFrPos.getConnectedDcTerminalStream().collect(Collectors.toSet()));
+
+        dcLine.getDcTerminal1().setConnected(false);
+        dcBusFrPos = dcNodeFrPos.getDcBus(); // refresh because old DcBus was invalidated by topology processing
+
+        Set<DcTerminal> expectedDcTerminals2 = Set.of(lccFr.getDcTerminal2());
+        assertEquals(1, dcBusFrPos.getConnectedDcTerminalCount());
+        assertEquals(expectedDcTerminals2, Set.copyOf(dcBusFrPos.getConnectedDcTerminals()));
+        assertEquals(expectedDcTerminals2, dcBusFrPos.getConnectedDcTerminalStream().collect(Collectors.toSet()));
+    }
+
     private static void assertComponent(Component component, int expectedNum, List<String> expectedAcBuses, List<String> expectedDcBuses) {
         Objects.requireNonNull(component);
         Objects.requireNonNull(expectedAcBuses);
