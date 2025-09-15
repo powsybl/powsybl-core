@@ -32,7 +32,8 @@ class BusbarSectionUpdateTest {
     @Test
     void importEqAndSshTogetherTest() {
         Network network = readCgmesResources(DIR, "busbarSection_EQ.xml", "busbarSection_SSH.xml");
-        // A fictitious open switch is created to simulate the disconnected terminal
+        // BusbarSections terminals are always considered connected, regardless of their state.
+        // Therefore, fictitious switches used in other equipment to simulate disconnected terminals are not created.
         assertEq(network.getBusbarSection("BusbarSection"));
     }
 
