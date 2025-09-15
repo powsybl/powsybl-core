@@ -32,9 +32,9 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
  */
 public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy {
 
-    private final BiMap<String, String> idByUuid = HashBiMap.create();
-    private final Map<String, String> uuidSeed = new HashMap<>();
-    private final NameBasedGenerator nameBasedGenerator;
+    public final BiMap<String, String> idByUuid = HashBiMap.create();
+    public final Map<String, String> uuidSeed = new HashMap<>();
+    public final NameBasedGenerator nameBasedGenerator;
 
     protected AbstractCgmesAliasNamingStrategy(UUID uuidNamespace) {
         // The namespace for generating stable name-based UUIDs is also a UUID
