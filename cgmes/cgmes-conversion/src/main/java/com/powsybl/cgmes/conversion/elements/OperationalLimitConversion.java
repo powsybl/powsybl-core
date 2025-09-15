@@ -279,26 +279,22 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void convertHighVoltageLimit(String operationalLimitId, double value) {
+        addVoltageLimitProperty(vl, CgmesNames.HIGH_VOLTAGE_LIMIT, operationalLimitId);
         if (value < vl.getLowVoltageLimit()) {
             context.ignored("HighVoltageLimit", "Inconsistent with low voltage limit (" + vl.getLowVoltageLimit() + "kV)");
-        } else {
-            addVoltageLimitProperty(vl, CgmesNames.HIGH_VOLTAGE_LIMIT, operationalLimitId);
-            if (value < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
-                vl.setHighVoltageLimit(value);
-                addVoltageLimitProperty(vl, CgmesNames.HIGH_VOLTAGE_LIMIT, value);
-            }
+        } else if (value < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
+            vl.setHighVoltageLimit(value);
+            addVoltageLimitProperty(vl, CgmesNames.HIGH_VOLTAGE_LIMIT, value);
         }
     }
 
     private void convertLowVoltageLimit(String operationalLimitId, double value) {
+        addVoltageLimitProperty(vl, CgmesNames.LOW_VOLTAGE_LIMIT, operationalLimitId);
         if (value > vl.getHighVoltageLimit()) {
             context.ignored("LowVoltageLimit", "Inconsistent with high voltage limit (" + vl.getHighVoltageLimit() + "kV)");
-        } else {
-            addVoltageLimitProperty(vl, CgmesNames.LOW_VOLTAGE_LIMIT, operationalLimitId);
-            if (value > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
-                vl.setLowVoltageLimit(value);
-                addVoltageLimitProperty(vl, CgmesNames.LOW_VOLTAGE_LIMIT, value);
-            }
+        } else if (value > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
+            vl.setLowVoltageLimit(value);
+            addVoltageLimitProperty(vl, CgmesNames.LOW_VOLTAGE_LIMIT, value);
         }
     }
 
@@ -548,7 +544,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 .map(operationalLimitId -> updatedValue(operationalLimitId, context))
                 .filter(OptionalDouble::isPresent)
                 .mapToDouble(OptionalDouble::getAsDouble)
-                .reduce(isMax(limitType) ? Double::max : Double::min);
+                .reduce(getUpperBound(limitType) ? Double::max : Double::min);
     }
 
     private static boolean getUpperBound(String limitType) {
