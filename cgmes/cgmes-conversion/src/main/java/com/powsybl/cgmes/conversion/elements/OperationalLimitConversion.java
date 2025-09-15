@@ -270,7 +270,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String limitType = p.getLocal(LIMIT_TYPE);
         if (limitTypeName.equalsIgnoreCase("highvoltage") || "LimitTypeKind.highVoltage".equals(limitType)) {
-            convertLowVoltageLimit(operationalLimitId, value);
+            convertHighVoltageLimit(operationalLimitId, value);
         } else if (limitTypeName.equalsIgnoreCase("lowvoltage") || "LimitTypeKind.lowVoltage".equals(limitType)) {
             convertHighVoltageLimit(operationalLimitId, value);
         } else {
