@@ -35,12 +35,14 @@ class DcTopologyTest {
         Network net1 = Network.create("n1", "test");
 
         DcNode n11 = net1.newDcNode().setId("n11").setNominalV(500.).add();
+        DcGround n11g = net1.newDcGround().setId("n11g").setDcNode(n11.getId()).add();
         assertDcBusesAre(net1, List.of("n11_dcBus"));
         assertEquals(IdentifiableType.DC_BUS, net1.getDcBus("n11_dcBus").getType());
         assertSame(n11.getDcBus(), net1.getDcBus("n11_dcBus"));
         assertDcBusContainsDcNodes(net1.getDcBus("n11_dcBus"), List.of(n11));
 
         DcNode n12 = net1.newDcNode().setId("n12").setNominalV(500.).add();
+        net1.newDcGround().setId("n12g").setDcNode(n12.getId()).add();
         assertDcBusesAre(net1, List.of("n11_dcBus", "n12_dcBus"));
         assertDcBusContainsDcNodes(net1.getDcBus("n11_dcBus"), List.of(n11));
         assertDcBusContainsDcNodes(net1.getDcBus("n12_dcBus"), List.of(n12));
@@ -63,6 +65,7 @@ class DcTopologyTest {
         assertSame(n11.getDcBus(), net1.getDcBus("n11_dcBus"));
         assertSame(n12.getDcBus(), net1.getDcBus("n12_dcBus"));
 
+        n11g.remove();
         n11.remove();
         assertDcBusesAre(net1, List.of("n12_dcBus"));
     }
@@ -72,7 +75,9 @@ class DcTopologyTest {
         Network net1 = Network.create("n1", "test");
         var variantManager = net1.getVariantManager();
         DcNode n11 = net1.newDcNode().setId("n11").setNominalV(500.).add();
+        net1.newDcGround().setId("n11g").setDcNode(n11.getId()).add();
         DcNode n12 = net1.newDcNode().setId("n12").setNominalV(500.).add();
+        net1.newDcGround().setId("n12g").setDcNode(n12.getId()).add();
         DcSwitch s1112 = net1.newDcSwitch().setId("s11-12")
                 .setKind(DcSwitchKind.BREAKER)
                 .setOpen(true)
@@ -128,7 +133,9 @@ class DcTopologyTest {
         Network net1 = Network.create("n1", "test");
 
         DcNode n11 = net1.newDcNode().setId("n11").setNominalV(500.).add();
+        net1.newDcGround().setId("n11g").setDcNode(n11.getId()).add();
         DcNode n12 = net1.newDcNode().setId("n12").setNominalV(500.).add();
+        net1.newDcGround().setId("n12g").setDcNode(n12.getId()).add();
         DcSwitch s1112 = net1.newDcSwitch().setId("s11-12")
                 .setKind(DcSwitchKind.BREAKER)
                 .setOpen(true)
@@ -177,7 +184,9 @@ class DcTopologyTest {
     void testNetworkSubnetworkMergeDetach() {
         Network net1 = Network.create("n1", "test");
         DcNode n11 = net1.newDcNode().setId("n11").setNominalV(500.).add();
+        net1.newDcGround().setId("n11g").setDcNode(n11.getId()).add();
         DcNode n12 = net1.newDcNode().setId("n12").setNominalV(500.).add();
+        net1.newDcGround().setId("n12g").setDcNode(n12.getId()).add();
         assertDcBusesAre(net1, List.of("n11_dcBus", "n12_dcBus"));
         net1.newDcSwitch().setId("s11-12")
                 .setKind(DcSwitchKind.BREAKER)
@@ -188,7 +197,9 @@ class DcTopologyTest {
 
         Network net2 = Network.create("n2", "test");
         DcNode n21 = net2.newDcNode().setId("n21").setNominalV(500.).add();
+        net2.newDcGround().setId("n21g").setDcNode(n21.getId()).add();
         DcNode n22 = net2.newDcNode().setId("n22").setNominalV(500.).add();
+        net2.newDcGround().setId("n22g").setDcNode(n22.getId()).add();
         assertDcBusesAre(net2, List.of("n21_dcBus", "n22_dcBus"));
         net2.newDcSwitch().setId("s21-22")
                 .setKind(DcSwitchKind.BREAKER)
@@ -226,7 +237,9 @@ class DcTopologyTest {
         Network network = Network.create("network", "test");
         Network net1 = network.createSubnetwork("n1", "n1", "test");
         DcNode n11 = net1.newDcNode().setId("n11").setNominalV(500.).add();
+        net1.newDcGround().setId("n11g").setDcNode(n11.getId()).add();
         DcNode n12 = net1.newDcNode().setId("n12").setNominalV(500.).add();
+        net1.newDcGround().setId("n12g").setDcNode(n12.getId()).add();
         assertDcBusesAre(network, List.of("n11_dcBus", "n12_dcBus"));
         assertDcBusesAre(net1, List.of("n11_dcBus", "n12_dcBus"));
         net1.newDcSwitch().setId("s11-12")
@@ -239,7 +252,9 @@ class DcTopologyTest {
 
         Network net2 = network.createSubnetwork("n2", "n2", "test");
         DcNode n21 = net2.newDcNode().setId("n21").setNominalV(500.).add();
+        net2.newDcGround().setId("n21g").setDcNode(n21.getId()).add();
         DcNode n22 = net2.newDcNode().setId("n22").setNominalV(500.).add();
+        net2.newDcGround().setId("n22g").setDcNode(n22.getId()).add();
         assertDcBusesAre(network, List.of("n11_dcBus", "n21_dcBus", "n22_dcBus"));
         assertDcBusesAre(net2, List.of("n21_dcBus", "n22_dcBus"));
         net2.newDcSwitch().setId("s21-22")

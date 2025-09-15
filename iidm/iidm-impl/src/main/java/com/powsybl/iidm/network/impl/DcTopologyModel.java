@@ -12,6 +12,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.iidm.network.DcBus;
+import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
@@ -213,6 +214,11 @@ public class DcTopologyModel implements MultiVariantObject {
      */
     class CalculatedDcBusTopology {
 
+        private static boolean isDcBusValid(Set<DcNodeImpl> dcNodeSet) {
+            // DcBus is valid if at least one DcConnectable connected, i.e. there is at least one connected DcTerminal
+            return dcNodeSet.stream().flatMap(DcNode::getConnectedDcTerminalStream).findAny().isPresent();
+        }
+
         private DcBusImpl createDcBus(Set<DcNodeImpl> dcNodeSet) {
             if (dcNodeSet == null || dcNodeSet.isEmpty()) {
                 throw new PowsyblException("DC Node set is null or empty");
@@ -250,9 +256,11 @@ public class DcTopologyModel implements MultiVariantObject {
                         }
                     }, encountered);
 
-                    DcBusImpl dcBus = createDcBus(dcNodeSet);
-                    dcBuses.put(dcBus.getId(), dcBus);
-                    dcNodeSet.forEach(dcNode -> dcNodeIdToDcBus.put(dcNode.getId(), dcBus));
+                    if (isDcBusValid(dcNodeSet)) {
+                        DcBusImpl dcBus = createDcBus(dcNodeSet);
+                        dcBuses.put(dcBus.getId(), dcBus);
+                        dcNodeSet.forEach(dcNode -> dcNodeIdToDcBus.put(dcNode.getId(), dcBus));
+                    }
                 }
             }
 
