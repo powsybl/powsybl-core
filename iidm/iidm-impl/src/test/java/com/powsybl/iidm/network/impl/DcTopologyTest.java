@@ -296,6 +296,20 @@ class DcTopologyTest {
     }
 
     @Test
+    void testDcBusesInSubnetwork() {
+        Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
+        Network dcSubnet = network.getSubnetwork("LccMonopoleGroundReturn");
+        assertEquals(4, dcSubnet.getDcBusCount());
+        List<Component> dcComponents = List.copyOf(dcSubnet.getDcComponents());
+        var expectedDcBuses = List.of("dcNodeFrNeg_dcBus",
+                "dcNodeFrPos_dcBus",
+                "dcNodeGbNeg_dcBus",
+                "dcNodeGbPos_dcBus");
+        expectedDcBuses.forEach(b -> assertNotNull(dcSubnet.getDcBus(b)));
+        assertComponent(dcComponents.get(0), 0, List.of(), expectedDcBuses);
+    }
+
+    @Test
     void testTwoDcComponents() {
         Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
         // run a first topology processing so that cache invalidation gets triggered
