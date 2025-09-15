@@ -118,6 +118,7 @@ class LocalComputationManagerTest {
                                     .id("prog1_cmd")
                                     .program("prog1")
                                     .args("file1", "file2", "file3")
+                                    .timeout(60)
                                     .inputFiles(new InputFile("file1"),
                                                 new InputFile("file2.gz", FilePreProcessor.FILE_GUNZIP),
                                                 new InputFile("file3.zip", FilePreProcessor.ARCHIVE_UNZIP))
