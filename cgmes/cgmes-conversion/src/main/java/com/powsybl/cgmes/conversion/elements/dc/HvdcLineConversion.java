@@ -15,7 +15,10 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.updateTerminals;
+import static com.powsybl.cgmes.conversion.elements.dc.DCLinkUpdate.getPdcInverter;
 import static com.powsybl.cgmes.model.CgmesNames.*;
+import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
+import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
 
 /**
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
@@ -69,7 +72,7 @@ public class HvdcLineConversion extends AbstractIdentifiedObjectConversion {
         updateTerminals(hvdcLine.getConverterStation1(), context, hvdcLine.getConverterStation1().getTerminal());
         updateTerminals(hvdcLine.getConverterStation2(), context, hvdcLine.getConverterStation2().getTerminal());
 
-        DCLinkUpdate dcLinkUpdate = updateHvdcLine(hvdcLine, cgmesDataAcDcConverter1, cgmesDataAcDcConverter2);
+        DCLinkUpdate dcLinkUpdate = updateHvdcLine(hvdcLine, cgmesDataAcDcConverter1, cgmesDataAcDcConverter2, context);
 
         if (hvdcLine.getConverterStation1().getHvdcType() == HvdcConverterStation.HvdcType.LCC) {
             HvdcConverterConversion.update((LccConverterStation) hvdcLine.getConverterStation1(), cgmesDataAcDcConverter1, dcLinkUpdate.getLossFactor1(), context);
@@ -80,12 +83,28 @@ public class HvdcLineConversion extends AbstractIdentifiedObjectConversion {
         }
     }
 
-    private static DCLinkUpdate updateHvdcLine(HvdcLine hvdcLine, PropertyBag cgmesDataAcDcConverter1, PropertyBag cgmesDataAcDcConverter2) {
+    private static DCLinkUpdate updateHvdcLine(HvdcLine hvdcLine, PropertyBag cgmesDataAcDcConverter1, PropertyBag cgmesDataAcDcConverter2, Context context) {
 
-        DCLinkUpdate dcLinkUpdate = new DCLinkUpdate(hvdcLine, cgmesDataAcDcConverter1, cgmesDataAcDcConverter2);
+        DCLinkUpdate.DefaultData defaultData = getDefaultData(hvdcLine, context);
+        DCLinkUpdate dcLinkUpdate = new DCLinkUpdate(hvdcLine, cgmesDataAcDcConverter1, cgmesDataAcDcConverter2, defaultData);
         hvdcLine.setConvertersMode(dcLinkUpdate.getMode())
                 .setActivePowerSetpoint(dcLinkUpdate.getTargetP())
                 .setMaxP(DEFAULT_MAXP_FACTOR * dcLinkUpdate.getTargetP());
         return dcLinkUpdate;
+    }
+
+    private static DCLinkUpdate.DefaultData getDefaultData(HvdcLine hvdcLine, Context context) {
+        boolean defaultRectifierOnSide1 = getDefaultValue(null, isRectifierOnSide1(hvdcLine.getConvertersMode()), true, true, context);
+        HvdcLine.ConvertersMode defaultMode = defaultRectifierOnSide1 ? SIDE_1_RECTIFIER_SIDE_2_INVERTER : SIDE_1_INVERTER_SIDE_2_RECTIFIER;
+        double defaultTargetP = getDefaultValue(null, hvdcLine.getActivePowerSetpoint(), 0.0, 0.0, context);
+        double defaultPdcInverter = getDefaultValue(null, getPdcInverter(hvdcLine), 0.0, 0.0, context);
+        double lossFactor1 = getDefaultValue(null, (double) hvdcLine.getConverterStation1().getLossFactor(), 0.0, 0.0, context);
+        double lossFactor2 = getDefaultValue(null, (double) hvdcLine.getConverterStation2().getLossFactor(), 0.0, 0.0, context);
+
+        return new DCLinkUpdate.DefaultData(defaultMode, defaultTargetP, defaultPdcInverter, lossFactor1, lossFactor2);
+    }
+
+    private static boolean isRectifierOnSide1(HvdcLine.ConvertersMode mode) {
+        return mode == SIDE_1_RECTIFIER_SIDE_2_INVERTER;
     }
 }

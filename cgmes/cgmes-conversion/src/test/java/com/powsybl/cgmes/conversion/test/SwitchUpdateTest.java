@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -63,6 +65,18 @@ class SwitchUpdateTest {
 
         readCgmesResources(network, DIR, "switch_SSH_1.xml");
         assertSecondSsh(network);
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "switch_EQ.xml", "switch_SSH.xml");
+        assertEquals(5, network.getSwitchCount());
+        assertEqSsh(network);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
+        assertEqSsh(network);
     }
 
     private static void assertEq(Network network) {

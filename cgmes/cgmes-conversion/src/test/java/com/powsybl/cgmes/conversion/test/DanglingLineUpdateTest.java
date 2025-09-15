@@ -12,6 +12,8 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -117,6 +119,18 @@ class DanglingLineUpdateTest {
 
         assertEquals(10.0, breaker.getTerminal().getP(), tol);
         assertEquals(5.0, breaker.getTerminal().getQ(), tol);
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml");
+        assertEquals(4, network.getDanglingLineCount());
+        assertFirstSsh(network);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
+        assertFirstSsh(network);
     }
 
     private static void assertEq(Network network) {

@@ -12,6 +12,8 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -51,6 +53,18 @@ class VoltageLevelUpdateTest {
 
         readCgmesResources(network, DIR, "voltageLevel_SSH_1.xml");
         assertSsh(network.getVoltageLevel("VoltageLevel"), 399.0, 430.0);
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "voltageLevel_EQ.xml", "voltageLevel_SSH.xml");
+        assertEquals(1, network.getVoltageLevelCount());
+        assertSsh(network.getVoltageLevel("VoltageLevel"), 405.0, 435.0);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
+        assertSsh(network.getVoltageLevel("VoltageLevel"), 405.0, 435.0);
     }
 
     private static void assertEq(VoltageLevel voltageLevel, double lowVoltageLimit, double highVoltageLimit) {

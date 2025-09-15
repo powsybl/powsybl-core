@@ -10,6 +10,8 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
@@ -62,6 +64,18 @@ class HvdcUpdateTest {
         assertLossFactorBeforeSshSv(network);
         readCgmesResources(network, DIR, "hvdc_SSH_1.xml", "hvdc_SV.xml");
         assertLossFactorAfterSshSv(network);
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
+        assertEquals(2, network.getHvdcLineCount());
+        assertFirstSsh(network);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
+        assertFirstSsh(network);
     }
 
     private static void assertEq(Network network) {

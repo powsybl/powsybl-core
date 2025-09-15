@@ -14,6 +14,8 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -91,6 +93,19 @@ class TransformerUpdateTest {
         assertBusVoltage(t3w.getLeg2().getTerminal().getBusView().getBus(), 220.5, -3.0);
         assertBusVoltage(t3w.getLeg3().getTerminal().getBusView().getBus(), 111.5, 2.0);
         assertStarBusVoltage(t3w, 401.4610086017755, -0.7578725292783544);
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml");
+        assertEquals(1, network.getTwoWindingsTransformerCount());
+        assertEquals(1, network.getThreeWindingsTransformerCount());
+        assertFirstSsh(network);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
+        assertFirstSsh(network);
     }
 
     private static void assertEq(Network network) {

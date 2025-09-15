@@ -10,6 +10,8 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,6 +50,18 @@ class GroundUpdateTest {
         assertSsh(network.getGround("Ground"));
 
         readCgmesResources(network, DIR, "ground_SSH_1.xml");
+        assertSsh(network.getGround("Ground"));
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "ground_EQ.xml", "ground_SSH.xml");
+        assertEquals(1, network.getGroundCount());
+        assertSsh(network.getGround("Ground"));
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertSsh(network.getGround("Ground"));
     }
 
