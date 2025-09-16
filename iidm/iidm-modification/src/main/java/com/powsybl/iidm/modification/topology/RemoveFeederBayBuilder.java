@@ -19,7 +19,7 @@ public class RemoveFeederBayBuilder {
     }
 
     /**
-     * @param connectableId the non-null ID of the connectable
+     * @param connectableId the non-null ID of the connectables
      */
     public RemoveFeederBayBuilder withConnectableId(String connectableId) {
         this.connectableId = connectableId;

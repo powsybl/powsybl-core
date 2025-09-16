@@ -65,7 +65,7 @@ public class ConnectableConnection extends AbstractConnectDisconnectModification
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
-        // Get the connectable
+        // Get the connectables
         Identifiable<?> identifiable = network.getIdentifiable(identifiableId);
 
         // Add the reportNode to the network reportNode context

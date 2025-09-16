@@ -7,10 +7,6 @@
                 <iidm:busbarSection id="bbs2" name="bbs2" node="1"/>
                 <iidm:busbarSection id="bbs3" name="bbs3" node="2"/>
                 <iidm:busbarSection id="bbs4" name="bbs4" node="3"/>
-                <iidm:busbarSection id="vl1_3_1" node="38"/>
-                <iidm:busbarSection id="vl1_4_1" node="39"/>
-                <iidm:busbarSection id="vl1_3_2" node="40"/>
-                <iidm:busbarSection id="vl1_4_2" node="41"/>
                 <iidm:switch id="dsect11" name="dsect11" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="14"/>
                 <iidm:switch id="dtrct11" name="dtrct11" fictitious="true" kind="BREAKER" retained="true" open="false" node1="14" node2="15"/>
                 <iidm:switch id="dsect12" name="dsect12" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="15" node2="1"/>
@@ -43,45 +39,19 @@
                 <iidm:switch id="btrf18" name="btrf18" fictitious="true" kind="BREAKER" retained="true" open="false" node1="32" node2="33"/>
                 <iidm:switch id="dline11_2" name="dline11_2" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="34"/>
                 <iidm:switch id="bline11_2" name="bline11_2" fictitious="true" kind="BREAKER" retained="true" open="false" node1="34" node2="35"/>
-                <iidm:switch id="vl1_BREAKER" kind="BREAKER" retained="true" open="false" node1="36" node2="37"/>
-                <iidm:switch id="vl1_DISCONNECTOR_36_0" kind="DISCONNECTOR" retained="false" open="false" node1="36" node2="0"/>
-                <iidm:switch id="vl1_DISCONNECTOR_37_2" kind="DISCONNECTOR" retained="false" open="false" node1="37" node2="2"/>
-                <iidm:switch id="vl1_DISCONNECTOR_38_42" kind="DISCONNECTOR" retained="false" open="false" node1="38" node2="42"/>
-                <iidm:switch id="vl1_BREAKER_3_1" kind="BREAKER" retained="true" open="false" node1="42" node2="43"/>
-                <iidm:switch id="vl1_DISCONNECTOR_43_40" kind="DISCONNECTOR" retained="false" open="false" node1="43" node2="40"/>
-                <iidm:switch id="vl1_DISCONNECTOR_39_44" kind="DISCONNECTOR" retained="false" open="false" node1="39" node2="44"/>
-                <iidm:switch id="vl1_BREAKER_4_1" kind="BREAKER" retained="true" open="false" node1="44" node2="45"/>
-                <iidm:switch id="vl1_DISCONNECTOR_45_41" kind="DISCONNECTOR" retained="false" open="false" node1="45" node2="41"/>
-                <iidm:switch id="trf11_DISCONNECTOR_38_18" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="38" node2="18"/>
-                <iidm:switch id="line11_DISCONNECTOR_38_34" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="38" node2="34"/>
-                <iidm:switch id="vl1_DISCONNECTOR_38_36" kind="DISCONNECTOR" retained="false" open="true" node1="38" node2="36"/>
-                <iidm:switch id="load1_DISCONNECTOR_38_5" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="38" node2="5"/>
-                <iidm:switch id="vl1_DISCONNECTOR_38_37" kind="DISCONNECTOR" retained="false" open="true" node1="38" node2="37"/>
-                <iidm:switch id="trf31_DISCONNECTOR_38_22" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="38" node2="22"/>
-                <iidm:switch id="gen1_DISCONNECTOR_38_7" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="38" node2="7"/>
-                <iidm:switch id="trf51_DISCONNECTOR_38_26" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="38" node2="26"/>
-                <iidm:switch id="trf61_DISCONNECTOR_38_28" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="38" node2="28"/>
-                <iidm:switch id="trf71_DISCONNECTOR_38_30" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="38" node2="30"/>
-                <iidm:switch id="trf11_DISCONNECTOR_39_18" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="39" node2="18"/>
-                <iidm:switch id="line11_DISCONNECTOR_39_34" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="39" node2="34"/>
-                <iidm:switch id="vl1_DISCONNECTOR_39_36" kind="DISCONNECTOR" retained="false" open="true" node1="39" node2="36"/>
-                <iidm:switch id="load1_DISCONNECTOR_39_5" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="39" node2="5"/>
-                <iidm:switch id="vl1_DISCONNECTOR_39_37" kind="DISCONNECTOR" retained="false" open="true" node1="39" node2="37"/>
-                <iidm:switch id="trf31_DISCONNECTOR_39_22" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="39" node2="22"/>
-                <iidm:switch id="gen1_DISCONNECTOR_39_7" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="39" node2="7"/>
-                <iidm:switch id="trf51_DISCONNECTOR_39_26" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="39" node2="26"/>
-                <iidm:switch id="trf61_DISCONNECTOR_39_28" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="39" node2="28"/>
-                <iidm:switch id="trf71_DISCONNECTOR_39_30" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="39" node2="30"/>
-                <iidm:switch id="trf81_DISCONNECTOR_40_32" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="40" node2="32"/>
-                <iidm:switch id="trf41_DISCONNECTOR_40_24" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="40" node2="24"/>
-                <iidm:switch id="load2_DISCONNECTOR_40_9" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="40" node2="9"/>
-                <iidm:switch id="gen2_DISCONNECTOR_40_11" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="40" node2="11"/>
-                <iidm:switch id="trf21_DISCONNECTOR_40_20" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="40" node2="20"/>
-                <iidm:switch id="trf81_DISCONNECTOR_41_32" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="41" node2="32"/>
-                <iidm:switch id="trf41_DISCONNECTOR_41_24" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="41" node2="24"/>
-                <iidm:switch id="load2_DISCONNECTOR_41_9" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="41" node2="9"/>
-                <iidm:switch id="gen2_DISCONNECTOR_41_11" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="41" node2="11"/>
-                <iidm:switch id="trf21_DISCONNECTOR_41_20" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="41" node2="20"/>
+                <iidm:switch id="trf31_DISCONNECTOR_0_22" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="22"/>
+                <iidm:switch id="gen1_DISCONNECTOR_0_7" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="7"/>
+                <iidm:switch id="trf71_DISCONNECTOR_0_30" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="30"/>
+                <iidm:switch id="trf11_DISCONNECTOR_2_18" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="2" node2="18"/>
+                <iidm:switch id="line11_DISCONNECTOR_2_34" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="2" node2="34"/>
+                <iidm:switch id="load1_DISCONNECTOR_2_5" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="2" node2="5"/>
+                <iidm:switch id="trf51_DISCONNECTOR_2_26" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="2" node2="26"/>
+                <iidm:switch id="trf61_DISCONNECTOR_2_28" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="2" node2="28"/>
+                <iidm:switch id="trf41_DISCONNECTOR_1_24" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="24"/>
+                <iidm:switch id="gen2_DISCONNECTOR_1_11" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="11"/>
+                <iidm:switch id="trf81_DISCONNECTOR_3_32" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="3" node2="32"/>
+                <iidm:switch id="load2_DISCONNECTOR_3_9" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="3" node2="9"/>
+                <iidm:switch id="trf21_DISCONNECTOR_3_20" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="3" node2="20"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="gen1" name="gen1" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" node="6">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
@@ -196,12 +166,6 @@
     <iidm:extension id="bbs4">
         <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="2"/>
     </iidm:extension>
-    <iidm:extension id="vl1_3_1">
-        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="1"/>
-    </iidm:extension>
-    <iidm:extension id="vl1_3_2">
-        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="2"/>
-    </iidm:extension>
     <iidm:extension id="bbs1">
         <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
     </iidm:extension>
@@ -220,12 +184,6 @@
             <cp:feeder2 name="trf82" order="60" direction="BOTTOM"/>
             <cp:feeder3 name="trf83" order="40" direction="TOP"/>
         </cp:position>
-    </iidm:extension>
-    <iidm:extension id="vl1_4_2">
-        <bbsp:busbarSectionPosition busbarIndex="4" sectionIndex="2"/>
-    </iidm:extension>
-    <iidm:extension id="vl1_4_1">
-        <bbsp:busbarSectionPosition busbarIndex="4" sectionIndex="1"/>
     </iidm:extension>
     <iidm:extension id="trf6">
         <cp:position>

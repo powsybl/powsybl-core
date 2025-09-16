@@ -26,7 +26,7 @@ import static com.powsybl.iidm.modification.util.TransformerUtils.*;
 /**
  * <p>This network modification is used to replace 3 twoWindingsTransformers by threeWindingsTransformers.</p>
  * <ul>
- *     <li>BusbarSections and the three TwoWindingsTransformers are the only connectable equipment allowed in the voltageLevel associated with the star bus.</li>
+ *     <li>BusbarSections and the three TwoWindingsTransformers are the only connectables equipment allowed in the voltageLevel associated with the star bus.</li>
  *     <li>The three TwoWindingsTransformers must be connected to the star bus.</li>
  *     <li>The star terminals of the twoWindingsTransformers must not be regulated terminals for any controller.</li>
  *     <li>Each twoWindingsTransformer is well oriented if the star bus is located at the end 2.</li>

@@ -33,7 +33,7 @@ public class MoveFeederBay extends AbstractNetworkModification {
     private final Terminal terminal;
 
     /**
-     * @param connectableId non-null id of the connectable whose feeder bay will be moved (BusOrBusBarSection are not accepted)
+     * @param connectableId non-null id of the connectables whose feeder bay will be moved (BusOrBusBarSection are not accepted)
      * @param targetBusOrBusBarId non-null id of the target BusOrBusBar section
      * @param targetVoltageLevelId non-null id of the target voltage Level
      * @param terminal non-null terminal
@@ -48,7 +48,7 @@ public class MoveFeederBay extends AbstractNetworkModification {
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
-        // Get and validate connectable
+        // Get and validate connectables
         Connectable<?> connectable = network.getConnectable(connectableId);
         if (!validateConnectable(connectable, throwException, reportNode)) {
             return;
@@ -64,7 +64,7 @@ public class MoveFeederBay extends AbstractNetworkModification {
     }
 
     /**
-     * Move the connectable in node-breaker topology
+     * Move the connectables in node-breaker topology
      */
     private void moveInNodeBreakerTopology(Network network, Connectable<?> connectable,
                                            VoltageLevel voltageLevel, NamingStrategy namingStrategy,
@@ -76,12 +76,12 @@ public class MoveFeederBay extends AbstractNetworkModification {
         int side = getSideFromTerminal(terminal, connectable);
         int connectableNode = createTopologyAndGetConnectableNode(side, targetBusOrBusBarSectionId, network, voltageLevel, connectable, namingStrategy, reportNode);
 
-        // Move the terminal of the connectable to the new node
+        // Move the terminal of the connectables to the new node
         terminal.getNodeBreakerView().moveConnectable(connectableNode, voltageLevel.getId());
     }
 
     /**
-     * Move the connectable in bus-breaker topology
+     * Move the connectables in bus-breaker topology
      */
     private void moveInBusBreakerTopology(Terminal terminal) {
         terminal.getBusBreakerView().moveConnectable(targetBusOrBusBarSectionId, terminal.isConnected());
@@ -96,7 +96,7 @@ public class MoveFeederBay extends AbstractNetworkModification {
         } else if (connectable instanceof Branch<?> || connectable instanceof ThreeWindingsTransformer) {
             return terminal.getSide().getNum();
         }
-        throw new IllegalStateException("Unsupported connectable type: " + connectable.getClass().getSimpleName());
+        throw new IllegalStateException("Unsupported connectables type: " + connectable.getClass().getSimpleName());
     }
 
     @Override
@@ -110,7 +110,7 @@ public class MoveFeederBay extends AbstractNetworkModification {
         Connectable<?> connectable = network.getConnectable(connectableId);
         BusbarSection targetBusbarSection = network.getBusbarSection(targetBusOrBusBarSectionId);
 
-        // Check preconditions: valid connectable and target busbar section
+        // Check preconditions: valid connectables and target busbar section
         if (connectable == null || connectable instanceof BusbarSection || targetBusbarSection == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
             return impact;
@@ -130,7 +130,7 @@ public class MoveFeederBay extends AbstractNetworkModification {
     }
 
     /**
-     * Check if the connectable is valid for this modification
+     * Check if the connectables is valid for this modification
      */
     private boolean validateConnectable(Connectable<?> connectable, boolean throwException, ReportNode reportNode) {
         if (connectable == null) {

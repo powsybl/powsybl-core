@@ -43,7 +43,7 @@ public abstract class AbstractDisconnection extends AbstractConnectDisconnectMod
         // Add the reportNode to the network reportNode context
         network.getReportNodeContext().pushReportNode(reportNode);
 
-        // Get the connectable
+        // Get the connectables
         Identifiable<?> identifiable = network.getIdentifiable(identifiableId);
 
         // Disconnect the identifiable if it exists

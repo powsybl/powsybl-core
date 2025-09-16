@@ -349,7 +349,7 @@ public final class TopologyModificationUtils {
     }
 
     /**
-     * Creates a breaker and a disconnector between the connectable and the specified busbar
+     * Creates a breaker and a disconnector between the connectables and the specified busbar
      */
     static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, BusbarSection bbs) {
         createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, List.of(bbs), bbs);
@@ -431,9 +431,9 @@ public final class TopologyModificationUtils {
     }
 
     /**
-     * Get the range of connectable positions delimited by neighbouring busbar sections, for a given busbar section.
+     * Get the range of connectables positions delimited by neighbouring busbar sections, for a given busbar section.
      * If the range is empty (for instance if positions max on left side is above position min on right side), the range returned is empty.
-     * Note that the connectable positions needs to be in ascending order in the voltage level for ascending busbar section index positions.
+     * Note that the connectables positions needs to be in ascending order in the voltage level for ascending busbar section index positions.
      */
     public static Optional<Range<Integer>> getPositionRange(BusbarSection bbs) {
         BusbarSectionPosition positionExtension = bbs.getExtension(BusbarSectionPosition.class);
@@ -500,7 +500,7 @@ public final class TopologyModificationUtils {
     }
 
     /**
-     * Utility method to get all the taken feeder positions on a voltage level by connectable.
+     * Utility method to get all the taken feeder positions on a voltage level by connectables.
      */
     public static Map<String, List<Integer>> getFeederPositionsByConnectable(VoltageLevel voltageLevel) {
         Map<String, List<Integer>> feederPositionsOrders = new HashMap<>();
@@ -520,7 +520,7 @@ public final class TopologyModificationUtils {
     }
 
     /**
-     * Method adding order position(s) of a connectable on a given voltage level to the given collection.
+     * Method adding order position(s) of a connectables on a given voltage level to the given collection.
      */
     private static void addOrderPositions(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders, boolean throwException, ReportNode reportNode) {
         ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
@@ -531,7 +531,7 @@ public final class TopologyModificationUtils {
     }
 
     /**
-     * Utility method to get all the feeders on a voltage level by connectable.
+     * Utility method to get all the feeders on a voltage level by connectables.
      */
     public static Map<String, List<ConnectablePosition.Feeder>> getFeedersByConnectable(VoltageLevel voltageLevel) {
         Map<String, List<ConnectablePosition.Feeder>> feedersByConnectable = new HashMap<>();
@@ -554,10 +554,10 @@ public final class TopologyModificationUtils {
         } else if (connectable instanceof ThreeWindingsTransformer twt) {
             feeders = get3wtFeeders(position, voltageLevel, twt);
         } else {
-            LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
+            LOGGER.error("Given connectables not supported: {}", connectable.getClass().getName());
             connectableNotSupported(reportNode, connectable);
             if (throwException) {
-                throw new IllegalStateException("Given connectable not supported: " + connectable.getClass().getName());
+                throw new IllegalStateException("Given connectables not supported: " + connectable.getClass().getName());
             }
             return Collections.emptyList();
         }
@@ -577,10 +577,10 @@ public final class TopologyModificationUtils {
         } else if (connectable instanceof ThreeWindingsTransformer twt) {
             return get3wtFeeders(position, voltageLevel, twt);
         } else {
-            LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
+            LOGGER.error("Given connectables not supported: {}", connectable.getClass().getName());
             connectableNotSupported(reportNode, connectable);
             if (throwException) {
-                throw new IllegalStateException("Given connectable not supported: " + connectable.getClass().getName());
+                throw new IllegalStateException("Given connectables not supported: " + connectable.getClass().getName());
             }
         }
         return Collections.emptyList();
@@ -700,7 +700,7 @@ public final class TopologyModificationUtils {
     }
 
     /**
-     * Create topology and generate new connectable node and return it.
+     * Create topology and generate new connectables node and return it.
      */
     public static int createTopologyAndGetConnectableNode(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
         int forkNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
@@ -710,7 +710,7 @@ public final class TopologyModificationUtils {
     }
 
     /**
-     * Create topology by using the provided connectable node (pre-determined connectable node)
+     * Create topology by using the provided connectables node (pre-determined connectables node)
      */
     public static void createTopologyWithConnectableNode(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, int connectableNode, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
         int forkNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
@@ -868,7 +868,7 @@ public final class TopologyModificationUtils {
 
     /**
      * Starting from the given node, traverse the graph and remove all the switches and/or internal connections until a
-     * fork node is encountered or a node on which a connectable is connected
+     * fork node is encountered or a node on which a connectables is connected
      */
     private static void cleanMixedTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, ReportNode reportNode) {
         // Get the next edge and the opposite node
@@ -883,7 +883,7 @@ public final class TopologyModificationUtils {
         List<Connectable<?>> connectables = new ArrayList<>();
         nbv.getOptionalTerminal(oppositeNode).map(Terminal::getConnectable).ifPresent(connectables::add);
 
-        // If there is only one edge on the opposite node and no connectable, continue to remove the elements
+        // If there is only one edge on the opposite node and no connectables, continue to remove the elements
         if (graph.edgesOf(oppositeNode).size() == 1 && connectables.isEmpty()) {
             cleanMixedTopology(nbv, graph, oppositeNode, reportNode);
         }

@@ -14,16 +14,17 @@ import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
-import com.powsybl.math.graph.TraverseResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
-import static java.util.stream.Collectors.groupingBy;
 
 /**
  * Creates symmetrical matrix topology in a given voltage level,
@@ -190,12 +191,18 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
                 return;
             }
             // Create busbar sections
-            createBusbarSections(voltageLevel, namingStrategy);
+            List<BusbarSection> createdBusbarSection = createBusbarSections(voltageLevel, namingStrategy);
             // Create switches
             createSwitches(voltageLevel, namingStrategy);
             // Connect connectables that are on parallel busbar sections
             if (connectExistingConnectables) {
-                connectConnectables(voltageLevel, namingStrategy);
+                new ConnectFeedersToBusbarSectionsBuilder()
+                        .withConnectablesToConnect(voltageLevel.getConnectableStream().filter(c -> !(c instanceof BusbarSection)).toList())
+                        .withBusbarSectionsToConnect(createdBusbarSection)
+                        .withConnectCouplingDevices(true)
+                        .withCouplingDeviceSwitchPrefixId(switchPrefixId)
+                        .build()
+                        .apply(network, namingStrategy, throwException, computationManager, reportNode);
             }
         }
         LOG.info("New symmetrical topology in voltage level {}: creation of {} bus(es) or busbar(s) with {} section(s) each.", voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
@@ -219,7 +226,8 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         return impact;
     }
 
-    private void createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
+    private List<BusbarSection> createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
+        List<BusbarSection> createdBusbarSections = new ArrayList<>();
         int node = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
         for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount; sectionNum++) {
             for (int busbarNum = lowBusOrBusbarIndex; busbarNum < lowBusOrBusbarIndex + alignedBusesOrBusbarCount; busbarNum++) {
@@ -231,9 +239,11 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
                         .withBusbarIndex(busbarNum)
                         .withSectionIndex(sectionNum)
                         .add();
+                createdBusbarSections.add(bbs);
                 node++;
             }
         }
+        return createdBusbarSections;
     }
 
     private void createBuses(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
@@ -289,115 +299,6 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
                 } // other cases cannot happen (has been checked in the constructor)
             }
         }
-    }
-
-    private void connectConnectables(VoltageLevel vl, NamingStrategy namingStrategy) {
-        Map<Integer, List<BusbarSection>> busbarSectionsByIndex = vl.getConnectableStream()
-                .filter(BusbarSection.class::isInstance)
-                .map(c -> (BusbarSection) c)
-                .collect(groupingBy(bbs -> bbs.getExtension(BusbarSectionPosition.class).getSectionIndex()));
-
-        for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount; sectionNum++) {
-            List<BusbarSection> bbsList = busbarSectionsByIndex.getOrDefault(sectionNum, Collections.emptyList());
-            Map<Integer, SwitchCreationData> switchesToCreate = new HashMap<>();
-            bbsList.forEach(bbs -> {
-                Map<Integer, SwitchCreationData> switchList = getSwitchesConnectingToNonBusbarSectionConnectables(bbs);
-                switchesToCreate.putAll(switchList);
-            });
-            for (int busBarNum = lowBusOrBusbarIndex; busBarNum < lowBusOrBusbarIndex + alignedBusesOrBusbarCount; busBarNum++) {
-                BusbarSection bbs = vl.getNodeBreakerView().getBusbarSection(namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, switchKinds, busBarNum, sectionNum));
-                VoltageLevel.NodeBreakerView nodeBreakerView = vl.getNodeBreakerView();
-                int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
-                switchesToCreate.forEach((node, switchCreationData) -> {
-                    Connectable<?> connectable = switchCreationData.connectable;
-
-                    boolean isDisconnector = switchCreationData.sw.getKind() == SwitchKind.DISCONNECTOR;
-
-                    String switchId = getSwitchId(namingStrategy, node, connectable, isDisconnector, bbsNode);
-
-                    if (isDisconnector) {
-                        createNBDisconnector(bbsNode, node, switchId, nodeBreakerView, true, switchCreationData.sw.isFictitious());
-                    } else {
-                        createNBBreaker(bbsNode, node, switchId, nodeBreakerView, true, switchCreationData.sw.isFictitious());
-                    }
-
-                });
-            }
-        }
-    }
-
-    private String getSwitchId(NamingStrategy namingStrategy, Integer node, Connectable<?> connectable, boolean isDisconnector, int bbsNode) {
-        String switchId;
-        if (connectable instanceof BusbarSection) {
-            switchId = isDisconnector
-                    ? namingStrategy.getDisconnectorId(switchPrefixId, bbsNode, node)
-                    : namingStrategy.getBreakerId(switchPrefixId, bbsNode, node);
-        } else {
-            int side = getSide(connectable);
-            String baseId = namingStrategy.getSwitchBaseId(connectable, side);
-            switchId = isDisconnector
-                    ? namingStrategy.getDisconnectorId(baseId, bbsNode, node)
-                    : namingStrategy.getBreakerId(baseId, bbsNode, node);
-        }
-        return switchId;
-    }
-
-    private int getSide(Connectable<?> connectable) {
-        if (connectable instanceof Branch<?> b) {
-            return b.getTerminal(voltageLevelId).getSide().getNum();
-        } else if (connectable instanceof ThreeWindingsTransformer threeWindingsTransformer) {
-            return threeWindingsTransformer.getTerminal(voltageLevelId).getSide().getNum();
-        }
-        // Connectable has only one side
-        return 0;
-    }
-
-    public record SwitchCreationData(Switch sw, Connectable<?> connectable) {
-    }
-
-    private static Map<Integer, SwitchCreationData> getSwitchesConnectingToNonBusbarSectionConnectables(BusbarSection busbarSection) {
-        Objects.requireNonNull(busbarSection, "Busbar section must not be null");
-
-        Terminal terminal = busbarSection.getTerminal();
-        int startNode = terminal.getNodeBreakerView().getNode();
-        VoltageLevel.NodeBreakerView nodeBreakerView = terminal.getVoltageLevel().getNodeBreakerView();
-
-        int inputSectionIndex = busbarSection.getExtension(BusbarSectionPosition.class).getSectionIndex();
-
-        final Map<Integer, SwitchCreationData> result = new HashMap<>();
-        final int[] firstNode = new int[1];
-        final Switch[] firstSwitch = new Switch[1];
-
-        nodeBreakerView.traverse(startNode, (fromNode, sw, toNode) -> {
-            if (fromNode == startNode) { // We keep switches that are connected to the busbar section
-                firstNode[0] = toNode;
-                firstSwitch[0] = sw;
-            }
-
-            Optional<Terminal> terminalOpt = nodeBreakerView.getOptionalTerminal(toNode);
-            if (terminalOpt.isEmpty()) {
-                return TraverseResult.CONTINUE;
-            }
-
-            Connectable<?> connectable = terminalOpt.get().getConnectable();
-
-            if (!(connectable instanceof BusbarSection otherBusbarSection)) {
-                // We found a connectable that is not a busbarSection, we keep the switch
-                result.put(firstNode[0], new SwitchCreationData(firstSwitch[0], connectable));
-                return TraverseResult.TERMINATE_PATH;
-            }
-
-            int otherSectionIndex = otherBusbarSection.getExtension(BusbarSectionPosition.class).getSectionIndex();
-
-            if (inputSectionIndex == otherSectionIndex) {
-                // We also keep coupling devices
-                result.put(firstNode[0], new SwitchCreationData(firstSwitch[0], connectable));
-            }
-
-            return TraverseResult.TERMINATE_PATH;
-        });
-
-        return result;
     }
 
     private static int getNode(String busBarSectionId, VoltageLevel voltageLevel) {

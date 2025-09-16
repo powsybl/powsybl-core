@@ -19,7 +19,7 @@ import org.jspecify.annotations.Nullable;
 public interface FeederResult {
 
     /**
-     * The ID of the connectable contributing to the three-phase short-circuit current.
+     * The ID of the connectables contributing to the three-phase short-circuit current.
      */
     String getConnectableId();
 

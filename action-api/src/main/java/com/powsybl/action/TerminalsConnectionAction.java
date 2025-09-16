@@ -28,7 +28,7 @@ public class TerminalsConnectionAction extends AbstractAction {
     /**
      * @param id the id of the action.
      * @param elementId the id of the element which terminals are operated.
-     *                  The element can be a connectable, a tie line or an HVDC line.
+     *                  The element can be a connectables, a tie line or an HVDC line.
      *                  For a tie line (respectively an HVDC line), it will operate the terminals of the underlying
      *                  dangling lines (respectively converter stations).
      * @param side the side of the element to operate in the action.
@@ -44,7 +44,7 @@ public class TerminalsConnectionAction extends AbstractAction {
     /**
      * @param id the id of the action.
      * @param elementId the id of the element which terminals are operated.
-     *                  The element can be a connectable, a tie line or an HVDC line.
+     *                  The element can be a connectables, a tie line or an HVDC line.
      *                  For a tie line (respectively an HVDC line), it will operate the terminals of the underlying
      *                  dangling lines (respectively converter stations).
      * @param open the status for all the terminals of the element to operate. {@code true} means all terminals opening.

@@ -25,9 +25,11 @@ import com.powsybl.math.graph.TraverseResult;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -422,6 +424,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
             encounteredSwitches.add(sw);
             return TraverseResult.CONTINUE;
         });
+        network.write("XIIDM", new Properties(), Path.of("/tmp/test.xiidm"));
         assertFalse(encounteredSwitches.isEmpty());
     }
 
@@ -442,12 +445,14 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .build().apply(network);
         BusbarSection newBbs = network.getBusbarSection("VL_2_1");
         assertEquals(4, newBbs.getTerminal().getVoltageLevel().getNodeBreakerView().getSwitchCount()); // One switch has been created
-        assertNotNull(network.getSwitch("G_DISCONNECTOR_4_3"));
+        assertNotNull(network.getSwitch("LD_DISCONNECTOR_4_3"));
     }
 
     @Test
     void testConnectConnectablesWithMultipleSections() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+
+        new CreateCouplingDeviceBuilder().withBusOrBusbarSectionId1("bbs1").withBusOrBusbarSectionId2("bbs3").build().apply(network);
 
         new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId("vl1")
@@ -457,7 +462,15 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withLowBusOrBusbarIndex(3)
                 .withConnectExistingConnectables(true)
                 .build().apply(network);
+        writeXmlTest(network, "/testNetworkNodeBreakerWithNewBusbarSectionsConnectedConnectables.xiidm");
 
+        // Check that calling again ConnectFeedersToBusbarSections does nothing
+        new ConnectFeedersToBusbarSectionsBuilder()
+                .withConnectablesToConnect(network.getVoltageLevel("vl1").getConnectableStream().filter(c -> !(c instanceof BusbarSection)).toList())
+                .withBusbarSectionsToConnect(network.getBusbarSectionStream().filter(b -> b.getId().contains("vl1")).toList())
+                .withConnectCouplingDevices(true)
+                .build().apply(network);
+        network.write("XIIDM", new Properties(), Path.of("/tmp/test.xiidm"));
         writeXmlTest(network, "/testNetworkNodeBreakerWithNewBusbarSectionsConnectedConnectables.xiidm");
     }
 

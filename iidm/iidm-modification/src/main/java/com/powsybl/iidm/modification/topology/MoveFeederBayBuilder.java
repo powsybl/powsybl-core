@@ -24,7 +24,7 @@ public class MoveFeederBayBuilder {
     }
 
     /**
-     * @param connectableId the non-null ID of the connectable
+     * @param connectableId the non-null ID of the connectables
      */
     public MoveFeederBayBuilder withConnectableId(String connectableId) {
         this.connectableId = connectableId;
