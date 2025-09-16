@@ -1425,12 +1425,24 @@ public interface Network extends Container<Network> {
      */
     VoltageSourceConverter getVoltageSourceConverter(String id);
 
+    /**
+     * Get a DC Bus by its ID.
+     */
     DcBus getDcBus(String id);
 
+    /**
+     * Get all DC Buses.
+     */
     Iterable<DcBus> getDcBuses();
 
+    /**
+     * Get all DC Buses.
+     */
     Stream<DcBus> getDcBusStream();
 
+    /**
+     * Get the number of DC Buses
+     */
     int getDcBusCount();
 
     /**
