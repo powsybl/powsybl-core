@@ -421,11 +421,7 @@ public final class DcDetailedNetworkFactory {
         lccGbNeg.getTerminals().forEach(Terminal::disconnect);
 
         // close bypass switches
-        network.getDcSwitch("dcSwitchFrNegL").setOpen(true);
-        network.getDcSwitch("dcSwitchFrNegM").setOpen(true);
         network.getDcSwitch("dcSwitchFrNegBypass").setOpen(false);
-        network.getDcSwitch("dcSwitchGbNegL").setOpen(true);
-        network.getDcSwitch("dcSwitchGbNegM").setOpen(true);
         network.getDcSwitch("dcSwitchGbNegBypass").setOpen(false);
 
         return network;
@@ -443,58 +439,26 @@ public final class DcDetailedNetworkFactory {
         addDcAcElements(dcNetwork, Country.GB, X_NODE_DC_1_GB, 200., Mode.T3WT);
         addDcAcElements(dcNetwork, Country.GB, X_NODE_DC_2_GB, 200., Mode.T3WT);
 
-        DcNode dcNodeFrPosC = dcNetwork.newDcNode()
-                .setId(DC_NODE_FR_POS_C)
+        DcNode dcNodeFrPos = dcNetwork.newDcNode()
+                .setId(DC_NODE_FR_POS)
                 .setNominalV(500.)
                 .add();
-        DcNode dcNodeFrPosL = dcNetwork.newDcNode()
-                .setId(DC_NODE_FR_POS_L)
+        DcNode dcNodeFrNeg = dcNetwork.newDcNode()
+                .setId(DC_NODE_FR_NEG)
                 .setNominalV(500.)
-                .add();
-        DcNode dcNodeFrPosM = dcNetwork.newDcNode()
-                .setId(DC_NODE_FR_POS_M)
-                .setNominalV(1.)
-                .add();
-        DcNode dcNodeFrNegC = dcNetwork.newDcNode()
-                .setId(DC_NODE_FR_NEG_C)
-                .setNominalV(500.)
-                .add();
-        DcNode dcNodeFrNegL = dcNetwork.newDcNode()
-                .setId(DC_NODE_FR_NEG_L)
-                .setNominalV(500.)
-                .add();
-        DcNode dcNodeFrNegM = dcNetwork.newDcNode()
-                .setId(DC_NODE_FR_NEG_M)
-                .setNominalV(1.)
                 .add();
         DcNode dcNodeFrMid = dcNetwork.newDcNode()
                 .setId(DC_NODE_FR_MID)
                 .setNominalV(1.)
                 .add();
 
-        DcNode dcNodeGbPosC = dcNetwork.newDcNode()
-                .setId(DC_NODE_GB_POS_C)
+        DcNode dcNodeGbPos = dcNetwork.newDcNode()
+                .setId(DC_NODE_GB_POS)
                 .setNominalV(500.)
                 .add();
-        DcNode dcNodeGbPosL = dcNetwork.newDcNode()
-                .setId(DC_NODE_GB_POS_L)
+        DcNode dcNodeGbNeg = dcNetwork.newDcNode()
+                .setId(DC_NODE_GB_NEG)
                 .setNominalV(500.)
-                .add();
-        DcNode dcNodeGbPosM = dcNetwork.newDcNode()
-                .setId(DC_NODE_GB_POS_M)
-                .setNominalV(1.)
-                .add();
-        DcNode dcNodeGbNegC = dcNetwork.newDcNode()
-                .setId(DC_NODE_GB_NEG_C)
-                .setNominalV(500.)
-                .add();
-        DcNode dcNodeGbNegL = dcNetwork.newDcNode()
-                .setId(DC_NODE_GB_NEG_L)
-                .setNominalV(500.)
-                .add();
-        DcNode dcNodeGbNegM = dcNetwork.newDcNode()
-                .setId(DC_NODE_GB_NEG_M)
-                .setNominalV(1.)
                 .add();
         DcNode dcNodeGbMid = dcNetwork.newDcNode()
                 .setId(DC_NODE_GB_MID)
@@ -515,104 +479,48 @@ public final class DcDetailedNetworkFactory {
                 .add();
 
         dcNetwork.newDcSwitch()
-                .setId("dcSwitchFrPosL")
-                .setOpen(false)
-                .setKind(DcSwitchKind.DISCONNECTOR)
-                .setDcNode1(dcNodeFrPosC.getId())
-                .setDcNode2(dcNodeFrPosL.getId())
-                .add();
-        dcNetwork.newDcSwitch()
-                .setId("dcSwitchFrPosM")
-                .setOpen(false)
-                .setKind(DcSwitchKind.DISCONNECTOR)
-                .setDcNode1(dcNodeFrPosM.getId())
-                .setDcNode2(dcNodeFrMid.getId())
-                .add();
-        dcNetwork.newDcSwitch()
-                .setId("dcSwitchFrNegM")
-                .setOpen(false)
-                .setKind(DcSwitchKind.DISCONNECTOR)
-                .setDcNode1(dcNodeFrNegM.getId())
-                .setDcNode2(dcNodeFrMid.getId())
-                .add();
-        dcNetwork.newDcSwitch()
-                .setId("dcSwitchFrNegL")
-                .setOpen(false)
-                .setKind(DcSwitchKind.DISCONNECTOR)
-                .setDcNode1(dcNodeFrNegC.getId())
-                .setDcNode2(dcNodeFrNegL.getId())
-                .add();
-        dcNetwork.newDcSwitch()
                 .setId("dcSwitchFrPosBypass")
                 .setOpen(true)
                 .setKind(DcSwitchKind.DISCONNECTOR)
-                .setDcNode1(dcNodeFrPosL.getId())
+                .setDcNode1(dcNodeFrPos.getId())
                 .setDcNode2(dcNodeFrMid.getId())
                 .add();
         dcNetwork.newDcSwitch()
                 .setId("dcSwitchFrNegBypass")
                 .setOpen(true)
                 .setKind(DcSwitchKind.DISCONNECTOR)
-                .setDcNode1(dcNodeFrNegL.getId())
+                .setDcNode1(dcNodeFrNeg.getId())
                 .setDcNode2(dcNodeFrMid.getId())
                 .add();
 
         dcNetwork.newDcSwitch()
-                .setId("dcSwitchGbPosL")
-                .setOpen(false)
-                .setKind(DcSwitchKind.DISCONNECTOR)
-                .setDcNode1(dcNodeGbPosC.getId())
-                .setDcNode2(dcNodeGbPosL.getId())
-                .add();
-        dcNetwork.newDcSwitch()
-                .setId("dcSwitchGbPosM")
-                .setOpen(false)
-                .setKind(DcSwitchKind.DISCONNECTOR)
-                .setDcNode1(dcNodeGbPosM.getId())
-                .setDcNode2(dcNodeGbMid.getId())
-                .add();
-        dcNetwork.newDcSwitch()
-                .setId("dcSwitchGbNegM")
-                .setOpen(false)
-                .setKind(DcSwitchKind.DISCONNECTOR)
-                .setDcNode1(dcNodeGbNegM.getId())
-                .setDcNode2(dcNodeGbMid.getId())
-                .add();
-        dcNetwork.newDcSwitch()
-                .setId("dcSwitchGbNegL")
-                .setOpen(false)
-                .setKind(DcSwitchKind.DISCONNECTOR)
-                .setDcNode1(dcNodeGbNegC.getId())
-                .setDcNode2(dcNodeGbNegL.getId())
-                .add();
-        dcNetwork.newDcSwitch()
                 .setId("dcSwitchGbPosBypass")
                 .setOpen(true)
                 .setKind(DcSwitchKind.DISCONNECTOR)
-                .setDcNode1(dcNodeGbPosL.getId())
+                .setDcNode1(dcNodeGbPos.getId())
                 .setDcNode2(dcNodeGbMid.getId())
                 .add();
         dcNetwork.newDcSwitch()
                 .setId("dcSwitchGbNegBypass")
                 .setOpen(true)
                 .setKind(DcSwitchKind.DISCONNECTOR)
-                .setDcNode1(dcNodeGbNegL.getId())
+                .setDcNode1(dcNodeGbNeg.getId())
                 .setDcNode2(dcNodeGbMid.getId())
                 .add();
 
         dcNetwork.newDcLine()
                 .setId("dcLine1")
-                .setDcNode1(dcNodeFrPosL.getId())
+                .setDcNode1(dcNodeFrPos.getId())
                 .setConnected1(true)
-                .setDcNode2(dcNodeGbPosL.getId())
+                .setDcNode2(dcNodeGbPos.getId())
                 .setConnected2(true)
                 .setR(5.0)
                 .add();
         dcNetwork.newDcLine()
                 .setId("dcLine2")
-                .setDcNode1(dcNodeFrNegL.getId())
+                .setDcNode1(dcNodeFrNeg.getId())
                 .setConnected1(true)
-                .setDcNode2(dcNodeGbNegL.getId())
+                .setDcNode2(dcNodeGbNeg.getId())
                 .setConnected2(true)
                 .setR(5.0)
                 .add();
@@ -620,8 +528,8 @@ public final class DcDetailedNetworkFactory {
                 .setId("LccFrPos")
                 .setBus1(getBusId(Country.FR, X_NODE_DC_1_FR, SUFFIX_150_1))
                 .setBus2(getBusId(Country.FR, X_NODE_DC_1_FR, SUFFIX_150_2))
-                .setDcNode1(dcNodeFrPosM.getId())
-                .setDcNode2(dcNodeFrPosC.getId())
+                .setDcNode1(dcNodeFrMid.getId())
+                .setDcNode2(dcNodeFrPos.getId())
                 .setControlMode(AcDcConverter.ControlMode.V_DC)
                 .setPccTerminal(dcNetwork.getLine(getLineId(Country.FR, X_NODE_DC_1_FR, SUFFIX_400_I)).getTerminal1())
                 .setTargetVdc(500.)
@@ -631,8 +539,8 @@ public final class DcDetailedNetworkFactory {
                 .setId("LccFrNeg")
                 .setBus1(getBusId(Country.FR, X_NODE_DC_2_FR, SUFFIX_150_1))
                 .setBus2(getBusId(Country.FR, X_NODE_DC_2_FR, SUFFIX_150_2))
-                .setDcNode1(dcNodeFrNegC.getId())
-                .setDcNode2(dcNodeFrNegM.getId())
+                .setDcNode1(dcNodeFrNeg.getId())
+                .setDcNode2(dcNodeFrMid.getId())
                 .setControlMode(AcDcConverter.ControlMode.V_DC)
                 .setPccTerminal(dcNetwork.getLine(getLineId(Country.FR, X_NODE_DC_2_FR, SUFFIX_400_I)).getTerminal1())
                 .setTargetVdc(500.)
@@ -642,8 +550,8 @@ public final class DcDetailedNetworkFactory {
                 .setId("LccGbPos")
                 .setBus1(getBusId(Country.GB, X_NODE_DC_1_GB, SUFFIX_150_1))
                 .setBus2(getBusId(Country.GB, X_NODE_DC_1_GB, SUFFIX_150_2))
-                .setDcNode1(dcNodeGbPosM.getId())
-                .setDcNode2(dcNodeGbPosC.getId())
+                .setDcNode1(dcNodeGbMid.getId())
+                .setDcNode2(dcNodeGbPos.getId())
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setPccTerminal(dcNetwork.getThreeWindingsTransformer(getTransformerId(Country.GB, X_NODE_DC_1_GB, SUFFIX_NONE)).getLeg1().getTerminal())
                 .setTargetVdc(500.)
@@ -653,8 +561,8 @@ public final class DcDetailedNetworkFactory {
                 .setId("LccGbNeg")
                 .setBus1(getBusId(Country.GB, X_NODE_DC_2_GB, SUFFIX_150_1))
                 .setBus2(getBusId(Country.GB, X_NODE_DC_2_GB, SUFFIX_150_2))
-                .setDcNode1(dcNodeGbNegC.getId())
-                .setDcNode2(dcNodeGbNegM.getId())
+                .setDcNode1(dcNodeGbNeg.getId())
+                .setDcNode2(dcNodeGbMid.getId())
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setPccTerminal(dcNetwork.getThreeWindingsTransformer(getTransformerId(Country.GB, X_NODE_DC_2_GB, SUFFIX_NONE)).getLeg1().getTerminal())
                 .setTargetVdc(500.)

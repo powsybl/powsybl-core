@@ -86,8 +86,8 @@ class DcDetailedNetworkTest {
         assertEquals(1, network.getDcComponents().size());
         assertEquals(1, network.getBusView().getConnectedComponents().size());
         assertEquals(3, network.getSubnetworks().size());
-        assertEquals(14, network.getDcNodeCount());
-        assertEquals(12, network.getDcSwitchCount());
+        assertEquals(6, network.getDcNodeCount());
+        assertEquals(4, network.getDcSwitchCount());
         assertEquals(2, network.getDcLineCount());
         assertEquals(4, network.getLineCommutatedConverterCount());
         assertEquals(2, network.getDcGroundCount());
@@ -102,8 +102,8 @@ class DcDetailedNetworkTest {
         assertEquals(1, dcComponents.size());
         assertEquals(1, network.getBusView().getConnectedComponents().size());
         assertEquals(3, network.getSubnetworks().size());
-        assertEquals(14, network.getDcNodeCount());
-        assertEquals(12, network.getDcSwitchCount());
+        assertEquals(6, network.getDcNodeCount());
+        assertEquals(4, network.getDcSwitchCount());
         assertEquals(2, network.getDcLineCount());
         assertEquals(4, network.getLineCommutatedConverterCount());
         assertEquals(2, network.getDcGroundCount());
