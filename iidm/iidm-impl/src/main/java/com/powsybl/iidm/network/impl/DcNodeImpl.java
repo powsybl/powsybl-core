@@ -208,15 +208,10 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
     public void remove() {
         NetworkImpl network = getNetwork();
 
-        // this will be improved to be more efficient once the DC topology processor is implemented
-        for (DcConnectable<?> dcConnectable : network.getDcConnectables()) {
-            List<DcTerminal> connectableDcTerminals = dcConnectable.getDcTerminals();
-            for (DcTerminal dcTerminal : connectableDcTerminals) {
-                if (dcTerminal.getDcNode() == this) {
-                    throw new PowsyblException("Cannot remove DC node '" + getId()
-                            + "' because DC connectable '" + dcConnectable.getId() + "' is connected to it");
-                }
-            }
+        List<DcTerminal> dcTerminalList = getDcTerminals();
+        if (!dcTerminalList.isEmpty()) {
+            throw new PowsyblException("Cannot remove DC node '" + getId()
+                    + "' because DC connectable '" + dcTerminalList.get(0).getDcConnectable().getId() + "' is connected to it");
         }
         for (DcSwitch dcSwitch : network.getDcSwitches()) {
             if (dcSwitch.getDcNode1() == this || dcSwitch.getDcNode2() == this) {
