@@ -86,4 +86,19 @@ public interface DcTopologyVisitable {
      * Get the Voltage Source Converters connected.
      */
     Stream<VoltageSourceConverter> getVoltageSourceConverterStream();
+
+    /**
+     * Visit DC equipments connected.
+     *
+     * @param visitor a handler to be notified for each DC equipment connected
+     */
+    void visitConnectedEquipments(DcTopologyVisitor visitor);
+
+    /**
+     * Visit DC equipments connected or connectable.
+     *
+     * @param visitor a handler to be notified for each DC equipment
+     */
+    void visitConnectedOrConnectableEquipments(DcTopologyVisitor visitor);
+
 }

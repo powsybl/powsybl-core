@@ -146,6 +146,22 @@ public class DcBusImpl extends AbstractDcTopologyVisitable<DcBus> implements DcB
     }
 
     @Override
+    public void visitConnectedEquipments(DcTopologyVisitor visitor) {
+        checkValidity();
+        for (DcNode dcNode : dcNodes) {
+            dcNode.visitConnectedEquipments(visitor);
+        }
+    }
+
+    @Override
+    public void visitConnectedOrConnectableEquipments(DcTopologyVisitor visitor) {
+        checkValidity();
+        for (DcNode dcNode : dcNodes) {
+            dcNode.visitConnectedOrConnectableEquipments(visitor);
+        }
+    }
+
+    @Override
     public Network getParentNetwork() {
         return Optional.ofNullable((Network) subnetworkRef.get()).orElse(getNetwork());
     }

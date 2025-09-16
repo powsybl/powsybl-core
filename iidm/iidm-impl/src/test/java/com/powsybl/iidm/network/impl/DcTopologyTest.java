@@ -12,10 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -456,6 +453,70 @@ class DcTopologyTest {
         assertEquals(List.of(), asSortedIds(dcNodePosA1.getLineCommutatedConverterStream()));
     }
 
+    private static class TestDcTopologyVisitor implements DcTopologyVisitor {
+
+        private final List<String> visited = new ArrayList<>();
+
+        public List<String> getVisited() {
+            return visited.stream().sorted().toList();
+        }
+
+        public void reset() {
+            visited.clear();
+        }
+
+        public static TestDcTopologyVisitor create() {
+            return new TestDcTopologyVisitor();
+        }
+
+        @Override
+        public void visitDcGround(DcGround dcGround) {
+            visited.add(dcGround.getId());
+        }
+
+        @Override
+        public void visitDcLine(DcLine dcLine, TwoSides side) {
+            visited.add(dcLine.getId() + "/" + side.name());
+        }
+
+        @Override
+        public void visitAcDcConverter(AcDcConverter<?> converter, TwoSides side) {
+            visited.add(converter.getId() + "/" + side.name());
+        }
+    }
+
+    @Test
+    void testDcNodeEquipmentsVisitor() {
+        Network network = DcDetailedNetworkFactory.createLccBipoleGroundReturnWithDcLineSegments();
+        DcNode dcNodeFrMid = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_FR_MID);
+        DcNode dcNodePosA1 = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_POS_A1);
+        DcNode dcNodeGbMid = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_GB_MID);
+        network.getDcLine("dcLineSegmentPosA").getDcTerminal1().setConnected(false);
+
+        var visitorConnected = TestDcTopologyVisitor.create();
+        var visitorAll = TestDcTopologyVisitor.create();
+
+        dcNodeFrMid.visitConnectedEquipments(visitorConnected);
+        dcNodeFrMid.visitConnectedOrConnectableEquipments(visitorAll);
+        assertEquals(List.of("LccFrNeg/TWO", "LccFrPos/ONE", "dcGroundFr"), visitorConnected.getVisited());
+        assertEquals(List.of("LccFrNeg/TWO", "LccFrPos/ONE", "dcGroundFr"), visitorAll.getVisited());
+
+        visitorConnected.reset();
+        visitorAll.reset();
+
+        dcNodeGbMid.visitConnectedEquipments(visitorConnected);
+        dcNodeGbMid.visitConnectedOrConnectableEquipments(visitorAll);
+        assertEquals(List.of("LccGbNeg/TWO", "LccGbPos/ONE"), visitorConnected.getVisited());
+        assertEquals(List.of("LccGbNeg/TWO", "LccGbPos/ONE", "dcGroundGb"), visitorAll.getVisited());
+
+        visitorConnected.reset();
+        visitorAll.reset();
+        dcNodePosA1.visitConnectedEquipments(visitorConnected);
+        dcNodePosA1.visitConnectedOrConnectableEquipments(visitorAll);
+        assertEquals(List.of("dcLineSegmentFrPosA/TWO"), visitorConnected.getVisited());
+        assertEquals(List.of("dcLineSegmentFrPosA/TWO", "dcLineSegmentPosA/ONE"), visitorAll.getVisited());
+    }
+
     @Test
     void testVisitDcBusEquipments() {
         Network network = DcDetailedNetworkFactory.createLccBipoleGroundReturnWithDcLineSegments();
@@ -491,6 +552,52 @@ class DcTopologyTest {
         assertEquals(List.of(), asSortedIds(dcBusFrPos.getVoltageSourceConverterStream()));
         assertEquals(List.of(), asSortedIds(dcBusPosA1.getLineCommutatedConverters()));
         assertEquals(List.of(), asSortedIds(dcBusPosA1.getLineCommutatedConverterStream()));
+    }
+
+    @Test
+    void testDcBusEquipmentsVisitor() {
+        Network network = DcDetailedNetworkFactory.createLccBipoleGroundReturnWithDcLineSegments();
+        DcNode dcNodeFrPos = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_FR_POS);
+        DcNode dcNodeFrMid = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_FR_MID);
+        DcNode dcNodePosA1 = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_POS_A1);
+        DcNode dcNodeGbMid = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_GB_MID);
+        network.getDcLine("dcLineSegmentPosA").getDcTerminal1().setConnected(false);
+
+        DcBus dcBusFrPos = dcNodeFrPos.getDcBus();
+        DcBus dcBusFrMid = dcNodeFrMid.getDcBus();
+        DcBus dcBusGbMid = dcNodeGbMid.getDcBus();
+        DcBus dcBusPosA1 = dcNodePosA1.getDcBus();
+
+        var visitorConnected = TestDcTopologyVisitor.create();
+        var visitorAll = TestDcTopologyVisitor.create();
+
+        dcBusFrMid.visitConnectedEquipments(visitorConnected);
+        dcBusFrMid.visitConnectedOrConnectableEquipments(visitorAll);
+        assertEquals(List.of("LccFrNeg/TWO", "LccFrPos/ONE", "dcGroundFr"), visitorConnected.getVisited());
+        assertEquals(List.of("LccFrNeg/TWO", "LccFrPos/ONE", "dcGroundFr"), visitorAll.getVisited());
+
+        visitorConnected.reset();
+        visitorAll.reset();
+
+        dcBusGbMid.visitConnectedEquipments(visitorConnected);
+        dcBusGbMid.visitConnectedOrConnectableEquipments(visitorAll);
+        assertEquals(List.of("LccGbNeg/TWO", "LccGbPos/ONE"), visitorConnected.getVisited());
+        assertEquals(List.of("LccGbNeg/TWO", "LccGbPos/ONE", "dcGroundGb"), visitorAll.getVisited());
+
+        visitorConnected.reset();
+        visitorAll.reset();
+
+        dcBusPosA1.visitConnectedEquipments(visitorConnected);
+        dcBusPosA1.visitConnectedOrConnectableEquipments(visitorAll);
+        assertEquals(List.of("dcLineSegmentFrPosA/TWO"), visitorConnected.getVisited());
+        assertEquals(List.of("dcLineSegmentFrPosA/TWO", "dcLineSegmentPosA/ONE"), visitorAll.getVisited());
+
+        visitorConnected.reset();
+        visitorAll.reset();
+        dcBusFrPos.visitConnectedEquipments(visitorConnected);
+        dcBusFrPos.visitConnectedOrConnectableEquipments(visitorAll);
+        assertEquals(List.of("LccFrPos/TWO", "dcLineSegmentFrPosA/ONE", "dcLineSegmentFrPosB/ONE"), visitorConnected.getVisited());
+        assertEquals(List.of("LccFrPos/TWO", "dcLineSegmentFrPosA/ONE", "dcLineSegmentFrPosB/ONE"), visitorAll.getVisited());
     }
 
     private static void assertComponent(Component component, int expectedNum, List<String> expectedAcBuses, List<String> expectedDcBuses) {

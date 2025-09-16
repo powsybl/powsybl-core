@@ -179,6 +179,32 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
     }
 
     @Override
+    public void visitConnectedEquipments(DcTopologyVisitor visitor) {
+        visitEquipments(getConnectedDcTerminals(), visitor);
+    }
+
+    @Override
+    public void visitConnectedOrConnectableEquipments(DcTopologyVisitor visitor) {
+        visitEquipments(getDcTerminals(), visitor);
+    }
+
+    static void visitEquipments(Iterable<DcTerminal> dcTerminals, DcTopologyVisitor visitor) {
+        Objects.requireNonNull(visitor);
+        for (DcTerminal dcTerminal : dcTerminals) {
+            DcConnectable<?> dcConnectable = dcTerminal.getDcConnectable();
+            switch (dcConnectable.getType()) {
+                case DC_GROUND -> visitor.visitDcGround((DcGroundImpl) dcConnectable);
+                case DC_LINE -> visitor.visitDcLine((DcLineImpl) dcConnectable, dcTerminal.getSide());
+                case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> {
+                    AcDcConverter<?> converter = (AcDcConverter<?>) dcConnectable;
+                    visitor.visitAcDcConverter(converter, dcTerminal.getSide());
+                }
+                default -> throw new IllegalStateException();
+            }
+        }
+    }
+
+    @Override
     public void remove() {
         NetworkImpl network = getNetwork();
 
