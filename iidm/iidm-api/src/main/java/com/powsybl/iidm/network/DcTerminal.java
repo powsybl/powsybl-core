@@ -44,7 +44,13 @@ public interface DcTerminal {
      */
     DcTerminal setConnected(boolean connected);
 
-    DcBus getBus();
+    /**
+     * Get the DC connection bus of this DC terminal.
+     * <p>Depends on the working variant.
+     * @return the DC connection bus or null if not connected
+     * @see VariantManager
+     */
+    DcBus getDcBus();
 
     /**
      * @return the active power in MW injected at the DC terminal.<br/>

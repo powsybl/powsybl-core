@@ -159,13 +159,13 @@ abstract class AbstractComponentsManager<C extends Component> {
     private void fillDcAdjacencyList(Map<String, Integer> busId2num, TIntArrayList[] adjacencyList) {
         if (dc) {
             for (DcLine dcLine : getNetwork().getDcLines()) {
-                DcBus dcBus1 = dcLine.getDcTerminal1().getBus();
-                DcBus dcBus2 = dcLine.getDcTerminal2().getBus();
+                DcBus dcBus1 = dcLine.getDcTerminal1().getDcBus();
+                DcBus dcBus2 = dcLine.getDcTerminal2().getDcBus();
                 addToAdjacencyList(dcBus1, dcBus2, busId2num, adjacencyList);
             }
             for (AcDcConverter<?> acDcConverter : getNetwork().getDcConnectables(AcDcConverter.class)) {
-                DcBus dcBus1 = acDcConverter.getDcTerminal1().getBus();
-                DcBus dcBus2 = acDcConverter.getDcTerminal2().getBus();
+                DcBus dcBus1 = acDcConverter.getDcTerminal1().getDcBus();
+                DcBus dcBus2 = acDcConverter.getDcTerminal2().getDcBus();
                 addToAdjacencyList(dcBus1, dcBus2, busId2num, adjacencyList);
             }
         }
@@ -180,8 +180,8 @@ abstract class AbstractComponentsManager<C extends Component> {
             }
             for (AcDcConverter<?> acDcConverter : getNetwork().getDcConnectables(AcDcConverter.class)) {
                 Bus bus1 = acDcConverter.getTerminal1().getBusView().getBus();
-                DcBus dcBus1 = acDcConverter.getDcTerminal1().getBus();
-                DcBus dcBus2 = acDcConverter.getDcTerminal2().getBus();
+                DcBus dcBus1 = acDcConverter.getDcTerminal1().getDcBus();
+                DcBus dcBus2 = acDcConverter.getDcTerminal2().getDcBus();
                 addToAdjacencyList(bus1, dcBus1, busId2num, adjacencyList);
                 addToAdjacencyList(bus1, dcBus2, busId2num, adjacencyList);
                 acDcConverter.getTerminal2().ifPresent(t2 -> {
