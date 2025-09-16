@@ -31,7 +31,7 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
     protected boolean removed = false;
     private double nominalV;
 
-    private final ArrayList<List<DcTerminal>> dcTerminals;
+    private final List<DcTerminal> dcTerminals;
 
     private final TDoubleArrayList v;
 
@@ -45,12 +45,11 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
         this.subnetworkRef = subnetworkRef;
         this.nominalV = nominalV;
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        dcTerminals = new ArrayList<>(variantArraySize);
+        dcTerminals = new ArrayList<>();
         v = new TDoubleArrayList(variantArraySize);
         connectedComponentNumber = new TIntArrayList(variantArraySize);
         dcComponentNumber = new TIntArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            dcTerminals.add(new ArrayList<>());
             v.add(Double.NaN);
             connectedComponentNumber.add(-1);
             dcComponentNumber.add(-1);
@@ -113,11 +112,11 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
     }
 
     public void addDcTerminal(DcTerminalImpl dcTerminal) {
-        dcTerminals.get(networkRef.get().getVariantIndex()).add(dcTerminal);
+        dcTerminals.add(dcTerminal);
     }
 
     public void removeDcTerminal(DcTerminalImpl dcTerminal) {
-        if (!dcTerminals.get(networkRef.get().getVariantIndex()).remove(dcTerminal)) {
+        if (!dcTerminals.remove(dcTerminal)) {
             throw new IllegalStateException("DcTerminal " + dcTerminal + " not found");
         }
     }
@@ -155,7 +154,7 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
 
     @Override
     public List<DcTerminal> getDcTerminals() {
-        return dcTerminals.get(getNetwork().getVariantIndex());
+        return dcTerminals;
     }
 
     @Override
@@ -232,12 +231,10 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        dcTerminals.ensureCapacity(dcTerminals.size() + number);
         v.ensureCapacity(v.size() + number);
         connectedComponentNumber.ensureCapacity(connectedComponentNumber.size() + number);
         dcComponentNumber.ensureCapacity(dcComponentNumber.size() + number);
         for (int i = 0; i < number; i++) {
-            dcTerminals.add(new ArrayList<>(dcTerminals.get(sourceIndex)));
             v.add(v.get(sourceIndex));
             connectedComponentNumber.add(connectedComponentNumber.get(sourceIndex));
             dcComponentNumber.add(dcComponentNumber.get(sourceIndex));
@@ -247,7 +244,6 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
     @Override
     public void reduceVariantArraySize(int number) {
         for (int i = 0; i < number; i++) {
-            dcTerminals.remove(dcTerminals.size() - 1);
             v.removeAt(v.size() - 1);
             connectedComponentNumber.removeAt(connectedComponentNumber.size() - 1);
             dcComponentNumber.removeAt(dcComponentNumber.size() - 1);
@@ -257,13 +253,11 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
-        dcTerminals.set(index, null);
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            dcTerminals.set(index, new ArrayList<>(dcTerminals.get(sourceIndex)));
             v.set(index, v.get(sourceIndex));
             connectedComponentNumber.set(index, connectedComponentNumber.get(sourceIndex));
             dcComponentNumber.set(index, dcComponentNumber.get(sourceIndex));

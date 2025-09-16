@@ -323,18 +323,14 @@ public class DcTopologyModel implements MultiVariantObject {
 
     public void attach(DcTerminalImpl dcTerminal) {
         DcNodeImpl dcNode = (DcNodeImpl) dcTerminal.getDcNode();
-        getNetwork().getVariantManager().forEachVariant(() -> {
-            dcNode.addDcTerminal(dcTerminal);
-            invalidateCache();
-        });
+        dcNode.addDcTerminal(dcTerminal);
+        invalidateAllVariantsCache();
     }
 
     public void detach(DcTerminalImpl dcTerminal) {
         DcNodeImpl dcNode = (DcNodeImpl) dcTerminal.getDcNode();
-        getNetwork().getVariantManager().forEachVariant(() -> {
-            dcNode.removeDcTerminal(dcTerminal);
-            invalidateCache();
-        });
+        dcNode.removeDcTerminal(dcTerminal);
+        invalidateAllVariantsCache();
     }
 
     public void invalidateAllVariantsCache() {
