@@ -326,7 +326,10 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
 
     @Override
     public void remove() {
-        dcTerminals.forEach(DcTerminalImpl::remove);
+        dcTerminals.forEach(dcTerminal -> {
+            ((AbstractNetwork) getParentNetwork()).getDcTopologyModel().detach(dcTerminal);
+            dcTerminal.remove();
+        });
         pccRegulatingPoint.remove();
         super.remove();
     }
