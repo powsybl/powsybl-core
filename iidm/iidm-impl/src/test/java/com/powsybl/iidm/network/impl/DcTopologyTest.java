@@ -410,8 +410,11 @@ class DcTopologyTest {
         DcLine dcLine = network.getDcLine("dcLine1");
         LineCommutatedConverter lccFr = network.getLineCommutatedConverter("LccFr");
 
+        assertEquals(2, dcBusFrPos.getDcTerminalCount());
         assertEquals(2, dcBusFrPos.getConnectedDcTerminalCount());
         Set<DcTerminal> expectedDcTerminals1 = Set.of(lccFr.getDcTerminal2(), dcLine.getDcTerminal1());
+        assertEquals(expectedDcTerminals1, Set.copyOf(dcBusFrPos.getDcTerminals()));
+        assertEquals(expectedDcTerminals1, dcBusFrPos.getDcTerminalStream().collect(Collectors.toSet()));
         assertEquals(expectedDcTerminals1, Set.copyOf(dcBusFrPos.getConnectedDcTerminals()));
         assertEquals(expectedDcTerminals1, dcBusFrPos.getConnectedDcTerminalStream().collect(Collectors.toSet()));
 
@@ -419,9 +422,80 @@ class DcTopologyTest {
         dcBusFrPos = dcNodeFrPos.getDcBus(); // refresh because old DcBus was invalidated by topology processing
 
         Set<DcTerminal> expectedDcTerminals2 = Set.of(lccFr.getDcTerminal2());
+        assertEquals(2, dcBusFrPos.getDcTerminalCount());
         assertEquals(1, dcBusFrPos.getConnectedDcTerminalCount());
+        assertEquals(expectedDcTerminals1, Set.copyOf(dcBusFrPos.getDcTerminals()));
+        assertEquals(expectedDcTerminals1, dcBusFrPos.getDcTerminalStream().collect(Collectors.toSet()));
         assertEquals(expectedDcTerminals2, Set.copyOf(dcBusFrPos.getConnectedDcTerminals()));
         assertEquals(expectedDcTerminals2, dcBusFrPos.getConnectedDcTerminalStream().collect(Collectors.toSet()));
+    }
+
+    @Test
+    void testVisitDcNodeEquipments() {
+        Network network = DcDetailedNetworkFactory.createLccBipoleGroundReturnWithDcLineSegments();
+        DcNode dcNodeFrPos = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_FR_POS);
+        DcNode dcNodeFrMid = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_FR_MID);
+        DcNode dcNodePosA1 = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_POS_A1);
+        DcNode dcNodeGbMid = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_GB_MID);
+
+        // DC grounds
+        assertEquals(List.of(), asSortedIds(dcNodeFrPos.getDcGrounds()));
+        assertEquals(List.of(), asSortedIds(dcNodeFrPos.getDcGroundStream()));
+        assertEquals(List.of("dcGroundFr"), asSortedIds(dcNodeFrMid.getDcGrounds()));
+        assertEquals(List.of("dcGroundFr"), asSortedIds(dcNodeFrMid.getDcGroundStream()));
+        assertEquals(List.of(), asSortedIds(dcNodeGbMid.getDcGrounds())); // because DC ground not connected
+        assertEquals(List.of(), asSortedIds(dcNodeGbMid.getDcGroundStream())); // because DC ground not connected
+
+        // DC Lines
+        assertEquals(List.of("dcLineSegmentFrPosA", "dcLineSegmentPosA"), asSortedIds(dcNodePosA1.getDcLines()));
+        assertEquals(List.of("dcLineSegmentFrPosA", "dcLineSegmentPosA"), asSortedIds(dcNodePosA1.getDcLineStream()));
+        assertEquals(List.of(), asSortedIds(dcNodeFrMid.getDcLines()));
+        assertEquals(List.of(), asSortedIds(dcNodeFrMid.getDcLines()));
+
+        // AC/DC Converters
+        assertEquals(List.of("LccFrPos"), asSortedIds(dcNodeFrPos.getLineCommutatedConverters()));
+        assertEquals(List.of("LccFrPos"), asSortedIds(dcNodeFrPos.getLineCommutatedConverterStream()));
+        assertEquals(List.of(), asSortedIds(dcNodeFrPos.getVoltageSourceConverters()));
+        assertEquals(List.of(), asSortedIds(dcNodeFrPos.getVoltageSourceConverterStream()));
+        assertEquals(List.of(), asSortedIds(dcNodePosA1.getLineCommutatedConverters()));
+        assertEquals(List.of(), asSortedIds(dcNodePosA1.getLineCommutatedConverterStream()));
+    }
+
+    @Test
+    void testVisitDcBusEquipments() {
+        Network network = DcDetailedNetworkFactory.createLccBipoleGroundReturnWithDcLineSegments();
+        DcNode dcNodeFrPos = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_FR_POS);
+        DcNode dcNodeFrMid = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_FR_MID);
+        DcNode dcNodePosA1 = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_POS_A1);
+        DcNode dcNodeGbMid = network.getDcNode(DcDetailedNetworkFactory.DC_NODE_GB_MID);
+
+        // DC grounds
+        DcBus dcBusFrPos = dcNodeFrPos.getDcBus();
+        DcBus dcBusFrMid = dcNodeFrMid.getDcBus();
+        DcBus dcBusGbMid = dcNodeGbMid.getDcBus();
+        DcBus dcBusPosA1 = dcNodePosA1.getDcBus();
+        assertEquals(List.of(), asSortedIds(dcBusFrPos.getDcGrounds()));
+        assertEquals(List.of(), asSortedIds(dcBusFrPos.getDcGroundStream()));
+        assertEquals(List.of("dcGroundFr"), asSortedIds(dcBusFrMid.getDcGrounds()));
+        assertEquals(List.of("dcGroundFr"), asSortedIds(dcBusFrMid.getDcGroundStream()));
+        assertEquals(List.of(), asSortedIds(dcBusGbMid.getDcGrounds())); // because DC ground not connected
+        assertEquals(List.of(), asSortedIds(dcBusGbMid.getDcGroundStream())); // because DC ground not connected
+
+        // DC Lines
+        assertEquals(List.of("dcLineSegmentFrPosA", "dcLineSegmentPosA"), asSortedIds(dcBusPosA1.getDcLines()));
+        assertEquals(List.of("dcLineSegmentFrPosA", "dcLineSegmentPosA"), asSortedIds(dcBusPosA1.getDcLineStream()));
+        assertEquals(List.of("dcLineSegmentFrPosA", "dcLineSegmentFrPosB"), asSortedIds(dcBusFrPos.getDcLines()));
+        assertEquals(List.of("dcLineSegmentFrPosA", "dcLineSegmentFrPosB"), asSortedIds(dcBusFrPos.getDcLineStream()));
+        assertEquals(List.of(), asSortedIds(dcBusFrMid.getDcLines()));
+        assertEquals(List.of(), asSortedIds(dcBusFrMid.getDcLines()));
+
+        // AC/DC Converters
+        assertEquals(List.of("LccFrPos"), asSortedIds(dcBusFrPos.getLineCommutatedConverters()));
+        assertEquals(List.of("LccFrPos"), asSortedIds(dcBusFrPos.getLineCommutatedConverterStream()));
+        assertEquals(List.of(), asSortedIds(dcBusFrPos.getVoltageSourceConverters()));
+        assertEquals(List.of(), asSortedIds(dcBusFrPos.getVoltageSourceConverterStream()));
+        assertEquals(List.of(), asSortedIds(dcBusPosA1.getLineCommutatedConverters()));
+        assertEquals(List.of(), asSortedIds(dcBusPosA1.getLineCommutatedConverterStream()));
     }
 
     private static void assertComponent(Component component, int expectedNum, List<String> expectedAcBuses, List<String> expectedDcBuses) {
@@ -433,10 +507,18 @@ class DcTopologyTest {
 
         assertEquals(expectedNum, component.getNum());
         assertEquals(expectedAcBuses.size() + expectedDcBuses.size(), component.getSize());
-        assertEquals(expectedAcBusesSorted, component.getBusStream().map(Identifiable::getId).sorted().toList());
-        assertEquals(expectedAcBusesSorted, StreamSupport.stream(component.getBuses().spliterator(), false).map(Identifiable::getId).sorted().toList());
-        assertEquals(expectedDcBusesSorted, component.getDcBusStream().map(Identifiable::getId).sorted().toList());
-        assertEquals(expectedDcBusesSorted, StreamSupport.stream(component.getDcBuses().spliterator(), false).map(Identifiable::getId).sorted().toList());
+        assertEquals(expectedAcBusesSorted, asSortedIds(component.getBusStream()));
+        assertEquals(expectedAcBusesSorted, asSortedIds(component.getBuses()));
+        assertEquals(expectedDcBusesSorted, asSortedIds(component.getDcBusStream()));
+        assertEquals(expectedDcBusesSorted, asSortedIds(component.getDcBuses()));
+    }
+
+    private static <T extends Identifiable<T>> List<String> asSortedIds(Iterable<T> iterable) {
+        return asSortedIds(StreamSupport.stream(iterable.spliterator(), false));
+    }
+
+    private static <T extends Identifiable<T>> List<String> asSortedIds(Stream<T> stream) {
+        return stream.map(Identifiable::getId).sorted().toList();
     }
 
 }
