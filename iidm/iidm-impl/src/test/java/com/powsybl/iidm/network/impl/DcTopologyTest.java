@@ -161,7 +161,7 @@ class DcTopologyTest {
     private static void assertDcBusesAre(Network network, List<String> expected) {
         assertEquals(
                 expected.stream().sorted().toList(),
-                network.getDcBusStream().map(Identifiable::getId).sorted().toList()
+                asSortedIds(network.getDcBusStream())
         );
         assertEquals(expected.size(), network.getDcBusCount());
     }
@@ -169,14 +169,9 @@ class DcTopologyTest {
     private static void assertDcBusContainsDcNodes(DcBus dcBus, List<DcNode> dcNodes) {
         Objects.requireNonNull(dcBus);
         Objects.requireNonNull(dcNodes);
-        var expected = dcNodes.stream().map(Identifiable::getId).sorted().toList();
-        assertEquals(
-                expected,
-                dcBus.getDcNodeStream().map(Identifiable::getId).sorted().toList()
-        );
-        assertEquals(
-                expected,
-                StreamSupport.stream(dcBus.getDcNodes().spliterator(), false).map(Identifiable::getId).sorted().toList()
+        var expected = asSortedIds(dcNodes);
+        assertEquals(expected, asSortedIds(dcBus.getDcNodeStream()));
+        assertEquals(expected, asSortedIds(dcBus.getDcNodes())
         );
     }
 
