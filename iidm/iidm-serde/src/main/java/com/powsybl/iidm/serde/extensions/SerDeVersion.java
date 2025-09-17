@@ -49,10 +49,22 @@ public interface SerDeVersion<V extends SerDeVersion<V>> {
         return getVersionInfo().serializationName();
     }
 
+    /**
+     * Compares the current version with the provided version and determines if the current version is strictly greater.
+     *
+     * @param version The version to be compared with the current version.
+     * @return {@code true} if the current version is <b>strictly greater</b> than the provided version, otherwise {@code false}.
+     */
     default boolean isGreaterThan(V version) {
         return getVersionNumbers().compareTo(version.getVersionNumbers()) > 0;
     }
 
+    /**
+     * Compares the current version with the provided version and determines if the current version is strictly less.
+     *
+     * @param version The version to be compared with the current version.
+     * @return {@code true} if the current version is <b>strictly less</b> than the provided version, otherwise {@code false}.
+     */
     default boolean isLessThan(V version) {
         return getVersionNumbers().compareTo(version.getVersionNumbers()) < 0;
     }

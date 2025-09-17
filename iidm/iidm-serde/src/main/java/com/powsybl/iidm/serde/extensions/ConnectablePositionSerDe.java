@@ -26,7 +26,7 @@ public class ConnectablePositionSerDe<C extends Connectable<C>> extends Abstract
 
     public enum Version implements SerDeVersion<Version> {
         V_1_0("/xsd/connectablePosition_V1_0.xsd", "http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0",
-                new VersionNumbers(1, 0), IidmVersion.V_1_0, null),
+                new VersionNumbers(1, 0), IidmVersion.V_1_0, IidmVersion.V_1_14),
         V_1_1("/xsd/connectablePosition_V1_1.xsd", "http://www.powsybl.org/schema/iidm/ext/connectable_position/1_1",
                 new VersionNumbers(1, 1), IidmVersion.V_1_0, null);
 

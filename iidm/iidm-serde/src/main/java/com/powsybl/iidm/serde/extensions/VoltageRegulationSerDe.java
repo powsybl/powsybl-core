@@ -18,7 +18,6 @@ import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 import com.powsybl.iidm.serde.TerminalRefSerDe;
 
-import java.io.InputStream;
 import java.util.Objects;
 
 /**
@@ -72,11 +71,6 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
 
     public VoltageRegulationSerDe() {
         super(VoltageRegulation.NAME, VoltageRegulation.class, Version.values());
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/compatibility/voltage_regulation/voltageRegulation_V1_1.xsd");
     }
 
     @Override
