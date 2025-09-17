@@ -5,20 +5,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.dynamicsimulation.extension;
+package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.extensions.ExtensionAdder;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Identifiable;
 
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
-public interface DynamicModelInfoAdder<I extends Identifiable<I>> extends ExtensionAdder<I, DynamicModelInfo<I>> {
+public interface DynamicModelInfo<I extends Identifiable<I>> extends Extension<I> {
+
+    String NAME = "dynamicModel";
 
     @Override
-    default Class<DynamicModelInfo> getExtensionClass() {
-        return DynamicModelInfo.class;
+    default String getName() {
+        return NAME;
     }
 
-    DynamicModelInfoAdder<I> setModelName(String modelName);
+    /**
+     * The dynamic model name used in the simulation
+     */
+    String getModelName();
+
+    void setModelName(String modelName);
+
 }

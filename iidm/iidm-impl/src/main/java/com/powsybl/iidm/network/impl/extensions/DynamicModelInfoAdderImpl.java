@@ -5,10 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.dynamicsimulation.extension;
+package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.impl.extensions.AbstractIidmExtensionAdder;
+import com.powsybl.iidm.network.extensions.DynamicModelInfo;
+import com.powsybl.iidm.network.extensions.DynamicModelInfoAdder;
 
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
