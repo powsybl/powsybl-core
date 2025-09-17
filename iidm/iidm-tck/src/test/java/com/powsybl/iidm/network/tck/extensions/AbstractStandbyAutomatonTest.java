@@ -87,7 +87,6 @@ public abstract class AbstractStandbyAutomatonTest {
         StandbyAutomatonAdder standbyAutomatonAdder = svc.newExtension(StandbyAutomatonAdder.class)
                 .withStandbyStatus(true);
         var e = assertThrows(ValidationException.class, standbyAutomatonAdder::add);
-        // instead of "Static var compensator 'SVC2': Inconsistent low (0.0) and high (0.0) voltage thresholds"
         assertEquals("Static var compensator 'SVC2': low voltage setpoint (NaN) is invalid", e.getMessage());
     }
 
