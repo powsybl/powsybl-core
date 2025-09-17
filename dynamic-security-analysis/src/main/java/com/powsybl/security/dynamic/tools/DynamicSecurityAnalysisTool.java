@@ -10,6 +10,7 @@ package com.powsybl.security.dynamic.tools;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProviders;
@@ -41,8 +42,9 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.function.Supplier;
 
-import static com.powsybl.security.tools.SecurityAnalysisToolConstants.DEFAULT_SERVICE_IMPL_NAME_PROPERTY;
-import static com.powsybl.security.tools.SecurityAnalysisToolConstants.PARAMETERS_FILE_OPTION;
+import static com.powsybl.security.dynamic.tools.DynamicSecurityAnalysisToolConstants.DYNAMIC_MODELS_FILE_OPTION;
+import static com.powsybl.security.dynamic.tools.DynamicSecurityAnalysisToolConstants.EVENT_MODELS_FILE_OPTION;
+import static com.powsybl.security.tools.SecurityAnalysisToolConstants.*;
 import static com.powsybl.tools.ToolConstants.TASK;
 
 /**
@@ -83,6 +85,14 @@ public class DynamicSecurityAnalysisTool extends AbstractSecurityAnalysisTool<Dy
         DynamicSecurityAnalysisInput input = new DynamicSecurityAnalysisInput(executionInput.getNetworkVariant(), dynamicModelsSupplier)
             .setParameters(executionInput.getParameters())
             .setFilter(filterInitializer.get());
+
+        executionInput.getEventModelsSource().ifPresent(source -> {
+            try (InputStream is = source.openBufferedStream()) {
+                input.setEventModels(DynamicSimulationSupplierFactory.createEventModelsSupplier(is, providerName));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
 
         executionInput.getResultExtensions().stream()
             .map(SecurityAnalysisInterceptors::createInterceptor)
@@ -125,6 +135,12 @@ public class DynamicSecurityAnalysisTool extends AbstractSecurityAnalysisTool<Dy
     @Override
     public void updateInput(ToolOptions options, DynamicSecurityAnalysisExecutionInput inputs) {
         super.updateInput(options, inputs);
+        options.getPath(DYNAMIC_MODELS_FILE_OPTION)
+                .map(FileUtil::asByteSource)
+                .ifPresent(inputs::setDynamicModelsSource);
+        options.getPath(EVENT_MODELS_FILE_OPTION)
+                .map(FileUtil::asByteSource)
+                .ifPresent(inputs::setEventModelsSource);
         options.getPath(PARAMETERS_FILE_OPTION)
                 .ifPresent(f -> inputs.getParameters().update(f));
     }

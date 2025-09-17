@@ -174,7 +174,10 @@ The various configurations and the differences in what's written are summarized 
 | 100         | `BUS_BRANCH`             | Yes (**)                              | Yes                                                 |
 
 ### Connectivity elements
-* Non-retained `Switch` are always written in the case of a `NODE_BREAKER` export, and never written in the case of a `BUS_BRANCH` export
+* Non-retained `Switch` are always written in the case of a `NODE_BREAKER` export, and never written in the case of a `BUS_BRANCH` export.
+  * Having non-retained open switches in a node/breaker network that is exported as bus/branch may result in multiple connectivity components in the exported network. 
+  * To avoid this, it would be best to close all non-retained switches in the case before exporting it. 
+  * Then, the maximum amount of connectivity will be preserved in the export, and the bus/branch exported files can more easily be used for later calculations.
 * `ConnectivityNode` are:
   * Never exported in the case of a CIM 16 `BUS_BRANCH` export
   * (*) Always exported in the case of a `NODE_BREAKER` export. If the VoltageLevel's connectivity level is `node/breaker`,
@@ -245,9 +248,39 @@ with the `enabled` activated and the generator attribute `voltageRegulatorOn` se
 (cgmes-hvdc-export)=
 ### HVDC line and HVDC converter stations
 
-A PowSyBl [`HVDCLine`](../../grid_model/network_subnetwork.md#hvdc-line) and its two [`HVDCConverterStations`](../../grid_model/network_subnetwork.md#hvdc-converter-station) are exported as a `DCLineSegment` with two `DCConverterUnits`.
+A PowSyBl [`HVDCLine`](../../grid_model/network_subnetwork.md#hvdc-line) and its two [`HVDCConverterStations`](../../grid_model/network_subnetwork.md#hvdc-converter-station) 
+represents a monopole with ground return configuration. As such, it is exported to CGMES EQ as a `DCLineSegment` with two `DCConverterUnits`, where each unit contains:
+- A specialization of `ACDCConverter`, depending on the `HvdcConverterStation.HvdcType`:
+  - A `CsConverter` if the type is `LCC`.
+  - A `VsConverter` if the type is `VSC`.
+- A `DCGround`
 
-<span style="color: red">TODO details</span>
+Both unit `operationMode` is `DCConverterOperatingModeKind.monopolarGroundReturn`.
+
+Both converter `ratedUdc` is `NominalV` of the `HvdcLine`.
+
+As for the CGMES SSH export: 
+
+The converter `pPccControl` is:
+- Active power control kind at rectifier side:
+  - `CsPpccControlKind.activePower` for `CsConverter`.
+  - `VsPpccControlKind.pPcc` for `VsConverter`.
+- DC voltage control kind at inverter side:
+  - `CsPpccControlKind.dcVoltage` for `CsConverter`.
+  - `VsPpccControlKind.udc` for `VsConverter`.
+
+The corresponding targets are exported as follows:
+- At rectifier side, `ACDCConverter.targetPpcc` is equal to `HvdcLine`'s `ActivePowerSetpoint`.
+- At inverter  side, `ACDCConverter.targetUdc` is equal to $NominalV - U_{R}$, where $U_{R}$ is the voltage drop caused by the line's resistance
+and is equal to: $U_{R} = R \times \frac{ActivePowerSetpoint}{NominalV}$
+
+For VSC lines, the `qPccControl` is the same for both rectifier and inverter, and depends on the regulation mode:
+- It is `VsQpccControlKind.voltagePcc` if VSC voltage regulation is on.
+- It is `VsQpccControlKind.reactivePcc` if VSC voltage regulation is off.
+
+The corresponding targets are:
+- In case of voltage regulation, `targetUpcc` is set to `VscConverterStation.VoltageSetpoint`.
+- In case of reactive power regulation, `targetQpcc` is set to `VscConverterStation.ReactivePowerSetpoint`.
 
 (cgmes-line-export)=
 ### Line
@@ -267,6 +300,8 @@ PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `Co
 ### Shunt compensator
 
 PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) is exported as `LinearShuntCompensator` or `NonlinearShuntCompensator` depending on their models.
+The CGMES SSH `sections` is written from the IIDM `SectionCount`, and the CGMES SV `SvShuntCompensatorSections.sections` 
+is written from the IIDM `SolvedSectionCount` if present, otherwise `SectionCount`.
 
 #### Regulating control
 
@@ -314,14 +349,16 @@ PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch) is expo
 ### ThreeWindingsTransformer
 
 PowSyBl [`ThreeWindingsTransformer`](../../grid_model/network_subnetwork.md#three-winding-transformer) is exported as `PowerTransformer` with three `PowerTransformerEnds`.
+If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the IIDM `TapPosition` and the CGMES SV
+`SVtapStep` is written from the IIDM `SolvedTapPosition` if it is not null, otherwise `TapPosition`.
 
 #### Tap changer control
 
 If the network comes from a CIM-CGMES model and the tap changer has initially a `TapChangerControl`, it always has at export
 too. Otherwise, a `TapChangerControl` is exported for the tap changer if it is considered as defined. A `RatioTapChanger`
 is considered as defined if it has a valid regulation value, a valid target deadband and a non-null regulating terminal.
-A `PhaseTapChanger` is considered as defined if it has a regulation mode different of `FIXED_TAP`, a valid regulation value,
-a valid target deadband, and a non-null regulating terminal.
+A `PhaseTapChanger` is considered as defined if it has a valid regulation value,
+a valid target deadband, and a non-null regulating terminal. By default its regulation mode is set to `CURRENT_LIMITER`.
 
 In a `RatioTapChanger`, the `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when
 `RatioTapChanger` `regulationMode` is set to `REACTIVE_POWER`, and with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage` when
@@ -335,6 +372,9 @@ when `PhaseTapChanger` `regulationMode` is set to `CURRENT_LIMITER`.
 ### TwoWindingsTransformer
 
 PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-winding-transformer) is exported as `PowerTransformer` with two `PowerTransformerEnds`.
+
+If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the IIDM `TapPosition` and the CGMES SV
+`SVtapStep` is written from the IIDM `SolvedTapPosition` if it is not null, otherwise `TapPosition`.
 
 Tap changer controls for two-winding transformers are exported following the same rules explained in the previous section about three-winding transformers. See [tap changer control](#tap-changer-control).
 
@@ -383,7 +423,7 @@ If this property is defined, then this ID will be written in the header of the e
 
 **iidm.export.cgmes.cim-version**  
 Optional property that defines the CIM version number in which the user wants the CGMES files to be exported.
-CIM versions 14, 16 and 100 are supported i.e. its valid values are `14`, `16` and `100`.
+CIM versions 16 and 100 are supported i.e. its valid values are `16` and `100`.
 If not defined, and the network has the extension `CimCharacteristics`, the CIM version will be the one indicated in the extension. If not, its default value is `16`.
 CIM version 16 corresponds to CGMES 2.4.15.
 CIM version 100 corresponds to CGMES 3.0.

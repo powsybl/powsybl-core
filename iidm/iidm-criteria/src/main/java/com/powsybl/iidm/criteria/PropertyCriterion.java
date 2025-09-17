@@ -78,6 +78,7 @@ public class PropertyCriterion implements Criterion {
                     filterBranch(((HvdcLine) identifiable).getConverterStation1().getTerminal().getVoltageLevel(),
                             ((HvdcLine) identifiable).getConverterStation2().getTerminal().getVoltageLevel());
             case THREE_WINDINGS_TRANSFORMER -> filterThreeWindingsTransformer((ThreeWindingsTransformer) identifiable);
+            case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> filterSubstationOrVoltageLevel(((AcDcConverter<?>) identifiable).getTerminal1().getVoltageLevel());
             default ->
                     throw new PowsyblException(String.format("type %s has no implementation for ContingencyElement", type));
         };
@@ -97,7 +98,7 @@ public class PropertyCriterion implements Criterion {
         VoltageLevel voltageLevel2 = threeWindingsTransformer.getLeg2().getTerminal().getVoltageLevel();
         VoltageLevel voltageLevel3 = threeWindingsTransformer.getLeg3().getTerminal().getVoltageLevel();
         if (sideToCheck == null) {
-            throw new IllegalArgumentException("enum to check side can not be null for threeWindingsTransformer to check their voltage level");
+            throw new IllegalArgumentException("enum to check side cannot be null for threeWindingsTransformer to check their voltage level");
         }
         return switch (sideToCheck) {
             case ONE ->

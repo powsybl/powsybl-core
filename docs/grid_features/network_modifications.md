@@ -14,6 +14,28 @@ voltage level, the removal of network elements and their switches, the creation 
 another line, and the connection of a voltage level to a line.
 All these classes rely on a builder to create the modification and then apply it on the network.
 
+### Naming strategy
+The naming strategy aims at clarifying and facilitating the naming of the different network elements created via the different
+`com.powsybl.iidm.modification.NetworkModification` classes. Based on the name of the network element the user wishes to create 
+(a VoltageLevel, a BranchFeederBay, etc.), all the other elements created during the NetworkModification will be given a name 
+using this name as baseline and prefixes/suffixes according to the naming strategy chosen by the user. 
+The naming strategy can be either the default one `com.powsybl.iidm.modification.topology.DefaultNamingStrategy` 
+or a new implementation of the `NamingStrategy` interface.
+
+#### Default naming strategy
+Default naming strategy is used if no other naming strategy is specified.
+The `DefaultNamingStrategy` implements a simple naming convention following the pattern: 
+base name + separator + element type + optional index.
+The default implementation uses underscores as separators and appends element types and indices when necessary 
+to ensure unique naming.
+
+#### Custom strategies
+Other Naming strategies can be implemented based on the `NamingStrategy` interface. 
+This allows for organization-specific naming conventions, different separator characters, or specialized formatting rules.
+
+#### Naming strategies service loader
+The `NamingStrategiesServiceLoader` enables dynamic discovery of available naming strategies through Java's ServiceLoader mechanism.
+
 ### Network element creation
 
 #### Create feeder bay
@@ -31,6 +53,17 @@ It takes as input:
 - Optionally, the direction of the injection. It is also used to fill the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension).
   It indicates if the injection should be displayed at the top or at the bottom of the busbar section. By default, it is
   `BOTTOM`.
+- Optionally, a boolean `logOrThrowIfIncorrectPositionOrder`, that indicates what should happen if the position order is 
+incorrect. This is mainly useful for voltage levels with `NODE_BREAKER` topology, since the `ConnectablePosition` extension 
+is not created otherwise. The order position may be incorrect if 
+  - it has already been taken on the busbar section, 
+  - if it is higher or lower than the maximum or minimum available order positions for the busbar section, 
+  - or if the order positions of other adjacent busbar sections do not allow any possible order positions. 
+If the boolean is set to false, then the order position will be ignored and the `ConnectablePostion` extension will not be
+created, but the `Injection` will be created. If the boolean is set to true, the `Injection` will not be created, and
+either an exception will be thrown or a log will be returned, depending on the `throwException` boolean given when applying 
+the modification.
+
 
 When applying this modification on the network, the injection is added to the voltage level associated with the bus or busbar
 section.
@@ -62,6 +95,18 @@ It takes as input:
   [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) and indicates the relative
   position of the branch with its busbar section on side 1. The default value is `TOP`.
 - Optionally, the direction on side 2.
+- Optionally, a boolean `logOrThrowIfIncorrectPositionOrder1`, that indicates what should happen if the position order is
+incorrect on side 1 of the branch. This is mainly useful for voltage levels with `NODE_BREAKER` topology, since the 
+`ConnectablePosition` extension is not created otherwise. The order position may be incorrect if
+  - it has already been taken on the busbar section,
+  - if it is higher or lower than the maximum or minimum available order positions for the busbar section,
+  - or if the order positions of other adjacent busbar sections do not allow any possible order positions.
+If the boolean is set to false, then the order position will be ignored and the `ConnectablePostion` extension will not be
+created, but the `Injection` will be created. If the boolean is set to true, the `Injection` will not be created, and
+either an exception will be thrown or a log will be returned, depending on the `throwException` boolean given when applying
+the modification.
+- Optionally, a boolean `logOrThrowIfIncorrectPositionOrder2`, which is the same but for the side 2 of the branch.
+
 
 When the modification is applied on the network, the branch is added to both voltage levels and connected on the bus or
 busbar section specified for both sides.
@@ -122,6 +167,30 @@ Additional input can be provided:
   name of the voltage level is used as prefix.
 - The switch prefix ID is also optional.
 
+#### Create Voltage Level Sections
+This class allows the creation of new busbar sections inside a voltage level in the NODE_BREAKER topology.
+The voltage level must already have been created, must already contains some busbar sections, and these busbar sections must have the extension BusbarSectionPosition,
+which indicate their position in the voltage level busbar sections matrix (busbarIndex and sectionIndex).
+When applied to a network, it will create new busbar sections before or after a reference busbar section.
+
+It takes as input:
+- The ID of the reference busbar section
+- A boolean indicating if the new busbar section(s) must be created before(left) or after(right) the reference busbar section
+- A boolean indicating if a new busbar section must be created on all busbars, or only on the busbar of the reference busbar section
+- The switch kind of the new switch(es) that will be created left to the newly created busbar section :
+  - DISCONNECTOR means that only a DISCONNECTOR switch will be created
+  - BREAKER means that a BREAKER switch surrounded by two DISCONNECTOR switches will be created
+- The switch kind of the new switch(es) that will be created right to the newly created busbar section :
+  - DISCONNECTOR means that only a DISCONNECTOR switch will be created
+  - BREAKER means that a BREAKER switch surrounded by two DISCONNECTOR switches will be created
+- A boolean indicating if the new switches created left to the newly created busbar section(s) are fictitious
+- A boolean indicating if the new switches created right to the newly created busbar section(s) are fictitious
+- A boolean indicating if the new switches created left to the newly created busbar section(s) will be open
+- A boolean indicating if the new switches created right to the newly created busbar section(s) will be open
+- The switch prefix ID, used as a prefix for the IDs of the newly created switches.
+- The busbar section prefix ID, used as a prefix for the IDs of the newly created busbar sections. This prefix
+  is followed by the busbar index and the section index, if the default naming strategy is used.
+
 <span style="color: red">TODO: add single line diagrams</span>
 
 ### Network element removal
@@ -158,6 +227,28 @@ connectables are removed. The branches and three-winding transformers are also r
 substations.
 The builder takes the ID of the substation as input.
 
+### Moving a network element
+
+#### MoveFeederBay
+This class is used to move feeder bays of connectables 
+(except `BusOrBusBarSection` connectables) from one place to another within a network.
+
+This class allows to move a feeder bay from one busbar section to another within the network.
+The builder should be used to create any instance of this class. It takes as input:
+
+- The ID of the connectable whose feeder bay will be moved (`connectableId`). Note that `BusOrBusBarSection` connectables are not accepted.
+- The ID of the target bus or busbar section (`targetBusOrBusBarSectionId`) to which the feeder bay should be connected.
+- The ID of the target voltage level (`targetVoltageLevelId`) where the feeder bay will be moved to.
+- The terminal object that specifies which terminal of the connectable should be moved.
+
+When the modification is applied on the network, the system identifies and updates all relevant switches and connections 
+to move the feeder bay from its current position to the specified target place. This includes disconnecting 
+from the original busbar section and reconnecting to the target busbar section.
+If the target voltage level topology kind is `BUS_BREAKER`, the connectable is connected to the target bus without additional switches.
+If the target voltage level topology kind is `NODE_BREAKER`, the appropriate disconnectors and breakers are created to connect
+the feeder bay to the target busbar section, maintaining the correct topology.
+This modification ensures that the connectivity of the network is preserved while moving the feeder bay to its new position.
+
 ### Connect a line on a line or a voltage level on a line
 
 #### ConnectVoltageLevelOnLine
@@ -173,9 +264,6 @@ The builder takes the ID of the substation as input.
 <span style="color: red">TODO</span>
 
 ### ReplaceTeePointbyVoltageLevelOnLine
-<span style="color: red">TODO</span>
-
-### Naming strategy
 <span style="color: red">TODO</span>
 
 ## Tripping
@@ -258,7 +346,7 @@ It is possible to specify a side of the element to connect. If no side is specif
 Class: `ConnectableConnection`
 
 ### Dangling line
-This modification is used to update the active and reactive powers of a dangling line.
+This modification is used to update the active and reactive powers of the load part of a dangling line.
 
 If `relativeValue` is set to true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given values to the previous ones.  
 If `relativeValue` is set to false, then the new constant active power (`P0`) and reactive power (`Q0`) are updated to the new given values.
@@ -366,14 +454,14 @@ Class: `PhaseShifterOptimizeTap`
 #### Fixed tap modification
 This modification updates the phase tap changer of a given two-winding transformer phase shifter id.
 
-It updates its `tapPosition` with the given value and set the phase tap changer as not regulating with a `FIXED_TAP` regulation mode.
+It updates its `tapPosition` with the given value and set the phase tap changer as not regulating.
 
 Class: `PhaseShifterSetAsFixedTap`
 
 #### Shift tap modification
 This modification is used to update the phase tap changer of a given two-winding transformer phase shifter id.
 
-It sets the phase tap changer as not regulating with a `FIXED_TAP` regulation mode and updates its `tapPosition` by adjusting it with the given `tapDelta` applied on the current tap position. The resulting tap position is bounded by the phase tap changer lowest and highest possible positions.
+It sets the phase tap changer as not regulating and updates its `tapPosition` by adjusting it with the given `tapDelta` applied on the current tap position. The resulting tap position is bounded by the phase tap changer lowest and highest possible positions.
 
 Class: `PhaseShifterShiftTap`
 

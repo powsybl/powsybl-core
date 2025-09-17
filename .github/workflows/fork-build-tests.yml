@@ -1,0 +1,82 @@
+name: CI on forks - build and tests
+
+on:
+  pull_request:
+
+permissions: {}
+
+jobs:
+  build:
+    name: Build OS ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    if: github.event.pull_request.head.repo.fork == true
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build with Maven (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: ./mvnw --batch-mode -Dpowsybl.docker-unit-tests.skip=false -Pjacoco install
+
+      - name: Build with Maven (Windows)
+        if: matrix.os == 'windows-latest'
+        run: mvnw.cmd --batch-mode install
+        shell: cmd
+
+      - name: Build with Maven (MacOS)
+        if: matrix.os == 'macos-latest'
+        run: ./mvnw --batch-mode install
+
+      - name: Regroup dependencies in target folders
+        if: matrix.os == 'ubuntu-latest'
+        run: ./mvnw dependency:copy-dependencies
+
+      - name: Save classes and Jacoco report
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: data-for-sonar-analysis-${{ github.event.pull_request.number }}
+          retention-days: 1
+          path: |
+            */target/classes
+            */*/target/classes
+            */*/*/target/classes
+            */target/generated-sources
+            */*/target/generated-sources
+            */*/*/target/generated-sources
+            distribution-core/target/dependency
+            distribution-core/target/site/jacoco-aggregate/jacoco.xml
+
+      - name: Save PR Information
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          REPO_NAME: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          mkdir -p pr-info
+          echo "$REPO_NAME" > pr-info/repo-name
+          echo "$HEAD_REF" > pr-info/head-ref
+          echo "$HEAD_SHA" > pr-info/head-sha
+          echo "$PR_NUMBER" > pr-info/pr-number
+          echo "$BASE_REF" > pr-info/base-ref
+
+      - name: Upload PR Information
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pr-info-${{ github.event.pull_request.number }}
+          path: pr-info/
+          retention-days: 1

@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -46,7 +47,7 @@ class XmlUtilTest {
         AtomicReference<Double> attrDbl = new AtomicReference<>(0d);
         AtomicReference<Float> attrFloat = new AtomicReference<>(0f);
         try (StringReader reader = new StringReader(XML)) {
-            XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
+            XMLStreamReader xmlReader = getXMLInputFactory().createXMLStreamReader(reader);
             xmlReader.next();
             try {
                 XmlUtil.readSubElements(xmlReader, elementName -> {
@@ -76,7 +77,7 @@ class XmlUtilTest {
     void readUntilEndElementWithDepthTest() throws XMLStreamException {
         Map<String, Integer> depths = new HashMap<>();
         try (StringReader reader = new StringReader(XML)) {
-            XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
+            XMLStreamReader xmlReader = getXMLInputFactory().createXMLStreamReader(reader);
             xmlReader.next();
             try {
                 XmlUtil.readSubElements(xmlReader, elementName -> {
@@ -97,7 +98,7 @@ class XmlUtilTest {
     void nestedReadUntilEndElementWithDepthTest() throws XMLStreamException {
         Map<String, Integer> depths = new HashMap<>();
         try (StringReader reader = new StringReader(XML)) {
-            XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
+            XMLStreamReader xmlReader = getXMLInputFactory().createXMLStreamReader(reader);
             try {
                 xmlReader.next();
                 XmlUtil.readSubElements(xmlReader, elementName -> {
@@ -135,7 +136,7 @@ class XmlUtilTest {
 
     private void readUntilStartElementTest(String path, String expected) throws XMLStreamException {
         try (StringReader reader = new StringReader(XML)) {
-            XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
+            XMLStreamReader xmlReader = getXMLInputFactory().createXMLStreamReader(reader);
             try {
                 XmlUtil.readUntilStartElement(path, xmlReader, elementName -> assertEquals(expected, xmlReader.getLocalName()));
             } finally {
@@ -156,7 +157,7 @@ class XmlUtilTest {
     void readTextTest() throws XMLStreamException {
         String xml = "<a>hello</a>";
         try (StringReader reader = new StringReader(xml)) {
-            XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
+            XMLStreamReader xmlReader = getXMLInputFactory().createXMLStreamReader(reader);
             try {
                 String text = null;
                 while (xmlReader.hasNext()) {

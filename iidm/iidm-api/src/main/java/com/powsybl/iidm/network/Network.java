@@ -40,7 +40,7 @@ import java.util.stream.Stream;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -399,6 +399,29 @@ public interface Network extends Container<Network> {
 
     static void readAll(Path dir, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
         readAll(dir, false, LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), consumer);
+    }
+
+    default void update(ReadOnlyDataSource dataSource) {
+        update(dataSource, null);
+    }
+
+    default void update(ReadOnlyDataSource dataSource, Properties properties) {
+        update(dataSource, properties, ReportNode.NO_OP);
+    }
+
+    default void update(ReadOnlyDataSource dataSource, Properties parameters, ReportNode reportNode) {
+        update(dataSource, LocalComputationManager.getDefault(), ImportConfig.load(), parameters,
+                new ImportersServiceLoader(), reportNode);
+    }
+
+    default void update(ReadOnlyDataSource dataSource, ComputationManager computationManager, ImportConfig config, Properties parameters,
+                        ImportersLoader loader, ReportNode reportNode) {
+        Importer importer = Importer.find(dataSource, loader, computationManager, config);
+        if (importer != null) {
+            importer.update(this, dataSource, parameters, reportNode);
+        } else {
+            throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
+        }
     }
 
     /**
@@ -1239,6 +1262,162 @@ public interface Network extends Container<Network> {
     Ground getGround(String id);
 
     /**
+     * Get a builder to create a new DC Node.
+     * @return a builder to create a new DC Node
+     */
+    DcNodeAdder newDcNode();
+
+    /**
+     * Get all DC Nodes.
+     */
+    Iterable<DcNode> getDcNodes();
+
+    /**
+     * Get all DC Nodes.
+     */
+    Stream<DcNode> getDcNodeStream();
+
+    /**
+     * Get the DC Node count.
+     */
+    int getDcNodeCount();
+
+    /**
+     * Get a DC Node.
+     *
+     * @param id the id or an alias of the DC Node
+     */
+    DcNode getDcNode(String id);
+
+    /**
+     * Get a builder to create a new DC Line.
+     * @return a builder to create a new DC Line
+     */
+    DcLineAdder newDcLine();
+
+    /**
+     * Get all DC Lines.
+     */
+    Iterable<DcLine> getDcLines();
+
+    /**
+     * Get all DC Lines.
+     */
+    Stream<DcLine> getDcLineStream();
+
+    /**
+     * Get the DC Line count.
+     */
+    int getDcLineCount();
+
+    /**
+     * Get a DC Line.
+     *
+     * @param id the id or an alias of the DC Line
+     */
+    DcLine getDcLine(String id);
+
+    /**
+     * Get a builder to create a new DC Switch.
+     * @return a builder to create a new DC Switch
+     */
+    DcSwitchAdder newDcSwitch();
+
+    /**
+     * Get all DC Switches.
+     */
+    Iterable<DcSwitch> getDcSwitches();
+
+    /**
+     * Get all DC Switches.
+     */
+    Stream<DcSwitch> getDcSwitchStream();
+
+    /**
+     * Get the DC Switch count.
+     */
+    int getDcSwitchCount();
+
+    /**
+     * Get a DC Switch.
+     *
+     * @param id the id or an alias of the DC Switch
+     */
+    DcSwitch getDcSwitch(String id);
+
+    /**
+     * Get a builder to create a new DC Ground.
+     * @return a builder to create a new DC Ground
+     */
+    DcGroundAdder newDcGround();
+
+    /**
+     * Get all DC Grounds.
+     */
+    Iterable<DcGround> getDcGrounds();
+
+    /**
+     * Get all DC Grounds.
+     */
+    Stream<DcGround> getDcGroundStream();
+
+    /**
+     * Get the DC Ground count.
+     */
+    int getDcGroundCount();
+
+    /**
+     * Get a DC Ground.
+     *
+     * @param id the id or an alias of the DC Ground
+     */
+    DcGround getDcGround(String id);
+
+    /**
+     * Get all AC/DC Line-Commutated Converters.
+     */
+    Iterable<LineCommutatedConverter> getLineCommutatedConverters();
+
+    /**
+     * Get all AC/DC Line-Commutated Converters.
+     */
+    Stream<LineCommutatedConverter> getLineCommutatedConverterStream();
+
+    /**
+     * Get the AC/DC Line-Commutated Converter count.
+     */
+    int getLineCommutatedConverterCount();
+
+    /**
+     * Get an AC/DC Line-Commutated Converter.
+     *
+     * @param id the id or an alias of the AC/DC Line-Commutated Converter
+     */
+    LineCommutatedConverter getLineCommutatedConverter(String id);
+
+    /**
+     * Get all AC/DC Voltage-Source Converters.
+     */
+    Iterable<VoltageSourceConverter> getVoltageSourceConverters();
+
+    /**
+     * Get all AC/DC Voltage-Source Converters.
+     */
+    Stream<VoltageSourceConverter> getVoltageSourceConverterStream();
+
+    /**
+     * Get the AC/DC Voltage-Source Converter count.
+     */
+    int getVoltageSourceConverterCount();
+
+    /**
+     * Get a AC/DC Voltage-Source Converter.
+     *
+     * @param id the id or an alias of the AC/DC Voltage-Source Converter
+     */
+    VoltageSourceConverter getVoltageSourceConverter(String id);
+
+    /**
      * * Get an identifiable by its ID or alias
      *
      * @param id the id or an alias of the identifiable
@@ -1319,6 +1498,76 @@ public interface Network extends Container<Network> {
      * @return the count of all the connectables
      */
     default int getConnectableCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get all DC connectables of the network for a given type
+     *
+     * @param clazz DC connectable type class
+     * @return all the DC connectables of the given type
+     */
+    default <C extends DcConnectable> Iterable<C> getDcConnectables(Class<C> clazz) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get a stream of all DC connectables of the network for a given type
+     *
+     * @param clazz DC connectable type class
+     * @return a stream of all the DC connectables of the given type
+     */
+    default <C extends DcConnectable> Stream<C> getDcConnectableStream(Class<C> clazz) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Count the DC connectables of the network for a given type
+     *
+     * @param clazz connectable type class
+     * @return the count of all the connectables of the given type
+     */
+    default <C extends DcConnectable> int getDcConnectableCount(Class<C> clazz) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get all DC connectables of the network
+     *
+     * @return all the DC connectables
+     */
+    default Iterable<DcConnectable> getDcConnectables() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get a stream of all DC connectables of the network
+     *
+     * @return a stream of all the DC connectables
+     */
+    default Stream<DcConnectable> getDcConnectableStream() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get a DC connectable by its ID or alias
+     *
+     * @param id the id or an alias of the equipment
+     */
+    default DcConnectable<?> getDcConnectable(String id) {
+        Identifiable<?> identifiable = getIdentifiable(id);
+        if (identifiable instanceof DcConnectable<?>) {
+            return (DcConnectable<?>) identifiable;
+        }
+        return null;
+    }
+
+    /**
+     * Count the DC connectables of the network
+     *
+     * @return the count of all the DC connectables
+     */
+    default int getDcConnectableCount() {
         throw new UnsupportedOperationException();
     }
 
@@ -1511,6 +1760,14 @@ public interface Network extends Container<Network> {
             case HVDC_CONVERTER_STATION -> getHvdcConverterStationStream().map(Function.identity());
             case STATIC_VAR_COMPENSATOR -> getStaticVarCompensatorStream().map(Function.identity());
             case GROUND -> getGroundStream().map(Function.identity());
+            case AREA -> getAreaStream().map(Function.identity());
+            case OVERLOAD_MANAGEMENT_SYSTEM -> getOverloadManagementSystemStream().map(Function.identity());
+            case DC_NODE -> getDcNodeStream().map(Function.identity());
+            case DC_LINE -> getDcLineStream().map(Function.identity());
+            case DC_GROUND -> getDcGroundStream().map(Function.identity());
+            case DC_SWITCH -> getDcSwitchStream().map(Function.identity());
+            case LINE_COMMUTATED_CONVERTER -> getLineCommutatedConverterStream().map(Function.identity());
+            case VOLTAGE_SOURCE_CONVERTER -> getVoltageSourceConverterStream().map(Function.identity());
             default -> throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
         };
     }
@@ -1579,5 +1836,94 @@ public interface Network extends Container<Network> {
 
     default void write(String format, Properties parameters, String directory, String baseName) {
         write(new ExportersServiceLoader(), format, parameters, directory, baseName);
+    }
+
+    static Reader newReader(Path file) {
+        return new Reader(file);
+    }
+
+    static Reader newReader(String file) {
+        return new Reader(file);
+    }
+
+    static Reader newReader(String filename, InputStream is) {
+        return new Reader(filename, is);
+    }
+
+    static Reader newReader(ReadOnlyDataSource dataSource) {
+        return new Reader(dataSource);
+    }
+
+    class Reader {
+        private Path file = null;
+        private InputStream inputStream = null;
+        private String inputStreamFilename = null;
+        private ReadOnlyDataSource dataSource = null;
+        private ComputationManager computationManager = LocalComputationManager.getDefault();
+        private ImportConfig config = ImportConfig.CACHE.get();
+        private Properties parameters = new Properties();
+        private NetworkFactory networkFactory = NetworkFactory.findDefault();
+        private ImportersLoader loader = new ImportersServiceLoader();
+        private ReportNode reportNode = ReportNode.NO_OP;
+
+        Reader(Path file) {
+            this.file = file;
+        }
+
+        Reader(String fileString) {
+            this.file = Paths.get(fileString);
+        }
+
+        Reader(String filename, InputStream is) {
+            this.inputStreamFilename = filename;
+            this.inputStream = is;
+        }
+
+        Reader(ReadOnlyDataSource dataSource) {
+            this.dataSource = dataSource;
+        }
+
+        public Reader setComputationManager(ComputationManager cm) {
+            this.computationManager = cm;
+            return this;
+        }
+
+        public Reader setImportConfig(ImportConfig cfg) {
+            this.config = cfg;
+            return this;
+        }
+
+        public Reader setParameters(Properties p) {
+            this.parameters = p;
+            return this;
+        }
+
+        public Reader setNetworkFactory(NetworkFactory nf) {
+            this.networkFactory = nf;
+            return this;
+        }
+
+        public Reader setImportersLoader(ImportersLoader l) {
+            this.loader = l;
+            return this;
+        }
+
+        public Reader setReportNode(ReportNode rn) {
+            this.reportNode = rn;
+            return this;
+        }
+
+        public Network read() {
+            if (file != null) {
+                return Network.read(file, computationManager, config, parameters, networkFactory, loader, reportNode);
+            } else if (inputStream != null && inputStreamFilename != null) {
+                return Network.read(inputStreamFilename, inputStream, computationManager, config, parameters,
+                        networkFactory, loader, reportNode);
+            } else if (dataSource != null) {
+                return Network.read(dataSource, computationManager, config, parameters, networkFactory, loader, reportNode);
+            } else {
+                throw new PowsyblException("No valid source specified for network import");
+            }
+        }
     }
 }
