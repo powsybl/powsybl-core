@@ -29,7 +29,7 @@ public class ThreadInterruptedCompletableFuture<R> extends CompletableFuture<R> 
         cancel = true;
 
         if (this.isDone() || this.isCompletedExceptionally()) {
-            LOGGER.warn("Can not be canceled because the caller future isDone or isCompletedExceptionally");
+            LOGGER.warn("Cannot be canceled because the caller future isDone or isCompletedExceptionally");
             return false;
         }
 
