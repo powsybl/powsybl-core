@@ -27,10 +27,12 @@ class LegFortescueImpl implements LegFortescue {
     /**
      * Free fluxes set to true means that the magnetizing impedance Zm is infinite, i.e. fluxes are free.
      */
+    @Override
     public boolean isFreeFluxes() {
         return freeFluxes;
     }
 
+    @Override
     public void setFreeFluxes(boolean freeFluxes) {
         this.freeFluxes = freeFluxes;
     }
@@ -38,10 +40,12 @@ class LegFortescueImpl implements LegFortescue {
     /**
      * The zero sequence resistance of the leg.
      */
+    @Override
     public double getRz() {
         return rz;
     }
 
+    @Override
     public void setRz(double rz) {
         this.rz = rz;
     }
@@ -49,10 +53,12 @@ class LegFortescueImpl implements LegFortescue {
     /**
      * The zero sequence reactance of the leg.
      */
+    @Override
     public double getXz() {
         return xz;
     }
 
+    @Override
     public void setXz(double xz) {
         this.xz = xz;
     }
@@ -60,10 +66,12 @@ class LegFortescueImpl implements LegFortescue {
     /**
      * Get the winding connection type of the leg, see {@link WindingConnectionType}).
      */
+    @Override
     public WindingConnectionType getConnectionType() {
         return connectionType;
     }
 
+    @Override
     public void setConnectionType(WindingConnectionType connectionType) {
         this.connectionType = Objects.requireNonNull(connectionType);
     }
@@ -72,10 +80,12 @@ class LegFortescueImpl implements LegFortescue {
      * If the leg is earthed, depending on {@link WindingConnectionType}, it represents the
      * resistance part of the impedance to ground.
      */
+    @Override
     public double getGroundingR() {
         return groundingR;
     }
 
+    @Override
     public void setGroundingR(double groundingR) {
         this.groundingR = groundingR;
     }
@@ -84,10 +94,12 @@ class LegFortescueImpl implements LegFortescue {
      * If the leg is earthed, depending on {@link WindingConnectionType}, it represents the
      * reactance part of the impedance to ground.
      */
+    @Override
     public double getGroundingX() {
         return groundingX;
     }
 
+    @Override
     public void setGroundingX(double groundingX) {
         this.groundingX = groundingX;
     }
