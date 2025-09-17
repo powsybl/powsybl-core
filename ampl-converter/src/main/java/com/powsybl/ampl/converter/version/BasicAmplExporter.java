@@ -1001,7 +1001,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double q2 = sv.getQ();
         double patl = getPermanentLimit(dl.getCurrentLimits().orElse(null));
 
-        if (busNum == middleBusNum) {
+        if (busNum == middleBusNum) { // Not sure if this condition might occur
             LOGGER.warn("Skipping dangling line '{}' connected to the same bus at both sides", id);
             return;
         }
