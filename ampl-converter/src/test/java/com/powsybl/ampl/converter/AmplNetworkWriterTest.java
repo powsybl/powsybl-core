@@ -7,19 +7,20 @@
  */
 package com.powsybl.ampl.converter;
 
+import com.powsybl.ampl.converter.util.AmplDatTableFormatter;
+import com.powsybl.ampl.converter.version.AmplExportVersion;
+import com.powsybl.ampl.converter.version.BasicAmplExporter;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Properties;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -32,168 +33,6 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
     public void setUp() throws IOException {
         super.setUp();
         properties.put("iidm.export.ampl.export-version", "1.0");
-    }
-
-    protected static void createBus(VoltageLevel voltageLevel, String id) {
-        voltageLevel.getBusBreakerView()
-                .newBus()
-                .setName(id)
-                .setId(id)
-                .add();
-    }
-
-    private static ThreeWindingsTransformer createThreeWindingsTransformerOnSameBus(Substation substation) {
-        return substation.newThreeWindingsTransformer()
-                .setId("TransfoID")
-                .setName("twt3_name")
-                .newLeg1()
-                .setR(1.3)
-                .setX(1.4)
-                .setG(1.6)
-                .setB(1.7)
-                .setRatedU(1.1)
-                .setVoltageLevel("S1VL2")
-                .setConnectableBus("S1VL2-BUS")
-                .setBus("S1VL2-BUS")
-                .add()
-                .newLeg2()
-                .setR(2.03)
-                .setX(2.04)
-                .setG(0.0)
-                .setB(0.0)
-                .setRatedU(2.05)
-                .setVoltageLevel("S1VL2")
-                .setBus("S1VL2-BUS")
-                .setConnectableBus("S1VL2-BUS")
-                .add()
-                .newLeg3()
-                .setR(3.3)
-                .setX(3.4)
-                .setG(0.0)
-                .setB(0.0)
-                .setRatedU(3.5)
-                .setVoltageLevel("S1VL3")
-                .setBus("S1VL3-BUS")
-                .setConnectableBus("S1VL3-BUS")
-                .add()
-                .add();
-    }
-
-    protected static Network createTransfoSameBus() {
-        Network network = Network.create("TransfoSameBus", "test");
-
-        Substation s1 = network.newSubstation()
-                .setId("S1")
-                .add();
-        VoltageLevel s1vl1 = s1.newVoltageLevel()
-                .setId("S1VL1")
-                .setNominalV(1.0)
-                .setLowVoltageLimit(0.95)
-                .setHighVoltageLimit(1.05)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-
-        VoltageLevel s1vl2 = s1.newVoltageLevel()
-                .setId("S1VL2")
-                .setNominalV(1.0)
-                .setLowVoltageLimit(0.95)
-                .setHighVoltageLimit(1.05)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-
-        VoltageLevel s1vl3 = s1.newVoltageLevel()
-                .setId("S1VL3")
-                .setNominalV(1.0)
-                .setLowVoltageLimit(0.95)
-                .setHighVoltageLimit(1.05)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-
-        createBus(s1vl1, "S1VL1-BUS");
-        createBus(s1vl2, "S1VL2-BUS");
-        createBus(s1vl3, "S1VL3-BUS");
-
-        Substation s2 = network.newSubstation()
-                .setId("S2")
-                .add();
-
-        VoltageLevel s2vl1 = s2.newVoltageLevel()
-                .setId("S2VL1")
-                .setNominalV(1.0)
-                .setLowVoltageLimit(0.95)
-                .setHighVoltageLimit(1.05)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-
-        createBus(s2vl1, "S2VL1-BUS");
-
-        ThreeWindingsTransformer twt3 = createThreeWindingsTransformerOnSameBus(s1);
-
-        return network;
-    }
-
-    protected static Network createDanglingLineOnSameBus() {
-        Network network = Network.create("NetworkTieLineOnSameBus", "test");
-
-        Substation s1 = network.newSubstation()
-                .setId("S1")
-                .add();
-        VoltageLevel s1vl1 = s1.newVoltageLevel()
-                .setId("S1VL1")
-                .setNominalV(1.0)
-                .setLowVoltageLimit(0.95)
-                .setHighVoltageLimit(1.05)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-
-        createBus(s1vl1, "S1VL1-BUS");
-
-        Substation s2 = network.newSubstation()
-                .setId("S2")
-                .add();
-        VoltageLevel s2vl1 = s2.newVoltageLevel()
-                .setId("S2VL1")
-                .setNominalV(1.0)
-                .setLowVoltageLimit(0.95)
-                .setHighVoltageLimit(1.05)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-
-        createBus(s2vl1, "S2VL1-BUS");
-
-        DanglingLine dl1 = s1vl1.newDanglingLine()
-                .setBus("S1VL1-BUS")
-                .setPairingKey("S1VL1-BUS")
-                .setId(TwoSides.TWO.name())
-                .setName(TwoSides.TWO.name())
-                .setP0(0.0)
-                .setQ0(0.0)
-                .setR(0.019)
-                .setX(0.059)
-                .setG(0.05)
-                .setB(0.14)
-                .add();
-        DanglingLine dl2 = s2vl1.newDanglingLine()
-                .setBus("S2VL1-BUS")
-                .setId(TwoSides.ONE.name())
-                .setName(TwoSides.ONE.name())
-                .setP0(0.0)
-                .setQ0(0.0)
-                .setR(0.038)
-                .setX(0.118)
-                .setG(0.04)
-                .setB(0.13)
-                .setPairingKey("S1VL1-BUS")
-                .add();
-
-        TieLine tieLine = network.newTieLine()
-                .setId("TieLineID")
-                .setName("TieLineName")
-                .setDanglingLine1(dl1.getId())
-                .setDanglingLine2(dl2.getId())
-                .add();
-
-        return network;
     }
 
     @Test
@@ -404,6 +243,13 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
         exporter.export(network, config, dataSource);
     }
 
+    private void exportAllBasicAmpl(Network network, Properties properties, DataSource dataSource) {
+
+        AmplExportConfig config = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.V1_1);
+        AmplExporter exporter = new AmplExporter();
+        exporter.export(network, config, dataSource);
+    }
+
     @Test
     void writeHeaders() throws IOException {
         Network network = Network.create("dummy_network", "test");
@@ -471,24 +317,182 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
     }
 
     @Test
-    void testTieLineSameElectricalBus() throws IOException {
-        // Here we want to create test tieline with pairingkey = bus1 o bus2 in order to reproduce the issue
-        Network network = createDanglingLineOnSameBus();
-        //MemDataSource dataSource = new MemDataSource();
-        //export(network, properties, dataSource);
-        Path myTmpDir = Files.createTempDirectory("temp-TIELINE_SameBus");
-        exportAll(network, properties, new DirectoryDataSource(myTmpDir, "tieline_samebus"));
-        assertTrue(true);
+    void testSameBusLinesToFormatter() throws IOException {
+        Network network = NoEquipmentNetworkFactory.create();
+        Line line = network.newLine()
+            .setId("L1")
+            .setName("LINE1")
+            .setR(1.0)
+            .setX(2.0)
+            .setG1(3.0)
+            .setG2(3.5)
+            .setB1(4.0)
+            .setB2(4.5)
+            .setVoltageLevel1("vl1")
+            .setVoltageLevel2("vl1")
+            .setBus1("busA")
+            .setBus2("busA")
+            .setConnectableBus1("busA")
+            .setConnectableBus2("busA")
+            .add();
+
+        AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.V1_1);
+        BasicAmplExporter exporter = new BasicAmplExporter(amplExportConfig, network, AmplUtil.createMapper(network), 1, 0, 0);
+        Writer writer = new StringWriter();
+        TableFormatter formatter = new AmplDatTableFormatter(writer, AmplNetworkWriter.getTableTitle(network, "Branches"), AmplConstants.INVALID_FLOAT_VALUE, true, AmplConstants.LOCALE, exporter.getBranchesColumns());
+        exporter.writeLinesToFormatter(formatter, line);
+        String result = writer.toString();
+        assertEquals("", result);
     }
 
     @Test
-    void testTranfoSameElectricalBus() throws IOException {
-        // Here we want to create test transfo with middleBus == bus1 in order to reproduce the issue
-        Network network = createTransfoSameBus();
-        //MemDataSource dataSource = new MemDataSource();
-        //export(network, properties, dataSource);
-        Path myTmpDir = Files.createTempDirectory("temp-TRANSFO_SameBusFIX");
-        exportAll(network, properties, new DirectoryDataSource(myTmpDir, "transfo_sameline"));
-        assertTrue(true);
+    void testTwoWindingsTranformerToFormatter() throws IOException {
+        Network network = NoEquipmentNetworkFactory.create();
+        TwoWindingsTransformer twt = network.getSubstation("sub").newTwoWindingsTransformer()
+                .setId("TR")
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl1")
+                .setR(0)
+                .setX(1)
+                .setB(1)
+                .setG(0)
+                .setRatedU1(1)
+                .setRatedU2(1)
+                .setBus1("busA")
+                .setBus2("busA")
+                .add();
+
+        AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.V1_1);
+        BasicAmplExporter exporter = new BasicAmplExporter(amplExportConfig, network, AmplUtil.createMapper(network), 1, 0, 0);
+        Writer writer = new StringWriter();
+        TableFormatter formatter = new AmplDatTableFormatter(writer, AmplNetworkWriter.getTableTitle(network, "Branches"), AmplConstants.INVALID_FLOAT_VALUE, true, AmplConstants.LOCALE, exporter.getBranchesColumns());
+        exporter.writeTwoWindingsTranformerToFormatter(formatter, twt);
+        String result = writer.toString();
+        assertEquals("", result);
+    }
+
+    @Test
+    void testThreeWindingsTranformerToFormatter() throws IOException {
+        Network network = NoEquipmentNetworkFactory.create();
+        Substation substation = network.getSubstation("sub");
+        ThreeWindingsTransformer twt3w = substation.newThreeWindingsTransformer()
+                .setId("twt")
+                .setName("transfo3")
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setRatedS(1.2)
+                .setVoltageLevel("vl1")
+                .setConnectableBus("busA")
+                .setBus("busA")
+                .add()
+                .newLeg2()
+                .setR(2.03)
+                .setX(2.04)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(2.05)
+                .setRatedS(2.06)
+                .setVoltageLevel("vl2")
+                .setConnectableBus("busB")
+                .add()
+                .newLeg3()
+                .setR(3.3)
+                .setX(3.4)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(3.5)
+                .setRatedS(3.6)
+                .setVoltageLevel("vl2")
+                .setConnectableBus("busB")
+                .add()
+                .add();
+
+        AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.V1_1);
+        BasicAmplExporter exporter = new BasicAmplExporter(amplExportConfig, network, AmplUtil.createMapper(network), 1, 0, 0);
+        Writer writer = new StringWriter();
+        TableFormatter formatter = new AmplDatTableFormatter(writer, AmplNetworkWriter.getTableTitle(network, "Branches"), AmplConstants.INVALID_FLOAT_VALUE, true, AmplConstants.LOCALE, exporter.getBranchesColumns());
+        exporter.writeThreeWindingsTransformerLegToFormatter(formatter, twt3w, 1, 1, ThreeSides.ONE);
+        String result = writer.toString();
+        assertEquals("", result);
+    }
+
+    @Test
+    void testSameBusTieLineToFormatter() throws IOException {
+        Network network = NoEquipmentNetworkFactory.create();
+        VoltageLevel voltageLevelA = network.getVoltageLevel("vl1");
+        VoltageLevel voltageLevelB = network.getVoltageLevel("vl2");
+
+        double tol = 0.0000001;
+        double r = 10.0;
+        double r2 = 1.0;
+        double x = 20.0;
+        double x2 = 2.0;
+        double hl1g1 = 0.03;
+        double hl1g2 = 0.035;
+        double hl1b1 = 0.04;
+        double hl1b2 = 0.045;
+        double hl2g1 = 0.013;
+        double hl2g2 = 0.0135;
+        double hl2b1 = 0.014;
+        double hl2b2 = 0.0145;
+
+        DanglingLine dl1 = voltageLevelA.newDanglingLine()
+                .setBus("busA")
+                .setId("hl1")
+                .setEnsureIdUnicity(true)
+                .setName("dl1_name")
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(r)
+                .setX(x)
+                .setB(hl1b1 + hl1b2)
+                .setG(hl1g1 + hl1g2)
+                .setPairingKey("vl1_0")//ucte
+                .add();
+        DanglingLine dl2 = voltageLevelB.newDanglingLine()
+                .setBus("busB")
+                .setId("hl2")
+                .setEnsureIdUnicity(true)
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(r2)
+                .setX(x2)
+                .setB(hl2b1 + hl2b2)
+                .setG(hl2g1 + hl2g2)
+                .add();
+
+        TieLineAdder adder = network.newTieLine().setId("testTie")
+                .setName("testNameTie")
+                .setDanglingLine1(dl1.getId())
+                .setDanglingLine2(dl2.getId());
+        TieLine tieLine = adder.add();
+
+        AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.V1_1);
+        BasicAmplExporter exporter = new BasicAmplExporter(amplExportConfig, network, AmplUtil.createMapper(network), 1, 0, 0);
+        Writer writer = new StringWriter();
+        TableFormatter formatter = new AmplDatTableFormatter(writer, AmplNetworkWriter.getTableTitle(network, "Branches"), AmplConstants.INVALID_FLOAT_VALUE, true, AmplConstants.LOCALE, exporter.getBranchesColumns());
+        exporter.writeTieLineToFormatter(formatter, tieLine);
+        String result = writer.toString();
+        assertEquals("", result);
+    }
+
+    @Test
+    void testBasicAmplExporterGetConfig() throws IOException {
+        Network network = NoEquipmentNetworkFactory.create();
+        AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.V1_1);
+        BasicAmplExporter exporter = new BasicAmplExporter(amplExportConfig, network, AmplUtil.createMapper(network), 1, 0, 0);
+        assertEquals(amplExportConfig, exporter.getConfig());
+    }
+
+    @Test
+    void testBasicAmplExporterGetNetwork() throws IOException {
+        Network network = NoEquipmentNetworkFactory.create();
+        AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.V1_1);
+        BasicAmplExporter exporter = new BasicAmplExporter(amplExportConfig, network, AmplUtil.createMapper(network), 1, 0, 0);
+        assertEquals(network, exporter.getNetwork());
     }
 }
