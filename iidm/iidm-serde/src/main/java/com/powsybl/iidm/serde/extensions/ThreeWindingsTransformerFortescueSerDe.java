@@ -16,6 +16,7 @@ import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.extensions.LegFortescue;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescueAdder;
 import com.powsybl.iidm.network.extensions.WindingConnectionType;
@@ -32,7 +33,7 @@ public class ThreeWindingsTransformerFortescueSerDe extends AbstractExtensionSer
                 "t3f");
     }
 
-    private static void writeLeg(ThreeWindingsTransformerFortescue.LegFortescue legFortescue, TreeDataWriter writer) {
+    private static void writeLeg(LegFortescue legFortescue, TreeDataWriter writer) {
         writer.writeDoubleAttribute("rz", legFortescue.getRz(), Double.NaN);
         writer.writeDoubleAttribute("xz", legFortescue.getXz(), Double.NaN);
         writer.writeBooleanAttribute("freeFluxes", legFortescue.isFreeFluxes());
