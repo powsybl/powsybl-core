@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import com.powsybl.iidm.serde.IidmVersion;
 
+import static com.powsybl.iidm.serde.extensions.BatteryShortCircuitSerDe.Version.V_1_0;
 import static com.powsybl.iidm.serde.extensions.BatteryShortCircuitSerDe.Version.V_1_0_LEGACY;
 import static com.powsybl.iidm.serde.extensions.BatteryShortCircuitSerDe.Version.V_1_0_LEGACY_2;
 
@@ -56,6 +57,17 @@ public class BatteryShortCircuitSerDe extends AbstractVersionableNetworkExtensio
 
     public BatteryShortCircuitSerDe() {
         super(BatteryShortCircuit.NAME, BatteryShortCircuit.class, Version.values());
+    }
+
+    @Override
+    public Version getVersion(IidmVersion networkVersion) {
+        if (IidmVersion.V_1_13.compareTo(networkVersion) > 0) {
+            return V_1_0_LEGACY;
+        } else if (networkVersion == IidmVersion.V_1_13) {
+            return V_1_0;
+        } else {
+            return super.getVersion(networkVersion);
+        }
     }
 
     @Override
