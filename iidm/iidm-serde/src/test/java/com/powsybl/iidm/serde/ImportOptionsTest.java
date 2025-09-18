@@ -46,6 +46,18 @@ class ImportOptionsTest {
     }
 
     @Test
+    void importOptionsTestFilteredExtensions() {
+        ImportOptions options = new ImportOptions(Boolean.FALSE);
+        options.setExtensions(Sets.newHashSet("loadFoo", "loadBar"));
+        options.setFilteredExtensions(Sets.newHashSet("loadBar"));
+        assertEquals(Boolean.FALSE, options.withNoExtension());
+        assertEquals(Boolean.TRUE, options.withExtension("loadFoo"));
+        assertEquals(Boolean.FALSE, options.withExtension("loadBar"));
+        assertEquals(2, (int) options.getExtensions().map(Set::size).orElse(-1));
+        assertEquals(1, (int) options.getFilteredExtensions().map(Set::size).orElse(-1));
+    }
+
+    @Test
     void importOptionsDefaultValues() {
         ImportOptions options = new ImportOptions(Boolean.FALSE);
 
