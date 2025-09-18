@@ -114,6 +114,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     public static final String SORTED = "iidm.export.xml.sorted";
     public static final String VERSION = "iidm.export.xml.version";
     public static final String WITH_AUTOMATION_SYSTEMS = "iidm.export.xml.with-automation-systems";
+    public static final String TOPOLOGY_VOLTAGE_LEVEL = "iidm.export.xml.topology-level-vl";
 
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
     private static final Parameter WITH_BRANCH_STATE_VARIABLES_PARAMETER = new Parameter(WITH_BRANCH_STATE_VARIABLES, ParameterType.BOOLEAN, "Export network with branch state variables", Boolean.TRUE);
@@ -137,7 +138,6 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
             TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
             SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER);
-
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     protected AbstractTreeDataExporter(PlatformConfig platformConfig) {
@@ -185,6 +185,22 @@ public abstract class AbstractTreeDataExporter implements Exporter {
         });
     }
 
+    private void addTopologyLevelVoltageLevels(Properties parameters, ExportOptions options) {
+        List<String> stringList = new ArrayList<>();
+        Parameter paramStringList = new Parameter(TOPOLOGY_VOLTAGE_LEVEL, ParameterType.STRING_LIST, "", stringList);
+        Parameter.readStringList(TOPOLOGY_VOLTAGE_LEVEL, parameters, paramStringList);
+
+        for (String line : stringList) {
+            String[] parts = line.trim().split("\\s+");
+            if (parts.length != 2 || !parts[0].startsWith(TOPOLOGY_VOLTAGE_LEVEL)) {
+                continue;
+            }
+            String voltageLevelId = parts[0].substring(TOPOLOGY_VOLTAGE_LEVEL.length());
+            TopologyLevel topologyLevel = TopologyLevel.valueOf(parts[1]);
+            options.addVoltageLevelTopologyLevel(voltageLevelId, topologyLevel);
+        }
+    }
+
     private ExportOptions createExportOptions(Properties parameters) {
         ExportOptions options = new ExportOptions()
                 .setIndent(Parameter.readBoolean(getFormat(), parameters, INDENT_PARAMETER, defaultValueConfig))
@@ -200,6 +216,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
                 .setFormat(getTreeDataFormat())
                 .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig));
         addExtensionsVersions(parameters, options);
+        addTopologyLevelVoltageLevels(parameters, options);
         return options;
     }
 }
