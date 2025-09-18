@@ -38,7 +38,6 @@ public interface RatioTapChanger extends TapChanger<
      */
     RatioTapChanger setRegulationMode(RatioTapChanger.RegulationMode regulationMode);
 
-
     /**
      * Get the regulation value.
      *   - a setpoint in kV in case of {@link RegulationMode#VOLTAGE} regulation

@@ -26,7 +26,7 @@ public final class DefaultExtensionsSupplier implements ExtensionsSupplier {
     }
 
     // Bill Pugh Singleton Implementation
-    private static class SingletonHelper {
+    private static final class SingletonHelper {
         private static final DefaultExtensionsSupplier INSTANCE = new DefaultExtensionsSupplier();
     }
 

@@ -49,14 +49,14 @@ public class SingleCountryCriterion implements Criterion {
     protected static Country getCountry(Identifiable<?> identifiable, IdentifiableType type) {
         return switch (type) {
             case DANGLING_LINE, GENERATOR, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, BATTERY, HVDC_CONVERTER_STATION ->
-                    getCountry(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
+                getCountry(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
             case SWITCH -> getCountry(((Switch) identifiable).getVoltageLevel());
             case TWO_WINDINGS_TRANSFORMER ->
-                    getCountry(((TwoWindingsTransformer) identifiable).getNullableSubstation());
+                getCountry(((TwoWindingsTransformer) identifiable).getNullableSubstation());
             case THREE_WINDINGS_TRANSFORMER ->
-                    getCountry(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
+                getCountry(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
             case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER ->
-                    getCountry(((AcDcConverter<?>) identifiable).getTerminal1().getVoltageLevel());
+                getCountry(((AcDcConverter<?>) identifiable).getTerminal1().getVoltageLevel());
             default -> null;
         };
     }

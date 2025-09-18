@@ -161,7 +161,7 @@ class DynamicSimulationParametersTest {
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
-    private static class DummyExtension extends AbstractExtension<DynamicSimulationParameters> {
+    private static final class DummyExtension extends AbstractExtension<DynamicSimulationParameters> {
 
         @Override
         public String getName() {
