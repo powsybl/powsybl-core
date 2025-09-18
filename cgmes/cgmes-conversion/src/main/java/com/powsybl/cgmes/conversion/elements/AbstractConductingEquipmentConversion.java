@@ -559,6 +559,22 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
+    public void connect(AcDcConverterAdder<?, ?> adder) {
+        if (context.nodeBreaker()) {
+            adder.setNode1(iidmNode());
+        } else {
+            adder.setBus1(terminalConnected() ? busId() : null).setConnectableBus1(busId());
+        }
+
+        if (numTerminals == 2) {
+            if (context.nodeBreaker()) {
+                adder.setNode2(iidmNode(2));
+            } else {
+                adder.setBus2(terminalConnected(2) ? busId(2) : null).setConnectableBus2(busId(2));
+            }
+        }
+    }
+
     public void connect(BranchAdder<?, ?> adder) {
         if (context.nodeBreaker()) {
             adder

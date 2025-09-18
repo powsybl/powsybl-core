@@ -520,6 +520,11 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags dcNodes() {
+        return new PropertyBags();
+    }
+
+    @Override
     public PropertyBags tieFlows() {
         return tieFlows;
     }
