@@ -306,14 +306,6 @@ public interface Importer {
     boolean exists(ReadOnlyDataSource dataSource);
 
     /**
-     * @deprecated Use {@link Importer#importData(ReadOnlyDataSource, NetworkFactory, Properties)} instead.
-     */
-    @Deprecated(since = "2.6.0")
-    default Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-        return importData(dataSource, NetworkFactory.findDefault(), parameters);
-    }
-
-    /**
      * Create a model.
      *
      * @param dataSource data source
