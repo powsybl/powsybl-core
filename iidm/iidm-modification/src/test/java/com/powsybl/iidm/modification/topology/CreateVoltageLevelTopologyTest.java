@@ -25,11 +25,9 @@ import com.powsybl.math.graph.TraverseResult;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -424,7 +422,6 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
             encounteredSwitches.add(sw);
             return TraverseResult.CONTINUE;
         });
-        network.write("XIIDM", new Properties(), Path.of("/tmp/test.xiidm"));
         assertFalse(encounteredSwitches.isEmpty());
     }
 
@@ -470,7 +467,6 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withBusbarSectionsToConnect(network.getBusbarSectionStream().filter(b -> b.getId().contains("vl1")).toList())
                 .withConnectCouplingDevices(true)
                 .build().apply(network);
-        network.write("XIIDM", new Properties(), Path.of("/tmp/test.xiidm"));
         writeXmlTest(network, "/testNetworkNodeBreakerWithNewBusbarSectionsConnectedConnectables.xiidm");
     }
 

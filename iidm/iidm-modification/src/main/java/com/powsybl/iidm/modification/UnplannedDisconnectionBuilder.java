@@ -29,7 +29,7 @@ public class UnplannedDisconnectionBuilder {
     ThreeSides side;
 
     /**
-     * Specify the network element to disconnect. It can be either a connectables, an HVDC line or a tie line.
+     * Specify the network element to disconnect. It can be either a connectable, an HVDC line or a tie line.
      * @param identifiableId id of the network element to disconnect
      */
     public UnplannedDisconnectionBuilder withIdentifiableId(String identifiableId) {

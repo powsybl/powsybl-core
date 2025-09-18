@@ -67,7 +67,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
-        // Set the connectables bus or node
+        // Set the connectable bus or node
         if (!setAdderConnectivity(network, reportNode, throwException)) {
             return;
         }
@@ -84,7 +84,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             return;
         }
 
-        LOGGER.info("New connectables {} of type {} created", connectable.getId(), connectable.getType());
+        LOGGER.info("New connectable {} of type {} created", connectable.getId(), connectable.getType());
         createdConnectable(reportNode, connectable);
 
         createExtensionAndTopology(createExtension, connectable, network, namingStrategy, reportNode);
@@ -123,9 +123,9 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
         if (!checkOrderValue(side, busbarSection, takenFeederPositions, reportNode, throwException)) {
             if (getLogOrThrowIfIncorrectPositionOrder(side)) {
-                return Optional.empty(); // connectables will not be created
+                return Optional.empty(); // connectable will not be created
             } else {
-                return Optional.of(false); // connectables will be created but not the extension
+                return Optional.of(false); // connectable will be created but not the extension
             }
         } else {
             return Optional.of(true);
@@ -229,8 +229,8 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     }
 
     /**
-     * Set the connectables bus/node on the injection or branch adder for each side of the Feeder Bay(s)
-     * @return true if the connectables bus(es) or node(s) has(have) been set, else return false
+     * Set the connectable bus/node on the injection or branch adder for each side of the Feeder Bay(s)
+     * @return true if the connectable bus(es) or node(s) has(have) been set, else return false
      */
     private boolean setAdderConnectivity(Network network, ReportNode reportNode, boolean throwException) {
         Map<VoltageLevel, Integer> firstAvailableNodes = new HashMap<>();
@@ -243,7 +243,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 return false;
             }
 
-            // Set the connectables bus/node on the injection or branch adder
+            // Set the connectable bus/node on the injection or branch adder
             if (busOrBusbarSection instanceof Bus bus) {
                 // if bus is an identifiable, the voltage level is BUS_BREAKER
                 checkOrders(side, bus, reportNode, throwException); // is always true, can only return a warning
@@ -291,7 +291,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
                 continue; // no extension nor switches created in bus-breaker topology
             }
-            // Get the wanted position for the new connectables
+            // Get the wanted position for the new connectable
             int positionOrder = getPositionOrder(side);
 
             // Create extension depending on preprocessing done to create the createExtension map
@@ -304,7 +304,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 createConnectablePosition = true;
             }
             int connectableNode = getNode(side, connectable);
-            // create switches and a breaker linking the connectables to the busbar sections.
+            // create switches and a breaker linking the connectable to the busbar sections.
             createTopologyWithConnectableNode(side, busOrBusbarSectionId, network, voltageLevel, connectableNode, connectable, namingStrategy, reportNode);
         }
         if (createConnectablePosition) {

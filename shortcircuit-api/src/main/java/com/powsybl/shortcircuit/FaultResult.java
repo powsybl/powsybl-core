@@ -53,7 +53,7 @@ public interface FaultResult extends Extendable<FaultResult> {
     double getShortCircuitPower();
 
     /**
-     * List of contributions to the three-phase fault current of each connectables connected to the equipment.
+     * List of contributions to the three-phase fault current of each connectable connected to the equipment.
      */
     List<FeederResult> getFeederResults();
 

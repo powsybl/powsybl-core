@@ -665,7 +665,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .build();
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, connectionUnknownElement.hasImpactOnNetwork(network));
 
-        // Not a connectables, nor a TieLine nor a HvdcLine
+        // Not a connectable, nor a TieLine nor a HvdcLine
         UnplannedDisconnection voltageLevelDisconnection = new UnplannedDisconnectionBuilder()
             .withIdentifiableId("VL1")
             .build();

@@ -79,7 +79,7 @@ public final class RegulatingTerminalMapper {
     private static <T> Stream<? extends Terminal> allTerminals(VoltageLevel vl, Set<T> vertices, Function<Terminal, T> terminalToVertex) {
         // The current implementation is:
         // For all connectables inside the voltage level:
-        // For all terminals of connectables:
+        // For all terminals of connectable:
         // filter terminals in the voltage level
         // filter terminals with vertex in the list of vertices
 

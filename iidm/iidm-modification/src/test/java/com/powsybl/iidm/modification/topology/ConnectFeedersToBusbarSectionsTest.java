@@ -7,7 +7,6 @@ import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 class ConnectFeedersToBusbarSectionsTest extends AbstractModificationTest {
 
@@ -40,7 +39,6 @@ class ConnectFeedersToBusbarSectionsTest extends AbstractModificationTest {
                 .build();
 
         modification.apply(network);
-        network.write("XIIDM", new java.util.Properties(), Path.of("/tmp/test.xiidm"));
         writeXmlTest(network, "/testNetwork3BusbarSectionsWithCouplingDeviceAndConnectedLoads.xiidm");
 
         // Check that nothing changes if we apply the modification a second time

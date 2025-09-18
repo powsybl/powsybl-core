@@ -225,7 +225,7 @@ class MoveFeederBayTest {
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED,
                 modificationWrongId.hasImpactOnNetwork(network));
 
-        // When/Then - Same connectables/busbar
+        // When/Then - Same connectable/busbar
         NetworkModification modificationSameBusbar = new MoveFeederBay(
                 "S4VL1_BBS", "S4VL1_BBS", "S1VL2", terminal);
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED,
