@@ -26,6 +26,15 @@ public final class NamingStrategyFactory {
 
     public static NamingStrategy create(String impl, UUID uuidNamespace) {
         Objects.requireNonNull(impl);
+
+        // First, try to find a provider via ServiceLoader
+        NamingStrategiesServiceLoader serviceLoader = new NamingStrategiesServiceLoader();
+        var providerOpt = serviceLoader.findProviderByName(impl);
+        if (providerOpt.isPresent()) {
+            return providerOpt.get().create(uuidNamespace);
+        }
+
+        // Fallback to built-in implementations for backward compatibility
         return switch (impl) {
             case IDENTITY -> new NamingStrategy.Identity();
             case CGMES -> new SimpleCgmesAliasNamingStrategy(uuidNamespace);
