@@ -34,6 +34,10 @@ public class GeoJsonAdderPostProcessor implements ImportPostProcessor {
     private final Path linesFilePath;
     private final boolean forceGeoDataComputation;
 
+    public GeoJsonAdderPostProcessor() {
+        this(PlatformConfig.defaultConfig());
+    }
+
     public GeoJsonAdderPostProcessor(PlatformConfig config) {
         this(getEquipmentFileFromConfig(config, SUBSTATIONS), true, getEquipmentFileFromConfig(config, LINES));
     }
