@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.List;
 
@@ -113,5 +114,90 @@ public abstract class AbstractDcTerminalTest {
         assertTrue(dcTerminal.isConnected());
         assertEquals(10.0, dcTerminal.getP(), 1e-6);
         assertEquals(5.0, dcTerminal.getI(), 1e-6);
+    }
+
+    @Test
+    public void testChangesNotification() {
+        Network network = Network.create("test", "test");
+        DcNode dcNode1 = network.newDcNode().setId("dcNode1").setNominalV(500.).add();
+        DcNode dcNode2 = network.newDcNode().setId("dcNode2").setNominalV(500.).add();
+        DcNode dcNode3 = network.newDcNode().setId("dcNode3").setNominalV(500.).add();
+        DcNode dcNode4 = network.newDcNode().setId("dcNode4").setNominalV(500.).add();
+        DcLine dcLine = network.newDcLine()
+                .setId("dcLine")
+                .setDcNode1(dcNode1.getId())
+                .setConnected1(true)
+                .setDcNode2(dcNode2.getId())
+                .setConnected2(true)
+                .setR(1.1)
+                .add();
+        Substation sa = network.newSubstation().setId("S").add();
+        VoltageLevel vl = sa.newVoltageLevel().setId("VL").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(175).add();
+        Bus b1 = vl.getBusBreakerView().newBus().setId("B1").add();
+        LineCommutatedConverter converter = vl.newLineCommutatedConverter()
+                .setId("dcConverter")
+                .setBus1(b1.getId())
+                .setDcNode1(dcNode3.getId())
+                .setDcNode2(dcNode4.getId())
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.)
+                .add();
+
+        DcTerminal dcLineDcTerminal1 = dcLine.getDcTerminal1().setP(1.).setI(2.);
+        DcTerminal converterDcTerminal1 = converter.getDcTerminal1().setP(3.).setI(4.);
+        Terminal converterAcTerminal1 = converter.getTerminal1().setP(5.);
+
+        // Changes listener
+        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        // Add observer changes to current network
+        network.addListener(mockedListener);
+
+        // Change values and check update notification ...
+
+        // ... DC line P1
+        dcLineDcTerminal1.setP(11.);
+        Mockito.verify(mockedListener, Mockito.times(1))
+                .onUpdate(dcLine, "p_dc1", VariantManagerConstants.INITIAL_VARIANT_ID, 1., 11.);
+
+        // ... DC line I1
+        dcLineDcTerminal1.setI(22.);
+        Mockito.verify(mockedListener, Mockito.times(1))
+                .onUpdate(dcLine, "i_dc1", VariantManagerConstants.INITIAL_VARIANT_ID, 2., 22.);
+
+        // ... AC/DC converter P1 // DC
+        converterDcTerminal1.setP(33.);
+        Mockito.verify(mockedListener, Mockito.times(1))
+                .onUpdate(converter, "p_dc1", VariantManagerConstants.INITIAL_VARIANT_ID, 3., 33.);
+
+        // ... AC/DC converter I1 // DC
+        converterDcTerminal1.setI(44.);
+        Mockito.verify(mockedListener, Mockito.times(1))
+                .onUpdate(converter, "i_dc1", VariantManagerConstants.INITIAL_VARIANT_ID, 4., 44.);
+
+        // ... AC/DC converter P1 // AC
+        converterAcTerminal1.setP(55.);
+        Mockito.verify(mockedListener, Mockito.times(1))
+                .onUpdate(converter, "p1", VariantManagerConstants.INITIAL_VARIANT_ID, 5., 55.);
+
+        // After this point, no more changes are taken into account.
+
+        // Case when same value is set
+        dcLineDcTerminal1.setP(11.);
+        dcLineDcTerminal1.setI(22.);
+        converterDcTerminal1.setP(33.);
+        converterDcTerminal1.setI(44.);
+        converterAcTerminal1.setP(55.);
+
+        // Case when no listener is registered
+        network.removeListener(mockedListener);
+        dcLineDcTerminal1.setP(111.);
+        dcLineDcTerminal1.setI(222.);
+        converterDcTerminal1.setP(333.);
+        converterDcTerminal1.setI(444.);
+        converterAcTerminal1.setP(555.);
+
+        // Check no notification
+        Mockito.verifyNoMoreInteractions(mockedListener);
     }
 }
