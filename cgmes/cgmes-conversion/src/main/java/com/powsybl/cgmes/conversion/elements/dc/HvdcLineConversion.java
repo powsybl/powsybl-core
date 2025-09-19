@@ -11,9 +11,10 @@ package com.powsybl.cgmes.conversion.elements.dc;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.elements.AbstractIdentifiedObjectConversion;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.HvdcLineAdder;
+import com.powsybl.iidm.network.*;
+import com.powsybl.triplestore.api.PropertyBag;
 
+import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.updateTerminals;
 import static com.powsybl.cgmes.model.CgmesNames.*;
 
 /**
@@ -39,12 +40,18 @@ public class HvdcLineConversion extends AbstractIdentifiedObjectConversion {
 
     @Override
     public void convert() {
+
+        // arbitrary value because there is no maxP attribute in CGMES
+        double maxP = 0.0;
+        HvdcLine.ConvertersMode convertersMode = HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
+        double activePowerSetpoint = 0.0;
+
         HvdcLineAdder adder = context.network().newHvdcLine()
                 .setR(dcLink.getR())
                 .setNominalV(dcLink.getRatedUdc())
-                .setActivePowerSetpoint(dcLink.getTargetP())
-                .setMaxP(DEFAULT_MAXP_FACTOR * dcLink.getTargetP())
-                .setConvertersMode(dcLink.getMode())
+                .setMaxP(maxP)
+                .setConvertersMode(convertersMode)
+                .setActivePowerSetpoint(activePowerSetpoint)
                 .setConverterStationId1(context.namingStrategy().getIidmId(ACDC_CONVERTER, dcLink.getConverter1().getId(ACDC_CONVERTER)))
                 .setConverterStationId2(context.namingStrategy().getIidmId(ACDC_CONVERTER, dcLink.getConverter2().getId(ACDC_CONVERTER)));
         identify(adder);
@@ -58,4 +65,27 @@ public class HvdcLineConversion extends AbstractIdentifiedObjectConversion {
         }
     }
 
+    public static void update(HvdcLine hvdcLine, PropertyBag cgmesDataAcDcConverter1, PropertyBag cgmesDataAcDcConverter2, Context context) {
+        updateTerminals(hvdcLine.getConverterStation1(), context, hvdcLine.getConverterStation1().getTerminal());
+        updateTerminals(hvdcLine.getConverterStation2(), context, hvdcLine.getConverterStation2().getTerminal());
+
+        DCLinkUpdate dcLinkUpdate = updateHvdcLine(hvdcLine, cgmesDataAcDcConverter1, cgmesDataAcDcConverter2);
+
+        if (hvdcLine.getConverterStation1().getHvdcType() == HvdcConverterStation.HvdcType.LCC) {
+            HvdcConverterConversion.update((LccConverterStation) hvdcLine.getConverterStation1(), cgmesDataAcDcConverter1, dcLinkUpdate.getLossFactor1(), context);
+            HvdcConverterConversion.update((LccConverterStation) hvdcLine.getConverterStation2(), cgmesDataAcDcConverter2, dcLinkUpdate.getLossFactor2(), context);
+        } else {
+            HvdcConverterConversion.update((VscConverterStation) hvdcLine.getConverterStation1(), cgmesDataAcDcConverter1, dcLinkUpdate.getLossFactor1(), context);
+            HvdcConverterConversion.update((VscConverterStation) hvdcLine.getConverterStation2(), cgmesDataAcDcConverter2, dcLinkUpdate.getLossFactor2(), context);
+        }
+    }
+
+    private static DCLinkUpdate updateHvdcLine(HvdcLine hvdcLine, PropertyBag cgmesDataAcDcConverter1, PropertyBag cgmesDataAcDcConverter2) {
+
+        DCLinkUpdate dcLinkUpdate = new DCLinkUpdate(hvdcLine, cgmesDataAcDcConverter1, cgmesDataAcDcConverter2);
+        hvdcLine.setConvertersMode(dcLinkUpdate.getMode())
+                .setActivePowerSetpoint(dcLinkUpdate.getTargetP())
+                .setMaxP(DEFAULT_MAXP_FACTOR * dcLinkUpdate.getTargetP());
+        return dcLinkUpdate;
+    }
 }
