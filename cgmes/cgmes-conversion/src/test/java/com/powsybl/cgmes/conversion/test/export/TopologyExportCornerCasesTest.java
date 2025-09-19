@@ -39,7 +39,7 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
         // The condition for a valid bus in the BusView for bus-breaker and node-breaker is slightly different
         // So we end up with different bus-view buses
         test(createGeneratorDisconnectedTransformerBBNetwork(), false, false,
-                new String[] {"voltageLevel1_0", "voltageLevel2_0", "voltageLevel2_1"});
+                new String[] {"voltageLevel1_0", "voltageLevel2_0", "voltageLevel2_3"});
     }
 
     @Test
@@ -59,7 +59,7 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
     @Test
     void testExportDisconnectedLoadNodeBreaker() {
         test(createDisconnectedLoadNBNetwork(), false, true,
-                new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_3"});
+                new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_7"});
     }
 
     private void test(Network network,
