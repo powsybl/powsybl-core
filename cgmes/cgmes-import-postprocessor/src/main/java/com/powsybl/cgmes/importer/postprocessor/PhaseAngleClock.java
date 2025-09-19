@@ -6,13 +6,15 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package com.powsybl.cgmes.conversion;
+package com.powsybl.cgmes.importer.postprocessor;
 
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
