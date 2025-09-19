@@ -33,6 +33,7 @@ public class ConversionTool implements Tool {
     private static final String INPUT_FILE = "input-file";
     private static final String OUTPUT_FORMAT = "output-format";
     private static final String OUTPUT_FILE = "output-file";
+    private static final String FLATTEN = "flatten";
 
     protected ImportConfig createImportConfig() {
         return ImportConfig.load();
@@ -82,6 +83,9 @@ public class ConversionTool implements Tool {
                         .argName("OUTPUT_FILE")
                         .required()
                         .build());
+                options.addOption(Option.builder().longOpt(FLATTEN)
+                        .desc("flatten the network")
+                        .build());
                 options.addOption(ConversionToolUtils.createImportParametersFileOption());
                 options.addOption(ConversionToolUtils.createImportParameterOption());
                 options.addOption(ConversionToolUtils.createExportParametersFileOption());
@@ -101,6 +105,7 @@ public class ConversionTool implements Tool {
         String inputFile = line.getOptionValue(INPUT_FILE);
         String outputFormat = line.getOptionValue(OUTPUT_FORMAT);
         String outputFile = line.getOptionValue(OUTPUT_FILE);
+        boolean flatten = line.hasOption(FLATTEN);
 
         Exporter exporter = Exporter.find(outputFormat);
         if (exporter == null) {
@@ -109,7 +114,9 @@ public class ConversionTool implements Tool {
 
         Properties inputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
         Network network = Network.read(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(), createImportConfig(), inputParams, createNetworkFactory(), new ImportersServiceLoader(), ReportNode.NO_OP);
-
+        if (flatten) {
+            network.flatten();
+        }
         Properties outputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
         DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {
             @Override
