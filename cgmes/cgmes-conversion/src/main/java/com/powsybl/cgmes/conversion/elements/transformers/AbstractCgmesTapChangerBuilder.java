@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.elements.AbstractObjectConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -52,19 +51,7 @@ abstract class AbstractCgmesTapChangerBuilder {
         addSteps();
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
         int normalStep = p.asInt(CgmesNames.NORMAL_STEP, neutralStep);
-        int position = AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP, normalStep)));
-        if (position > highStep || position < lowStep) {
-            position = neutralStep;
-        }
-        Integer solvedPosition = null;
-        double solvedPositionFromSv = p.asDouble(CgmesNames.SV_TAP_STEP);
-        if (!Double.isNaN(solvedPositionFromSv)) {
-            solvedPosition = AbstractObjectConversion.fromContinuous(solvedPositionFromSv);
-            if (solvedPosition > highStep || solvedPosition < lowStep) {
-                solvedPosition = position;
-            }
-        }
-        tapChanger.setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
+        tapChanger.setLowTapPosition(lowStep).setTapPosition(normalStep).setSolvedTapPosition(normalStep);
 
         boolean ltcFlag = p.asBoolean(CgmesNames.LTC_FLAG, false);
         tapChanger.setLtcFlag(ltcFlag);
