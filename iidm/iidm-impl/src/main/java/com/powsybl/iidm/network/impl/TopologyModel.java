@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Switch;
+
 import java.util.function.Predicate;
 
 /**
@@ -22,7 +24,7 @@ interface TopologyModel {
 
     void detach(TerminalExt terminal);
 
-    boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate);
+    boolean connect(TerminalExt terminal, Predicate<Switch> isTypeSwitchToOperate);
 
-    boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable);
+    boolean disconnect(TerminalExt terminal, Predicate<Switch> isSwitchOpenable);
 }
