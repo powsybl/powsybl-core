@@ -30,7 +30,7 @@ public interface Bus extends Identifiable<Bus> {
     double getV();
 
     /**
-     * Set the voltage magnituge of the bus in kV.
+     * Set the voltage magnitude of the bus in kV.
      */
     Bus setV(double v);
 
@@ -50,7 +50,7 @@ public interface Bus extends Identifiable<Bus> {
     double getP();
 
     /**
-     * Get the reactive power in MVAR injected by equiments connected to the bus.
+     * Get the reactive power in MVAR injected by equipments connected to the bus.
      */
     double getQ();
 

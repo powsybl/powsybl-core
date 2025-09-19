@@ -57,6 +57,7 @@ public class DcGroundAdderImpl extends AbstractIdentifiableAdder<DcGroundAdderIm
         DcGroundImpl dcGround = new DcGroundImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), r);
         DcTerminalImpl dcTerminal = new DcTerminalImpl(networkRef, null, dcNode, connected);
         dcGround.addDcTerminal(dcTerminal);
+        ((AbstractNetwork) getParentNetwork()).getDcTopologyModel().attach(dcTerminal);
         getNetwork().getIndex().checkAndAdd(dcGround);
         getNetwork().getListeners().notifyCreation(dcGround);
         return dcGround;

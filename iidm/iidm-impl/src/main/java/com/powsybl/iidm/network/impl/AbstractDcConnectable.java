@@ -61,9 +61,12 @@ abstract class AbstractDcConnectable<I extends DcConnectable<I>> extends Abstrac
 
         network.getIndex().remove(this);
 
+        dcTerminals.forEach(dcTerminal -> {
+            ((AbstractNetwork) getParentNetwork()).getDcTopologyModel().detach(dcTerminal);
+            dcTerminal.remove();
+        });
         network.getListeners().notifyAfterRemoval(id);
         removed = true;
-        dcTerminals.forEach(DcTerminalImpl::remove);
     }
 
     @Override
