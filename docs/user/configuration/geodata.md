@@ -10,14 +10,14 @@ The names of the properties are the two types of elements for which data are exp
 **YAML configuration:**
 ```yaml
 geo-json-importer-post-processor:
-  substations: ${user.home}/.itools/geojson/substations.geojson
-  lines: ${user.home}/.itools/geojson/lines.geojson
+  substations: /path/to/substations.geojson
+  lines: /path/to/lines.geojson
 ```
 
 **XML configuration**
 ```xml
 <geo-json-importer-post-processor>
-    <substations>${user.home}/.itools/geojson/substations.geojson</substations>
-    <lines>${user.home}/.itools/geojson/lines.geojson</lines>
+    <substations>/path/to/substations.geojson</substations>
+    <lines>/path/to/lines.geojson</lines>
 </geo-json-importer-post-processor>
 ```
