@@ -134,10 +134,11 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             Arrays.stream(IidmVersion.values()).map(v -> v.toString(".")).collect(Collectors.toList()));
     private static final Parameter WITH_AUTOMATION_SYSTEMS_PARAMETER = new Parameter(WITH_AUTOMATION_SYSTEMS, ParameterType.BOOLEAN,
             "Export network with automation systems", Boolean.TRUE);
+    private static final Parameter TOPOLOGY_VOLTAGE_LEVEL_PARAMETER = new Parameter(TOPOLOGY_VOLTAGE_LEVEL, ParameterType.STRING_LIST, "List of topology levels by voltage levels", null);
     private static final List<Parameter> STATIC_PARAMETERS = List.of(INDENT_PARAMETER, WITH_BRANCH_STATE_VARIABLES_PARAMETER,
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
             TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
-            SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER);
+            SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER, TOPOLOGY_VOLTAGE_LEVEL_PARAMETER);
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     protected AbstractTreeDataExporter(PlatformConfig platformConfig) {
@@ -186,18 +187,15 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     }
 
     private void addTopologyLevelVoltageLevels(Properties parameters, ExportOptions options) {
-        List<String> stringList = new ArrayList<>();
-        Parameter paramStringList = new Parameter(TOPOLOGY_VOLTAGE_LEVEL, ParameterType.STRING_LIST, "", stringList);
-        Parameter.readStringList(TOPOLOGY_VOLTAGE_LEVEL, parameters, paramStringList);
-
-        for (String line : stringList) {
-            String[] parts = line.trim().split("\\s+");
-            if (parts.length != 2 || !parts[0].startsWith(TOPOLOGY_VOLTAGE_LEVEL)) {
-                continue;
+        if (parameters != null) {
+            String propertiesPrefix = TOPOLOGY_VOLTAGE_LEVEL + ".";
+            for (String key : parameters.stringPropertyNames()) {
+                if (key.startsWith(propertiesPrefix)) {
+                    String voltageLevelId = key.substring(propertiesPrefix.length());
+                    TopologyLevel topologyLevel = TopologyLevel.valueOf(parameters.getProperty(key));
+                    options.addVoltageLevelTopologyLevel(voltageLevelId, topologyLevel);
+                }
             }
-            String voltageLevelId = parts[0].substring(TOPOLOGY_VOLTAGE_LEVEL.length());
-            TopologyLevel topologyLevel = TopologyLevel.valueOf(parts[1]);
-            options.addVoltageLevelTopologyLevel(voltageLevelId, topologyLevel);
         }
     }
 
