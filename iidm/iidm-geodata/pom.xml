@@ -37,15 +37,6 @@
         </plugins>
     </build>
 
-    <repositories>
-        <!-- Repository for gt-epsg-hsql and gt-geojson -->
-        <repository>
-            <id>osgeo</id>
-            <name>OSGeo Release Repository</name>
-            <url>https://repo.osgeo.org/repository/geotools-releases/</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <!-- compile dependencies  -->
         <dependency>
@@ -53,13 +44,8 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-extensions</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -71,12 +57,12 @@
             <version>${commons-csv.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-epsg-hsql</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-geojson</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-extensions</artifactId>
         </dependency>
 
         <!-- test dependencies -->

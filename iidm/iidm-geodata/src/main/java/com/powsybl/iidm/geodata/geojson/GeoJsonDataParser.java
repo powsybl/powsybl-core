@@ -1,22 +1,19 @@
 package com.powsybl.iidm.geodata.geojson;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.iidm.geodata.geojson.dto.AbstractGeometryDto;
+import com.powsybl.iidm.geodata.geojson.dto.FeatureCollectionDto;
+import com.powsybl.iidm.geodata.geojson.dto.LineStringDto;
+import com.powsybl.iidm.geodata.geojson.dto.MultiLineStringDto;
+import com.powsybl.iidm.geodata.geojson.dto.PointDto;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import org.apache.commons.lang3.time.StopWatch;
-import org.geotools.api.feature.Feature;
-import org.geotools.api.feature.simple.SimpleFeature;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
-import org.geotools.geojson.feature.FeatureJSON;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.MultiLineString;
-import org.locationtech.jts.geom.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +24,7 @@ import java.util.Map;
 public final class GeoJsonDataParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonDataParser.class);
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private GeoJsonDataParser() {
     }
@@ -40,10 +38,13 @@ public final class GeoJsonDataParser {
      *         corresponding geographical coordinates
      * @throws UncheckedIOException if an I/O error occurs while reading the GeoJSON data
      */
-    public static Map<String, Coordinate> parseSubstations(Reader reader) {
-        return parseFeatures(reader, simpleFeature -> {
-            Point point = (Point) simpleFeature.getDefaultGeometry();
-            return new Coordinate(point.getY(), point.getX());
+    public static Map<String, Coordinate> parseSubstations(Reader reader) throws IOException {
+        return parseFeatures(reader, (result, id, geometry) -> {
+            if (!(geometry instanceof PointDto pointDto)) {
+                logUnexpectedFeature(geometry);
+            } else {
+                result.put(id, pointDto.getCoordinate());
+            }
         });
     }
 
@@ -57,75 +58,45 @@ public final class GeoJsonDataParser {
      *         describing the geometry of the lines
      * @throws UncheckedIOException if an I/O error occurs during parsing
      */
-    public static Map<String, List<Coordinate>> parseLines(Reader reader) {
-        return parseFeatures(reader, GeoJsonDataParser::getCoordinates);
-    }
-
-    private static <T> Map<String, T> parseFeatures(Reader reader, FeatureProcessor<T> featureProcessor) {
-        Map<String, T> result = new LinkedHashMap<>();
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        try {
-            FeatureJSON fjson = new FeatureJSON();
-            FeatureCollection<?, ?> featureCollection = fjson.readFeatureCollection(reader);
-            try (FeatureIterator<?> features = featureCollection.features()) {
-                while (features.hasNext()) {
-                    Feature feature = features.next();
-                    if (feature instanceof SimpleFeature simpleFeature) {
-                        String id = simpleFeature.getAttribute("IDR").toString();
-                        result.computeIfAbsent(id, key -> featureProcessor.process(simpleFeature));
-                    } else {
-                        logUnexpectedFeature(feature);
-                    }
+    public static Map<String, List<Coordinate>> parseLines(Reader reader) throws IOException {
+        return parseFeatures(reader, (result, id, geometry) -> {
+            if (!(geometry instanceof LineStringDto || geometry instanceof MultiLineStringDto)) {
+                logUnexpectedFeature(geometry);
+            } else {
+                if (geometry instanceof LineStringDto lineStringDto) {
+                    result.put(id, lineStringDto.getCoordinateList());
+                } else {
+                    MultiLineStringDto multiLineStringDto = (MultiLineStringDto) geometry;
+                    result.put(id, multiLineStringDto.getCoordinateList());
                 }
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        });
+    }
+
+    private static <T> Map<String, T> parseFeatures(Reader reader, GeoJsonDataParser.FeatureProcessor<T> featureProcessor) throws IOException {
+        FeatureCollectionDto featureCollectionDto = MAPPER.readValue(reader, FeatureCollectionDto.class);
+        Map<String, T> result = new LinkedHashMap<>(featureCollectionDto.getFeatures().size());
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        featureCollectionDto.getFeatures().forEach(featureDto -> {
+            if (!featureDto.getProperties().containsKey("IDR")) {
+                LOGGER.warn("Missing IDR property for feature {}", featureDto);
+            } else {
+                String id = featureDto.getProperties().get("IDR").toString();
+                AbstractGeometryDto geometry = featureDto.getGeometry();
+                featureProcessor.process(result, id, geometry);
+            }
+        });
         LOGGER.info("{} features read in {} ms", result.size(), stopWatch.getDuration().toMillis());
         return result;
     }
 
-    private static void logUnexpectedFeature(Feature feature) {
-        LOGGER.warn("Unexpected feature type: {} - feature: {}", feature.getClass().getSimpleName(), feature);
-    }
-
-    private static List<Coordinate> getCoordinates(SimpleFeature simpleFeature) {
-        Object geometry = simpleFeature.getDefaultGeometry();
-        List<Coordinate> coordinatesList = null;
-        if (geometry instanceof LineString lineString) {
-            // LineString seems to be read as MultiLineString, but let's be careful and cover the case
-            coordinatesList = getCoordinatesFromLineString(lineString);
-        } else if (geometry instanceof MultiLineString multiLineString) {
-            coordinatesList = getCoordinatesFromMultiLineString(multiLineString);
-        } else {
-            String id = simpleFeature.getAttribute("IDR").toString();
-            LOGGER.warn("Unsupported geometry type: {} for feature {}", geometry.getClass().getSimpleName(), id);
-        }
-        return coordinatesList;
-    }
-
-    private static List<Coordinate> getCoordinatesFromMultiLineString(MultiLineString multiLineString) {
-        List<Coordinate> coordinatesList = new ArrayList<>();
-        int numGeometries = multiLineString.getNumGeometries();
-        for (int i = 0; i < numGeometries; i++) {
-            LineString lineString = (LineString) multiLineString.getGeometryN(i);
-            coordinatesList.addAll(getCoordinatesFromLineString(lineString));
-        }
-        return coordinatesList;
-    }
-
-    private static List<Coordinate> getCoordinatesFromLineString(LineString lineString) {
-        List<Coordinate> coordinatesList = new ArrayList<>();
-        int numPoints = lineString.getNumPoints();
-        for (int i = 0; i < numPoints; i++) {
-            coordinatesList.add(new Coordinate(lineString.getCoordinateN(i).getY(), lineString.getCoordinateN(i).getX()));
-        }
-        return coordinatesList;
+    private static void logUnexpectedFeature(AbstractGeometryDto geometryDto) {
+        LOGGER.warn("Unexpected feature type: {} - feature: {}", geometryDto.getClass().getSimpleName(), geometryDto);
     }
 
     @FunctionalInterface
     private interface FeatureProcessor<T> {
-        T process(SimpleFeature feature);
+        void process(Map<String, T> result, String id, AbstractGeometryDto feature);
     }
 }
