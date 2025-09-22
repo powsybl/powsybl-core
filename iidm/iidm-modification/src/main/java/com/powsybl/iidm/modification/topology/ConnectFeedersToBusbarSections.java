@@ -58,7 +58,7 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
         }
 
         if (busbarSectionsToConnect.stream().map(bbs -> bbs.getExtension(BusbarSectionPosition.class)).anyMatch(Objects::isNull)) {
-            logOrThrow(throwException, "All busbar sections do not have BusbarSectionPosition extension");
+            logOrThrow(throwException, "All busbar sections must have a BusbarSectionPosition extension.");
             return;
         }
 
