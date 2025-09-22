@@ -78,7 +78,9 @@ public class CoordinatesDto implements Serializable {
     @Override
     public boolean equals(Object other) {
         if (other instanceof CoordinatesDto otherCoordinates) {
-            return Arrays.equals(coordinates, otherCoordinates.coordinates);
+            return this.getLatitude() == otherCoordinates.getLatitude()
+                && this.getLongitude() == otherCoordinates.getLongitude()
+                && this.getAltitude() == otherCoordinates.getAltitude();
         }
         return false;
     }
