@@ -694,6 +694,27 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void noBusbarSectionReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.noBusbarSection")
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void wrongNetworkReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.wrongNetwork")
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void busbarSectionNotInTheSameVoltageLevelReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.busbarSectionNotInTheSameVoltageLevel")
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
     private ModificationReports() {
     }
 

@@ -13,6 +13,7 @@ import java.util.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNBBreaker;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNBDisconnector;
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -48,17 +49,14 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         // checks
         if (busbarSectionsToConnect.isEmpty()) {
-            logOrThrow(throwException, "No busbar sections provided.");
+            logOrThrow(throwException, "No busbar section provided.");
+            noBusbarSectionReport(reportNode);
             return;
         }
 
         if (busbarSectionsToConnect.stream().anyMatch(b -> b.getNetwork() != network)) {
             logOrThrow(throwException, "All busbar sections must be in the network passed to the method.");
-            return;
-        }
-
-        if (busbarSectionsToConnect.stream().map(bbs -> bbs.getExtension(BusbarSectionPosition.class)).anyMatch(Objects::isNull)) {
-            logOrThrow(throwException, "All busbar sections must have a BusbarSectionPosition extension.");
+            wrongNetworkReport(reportNode);
             return;
         }
 
@@ -66,13 +64,20 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
         List<VoltageLevel> distinctVoltageLevels = busbarSectionsToConnect.stream().map(bbs -> bbs.getTerminal().getVoltageLevel()).distinct().toList();
 
         if (distinctVoltageLevels.size() != 1) {
-            logOrThrow(throwException, "Busbar sections must all belong to the same voltage level.");
+            logOrThrow(throwException, "All busbar sections must all belong to the same voltage level.");
+            busbarSectionNotInTheSameVoltageLevelReport(reportNode);
             return;
         }
 
         VoltageLevel voltageLevel = distinctVoltageLevels.get(0);
 
-        connectConnectables(voltageLevel, namingStrategy);
+        if (busbarSectionsToConnect.stream().map(bbs -> bbs.getExtension(BusbarSectionPosition.class)).anyMatch(Objects::isNull)) {
+            logOrThrow(throwException, "All busbar sections must have a BusbarSectionPosition extension.");
+            busbarSectionsWithoutPositionReport(reportNode, voltageLevel.getId());
+            return;
+        }
+
+        connectFeeders(voltageLevel, namingStrategy);
     }
 
     @Override
@@ -87,7 +92,7 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
         return impact;
     }
 
-    private void connectConnectables(VoltageLevel vl, NamingStrategy namingStrategy) {
+    private void connectFeeders(VoltageLevel vl, NamingStrategy namingStrategy) {
         Map<Integer, List<BusbarSection>> busbarSectionsByIndex = vl.getConnectableStream()
                 .filter(BusbarSection.class::isInstance)
                 .map(BusbarSection.class::cast)

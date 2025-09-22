@@ -79,7 +79,7 @@ class ConnectFeedersToBusbarSectionsTest extends AbstractModificationTest {
                 .build();
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modificationWithoutBbs.hasImpactOnNetwork(network));
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modificationWithoutBbs.apply(network, true, ReportNode.NO_OP));
-        assertEquals("No busbar sections provided.", e1.getMessage());
+        assertEquals("No busbar section provided.", e1.getMessage());
 
         // Wrong network
         Network network1 = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
@@ -111,6 +111,6 @@ class ConnectFeedersToBusbarSectionsTest extends AbstractModificationTest {
                 .build();
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modificationWithBbsInDifferentVl.hasImpactOnNetwork(network));
         PowsyblException e4 = assertThrows(PowsyblException.class, () -> modificationWithBbsInDifferentVl.apply(network, true, ReportNode.NO_OP));
-        assertEquals("Busbar sections must all belong to the same voltage level.", e4.getMessage());
+        assertEquals("All busbar sections must all belong to the same voltage level.", e4.getMessage());
     }
 }
