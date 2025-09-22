@@ -10,6 +10,9 @@ package com.powsybl.iidm.geodata.geojson.dto;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
@@ -23,5 +26,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @JsonSubTypes.Type(value = LineStringDto.class, name = "LineString"),
     @JsonSubTypes.Type(value = MultiLineStringDto.class, name = "MultiLineString")
 })
-public abstract class AbstractGeometryDto {
+public abstract class AbstractGeometryDto implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 }

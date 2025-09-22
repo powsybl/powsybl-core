@@ -9,6 +9,8 @@ package com.powsybl.iidm.geodata.geojson.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
@@ -18,11 +20,14 @@ import java.util.Objects;
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FeatureDto {
+public class FeatureDto implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private String type = "Feature";
     private AbstractGeometryDto geometry;
-    private Map<String, Object> properties;
+    private Map<String, String> properties;
 
     public String getType() {
         return type;
@@ -40,11 +45,11 @@ public class FeatureDto {
         this.geometry = geometry;
     }
 
-    public Map<String, Object> getProperties() {
+    public Map<String, String> getProperties() {
         return properties;
     }
 
-    public void setProperties(Map<String, Object> properties) {
+    public void setProperties(Map<String, String> properties) {
         this.properties = properties;
     }
 

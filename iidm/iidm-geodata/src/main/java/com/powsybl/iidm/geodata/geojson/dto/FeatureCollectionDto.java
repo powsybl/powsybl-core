@@ -9,6 +9,8 @@ package com.powsybl.iidm.geodata.geojson.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,7 +20,10 @@ import java.util.Objects;
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FeatureCollectionDto {
+public class FeatureCollectionDto implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private String type = "FeatureCollection";
     private List<FeatureDto> features;
