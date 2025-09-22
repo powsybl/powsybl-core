@@ -196,6 +196,10 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             createSwitches(voltageLevel, namingStrategy);
             // Connect connectables that are on parallel busbar sections
             if (connectExistingConnectables) {
+                if (topologyKind != TopologyKind.NODE_BREAKER) {
+                    LOG.warn("Voltage level {} is not NODE_BREAKER. Connectables will not be connected.", voltageLevelId);
+                    connectExistingConnectables = false;
+                }
                 new ConnectFeedersToBusbarSectionsBuilder()
                         .withConnectablesToConnect(voltageLevel.getConnectableStream().filter(c -> !(c instanceof BusbarSection)).toList())
                         .withBusbarSectionsToConnect(createdBusbarSection)
