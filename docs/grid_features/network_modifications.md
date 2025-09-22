@@ -215,13 +215,13 @@ as the first switch that connects the feeder to the other busbar sections. If al
 then the network modification will do nothing.
 
 Let's take an example. This is the voltage level before applying the modification:
-![Node/breaker network with coupling devices](img/networkNodeBreakerWithCouplingDevices.svg){width="50%" align=center}
+![Node/breaker network with coupling devices](img/networkNodeBreakerWithCouplingDevices.svg){width="100%" align=center}
 
 If we apply the modification with both busbar sections, all the connectables and coupling devices, we will get:
-![Node/breaker network with coupling devices and connected feeder](img/networkNodeBreakerWithFeedersConnected.svg){width="50%" align=center}
+![Node/breaker network with coupling devices and connected feeder](img/networkNodeBreakerWithFeedersConnected.svg){width="100%" align=center}
 
 If we want to only connect the two-winding transformers on busbar section bbs3, we can specify the right lists as input and we will get:
-![Node/breaker network with connected transformers on bbs3](img/networkNodeBreakerWithTwtConnected.svg){width="50%" align=center}
+![Node/breaker network with connected transformers on bbs3](img/networkNodeBreakerWithTwtConnected.svg){width="100%" align=center}
 
 
 ### Network element removal
