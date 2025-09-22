@@ -82,7 +82,7 @@ public final class GeoJsonDataParser {
             if (!featureDto.getProperties().containsKey("IDR")) {
                 LOGGER.warn("Missing IDR property for feature {}", featureDto);
             } else {
-                String id = featureDto.getProperties().get("IDR").toString();
+                String id = featureDto.getProperties().get("IDR");
                 AbstractGeometryDto geometry = featureDto.getGeometry();
                 featureProcessor.process(result, id, geometry);
             }
