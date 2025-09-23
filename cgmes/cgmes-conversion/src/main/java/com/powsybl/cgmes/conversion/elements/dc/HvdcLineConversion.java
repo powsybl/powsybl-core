@@ -101,7 +101,7 @@ public class HvdcLineConversion extends AbstractIdentifiedObjectConversion {
         double lossFactor1 = getDefaultValue(null, (double) hvdcLine.getConverterStation1().getLossFactor(), 0.0, 0.0, context);
         double lossFactor2 = getDefaultValue(null, (double) hvdcLine.getConverterStation2().getLossFactor(), 0.0, 0.0, context);
 
-        return new DCLinkUpdate.DefaultData(defaultMode, defaultTargetP, defaultPdcInverter, lossFactor1, lossFactor2);
+        return new DCLinkUpdate.DefaultData(defaultMode, defaultTargetP, lossFactor1, lossFactor2);
     }
 
     private static boolean isRectifierOnSide1(HvdcLine.ConvertersMode mode) {
