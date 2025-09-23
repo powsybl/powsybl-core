@@ -138,10 +138,8 @@ public class DCLinkUpdate {
     }
 
     private double resistiveLossesFromPdcRectifier(double pDcRectifier) {
-        return resistiveLossesFromPdcRectifier(pDcRectifier, hvdcLine.getR(), hvdcLine.getNominalV());
-    }
-
-    private static double resistiveLossesFromPdcRectifier(double pDcRectifier, double r, double ratedUdc) {
+        double r = hvdcLine.getR();
+        double ratedUdc = hvdcLine.getNominalV();
         double idc = ratedUdc != 0.0 ? pDcRectifier / ratedUdc : 0.0;
         return r * idc * idc;
     }
