@@ -26,6 +26,7 @@ public class DCLinkUpdate {
     private double pDcInverter;
     private double lossFactor1;
     private double lossFactor2;
+    private final DefaultData defaultData;
 
     private final HvdcLine hvdcLine;
     private final PropertyBag converter1;
