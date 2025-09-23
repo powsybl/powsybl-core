@@ -329,24 +329,24 @@ public class CgmesImport implements Importer {
         }
 
         private Optional<String> readModelingAuthority(String name, Predicate<String> profileChecker) {
-            String modellingAuthority = null;
+            String modelingAuthority = null;
             try (InputStream in = dataSource.newInputStream(name)) {
                 String fileExtension = name.substring(name.lastIndexOf('.') + 1);
                 if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
                     try (SafeZipInputStream zis = new SafeZipInputStream(new ZipInputStream(in), 1, 1024000L)) {
                         zis.getNextEntry();
-                        modellingAuthority = readModelingAuthority(zis, profileChecker);
+                        modelingAuthority = readModelingAuthority(zis, profileChecker);
                     }
                 } else {
-                    modellingAuthority = readModelingAuthority(in, profileChecker);
+                    modelingAuthority = readModelingAuthority(in, profileChecker);
                 }
             } catch (IOException | XMLStreamException e) {
                 throw new PowsyblException(e);
             }
-            return Optional.ofNullable(modellingAuthority);
+            return Optional.ofNullable(modelingAuthority);
         }
 
-        private boolean isStartModellingAuthority(XMLStreamReader reader, int token) {
+        private boolean isStartModelingAuthority(XMLStreamReader reader, int token) {
             return token == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(CgmesNames.MODELING_AUTHORITY_SET);
         }
 
@@ -359,7 +359,7 @@ public class CgmesImport implements Importer {
         }
 
         private String readModelingAuthority(InputStream is, Predicate<String> profileChecker) throws XMLStreamException {
-            String modellingAuthority = null;
+            String modelingAuthority = null;
             boolean profileChecked = false;
             XMLStreamReader reader = null;
             try {
@@ -367,8 +367,8 @@ public class CgmesImport implements Importer {
                 boolean stopReading = false;
                 while (reader.hasNext() && !stopReading) {
                     int token = reader.next();
-                    if (isStartModellingAuthority(reader, token)) {
-                        modellingAuthority = reader.getElementText();
+                    if (isStartModelingAuthority(reader, token)) {
+                        modelingAuthority = reader.getElementText();
                         if (profileChecked) {
                             stopReading = true;
                         }
@@ -376,13 +376,13 @@ public class CgmesImport implements Importer {
                         String profile = reader.getElementText();
                         // We may encounter multiple profiles,
                         // Equipment core and short-circuits for example.
-                        // If at least one of the profiles checks ok it is enough to accept the modelling authority
+                        // If at least one of the profiles checks ok it is enough to accept the modeling authority
                         if (!profileChecked) {
                             profileChecked = profileChecker.test(profile);
                         }
                     } else if (isEndModel(reader, token)) {
                         // Try to finish parsing the input file as soon as we can
-                        // If we do not have found a modelling authority set inside the FullModel object, exit with unknown
+                        // If we do not have found a modeling authority set inside the FullModel object, exit with unknown
                         stopReading = true;
                     }
                 }
@@ -391,12 +391,12 @@ public class CgmesImport implements Importer {
                     reader.close();
                 }
             }
-            // We may have read a modelling authority,
+            // We may have read a modeling authority,
             // but if we haven't been able to check that one of the profiles checks ok we discard it
             if (!profileChecked) {
-                modellingAuthority = null;
+                modelingAuthority = null;
             }
-            return modellingAuthority;
+            return modelingAuthority;
         }
 
         private Set<ReadOnlyDataSource> separateByIgmName() {
