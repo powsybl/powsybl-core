@@ -48,7 +48,7 @@ public class DCLinkUpdate {
         computeLossFactors();
     }
 
-    private void computeMode(HvdcLine.ConvertersMode defaultMode) {
+    private void computeMode() {
         String mode1 = converter1.getLocal(OPERATING_MODE);
         String mode2 = converter2.getLocal(OPERATING_MODE);
         if (isRectifier(mode1) && isInverter(mode2)) {
@@ -94,7 +94,7 @@ public class DCLinkUpdate {
         return Double.isNaN(poleLosses) ? 0.0 : poleLosses;
     }
 
-    private void computeActivePowers(double defaultTargetP, double defaultPdcInverter) {
+    private void computeActivePowers() {
         // targetP is AC active power on rectifier side.
         double pDcRectifier;
         if (getTargetPpccRectifier() != 0.0) {
@@ -153,7 +153,7 @@ public class DCLinkUpdate {
         return r * idc * idc;
     }
 
-    private void computeLossFactors(boolean isDefaultTargetP, double defaultLossFactor1, double defaultLossFactor2) {
+    private void computeLossFactors() {
         // Loss factor is pole losses divided by incoming power.
         if (targetP == 0.0 || targetP == defaultData.targetP()) {
             lossFactor1 = defaultData.lossFactor1();
@@ -166,7 +166,6 @@ public class DCLinkUpdate {
             lossFactor2 = getPoleLossesRectifier() / targetP * 100;
         }
     }
-
 
     public record DefaultData(HvdcLine.ConvertersMode mode, double targetP, double lossFactor1, double lossFactor2) {
     }

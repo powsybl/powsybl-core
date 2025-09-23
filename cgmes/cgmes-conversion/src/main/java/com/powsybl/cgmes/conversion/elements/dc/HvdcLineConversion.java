@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.updateTerminals;
-import static com.powsybl.cgmes.conversion.elements.dc.DCLinkUpdate.getPdcInverter;
 import static com.powsybl.cgmes.model.CgmesNames.*;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
@@ -46,14 +45,13 @@ public class HvdcLineConversion extends AbstractIdentifiedObjectConversion {
 
         // arbitrary value because there is no maxP attribute in CGMES
         double maxP = 0.0;
-        HvdcLine.ConvertersMode convertersMode = HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
         double activePowerSetpoint = 0.0;
 
         HvdcLineAdder adder = context.network().newHvdcLine()
                 .setR(dcLink.getR())
                 .setNominalV(dcLink.getRatedUdc())
                 .setMaxP(maxP)
-                .setConvertersMode(convertersMode)
+                .setConvertersMode(SIDE_1_RECTIFIER_SIDE_2_INVERTER)
                 .setActivePowerSetpoint(activePowerSetpoint)
                 .setConverterStationId1(context.namingStrategy().getIidmId(ACDC_CONVERTER, dcLink.getConverter1().getId(ACDC_CONVERTER)))
                 .setConverterStationId2(context.namingStrategy().getIidmId(ACDC_CONVERTER, dcLink.getConverter2().getId(ACDC_CONVERTER)));
@@ -97,7 +95,6 @@ public class HvdcLineConversion extends AbstractIdentifiedObjectConversion {
         boolean defaultRectifierOnSide1 = getDefaultValue(null, isRectifierOnSide1(hvdcLine.getConvertersMode()), true, true, context);
         HvdcLine.ConvertersMode defaultMode = defaultRectifierOnSide1 ? SIDE_1_RECTIFIER_SIDE_2_INVERTER : SIDE_1_INVERTER_SIDE_2_RECTIFIER;
         double defaultTargetP = getDefaultValue(null, hvdcLine.getActivePowerSetpoint(), 0.0, 0.0, context);
-        double defaultPdcInverter = getDefaultValue(null, getPdcInverter(hvdcLine), 0.0, 0.0, context);
         double lossFactor1 = getDefaultValue(null, (double) hvdcLine.getConverterStation1().getLossFactor(), 0.0, 0.0, context);
         double lossFactor2 = getDefaultValue(null, (double) hvdcLine.getConverterStation2().getLossFactor(), 0.0, 0.0, context);
 
