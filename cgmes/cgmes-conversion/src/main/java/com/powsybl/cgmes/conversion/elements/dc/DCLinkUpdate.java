@@ -58,7 +58,7 @@ public class DCLinkUpdate {
         } else if (targetPpcc1() < 0.0 || targetPpcc2() > 0.0) {
             mode = SIDE_1_INVERTER_SIDE_2_RECTIFIER;
         } else {
-            mode = defaultMode;
+            mode = defaultData.mode();
             String dcLine1Id = hvdcLine.getId();
             LOG.info("Default mode: {} for DCLink with DCLineSegment: {}.", mode, dcLine1Id);
         }
