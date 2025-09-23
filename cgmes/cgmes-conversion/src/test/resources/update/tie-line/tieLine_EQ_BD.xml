@@ -30,4 +30,13 @@
     <eu:BoundaryPoint.ConnectivityNode rdf:resource="#_ConnectivityNode-BD" />
   </eu:BoundaryPoint>
 
+  <cim:ConnectivityNode rdf:ID="_ConnectivityNode3-BD">
+    <cim:IdentifiedObject.name>ConnectivityNode3-BD</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_LineContainer-ConnectivityNode-BD" />
+  </cim:ConnectivityNode>
+  <eu:BoundaryPoint rdf:ID="_BoundaryPoint-ConnectivityNode3-BD">
+    <cim:IdentifiedObject.name>BoundaryPoint-ConnectivityNode3-BD</cim:IdentifiedObject.name>
+    <eu:BoundaryPoint.ConnectivityNode rdf:resource="#_ConnectivityNode3-BD" />
+  </eu:BoundaryPoint>
+
 </rdf:RDF>

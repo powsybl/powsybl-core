@@ -53,4 +53,26 @@
     <cim:ActivePowerLimit rdf:about="#_ACLineSegment-2-T1-OperationalLimitSet-ActivePowerLimit2">
         <cim:ActivePowerLimit.value>110</cim:ActivePowerLimit.value>
     </cim:ActivePowerLimit>
+
+    <cim:Terminal rdf:about="#_ACLineSegment3-1-T1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_ACLineSegment3-1-T2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+
+    <cim:Terminal rdf:about="#_ACLineSegment3-2-T1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_ACLineSegment3-2-T2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+
+    <cim:Terminal rdf:about="#_ACLineSegment3-3-T1">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_ACLineSegment3-3-T2">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+
 </rdf:RDF>
