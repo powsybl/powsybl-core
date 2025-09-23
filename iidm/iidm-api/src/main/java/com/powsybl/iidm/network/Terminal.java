@@ -265,7 +265,8 @@ public interface Terminal {
 
     static Terminal getTerminal(Identifiable<?> identifiable, TerminalNumber terminalNumber) {
         if (identifiable instanceof AcDcConverter<?> acDcConverter) {
-            return acDcConverter.getTerminal(terminalNumber);
+            return acDcConverter.getTerminal(terminalNumber)
+                .orElseThrow(() -> new PowsyblException("This AC/DC converter does not have a second AC Terminal: " + identifiable.getId()));
         } else {
             throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
         }

@@ -250,8 +250,8 @@ public abstract class AbstractAcDcConverterTest {
         assertFalse(Terminal.getConnectableTerminalNumber(lineax.getTerminal2()).isPresent());
         assertSame(TerminalNumber.ONE, acDcConverterA.getTerminalNumber(acDcConverterA.getTerminal1()));
         assertSame(TerminalNumber.TWO, acDcConverterA.getTerminalNumber(acDcConverterA.getTerminal2().orElseThrow()));
-        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getTerminal(TerminalNumber.ONE));
-        assertSame(acDcConverterA.getTerminal2().orElseThrow(), acDcConverterA.getTerminal(TerminalNumber.TWO));
+        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getTerminal(TerminalNumber.ONE).orElseThrow());
+        assertSame(acDcConverterA.getTerminal2().orElseThrow(), acDcConverterA.getTerminal(TerminalNumber.TWO).orElseThrow());
         assertSame(TerminalNumber.ONE, Terminal.getConnectableTerminalNumber(acDcConverterA.getTerminal1()).orElseThrow());
         assertSame(TerminalNumber.TWO, Terminal.getConnectableTerminalNumber(acDcConverterA.getTerminal2().orElseThrow()).orElseThrow());
         assertSame(acDcConverterA.getTerminal1(), Terminal.getTerminal(acDcConverterA, TerminalNumber.ONE));
@@ -786,8 +786,7 @@ public abstract class AbstractAcDcConverterTest {
                 .add();
         assertTrue(acDcConverterA.getTerminal2().isEmpty());
         assertSame(acDcConverterA.getPccTerminal(), acDcConverterA.getTerminal1());
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> acDcConverterA.getTerminal(TerminalNumber.TWO));
-        assertEquals("This AC/DC converter does not have a second AC Terminal", e.getMessage());
+        assertFalse(acDcConverterA.getTerminal(TerminalNumber.TWO).isPresent());
     }
 
     @Test

@@ -88,13 +88,13 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     }
 
     @Override
-    public Terminal getTerminal(TerminalNumber terminalNumber) {
+    public Optional<Terminal> getTerminal(TerminalNumber terminalNumber) {
         Objects.requireNonNull(terminalNumber);
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "terminal");
         if (terminalNumber == TerminalNumber.ONE) {
-            return getTerminal1();
+            return Optional.of(getTerminal1());
         } else if (terminalNumber == TerminalNumber.TWO) {
-            return getTerminal2().orElseThrow(() -> new IllegalStateException("This AC/DC converter does not have a second AC Terminal"));
+            return getTerminal2();
         }
         throw new IllegalStateException("Unexpected AC terminal number: " + terminalNumber);
     }

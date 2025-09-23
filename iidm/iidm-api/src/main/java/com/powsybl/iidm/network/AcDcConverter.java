@@ -138,7 +138,7 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
     /**
      * Get the AC terminal of provided terminal number.
      */
-    Terminal getTerminal(TerminalNumber terminalNumber);
+    Optional<Terminal> getTerminal(TerminalNumber terminalNumber);
 
     /**
      * Get the first DC terminal.
