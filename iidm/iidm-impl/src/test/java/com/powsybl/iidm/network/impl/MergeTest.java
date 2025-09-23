@@ -204,51 +204,45 @@ class MergeTest {
         // two networks
         Network net1 = NetworkFactory.findDefault().createNetwork("N1", "test");
         Substation sub1 = net1.newSubstation().setId("S1").add();
-        assertEquals(net1, sub1.getNetwork());
-        assertEquals(net1, sub1.getParentNetwork());
-        assertEquals(1, net1.getSubstationCount());
-
+        assertIndependentNetwork(net1, sub1);
         Network net2 = NetworkFactory.findDefault().createNetwork("N2", "test");
         Substation sub2 = net2.newSubstation().setId("S2").add();
-        assertEquals(net2, sub2.getNetwork());
-        assertEquals(net2, sub2.getParentNetwork());
-        assertEquals(1, net2.getSubstationCount());
-
+        assertIndependentNetwork(net2, sub2);
         // merge them
         Network merged1 = Network.merge(net1, net2);
         Network net1a = merged1.getSubnetwork("N1");
         Network net2a = merged1.getSubnetwork("N2");
-        assertEquals(merged1, sub1.getNetwork());
-        assertEquals(net1a, sub1.getParentNetwork());
-        assertEquals(merged1, sub2.getNetwork());
-        assertEquals(net2a, sub2.getParentNetwork());
-        assertEquals(2, merged1.getSubstationCount());
-        assertEquals(1, net1a.getSubstationCount());
-        assertEquals(1, net2a.getSubstationCount());
-
+        assertMergedNetworks(merged1, net1a, sub1, net2a, sub2);
         // detach them
         Network net1b = net1a.detach();
-        assertEquals(net1b, sub1.getNetwork());
-        assertEquals(net1b, sub1.getParentNetwork());
+        assertIndependentNetwork(net1b, sub1);
         assertEquals(1, merged1.getSubstationCount());
-        assertEquals(1, net1b.getSubstationCount());
         Network net2b = net2a.detach();
-        assertEquals(net2b, sub2.getNetwork());
-        assertEquals(net2b, sub2.getParentNetwork());
+        assertIndependentNetwork(net2b, sub2);
         assertEquals(0, merged1.getSubstationCount());
-        assertEquals(1, net2b.getSubstationCount());
-
         // merge again
         Network merged2 = Network.merge(net1b, net2b);
         Network net1c = merged2.getSubnetwork("N1");
         Network net2c = merged2.getSubnetwork("N2");
-        assertEquals(merged2, sub1.getNetwork());
-        assertEquals(net1c, sub1.getParentNetwork());
-        assertEquals(merged2, sub2.getNetwork());
-        assertEquals(net2c, sub2.getParentNetwork());
-        assertEquals(2, merged2.getSubstationCount());
-        assertEquals(1, net1c.getSubstationCount());
-        assertEquals(1, net2c.getSubstationCount());
+        assertMergedNetworks(merged2, net1c, sub1, net2c, sub2);
+    }
+
+    private static void assertIndependentNetwork(Network network, Substation substation) {
+        assertEquals(network, substation.getNetwork());
+        assertEquals(network, substation.getParentNetwork());
+        assertEquals(1, network.getSubstationCount());
+    }
+
+    private static void assertMergedNetworks(Network mergedNetwork,
+                                             Network subNetwork1, Substation substation1,
+                                             Network subNetwork2, Substation substation2) {
+        assertEquals(mergedNetwork, substation1.getNetwork());
+        assertEquals(subNetwork1, substation1.getParentNetwork());
+        assertEquals(mergedNetwork, substation2.getNetwork());
+        assertEquals(subNetwork2, substation2.getParentNetwork());
+        assertEquals(2, mergedNetwork.getSubstationCount());
+        assertEquals(1, subNetwork1.getSubstationCount());
+        assertEquals(1, subNetwork2.getSubstationCount());
     }
 
     private static boolean voltageAngleLimitsAreEqual(List<VoltageAngleLimit> expected, List<VoltageAngleLimit> actual) {
