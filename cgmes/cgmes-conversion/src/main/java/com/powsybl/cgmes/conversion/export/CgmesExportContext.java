@@ -37,6 +37,8 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refGeneratingUnit;
+import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL1;
+import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL2;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -44,10 +46,6 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refGenera
 public class CgmesExportContext {
 
     private static final String GENERATING_UNIT = "GeneratingUnit";
-
-    private static final String DCNODE = "DCNode";
-    private static final String DCTERMINAL = "DCTerminal";
-    private static final String ACDCCONVERTERDCTERMINAL = "ACDCConverterDCTerminal";
 
     private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
     private static final String REGION_ID = "regionId";
@@ -283,7 +281,7 @@ public class CgmesExportContext {
                 substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME, regionName);
             } else {
                 // Only add with this name if the id is not already mapped
-                // We can not have the same id mapped to two different names
+                // We cannot have the same id mapped to two different names
                 String regionId = namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID);
                 regionName = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME);
                 if (!regionsIdsByRegionName.containsValue(regionId)) {
@@ -401,35 +399,35 @@ public class CgmesExportContext {
 
     private void addIidmMappingsHvdcTerminals(Network network) {
         for (HvdcLine line : network.getHvdcLines()) {
-            String dcNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCNODE + "1").orElse(null);
-            if (dcNode1 == null) {
-                dcNode1 = namingStrategy.getCgmesId(refTyped(line), Part.DCNODE, ref(1));
-                line.addAlias(dcNode1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCNODE + "1");
-            }
-            String dcNode2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCNODE + "2").orElse(null);
-            if (dcNode2 == null) {
-                dcNode2 = namingStrategy.getCgmesId(refTyped(line), Part.DCNODE, ref(2));
-                line.addAlias(dcNode2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCNODE + "2");
-            }
-            String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCTERMINAL + "1").orElse(null);
+            String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL1).orElse(null);
             if (dcTerminal1 == null) {
                 dcTerminal1 = namingStrategy.getCgmesId(refTyped(line), TERMINAL, ref(1));
-                line.addAlias(dcTerminal1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCTERMINAL + "1");
+                line.addAlias(dcTerminal1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1);
             }
-            String dcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCTERMINAL + "2").orElse(null);
+            String dcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElse(null);
             if (dcTerminal2 == null) {
                 dcTerminal2 = namingStrategy.getCgmesId(refTyped(line), TERMINAL, ref(2));
-                line.addAlias(dcTerminal2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCTERMINAL + "2");
+                line.addAlias(dcTerminal2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2);
             }
-            String acdcConverterDcTerminal1 = line.getConverterStation1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL).orElse(null);
-            if (acdcConverterDcTerminal1 == null) {
-                acdcConverterDcTerminal1 = namingStrategy.getCgmesId(refTyped(line), ACDC_CONVERTER_DC_TERMINAL, ref(1));
-                line.getConverterStation1().addAlias(acdcConverterDcTerminal1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL);
+            String acdcConverter1DcTerminal1 = line.getConverterStation1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElse(null);
+            if (acdcConverter1DcTerminal1 == null) {
+                acdcConverter1DcTerminal1 = namingStrategy.getCgmesId(refTyped(line.getConverterStation1()), ACDC_CONVERTER_DC_TERMINAL, ref(1));
+                line.getConverterStation1().addAlias(acdcConverter1DcTerminal1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1);
             }
-            String acdcConverterDcTerminal2 = line.getConverterStation2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL).orElse(null);
-            if (acdcConverterDcTerminal2 == null) {
-                acdcConverterDcTerminal2 = namingStrategy.getCgmesId(refTyped(line), ACDC_CONVERTER_DC_TERMINAL, ref(2));
-                line.getConverterStation2().addAlias(acdcConverterDcTerminal2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL);
+            String acdcConverter1DcTerminal2 = line.getConverterStation1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElse(null);
+            if (acdcConverter1DcTerminal2 == null) {
+                acdcConverter1DcTerminal2 = namingStrategy.getCgmesId(refTyped(line.getConverterStation1()), ACDC_CONVERTER_DC_TERMINAL, ref(2));
+                line.getConverterStation1().addAlias(acdcConverter1DcTerminal2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2);
+            }
+            String acdcConverter2DcTerminal1 = line.getConverterStation2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElse(null);
+            if (acdcConverter2DcTerminal1 == null) {
+                acdcConverter2DcTerminal1 = namingStrategy.getCgmesId(refTyped(line.getConverterStation2()), ACDC_CONVERTER_DC_TERMINAL, ref(1));
+                line.getConverterStation2().addAlias(acdcConverter2DcTerminal1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1);
+            }
+            String acdcConverter2DcTerminal2 = line.getConverterStation2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElse(null);
+            if (acdcConverter2DcTerminal2 == null) {
+                acdcConverter2DcTerminal2 = namingStrategy.getCgmesId(refTyped(line.getConverterStation2()), ACDC_CONVERTER_DC_TERMINAL, ref(2));
+                line.getConverterStation2().addAlias(acdcConverter2DcTerminal2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2);
             }
         }
     }
@@ -558,7 +556,7 @@ public class CgmesExportContext {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             addIidmTransformerEnd(twt, 1);
             addIidmTransformerEnd(twt, 2);
-            //  For two winding transformers we can not check-and-add based on endNumber
+            //  For two winding transformers we cannot check-and-add based on endNumber
             //  The resulting IIDM tap changer is always at end1
             //  But the original position of tap changer could be 1 or 2
             addIidmTapChanger2wt(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER);

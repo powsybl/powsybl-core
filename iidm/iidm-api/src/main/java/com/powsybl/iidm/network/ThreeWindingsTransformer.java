@@ -46,7 +46,7 @@ import java.util.stream.Stream;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -126,7 +126,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      *             <th style="border: 1px solid black">Type</th>
      *             <th style="border: 1px solid black">Unit</th>
      *             <th style="border: 1px solid black">Required</th>
-     *             <th style="border: 1px solid black">Defaut value</th>
+     *             <th style="border: 1px solid black">Default value</th>
      *             <th style="border: 1px solid black">Description</th>
      *         </tr>
      *     </thead>
@@ -300,6 +300,8 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
 
     Terminal getTerminal(ThreeSides side);
 
+    Terminal getTerminal(String voltageLevelId);
+
     /**
      * Get the side the terminal is connected to.
      */
@@ -408,4 +410,17 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     Overload checkTemporaryLimits3(double limitReductionValue, LimitType type);
 
     Overload checkTemporaryLimits3(LimitType type);
+
+    default void applySolvedValues() {
+        setRatioTapPositionToSolvedTapPosition();
+        setPhaseTapPositionToSolvedTapPosition();
+    }
+
+    default void setRatioTapPositionToSolvedTapPosition() {
+        this.getLegStream().forEach(leg -> leg.getOptionalRatioTapChanger().ifPresent(TapChanger::applySolvedValues));
+    }
+
+    default void setPhaseTapPositionToSolvedTapPosition() {
+        this.getLegStream().forEach(leg -> leg.getOptionalPhaseTapChanger().ifPresent(TapChanger::applySolvedValues));
+    }
 }

@@ -91,7 +91,7 @@ class MeasurementAdderImpl implements MeasurementAdder {
     public Measurement add() {
         id = checkId(id, idUnicity, measurements);
         if (type == null) {
-            throw new PowsyblException("Measurement type can not be null");
+            throw new PowsyblException("Measurement type cannot be null");
         }
         checkValue(value, valid);
         checkSide(type, side, measurements.getExtendable());

@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
@@ -21,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -74,9 +74,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(1, Iterables.size(vl1.getThreeWindingsTransformers()));
         assertEquals(1, vl1.getThreeWindingsTransformerStream().count());
         assertEquals(1, vl1.getThreeWindingsTransformerCount());
-        assertSame(transformer, vl1.getThreeWindingsTransformers().iterator().next());
+        assertEquals(transformer, vl1.getThreeWindingsTransformers().iterator().next());
         assertTrue(vl1.getThreeWindingsTransformerStream().findFirst().isPresent());
-        assertSame(transformer, vl1.getThreeWindingsTransformerStream().findFirst().get());
+        assertEquals(transformer, vl1.getThreeWindingsTransformerStream().findFirst().get());
     }
 
     @Test
@@ -92,7 +92,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(1.1, leg1.getRatedU(), 0.0);
         assertEquals(1.6, leg1.getG(), 0.0);
         assertEquals(1.7, leg1.getB(), 0.0);
-        assertSame(transformer.getTerminal(ThreeSides.ONE), leg1.getTerminal());
+        assertEquals(transformer.getTerminal(ThreeSides.ONE), leg1.getTerminal());
         assertEquals("twt", leg1.getTransformer().getId());
     }
 
@@ -126,7 +126,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(2.04, leg2.getX(), 0.0);
         assertEquals(2.05, leg2.getRatedU(), 0.0);
         assertEquals(2.06, leg2.getRatedS(), 0.0);
-        assertSame(transformer.getTerminal(ThreeSides.TWO), leg2.getTerminal());
+        assertEquals(transformer.getTerminal(ThreeSides.TWO), leg2.getTerminal());
     }
 
     @Test
@@ -156,7 +156,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(3.4, leg3.getX(), 0.0);
         assertEquals(3.5, leg3.getRatedU(), 0.0);
         assertEquals(3.6, leg3.getRatedS(), 0.0);
-        assertSame(transformer.getTerminal(ThreeSides.THREE), leg3.getTerminal());
+        assertEquals(transformer.getTerminal(ThreeSides.THREE), leg3.getTerminal());
     }
 
     @Test
@@ -195,7 +195,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = transformerAdder.add();
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
 
-        CurrentLimits currentLimitsInLeg1 = leg1.newCurrentLimits()
+        CurrentLimits currentLimitsInLeg1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
             .setPermanentLimit(100)
             .beginTemporaryLimit()
             .setName("20'")
@@ -203,7 +203,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setValue(1200)
             .endTemporaryLimit()
             .add();
-        assertSame(currentLimitsInLeg1, leg1.getCurrentLimits().orElse(null));
+        assertEquals(currentLimitsInLeg1, leg1.getCurrentLimits().orElse(null));
     }
 
     @Test
@@ -212,15 +212,15 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = transformerAdder.add();
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
 
-        ActivePowerLimits activePowerLimits1 = leg1.newActivePowerLimits()
+        ActivePowerLimits activePowerLimits1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
             .setPermanentLimit(400)
             .add();
-        assertSame(activePowerLimits1, leg1.getActivePowerLimits().orElse(null));
+        assertEquals(activePowerLimits1, leg1.getActivePowerLimits().orElse(null));
 
-        ApparentPowerLimits apparentPowerLimits1 = leg1.newApparentPowerLimits()
+        ApparentPowerLimits apparentPowerLimits1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
             .setPermanentLimit(2.4)
             .add();
-        assertSame(apparentPowerLimits1, leg1.getApparentPowerLimits().orElse(null));
+        assertEquals(apparentPowerLimits1, leg1.getApparentPowerLimits().orElse(null));
     }
 
     @Test
@@ -232,9 +232,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         RatioTapChanger ratioTapChangerInLeg2 = createRatioTapChanger(leg2, transformer.getTerminal(ThreeSides.TWO));
 
         assertTrue(leg2.hasRatioTapChanger());
-        assertSame(ratioTapChangerInLeg2, leg2.getRatioTapChanger());
+        assertEquals(ratioTapChangerInLeg2, leg2.getRatioTapChanger());
 
-        CurrentLimits currentLimitsInLeg2 = leg2.newCurrentLimits()
+        CurrentLimits currentLimitsInLeg2 = leg2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
             .setPermanentLimit(100)
             .beginTemporaryLimit()
             .setName("20'")
@@ -242,7 +242,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setValue(1200)
             .endTemporaryLimit()
             .add();
-        assertSame(currentLimitsInLeg2, leg2.getCurrentLimits().orElse(null));
+        assertEquals(currentLimitsInLeg2, leg2.getCurrentLimits().orElse(null));
     }
 
     @Test
@@ -254,9 +254,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         RatioTapChanger ratioTapChangerInLeg3 = createRatioTapChanger(leg3, transformer.getTerminal(ThreeSides.THREE));
 
         assertTrue(leg3.getOptionalRatioTapChanger().isPresent());
-        assertSame(ratioTapChangerInLeg3, leg3.getRatioTapChanger());
+        assertEquals(ratioTapChangerInLeg3, leg3.getRatioTapChanger());
 
-        CurrentLimits currentLimitsInLeg3 = leg3.newCurrentLimits()
+        CurrentLimits currentLimitsInLeg3 = leg3.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
             .setPermanentLimit(100)
             .beginTemporaryLimit()
             .setName("20'")
@@ -264,7 +264,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setValue(1200)
             .endTemporaryLimit()
             .add();
-        assertSame(currentLimitsInLeg3, leg3.getCurrentLimits().orElse(null));
+        assertEquals(currentLimitsInLeg3, leg3.getCurrentLimits().orElse(null));
     }
 
     @Test
@@ -277,15 +277,15 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         PhaseTapChanger phaseTapChangerInLeg1 = createPhaseTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE));
         assertTrue(leg1.getOptionalPhaseTapChanger().isPresent());
-        assertSame(phaseTapChangerInLeg1, leg1.getPhaseTapChanger());
+        assertEquals(phaseTapChangerInLeg1, leg1.getPhaseTapChanger());
 
         PhaseTapChanger phaseTapChangerInLeg2 = createPhaseTapChanger(leg2, transformer.getTerminal(ThreeSides.TWO));
         assertTrue(leg2.hasPhaseTapChanger());
-        assertSame(phaseTapChangerInLeg2, leg2.getPhaseTapChanger());
+        assertEquals(phaseTapChangerInLeg2, leg2.getPhaseTapChanger());
 
         PhaseTapChanger phaseTapChangerInLeg3 = createPhaseTapChanger(leg3, transformer.getTerminal(ThreeSides.THREE));
         assertTrue(leg3.getOptionalPhaseTapChanger().isPresent());
-        assertSame(phaseTapChangerInLeg3, leg3.getPhaseTapChanger());
+        assertEquals(phaseTapChangerInLeg3, leg3.getPhaseTapChanger());
     }
 
     @Test
@@ -310,6 +310,80 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertNull(network.getThreeWindingsTransformer("twt"));
         assertNotNull(transformer);
         assertEquals(count - 1L, network.getThreeWindingsTransformerCount());
+    }
+
+    @Test
+    public void testGetTerminalVL() {
+        ThreeWindingsTransformerAdder transformerAdder = createThreeWindingsTransformerAdder();
+        ThreeWindingsTransformer transformer = transformerAdder.add();
+        assertEquals(transformer.getTerminal("vl1").getBusBreakerView().getConnectableBus(),
+            transformer.getLeg1().getTerminal().getBusBreakerView().getConnectableBus());
+        String message = assertThrows(PowsyblException.class, () -> transformer.getTerminal("vl2")).getMessage();
+        assertEquals("Two of the three terminals are connected to the same voltage level vl2", message);
+
+        VoltageLevel voltageLevelC = substation.newVoltageLevel()
+            .setId("vl3").setName("vl3")
+            .setNominalV(200.0)
+            .setHighVoltageLimit(400.0)
+            .setLowVoltageLimit(200.0)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+        voltageLevelC.getBusBreakerView().newBus()
+            .setId("busC")
+            .setName("busC")
+            .add();
+
+        ThreeWindingsTransformer transformer3 = transformerAdder.setId(transformer.getId() + "_3").newLeg3()
+            .setR(3.3)
+            .setX(3.4)
+            .setG(0.0)
+            .setB(0.0)
+            .setRatedU(3.5)
+            .setRatedS(3.6)
+            .setVoltageLevel("vl3")
+            .setConnectableBus("busC").add().add();
+
+        assertEquals(transformer3.getTerminal("vl2").getBusBreakerView().getConnectableBus(),
+            transformer.getLeg2().getTerminal().getBusBreakerView().getConnectableBus());
+        assertEquals(transformer3.getTerminal("vl3").getBusBreakerView().getConnectableBus(),
+            transformer3.getLeg3().getTerminal().getBusBreakerView().getConnectableBus());
+        message = assertThrows(PowsyblException.class, () -> transformer3.getTerminal("vl4")).getMessage();
+        assertEquals("No terminal connected to voltage level vl4", message);
+
+        ThreeWindingsTransformer transformer4 = transformerAdder.setId(transformer.getId() + "_4")
+            .newLeg1()
+                .setR(3.3)
+                .setX(3.4)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(3.5)
+                .setRatedS(3.6)
+                .setVoltageLevel("vl1")
+                .setConnectableBus("busA")
+                .add()
+            .newLeg2()
+                .setR(3.3)
+                .setX(3.4)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(3.5)
+                .setRatedS(3.6)
+                .setVoltageLevel("vl1")
+                .setConnectableBus("busA")
+                .add()
+            .newLeg3()
+                .setR(3.3)
+                .setX(3.4)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(3.5)
+                .setRatedS(3.6)
+                .setVoltageLevel("vl1")
+                .setConnectableBus("busA")
+                .add()
+            .add();
+        message = assertThrows(PowsyblException.class, () -> transformer4.getTerminal("vl1")).getMessage();
+        assertEquals("The three terminals are connected to the same voltage level vl1", message);
     }
 
     @Test
@@ -354,9 +428,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         VoltageLevel vl1 = network.getVoltageLevel("vl1");
         VoltageLevel vl2 = network.getVoltageLevel("vl2");
-        assertSame(vl1, leg1.getTerminal().getVoltageLevel());
-        assertSame(vl2, leg2.getTerminal().getVoltageLevel());
-        assertSame(vl1, leg3.getTerminal().getVoltageLevel());
+        assertEquals(vl1, leg1.getTerminal().getVoltageLevel());
+        assertEquals(vl2, leg2.getTerminal().getVoltageLevel());
+        assertEquals(vl1, leg3.getTerminal().getVoltageLevel());
     }
 
     @Test
@@ -413,8 +487,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         createRatioTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE));
         createPhaseTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE));
 
-        leg1.getRatioTapChanger().setRegulating(true);
+        leg1.getRatioTapChanger().setLoadTapChangingCapabilities(true).setRegulating(true);
         PhaseTapChanger phaseTapChanger = leg1.getPhaseTapChanger();
+        phaseTapChanger.setLoadTapChangingCapabilities(true);
         ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setRegulating(true));
         assertTrue(e.getMessage().contains(ERROR_LEG1_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED));
     }
@@ -426,8 +501,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         createRatioTapChanger(leg2, transformer.getTerminal(ThreeSides.TWO));
         createPhaseTapChanger(leg2, transformer.getTerminal(ThreeSides.TWO));
 
-        leg2.getRatioTapChanger().setRegulating(true);
+        leg2.getRatioTapChanger().setLoadTapChangingCapabilities(true).setRegulating(true);
         PhaseTapChanger phaseTapChanger = leg2.getPhaseTapChanger();
+        phaseTapChanger.setLoadTapChangingCapabilities(true);
         ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setRegulating(true));
         assertTrue(e.getMessage().contains(ERROR_LEG2_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED));
     }
@@ -440,8 +516,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         createPhaseTapChanger(leg3, transformer.getTerminal(ThreeSides.THREE));
         createRatioTapChanger(leg3, transformer.getTerminal(ThreeSides.THREE));
 
-        leg3.getRatioTapChanger().setRegulating(true);
+        leg3.getRatioTapChanger().setLoadTapChangingCapabilities(true).setRegulating(true);
         PhaseTapChanger phaseTapChanger = leg3.getPhaseTapChanger();
+        phaseTapChanger.setLoadTapChangingCapabilities(true);
         ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setRegulating(true));
         assertTrue(e.getMessage().contains(ERROR_TRANSFORMER_LEG3_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED));
     }
@@ -454,8 +531,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
         createRatioTapChanger(leg3, transformer.getTerminal(ThreeSides.THREE));
 
-        leg1.getRatioTapChanger().setRegulating(true);
+        leg1.getRatioTapChanger().setLoadTapChangingCapabilities(true).setRegulating(true);
         RatioTapChanger ratioTapChanger = leg3.getRatioTapChanger();
+        ratioTapChanger.setLoadTapChangingCapabilities(true);
         ValidationException e = assertThrows(ValidationException.class, () -> ratioTapChanger.setRegulating(true));
         assertTrue(e.getMessage().contains(ERROR_TRANSFORMER_LEG3_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED));
     }
@@ -468,8 +546,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
         createPhaseTapChanger(leg2, transformer.getTerminal(ThreeSides.TWO));
 
-        leg1.getPhaseTapChanger().setRegulating(true);
+        leg1.getPhaseTapChanger().setLoadTapChangingCapabilities(true).setRegulating(true);
         PhaseTapChanger phaseTapChanger = leg2.getPhaseTapChanger();
+        phaseTapChanger.setLoadTapChangingCapabilities(true);
         ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setRegulating(true));
         assertTrue(e.getMessage().contains(ERROR_LEG2_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED));
     }
@@ -696,45 +775,45 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .setNode(0)
                 .add();
 
-        ValidationException e = assertThrows(ValidationException.class, () -> substation.newThreeWindingsTransformer()
-            .setId("twt")
-            .setName(TWT_NAME)
-            .newLeg1()
-            .setR(1.3)
-            .setX(1.4)
-            .setG(1.6)
-            .setB(1.7)
-            .setRatedU(1.1)
-            .setRatedS(1.2)
-            .setNode(0)
-            .add()
-            .add());
-        assertTrue(e.getMessage().contains("3 windings transformer leg1 in substation sub: voltage level is not set"));
+        ThreeWindingsTransformerAdder adder = substation.newThreeWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setRatedS(1.2)
+                .setNode(0)
+                .add();
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
+        assertEquals("3 windings transformer leg1 in substation 'sub': voltage level is not set and has no default value", e.getMessage());
     }
 
     @Test
     public void invalidLeg1ArgumentVoltageLevelNotFound() {
-        ValidationException e = assertThrows(ValidationException.class, () -> substation.newThreeWindingsTransformer()
-            .setId("twt")
-            .setName(TWT_NAME)
-            .newLeg1()
-            .setR(1.3)
-            .setX(1.4)
-            .setG(1.6)
-            .setB(1.7)
-            .setRatedU(1.1)
-            .setRatedS(1.2)
-            .setVoltageLevel("invalid")
-            .setConnectableBus("busA")
-            .setBus("busA")
-            .add()
-            .add());
-        assertTrue(e.getMessage().contains("3 windings transformer leg1 in substation sub: voltage level 'invalid' not found"));
+        ThreeWindingsTransformerAdder adder = substation.newThreeWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setRatedS(1.2)
+                .setVoltageLevel("invalid")
+                .setConnectableBus("busA")
+                .setBus("busA")
+                .add();
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
+        assertEquals("3 windings transformer leg1 in substation 'sub': voltage level 'invalid' not found", e.getMessage());
     }
 
     @Test
     public void invalidLeg1ArgumentConnectableBusNotSet() {
-        ValidationException e = assertThrows(ValidationException.class, () -> substation.newThreeWindingsTransformer()
+        ThreeWindingsTransformerAdder adder = substation.newThreeWindingsTransformer()
             .setId("twt")
             .setName(TWT_NAME)
             .newLeg1()
@@ -745,8 +824,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setRatedU(1.1)
             .setRatedS(1.2)
             .setVoltageLevel("vl1")
-            .add()
-            .add());
+            .add();
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
         assertTrue(e.getMessage().contains("connectable bus is not set"));
     }
 
@@ -849,7 +928,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         return leg.newRatioTapChanger()
             .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
             .setRegulationValue(200.0)
-            .setLoadTapChangingCapabilities(false)
+            .setLoadTapChangingCapabilities(regulating)
             .setLowTapPosition(0)
             .setTapPosition(0)
             .setRegulating(regulating)
@@ -908,6 +987,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setRegulationValue(200.0)
             .setLowTapPosition(0)
             .setTapPosition(0)
+            .setLoadTapChangingCapabilities(regulating)
             .setRegulating(regulating)
             .setRegulationTerminal(terminal)
             .setRegulationMode(RegulationMode.ACTIVE_POWER_CONTROL)
@@ -1133,9 +1213,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void getSideFromLeg() {
         ThreeWindingsTransformerAdder transformerAdder = createThreeWindingsTransformerAdder();
         ThreeWindingsTransformer transformer = transformerAdder.add();
-        assertSame(ThreeSides.ONE, transformer.getLeg1().getSide());
-        assertSame(ThreeSides.TWO, transformer.getLeg2().getSide());
-        assertSame(ThreeSides.THREE, transformer.getLeg3().getSide());
+        assertEquals(ThreeSides.ONE, transformer.getLeg1().getSide());
+        assertEquals(ThreeSides.TWO, transformer.getLeg2().getSide());
+        assertEquals(ThreeSides.THREE, transformer.getLeg3().getSide());
     }
 
     private void createThreeWindingsTransformerWithLeg3(double r, double x, double g, double b, double ratedU) {
@@ -1180,7 +1260,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
 
-        CurrentLimitsAdder currentLimitsAdder1 = leg1.newCurrentLimits()
+        CurrentLimitsAdder currentLimitsAdder1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                 .setName("TL1")
@@ -1189,7 +1269,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .endTemporaryLimit();
         currentLimitsAdder1.add();
 
-        ActivePowerLimitsAdder activePowerLimitsAdder1 = leg1.newActivePowerLimits()
+        ActivePowerLimitsAdder activePowerLimitsAdder1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                 .setName("TL1")
@@ -1198,7 +1278,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .endTemporaryLimit();
         activePowerLimitsAdder1.add();
 
-        ApparentPowerLimitsAdder apparentPowerLimitsAdder1 = leg1.newApparentPowerLimits()
+        ApparentPowerLimitsAdder apparentPowerLimitsAdder1 = leg1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(1000.)
                 .beginTemporaryLimit()
                 .setName("TL1")
@@ -1214,19 +1294,19 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertTrue(leg1.getApparentPowerLimits().isPresent());
         ApparentPowerLimits apparentPowerLimits1 = leg1.getApparentPowerLimits().get();
 
-        CurrentLimitsAdder currentLimitsAdder2 = leg2.newCurrentLimits(currentLimits1);
+        CurrentLimitsAdder currentLimitsAdder2 = leg2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(currentLimits1);
         currentLimitsAdder2.add();
         Optional<CurrentLimits> optionalCurrentLimits2 = leg2.getCurrentLimits();
         assertTrue(optionalCurrentLimits2.isPresent());
         CurrentLimits currentLimits2 = optionalCurrentLimits2.get();
 
-        ActivePowerLimitsAdder activePowerLimitsAdder2 = leg2.newActivePowerLimits(activePowerLimits1);
+        ActivePowerLimitsAdder activePowerLimitsAdder2 = leg2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(activePowerLimits1);
         activePowerLimitsAdder2.add();
         Optional<ActivePowerLimits> optionalActivePowerLimits2 = leg2.getActivePowerLimits();
         assertTrue(optionalActivePowerLimits2.isPresent());
         ActivePowerLimits activePowerLimits2 = optionalActivePowerLimits2.get();
 
-        ApparentPowerLimitsAdder apparentPowerLimitsAdder2 = leg2.newApparentPowerLimits(apparentPowerLimits1);
+        ApparentPowerLimitsAdder apparentPowerLimitsAdder2 = leg2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(apparentPowerLimits1);
         apparentPowerLimitsAdder2.add();
         Optional<ApparentPowerLimits> optionalApparentPowerLimits2 = leg2.getApparentPowerLimits();
         assertTrue(optionalApparentPowerLimits2.isPresent());
