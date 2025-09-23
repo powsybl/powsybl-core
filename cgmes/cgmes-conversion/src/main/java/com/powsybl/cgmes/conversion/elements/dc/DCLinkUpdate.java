@@ -92,9 +92,7 @@ public class DCLinkUpdate {
         return Double.isNaN(poleLosses) ? 0.0 : poleLosses;
     }
 
-    private boolean computeActivePowers(double defaultTargetP, double defaultPdcInverter) {
-        boolean isDefaultTargetP = false;
-
+    private void computeActivePowers(double defaultTargetP, double defaultPdcInverter) {
         // targetP is AC active power on rectifier side.
         double pDcRectifier;
         if (getTargetPpccRectifier() != 0.0) {
