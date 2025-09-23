@@ -456,7 +456,10 @@ public final class EquipmentExport {
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> Double getNullableMinQ(I i) {
         if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
-            return null;
+            ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
+            if (curveMustBeWritten(curve)) {
+                return null;
+            }
         }
         return getMinQ(i);
     }
@@ -473,7 +476,10 @@ public final class EquipmentExport {
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> Double getNullableMaxQ(I i) {
         if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
-            return null;
+            ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
+            if (curveMustBeWritten(curve)) {
+                return null;
+            }
         }
         return getMaxQ(i);
     }
