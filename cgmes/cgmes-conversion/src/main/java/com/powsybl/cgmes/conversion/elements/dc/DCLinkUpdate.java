@@ -41,9 +41,9 @@ public class DCLinkUpdate {
         this.converter1 = converter1;
         this.converter2 = converter2;
 
-        computeMode(defaultData.mode);
-        boolean isDefaultTargetP = computeActivePowers(defaultData.targetP, defaultData.pDcInverter);
-        computeLossFactors(isDefaultTargetP, defaultData.lossFactor1, defaultData.lossFactor2);
+        computeMode();
+        computeActivePowers();
+        computeLossFactors();
     }
 
     private void computeMode(HvdcLine.ConvertersMode defaultMode) {
