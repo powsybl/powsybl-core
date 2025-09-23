@@ -90,8 +90,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             s = adder.setOpen(normalOpen).add();
         }
         // Always preserve the original type
-        addTypeAsProperty(s);
         addAliasesAndProperties(s);
+        s.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, p.getLocal("type"));
         s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
         return s;
     }
@@ -116,10 +116,6 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             case "Breaker" -> SwitchKind.BREAKER;
             default -> SwitchKind.DISCONNECTOR;  // Switch, ProtectedSwitch
         };
-    }
-
-    private void addTypeAsProperty(Switch s) {
-        s.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, p.getLocal("type"));
     }
 
     private void warnDanglingLineCreated() {

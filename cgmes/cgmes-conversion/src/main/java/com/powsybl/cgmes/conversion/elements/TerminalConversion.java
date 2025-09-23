@@ -130,6 +130,8 @@ public final class TerminalConversion {
         terminal.getNodeBreakerView().moveConnectable(newNode, terminal.getVoltageLevel().getId());
     }
 
+    // The terminal associated with the fictitious switch is recorded as a property because the alias must be unique.
+    // In some cases, it may have already been recorded as an alias associated with other equipment
     private static void createSwitch(VoltageLevel voltageLevel, String cgmesTerminalId, int node1, int node2, Context context) {
         String switchId = cgmesTerminalId + "_SW_fict";
         Switch sw = voltageLevel.getNodeBreakerView().newSwitch()
