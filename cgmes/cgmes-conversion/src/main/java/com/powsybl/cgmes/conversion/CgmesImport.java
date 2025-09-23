@@ -392,7 +392,7 @@ public class CgmesImport implements Importer {
                 }
             }
             // We may have read a modelling authority,
-            // but if we haven't been able to check that one the profiles checks ok we discard it
+            // but if we haven't been able to check that one of the profiles checks ok we discard it
             if (!profileChecked) {
                 modellingAuthority = null;
             }
