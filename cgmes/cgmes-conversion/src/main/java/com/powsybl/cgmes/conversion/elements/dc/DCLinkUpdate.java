@@ -165,14 +165,6 @@ public class DCLinkUpdate {
         }
     }
 
-    static double getPdcInverter(HvdcLine hvdcLine) {
-        double poleLossesRectifier = hvdcLine.getConvertersMode() == SIDE_1_RECTIFIER_SIDE_2_INVERTER
-                ? hvdcLine.getConverterStation1().getLossFactor() * hvdcLine.getActivePowerSetpoint() / 100.0
-                : hvdcLine.getConverterStation2().getLossFactor() * hvdcLine.getActivePowerSetpoint() / 100.0;
-        double pDcRectifier = Math.abs(hvdcLine.getActivePowerSetpoint()) - poleLossesRectifier;
-        double resistiveLosses = resistiveLossesFromPdcRectifier(pDcRectifier, hvdcLine.getR(), hvdcLine.getNominalV());
-        return -1 * (pDcRectifier - resistiveLosses);
-    }
 
     record DefaultData(HvdcLine.ConvertersMode mode, double targetP, double pDcInverter, double lossFactor1, double lossFactor2) {
     }
