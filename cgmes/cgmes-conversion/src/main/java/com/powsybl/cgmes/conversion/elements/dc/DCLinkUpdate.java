@@ -153,9 +153,9 @@ public class DCLinkUpdate {
 
     private void computeLossFactors(boolean isDefaultTargetP, double defaultLossFactor1, double defaultLossFactor2) {
         // Loss factor is pole losses divided by incoming power.
-        if (isDefaultTargetP || targetP == 0.0) {
-            lossFactor1 = defaultLossFactor1;
-            lossFactor2 = defaultLossFactor2;
+        if (targetP == 0.0 || targetP == defaultData.targetP()) {
+            lossFactor1 = defaultData.lossFactor1();
+            lossFactor2 = defaultData.lossFactor2();
         } else if (mode == SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
             lossFactor1 = getPoleLossesRectifier() / targetP * 100;
             lossFactor2 = getPoleLossesInverter() / Math.abs(pDcInverter) * 100;
