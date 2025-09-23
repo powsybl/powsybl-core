@@ -41,6 +41,7 @@ public class DCLinkUpdate {
         this.hvdcLine = hvdcLine;
         this.converter1 = converter1;
         this.converter2 = converter2;
+        this.defaultData = defaultData;
 
         computeMode();
         computeActivePowers();
