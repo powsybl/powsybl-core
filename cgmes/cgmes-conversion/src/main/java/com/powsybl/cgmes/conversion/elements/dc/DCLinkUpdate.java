@@ -106,11 +106,9 @@ public class DCLinkUpdate {
             pDcRectifier = Math.abs(pDcInverter) + resistiveLossesFromPdcInverter(pDcInverter);
             targetP = pDcRectifier + getPoleLossesRectifier();
         } else {
-            isDefaultTargetP = true;
-            targetP = defaultTargetP;
-            pDcInverter = defaultPdcInverter;
+            targetP = defaultData.targetP();
+            // No need to calculate DC powers when using default data.
         }
-        return isDefaultTargetP;
     }
 
     private double getTargetPpccRectifier() {
