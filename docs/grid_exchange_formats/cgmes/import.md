@@ -631,6 +631,8 @@ Optional property that defines if control areas must be imported or not. `true` 
 
 **iidm.import.cgmes.naming-strategy**  
 Optional property that defines which naming strategy is used to transform CGMES identifiers to IIDM identifiers. Currently, all naming strategies assign CGMES Ids directly to IIDM Ids during import, without any transformation. The default value is `identity`.
+You can also define a custom naming strategy by implementing the `NamingStrategy` interface on your own project and declare
+a `NamingStrategyProvider` that can be automatically discovered. Then in this parameter, you can specify the name of the provider.
 
 **iidm.import.cgmes.post-processors**  
 Optional property that defines all the CGMES post-processors which will be activated after import.
