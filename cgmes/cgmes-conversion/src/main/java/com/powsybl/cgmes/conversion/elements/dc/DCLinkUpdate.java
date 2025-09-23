@@ -166,7 +166,7 @@ public class DCLinkUpdate {
     }
 
 
-    record DefaultData(HvdcLine.ConvertersMode mode, double targetP, double pDcInverter, double lossFactor1, double lossFactor2) {
+    public record DefaultData(HvdcLine.ConvertersMode mode, double targetP, double lossFactor1, double lossFactor2) {
     }
 
     public ConvertersMode getMode() {
