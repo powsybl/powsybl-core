@@ -123,10 +123,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     public static void update(DanglingLine danglingLine, PropertyBag cgmesData, Context context) {
-        updateTerminals(danglingLine, context, danglingLine.getTerminal());
-        boolean isClosed = !cgmesData.asBoolean(CgmesNames.OPEN).orElse(defaultOpen(danglingLine, context));
-        updateTargetsAndRegulationAndOperationalLimits(danglingLine, isBoundaryTerminalConnected(danglingLine, context) && isClosed, context);
-        computeFlowsOnModelSide(danglingLine, context);
+        boolean isClosed = !cgmesData.asBoolean("open").orElse(defaultOpen(danglingLine, context));
+        updateDanglingLine(danglingLine, isBoundaryTerminalConnected(danglingLine, context) && isClosed, context);
     }
 
     // In the danglingLines, the status of the terminal on the boundary side cannot be explicitly represented.
