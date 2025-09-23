@@ -289,13 +289,14 @@ public class CgmesImport implements Importer {
                 return Set.of(dataSource);
             }
             Set<String> shared = new HashSet<>();
+            Set<String> processed = igmNames.values().stream().flatMap(List::stream).collect(Collectors.toSet());
             new CgmesOnDataSource(dataSource).names().stream()
                     // We read the modeling authorities present in the rest of instance files
                     // and mark the instance name as linked to an IGM or as shared
+                    .filter(not(processed::contains))
                     .filter(not(MultipleGridModelChecker::isBoundary))
                     .forEach(name -> {
-                        // Only consider non-equipment instance files
-                        Optional<String> ma = readModelingAuthority(name, profile -> !isEquipmentCore(profile));
+                        Optional<String> ma = readModelingAuthority(name);
                         if (ma.isPresent() && igmNames.containsKey(ma.get())) {
                             igmNames.get(ma.get()).add(name);
                         } else {
@@ -321,6 +322,10 @@ public class CgmesImport implements Importer {
                     .map(ma -> new FilteredReadOnlyDataSource(dataSource,
                             name -> isBoundary(name) || igmNames.get(ma).contains(name) || shared.contains(name)))
                     .collect(Collectors.toSet());
+        }
+
+        private Optional<String> readModelingAuthority(String name) {
+            return readModelingAuthority(name, profile -> true);
         }
 
         private Optional<String> readModelingAuthority(String name, Predicate<String> profileChecker) {
