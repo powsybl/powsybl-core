@@ -90,8 +90,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             s = adder.setOpen(normalOpen).add();
         }
         // Always preserve the original type
-        addTypeAsProperty(s);
         addAliasesAndProperties(s);
+        s.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, p.getLocal("type"));
         s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
         return s;
     }
@@ -118,19 +118,13 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         };
     }
 
-    private void addTypeAsProperty(Switch s) {
-        s.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, p.getLocal("type"));
-    }
-
     private void warnDanglingLineCreated() {
         fixed("Dangling line with low impedance", "Connected to a boundary node");
     }
 
     public static void update(DanglingLine danglingLine, PropertyBag cgmesData, Context context) {
-        updateTerminals(danglingLine, context, danglingLine.getTerminal());
-        boolean isClosed = !cgmesData.asBoolean(CgmesNames.OPEN).orElse(defaultOpen(danglingLine, context));
-        updateTargetsAndRegulationAndOperationalLimits(danglingLine, isBoundaryTerminalConnected(danglingLine, context) && isClosed, context);
-        computeFlowsOnModelSide(danglingLine, context);
+        boolean isClosed = !cgmesData.asBoolean("open").orElse(defaultOpen(danglingLine, context));
+        updateDanglingLine(danglingLine, isBoundaryTerminalConnected(danglingLine, context) && isClosed, context);
     }
 
     // In the danglingLines, the status of the terminal on the boundary side cannot be explicitly represented.

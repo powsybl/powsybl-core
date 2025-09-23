@@ -169,9 +169,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
     }
 
     public static void update(DanglingLine danglingLine, Context context) {
-        updateTerminals(danglingLine, context, danglingLine.getTerminal());
-        updateTargetsAndRegulationAndOperationalLimits(danglingLine, isBoundaryTerminalConnected(danglingLine, context), context);
-        computeFlowsOnModelSide(danglingLine, context);
+        updateDanglingLine(danglingLine, isBoundaryTerminalConnected(danglingLine, context), context);
     }
 
     private static final String IGNORED_UPDATE_PARAMS_DIFFERENT_NOMINALV_WHAT =
