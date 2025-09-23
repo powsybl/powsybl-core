@@ -755,7 +755,7 @@ public class Conversion {
             // Here, a danglingLine is created for each segment, and later, in the method
             // createTieLinesWhenThereAreMoreThanTwoDanglingLinesAtBoundaryNodeDuringUpdate,
             // a tieLine is created using only the two connected danglingLines
-            context.fixed(node, "More than two connected AcLineSegments at boundary: only dangling lines are created." +
+            context.fixed(node, "More than two AcLineSegments at boundary: only dangling lines are created." +
                     " Please note that the converted IIDM network will probably not be equivalent to the CGMES network.");
             beqs.forEach(beq -> beq.createConversion(context).convertAtBoundary());
         }
