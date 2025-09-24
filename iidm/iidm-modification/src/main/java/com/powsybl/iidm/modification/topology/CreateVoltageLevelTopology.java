@@ -239,6 +239,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             for (int busbarNum = lowBusOrBusbarIndex; busbarNum < lowBusOrBusbarIndex + alignedBusesOrBusbarCount; busbarNum++) {
                 BusbarSection bbs = voltageLevel.getNodeBreakerView().newBusbarSection()
                         .setId(namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, switchKinds, busbarNum, sectionNum))
+                        .setName(namingStrategy.getBusbarName(busOrBusbarSectionPrefixId, switchKinds, busbarNum, sectionNum))
                         .setNode(node)
                         .add();
                 bbs.newExtension(BusbarSectionPositionAdder.class)
@@ -257,6 +258,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             for (int busNum = lowBusOrBusbarIndex; busNum < lowBusOrBusbarIndex + alignedBusesOrBusbarCount; busNum++) {
                 voltageLevel.getBusBreakerView().newBus()
                         .setId(namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, busNum, sectionNum))
+                        .setName(namingStrategy.getBusbarName(busOrBusbarSectionPrefixId, busNum, sectionNum))
                         .add();
             }
         }
@@ -267,7 +269,8 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             for (int busNum = lowBusOrBusbarIndex; busNum < lowSectionIndex + alignedBusesOrBusbarCount; busNum++) {
                 String bus1Id = namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, busNum, sectionNum);
                 String bus2Id = namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, busNum, sectionNum + 1);
-                createBusBreakerSwitch(bus1Id, bus2Id, namingStrategy.getSwitchId(switchPrefixId, busNum, sectionNum), voltageLevel.getBusBreakerView());
+                createBusBreakerSwitch(bus1Id, bus2Id, namingStrategy.getSwitchId(switchPrefixId, busNum, sectionNum),
+                    namingStrategy.getSwitchName(switchPrefixId, busNum, sectionNum), voltageLevel.getBusBreakerView());
             }
         }
     }
@@ -293,15 +296,19 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
                     String chunkingPrefixId = namingStrategy.getChunkPrefix(switchPrefixId, switchKinds, busBarNum, sectionNum, sectionNum + 1);
 
                     // Breaker and disconnectors creation
-                    createNBDisconnector(node1, newNode1, namingStrategy.getDisconnectorBetweenChunksId(bbs1, chunkingPrefixId, node1, newNode1), voltageLevel.getNodeBreakerView(), false);
-                    createNBBreaker(newNode1, newNode2, namingStrategy.getBreakerId(chunkingPrefixId, busBarNum, sectionNum), voltageLevel.getNodeBreakerView(), false);
-                    createNBDisconnector(newNode2, node2, namingStrategy.getDisconnectorBetweenChunksId(bbs2, chunkingPrefixId, newNode2, node2), voltageLevel.getNodeBreakerView(), false);
+                    createNBDisconnector(node1, newNode1, namingStrategy.getDisconnectorBetweenChunksId(bbs1, chunkingPrefixId, node1, newNode1),
+                        namingStrategy.getDisconnectorBetweenChunksName(bbs1, chunkingPrefixId, node1, newNode1), voltageLevel.getNodeBreakerView(), false);
+                    createNBBreaker(newNode1, newNode2, namingStrategy.getBreakerId(chunkingPrefixId, busBarNum, sectionNum),
+                        namingStrategy.getBreakerName(chunkingPrefixId, busBarNum, sectionNum), voltageLevel.getNodeBreakerView(), false);
+                    createNBDisconnector(newNode2, node2, namingStrategy.getDisconnectorBetweenChunksId(bbs2, chunkingPrefixId, newNode2, node2),
+                        namingStrategy.getDisconnectorBetweenChunksName(bbs2, chunkingPrefixId, newNode2, node2), voltageLevel.getNodeBreakerView(), false);
                 } else if (switchKind == SwitchKind.DISCONNECTOR) {
                     // Prefix
                     String sectioningPrefix = namingStrategy.getSectioningPrefix(switchPrefixId, bbs1, busBarNum, sectionNum, sectionNum + 1);
 
                     // Disconnector creation
-                    createNBDisconnector(node1, node2, namingStrategy.getDisconnectorId(sectioningPrefix, node1, node2), voltageLevel.getNodeBreakerView(), false);
+                    createNBDisconnector(node1, node2, namingStrategy.getDisconnectorId(sectioningPrefix, node1, node2),
+                        namingStrategy.getDisconnectorName(sectioningPrefix, node1, node2), voltageLevel.getNodeBreakerView(), false);
                 } // other cases cannot happen (has been checked in the constructor)
             }
         }
