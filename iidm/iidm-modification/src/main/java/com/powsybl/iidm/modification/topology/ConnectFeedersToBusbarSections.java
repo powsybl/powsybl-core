@@ -170,11 +170,12 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
                               int bbsNode, int node, Connectable<?> connectable, SwitchCreationData switchCreationData) {
         boolean isDisconnector = switchCreationData.sw.getKind() == SwitchKind.DISCONNECTOR;
         String switchId = getSwitchId(namingStrategy, node, connectable, isDisconnector, bbsNode, vl.getId());
+        String switchName = getSwitchName(namingStrategy, node, connectable, isDisconnector, bbsNode, vl.getId());
 
         if (isDisconnector) {
-            createNBDisconnector(bbsNode, node, switchId, nodeBreakerView, true, switchCreationData.sw.isFictitious());
+            createNBDisconnector(bbsNode, node, switchId, switchName, nodeBreakerView, true, switchCreationData.sw.isFictitious());
         } else {
-            createNBBreaker(bbsNode, node, switchId, nodeBreakerView, true, switchCreationData.sw.isFictitious());
+            createNBBreaker(bbsNode, node, switchId, switchName, nodeBreakerView, true, switchCreationData.sw.isFictitious());
         }
     }
 
@@ -192,6 +193,22 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
                     : namingStrategy.getBreakerId(baseId, bbsNode, connectableNode);
         }
         return switchId;
+    }
+
+    private String getSwitchName(NamingStrategy namingStrategy, int connectableNode, Connectable<?> connectable, boolean isDisconnector, int bbsNode, String voltageLevelId) {
+        String switchName;
+        if (connectable instanceof BusbarSection) {
+            switchName = isDisconnector
+                    ? namingStrategy.getDisconnectorName(couplingDeviceSwitchPrefixId, bbsNode, connectableNode)
+                    : namingStrategy.getBreakerName(couplingDeviceSwitchPrefixId, bbsNode, connectableNode);
+        } else {
+            int side = getSide(connectable, voltageLevelId);
+            String baseId = namingStrategy.getSwitchBaseName(connectable, side);
+            switchName = isDisconnector
+                    ? namingStrategy.getDisconnectorName(baseId, bbsNode, connectableNode)
+                    : namingStrategy.getBreakerName(baseId, bbsNode, connectableNode);
+        }
+        return switchName;
     }
 
     private int getSide(Connectable<?> connectable, String voltageLevelId) {
