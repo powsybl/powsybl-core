@@ -225,11 +225,11 @@ public final class Update {
     }
 
     static void createFictitiousLoadsForSvInjectionsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
-        context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.SV_INJECTION));
         if (context.config().convertSvInjections()) {
+            context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.SV_INJECTION));
             cgmes.svInjections().forEach(svInjection -> SvInjectionConversion.create(network, svInjection));
+            context.popReportNode();
         }
-        context.popReportNode();
     }
 
     static void updateAndCompleteVoltageAndAngles(Network network, Context context) {

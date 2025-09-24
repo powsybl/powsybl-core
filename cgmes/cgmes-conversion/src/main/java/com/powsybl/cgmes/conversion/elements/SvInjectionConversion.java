@@ -41,7 +41,7 @@ public final class SvInjectionConversion {
     private static Optional<Terminal> findTerminal(Network network, PropertyBag svInjection) {
         String terminalId = svInjection.getId(CgmesNames.TERMINAL);
         Connectable<?> connectable = (terminalId != null) ? network.getConnectable(terminalId) : null;
-        return (connectable != null) ? Optional.of(getTerminal(connectable, terminalId)) : Optional.empty();
+        return (connectable != null) ? Optional.ofNullable(getTerminal(connectable, terminalId)) : Optional.empty();
     }
 
     private static Optional<Bus> findBus(Network network, PropertyBag svInjection) {
