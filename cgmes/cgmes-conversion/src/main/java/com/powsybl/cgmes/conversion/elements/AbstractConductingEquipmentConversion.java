@@ -237,12 +237,18 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return dl;
     }
 
+    protected static void updateDanglingLine(DanglingLine danglingLine, boolean isBoundaryTerminalConnected, Context context) {
+        updateTerminals(danglingLine, context, danglingLine.getTerminal());
+        updateTargetsAndRegulationAndOperationalLimits(danglingLine, isBoundaryTerminalConnected, context);
+        computeFlowsOnModelSide(danglingLine, context);
+    }
+
     // There should be some equipment at boundarySide to model exchange through that point
     // But we have observed, for the test case conformity/miniBusBranch, that the ACLineSegment:
     // _5150a037-e241-421f-98b2-fe60e5c90303 XQ1-N1
     // ends in a boundary node where there is no other line,
     // does not have energy consumer or equivalent injection
-    protected static void updateTargetsAndRegulationAndOperationalLimits(DanglingLine danglingLine, boolean isConnectedOnBoundarySide, Context context) {
+    private static void updateTargetsAndRegulationAndOperationalLimits(DanglingLine danglingLine, boolean isConnectedOnBoundarySide, Context context) {
         EquivalentInjectionConversion.update(danglingLine, isConnectedOnBoundarySide, context);
         danglingLine.getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
     }

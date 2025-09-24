@@ -51,7 +51,7 @@ abstract class AbstractCgmesTapChangerBuilder {
         addSteps();
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
         int normalStep = p.asInt(CgmesNames.NORMAL_STEP, neutralStep);
-        tapChanger.setLowTapPosition(lowStep).setTapPosition(normalStep).setSolvedTapPosition(normalStep);
+        tapChanger.setLowTapPosition(lowStep).setTapPosition(normalStep);
 
         boolean ltcFlag = p.asBoolean(CgmesNames.LTC_FLAG, false);
         tapChanger.setLtcFlag(ltcFlag);
