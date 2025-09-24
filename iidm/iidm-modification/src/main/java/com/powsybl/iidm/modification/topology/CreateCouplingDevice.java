@@ -95,7 +95,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
                 switchPrefixId = voltageLevel1.getId();
             }
             // buses are identifiable: voltage level is BUS_BREAKER
-            createBusBreakerSwitch(busOrBbsId1, busOrBbsId2, namingStrategy.getSwitchId(switchPrefixId), voltageLevel1.getBusBreakerView());
+            createBusBreakerSwitch(busOrBbsId1, busOrBbsId2, namingStrategy.getSwitchId(switchPrefixId), namingStrategy.getSwitchName(switchPrefixId), voltageLevel1.getBusBreakerView());
         } else if (busOrBbs1 instanceof BusbarSection bbs1 && busOrBbs2 instanceof BusbarSection bbs2) {
             // busbar sections exist: voltage level is NODE_BREAKER
             applyOnBusbarSections(voltageLevel1, voltageLevel2, bbs1, bbs2, namingStrategy, reportNode);
@@ -129,7 +129,8 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         int nbOpenDisconnectors = 0;
 
         // Breaker
-        createNBBreaker(breakerNode1, breakerNode2, namingStrategy.getBreakerId(switchPrefixId), voltageLevel1.getNodeBreakerView(), false);
+        createNBBreaker(breakerNode1, breakerNode2, namingStrategy.getBreakerId(switchPrefixId),
+            namingStrategy.getBreakerName(switchPrefixId), voltageLevel1.getNodeBreakerView(), false);
 
         // Positions
         BusbarSectionPosition position1 = bbs1.getExtension(BusbarSectionPosition.class);
