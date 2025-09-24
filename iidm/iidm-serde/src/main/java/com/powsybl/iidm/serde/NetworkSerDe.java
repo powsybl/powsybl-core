@@ -236,7 +236,7 @@ public final class NetworkSerDe {
             return false;
         }
         boolean versionExist = true;
-        if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?> networkExtensionSerializer) {
+        if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?, ?> networkExtensionSerializer) {
             versionExist = networkExtensionSerializer.versionExists(version);
         }
         if (!versionExist) {
@@ -328,10 +328,10 @@ public final class NetworkSerDe {
 
     private static String getExtensionVersion(ExtensionSerDe<?, ?> extensionSerDe, ExportOptions options) {
         Optional<String> specifiedVersion = options.getExtensionVersion(extensionSerDe.getExtensionName());
-        if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?> versionable) {
+        if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?, ?> versionable) {
             return specifiedVersion
                     .filter(v -> versionable.checkWritingCompatibility(v, options.getVersion()))
-                    .orElseGet(() -> versionable.getVersion(options.getVersion()));
+                    .orElseGet(() -> versionable.getVersion(options.getVersion()).getVersionString());
         } else {
             return specifiedVersion.orElseGet(extensionSerDe::getVersion);
         }
@@ -863,6 +863,7 @@ public final class NetworkSerDe {
             if (!context.isIgnoredEquipment(id)
                     && (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName))) {
                 if (extensionSerde != null) {
+                    extensionSerde.checkReadingCompatibility(context);
                     Identifiable identifiable = getIdentifiable(network, id);
                     extensionSerde.read(identifiable, context);
                     extensionNamesImported.add(extensionName);
