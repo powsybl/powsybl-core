@@ -50,6 +50,10 @@ class GroundUpdateTest {
         assertSsh(network.getGround("Ground"));
 
         readCgmesResources(network, DIR, "ground_SSH_1.xml");
+        // For grounds, only the terminals are updated.
+        // We are using a nodeBreaker model, and the configuration attribute
+        // UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL is set to false.
+        // Then, changing the terminal status to disconnected will not actually disconnect the ground.
         assertSsh(network.getGround("Ground"));
     }
 

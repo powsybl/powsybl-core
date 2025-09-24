@@ -179,12 +179,12 @@ class TransformerUpdateTest {
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
         assertEquals(-1, t2w.getPhaseTapChanger().getTapPosition());
         assertFalse(t2w.getPhaseTapChanger().isRegulating());
-        assertEquals(4, t2w.getPhaseTapChanger().getSolvedTapPosition());
+        assertNull(t2w.getPhaseTapChanger().getSolvedTapPosition());
 
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
         assertEquals(7, t3w.getLeg2().getRatioTapChanger().getTapPosition());
         assertFalse(t3w.getLeg2().getRatioTapChanger().isRegulating());
-        assertEquals(8, t3w.getLeg2().getRatioTapChanger().getSolvedTapPosition());
+        assertNull(t3w.getLeg2().getRatioTapChanger().getSolvedTapPosition());
     }
 
     private static void assertTapChangerStepsAfterSv(Network network) {

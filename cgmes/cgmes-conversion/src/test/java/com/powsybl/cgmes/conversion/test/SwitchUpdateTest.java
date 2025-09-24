@@ -35,14 +35,6 @@ class SwitchUpdateTest {
     }
 
     @Test
-    void importEqAndSshTogetherTest() {
-        Network network = readCgmesResources(DIR, "switch_EQ.xml", "switch_SSH.xml");
-        assertEquals(5, network.getSwitchCount());
-
-        assertEqSsh(network);
-    }
-
-    @Test
     void importEqAndSshTogetherAndSsh1LaterTest() {
         Network network = readCgmesResources(DIR, "switch_EQ.xml", "switch_SSH.xml");
         assertEquals(5, network.getSwitchCount());
@@ -56,7 +48,7 @@ class SwitchUpdateTest {
     @Test
     void importEqAndTwoSshsTest() {
         Network network = readCgmesResources(DIR, "switch_EQ.xml");
-        assertEquals(2, network.getSwitchCount());
+        assertEquals(2, network.getSwitchCount()); // No fictitious switch was created
 
         assertEq(network);
 
