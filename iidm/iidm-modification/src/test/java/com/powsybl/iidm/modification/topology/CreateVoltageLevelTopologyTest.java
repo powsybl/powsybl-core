@@ -394,15 +394,8 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withSectionCount(1)
                 .withLowBusOrBusbarIndex(3)
                 .withConnectExistingConnectables(true)
-                .build().apply(network);
-        BusbarSection newBbs = network.getBusbarSection("S1VL2_3_1");
-        List<Switch> encounteredSwitches = new ArrayList<>();
-        VoltageLevel.NodeBreakerView nbv = newBbs.getTerminal().getVoltageLevel().getNodeBreakerView();
-        nbv.traverse(newBbs.getTerminal().getNodeBreakerView().getNode(), (node1, sw, node2) -> {
-            encounteredSwitches.add(sw);
-            return TraverseResult.CONTINUE;
-        });
-        assertTrue(encounteredSwitches.isEmpty());
+                .build().apply(network, false, ReportNode.NO_OP);
+        assertNull(network.getBusbarSection("S1VL2_3_1"));
     }
 
     @Test

@@ -13,6 +13,8 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType;
 import com.powsybl.iidm.network.*;
 
+import java.util.List;
+
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
@@ -326,6 +328,15 @@ public final class ModificationReports {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.removeShuntCompensator")
                 .withUntypedValue("shuntCompensatorId", shuntCompensatorId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void connectedFeedersReport(ReportNode reportNode, List<Connectable<?>> connectables, List<BusbarSection> busbarSections) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.connectedFeeders")
+                .withUntypedValue("connectableList", connectables.toString())
+                .withUntypedValue("busbarSectionList", busbarSections.toString())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
@@ -711,6 +722,14 @@ public final class ModificationReports {
     public static void busbarSectionNotInTheSameVoltageLevelReport(ReportNode reportNode) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.busbarSectionNotInTheSameVoltageLevel")
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void busBreakerVoltageLevelButConnectConnectables(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.busBreakerVoltageLevelButConnectConnectables")
+                .withTypedValue(VOLTAGE_LEVEL_ID, voltageLevelId, TypedValue.ID)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
     }

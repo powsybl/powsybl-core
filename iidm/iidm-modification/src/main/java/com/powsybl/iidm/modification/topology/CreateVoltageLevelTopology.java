@@ -47,7 +47,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     private final String busOrBusbarSectionPrefixId;
     private final String switchPrefixId;
 
-    private boolean connectExistingConnectables;
+    private final boolean connectExistingConnectables;
 
     private final List<SwitchKind> switchKinds;
 
@@ -113,18 +113,17 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         List<BusbarSectionPosition> bbsPosition = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
                 .map(bbs -> bbs.getExtension(BusbarSectionPosition.class))
                 .map(BusbarSectionPosition.class::cast)
-                .filter(Objects::nonNull)
                 .toList();
 
-        boolean positionTaken = bbsPosition.stream().anyMatch(position -> position.getBusbarIndex() >= lowBusOrBusbarIndex
+        boolean positionTaken = bbsPosition.stream().filter(Objects::nonNull).anyMatch(position -> position.getBusbarIndex() >= lowBusOrBusbarIndex
                 && position.getBusbarIndex() < lowBusOrBusbarIndex + alignedBusesOrBusbarCount
                 && position.getSectionIndex() >= lowSectionIndex
                 && position.getSectionIndex() < lowSectionIndex + sectionCount);
 
-        if (bbsPosition.isEmpty()) {
-            LOG.info("No busbar section position found but some busbar sections already exist. Their connectables will not be connected.");
-            connectExistingConnectables = false;
-            return true;
+        if (bbsPosition.stream().anyMatch(Objects::isNull)) {
+            logOrThrow(throwException, "Some busbar sections have no position in voltage level " + voltageLevel.getId());
+            busbarSectionsWithoutPositionReport(reportNode, voltageLevel.getId());
+            return false;
         }
         if (positionTaken) {
             wrongBusbarPosition(reportNode);
@@ -174,6 +173,13 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             return;
         }
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
+
+        if (connectExistingConnectables && topologyKind != TopologyKind.NODE_BREAKER) {
+            logOrThrow(throwException, "Voltage level " + voltageLevel.getId() + " is not NODE_BREAKER. Connectables cannot be connected.");
+            busBreakerVoltageLevelButConnectConnectables(reportNode, voltageLevelId);
+            return;
+        }
+
         if (topologyKind == TopologyKind.BUS_BREAKER) {
             if (!switchKinds.isEmpty()) {
                 LOG.warn("Voltage level {} is BUS_BREAKER. Switchkinds is ignored.", voltageLevelId);
@@ -196,9 +202,6 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             createSwitches(voltageLevel, namingStrategy);
             // Connect connectables that are on parallel busbar sections
             if (connectExistingConnectables) {
-                if (topologyKind != TopologyKind.NODE_BREAKER) {
-                    LOG.warn("Voltage level {} is not NODE_BREAKER. Connectables will not be connected.", voltageLevelId);
-                }
                 new ConnectFeedersToBusbarSectionsBuilder()
                         .withConnectablesToConnect(voltageLevel.getConnectableStream().filter(c -> !(c instanceof BusbarSection)).toList())
                         .withBusbarSectionsToConnect(createdBusbarSection)

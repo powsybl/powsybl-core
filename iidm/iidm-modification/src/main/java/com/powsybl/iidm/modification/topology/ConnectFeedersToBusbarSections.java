@@ -7,6 +7,8 @@ import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.math.graph.TraverseResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -25,6 +27,8 @@ import static java.util.stream.Collectors.groupingBy;
  * If a switch already exists between the connectable and the busbar section, it is not recreated.
  */
 public class ConnectFeedersToBusbarSections extends AbstractNetworkModification {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectFeedersToBusbarSections.class);
 
     private static final String NAME = "ConnectFeedersToBusbarSections";
 
@@ -77,7 +81,10 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
             return;
         }
 
-        connectFeeders(voltageLevel, namingStrategy);
+        List<Connectable<?>> connectedFeeders = connectFeeders(voltageLevel, namingStrategy);
+
+        LOGGER.info("{} are connected to busbar sections {}", connectedFeeders, busbarSectionsToConnect);
+        connectedFeedersReport(reportNode, connectedFeeders, busbarSectionsToConnect);
     }
 
     @Override
@@ -92,7 +99,10 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
         return impact;
     }
 
-    private void connectFeeders(VoltageLevel vl, NamingStrategy namingStrategy) {
+    private List<Connectable<?>> connectFeeders(VoltageLevel vl, NamingStrategy namingStrategy) {
+
+        List<Connectable<?>> connectedFeeders = new ArrayList<>();
+
         Map<Integer, List<BusbarSection>> busbarSectionsByIndex = vl.getConnectableStream()
                 .filter(BusbarSection.class::isInstance)
                 .map(BusbarSection.class::cast)
@@ -123,11 +133,12 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
                     if (shouldSkipSwitchCreation(bbs, switchData)) {
                         continue;
                     }
-
+                    switchData.connectables.stream().filter(c -> !(c instanceof BusbarSection)).forEach(connectedFeeders::add);
                     createSwitch(vl, namingStrategy, nodeBreakerView, bbsNode, node, switchData.connectables.get(0), switchData);
                 }
             }
         }
+        return connectedFeeders;
     }
 
     private boolean shouldSkipSwitchCreation(BusbarSection bbs, SwitchCreationData data) {
