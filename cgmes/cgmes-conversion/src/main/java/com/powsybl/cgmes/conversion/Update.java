@@ -194,11 +194,11 @@ public final class Update {
     // map this situation to IIDM.
     // This behavior can be disabled through configuration.
     static void createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
-        context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.TERMINAL));
         if (createFictitiousSwitches(context)) {
+            context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.TERMINAL));
             cgmes.terminals().forEach(cgmesTerminal -> TerminalConversion.create(network, cgmesTerminal, context));
+            context.popReportNode();
         }
-        context.popReportNode();
     }
 
     private static boolean createFictitiousSwitches(Context context) {
@@ -225,11 +225,11 @@ public final class Update {
     }
 
     static void createFictitiousLoadsForSvInjectionsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
-        context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.SV_INJECTION));
         if (context.config().convertSvInjections()) {
+            context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.SV_INJECTION));
             cgmes.svInjections().forEach(svInjection -> SvInjectionConversion.create(network, svInjection));
+            context.popReportNode();
         }
-        context.popReportNode();
     }
 
     static void updateAreas(Network network, CgmesModel cgmes, Context context) {

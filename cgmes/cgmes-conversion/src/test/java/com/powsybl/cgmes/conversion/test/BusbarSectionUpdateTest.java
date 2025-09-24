@@ -26,27 +26,29 @@ class BusbarSectionUpdateTest {
         Network network = readCgmesResources(DIR, "busbarSection_EQ.xml");
         assertEquals(1, network.getBusbarSectionCount());
 
-        assertEq(network.getBusbarSection("BusbarSection"));
+        assertEq(network);
     }
 
     @Test
     void importEqAndSshTogetherTest() {
         Network network = readCgmesResources(DIR, "busbarSection_EQ.xml", "busbarSection_SSH.xml");
-        // A fictitious open switch is created to simulate the disconnected terminal
-        assertEq(network.getBusbarSection("BusbarSection"));
+        // BusbarSections terminals are always considered connected, regardless of their state.
+        // Therefore, fictitious switches used in other equipment to simulate disconnected terminals are not created.
+        assertEq(network);
     }
 
     @Test
     void importEqAndSshTest() {
         Network network = readCgmesResources(DIR, "busbarSection_EQ.xml");
         assertEquals(1, network.getBusbarSectionCount());
-        assertEq(network.getBusbarSection("BusbarSection"));
+        assertEq(network);
 
         readCgmesResources(network, DIR, "busbarSection_SSH.xml");
-        assertEq(network.getBusbarSection("BusbarSection"));
+        assertEq(network);
     }
 
-    private static void assertEq(BusbarSection busbarSection) {
+    private static void assertEq(Network network) {
+        BusbarSection busbarSection = network.getBusbarSection("BusbarSection");
         assertNotNull(busbarSection);
         assertNotNull(busbarSection.getTerminal());
         assertTrue(busbarSection.getTerminal().isConnected());
