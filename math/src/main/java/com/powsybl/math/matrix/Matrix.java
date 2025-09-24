@@ -88,14 +88,6 @@ public interface Matrix {
          * @param value the value at position ({@code i}, {@code j})
          */
         void onElement(int i, int j, double value);
-
-        /**
-         * @deprecated Use {@link #onElement(int, int, double)} instead.
-         */
-        @Deprecated(since = "2.5.0")
-        default void onValue(int i, int j, double value) {
-            onElement(i, j, value);
-        }
     }
 
     /**
@@ -106,27 +98,11 @@ public interface Matrix {
     int getRowCount();
 
     /**
-     * @deprecated Use {@link #getRowCount()} instead.
-     */
-    @Deprecated(since = "2.5.0")
-    default int getM() {
-        return getRowCount();
-    }
-
-    /**
      * Get column count.
      *
      * @return column count
      */
     int getColumnCount();
-
-    /**
-     * @deprecated Use {@link #getColumnCount()} instead.
-     */
-    @Deprecated(since = "2.5.0")
-    default int getN() {
-        return getColumnCount();
-    }
 
     /**
      * Set value at row {@code i} and column {@code j}.
@@ -136,14 +112,6 @@ public interface Matrix {
      * @param value the value to set at row {@code i} and column {@code j}
      */
     void set(int i, int j, double value);
-
-    /**
-     * @deprecated Use {@link #set(int, int, double)} instead.
-     */
-    @Deprecated(since = "2.5.0")
-    default void setValue(int i, int j, double value) {
-        set(i, j, value);
-    }
 
     /**
      * Add value at row {@code i} and column {@code j}.
@@ -205,14 +173,6 @@ public interface Matrix {
      * @param value the value to add at element index {@code index}
      */
     void addQuickAtIndex(int index, double value);
-
-    /**
-     * @deprecated Use {@link #add(int, int, double)} instead.
-     */
-    @Deprecated(since = "2.5.0")
-    default void addValue(int i, int j, double value) {
-        add(i, j, value);
-    }
 
     /**
      * Fill matrix with zeros.
